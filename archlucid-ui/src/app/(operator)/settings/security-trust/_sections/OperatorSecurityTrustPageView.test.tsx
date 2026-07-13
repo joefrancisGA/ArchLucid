@@ -48,7 +48,7 @@ describe("OperatorSecurityTrustPageView", () => {
     );
     expect(within(retentionSection).getByRole("link", { name: /Privacy policy/i })).toHaveAttribute(
       "href",
-      "/help/privacy-policy",
+      "/privacy",
     );
   });
 

@@ -177,10 +177,7 @@ describe("product-documentation-registry", () => {
   });
 
   it("tags internal-runbook slugs with internal-runbook contentKind (TB-732)", () => {
-    const internalRunbookSlugs = [
-      "first-pilot-operator-runbook",
-      "first-value-20-minutes",
-    ] as const;
+    const internalRunbookSlugs = ["first-value-20-minutes"] as const;
 
     for (const slug of internalRunbookSlugs) {
       expect(isInternalRunbookSlug(slug)).toBe(true);
@@ -196,10 +193,6 @@ describe("product-documentation-registry", () => {
       "governance-api-contracts",
       "admin-diagnostics",
       "developer-troubleshooting",
-      "workload-identity-federation",
-      "azure-permissions",
-      "observability",
-      "projection-cache-replicas",
     ];
 
     for (const slug of technicalSlugs) {

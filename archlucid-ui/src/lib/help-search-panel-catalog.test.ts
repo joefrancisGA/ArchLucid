@@ -40,6 +40,7 @@ describe("help-search-panel-catalog", () => {
 
     expect(architectTopics.map((topic) => topic.id)).not.toContain("admin-diagnostics");
     expect(architectTopics.map((topic) => topic.id)).not.toContain("advanced-diagnostics");
+    expect(architectTopics.map((topic) => topic.id)).not.toContain("cli-usage");
   });
 
   it("exposes admin diagnostics topics for admin callers", () => {
@@ -47,6 +48,7 @@ describe("help-search-panel-catalog", () => {
 
     expect(adminTopics.map((topic) => topic.id)).toContain("admin-diagnostics");
     expect(adminTopics.map((topic) => topic.id)).toContain("advanced-diagnostics");
+    expect(adminTopics.map((topic) => topic.id)).toContain("cli-usage");
   });
 
   it("keeps default architect-facing topics free of banned public copy", () => {
@@ -78,5 +80,24 @@ describe("help-search-panel-catalog", () => {
       href: "/help/review-guide",
       helpSlug: "review-guide",
     });
+  });
+
+  it("exposes path-chooser for all callers in Start here", () => {
+    const topics = listHelpSearchPanelTopics(false);
+    const pathChooser = topics.find((topic) => topic.id === "path-chooser");
+
+    expect(pathChooser).toBeDefined();
+    expect(pathChooser?.action).toEqual({
+      kind: "route",
+      href: "/help/path-chooser",
+      helpSlug: "path-chooser",
+    });
+  });
+
+  it("filters path-chooser by procurement alias", () => {
+    const topics = listHelpSearchPanelTopics(false);
+    const hits = filterHelpSearchPanelTopics(topics, "procurement");
+
+    expect(hits.map((topic) => topic.id)).toContain("path-chooser");
   });
 });

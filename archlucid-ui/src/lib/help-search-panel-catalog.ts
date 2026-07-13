@@ -52,6 +52,13 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/how-it-works", helpSlug: "how-it-works" },
   },
   {
+    id: "path-chooser",
+    title: "Choose your next step",
+    description: "Map your goal — evaluate, pilot, procurement, sponsor output, or engineering support — to one primary action.",
+    keywords: ["path chooser", "next step", "evaluate", "pilot", "procurement", "sponsor", "engineering support"],
+    action: { kind: "route", href: "/help/path-chooser", helpSlug: "path-chooser" },
+  },
+  {
     id: "first-review-guide",
     title: "First review guide",
     description: "Step-by-step: name the review, upload evidence, add context, and finalize the package.",
@@ -243,6 +250,14 @@ const ADVANCED_ADMIN_TOPICS: readonly HelpSearchPanelTopic[] = [
     adminOnly: true,
   },
   {
+    id: "cli-usage",
+    title: "CLI usage",
+    description: "Non-interactive archlucid commands for proof packets, config lint, and support bundles.",
+    keywords: ["cli", "archlucid", "terminal", "dotnet", "doctor", "support bundle", "proof packet"],
+    action: { kind: "route", href: "/help/cli-usage", helpSlug: "cli-usage" },
+    adminOnly: true,
+  },
+  {
     id: "advanced-diagnostics",
     title: "Advanced diagnostics",
     description: "CLI commands, logs, and environment variables for engineering support.",
@@ -275,9 +290,14 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   audit: ["review-artifacts", "governance-workflow"],
   scim: ["sso-identity"],
   support: ["contact-support", "troubleshoot"],
+  cli: ["cli-usage", "advanced-diagnostics"],
+  archlucid: ["cli-usage"],
   faq: ["product-faq"],
-  evaluation: ["product-faq", "first-review-guide"],
+  evaluation: ["product-faq", "first-review-guide", "path-chooser"],
   pricing: ["product-faq"],
+  procurement: ["path-chooser", "security-trust-help"],
+  pilot: ["path-chooser", "first-review-guide", "create-first-review"],
+  "next step": ["path-chooser"],
   shortcuts: ["keyboard-shortcuts"],
   isolation: ["data-handling-help"],
   "data handling": ["data-handling-help", "security-trust-help"],
@@ -287,7 +307,7 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
 const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly topicIds: readonly string[] }[] = [
   { prefix: "/", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "create-first-review"] },
   { prefix: "/onboarding", topicIds: ["how-archlucid-works", "first-review-guide", "product-faq", "create-first-review", "sample-review"] },
-  { prefix: "/help", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "cloud-connections", "data-handling-help", "security-trust-help", "troubleshoot"] },
+  { prefix: "/help", topicIds: ["getting-started-help", "how-archlucid-works", "path-chooser", "first-review-guide", "product-faq", "cloud-connections", "data-handling-help", "security-trust-help", "troubleshoot"] },
   { prefix: "/pricing", topicIds: ["product-faq", "first-review-guide"] },
   { prefix: "/signup", topicIds: ["product-faq", "first-review-guide"] },
   {

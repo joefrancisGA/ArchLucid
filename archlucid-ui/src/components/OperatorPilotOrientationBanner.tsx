@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const PRIMARY_HREF = "/reviews/new";
@@ -11,7 +10,7 @@ const PRIMARY_LABEL = "Start your first review package";
  * First-screen operator orientation: one primary pilot action and at most three secondary links.
  */
 export function OperatorPilotOrientationBanner() {
-  const firstPilotPathHref = resolveInAppDocHref("/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md");
+  const firstPilotPathHref = "/help/first-pilot-path";
 
   return (
     <section
@@ -58,4 +57,4 @@ export function OperatorPilotOrientationBanner() {
     </section>
   );
 }
-
+

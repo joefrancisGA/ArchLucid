@@ -18,7 +18,6 @@ describe("help-center-catalog", () => {
 
     expect(slugs).toContain("cloud-connections");
     expect(slugs).not.toContain("cli-usage");
-    expect(slugs).not.toContain("operator-shell");
 
     const adminAdvanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: true }).map((entry) => entry.slug);
 

@@ -9,12 +9,12 @@ from pathlib import Path
 
 from archlucid_ui_route_traffic_table import (
     DOC,
+    deficit,
     ensure_owner_workbook,
     find_row,
     parse_rows,
     sort_rows,
     split_document,
-    update_method_line,
     weight,
     write_table,
 )
@@ -55,7 +55,6 @@ def main() -> int:
     previous = match["score"]
     match["score"] = str(args.score)
     rows = sort_rows(rows)
-    before = update_method_line(before)
     write_table(doc_path, before, rows, after)
 
     updated = find_row(rows, row_id)
@@ -65,7 +64,8 @@ def main() -> int:
 
     print(
         f"Updated {row_id} ({updated['path']}): score {previous} -> {args.score}; "
-        f"weight={weight(updated):g}; rank={rows.index(updated) + 1}/{len(rows)}"
+        f"weight={weight(updated):g}; deficit={deficit(updated):g}; "
+        f"rank={rows.index(updated) + 1}/{len(rows)}"
     )
     return 0
 

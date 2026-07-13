@@ -1,4 +1,4 @@
-import { resolveInAppDocHref } from "./in-app-doc-href";
+import { tryResolveInAppDocHref } from "./in-app-doc-href";
 
 /**
  * Static contextual help index for the operator shell. Doc paths are relative to the repository root.
@@ -34,7 +34,6 @@ export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "policy-packs",
   "system-health",
   "admin-configuration",
-  "projection-cache-replicas",
   "pilot-feedback",
   "scope",
 ];
@@ -140,7 +139,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "System health dashboard",
     keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
     summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the workspace.",
-    docPath: "docs/library/OBSERVABILITY.md",
+    docPath: "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
     routes: ["/health", "/admin/health"],
   },
   {
@@ -151,15 +150,6 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Read-only Effective configuration snapshot: catalog sections, declared sources, set flags, and masked values for sensitive keys.",
     docPath: "docs/library/CONFIGURATION_REFERENCE.md",
     routes: ["/admin/configuration"],
-  },
-  {
-    id: "projection-cache-replicas",
-    title: "Projection cache & API replicas",
-    keywords: ["redis", "cache", "replica", "graph", "memory", "distributed", "scale"],
-    summary:
-      "When in-process graph projection caching is enough, when to enable Redis-backed Distributed cache, and how to spot multi-replica footguns.",
-    docPath: "docs/operations/PROJECTION_CACHE_AND_REPLICAS.md",
-    routes: ["/admin/configuration", "/settings/tenant", "/integrations/cloud-connections", "/graph"],
   },
   {
     id: "troubleshooting",
@@ -221,7 +211,7 @@ export function getDocHref(docPath: string): string | null {
     return null;
   }
 
-  return resolveInAppDocHref(relative);
+  return tryResolveInAppDocHref(relative);
 }
 
 export function helpTopicsForGuidesTab(): HelpTopic[] {

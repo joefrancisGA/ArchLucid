@@ -46,9 +46,12 @@ def parse_rows(table_text: str) -> list[dict[str, str]]:
         if not line.startswith("| ") or line.startswith("| ID") or line.startswith("|----"):
             continue
         parts = [part.strip() for part in line.strip("|").split("|")]
-        if len(parts) != 7:
+        if len(parts) == 7:
+            row_id, path, pct, score, _weight, section, notes = parts
+        elif len(parts) == 8:
+            row_id, path, pct, score, _weight, _deficit, section, notes = parts
+        else:
             continue
-        row_id, path, pct, score, _weight, section, notes = parts
         path = path.strip(BACKTICK)
         rows.append(
             {
@@ -67,6 +70,10 @@ def weight(row: dict[str, str]) -> float:
     return parse_hit_pct(row["pct"]) * int(row["score"])
 
 
+def deficit(row: dict[str, str]) -> float:
+    return parse_hit_pct(row["pct"]) * (100 - parse_score(row))
+
+
 def parse_score(row: dict[str, str]) -> int:
     return int(row["score"])
 
@@ -75,11 +82,11 @@ def sort_key(row: dict[str, str]) -> tuple[float | int, ...]:
     score = parse_score(row)
 
     if score == 0:
-        # Zero-weight rows: highest Hit% first; path A→Z on ties.
-        return (0, -parse_hit_pct(row["pct"]), row["path"])
+        # Unscored rows first; highest Deficit (= Hit% × 100) first; path A→Z on ties.
+        return (0, -deficit(row), row["path"])
 
-    # Scored rows: Weight descending; path A→Z on ties.
-    return (1, -weight(row), row["path"])
+    # Scored rows: Deficit (= Hit% × (100 − score)) descending; path A→Z on ties.
+    return (1, -deficit(row), row["path"])
 
 
 def sort_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -91,6 +98,13 @@ def format_weight_value(row: dict[str, str]) -> str:
     if row_weight == int(row_weight):
         return str(int(row_weight))
     return f"{row_weight:g}"
+
+
+def format_deficit_value(row: dict[str, str]) -> str:
+    row_deficit = deficit(row)
+    if row_deficit == int(row_deficit):
+        return str(int(row_deficit))
+    return f"{row_deficit:g}"
 
 
 def overall_weight_total(rows: list[dict[str, str]]) -> float:
@@ -114,15 +128,15 @@ def format_overall_weight_total(rows: list[dict[str, str]]) -> str:
 
 def render_table(rows: list[dict[str, str]]) -> list[str]:
     lines = [
-        "## Master table (score 0: Hit% desc; scored: Weight desc; ties A→Z by path)",
+        "## Master table (score 0 first; then Deficit desc; ties A→Z by path)",
         "",
-        "| ID | Path | Hit% | Scores | Weight | Section | Notes |",
-        "|----|------|------|--------|--------|---------|-------|",
+        "| ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |",
+        "|----|------|------|--------|--------|---------|---------|-------|",
     ]
     for row in rows:
         lines.append(
             f"| {row['id']} | `{row['path']}` | {row['pct']} | {row['score']} | "
-            f"{format_weight_value(row)} | {row['section']} | {row['notes']} |"
+            f"{format_weight_value(row)} | {format_deficit_value(row)} | {row['section']} | {row['notes']} |"
         )
     return lines
 
@@ -151,6 +165,7 @@ def upsert_overall_weight_line(before: str, rows: list[dict[str, str]]) -> str:
 
 
 def write_table(doc: Path, before: str, rows: list[dict[str, str]], after: str) -> None:
+    before = update_method_line(before)
     before = upsert_overall_weight_line(before, rows)
     new_table = "\n".join(render_table(rows))
     doc.write_text(before + new_table + "\n\n---\n" + after, encoding="utf-8")
@@ -179,15 +194,37 @@ def merge_note(existing: str, addition: str, replace: bool) -> str:
 
 
 def update_method_line(text: str) -> str:
-    pattern = (
-        r"Master table sort key:.*?ID column: unique shorthand of at most three capital letters per row\."
+    intro_pattern = (
+        r"until the owner assigns a value\. Row Weight is Hit% × Evidence score(?:\. "
+        r"Row Deficit is Hit% × \(100 − Evidence score\))?\.?\n"
+        r"OVERALL WEIGHT SCORE is that sum expressed as a percentage of the maximum\n"
+        r"possible \(Hit% × 100 per row\)\."
     )
-    replacement = (
-        "Master table sort key: score 0 rows by Hit% (descending); scored rows by Weight "
-        "(descending); ties A→Z by path. Weight column is Hit% × Scores (percentage points × score). "
-        "OVERALL WEIGHT SCORE is the sum of row Weight values expressed as a percentage of "
-        "the maximum possible (Hit% × 100 per row). "
+    intro_replacement = (
+        "until the owner assigns a value. Row Weight is Hit% × Evidence score. "
+        "Row Deficit is Hit% × (100 − Evidence score).\n"
+        "OVERALL WEIGHT SCORE is that sum expressed as a percentage of the maximum\n"
+        "possible (Hit% × 100 per row)."
+    )
+    updated, count = re.subn(intro_pattern, intro_replacement, text, count=1)
+    if count:
+        text = updated
+
+    sort_key_line = (
+        "Master table sort key: rows with score 0 appear before scored rows; within each group, "
+        "sort by Deficit (descending); ties A→Z by path. Weight column is Hit% × Scores. "
+        "Deficit column is Hit% × (100 − Scores). OVERALL WEIGHT SCORE is the sum of row Weight "
+        "values expressed as a percentage of the maximum possible (Hit% × 100 per row). "
         "ID column: unique shorthand of at most three capital letters per row."
     )
-    updated, count = re.subn(pattern, replacement, text, count=1, flags=re.DOTALL)
+    sort_pattern = (
+        r"Master table sort key:.*?ID column: unique shorthand of at most three capital letters per row\."
+    )
+    updated, count = re.subn(sort_pattern, sort_key_line, text, count=1, flags=re.DOTALL)
+    if count:
+        return updated
+
+    insert_pattern = r"(possible \(Hit% × 100 per row\)\.)\n\n(Not included:)"
+    insert_replacement = rf"\1\n\n{sort_key_line}\n\n\2"
+    updated, count = re.subn(insert_pattern, insert_replacement, text, count=1)
     return updated if count else text

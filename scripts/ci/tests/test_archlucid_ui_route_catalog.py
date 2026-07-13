@@ -37,6 +37,15 @@ def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
     assert "/alerts" not in catalog
     assert "/governance/alerts" in catalog
     assert "/admin/cloud-connections/aws" not in catalog
+    assert "/help/cloud-connections-azure" not in catalog
+    assert "/help/cloud-connections/aws" in catalog
+    assert "/help/cloud-connections-aws" not in catalog
+
+
+def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> None:
+    assert migrate_workbook_path("/help/cloud-connections-azure") == "/help/cloud-connections/azure"
+    assert migrate_workbook_path("/help/cloud-connections-aws") == "/help/cloud-connections/aws"
+    assert migrate_workbook_path("/help/cloud-connections-gcp") == "/help/cloud-connections/gcp"
 
 
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:

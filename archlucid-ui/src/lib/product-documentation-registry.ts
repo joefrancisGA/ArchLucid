@@ -38,8 +38,6 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
   "cloud-connections/aws": "cloud-connections-aws",
   "cloud-connections/gcp": "cloud-connections-gcp",
-  "security/workload-identity-federation": "workload-identity-federation",
-  "security/azure-permissions": "azure-permissions",
   "users-and-roles": "operator-auth-roles",
 };
 
@@ -95,14 +93,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "End-to-end review lifecycle — create a package, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md"],
-  },
-  {
-    slug: "first-pilot-operator-runbook",
-    title: "First-pilot workspace runbook",
-    summary:
-      "Internal phase checklist — platform readiness, evidence ingest, proof collection, and pilot recovery for platform and release owners.",
-    audience: "developer",
-    sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
   },
   {
     slug: "pilot-guide",
@@ -256,22 +246,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "customer",
   },
   {
-    slug: "workload-identity-federation",
-    title: "Workload identity federation",
-    summary: "How ArchLucid-hosted Azure ingestion authenticates without storing client secrets.",
-    audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
-    sectionAnchors: ["workload-identity-federation"],
-  },
-  {
-    slug: "azure-permissions",
-    title: "Azure permissions for cloud connections",
-    summary: "Reader and Cost Management Reader scope — what ArchLucid requires and what to avoid.",
-    audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
-    sectionAnchors: ["azure-permissions"],
-  },
-  {
     slug: "enterprise-onboarding",
     title: "Enterprise onboarding checklist",
     summary:
@@ -297,9 +271,10 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "billing-and-plans",
     title: "Billing and plans",
-    summary: "Team, Professional, and Enterprise packaging — plans, limits, and upgrade paths.",
+    summary:
+      "How ArchLucid billing works — manage subscriptions, payment methods, seats, and usage from Billing and plans.",
     audience: "operator",
-    sourcePaths: ["docs/library/PRODUCT_PACKAGING.md"],
+    sourcePaths: ["docs/library/customer-facing/BILLING_AND_PLANS.md"],
   },
   {
     slug: "core-pilot",
@@ -425,31 +400,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },
   {
-    slug: "knowledge-graph",
-    title: "Review trail graph",
-    summary: "Visual review trail and provenance for one architecture review.",
-    audience: "operator",
-    sourcePaths: ["docs/library/KNOWLEDGE_GRAPH.md"],
-  },
-  {
-    slug: "operator-shell",
-    title: "Architect workspace map",
-    summary: "UI routes, review workflows, and what can wait until later for first review vs advanced surfaces.",
-    audience: "operator",
-    sourcePaths: ["docs/library/operator-shell.md"],
-    sectionAnchors: [
-      "what-it-is",
-      "what-you-see",
-      "main-workflow",
-      "trial-banner",
-      "keyboard-and-accessibility",
-      "empty-loading-and-error-states",
-      "audit-log",
-      "artifact-review",
-      "evidence-graph-vs-compare-vs-replay",
-    ],
-  },
-  {
     slug: "alerts",
     title: "Understanding governance alerts",
     summary:
@@ -463,49 +413,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "Versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record.",
     audience: "developer",
     sourcePaths: ["docs/library/API_CONTRACTS.md"],
-  },
-  {
-    slug: "observability",
-    title: "Observability",
-    summary: "Custom metrics, OTEL export paths, and health diagnostics.",
-    audience: "operator",
-    sourcePaths: ["docs/library/OBSERVABILITY.md"],
-  },
-  {
-    slug: "projection-cache-replicas",
-    title: "Projection cache and API replicas",
-    summary: "When in-process graph caching is enough, when to enable Redis, and multi-replica footguns.",
-    audience: "operator",
-    sourcePaths: ["docs/operations/PROJECTION_CACHE_AND_REPLICAS.md"],
-  },
-  {
-    slug: "glossary",
-    title: "Glossary",
-    summary: "Tenant, workspace, project scope headers and core product terms.",
-    audience: "operator",
-    sourcePaths: ["docs/library/GLOSSARY.md"],
-  },
-  {
-    slug: "privacy-policy",
-    title: "Privacy policy",
-    summary: "How ArchLucid collects, uses, and protects personal information — GDPR and CCPA coverage.",
-    audience: "buyer",
-    sourcePaths: ["docs/go-to-market/PRIVACY_POLICY.md"],
-  },
-  {
-    slug: "example-roi-bulletin",
-    title: "Example aggregate ROI bulletin (synthetic)",
-    summary:
-      "Illustrative aggregate baseline bulletin shape for procurement — not production data; real publication gates on admin preview with minTenants.",
-    audience: "marketing",
-    sourcePaths: ["docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"],
-  },
-  {
-    slug: "resilience-exercises",
-    title: "Resilience exercise log",
-    summary: "Staging fault-injection exercise summaries and operational resilience practices.",
-    audience: "buyer",
-    sourcePaths: ["docs/quality/game-day-log/README.md"],
   },
   {
     slug: "pilot-feedback",
@@ -535,8 +442,22 @@ export function getProductDocumentationEntry(slug: string): ProductDocumentation
   return bySlug.get(normalized) ?? null;
 }
 
+/** Prefer slash aliases (e.g. `cloud-connections/azure`) over retired hyphen slug URLs. */
+function preferredHelpPathSegmentForSlug(slug: string): string {
+  const normalized = normalizeHelpTopicSlug(slug);
+
+  for (const [alias, canonical] of Object.entries(HELP_TOPIC_SLUG_ALIASES)) {
+
+    if (canonical === normalized && canonical.startsWith("cloud-connections-")) {
+      return alias;
+    }
+  }
+
+  return normalized;
+}
+
 export function inAppHelpHref(slug: string, hashFragment?: string): string {
-  const base = `/help/${slug.trim().toLowerCase()}`;
+  const base = `/help/${preferredHelpPathSegmentForSlug(slug).trim().toLowerCase()}`;
   const hash = hashFragment?.trim().replace(/^#/, "");
 
   if (hash === undefined || hash.length === 0) {

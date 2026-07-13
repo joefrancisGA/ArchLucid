@@ -18,8 +18,9 @@ describe("getDocHref", () => {
     expect(getDocHref("/docs/library/COMPARISON_REPLAY.md")).toBe("/help/comparison-replay");
   });
 
-  it("returns help index for unknown doc paths", () => {
-    expect(getDocHref("/docs/X.md")).toBe("/help");
+  it("returns null for unmapped doc paths", () => {
+    expect(getDocHref("/docs/X.md")).toBeNull();
+    expect(getDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBeNull();
   });
 
   it("returns null when docPath is empty or whitespace", () => {

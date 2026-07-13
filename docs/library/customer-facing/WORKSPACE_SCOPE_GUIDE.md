@@ -47,5 +47,4 @@ Tenant name, access, and visibility are managed in **Settings → Tenant**. Work
 | Topic | When to use it |
 |-------|----------------|
 | [Getting started](/help/getting-started) | First review and core concepts |
-| [Glossary](/help/glossary) | Canonical definitions for tenant, workspace, and review package |
 | [Troubleshooting](/help/troubleshooting) | Symptom-first fixes when scope or API errors appear |

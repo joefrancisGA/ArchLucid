@@ -95,7 +95,6 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       "href",
       "/help/getting-started",
     );
-    expect(within(contentColumn).getByRole("link", { name: "Glossary" })).toHaveAttribute("href", "/help/glossary");
     expect(relatedHelpHeading).toBeInTheDocument();
   });
 

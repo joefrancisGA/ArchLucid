@@ -22,6 +22,9 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/admin/support": "/settings/support",
     "/workspace/security-trust": "/settings/security-trust",
     "/governance-resolution": "/governance/resolution",
+    "/help/cloud-connections-azure": "/help/cloud-connections/azure",
+    "/help/cloud-connections-aws": "/help/cloud-connections/aws",
+    "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
 }
 
 DEFAULT_NEW_HIT_PCT = "0.02%"
@@ -132,11 +135,24 @@ def discover_tab_paths() -> list[str]:
     return sorted(set(paths))
 
 
+def _retired_help_slug_paths(aliases: dict[str, str]) -> set[str]:
+    """Hyphen slug URLs superseded by per-cloud slash aliases in HELP_TOPIC_SLUG_ALIASES."""
+    retired: set[str] = set()
+
+    for _alias, canonical in aliases.items():
+
+        if canonical.startswith("cloud-connections-"):
+            retired.add(f"/help/{canonical}")
+
+    return retired
+
+
 def discover_help_paths() -> tuple[list[str], set[str]]:
     slugs = _parse_help_slugs()
     aliases = _parse_help_aliases()
+    retired_slug_paths = _retired_help_slug_paths(aliases)
     paths = ["/help"]
-    paths.extend(f"/help/{slug}" for slug in slugs)
+    paths.extend(f"/help/{slug}" for slug in slugs if f"/help/{slug}" not in retired_slug_paths)
     paths.extend(f"/help/{alias}" for alias in aliases)
     alias_paths = {f"/help/{alias}" for alias in aliases}
     return sorted(set(paths)), alias_paths
