@@ -189,6 +189,7 @@ sequenceDiagram
 | **116_CheckJson_CorePayloadColumns.sql** | **`CHECK (ISJSON(…) = 1)`** on selected **`NVARCHAR(MAX)`** JSON contract columns when no row violates the predicate. Rollback: **`Rollback/R116_CheckJson_CorePayloadColumns.sql`**. |
 | **096_RlsTenantIdOnlyTables.sql** | (removed: ADR 0037) RLS machinery removed. `dbo.SentEmails`, `dbo.TenantLifecycleTransitions`, `dbo.TenantTrialSeatOccupants` are classified `tenant-id-on-row` per `TENANT_TABLE_ISOLATION_CLASSIFICATION.md`. |
 | **097_TenantOnboardingState.sql** | **`dbo.TenantOnboardingState`** (`TenantId` PK, **`FirstSessionCompletedUtc`**). Rollback: **`Rollback/R097_*.sql`**. |
+| **274_Runs_PackageOrigin.sql** | **`dbo.Runs.PackageOrigin`** (`NVARCHAR(16)` NULL) — TB-740 architecture package origin badges (created vs reviewed). Mutable intake metadata; not sealed by **`TR_Runs_SealCommittedHeader`**. Rollback: **`Rollback/R274_Runs_PackageOrigin.sql`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 
