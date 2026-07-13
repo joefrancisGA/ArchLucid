@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 export type ArchitectureNarrativeRenderDiagnostic = {
   readonly reason: "empty" | "json-payload" | "markdown" | "plain-fallback";
   readonly normalizationApplied: readonly string[];
@@ -60,10 +62,7 @@ export function normalizeRepeatedBlankLines(text: string): string {
 }
 
 export function stripDangerousMarkupForPlainTextDisplay(text: string): string {
-  return text
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
-    .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+  return DOMPurify.sanitize(text, { ALLOWED_TAGS: [], KEEP_CONTENT: true });
 }
 
 export function looksLikeJsonPayload(text: string): boolean {
