@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.GoldenCorpus;
@@ -139,6 +140,27 @@ internal static class GoldenCohortLockBaselineCommand
                 return CliExitCode.OperationFailed;
             }
 
+            ArchLucidApiClient.GetRunResult? runPayload = await client.GetRunAsync(runId);
+
+            if (runPayload is null)
+            {
+                await Console.Error.WriteLineAsync($"[{item.Id}] get run failed after execute.");
+
+                return CliExitCode.OperationFailed;
+            }
+
+            string resultsJson = JsonSerializer.Serialize(runPayload.Results, ContractJson.Default);
+            List<AgentResult>? typedResults = JsonSerializer.Deserialize<List<AgentResult>>(resultsJson, ContractJson.Default);
+
+            if (typedResults is null)
+            {
+                await Console.Error.WriteLineAsync($"[{item.Id}] could not deserialize agent results after execute.");
+
+                return CliExitCode.OperationFailed;
+            }
+
+            SortedSet<string> findingCategories = GoldenCohortFindingCategoryAggregator.DistinctCategories(typedResults);
+
             ArchLucidApiClient.GoldenManifestFingerprintResult? fingerprint =
                 await client.TryCommitAndFingerprintGoldenManifestAsync(runId);
 
@@ -153,10 +175,18 @@ internal static class GoldenCohortLockBaselineCommand
             string shaLower = fingerprint.Sha256HexUpper.ToLowerInvariant();
 
             if (write)
+            {
                 item.ExpectedCommittedManifestSha256 = shaLower;
+                item.ExpectedFindingCategories = findingCategories.ToList();
+            }
 
             if (CliExecutionContext.JsonOutput)
-                jsonRows.Add(new { id = item.Id, committedManifestSha256 = shaLower });
+                jsonRows.Add(new
+                {
+                    id = item.Id,
+                    committedManifestSha256 = shaLower,
+                    expectedFindingCategories = findingCategories.ToList()
+                });
             else
                 Console.WriteLine($"{item.Id}\t{shaLower}");
         }
@@ -166,7 +196,7 @@ internal static class GoldenCohortLockBaselineCommand
             document.Save(resolvedCohort);
 
             if (!CliExecutionContext.JsonOutput)
-                Console.WriteLine($"Wrote updated SHAs to {resolvedCohort}");
+                Console.WriteLine($"Wrote updated SHAs and finding categories to {resolvedCohort}");
         }
 
         if (!CliExecutionContext.JsonOutput)
