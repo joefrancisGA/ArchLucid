@@ -50,6 +50,20 @@ describe("architecture-narrative-presentation", () => {
     expect(sanitized).toBe("BeforeAfter");
   });
 
+  it("strips style tags and inline event handlers for plain-text fallback", () => {
+    expect(
+      stripDangerousMarkupForPlainTextDisplay(
+        "Before<style>body{color:red}</style>After",
+      ),
+    ).toBe("BeforeAfter");
+
+    expect(
+      stripDangerousMarkupForPlainTextDisplay(
+        'Before<img src="x" onerror="alert(1)">After',
+      ),
+    ).toBe("BeforeAfter");
+  });
+
   it("counts markdown h2 sections", () => {
     const markdown = "## One\n\nBody\n\n## Two\n\nMore";
     expect(countMarkdownH2Sections(markdown)).toBe(2);

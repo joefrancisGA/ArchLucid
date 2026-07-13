@@ -62,6 +62,8 @@ export function normalizeRepeatedBlankLines(text: string): string {
 }
 
 export function stripDangerousMarkupForPlainTextDisplay(text: string): string {
+  // DOMPurify with no allowed tags strips markup without regex replace chains that CodeQL
+  // flags as js/incomplete-multi-character-sanitization / js/bad-tag-filter (CodeQL run #3771).
   return DOMPurify.sanitize(text, { ALLOWED_TAGS: [], KEEP_CONTENT: true });
 }
 
