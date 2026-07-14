@@ -21,6 +21,15 @@ export const REVIEWS_HUB_SUMMARY_EMPTY_HINT =
 
 export const REVIEWS_HUB_PRIMARY_START_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
+export const REVIEWS_HUB_RESUME_DRAFTS_TITLE = "Resume a draft";
+
+export const REVIEWS_HUB_RESUME_DRAFTS_BODY =
+  "Saved architecture drafts stay editable until you start a review from them.";
+
+export const REVIEWS_HUB_RESUME_DRAFTS_VIEW_ALL_LABEL = "View all drafts";
+
+export const REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL = "Continue editing";
+
 export const REVIEWS_HUB_EXPLORE_SAMPLES_TITLE = "Explore samples";
 
 export const REVIEWS_HUB_PRIMARY_LOAD_SAMPLE_LABEL = "Load sample workspace";

@@ -1,5 +1,10 @@
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import {
+  ARCHITECTURES_LIST_PATH,
+  parseArchitectureDraftIdFromPath,
+} from "@/lib/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
@@ -119,6 +124,21 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   // Product path: wizard crumb only — sidebar nav covers workspace overview.
   if (normalized === "/reviews/new") {
     return [{ label: newReviewWizardCrumbLabel() }];
+  }
+
+  if (normalized === ARCHITECTURES_LIST_PATH) {
+    return [{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }];
+  }
+
+  if (normalized.startsWith(`${ARCHITECTURES_LIST_PATH}/`)) {
+    const architectureId = parseArchitectureDraftIdFromPath(normalized);
+
+    if (architectureId !== null) {
+      return [
+        { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
+        { label: CREATE_ARCHITECTURE_LABEL },
+      ];
+    }
   }
 
   const governanceRunTrail = tryBuildGovernanceRunScopedBreadcrumbs(normalized, options);

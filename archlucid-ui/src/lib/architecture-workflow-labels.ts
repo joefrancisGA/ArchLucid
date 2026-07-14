@@ -4,5 +4,8 @@
  */
 export const CREATE_ARCHITECTURE_LABEL = "Create architecture" as const;
 
+/** Breadcrumb and drafts inventory label for `/architectures`. */
+export const ARCHITECTURE_DRAFTS_LIST_LABEL = "Drafts" as const;
+
 /** Left-nav and review-intake entry for starting an architecture review. */
 export const START_REVIEW_LABEL = "Start review" as const;

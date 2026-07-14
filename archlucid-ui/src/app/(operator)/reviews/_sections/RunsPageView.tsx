@@ -22,6 +22,7 @@ import { REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE, REVIEWS_HUB_PAGE_SUBTITLE, REVIEW
 import { ReviewsHubExploreSamples } from "./ReviewsHubExploreSamples";
 import { ReviewsHubPackageIncludes } from "./ReviewsHubPackageIncludes";
 import { ReviewsHubPrimaryActions } from "./ReviewsHubPrimaryActions";
+import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import type { RunsPageModel } from "./runs-page-model";
@@ -62,6 +63,8 @@ export function RunsPageView(props: Props) {
         helpKey="runs-list-overview"
         docsPageKey="/runs"
       />
+
+      <ReviewsHubResumeDrafts />
 
       {loadFailure === null && malformedMessage === null ? (
         <>

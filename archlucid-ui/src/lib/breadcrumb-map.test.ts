@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
 import { OPERATOR_NAV_LINK_LABELS } from "./i18n";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "./showcase-static-demo";
@@ -26,6 +26,14 @@ describe("getBreadcrumbs", () => {
   it("shortens the new-review path to a single wizard crumb", () => {
     expect(getBreadcrumbs("/reviews/new")).toEqual([
       { label: START_REVIEW_LABEL },
+    ]);
+  });
+
+  it("labels architecture draft inventory and detail crumbs", () => {
+    expect(getBreadcrumbs("/architectures")).toEqual([{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }]);
+    expect(getBreadcrumbs("/architectures/draft-001")).toEqual([
+      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architectures" },
+      { label: CREATE_ARCHITECTURE_LABEL },
     ]);
   });
 
