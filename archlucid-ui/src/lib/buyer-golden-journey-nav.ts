@@ -20,7 +20,7 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
     step: 1,
-    label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+    label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
     href: getShowcaseExecutiveHref(),
     chipTooltip:
       "Condensed outcomes, posture, and monitored risks for sponsor sign-off — the diligence starting point.",
@@ -161,7 +161,7 @@ export function resolveBuyerGoldenJourneyNav(
       canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
     ) {
       return {
-        summaryLine: `Review overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
+        summaryLine: `Review overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
         prev: { label: defs[0].label, href: defs[0].href },
         next: { label: defs[1].label, href: defs[1].href },
         currentStepIndex: null,

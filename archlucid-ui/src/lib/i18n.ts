@@ -115,7 +115,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   home: "Overview",
   /** Operator-shell ROI dashboard (`/dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Executive dashboard",
-  executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+  executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
   reviewPackage: "Reviews",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */

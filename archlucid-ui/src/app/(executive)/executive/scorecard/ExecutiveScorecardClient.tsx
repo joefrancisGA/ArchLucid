@@ -32,6 +32,7 @@ import {
   BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY,
   BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP,
 } from "@/lib/buyer-polish-copy";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { executiveShellHandoffLinkLabel } from "@/lib/executive-shell-handoff";
 import { EXECUTIVE_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
@@ -182,7 +183,7 @@ export function ExecutiveScorecardClient() {
   if (!isAuthorityLoading && callerAuthorityRank < AUTHORITY_RANK.ReadAuthority) {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <ExecutivePageHeader title="Executive scorecard" />
+        <ExecutivePageHeader title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle} />
         <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="pb-2">
             <CardTitle className={EXECUTIVE_TYPOGRAPHY.cardTitle}>Access required</CardTitle>
@@ -213,7 +214,7 @@ export function ExecutiveScorecardClient() {
   if (isAuthorityLoading) {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <ExecutivePageHeader title="Executive scorecard" />
+        <ExecutivePageHeader title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle} />
         <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>Checking access…</p>
       </div>
     );
@@ -222,7 +223,7 @@ export function ExecutiveScorecardClient() {
   if (state.status === "loading") {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <ExecutivePageHeader title="Executive scorecard" />
+        <ExecutivePageHeader title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle} />
         <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.lead)}>Loading scorecard…</p>
       </div>
     );
@@ -231,7 +232,7 @@ export function ExecutiveScorecardClient() {
   if (state.status === "error") {
     return (
       <div className="space-y-6" data-testid="executive-scorecard">
-        <ExecutivePageHeader title="Executive scorecard" />
+        <ExecutivePageHeader title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle} />
         <OperatorApiProblem
           fallbackMessage={state.message}
           problem={state.problem}
@@ -263,7 +264,7 @@ export function ExecutiveScorecardClient() {
   return (
     <div className="space-y-6" data-testid="executive-scorecard">
       <ExecutivePageHeader
-        title="Executive scorecard"
+        title={BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle}
         lead="Key value metrics for the current tenant, workspace, and project scope — aligned with the pilot value report and governance drift endpoints."
       />
 

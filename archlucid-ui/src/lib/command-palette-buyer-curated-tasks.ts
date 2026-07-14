@@ -19,7 +19,7 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
  */
 export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] = [
   {
-    label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+    label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
     href: getShowcaseExecutiveHref(),
     searchValue: "executive summary sponsor roi decision",
   },

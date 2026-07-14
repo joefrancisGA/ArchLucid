@@ -52,14 +52,14 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/reviews/${encRun}`}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle}`}
+            {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel}`}
           </span>
           <span className={outcomeCaptionClass}>Decision, evidence, and audit package</span>
         </Link>
       ) : (
         <div className={disabledCardClass}>
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle}`}
+            {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel}`}
           </span>
           <span className={outcomeCaptionClass}>
             Sign in with a connected workspace to open the executive summary and finalized signed record.

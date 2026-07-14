@@ -1,6 +1,6 @@
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
-import { describe, expect, it } from "vitest";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";import { describe, expect, it } from "vitest";
 
 import { getRouteTitle } from "./route-titles";
 
@@ -12,6 +12,8 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(getRouteTitle("/governance")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
     expect(getRouteTitle("/signed-records")).toBe("Signed review records");
+    expect(getRouteTitle("/dashboard")).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);
+    expect(getRouteTitle("/executive/scorecard")).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle);
   });
 });
 

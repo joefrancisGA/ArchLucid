@@ -18,7 +18,7 @@ export type AskBuyerPromptGroup = {
 /** Buyer shell: suggested prompts grouped by intent (question form starters + post-reply follow-ups). */
 export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
   {
-    heading: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+    heading: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
     prompts: [
       "Summarize this for an executive sponsor.",
       "What are the top three risks I should brief leadership on?",

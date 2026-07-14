@@ -72,9 +72,11 @@ export const PILOT_FEEDBACK_VOCABULARY = {
  * metadata, Ask grounding, and KPI cards stay aligned.
  */
 export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
-  pageTitle: "Executive summary",
-  /** `/dashboard` portfolio surface — aligns with sidebar “Executive dashboard”. */
+  /** Canonical `/dashboard` customer noun — matches sidebar “Executive dashboard”. */
+  pageTitle: "Executive dashboard",
   portfolioPageTitle: "Executive dashboard",
+  /** Review-scoped executive briefing (showcase spine, Ask grounding) — not the portfolio dashboard. */
+  reviewExecutiveSummaryLabel: "Executive summary",
   portfolioPageLead:
     "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across committed reviews.",
   portfolioPageNextStep: "Commit at least one review to populate dashboard metrics.",
@@ -131,7 +133,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     "Sponsor-ready exports",
   ] as const,
   scorecardLayerContextLine: "Value metrics and recommended actions.",
-  scorecardPageTitle: "Executive scorecard",
+  scorecardPageTitle: "Sponsor scorecard",
   scorecardEmptyStateDescription:
     "The scorecard appears after at least one review is finalized. It summarizes review volume, findings, estimated hours saved, compliance drift, and recommended actions.",
   scorecardEmptyStatePrimaryAction: CREATE_ARCHITECTURE_LABEL,
@@ -167,7 +169,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     "Sponsor-ready reports and board views from committed reviews.",
   sponsorExportsUnavailableFootnote: "Available after first committed review",
   sponsorExportsPreviewSampleAction: "Preview sample",
-  sponsorExportsScorecardTitle: "Executive scorecard",
+  sponsorExportsScorecardTitle: "Sponsor scorecard",
   sponsorExportsScorecardDescription: "KPI summary and recommended actions for sponsor briefings.",
   sponsorExportsScorecardAction: "Open scorecard",
   sponsorExportsScorecardSampleHref: REVIEW_SCORECARD_SAMPLE_HREF,

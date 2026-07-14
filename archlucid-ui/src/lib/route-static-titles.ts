@@ -54,6 +54,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
   "/integrations/operations": OPERATOR_NAV_LINK_LABELS.integrationReadiness,
   "/dashboard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+  "/executive/scorecard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
   "/digests": "Digests",
   "/value-report/roi": "ROI summary",
   "/admin/demo-readiness": "Demo readiness",
