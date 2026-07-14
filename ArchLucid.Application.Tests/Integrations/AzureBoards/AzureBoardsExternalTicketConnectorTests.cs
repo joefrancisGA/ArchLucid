@@ -77,14 +77,13 @@ public sealed class AzureBoardsExternalTicketConnectorTests
             new AzureBoardsOutboundIssueClient(new HttpClient(handler), NullLogger<AzureBoardsOutboundIssueClient>.Instance));
 
         ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
-            new ExternalTicketCreateContext
-            {
-                Scope = Scope(),
-                Inspect = Inspect(FindingSeverity.Error, findingId: "f-1"),
-                Summary = "Finding summary",
-                Description = "Finding description",
-                Severity = FindingSeverity.Error,
-            },
+            new ExternalTicketCreateContext(
+                Scope(),
+                Inspect(FindingSeverity.Error, findingId: "f-1"),
+                null,
+                FindingSeverity.Error,
+                "Finding summary",
+                "Finding description"),
             CancellationToken.None);
 
         result.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Succeeded);
