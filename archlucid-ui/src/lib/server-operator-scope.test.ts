@@ -16,7 +16,7 @@ describe("shouldOmitDevDefaultScopeHeadersForServerUpstream", () => {
 
   it("returns false when JWT bearer is configured", () => {
     vi.stubEnv("ARCHLUCID_API_KEY", "e2e-admin-key-ci");
-    vi.stubEnv("ARCHLUCID_PROXY_BEARER_TOKEN", "eyJhbGciOiJSUzI1NiJ9.test");
+    vi.stubEnv("ARCHLUCID_PROXY_BEARER_TOKEN", "configured-proxy-bearer");
 
     expect(shouldOmitDevDefaultScopeHeadersForServerUpstream()).toBe(false);
   });
