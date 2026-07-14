@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
+import { BUYER_EARLY_ADOPTER_PRICING_NOTE } from "@/lib/buyer-polish-copy";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import {
   BUYER_MARKETING_PRICING_AI_USAGE_NOTE,
@@ -260,6 +261,12 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 );
               })}
           </ul>
+          <p
+            className={cn("mt-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="pricing-early-adopter-framing"
+          >
+            {BUYER_EARLY_ADOPTER_PRICING_NOTE}
+          </p>
           {props.showAiUsageNote === true ? (
             <p className={cn("mt-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="pricing-ai-usage-note">
               {BUYER_MARKETING_PRICING_AI_USAGE_NOTE}

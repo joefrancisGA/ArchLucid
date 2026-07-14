@@ -80,7 +80,7 @@ describe("MarketingTierPricingSection", () => {
     const architectCard = screen.getByTestId("pricing-tier-architect");
     within(architectCard).getByRole("link", { name: /start architect plan/i });
     expect(screen.getByTestId("pricing-tier-price-enterprise")).toHaveTextContent("Custom");
-    expect(screen.queryByTestId("pricing-early-adopter-framing")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("pricing-early-adopter-framing")).toHaveTextContent(/Early adopter pricing/i);
   });
 
   it("sets Team primary CTA to Stripe Checkout when NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED is true", async () => {

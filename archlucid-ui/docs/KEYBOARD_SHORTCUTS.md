@@ -44,7 +44,7 @@ Registry: [`src/lib/shortcut-registry.ts`](../src/lib/shortcut-registry.ts) (`SH
 
 ## Page-specific: Alerts (`/alerts`)
 
-Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a control inside it. Implemented in [`useAlertCardShortcuts`](../src/hooks/useAlertCardShortcuts.ts) on [`alerts/page.tsx`](../src/app/%28operator%29/alerts/page.tsx). **Alt+1–3 register only when** the same **`useOperateCapability()`** gate used for triage **Confirm** is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only.
+Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a control inside it. Implemented in [`useAlertCardShortcuts`](../src/hooks/useAlertCardShortcuts.ts) on [`governance/alerts/page.tsx`](../src/app/%28operator%29/governance/alerts/page.tsx). **Alt+1–3 register only when** the same **`useOperateCapability()`** gate used for triage **Confirm** is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only.
 
 | Combo | Action |
 |-------|--------|
@@ -106,7 +106,7 @@ flowchart TB
   USN --> R["next/router push"]
   KSP --> HD["Help Dialog\nShift+?"]
   subgraph alerts["Alerts page"]
-    AP["alerts/page.tsx"]
+    AP["governance/alerts/page.tsx"]
     UAC["useAlertCardShortcuts"]
     AP --> UAC
     UAC --> UKS2["useKeyboardShortcuts"]

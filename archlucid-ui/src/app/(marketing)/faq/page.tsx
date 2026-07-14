@@ -5,6 +5,7 @@ import { MarketingFaqPageClient } from "@/components/marketing/MarketingFaqPageC
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { buildFaqPageLd } from "@/lib/marketing-faq-json-ld";
+import { MARKETING_FAQ_ITEMS } from "@/lib/marketing-faq";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 
 export const metadata: Metadata = {
