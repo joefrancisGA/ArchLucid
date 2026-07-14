@@ -376,6 +376,13 @@ export async function expectBuyerPolishedReviewDetailShellReady(
   const workspace = buyerPolishedReviewDetailWorkspace(page);
   const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
+  await expect(async () => {
+    const hasWorkspace = (await workspace.count()) > 0;
+    const hasSectionNav = (await sectionNav.count()) > 0;
+
+    expect(hasWorkspace || hasSectionNav).toBe(true);
+  }).toPass({ timeout: timeoutMs });
+
   if ((await workspace.count()) > 0) {
     await expect(workspace).toBeVisible({ timeout: timeoutMs });
     await expect(page.getByTestId("review-detail-workspace-tabs")).toBeVisible({ timeout: timeoutMs });
