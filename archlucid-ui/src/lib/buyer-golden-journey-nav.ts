@@ -104,7 +104,7 @@ export function resolveBuyerGoldenJourneyNav(
     || path === manifestArchitecturePath
   ) {
     stepIdx = 1;
-  } else if (path === execBase || path.startsWith(`${execBase}/`)) {
+  } else if (path === execBase) {
     stepIdx = 0;
   } else if (path.startsWith("/graph")) {
     const graphRunId =
