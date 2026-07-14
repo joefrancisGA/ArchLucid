@@ -202,45 +202,25 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             runActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             runActivity?.AddException(ex);
 
+            if (ex is not RunCostBudgetExceededPartialPersistRecordedException
+                and not AgentOutputQualityGateRejectedException)
+            {
+                await RecordExecuteRunFailureAsync(runId, actor, ex, cancellationToken);
+            }
+
             throw;
         }
     }
 
     private async Task<ExecuteRunResult> ExecuteRunCoreInnerAsync(string runId, string actor, CancellationToken cancellationToken)
     {
-
         ArchitectureRun? run =
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(runRepository, scopeContextProvider, taskRepository, runId, cancellationToken);
 
         if (run is null)
             throw new RunNotFoundException(runId);
 
-        if (run.Status is ArchitectureRunStatus.Failed or ArchitectureRunStatus.ExecutionCompletedQualityRejected)
-        {
-            ScopeContext retryScope = scopeContextProvider.GetCurrentScope();
-
-            if (TryParseRunGuid(runId, out Guid failedRunGuid))
-            {
-                AuditEvent retryRequested = retryScope.CreateAuditEvent(
-                    AuditEventTypes.Run.RetryRequested,
-                    actor,
-                    actor,
-                    JsonSerializer.Serialize(new
-                    {
-                        runId,
-                        previousStatus = run.Status.ToString()
-                    },
-                        AuditJsonSerializationOptions.Instance));
-                retryRequested.RunId = failedRunGuid;
-
-                await DurableAuditLogRetry.TryLogAsync(
-                    ct => auditService.LogAsync(retryRequested, ct),
-                    logger,
-                    $"{AuditEventTypes.Run.RetryRequested}:{LogSanitizer.Sanitize(runId)}",
-                    cancellationToken,
-                    auditEventTypeForMetrics: AuditEventTypes.Run.RetryRequested);
-            }
-        }
+        await TryLogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 
@@ -254,17 +234,80 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             .ConfigureAwait(false);
 
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunStarted, actor, runId, null, cancellationToken);
-        try
-        {
-            ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
-                                          throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
-            RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
 
-            if (!safety.IsAllowed)
-                throw new RequestContentSafetyRejectedException(safety.Reasons);
+        return await ExecuteRunAgentBatchAsync(run, runId, actor, cancellationToken);
+    }
 
-            using (PilotModeGovernanceScope.BeginFromPolicyReferences(request.PolicyReferences))
+    private async Task TryLogFailedRunRetryRequestedAsync(
+        ArchitectureRun run,
+        string runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
+        if (run.Status is not ArchitectureRunStatus.Failed and not ArchitectureRunStatus.ExecutionCompletedQualityRejected)
+            return;
+
+        ScopeContext retryScope = scopeContextProvider.GetCurrentScope();
+
+        if (!TryParseRunGuid(runId, out Guid failedRunGuid))
+            return;
+
+        AuditEvent retryRequested = retryScope.CreateAuditEvent(
+            AuditEventTypes.Run.RetryRequested,
+            actor,
+            actor,
+            JsonSerializer.Serialize(new
             {
+                runId,
+                previousStatus = run.Status.ToString()
+            },
+                AuditJsonSerializationOptions.Instance));
+        retryRequested.RunId = failedRunGuid;
+
+        await DurableAuditLogRetry.TryLogAsync(
+            ct => auditService.LogAsync(retryRequested, ct),
+            logger,
+            $"{AuditEventTypes.Run.RetryRequested}:{LogSanitizer.Sanitize(runId)}",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.Run.RetryRequested);
+    }
+
+    private async Task RecordExecuteRunFailureAsync(
+        string runId,
+        string actor,
+        Exception ex,
+        CancellationToken cancellationToken)
+    {
+        if (logger.IsEnabled(LogLevel.Warning))
+            logger.LogWarningArchitectureRunExecutionFailed(ex, runId, ex.GetType().Name);
+
+        logger.LogError(ex, "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), ex.GetType().Name, System.Diagnostics.Activity.Current?.Id ?? "unknown");
+
+        AgentExecutionFailureSummary failureSummary = AgentExecutionFailureSummaryFactory.FromException(ex);
+        await TryMarkRunExecuteFailedAsync(runId, failureSummary, cancellationToken);
+        await baselineMutationAudit.RecordAsync(
+            AuditEventTypes.Baseline.Architecture.RunFailed,
+            actor,
+            runId,
+            FormatExecuteRunFailureAuditDetails(failureSummary),
+            cancellationToken);
+    }
+
+    private async Task<ExecuteRunResult> ExecuteRunAgentBatchAsync(
+        ArchitectureRun run,
+        string runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
+                                      throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
+        RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
+
+        if (!safety.IsAllowed)
+            throw new RequestContentSafetyRejectedException(safety.Reasons);
+
+        using (PilotModeGovernanceScope.BeginFromPolicyReferences(request.PolicyReferences))
+        {
             ScopeContext executeScope = _scopeContextProvider.GetCurrentScope();
             IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
 
@@ -279,7 +322,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             string scheduledTaskIds = AgentExecutionStateTransitionTaskIds.Format(tasks.ToList());
 
             if (TryParseRunGuid(runId, out Guid executeTransitionRunId))
-
                 logger.LogInformationAgentExecutionStateTransition(
                     executeTransitionRunId,
                     "execute_enter",
@@ -328,7 +370,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             }
 
             if (TryParseRunGuid(runId, out Guid afterBatchRunId))
-
                 logger.LogInformationAgentExecutionStateTransition(
                     afterBatchRunId,
                     "agent_batch_executing",
@@ -346,71 +387,20 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await PersistExecutePhaseAsync(evidence, results, evaluations, cancellationToken);
 
             if (TryParseRunGuid(runId, out Guid afterPersistRunId))
-
                 logger.LogInformationAgentExecutionStateTransition(
                     afterPersistRunId,
                     "agent_results_persisting",
                     "execute_complete",
                     scheduledTaskIds);
-            List<AgentResult> mutableResults = results.ToList();
-            int qualityGateAutoRetryAttempt = 0;
-            int maxAutoRetries = Math.Max(0, _agentOutputQualityGateOptions.Value.MaxAutoRetries);
 
-            while (true)
-            {
-                try
-                {
-                    await outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
-                    results = mutableResults;
-                    break;
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (AgentOutputQualityGateRejectedException ex)
-                    when (_agentOutputQualityGateOptions.Value is { BlockRunOnReject: true, EnforceOnReject: true }
-                          && qualityGateAutoRetryAttempt < maxAutoRetries)
-                {
-                    qualityGateAutoRetryAttempt++;
-
-                    if (logger.IsEnabled(LogLevel.Information))
-                    {
-                        logger.LogInformation(
-                            "Quality gate rejected trace; auto-retrying agent {AgentLabel} for RunId={RunId} attempt {Attempt}/{MaxAttempts} TraceId={TraceId}",
-                            ex.AgentLabel,
-                            LogSanitizer.Sanitize(runId),
-                            qualityGateAutoRetryAttempt,
-                            maxAutoRetries,
-                            LogSanitizer.Sanitize(ex.TraceId));
-                    }
-
-                    mutableResults = await RetryQualityGateRejectedAgentAsync(
-                        runId,
-                        request,
-                        evidence,
-                        tasks,
-                        mutableResults,
-                        ex,
-                        cancellationToken);
-                }
-                catch (AgentOutputQualityGateRejectedException ex)
-                    when (_agentOutputQualityGateOptions.Value is { BlockRunOnReject: true, EnforceOnReject: true })
-                {
-                    await TryMarkRunQualityGateRejectedAsync(runId, actor, ex, cancellationToken);
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    if (logger.IsEnabled(LogLevel.Warning))
-                        logger.LogWarning(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
-                            LogSanitizer.Sanitize(runId));
-
-                    logger.LogError(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
-                    results = mutableResults;
-                    break;
-                }
-            }
+            results = await RunQualityGateTraceEvaluationLoopAsync(
+                runId,
+                actor,
+                request,
+                evidence,
+                tasks,
+                results,
+                cancellationToken);
 
             await TryPersistEngineProvenanceAsync(runId, evidence, cancellationToken);
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
@@ -420,30 +410,82 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformation("Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}", LogSanitizer.Sanitize(runId),
                     results.Count);
+
             return new ExecuteRunResult { RunId = runId, Results = results.ToList() };
+        }
+    }
+
+    private async Task<IReadOnlyList<AgentResult>> RunQualityGateTraceEvaluationLoopAsync(
+        string runId,
+        string actor,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentTask> tasks,
+        IReadOnlyList<AgentResult> initialResults,
+        CancellationToken cancellationToken)
+    {
+        List<AgentResult> mutableResults = initialResults.ToList();
+        IReadOnlyList<AgentResult> results = initialResults;
+        int qualityGateAutoRetryAttempt = 0;
+        int maxAutoRetries = Math.Max(0, _agentOutputQualityGateOptions.Value.MaxAutoRetries);
+
+        while (true)
+        {
+            try
+            {
+                await outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
+                results = mutableResults;
+                break;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (AgentOutputQualityGateRejectedException ex)
+                when (_agentOutputQualityGateOptions.Value is { BlockRunOnReject: true, EnforceOnReject: true }
+                      && qualityGateAutoRetryAttempt < maxAutoRetries)
+            {
+                qualityGateAutoRetryAttempt++;
+
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation(
+                        "Quality gate rejected trace; auto-retrying agent {AgentLabel} for RunId={RunId} attempt {Attempt}/{MaxAttempts} TraceId={TraceId}",
+                        ex.AgentLabel,
+                        LogSanitizer.Sanitize(runId),
+                        qualityGateAutoRetryAttempt,
+                        maxAutoRetries,
+                        LogSanitizer.Sanitize(ex.TraceId));
+                }
+
+                mutableResults = await RetryQualityGateRejectedAgentAsync(
+                    runId,
+                    request,
+                    evidence,
+                    tasks,
+                    mutableResults,
+                    ex,
+                    cancellationToken);
+            }
+            catch (AgentOutputQualityGateRejectedException ex)
+                when (_agentOutputQualityGateOptions.Value is { BlockRunOnReject: true, EnforceOnReject: true })
+            {
+                await TryMarkRunQualityGateRejectedAsync(runId, actor, ex, cancellationToken);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                if (logger.IsEnabled(LogLevel.Warning))
+                    logger.LogWarning(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
+                        LogSanitizer.Sanitize(runId));
+
+                logger.LogError(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
+                results = mutableResults;
+                break;
             }
         }
-        catch (RunCostBudgetExceededPartialPersistRecordedException)
-        {
-            throw;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException and not AgentOutputQualityGateRejectedException)
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarningArchitectureRunExecutionFailed(ex, runId, ex.GetType().Name);
-                
-            logger.LogError(ex, "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), ex.GetType().Name, System.Diagnostics.Activity.Current?.Id ?? "unknown");
 
-            AgentExecutionFailureSummary failureSummary = AgentExecutionFailureSummaryFactory.FromException(ex);
-            await TryMarkRunExecuteFailedAsync(runId, failureSummary, cancellationToken);
-            await baselineMutationAudit.RecordAsync(
-                AuditEventTypes.Baseline.Architecture.RunFailed,
-                actor,
-                runId,
-                FormatExecuteRunFailureAuditDetails(failureSummary),
-                cancellationToken);
-            throw;
-        }
+        return results;
     }
 
     /// <summary>
