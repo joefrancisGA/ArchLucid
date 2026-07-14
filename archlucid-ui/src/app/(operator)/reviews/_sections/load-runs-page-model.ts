@@ -5,6 +5,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { resolveServerScopeHeadersForProject } from "@/lib/server-run-scope";
 import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -42,8 +43,10 @@ export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise
 
   let usedStaticRunsFallback = false;
 
+  const scopeHeaders = await resolveServerScopeHeadersForProject(projectId);
+
   try {
-    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, { cursor });
+    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, { cursor, scopeHeaders });
     const coerced = coerceRunSummaryPaged(raw, { page });
 
     if (!coerced.ok) {
