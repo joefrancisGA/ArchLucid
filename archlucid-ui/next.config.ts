@@ -51,10 +51,7 @@ const nextConfig: NextConfig = {
     tsconfigPath: "tsconfig.build.json",
   },
   reactStrictMode: true,
-  devIndicators: {
-    position: "bottom-right",
-    buildActivity: false,
-  },
+  devIndicators: false,
   // Standalone output copies only required node_modules into .next/standalone,
   // producing a self-contained deployment unit suitable for Docker / App Service.
   //
