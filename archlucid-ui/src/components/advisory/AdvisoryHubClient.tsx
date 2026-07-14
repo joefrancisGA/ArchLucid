@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
   ADVISORY_SCANS_PAGE_SUBTITLE,
@@ -61,16 +62,17 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
   }, []);
 
   const onSelectTab = useCallback(
-    (id: AdvisoryHubTabId) => {
-      setActiveTab(id);
+    (id: string) => {
+      const tabId = advisoryHubTabFromSearchParam(id);
+      setActiveTab(tabId);
 
-      if (id === "scans") {
+      if (tabId === "scans") {
         router.push(pathname);
 
         return;
       }
 
-      router.push(`${pathname}?${TAB_PARAM}=${encodeURIComponent(id)}`);
+      router.push(`${pathname}?${TAB_PARAM}=${encodeURIComponent(tabId)}`);
     },
     [pathname, router],
   );
@@ -86,54 +88,43 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
         </p>
       </OperatorPageHeader>
 
-      <nav className="mb-6" aria-label="Advisory hub sections">
-        <div
-          className="inline-flex rounded-md border border-neutral-200 bg-neutral-50 p-0.5 dark:border-neutral-700 dark:bg-neutral-900"
-          role="tablist"
+      <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-6">
+        <TabsList
+          aria-label="Advisory hub sections"
+          data-testid="advisory-hub-tablist"
+          className="mb-0 inline-flex w-fit gap-0 rounded-md border border-neutral-200 bg-neutral-50 p-0.5 border-b-0 pb-0.5 dark:border-neutral-700 dark:bg-neutral-900"
         >
           {ADVISORY_HUB_TAB_IDS.map((id) => {
-            const selected: boolean = activeTab === id;
-            const softMuted: boolean = !canMutate && id === "schedules";
+            const selected = activeTab === id;
             const tabTitle: string | undefined =
               !canMutate && id === "schedules" ? SCHEDULES_TAB_READER_TITLE : undefined;
 
             return (
-              <button
+              <TabsTrigger
                 key={id}
-                type="button"
-                role="tab"
-                id={`advisory-hub-tab-${id}`}
-                aria-selected={selected}
+                value={id}
                 data-testid={`advisory-hub-tab-${id}`}
                 title={tabTitle}
-                onClick={() => {
-                  onSelectTab(id);
-                }}
                 className={cn(
-                  "rounded px-3 py-1.5 font-medium transition-colors",
-                  OPERATOR_TYPOGRAPHY.body,
+                  "-mb-px mb-0 rounded border-0 border-b-0 px-3 py-1.5 shadow-none",
                   selected
                     ? "bg-white text-al-text-primary shadow-sm dark:bg-neutral-950"
-                    : "bg-transparent text-al-text-secondary hover:text-al-text-primary",
-                  softMuted && !selected && "opacity-80",
+                    : "bg-transparent text-neutral-700 hover:text-al-text-primary dark:text-neutral-300",
                 )}
               >
                 {TAB_LABEL[id]}
-              </button>
+              </TabsTrigger>
             );
           })}
-        </div>
-      </nav>
+        </TabsList>
 
-      <div
-        className="min-w-0"
-        role="tabpanel"
-        aria-labelledby={`advisory-hub-tab-${activeTab}`}
-        data-testid="advisory-hub-panel"
-      >
-        {activeTab === "scans" ? <AdvisoryScansContent /> : null}
-        {activeTab === "schedules" ? <AdvisorySchedulesContent /> : null}
-      </div>
+        <TabsContent value="scans" className="mt-4 min-w-0" data-testid="advisory-hub-panel">
+          <AdvisoryScansContent />
+        </TabsContent>
+        <TabsContent value="schedules" className="mt-4 min-w-0">
+          <AdvisorySchedulesContent />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

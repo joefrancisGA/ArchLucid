@@ -46,6 +46,7 @@ describe("ArchLucidWordmarkLink", () => {
 
     const lightLogoSvg = container.querySelector("svg:not(.hidden)");
     expect(lightLogoSvg).toHaveAttribute("width", "28");
+    expect(container.querySelector("polygon")).toHaveAttribute("fill", ARCHLUCID_BRAND.tealOnLightSurface);
   });
 
   it("honors logoVariant override for centered auth branding", () => {

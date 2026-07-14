@@ -6,6 +6,7 @@ import Link, { type LinkProps } from "next/link";
 import { forwardRef } from "react";
 
 import { ArchLucidLogo, type ArchLucidLogoVariant } from "@/components/brand/ArchLucidLogo";
+import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
 
 export type ArchLucidWordmarkLinkProps = Omit<LinkProps, "children"> & {
   variant: "operator" | "marketing";
@@ -103,6 +104,7 @@ export const ArchLucidWordmarkLink = forwardRef<HTMLAnchorElement, ArchLucidWord
           size={layout.size}
           wordmarkClassName={layout.wordmarkClassName}
           className="dark:hidden"
+          tealColor={ARCHLUCID_BRAND.tealOnLightSurface}
         />
 
         <ArchLucidLogo

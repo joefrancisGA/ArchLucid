@@ -10,6 +10,8 @@ export const ARCHLUCID_BRAND = {
   navy: "#0B1D3A",
   /** Restrained accent: single facet + the right evidence node. */
   teal: "#00A0B2",
+  /** Mark accent on white/light raised surfaces — WCAG 2.2 3:1 vs #fff (axe color-contrast). */
+  tealOnLightSurface: "#0f766e",
 } as const;
 
 export type ArchLucidBrandColor =
