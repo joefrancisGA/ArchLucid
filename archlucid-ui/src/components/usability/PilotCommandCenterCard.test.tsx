@@ -50,6 +50,22 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
+  useFeaturedCompletedSampleQuery: () => ({
+    isPending: false,
+    isError: false,
+    data: {
+      selectedRunId: "claims-intake-modernization",
+      isConfigured: true,
+      isAvailable: true,
+      reviewTitle: "Claims intake modernization",
+      architectureName: "Claims intake modernization",
+      completedUtc: "2026-01-01T00:00:00.000Z",
+      isSampleApproved: true,
+    },
+  }),
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),

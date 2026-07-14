@@ -12,13 +12,14 @@ type OperatorHomeNavigateLoadingButtonProps = Omit<ButtonProps, "children" | "on
   readonly href: string;
   readonly idleLabel: string;
   readonly loadingLabel: string;
+  readonly onNavigate?: () => void;
 };
 
 /** Home intent CTA link with immediate loading feedback for client-side route transitions. */
 export function OperatorHomeNavigateLoadingButton(
   props: OperatorHomeNavigateLoadingButtonProps,
 ): React.JSX.Element {
-  const { href, idleLabel, loadingLabel, disabled, className, variant, size, ...buttonProps } = props;
+  const { href, idleLabel, loadingLabel, disabled, className, variant, size, onNavigate, ...buttonProps } = props;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [hasStarted, setHasStarted] = useState(false);
@@ -33,13 +34,14 @@ export function OperatorHomeNavigateLoadingButton(
 
       event.preventDefault();
       setHasStarted(true);
+      onNavigate?.();
       void router.prefetch(href);
 
       startTransition(() => {
         router.push(href);
       });
     },
-    [disabled, hasStarted, href, isPending, router],
+    [disabled, hasStarted, href, isPending, onNavigate, router],
   );
 
   const isLoading = isPending || hasStarted;

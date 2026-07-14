@@ -17,6 +17,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
+  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
   OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
@@ -29,6 +30,7 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { trackOperatorHomeLifecyclePathClick } from "@/lib/operator-home-lifecycle-path-telemetry";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resolveOperatorHomeWorkspaceReadiness } from "@/lib/operator-home-workspace-readiness";
@@ -45,7 +47,7 @@ type OperatorHomeDualPathCardsProps = {
   readonly variant?: "prominent" | "compact";
 };
 
-/** Three intent cards on Overview — explore, review, or create without implying sequence. */
+/** Overview lifecycle entry — Step 1 draft, Step 2 review, plus an optional completed-sample explore path. */
 export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps): React.JSX.Element {
   const variant = props.variant ?? "prominent";
   const reviewNavigation = useReviewIntakeNavigation();
@@ -67,11 +69,13 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
 
   const startCreateArchitecture = () => {
     setSelectedPath("create-architecture");
+    trackOperatorHomeLifecyclePathClick("create-architecture");
     createArchitectureNavigation.navigate();
   };
 
   const startReviewArchitecture = () => {
     setSelectedPath("review-architecture");
+    trackOperatorHomeLifecyclePathClick("review-architecture");
     reviewNavigation.navigate({ href: "/reviews/new" });
   };
 
@@ -82,6 +86,12 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
       data-variant={variant}
       aria-busy={reviewNavigation.isNavigating || createArchitectureNavigation.isNavigating}
     >
+      {!isCompact ? (
+        <p className={cn("m-0 max-w-prose", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+          {OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO}
+        </p>
+      ) : null}
+
       <div
         className={cn("grid gap-3 sm:grid-cols-2 md:grid-cols-3", OPERATOR_LAYOUT.inlineGap)}
         role="status"
@@ -90,36 +100,42 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         <article
           className={cn(
             OPERATOR_SURFACE_CARD_CLASS,
-            "flex flex-col gap-3 p-4",
-            isCompact
-              ? "border border-neutral-200 dark:border-neutral-800"
-              : "border-2 border-teal-800/25 dark:border-teal-500/30",
-            selectedPath === "explore-completed-review" && "ring-2 ring-teal-700/40 ring-offset-2",
+            "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
+            selectedPath === "create-architecture" && "ring-2 ring-teal-700/40 ring-offset-2",
           )}
-          data-testid="operator-home-explore-completed-review-card"
-          aria-labelledby="operator-home-explore-completed-review-title"
+          data-testid="operator-home-create-architecture-card"
+          aria-labelledby="operator-home-create-architecture-title"
+          aria-current={selectedPath === "create-architecture" ? "true" : undefined}
         >
-          <div className="min-w-0 space-y-2">
-            {showEvaluationBadge ? (
-              <StatusTag
-                kind="ready"
-                label={OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE}
-                data-testid="operator-home-explore-recommended-badge"
-              />
-            ) : null}
+          <div className="min-w-0 space-y-1">
             <h3
               className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
-              id="operator-home-explore-completed-review-title"
+              id="operator-home-create-architecture-title"
             >
-              {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE}
+              {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE}
             </h3>
             {!isCompact ? (
               <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-                {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY}
+                {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY}
               </p>
             ) : null}
           </div>
-          <OperatorHomeCompletedSampleAction compact={isCompact} />
+          {canExecute ? (
+            <ReviewStartLoadingButton
+              variant="primary"
+              size="sm"
+              className="h-8 w-fit"
+              idleLabel={CREATE_ARCHITECTURE_LABEL}
+              loadingLabel={createArchitectureNavigation.loadingLabel}
+              isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
+              onClick={startCreateArchitecture}
+              data-testid="operator-home-create-architecture-cta"
+            />
+          ) : (
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+              {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
+            </p>
+          )}
         </article>
 
         <article
@@ -179,42 +195,42 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
         <article
           className={cn(
             OPERATOR_SURFACE_CARD_CLASS,
-            "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800 sm:col-span-2 md:col-span-1",
-            selectedPath === "create-architecture" && "ring-2 ring-teal-700/40 ring-offset-2",
+            "flex flex-col gap-3 p-4 sm:col-span-2 md:col-span-1",
+            isCompact
+              ? "border border-neutral-200 dark:border-neutral-800"
+              : "border-2 border-teal-800/25 dark:border-teal-500/30",
+            selectedPath === "explore-completed-review" && "ring-2 ring-teal-700/40 ring-offset-2",
           )}
-          data-testid="operator-home-create-architecture-card"
-          aria-labelledby="operator-home-create-architecture-title"
-          aria-current={selectedPath === "create-architecture" ? "true" : undefined}
+          data-testid="operator-home-explore-completed-review-card"
+          aria-labelledby="operator-home-explore-completed-review-title"
         >
-          <div className="min-w-0 space-y-1">
+          <div className="min-w-0 space-y-2">
+            {showEvaluationBadge ? (
+              <StatusTag
+                kind="ready"
+                label={OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE}
+                data-testid="operator-home-explore-recommended-badge"
+              />
+            ) : null}
             <h3
               className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
-              id="operator-home-create-architecture-title"
+              id="operator-home-explore-completed-review-title"
             >
-              {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE}
+              {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE}
             </h3>
             {!isCompact ? (
               <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-                {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY}
+                {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY}
               </p>
             ) : null}
           </div>
-          {canExecute ? (
-            <ReviewStartLoadingButton
-              variant="primary"
-              size="sm"
-              className="h-8 w-fit"
-              idleLabel={CREATE_ARCHITECTURE_LABEL}
-              loadingLabel={createArchitectureNavigation.loadingLabel}
-              isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
-              onClick={startCreateArchitecture}
-              data-testid="operator-home-create-architecture-cta"
-            />
-          ) : (
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
-              {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
-            </p>
-          )}
+          <OperatorHomeCompletedSampleAction
+            compact={isCompact}
+            onOpenSample={() => {
+              setSelectedPath("explore-completed-review");
+              trackOperatorHomeLifecyclePathClick("explore-completed-review");
+            }}
+          />
         </article>
       </div>
 

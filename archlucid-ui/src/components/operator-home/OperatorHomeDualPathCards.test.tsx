@@ -86,11 +86,14 @@ vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
 
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import {
+  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
   OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
+  OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_READY_STRIP_SUPPORT,
 } from "@/lib/buyer-polish-copy";
@@ -102,13 +105,16 @@ import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-s
 const featuredSampleRunId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 
 describe("OperatorHomeDualPathCards", () => {
-  it("shows three intent cards with a single evaluation recommendation", () => {
+  it("shows lifecycle steps plus an evaluation explore card", () => {
     render(<OperatorHomeDualPathCards />);
 
+    expect(screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-explore-recommended-badge")).toHaveTextContent(
       OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
     );
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE })).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK })).toHaveAttribute(

@@ -67,9 +67,9 @@ export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
   "Prefill a sample architecture review intake. Progress is saved only after you submit the intake.";
 
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
-  "Create an architecture, review an existing design, or explore a completed review. ArchLucid produces evidence-backed findings, decisions, and a record stakeholders can use.";
+  "Describe your architecture, run a governed review, or explore a completed example. ArchLucid produces evidence-backed findings, decisions, and a record stakeholders can use.";
 
-export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "What would you like to do?";
+export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "Start the architecture review lifecycle";
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE = "Explore a completed review";
 
@@ -78,15 +78,18 @@ export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY =
 
 export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating ArchLucid";
 
-export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create an architecture";
+export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
+  "One lifecycle: describe your architecture, then run a governed review. The review is the durable work item.";
+
+export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Step 1 — Describe or import your architecture";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Build an architecture from business goals, constraints, requirements, and available evidence.";
+  "Start from a draft, business goals, constraints, requirements, and available evidence. Saving a draft does not start a review.";
 
-export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review an existing architecture";
+export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Step 2 — Run a governed review";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Provide the architecture information you already have, including diagrams, descriptions, requirements, evidence, or other supporting material.";
+  "Use the architecture you described — or material you already have — to gather evidence, evaluate findings, and finalize.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
@@ -164,7 +167,7 @@ export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE = "No archived reviews
 
 export const OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY = "Archived reviews will appear here.";
 
-export const PILOT_COMMAND_CENTER_HEADING = "Create or review an architecture";
+export const PILOT_COMMAND_CENTER_HEADING = "Architecture review lifecycle";
 
 export const OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING = "Recent activity";
 
@@ -257,7 +260,7 @@ export const OPERATOR_HOME_INVITE_COLLABORATORS_BODY =
 
 export const OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE = "Open the first review guide.";
 
-export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Choose a creation or review path.";
+export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Continue the architecture review lifecycle.";
 
 export const OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD = "Connect cloud";
 

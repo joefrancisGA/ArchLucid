@@ -418,7 +418,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Change:** Replace "Review record" with the concept it means (likely "Architecture description" or drop it); keep "Signed review record".
 - **Files:** `reviews-hub-copy.ts`, `ReviewsHubPackageIncludes.tsx` test. **Complexity/priority:** XS/P1. **Acceptance:** includes list has no two items differing only by a qualifier; glossary terms match.
 
-**IA-005 · Reframe home dual-path cards as one lifecycle** — **P0 · S**
+**IA-005 · Reframe home dual-path cards as one lifecycle** — **Done (2026-07-14)** — **P0 · S**
 - **Problem:** "Create an architecture" and "Review an existing architecture" render as two peer workflows; both terminate in `createArchitectureRun`. Nav caption already frames a sequence. `[PI]`
 - **Impact:** First-time evaluators form a two-object mental model the product cannot sustain; beta feedback then tests the wrong model. **Personas:** evaluator, architect.
 - **Routes:** `/`. **Files:** `buyer-polish-copy.ts` (dual-path card copy), `OperatorHomeDualPathCards` component and test.
@@ -536,7 +536,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 
 | Wave | Items | Rationale |
 |---|---|---|
-| **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005, IA-008 | Dead ends, stranded work, wrong mental model, empty flagship |
+| **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 | Dead ends, stranded work, wrong mental model, empty flagship |
 | **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003, IA-004, IA-010, IA-012, IA-013 | XS copy items; batch into one terminology PR so drift guards update once |
 | **Wave 3 — early beta (P1 structural-lite)** | IA-019 (telemetry first), IA-006, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
 | **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |

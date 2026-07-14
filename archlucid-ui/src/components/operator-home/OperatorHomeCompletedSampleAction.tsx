@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 
 type OperatorHomeCompletedSampleActionProps = {
   readonly compact?: boolean;
+  readonly onOpenSample?: () => void;
 };
 
 /** Opens the workspace-owner-selected completed sample or a safe missing-selection state. */
@@ -59,6 +60,7 @@ export function OperatorHomeCompletedSampleAction(
         href={featuredCompletedSampleReviewHref(sample.selectedRunId)}
         idleLabel={OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}
         loadingLabel={OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL}
+        onNavigate={props.onOpenSample}
         data-testid="operator-home-explore-completed-review-cta"
       />
     );
