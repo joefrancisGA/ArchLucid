@@ -57,15 +57,19 @@ describe("FirstWeekRouteGuidance", () => {
     );
   });
 
-  it("renders committed review detail guidance with exports anchor", () => {
+  it("renders committed review detail guidance collapsed without external AI product names", () => {
     render(<FirstWeekRouteGuidance variant="review-detail-committed" />);
+
+    expect(screen.getByTestId("first-week-route-guidance-review-detail-committed")).toBeInTheDocument();
+    expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Claude, GPT, or Gemini/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Expand Review package guidance/i }));
 
     expect(screen.getByRole("link", { name: "Open exports section" })).toHaveAttribute(
       "href",
       "#artifacts-exports",
     );
-    expect(screen.getByText(/Copy for AI assistant/i)).toBeInTheDocument();
-    expect(screen.getByText(/Claude, GPT, or Gemini/i)).toBeInTheDocument();
   });
 
   it("renders onboarding guidance with start review CTA and user-facing lead copy", () => {

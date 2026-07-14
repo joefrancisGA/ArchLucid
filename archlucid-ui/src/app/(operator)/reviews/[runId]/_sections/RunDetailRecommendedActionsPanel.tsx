@@ -51,7 +51,7 @@ export function RunDetailRecommendedActionsPanel(
                   </p>
                 </div>
                 <Button variant="outline" size="sm" asChild className="shrink-0">
-                  <Link href={action.href}>Open</Link>
+                  <Link href={action.href}>{action.actionLabel}</Link>
                 </Button>
               </div>
             </li>

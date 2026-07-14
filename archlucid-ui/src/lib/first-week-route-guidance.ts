@@ -38,6 +38,9 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
 };
 
+export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =
+  "When to use a finalized review package and where exports live.";
+
 export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, FirstWeekRouteGuidanceConfig> = {
   home: {
     useWhen: "You are in your first pilot session and need the shortest path to a committed review package.",
@@ -69,9 +72,9 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   },
   "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,
   "review-detail-committed": {
-    useWhen: "The review package is finalized and you need sponsor-ready exports or an executive summary.",
+    useWhen: "The review package is finalized and you need sponsor-ready exports or a board summary.",
     bridgeCopy:
-      "This review package is complete — downloads and executive summary live on this page before you explore Operate. Use 'Copy for AI assistant' in the exports section to paste findings into Claude, GPT, or Gemini.",
+      "This review package is complete — use the exports section in Review package when you need deliverables for sponsors or auditors.",
     primaryAction: { label: "Open exports section", href: "#artifacts-exports" },
     operateDeferralNote: "Operate surfaces unlock in the sidebar after your first committed review when you need compare, graph, or digests.",
   },

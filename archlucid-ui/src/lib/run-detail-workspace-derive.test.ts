@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   countFindingsBySeverity,
   deriveBlockingApprovalCount,
+  deriveExecutiveBottomLineContent,
+  deriveRecommendedWorkspaceActions,
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
 } from "@/lib/run-detail-workspace-derive";
@@ -80,5 +82,57 @@ describe("run-detail-workspace-derive", () => {
     } as RunSummary;
 
     expect(deriveSubmittedArchitectureText(run, "My review")).toBeNull();
+  });
+
+  it("builds narrative bottom-line copy from governance data", () => {
+    const content = deriveExecutiveBottomLineContent({
+      governanceDecisionLabel: "Approved with monitoring",
+      governanceDecisionRationale: "Controls are acceptable for PHI handling.",
+      overallPosture: "Approved with monitoring",
+      blockingFindingCount: 1,
+      highestSeverity: "High",
+      themeSummaries: ["PHI handling"],
+    });
+
+    expect(content?.kind).toBe("narrative");
+    expect(content?.kind === "narrative" ? content.text : "").toContain("Approved with monitoring");
+    expect(content?.kind === "narrative" ? content.text : "").toContain("PHI handling");
+  });
+
+  it("falls back to key decision considerations when only theme labels exist", () => {
+    const content = deriveExecutiveBottomLineContent({
+      governanceDecisionLabel: "No governance decision recorded",
+      governanceDecisionRationale: null,
+      overallPosture: "Needs review",
+      blockingFindingCount: 0,
+      highestSeverity: null,
+      themeSummaries: ["PHI handling", "Auditability"],
+    });
+
+    expect(content).toEqual({
+      kind: "considerations",
+      themes: ["PHI handling", "Auditability"],
+    });
+  });
+
+  it("omits add-evidence action when evidence coverage is complete", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-abc",
+      findings: [
+        finding(2, { evidenceRefCount: 0 }),
+      ],
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: true,
+      operatorGovernanceDecision: "Approved",
+      manifestStatus: "Finalized",
+      runCompleted: true,
+      evidenceCoverageComplete: true,
+    });
+
+    expect(actions.some((action) => action.id === "add-evidence")).toBe(false);
+    expect(actions.every((action) => action.actionLabel.length > 0)).toBe(true);
   });
 });

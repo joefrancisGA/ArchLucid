@@ -52,11 +52,12 @@ function previewLines(text: string): readonly string[] {
 }
 
 export type RunDetailArchitectureSummaryCardProps = {
-  readonly architectureTitle: string;
+  readonly architectureTitle: string | null;
   readonly architectureText: string | null;
   readonly evidenceCount: number;
   readonly userAssertions: ArchitectureCreationUserAssertions | null;
   readonly onNavigateTab: (tab: ReviewDetailTabId) => void;
+  readonly hasSubmittedArchitecture: boolean;
 };
 
 /** Concise architecture summary for Overview — full source lives in the Architecture tab. */
@@ -75,7 +76,14 @@ export function RunDetailArchitectureSummaryCard(
   const scopeSection = structured !== null ? findSection(structured.sections, "scope") : undefined;
   const domainsSection = structured !== null ? findSection(structured.sections, "systems-and-services") : undefined;
 
-  const summaryLines = text.length > 0 ? previewLines(text) : [];
+  const structuredFieldCount =
+    (purposeSection !== undefined ? 1 : 0) +
+    (outcomeSection !== undefined ? 1 : 0) +
+    (scopeSection !== undefined ? 1 : 0) +
+    (domainsSection !== undefined ? 1 : 0);
+
+  const architectureName = props.architectureTitle?.trim() ?? "";
+  const showArchitectureName = architectureName.length > 0;
 
   return (
     <section
@@ -90,10 +98,12 @@ export function RunDetailArchitectureSummaryCard(
         Architecture summary
       </h2>
       <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-        <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Architecture</dt>
-          <dd className="m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100">{props.architectureTitle}</dd>
-        </div>
+        {showArchitectureName ? (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Architecture</dt>
+            <dd className="m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100">{architectureName}</dd>
+          </div>
+        ) : null}
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Evidence attached</dt>
           <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
@@ -125,30 +135,32 @@ export function RunDetailArchitectureSummaryCard(
           </div>
         ) : null}
       </dl>
-      {summaryLines.length > 0 ? (
+      {!props.hasSubmittedArchitecture ? (
+        <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          No architecture description was submitted with this review.
+        </p>
+      ) : structuredFieldCount === 0 && text.length > 0 ? (
         <div className={cn("mt-3 space-y-1", OPERATOR_TYPOGRAPHY.body)}>
-          {summaryLines.map((line, index) => (
+          {previewLines(text).map((line, index) => (
             <p key={`arch-summary-line-${index}`} className="m-0 text-neutral-700 dark:text-neutral-300">
               {line}
             </p>
           ))}
         </div>
-      ) : (
-        <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          No architecture description was submitted with this review.
-        </p>
-      )}
-      <div className="mt-4">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-testid="run-detail-view-submitted-architecture"
-          onClick={() => props.onNavigateTab("architecture")}
-        >
-          View submitted architecture
-        </Button>
-      </div>
+      ) : null}
+      {props.hasSubmittedArchitecture ? (
+        <div className="mt-4">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="run-detail-view-submitted-architecture"
+            onClick={() => props.onNavigateTab("architecture")}
+          >
+            View submitted architecture
+          </Button>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -9,16 +9,20 @@ const pageViewSource = readFileSync(join(sectionsDir, "RunDetailPageView.tsx"), 
 const workspaceChromeSource = readFileSync(join(sectionsDir, "RunDetailWorkspaceChrome.tsx"), "utf8");
 
 describe("Run detail workspace header integration", () => {
-  it("uses workspace header and summary strip on RunDetailPageView", () => {
+  it("uses workspace header and executive summary on RunDetailPageView", () => {
     expect(pageViewSource).toContain("<RunDetailWorkspaceHeader");
-    expect(pageViewSource).toContain("<RunDetailWorkspaceSummaryStrip");
+    expect(pageViewSource).toContain("<RunDetailExecutiveSummary");
     expect(pageViewSource).not.toContain("<ReviewPackageSummaryHeader");
   });
 
   it("exposes customer-facing review metadata without internal ids in workspace header", () => {
+    const headerStart = workspaceChromeSource.indexOf("export function RunDetailWorkspaceHeader");
+    const headerEnd = workspaceChromeSource.indexOf("export type RunDetailWorkspaceSummaryStripProps");
+    const headerSource = workspaceChromeSource.slice(headerStart, headerEnd);
+
     expect(workspaceChromeSource).toContain("data-testid=\"run-detail-workspace-header\"");
-    expect(workspaceChromeSource).toContain("Review status");
-    expect(workspaceChromeSource).not.toContain("runId");
+    expect(headerSource).toContain("Review status");
+    expect(headerSource).not.toContain("runId");
   });
 
   it("uses shared operator layout spacing tokens", () => {

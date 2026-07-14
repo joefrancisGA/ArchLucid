@@ -34,6 +34,8 @@ import {
 } from "@/lib/showcase-static-demo";
 
 import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
+import { RunDetailExecutiveSummary } from "@/components/reviews/RunDetailExecutiveSummary";
+import { RunDetailArchitectureSummaryRailClient } from "@/components/reviews/RunDetailArchitectureSummaryRailClient";
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
 import { RunDetailOverviewPanelClient } from "@/components/reviews/RunDetailOverviewPanelClient";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
@@ -49,6 +51,7 @@ import {
   countFindingsBySeverity,
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
+  deriveExecutiveBottomLineContent,
   deriveHighestFindingSeverityLabel,
   deriveLastEvaluatedLabel,
   deriveOverallPostureLabel,
@@ -70,7 +73,7 @@ import {
   RunDetailWorkspaceDisclosureProvider,
   RunDetailWorkspaceHeader,
   RunDetailWorkspaceLayout,
-  RunDetailWorkspaceSummaryStrip,
+  RunDetailWorkspaceSeverityRail,
 } from "./RunDetailWorkspaceChrome";
 import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActions";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
@@ -268,6 +271,12 @@ export function RunDetailPageView(props: {
     hasCommitBlockingFailures: findingCoverageSummary?.hasCommitBlockingFailures === true,
     findings: quickDecisionFindings,
   });
+  const evidenceGapsCount = quickDecisionFindings.filter((finding) => (finding.evidenceRefCount ?? 0) === 0).length;
+  const evidenceCoverageComplete =
+    evidenceGapsCount === 0 &&
+    m.artifacts.length > 0 &&
+    m.resolvedDetail.trustEvidenceCard !== null &&
+    m.resolvedDetail.trustEvidenceCard !== undefined;
   const recommendedActions = deriveRecommendedWorkspaceActions({
     runId: m.resolvedDetail.run.runId,
     findings: quickDecisionFindings,
@@ -279,16 +288,31 @@ export function RunDetailPageView(props: {
     operatorGovernanceDecision: m.resolvedDetail.run.operatorGovernanceDecision,
     manifestStatus: m.manifestSummary?.status ?? null,
     runCompleted: m.resolvedDetail.run.completedUtc != null,
+    evidenceCoverageComplete,
   });
   const submittedArchitectureText = deriveSubmittedArchitectureText(runSummaryForBadge, reviewDisplayTitle);
+  const hasSubmittedArchitecture = submittedArchitectureText !== null;
+  const architectureSummaryTitle =
+    systemName !== null && systemName !== reviewDisplayTitle ? systemName : null;
   const governanceDecisionLabel =
     (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
       ? (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim()
       : m.governanceGateLabel ?? "No governance decision recorded";
   const evidenceCoverageLabel =
     m.resolvedDetail.trustEvidenceCard !== null && m.resolvedDetail.trustEvidenceCard !== undefined
-      ? `${m.artifacts.length} evidence artifact${m.artifacts.length === 1 ? "" : "s"}`
+      ? evidenceCoverageComplete
+        ? "Complete for this review"
+        : `${m.artifacts.length} evidence artifact${m.artifacts.length === 1 ? "" : "s"}`
       : null;
+  const executiveBottomLineContent = deriveExecutiveBottomLineContent({
+    governanceDecisionLabel,
+    governanceDecisionRationale: m.resolvedDetail.run.operatorGovernanceDecisionRationale,
+    overallPosture,
+    blockingFindingCount: blockingApprovalCount,
+    highestSeverity,
+    themeSummaries: m.explanationSummary?.themeSummaries ?? null,
+  });
+  const executiveBottomLineEl = <RunDetailExecutiveBottomLine content={executiveBottomLineContent} />;
 
   const showArchitectureCreatedHome =
     props.fromArchitectureCreation === true && (m.manifestId ?? "").trim().length === 0;
@@ -344,6 +368,7 @@ export function RunDetailPageView(props: {
   const tabbedWorkspaceEl = !showArchitectureCreatedHome ? (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <ReviewDetailWorkspace
+        showPackageWorkflowOrientation={m.buyerPolishedArtifactTable === true}
         tabCounts={{
           findings: (m.findingCountDisplay ?? 0) > 0 ? m.findingCountDisplay : null,
           evidence: m.artifacts.length > 0 ? m.artifacts.length : null,
@@ -352,19 +377,9 @@ export function RunDetailPageView(props: {
         panels={{
           overview: (
             <RunDetailOverviewPanelClient
-              runId={m.resolvedDetail.run.runId}
-              architectureTitle={systemName ?? reviewDisplayTitle}
-              architectureText={submittedArchitectureText}
-              evidenceCount={m.artifacts.length}
-              userAssertions={null}
               recommendedActions={recommendedActions}
-              blockingCount={blockingApprovalCount}
-              governanceDecisionLabel={governanceDecisionLabel}
-              findingCount={m.findingCountDisplay ?? 0}
-              criticalCount={severityCounts.critical}
-              highCount={severityCounts.high}
-              hasManifest={Boolean(m.manifestId)}
               proofStatusSlot={<RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />}
+              bottomLineSlot={executiveBottomLineEl}
             />
           ),
           findings: (
@@ -571,8 +586,8 @@ export function RunDetailPageView(props: {
         </Suspense>
       ) : null}
 
-      {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}
-      {m.usedStaticDemoRun ? <DemoDataBadge variant="banner" className="mb-2" /> : null}
+      {showDemoMarketingChrome ? <OperatorDemoStaticBanner emphasizeSampleData={m.usedStaticDemoRun} /> : null}
+      {m.usedStaticDemoRun && !showDemoMarketingChrome ? <DemoDataBadge variant="banner" className="mb-2" /> : null}
 
       <RunDetailWorkspaceDisclosureProvider>
         <RunDetailWorkspaceLayout
@@ -717,13 +732,16 @@ export function RunDetailPageView(props: {
                     templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
                   />
 
-                  <RunDetailWorkspaceSummaryStrip
+                  <RunDetailExecutiveSummary
+                    workspaceStatus={workspaceStatus}
                     overallPosture={overallPosture}
+                    highestSeverity={highestSeverity}
                     criticalCount={severityCounts.critical}
                     highCount={severityCounts.high}
                     awaitingActionCount={countFindingsAwaitingAction(quickDecisionFindings)}
                     governanceDecisionLabel={governanceDecisionLabel}
                     evidenceCoverageLabel={evidenceCoverageLabel}
+                    lastEvaluatedUtc={lastEvaluatedUtc}
                   />
                 </>
               )}
@@ -736,12 +754,14 @@ export function RunDetailPageView(props: {
               ) : null}
 
               {!showArchitectureCreatedHome ? (
-                <ReviewPackagePrimaryAction
-                  action={reviewPackagePrimaryAction}
-                  runId={m.resolvedDetail.run.runId}
-                  hasGoldenManifest={Boolean(m.manifestId)}
-                  commitBlockedReason={commitBlockedReason}
-                />
+                <div className="lg:hidden">
+                  <ReviewPackagePrimaryAction
+                    action={reviewPackagePrimaryAction}
+                    runId={m.resolvedDetail.run.runId}
+                    hasGoldenManifest={Boolean(m.manifestId)}
+                    commitBlockedReason={commitBlockedReason}
+                  />
+                </div>
               ) : null}
 
               {!m.manifestId ? (
@@ -781,7 +801,24 @@ export function RunDetailPageView(props: {
               {tabbedWorkspaceEl}
             </>
           }
-          rail={null}
+          rail={
+            !showArchitectureCreatedHome ? (
+              <>
+                <RunDetailWorkspaceSeverityRail
+                  criticalCount={severityCounts.critical}
+                  highCount={severityCounts.high}
+                  mediumCount={severityCounts.medium}
+                  lowCount={severityCounts.low}
+                />
+                <RunDetailArchitectureSummaryRailClient
+                  architectureTitle={architectureSummaryTitle}
+                  architectureText={submittedArchitectureText}
+                  evidenceCount={m.artifacts.length}
+                  hasSubmittedArchitecture={hasSubmittedArchitecture}
+                />
+              </>
+            ) : null
+          }
         />
       </RunDetailWorkspaceDisclosureProvider>
 
@@ -945,7 +982,6 @@ export function RunDetailPageView(props: {
       ) : null}
 
       {governanceAlertsEl}
-      <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
 
       {m.buyerPolishedArtifactTable ? (
         <RunDetailBuyerModeFallbackBanner
