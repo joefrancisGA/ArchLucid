@@ -64,12 +64,23 @@ export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
   await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 }
 
-/** CTO demo pack replaces the classic "Executive summary" label with the above-fold hero (mock E2E default). */
-export async function expectBuyerExecutiveSummarySurface(page: Page): Promise<void> {
-  await expectAnyLocatorVisible([
-    page.getByTestId("cto-demo-executive-above-fold"),
-    page.getByText("Executive summary", { exact: true }),
-  ]);
+/**
+ * Executive step readiness: legacy CTO above-fold hero, classic "Executive summary" label, or tabbed buyer-golden
+ * review detail (`data-buyer-golden-ready` / workspace shell) used by live API demo workspace runs.
+ */
+export async function expectBuyerExecutiveSummarySurface(page: Page, options?: { timeout?: number }): Promise<void> {
+  const timeout = options?.timeout ?? 60_000;
+
+  await waitForAppReady(page);
+  await expectAnyLocatorVisible(
+    [
+      page.locator('[data-buyer-golden-ready="true"]'),
+      page.getByTestId("review-detail-workspace"),
+      page.getByTestId("cto-demo-executive-above-fold"),
+      page.getByText("Executive summary", { exact: true }),
+    ],
+    timeout,
+  );
 }
 
 /**
