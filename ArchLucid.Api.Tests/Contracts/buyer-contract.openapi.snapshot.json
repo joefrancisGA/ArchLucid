@@ -25147,6 +25147,151 @@
         },
         "type": "object"
       },
+      "TrialFunnelCohortRowResponse": {
+        "properties": {
+          "attentionLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "conversionStatus": {
+            "type": "string"
+          },
+          "currentStageId": {
+            "type": "string"
+          },
+          "currentStageLabel": {
+            "type": "string"
+          },
+          "daysInTrial": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "estimatedFirstReviewCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "firstReviewStatus": {
+            "type": "string"
+          },
+          "lastMeaningfulActivityUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "trialStartedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TrialFunnelDataQualityResponse": {
+        "properties": {
+          "comparePreviousPeriod": {
+            "type": "boolean"
+          },
+          "conversionDefinition": {
+            "type": "string"
+          },
+          "excludesDemoWorkspaces": {
+            "type": "boolean"
+          },
+          "generatedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "instrumentationWarning": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "periodDays": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "stageDefinitions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "TrialFunnelFirstReviewCostResponse": {
+        "properties": {
+          "basisLabel": {
+            "type": "string"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "highEstimatedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "lowEstimatedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "medianEstimatedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "sampleSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "statusDetail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "TrialFunnelOperationalSummaryResponse": {
         "properties": {
           "activeSelfServiceTrials": {
@@ -25163,6 +25308,22 @@
           },
           "cogsBasisLabel": {
             "type": "string"
+          },
+          "cohortRows": {
+            "items": {
+              "$ref": "#/components/schemas/TrialFunnelCohortRowResponse"
+            },
+            "type": "array"
+          },
+          "dataQuality": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TrialFunnelDataQualityResponse"
+              }
+            ]
           },
           "estimatedFirstReviewCogsUsdHigh": {
             "format": "double",
@@ -25195,6 +25356,16 @@
             "format": "int32",
             "type": "integer"
           },
+          "firstReviewCost": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TrialFunnelFirstReviewCostResponse"
+              }
+            ]
+          },
           "llmBudgetCutoffEvents30Days": {
             "format": "int32",
             "type": "integer"
@@ -25216,9 +25387,111 @@
             "format": "int32",
             "type": "integer"
           },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/TrialFunnelStageMetricResponse"
+            },
+            "type": "array"
+          },
+          "timing": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TrialFunnelTimingMetricsResponse"
+              }
+            ]
+          },
           "trialConversions30Days": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "TrialFunnelStageMetricResponse": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "medianHoursFromPreviousStage": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "percentFromPreviousStage": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "percentOfTrialStarts": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "previousPeriodCount": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "stageId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TrialFunnelTimingMetricsResponse": {
+        "properties": {
+          "medianTrialStartToConversionHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "medianTrialStartToConversionSampleSize": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "medianTrialStartToFirstReviewFinalizedHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "medianTrialStartToFirstReviewFinalizedSampleSize": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
           }
         },
         "type": "object"

@@ -634,12 +634,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialFunnelOperationalSummaryResponse> TrialFunnelSummaryAsync();
+        System.Threading.Tasks.Task<TrialFunnelOperationalSummaryResponse> TrialFunnelSummaryAsync(int? days, bool? comparePrevious);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialFunnelOperationalSummaryResponse> TrialFunnelSummaryAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TrialFunnelOperationalSummaryResponse> TrialFunnelSummaryAsync(int? days, bool? comparePrevious, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -16680,15 +16680,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TrialFunnelOperationalSummaryResponse> TrialFunnelSummaryAsync()
+        public virtual System.Threading.Tasks.Task<TrialFunnelOperationalSummaryResponse> TrialFunnelSummaryAsync(int? days, bool? comparePrevious)
         {
-            return TrialFunnelSummaryAsync(System.Threading.CancellationToken.None);
+            return TrialFunnelSummaryAsync(days, comparePrevious, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TrialFunnelOperationalSummaryResponse> TrialFunnelSummaryAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TrialFunnelOperationalSummaryResponse> TrialFunnelSummaryAsync(int? days, bool? comparePrevious, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -16703,6 +16703,16 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "v1/admin/operational/trial-funnel-summary"
                     urlBuilder_.Append("v1/admin/operational/trial-funnel-summary");
+                    urlBuilder_.Append('?');
+                    if (days != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("days")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(days, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (comparePrevious != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("comparePrevious")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(comparePrevious, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -130427,6 +130437,133 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class TrialFunnelCohortRowResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("attentionLabel")]
+        public string? AttentionLabel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("conversionStatus")]
+        public string? ConversionStatus { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("currentStageId")]
+        public string? CurrentStageId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("currentStageLabel")]
+        public string? CurrentStageLabel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("daysInTrial")]
+        public int? DaysInTrial { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedFirstReviewCostUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? EstimatedFirstReviewCostUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("firstReviewStatus")]
+        public string? FirstReviewStatus { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("lastMeaningfulActivityUtc")]
+        public System.DateTimeOffset? LastMeaningfulActivityUtc { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("organizationName")]
+        public string? OrganizationName { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
+        public System.Guid? TenantId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("trialStartedUtc")]
+        public System.DateTimeOffset? TrialStartedUtc { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class TrialFunnelDataQualityResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("comparePreviousPeriod")]
+        public bool? ComparePreviousPeriod { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("conversionDefinition")]
+        public string? ConversionDefinition { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("excludesDemoWorkspaces")]
+        public bool? ExcludesDemoWorkspaces { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("generatedAtUtc")]
+        public System.DateTimeOffset? GeneratedAtUtc { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("instrumentationWarning")]
+        public string? InstrumentationWarning { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("periodDays")]
+        public int? PeriodDays { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("stageDefinitions")]
+        public System.Collections.Generic.ICollection<string>? StageDefinitions { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class TrialFunnelFirstReviewCostResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("basisLabel")]
+        public string? BasisLabel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("currencyCode")]
+        public string? CurrencyCode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("highEstimatedUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? HighEstimatedUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("lowEstimatedUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? LowEstimatedUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("medianEstimatedUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? MedianEstimatedUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("sampleSize")]
+        public int? SampleSize { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        public string? Status { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("statusDetail")]
+        public string? StatusDetail { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class TrialFunnelOperationalSummaryResponse
     {
 
@@ -130439,6 +130576,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("cogsBasisLabel")]
         public string? CogsBasisLabel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("cohortRows")]
+        public System.Collections.Generic.ICollection<TrialFunnelCohortRowResponse>? CohortRows { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("dataQuality")]
+        public TrialFunnelDataQualityResponse? DataQuality { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("estimatedFirstReviewCogsUsdHigh")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
@@ -130455,6 +130598,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("firstCommittedReviews30Days")]
         public int? FirstCommittedReviews30Days { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("firstReviewCost")]
+        public TrialFunnelFirstReviewCostResponse? FirstReviewCost { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("llmBudgetCutoffEvents30Days")]
         public int? LlmBudgetCutoffEvents30Days { get; set; } = default!;
 
@@ -130468,8 +130614,82 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("signupFailures30Days")]
         public int? SignupFailures30Days { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("stages")]
+        public System.Collections.Generic.ICollection<TrialFunnelStageMetricResponse>? Stages { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("timing")]
+        public TrialFunnelTimingMetricsResponse? Timing { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("trialConversions30Days")]
         public int? TrialConversions30Days { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class TrialFunnelStageMetricResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("count")]
+        public int? Count { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("label")]
+        public string? Label { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("medianHoursFromPreviousStage")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? MedianHoursFromPreviousStage { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("percentFromPreviousStage")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? PercentFromPreviousStage { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("percentOfTrialStarts")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? PercentOfTrialStarts { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("previousPeriodCount")]
+        public int? PreviousPeriodCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("stageId")]
+        public string? StageId { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class TrialFunnelTimingMetricsResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("medianTrialStartToConversionHours")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? MedianTrialStartToConversionHours { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("medianTrialStartToConversionSampleSize")]
+        public int? MedianTrialStartToConversionSampleSize { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("medianTrialStartToFirstReviewFinalizedHours")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? MedianTrialStartToFirstReviewFinalizedHours { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("medianTrialStartToFirstReviewFinalizedSampleSize")]
+        public int? MedianTrialStartToFirstReviewFinalizedSampleSize { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
