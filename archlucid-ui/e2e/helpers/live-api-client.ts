@@ -182,7 +182,8 @@ export function freshLiveE2eIdempotencyKey(): string {
 
 /**
  * `x-tenant-id` overrides are only safe under `DevelopmentBypass` (`AllowTestActorHeaders`). Under
- * `ApiKey` mode the CI keys carry no `Authentication:ApiKey:TenantId` claim, so
+ * `ApiKey` mode the CI keys must carry `Authentication:ApiKey:TenantId` claims (see `ui-e2e-live-apikey`
+ * in `ci.yml`); unbound keys still reject `x-tenant-id` via `ScopeIdentityBindingMiddleware`. Server RSC
  * `ScopeIdentityBindingMiddleware` returns **403 Forbidden** for any `x-tenant-id` header on a
  * claims-less key; under `JWT` mode scope is resolved from token claims and the header is ignored
  * anyway. Gate here (not per call-site) so every helper below can unconditionally accept a
