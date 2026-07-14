@@ -21,6 +21,11 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(resolveBuyerGoldenJourneyNav(getShowcaseExecutiveHref())?.currentStepIndex).toBe(0);
     expect(resolveBuyerGoldenJourneyNav(getShowcaseManifestHref())?.currentStepIndex).toBe(1);
     expect(resolveBuyerGoldenJourneyNav(`/graph?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(2);
+    expect(
+      resolveBuyerGoldenJourneyNav(
+        `/reviews/${showcaseRunEnc}/findings/${encodeURIComponent("phi-minimization-risk")}/inspect`,
+      )?.currentStepIndex,
+    ).toBe(2);
     expect(resolveBuyerGoldenJourneyNav(`/governance?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(3);
     expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(4);
   });

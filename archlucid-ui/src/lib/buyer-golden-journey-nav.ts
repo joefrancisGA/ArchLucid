@@ -154,21 +154,30 @@ export function resolveBuyerGoldenJourneyNav(
   } else if (path.startsWith("/audit")) {
     stepIdx = 4;
   } else {
-    const workspace = /^\/reviews\/([^/]+)$/.exec(path);
+    const findingInspect = /^\/reviews\/([^/]+)\/findings\/[^/]+\/inspect\b/.exec(path);
 
     if (
-      workspace !== null &&
-      canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
+      findingInspect !== null &&
+      canonicalizeDemoRunId(findingInspect[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
     ) {
-      return {
-        summaryLine: `Review package overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
-        prev: { label: defs[0].label, href: defs[0].href },
-        next: { label: defs[1].label, href: defs[1].href },
-        currentStepIndex: null,
-      };
-    }
+      stepIdx = 2;
+    } else {
+      const workspace = /^\/reviews\/([^/]+)$/.exec(path);
 
-    return null;
+      if (
+        workspace !== null &&
+        canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
+      ) {
+        return {
+          summaryLine: `Review package overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
+          prev: { label: defs[0].label, href: defs[0].href },
+          next: { label: defs[1].label, href: defs[1].href },
+          currentStepIndex: null,
+        };
+      }
+
+      return null;
+    }
   }
 
   const current = defs[stepIdx];

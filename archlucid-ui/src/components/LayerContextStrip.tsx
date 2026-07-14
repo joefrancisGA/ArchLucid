@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -69,6 +69,20 @@ type BuyerGoldenJourneyStepperNavProps = {
   readonly demoDataSourceBadge?: ReactNode;
 };
 
+function buyerGoldenJourneyStepChipClass(options: { readonly done: boolean; readonly current: boolean }): string {
+  if (options.done) {
+    return "border border-emerald-700/40 bg-[var(--al-status-ready-bg)] text-[var(--al-status-ready-fg)]";
+  }
+
+  if (options.current) {
+    return cn(
+      "border border-neutral-200 border-l-2 border-l-[var(--al-accent-interactive)] bg-al-surface-raised text-al-text-primary font-semibold shadow-sm ring-2 ring-[var(--al-accent-border-focus)]/40 dark:border-neutral-800",
+    );
+  }
+
+  return "border border-neutral-200 bg-al-surface-raised text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200";
+}
+
 function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps): React.JSX.Element {
   const { nav, demoDataSourceBadge } = props;
 
@@ -119,15 +133,11 @@ function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps):
             const done = cur !== null && idx < cur;
             const current = cur !== null && idx === cur;
 
-            const chipClass = done
-              ? operatorSemanticBadge("ready")
-              : current
-                ? cn(operatorSemanticBadge("current"), "font-semibold shadow-sm ring-2 ring-[var(--al-accent-border-focus)]/40")
-                : cn(OPERATOR_SURFACE_CARD_CLASS, "text-al-text-secondary");
+            const chipClass = buyerGoldenJourneyStepChipClass({ done, current });
 
             const chipInner = (
               <>
-                <span className="tabular-nums text-neutral-500 dark:text-neutral-400">{def.step}.</span>
+                <span className="tabular-nums">{def.step}.</span>
                 <span>{def.label}</span>
               </>
             );
@@ -139,7 +149,7 @@ function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps):
                     aria-current="step"
                     title={def.chipTooltip}
                     className={cn(
-                      "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium transition",
+                      "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium transition",
                       OPERATOR_TYPOGRAPHY.badge,
                       chipClass,
                     )}
@@ -152,7 +162,7 @@ function BuyerGoldenJourneyStepperNav(props: BuyerGoldenJourneyStepperNavProps):
                     title={def.chipTooltip}
                     prefetch
                     className={cn(
-                      "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium no-underline transition hover:opacity-95",
+                      "inline-flex min-h-7 items-center gap-1 rounded-full px-2 py-0.5 font-medium no-underline transition hover:opacity-95",
                       OPERATOR_TYPOGRAPHY.badge,
                       chipClass,
                     )}
