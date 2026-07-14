@@ -1,4 +1,4 @@
-import { CloudCog, Hash, Ticket, UsersRound, Workflow } from "lucide-react";
+import { CloudCog, Hash, Ticket, Workflow } from "lucide-react";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
   INTEGRATIONS_AZURE_BOARDS_PATH,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { AZURE_BOARDS_SURFACE_ICON } from "@/lib/azure-boards-surface-icon";
+import { TEAMS_SURFACE_ICON } from "@/lib/teams-surface-icon";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -60,7 +61,7 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           href: INTEGRATIONS_TEAMS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
           title: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
-          icon: UsersRound,
+          icon: TEAMS_SURFACE_ICON,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

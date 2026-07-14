@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { CloudCog, Hash, Ticket, UsersRound, Workflow } from "lucide-react";
+import { CloudCog, Hash, Ticket, Workflow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
 import { PageHeading } from "@/components/PageHeading";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/integrations-nav-paths";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 import { AZURE_BOARDS_SURFACE_ICON } from "@/lib/azure-boards-surface-icon";
+import { TEAMS_SURFACE_ICON } from "@/lib/teams-surface-icon";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 
 function expectSameIcon(navHref: string, expectedIcon: typeof CloudCog): void {
@@ -44,7 +45,7 @@ describe("PageHeading nav identity", () => {
   });
 
   it("uses the same icon definition as navigation for Microsoft Teams", () => {
-    expectSameIcon(INTEGRATIONS_TEAMS_PATH, UsersRound);
+    expectSameIcon(INTEGRATIONS_TEAMS_PATH, TEAMS_SURFACE_ICON);
   });
 
   it("uses the same icon definition as navigation for Slack", () => {

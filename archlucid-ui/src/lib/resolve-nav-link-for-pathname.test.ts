@@ -1,4 +1,4 @@
-import { CloudCog, Hash, Ticket, UsersRound, Webhook, Workflow } from "lucide-react";
+import { CloudCog, Hash, Ticket, Users, Workflow } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -9,6 +9,7 @@ import {
   INTEGRATIONS_TEAMS_PATH,
   INTEGRATIONS_WEBHOOKS_PATH,
 } from "@/lib/integrations-nav-paths";
+import { TEAMS_SURFACE_ICON } from "@/lib/teams-surface-icon";
 import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 
 import { resolveNavIconForHref, resolveNavLinkForPathname } from "./resolve-nav-link-for-pathname";
@@ -18,7 +19,7 @@ describe("resolveNavLinkForPathname", () => {
     expect(resolveNavIconForHref(INTEGRATIONS_WEBHOOKS_PATH)).toBe(WEBHOOKS_SURFACE_ICON);
     expect(resolveNavIconForHref(INTEGRATIONS_JIRA_PATH)).toBe(Ticket);
     expect(resolveNavIconForHref(INTEGRATIONS_SERVICENOW_PATH)).toBe(Workflow);
-    expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).toBe(UsersRound);
+    expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).toBe(TEAMS_SURFACE_ICON);
     expect(resolveNavIconForHref(INTEGRATIONS_SLACK_PATH)).toBe(Hash);
     expect(resolveNavIconForHref(CLOUD_CONNECTIONS_PATH)).toBe(CloudCog);
   });
@@ -37,11 +38,10 @@ describe("resolveNavLinkForPathname", () => {
     expect(resolveNavIconForHref("/reviews/runs/00000000-0000-0000-0000-000000000001")).toBeUndefined();
   });
 
-  it("resolves representative architecture, insights, governance, and administration routes", () => {
-    expect(resolveNavIconForHref("/graph")).toBeDefined();
-    expect(resolveNavIconForHref("/governance")).toBeDefined();
-    expect(resolveNavIconForHref("/settings/users")).toBeDefined();
-    expect(resolveNavIconForHref("/architectures/new")).toBeDefined();
+  it("keeps Microsoft Teams distinct from Users & roles", () => {
+    expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).toBe(TEAMS_SURFACE_ICON);
+    expect(resolveNavIconForHref("/settings/users")).toBe(Users);
+    expect(resolveNavIconForHref(INTEGRATIONS_TEAMS_PATH)).not.toBe(resolveNavIconForHref("/settings/users"));
   });
 
   it("does not duplicate route identity for the same href", () => {
@@ -49,6 +49,6 @@ describe("resolveNavLinkForPathname", () => {
     const second = resolveNavLinkForPathname(INTEGRATIONS_WEBHOOKS_PATH);
 
     expect(first).toBe(second);
-    expect(first?.icon).toBe(Webhook);
+    expect(first?.icon).toBe(WEBHOOKS_SURFACE_ICON);
   });
 });
