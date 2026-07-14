@@ -11,7 +11,6 @@ import {
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { PATTERN_LIBRARY_NAV_BADGE, PATTERN_LIBRARY_NAV_LINK_LABEL } from "@/lib/pattern-library-copy";
-import { isPatternLibraryNavVisible } from "@/lib/pattern-library-provenance";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -71,10 +70,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
-    ];
-
-    if (isPatternLibraryNavVisible()) {
-      links.push({
+      {
         href: "/patterns",
         label: PATTERN_LIBRARY_NAV_LINK_LABEL,
         title: "Explore anonymized architecture patterns and adoption signals",
@@ -82,8 +78,8 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         tier: "extended",
         requiredAuthority: "ReadAuthority",
         navBadge: PATTERN_LIBRARY_NAV_BADGE,
-      });
-    }
+      },
+    ];
 
     return {
       id: "operate-analysis",

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -10,6 +11,7 @@ import { PatternLibraryFiltersPanel } from "@/app/(operator)/patterns/_sections/
 import { PatternLibraryPatternCard } from "@/app/(operator)/patterns/_sections/PatternLibraryPatternCard";
 import { PatternLibrarySummaryRow } from "@/app/(operator)/patterns/_sections/PatternLibrarySummaryRow";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { fetchPatternLibraryInsightCards } from "@/lib/fetch-pattern-library-insight-cards-client";
 import {
   PATTERN_LIBRARY_EMPTY_BUILDING_BODY,
   PATTERN_LIBRARY_EMPTY_BUILDING_TITLE,
@@ -25,74 +27,41 @@ import {
   filterPatternLibraryRecords,
   resolvePatternLibraryRecords,
 } from "@/lib/pattern-library-filters";
-import { resolvePatternLibraryProvenance } from "@/lib/pattern-library-provenance";
+import { filterEligiblePatternInsightCards } from "@/lib/pattern-library-aggregate-threshold";
+import {
+  resolvePatternLibraryProvenance,
+  shouldUsePatternLibrarySampleCatalogWhenBelowThreshold,
+} from "@/lib/pattern-library-provenance";
 import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { cn } from "@/lib/utils";
-
-type ApiPatternInsightCard = {
-  patternKey: string;
-  industryVertical: string;
-  summary: string;
-  contributingTenantCount: number;
-};
 
 export function PatternLibraryPageClient(): React.JSX.Element {
   const [filters, setFilters] = useState<PatternLibraryFiltersState>(DEFAULT_PATTERN_LIBRARY_FILTERS);
-  const [apiKeys, setApiKeys] = useState<readonly string[]>([]);
-  const [usingLiveAggregate, setUsingLiveAggregate] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: insightCards, isPending, isError, error } = useQuery({
+    queryKey: operatorQueryKeys.patternLibraryInsightCards,
+    queryFn: fetchPatternLibraryInsightCards,
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load(): Promise<void> {
-      try {
-        const res = await fetch("/api/proxy/v1/analytics/patterns", {
-          headers: { Accept: "application/json" },
-        });
-        const text = await res.text();
-
-        if (!res.ok) {
-          if (!cancelled) {
-            setError(text.length > 0 ? text : `Request failed (${res.status})`);
-          }
-
-          return;
-        }
-
-        const parsed = text.length > 0 ? (JSON.parse(text) as ApiPatternInsightCard[]) : [];
-
-        if (!cancelled) {
-          const eligible = parsed.filter((card) => card.contributingTenantCount >= 5);
-          setApiKeys(eligible.map((card) => card.patternKey));
-          setUsingLiveAggregate(eligible.length >= 3);
-        }
-      } catch (ex) {
-        if (!cancelled) {
-          setError(ex instanceof Error ? ex.message : "Failed to load patterns.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+  const eligibleCards = useMemo(
+    () => filterEligiblePatternInsightCards(insightCards ?? []),
+    [insightCards],
+  );
+  const usingLiveAggregate = eligibleCards.length >= 3;
+  const useSampleCatalog = !usingLiveAggregate && shouldUsePatternLibrarySampleCatalogWhenBelowThreshold();
   const provenance = resolvePatternLibraryProvenance(usingLiveAggregate);
   const allRecords = useMemo(
-    () => resolvePatternLibraryRecords(apiKeys, !usingLiveAggregate),
-    [apiKeys, usingLiveAggregate],
+    () => resolvePatternLibraryRecords(
+      usingLiveAggregate ? eligibleCards.map((card) => card.patternKey) : [],
+      useSampleCatalog,
+    ),
+    [eligibleCards, useSampleCatalog, usingLiveAggregate],
   );
   const filteredRecords = useMemo(() => filterPatternLibraryRecords(allRecords, filters), [allRecords, filters]);
   const summary = useMemo(() => derivePatternLibrarySummary(allRecords), [allRecords]);
+  const errorMessage = isError
+    ? (error instanceof Error ? error.message : "Failed to load patterns.")
+    : null;
 
   return (
     <div className={cn("w-full max-w-6xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="pattern-library-page">
@@ -111,9 +80,9 @@ export function PatternLibraryPageClient(): React.JSX.Element {
 
       <PatternLibraryFiltersPanel filters={filters} onChange={setFilters} />
 
-      {loading ? <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading pattern intelligence…</p> : null}
+      {isPending ? <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading pattern intelligence…</p> : null}
 
-      {error ? (
+      {errorMessage ? (
         <p
           className={cn(
             "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
@@ -121,11 +90,11 @@ export function PatternLibraryPageClient(): React.JSX.Element {
           )}
           role="alert"
         >
-          {error}
+          {errorMessage}
         </p>
       ) : null}
 
-      {!loading && filteredRecords.length === 0 ? (
+      {!isPending && filteredRecords.length === 0 ? (
         <EnterpriseCompactEmptyState
           testId="pattern-library-empty-state"
           title={allRecords.length === 0 ? PATTERN_LIBRARY_EMPTY_BUILDING_TITLE : PATTERN_LIBRARY_EMPTY_FILTERED_TITLE}
@@ -137,7 +106,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
         />
       ) : null}
 
-      {!loading && filteredRecords.length > 0 ? (
+      {!isPending && filteredRecords.length > 0 ? (
         <div className="grid gap-4 lg:grid-cols-2" data-testid="pattern-library-card-grid">
           {filteredRecords.map((record) => (
             <PatternLibraryPatternCard key={record.patternKey} record={record} />

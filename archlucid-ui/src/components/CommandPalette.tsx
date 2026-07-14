@@ -44,7 +44,9 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
+import { applyPatternLibraryHrefSetGate, applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
+import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { resolveOperateNavUnlockPhase } from "@/lib/usability/operate-advanced-features-disclosure";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
@@ -228,6 +230,7 @@ function CommandPaletteNavGroups({
   buyerPolishedShell,
   operateNavUnlockPhase,
   auditRunId,
+  patternLibraryNavVisible,
   onNavigate,
 }: {
   callerAuthorityRank: number;
@@ -237,37 +240,44 @@ function CommandPaletteNavGroups({
   buyerPolishedShell: boolean;
   operateNavUnlockPhase: ReturnType<typeof resolveOperateNavUnlockPhase>;
   auditRunId: string | null;
+  patternLibraryNavVisible: boolean;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
   const showAdminPalette = search.trim().length > 0;
 
-  const reviewRows = scopeOperatorShellNavRows(
-    listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      shellShowExtended,
-      shellShowAdvanced,
-      callerAuthorityRank,
-      false,
-      "review-workflow",
-      hasCommittedArchitectureReview,
-      operateNavUnlockPhase,
+  const reviewRows = applyPatternLibraryNavGate(
+    scopeOperatorShellNavRows(
+      listNavGroupsVisibleInOperatorShell(
+        NAV_GROUPS,
+        shellShowExtended,
+        shellShowAdvanced,
+        callerAuthorityRank,
+        false,
+        "review-workflow",
+        hasCommittedArchitectureReview,
+        operateNavUnlockPhase,
+      ),
+      auditRunId,
     ),
-    auditRunId,
+    patternLibraryNavVisible,
   );
 
-  const adminRows = scopeOperatorShellNavRows(
-    listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      shellShowExtended,
-      shellShowAdvanced,
-      callerAuthorityRank,
-      false,
-      "platform-admin",
-      hasCommittedArchitectureReview,
-      operateNavUnlockPhase,
+  const adminRows = applyPatternLibraryNavGate(
+    scopeOperatorShellNavRows(
+      listNavGroupsVisibleInOperatorShell(
+        NAV_GROUPS,
+        shellShowExtended,
+        shellShowAdvanced,
+        callerAuthorityRank,
+        false,
+        "platform-admin",
+        hasCommittedArchitectureReview,
+        operateNavUnlockPhase,
+      ),
+      auditRunId,
     ),
-    auditRunId,
+    patternLibraryNavVisible,
   );
 
   const systemAdminRows = isShowSystemAdministrationNavEnabled()
@@ -443,17 +453,21 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     operatorAdvancedModeOn,
     hasCommittedArchitectureReview,
   );
+  const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   const visibleHrefs = useMemo(() => {
-    return scopeOperatorShellHrefSet(
-      visibleOperatorShellHrefSet(
-        paletteExtended,
-        paletteAdvanced,
-        callerAuthorityRank,
-        hasCommittedArchitectureReview,
-        operateNavUnlockPhase,
+    return applyPatternLibraryHrefSetGate(
+      scopeOperatorShellHrefSet(
+        visibleOperatorShellHrefSet(
+          paletteExtended,
+          paletteAdvanced,
+          callerAuthorityRank,
+          hasCommittedArchitectureReview,
+          operateNavUnlockPhase,
+        ),
+        auditRunId,
       ),
-      auditRunId,
+      patternLibraryNavVisible,
     );
   }, [
     auditRunId,
@@ -462,6 +476,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     callerAuthorityRank,
     hasCommittedArchitectureReview,
     operateNavUnlockPhase,
+    patternLibraryNavVisible,
   ]);
 
   useEffect(() => {
@@ -611,6 +626,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             buyerPolishedShell={buyerPolishedShell}
             operateNavUnlockPhase={operateNavUnlockPhase}
             auditRunId={auditRunId}
+            patternLibraryNavVisible={patternLibraryNavVisible}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (

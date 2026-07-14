@@ -1,11 +1,28 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PatternLibraryPageClient } from "@/app/(operator)/patterns/_sections/PatternLibraryPageClient";
-import { PATTERN_LIBRARY_PAGE_SUBTITLE } from "@/lib/pattern-library-copy";
+import {
+  PATTERN_LIBRARY_EMPTY_BUILDING_BODY,
+  PATTERN_LIBRARY_EMPTY_BUILDING_TITLE,
+  PATTERN_LIBRARY_PAGE_SUBTITLE,
+} from "@/lib/pattern-library-copy";
+
+function renderWithQueryClient(ui: React.ReactElement): void {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+}
 
 describe("PatternLibraryPageClient", () => {
-  it("renders summary, filters, and sample pattern cards", async () => {
+  it("renders below-threshold empty state for buyer-polished workspaces", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
@@ -14,7 +31,7 @@ describe("PatternLibraryPageClient", () => {
       })) as unknown as typeof fetch,
     );
 
-    render(<PatternLibraryPageClient />);
+    renderWithQueryClient(<PatternLibraryPageClient />);
 
     expect(screen.getByTestId("pattern-library-page-title")).toHaveTextContent("Pattern library");
     expect(screen.getByText(PATTERN_LIBRARY_PAGE_SUBTITLE)).toBeInTheDocument();
@@ -23,11 +40,12 @@ describe("PatternLibraryPageClient", () => {
     expect(screen.getByTestId("pattern-library-filters")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByTestId("pattern-library-card-grid")).toBeInTheDocument();
+      expect(screen.getByTestId("pattern-library-empty-state")).toBeInTheDocument();
     });
 
-    const grid = screen.getByTestId("pattern-library-card-grid");
-    expect(within(grid).getAllByRole("link", { name: "Open pattern" }).length).toBeGreaterThanOrEqual(10);
+    expect(screen.getByText(PATTERN_LIBRARY_EMPTY_BUILDING_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(PATTERN_LIBRARY_EMPTY_BUILDING_BODY)).toBeInTheDocument();
+    expect(screen.queryByTestId("pattern-library-card-grid")).not.toBeInTheDocument();
     expect(screen.queryByText(/runId/i)).not.toBeInTheDocument();
   });
 });

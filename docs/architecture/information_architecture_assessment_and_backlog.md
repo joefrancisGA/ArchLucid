@@ -443,7 +443,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Telemetry:** count of post-spawn draft edits (validates severity before/after). **Acceptance:** post-spawn, the primary CTA on the draft is the linked review; no silent parallel editing.
 - **Priority/complexity:** P1/S. **Risk if deferred:** silent divergence and "two objects" illusion.
 
-**IA-008 · Hide Pattern library nav until content threshold** — **P1 · XS**
+**IA-008 · Hide Pattern library nav until content threshold** — **Done (2026-07-14)** — **P1 · XS**
 - **Problem:** `/patterns` requires ≥5 contributing tenants and ≥3 live cards for live aggregates; private-beta tenants will see an empty/below-threshold flagship "reuse" destination. Nav visibility flag exists (`isPatternLibraryNavVisible()`). `[PI]`
 - **Change (per D3, resolved 2026-07-14 — data-driven):** Make visibility data-driven: the nav item appears only when the aggregates endpoint reports the threshold met. Route stays live for deep links with an honest below-threshold empty state. The flag-off shortcut was considered and rejected by the owner.
 - **Files:** pattern nav visibility module, `operate-analysis-nav-group-builder.ts`, nav structure test.
@@ -536,7 +536,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 
 | Wave | Items | Rationale |
 |---|---|---|
-| **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 | Dead ends, stranded work, wrong mental model, empty flagship |
+| **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 ✓ | Dead ends, stranded work, wrong mental model, empty flagship |
 | **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003, IA-004, IA-010, IA-012, IA-013 | XS copy items; batch into one terminology PR so drift guards update once |
 | **Wave 3 — early beta (P1 structural-lite)** | IA-019 (telemetry first), IA-006, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
 | **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |

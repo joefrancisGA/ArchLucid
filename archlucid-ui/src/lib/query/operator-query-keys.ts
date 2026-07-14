@@ -13,4 +13,5 @@ export const operatorQueryKeys = {
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
   tenantHomepageSettings: ["operator", "tenant", "homepage-settings"] as const,
   featuredCompletedSampleCandidates: ["operator", "tenant", "homepage-settings", "eligible-samples"] as const,
+  patternLibraryInsightCards: ["operator", "analytics", "pattern-insight-cards"] as const,
 };

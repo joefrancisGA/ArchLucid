@@ -5,6 +5,7 @@ import { useMemo } from "react";
 
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useOperatorShellAuditRunId } from "@/hooks/useOperatorShellAuditRunId";
+import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -13,6 +14,7 @@ import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
 import { scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { resolveSidebarNavExpansionState } from "@/lib/sidebar-nav-disclosure-state";
@@ -69,6 +71,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const navGateHasCommittedArchitectureReview =
     hasCommittedArchitectureReview || effectiveOperateUnlockPhase >= 1;
   const omitAdminClusters = demoUi && !buyerPolishedShell;
+  const patternLibraryNavVisible = usePatternLibraryNavVisible();
 
   return useMemo(() => {
     const reviewNavRows = listNavGroupsVisibleInOperatorShell(
@@ -115,9 +118,12 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
           );
 
     return {
-      allRows: scopeOperatorShellNavRows(
-        [...reviewNavRows, ...adminNavRows, ...systemAdminNavRows],
-        auditRunId,
+      allRows: applyPatternLibraryNavGate(
+        scopeOperatorShellNavRows(
+          [...reviewNavRows, ...adminNavRows, ...systemAdminNavRows],
+          auditRunId,
+        ),
+        patternLibraryNavVisible,
       ),
       buyerPolishedShell,
       demoUi,
@@ -143,6 +149,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     navGateHasCommittedArchitectureReview,
     omitAdminClusters,
     operateNavUnlockPhase,
+    patternLibraryNavVisible,
     reviewNavAdvanced,
     reviewNavExpanded,
     shellShowAdvanced,
