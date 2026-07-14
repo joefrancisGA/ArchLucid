@@ -17991,7 +17991,7 @@ Closed 2026-07-07: unit tests for `PagingParameters`, `ReplayArtifactResponseFac
 1. **Archive file (created):** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md) ΓÇö append moved `## TB-xxx` bodies in batches (see batch table in that file).
 2. **Main file contract (unchanged for assessments):**
    - Keep **summary table rows** for Done items (assessments grep `TECH_BACKLOG.md` for **Done** ΓÇö see `docs/assessments/ASSESSMENT_PROMPT_V3.MD`).
-   - Replace moved detail sections with a one-line stub: `**Archived:** [TECH_BACKLOG_DONE_ARCHIVE.md#tb-xxx](...) ΓÇö Done YYYY-MM-DD`.
+   - Replace moved detail sections with a one-line **Archived:** stub pointing at `../archive/TECH_BACKLOG_DONE_ARCHIVE.md#tb-xxx` (same markdown link pattern as TB-617+ stubs above) ΓÇö Done YYYY-MM-DD.
    - Keep cluster narrative paragraphs and **Updated:** header changelog (trim only after archive stabilizes).
 3. **Do not move:** **TB-273** BDA mega-table (already indexed via [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md)); **TB-274** (no body); open or partial items; items with live cross-refs from assessments in the same sprint.
 4. **Script:** add `scripts/ci/archive-tech-backlog-done-sections.py` ΓÇö input: TB ID list or `--batch a`; moves sections; idempotent; Vitest or unit test on fixture markdown.
