@@ -453,7 +453,7 @@ export function DemoPreviewMarketingBody({
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             href="/pricing#pricing-quote-request"
-            className={MARKETING_PRIMARY_CTA_CLASS}
+            className="inline-flex rounded-md bg-teal-800 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-900 dark:bg-teal-800 dark:hover:bg-teal-900"
             data-testid="demo-preview-cta-signup"
           >
             Schedule enterprise demo
