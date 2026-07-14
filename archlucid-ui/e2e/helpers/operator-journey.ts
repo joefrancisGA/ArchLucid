@@ -749,14 +749,31 @@ export function structuredCompareSponsorRecommendationParagraph(page: Page): Loc
   return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
 }
 
+/** Navigates to `/reviews/{runId}` with encoded id and DOM-ready wait (live API E2E parity). */
+export async function gotoLiveRunDetailPage(
+  page: Page,
+  runId: string,
+  options?: { waitUntil?: "commit" | "domcontentloaded" | "load" },
+): Promise<void> {
+  await page.goto(`/reviews/${encodeURIComponent(runId)}`, {
+    waitUntil: options?.waitUntil ?? "domcontentloaded",
+  });
+}
+
 /** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
 export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_000): Promise<void> {
-  await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: timeoutMs });
-  await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
-  await expect(page.getByTestId("run-detail-load-failure")).toHaveCount(0, { timeout: timeoutMs });
-  await expect(page.getByTestId("branded-not-found")).toHaveCount(0, { timeout: timeoutMs });
-  await expect(page.getByTestId("review-detail-root")).toBeVisible({ timeout: timeoutMs });
-  await expect(page.locator("main h1").first()).toBeVisible({ timeout: timeoutMs });
+  const loadingReviewDetail = page.getByLabel("Loading review detail");
+  const reviewDetailRoot = page.getByTestId("review-detail-root");
+  const mainHeading = page.locator("main h1").first();
+
+  await expect(async () => {
+    await expect(loadingReviewDetail).toHaveCount(0, { timeout: 5_000 });
+    await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+    await expect(page.getByTestId("run-detail-load-failure")).toHaveCount(0, { timeout: 2_000 });
+    await expect(page.getByTestId("branded-not-found")).toHaveCount(0, { timeout: 2_000 });
+    await expect(reviewDetailRoot).toBeVisible({ timeout: 5_000 });
+    await expect(mainHeading).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: timeoutMs });
 }
 
 /** Live manifest detail after navigation — buyer-polished shell hides raw manifest UUID in the DOM. */

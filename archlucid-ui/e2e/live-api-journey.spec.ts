@@ -37,6 +37,7 @@ import {
   expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
   expandReviewDetailOutcomeCards,
+  gotoLiveRunDetailPage,
   governancePageMainHeading,
   openReviewDetailWorkspaceTab,
   runDetailFinalizedPackageLink,
@@ -136,11 +137,20 @@ test.describe("live-api-journey", () => {
       await injectDemoWorkspaceOperatorScope(page, tenantScope);
     }
 
-    await page.goto(`/reviews/${runId}`);
+    await gotoLiveRunDetailPage(page, runId);
 
-    await expectLiveRunDetailPageReady(page, 120_000);
+    try {
+      await expectLiveRunDetailPageReady(page, 90_000);
+    } catch (error) {
+      if (resolveLiveAuthMode() !== "bypass") {
+        throw error;
+      }
 
-    await expect(page.getByText(/Loading review detail/)).toHaveCount(0, { timeout: 60_000 });
+      // First RSC flight can miss the scope cookie on cold isolated-tenant runs — re-seed and reload once.
+      await injectDemoWorkspaceOperatorScope(page, tenantScope);
+      await gotoLiveRunDetailPage(page, runId);
+      await expectLiveRunDetailPageReady(page, 120_000);
+    }
 
     await openReviewDetailWorkspaceTab(page, runId, "activity");
 

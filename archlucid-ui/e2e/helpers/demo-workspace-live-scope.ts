@@ -59,7 +59,7 @@ export async function injectDemoWorkspaceOperatorScope(
 
   // Establish the Playwright origin before setting cookies so the first RSC navigation to run detail
   // includes archlucid_operator_scope_v1 (isolated tenant scope for live-api-journey).
-  await page.goto("/", { waitUntil: "commit" });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
 
   await page.context().addCookies([
     {
@@ -101,4 +101,8 @@ export async function injectDemoWorkspaceOperatorScope(
       cookieValue: scopeCookieValue,
     },
   );
+
+  // Init script only runs on navigations after registration — reload once so localStorage and
+  // document.cookie mirror the SSR cookie before isolated-tenant run-detail RSC hydration.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
 }
