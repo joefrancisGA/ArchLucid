@@ -11,7 +11,7 @@ import { getArtifactBusinessLabel, stripArtifactFilenameExtension } from "@/lib/
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
-import { MARKETING_CAPTION_TEXT_CLASS } from "@/lib/design-tokens";
+import { MARKETING_CAPTION_TEXT_CLASS, MARKETING_PRIMARY_CTA_CLASS } from "@/lib/design-tokens";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,7 @@ export function DemoPreviewFriendlyUnavailable() {
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
           href="/showcase/claims-intake-modernization"
-          className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          className={MARKETING_PRIMARY_CTA_CLASS}
         >
           View example output
         </Link>
@@ -70,7 +70,7 @@ export function DemoPreviewNotAvailable() {
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
           href="/showcase/claims-intake-modernization"
-          className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          className={MARKETING_PRIMARY_CTA_CLASS}
         >
           View example output
         </Link>
@@ -453,7 +453,7 @@ export function DemoPreviewMarketingBody({
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             href="/pricing#pricing-quote-request"
-            className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+            className={MARKETING_PRIMARY_CTA_CLASS}
             data-testid="demo-preview-cta-signup"
           >
             Schedule enterprise demo
