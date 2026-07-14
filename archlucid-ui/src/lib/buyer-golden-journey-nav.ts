@@ -108,7 +108,7 @@ export function resolveBuyerGoldenJourneyNav(
     || path === manifestArchitecturePath
   ) {
     stepIdx = 1;
-  } else if (path === execBase || path.startsWith(`${execBase}/`)) {
+  } else if (path === execBase) {
     stepIdx = 0;
   } else {
     const reviewExecutive = /^\/reviews\/([^/]+)$/.exec(path);
