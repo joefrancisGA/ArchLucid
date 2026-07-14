@@ -331,6 +331,11 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
+/** Tabbed buyer-polished run detail workspace (`ReviewDetailWorkspace`). */
+export function buyerPolishedReviewDetailWorkspace(page: Page): Locator {
+  return page.getByTestId("review-detail-workspace");
+}
+
 /** Buyer-polished run detail sticky section nav (`RunDetailSectionNav`). */
 export function buyerPolishedReviewDetailSectionNav(page: Page): Locator {
   return page.getByRole("navigation", { name: "Review detail sections" });
@@ -349,6 +354,51 @@ const BUYER_POLISHED_REVIEW_DETAIL_CORE_SECTION_IDS = [
   "pipeline-timeline",
   "artifacts-exports",
 ] as const;
+
+const BUYER_POLISHED_REVIEW_DETAIL_CORE_WORKSPACE_TABS: readonly ReviewDetailTabId[] = [
+  "overview",
+  "findings",
+  "evidence",
+  "policies",
+  "activity",
+];
+
+/** Run detail loaded — tabbed workspace (current) or legacy sticky section nav. */
+export async function expectBuyerPolishedReviewDetailShellReady(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+
+  await expectLiveRunDetailPageReady(page, timeoutMs);
+  await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: timeoutMs });
+
+  const workspace = buyerPolishedReviewDetailWorkspace(page);
+  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+
+  if ((await workspace.count()) > 0) {
+    await expect(workspace).toBeVisible({ timeout: timeoutMs });
+    await expect(page.getByTestId("review-detail-workspace-tabs")).toBeVisible({ timeout: timeoutMs });
+
+    return;
+  }
+
+  await expect(sectionNav).toBeVisible({ timeout: timeoutMs });
+}
+
+/** Canonical buyer-polished workspace tabs on committed review detail. */
+export async function expectBuyerPolishedReviewDetailWorkspaceCore(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 15_000;
+
+  await expect(buyerPolishedReviewDetailWorkspace(page)).toBeVisible({ timeout });
+
+  for (const tab of BUYER_POLISHED_REVIEW_DETAIL_CORE_WORKSPACE_TABS) {
+    await expect(page.getByTestId(`review-detail-workspace-tab-${tab}`)).toBeVisible({ timeout });
+  }
+}
 
 /** Canonical buyer-polished section strip labels from `buildRunDetailNavSections`. */
 export async function expectBuyerPolishedReviewDetailSectionNavCore(
@@ -490,12 +540,19 @@ export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
  */
 export async function expectBuyerPipelineTimelineSectionVisible(
   page: Page,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number; runId?: string },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 60_000;
   const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  await buyerPolishedReviewDetailSectionNavLink(sectionNav, "pipeline-timeline").click();
+  if ((await sectionNav.count()) > 0) {
+    await buyerPolishedReviewDetailSectionNavLink(sectionNav, "pipeline-timeline").click();
+  } else if (options?.runId !== undefined && options.runId.trim().length > 0) {
+    await openReviewDetailWorkspaceTab(page, options.runId, "activity");
+  } else {
+    await page.getByTestId("review-detail-workspace-tab-activity").click();
+    await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout });
+  }
 
   const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
 
@@ -514,8 +571,21 @@ export async function expectBuyerPipelineTimelineSectionVisible(
 }
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
-export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promise<void> {
-  const deliverablesDetails = page.locator("#artifacts-exports details").first();
+export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?: string): Promise<void> {
+  const artifactsSection = page.locator("#artifacts-exports");
+
+  if ((await artifactsSection.count()) === 0 || !(await artifactsSection.isVisible())) {
+    if (runId !== undefined && runId.trim().length > 0) {
+      await openReviewDetailWorkspaceTab(page, runId, "activity");
+    } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
+      await page.getByTestId("review-detail-workspace-tab-activity").click();
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+    }
+  }
+
+  await artifactsSection.scrollIntoViewIfNeeded();
+
+  const deliverablesDetails = artifactsSection.locator("details").first();
   const deliverablesSummary = deliverablesDetails.locator("summary", { hasText: /^Deliverables$/ });
 
   await expect(deliverablesSummary).toBeVisible({ timeout: 60_000 });
