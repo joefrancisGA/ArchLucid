@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT } from "@/lib/buyer-polish-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   TRIAL_FUNNEL_CONVERSION_NOTE,
@@ -268,7 +269,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
   if (!isAdmin) {
     return (
       <p className={cn("text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
-        This page requires tenant administrator access (AdminAuthority).
+        {FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT}
       </p>
     );
   }

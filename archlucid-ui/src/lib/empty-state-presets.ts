@@ -23,7 +23,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
     { label: "Start an architecture review", href: "/reviews/new" },
     { label: "Explore the sample review", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
-  helpTopicPath: "creating-runs",
+  helpTopicPath: "starting-reviews",
 };
 
 export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {

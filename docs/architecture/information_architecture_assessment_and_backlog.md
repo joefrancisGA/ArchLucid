@@ -477,11 +477,12 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Acceptance:** no customer-visible link targets a redirect source; guard test enforces it.
 - **Shipped:** `GOVERNANCE_WORKFLOW_IDLE` policy packs CTA → `/governance/policy-packs`; `auditTrailNavHref` → `/governance/audit`; `empty-state-preset-cta-guard.test.ts` enforces disjointness from `next.config.ts` permanent redirect sources.
 
-**IA-013 · Internal-concept leakage copy pass** — **P1 · XS**
+**IA-013 · Internal-concept leakage copy pass** — **Done (2026-07-14)** — **P1 · XS**
 - **Problem:** "AdminAuthority"/"ExecuteAuthority" in forbidden-state messages (`SettingsRolesPageView.tsx`, `TrialFunnelOpsPageClient.tsx`, cloud wizard); "V1 is sold through guided evaluation…" on `/pricing`; help slug `creating-runs` in customer URLs; breadcrumb "pilot" for `/value-report/pilot`. `[PUI]`
 - **Change:** Replace rank names with role phrasing ("Requires a workspace admin"); reword pricing note without version labels; register slug alias `starting-reviews` (keep `creating-runs` as redirect alias in the help registry); breadcrumb label for `pilot` segment already maps to "Review value report" — verify and keep.
 - **Files:** the three components, `buyer-polish-copy.ts`, `product-documentation-registry.ts`, `breadcrumb-map.ts`, tests.
 - **Acceptance:** grep guard for `Authority"` strings in rendered copy passes; old help slug still resolves.
+- **Shipped:** `FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE*` on settings/trial-funnel gates; `BUYER_SALES_LED_PRICING_NOTE` without version label; `starting-reviews` help slug + `creating-runs` alias; `internal-concept-leakage-guard.test.ts`.
 
 **IA-014 · Dead page-file and internal-route cleanup** — **P2 · S**
 - **Problem:** Page files persist for `/integrations/itsm`, `/executive/dashboard`, `/admin/ai-usage-cost`, `/operate/architecture-graph` (all unreachable behind permanent redirects); `/why-archlucid` and `/demo/explain` are internal tooling in customer route space. `[PI]`
@@ -538,7 +539,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 | Wave | Items | Rationale |
 |---|---|---|
 | **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 ✓ | Dead ends, stranded work, wrong mental model, empty flagship |
-| **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004 ✓, IA-010 ✓, IA-012 ✓, IA-013 | XS copy items; batch into one terminology PR so drift guards update once |
+| **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004 ✓, IA-010 ✓, IA-012 ✓, IA-013 ✓ | XS copy items; batch into one terminology PR so drift guards update once |
 | **Wave 3 — early beta (P1 structural-lite)** | IA-019 (telemetry first), IA-006, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
 | **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |
 | **Wave 5 — post-telemetry (P2/P3)** | IA-009, IA-015, IA-021, IA-022 | Each is explicitly gated on usage evidence |

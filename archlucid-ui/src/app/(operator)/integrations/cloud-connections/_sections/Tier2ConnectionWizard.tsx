@@ -62,8 +62,8 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
   const wizardSteps = skipSecurityStep ? TIER2_CONNECTION_DETAIL_WIZARD_STEPS : TIER2_CONNECTION_WIZARD_STEPS;
   const securityStepOffset = skipSecurityStep ? 1 : 0;
   const canMutate = useOperateCapability();
-  // The hosted validation-run endpoint (/v1/admin/azure-extractor/hosted/run) is AdminAuthority-gated, stricter than
-  // the ExecuteAuthority "save connection" step — checked separately so non-Admin Execute-tier callers don't hit a
+  // The hosted validation-run endpoint is workspace-administrator-gated, stricter than
+  // the operator-tier "save connection" step — checked separately so non-admin operators don't hit a
   // dead-end 403 on a live-looking button.
   const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [step, setStep] = useState(0);

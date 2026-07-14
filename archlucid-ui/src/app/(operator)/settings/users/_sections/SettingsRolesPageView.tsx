@@ -21,6 +21,7 @@ import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer-polish-copy";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
@@ -124,7 +125,7 @@ export function SettingsRolesPageView(props: Props) {
     return (
       <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
         <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="settings-roles-forbidden">
-          This page requires tenant administrator access (AdminAuthority). Sign in with an admin-ranked account or API key.
+          {FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE}
         </p>
       </div>
     );

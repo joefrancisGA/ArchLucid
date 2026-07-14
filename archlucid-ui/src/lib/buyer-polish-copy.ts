@@ -798,9 +798,19 @@ export const BUYER_COMPARE_OPEN_FULL_LINK_LABEL = "View review change comparison
 export const BUYER_MARKETING_PRICING_PAGE_INTRO =
   "Start with one architect, grow into a governed review practice, and use Enterprise when procurement, SSO, or private deployment is required.";
 
-/** Sales-led V1: no self-serve checkout; quote and order form finalize commercial terms. */
-export const BUYER_SALES_LED_V1_PRICING_NOTE =
-  "V1 is sold through guided evaluation and procurement — request a quote for packaging, fair-use limits, and diligence artifacts. List tiers illustrate scope; they are not a live marketplace checkout.";
+/** Sales-led posture: no self-serve checkout; quote and order form finalize commercial terms. */
+export const BUYER_SALES_LED_PRICING_NOTE =
+  "ArchLucid is sold through guided evaluation and procurement — request a quote for packaging, fair-use limits, and diligence artifacts. List tiers illustrate scope; they are not a live marketplace checkout.";
+
+/** @deprecated Use {@link BUYER_SALES_LED_PRICING_NOTE}. */
+export const BUYER_SALES_LED_V1_PRICING_NOTE = BUYER_SALES_LED_PRICING_NOTE;
+
+/** Forbidden-state copy when a surface requires workspace administrator access. */
+export const FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE =
+  "This page requires a workspace administrator. Sign in with an admin account or API key.";
+
+export const FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE_SHORT =
+  "This page requires a workspace administrator.";
 
 /** Early-access pricing transparency — below tier grid on public /pricing. */
 export const BUYER_EARLY_ADOPTER_PRICING_NOTE =

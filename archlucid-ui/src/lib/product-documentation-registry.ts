@@ -40,6 +40,7 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/gcp": "cloud-connections-gcp",
   "users-and-roles": "users-and-roles",
   "operator-auth-roles": "users-and-roles",
+  "creating-runs": "starting-reviews",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -82,6 +83,14 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "review-guide",
     title: "Review guide",
+    summary:
+      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
+  },
+  {
+    slug: "starting-reviews",
+    title: "Starting architecture reviews",
     summary:
       "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
     audience: "buyer",

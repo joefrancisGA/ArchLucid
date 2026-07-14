@@ -53,6 +53,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   procurement: "product-help",
   "repeat-review-loop": "product-help",
   "review-guide": "product-help",
+  "starting-reviews": "product-help",
   "review-packages": "product-help",
   scope: "product-help",
   glossary: "product-help",

@@ -53,6 +53,9 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("review-guide")).toBe("/help/review-guide");
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
+    expect(getProductDocumentationEntry("starting-reviews")?.title).toBe("Starting architecture reviews");
+    expect(getProductDocumentationEntry("creating-runs")?.slug).toBe("starting-reviews");
+    expect(inAppHelpHref("starting-reviews")).toBe("/help/starting-reviews");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
