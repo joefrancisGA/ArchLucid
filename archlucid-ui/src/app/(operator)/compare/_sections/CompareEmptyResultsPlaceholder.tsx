@@ -34,7 +34,7 @@ export function CompareEmptyResultsPlaceholder(props: CompareEmptyResultsPlaceho
         aria-hidden
       >
         {COMPARE_DIMENSION_PREVIEW_ITEMS.map((item) => (
-          <li key={item.id} className="text-neutral-400 dark:text-neutral-500">
+          <li key={item.id} className="text-al-text-secondary">
             {item.label}
           </li>
         ))}
