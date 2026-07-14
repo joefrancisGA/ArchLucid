@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 import { axeLiveE2eDisableRuleIdsNow } from "./axe-rule-allowlist";
 import { runAxe } from "./helpers/axe-helper";
@@ -91,9 +91,10 @@ test.describe("route focus and announcements", () => {
     await navigateToReviewsViaOperatorShell(page);
     await page.waitForURL("**/reviews**", { timeout: 60_000 });
 
-    await expect(page.getByTestId("route-announcer")).toContainText("Navigated to Review Packages", {
-      timeout: 10_000,
-    });
+    await expect(page.getByTestId("route-announcer")).toContainText(
+      `Navigated to ${RUNS_LIST_PAGE_TITLES.buyerPolished}`,
+      { timeout: 10_000 },
+    );
   });
 
   test("axe baseline passes in dark mode", async ({ page }) => {
