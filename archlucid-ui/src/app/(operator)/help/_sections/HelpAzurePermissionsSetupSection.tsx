@@ -59,7 +59,7 @@ export function HelpAzurePermissionsSetupSection(props: HelpAzurePermissionsSetu
         Assign {roleNames} using the Azure portal or Azure CLI. {AZURE_CLOUD_CONNECTION_IDENTITY_MODEL.federation}
       </p>
       <Tabs defaultValue="portal" data-testid="azure-permissions-setup-tabs">
-        <TabsList>
+        <TabsList aria-label="Azure permissions setup methods">
           <TabsTrigger value="portal">{AZURE_PERMISSIONS_PORTAL_TAB}</TabsTrigger>
           <TabsTrigger value="cli">{AZURE_PERMISSIONS_CLI_TAB}</TabsTrigger>
         </TabsList>
