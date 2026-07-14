@@ -4,11 +4,17 @@ import { join, resolve } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import GetStartedPage from "./page";
-import { BUYER_GET_STARTED_VERTICAL_SLUGS, VERTICAL_DISPLAY_NAMES } from "./get-started-verticals";
+import { GetStartedPageClient } from "./GetStartedPageClient";
+import {
+  GET_STARTED_PAGE_TITLE,
+  GET_STARTED_SAMPLE_DISCLOSURE,
+  GET_STARTED_VERTICAL_PRESENTATIONS,
+} from "./get-started-content";
+import { BUYER_GET_STARTED_VERTICAL_SLUGS } from "./get-started-verticals";
 
 function readBriefSlugs(): readonly string[] {
   const briefsRoot = resolve(__dirname, "../../../../../templates/briefs");
+
   return readdirSync(briefsRoot)
     .filter((entry) => statSync(join(briefsRoot, entry)).isDirectory())
     .sort();
@@ -23,40 +29,69 @@ describe("BUYER_GET_STARTED_VERTICAL_SLUGS", () => {
   });
 });
 
-describe("GetStartedPage", () => {
-  it("renders all four steps with step indicators", () => {
-    render(<GetStartedPage />);
+describe("GetStartedPageClient", () => {
+  it("renders distinct sample and guided-trial paths with a primary hero action", () => {
+    render(<GetStartedPageClient />);
+
+    expect(screen.getByRole("heading", { name: GET_STARTED_PAGE_TITLE, level: 1 })).toBeInTheDocument();
+    expect(screen.getByTestId("get-started-primary-trial-cta")).toBeInTheDocument();
+    expect(screen.getByTestId("get-started-sample-path")).toBeInTheDocument();
+    expect(screen.getByTestId("get-started-guided-path")).toBeInTheDocument();
+  });
+
+  it("does not expose internal template paths or promotional frictionless language", () => {
+    render(<GetStartedPageClient />);
+
+    const text = document.body.textContent ?? "";
+
+    expect(text.toLowerCase()).not.toContain("templates/briefs");
+    expect(text.toLowerCase()).not.toContain("architecture proof engine");
+    expect(text.toLowerCase()).not.toContain("frictionless");
+    expect(text.toLowerCase()).not.toContain("within a few seconds");
+    expect(text.toLowerCase()).not.toContain("first commit");
+  });
+
+  it("renders industry cards with differentiated public-sector labels and sample links", () => {
+    render(<GetStartedPageClient />);
+
+    const picker = screen.getByTestId("get-started-vertical-picker");
+
+    expect(picker).toBeInTheDocument();
+    expect(screen.getByText("Public sector")).toBeInTheDocument();
+    expect(screen.getByText("US government")).toBeInTheDocument();
+    expect(screen.queryByText("Public Sector (US)")).not.toBeInTheDocument();
+
+    for (const vertical of GET_STARTED_VERTICAL_PRESENTATIONS) {
+      const card = screen.getByTestId(`get-started-vertical-${vertical.slug}`);
+
+      expect(card).toHaveAttribute("data-vertical-slug", vertical.slug);
+      expect(card).toHaveAttribute("href", vertical.publicSampleHref);
+      expect(card.textContent).toContain(vertical.scenario);
+    }
+  });
+
+  it("renders four concise milestones with timing and sample disclosure", () => {
+    render(<GetStartedPageClient />);
 
     for (let n = 1; n <= 4; n++) {
       expect(screen.getByTestId(`get-started-step-${n}`)).toBeInTheDocument();
-      const indicator = screen.getByTestId(`get-started-step-${n}-indicator`);
-      expect(indicator.textContent).toBe(String(n));
+      expect(screen.getByTestId(`get-started-step-${n}-indicator`)).toHaveTextContent(String(n));
     }
+
+    expect(screen.getByText(GET_STARTED_SAMPLE_DISCLOSURE)).toBeInTheDocument();
+    expect(screen.getByTestId("get-started-next-step-panel")).toBeInTheDocument();
   });
 
-  it("renders the vertical picker with friendly labels for each templates/briefs slug", () => {
-    render(<GetStartedPage />);
+  it("does not render a talk to a human CTA", () => {
+    render(<GetStartedPageClient />);
 
-    const picker = screen.getByTestId("get-started-vertical-picker");
-    expect(picker).toBeInTheDocument();
-
-    for (const slug of BUYER_GET_STARTED_VERTICAL_SLUGS) {
-      const button = screen.getByTestId(`get-started-vertical-${slug}`);
-      expect(button).toHaveAttribute("data-vertical-slug", slug);
-      expect(button.textContent).toBe(VERTICAL_DISPLAY_NAMES[slug]);
-    }
-  });
-
-  it("does not render a 'talk to a human' CTA (Q5 — V1.1 deferred)", () => {
-    render(<GetStartedPage />);
-
-    const all = document.body.textContent ?? "";
-    expect(/talk to a human/i.test(all)).toBe(false);
+    expect(/talk to a human/i.test(document.body.textContent ?? "")).toBe(false);
   });
 });
 
 describe.sequential("GetStartedPage — NEXT_PUBLIC_DEMO_URL live demo CTA", () => {
   const originalDemoUrl = process.env.NEXT_PUBLIC_DEMO_URL;
+
   afterEach(() => {
     if (originalDemoUrl === undefined) {
       delete process.env.NEXT_PUBLIC_DEMO_URL;
@@ -65,19 +100,11 @@ describe.sequential("GetStartedPage — NEXT_PUBLIC_DEMO_URL live demo CTA", () 
     }
   });
 
-  it("omits the CTA when the env var is unset", () => {
-    delete process.env.NEXT_PUBLIC_DEMO_URL;
-    render(<GetStartedPage />);
-    expect(screen.queryByTestId("get-started-live-demo-cta")).not.toBeInTheDocument();
-  });
-
-  it("renders the link when the env var is a valid https URL", () => {
+  it("omits the legacy live-demo env CTA from the redesigned page", () => {
     process.env.NEXT_PUBLIC_DEMO_URL = "https://demo.archlucid.net";
-    render(<GetStartedPage />);
-    expect(screen.getByTestId("get-started-live-demo-link")).toHaveAttribute(
-      "href",
-      "https://demo.archlucid.net"
-    );
+    render(<GetStartedPageClient />);
+
+    expect(screen.queryByTestId("get-started-live-demo-cta")).not.toBeInTheDocument();
   });
 });
 

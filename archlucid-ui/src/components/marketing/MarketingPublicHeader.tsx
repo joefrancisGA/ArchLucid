@@ -55,7 +55,17 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
                 <Link href="/pricing">Pricing</Link>
               </Button>
               <Button asChild variant="ghost" size="sm" className="shrink-0">
-                <Link href="/see-it" aria-current={pathname === "/see-it" || pathname === "/demo/preview" ? "page" : undefined}>
+                <Link
+                  href="/see-it"
+                  aria-current={
+                    pathname === "/see-it" ||
+                    pathname === "/demo/preview" ||
+                    pathname === "/get-started" ||
+                    pathname.startsWith("/showcase/")
+                      ? "page"
+                      : undefined
+                  }
+                >
                   See it
                 </Link>
               </Button>

@@ -1,18 +1,14 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
-
 import GetStartedPage from "./page";
+import { GET_STARTED_PAGE_TITLE } from "./get-started-content";
 
-describe("GetStartedPage brand category", () => {
-  it("renders the brand-category paragraph using BRAND_CATEGORY (not the legacy string)", () => {
-    const { getByTestId } = render(<GetStartedPage />);
+describe("GetStartedPage shell", () => {
+  it("renders the redesigned onboarding title in the page shell", () => {
+    render(<GetStartedPage />);
 
-    const paragraph = getByTestId("get-started-brand-category-paragraph");
-    const text = paragraph.textContent ?? "";
-
-    expect(text).toContain(BRAND_CATEGORY);
-    expect(text).not.toContain(BRAND_CATEGORY_LEGACY);
+    expect(screen.getByTestId("get-started-shell")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: GET_STARTED_PAGE_TITLE, level: 1 })).toBeInTheDocument();
   });
 });
