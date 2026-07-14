@@ -405,7 +405,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Acceptance:** a user with a saved draft can reach it within two clicks of signing in, through visible UI.
 - **Beta impact:** prevents lost-work reports. **Risk if deferred:** "the product lost my work" is a trust-killing beta signal.
 
-**IA-003 · Rename the review-detail "Review" tab** — **P1 · XS**
+**IA-003 · Rename the review-detail "Review" tab** — **Done (2026-07-14)** — **P1 · XS**
 - **Problem:** Tab id `review-package` renders label "Review" (`review-detail-workspace-tabs.ts:24`) on a page that *is* the review — the label carries no information; the tab contains finalize + exports. `[PUI]`
 - **Impact:** Architects/reviewers can't predict where finalize/export lives. **Routes:** `/reviews/[runId]`. **Files:** `review-detail-workspace-tabs.ts` (label map only; ids and legacy hash map unchanged).
 - **Change:** label → "Finalize & exports" (or "Deliverables" post-finalize; keep it one static label for now).
@@ -537,7 +537,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 | Wave | Items | Rationale |
 |---|---|---|
 | **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 ✓ | Dead ends, stranded work, wrong mental model, empty flagship |
-| **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003, IA-004, IA-010, IA-012, IA-013 | XS copy items; batch into one terminology PR so drift guards update once |
+| **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004, IA-010, IA-012, IA-013 | XS copy items; batch into one terminology PR so drift guards update once |
 | **Wave 3 — early beta (P1 structural-lite)** | IA-019 (telemetry first), IA-006, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
 | **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |
 | **Wave 5 — post-telemetry (P2/P3)** | IA-009, IA-015, IA-021, IA-022 | Each is explicitly gated on usage evidence |

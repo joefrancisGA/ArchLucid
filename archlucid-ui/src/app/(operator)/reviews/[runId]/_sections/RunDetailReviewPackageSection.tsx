@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
 
 export type RunDetailReviewPackageSectionProps = {
   readonly manifestId: string | null | undefined;
@@ -25,7 +26,7 @@ export function RunDetailReviewPackageSection(
       data-testid="run-detail-review-package"
     >
       <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
-        Review
+        {REVIEW_DETAIL_TAB_LABELS["review-package"]}
       </h2>
       {!finalized ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>

@@ -1,4 +1,5 @@
 import type { RunDetailSection } from "@/components/RunDetailSectionNav";
+import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
 import type { ManifestSummary, RunDetail } from "@/types/authority";
 
 export type BuildRunDetailNavSectionsArgs = {
@@ -24,7 +25,7 @@ export function buildRunDetailNavSections(
         { id: "manifest-summary", label: "Policies and standards", available: Boolean(manifestId) },
         { id: "governance-decision", label: "Decisions", available: true },
         { id: "recommended-actions", label: "Remediation", available: true },
-        { id: "review-package", label: "Review", available: true },
+        { id: "review-package", label: REVIEW_DETAIL_TAB_LABELS["review-package"], available: true },
         { id: "pipeline-timeline", label: "Activity and audit", available: true },
         {
           id: "architecture-graph",
@@ -43,7 +44,7 @@ export function buildRunDetailNavSections(
       { id: "manifest-summary", label: "Policies and standards", available: Boolean(manifestSummary) },
       { id: "governance-decision", label: "Decisions", available: true },
       { id: "recommended-actions", label: "Remediation", available: true },
-      { id: "review-package", label: "Review", available: true },
+      { id: "review-package", label: REVIEW_DETAIL_TAB_LABELS["review-package"], available: true },
       { id: "capture-evidence", label: "Add evidence", available: !Boolean(manifestId) },
       { id: "technology-baseline", label: "Technology baseline", available: true },
       { id: "pipeline-timeline", label: "Activity and audit", available: true },

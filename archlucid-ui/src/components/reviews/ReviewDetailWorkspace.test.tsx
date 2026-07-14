@@ -41,6 +41,7 @@ describe("ReviewDetailWorkspace", () => {
   it("keeps overflow tabs in a More menu with full labels", () => {
     render(<ReviewDetailWorkspace panels={panels} />);
 
+    expect(screen.getByRole("tab", { name: /Finalize & exports/i })).toBeInTheDocument();
     expect(screen.getByTestId("review-detail-workspace-tab-more-trigger")).toHaveTextContent("More sections");
     expect(screen.queryByRole("tab", { name: /^Architecture$/i })).not.toBeInTheDocument();
 
