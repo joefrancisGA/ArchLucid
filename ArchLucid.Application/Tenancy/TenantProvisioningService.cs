@@ -64,17 +64,10 @@ public sealed class TenantProvisioningService(
 
         string normalizedOrganizationName = TenantOrganizationDuplicateDetector.NormalizeOrganizationName(request.Name);
         string slug = TenantSlugNormalizer.FromName(request.Name);
-        TenantRecord? existing =
-            await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct);
 
-        if (existing is null)
-        {
-            // Self-service registration inserts dbo.Tenants on the control-plane catalog; slug idempotency must consult that plane first.
-            existing = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
-
-            if (existing is null)
-                existing = await _tenantRepository.GetBySlugAsync(slug, ct);
-        }
+        // Anonymous /v1/register resolves DefaultTenant scope; tenant-plane SQL fallbacks must run unscoped so
+        // control-plane dbo.Tenants rows are visible before insert (SystemWithPerTenantCatalogs + greenfield CI).
+        TenantRecord? existing = await ResolveExistingTenantForProvisionAsync(normalizedOrganizationName, slug, ct);
 
         if (existing is not null)
             return await BuildAlreadyProvisionedResultAsync(existing, request, slug, ct);
@@ -93,16 +86,7 @@ public sealed class TenantProvisioningService(
         }
         catch (Exception ex) when (TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex))
         {
-            TenantRecord? raced =
-                await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct);
-
-            if (raced is null)
-            {
-                raced = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
-
-                if (raced is null)
-                    raced = await _tenantRepository.GetBySlugAsync(slug, ct);
-            }
+            TenantRecord? raced = await ResolveExistingTenantForProvisionAsync(normalizedOrganizationName, slug, ct);
 
             if (raced is null)
                 throw;
@@ -154,6 +138,31 @@ public sealed class TenantProvisioningService(
         {
             TenantId = tenantId, DefaultWorkspaceId = workspaceId, DefaultProjectId = projectId, WasAlreadyProvisioned = false,
         };
+    }
+
+    private async Task<TenantRecord?> ResolveExistingTenantForProvisionAsync(
+        string normalizedOrganizationName,
+        string slug,
+        CancellationToken ct)
+    {
+        ScopeContext unscoped = new();
+
+        using (AmbientScopeContext.Push(unscoped))
+        {
+            TenantRecord? existing =
+                await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct);
+
+            if (existing is not null)
+                return existing;
+
+            // Self-service registration inserts dbo.Tenants on the control-plane catalog; slug idempotency must consult that plane first.
+            existing = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+
+            if (existing is not null)
+                return existing;
+
+            return await _tenantRepository.GetBySlugAsync(slug, ct);
+        }
     }
 
     private async Task<TenantProvisioningResult> BuildAlreadyProvisionedResultAsync(

@@ -63,6 +63,44 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
     }
 
     [SkippableFact]
+    public async Task Insert_duplicate_normalized_organization_name_is_visible_to_lookup()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
+        Guid firstTenantId = Guid.NewGuid();
+        Guid secondTenantId = Guid.NewGuid();
+        string organizationName = "Reg Org " + Guid.NewGuid().ToString("N");
+        string slug = "reg-org-" + Guid.NewGuid().ToString("N")[..8];
+        string normalizedName = organizationName.Trim().ToUpperInvariant();
+
+        await sut.InsertTenantAsync(
+            firstTenantId,
+            organizationName,
+            slug,
+            TenantTier.Free,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        (await sut.GetByNormalizedOrganizationNameAsync(normalizedName, CancellationToken.None))!.Id
+            .Should()
+            .Be(firstTenantId);
+
+        Func<Task> duplicateInsert = () => sut.InsertTenantAsync(
+            secondTenantId,
+            organizationName,
+            slug,
+            TenantTier.Free,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        await duplicateInsert.Should().ThrowAsync<SqlException>();
+    }
+
+    [SkippableFact]
     public async Task Insert_get_by_id_slug_entra_list_and_workspace_round_trips()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
