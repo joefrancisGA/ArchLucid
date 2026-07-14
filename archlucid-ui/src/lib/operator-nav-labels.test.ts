@@ -61,16 +61,16 @@ describe("operator-nav-labels", () => {
   });
 
   it("TB-606: aligns reviews-list sidebar labels with governance-mode vocabulary", () => {
-    expect(resolveReviewsListNavLinkLabel(false)).toBe("Architecture packages");
+    expect(resolveReviewsListNavLinkLabel(false)).toBe("Reviews");
     expect(resolveReviewsListNavLinkLabel(true)).toBe("Reviews");
 
     const source = {
       href: "/reviews?projectId=default",
       label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
-      title: "Browse finalized architecture packages",
+      title: "Browse architecture reviews",
     };
 
-    expect(resolveNavLinkPresentation(source, false, false).label).toBe("Architecture packages");
+    expect(resolveNavLinkPresentation(source, false, false).label).toBe("Reviews");
     expect(resolveNavLinkPresentation(source, false, true).label).toBe("Reviews");
   });
 });

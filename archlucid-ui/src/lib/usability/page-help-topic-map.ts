@@ -16,7 +16,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/onboarding", topic: { slug: "getting-started", label: BUYER_ONBOARDING_PAGE_TITLE } },
   { prefix: ARCHITECTURES_LIST_PATH, topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
-  { prefix: "/reviews", topic: { slug: "review-packages", label: "Review packages" } },
+  { prefix: "/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Executive dashboard" } },
   { prefix: "/graph", topic: { slug: "evidence-trail", label: "Evidence trail" } },
   { prefix: "/compare", topic: { slug: "comparison-replay", label: "Compare and replay" } },

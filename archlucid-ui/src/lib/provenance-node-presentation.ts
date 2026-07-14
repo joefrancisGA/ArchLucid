@@ -1,4 +1,5 @@
 import { buyerLabelForProvenanceNode } from "@/lib/provenance-graph-presentation";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { provenanceGraphNodeTypeBuyerLabel } from "@/lib/citation-kind-buyer-label";
 import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
@@ -24,7 +25,7 @@ const LAYER_LABELS = [
   "Controls and mitigations",
   "Decisions",
   "Governance records",
-  "Signed manifest",
+  "Signed review record",
   "Final artifacts",
 ] as const;
 
@@ -241,7 +242,7 @@ const LEGEND_LABELS: Record<string, string> = {
   control: "Control / mitigation",
   decisionTrace: "Decision trace",
   decision: "Decision",
-  manifest: "Signed manifest",
+  manifest: SIGNED_MANIFEST_LABEL,
   artifactBundle: "Artifact bundle",
   governance: "Governance record",
   governanceActor: "Governance actor",

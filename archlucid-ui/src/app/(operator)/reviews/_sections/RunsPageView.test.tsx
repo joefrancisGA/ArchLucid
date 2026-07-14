@@ -6,9 +6,7 @@ import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
-
-import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PRIMARY_START_LABEL, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
+import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PAGE_TITLE, REVIEWS_HUB_PRIMARY_START_LABEL, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -113,7 +111,7 @@ describe("RunsPageView page chrome", () => {
   it("renders synchronized title and hub subtitle without default project metadata", () => {
     render(<RunsPageView model={baseModel()} />);
 
-    expect(screen.getByRole("heading", { level: 1, name: RUNS_LIST_PAGE_TITLES.buyerPolished })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: REVIEWS_HUB_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-subtitle")).toHaveTextContent(REVIEWS_HUB_PAGE_SUBTITLE);
     expect(screen.queryByTestId("runs-page-project-label")).toBeNull();
   });
@@ -145,7 +143,7 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("runs-page-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
     expect(screen.getByTestId("reviews-hub-recent-empty-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
-    expect(screen.getByRole("link", { name: "Create architecture" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.queryByRole("link", { name: "Create architecture" })).toBeNull();
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
   });
 

@@ -80,18 +80,18 @@ describe("PilotNavGroupBuilder", () => {
       "Overview",
       CREATE_ARCHITECTURE_LABEL,
       "Start review",
-      "Architecture packages",
+      "Reviews",
       "Executive dashboard",
       "First review guide",
     ]);
     expect(group.links.some((link) => link.href === "/graph")).toBe(false);
   });
 
-  it("TB-738: uses Architecture packages as the reviews-list nav source label", () => {
+  it("uses Reviews as the reviews-list nav source label", () => {
     const group = new PilotNavGroupBuilder().build();
     const reviewsListLink = group.links.find((link) => link.href === "/reviews?projectId=default");
 
-    expect(reviewsListLink?.label).toBe("Architecture packages");
+    expect(reviewsListLink?.label).toBe("Reviews");
   });
 
   it("TB-646: uses Start review nav label for /reviews/new in pilot nav", () => {

@@ -601,7 +601,7 @@ export const BUYER_NEW_REVIEW_TOAST_CATEGORY = CREATE_ARCHITECTURE_LABEL;
 /** Form section heading when the user is defining the governed review package artifact. */
 export const CREATE_REVIEW_PACKAGE_HEADING = "Create review package";
 
-export const BUYER_START_ARCHITECTURE_REVIEW_CTA = "Start architecture review";
+export const BUYER_START_ARCHITECTURE_REVIEW_CTA = "Start an architecture review";
 
 export const RUNS_LIST_EMPTY_PRIMARY_PATH_TITLE = "Start a review package";
 
@@ -1001,7 +1001,7 @@ export const BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Finalized reviews";
 
 export const BUYER_GRAPH_FILTER_SUMMARY = "Filter by evidence type, decision, or risk";
 
-export const BUYER_RUNS_DASHBOARD_SECTION_HEADING = "Review packages";
+export const BUYER_RUNS_DASHBOARD_SECTION_HEADING = "Reviews";
 
 export const BUYER_RUNS_DASHBOARD_TAB_APPROVED = "Approved";
 
@@ -1017,13 +1017,13 @@ export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE = "Created";
 export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE = "Reviewed";
 
 /** Footer navigation on home review packages card — distinct from the All status filter pill. */
-export const BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA = "Open review packages";
+export const BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA = "Open all reviews";
 
 /** @deprecated Use {@link BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA}. */
 export const BUYER_RUNS_DASHBOARD_VIEW_ALL_REVIEW_PACKAGES_CTA = BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA;
 
 export const BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES =
-  "No approved review packages match this filter yet.";
+  "No finalized reviews match this filter yet.";
 
 export const BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA = "Open all reviews";
 

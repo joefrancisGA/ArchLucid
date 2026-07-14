@@ -26,7 +26,7 @@ export type GovernanceModeVocabulary = {
 
 const PILOT_VOCABULARY: GovernanceModeVocabulary = {
   reviewSingular: "Review",
-  reviewPlural: "Architecture packages",
+  reviewPlural: "Reviews",
   reviewDetailTitle: "Review detail",
   goldenManifestLabel: "Approved design",
   authorityChainLabel: "Review steps",

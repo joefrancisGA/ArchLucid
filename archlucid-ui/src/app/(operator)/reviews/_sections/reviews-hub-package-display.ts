@@ -7,21 +7,38 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-tit
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { reviewPackageArchitectureName, reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
-export type ReviewsHubPackageRowDisplay = {
+import {
+  reviewsHubLifecycleStage,
+  reviewsHubNeedsAttention,
+  reviewsHubOverallStatus,
+  type ReviewsHubLifecycleStage,
+  type ReviewsHubOverallStatus,
+} from "./reviews-hub-review-status";
+
+export type ReviewsHubReviewRowDisplay = {
   readonly runId: string;
-  readonly name: string;
-  readonly statusLabel: string;
+  readonly reviewTitle: string;
+  readonly architectureName: string;
+  readonly overallStatus: ReviewsHubOverallStatus;
+  readonly lifecycleStage: ReviewsHubLifecycleStage;
+  readonly ownerLabel: string;
   readonly lastUpdated: string;
   readonly findingsCount: number;
   readonly riskCount: number;
   readonly evidenceCount: number;
   readonly governanceState: string;
+  readonly needsAttention: boolean;
   readonly primaryAction: PrimaryReviewExploreLink;
-  readonly isSamplePackage: boolean;
+  readonly reviewHref: string;
+  readonly isSampleReview: boolean;
 };
+
+/** @deprecated Use {@link ReviewsHubReviewRowDisplay}. */
+export type ReviewsHubPackageRowDisplay = ReviewsHubReviewRowDisplay;
 
 function finiteCount(value: number | null | undefined): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -46,19 +63,7 @@ function formatLastUpdated(run: RunSummary): string {
   return formatRelativeTime(run.createdUtc);
 }
 
-function packageStatusLabel(run: RunSummary): string {
-  if (run.hasGoldenManifest === true) {
-    return "Committed";
-  }
-
-  if (run.hasFindingsSnapshot === true || run.hasGraphSnapshot === true) {
-    return "In progress";
-  }
-
-  return "Starting";
-}
-
-function packageGovernanceState(run: RunSummary): string {
+function reviewGovernanceState(run: RunSummary): string {
   const demoMeta = buyerDemoPackageCardMeta(run.runId);
 
   if (demoMeta !== null) {
@@ -82,7 +87,7 @@ function packageGovernanceState(run: RunSummary): string {
   return "Ready for governance";
 }
 
-function packageEvidenceCount(run: RunSummary): number {
+function reviewEvidenceCount(run: RunSummary): number {
   const artifacts = finiteCount(run.artifactCount);
 
   if (artifacts > 0) {
@@ -114,7 +119,7 @@ function packageEvidenceCount(run: RunSummary): number {
   return score;
 }
 
-function packageFindingCount(run: RunSummary): number {
+function reviewFindingCount(run: RunSummary): number {
   const wire = finiteCount(run.findingCount);
 
   if (wire > 0) {
@@ -128,7 +133,7 @@ function packageFindingCount(run: RunSummary): number {
   return run.hasFindingsSnapshot === true ? 1 : 0;
 }
 
-function packageRiskCount(run: RunSummary): number {
+function reviewRiskCount(run: RunSummary): number {
   const wire = finiteCount(run.warningCount);
 
   if (wire > 0) {
@@ -142,23 +147,32 @@ function packageRiskCount(run: RunSummary): number {
   return run.hasWarnings === true || run.hasGovernanceWarnings === true ? 1 : 0;
 }
 
-/** Row presentation model for the `/reviews` hub package table. */
-export function toReviewsHubPackageRowDisplay(run: RunSummary): ReviewsHubPackageRowDisplay {
+/** Row presentation model for the `/reviews` hub inventory. */
+export function toReviewsHubReviewRowDisplay(run: RunSummary): ReviewsHubReviewRowDisplay {
   const runId = canonicalizeDemoRunId(run.runId);
+  const primaryAction = getBuyerSafeReviewsTableLinkForRun(run);
 
   return {
     runId,
-    name: buyerFacingReviewTitleFromSummary(run),
-    statusLabel: packageStatusLabel(run),
+    reviewTitle: buyerFacingReviewTitleFromSummary(run),
+    architectureName: reviewPackageArchitectureName(run),
+    overallStatus: reviewsHubOverallStatus(run),
+    lifecycleStage: reviewsHubLifecycleStage(run),
+    ownerLabel: reviewPackageOwnerLabel(run),
     lastUpdated: formatLastUpdated(run),
-    findingsCount: packageFindingCount(run),
-    riskCount: packageRiskCount(run),
-    evidenceCount: packageEvidenceCount(run),
-    governanceState: packageGovernanceState(run),
-    primaryAction: getBuyerSafeReviewsTableLinkForRun(run),
-    isSamplePackage:
+    findingsCount: reviewFindingCount(run),
+    riskCount: reviewRiskCount(run),
+    evidenceCount: reviewEvidenceCount(run),
+    governanceState: reviewGovernanceState(run),
+    needsAttention: reviewsHubNeedsAttention(run),
+    primaryAction,
+    reviewHref: primaryAction.href,
+    isSampleReview:
       run.isSample === true ||
       runId === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID) ||
       run.isDemoWelcomeRun === true,
   };
 }
+
+/** @deprecated Use {@link toReviewsHubReviewRowDisplay}. */
+export const toReviewsHubPackageRowDisplay = toReviewsHubReviewRowDisplay;

@@ -1,3 +1,7 @@
+import {
+  getBuyerSafeReviewsTableLinkForRun,
+  getCanonicalReviewWorkspaceHref,
+} from "@/lib/buyer-safe-review-navigation";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
@@ -57,47 +61,63 @@ export function isBuyerSafePrimaryReviewNavigationPreferred(runId: string): bool
 }
 
 /**
- * Primary authenticated next step on the reviews table: open the full review package on `/reviews/...`.
- * Pair with {@link getBuyerSafeSignedManifestTableLink} for finalized signed manifest access without losing the package context.
+ * Primary authenticated next step on the reviews table: open the review workspace on `/reviews/...`.
  */
 export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());
 
   return {
     href: getCanonicalReviewWorkspaceHref(id),
-    label: "View review package",
+    label: "Open review",
   };
 }
 
 /**
- * State-aware label for the primary review CTA — differentiates finalized, monitoring, and in-progress packages.
- * Use on buyer-polished review cards and inspector panels where the run state is known.
+ * State-aware label for the primary review CTA — differentiates finalized, in-progress, and attention states.
  */
 export function getBuyerSafeReviewsTableLinkForRun(run: {
   runId: string;
   hasGoldenManifest?: boolean;
   hasGovernanceWarnings?: boolean;
   hasFindingsSnapshot?: boolean;
+  hasGraphSnapshot?: boolean;
+  hasContextSnapshot?: boolean;
+  findingCount?: number | null;
+  warningCount?: number | null;
+  isArchived?: boolean | null;
 }): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(run.runId.trim());
   const href = getCanonicalReviewWorkspaceHref(id);
 
-  if (run.hasGoldenManifest === true && run.hasGovernanceWarnings === true) {
-    return { href, label: "Open approved package" };
+  if (run.isArchived === true) {
+    return { href, label: "View archived review" };
   }
 
   if (run.hasGoldenManifest === true) {
-    return { href, label: "Open approved package" };
+    return { href, label: "View finalized review" };
   }
 
   if (run.hasFindingsSnapshot === true) {
-    return { href, label: "View review in progress" };
+    return { href, label: "Review findings" };
   }
 
-  return { href, label: "Track review progress" };
+  if (run.hasGraphSnapshot === true || run.hasContextSnapshot === true) {
+    return { href, label: "Complete evidence" };
+  }
+
+  const hasAttention =
+    (typeof run.findingCount === "number" && run.findingCount > 0) ||
+    (typeof run.warningCount === "number" && run.warningCount > 0) ||
+    run.hasGovernanceWarnings === true;
+
+  if (hasAttention) {
+    return { href, label: "Continue review" };
+  }
+
+  return { href, label: "Continue review" };
 }
 
-/** Signed manifest for the same review — secondary table action next to {@link getBuyerSafeReviewsTableLink}. */
+/** Signed review record for the same review — secondary table action next to {@link getBuyerSafeReviewsTableLink}. */
 export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());
 
@@ -113,6 +133,7 @@ export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryRevie
     label: BUYER_VIEW_SIGNED_RECORD_CTA,
   };
 }
+
 export function getCanonicalReviewWorkspaceHref(runId: string): string {
   return `/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`;
 }

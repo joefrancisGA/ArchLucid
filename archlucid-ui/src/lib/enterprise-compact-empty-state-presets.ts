@@ -11,15 +11,15 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-/** Reviews list when the project has zero architecture packages. */
+/** Reviews list when the project has zero reviews. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "runs-list-empty-state",
-  title: "No architecture packages yet",
+  title: "No reviews yet",
   description:
-    "Create or review an architecture to generate a package with findings, evidence, and exports. Or explore a completed sample package.",
+    "Start an architecture review to gather evidence, evaluate findings, and record decisions. Or explore the sample review.",
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH, variant: "primary" },
-    { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "primary" },
+    { label: "Explore the sample review", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
 };
 

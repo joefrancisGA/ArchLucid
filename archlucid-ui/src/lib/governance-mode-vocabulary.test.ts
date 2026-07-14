@@ -6,7 +6,7 @@ describe("governanceModeVocabulary", () => {
   it("uses pilot-friendly labels when governance view is off", () => {
     const vocabulary = governanceModeVocabulary(false);
 
-    expect(vocabulary.reviewPlural).toBe("Architecture packages");
+    expect(vocabulary.reviewPlural).toBe("Reviews");
     expect(vocabulary.goldenManifestLabel).toBe("Approved design");
     expect(vocabulary.authorityChainLabel).toBe("Review steps");
   });

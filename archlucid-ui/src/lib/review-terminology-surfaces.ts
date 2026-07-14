@@ -91,10 +91,15 @@ export const REVIEW_TERMINOLOGY_BANNED_OPERATOR_PERSONA_PATTERNS = [
   "operators want",
 ] as const;
 
-/** Lowercase phrase fragments banned on nav labels and hub/home list empty states (TB-738). */
+/** Lowercase phrase fragments banned on reviews hub and nav list surfaces. */
 export const REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS = [
+  "review package",
   "review packages",
-  "no review packages yet",
+  "architecture package",
+  "architecture packages",
+  "sample package",
+  "open package",
+  "create package",
 ] as const;
 
 export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
@@ -106,10 +111,12 @@ export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
   "src/lib/nav-disclosure-copy.ts",
 ] as const;
 
-/** Nav caption and reviews hub modules scanned for TB-738 architecture-package list noun. */
+/** Nav caption and reviews hub modules scanned for retired package list nouns. */
 export const REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS = [
   "src/lib/pilot-nav-group-builder.ts",
   "src/app/(operator)/reviews/_sections/reviews-hub-copy.ts",
+  "src/app/(operator)/reviews/_sections/ReviewsHubPrimaryActions.tsx",
+  "src/app/(operator)/reviews/_sections/ReviewsHubReviewInventory.tsx",
 ] as const;
 
 /**

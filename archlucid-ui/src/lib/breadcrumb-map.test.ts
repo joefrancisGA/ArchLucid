@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
 import { OPERATOR_NAV_LINK_LABELS } from "./i18n";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "./showcase-static-demo";
@@ -17,31 +17,31 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("uses Create architecture on the wizard path when buyer-polished breadcrumbs are requested", () => {
+  it("uses Start review on the wizard path when buyer-polished breadcrumbs are requested", () => {
     expect(getBreadcrumbs("/reviews/new", { buyerPolishedShell: true })).toEqual([
-      { label: CREATE_ARCHITECTURE_LABEL },
+      { label: START_REVIEW_LABEL },
     ]);
   });
 
-  it("shortens the new-review path to a single wizard crumb with creation-first label", () => {
+  it("shortens the new-review path to a single wizard crumb", () => {
     expect(getBreadcrumbs("/reviews/new")).toEqual([
-      { label: CREATE_ARCHITECTURE_LABEL },
+      { label: START_REVIEW_LABEL },
     ]);
   });
 
-  it("labels UUID review segments as Review package", () => {
+  it("labels UUID review segments as Review", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
     expect(getBreadcrumbs(`/reviews/${id}`)).toEqual([
-      { label: "Review packages", href: "/reviews" },
-      { label: "Review package" },
+      { label: "Reviews", href: "/reviews" },
+      { label: "Review" },
     ]);
   });
 
-  it("maps review provenance under the review package crumb", () => {
+  it("maps review provenance under the review crumb", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
     expect(getBreadcrumbs(`/reviews/${id}/provenance`)).toEqual([
-      { label: "Review packages", href: "/reviews" },
-      { label: "Review package", href: `/reviews/${id}` },
+      { label: "Reviews", href: "/reviews" },
+      { label: "Review", href: `/reviews/${id}` },
       { label: "Evidence provenance" },
     ]);
   });
@@ -266,7 +266,7 @@ describe("getBreadcrumbs", () => {
         { buyerPolishedShell: true },
       ),
     ).toEqual([
-      { label: "Review packages", href: "/reviews" },
+      { label: "Reviews", href: "/reviews" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
       { label: "Findings", href: "/reviews/claims-intake-modernization/findings" },
       {
@@ -281,7 +281,7 @@ describe("getBreadcrumbs", () => {
     expect(
       getBreadcrumbs("/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
     ).toEqual([
-      { label: "Review packages", href: "/reviews" },
+      { label: "Reviews", href: "/reviews" },
       { label: "Claims Intake Modernization", href: "/reviews/e2e-fixture-run-001" },
       { label: "Findings", href: "/reviews/e2e-fixture-run-001/findings" },
       { label: "Demonstration finding" },
@@ -302,7 +302,7 @@ describe("getBreadcrumbs", () => {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: "Review packages", href: "/reviews" },
+      { label: "Reviews", href: "/reviews" },
       {
         label: SHOWCASE_BUYER_REVIEW_TITLE,
         href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,

@@ -46,7 +46,7 @@ const BUYER_GOVERNANCE_RUN_SCOPED_PATHS = new Set<string>(["/governance/findings
 
 const SEGMENT_LABELS: Record<string, string> = {
   onboarding: OPERATOR_NAV_LINK_LABELS.onboarding,
-  reviews: "Review packages",
+  reviews: "Reviews",
   new: "New request",
   graph: "Graph",
   compare: "Compare",
@@ -288,7 +288,7 @@ function injectReviewPackagePathCrumbs(
     return items;
   }
 
-  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review package";
+  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review";
   const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
 
   return items.map((item, index) => {
@@ -514,7 +514,7 @@ function labelForSegment(
 
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
     if (prev === "reviews") {
-      return "Review package";
+      return "Review";
     }
 
     if (prev === "manifests" || prev === "signed-records") {
@@ -534,7 +534,7 @@ function labelForSegment(
 
   if (/^[0-9a-f-]{16,}$/i.test(segment) && segment.includes("-")) {
     if (prev === "reviews") {
-      return "Review package";
+      return "Review";
     }
   }
 
@@ -552,7 +552,7 @@ function labelForSegment(
 
     if (buyer === true && segment === "reviews") {
 
-      return "Review packages";
+      return "Reviews";
     }
 
 
@@ -601,11 +601,11 @@ function tryBuildGovernanceRunScopedBreadcrumbs(
   }
 
   const reviewsListHref = resolveReviewsListBreadcrumbHref(options);
-  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review package";
+  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review";
   const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
 
   return [
-    { label: "Review packages", href: reviewsListHref },
+    { label: "Reviews", href: reviewsListHref },
     { label: packageTitle, href: reviewHref },
     { label: "Governance" },
   ];

@@ -41,13 +41,13 @@ export const ARCHITECTURE_REVIEW_LABELS = {
 
 /** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
 export const RUNS_LIST_PAGE_TITLES = {
-  buyerPolished: "Architecture Packages",
-  fullOperator: "Architecture Packages",
+  buyerPolished: "Reviews",
+  fullOperator: "Reviews",
 } as const;
 
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). @deprecated Use `REVIEWS_HUB_PAGE_SUBTITLE`. */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "Start, resume, and inspect evidence-backed architecture review packages.";
+  "Create, refine, evaluate, and approve architecture reviews.";
 
 export const PIPELINE_STATUS_TOOLTIPS = {
   finalized: `The ${DOMAIN_TERMS.goldenManifest} is finalized and the architecture review is complete.`,
@@ -63,17 +63,17 @@ export const RUNS_DASHBOARD_LABELS = {
   tabMonitoredRisks: "Monitored risks",
   tabOutcomes: "Outcomes",
   latestInWorkspace: "Latest in workspace",
-  reviewsNeedingAttention: "Review packages needing attention",
-  packagingPreFinalPosture: "Packaging and pre-final posture",
+  reviewsNeedingAttention: "Reviews needing attention",
+  packagingPreFinalPosture: "Reviews nearing finalization",
   reviewOutcomes: "Review outcomes",
-  recentSummary: "Showing the latest review packages for this workspace.",
-  attentionSummary: "Review packages with findings awaiting a finalized signed review record.",
+  recentSummary: "Showing the latest architecture reviews for this workspace.",
+  attentionSummary: "Reviews with findings awaiting a finalized signed review record.",
   attentionSummaryBuyer:
     "Architecture reviews still moving toward a finalized signed review record before sponsor sign-off.",
-  noReviewsNeedAttention: "No review packages currently need attention.",
-  oneReviewNeedsAttention: "1 review package needs attention.",
-  reviewsNeedAttentionCount: (count: number) => `${count} review packages need attention.`,
-  loadingReviews: "Loading review packages…",
+  noReviewsNeedAttention: "No reviews currently need attention.",
+  oneReviewNeedsAttention: "1 review needs attention.",
+  reviewsNeedAttentionCount: (count: number) => `${count} reviews need attention.`,
+  loadingReviews: "Loading reviews…",
   openFullReviewsList: "Open all reviews",
   governanceWarningTitle: "Governance warnings",
   governanceWarningHint: "Unresolved governance alerts or policy violations require governance lead follow-up.",
@@ -116,7 +116,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard (`/dashboard`); the standalone executive-chrome duplicate was retired (TB-608). */
   portfolioOverview: "Executive dashboard",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-  reviewPackage: "Architecture packages",
+  reviewPackage: "Reviews",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   /** Left nav destination for `/reviews/new` — creation intake (brief, diagram, document, optional cloud). */
   capture: CREATE_ARCHITECTURE_LABEL,

@@ -228,7 +228,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
       ARCHITECTURES_NEW_PATH,
     );
     expect(within(nav).getByRole("link", { name: START_REVIEW_LABEL })).toHaveAttribute("href", "/reviews/new");
-    expect(within(nav).getByRole("link", { name: "Architecture packages" })).toHaveAttribute(
+    expect(within(nav).getByRole("link", { name: "Reviews" })).toHaveAttribute(
       "href",
       "/reviews?projectId=default",
     );

@@ -115,7 +115,7 @@ describe("review terminology guard", () => {
     }
   });
 
-  it("TB-738: nav and hub/home list empty surfaces avoid review-only package list nouns", () => {
+  it("TB-738: reviews hub and nav use review-centered list nouns without package jargon", () => {
     for (const relativePath of REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS) {
       const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
 
@@ -124,12 +124,12 @@ describe("review terminology guard", () => {
       }
     }
 
-    expect(OPERATOR_NAV_LINK_LABELS.reviewPackage).toBe("Architecture packages");
-    expect(RUNS_LIST_PAGE_TITLES.buyerPolished).toBe("Architecture Packages");
-    expect(governanceModeVocabulary(false).reviewPlural).toBe("Architecture packages");
+    expect(OPERATOR_NAV_LINK_LABELS.reviewPackage).toBe("Reviews");
+    expect(RUNS_LIST_PAGE_TITLES.buyerPolished).toBe("Reviews");
+    expect(governanceModeVocabulary(false).reviewPlural).toBe("Reviews");
     expect(governanceModeVocabulary(true).reviewPlural).toBe("Reviews");
-    expect(RUNS_EMPTY.title).toBe("No architecture packages yet");
-    expect(RUNS_EMPTY_COMPACT.title).toBe("No architecture packages yet");
+    expect(RUNS_EMPTY.title).toBe("No reviews yet");
+    expect(RUNS_EMPTY_COMPACT.title).toBe("No reviews yet");
     expect(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE).toBe("No reviews yet");
     expect(OPERATOR_HOME_WORKSPACE_EMPTY_BODY.toLowerCase()).toContain("in-progress and completed");
   });

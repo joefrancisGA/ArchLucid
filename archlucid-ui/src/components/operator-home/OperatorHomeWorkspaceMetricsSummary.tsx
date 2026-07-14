@@ -56,7 +56,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
   return (
     <div data-testid="operator-home-workspace-metrics-summary">
       <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3 lg:grid-cols-5">
-        <MetricItem label="Review packages" value={buildReviewPackagesValue(metrics)} />
+        <MetricItem label="Reviews" value={buildReviewPackagesValue(metrics)} />
         <MetricItem label="Open findings" value={String(metrics.openFindings)} />
         <MetricItem label="Governance warnings" value={String(metrics.governanceWarnings)} />
         <MetricItem label="Evidence sources" value={String(metrics.evidenceSources)} />

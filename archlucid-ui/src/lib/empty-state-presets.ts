@@ -15,12 +15,12 @@ export { SEARCH_EMPTY } from "./search-empty-preset";
 
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
-  title: "No architecture packages yet",
+  title: "No reviews yet",
   description:
-    "Create or review an architecture to generate a package with findings, evidence, signed review record, and exports. Or open the sample package to see the completed flow.",
+    "Start an architecture review to gather evidence, evaluate findings, record decisions, and produce exports. Or explore the sample review to see a completed flow.",
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
-    { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: "Start an architecture review", href: "/reviews/new" },
+    { label: "Explore the sample review", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
 };
