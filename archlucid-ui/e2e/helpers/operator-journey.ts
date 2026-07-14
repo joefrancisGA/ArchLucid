@@ -90,6 +90,17 @@ export function auditPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
+/** `/governance?runId=` review context — query picker is hidden; approvals load via URL param. */
+export async function expectGovernanceRunWorkflowVisible(
+  page: Page,
+  approvalRequestId: string,
+  statusLabel: string,
+): Promise<void> {
+  await expect(page.getByTestId("governance-approval-requests-section")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(approvalRequestId).first()).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(statusLabel).first()).toBeVisible({ timeout: 60_000 });
+}
+
 /** Expands buyer-polished audit optional filters (`audit-filters-collapsible-trigger`). */
 export async function expandAuditBuyerFiltersIfPresent(page: Page): Promise<void> {
   const trigger = page.getByTestId("audit-filters-collapsible-trigger");

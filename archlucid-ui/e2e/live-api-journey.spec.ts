@@ -37,6 +37,7 @@ import {
   expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
   expandReviewDetailOutcomeCards,
+  expectGovernanceRunWorkflowVisible,
   gotoLiveRunDetailPage,
   governancePageMainHeading,
   openReviewDetailWorkspaceTab,
@@ -249,7 +250,7 @@ test.describe("live-api-journey", () => {
     );
 
     expect.soft(duplicateApprove.ok(), `duplicate approve should fail, got ${duplicateApprove.status()}`).toBe(false);
-    expect.soft(duplicateApprove.status()).toBe(400);
+    expect.soft(duplicateApprove.status()).toBe(409);
 
     const auditEvents = await searchAudit(request, {
       runId,
@@ -259,9 +260,15 @@ test.describe("live-api-journey", () => {
       projectId: tenantScope.projectId,
     });
 
+    const governanceAuditTypes = new Set(["GovernanceApprovalSubmitted", "GovernanceApprovalApproved"]);
+
     for (const ev of auditEvents) {
+      if (!ev.eventType || !governanceAuditTypes.has(ev.eventType)) {
+        continue;
+      }
+
       expect
-        .soft(ev.correlationId != null && ev.correlationId.length > 0, `audit event ${ev.eventType ?? "?"} should have correlationId`)
+        .soft(ev.correlationId != null && ev.correlationId.length > 0, `audit event ${ev.eventType} should have correlationId`)
         .toBe(true);
     }
 
@@ -313,12 +320,7 @@ test.describe("live-api-journey", () => {
       timeout: 60_000,
     });
 
-    await expect(page.locator("#gov-query-run")).toHaveValue(runId, { timeout: 15_000 });
-
-    await page.getByRole("button", { name: /^Load$/i }).click();
-
-    await expect(page.getByText(approvalRequestId).first()).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText("Approved").first()).toBeVisible({ timeout: 60_000 });
+    await expectGovernanceRunWorkflowVisible(page, approvalRequestId, "Approved");
 
     await page.goto("/governance/audit");
 

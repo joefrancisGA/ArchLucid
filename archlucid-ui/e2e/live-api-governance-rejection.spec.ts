@@ -25,7 +25,7 @@ import {
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
 import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
-import { governancePageMainHeading } from "./helpers/operator-journey";
+import { expectGovernanceRunWorkflowVisible, governancePageMainHeading } from "./helpers/operator-journey";
 
 const liveRejectionForensics: { runId?: string; approvalRequestId?: string } = {};
 
@@ -186,11 +186,6 @@ test.describe("live-api-governance-rejection", () => {
       timeout: 60_000,
     });
 
-    await expect(page.locator("#gov-query-run")).toHaveValue(runId, { timeout: 15_000 });
-
-    await page.getByRole("button", { name: /^Load$/i }).click();
-
-    await expect(page.getByText(approvalRequestId).first()).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText("Rejected").first()).toBeVisible({ timeout: 60_000 });
+    await expectGovernanceRunWorkflowVisible(page, approvalRequestId, "Rejected");
   });
 });
