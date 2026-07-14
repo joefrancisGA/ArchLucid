@@ -531,7 +531,7 @@ export function ScimProvisioningSettingsPageClient() {
             </div>
           ) : null}
           {state.status === "ready" && state.tokens.length > 0 ? (
-            <EnterpriseTable data-testid="scim-active-tokens-table">
+            <EnterpriseTable ariaLabel={SCIM_ACTIVE_TOKENS_SECTION_TITLE} data-testid="scim-active-tokens-table">
               <EnterpriseTableHead>
                 <EnterpriseTableHeadRow>
                   <EnterpriseTableHeaderCell>{SCIM_TOKEN_TABLE_COLUMN_IDENTIFIER}</EnterpriseTableHeaderCell>
