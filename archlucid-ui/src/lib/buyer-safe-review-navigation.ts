@@ -1,7 +1,3 @@
-import {
-  getBuyerSafeReviewsTableLinkForRun,
-  getCanonicalReviewWorkspaceHref,
-} from "@/lib/buyer-safe-review-navigation";
 import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
