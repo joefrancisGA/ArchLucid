@@ -323,6 +323,15 @@ kbd {
     break-inside: avoid;
   }
 
+  .privacy-policy-no-print,
+  [data-testid="marketing-analytics-consent-banner"] {
+    display: none !important;
+  }
+
+  .privacy-policy-page {
+    max-width: 100% !important;
+  }
+
   body {
     background: white !important;
     color: black !important;

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
@@ -30,19 +31,53 @@ function isSignupVerifyFocusRoute(pathname: string): boolean {
   return pathname === "/signup/verify";
 }
 
+function isPrivacyPolicyRoute(pathname: string): boolean {
+  return pathname === "/privacy";
+}
+
+function readPrivacyFocusedReading(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  return document.body.classList.contains("privacy-focused-reading");
+}
+
 export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.JSX.Element {
   const pathname = usePathname();
   const hideThemeToggle = shouldHideThemeToggleOnMarketingRoute(pathname);
   const focusAuth = isSignupVerifyFocusRoute(pathname);
+  const [privacyFocusedReading, setPrivacyFocusedReading] = useState(false);
+  const onPrivacyRoute = isPrivacyPolicyRoute(pathname);
+  const focusReading = focusAuth || (onPrivacyRoute && privacyFocusedReading);
+
+  useEffect(() => {
+    if (!onPrivacyRoute) {
+      setPrivacyFocusedReading(false);
+
+      return;
+    }
+
+    const syncFocusedReading = (): void => {
+      setPrivacyFocusedReading(readPrivacyFocusedReading());
+    };
+
+    syncFocusedReading();
+    window.addEventListener("privacy-focused-reading-change", syncFocusedReading);
+
+    return () => {
+      window.removeEventListener("privacy-focused-reading-change", syncFocusedReading);
+    };
+  }, [onPrivacyRoute]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-neutral-200 bg-al-surface-raised/95 shadow-sm backdrop-blur dark:border-neutral-800">
+    <header className="sticky top-0 z-40 border-b border-neutral-200 bg-al-surface-raised/95 shadow-sm backdrop-blur print:hidden dark:border-neutral-800">
       <div className={cn("mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4", MARKETING_LAYOUT.page)}>
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
             <ArchLucidWordmarkLink href="/welcome" aria-label="ArchLucid — welcome" variant="marketing" />
           </Button>
-          {focusAuth ? null : (
+          {focusReading ? null : (
             <nav
               aria-label="Marketing"
               className="-mx-1 flex min-w-0 flex-1 flex-nowrap items-center gap-0.5 overflow-x-auto px-1 sm:flex-wrap sm:gap-1 sm:overflow-visible sm:pb-0 sm:pe-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -78,8 +113,8 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {hideThemeToggle || focusAuth ? null : <ColorModeToggle />}
-          {focusAuth ? null : (
+          {hideThemeToggle || focusReading ? null : <ColorModeToggle />}
+          {focusReading ? null : (
             <Button asChild variant="outline" size="sm">
               <Link href="/auth/signin">Sign in</Link>
             </Button>
