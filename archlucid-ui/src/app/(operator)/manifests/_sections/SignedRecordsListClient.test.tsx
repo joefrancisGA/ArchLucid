@@ -1,0 +1,86 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const listRunsByProjectPaged = vi.fn();
+const enrichSignedRecordsListRows = vi.fn();
+
+vi.mock("@/lib/api", () => ({
+  listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
+}));
+
+vi.mock("./enrich-signed-records-list-rows", () => ({
+  enrichSignedRecordsListRows: (...args: unknown[]) => enrichSignedRecordsListRows(...args),
+}));
+
+import SignedRecordsListClient from "./SignedRecordsListClient";
+
+import type { RunSummary } from "@/types/authority";
+
+const finalizedRun: RunSummary = {
+  runId: "00000000-0000-0000-0000-000000000099",
+  projectId: "default",
+  description: "Claims modernization",
+  createdUtc: "2026-01-15T12:00:00.000Z",
+  hasContextSnapshot: true,
+  hasGraphSnapshot: false,
+  hasFindingsSnapshot: true,
+  hasGoldenManifest: true,
+};
+
+beforeEach(() => {
+  listRunsByProjectPaged.mockReset();
+  enrichSignedRecordsListRows.mockReset();
+});
+
+describe("SignedRecordsListClient", () => {
+  it("renders the signed-records index title and table rows for finalized runs", async () => {
+    listRunsByProjectPaged.mockResolvedValue({
+      items: [finalizedRun],
+      totalCount: 1,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+    enrichSignedRecordsListRows.mockImplementation(async (rows: readonly { runId: string }[]) =>
+      rows.map((row) => ({
+        runId: row.runId,
+        reviewTitle: "Claims modernization",
+        committedUtc: finalizedRun.createdUtc,
+        manifestVersion: "1.0.0",
+        manifestId: "manifest-abc",
+        reviewHref: `/reviews/${row.runId}`,
+        signedRecordHref: `/signed-records/manifest-abc`,
+      })),
+    );
+
+    render(<SignedRecordsListClient />);
+
+    expect(screen.getByTestId("signed-records-list-page-title")).toHaveTextContent("Signed review records");
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Claims modernization" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("link", { name: "Open signed record" })).toHaveAttribute(
+      "href",
+      "/signed-records/manifest-abc",
+    );
+  });
+
+  it("shows an empty state when no finalized runs exist", async () => {
+    listRunsByProjectPaged.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 100,
+      hasMore: false,
+    });
+    enrichSignedRecordsListRows.mockResolvedValue([]);
+
+    render(<SignedRecordsListClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("No signed review records yet")).toBeInTheDocument();
+    });
+  });
+});

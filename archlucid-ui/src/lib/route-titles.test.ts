@@ -11,6 +11,7 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/reviews/new")).toBe(START_REVIEW_LABEL);
     expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(getRouteTitle("/governance")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
+    expect(getRouteTitle("/signed-records")).toBe("Signed review records");
   });
 });
 

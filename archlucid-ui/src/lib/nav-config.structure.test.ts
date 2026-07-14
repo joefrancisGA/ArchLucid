@@ -190,6 +190,7 @@ describe("nav-config structure", () => {
       "/governance/policy-packs",
       "/governance/resolution",
       "/governance/decision-register",
+      "/signed-records",
       "/advisory",
       "/governance/audit",
       "/governance/alerts",
@@ -280,7 +281,7 @@ describe("nav-config structure", () => {
 
   it("keeps governance nav hrefs under /governance/* (TB-405)", () => {
     const governance = NAV_GROUPS.find((group) => group.id === "operate-governance");
-    const governanceNamespaceExceptions = new Set(["/advisory"]);
+    const governanceNamespaceExceptions = new Set(["/advisory", "/signed-records"]);
 
     expect(governance).toBeDefined();
 

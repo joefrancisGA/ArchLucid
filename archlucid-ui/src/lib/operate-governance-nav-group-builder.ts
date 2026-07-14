@@ -3,6 +3,7 @@ import {
   Bell,
   CalendarCheck,
   CalendarClock,
+  FileText,
   Gavel,
   GitBranch,
   History,
@@ -15,6 +16,7 @@ import {
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -77,6 +79,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.decisionRegister,
           title: "Review signed decisions and dispositions",
           icon: Gavel,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: SIGNED_RECORDS_LIST_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.signedReviewRecords,
+          title: "Browse finalized signed review records across reviews",
+          icon: FileText,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

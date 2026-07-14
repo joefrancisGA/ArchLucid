@@ -124,6 +124,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   findings: "Risk register",
   riskExceptions: "Risk exceptions",
   decisionRegister: "Decision register",
+  signedReviewRecords: "Signed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
   pilotBaselines: "ROI baselines",
