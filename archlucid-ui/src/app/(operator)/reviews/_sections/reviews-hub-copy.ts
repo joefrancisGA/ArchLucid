@@ -61,7 +61,7 @@ export const REVIEWS_HUB_INCLUDES_LEAD =
   "A finalized review brings together findings, evidence, decisions, governance records, a signed review record, and exports.";
 
 export const REVIEWS_HUB_INCLUDES_ITEMS = [
-  "Review record",
+  "Architecture description",
   "Findings",
   "Evidence trail",
   "Signed review record",
