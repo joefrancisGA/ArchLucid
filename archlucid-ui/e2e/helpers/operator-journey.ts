@@ -607,9 +607,20 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
 }
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */
-export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page): Promise<void> {
-  const sponsorHandoff = page.locator("#sponsor-handoff").first();
+export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
+  let sponsorHandoff = page.locator("#sponsor-handoff").first();
 
+  if ((await sponsorHandoff.count()) === 0 || !(await sponsorHandoff.isVisible())) {
+    if (runId !== undefined && runId.trim().length > 0) {
+      await openReviewDetailWorkspaceTab(page, runId, "activity");
+    } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
+      await page.getByTestId("review-detail-workspace-tab-activity").click();
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+    }
+  }
+
+  sponsorHandoff = page.locator("#sponsor-handoff").first();
+  await sponsorHandoff.scrollIntoViewIfNeeded();
   await expect(sponsorHandoff).toBeVisible({ timeout: 60_000 });
 
   const briefingDetails = page.locator("details:has(#sponsor-handoff)").first();

@@ -87,7 +87,7 @@ test.describe("live-api-email-run-to-sponsor", () => {
     await page.goto(`/reviews/${runId}`);
 
     await expectLiveRunDetailPageReady(page, 120_000);
-    await ensureBuyerExecutiveBriefingSectionExpanded(page);
+    await ensureBuyerExecutiveBriefingSectionExpanded(page, runId);
 
     const banner = page.getByTestId("email-run-to-sponsor-banner");
 
