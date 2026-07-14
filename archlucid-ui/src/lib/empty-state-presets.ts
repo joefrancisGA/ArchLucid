@@ -5,6 +5,7 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_IDLE_TITLE, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
@@ -105,7 +106,7 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   actions: [
     { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
     { label: "Risk register", href: "/governance/findings", variant: "outline" },
-    { label: "Policy packs", href: "/policy-packs", variant: "outline" },
+    { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH, variant: "outline" },
   ],
   helpTopicPath: "governance",
   gettingStarted: governanceWorkflowIdleGettingStartedOperator,

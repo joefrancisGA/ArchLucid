@@ -24,7 +24,7 @@ describe("applyAuditNavRunScope", () => {
   it("scopes audit nav hrefs when runId is known (TB-649)", () => {
     const scoped = applyAuditNavRunScope(links, "run-abc");
 
-    expect(scoped[0]?.href).toBe("/audit?runId=run-abc");
+    expect(scoped[0]?.href).toBe("/governance/audit?runId=run-abc");
     expect(scoped[1]?.href).toBe("/governance/findings");
   });
 

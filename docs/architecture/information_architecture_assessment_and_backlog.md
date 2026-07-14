@@ -470,11 +470,12 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Acceptance:** every palette destination is either sidebar-visible or on the documented palette-only allowlist; no palette entry leads to a demo-blocked route in demo shells.
 - **Priority/complexity:** P1/S. **Risk if deferred:** inconsistent discoverability; demo leaks.
 
-**IA-012 · Normalize legacy CTA targets** — **P1 · XS**
+**IA-012 · Normalize legacy CTA targets** — **Done (2026-07-14)** — **P1 · XS**
 - **Problem:** `GOVERNANCE_WORKFLOW_IDLE*` empty-state CTA targets legacy `/policy-packs` (redirect covers it); nav uses `/governance/policy-packs`. `[PI]`
 - **Change:** Point all empty-state and enterprise-compact preset CTAs at canonical paths; add a lint/unit guard that preset `href`s are not in the redirect source list.
 - **Files:** `empty-state-presets.ts`, `enterprise-compact-empty-state-presets.ts`, new guard test.
 - **Acceptance:** no customer-visible link targets a redirect source; guard test enforces it.
+- **Shipped:** `GOVERNANCE_WORKFLOW_IDLE` policy packs CTA → `/governance/policy-packs`; `auditTrailNavHref` → `/governance/audit`; `empty-state-preset-cta-guard.test.ts` enforces disjointness from `next.config.ts` permanent redirect sources.
 
 **IA-013 · Internal-concept leakage copy pass** — **P1 · XS**
 - **Problem:** "AdminAuthority"/"ExecuteAuthority" in forbidden-state messages (`SettingsRolesPageView.tsx`, `TrialFunnelOpsPageClient.tsx`, cloud wizard); "V1 is sold through guided evaluation…" on `/pricing`; help slug `creating-runs` in customer URLs; breadcrumb "pilot" for `/value-report/pilot`. `[PUI]`
@@ -537,7 +538,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 | Wave | Items | Rationale |
 |---|---|---|
 | **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 ✓ | Dead ends, stranded work, wrong mental model, empty flagship |
-| **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004 ✓, IA-010 ✓, IA-012, IA-013 | XS copy items; batch into one terminology PR so drift guards update once |
+| **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004 ✓, IA-010 ✓, IA-012 ✓, IA-013 | XS copy items; batch into one terminology PR so drift guards update once |
 | **Wave 3 — early beta (P1 structural-lite)** | IA-019 (telemetry first), IA-006, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
 | **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |
 | **Wave 5 — post-telemetry (P2/P3)** | IA-009, IA-015, IA-021, IA-022 | Each is explicitly gated on usage evidence |
