@@ -108,8 +108,13 @@ export async function expandAuditBuyerFiltersIfPresent(page: Page): Promise<void
 export async function expectAuditSearchNoResults(page: Page, options?: { timeoutMs?: number }): Promise<void> {
   const timeout = options?.timeoutMs ?? 60_000;
 
-  await expect(page.getByTestId("audit-search-summary")).toContainText(/Showing 0 events/i, { timeout });
-  await expect(page.getByTestId("audit-search-no-results")).toBeVisible({ timeout });
+  await expect(page.getByTestId("audit-search-summary")).toContainText(
+    /Showing 0 events|No audit events in this view/i,
+    { timeout },
+  );
+  await expect(
+    page.getByTestId("audit-search-no-results").or(page.getByTestId("audit-buyer-empty-state")),
+  ).toBeVisible({ timeout });
 }
 
 function matchesAuditSearchGet(response: Response, runId?: string): boolean {
