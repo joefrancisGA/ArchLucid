@@ -440,7 +440,7 @@ export async function expectQuickDecisionSeverityVisible(
 
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
-  return page.getByRole("main").locator('section[aria-label="Review outcome summary"]').first();
+  return getAppMain(page).locator('section[aria-label="Review outcome summary"]').first();
 }
 
 function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator {
@@ -518,18 +518,32 @@ export async function expandFindingWorkspaceCard(scope: Locator, findingId: stri
 /** Opens activity tab, expands outcome cards, and returns the visible outcome summary strip. */
 export async function openVisibleReviewOutcomeSummaryStrip(page: Page, runId: string): Promise<Locator> {
   await openReviewDetailWorkspaceTab(page, runId, "activity");
-  await expandReviewDetailOutcomeCards(page);
 
   const outcomeStrip = reviewOutcomeSummaryStrip(page);
+  const manifestLink = runDetailFinalizedPackageLink(page);
 
-  await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
+  await expect(async () => {
+    if (await outcomeStrip.isVisible()) {
+      return;
+    }
+
+    await expandReviewDetailOutcomeCards(page);
+
+    if (await outcomeStrip.isVisible()) {
+      return;
+    }
+
+    await expect(manifestLink).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: 60_000 });
+
+  await expect(outcomeStrip).toBeVisible({ timeout: 5_000 });
 
   return outcomeStrip;
 }
 
 /** Finalized package deep link on run detail (prefer over nested outcome-strip traversal). */
 export function runDetailFinalizedPackageLink(page: Page): Locator {
-  return page.getByRole("main").getByTestId("run-detail-finalized-package-link").first();
+  return getAppMain(page).getByTestId("run-detail-finalized-package-link").first();
 }
 
 /** Featured package proof summary on buyer-polished home — visible instance only. */

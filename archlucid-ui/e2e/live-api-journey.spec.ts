@@ -36,8 +36,9 @@ import {
   auditPageMainHeading,
   expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
-  openVisibleReviewOutcomeSummaryStrip,
-  outcomeStripSignedRecordLink,
+  expandReviewDetailOutcomeCards,
+  governancePageMainHeading,
+  openReviewDetailWorkspaceTab,
   runDetailFinalizedPackageLink,
 } from "./helpers/operator-journey";
 
@@ -141,28 +142,22 @@ test.describe("live-api-journey", () => {
 
     await expect(page.getByText(/Loading review detail/)).toHaveCount(0, { timeout: 60_000 });
 
-    const outcomeStrip = await openVisibleReviewOutcomeSummaryStrip(page, runId);
+    await openReviewDetailWorkspaceTab(page, runId, "activity");
 
     const manifestLink = runDetailFinalizedPackageLink(page);
-    const outcomeStripManifestLink = outcomeStripSignedRecordLink(outcomeStrip);
 
-    await expect
-      .poll(
-        async () =>
-          (await manifestLink.isVisible()) || (await outcomeStripManifestLink.isVisible()),
-        {
-          timeout: 60_000,
-          message: `Golden manifest link missing for run ${runId}. Server run detail may lack goldenManifestId or UI/API mismatch.`,
-        },
-      )
-      .toBe(true);
+    await expect(async () => {
+      if (await manifestLink.isVisible()) {
+        return;
+      }
 
-    const linkToOpen =
-      (await manifestLink.isVisible()) ? manifestLink : outcomeStripManifestLink;
+      await expandReviewDetailOutcomeCards(page);
+      await expect(manifestLink).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 60_000 });
 
     await Promise.all([
       page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
-      linkToOpen.click(),
+      manifestLink.click(),
     ]);
 
     await expectLiveManifestDetailPageReady(page, goldenManifestId, { timeoutMs: 60_000 });
@@ -304,7 +299,7 @@ test.describe("live-api-journey", () => {
 
     await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
 
-    await expect(page.getByRole("heading", { name: /governance workflow/i })).toBeVisible({
+    await expect(governancePageMainHeading(page)).toBeVisible({
       timeout: 60_000,
     });
 
