@@ -77,9 +77,9 @@ function RoleOverviewTable(): React.ReactElement {
               <th scope="row" className={HELP_PAGE_LAYOUT.tableHeadCell}>
                 {role.label}
               </th>
-              <td className={HELP_PAGE_LAYOUT.tableCell}>{role.intendedUser}</td>
-              <td className={HELP_PAGE_LAYOUT.tableCell}>{role.summary}</td>
-              <td className={HELP_PAGE_LAYOUT.tableCell}>{role.restrictions}</td>
+              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{role.intendedUser}</td>
+              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{role.summary}</td>
+              <td className={HELP_PAGE_LAYOUT.tableBodyCell}>{role.restrictions}</td>
             </tr>
           ))}
         </tbody>
@@ -112,7 +112,7 @@ function CapabilityMatrixTable(): React.ReactElement {
                 {row.label}
               </th>
               {BUILTIN_ROLE_ORDER.map((role) => (
-                <td key={role} className={HELP_PAGE_LAYOUT.tableCell}>
+                <td key={role} className={HELP_PAGE_LAYOUT.tableBodyCell}>
                   <span
                     className="inline-flex min-w-[2rem] justify-center font-semibold"
                     aria-label={`${row.label} for ${role}: ${row.roles[role] ? "Allowed" : "Not allowed"}`}
