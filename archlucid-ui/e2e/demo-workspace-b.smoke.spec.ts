@@ -239,7 +239,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await ensureBuyerDeliverablesSectionExpanded(page);
 
-    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence package/i })).toBeVisible({
+    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence bundle/i })).toBeVisible({
       timeout: 60_000,
     });
     await expect(page.getByTestId("golden-manifest-markdown-download-button")).toBeVisible();

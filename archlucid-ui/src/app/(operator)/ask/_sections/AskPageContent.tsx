@@ -26,7 +26,7 @@ import { AskNoReviewEmptyState } from "@/app/(operator)/ask/_sections/AskNoRevie
 import { AskThreadHistoryPanel } from "@/app/(operator)/ask/_sections/AskThreadHistoryPanel";
 
 const ASK_PAGE_SUBTITLE =
-  "Ask questions about a finalized review package. Answers use the signed review record and cite evidence when available.";
+  "Ask questions about a finalized review. Answers use the signed review record and cite evidence when available.";
 
 export function AskPageContent() {
   const searchParams = useSearchParams();

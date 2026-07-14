@@ -24,7 +24,7 @@ describe("DemoWorkspaceCapabilityUnavailablePanel", () => {
     expect(
       screen.getByText("In a connected tenant, operators configure scheduled governance digests here."),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open review packages" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",
       "/reviews?projectId=default",
     );

@@ -8,7 +8,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 export const CORE_PILOT_HELP_SUMMARY_TITLE = "First review path";
 
 export const CORE_PILOT_HELP_SUMMARY_COPY =
-  "Start with evidence, run the review, finalize the package, then share sponsor-ready outputs.";
+  "Start with evidence, run the review, finalize the review, then share sponsor-ready outputs.";
 
 export type CorePilotHelpWorkflowStep = {
   readonly stepNumber: number;
@@ -38,7 +38,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     stepNumber: 1,
     title: "Start review",
     description: `Open ${CREATE_ARCHITECTURE_LABEL} and name what you want reviewed — goals, constraints, and scope.`,
-    expectedOutput: "A new review package on your reviews list.",
+    expectedOutput: "A new review on your reviews list.",
     href: "/reviews/new",
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
@@ -61,9 +61,9 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
   },
   {
     stepNumber: 4,
-    title: "Finalize package",
+    title: "Finalize review",
     description: "Commit when ready — this locks the signed review record, findings, and export surfaces.",
-    expectedOutput: "A finalized review package with artifacts and audit trail.",
+    expectedOutput: "A finalized review with artifacts and audit trail.",
     href: "/reviews?projectId=default",
     ctaLabel: "Finalize on review detail",
   },
@@ -133,7 +133,7 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
   whatThisGuideCovers: {
     title: "What this guide covers",
     body:
-      "This page is your guided path from an empty workspace to a finalized architecture review package. " +
+      "This page is your guided path from an empty workspace to a finalized architecture review. " +
       "It focuses on evidence intake, running the assessment, finalizing findings, and sharing sponsor-ready exports. " +
       "Template-specific walkthroughs and deeper configuration live in related guides below.",
   },

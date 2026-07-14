@@ -84,7 +84,7 @@ export function formatCtoDemoRecapMarkdown(payload: CtoDemoRecapPayload): string
     `**Risk posture:** ${payload.riskPosture}`,
     `**Estimated annualized value:** ${savingsLine}`,
     `**Time to first signed package:** ~${payload.firstValueMinutes} minutes`,
-    `**Review package:** ${payload.reviewPackageUrl}`,
+    `**Review:** ${payload.reviewPackageUrl}`,
     `**Snapshot (read-only, permanent):** ${payload.snapshotUrl.length > 0 ? payload.snapshotUrl : payload.reviewPackageUrl}`,
     `**Executive summary:** ${getShowcaseExecutiveHref()}`,
     "",

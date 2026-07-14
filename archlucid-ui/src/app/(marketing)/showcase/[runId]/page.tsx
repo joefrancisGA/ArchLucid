@@ -23,7 +23,7 @@ const SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER =
   process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
 const SHOWCASE_HERO_SUBTITLE =
-  "Reviewed architecture output — review package, findings, and audit trail";
+  "Reviewed architecture output — review, findings, and audit trail";
 
 type PageProps = {
   params: Promise<{ runId: string }>;
@@ -124,7 +124,7 @@ function ShowcaseBottomCTA(): ReactElement {
         Create your own architecture output
       </h2>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        Start a new request in your workspace to generate review packages, findings, and exports for your systems.
+        Start a new request in your workspace to generate reviews, findings, and exports for your systems.
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
@@ -172,7 +172,7 @@ function ShowcaseExecutiveSummary({ payload }: { readonly payload: DemoCommitPag
       </p>
       <p className="mt-2 mb-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         <strong className="font-medium text-neutral-900 dark:text-neutral-100">What decision is now defensible:</strong>{" "}
-        sponsors can reference a single finalized review package, linked findings, and audit-ready lineage instead of ad-hoc
+        sponsors can reference a single finalized review, linked findings, and audit-ready lineage instead of ad-hoc
         slide decks.
       </p>
     </section>
@@ -184,7 +184,7 @@ function trimLeadDescription(desc: string | undefined | null): string {
   const t = (desc ?? "").trim();
 
   if (t.length === 0) {
-    return "Sample output for a finalized architecture analysis — review package, artifacts, and review trail.";
+    return "Sample output for a finalized architecture analysis — review, artifacts, and review trail.";
   }
 
   return t.length <= 80 ? t : `${t.slice(0, 77)}…`;
@@ -252,7 +252,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
   return {
     title: `ArchLucid · ${showcaseTitleForRunId(runId)}`,
-    description: "Completed architecture output — review package, findings, artifacts, and review trail.",
+    description: "Completed architecture output — review, findings, artifacts, and review trail.",
     robots: { index: true, follow: true },
   };
 }

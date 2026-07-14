@@ -24,7 +24,7 @@ import {
 } from "@/lib/showcase-static-demo";
 
 export type BuyerPolishedRouteOrientationOptions = {
-  /** When `/search` or `/governance` carries `runId`, header copy can reflect a scoped review package. */
+  /** When `/search` or `/governance` carries `runId`, header copy can reflect a scoped review. */
   readonly searchRunId?: string;
 };
 
@@ -54,7 +54,7 @@ export function buyerPolishedRouteOrientation(
   if (riskFinding !== null) {
     return {
       label: "Finding",
-      line: "Severity, disposition, mitigation, and trace links into the finalized review package.",
+      line: "Severity, disposition, mitigation, and trace links into the finalized review.",
     };
   }
 
@@ -70,7 +70,7 @@ export function buyerPolishedRouteOrientation(
   if (executivePinnedRun !== null && isPinnedDemoWorkspaceRunId(executivePinnedRun[1])) {
     return {
       label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-      line: "Board-ready posture, outcomes, and evidence hooks for this finalized review package.",
+      line: "Board-ready posture, outcomes, and evidence hooks for this finalized review.",
     };
   }
 
@@ -116,7 +116,7 @@ export function buyerPolishedRouteOrientation(
   if (path === "/dashboard") {
     return {
       label: BUYER_TERMINOLOGY.portfolioOverview,
-      line: "ROI, remediation, and governance posture across committed review packages.",
+      line: "ROI, remediation, and governance posture across committed reviews.",
     };
   }
 
@@ -205,8 +205,8 @@ export function buyerPolishedRouteOrientation(
 
   if (path !== "/reviews/new" && /^\/reviews\/[^/]+$/.exec(path) !== null) {
     return {
-      label: "Review package",
-      line: "Review package record — outcomes, findings, artifacts, downloads, and deep links into evidence surfaces.",
+      label: "Review",
+      line: "Review record — outcomes, findings, artifacts, downloads, and deep links into evidence surfaces.",
     };
   }
 
@@ -224,7 +224,7 @@ export function buyerPolishedRouteOrientation(
     if (searchRunId.length > 0) {
       return {
         label: "Search this review's evidence",
-        line: "Find language across this review package's summaries, signed review record, and linked metadata.",
+        line: "Find language across this review's summaries, signed review record, and linked metadata.",
       };
     }
 
@@ -248,7 +248,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/advisory")) {
     return {
       label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
-      line: "Prioritized follow-up recommendations from finalized review packages.",
+      line: "Prioritized follow-up recommendations from finalized reviews.",
     };
   }
 

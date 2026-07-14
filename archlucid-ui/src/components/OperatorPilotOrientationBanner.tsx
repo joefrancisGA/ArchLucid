@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const PRIMARY_HREF = "/reviews/new";
-const PRIMARY_LABEL = "Start your first review package";
+const PRIMARY_LABEL = "Start your first review";
 
 /**
  * First-screen operator orientation: one primary pilot action and at most three secondary links.
@@ -50,7 +50,7 @@ export function OperatorPilotOrientationBanner() {
             className={`${OPERATOR_TYPOGRAPHY.helper} text-al-accent-interactive underline-offset-2 hover:underline`}
             data-testid="operator-pilot-secondary-reviews"
           >
-            Review packages
+            Reviews
           </Link>
         </nav>
       </div>

@@ -36,7 +36,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
   const scopedPackageLabel =
     canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID
       ? `Scoped to ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}`
-      : "Scoped to the selected review package";
+      : "Scoped to the selected review";
   const threadListNavLabel = buyerPolishedShell
     ? ASK_THREAD_HISTORY_NAV_LABEL_BUYER
     : ASK_THREAD_HISTORY_NAV_LABEL_OPERATOR;

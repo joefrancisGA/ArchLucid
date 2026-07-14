@@ -15,7 +15,7 @@ export function CompareHowComparisonWorksSection() {
       </summary>
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{COMPARE_HOW_IT_WORKS_SUMMARY}</p>
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Both review packages must be finalized before ArchLucid can compute a reliable delta.
+        Both reviews must be finalized before ArchLucid can compute a reliable delta.
       </p>
     </details>
   );

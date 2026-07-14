@@ -92,6 +92,6 @@ describe("CorePilotBuyerStepHint", () => {
       expect(screen.getByTestId("core-pilot-buyer-step-badge")).toHaveTextContent("Step 4 of 4");
     });
 
-    expect(screen.getByRole("link", { name: "Open review package" })).toHaveAttribute("href", "/reviews/run-gold");
+    expect(screen.getByRole("link", { name: "Open review" })).toHaveAttribute("href", "/reviews/run-gold");
   });
 });

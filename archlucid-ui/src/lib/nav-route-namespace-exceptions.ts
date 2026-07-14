@@ -27,7 +27,7 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     navGroupId: "operator-system-admin",
     href: "/replay",
     canonicalPrefixes: ["/admin"],
-    exceptionReason: "Validate review package tool duplicated under Internal Ops for employee diagnostics (also in Operate analysis history).",
+    exceptionReason: "Validate review tool duplicated under Internal Ops for employee diagnostics (also in Operate analysis history).",
   },
   {
     navGroupId: "operate-reports",

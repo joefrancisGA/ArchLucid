@@ -11,7 +11,7 @@ export function WelcomeMarketingFirstTimeVisitorSection(): React.JSX.Element {
       </h2>
       <p className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
         Hosted SaaS evaluation workspace: create an architecture review request, let the pipeline finish, finalize when ready,
-        then open your review package — no local Docker required for the buyer story.
+        then open your review — no local Docker required for the buyer story.
       </p>
       <ol className={`mt-4 list-decimal space-y-2 pl-5 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
         <li>

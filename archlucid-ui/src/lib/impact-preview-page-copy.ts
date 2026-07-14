@@ -4,7 +4,7 @@ export const IMPACT_PREVIEW_PAGE_SUBTITLE =
   "Preview how a proposed architecture change may affect findings, risk, cost, and governance posture before implementation." as const;
 
 export const IMPACT_PREVIEW_ORIENTATION =
-  "Select a proposed change and baseline review package to compare expected before-and-after outcomes." as const;
+  "Select a proposed change and baseline review to compare expected before-and-after outcomes." as const;
 
 export const IMPACT_PREVIEW_TRUST_NOTICE =
   "Impact preview estimates likely effects from existing review evidence and policy signals. It is not a production deployment validation." as const;
@@ -13,17 +13,17 @@ export const IMPACT_PREVIEW_ACTION_REFRESH = "Refresh" as const;
 export const IMPACT_PREVIEW_ACTION_SIMULATE = "Simulate impact" as const;
 export const IMPACT_PREVIEW_ACTION_CREATE_PROPOSED_CHANGE = "Create proposed change" as const;
 export const IMPACT_PREVIEW_ACTION_OPEN_PLANNING = "Open Planning" as const;
-export const IMPACT_PREVIEW_ACTION_OPEN_REVIEW_PACKAGES = "Open review packages" as const;
+export const IMPACT_PREVIEW_ACTION_OPEN_REVIEW_PACKAGES = "Open reviews" as const;
 export const IMPACT_PREVIEW_ACTION_START_REVIEW = "Start review" as const;
 export const IMPACT_PREVIEW_ACTION_REQUEST_ACCESS = "Contact workspace admin" as const;
 
 export const IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE = "No proposed changes available" as const;
 export const IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_BODY =
-  "Create a proposed architecture change before running an impact preview. Impact preview compares the proposed change against a baseline review package and estimates likely changes in findings, risk, cost, and governance posture." as const;
+  "Create a proposed architecture change before running an impact preview. Impact preview compares the proposed change against a baseline review and estimates likely changes in findings, risk, cost, and governance posture." as const;
 
-export const IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE = "No baseline review package available" as const;
+export const IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE = "No baseline review available" as const;
 export const IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY =
-  "Finalize or commit a review package before comparing proposed changes against the current baseline." as const;
+  "Finalize or commit a review before comparing proposed changes against the current baseline." as const;
 
 export const IMPACT_PREVIEW_EMPTY_PERMISSION_TITLE = "You do not have permission to simulate impact" as const;
 export const IMPACT_PREVIEW_EMPTY_PERMISSION_BODY =
@@ -31,7 +31,7 @@ export const IMPACT_PREVIEW_EMPTY_PERMISSION_BODY =
 
 export const IMPACT_PREVIEW_SETUP_CARD_TITLE = "Simulation setup" as const;
 export const IMPACT_PREVIEW_PROPOSED_CHANGE_LABEL = "Proposed change" as const;
-export const IMPACT_PREVIEW_BASELINE_LABEL = "Baseline review package" as const;
+export const IMPACT_PREVIEW_BASELINE_LABEL = "Baseline review" as const;
 export const IMPACT_PREVIEW_COMPARISON_SCOPE_LABEL = "Comparison scope" as const;
 
 export const IMPACT_PREVIEW_SCOPE_FINDINGS = "Findings" as const;
@@ -69,7 +69,7 @@ export const IMPACT_PREVIEW_RECOMMENDATION_DO_NOT_PROCEED = "Do not proceed" as 
 export const IMPACT_PREVIEW_EVIDENCE_BASIS_TITLE = "Evidence basis" as const;
 export const IMPACT_PREVIEW_EVIDENCE_LINKED_FINDINGS = "Linked findings" as const;
 export const IMPACT_PREVIEW_EVIDENCE_POLICY_RULES = "Related policy rules" as const;
-export const IMPACT_PREVIEW_EVIDENCE_REVIEW_BASELINE = "Review package baseline" as const;
+export const IMPACT_PREVIEW_EVIDENCE_REVIEW_BASELINE = "Review baseline" as const;
 
 export const IMPACT_PREVIEW_RESULT_ACTION_SAVE = "Save impact preview" as const;
 export const IMPACT_PREVIEW_RESULT_ACTION_ADVISORY = "Create advisory recommendation" as const;
@@ -78,7 +78,7 @@ export const IMPACT_PREVIEW_RESULT_ACTION_EXPORT = "Export summary" as const;
 
 export const IMPACT_PREVIEW_HOW_IT_WORKS_TITLE = "How impact preview works" as const;
 export const IMPACT_PREVIEW_HOW_IT_WORKS_SUMMARY =
-  "Impact preview compares a proposed architecture change against a committed review package baseline and estimates likely changes using existing findings, policy signals, and review evidence." as const;
+  "Impact preview compares a proposed architecture change against a committed review baseline and estimates likely changes using existing findings, policy signals, and review evidence." as const;
 
 export const IMPACT_PREVIEW_ESTIMATED_IMPACT_LABEL = "Estimated impact" as const;
 export const IMPACT_PREVIEW_EXPECTED_CHANGE_LABEL = "Expected change" as const;

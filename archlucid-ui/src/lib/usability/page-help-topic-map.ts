@@ -20,7 +20,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Executive dashboard" } },
   { prefix: "/graph", topic: { slug: "evidence-trail", label: "Evidence trail" } },
   { prefix: "/compare", topic: { slug: "comparison-replay", label: "Compare and replay" } },
-  { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review package" } },
+  { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },

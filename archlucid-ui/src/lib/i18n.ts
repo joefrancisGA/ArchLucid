@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Central dictionary for operator-facing domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
@@ -144,7 +144,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   itsmConnectors: "Jira & ServiceNow",
   valueReport: "Value report",
   compareTwoReviews: "Compare two reviews",
-  replayReview: "Validate review package",
+  replayReview: "Validate review",
   askReview: "Ask review questions",
   searchEvidence: "Search review evidence",
   architectureAdvisory: "Advisory scans",

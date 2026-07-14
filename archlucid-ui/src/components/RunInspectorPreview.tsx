@@ -101,7 +101,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           ? "Browse sponsor-ready deliverables and exports from the full review. Open review detail when you need the complete workspace view."
           : "Artifacts are summarized alongside the finalized review record — open the signed record link below."
         : buyerPolished
-          ? "Evidence package available from the signed review record."
+          ? "Evidence bundle available from the signed review record."
           : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
@@ -174,7 +174,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
       {buyerPolished && showcaseStory ? (
         <section
-          aria-label="Review package outcome summary"
+          aria-label="Review outcome summary"
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-2 p-3"
         >
           <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Decision: Package finalized</p>
@@ -197,7 +197,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
         return (
           <section
-            aria-label="Review package decision summary"
+            aria-label="Review decision summary"
             className="space-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
           >
             <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{meta.decisionSummary}</p>
@@ -238,7 +238,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             <span>{buyerPolished ? BUYER_SURFACE_VOCABULARY.evidenceGraph : "Graph generated"}</span>
             <span
               aria-label={
-                graphTrailReady ? "Decision traceability graph ready for this package" : "Graph snapshot missing"
+                graphTrailReady ? "Decision traceability graph ready for this review" : "Graph snapshot missing"
               }
             >
               {snapshotLabel(graphTrailReady)}
@@ -251,7 +251,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>{buyerPolished ? "Package finalized" : "Review package finalized"}</span>
+            <span>{buyerPolished ? "Package finalized" : "Review finalized"}</span>
             <span aria-label={run.hasGoldenManifest ? `${SIGNED_MANIFEST_LABEL} present` : `${SIGNED_MANIFEST_LABEL} missing`}>
               {snapshotLabel(run.hasGoldenManifest)}
             </span>

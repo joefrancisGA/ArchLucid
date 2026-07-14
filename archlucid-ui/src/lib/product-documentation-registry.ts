@@ -74,7 +74,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "first-hour-operator-path",
     title: "First-review guide",
     summary:
-      "Complete one review package before opening deeper governance, reporting, or integration workflows.",
+      "Complete one review before opening deeper governance, reporting, or integration workflows.",
     audience: "buyer",
     sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
     pdfStatus: "public",
@@ -83,7 +83,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "review-guide",
     title: "Review guide",
     summary:
-      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review package.",
+      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
   },
@@ -145,8 +145,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "review-packages",
-    title: "Review packages",
-    summary: "Browse, inspect, and export governed review packages in the architect workspace.",
+    title: "Reviews",
+    summary: "Browse, inspect, and export governed reviews in the architect workspace.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"],
   },
@@ -315,7 +315,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "first-value-20-minutes",
     title: "First value in 20 minutes",
-    summary: "Time-boxed runbook for a first governed review package when platform wiring is already green.",
+    summary: "Time-boxed runbook for a first governed review when platform wiring is already green.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_VALUE_20_MINUTES.md"],
   },

@@ -83,7 +83,10 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
   const quickJumpRunIds = resolveHomeQuickJumpRunIds(props.model);
 
   return (
-    <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
+    <OperatorHomeWorkspaceActivityProvider
+      initialHasReviews={initialHasReviews}
+      initialRecentRunIds={quickJumpRunIds}
+    >
       <OperatorHomePageMainContent
         heroSection={<BuyerPolishedHomeHeroSection />}
         recentReviewsSection={<HomeRecentReviewsSection model={props.model} />}
@@ -94,7 +97,7 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
           fullOperatorShell: false,
         })}
       />
-      <DevTestingQuickSwitchPanel runIds={quickJumpRunIds} />
+      <DevTestingQuickSwitchPanel />
     </OperatorHomeWorkspaceActivityProvider>
   );
 }
@@ -105,7 +108,10 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
   const quickJumpRunIds = resolveHomeQuickJumpRunIds(props.model);
 
   return (
-    <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
+    <OperatorHomeWorkspaceActivityProvider
+      initialHasReviews={initialHasReviews}
+      initialRecentRunIds={quickJumpRunIds}
+    >
       <OperatorHomePageMainContent
         heroSection={
           <section aria-label="Overview command center" data-testid="operator-home-pilot-command-center-host">
@@ -120,7 +126,7 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
           fullOperatorShell,
         })}
       />
-      <DevTestingQuickSwitchPanel runIds={quickJumpRunIds} />
+      <DevTestingQuickSwitchPanel />
     </OperatorHomeWorkspaceActivityProvider>
   );
 }

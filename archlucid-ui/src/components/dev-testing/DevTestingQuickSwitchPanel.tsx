@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DevTestingQuickJumpLinks } from "@/components/dev-testing/DevTestingQuickJumpLinks";
 import { useDevTestingQuickJumpSnapshot } from "@/components/dev-testing/use-dev-testing-quick-jump-snapshot";
+import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -74,13 +75,14 @@ function selectRoleOverride(value: DevRoleOverride | "build-default"): void {
 }
 
 type DevTestingQuickSwitchPanelProps = {
-  /** Recent run ids from the home page — avoids a duplicate runs list fetch in local dev. */
+  /** Optional fallback when rendered outside the home workspace activity provider (tests). */
   readonly runIds?: readonly string[];
 };
 
 /** Local-dev footer rail — switch shell density and dev-bypass role without restarting Next.js. */
 export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProps): React.JSX.Element | null {
-  const runIds = props.runIds ?? [];
+  const { recentRunIds: liveRecentRunIds } = useOperatorHomeWorkspaceActivity();
+  const runIds = liveRecentRunIds.length > 0 ? liveRecentRunIds : (props.runIds ?? []);
   const [mounted, setMounted] = useState(false);
   const [shellOverride, setShellOverride] = useState<DevShellExperienceOverride | null>(null);
   const [roleOverride, setRoleOverride] = useState<DevRoleOverride | null>(null);

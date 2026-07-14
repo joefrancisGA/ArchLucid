@@ -23,7 +23,7 @@ function isFixtureHash(hash: string): boolean {
 /** Maps a potentially fixture-shaped manifest ID to a display label. */
 function displayManifestId(id: string, side: "left" | "right"): string {
   if (isFixtureManifestId(id)) {
-    return side === "left" ? "Baseline review package" : "Updated review package";
+    return side === "left" ? "Baseline review" : "Updated review";
   }
 
   return id;
@@ -95,12 +95,12 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         </table>
       )}
 
-      <h4 className={cn("mt-6", OPERATOR_TYPOGRAPHY.helper)}>Review package diff</h4>
+      <h4 className={cn("mt-6", OPERATOR_TYPOGRAPHY.helper)}>Review diff</h4>
       {!result.manifestComparison ? (
-        <OperatorEmptyState title="No review package comparison block">
+        <OperatorEmptyState title="No review comparison block">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             {
-              'The API did not include a review package comparison object for this pair (distinct from "zero diffs inside a comparison").'
+              'The API did not include a review comparison object for this pair (distinct from "zero diffs inside a comparison").'
             }
           </p>
         </OperatorEmptyState>

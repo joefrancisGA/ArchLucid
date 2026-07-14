@@ -8,7 +8,7 @@ export const CTO_DEMO_FAST_CREATE_STAGE_LABELS = [
   "Mapping topology and dependencies",
   "Finding architecture risks",
   "Writing recommendations",
-  "Preparing your review package",
+  "Preparing your review",
 ] as const;
 
 /** Deterministic simulated create lands on the showcase executive summary (#5). */

@@ -98,7 +98,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/replay",
           label: OPERATOR_NAV_LINK_LABELS.replayReview,
-          title: this.shortcutTitle("Validate review package — check stored review output integrity", "alt+p"),
+          title: this.shortcutTitle("Validate review — check stored review output integrity", "alt+p"),
           keyShortcut: "alt+p",
           icon: PackageCheck,
           tier: "extended",

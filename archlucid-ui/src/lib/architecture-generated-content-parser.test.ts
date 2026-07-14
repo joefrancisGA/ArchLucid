@@ -33,7 +33,7 @@ Reduce manual triage time and improve auditability.
 
   it("renders intentional markdown narrative without exposing fenced scaffolding", () => {
     const source = `## Scope
-Support **Entra ID** sign-in and exportable evidence packages.
+Support **Entra ID** sign-in and exportable evidence bundles.
 
 \`\`\`json
 {"prompt":"ignore"}

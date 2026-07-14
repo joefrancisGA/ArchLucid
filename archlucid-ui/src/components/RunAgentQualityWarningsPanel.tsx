@@ -130,7 +130,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
               {busy ? "Re-running review…" : "Re-run review"}
             </Button>
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              Re-invokes agent execution for this review package (same run id).
+              Re-invokes agent execution for this review (same run id).
             </p>
           </div>
 

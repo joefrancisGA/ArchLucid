@@ -3,7 +3,7 @@ import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architect
 
 /**
  * Sidebar/palette narrowing before the first committed golden-manifest review (`CurrentPrincipal.hasCommittedArchitectureReview`).
- * Allowed: executive summary, review package hub, evidence graph, architecture draft capture, review intake,
+ * Allowed: executive summary, review hub, evidence graph, architecture draft capture, review intake,
  * plus help/onboarding, active review detail under `/reviews/...`. Operate destinations such as Alerts, Planning,
  * Digests, and Advisory stay out until **`hasCommittedArchitectureReview`** (tier/disclosure still applies after unlock);
  * deep links remain valid.
@@ -57,7 +57,7 @@ function navPathWithoutQuery(href: string): string {
 }
 
 /**
- * Pre-commit sidebar order: golden path first (capture → evidence → review package), then executive summary.
+ * Pre-commit sidebar order: golden path first (capture → evidence → review), then executive summary.
  * Matches Core Pilot funnel before the first committed manifest — not the post-commit buyer-polished catalog order.
  */
 function preCommitNavLinkSortRank(pathWithoutQuery: string): number {

@@ -99,7 +99,7 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
   "first-pilot-path": {
     title: "Complete review workflow",
     summary:
-      "Create a review package, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
+      "Create a review, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
   },
 };
 

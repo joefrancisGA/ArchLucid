@@ -45,7 +45,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     const section = heading.closest("section");
     expect(section).toHaveTextContent(CORE_PILOT_WORKFLOW_SUMMARY_LINE);
-    expect(section).toHaveTextContent("review package");
+    expect(section).toHaveTextContent("review");
     expect(screen.getByText("First session coaching")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Continue checklist ↓" })).toHaveAttribute(
       "href",

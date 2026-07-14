@@ -103,7 +103,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
   if (props.variant === "review-detail-committed") {
     return (
       <OperatorHomeDisclosureSection
-        title="Review package guidance"
+        title="Review guidance"
         titleId="first-week-guidance-review-detail-committed"
         sectionTestId="first-week-route-guidance-review-detail-committed"
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}

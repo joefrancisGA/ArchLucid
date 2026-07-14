@@ -80,10 +80,10 @@ export function ReviewPackageValidationPicker(props: ReviewPackageValidationPick
     try {
       const merged = await loadProjectRunsMergedWithDemoFallback("default", { committedOnly: true });
       setRuns(merged.items ?? []);
-      setLoadError(merged.loadError ? "Could not load finalized review packages." : null);
+      setLoadError(merged.loadError ? "Could not load finalized reviews." : null);
     } catch {
       setRuns([]);
-      setLoadError("Could not load finalized review packages.");
+      setLoadError("Could not load finalized reviews.");
     } finally {
       setLoading(false);
     }
@@ -121,7 +121,7 @@ export function ReviewPackageValidationPicker(props: ReviewPackageValidationPick
     <div className="space-y-2">
       <div className="relative max-w-none">
         <Label htmlFor={controlId} className={cn("mb-1 block font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          Review package
+          Review
         </Label>
         <p id={hintId} className={cn("m-0 mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {REPLAY_PACKAGE_SELECTOR_HELPER}
@@ -130,7 +130,7 @@ export function ReviewPackageValidationPicker(props: ReviewPackageValidationPick
           id={controlId}
           role="combobox"
           value={query}
-          placeholder="Search finalized review packages"
+          placeholder="Search finalized reviews"
           disabled={disabled}
           autoComplete="off"
           aria-autocomplete="list"
@@ -205,7 +205,7 @@ export function ReviewPackageValidationPicker(props: ReviewPackageValidationPick
                       Finalized {row.finalizedDateLabel} · {row.statusLabel} · Owner {row.ownerLabel} · Last validation{" "}
                       {row.lastValidationLabel}
                     </span>
-                    <span className="sr-only">Package ID {row.run.runId}</span>
+                    <span className="sr-only">Review ID {row.run.runId}</span>
                   </button>
                 </li>
               ))}

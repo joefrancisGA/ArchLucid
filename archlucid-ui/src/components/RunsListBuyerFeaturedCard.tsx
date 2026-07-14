@@ -21,7 +21,7 @@ export type RunsListBuyerFeaturedCardProps = {
 
 function defaultDecisionSummary(run: RunSummary): string {
   if (run.hasGoldenManifest === true) {
-    return "Finalized review package";
+    return "Finalized review";
   }
 
   if (run.hasFindingsSnapshot === true) {
@@ -32,7 +32,7 @@ function defaultDecisionSummary(run: RunSummary): string {
 }
 
 /**
- * Buyer demo: one review package as a proof card instead of a sparse table row.
+ * Buyer demo: one review as a proof card instead of a sparse table row.
  */
 export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProps) {
   const title = buyerFacingReviewTitleFromSummary(run);
@@ -69,7 +69,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
             </div>
             <div>
               <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Package owner
+                Review owner
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
                 {meta?.packageOwner ?? "—"}

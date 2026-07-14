@@ -31,7 +31,7 @@ function triggerSourceLabel(source: "ui" | "api" | "ci" | null | undefined): str
 }
 
 /**
- * Chain of custody for a review package — who ran it, what ran, when it was sealed.
+ * Chain of custody for a review — who ran it, what ran, when it was sealed.
  * Answers the three questions every compliance officer asks before relying on a review.
  */
 export function ReviewChainOfCustodySection({

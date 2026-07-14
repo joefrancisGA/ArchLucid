@@ -59,7 +59,7 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
           <EnterpriseTable ariaLabel={REVIEWS_HUB_RECENT_SECTION_TITLE} data-testid="reviews-hub-packages-table">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Review package</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
@@ -82,7 +82,7 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
                       <div className="min-w-[12rem]">
                         <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{row.name}</p>
                         {row.isSamplePackage ? (
-                          <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Sample package</p>
+                          <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Sample review</p>
                         ) : null}
                       </div>
                     </EnterpriseTableCell>

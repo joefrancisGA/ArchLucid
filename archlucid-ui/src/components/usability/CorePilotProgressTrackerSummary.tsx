@@ -73,7 +73,7 @@ export function CorePilotProgressTrackerSummary(props: CorePilotProgressTrackerS
               <>
                 {" · "}
                 <Link href="/help/first-value-20-minutes" className="font-medium text-teal-800 underline dark:text-teal-300">
-                  Complete one review package in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
+                  Complete one review in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
                 </Link>
               </>
             ) : null}

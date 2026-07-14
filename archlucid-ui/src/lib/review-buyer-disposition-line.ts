@@ -32,7 +32,7 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   }
 
   if (postureRaw === "approved with monitoring") {
-    return "Approved with monitoring — proceed under the controls documented in this finalized signed review package.";
+    return "Approved with monitoring — proceed under the controls documented in this finalized signed review.";
   }
 
   return null;
@@ -49,7 +49,7 @@ export function buyerHeaderStatusTwinPillCaption(input: BuyerReviewDispositionIn
   const postureRaw = (input.aggregateRiskPosture ?? "").trim().toLowerCase();
 
   if (postureRaw === "approved with monitoring") {
-    return "The review package is finalized; one non-blocking risk remains under explicit monitored oversight.";
+    return "The review is finalized; one non-blocking risk remains under explicit monitored oversight.";
   }
 
   return null;
@@ -60,7 +60,7 @@ export function buyerHeaderStatusTwinPillCaption(input: BuyerReviewDispositionIn
  */
 export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDispositionInput): string {
   if (!input.hasGoldenManifest) {
-    return "Finalize the review package to lock findings, monitored risks, and governance approval signals for this package.";
+    return "Finalize the review to lock findings, monitored risks, and governance approval signals for this review.";
   }
 
   const findings = clampNonNegativeInt(input.findingCountDisplay);
@@ -81,7 +81,7 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
         ? `${findings} finding${findings === 1 ? "" : "s"} recorded with ${unresolved} unresolved issue${unresolved === 1 ? "" : "s"} still tracked on the manifest.`
         : includesMonitoredRiskInFindingPhrase && findings !== null
           ? `${findings} finding${findings === 1 ? "" : "s"}, including ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"}.`
-          : `${findings} finding${findings === 1 ? "" : "s"} recorded with no blocking items left open for this package.`;
+          : `${findings} finding${findings === 1 ? "" : "s"} recorded with no blocking items left open for this review.`;
 
   const warningPhrase =
     warnings !== null && warnings > 0 && unresolved !== null && unresolved > 0

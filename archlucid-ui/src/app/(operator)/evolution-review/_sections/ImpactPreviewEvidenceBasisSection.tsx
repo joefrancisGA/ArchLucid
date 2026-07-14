@@ -44,8 +44,8 @@ export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBa
             <dt className="text-al-text-secondary">{IMPACT_PREVIEW_EVIDENCE_LINKED_FINDINGS}</dt>
             <dd className="m-0 mt-1 text-al-text-primary">
               {props.linkedRunIds.length > 0
-                ? `${props.linkedRunIds.length} linked review package${props.linkedRunIds.length === 1 ? "" : "s"} from planning`
-                : "No linked review packages recorded"}
+                ? `${props.linkedRunIds.length} linked review${props.linkedRunIds.length === 1 ? "" : "s"} from planning`
+                : "No linked reviews recorded"}
             </dd>
           </div>
           <div>

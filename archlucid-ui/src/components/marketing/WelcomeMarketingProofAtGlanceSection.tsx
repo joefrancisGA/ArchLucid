@@ -18,7 +18,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
         <li className={MARKETING_SURFACES.card}>
           <p className={`m-0 ${MARKETING_TYPOGRAPHY.cardTitle}`}>Decision-grade outputs</p>
           <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
-            Structured findings with a versioned review package you can hand to ARB and audit partners.
+            Structured findings with a versioned review you can hand to ARB and audit partners.
           </p>
           <p className={cn("m-0 mt-3 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
             <Link className={MARKETING_SURFACES.inlineLink} href="/why">

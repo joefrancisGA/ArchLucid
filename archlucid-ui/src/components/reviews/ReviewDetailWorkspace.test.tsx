@@ -54,7 +54,7 @@ describe("ReviewDetailWorkspace", () => {
   it("explains package workflow vs review sections when orientation is enabled", () => {
     render(<ReviewDetailWorkspace panels={panels} showPackageWorkflowOrientation />);
 
-    expect(screen.getByTestId("review-detail-workspace-orientation")).toHaveTextContent("Review package workflow");
+    expect(screen.getByTestId("review-detail-workspace-orientation")).toHaveTextContent("Review workflow");
     expect(screen.getByTestId("review-detail-workspace-orientation")).toHaveTextContent("Review sections");
   });
 });

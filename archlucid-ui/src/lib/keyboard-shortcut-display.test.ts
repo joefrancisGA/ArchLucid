@@ -30,7 +30,7 @@ describe("keyboard-shortcut-display", () => {
 
   it("builds tooltip lines with Ctrl+K only", () => {
     expect(commandPaletteTooltipLine("Search pages")).toBe("Search pages — Ctrl+K.");
-    expect(commandPaletteTooltipLine("Search review packages")).not.toContain("⌘");
+    expect(commandPaletteTooltipLine("Search reviews")).not.toContain("⌘");
   });
 
   it("keeps aria labels free of embedded shortcut glyphs", () => {

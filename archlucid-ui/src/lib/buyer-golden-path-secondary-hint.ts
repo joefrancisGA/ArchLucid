@@ -5,11 +5,11 @@ export function buyerGoldenPathSecondaryRouteHint(pathname: string): string | nu
   const path = pathname.trim();
 
   if (path.includes("/findings/")) {
-    return "Viewing supporting detail — finding evidence for this review package.";
+    return "Viewing supporting detail — finding evidence for this review.";
   }
 
   if (path === "/ask" || path.startsWith("/ask?")) {
-    return "Viewing supporting detail — evidence-backed questions for this review package.";
+    return "Viewing supporting detail — evidence-backed questions for this review.";
   }
 
   if (path.includes("/inspect")) {

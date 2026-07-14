@@ -62,7 +62,7 @@ export function OperatorHomeFeaturedSamplePickerDialog(
         <DialogHeader>
           <DialogTitle>Choose sample review</DialogTitle>
           <DialogDescription>
-            Select a completed review package to open from the homepage explore path. Only eligible completed reviews
+            Select a completed review to open from the homepage explore path. Only eligible completed reviews
             are listed.
           </DialogDescription>
         </DialogHeader>

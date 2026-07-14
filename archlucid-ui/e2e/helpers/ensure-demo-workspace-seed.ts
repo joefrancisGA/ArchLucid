@@ -6,6 +6,7 @@ import {
   getAuthorityRunDetailWithTransientRetries,
   getPilotRunDeltasRaw,
   getPilotRunDeltasWithTransientRetries,
+  liveE2eCommitWaitMs,
   liveJsonHeaders,
   resolveLiveApiBase,
   type LiveTenantScopeHeaders,
@@ -26,6 +27,8 @@ type DemoWorkspaceSeedCheck = {
 };
 
 const maxDemoSeedPostAttempts = 12;
+
+const demoSeedConvergencePollIntervalMs = 2_000;
 
 const demoSeedProbeRetryOptions = { retryRunNotFound: true } as const;
 
@@ -152,6 +155,44 @@ async function assertDemoWorkspaceSeedCheckReady(
   }
 }
 
+async function areAllDemoWorkspaceSeedChecksReady(
+  request: APIRequestContext,
+  workspaceChecks: readonly DemoWorkspaceSeedCheck[],
+): Promise<boolean> {
+  const readiness = await Promise.all(
+    workspaceChecks.map(async (check) => isDemoWorkspaceSeedCheckReady(request, check)),
+  );
+
+  return readiness.every(Boolean);
+}
+
+async function waitForDemoWorkspaceSeedConvergence(
+  request: APIRequestContext,
+  workspaceChecks: readonly DemoWorkspaceSeedCheck[],
+): Promise<void> {
+  const deadline = Date.now() + liveE2eCommitWaitMs(90_000);
+  let seedPosted = false;
+
+  while (Date.now() < deadline) {
+    if (await areAllDemoWorkspaceSeedChecksReady(request, workspaceChecks)) {
+      return;
+    }
+
+    if (!seedPosted) {
+      await postDemoSeedWithTransientRetries(request);
+      seedPosted = true;
+
+      continue;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, demoSeedConvergencePollIntervalMs));
+  }
+
+  for (const check of workspaceChecks) {
+    await assertDemoWorkspaceSeedCheckReady(request, check);
+  }
+}
+
 /** Idempotent demo seed plus authority-run probes for merge-blocking `@release-gate` workspace smokes. */
 export async function ensureDemoWorkspaceSeedReady(
   request: APIRequestContext,
@@ -160,15 +201,5 @@ export async function ensureDemoWorkspaceSeedReady(
   const requested = new Set<DemoWorkspaceSeedProbe>(options?.workspaces ?? ["A", "B"]);
   const workspaceChecks = buildWorkspaceChecks(requested);
 
-  const readiness = await Promise.all(
-    workspaceChecks.map(async (check) => isDemoWorkspaceSeedCheckReady(request, check)),
-  );
-
-  if (!readiness.every(Boolean)) {
-    await postDemoSeedWithTransientRetries(request);
-  }
-
-  for (const check of workspaceChecks) {
-    await assertDemoWorkspaceSeedCheckReady(request, check);
-  }
+  await waitForDemoWorkspaceSeedConvergence(request, workspaceChecks);
 }

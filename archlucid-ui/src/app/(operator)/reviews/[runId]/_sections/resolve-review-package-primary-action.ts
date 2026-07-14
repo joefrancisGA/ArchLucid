@@ -39,7 +39,7 @@ const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
 > = {
   "review-findings": "Review findings",
   "add-evidence": "Add evidence",
-  "finalize-package": "Finalize package",
+  "finalize-package": "Finalize review",
   "export-proof-packet": "Export proof packet",
 };
 

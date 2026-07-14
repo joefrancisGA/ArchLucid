@@ -3,7 +3,7 @@ export const INLINE_GUIDANCE_LABELS = [
   "Fastest first-pilot path:",
   "Start with an example:",
   "What you can do here:",
-  "Review package and evidence trail:",
+  "Review and evidence trail:",
   "What happens next:",
   "What to do next:",
   "Evidence expected:",

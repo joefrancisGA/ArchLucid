@@ -96,7 +96,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
               onChange={onRunIdChange}
               selectedThreadId={selectedThreadId}
               fieldId="ask-run-primary"
-              label="Review package"
+              label="Review"
               syntheticSampleHint={BUYER_ASK_SYNTHETIC_SAMPLE_HINT}
               autoSelectSyntheticSample={!buyerPolishedShell}
             />

@@ -143,14 +143,19 @@ export function RunsDashboardPanelClient({
 
   const matchesInitialSnapshot =
     initialModel !== null && showArchived === false && projectId === initialModel.projectId;
+  const shouldSkipInitialClientFetch =
+    matchesInitialSnapshot &&
+    initialModel !== null &&
+    initialModel.loadFailure === null &&
+    initialModel.items.length > 0;
 
   useEffect(() => {
-    if (matchesInitialSnapshot && initialModel !== null) {
+    if (shouldSkipInitialClientFetch) {
       return;
     }
 
     void load();
-  }, [initialModel, load, matchesInitialSnapshot]);
+  }, [initialModel, load, shouldSkipInitialClientFetch]);
 
   const effectiveItems = useMemo(() => {
     if (items.length > 0) {
@@ -383,7 +388,7 @@ export function RunsDashboardPanelClient({
                 {tab === "outcomes"
                   ? buyerPolishedShell && showcaseDemoRun !== undefined
                     ? "Representative governance posture for this workspace."
-                    : "Review packages finalized, findings surfaced, and average time to finalization."
+                    : "Reviews finalized, findings surfaced, and average time to finalization."
                   : null}
               </p>
             </CardHeader>

@@ -1,7 +1,7 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 
 export const DECISION_REGISTER_PAGE_SUBTITLE =
-  "Browse signed architecture decisions across review packages, including category, supporting findings, confidence, and lineage.";
+  "Browse signed architecture decisions across reviews, including category, supporting findings, confidence, and lineage.";
 
 export const DECISION_REGISTER_SUMMARY_SIGNED_LABEL = "Signed decisions";
 
@@ -60,9 +60,9 @@ export const DECISION_REGISTER_FILTER_NO_MATCH_BODY =
 export const DECISION_REGISTER_EMPTY_TITLE = "No signed decisions yet";
 
 export const DECISION_REGISTER_EMPTY_BODY =
-  "Finalize a review package to create signed architecture decisions with supporting findings and evidence lineage.";
+  "Finalize a review to create signed architecture decisions with supporting findings and evidence lineage.";
 
-export const DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES = "Open review packages";
+export const DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES = "Open reviews";
 
 export const DECISION_REGISTER_EMPTY_ACTION_START_REVIEW = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 

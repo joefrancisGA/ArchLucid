@@ -43,7 +43,7 @@ describe("PilotRoiBaselineReadinessCard", () => {
     localStorage.clear();
   });
 
-  it("renders nothing before the tenant has a committed review package", () => {
+  it("renders nothing before the tenant has a committed review", () => {
     committedReviewMock.value = false;
 
     render(<PilotRoiBaselineReadinessCard />);

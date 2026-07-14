@@ -7,7 +7,7 @@ type WizardPackagePreviewProps = {
   readonly hasEvidence: boolean;
 };
 
-/** Live preview of what the review package will include. */
+/** Live preview of what the review will include. */
 export function WizardPackagePreview(props: WizardPackagePreviewProps) {
   const items = [
     "Topology analysis findings",
@@ -22,10 +22,10 @@ export function WizardPackagePreview(props: WizardPackagePreviewProps) {
     <aside
       className={cn("rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.body)}
       data-testid="wizard-package-preview"
-      aria-label="Review package preview"
+      aria-label="Review preview"
     >
       <h3 className={cn("m-0 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        Your review package will include
+        Your review will include
       </h3>
       <p className={cn("m-0 mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Architecture review: <span className="font-medium">{props.systemName.trim() || "Untitled"}</span>

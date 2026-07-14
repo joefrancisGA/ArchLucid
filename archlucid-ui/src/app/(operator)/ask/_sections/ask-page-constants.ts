@@ -45,7 +45,7 @@ export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
 /** Shown when Ask opens with <code>?runId=…</code> deep link (review-scoped starters). */
 export const ASK_DEEP_LINK_RUN_PROMPTS: readonly string[] = [
   "What changed in this review that leadership must know?",
-  "List open issues blocking sign-off for this package.",
+  "List open issues blocking sign-off for this review.",
   "What evidence supports the top finding in this review?",
   "What should I tell my CTO in the first 90 seconds?",
   "Which finding should we fix first, and why?",

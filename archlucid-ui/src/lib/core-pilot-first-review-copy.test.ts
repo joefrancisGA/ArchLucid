@@ -15,7 +15,7 @@ import {
 describe("core-pilot-first-review-copy (buyer first-run)", () => {
   it("uses outcome-first governed packaging language in primary heading", () => {
     expect(CORE_PILOT_FIRST_REVIEW_HEADING).toMatch(/governed/i);
-    expect(CORE_PILOT_FIRST_REVIEW_HEADING).toMatch(/architecture review package/i);
+    expect(CORE_PILOT_FIRST_REVIEW_HEADING).toMatch(/architecture review/i);
     expect(CORE_PILOT_FIRST_REVIEW_HEADING).not.toMatch(/\brun\b/i);
   });
 

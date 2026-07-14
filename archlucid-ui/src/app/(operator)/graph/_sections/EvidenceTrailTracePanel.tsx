@@ -75,7 +75,7 @@ export function EvidenceTrailTracePanel(props: EvidenceTrailTracePanelProps) {
     return (
       <OperatorLoadingNotice>
         <strong>Loading trace table</strong>
-        <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Collecting finding provenance rows for this review package.</p>
+        <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Collecting finding provenance rows for this review.</p>
       </OperatorLoadingNotice>
     );
   }
@@ -91,7 +91,7 @@ export function EvidenceTrailTracePanel(props: EvidenceTrailTracePanelProps) {
       >
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Trace table unavailable</p>
         <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Explainability metadata could not be loaded for this review. Try graph view or open the review package
+          Explainability metadata could not be loaded for this review. Try graph view or open the review
           directly.
         </p>
         {onOpenGraphView !== undefined ? (

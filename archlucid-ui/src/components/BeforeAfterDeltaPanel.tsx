@@ -226,7 +226,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
         Review-cycle delta (before vs measured)
       </h3>
       <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Compares your estimated baseline review cycle time against measured time for finalized review packages in this
+        Compares your estimated baseline review cycle time against measured time for finalized reviews in this
         workspace. Estimated savings use accepted cost findings from committed review activity.
       </p>
 
@@ -258,7 +258,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           <dd className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {data.measuredAvailable
               ? "Measured from committed review activity in this workspace."
-              : "Awaiting first finalized review package to populate the measurement."}
+              : "Awaiting first finalized review to populate the measurement."}
           </dd>
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">

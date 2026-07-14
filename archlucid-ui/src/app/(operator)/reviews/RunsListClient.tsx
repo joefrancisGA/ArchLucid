@@ -163,7 +163,7 @@ function runRowOutputReadinessLine(run: RunSummary): string {
   }
 
   if (run.hasGoldenManifest) {
-    tokens.push("Review package finalized");
+    tokens.push("Review finalized");
   }
 
   if (run.hasArtifactBundle) {
@@ -196,7 +196,7 @@ function inspectorTitle(run: RunSummary | null): string {
   }
 
   if (isBuyerPolishedOperatorShellEnv()) {
-    return "Review package summary";
+    return "Review summary";
   }
 
   return buyerFacingReviewTitleFromSummary(run);
@@ -482,7 +482,7 @@ export function RunsListClient({
           buyerPolished
             ? "Search reviews by title or description"
             : buyerPolished
-              ? "Filter review packages by name or description"
+              ? "Filter reviews by name or description"
               : "Filter reviews by name or description"
         }
         aria-controls="runs-list-filter-status"
@@ -532,7 +532,7 @@ export function RunsListClient({
         buyerCollapseFilters ? (
           <details className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
             <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-              {buyerPolished ? "Filter review packages" : "Filter reviews"}
+              {buyerPolished ? "Filter reviews" : "Filter reviews"}
             </summary>
             <div className="mt-3 space-y-3">
               {runsFilterControl}

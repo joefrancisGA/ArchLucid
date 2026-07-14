@@ -29,7 +29,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     step: 2,
     label: SIGNED_MANIFEST_LABEL,
     href: getShowcaseManifestHref(),
-    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs in this finalized review package.",
+    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs in this finalized review.",
   },
   {
     step: 3,
@@ -41,7 +41,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     step: 4,
     label: "Governance approval",
     href: `/governance?runId=${showcaseRunEnc}`,
-    chipTooltip: "Governance posture, approvals, and monitoring hooks tied to this review package.",
+    chipTooltip: "Governance posture, approvals, and monitoring hooks tied to this review.",
   },
   {
     step: 5,
@@ -161,7 +161,7 @@ export function resolveBuyerGoldenJourneyNav(
       canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
     ) {
       return {
-        summaryLine: `Review package overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
+        summaryLine: `Review overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
         prev: { label: defs[0].label, href: defs[0].href },
         next: { label: defs[1].label, href: defs[1].href },
         currentStepIndex: null,

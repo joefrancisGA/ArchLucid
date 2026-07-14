@@ -22,7 +22,7 @@ function phaseIndex(phase: ReviewSubmitPhaseId): number {
   return PHASES.findIndex((row) => row.id === phase);
 }
 
-/** Named pipeline phases shown while a review package is being created — sets honest time-to-value expectations. */
+/** Named pipeline phases shown while a review is being created — sets honest time-to-value expectations. */
 export function ReviewSubmitPhaseProgress(props: ReviewSubmitPhaseProgressProps): React.JSX.Element {
   const activeIndex = Math.max(0, phaseIndex(props.activePhase));
   const progressValue = Math.round(((activeIndex + 1) / PHASES.length) * 100);
@@ -39,7 +39,7 @@ export function ReviewSubmitPhaseProgress(props: ReviewSubmitPhaseProgressProps)
       aria-busy="true"
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        Starting your review package…
+        Starting your review…
       </p>
       {props.minutesEstimate !== undefined ? (
         <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>

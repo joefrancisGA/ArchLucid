@@ -4,7 +4,7 @@ export const WELCOME_HERO_PITCH =
   "Turn scattered architecture evidence into an evidence-backed review your ARB can trust — prioritized findings, explicit limits where we do not conclude, and an exportable report in days instead of weeks. ArchLucid runs a governed workflow from capture through report so every claim traces to proof, not a chat transcript that disappears.";
 
 export const WELCOME_HERO_CTA_SUBHEADING =
-  "See an architecture review package built for governance — not slide decks alone.";
+  "See an architecture review built for governance — not slide decks alone.";
 
 /**
  * Architect-led reassurance shown under the hero subheading: leads with self-serve inspection and
@@ -16,7 +16,7 @@ export const WELCOME_HERO_CTA_SUBHEADING =
  * the banned product-status adjective use ("evaluation value report", "evaluation standards" → "review",
  * shipped under TB-456/457/458, COPY_TERMINOLOGY_AUDIT §2). Never write "evaluation workspace"; never use
  * "evaluation" to describe the product's maturity or a product surface. The curated showcase/demo package
- * is the "sample review package" — the dominant shipped term across 15+ surfaces (SampleReviewPackageSummary,
+ * is the "sample review" — the dominant shipped term across 15+ surfaces (SampleReviewPackageSummary,
  * FrictionlessTrialLauncher, /see-it, /demo/preview); "example review" exists only as a synonym in the
  * TB-473/474 renamed badges, so keep marketing copy on "sample review" for consistency.
  */
@@ -26,9 +26,9 @@ export const WELCOME_HERO_EVALUATION_REASSURANCE =
 export const WELCOME_PROBLEM_HEADING = "Architecture review is broken when diagrams are the only artifact";
 
 export const WELCOME_PROBLEM_BODY =
-  "Manual reviews are slow, inconsistent, and hard to defend under audit. Ad-hoc AI tools produce fluent prose without evidence links, policy context, or a durable record. Teams still ship decisions on opinions buried in email and Confluence — not a review package stakeholders can replay.";
+  "Manual reviews are slow, inconsistent, and hard to defend under audit. Ad-hoc AI tools produce fluent prose without evidence links, policy context, or a durable record. Teams still ship decisions on opinions buried in email and Confluence — not a review stakeholders can replay.";
 
-export const WELCOME_SOLUTION_HEADING = "The outcome is a defensible review package";
+export const WELCOME_SOLUTION_HEADING = "The outcome is a defensible review";
 
 export const WELCOME_SOLUTION_BODY =
   "ArchLucid delivers a prioritized, evidence-linked architecture review: structured findings, recorded decisions, stated limits, and exports your ARB and security partners can follow. Same hosted workflow whether you start a trial, open the self-demo, or engage us for a service-led review.";

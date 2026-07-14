@@ -60,7 +60,7 @@ function withBuyerSafeActors(meta: BuyerDemoPackageCardMeta): BuyerDemoPackageCa
   };
 }
 
-/** Demo portfolio rows — operational metadata for buyer review package cards. */
+/** Demo portfolio rows — operational metadata for buyer review cards. */
 export function buyerDemoPackageCardMeta(runId: string): BuyerDemoPackageCardMeta | null {
   const key = canonicalizeDemoRunId(runId.trim());
   const meta = DEMO_PACKAGE_CARD_META[key] ?? null;

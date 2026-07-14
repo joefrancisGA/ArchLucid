@@ -16,7 +16,7 @@ export const COMMAND_PALETTE_ACTIONS: readonly CommandPaletteAction[] = [
     id: "action-create-review",
     label: CREATE_ARCHITECTURE_LABEL,
     href: "/reviews/new",
-    searchValue: "action create new review package wizard",
+    searchValue: "action create new review wizard",
   },
   {
     id: "action-open-reviews",

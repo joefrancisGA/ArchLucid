@@ -37,7 +37,7 @@ export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStatePro
   ],
 };
 
-/** Workspace Activity archived filter — no archived review packages in scope. */
+/** Workspace Activity archived filter — no archived reviews in scope. */
 export const OPERATOR_HOME_ARCHIVED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "operator-home-workspace-archived-empty-state",
   title: OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
@@ -49,7 +49,7 @@ export const SEARCH_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "search-empty-state",
   title: "No matches for that query",
   description:
-    "Try different wording, clear the review package filter, or ensure your workspace has committed review evidence indexed for search.",
+    "Try different wording, clear the review filter, or ensure your workspace has committed review evidence indexed for search.",
   actions: [
     { label: "Open Ask", href: "/ask", variant: "outline" },
     { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
@@ -74,29 +74,29 @@ export const COMPARE_WAITING_COMPACT: EnterpriseCompactEmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
   ],
 };
 
-/** Compare page when zero finalized review packages exist. */
+/** Compare page when zero finalized reviews exist. */
 export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-zero-finalized-empty-state",
   title: "No finalized reviews available",
   description:
-    "You need at least two finalized review packages before ArchLucid can compare changes over time.",
+    "You need at least two finalized reviews before ArchLucid can compare changes over time.",
   actions: [
     { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "primary" },
-    { label: "Open review packages", href: "/reviews?projectId=default", variant: "outline" },
+    { label: "Open reviews", href: "/reviews?projectId=default", variant: "outline" },
   ],
 };
 
-/** Compare page when fewer than two finalized review packages exist. */
+/** Compare page when fewer than two finalized reviews exist. */
 export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-insufficient-finalized-empty-state",
   title: "One finalized review available",
-  description: "Finalize one more review package to compare changes over time.",
+  description: "Finalize one more review to compare changes over time.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
     { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "outline" },
   ],
 };
@@ -125,9 +125,9 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   testId: "decision-register-empty-state",
   title: "No signed decisions yet",
   description:
-    "Finalize a review package to create signed architecture decisions with supporting findings and evidence lineage.",
+    "Finalize a review to create signed architecture decisions with supporting findings and evidence lineage.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
     { label: "Start architecture review", href: "/reviews/new", variant: "outline" },
     { label: "Open governance workflow", href: "/governance", variant: "outline" },
   ],
@@ -138,7 +138,7 @@ export const EXECUTIVE_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   testId: "executive-reviews-empty-state",
   title: "No finalized reviews yet",
   description:
-    "Finalized reviews appear here after you finalize the review and lock the architecture package.",
+    "Finalized reviews appear here after you finalize the review and lock the architecture review.",
   actions: [
     { label: "See a completed sample review", href: "/see-it", variant: "primary" },
     { label: "Start a review", href: "/reviews/new", variant: "outline" },
@@ -153,12 +153,12 @@ export const GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT: EnterpriseCompactEmpty
   actions: [],
 };
 
-/** Run detail deliverables panel before the review package is finalized. */
+/** Run detail deliverables panel before the review is finalized. */
 export const RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "run-deliverables-pending-finalize-empty-state",
   title: "No deliverables yet",
   description:
-    "Signed deliverables appear here after you finalize the review package on review detail. Until then, findings and evidence remain on the review.",
+    "Signed deliverables appear here after you finalize the review on review detail. Until then, findings and evidence remain on the review.",
   actions: [],
 };
 
@@ -168,6 +168,6 @@ export const COMPARE_WAITING_BUYER_COMPACT: EnterpriseCompactEmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
   ],
 };

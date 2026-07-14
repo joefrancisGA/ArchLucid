@@ -16,4 +16,4 @@ export function formatTrialExportOnlyPurgeHeadline(daysRemaining: number | null 
 }
 
 export const TRIAL_EXPORT_ONLY_SUPPORTING_LINE =
-  "New scans and writes are blocked. Download existing review packages and export your audit log before data is permanently deleted.";
+  "New scans and writes are blocked. Download existing reviews and export your audit log before data is permanently deleted.";

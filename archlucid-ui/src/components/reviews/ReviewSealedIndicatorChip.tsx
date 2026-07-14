@@ -11,7 +11,7 @@ export type ReviewSealedIndicatorChipProps = {
 };
 
 /**
- * Persistent immutability indicator shown in the review package header once a
+ * Persistent immutability indicator shown in the review header once a
  * golden manifest is committed. The visual treatment is deliberately distinct
  * from workflow StatusTags — this is a permanent state indicator, not a progress badge.
  */

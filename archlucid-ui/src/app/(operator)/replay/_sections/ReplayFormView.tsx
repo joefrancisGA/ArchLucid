@@ -36,7 +36,7 @@ export function ReplayFormView(props: Props) {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6" data-testid="replay-validation-workspace">
-      <OperatorPageHeader title="Validate review package" helpKey="replay-run" />
+      <OperatorPageHeader title="Validate review" helpKey="replay-run" />
       <p className={cn("m-0 max-w-4xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REPLAY_PAGE_INTRO}</p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
         <Link href="/compare" className={OPERATOR_LINK.nav}>

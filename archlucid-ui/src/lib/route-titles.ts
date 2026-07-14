@@ -19,7 +19,7 @@ export function getRouteTitle(pathname: string): string {
   }
 
   if (/^\/signed-records\/[^/]+$/.test(normalized)) {
-    return "Architecture package";
+    return "Signed review record";
   }
 
   if (/^\/governance\/policy-packs\/[^/]+$/.test(normalized)) {

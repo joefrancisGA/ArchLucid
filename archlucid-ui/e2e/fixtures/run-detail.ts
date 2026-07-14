@@ -16,7 +16,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 
   return {
     executionFlavorBuyerSummary:
-      "Sealed review package with traceable evidence, governed outcomes, and audit-ready deliverables.",
+      "Sealed review with traceable evidence, governed outcomes, and audit-ready deliverables.",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,
@@ -42,7 +42,7 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 export function fixtureRunDetail(): RunDetail {
   return {
     executionFlavorBuyerSummary:
-      "Sealed review package with traceable evidence, governed outcomes, and audit-ready deliverables.",
+      "Sealed review with traceable evidence, governed outcomes, and audit-ready deliverables.",
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,

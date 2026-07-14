@@ -59,7 +59,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: "first-run",
-    title: "Create your first review package",
+    title: "Create your first review",
     keywords: ["wizard", "create", "pipeline", "review", "request"],
     summary:
       "Create a request, track progress, finalize the signed review record, and review artifacts, findings, and the review trail.",
@@ -69,7 +69,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "artifacts",
     title: "Reviewing artifacts",
-    keywords: ["download", "review package", "bundle", "zip"],
+    keywords: ["download", "review", "bundle", "zip"],
     summary: "Open a review, then review artifact list, previews, and bundle downloads from review detail.",
     docPath: "docs/library/operator-shell.md",
     routes: ["/reviews"],
@@ -78,15 +78,15 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "compare",
     title: "Compare two reviews",
     keywords: ["diff", "delta", "replay"],
-    summary: "Use Compare to diff two reviews’ review packages and persisted comparison records.",
+    summary: "Use Compare to diff two reviews’ reviews and persisted comparison records.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/compare"],
   },
   {
     id: "replay",
-    title: "Validate review package",
+    title: "Validate review",
     keywords: ["verify", "drift", "validation"],
-    summary: "Validate whether a finalized review package can still be reproduced and its signed review record remains valid.",
+    summary: "Validate whether a finalized review can still be reproduced and its signed review record remains valid.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/replay"],
   },
@@ -113,7 +113,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Governance approvals",
     keywords: ["approval", "promote", "staging", "production"],
     summary:
-      "Submit → review → approve → promote: walk approvals for a finalized review package when your workspace enables governance.",
+      "Submit → review → approve → promote: walk approvals for a finalized review when your workspace enables governance.",
     docPath: "docs/library/API_CONTRACTS.md",
     routes: ["/governance"],
   },
@@ -186,7 +186,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "glossary",
     title: "Glossary",
-    keywords: ["terms", "definitions", "finding", "risk", "review package", "evidence trail"],
+    keywords: ["terms", "definitions", "finding", "risk", "review", "evidence trail"],
     summary: "Customer-facing definitions for review, evidence, governance, and organization terms.",
     docPath: "docs/library/customer-facing/CUSTOMER_GLOSSARY.md",
     routes: ["/help/glossary"],

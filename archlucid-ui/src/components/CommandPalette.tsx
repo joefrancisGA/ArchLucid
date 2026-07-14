@@ -83,10 +83,10 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
     /^\/executive\/reviews\/[^/]/u.test(path);
 
   if (reviewPackageSubtree) {
-    return "Search this review package";
+    return "Search this review";
   }
 
-  return "Search review packages";
+  return "Search reviews";
 }
 
 function curatedPaletteVisibilityHref(href: string): string {
@@ -210,7 +210,7 @@ function CommandPaletteCuratedTasks({
 
 function buyerPaletteNavGroupHeading(groupId: string, defaultLabel: string): string {
   if (groupId === "pilot") {
-    return "Review packages";
+    return "Reviews";
   }
 
   if (groupId === "operate-analysis") {
@@ -524,7 +524,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (path.startsWith("/compare")) {
-      return "Jump to review package, signed review record, or evidence trail…";
+      return "Jump to review, signed review record, or evidence trail…";
     }
 
     if (path.startsWith("/audit")) {
@@ -543,7 +543,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       return "Jump to executive summary, graph, governance…";
     }
 
-    return "Find another page in this review package…";
+    return "Find another page in this review…";
   }, [pathname]);
 
   return (

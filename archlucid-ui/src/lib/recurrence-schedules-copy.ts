@@ -1,12 +1,12 @@
 /** Page copy and navigation targets for governance recurrence schedules. */
 
 export const RECURRENCE_SCHEDULES_PAGE_SUBTITLE =
-  "Automate follow-up reviews for architecture packages that require periodic governance, control validation, remediation tracking, or policy re-review.";
+  "Automate follow-up reviews for architecture reviews that require periodic governance, control validation, remediation tracking, or policy re-review.";
 
 export const RECURRENCE_SCHEDULES_EMPTY_TITLE = "No recurrence schedules yet";
 
 export const RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION =
-  "Create a recurrence schedule when an architecture package needs periodic review, such as quarterly control validation, annual policy review, post-remediation follow-up, or recurring architecture board review.";
+  "Create a recurrence schedule when an architecture review needs periodic review, such as quarterly control validation, annual policy review, post-remediation follow-up, or recurring architecture board review.";
 
 export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
   "Schedules help ensure that accepted risks, policy exceptions, and governed architecture decisions are reviewed on time instead of being forgotten after approval.";
@@ -14,10 +14,10 @@ export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
 export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Governance workflow";
 
 export const RECURRENCE_SCHEDULES_HELPER_BODY =
-  "Use recurrence schedules to make sure governed architecture packages are reviewed again when risks, policy exceptions, or control obligations require follow-up.";
+  "Use recurrence schedules to make sure governed architecture reviews are reviewed again when risks, policy exceptions, or control obligations require follow-up.";
 
 export const RECURRENCE_SCHEDULES_HELPER_NEXT_STEP =
-  "Start by choosing a governed review package, then define the review cadence and owner.";
+  "Start by choosing a governed review, then define the review cadence and owner.";
 
 export const RECURRENCE_SCHEDULES_EXAMPLES_HEADING = "Common schedule examples";
 
@@ -31,7 +31,7 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
   {
     title: "Quarterly control validation",
     cadence: "0 8 1 */3 *",
-    whenToUse: "Re-run control checks on a committed architecture package after each quarter closes.",
+    whenToUse: "Re-run control checks on a committed architecture review after each quarter closes.",
   },
   {
     title: "Annual policy attestation",
@@ -50,7 +50,7 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
   },
 ] as const;
 
-/** Governed review packages index. */
+/** Governed reviews index. */
 export const RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
 
 /** Pending approvals live on the governance workflow page (no standalone list route yet). */

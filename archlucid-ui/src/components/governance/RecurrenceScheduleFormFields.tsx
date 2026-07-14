@@ -33,7 +33,7 @@ export function RecurrenceScheduleFormFields(props: RecurrenceScheduleFormFields
       {showSourceRunId ? (
         <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
           <span className={OPERATOR_TYPOGRAPHY.label}>
-            Review package ID <span className="text-red-700 dark:text-red-400">*</span>
+            Review ID <span className="text-red-700 dark:text-red-400">*</span>
           </span>
           <input
             required
@@ -44,7 +44,7 @@ export function RecurrenceScheduleFormFields(props: RecurrenceScheduleFormFields
               "rounded border border-neutral-300 bg-white px-2 py-1 font-mono dark:border-neutral-700 dark:bg-neutral-900",
               OPERATOR_TYPOGRAPHY.body,
             )}
-            placeholder="Committed review package GUID"
+            placeholder="Committed review GUID"
             data-testid="recurrence-schedule-source-run-id"
             aria-describedby="recurrence-schedule-source-run-hint"
           />
@@ -52,7 +52,7 @@ export function RecurrenceScheduleFormFields(props: RecurrenceScheduleFormFields
             id="recurrence-schedule-source-run-hint"
             className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           >
-            Use the committed review package that should be cloned on each scheduled run.
+            Use the committed review that should be cloned on each scheduled run.
           </span>
         </label>
       ) : null}

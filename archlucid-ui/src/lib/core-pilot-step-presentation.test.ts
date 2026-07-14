@@ -67,7 +67,7 @@ describe("shouldShowWizardModeToggle", () => {
     expect(shouldShowWizardModeToggle(false, true)).toBe(true);
   });
 
-  it("shows mode toggle for tenants with a committed review package", () => {
+  it("shows mode toggle for tenants with a committed review", () => {
     expect(shouldShowWizardModeToggle(true, false)).toBe(true);
   });
 });

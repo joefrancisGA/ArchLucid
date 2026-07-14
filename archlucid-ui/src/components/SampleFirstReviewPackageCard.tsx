@@ -23,7 +23,7 @@ type SampleFirstReviewPackageCardProps = {
   readonly buyerPolishedShell: boolean;
 };
 
-/** First-session shortcut: opens the curated sample review package before the real-input wizard. */
+/** First-session shortcut: opens the curated sample review before the real-input wizard. */
 export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirstReviewPackageCardProps) {
   const buyerPolished = buyerPolishedShell;
 

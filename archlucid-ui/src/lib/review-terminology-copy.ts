@@ -1,5 +1,5 @@
 /**
- * Buyer-facing copy normalization: prefer review / review package over legacy run-primary labels,
+ * Buyer-facing copy normalization: prefer review / architecture review over legacy run-primary labels,
  * and signed review record over internal "golden manifest" jargon. API fields (`runId`, routes) are unchanged.
  */
 

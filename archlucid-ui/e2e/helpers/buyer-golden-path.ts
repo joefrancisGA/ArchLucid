@@ -80,14 +80,14 @@ export async function expectBuyerExecutiveReviewPrimaryHeading(page: Page, optio
   await expectBuyerReviewPackagePrimaryHeading(page, options);
 }
 
-/** Review package detail H1 after buyer-golden hydration (operator shell includes its own chrome H1). */
+/** Review detail H1 after buyer-golden hydration (operator shell includes its own chrome H1). */
 export async function expectBuyerReviewPackagePrimaryHeading(page: Page, options?: { timeout?: number }): Promise<void> {
   const timeout = options?.timeout ?? 60_000;
 
   await expect(getAppMain(page).getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout });
 }
 
-/** Buyer golden path review package is hydrated with headline + manifest data. */
+/** Buyer golden path review is hydrated with headline + manifest data. */
 export async function expectBuyerGoldenPageReady(page: Page): Promise<void> {
   await waitForAppReady(page);
   await expect(page.locator('[data-buyer-golden-ready="true"]')).toBeVisible({ timeout: 60_000 });

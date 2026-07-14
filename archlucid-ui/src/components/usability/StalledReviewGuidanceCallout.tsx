@@ -19,7 +19,7 @@ export function StalledReviewGuidanceCallout(props: StalledReviewGuidanceCallout
     <OperatorWarningCallout>
       <strong>Review still running ({props.elapsedMinutes}+ min)</strong>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-        Large evidence packages or cold-start infrastructure can extend pipeline time. The assessment coordinator is still
+        Large evidence bundles or cold-start infrastructure can extend pipeline time. The assessment coordinator is still
         working — refresh this page in a few minutes.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">

@@ -62,7 +62,7 @@ describe("complete review workflow help copy guard", () => {
     const source = readCompleteReviewWorkflowMarkdown();
 
     expect(source.split("\n").some((line) => /^---\s*$/.test(line.trim()))).toBe(false);
-    expect(source).toContain("## Step 1: Create a review package");
+    expect(source).toContain("## Step 1: Create a review");
     expect(source).toContain("## Step 6: Export and share artifacts");
     expect(source).toContain("## Review states");
     expect(source).toContain("## Related help");
@@ -72,7 +72,7 @@ describe("complete review workflow help copy guard", () => {
     const text = readCompleteReviewWorkflowMarkdown();
 
     expect(text).toContain(
-      "ArchLucid turns architecture evidence into a review package with findings, decisions, evidence traceability, and export-ready artifacts.",
+      "ArchLucid turns architecture evidence into a review with findings, decisions, evidence traceability, and export-ready artifacts.",
     );
   });
 

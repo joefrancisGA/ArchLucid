@@ -1,4 +1,4 @@
-/** Customer-facing architecture lifecycle — distinct from review or review package states. */
+/** Customer-facing architecture lifecycle — distinct from review or review states. */
 export type ArchitectureDraftCustomerStatus = "draft" | "ready-for-review" | "archived";
 
 export const ARCHITECTURE_DRAFT_STATUS_LABELS: Record<ArchitectureDraftCustomerStatus, string> = {

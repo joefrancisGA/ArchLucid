@@ -85,7 +85,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       /completed architecture output|Completed example/i,
     );
 
-    await page.getByRole("link", { name: /Review package/i }).first().click();
+    await page.getByRole("link", { name: /Review/i }).first().click();
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(getAppMain(page)).not.toContainText(/Invalid Date/i);
 
@@ -146,7 +146,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
-    // Buyer-polished table rows expose two Action links ("View review package", "View signed manifest");
+    // Buyer-polished table rows expose two Action links ("View review", "View signed manifest");
     // target the primary explore link via stable test id (Playwright strict mode).
     const appMain = getAppMain(page);
     const claimsTableRow = reviewsHubPackageRow(appMain, SHOWCASE_DEMO_RUN_ID).first();

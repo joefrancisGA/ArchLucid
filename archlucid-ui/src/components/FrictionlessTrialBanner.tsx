@@ -44,7 +44,7 @@ export function FrictionlessTrialBanner() {
     >
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2">
         <p className="m-0">
-          You are inspecting a sample review package — fabricated data only, no sign-in required.
+          You are inspecting a sample review — fabricated data only, no sign-in required.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button type="button" size="sm" variant="secondary" asChild>

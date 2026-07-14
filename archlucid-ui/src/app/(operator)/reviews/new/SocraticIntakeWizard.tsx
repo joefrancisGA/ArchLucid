@@ -94,7 +94,7 @@ const INTAKE_STEPS = [
   {
     progressLabel: "Required clarifications",
     cardTitle: "Required clarifications",
-    description: "Answer a few clarifying questions so ArchLucid can produce a precise review package.",
+    description: "Answer a few clarifying questions so ArchLucid can produce a precise review.",
   },
   {
     progressLabel: CREATE_REVIEW_PACKAGE_HEADING,
@@ -491,7 +491,7 @@ export function SocraticIntakeWizard() {
       const compareParentRunId = result.parentSpawnedRunId ?? parentSpawnedRunId;
 
       if (compareParentRunId !== null && compareParentRunId.trim().length > 0) {
-        showSuccess("What-if branch review started — open Compare when both review packages are ready.");
+        showSuccess("What-if branch review started — open Compare when both reviews are ready.");
         router.push(runDetailHrefWithParentRun(result.runId, compareParentRunId));
         return;
       }

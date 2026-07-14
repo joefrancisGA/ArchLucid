@@ -22,11 +22,11 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View review package");
+    expect(link.label).toBe("View review");
     expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 
-  it("uses review package link for static spine IDs even when buyer chrome env is off", async () => {
+  it("uses review link for static spine IDs even when buyer chrome env is off", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
 
     const mod = await import("./buyer-safe-review-navigation");
@@ -35,18 +35,18 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View review package");
+    expect(link.label).toBe("View review");
     expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 
-  it("uses review package link for static spine IDs when static operator enables buyer-polished shell without DEMO_MODE", async () => {
+  it("uses review link for static spine IDs when static operator enables buyer-polished shell without DEMO_MODE", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true" };
 
     const mod = await import("./buyer-safe-review-navigation");
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View review package");
+    expect(link.label).toBe("View review");
     expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 

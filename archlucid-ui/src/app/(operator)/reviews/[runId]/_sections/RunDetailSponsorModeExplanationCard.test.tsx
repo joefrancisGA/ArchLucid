@@ -86,8 +86,8 @@ describe("RunDetailSponsorModeExplanationCard", () => {
       />,
     );
 
-    expect(screen.getByText(/committed review package and finding records/i)).toBeInTheDocument();
+    expect(screen.getByText(/committed review and finding records/i)).toBeInTheDocument();
     expect(screen.getByText("Low support")).toBeInTheDocument();
-    expect(screen.getByText(/send the executive briefing package/i)).toBeInTheDocument();
+    expect(screen.getByText(/send the executive briefing export/i)).toBeInTheDocument();
   });
 });

@@ -52,7 +52,7 @@ export function ExecutiveShellOrientationCallout(props: ExecutiveShellOrientatio
             <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Executive view</p>
             <p className="m-0 leading-relaxed">
               <strong className="font-medium">Dashboard</strong> — portfolio ROI and compliance drift.{" "}
-              <strong className="font-medium">Risk reviews</strong> — finalized review packages and findings.{" "}
+              <strong className="font-medium">Risk reviews</strong> — finalized reviews and findings.{" "}
               <strong className="font-medium">Scorecard</strong> — value metrics and recommended actions.
             </p>
           </div>

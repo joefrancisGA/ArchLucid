@@ -36,7 +36,7 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
         Decision delta
       </h3>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Top recommended changes from this committed review package — severity, compliance rule key, and evidence
+        Top recommended changes from this committed review — severity, compliance rule key, and evidence
         anchor. Expand findings below for full assessment detail.
       </p>
 

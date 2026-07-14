@@ -1,12 +1,12 @@
 export const REVIEW_SCORECARD_EMPTY_HEADING = "No committed reviews yet";
 
 export const REVIEW_SCORECARD_EMPTY_DESCRIPTION =
-  "Finalize a review package to populate scorecard metrics, governance outcomes, findings, and ROI estimates.";
+  "Finalize a review to populate scorecard metrics, governance outcomes, findings, and ROI estimates.";
 
-export const REVIEW_SCORECARD_EMPTY_PRIMARY_CTA = "Create review package";
+export const REVIEW_SCORECARD_EMPTY_PRIMARY_CTA = "Create review";
 export const REVIEW_SCORECARD_EMPTY_PRIMARY_HREF = "/reviews/new";
 
-export const REVIEW_SCORECARD_EMPTY_SECONDARY_CTA = "Open review packages";
+export const REVIEW_SCORECARD_EMPTY_SECONDARY_CTA = "Open reviews";
 export const REVIEW_SCORECARD_EMPTY_SECONDARY_HREF = "/reviews";
 
 export const REVIEW_SCORECARD_EMPTY_TERTIARY_CTA = "View sample scorecard";
@@ -14,7 +14,7 @@ export const REVIEW_SCORECARD_EMPTY_TERTIARY_CTA = "View sample scorecard";
 export const REVIEW_SCORECARD_EMPTY_PREVIEW_SECTION_TITLE = "What this scorecard will show";
 
 export const REVIEW_SCORECARD_EMPTY_PREVIEW_ITEMS = [
-  "Finalized review packages",
+  "Finalized reviews",
   "Affirmed findings",
   "Governance approvals",
   "Average review cycle time",
@@ -23,7 +23,7 @@ export const REVIEW_SCORECARD_EMPTY_PREVIEW_ITEMS = [
 ] as const;
 
 export const REVIEW_SCORECARD_DATA_REQUIREMENT_NOTE =
-  "Scorecard metrics appear after at least one review package is finalized.";
+  "Scorecard metrics appear after at least one review is finalized.";
 
 export const REVIEW_SCORECARD_SAMPLE_QUERY_PARAM = "sample";
 

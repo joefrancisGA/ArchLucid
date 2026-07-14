@@ -30,7 +30,7 @@ import { waitForAppReady } from "../e2e/helpers/waits";
 const SHOWCASE_RUN_URL_PATTERN = new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`);
 
 test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
-  test("home hint, new request, reviews list, finalized review package, manifest roundtrip", async ({ page }) => {
+  test("home hint, new request, reviews list, finalized review, manifest roundtrip", async ({ page }) => {
     test.setTimeout(120_000);
 
     await page.goto("/");

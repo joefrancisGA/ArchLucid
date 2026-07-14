@@ -59,7 +59,7 @@ export function resolvePilotNextBestAction(
       label: "Continue review",
       href: `/reviews/${ctx.latestRunId}`,
       bridgeCopy:
-        "Open your in-progress review package — complete findings review and finalize when ready.",
+        "Open your in-progress review — complete findings review and finalize when ready.",
     };
   }
 

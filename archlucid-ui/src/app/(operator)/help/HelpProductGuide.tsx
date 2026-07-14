@@ -83,7 +83,7 @@ export function HelpProductGuide() {
               from a brief, diagram, document, or cloud evidence.
             </li>
             <li>Review findings and missing evidence.</li>
-            <li>Commit the review package.</li>
+            <li>Commit the review.</li>
             <li>
               Open the <strong>evidence trail</strong>, <strong>audit trail</strong>, and{" "}
               <strong>signed review record</strong>.
@@ -105,7 +105,7 @@ export function HelpProductGuide() {
 
       <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Working with a completed review package</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Working with a completed review</CardTitle>
         </CardHeader>
         <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <ol className="m-0 list-decimal space-y-2 pl-5">
@@ -116,7 +116,7 @@ export function HelpProductGuide() {
               — start with the business decision and monitored risks.
             </li>
             <li>
-              Open the <strong>signed review record</strong> — the governed decision record for this review package.
+              Open the <strong>signed review record</strong> — the governed decision record for this review.
             </li>
             <li>
               Follow the{" "}
@@ -141,7 +141,7 @@ export function HelpProductGuide() {
               <Link className={OPERATOR_LINK.inline} href="/ask">
                 Ask
               </Link>{" "}
-              for evidence-backed questions in the context of the active review package.
+              for evidence-backed questions in the context of the active review.
             </li>
           </ol>
         </CardContent>

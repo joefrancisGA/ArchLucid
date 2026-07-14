@@ -9,7 +9,7 @@ export const GET_STARTED_HERO_LEAD =
   "Explore an illustrative review immediately, or sign in to create a guided sample review in your own workspace. No local installation or credit card is required.";
 
 export const GET_STARTED_OUTCOME_STATEMENT =
-  "By the end of the guided experience, you will have explored a review package containing findings, supporting evidence, an audit trail, and a sponsor-ready summary.";
+  "By the end of the guided experience, you will have explored a review containing findings, supporting evidence, an audit trail, and a sponsor-ready summary.";
 
 export const GET_STARTED_SAMPLE_PATH_NOTE =
   "The instant sample opens a completed illustrative review. Industry-specific profiles apply when you start the guided trial in your workspace.";

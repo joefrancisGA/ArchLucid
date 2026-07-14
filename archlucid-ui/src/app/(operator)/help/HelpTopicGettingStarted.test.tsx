@@ -68,7 +68,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(screen.getByRole("heading", { name: "How ArchLucid works" })).toBeInTheDocument();
     expect(screen.getByTestId("getting-started-mental-model-diagram")).toBeInTheDocument();
     expect(screen.getByTestId("getting-started-plain-language-table")).toBeInTheDocument();
-    expect(screen.getByText("Review package")).toBeInTheDocument();
+    expect(screen.getByText("Review")).toBeInTheDocument();
     expect(screen.getByText("Governance approval")).toBeInTheDocument();
   });
 

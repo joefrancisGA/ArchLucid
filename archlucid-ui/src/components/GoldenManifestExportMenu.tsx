@@ -105,7 +105,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     >
       <SelectTrigger
         className={buyerPolishedShell ? "h-9 w-[11rem]" : "h-9 w-[10rem]"}
-        aria-label={buyerPolishedShell ? "More export formats for this package" : `Export ${SIGNED_MANIFEST_LABEL.toLowerCase()}`}
+        aria-label={buyerPolishedShell ? "More export formats for this review" : `Export ${SIGNED_MANIFEST_LABEL.toLowerCase()}`}
       >
         <SelectValue placeholder={buyerPolishedShell ? "More formats" : "Export"} />
       </SelectTrigger>

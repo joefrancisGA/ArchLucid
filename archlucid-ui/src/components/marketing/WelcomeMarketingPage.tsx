@@ -70,7 +70,7 @@ function WelcomePillarVerifyLinks(props: { readonly links: readonly WelcomeVerif
 const PILLARS: readonly WelcomePillar[] = [
   {
     title: "AI-native architecture analysis",
-    body: "Specialized agents run the Capture → Evidence → Review path on real architecture context — topology, cost, compliance, and design quality — and produce a versioned review package with structured findings, not a chat thread that disappears.",
+    body: "Specialized agents run the Capture → Evidence → Review path on real architecture context — topology, cost, compliance, and design quality — and produce a versioned review with structured findings, not a chat thread that disappears.",
     verify: [
       { label: "See it in 30 seconds", href: "/see-it" },
       { label: "Security & trust", href: "/security-trust" },

@@ -59,7 +59,7 @@ function buyerHintBody(
 
     return (
       <>
-        Finish automation and finalize the review package from review detail.{" "}
+        Finish automation and finalize the review from review detail.{" "}
         <Link
           href={href}
           className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
@@ -83,7 +83,7 @@ function buyerHintBody(
         href={href}
         className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
       >
-        Open review package
+        Open review
       </Link>
       .
     </>

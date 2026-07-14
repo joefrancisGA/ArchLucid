@@ -29,13 +29,13 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="compare" />);
 
     expect(screen.getByText("Compare two reviews")).toBeInTheDocument();
-    expect(screen.getByText(/what changed between two finalized review packages/i)).toBeInTheDocument();
+    expect(screen.getByText(/what changed between two finalized reviews/i)).toBeInTheDocument();
   });
 
-  it("explains review package and evidence trail relationship", () => {
+  it("explains review and evidence trail relationship", () => {
     render(<LayerHeader pageKey="compare" />);
 
-    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/Review package and evidence trail/i);
+    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/Review and evidence trail/i);
     expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/finalized review record/i);
   });
 
@@ -92,10 +92,10 @@ describe("LayerHeader", () => {
 
     expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
     expect(screen.getByText("How compare works")).toBeInTheDocument();
-    expect(screen.queryByText(/Review package and evidence trail/i)).not.toBeVisible();
+    expect(screen.queryByText(/Review and evidence trail/i)).not.toBeVisible();
   });
 
-  it("omits review package vocabulary on integration readiness pages", () => {
+  it("omits review vocabulary on integration readiness pages", () => {
     render(<LayerHeader pageKey="integrations-operations" />);
 
     expect(screen.getByText("Integration readiness")).toBeInTheDocument();

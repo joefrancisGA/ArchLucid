@@ -45,7 +45,7 @@ export function RunsDashboardOutcomesTab(props: RunsDashboardOutcomesTabProps) {
           </li>
           <li className={cn("px-3 py-2", OPERATOR_SURFACE_CARD_CLASS)}>
             <StatusTag kind="neutral" label="Deliverables" />
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Evidence package ready</p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Evidence bundle ready</p>
             <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.label)}>
               Executive summary through audit trail packaged for diligence and CAB-style review inquiries.
             </p>
@@ -84,7 +84,7 @@ export function RunsDashboardOutcomesTab(props: RunsDashboardOutcomesTabProps) {
 
           {deltaStatus === "ready" && outcomesWindow === 0 ? (
             <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
-              After your first finalized review, this panel will show review packages finalized, findings surfaced, and
+              After your first finalized review, this panel will show reviews finalized, findings surfaced, and
               average time to finalization.
             </p>
           ) : null}

@@ -147,7 +147,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
         defaultExpanded={false}
 
-        collapsedSummary={`${CORE_PILOT_STEPS.length} steps to your first architecture review package.`}
+        collapsedSummary={`${CORE_PILOT_STEPS.length} steps to your first architecture review.`}
 
       >
 
@@ -185,7 +185,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
       defaultExpanded={defaultExpanded}
 
-      collapsedSummary={`${CORE_PILOT_STEPS.length} steps from empty tenant to first architecture review package.`}
+      collapsedSummary={`${CORE_PILOT_STEPS.length} steps from empty tenant to first architecture review.`}
     >
 
       <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-3 inline-block" />
@@ -322,7 +322,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
           <p className={cn("m-0 font-medium text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
 
-            Required first-review steps are complete — open your finalized architecture review to explore the full review package.
+            Required first-review steps are complete — open your finalized architecture review to explore the full review.
 
           </p>
 

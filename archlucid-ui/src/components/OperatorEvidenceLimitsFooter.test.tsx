@@ -157,7 +157,7 @@ describe("OperatorEvidenceLimitsFooter — buyer-polished operator shell", () =>
       "href",
       "/reviews/demo-run/provenance",
     );
-    expect(screen.getByRole("link", { name: /findings and assessment section on the review package/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /findings and assessment section on the review/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /technical inspection trail/i })).toHaveAttribute(
       "href",
       "/reviews/demo-run/findings/f-1/inspect",

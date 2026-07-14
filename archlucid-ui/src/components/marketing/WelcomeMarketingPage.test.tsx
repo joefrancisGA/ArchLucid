@@ -84,7 +84,7 @@ describe("WelcomeMarketingPage", () => {
     renderWelcomePage();
 
     expect(screen.getByTestId("welcome-hero-cta-subheading")).toHaveTextContent(
-      /architecture review package built for governance/i,
+      /architecture review built for governance/i,
     );
     expect(screen.getByTestId("welcome-hero-evaluation-reassurance")).toHaveTextContent(/no sales call required/i);
 

@@ -136,7 +136,7 @@ describe("TrialBanner", () => {
     });
 
     expect(screen.getByText(/12 days until hard purge/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Export review packages" })).toHaveAttribute("href", "/reviews");
+    expect(screen.getByRole("link", { name: "Export reviews" })).toHaveAttribute("href", "/reviews");
     expect(screen.getByRole("link", { name: "Export audit trail" })).toHaveAttribute("href", "/audit");
   });
 

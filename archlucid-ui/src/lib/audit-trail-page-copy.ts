@@ -1,7 +1,7 @@
 export const AUDIT_TRAIL_PAGE_TITLE = "Audit trail" as const;
 
 export const AUDIT_TRAIL_PAGE_SUBTITLE =
-  "Review finalized activity, approvals, decisions, evidence changes, and export events for this review package." as const;
+  "Review finalized activity, approvals, decisions, evidence changes, and export events for this review." as const;
 
 export const AUDIT_TRAIL_PRODUCT_SAFE_INTRO =
   "See who acted, when, and why for finalized review activity in this workspace." as const;
@@ -9,7 +9,7 @@ export const AUDIT_TRAIL_PRODUCT_SAFE_INTRO =
 export const AUDIT_TRAIL_HOW_IT_WORKS_TITLE = "How audit trails work" as const;
 
 export const AUDIT_TRAIL_HOW_IT_WORKS_BODY =
-  "Append-only audit events record creates, finalizations, governance decisions, and exports with actor, action type, and timestamp. Filter or export when you need a diligence package." as const;
+  "Append-only audit events record creates, finalizations, governance decisions, and exports with actor, action type, and timestamp. Filter or export when you need a diligence bundle." as const;
 
 export const AUDIT_TRAIL_TECHNICAL_DETAILS_TITLE = "Technical details" as const;
 
@@ -17,7 +17,7 @@ export const AUDIT_TRAIL_FILTERS_HEADING = "Filters" as const;
 
 export const AUDIT_TRAIL_FILTERS_COLLAPSIBLE_SUMMARY = "Event type, date range, actor, and keyword" as const;
 
-export const AUDIT_TRAIL_FILTERS_EMPTY_HINT = "Open filters to narrow events or switch review packages." as const;
+export const AUDIT_TRAIL_FILTERS_EMPTY_HINT = "Open filters to narrow events or switch reviews." as const;
 
 export const AUDIT_TRAIL_EXPORT_ACTION = "Export audit trail" as const;
 
@@ -27,7 +27,7 @@ export const AUDIT_TRAIL_REFRESH_ACTION = "Refresh" as const;
 
 export const AUDIT_TRAIL_REFRESHING_ACTION = "Refreshing…" as const;
 
-export const AUDIT_TRAIL_OPEN_REVIEW_PACKAGE_ACTION = "Open review package" as const;
+export const AUDIT_TRAIL_OPEN_REVIEW_PACKAGE_ACTION = "Open review" as const;
 
 export const AUDIT_TRAIL_EMPTY_TITLE = "No audit events found" as const;
 
@@ -67,6 +67,6 @@ export const AUDIT_TRAIL_EMPTY_PREVIEW_COLUMNS = [
 
 export const AUDIT_TRAIL_ACTIVE_FILTER_CLEAR = "Clear filters" as const;
 
-export const AUDIT_TRAIL_REVIEW_PACKAGE_SELECTED_CHIP = "Review package selected" as const;
+export const AUDIT_TRAIL_REVIEW_PACKAGE_SELECTED_CHIP = "Review selected" as const;
 
 export const AUDIT_TRAIL_RESULTS_STATUS_EMPTY = "No audit events in this view" as const;

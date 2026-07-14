@@ -99,7 +99,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
       likelyOutputs: [
         "Prioritized findings with evidence references",
         "Policy-backed recommendations for enterprise readiness",
-        "Review package suitable for stakeholder review",
+        "Review suitable for stakeholder review",
       ],
       optionalIntegrations: [
         "Cloud evidence imports (Azure, AWS, or Google Cloud)",

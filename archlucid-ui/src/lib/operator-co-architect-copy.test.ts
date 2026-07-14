@@ -9,8 +9,8 @@ import {
 } from "./operator-co-architect-copy";
 
 describe("operator-co-architect-copy", () => {
-  it("leads with review package action entry copy", () => {
-    expect(OPERATOR_CO_ARCHITECT_BRAND_LINE).toBe("Create or open a review package");
+  it("leads with review action entry copy", () => {
+    expect(OPERATOR_CO_ARCHITECT_BRAND_LINE).toBe("Create or open a review");
     expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toContain("audit-ready decision records");
     expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toContain("governance approval");
   });

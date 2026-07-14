@@ -176,7 +176,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
         </ul>
       ) : (
         <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="compare-governance-no-rule-set-change">
-          Committed review packages share the same policy pack rule set basis.
+          Committed reviews share the same policy pack rule set basis.
         </p>
       )}
 

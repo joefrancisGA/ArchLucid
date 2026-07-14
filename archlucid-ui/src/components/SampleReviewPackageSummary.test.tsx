@@ -34,7 +34,7 @@ describe("SampleReviewPackageSummary", () => {
 
     expect(screen.getByRole("heading", { name: "Your first-value moment" })).toBeInTheDocument();
     expect(screen.getByText(SHOWCASE_HOME_AHA_MOMENT.decisionChange)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Claims Intake sample review package" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Claims Intake sample review" })).toBeInTheDocument();
     expect(screen.getByText(/Numbers are illustrative only/i)).toBeInTheDocument();
     expect(screen.getByText("Demo only")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open signed record" })).toHaveAttribute("href", getShowcaseManifestHref());

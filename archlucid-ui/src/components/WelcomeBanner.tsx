@@ -186,7 +186,7 @@ export function WelcomeBanner() {
     returningUser
       ? "Architecture review workspace"
       : buyerPolishedShell
-        ? "Explore one governed architecture review package"
+        ? "Explore one governed architecture review"
         : "Your first architecture review — four steps";
 
   // Core workspace hero — always expanded; do not add Minimize/X collapse here.
@@ -203,7 +203,7 @@ export function WelcomeBanner() {
   ) : (
     <>
       <strong>Create a review</strong>, attach evidence, <strong>complete the guided assessment</strong>, then{" "}
-      <strong>open your review package</strong> (summary, findings, downloads). The same wizard supports structured
+      <strong>open your review</strong> (summary, findings, downloads). The same wizard supports structured
       capture or loose architecture scope notes.
     </>
   );

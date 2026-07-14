@@ -75,7 +75,7 @@ export function FindingInspectView({
       <div className="w-full max-w-[1440px] space-y-4 p-6">
         <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
-            ? "This finding belongs to a different review package than the one in this URL."
+            ? "This finding belongs to a different review than the one in this URL."
             : (
                 <>
                   This finding belongs to review{" "}
@@ -126,7 +126,7 @@ export function FindingInspectView({
           </span>
           <span>
             Supporting evidence trace — source evidence, trace path, and audit metadata linked to this finding within the
-            review package.
+            review.
           </span>
         </div>
       ) : null}

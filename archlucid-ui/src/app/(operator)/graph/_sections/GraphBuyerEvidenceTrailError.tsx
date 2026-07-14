@@ -89,7 +89,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
           ) : null}
           {runTrim.length > 0 ? (
             <div>
-              <dt className="inline font-semibold">Review package: </dt>
+              <dt className="inline font-semibold">Review: </dt>
               <dd className="inline break-all font-mono">{runTrim}</dd>
             </div>
           ) : null}

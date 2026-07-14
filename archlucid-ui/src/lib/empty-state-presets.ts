@@ -29,7 +29,7 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
   icon: Bell,
   title: "No alerts for this filter",
   description:
-    "Try another status or time range. Alerts appear when rules evaluate against findings from completed reviews — finish a review package first if you are in an empty tenant.",
+    "Try another status or time range. Alerts appear when rules evaluate against findings from completed reviews — finish a review first if you are in an empty tenant.",
   actions: [
     { label: "Set up alert rules", href: "/governance/alert-rules" },
     { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
@@ -54,9 +54,9 @@ export const GRAPH_IDLE: EmptyStateProps = {
 /** Buyer-polished graph idle: sample graph is the primary next action. */
 export const GRAPH_IDLE_BUYER: EmptyStateProps = {
   icon: Network,
-  title: "No completed review packages yet",
+  title: "No completed reviews yet",
   description:
-    "Complete a review package to generate an evidence graph, or open the sample graph to see how findings link to evidence, decisions, and audit records.",
+    "Complete a review to generate an evidence graph, or open the sample graph to see how findings link to evidence, decisions, and audit records.",
   actions: [
     {
       label: "Open sample evidence graph",
@@ -72,7 +72,7 @@ export const COMPARE_WAITING: EmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default" },
+    { label: "Open reviews", href: "/reviews?projectId=default" },
   ],
 };
 
@@ -82,7 +82,7 @@ export const COMPARE_WAITING_BUYER: EmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default" },
+    { label: "Open reviews", href: "/reviews?projectId=default" },
   ],
 };
 
@@ -101,9 +101,9 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   icon: Shield,
   title: "Load a review to see workflow rows",
   description:
-    "Pick a finalized review package under Approval requests, then Load — approvals, releases, and activations appear for that review.",
+    "Pick a finalized review under Approval requests, then Load — approvals, releases, and activations appear for that review.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
     { label: "Risk register", href: "/governance/findings", variant: "outline" },
     { label: "Policy packs", href: "/policy-packs", variant: "outline" },
   ],

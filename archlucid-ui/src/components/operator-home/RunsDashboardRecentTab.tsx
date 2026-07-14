@@ -129,12 +129,12 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
           <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
             {props.buyerSafeHighlight ? (
               <>
-                Start with the finalized review package or the public walkthrough — technical workspace detail stays
+                Start with the finalized review or the public walkthrough — technical workspace detail stays
                 available for architects who want the authenticated console.
               </>
             ) : (
               <>
-                Explore the completed sample review: review detail, finalized review package, primary finding, or the
+                Explore the completed sample review: review detail, finalized review, primary finding, or the
                 read-only marketing showcase.
               </>
             )}
@@ -155,7 +155,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
             ) : (
               <>
                 <Button asChild variant="primary" size="sm" className="h-8">
-                  <Link href={`/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}>Review package</Link>
+                  <Link href={`/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}>Review</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
                   <Link href={getShowcaseManifestHref()}>View signed record</Link>
@@ -188,7 +188,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
 
       {(props.phase === "ready" || props.phase === "error") && props.showcaseDemoRun !== undefined && props.buyerPolishedShell ? (
         <section
-          aria-label="Featured review package summary"
+          aria-label="Featured review summary"
           className={cn("space-y-2", OPERATOR_CARD.nested, OPERATOR_SURFACE_CARD_CLASS)}
           data-testid="runs-dashboard-buyer-proof-summary"
         >

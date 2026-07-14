@@ -12,7 +12,7 @@ export function buildMarketingSoftwareApplicationLd(siteOrigin: string): Record<
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "ArchLucid turns scattered architecture evidence into a prioritized, evidence-linked architecture review package — structured findings, traceability, and exportable outputs for enterprise architects and sponsors.",
+      "ArchLucid turns scattered architecture evidence into a prioritized, evidence-linked architecture review — structured findings, traceability, and exportable outputs for enterprise architects and sponsors.",
     url: origin,
     publisher: {
       "@type": "Organization",

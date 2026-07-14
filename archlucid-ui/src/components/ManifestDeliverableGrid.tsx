@@ -72,7 +72,7 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
   }, [runId]);
 
   const onMarkdownDownload = useCallback(() => {
-    const headline = systemName?.trim() ?? "Signed review package";
+    const headline = systemName?.trim() ?? "Signed review";
     const body = `# ${headline}\n\n${BUYER_MANIFEST_AUTHORITY_SUMMARY}\n\nReview ID: ${runId}\n`;
     const slug = headline.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 

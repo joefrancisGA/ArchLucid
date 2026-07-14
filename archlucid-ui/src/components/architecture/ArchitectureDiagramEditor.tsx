@@ -53,7 +53,7 @@ export function ArchitectureDiagramEditor(props: ArchitectureDiagramEditorProps)
 
         {!props.canEdit ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
-            Diagram edits are locked after the review package is committed.
+            Diagram edits are locked after the review is committed.
           </p>
         ) : (
           <div className="space-y-4">

@@ -25,7 +25,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     shortBody:
       "Open the sample showcase review or start a new architecture request — capture system identity and constraints in the wizard.",
     detail:
-      `Use ${CREATE_ARCHITECTURE_LABEL} for guided intake, or open the curated sample package to explore a committed review package before running your own.`,
+      `Use ${CREATE_ARCHITECTURE_LABEL} for guided intake, or open the curated sample review to explore a committed review before running your own.`,
     primaryHref: "/reviews/new",
     primaryLabel: "Start or open review",
   },
@@ -38,10 +38,10 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     primaryLabel: "Open review detail",
   },
   {
-    title: "Finalize the review package",
+    title: "Finalize the review",
     shortBody: "Commit when ready — this locks the signed review record, findings, and export surfaces.",
     detail:
-      "Finalization produces the governed review package. Pre-commit governance may block finalize when blocking findings remain.",
+      "Finalization produces the governed review. Pre-commit governance may block finalize when blocking findings remain.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Finalize on review detail",
   },
@@ -77,7 +77,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     detail:
       "Open the signed review record summary, findings table, and board-pack or markdown exports when your internal review is complete.",
     primaryHref: "/reviews?projectId=default",
-    primaryLabel: "Inspect review package",
+    primaryLabel: "Inspect review",
   },
 ];
 

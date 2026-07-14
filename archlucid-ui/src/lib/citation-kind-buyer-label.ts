@@ -32,7 +32,7 @@ export function provenanceGraphNodeTypeBuyerLabel(nodeType: string): string {
     case "GoldenManifest":
       return SIGNED_MANIFEST_LABEL;
     case "Review":
-      return "Review package";
+      return "Review";
     case "Finding":
       return "Finding";
     case "GraphSnapshot":

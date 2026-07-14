@@ -178,7 +178,7 @@ export function applyBuyerPolishedCommandCenterPhase(
   if (phase.phase === "sponsor-packet-send" && input.baselinesEntered) {
     return {
       ...phase,
-      headline: "Review package ready",
+      headline: "Review ready",
       summary: BUYER_COMMAND_CENTER_REVIEW_READY_SUMMARY,
       cta: BUYER_COMMAND_CENTER_HOLD_CTA_BASELINES,
     };

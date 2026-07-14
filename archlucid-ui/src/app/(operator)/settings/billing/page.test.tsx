@@ -82,7 +82,7 @@ const pricingFixture = {
     {
       id: "architect",
       title: "Architect",
-      summary: "For one architect creating and reviewing architecture packages.",
+      summary: "For one architect creating and reviewing architecture reviews.",
       planMonthlyUsd: 99,
       pricingDisplay: "monthly",
       includedUsers: 1,

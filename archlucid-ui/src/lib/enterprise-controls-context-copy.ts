@@ -43,7 +43,7 @@ export const enterpriseNavHintOperatorRank = "Controls, approvals, alerts, and a
 export const layerHeaderEnterpriseReaderRankLine = "Governance controls — inspect view.";
 
 export const layerHeaderEnterpriseOperatorRankLine =
-  "Governance controls record who submitted, reviewed, and approved architecture packages in this workspace.";
+  "Governance controls record who submitted, reviewed, and approved architecture reviews in this workspace.";
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
 export const enterpriseExecutePageHintReaderRank = "Writes need operator-level permission in this workspace.";
@@ -370,7 +370,7 @@ export const governanceWorkflowPromotionsActivationsSectionLeadReader =
 
 /** Governance workflow — outcome banner under headers (`governance/page.tsx`): scope vs Policy packs / resolution. */
 export const governanceWorkflowOutcomeBannerLine =
-  "Tracks approvals for finalized architecture packages. Outcomes are recorded in the audit trail.";
+  "Tracks approvals for finalized architecture reviews. Outcomes are recorded in the audit trail.";
 
 /** Policy packs — lead under title (Execute+); link to Policy resolution for stack semantics. */
 export const policyPacksPageLeadOperator =

@@ -37,14 +37,14 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "product-basics",
     question: "What is ArchLucid?",
     answer:
-      "ArchLucid turns scattered architecture evidence into a prioritized, evidence-linked architecture review package — structured findings, traceability, and exportable outputs for enterprise architects and sponsors.",
+      "ArchLucid turns scattered architecture evidence into a prioritized, evidence-linked architecture review — structured findings, traceability, and exportable outputs for enterprise architects and sponsors.",
   },
   {
     id: "who-is-archlucid-for",
     categoryId: "product-basics",
     question: "Who is ArchLucid for?",
     answer:
-      "Principal architects, enterprise architects, cloud architects, architecture review board members, and technical sponsors who need defensible, evidence-linked review packages rather than slide-only opinions.",
+      "Principal architects, enterprise architects, cloud architects, architecture review board members, and technical sponsors who need defensible, evidence-linked reviews rather than slide-only opinions.",
   },
   {
     id: "vs-frontier-ai-assistants",
@@ -58,7 +58,7 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "evaluation-first-review",
     question: "What do I get after my first architecture review?",
     answer:
-      "A review package with prioritized findings, evidence links, governance-ready outputs, and exportable artifacts you can share with sponsors, review boards, or procurement — without rebuilding the narrative in slides.",
+      "A review with prioritized findings, evidence links, governance-ready outputs, and exportable artifacts you can share with sponsors, review boards, or procurement — without rebuilding the narrative in slides.",
   },
   {
     id: "one-architect-license",
@@ -142,7 +142,7 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "governance-audit",
     question: "How does ArchLucid support governance and audit?",
     answer:
-      "Review packages can pass through approval workflows, produce signed review records, and maintain an audit trail linking findings, evidence, and decisions. Exports support diligence and architecture review board accountability.",
+      "Reviews can pass through approval workflows, produce signed review records, and maintain an audit trail linking findings, evidence, and decisions. Exports support diligence and architecture review board accountability.",
   },
   {
     id: "security-assurance-materials",

@@ -49,7 +49,7 @@ describe("getBreadcrumbs", () => {
   it("maps showcase manifest detail trail", () => {
     expect(getBreadcrumbs(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
       { label: "Signed review records", href: "/signed-records" },
-      { label: "Claims Intake review package" },
+      { label: "Claims Intake review" },
     ]);
   });
 
@@ -187,7 +187,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: showcase runId on hub inserts review package title before the hub crumb", () => {
+  it("buyer-polished: showcase runId on hub inserts review title before the hub crumb", () => {
     expect(
       getBreadcrumbs("/graph", {
         buyerPolishedShell: true,
@@ -199,7 +199,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("does not inject review package crumb when runId is not a known demo or compare slug", () => {
+  it("does not inject review crumb when runId is not a known demo or compare slug", () => {
     expect(
       getBreadcrumbs("/graph", {
         buyerPolishedShell: true,
@@ -208,7 +208,7 @@ describe("getBreadcrumbs", () => {
     ).toEqual([{ label: "Evidence graph" }]);
   });
 
-  it("buyer-polished: compare demo runId on hub inserts review package title before the hub crumb", () => {
+  it("buyer-polished: compare demo runId on hub inserts review title before the hub crumb", () => {
     expect(
       getBreadcrumbs("/audit", {
         buyerPolishedShell: true,
@@ -220,7 +220,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: showcase runId on governance findings inserts review package title before governance crumbs", () => {
+  it("buyer-polished: showcase runId on governance findings inserts review title before governance crumbs", () => {
     expect(
       getBreadcrumbs("/governance/findings", {
         buyerPolishedShell: true,
@@ -247,7 +247,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: search hub with showcase runId inserts review package title before search crumb", () => {
+  it("buyer-polished: search hub with showcase runId inserts review title before search crumb", () => {
     expect(
       getBreadcrumbs("/search", {
         buyerPolishedShell: true,
@@ -277,7 +277,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("labels E2E demo finding segment under Review packages", () => {
+  it("labels E2E demo finding segment under Reviews", () => {
     expect(
       getBreadcrumbs("/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
     ).toEqual([
@@ -296,7 +296,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("TB-528: maps governance with runId to Review packages · title · Governance", () => {
+  it("TB-528: maps governance with runId to Reviews · title · Governance", () => {
     expect(
       getBreadcrumbs("/governance", {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,

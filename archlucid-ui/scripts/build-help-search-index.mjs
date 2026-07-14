@@ -20,12 +20,12 @@ function applyHelpTopicProductLanguage(text) {
   const replacements = [
     [/\bgolden manifests\b/gi, "signed review records"],
     [/\bgolden manifest\b/gi, "signed review record"],
-    [/\bmanifest summary\b/gi, "review package summary"],
-    [/\bmanifest not found\b/gi, "review package not found"],
-    [/\bmanifest exists\b/gi, "review package exists"],
-    [/\bfor that manifest\b/gi, "for that review package"],
-    [/\bmissing manifest\b/gi, "missing review package"],
-    [/\bmanifest id\b/gi, "review package id"],
+    [/\bmanifest summary\b/gi, "review summary"],
+    [/\bmanifest not found\b/gi, "review not found"],
+    [/\bmanifest exists\b/gi, "review exists"],
+    [/\bfor that manifest\b/gi, "for that review"],
+    [/\bmissing manifest\b/gi, "missing review"],
+    [/\bmanifest id\b/gi, "review id"],
     [/\bRunId=/g, "ReviewId="],
     [/\brun id\b/gi, "review id"],
     [/\brun not ready\b/gi, "review not ready"],
@@ -61,7 +61,7 @@ const CURATED_DOC_PATHS = [
 
 /** @typedef {{ docPath: string; docTitle: string; sectionSlug: string; sectionHeading: string; excerpt: string }} HelpDocSearchRecord */
 
-const REVIEW_PACKAGE_LABEL = "Review package";
+const REVIEW_PACKAGE_LABEL = "Review";
 const SIGNED_MANIFEST_LABEL = "Signed review record";
 const ARCHITECTURE_REVIEW_LABEL = "Architecture review";
 
@@ -71,6 +71,12 @@ const ARCHITECTURE_REVIEW_LABEL = "Architecture review";
  */
 function applyHelpProductLanguageToExcerpt(text) {
   let result = text
+    .replace(/\breview packages\b/gi, "reviews")
+    .replace(/\breview package\b/gi, ARCHITECTURE_REVIEW_LABEL.toLowerCase())
+    .replace(/\barchitecture packages\b/gi, `${ARCHITECTURE_REVIEW_LABEL.toLowerCase()}s`)
+    .replace(/\barchitecture package\b/gi, ARCHITECTURE_REVIEW_LABEL.toLowerCase())
+    .replace(/\bevidence packages\b/gi, "evidence bundles")
+    .replace(/\bevidence package\b/gi, "evidence bundle")
     .replace(/\bcannot create runs\b/gi, "cannot create reviews")
     .replace(/\bcreate runs\b/gi, "create reviews")
     .replace(/\barchitecture runs\b/gi, "architecture reviews")

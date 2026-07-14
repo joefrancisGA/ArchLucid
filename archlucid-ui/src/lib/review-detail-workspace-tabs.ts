@@ -21,7 +21,7 @@ export const REVIEW_DETAIL_TAB_LABELS: Record<ReviewDetailTabId, string> = {
   evidence: "Evidence",
   policies: "Policies and standards",
   "decisions-remediation": "Decisions and remediation",
-  "review-package": "Review package",
+  "review-package": "Review",
   architecture: "Architecture",
   activity: "Activity",
 };

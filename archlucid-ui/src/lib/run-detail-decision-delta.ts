@@ -100,7 +100,7 @@ export function resolveRunDetailDecisionDeltaView(
       isCommitted: true,
       rows: [],
       emptyMessage:
-        "No active findings recorded — ArchLucid did not surface a material recommended change in this review package.",
+        "No active findings recorded — ArchLucid did not surface a material recommended change in this review.",
     };
   }
 

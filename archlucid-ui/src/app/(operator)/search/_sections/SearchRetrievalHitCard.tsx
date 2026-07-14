@@ -34,7 +34,7 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
             <div className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{hit.title}</div>
             {runId !== null ? (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                <span className="font-medium text-al-text-primary">Review package:</span> {runId}
+                <span className="font-medium text-al-text-primary">Review:</span> {runId}
               </p>
             ) : null}
           </div>

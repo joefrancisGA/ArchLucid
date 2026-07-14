@@ -409,7 +409,7 @@ describe("RunsDashboardPanel", () => {
     expect(screen.queryByTestId("runs-dashboard-status-filters")).toBeNull();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
-      expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "View review" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {
       fallbackSpy.mockRestore();
@@ -581,7 +581,7 @@ describe("RunsDashboardPanel", () => {
       expect(screen.getByTestId("operator-home-workspace-archived-empty-state")).toBeInTheDocument();
     });
     expect(screen.getByText("No archived reviews yet.")).toBeInTheDocument();
-    expect(screen.getByText("Archived review packages will appear here.")).toBeInTheDocument();
+    expect(screen.getByText("Archived reviews will appear here.")).toBeInTheDocument();
     expect(screen.queryByTestId("runs-dashboard-archived-unsupported")).toBeNull();
   });
 });

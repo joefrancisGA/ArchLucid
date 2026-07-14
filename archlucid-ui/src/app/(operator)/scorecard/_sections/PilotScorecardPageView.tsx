@@ -140,11 +140,11 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               data-testid="review-scorecard-summary-row"
             >
               <ScorecardSummaryTile
-                label="Review packages finalized"
+                label="Reviews finalized"
                 value={String(summaryRow.finalizedPackages)}
                 detail={
                   summaryRow.finalizedPackages === 0
-                    ? "No finalized review packages yet."
+                    ? "No finalized reviews yet."
                     : "Finalized packages in the current workspace."
                 }
               />

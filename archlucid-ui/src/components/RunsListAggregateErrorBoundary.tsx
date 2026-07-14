@@ -137,7 +137,7 @@ export class RunsListAggregateErrorBoundary extends Component<
           <p className={cn("m-0 font-mono opacity-95", OPERATOR_TYPOGRAPHY.helper)}>{this.state.message}</p>
         ) : (
           <p className={cn("m-0 opacity-95", OPERATOR_TYPOGRAPHY.body)}>
-            This review list hit an unexpected error. You can retry or open Review packages for a fresh start.
+            This review list hit an unexpected error. You can retry or open Reviews for a fresh start.
           </p>
         )}
         <div className="flex flex-wrap gap-2">

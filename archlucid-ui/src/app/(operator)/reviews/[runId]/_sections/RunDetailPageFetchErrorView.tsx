@@ -22,7 +22,7 @@ export function RunDetailPageFetchErrorView(props: {
         <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
           {props.fromGeneration
             ? REVIEW_PACKAGE_OPEN_FAILURE_HEADING
-            : "Review detail — Could not load review package"}
+            : "Review detail — Could not load review"}
         </h1>
         <ReviewPackageLoadFailureView
           runId={props.runId}

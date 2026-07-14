@@ -61,7 +61,7 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "first-review-guide",
     title: "First review guide",
-    description: "Step-by-step: name the review, upload evidence, add context, and finalize the package.",
+    description: "Step-by-step: name the review, upload evidence, add context, and finalize the review.",
     keywords: ["first review", "review guide", "new review", "architecture context", "getting started"],
     action: { kind: "route", href: "/help/first-hour-operator-path", helpSlug: "first-hour-operator-path" },
   },
@@ -83,12 +83,12 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     id: "glossary",
     title: "Glossary",
     description: "Definitions for review, evidence, governance, and organization terms used in ArchLucid.",
-    keywords: ["glossary", "terms", "definitions", "finding", "risk", "control", "review package", "evidence trail"],
+    keywords: ["glossary", "terms", "definitions", "finding", "risk", "control", "review", "evidence trail"],
     action: { kind: "route", href: "/help/glossary", helpSlug: "glossary" },
   },
   {
     id: "create-first-review",
-    title: "Create your first review package",
+    title: "Create your first review",
     description: "Start with a brief, diagram, IaC file, or evidence ZIP.",
     keywords: ["create", "new review", "wizard", "intake", "first review"],
     action: { kind: "route", href: "/reviews/new", helpSlug: null },
@@ -119,7 +119,7 @@ const REVIEW_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
   {
     id: "finalize-review",
-    title: "Finalize a review package",
+    title: "Finalize a review",
     description: "Create the signed review record and export deliverables.",
     keywords: ["finalize", "commit", "signed", "export", "deliverables"],
     action: { kind: "route", href: "/help/governance-approval", helpSlug: "governance-approval" },
@@ -137,7 +137,7 @@ const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "governance-workflow",
     title: "Governance workflow",
-    description: "Approve, reject, promote, or monitor review packages.",
+    description: "Approve, reject, promote, or monitor reviews.",
     keywords: ["governance", "approval", "promote", "workflow", "disposition"],
     action: { kind: "route", href: "/help/governance-approval", helpSlug: "governance-approval" },
   },

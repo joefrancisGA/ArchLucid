@@ -7,12 +7,12 @@ export const GOVERNANCE_OVERVIEW_PAGE_LEAD =
 export const GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE = "Review governance";
 
 export const GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD =
-  "Approval requests, releases, and activation history for the selected review package.";
+  "Approval requests, releases, and activation history for the selected review.";
 
 export const GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL = "Sample review context";
 
 export const GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE =
-  "Showing governance workflow for the Claims Intake sample review package — illustrative demo data.";
+  "Showing governance workflow for the Claims Intake sample review — illustrative demo data.";
 
 export const GOVERNANCE_OVERVIEW_SUBMIT_ACTION = "Submit review for approval";
 
@@ -28,7 +28,7 @@ export const GOVERNANCE_OVERVIEW_SUMMARY_HEADING = "Governance summary";
 
 export const GOVERNANCE_OVERVIEW_PENDING_APPROVALS_LABEL = "Pending approval requests";
 
-export const GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL = "Approved review packages";
+export const GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_LABEL = "Approved reviews";
 
 export const GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL = "Blocking governance alerts";
 

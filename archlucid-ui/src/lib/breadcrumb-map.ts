@@ -23,7 +23,7 @@ export type GetBreadcrumbsOptions = {
   readonly buyerPolishedShell?: boolean;
   /**
    * When set (e.g. `runId` on graph, audit, ask, search, `/governance`, or `/governance/findings`),
-   * buyer-polished shell can insert the active review package title after **Overview**.
+   * buyer-polished shell can insert the active review title after **Overview**.
    */
   readonly queryRunId?: string;
   /** Persisted reviews list href (filters) for return navigation from detail pages. */
@@ -50,7 +50,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   new: "New request",
   graph: "Graph",
   compare: "Compare",
-  replay: "Validate review package",
+  replay: "Validate review",
   ask: "Ask",
   search: "Search",
   advisory: "Advisory",
@@ -355,9 +355,9 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-run-001": "Claims Intake Modernization",
   "e2e-fixture-left-run": "Baseline architecture review (compare)",
   "e2e-fixture-right-run": "Target architecture review (compare)",
-  "f0000001-0000-4000-8000-000000000001": "Sample finalized review package",
-  "f0000002-0000-4000-8000-000000000002": "Review package (artifacts pending)",
-  [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake review package",
+  "f0000001-0000-4000-8000-000000000001": "Sample finalized review",
+  "f0000002-0000-4000-8000-000000000002": "Review (artifacts pending)",
+  [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake review",
   "claims-intake-modernization": "Claims Intake Modernization",
   "e2e-plan-001": "Demonstration plan",
   "e2e-finding-001": "Demonstration finding",

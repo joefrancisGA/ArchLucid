@@ -13,7 +13,7 @@ const SHORT_HELP_MARKDOWN = `## Quick start
 Use this page when you need a short answer.
 
 - Upload evidence before you finalize.
-- Keep the review package scoped.
+- Keep the review scoped.
 
 ## Related guides
 

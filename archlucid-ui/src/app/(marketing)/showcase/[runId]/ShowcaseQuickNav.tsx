@@ -44,7 +44,7 @@ export function ShowcaseQuickNav({ payload }: { readonly payload: DemoCommitPage
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Link href={`/reviews/${encodeURIComponent(runId)}`} className={btnClass}>
-          Review package
+          Review
         </Link>
         <Link href={`/signed-records/${encodeURIComponent(manifestId)}`} className={btnClass}>
           Open signed record

@@ -172,7 +172,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               onChange={onRunIdChange}
               selectedThreadId=""
               fieldId="graph-run"
-              label="Review package"
+              label="Review"
               committedOnly
               preferAutoPick={false}
               autoSelectSyntheticSample={false}
@@ -212,7 +212,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
               {showSelectReviewHint ? (
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                  Select a completed review package, then load its evidence graph.
+                  Select a completed review, then load its evidence graph.
                 </p>
               ) : null}
 
@@ -379,7 +379,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
           {showSelectReviewHint ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Select a review package first.
+              Select a review first.
             </p>
           ) : null}
 

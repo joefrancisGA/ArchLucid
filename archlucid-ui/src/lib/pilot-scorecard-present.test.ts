@@ -56,6 +56,6 @@ describe("pilot-scorecard-present", () => {
       "Audit events recorded",
     ]);
     expect(metrics[0]?.detail).toBe("No committed reviews yet.");
-    expect(metrics[1]?.detail).toBe("No finalized review packages yet.");
+    expect(metrics[1]?.detail).toBe("No finalized reviews yet.");
   });
 });

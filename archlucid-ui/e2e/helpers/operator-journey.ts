@@ -62,7 +62,7 @@ export async function waitForComparePageReady(page: Page, options?: { timeout?: 
  */
 export function comparePageIntroGuidance(page: Page): Locator {
   return page.getByText(
-    /Select two finalized review packages to see what changed in scope, findings, decisions, and evidence/i,
+    /Select two finalized reviews to see what changed in scope, findings, decisions, and evidence/i,
   );
 }
 

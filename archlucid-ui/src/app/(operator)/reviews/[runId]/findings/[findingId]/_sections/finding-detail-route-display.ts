@@ -26,7 +26,7 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
           return `Evidence linked to ${ruleLabel} — see evidence trail and review decision record.`;
         }
 
-        return "Evidence linked in the finalized review package — see evidence trail and review decision record.";
+        return "Evidence linked in the finalized review — see evidence trail and review decision record.";
       }
     }
 
@@ -164,7 +164,7 @@ export function buyerFindingDecisionImpactCopy(payload: FindingInspectPayload | 
   const status = fallbackStatus(payload, findingId);
 
   if (status === "Requires review") {
-    return "Resolve cited evidence gaps before governance sign-off on the review package.";
+    return "Resolve cited evidence gaps before governance sign-off on the review.";
   }
 
   return buyerFindingDecisionPanelCopy(payload, findingId);
@@ -194,8 +194,8 @@ export function validationRequirement(payload: FindingInspectPayload | null, fin
 /** Buyer-polished fallback when inspect payload has not loaded yet. */
 export function findingDetailLeadFallback(findingId: string): string {
   if (isPhiMinimizationFindingId(findingId) && isBuyerPolishedOperatorShellEnv()) {
-    return "Residual risk record for the finalized Claims Intake review package.";
+    return "Residual risk record for the finalized Claims Intake review.";
   }
 
-  return "Review this finding independently from the parent package before approval.";
+  return "Review this finding independently from the parent review before approval.";
 }

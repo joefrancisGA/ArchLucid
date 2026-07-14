@@ -56,7 +56,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     category: "review-process",
     relatedTermIds: ["review-package", "architecture-draft"],
     detail:
-      "A review is the governed evaluation process. A review package is the finalized collection of outputs produced by that review.",
+      "A review is the governed evaluation process from intake through finalized outputs such as the signed review record, findings, and exports.",
     visibility: "customer",
   },
   {
@@ -70,20 +70,21 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
   },
   {
     id: "review-package",
-    label: "Review package",
+    label: "Finalized review",
     definition:
-      "The finalized collection of outputs from a review: summaries, findings, evidence links, governance records, and exportable deliverables.",
+      "A review whose outputs are locked for governance: signed review record, findings, evidence links, governance records, and exportable deliverables.",
     category: "review-process",
     relatedTermIds: ["review", "signed-review-record", "deliverable"],
     detail:
-      "A review package is what stakeholders open after finalization. It packages the review outcomes for governance, export, and comparison.",
+      "Stakeholders open a finalized review after approval to export, compare, and audit outcomes.",
+    deprecatedAliases: ["Review package", "review package"],
     visibility: "customer",
   },
   {
     id: "signed-review-record",
     label: "Signed review record",
     definition:
-      "The immutable, provenance-backed record that closes a finalized review. ArchLucid treats it as the authoritative package anchor for governance and exports.",
+      "The immutable, provenance-backed record that closes a finalized review. ArchLucid treats it as the authoritative review anchor for governance and exports.",
     category: "review-process",
     aliases: ["Signed review record"],
     deprecatedAliases: ["Signed manifest", "Golden manifest"],
@@ -160,7 +161,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "governance-approval",
     label: "Governance approval",
     definition:
-      "A committed governance decision that affects rollout, waiver, exception, or escalation for a review package or related record.",
+      "A committed governance decision that affects rollout, waiver, exception, or escalation for a review or related record.",
     category: "governance",
     relatedTermIds: ["decision", "audit-trail"],
     visibility: "customer",

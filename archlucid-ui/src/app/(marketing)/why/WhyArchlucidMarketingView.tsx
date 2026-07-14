@@ -67,7 +67,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         className={`mt-3 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
         data-testid="why-brand-category-paragraph"
       >
-        {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence package carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
+        {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
       </p>
 
       <div className="mt-8">
@@ -77,7 +77,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       <section className={`${MARKETING_LAYOUT.majorSectionGap} ${MARKETING_SURFACES.highlightPanel}`}>
         <p className={MARKETING_TYPOGRAPHY.eyebrow}>First-principles outcome</p>
         <h2 id="why-hero-outcome-heading" className={`mt-2 ${MARKETING_TYPOGRAPHY.sectionTitle}`}>
-          One buyer problem, one proof package
+          One buyer problem, one proof export
         </h2>
         <p
           className={`mt-3 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
@@ -97,7 +97,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         </h2>
         <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.meta}`}>
           Many buyers already use a general LLM for architecture questions. ArchLucid is not “another chat box” — it
-          persists a committed review package, governance gate, and audit trail a session cannot replace.
+          persists a committed review, governance gate, and audit trail a session cannot replace.
         </p>
         <ul className="mt-4 grid gap-3 sm:grid-cols-2">
           {MARKETING_GENERIC_AI_CONTRAST_POINTS.map((point) => (
@@ -131,7 +131,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           Where ArchLucid fits (adjacent tooling)
         </h2>
         <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
-          Summarized wording only — citations and benchmark detail are included in the evidence package linked from this page.
+          Summarized wording only — citations and benchmark detail are included in the evidence bundle linked from this page.
         </p>
         <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
           <table
@@ -187,13 +187,13 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       </section>
 
       <section className={MARKETING_SURFACES.mutedPanel}>
-        <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>Side-by-side audit evidence package</h2>
+        <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>Side-by-side audit evidence bundle</h2>
         <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
           Download a single PDF that bundles the same read-only sample output as the{" "}
           <a className={`font-medium ${MARKETING_SURFACES.inlineLink}`} href="/demo/preview">
             public demo preview
           </a>{" "}
-          (review package excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five
+          (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five
           detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in
           your environment, use the contact path on the getting started page.
         </p>
@@ -204,7 +204,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
               href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
               download="why-archlucid-pack.pdf"
             >
-              Download the audit evidence package (PDF)
+              Download the audit evidence bundle (PDF)
             </a>
           </Button>
         </p>
@@ -221,7 +221,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         {showDemoEmbed ? (
           <div className={`mt-4 overflow-hidden ${MARKETING_SURFACES.sectionPanel}`}>
             <iframe
-              title="ArchLucid demo review package page preview"
+              title="ArchLucid demo review page preview"
               src="/demo/preview"
               className="h-[min(70vh,520px)] w-full border-0"
               loading="lazy"

@@ -35,7 +35,7 @@ describe("RunsListBuyerFeaturedCard", () => {
     expect(screen.getByText(/Decision date/i)).toBeInTheDocument();
     expect(screen.getByText(/Package owner/i)).toBeInTheDocument();
     expect(screen.getByText(/Governance Approver/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /view review package/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /view review/i })).toBeInTheDocument();
     expect(screen.getByText(/Audit trail/i)).toBeInTheDocument();
     expect(screen.getByText(/Complete/i)).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /signed manifest/i })).not.toBeInTheDocument();

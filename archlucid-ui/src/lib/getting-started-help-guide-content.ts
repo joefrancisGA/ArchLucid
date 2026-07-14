@@ -12,12 +12,12 @@ export const GETTING_STARTED_HELP_AUDIENCE_LINE =
 export const GETTING_STARTED_HELP_QUICK_START_TITLE = "Start with your first review";
 
 export const GETTING_STARTED_HELP_QUICK_START_COPY =
-  "Upload evidence, run the review, inspect findings, finalize the package, and share the outputs.";
+  "Upload evidence, run the review, inspect findings, finalize the review, and share the outputs.";
 
 export const GETTING_STARTED_HELP_DIAGRAM_TITLE = "How ArchLucid works";
 
 export const GETTING_STARTED_HELP_DIAGRAM_SUMMARY =
-  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed review package you can share.";
+  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed review you can share.";
 
 export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
   "Evidence",
@@ -34,7 +34,7 @@ export type GettingStartedPlainLanguageTerm = {
 
 export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedPlainLanguageTerm[] = [
   {
-    term: "Review package",
+    term: "Review",
     definition:
       "The complete set of findings, decisions, evidence, and exports for one architecture review.",
   },
@@ -84,7 +84,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 1,
     title: "Add architecture evidence",
     description: "Start a review and attach briefs, diagrams, documents, IaC, or optional cloud inventory.",
-    expectedOutputs: "Evidence linked to the review package.",
+    expectedOutputs: "Evidence linked to the review.",
     href: "/reviews/new",
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
@@ -94,7 +94,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     description: "Start the review and monitor progress until findings are ready to inspect.",
     expectedOutputs: "Findings with severity, impact, and evidence labels.",
     href: "/reviews?projectId=default",
-    ctaLabel: "Open review packages",
+    ctaLabel: "Open reviews",
   },
   {
     stepNumber: 3,
@@ -115,10 +115,10 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
   {
     stepNumber: 5,
     title: "Finalize and share outputs",
-    description: "Lock the review package and export sponsor-ready artifacts for stakeholders.",
+    description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
     expectedOutputs: "Governance package, evidence trail, and exports.",
     href: "/reviews?projectId=default",
-    ctaLabel: "Open review packages",
+    ctaLabel: "Open reviews",
   },
 ];
 
@@ -140,7 +140,7 @@ export const GETTING_STARTED_HELP_PRIMARY_ACTIONS = {
 export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActionCard[] = [
   {
     title: "Start your first review",
-    description: "Create a review package and add evidence — cloud connectors are optional.",
+    description: "Create a review and add evidence — cloud connectors are optional.",
     href: "/reviews/new",
     ctaLabel: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   },
@@ -177,7 +177,7 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
   },
   {
     term: "Manifest identifier",
-    definition: "Immutable snapshot id produced when a review package is finalized.",
+    definition: "Immutable snapshot id produced when a review is finalized.",
   },
   {
     term: "Context snapshot",

@@ -17,7 +17,7 @@ export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
   "quick-review":
     "Fastest first-pilot path: review title, attach evidence, and start analysis in one screen.",
   detailed:
-    "Use templates, imports, and evidence upload when you need an export-ready review package with full configuration.",
+    "Use templates, imports, and evidence upload when you need an export-ready review with full configuration.",
 };
 
 /** Create-architecture intake — calmer path tab labels and hints. */

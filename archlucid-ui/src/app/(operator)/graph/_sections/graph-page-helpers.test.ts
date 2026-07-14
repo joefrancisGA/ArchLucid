@@ -14,7 +14,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
     });
 
     expect(preset.title).toBe(GRAPH_IDLE.title);
-    expect(preset.title).toBe("No completed review packages yet");
+    expect(preset.title).toBe("No completed reviews yet");
     expect(preset.description).toBe(GRAPH_IDLE.description);
     expect(preset.actions?.[0]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(preset.actions?.[1]?.label).toBe("Open sample evidence graph");
@@ -27,8 +27,8 @@ describe("resolveGraphIdleEmptyPreset", () => {
       showIdleCard: false,
     });
 
-    expect(preset.title).toBe("No completed review packages yet");
-    expect(preset.description).toContain("Complete a review package to generate an evidence graph");
+    expect(preset.title).toBe("No completed reviews yet");
+    expect(preset.description).toContain("Complete a review to generate an evidence graph");
     expect(preset.description).toContain("evidence relationships work");
     expect(preset.actions?.[0]?.label).toBe("Open sample evidence graph");
     expect(preset.actions?.[1]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
@@ -41,7 +41,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
       showIdleCard: true,
     });
 
-    expect(preset.title).toBe("No completed review packages yet");
+    expect(preset.title).toBe("No completed reviews yet");
     expect(preset.actions?.[0]?.label).toBe("Open sample evidence graph");
     expect(preset.actions?.[1]?.label).toBe(CREATE_ARCHITECTURE_LABEL);
   });

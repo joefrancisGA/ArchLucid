@@ -84,7 +84,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await ensureBuyerDeliverablesSectionExpanded(page);
 
-    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence package/i })).toBeVisible({
+    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence bundle/i })).toBeVisible({
       timeout: 60_000,
     });
 

@@ -180,7 +180,7 @@ export function CommitRunButton({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         title="Finalize this review?"
-        description={`Merges agent results for this review through the decision engine and saves the architecture snapshot. If the review package is not ready, the API returns a conflict — adjust inputs and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
+        description={`Merges agent results for this review through the decision engine and saves the architecture snapshot. If the review is not ready, the API returns a conflict — adjust inputs and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
         confirmLabel="Finalize review"
         cancelLabel="Cancel"
         variant="default"

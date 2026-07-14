@@ -68,10 +68,10 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
             <dd className="m-0 font-medium text-al-text-primary">{decision.category || "—"}</dd>
           </div>
           <div>
-            <dt className="text-al-text-secondary">Review package</dt>
+            <dt className="text-al-text-secondary">Review</dt>
             <dd className="m-0">
               <Link className={OPERATOR_LINK.nav} href={`/reviews/${decision.runId}`}>
-                Open review package
+                Open review
               </Link>
             </dd>
           </div>

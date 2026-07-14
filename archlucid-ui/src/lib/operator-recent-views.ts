@@ -79,7 +79,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
   const reviewMatch = /^\/reviews\/([^/]+)$/u.exec(path);
 
   if (reviewMatch !== null) {
-    return "Review package";
+    return "Review";
   }
 
   const findingMatch = /^\/reviews\/([^/]+)\/findings\/([^/]+)/u.exec(path);

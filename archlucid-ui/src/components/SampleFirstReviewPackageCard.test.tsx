@@ -79,7 +79,7 @@ describe("SampleFirstReviewPackageCard — buyer-polished shell", () => {
       "/reviews/new",
     );
     expect(screen.queryByRole("link", { name: "Open evidence graph" })).toBeNull();
-    expect(screen.queryByRole("button", { name: /About this sample review package/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /About this sample review/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Start a new request" })).toBeNull();
   });
 

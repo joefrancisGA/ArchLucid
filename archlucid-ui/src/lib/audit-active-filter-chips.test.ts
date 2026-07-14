@@ -15,6 +15,6 @@ describe("buildAuditActiveFilterChips", () => {
     });
 
     expect(chips.map((c) => c.id)).toEqual(["eventType", "datePreset", "runId"]);
-    expect(chips.find((chip) => chip.id === "runId")?.label).toBe("Review package selected");
+    expect(chips.find((chip) => chip.id === "runId")?.label).toBe("Review selected");
   });
 });

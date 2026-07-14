@@ -37,4 +37,4 @@ export const COMPARE_EMPTY_OUTPUT_BODY =
   "Select baseline and updated reviews, then click Compare reviews to see structured changes here.";
 
 export const COMPARE_HOW_IT_WORKS_SUMMARY =
-  "ArchLucid compares two finalized review packages and summarizes what changed in scope, findings, decisions, evidence, and governance status.";
+  "ArchLucid compares two finalized reviews and summarizes what changed in scope, findings, decisions, evidence, and governance status.";

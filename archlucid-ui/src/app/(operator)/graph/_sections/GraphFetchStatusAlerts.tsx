@@ -33,7 +33,7 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
           <strong>{buyerPolishedShell ? "Loading evidence graph" : "Loading graph"}</strong>
           <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
             {buyerPolishedShell
-              ? "Collecting provenance links for this review package — rich evidence may take a few extra seconds."
+              ? "Collecting provenance links for this review — rich evidence may take a few extra seconds."
               : "Preparing the graph view — reviews with rich evidence may take a few extra seconds."}
           </p>
         </OperatorLoadingNotice>

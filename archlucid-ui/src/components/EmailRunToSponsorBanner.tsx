@@ -672,7 +672,7 @@ export function EmailRunToSponsorBanner({
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
             href={getBundleDownloadUrl(manifestId)}
           >
-            Review package bundle (ZIP)
+            Review bundle (ZIP)
           </a>
           {" · "}
           <a
@@ -705,7 +705,7 @@ export function EmailRunToSponsorBanner({
             patternKey="review-package:sponsor"
             detail={{ runId, manifestId, surface: "EmailRunToSponsorBanner" }}
             compact
-            title="Did this review package help your sponsor conversation?"
+            title="Did this review help your sponsor conversation?"
           />
         )}
       </div>

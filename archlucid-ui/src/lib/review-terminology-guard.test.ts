@@ -32,8 +32,9 @@ import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canoni
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
 
 describe("review terminology guard", () => {
-  it("uses review package as the primary buyer noun in shared vocabulary", () => {
-    expect(ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp.toLowerCase()).toContain("review package");
+  it("uses architecture review as the primary buyer noun in shared vocabulary", () => {
+    expect(ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp.toLowerCase()).toContain("architecture review");
+    expect(ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp.toLowerCase()).not.toContain("review package");
     expect(ARCHITECTURE_REVIEW_VOCABULARY.correlationIdLabel.toLowerCase()).toContain("review");
     expect(ARCHITECTURE_REVIEW_VOCABULARY.runIdBridgeSentence.toLowerCase()).toContain("runid");
     expect(ARCHITECTURE_REVIEW_VOCABULARY.correlationIdFieldBridge.toLowerCase()).toContain("review id");

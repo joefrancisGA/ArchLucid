@@ -21,7 +21,7 @@ export type SessionExpiredViewProps = {
  * Shown when the user arrives at sign-in with a recognized `reason` (idle-timeout,
  * session-expired, signed-out, unauthorized). Explains why they were signed out and
  * offers a single primary "Sign in" action, plus an optional low-emphasis way home.
- * Avoids artifact-specific links (review packages, sample review) because those
+ * Avoids artifact-specific links (reviews, sample review) because those
  * routes require authentication.
  */
 export function SessionExpiredView({

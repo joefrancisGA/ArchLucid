@@ -83,7 +83,7 @@ export function GovernanceReviewContextBar(props: GovernanceReviewContextBarProp
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Review-scoped approval requests, submissions, and governance activity appear below.{" "}
         <Link className="underline underline-offset-2" href={`/reviews/${encodeURIComponent(activeRunId)}`}>
-          Open review package
+          Open review
         </Link>
         {" · "}
         <span className="sr-only">Load another review from </span>

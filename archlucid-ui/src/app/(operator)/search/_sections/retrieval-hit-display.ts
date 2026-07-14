@@ -115,7 +115,7 @@ export function resolveRetrievalHitRunId(hit: RetrievalHit, scopedRunId?: string
 function reviewPackageHref(runId: string): RetrievalHitActionLink {
   return {
     href: `/reviews/${encodeURIComponent(runId)}`,
-    label: "Open review package",
+    label: "Open review",
   };
 }
 
@@ -158,7 +158,7 @@ export function buildRetrievalHitActionLink(
   if (sourceType === "ManifestDecision" && runId !== null) {
     return {
       href: `/reviews/${encodeURIComponent(runId)}/manifest`,
-      label: "Open decision in review package",
+      label: "Open decision in review",
     };
   }
 
@@ -176,7 +176,7 @@ export function buildRetrievalHitActionLink(
   if (decisionId.length > 0 && runId !== null) {
     return {
       href: `/reviews/${encodeURIComponent(runId)}/manifest`,
-      label: "Open decision in review package",
+      label: "Open decision in review",
     };
   }
 

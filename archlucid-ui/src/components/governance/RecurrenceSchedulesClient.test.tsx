@@ -85,7 +85,7 @@ describe("RecurrenceSchedulesClient", () => {
 
     await screen.findByTestId("recurrence-schedules-empty-state");
 
-    const reviewPackageLinks = screen.getAllByRole("link", { name: "View governed review packages" });
+    const reviewPackageLinks = screen.getAllByRole("link", { name: "View governed reviews" });
     expect(reviewPackageLinks.some((link) => link.getAttribute("href") === RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF)).toBe(true);
 
     const pendingApprovalLinks = screen.getAllByRole("link", { name: "View pending approvals" });

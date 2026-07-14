@@ -12,7 +12,7 @@ export type WhyVerifyLink = {
 export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
   [{ label: "Demo preview", href: "/demo/preview" }],
   [
-    { label: "Assurance evidence package (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
+    { label: "Assurance evidence bundle (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
     {
       label: "Durable audit coverage matrix",
       href: resolveInAppDocHref("docs/library/AUDIT_COVERAGE_MATRIX.md"),

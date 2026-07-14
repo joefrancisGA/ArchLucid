@@ -39,10 +39,10 @@ describe("resolveAlertsInboxEmptyVariant", () => {
 });
 
 describe("buildAlertsInboxEmptyStateProps", () => {
-  it("maps healthy_clear to open review packages CTA", () => {
+  it("maps healthy_clear to open reviews CTA", () => {
     const props = buildAlertsInboxEmptyStateProps("healthy_clear", true);
     expect(props.title).toBe(ALERTS_EMPTY_HEALTHY_TITLE);
-    expect(props.actions?.[0]?.label).toBe("Open review packages");
+    expect(props.actions?.[0]?.label).toBe("Open reviews");
   });
 
   it("maps no_rules to configure alert rules CTA", () => {

@@ -77,7 +77,7 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
   );
   const finalized = zeroAwareCountLabel(
     data.totalManifestsCreated,
-    "No finalized review packages yet.",
+    "No finalized reviews yet.",
   );
   const affirmed = zeroAwareCountLabel(
     data.totalFindingsResolved,

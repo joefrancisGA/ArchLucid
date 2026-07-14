@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 test.describe("marketing-demo-preview", () => {
   test("/demo/preview loads hero, result panel, artifact navigation, and signup CTA without auth", async ({ page }) => {
     await page.goto("/demo/preview", { waitUntil: "load" });
-    await expect(page.getByRole("heading", { name: "See a finalized architecture review package", level: 1 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "See a finalized architecture review", level: 1 })).toBeVisible({
       timeout: 60_000,
     });
 
@@ -30,7 +30,7 @@ test.describe("marketing-demo-preview", () => {
     );
 
     await expect(page.getByTestId("demo-preview-guided-callouts")).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "Review package summary" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Review summary" })).toHaveCount(0);
   });
 
   test("/see-it links to full demo preview with no-sign-in copy", async ({ page }) => {

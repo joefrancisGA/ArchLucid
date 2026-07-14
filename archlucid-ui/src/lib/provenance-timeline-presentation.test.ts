@@ -22,9 +22,9 @@ describe("provenance timeline presentation", () => {
     const row: ArchitectureTraceTimelineEntry = {
       timestampUtc: "2026-01-01T00:00:00.000Z",
       kind: "com.archlucid.manifest.finalized.v1",
-      label: "Review package finalized",
+      label: "Review finalized",
     };
 
-    expect(provenanceTimelinePrimaryLabel(row)).toBe("Review package finalized");
+    expect(provenanceTimelinePrimaryLabel(row)).toBe("Review finalized");
   });
 });

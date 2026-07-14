@@ -60,7 +60,7 @@ export function OperatorEvidenceLimitsFooter({
   /** Buyer walkthrough shell: disclaimers cite internal APIs; static demo context is surfaced elsewhere (e.g. banner). */
   const showTechnicalExecutionDisclosures = !buyerPolishedShell;
 
-  const reviewSummaryLinkLabel = buyerPolishedShell ? "Findings & assessment (on review package)" : "Architecture review summary";
+  const reviewSummaryLinkLabel = buyerPolishedShell ? "Findings & assessment (on review)" : "Architecture review summary";
   const provenanceLinkLabel = buyerPolishedShell ? "Structural provenance overview" : "Review trail";
 
   return (
@@ -103,7 +103,7 @@ export function OperatorEvidenceLimitsFooter({
               href={explainHref}
               aria-label={
                 buyerPolishedShell
-                  ? "Findings and assessment section on the review package"
+                  ? "Findings and assessment section on the review"
                   : "Architecture review summary (explain aggregate)"
               }
             >

@@ -55,7 +55,7 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
       return "Findings reviewed";
 
     case "manifest":
-      return "Review package finalized";
+      return "Review finalized";
 
     default:
       return `${stage.label} · ok`;
@@ -113,7 +113,7 @@ export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = 
   const summaryLine =
     buyerPolished
       ? presentCount >= stageCount
-        ? "Review package complete"
+        ? "Review complete"
         : `Progress ${presentCount} of ${stageCount}`
       : `Review trail ${presentCount}/${stageCount} complete`;
 

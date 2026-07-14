@@ -77,7 +77,7 @@ function GroundingLinksFooter(props: {
   return (
     <div className="mt-4 rounded-lg border border-neutral-200/90 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
       <p className={cn("m-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Sources in this review package
+        Sources in this review
       </p>
       <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
         {primaryLinks.map((link) => (
@@ -133,7 +133,7 @@ export function AskAssistantMessageBody(props: {
 
   const buyerAnswerLeadPlain = buyerPolishedLinks ? (
     <p className={cn("m-0 mb-2 font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-      Based on the evidence indexed for this review package:
+      Based on the evidence indexed for this review:
     </p>
   ) : null;
 
@@ -167,7 +167,7 @@ export function AskAssistantMessageBody(props: {
 
     if (executiveLead === null || executiveLead.length === 0) {
       executiveLead =
-        "The sections below summarize risk framing, cited evidence, mitigation commitments, and validation checks for this package.";
+        "The sections below summarize risk framing, cited evidence, mitigation commitments, and validation checks for this review.";
     }
 
     const bodyClass = (cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body));

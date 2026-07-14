@@ -22,7 +22,7 @@ export function DemoExplainStatusBanner(props: Props) {
       {payload.manifestVersion ? (
         <>
           {" "}
-          · review package <code>{payload.manifestVersion}</code>
+          · review <code>{payload.manifestVersion}</code>
         </>
       ) : null}{" "}
       · generated <code>{payload.generatedUtc}</code>

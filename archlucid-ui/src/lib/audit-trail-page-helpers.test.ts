@@ -42,7 +42,7 @@ describe("formatAuditTrailReviewFilterChipLabel", () => {
   });
 
   it("falls back when only a technical id is known", () => {
-    expect(formatAuditTrailReviewFilterChipLabel("c85c9b3ff2ab4d1e9f0a1234567890ab")).toBe("Review package selected");
+    expect(formatAuditTrailReviewFilterChipLabel("c85c9b3ff2ab4d1e9f0a1234567890ab")).toBe("Review selected");
   });
 });
 

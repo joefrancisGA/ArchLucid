@@ -14,7 +14,7 @@ export type GraphSampleModeBannerProps = {
   readonly showUseMyReviewAction?: boolean;
 };
 
-/** Customer-facing banner when the evidence graph shows the showcase sample review package. */
+/** Customer-facing banner when the evidence graph shows the showcase sample review. */
 export function GraphSampleModeBanner(props: GraphSampleModeBannerProps) {
   return (
     <div

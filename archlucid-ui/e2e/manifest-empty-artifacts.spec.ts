@@ -15,7 +15,7 @@ test.describe("operator journey — manifest empty artifact list", () => {
 
     /**
      * Mock Playwright builds default to buyer-polished + demo-static (`playwright.mock.config.ts`):
-     * page title becomes "Architecture review package" (see `isBuyerPolishedOperatorShellEnv`).
+     * page title becomes "Architecture review" (see `isBuyerPolishedOperatorShellEnv`).
      * Full-operator builds keep "Finalized Architecture Manifest".
      */
     await expect(
@@ -54,7 +54,7 @@ test.describe("operator journey — manifest empty artifact list", () => {
     const bundleLink = page
       .getByRole("link", {
         name:
-          /^(Download bundle \(ZIP\)|Download evidence package \(ZIP\)|Download all files \(ZIP\)|Download full package \(ZIP\)|Download finalized review package|Export manifest bundle)$/,
+          /^(Download bundle \(ZIP\)|Download evidence bundle \(ZIP\)|Download all files \(ZIP\)|Download full package \(ZIP\)|Download finalized review|Export manifest bundle)$/,
       })
       .first();
     await expect(bundleLink).toBeVisible();

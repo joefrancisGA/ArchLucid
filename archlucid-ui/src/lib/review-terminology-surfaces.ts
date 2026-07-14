@@ -100,6 +100,32 @@ export const REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS = [
   "sample package",
   "open package",
   "create package",
+  "finalize package",
+  "package id",
+  "package status",
+  "package owner",
+  "package history",
+  "evidence package",
+] as const;
+
+/** Lowercase phrase fragments banned on all global buyer-facing surfaces (package terminology sweep). */
+export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS = [
+  ...REVIEW_TERMINOLOGY_BANNED_REVIEW_ONLY_PACKAGE_LIST_PATTERNS,
+  "architecture review package",
+  "finalized review package",
+  "completed review package",
+  "sample review package",
+  "governance evidence package",
+  "executive briefing package",
+  "proof package",
+  "diligence package",
+  "download review package",
+  "view sample package",
+  "no review package",
+  "select a review package",
+  "open review packages",
+  "create review package",
+  "finalize review package",
 ] as const;
 
 export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [

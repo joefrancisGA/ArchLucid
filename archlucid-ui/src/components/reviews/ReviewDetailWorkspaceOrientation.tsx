@@ -1,7 +1,7 @@
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Explains the buyer package workflow stepper vs in-page review section tabs. */
+/** Explains the buyer review workflow stepper vs in-page review section tabs. */
 export function ReviewDetailWorkspaceOrientation(): React.JSX.Element {
   return (
     <div
@@ -10,7 +10,7 @@ export function ReviewDetailWorkspaceOrientation(): React.JSX.Element {
       role="note"
     >
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Review package workflow</span>{" "}
+        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Review workflow</span>{" "}
         (step strip above) walks finalized deliverables — executive summary, signed record, evidence trail,
         governance, and audit — for sponsors and auditors.
       </p>

@@ -62,7 +62,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
         <TabsContent value="executive" className="pt-4" data-testid="buyer-deliverables-panel-executive">
           {execRows.length === 0 ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              No executive or sponsor-scoped outputs are listed for this package in this view.
+              No executive or sponsor-scoped outputs are listed for this review in this view.
             </p>
           ) : (
             <ArtifactListTable
@@ -80,7 +80,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
         <TabsContent value="arb" className="pt-4" data-testid="buyer-deliverables-panel-arb">
           {arbRows.length === 0 ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              No architecture review board or audit-scoped outputs are listed for this package in this view.
+              No architecture review board or audit-scoped outputs are listed for this review in this view.
             </p>
           ) : (
             <ArtifactListTable

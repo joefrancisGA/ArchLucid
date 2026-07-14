@@ -33,7 +33,7 @@ export function ReplaySelectedPackageSummary(props: ReplaySelectedPackageSummary
         className="rounded-md border border-dashed border-neutral-300 p-4 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
         data-testid="replay-selected-package-summary-empty"
       >
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Package details appear here after you select a finalized review package.</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Package details appear here after you select a finalized review.</p>
       </section>
     );
   }
@@ -51,7 +51,7 @@ export function ReplaySelectedPackageSummary(props: ReplaySelectedPackageSummary
           <dd className="m-0">{reviewPackageArchitectureName(selectedRun)}</dd>
         </div>
         <div>
-          <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review package</dt>
+          <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review</dt>
           <dd className="m-0">
             <Link href={`/reviews/${selectedRun.runId}`} className={OPERATOR_LINK.nav}>
               {buyerFacingReviewTitleFromSummary(selectedRun)}

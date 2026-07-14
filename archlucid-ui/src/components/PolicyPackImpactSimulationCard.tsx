@@ -41,7 +41,7 @@ export function PolicyPackImpactSimulationCard(props: PolicyPackImpactSimulation
           <p className={cn("m-0 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             Compare how proposed threshold changes on{" "}
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">{label}</span> would affect historic
-            review packages before you publish or assign a new version.
+            reviews before you publish or assign a new version.
           </p>
         </div>
         <GovernanceDryRunModal policyPackId={selectedPackId} />

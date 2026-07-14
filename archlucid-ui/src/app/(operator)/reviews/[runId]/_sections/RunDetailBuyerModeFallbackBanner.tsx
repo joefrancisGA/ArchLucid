@@ -29,7 +29,7 @@ export function RunDetailBuyerModeFallbackBanner(
     >
       <p className="m-0 font-semibold">Real mode unavailable for this review</p>
       <p className="m-0 mt-1 leading-snug">
-        This review package used simulator fallback because real-mode execution was unavailable at run time.
+        This review used simulator fallback because real-mode execution was unavailable at run time.
       </p>
     </div>
   );

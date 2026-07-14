@@ -71,7 +71,7 @@ export function GetStartedPageClient(): ReactElement {
             <p className={cn("m-0", MARKETING_TYPOGRAPHY.eyebrow)}>Explore without signing in</p>
             <h3 className={cn("mt-2", MARKETING_TYPOGRAPHY.sectionTitle)}>Open an illustrative review</h3>
             <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-              Choose an industry and inspect a completed sample review package immediately.
+              Choose an industry and inspect a completed sample review immediately.
             </p>
             <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
               Best for understanding the review output before creating a workspace.

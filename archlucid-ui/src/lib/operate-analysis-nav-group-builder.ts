@@ -32,7 +32,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       {
         href: "/ask",
         label: OPERATOR_NAV_LINK_LABELS.askReview,
-        title: this.shortcutTitle("Ask questions about a review package", "alt+a"),
+        title: this.shortcutTitle("Ask questions about a review", "alt+a"),
         keyShortcut: "alt+a",
         icon: MessageSquare,
         tier: "essential",

@@ -16,7 +16,7 @@ export function OperatorDemoStaticBanner(props: OperatorDemoStaticBannerProps): 
 
   const bannerText = demoMode
     ? "Cached showcase data — presenter-safe if the live API is offline."
-    : "Review package aligned with the Claims Intake workspace; connect a tenant for live data.";
+    : "Review aligned with the Claims Intake workspace; connect a tenant for live data.";
 
   return (
     <div

@@ -11,7 +11,7 @@ import {
   writeFrictionlessTrialSessionEnabled,
 } from "@/lib/frictionless-trial-session";
 
-/** Enables a browser-only frictionless trial session and opens the showcase review package. */
+/** Enables a browser-only frictionless trial session and opens the showcase review. */
 export function FrictionlessTrialLauncher() {
   const router = useRouter();
 
@@ -23,7 +23,7 @@ export function FrictionlessTrialLauncher() {
 
   return (
     <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="frictionless-trial-launcher">
-      Opening the sample review package…
+      Opening the sample review…
     </p>
   );
 }

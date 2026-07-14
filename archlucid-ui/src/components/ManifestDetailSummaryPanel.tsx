@@ -104,7 +104,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         </p>
         <p className={cn("m-0 mt-2 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {isCuratedDemo
-            ? "Policy pack used for this review package — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
+            ? "Policy pack used for this review — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
             : "Defines referenced checks used in diligence; approvals stay human-governed and do not bypass deployment authority."}
         </p>
         {buyerPolicyPackHref !== null ? (
@@ -148,7 +148,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             <Link className={OPERATOR_LINK.nav} href={`/reviews/${summary.runId}`}>
               governed architecture review export
             </Link>{" "}
-            and evidence package — use the download actions on this page when available.
+            and evidence bundle — use the download actions on this page when available.
           </p>
         ) : (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No decisions recorded for this signed decision record.</p>
@@ -180,7 +180,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           </ul>
         ) : summary.warningCount > 0 ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Monitored-risk detail travels with the governed evidence package — use{" "}
+            Monitored-risk detail travels with the governed evidence bundle — use{" "}
             <Link className={OPERATOR_LINK.nav} href={`/reviews/${summary.runId}`}>
               review detail
             </Link>{" "}

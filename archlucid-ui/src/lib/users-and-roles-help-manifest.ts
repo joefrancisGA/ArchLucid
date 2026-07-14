@@ -89,7 +89,7 @@ const ROLE_INTENDED_USERS: Readonly<Record<BuiltinRoleName, string>> = {
 export const USERS_AND_ROLES_CAPABILITY_LABELS: Readonly<Record<UsersAndRolesCapabilityId, string>> = {
   "view-reviews": "View architectures and reviews",
   "create-reviews": "Create architectures and start reviews",
-  "finalize-reviews": "Finalize review packages",
+  "finalize-reviews": "Finalize reviews",
   "finding-feedback": "Submit finding feedback",
   "configure-governance": "Activate governance policies",
   "author-policy-packs": "Author policy packs",
@@ -136,7 +136,7 @@ export const USERS_AND_ROLES_FAQ: readonly UsersAndRolesFaqItem[] = [
     id: "admin-vs-operator",
     question: "What is the difference between an administrator and an architect?",
     answer:
-      "Administrators manage users, billing, integrations, and governance activation. Architects (Operator role) run reviews, finalize packages, and configure policy packs without full workspace administration.",
+      "Administrators manage users, billing, integrations, and governance activation. Architects (Operator role) run reviews, finalize reviews, and configure policy packs without full workspace administration.",
   },
   {
     id: "reviewer-invite",

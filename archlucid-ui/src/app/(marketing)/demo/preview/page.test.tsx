@@ -104,7 +104,7 @@ describe("Demo preview marketing body", () => {
     expect(screen.getByTestId("demo-preview-result-at-a-glance")).toBeInTheDocument();
     expect(screen.queryByTestId("demo-preview-guided-callouts")).not.toBeInTheDocument();
     expect(screen.queryByText("How to read this walkthrough")).not.toBeInTheDocument();
-    expect(screen.queryByText("Review package summary")).not.toBeInTheDocument();
+    expect(screen.queryByText("Review summary")).not.toBeInTheDocument();
     expect(screen.getByTestId("demo-preview-signin-callout")).toBeInTheDocument();
     expect(screen.getByTestId("demo-preview-signup-cta")).toBeInTheDocument();
   });
@@ -119,7 +119,7 @@ describe("Demo preview marketing body", () => {
     );
 
     expect(screen.getByTestId("demo-preview-hero")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "See a finalized architecture review package" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "See a finalized architecture review" })).toBeInTheDocument();
     expect(screen.getByTestId("demo-preview-result-at-a-glance")).toHaveTextContent("Review result at a glance");
     expect(screen.getByTestId("demo-preview-review-trail")).toBeInTheDocument();
     expect(screen.getByTestId("demo-preview-artifacts")).toBeInTheDocument();

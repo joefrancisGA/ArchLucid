@@ -110,7 +110,7 @@ describe("buildFirstPilotReadinessRows", () => {
     expect(rows.find((r) => r.id === "review-pipeline")?.summary).toContain("Read-only role cannot execute or finalize");
   });
 
-  it("omits ROI baseline readiness before the first committed review package (TB-349)", () => {
+  it("omits ROI baseline readiness before the first committed review (TB-349)", () => {
     const rows = buildFirstPilotReadinessRows({
       healthStatus: "Healthy",
       healthLoadFailed: false,

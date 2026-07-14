@@ -23,9 +23,9 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+r",
-    label: "Review packages",
+    label: "Reviews",
     route: "/reviews?projectId=default",
-    description: "Open review packages list",
+    description: "Open reviews list",
   },
   {
     key: "alt+c",
@@ -37,7 +37,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
     key: "alt+p",
     label: "Validate",
     route: "/replay",
-    description: "Validate review package",
+    description: "Validate review",
   },
   {
     key: "alt+a",

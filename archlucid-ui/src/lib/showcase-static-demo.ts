@@ -163,7 +163,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       unresolvedIssueCount: 0,
       status: "Committed",
       operatorSummary:
-        "Finalized architecture review package for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
+        "Finalized architecture review for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
         "and sponsor-facing KPIs consolidated for sign-off.",
     },
     authorityChain: {

@@ -304,7 +304,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           status="Finalized"
           domain="pipeline"
           className="mt-px"
-          ariaLabel="Review package outcome: finalized"
+          ariaLabel="Review outcome: finalized"
           title={isBuyerPolishedOperatorShellEnv() ? BUYER_SEALED_MANIFEST_TOOLTIP : undefined}
         />
       ) : (
@@ -502,7 +502,7 @@ export function RunDetailOutcomeCards({
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Exports</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review package, decision record, audit trail</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review, decision record, audit trail</dd>
               </div>
             </dl>
           ) : null}

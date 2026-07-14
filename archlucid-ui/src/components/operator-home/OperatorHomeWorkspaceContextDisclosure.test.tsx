@@ -82,7 +82,7 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
 
     expect(screen.getByRole("heading", { level: 2, name: "Workspace metrics and status" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-workspace-metrics-summary")).toBeInTheDocument();
-    expect(screen.getByText("Review packages")).toBeInTheDocument();
+    expect(screen.getByText("Reviews")).toBeInTheDocument();
     expect(screen.getByText("Open findings")).toBeInTheDocument();
     expect(screen.getByText("Governance warnings")).toBeInTheDocument();
     expect(screen.getByText("Evidence sources")).toBeInTheDocument();
@@ -112,7 +112,7 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
     expect(screen.getByRole("button", { name: "Hide metrics details" })).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("renders loaded workspace metrics when review packages exist", () => {
+  it("renders loaded workspace metrics when reviews exist", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
 
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={loadedRunsDashboard} />);

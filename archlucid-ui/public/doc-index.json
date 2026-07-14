@@ -259,7 +259,7 @@
   },
   {
     "title": "First-review guide",
-    "summary": "Complete one review package before opening deeper governance, reporting, or integration workflows.",
+    "summary": "Complete one review before opening deeper governance, reporting, or integration workflows.",
     "category": "Go-to-market",
     "url": "/help/first-hour-operator-path"
   },
@@ -289,7 +289,7 @@
   },
   {
     "title": "Review guide",
-    "summary": "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review package.",
+    "summary": "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
     "category": "Go-to-market",
     "url": "/help/review-guide"
   },
@@ -397,7 +397,7 @@
   },
   {
     "title": "Evidence intake",
-    "summary": "How evidence enters the review package and what operators should verify before finalize.",
+    "summary": "How evidence enters the review and what operators should verify before finalize.",
     "category": "Operations",
     "url": "/help/evidence-intake"
   },
@@ -421,7 +421,7 @@
   },
   {
     "title": "First value in 20 minutes",
-    "summary": "Time-boxed runbook for a first governed review package when platform wiring is already green.",
+    "summary": "Time-boxed runbook for a first governed review when platform wiring is already green.",
     "category": "Operations",
     "url": "/help/first-value-20-minutes"
   },
@@ -522,8 +522,8 @@
     "url": "/help/repeat-review-loop"
   },
   {
-    "title": "Review packages",
-    "summary": "Browse, inspect, and export governed review packages in the architect workspace.",
+    "title": "Reviews",
+    "summary": "Browse, inspect, and export governed reviews in the architect workspace.",
     "category": "Operations",
     "url": "/help/review-packages"
   },

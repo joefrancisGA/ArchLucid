@@ -42,7 +42,7 @@ export const WELCOME_OPERATOR_EVIDENCE_STEP = {
 
 /** First-visit help banner on operator home (TB-342). */
 export const FIRST_VISIT_HELP_THREE_THINGS =
-  "start one review, explore a sample package, then invite a reviewer for sign-off.";
+  "start one review, explore a sample review, then invite a reviewer for sign-off.";
 
 /** Phrases that must not appear in first-run tour copy (implementation / internal jargon). */
 export const ONBOARDING_TOUR_BANNED_PHRASES: readonly string[] = [

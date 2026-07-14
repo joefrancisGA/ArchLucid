@@ -13,7 +13,7 @@ export type RunsListCompareSelectionBarProps = {
   readonly className?: string;
 };
 
-/** Toolbar for comparing two selected review packages from the reviews list. */
+/** Toolbar for comparing two selected reviews from the reviews list. */
 export function RunsListCompareSelectionBar(props: RunsListCompareSelectionBarProps): React.JSX.Element | null {
   const count = props.selectedRunIds.length;
 
@@ -37,7 +37,7 @@ export function RunsListCompareSelectionBar(props: RunsListCompareSelectionBarPr
       role="status"
     >
       <span className={cn(OPERATOR_TYPOGRAPHY.body, "text-al-text-primary")}>
-        {count} review package{count === 1 ? "" : "s"} selected
+        {count} review{count === 1 ? "" : "s"} selected
         {count === 1 ? " — select one more to compare" : null}
       </span>
       {canCompare && compareHref !== null ? (

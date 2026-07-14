@@ -12,7 +12,7 @@ export type RunDetailReviewPackageSectionProps = {
   readonly showExportActions: boolean;
 };
 
-/** Review package outputs when finalized; guidance when not. */
+/** Review outputs when finalized; guidance when not. */
 export function RunDetailReviewPackageSection(
   props: RunDetailReviewPackageSectionProps,
 ): React.JSX.Element {
@@ -25,21 +25,21 @@ export function RunDetailReviewPackageSection(
       data-testid="run-detail-review-package"
     >
       <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
-        Review package
+        Review
       </h2>
       {!finalized ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Finalize the review to create the shareable review package.
+          Finalize the review to create the shareable review.
         </p>
       ) : (
         <div className="space-y-3">
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            This review package is finalized and available for export or sharing.
+            This review is finalized and available for export or sharing.
           </p>
           <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
             <li>Finalized review record</li>
             <li>Findings report ({props.findingCount ?? "—"} findings)</li>
-            <li>Evidence package ({props.artifactCount} artifact{props.artifactCount === 1 ? "" : "s"})</li>
+            <li>Evidence bundle ({props.artifactCount} artifact{props.artifactCount === 1 ? "" : "s"})</li>
             <li>Decision record</li>
           </ul>
           {props.showExportActions ? (

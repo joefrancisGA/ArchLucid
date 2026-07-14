@@ -180,7 +180,7 @@ export function deriveRoiSummaryDataNeeds(
 
   return [
     {
-      label: "At least one finalized review package",
+      label: "At least one finalized review",
       met: committedReviews > 0,
     },
     {
@@ -240,7 +240,7 @@ export function formatRoiSummaryUsdDisplay(hours: number, usdEstimate: number, s
 
 export function interpretRoiSummaryMeaning(metrics: RoiSummaryPeriodMetrics, hourlyUsd: number): string {
   if (metrics.hours <= 1e-9) {
-    return "ArchLucid needs finalized review packages before it can estimate review-time savings for this period. Complete a review or add governance signals to unlock a directional value estimate.";
+    return "ArchLucid needs finalized reviews before it can estimate review-time savings for this period. Complete a review or add governance signals to unlock a directional value estimate.";
   }
 
   const hoursLabel = formatHours(metrics.hours);

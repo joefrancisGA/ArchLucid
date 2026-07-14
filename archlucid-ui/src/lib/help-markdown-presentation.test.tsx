@@ -150,7 +150,7 @@ describe("help-markdown-presentation", () => {
       "An empty artifact list can be valid: manifest exists but none stored for that manifest. See [/runs/new](/runs/new).";
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/operator-shell.md");
 
-    expect(prepared).toContain("review package exists");
+    expect(prepared).toContain("review exists");
     expect(prepared).toContain("](/reviews/new)");
     expect(prepared.includes("manifest exists")).toBe(false);
     expect(prepared.includes("/runs/")).toBe(false);

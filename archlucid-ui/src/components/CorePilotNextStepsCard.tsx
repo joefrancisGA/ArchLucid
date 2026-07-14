@@ -100,7 +100,7 @@ function checkpointNextAction(
         ? "Next action: open Reviews and run Execute to generate findings."
         : "Next action: open this review and run Execute to generate findings.";
     case "commit":
-      return "Next action: open review detail and commit the signed review package.";
+      return "Next action: open review detail and commit the signed review.";
     case "export":
       return "Next action: export sponsor-facing markdown or PDF from review detail.";
     case "sponsor-ready":
@@ -159,7 +159,7 @@ function FirstReviewCheckpointStrip(props: {
         <StatusTag kind="neutral" label={`Step ${FIRST_REVIEW_CHECKPOINT_ORDER.indexOf(activeCheckpoint.id) + 1} of 5`} />
       </div>
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Operator lens: finish the highlighted checkpoint. Executive lens: sponsor-ready starts once the review package is committed and exported.
+        Operator lens: finish the highlighted checkpoint. Executive lens: sponsor-ready starts once the review is committed and exported.
       </p>
       <ol className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
         {checkpoints.map((checkpoint, index) => (
@@ -316,7 +316,7 @@ export function CorePilotNextStepsCard() {
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath}
         legacyStorageKeys={[NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY]}
         defaultExpanded={true}
-        collapsedSummary="First review package finalized — open detail, CLI shortcuts, and optional Operate links."
+        collapsedSummary="First review finalized — open detail, CLI shortcuts, and optional Operate links."
         headerAside={<StepBadge label={corePilotStepBadgeLabel("committed")} />}
       >
         <FirstReviewCheckpointStrip
@@ -326,7 +326,7 @@ export function CorePilotNextStepsCard() {
           latestRunReadyToFinalize={latestRunReadyToFinalize}
         />
         <p className={cn("mb-3 mt-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          First review package is finalized. Open the architecture package and findings — export sponsor-ready
+          First review is finalized. Open the architecture review and findings — export sponsor-ready
           Markdown/PDF from review detail when needed; CLI shortcuts below speed support tickets.
         </p>
 
@@ -417,7 +417,7 @@ export function CorePilotNextStepsCard() {
               className="font-medium text-blue-700 underline dark:text-blue-400"
               data-testid="pilot-active-step-link"
             >
-              Review — complete the assessment and finalize the package
+              Review — complete the assessment and finalize the review
             </Link>
           </li>
           <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
@@ -470,11 +470,11 @@ export function CorePilotNextStepsCard() {
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 2 pending">
           <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>2.</span>
-          <span>Evidence — open the evidence trail after your review package starts.</span>
+          <span>Evidence — open the evidence trail after your review starts.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 3 pending">
           <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>3.</span>
-          <span>Review — complete the assessment and finalize the package from review detail.</span>
+          <span>Review — complete the assessment and finalize the review from review detail.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
           <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>4.</span>

@@ -45,12 +45,12 @@ describe("DownloadManifestButton", () => {
   });
 
   it("surfaces API failures", async () => {
-    vi.mocked(fetchManifestJsonText).mockRejectedValue(new Error("Review package not found"));
+    vi.mocked(fetchManifestJsonText).mockRejectedValue(new Error("Review not found"));
 
     render(<DownloadManifestButton runId="missing-run" />);
 
     fireEvent.click(screen.getByTestId("download-manifest-json-button"));
 
-    expect(await screen.findByTestId("download-manifest-json-error")).toHaveTextContent("Review package not found");
+    expect(await screen.findByTestId("download-manifest-json-error")).toHaveTextContent("Review not found");
   });
 });

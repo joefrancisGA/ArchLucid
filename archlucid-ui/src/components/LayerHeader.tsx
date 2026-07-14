@@ -69,7 +69,7 @@ export function LayerHeader({
           title={ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
         >
           <>
-            <InlineGuidanceLabel label="Review package and evidence trail:" />{" "}
+            <InlineGuidanceLabel label="Review and evidence trail:" />{" "}
             {ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
           </>
         </p>

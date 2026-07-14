@@ -21,7 +21,7 @@ describe("AskQuestionForm", () => {
       />,
     );
 
-    expect(screen.getByTestId("ask-select-review-helper")).toHaveTextContent("Select a review package first.");
+    expect(screen.getByTestId("ask-select-review-helper")).toHaveTextContent("Select a review first.");
     expect(screen.getByTestId("ask-prompts-sample-callout")).toHaveTextContent("sample evidence graph");
     expect(screen.getByRole("link", { name: "sample evidence graph" })).toHaveAttribute(
       "href",

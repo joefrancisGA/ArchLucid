@@ -79,7 +79,7 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
               malformed: goldenMalformed,
             })}
           </dd>
-          <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Supplementary review / review package diff</dt>
+          <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Supplementary review / review diff</dt>
           <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {outcomeLabel({
               hasValue: result !== null,

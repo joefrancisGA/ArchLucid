@@ -104,6 +104,6 @@ describe("HelpUsersAndRolesGuideView", () => {
     const matrix = screen.getByTestId("users-and-roles-capability-matrix");
     expect(within(matrix).getByRole("columnheader", { name: "Capability" })).toBeInTheDocument();
     expect(within(matrix).getByRole("columnheader", { name: "Admin" })).toBeInTheDocument();
-    expect(within(matrix).getByLabelText("Finalize review packages for Reader: Not allowed")).toBeInTheDocument();
+    expect(within(matrix).getByLabelText("Finalize reviews for Reader: Not allowed")).toBeInTheDocument();
   });
 });

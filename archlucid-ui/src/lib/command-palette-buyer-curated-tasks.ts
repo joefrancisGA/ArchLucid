@@ -24,9 +24,9 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     searchValue: "executive summary sponsor roi decision",
   },
   {
-    label: "Review package",
+    label: "Review",
     href: `/reviews/${showcaseRunEnc}`,
-    searchValue: "review package claims intake modernization",
+    searchValue: "review claims intake modernization",
   },
   {
     label: SIGNED_MANIFEST_LABEL,

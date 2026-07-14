@@ -64,7 +64,7 @@ describe("FirstWeekRouteGuidance", () => {
     expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Claude, GPT, or Gemini/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Expand Review package guidance/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Expand Review guidance/i }));
 
     expect(screen.getByRole("link", { name: "Open exports section" })).toHaveAttribute(
       "href",

@@ -11,8 +11,8 @@ import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ArchLucid · See a finalized review package (demo)",
-  description: "A live review package preview powered by the ArchLucid demo seed.",
+  title: "ArchLucid · See a finalized review (demo)",
+  description: "A live review preview powered by the ArchLucid demo seed.",
   robots: { index: false, follow: false },
 };
 

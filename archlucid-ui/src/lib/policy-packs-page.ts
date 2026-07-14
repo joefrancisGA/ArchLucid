@@ -18,7 +18,7 @@ export const POLICY_PACKS_ACTIVE_PACK_CARD_TITLE = "Active policy pack";
 export const POLICY_PACKS_ENFORCED_RULES_TITLE = "Rules applied to this review";
 
 export const POLICY_PACKS_VIEW_EXPLANATION_SUMMARY =
-  "Policy packs define the standards and checks applied to review packages in this workspace.";
+  "Policy packs define the standards and checks applied to reviews in this workspace.";
 
 export const POLICY_PACKS_VIEW_EXPLANATION_NEXT_ACTION =
   "Inspect the active pack, review enforced rules, or open the catalog to compare available packs.";

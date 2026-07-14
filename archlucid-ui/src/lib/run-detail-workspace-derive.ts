@@ -410,11 +410,11 @@ export function deriveRecommendedWorkspaceActions(input: {
     actions.push({
       id: "finalize-review",
       title: "Finalize review",
-      reason: "Analysis is complete — finalize to create the shareable review package.",
+      reason: "Analysis is complete — finalize to create the shareable review.",
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
       href: buildReviewDetailTabHref(input.runId, "review-package"),
-      actionLabel: "Open review package",
+      actionLabel: "Open review",
     });
   }
 

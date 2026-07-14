@@ -101,7 +101,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "",
     "sectionHeading": "Admin diagnostics — overview",
-    "excerpt": "Use these checks when a workspace symptom points to platform health rather than a single review package."
+    "excerpt": "Use these checks when a workspace symptom points to platform health rather than a single architecture review."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
@@ -178,7 +178,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "artifact-list-empty-or-download-404",
     "sectionHeading": "Artifact list empty or download 404",
-    "excerpt": "- An empty artifact list (`[]`) can be valid: signed review record exists but no synthesized files yet or none stored for that review package. - Bundle ZIP 404 can mean “no bundle” vs “review package not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
+    "excerpt": "- An empty artifact list (`[]`) can be valid: signed review record exists but no synthesized files yet or none stored for that architecture review. - Bundle ZIP 404 can mean “no bundle” vs “review not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",

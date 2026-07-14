@@ -94,7 +94,7 @@ function GovernanceFindingsQueueTableHead(props: {
         ) : (
           <>
             <EnterpriseTableHeaderCell>Risk</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Source review package</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Source review</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Disposition</EnterpriseTableHeaderCell>

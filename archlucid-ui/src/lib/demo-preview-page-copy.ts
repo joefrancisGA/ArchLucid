@@ -2,14 +2,14 @@
 
 export const DEMO_PREVIEW_EYEBROW = "Interactive sample";
 
-export const DEMO_PREVIEW_HERO_TITLE = "See a finalized architecture review package";
+export const DEMO_PREVIEW_HERO_TITLE = "See a finalized architecture review";
 
 export const DEMO_PREVIEW_HERO_SUPPORTING =
   "Explore how ArchLucid connects review conclusions to evidence, decisions, governance approval, audit history, and reusable deliverables.";
 
 export const DEMO_PREVIEW_SAMPLE_TITLE = "Claims Intake Modernization";
 
-export const DEMO_PREVIEW_SAMPLE_SUBTITLE = "Illustrative review package";
+export const DEMO_PREVIEW_SAMPLE_SUBTITLE = "Illustrative review";
 
 export const DEMO_PREVIEW_ILLUSTRATIVE_BADGE = "Illustrative sample";
 
@@ -37,7 +37,7 @@ export const DEMO_PREVIEW_RECOMMENDATION_LABEL = "Recommendation";
 export const DEMO_PREVIEW_EVIDENCE_BASIS_LABEL = "Evidence basis";
 
 export const DEMO_PREVIEW_EVIDENCE_BASIS_TEXT =
-  "The conclusion is supported by the finalized review package, retained evidence citations, and demo-labeled review artifacts.";
+  "The conclusion is supported by the finalized review, retained evidence citations, and demo-labeled review artifacts.";
 
 export const DEMO_PREVIEW_CONDITIONS_LABEL = "Conditions";
 
@@ -58,7 +58,7 @@ export const DEMO_PREVIEW_TECHNICAL_DETAILS_DISCLOSURE = "Technical details";
 export const DEMO_PREVIEW_DELIVERABLES_HEADING = "Included deliverables";
 
 export const DEMO_PREVIEW_DELIVERABLES_SUPPORTING =
-  "The finalized package provides reusable records for sponsors, architects, governance teams, and auditors.";
+  "The finalized review provides reusable records for sponsors, architects, governance teams, and auditors.";
 
 export const DEMO_PREVIEW_SIGNIN_CALLOUT_HEADING = "Explore the complete review in your workspace";
 

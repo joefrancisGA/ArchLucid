@@ -24,7 +24,7 @@ describe("resolveReviewPackageAttentionLine", () => {
       hasGoldenManifest: false,
     });
 
-    expect(line).toBe("Finalize the review package when findings and evidence are ready.");
+    expect(line).toBe("Finalize the review when findings and evidence are ready.");
   });
 
   it("surfaces blocking finding counts on finalized packages", () => {
