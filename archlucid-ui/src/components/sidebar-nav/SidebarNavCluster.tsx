@@ -130,6 +130,8 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
                 buyerPolishedShell={props.buyerPolishedShell}
                 showQuestionSubtitle={!suppressQuestionSubtitles}
+                navGroupId={group.id}
+                unlockPhase={props.effectiveOperateUnlockPhase}
                 onNavigate={props.onNavLinkNavigate}
                 afterLabel={
                   presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null

@@ -50,7 +50,7 @@ import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-vis
 import { resolveOperateNavUnlockPhase } from "@/lib/usability/operate-advanced-features-disclosure";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
-import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
+import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -519,6 +519,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
 
   const navigate = useCallback(
     (href: string) => {
+      stampRouteReferrer("palette");
       setOpen(false);
       router.push(href);
     },

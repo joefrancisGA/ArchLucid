@@ -90,6 +90,8 @@ export function SidebarAdministrationSection(props: SidebarAdministrationSection
                     active={isNavLinkActive(props.pathname, presented.href)}
                     advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
                     buyerPolishedShell={props.buyerPolishedShell}
+                    navGroupId={row.group.id}
+                    unlockPhase={props.effectiveOperateUnlockPhase}
                     onNavigate={props.onNavLinkNavigate}
                   />
                 );

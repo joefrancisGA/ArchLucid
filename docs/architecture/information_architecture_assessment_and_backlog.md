@@ -513,11 +513,12 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Change:** Standardize crumbs on "Help"; keep top-bar entry (adding a sidebar footer "Help" link is optional — defer to beta feedback).
 - **Acceptance:** all help crumbs share one parent label.
 
-**IA-019 · Navigation and route-entry telemetry** — **P1 · S**
+**IA-019 · Navigation and route-entry telemetry** — **Done (2026-07-14)** — **P1 · S**
 - **Problem:** Web Vitals telemetry exists (TB-692) but there is no navigation-click or route-entry funnel to validate progressive unlock, consolidated omissions, or the reports family. `[PI]` for absence of nav-click events in the nav components; `[SMI]` overall.
 - **Change:** Emit AppInsights custom events: `NavLinkClick` (href, group, tier, unlock phase, shell mode), `RouteEntered` (normalized route, referrer type: nav/palette/card/deep-link), `UnlockPhaseChanged`. Dimensions must reuse the normalized-route convention from `WebVitalsMetric`.
 - **Acceptance:** dashboards can answer: % of sessions reaching Governance pre/post unlock; palette-only destination usage; draft resume rate; report-surface split.
 - **Priority:** P1 — it gates every deferred structural decision. **Risk if deferred:** post-beta IA decisions stay opinion-based.
+- **Shipped:** `operator-navigation-telemetry.ts`, `operator-navigation-referrer.ts`, `OperatorRouteEnteredTelemetry`, sidebar/palette/unlock wiring; tests in `operator-navigation-telemetry.test.ts`.
 
 **IA-020 · Remove the governance-view mode branch** — **P1 · S (D2 resolved 2026-07-14 — delete)**
 - **Problem:** Vocabulary switching, presentation gate, and a nav filter exist for "governance view"; the toggle is not mounted and the nav filter is unused outside tests. Mode is enable-able only via `localStorage`. `[PI]`
@@ -540,7 +541,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 |---|---|---|
 | **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 ✓ | Dead ends, stranded work, wrong mental model, empty flagship |
 | **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004 ✓, IA-010 ✓, IA-012 ✓, IA-013 ✓ | XS copy items; batch into one terminology PR so drift guards update once |
-| **Wave 3 — early beta (P1 structural-lite)** | IA-019 (telemetry first), IA-006, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
+| **Wave 3 — early beta (P1 structural-lite)** | IA-019 ✓, IA-006, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
 | **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |
 | **Wave 5 — post-telemetry (P2/P3)** | IA-009, IA-015, IA-021, IA-022 | Each is explicitly gated on usage evidence |
 

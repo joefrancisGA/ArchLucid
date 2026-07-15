@@ -1,3 +1,4 @@
+import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
 import { ensureAppInsights } from "@/lib/telemetry";
 
 export type ArchitectureDraftResumeSource = "reviews-hub" | "architectures-new" | "architectures-list";
@@ -12,6 +13,8 @@ export function trackArchitectureDraftResumeClick(
   if (trimmedArchitectureId.length === 0) {
     return;
   }
+
+  stampRouteReferrer("card");
 
   void ensureAppInsights().then((ai) => {
     if (ai === null) {

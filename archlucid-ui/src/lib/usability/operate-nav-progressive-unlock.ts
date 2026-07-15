@@ -1,3 +1,8 @@
+import {
+  trackUnlockPhaseChanged,
+  type OperateNavUnlockPhaseChangeReason,
+} from "@/lib/operator-navigation-telemetry";
+
 /**
  * Progressive Operate nav unlock: pilot-only (0) → analysis (1) → governance (2).
  */
@@ -99,7 +104,12 @@ export function readOperateNavUnlockPhase(): OperateNavUnlockPhase {
   return 0;
 }
 
-export function writeOperateNavUnlockPhase(phase: OperateNavUnlockPhase): void {
+export function writeOperateNavUnlockPhase(
+  phase: OperateNavUnlockPhase,
+  reason: OperateNavUnlockPhaseChangeReason = "persist",
+): void {
+  const previousPhase = readOperateNavUnlockPhase();
+
   if (typeof window === "undefined") {
     return;
   }
@@ -111,10 +121,18 @@ export function writeOperateNavUnlockPhase(phase: OperateNavUnlockPhase): void {
   catch {
     /* ignore */
   }
+
+  trackUnlockPhaseChanged({
+    previousPhase,
+    newPhase: phase,
+    reason,
+  });
 }
 
-export function advanceOperateNavUnlockToAnalysis(): void {
-  writeOperateNavUnlockPhase(1);
+export function advanceOperateNavUnlockToAnalysis(
+  reason: OperateNavUnlockPhaseChangeReason = "first-committed-review",
+): void {
+  writeOperateNavUnlockPhase(1, reason);
 }
 
 function readLocalStorageFlag(key: string): boolean {
@@ -168,8 +186,10 @@ export function dismissOperateNavAutoUnlockHint(): void {
   clearOperateNavAutoUnlockHintPending();
 }
 
-export function advanceOperateNavUnlockToGovernance(): void {
-  writeOperateNavUnlockPhase(2);
+export function advanceOperateNavUnlockToGovernance(
+  reason: OperateNavUnlockPhaseChangeReason = "compare-visit",
+): void {
+  writeOperateNavUnlockPhase(2, reason);
 }
 
 export function filterNavLinksByOperateUnlockPhase<T extends { href: string }>(

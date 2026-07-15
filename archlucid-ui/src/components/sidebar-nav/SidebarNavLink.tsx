@@ -5,6 +5,9 @@ import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
 import type { NavLinkItem } from "@/lib/nav-config.types";
+import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
+import { trackNavLinkClick } from "@/lib/operator-navigation-telemetry";
+import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 import { Badge } from "@/components/ui/badge";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
@@ -45,6 +48,8 @@ type SidebarNavLinkProps = {
   readonly buyerPolishedShell: boolean;
   readonly showQuestionSubtitle?: boolean;
   readonly afterLabel?: ReactNode;
+  readonly navGroupId?: string;
+  readonly unlockPhase?: OperateNavUnlockPhase;
   readonly onNavigate?: () => void;
 };
 
@@ -76,6 +81,16 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
         presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
       }
       onClick={() => {
+        if (props.navGroupId !== undefined && props.unlockPhase !== undefined) {
+          trackNavLinkClick({
+            href: presented.href,
+            group: props.navGroupId,
+            tier: presented.tier,
+            unlockPhase: props.unlockPhase,
+          });
+          stampRouteReferrer("nav");
+        }
+
         props.onNavigate?.();
       }}
     >
