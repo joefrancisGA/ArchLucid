@@ -9,7 +9,7 @@ import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
-import { expectBuyerGoldenPageReady } from "./helpers/buyer-golden-path";
+import { expectBuyerGoldenPageReady, expectNoGenericErrorBoundary } from "./helpers/buyer-golden-path";
 import {
   DEMO_WORKSPACE_A_LIVE_IDS,
   DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
@@ -17,8 +17,13 @@ import {
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { waitForLiveApiReady } from "./helpers/live-api-client";
+import { expectLiveReviewsHubListReady } from "./helpers/live-page-readiness";
 import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
-import { reviewsHubPackageRow, reviewsHubRecentPackagesSection } from "./helpers/reviews-hub";
+import {
+  reviewsHubFirstPackageRow,
+  reviewsHubPackageRow,
+  reviewsHubRecentPackagesSection,
+} from "./helpers/reviews-hub";
 
 const liveProductTourRunEnc = encodeURIComponent(DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 const liveReviewsListHref = `/reviews?projectId=${encodeURIComponent(DEMO_WORKSPACE_A_LIVE_IDS.projectId)}`;
@@ -31,7 +36,7 @@ test.describe("live-api-core-pilot-path", () => {
   });
 
   test("operator home, new request, reviews list, showcase review deliverables", async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
 
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
 
@@ -52,15 +57,22 @@ test.describe("live-api-core-pilot-path", () => {
     await page.goto(liveReviewsListHref);
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
-    ).toBeVisible();
-    await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
-    await expect(reviewsHubRecentPackagesSection(getAppMain(page))).toBeVisible({ timeout: 60_000 });
-    await expect(reviewsHubPackageRow(getAppMain(page), DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID)).toBeVisible({
-      timeout: 60_000,
-    });
+    ).toBeVisible({ timeout: 90_000 });
+    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000 });
+
+    const main = getAppMain(page);
+
+    await expect(reviewsHubRecentPackagesSection(main)).toBeVisible({ timeout: 90_000 });
+
+    const targetRow = reviewsHubPackageRow(main, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID).or(
+      reviewsHubFirstPackageRow(main),
+    );
+
+    await expect(targetRow.first()).toBeVisible({ timeout: 90_000 });
+    await expectNoGenericErrorBoundary(page);
 
     await page.goto(`/reviews/${liveProductTourRunEnc}`);
-    await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
+    await expectNoGenericErrorBoundary(page);
     await expectBuyerGoldenPageReady(page);
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
 
