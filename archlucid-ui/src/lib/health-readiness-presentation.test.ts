@@ -13,6 +13,8 @@ describe("health-readiness-presentation", () => {
     expect(humanizeHealthCheckId("sql_system_plane")).toBe("System database");
     expect(humanizeHealthCheckId("graph-projection-cache")).toBe("Evidence graph cache");
     expect(humanizeHealthCheckId("retrieval_index_freshness")).toBe("Search index freshness");
+    expect(humanizeHealthCheckId("keyvault")).toBe("Secrets store connectivity");
+    expect(humanizeHealthCheckId("key_vault")).toBe("Secrets store access");
   });
 
   it("maps skipped statuses to customer-safe labels", () => {
@@ -37,6 +39,13 @@ describe("health-readiness-presentation", () => {
       title: "All required services are healthy",
       subtitle: "No blocking issues detected for this workspace.",
     });
+  });
+
+  it("explains skipped keyvault checks with secrets-store language", () => {
+    const row = presentReadinessRow("keyvault", "skipped");
+
+    expect(row.displayStatus).toBe("Not configured");
+    expect(row.explanation).toBe("Secrets store is not configured for this environment.");
   });
 
   it("explains skipped checks in plain language", () => {
