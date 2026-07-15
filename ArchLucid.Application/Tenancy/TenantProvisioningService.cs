@@ -81,8 +81,11 @@ public sealed class TenantProvisioningService(
 
         try
         {
-            await _tenantRepository.InsertTenantAsync(
-                tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, dataRegionKey, ct);
+            using (AmbientScopeContext.Push(new ScopeContext()))
+            {
+                await _tenantRepository.InsertTenantAsync(
+                    tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, dataRegionKey, ct);
+            }
         }
         catch (Exception ex) when (TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex))
         {
@@ -197,12 +200,8 @@ public sealed class TenantProvisioningService(
 
     private async Task<TenantWorkspaceLink?> GetFirstWorkspaceForProvisionedTenantAsync(Guid tenantId, CancellationToken ct)
     {
-        TenantWorkspaceLink? link = await _tenantRepository.GetFirstWorkspaceAsync(tenantId, ct);
-
-        if (link is not null)
-            return link;
-
         ScopeContext tenantScope = new() { TenantId = tenantId };
+
         using (AmbientScopeContext.Push(tenantScope))
             return await _tenantRepository.GetFirstWorkspaceAsync(tenantId, ct);
     }

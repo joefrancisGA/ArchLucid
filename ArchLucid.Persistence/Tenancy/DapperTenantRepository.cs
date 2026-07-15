@@ -55,10 +55,7 @@ public sealed class DapperTenantRepository(
 
         string normalizedSlug = slug.Trim().ToLowerInvariant();
 
-        await using SqlConnection catalogConnection =
-            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-
-        return await QueryTenantBySlugAsync(catalogConnection, normalizedSlug, ct).ConfigureAwait(false);
+        return await QueryTenantDirectoryBySlugAsync(normalizedSlug, ct).ConfigureAwait(false);
     }
 
     public async Task<TenantRecord?> GetByNormalizedOrganizationNameAsync(string normalizedOrganizationName, CancellationToken ct)
@@ -76,13 +73,16 @@ public sealed class DapperTenantRepository(
 
         string normalizedSlug = slug.Trim().ToLowerInvariant();
 
-        TenantRecord? fromCatalog = await GetBySlugFromControlPlaneCatalogAsync(slug, ct).ConfigureAwait(false);
+        TenantRecord? fromDirectory = await QueryTenantDirectoryBySlugAsync(normalizedSlug, ct).ConfigureAwait(false);
 
-        if (fromCatalog is not null)
-            return fromCatalog;
+        if (fromDirectory is not null)
+            return fromDirectory;
 
         await using SqlConnection tenantConnection =
             await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        if (TargetsSameCatalogAsSystem(tenantConnection.ConnectionString))
+            return null;
 
         return await QueryTenantBySlugAsync(tenantConnection, normalizedSlug, ct).ConfigureAwait(false);
     }
@@ -1272,6 +1272,26 @@ public sealed class DapperTenantRepository(
 
         return await QueryTenantByNormalizedOrganizationNameAsync(catalogConnection, normalizedOrganizationName, ct)
             .ConfigureAwait(false);
+    }
+
+    private async Task<TenantRecord?> QueryTenantDirectoryBySlugAsync(string normalizedSlug, CancellationToken ct)
+    {
+        await using SqlConnection directoryConnection =
+            await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
+
+        TenantRecord? fromDirectory =
+            await QueryTenantBySlugAsync(directoryConnection, normalizedSlug, ct).ConfigureAwait(false);
+
+        if (fromDirectory is not null)
+            return fromDirectory;
+
+        if (TargetsSameCatalogAsSystem(directoryConnection.ConnectionString))
+            return null;
+
+        await using SqlConnection catalogConnection =
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await QueryTenantBySlugAsync(catalogConnection, normalizedSlug, ct).ConfigureAwait(false);
     }
 
     private bool TargetsSameCatalogAsSystem(string connectionString) =>
