@@ -2,7 +2,7 @@
 
 # CI/CD integration guide (V1)
 
-**Audience:** Platform engineers wiring architecture review into pull-request or release pipelines without first-party ITSM connectors (deferred to V1.1).
+**Audience:** Platform engineers wiring architecture review into pull-request or release pipelines using the **V1 REST + CLI** surfaces. First-party **Jira**, **ServiceNow**, **Teams**, and **Slack** connectors are **V1 GA** for UI-driven workflows; this guide focuses on pipeline automation that does not require those connectors.
 
 **Canonical automation spine:** [`V1_AUTOMATION_HANDOFF_PACK.md`](../V1_AUTOMATION_HANDOFF_PACK.md) · CLI reference: [`CLI_USAGE.md`](../CLI_USAGE.md)
 
