@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
-import { createElement, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
@@ -53,28 +53,19 @@ export function PageHeading({
   const Icon = icon ?? resolveNavIconForHref(navHref);
   const HeadingTag = headingLevel;
 
-  // createElement avoids react-hooks/static-components (Icon is resolved during render).
   const iconNode =
-    Icon !== undefined
-      ? variant === "integration"
-        ? createElement(
-            "div",
-            {
-              className: PAGE_HEADING_TILE_CLASS,
-              "data-testid": "page-heading-icon-tile",
-              "aria-hidden": true,
-            },
-            createElement(Icon, {
-              className: PAGE_HEADING_ICON_CLASS,
-              "data-testid": "page-heading-icon",
-            }),
-          )
-        : createElement(Icon, {
-            className: PAGE_HEADING_ICON_CLASS,
-            "data-testid": "page-heading-icon",
-            "aria-hidden": true,
-          })
-      : null;
+    Icon !== undefined ? (
+      variant === "integration" ? (
+        <div className={PAGE_HEADING_TILE_CLASS} data-testid="page-heading-icon-tile" aria-hidden>
+          {/* Icon comes from nav-config resolution — not a locally declared component. */}
+          {/* eslint-disable-next-line react-hooks/static-components -- Lucide icon resolved from navHref */}
+          <Icon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" />
+        </div>
+      ) : (
+        // eslint-disable-next-line react-hooks/static-components -- Lucide icon resolved from navHref
+        <Icon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" aria-hidden />
+      )
+    ) : null;
 
   return (
     <header
