@@ -100,6 +100,13 @@ export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
   },
 ] as const;
 
+/**
+ * Provisioning transparency — aligns with `DefaultPolicyPackCatalog.StandardBaselineDisplayNames`
+ * (Azure baseline at tenant create; AWS/GCP cloud-specific packs activate on run target — TB-717).
+ */
+export const WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE =
+  "New workspaces include cloud-neutral security and FinOps packs; Azure Well-Architected and CIS Azure packs are enabled by default until you target AWS or Google Cloud in a review.";
+
 /** Thematic-mapping disclaimer — must stay aligned with docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md §2. */
 export const WELCOME_POLICY_PACK_DISCLAIMER =
   "Bundled policy packs use informative thematic mapping to accelerate architecture review. They do not constitute statutory legal classification, conformity assessment, CIS/OWASP/PCI/HIPAA/SOC 2 pass-fail automation, or Microsoft Well-Architected / CAF / landing-zone certification. Buyers remain responsible for jurisdictional applicability, contractual obligations, auditor evidence breadth, and any certification claims.";
