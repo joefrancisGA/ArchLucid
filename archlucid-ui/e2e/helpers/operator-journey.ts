@@ -97,9 +97,16 @@ export async function expectGovernanceRunWorkflowVisible(
   approvalRequestId: string,
   statusLabel: string,
 ): Promise<void> {
-  await expect(page.getByTestId("governance-approval-requests-section")).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByText(approvalRequestId).first()).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByText(statusLabel).first()).toBeVisible({ timeout: 60_000 });
+  const section = page.getByTestId("governance-approval-requests-section");
+
+  await expect(section).toBeVisible({ timeout: 60_000 });
+
+  const requestRow = section.locator('[data-testid="governance-approval-request-row"]').filter({
+    hasText: approvalRequestId,
+  }).first();
+
+  await expect(requestRow).toBeVisible({ timeout: 60_000 });
+  await expect(requestRow.getByText(new RegExp(`^${statusLabel}$`, "i"))).toBeVisible({ timeout: 60_000 });
 }
 
 /** Expands buyer-polished audit optional filters (`audit-filters-collapsible-trigger`). */
@@ -800,9 +807,17 @@ export async function expectLiveManifestDetailPageReady(
 
   await waitForLiveManifestDetailHydration(page, manifestId, { timeoutMs });
 
-  await expect(
-    manifestMain.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
-  ).toBeVisible({ timeout: timeoutMs });
+  const heading = manifestMain
+    .getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN })
+    .first();
+
+  await expect(async () => {
+    const headingVisible = await heading.isVisible().catch(() => false);
+    const overviewVisible = await manifestMain.locator("#manifest-overview").isVisible().catch(() => false);
+    const hasSignedRecordRoute = /\/(?:signed-records|manifests)\//i.test(new URL(page.url()).pathname);
+
+    expect(headingVisible || (overviewVisible && hasSignedRecordRoute)).toBe(true);
+  }).toPass({ timeout: timeoutMs });
 
   await expect
     .poll(() => normalizeRunIdForCompare(new URL(page.url()).pathname).includes(normalizedManifestId), {

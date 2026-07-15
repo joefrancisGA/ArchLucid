@@ -116,7 +116,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
       ) : null}
 
       {approvals.map((row) => (
-            <Card key={row.approvalRequestId}>
+            <Card key={row.approvalRequestId} data-testid="governance-approval-request-row">
               <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
                 <div className="min-w-0 flex-1">
                   <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{governanceApprovalCardTitle(row)}</CardTitle>

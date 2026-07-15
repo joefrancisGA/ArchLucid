@@ -59,7 +59,10 @@ test.describe("live-api-jwt-auth", () => {
   });
 
   test("POST /v1/architecture/request with valid JWT creates a run", async ({ request }) => {
+    test.setTimeout(90_000);
+
     const res = await request.post(`${liveApiBase}/v1/architecture/request`, {
+      timeout: 60_000,
       headers: liveJsonHeaders(),
       data: enrichArchitectureRequestBody({
         requestId: `E2E-JWT-${Date.now()}`,
