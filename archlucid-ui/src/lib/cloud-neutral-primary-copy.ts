@@ -92,6 +92,10 @@ export const WIZARD_CLOUD_PROVIDER_OPTIONS = {
   azure: "Microsoft Azure",
 } as const;
 
+/** Shown when optional inventory is expanded before a cloud target is selected on the identity step. */
+export const WIZARD_INVENTORY_REQUIRES_CLOUD_TARGET =
+  "Select a cloud target in the identity step to see the read-only inventory script for your provider.";
+
 /**
  * Phrases that must not appear in {@link CLOUD_NEUTRAL_PRIMARY_COPY} values
  * (implies Azure is required, default, or uniquely accelerated before selection).

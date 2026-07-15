@@ -3,16 +3,35 @@
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CloudInventoryExtractorCommandPanel } from "@/components/wizard/CloudInventoryExtractorCommandPanel";
 import { AzureExtractorPackageZipField } from "@/components/wizard/steps/AzureExtractorPackageZipField";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
+import {
+  WIZARD_CLOUD_PROVIDER_OPTIONS,
+  WIZARD_INVENTORY_REQUIRES_CLOUD_TARGET,
+} from "@/lib/cloud-neutral-primary-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
-function resolveInventoryPlatform(cloudProvider: WizardFormValues["cloudProvider"]): CloudInventoryPlatform {
+const WIZARD_INVENTORY_CLOUD_TARGETS = [
+  { value: "Azure", label: WIZARD_CLOUD_PROVIDER_OPTIONS.azure },
+  { value: "Aws", label: WIZARD_CLOUD_PROVIDER_OPTIONS.aws },
+  { value: "Gcp", label: WIZARD_CLOUD_PROVIDER_OPTIONS.gcp },
+] as const;
+
+function resolveInventoryPlatform(
+  cloudProvider: WizardFormValues["cloudProvider"],
+): CloudInventoryPlatform | null {
   if (cloudProvider === "Aws") {
     return "aws";
   }
@@ -21,7 +40,11 @@ function resolveInventoryPlatform(cloudProvider: WizardFormValues["cloudProvider
     return "gcp";
   }
 
-  return "azure";
+  if (cloudProvider === "Azure") {
+    return "azure";
+  }
+
+  return null;
 }
 
 /**
@@ -32,7 +55,7 @@ function resolveInventoryPlatform(cloudProvider: WizardFormValues["cloudProvider
  * pasted brief can proceed without being prompted to upload anything.
  */
 export function WizardStepAzureContext() {
-  const { watch } = useFormContext<WizardFormValues>();
+  const { watch, control, clearErrors } = useFormContext<WizardFormValues>();
   const cloudProvider = watch("cloudProvider");
   const inventoryPlatform = resolveInventoryPlatform(cloudProvider);
   const [inventoryOpen, setInventoryOpen] = useState(false);
@@ -68,17 +91,61 @@ export function WizardStepAzureContext() {
         </CollapsibleTrigger>
 
         <CollapsibleContent className="mt-2 space-y-4 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Run the read-only inventory script for your cloud provider locally, then attach the ZIP to prefill wizard
-            fields.
-          </p>
+          {inventoryPlatform === null ? (
+            <>
+              <p
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="wizard-inventory-select-cloud-hint"
+              >
+                {WIZARD_INVENTORY_REQUIRES_CLOUD_TARGET}
+              </p>
+              <div>
+                <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Cloud target</p>
+                <Controller
+                  name="cloudProvider"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value === "None" ? undefined : field.value}
+                      onValueChange={(value) => {
+                        clearErrors("cloudProvider");
+                        field.onChange(value);
+                      }}
+                    >
+                      <SelectTrigger
+                        id="wizard-inventory-cloud-target"
+                        className="mt-2 w-full max-w-md border-neutral-200/90 bg-white text-left shadow-sm transition-colors hover:border-neutral-300 focus:ring-teal-600/35 dark:border-neutral-600 dark:bg-neutral-950/40 dark:hover:border-neutral-500"
+                        data-testid="wizard-inventory-cloud-target-select"
+                      >
+                        <SelectValue placeholder="Select cloud target" />
+                      </SelectTrigger>
+                      <SelectContent className="border-neutral-200/90 dark:border-neutral-600">
+                        {WIZARD_INVENTORY_CLOUD_TARGETS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+                Run the read-only inventory script for your cloud provider locally, then attach the ZIP to prefill wizard
+                fields.
+              </p>
 
-          <AzureExtractorPackageZipField variant="ingest" />
+              {cloudProvider === "Azure" ? <AzureExtractorPackageZipField variant="ingest" /> : null}
 
-          <CloudInventoryExtractorCommandPanel
-            platform={inventoryPlatform}
-            testIdPrefix="wizard-cloud-inventory-ingest"
-          />
+              <CloudInventoryExtractorCommandPanel
+                platform={inventoryPlatform}
+                testIdPrefix="wizard-cloud-inventory-ingest"
+              />
+            </>
+          )}
         </CollapsibleContent>
       </Collapsible>
     </section>
