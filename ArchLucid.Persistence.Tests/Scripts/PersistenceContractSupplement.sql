@@ -118,6 +118,14 @@ BEGIN
 END;
 GO
 
+/* TB-740: dbo.Runs.PackageOrigin — DbUp 274 parity when contract catalogs predate that migration. */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'PackageOrigin') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs ADD PackageOrigin NVARCHAR(16) NULL;
+END;
+GO
+
 /* dbo.Tenants parent row for FK from governance tables (118) used by GovernanceRepositoryContractScope in Dapper contracts. */
 IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = 'AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE')

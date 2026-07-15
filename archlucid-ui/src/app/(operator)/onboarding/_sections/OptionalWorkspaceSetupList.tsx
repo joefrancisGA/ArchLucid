@@ -9,7 +9,6 @@ import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readine
 import {
   FINISH_SETUP_SYSTEM_HEALTH_PATH,
   resolveFinishSetupWizardDeploymentOptions,
-  resolveFinishSetupWizardSteps,
   type FinishSetupWizardContext,
 } from "@/lib/finish-setup-wizard-steps";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";

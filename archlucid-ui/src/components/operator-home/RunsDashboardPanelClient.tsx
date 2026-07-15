@@ -388,7 +388,7 @@ export function RunsDashboardPanelClient({
                 {tab === "outcomes"
                   ? buyerPolishedShell && showcaseDemoRun !== undefined
                     ? "Representative governance posture for this workspace."
-                    : "Reviews finalized, findings surfaced, and average time to finalization."
+                    : "Review packages finalized, findings surfaced, and average time to finalization."
                   : null}
               </p>
             </CardHeader>

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 
 import { CreateWorkItemButton } from "@/components/work-items/CreateWorkItemButton";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { cn } from "@/lib/utils";
 

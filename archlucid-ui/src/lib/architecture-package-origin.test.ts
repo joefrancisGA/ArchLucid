@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import { resolveRunSummaryPackageOrigin } from "@/lib/architecture-package-origin";
 import { SHOWCASE_SAMPLE_CREATED_REGISTRY } from "@/lib/showcase-sample-created-registry";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import type { RunSummary } from "@/types/authority";
 
 describe("resolveRunSummaryPackageOrigin", () => {
   it("maps API Created and Reviewed labels", () => {

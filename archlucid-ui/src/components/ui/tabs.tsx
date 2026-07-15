@@ -279,6 +279,7 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
       title={props.title}
       data-tabs-value={props.value}
       data-tabs-trigger
+      data-state={selected ? "active" : "inactive"}
       data-testid={props["data-testid"]}
       className={cn(
         "px-4 py-2 text-[13px] font-normal leading-5 outline-none transition-colors",

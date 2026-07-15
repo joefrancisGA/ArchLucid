@@ -26,7 +26,6 @@ function runBootstrapScript(script: string, options?: { readonly storedMode?: st
     removeListener: () => undefined,
   })) as typeof window.matchMedia;
 
-  // eslint-disable-next-line no-new-func -- mirrors pre-hydration inline bootstrap execution
   new Function(script)();
 }
 

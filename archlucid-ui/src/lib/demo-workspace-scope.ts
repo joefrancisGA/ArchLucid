@@ -20,6 +20,10 @@ function normalizeRunId(runId: string): string {
   return runId.trim().replace(/-/g, "").toLowerCase();
 }
 
+function normalizeProjectId(projectId: string): string {
+  return projectId.trim().replace(/-/g, "").toLowerCase();
+}
+
 /** Scope headers for SQL-backed demo workspace runs (see `docs/go-to-market/DEMO_WORKSPACES.md`). */
 export function resolveDemoWorkspaceScopeHeadersForRunId(runId: string): Record<string, string> | null {
   const normalized = normalizeRunId(runId);
@@ -45,6 +49,29 @@ export function resolveDemoWorkspaceScopeHeadersForRunId(runId: string): Record<
 
 export function isPinnedDemoWorkspaceRunId(runId: string): boolean {
   return resolveDemoWorkspaceScopeHeadersForRunId(runId) !== null;
+}
+
+/** Scope headers when `/reviews?projectId=…` targets a pinned SQL demo workspace project. */
+export function resolveDemoWorkspaceScopeHeadersForProjectId(projectId: string): Record<string, string> | null {
+  const normalized = normalizeProjectId(projectId);
+
+  if (normalized === normalizeProjectId(DEMO_WORKSPACE_MANIFEST.workspaceA.projectId)) {
+    return {
+      "x-tenant-id": DEMO_WORKSPACE_MANIFEST.defaultTenantId,
+      "x-workspace-id": DEMO_WORKSPACE_MANIFEST.workspaceA.workspaceId,
+      "x-project-id": DEMO_WORKSPACE_MANIFEST.workspaceA.projectId,
+    };
+  }
+
+  if (normalized === normalizeProjectId(DEMO_WORKSPACE_MANIFEST.workspaceB.projectId)) {
+    return {
+      "x-tenant-id": DEMO_WORKSPACE_MANIFEST.defaultTenantId,
+      "x-workspace-id": DEMO_WORKSPACE_MANIFEST.workspaceB.workspaceId,
+      "x-project-id": DEMO_WORKSPACE_MANIFEST.workspaceB.projectId,
+    };
+  }
+
+  return null;
 }
 
 function decodeProxyPathRunIdSegment(rawRunId: string): string {

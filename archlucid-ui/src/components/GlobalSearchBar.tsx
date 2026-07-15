@@ -139,7 +139,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         aria-label={GLOBAL_SEARCH_ARIA_LABEL}
         aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
         autoComplete="off"
-        className="h-8"
+        className="h-8 border-neutral-300 bg-white text-al-text-primary placeholder:text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:placeholder:text-neutral-400"
       />
 
       {resultsPanelOpen ? (

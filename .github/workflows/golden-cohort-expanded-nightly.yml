@@ -99,6 +99,10 @@ jobs:
             --history-root "${GITHUB_WORKSPACE}/artifacts/real-mode-eval-nightly"
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "${REP}" >> "${GITHUB_STEP_SUMMARY}"; fi
 
+      - name: Hallucination resistance (adversarial scenarios, TB-257)
+        if: steps.eligibility.outputs.enabled == 'true'
+        run: python3 scripts/ci/assert_hallucination_resistance.py
+
       - name: Budget kill-switch skip
         if: >-
           steps.eligibility.outputs.enabled == 'true'

@@ -19,7 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useReviewIntakeNavigation } from "@/hooks/use-review-intake-navigation";
@@ -284,8 +283,9 @@ function SelectedTemplateBanner(props: {
 
 /** Customer-facing specialty template catalog for `/help/specialty-walkthroughs`. */
 export function HelpSpecialtyWalkthroughTemplatesClient(
-  _props: HelpSpecialtyWalkthroughTemplatesClientProps,
+  props: HelpSpecialtyWalkthroughTemplatesClientProps,
 ): React.ReactElement {
+  void props;
   const canExecute = useOperateCapability();
   const navigation = useReviewIntakeNavigation();
   const [selectedTemplateId, setSelectedTemplateId] = useState<SpecialtyReviewTemplateId | null>(null);

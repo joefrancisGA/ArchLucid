@@ -8,7 +8,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Logging;
@@ -62,12 +61,13 @@ public sealed class TenantProvisioningService(
 
         if (string.IsNullOrWhiteSpace(request.AdminEmail) || !request.AdminEmail.Contains('@', StringComparison.Ordinal))
             throw new ArgumentException("Admin email is required.", nameof(request));
-        string slug = TenantSlugNormalizer.FromName(request.Name);
-        // Self-service registration inserts dbo.Tenants on the control-plane catalog; slug idempotency must consult that plane first.
-        TenantRecord? existing = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
 
-        if (existing is null)
-            existing = await _tenantRepository.GetBySlugAsync(slug, ct);
+        string normalizedOrganizationName = TenantOrganizationDuplicateDetector.NormalizeOrganizationName(request.Name);
+        string slug = TenantSlugNormalizer.FromName(request.Name);
+
+        // Anonymous /v1/register resolves DefaultTenant scope; tenant-plane SQL fallbacks must run unscoped so
+        // control-plane dbo.Tenants rows are visible before insert (SystemWithPerTenantCatalogs + greenfield CI).
+        TenantRecord? existing = await ResolveExistingTenantForProvisionAsync(normalizedOrganizationName, slug, ct);
 
         if (existing is not null)
             return await BuildAlreadyProvisionedResultAsync(existing, request, slug, ct);
@@ -81,15 +81,15 @@ public sealed class TenantProvisioningService(
 
         try
         {
-            await _tenantRepository.InsertTenantAsync(
-                tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, dataRegionKey, ct);
+            using (AmbientScopeContext.Push(new ScopeContext()))
+            {
+                await _tenantRepository.InsertTenantAsync(
+                    tenantId, request.Name.Trim(), slug, request.Tier, request.EntraTenantId, dataRegionKey, ct);
+            }
         }
-        catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
+        catch (Exception ex) when (TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex))
         {
-            TenantRecord? raced = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
-
-            if (raced is null)
-                raced = await _tenantRepository.GetBySlugAsync(slug, ct);
+            TenantRecord? raced = await ResolveExistingTenantForProvisionAsync(normalizedOrganizationName, slug, ct);
 
             if (raced is null)
                 throw;
@@ -143,6 +143,31 @@ public sealed class TenantProvisioningService(
         };
     }
 
+    private async Task<TenantRecord?> ResolveExistingTenantForProvisionAsync(
+        string normalizedOrganizationName,
+        string slug,
+        CancellationToken ct)
+    {
+        ScopeContext unscoped = new();
+
+        using (AmbientScopeContext.Push(unscoped))
+        {
+            TenantRecord? existing =
+                await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct);
+
+            if (existing is not null)
+                return existing;
+
+            // Self-service registration inserts dbo.Tenants on the control-plane catalog; slug idempotency must consult that plane first.
+            existing = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+
+            if (existing is not null)
+                return existing;
+
+            return await _tenantRepository.GetBySlugAsync(slug, ct);
+        }
+    }
+
     private async Task<TenantProvisioningResult> BuildAlreadyProvisionedResultAsync(
         TenantRecord existing,
         TenantProvisioningRequest request,
@@ -175,12 +200,8 @@ public sealed class TenantProvisioningService(
 
     private async Task<TenantWorkspaceLink?> GetFirstWorkspaceForProvisionedTenantAsync(Guid tenantId, CancellationToken ct)
     {
-        TenantWorkspaceLink? link = await _tenantRepository.GetFirstWorkspaceAsync(tenantId, ct);
-
-        if (link is not null)
-            return link;
-
         ScopeContext tenantScope = new() { TenantId = tenantId };
+
         using (AmbientScopeContext.Push(tenantScope))
             return await _tenantRepository.GetFirstWorkspaceAsync(tenantId, ct);
     }

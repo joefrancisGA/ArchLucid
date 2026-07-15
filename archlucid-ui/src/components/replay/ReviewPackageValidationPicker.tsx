@@ -15,7 +15,6 @@ import {
   formatLastValidationOutcomeLabel,
   matchesReviewPackageValidationSearch,
   toReviewPackageValidationRow,
-  type ReviewPackageValidationRow,
 } from "@/lib/review-package-validation-picker";
 import type { ReplayValidationOutcome } from "@/lib/replay-validation-workflow";
 import type { RunSummary } from "@/types/authority";

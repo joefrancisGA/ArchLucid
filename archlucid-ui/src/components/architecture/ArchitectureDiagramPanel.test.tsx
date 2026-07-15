@@ -11,7 +11,6 @@ import { ArchitectureDiagramPanel } from "@/components/architecture/Architecture
 import {
   ARCHITECTURE_DIAGRAM_ADD_DETAILS_ACTION,
   ARCHITECTURE_DIAGRAM_GENERATE_ACTION,
-  ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
 } from "@/lib/architecture-diagram-copy";
 
 const sufficientSource = `## Systems and services

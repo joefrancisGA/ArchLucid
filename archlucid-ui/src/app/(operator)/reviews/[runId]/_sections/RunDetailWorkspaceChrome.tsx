@@ -143,7 +143,7 @@ export function RunDetailWorkspaceSummaryStrip(
 
 export type RunDetailWorkspaceBlockingBannerProps = {
   readonly blockingCount: number;
-  readonly runId: string;
+  readonly findingsTabHref: string;
 };
 
 export function RunDetailWorkspaceBlockingBanner(
@@ -166,7 +166,7 @@ export function RunDetailWorkspaceBlockingBanner(
           {label}
         </p>
         <Button variant="outline" size="sm" asChild>
-          <Link href={buildReviewDetailTabHref(props.runId, "findings")}>Review blocking findings</Link>
+          <Link href={props.findingsTabHref}>Review blocking findings</Link>
         </Button>
       </div>
     </div>

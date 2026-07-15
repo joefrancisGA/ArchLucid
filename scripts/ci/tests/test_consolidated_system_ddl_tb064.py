@@ -37,7 +37,7 @@ class TestConsolidatedSystemDdlTb064(unittest.TestCase):
 
         run_system_call = text.index("DatabaseMigrator.RunSystem(systemConnectionString);")
         bootstrap_call = text.index(
-            "RunSystemSchemaBootstrapIfAvailable(app, systemConnectionString, persistenceOptions);",
+            "RunSystemSchemaBootstrapIfAvailableAsync(app, systemConnectionString, persistenceOptions)",
         )
 
         self.assertLess(run_system_call, bootstrap_call)

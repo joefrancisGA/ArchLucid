@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { RunIdPicker } from "@/components/RunIdPicker";
-import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY, BUYER_COMPARE_PRIMARY_ACTION_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 

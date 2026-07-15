@@ -88,6 +88,7 @@ public sealed class RegistrationController(
         }
 
         string? normalizedBaselineSource = NormalizeBaselineReviewCycleSource(body.BaselineReviewCycleSource);
+
         if (body.BaselineReviewCycleHours is null && normalizedBaselineSource is not null)
         {
             return await RegisterFailureValidationAsync(
@@ -332,6 +333,31 @@ public sealed class RegistrationController(
                 cancellationToken);
 
             return this.BadRequestProblem(FriendlyValidation, ProblemTypes.ValidationFailed);
+        }
+        catch (Exception ex) when (TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex))
+        {
+            ArchLucidInstrumentation.RecordTrialSignupFailure("provision", "duplicate_organization");
+            ArchLucidInstrumentation.RecordTrialRegistrationFailure("conflict");
+
+            await _audit.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialRegistrationFailed,
+                    ActorUserId = actorEmail,
+                    ActorUserName =
+                        string.IsNullOrWhiteSpace(body.AdminDisplayName)
+                            ? actorEmail
+                            : body.AdminDisplayName.Trim(),
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ProjectId = Guid.Empty,
+                    DataJson = JsonSerializer.Serialize(new { reason = "conflict", code = "duplicate_organization" })
+                },
+                cancellationToken);
+
+            return this.ConflictProblem(
+                "An organization with this name is already registered.",
+                ProblemTypes.Conflict);
         }
         catch (Exception ex)
         {

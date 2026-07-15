@@ -46,11 +46,8 @@ export type ArchitectureCreatedWorkspaceProps = {
 };
 
 function resolveUserAssertions(
-  runId: string,
   merged: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreationUserAssertions {
-  const snapshot = readArchitectureCreationHandoff(runId);
-
   return {
     architectureName: merged.architectureName,
     architectureOverview: merged.architectureOverview,
@@ -81,8 +78,8 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
 
   const model = useMemo(() => buildArchitectureCreatedHomeModel(merged), [merged]);
   const userAssertions = useMemo(
-    () => resolveUserAssertions(props.baseline.runId, merged),
-    [props.baseline.runId, merged],
+    () => resolveUserAssertions(merged),
+    [merged],
   );
 
   const activeTab = resolveArchitectureWorkspaceTab(searchParams.get(ARCHITECTURE_WORKSPACE_TAB_PARAM));

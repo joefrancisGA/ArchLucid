@@ -107,6 +107,51 @@ export async function registerFreshTenantOnboardingMocks(page: Page): Promise<vo
       return;
     }
 
+    if (method === "GET" && path === "/v1/admin/diagnostics/identity-providers") {
+      await fulfillJson(route, 200, {
+        probes: [],
+      });
+
+      return;
+    }
+
+    if (method === "GET" && path === "/v1/admin/auth/configuration-diagnostics") {
+      await fulfillJson(route, 200, {
+        authMode: "JwtBearer",
+        saml2Enabled: false,
+        tenantIdentityProviderProtocol: null,
+      });
+
+      return;
+    }
+
+    if (method === "GET" && path === "/v1/admin/auth/oidc-diagnostics") {
+      await fulfillJson(route, 200, {
+        authorityConfigured: true,
+        audienceConfigured: true,
+      });
+
+      return;
+    }
+
+    if (method === "GET" && path === "/v1/admin/auth/saml-operational-health") {
+      await fulfillJson(route, 200, {
+        status: "NotApplicable",
+      });
+
+      return;
+    }
+
+    if (method === "GET" && path === "/api/auth/me") {
+      await fulfillJson(route, 200, {
+        name: "Fresh Tenant Admin",
+        claims: [{ type: "roles", value: "Admin" }],
+        hasCommittedArchitectureReview: false,
+      });
+
+      return;
+    }
+
     await route.continue();
   });
 }

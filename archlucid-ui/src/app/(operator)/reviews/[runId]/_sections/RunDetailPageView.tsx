@@ -34,8 +34,6 @@ import {
 } from "@/lib/showcase-static-demo";
 
 import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
-import { RunDetailExecutiveSummary } from "@/components/reviews/RunDetailExecutiveSummary";
-import { RunDetailArchitectureSummaryRailClient } from "@/components/reviews/RunDetailArchitectureSummaryRailClient";
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
 import { RunDetailOverviewPanelClient } from "@/components/reviews/RunDetailOverviewPanelClient";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
@@ -62,6 +60,7 @@ import {
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
 } from "@/lib/run-detail-workspace-derive";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
@@ -73,7 +72,7 @@ import {
   RunDetailWorkspaceDisclosureProvider,
   RunDetailWorkspaceHeader,
   RunDetailWorkspaceLayout,
-  RunDetailWorkspaceSeverityRail,
+  RunDetailWorkspaceSummaryStrip,
 } from "./RunDetailWorkspaceChrome";
 import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActions";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
@@ -368,7 +367,6 @@ export function RunDetailPageView(props: {
   const tabbedWorkspaceEl = !showArchitectureCreatedHome ? (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <ReviewDetailWorkspace
-        showPackageWorkflowOrientation={m.buyerPolishedArtifactTable === true}
         tabCounts={{
           findings: (m.findingCountDisplay ?? 0) > 0 ? m.findingCountDisplay : null,
           evidence: m.artifacts.length > 0 ? m.artifacts.length : null,
@@ -377,9 +375,19 @@ export function RunDetailPageView(props: {
         panels={{
           overview: (
             <RunDetailOverviewPanelClient
+              runId={m.resolvedDetail.run.runId}
+              architectureTitle={systemName ?? reviewDisplayTitle}
+              architectureText={submittedArchitectureText}
+              evidenceCount={m.artifacts.length}
+              userAssertions={null}
               recommendedActions={recommendedActions}
+              blockingCount={blockingApprovalCount}
+              governanceDecisionLabel={governanceDecisionLabel}
+              findingCount={m.findingCountDisplay ?? 0}
+              criticalCount={severityCounts.critical}
+              highCount={severityCounts.high}
+              hasManifest={Boolean(m.manifestId)}
               proofStatusSlot={<RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />}
-              bottomLineSlot={executiveBottomLineEl}
             />
           ),
           findings: (
@@ -749,19 +757,15 @@ export function RunDetailPageView(props: {
               {!showArchitectureCreatedHome ? (
                 <RunDetailWorkspaceBlockingBanner
                   blockingCount={blockingApprovalCount}
-                  runId={m.resolvedDetail.run.runId}
+                  findingsTabHref={buildReviewDetailTabHref(m.resolvedDetail.run.runId, "findings")}
                 />
               ) : null}
 
               {!showArchitectureCreatedHome ? (
-                <div className="lg:hidden">
-                  <ReviewPackagePrimaryAction
-                    action={reviewPackagePrimaryAction}
-                    runId={m.resolvedDetail.run.runId}
-                    hasGoldenManifest={Boolean(m.manifestId)}
-                    commitBlockedReason={commitBlockedReason}
-                  />
-                </div>
+                <ReviewPackagePrimaryAction
+                  action={reviewPackagePrimaryAction}
+                  runId={m.resolvedDetail.run.runId}
+                />
               ) : null}
 
               {!m.manifestId ? (
@@ -801,24 +805,7 @@ export function RunDetailPageView(props: {
               {tabbedWorkspaceEl}
             </>
           }
-          rail={
-            !showArchitectureCreatedHome ? (
-              <>
-                <RunDetailWorkspaceSeverityRail
-                  criticalCount={severityCounts.critical}
-                  highCount={severityCounts.high}
-                  mediumCount={severityCounts.medium}
-                  lowCount={severityCounts.low}
-                />
-                <RunDetailArchitectureSummaryRailClient
-                  architectureTitle={architectureSummaryTitle}
-                  architectureText={submittedArchitectureText}
-                  evidenceCount={m.artifacts.length}
-                  hasSubmittedArchitecture={hasSubmittedArchitecture}
-                />
-              </>
-            ) : null
-          }
+          rail={null}
         />
       </RunDetailWorkspaceDisclosureProvider>
 
@@ -982,6 +969,7 @@ export function RunDetailPageView(props: {
       ) : null}
 
       {governanceAlertsEl}
+      <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
 
       {m.buyerPolishedArtifactTable ? (
         <RunDetailBuyerModeFallbackBanner

@@ -12,11 +12,12 @@ import {
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
 import { liveApiBase } from "./helpers/live-api-client";
 import {
-  buyerPolishedReviewDetailSectionNav,
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPipelineTimelineSectionVisible,
-  expectBuyerPolishedReviewDetailSectionNavCore,
+  expectBuyerPolishedReviewDetailShellReady,
+  expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
+  openReviewDetailWorkspaceTab,
 } from "./helpers/operator-journey";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 
@@ -37,19 +38,19 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID}`, { waitUntil: "domcontentloaded" });
 
-    const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+    await expectBuyerPolishedReviewDetailShellReady(page);
+    await expectBuyerPolishedReviewDetailWorkspaceCore(page);
 
-    await expect(sectionNav).toBeVisible({ timeout: 90_000 });
-
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
-
-    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
 
     await expect(page.getByTestId("quick-decision-summary")).toBeVisible({ timeout: 90_000 });
 
-    await expectBuyerPolishedReviewDetailSectionNavCore(sectionNav, { timeoutMs: 15_000 });
+    await expectBuyerPipelineTimelineSectionVisible(page, {
+      timeoutMs: 60_000,
+      runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+    });
 
-    await expectBuyerPipelineTimelineSectionVisible(page, { timeoutMs: 60_000 });
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "evidence");
 
     await page.locator("#trust-evidence").scrollIntoViewIfNeeded();
 
@@ -60,11 +61,13 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
 
     await expect.poll(async () => evidenceBasisTiles.count(), { timeout: 60_000 }).toBeGreaterThanOrEqual(minimumEvidenceTiles);
 
-    await page.locator("#run-explanation").scrollIntoViewIfNeeded();
-
     const quickSummary = page.getByTestId("quick-decision-summary");
 
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");
+
     await expectQuickDecisionSeverityVisible(quickSummary, { timeoutMs: 30_000 });
+
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "policies");
 
     const manifestSection = page.locator("#manifest-summary");
 
@@ -80,9 +83,7 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await expect(manifestDecisionCount).toBeVisible({ timeout: 60_000 });
     await expect(manifestDecisionCount).not.toHaveText("—", { timeout: 60_000 });
 
-    await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
-
-    await ensureBuyerDeliverablesSectionExpanded(page);
+    await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 
     await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence bundle/i })).toBeVisible({
       timeout: 60_000,

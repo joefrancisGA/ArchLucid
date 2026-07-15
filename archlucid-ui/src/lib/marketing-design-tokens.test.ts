@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   MARKETING_LAYOUT,
+  MARKETING_PRIMARY_CTA_CLASS,
   MARKETING_SURFACES,
   MARKETING_TYPOGRAPHY,
   OPERATOR_LAYOUT,
@@ -19,5 +20,11 @@ describe("marketing design tokens", () => {
     expect(MARKETING_SURFACES.card).toContain("bg-al-surface-raised");
     expect(MARKETING_SURFACES.card).toContain("rounded-md");
     expect(MARKETING_SURFACES.highlightPanel).toContain("bg-al-surface-raised");
+  });
+
+  it("keeps primary marketing CTA on AA-safe teal fills", () => {
+    expect(MARKETING_PRIMARY_CTA_CLASS).toContain("bg-teal-800");
+    expect(MARKETING_PRIMARY_CTA_CLASS).not.toMatch(/\bbg-teal-[67]00\b/);
+    expect(MARKETING_PRIMARY_CTA_CLASS).not.toContain("dark:bg-teal-600");
   });
 });

@@ -55,10 +55,16 @@ public sealed class DapperTenantRepository(
 
         string normalizedSlug = slug.Trim().ToLowerInvariant();
 
-        await using SqlConnection catalogConnection =
-            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        return await QueryTenantDirectoryBySlugAsync(normalizedSlug, ct).ConfigureAwait(false);
+    }
 
-        return await QueryTenantBySlugAsync(catalogConnection, normalizedSlug, ct).ConfigureAwait(false);
+    public async Task<TenantRecord?> GetByNormalizedOrganizationNameAsync(string normalizedOrganizationName, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(normalizedOrganizationName);
+
+        string normalizedName = normalizedOrganizationName.Trim().ToUpperInvariant();
+
+        return await QueryTenantDirectoryByNormalizedOrganizationNameAsync(normalizedName, ct).ConfigureAwait(false);
     }
 
     public async Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct)
@@ -67,13 +73,16 @@ public sealed class DapperTenantRepository(
 
         string normalizedSlug = slug.Trim().ToLowerInvariant();
 
-        TenantRecord? fromCatalog = await GetBySlugFromControlPlaneCatalogAsync(slug, ct).ConfigureAwait(false);
+        TenantRecord? fromDirectory = await QueryTenantDirectoryBySlugAsync(normalizedSlug, ct).ConfigureAwait(false);
 
-        if (fromCatalog is not null)
-            return fromCatalog;
+        if (fromDirectory is not null)
+            return fromDirectory;
 
         await using SqlConnection tenantConnection =
             await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        if (TargetsSameCatalogAsSystem(tenantConnection.ConnectionString))
+            return null;
 
         return await QueryTenantBySlugAsync(tenantConnection, normalizedSlug, ct).ConfigureAwait(false);
     }
@@ -333,7 +342,7 @@ public sealed class DapperTenantRepository(
         int? enterpriseScimSeatsLimit = null)
     {
         await using SqlConnection connection =
-            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+            await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
 
         string normalizedSlug = slug.Trim().ToLowerInvariant();
 
@@ -1240,6 +1249,85 @@ public sealed class DapperTenantRepository(
 
         return row?.ToRecord();
     }
+
+    private async Task<TenantRecord?> QueryTenantDirectoryByNormalizedOrganizationNameAsync(
+        string normalizedOrganizationName,
+        CancellationToken ct)
+    {
+        await using SqlConnection directoryConnection =
+            await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
+
+        TenantRecord? fromDirectory =
+            await QueryTenantByNormalizedOrganizationNameAsync(directoryConnection, normalizedOrganizationName, ct)
+                .ConfigureAwait(false);
+
+        if (fromDirectory is not null)
+            return fromDirectory;
+
+        if (TargetsSameCatalogAsSystem(directoryConnection.ConnectionString))
+            return null;
+
+        await using SqlConnection catalogConnection =
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await QueryTenantByNormalizedOrganizationNameAsync(catalogConnection, normalizedOrganizationName, ct)
+            .ConfigureAwait(false);
+    }
+
+    private async Task<TenantRecord?> QueryTenantDirectoryBySlugAsync(string normalizedSlug, CancellationToken ct)
+    {
+        await using SqlConnection directoryConnection =
+            await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
+
+        TenantRecord? fromDirectory =
+            await QueryTenantBySlugAsync(directoryConnection, normalizedSlug, ct).ConfigureAwait(false);
+
+        if (fromDirectory is not null)
+            return fromDirectory;
+
+        if (TargetsSameCatalogAsSystem(directoryConnection.ConnectionString))
+            return null;
+
+        await using SqlConnection catalogConnection =
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await QueryTenantBySlugAsync(catalogConnection, normalizedSlug, ct).ConfigureAwait(false);
+    }
+
+    private bool TargetsSameCatalogAsSystem(string connectionString) =>
+        SqlCatalogRoutingGuard.TargetsSameCatalog(connectionString, _catalogConnectionFactory.SystemConnectionString);
+
+    private static async Task<TenantRecord?> QueryTenantByNormalizedOrganizationNameAsync(
+        SqlConnection connection,
+        string normalizedOrganizationName,
+        CancellationToken ct)
+    {
+        const string sql = """
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, DataRegion, CreatedUtc, SuspendedUtc,
+                                  TenantErasureRequestedUtc,
+                                  OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
+                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
+                                  TrialStatus, TrialSampleRunId,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
+                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
+                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
+                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
+                           FROM dbo.Tenants
+                           WHERE UPPER(LTRIM(RTRIM(Name))) = @NormalizedOrganizationName;
+                           """;
+
+        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+            new CommandDefinition(sql, new
+            {
+                NormalizedOrganizationName = normalizedOrganizationName
+            }, cancellationToken: ct)).ConfigureAwait(false);
+
+        return row?.ToRecord();
+    }
+
     private static async Task ApplyTrialRunIncrementAsync(
         IDbConnection connection,
         IDbTransaction? transaction,

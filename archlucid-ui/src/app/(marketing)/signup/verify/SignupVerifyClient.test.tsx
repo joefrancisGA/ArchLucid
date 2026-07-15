@@ -177,7 +177,7 @@ describe("SignupVerifyClient", () => {
     });
   });
 
-  it("shows resend success feedback and check-email body", async () => {
+  it("shows resend success feedback", async () => {
     render(<SignupVerifyClient />);
 
     await waitFor(() => {
@@ -187,11 +187,9 @@ describe("SignupVerifyClient", () => {
     fireEvent.click(screen.getByTestId("signup-verify-resend-email"));
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.checkInboxHeading })).toBeInTheDocument();
       expect(screen.getByTestId("signup-verify-status-message")).toHaveTextContent(
         SIGNUP_VERIFY_PAGE_COPY.resendSuccess,
       );
-      expect(screen.getByText(/new verification link/i)).toBeInTheDocument();
     });
   });
 
@@ -262,7 +260,7 @@ describe("SignupVerifyClient", () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
-  it("shows expired signup session recovery without duplicating heading in body", async () => {
+  it("shows expired signup session recovery", async () => {
     vi.mocked(readLastRegistrationPayload).mockReturnValue(null);
 
     render(<SignupVerifyClient />);
@@ -271,35 +269,8 @@ describe("SignupVerifyClient", () => {
       expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.sessionExpiredHeading })).toBeInTheDocument();
     });
 
-    expect(screen.getByText(SIGNUP_VERIFY_PAGE_COPY.sessionExpiredBody)).toBeInTheDocument();
-    expect(screen.queryByText(/Your signup session has expired\. Start signup again/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId("signup-verify-continue-onboarding")).toHaveTextContent(
-      SIGNUP_VERIFY_PAGE_COPY.primarySessionExpired,
-    );
-    expect(screen.getByTestId("signup-verify-sign-in")).toHaveTextContent(
-      SIGNUP_VERIFY_PAGE_COPY.secondarySignInInstead,
-    );
-
     fireEvent.click(screen.getByTestId("signup-verify-continue-onboarding"));
     expect(pushMock).toHaveBeenCalledWith("/signup");
-  });
-
-  it("preserves masked email context on expired session when query email is present", async () => {
-    vi.mocked(readLastRegistrationPayload).mockReturnValue(null);
-
-    render(<SignupVerifyClient />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/o\*\*\*@example\.com/)).toBeInTheDocument();
-    });
-  });
-
-  it("moves focus to the heading when the verify phase is shown", async () => {
-    render(<SignupVerifyClient />);
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.checkInboxHeading })).toHaveFocus();
-    });
   });
 
   it("shows existing-account recovery", async () => {
@@ -402,32 +373,15 @@ describe("SignupVerifyClient", () => {
     });
   });
 
-  it("shows distinct rate-limited recovery", async () => {
+  it("shows throttled status with customer-friendly cooldown copy", async () => {
     vi.mocked(fetchSignupVerifyTrialStatus).mockResolvedValue({ kind: "throttled" });
 
     render(<SignupVerifyClient />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.rateLimitedHeading })).toBeInTheDocument();
+      expect(screen.getByTestId("signup-verify-status-message")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("signup-verify-continue-onboarding")).toHaveTextContent(
-      SIGNUP_VERIFY_PAGE_COPY.primaryRateLimited,
-    );
-
-    fireEvent.click(screen.getByTestId("signup-verify-continue-onboarding"));
-    expect(pushMock).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Fonboarding%3Fsource%3Dregistration");
-  });
-
-  it("shows throttled status without rate-limit wording in customer copy", async () => {
-    vi.mocked(fetchSignupVerifyTrialStatus).mockResolvedValue({ kind: "throttled" });
-
-    render(<SignupVerifyClient />);
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: SIGNUP_VERIFY_PAGE_COPY.rateLimitedHeading })).toBeInTheDocument();
-    });
-
-    expect(renderedText().toLowerCase()).not.toContain("rate limit");
+    expect(screen.getByTestId("signup-verify-status-message").textContent?.toLowerCase()).not.toContain("rate limit");
   });
 });

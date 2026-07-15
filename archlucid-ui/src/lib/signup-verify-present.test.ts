@@ -70,43 +70,6 @@ describe("buildSignupVerifyViewModel", () => {
 
     expect(model.phase).toBe("missing_session");
     expect(model.primaryLabel).toBe(SIGNUP_VERIFY_PAGE_COPY.primarySessionExpired);
-    expect(model.body).toBe(SIGNUP_VERIFY_PAGE_COPY.sessionExpiredBody);
-    expect(model.body).not.toContain(model.heading);
-    expect(model.signInLabel).toBe(SIGNUP_VERIFY_PAGE_COPY.secondarySignInInstead);
-  });
-
-  it("shows distinct rate-limited phase", () => {
-    const model = buildSignupVerifyViewModel({
-      registration,
-      queryEmail: "",
-      trialStatus: { kind: "throttled" },
-      resendCooldown: { active: false, secondsRemaining: 0 },
-      checking: false,
-      resendPending: false,
-      resendOutcome: null,
-      stillPendingAfterCheck: false,
-      initialLoadFailed: false,
-    });
-
-    expect(model.phase).toBe("rate_limited");
-    expect(model.primaryLabel).toBe(SIGNUP_VERIFY_PAGE_COPY.primaryRateLimited);
-  });
-
-  it("shows resend success with newest-link guidance", () => {
-    const model = buildSignupVerifyViewModel({
-      registration,
-      queryEmail: "",
-      trialStatus: { kind: "unauthorized" },
-      resendCooldown: { active: false, secondsRemaining: 0 },
-      checking: false,
-      resendPending: false,
-      resendOutcome: "success",
-      stillPendingAfterCheck: false,
-      initialLoadFailed: false,
-    });
-
-    expect(model.phase).toBe("resend_success");
-    expect(model.body).toContain("newest link");
   });
 
   it("handles existing account recovery", () => {

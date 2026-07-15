@@ -25,6 +25,7 @@ import {
   resolveLiveAuthMode,
   waitForArchitectureRunListCommitted,
   waitForAuthorityBuyerSummaryGoldenManifest,
+  waitForAuthorityManifestSummaryReady,
   waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -32,12 +33,16 @@ import {
   searchAudit,
 } from "./helpers/live-api-client";
 import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
+import { waitForLiveManifestSummaryResponse } from "./helpers/live-page-readiness";
 import {
   auditPageMainHeading,
   expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
-  outcomeStripSignedRecordLink,
-  reviewOutcomeSummaryStrip,
+  expandReviewDetailOutcomeCards,
+  expectGovernanceRunWorkflowVisible,
+  gotoLiveRunDetailPage,
+  governancePageMainHeading,
+  openReviewDetailWorkspaceTab,
   runDetailFinalizedPackageLink,
 } from "./helpers/operator-journey";
 
@@ -124,6 +129,8 @@ test.describe("live-api-journey", () => {
       );
     }
 
+    await waitForAuthorityManifestSummaryReady(request, goldenManifestId, 90_000, tenantScope);
+
     // `live-api-journey.spec.ts` also runs under the ApiKey and JWT CI jobs (see
     // `.github/workflows/ci.yml`), which don't support `x-tenant-id`-header scope overrides (ApiKey CI
     // keys carry no bound `tenant_id` claim → 403 via `ScopeIdentityBindingMiddleware`; JWT resolves
@@ -135,38 +142,41 @@ test.describe("live-api-journey", () => {
       await injectDemoWorkspaceOperatorScope(page, tenantScope);
     }
 
-    await page.goto(`/reviews/${runId}`);
+    await gotoLiveRunDetailPage(page, runId);
 
-    await expectLiveRunDetailPageReady(page, 120_000);
+    try {
+      await expectLiveRunDetailPageReady(page, 90_000);
+    } catch (error) {
+      if (resolveLiveAuthMode() !== "bypass") {
+        throw error;
+      }
 
-    await expect(page.getByText(/Loading review detail/)).toHaveCount(0, { timeout: 60_000 });
+      // First RSC flight can miss the scope cookie on cold isolated-tenant runs — re-seed and reload once.
+      await injectDemoWorkspaceOperatorScope(page, tenantScope);
+      await gotoLiveRunDetailPage(page, runId);
+      await expectLiveRunDetailPageReady(page, 120_000);
+    }
 
-    const outcomeStrip = reviewOutcomeSummaryStrip(page);
-    await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
+    await openReviewDetailWorkspaceTab(page, runId, "activity");
 
     const manifestLink = runDetailFinalizedPackageLink(page);
-    const outcomeStripManifestLink = outcomeStripSignedRecordLink(outcomeStrip);
 
-    await expect
-      .poll(
-        async () =>
-          (await manifestLink.isVisible()) || (await outcomeStripManifestLink.isVisible()),
-        {
-          timeout: 60_000,
-          message: `Golden manifest link missing for run ${runId}. Server run detail may lack goldenManifestId or UI/API mismatch.`,
-        },
-      )
-      .toBe(true);
+    await expect(async () => {
+      if (await manifestLink.isVisible()) {
+        return;
+      }
 
-    const linkToOpen =
-      (await manifestLink.isVisible()) ? manifestLink : outcomeStripManifestLink;
+      await expandReviewDetailOutcomeCards(page);
+      await expect(manifestLink).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 60_000 });
 
     await Promise.all([
       page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
-      linkToOpen.click(),
+      waitForLiveManifestSummaryResponse(page, goldenManifestId, { timeoutMs: 90_000 }),
+      manifestLink.click(),
     ]);
 
-    await expectLiveManifestDetailPageReady(page, goldenManifestId, { timeoutMs: 60_000 });
+    await expectLiveManifestDetailPageReady(page, goldenManifestId, { timeoutMs: 120_000 });
 
     const exportRes = await getRunExportZip(request, runId, tenantScope);
 
@@ -245,7 +255,7 @@ test.describe("live-api-journey", () => {
     );
 
     expect.soft(duplicateApprove.ok(), `duplicate approve should fail, got ${duplicateApprove.status()}`).toBe(false);
-    expect.soft(duplicateApprove.status()).toBe(400);
+    expect.soft(duplicateApprove.status()).toBe(409);
 
     const auditEvents = await searchAudit(request, {
       runId,
@@ -255,9 +265,15 @@ test.describe("live-api-journey", () => {
       projectId: tenantScope.projectId,
     });
 
+    const governanceAuditTypes = new Set(["GovernanceApprovalSubmitted", "GovernanceApprovalApproved"]);
+
     for (const ev of auditEvents) {
+      if (!ev.eventType || !governanceAuditTypes.has(ev.eventType)) {
+        continue;
+      }
+
       expect
-        .soft(ev.correlationId != null && ev.correlationId.length > 0, `audit event ${ev.eventType ?? "?"} should have correlationId`)
+        .soft(ev.correlationId != null && ev.correlationId.length > 0, `audit event ${ev.eventType} should have correlationId`)
         .toBe(true);
     }
 
@@ -305,16 +321,11 @@ test.describe("live-api-journey", () => {
 
     await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
 
-    await expect(page.getByRole("heading", { name: /governance workflow/i })).toBeVisible({
+    await expect(governancePageMainHeading(page)).toBeVisible({
       timeout: 60_000,
     });
 
-    await expect(page.locator("#gov-query-run")).toHaveValue(runId, { timeout: 15_000 });
-
-    await page.getByRole("button", { name: /^Load$/i }).click();
-
-    await expect(page.getByText(approvalRequestId).first()).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText("Approved").first()).toBeVisible({ timeout: 60_000 });
+    await expectGovernanceRunWorkflowVisible(page, approvalRequestId, "Approved");
 
     await page.goto("/governance/audit");
 

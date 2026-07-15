@@ -47,7 +47,7 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
       "Principal architects, enterprise architects, cloud architects, architecture review board members, and technical sponsors who need defensible, evidence-linked reviews rather than slide-only opinions.",
   },
   {
-    id: "vs-frontier-ai-assistants",
+    id: "vs-chatgpt-copilot",
     categoryId: "product-basics",
     question: "How is ArchLucid different from ChatGPT, Copilot, Claude, or Gemini?",
     answer:

@@ -16,7 +16,6 @@ import {
 } from "@/lib/architecture-creation-init";
 import { ARCHITECTURE_CREATION_BOOTSTRAP_INTENT } from "@/lib/architecture-creation-bootstrap";
 import {
-  clearArchitectureCreationDraftId,
   readArchitectureCreationDraftId,
   writeArchitectureCreationDraftId,
 } from "@/lib/architecture-creation-session";

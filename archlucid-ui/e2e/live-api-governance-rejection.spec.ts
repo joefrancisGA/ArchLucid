@@ -25,6 +25,7 @@ import {
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
 import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
+import { expectGovernanceRunWorkflowVisible, governancePageMainHeading } from "./helpers/operator-journey";
 
 const liveRejectionForensics: { runId?: string; approvalRequestId?: string } = {};
 
@@ -47,7 +48,7 @@ test.describe("live-api-governance-rejection", () => {
     }
   });
 
-  test("governance rejection: submit → reject → audit → UI; invalid transitions return 400", async ({
+  test("governance rejection: submit → reject → audit → UI; invalid transitions return 409 conflict", async ({
     page,
     request,
   }) => {
@@ -135,7 +136,7 @@ test.describe("live-api-governance-rejection", () => {
     expect.soft(approveAfterReject.ok(), `approve after reject should fail, got ${approveAfterReject.status()}`).toBe(
       false,
     );
-    expect.soft(approveAfterReject.status()).toBe(400);
+    expect.soft(approveAfterReject.status()).toBe(409);
 
     const duplicateReject = await postGovernanceRejectRaw(
       request,
@@ -149,7 +150,7 @@ test.describe("live-api-governance-rejection", () => {
     );
 
     expect.soft(duplicateReject.ok(), `duplicate reject should fail, got ${duplicateReject.status()}`).toBe(false);
-    expect.soft(duplicateReject.status()).toBe(400);
+    expect.soft(duplicateReject.status()).toBe(409);
 
     const auditEvents = await searchAudit(request, {
       runId,
@@ -181,15 +182,10 @@ test.describe("live-api-governance-rejection", () => {
 
     await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
 
-    await expect(page.getByRole("heading", { name: /governance workflow/i })).toBeVisible({
+    await expect(governancePageMainHeading(page)).toBeVisible({
       timeout: 60_000,
     });
 
-    await expect(page.locator("#gov-query-run")).toHaveValue(runId, { timeout: 15_000 });
-
-    await page.getByRole("button", { name: /^Load$/i }).click();
-
-    await expect(page.getByText(approvalRequestId).first()).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText("Rejected").first()).toBeVisible({ timeout: 60_000 });
+    await expectGovernanceRunWorkflowVisible(page, approvalRequestId, "Rejected");
   });
 });

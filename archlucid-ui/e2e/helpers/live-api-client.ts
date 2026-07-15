@@ -182,7 +182,8 @@ export function freshLiveE2eIdempotencyKey(): string {
 
 /**
  * `x-tenant-id` overrides are only safe under `DevelopmentBypass` (`AllowTestActorHeaders`). Under
- * `ApiKey` mode the CI keys carry no `Authentication:ApiKey:TenantId` claim, so
+ * `ApiKey` mode the CI keys must carry `Authentication:ApiKey:TenantId` claims (see `ui-e2e-live-apikey`
+ * in `ci.yml`); unbound keys still reject `x-tenant-id` via `ScopeIdentityBindingMiddleware`. Server RSC
  * `ScopeIdentityBindingMiddleware` returns **403 Forbidden** for any `x-tenant-id` header on a
  * claims-less key; under `JWT` mode scope is resolved from token claims and the header is ignored
  * anyway. Gate here (not per call-site) so every helper below can unconditionally accept a
@@ -1278,6 +1279,37 @@ export async function waitForAuthorityBuyerSummaryGoldenManifest(
 
   throw new Error(
     `Authority buyer-summary for ${runId} missing run.goldenManifestId within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+  );
+}
+
+/** Polls signed-record summary until visible in scope (manifest detail SSR + proxy hydration). */
+export async function waitForAuthorityManifestSummaryReady(
+  request: APIRequestContext,
+  manifestId: string,
+  timeoutMs = 90_000,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<void> {
+  const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
+  const encoded = encodeURIComponent(manifestId);
+
+  while (Date.now() < deadline) {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/signed-records/${encoded}/summary`, {
+      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+    });
+
+    if (res.ok()) {
+      return;
+    }
+
+    if (res.status() !== 404) {
+      await throwIfNotOk(res, `GET /v1/authority/signed-records/${encoded}/summary`);
+    }
+
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  throw new Error(
+    `Authority manifest summary for ${manifestId} not ready (GET /v1/authority/signed-records/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
   );
 }
 

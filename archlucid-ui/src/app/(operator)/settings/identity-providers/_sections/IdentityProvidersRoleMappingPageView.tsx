@@ -11,7 +11,7 @@ import {
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_INTRO,
   IDENTITY_PROVIDERS_ROLE_MAPPING_PAGE_TITLE,
 } from "@/lib/identity-providers-settings-copy";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";

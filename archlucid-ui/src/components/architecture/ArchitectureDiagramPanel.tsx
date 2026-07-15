@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ArchitectureDiagramEditor } from "@/components/architecture/ArchitectureDiagramEditor";
 import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
@@ -66,7 +66,7 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
   const [cacheVersion, setCacheVersion] = useState(0);
   const autoStartedRef = useRef(false);
 
-  const cache = useMemo(() => readArchitectureDiagramCache(props.runId), [props.runId, cacheVersion]);
+  const cache = readArchitectureDiagramCache(props.runId);
   const versions = cache?.versions ?? [];
 
   const runGeneration = useCallback(

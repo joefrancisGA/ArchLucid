@@ -59,7 +59,7 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(stepper).getByRole("heading", { name: "Start review" })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: "Add evidence" })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: "Monitor review progress" })).toBeInTheDocument();
-    expect(within(stepper).getByRole("heading", { name: "Finalize review" })).toBeInTheDocument();
+    expect(within(stepper).getByRole("heading", { name: "Finalize package" })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: "Share outputs" })).toBeInTheDocument();
     expect(within(stepper).getAllByRole("link").length).toBeGreaterThanOrEqual(5);
   });

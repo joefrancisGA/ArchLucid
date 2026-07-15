@@ -69,6 +69,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "server-operator-scope Vitest: ARCHLUCID_PROXY_BEARER_TOKEN env stub only (not a real JWT/API key); generic-api-key false positive on retired eyJ-prefixed fixture in git history"
+paths = [
+  '''(?:^|/)archlucid-ui/src/lib/server-operator-scope\.test\.ts$''',
+]
+
+[[allowlists]]
 description = "ITSM correlation SQL integration test: Jira external issue id fixture, not an API key (generic-api-key false positive on externalKey assignment)"
 paths = [
   '''(?:^|/)ArchLucid\.Persistence\.Tests/Integrations/SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlIntegrationTests\.cs$''',

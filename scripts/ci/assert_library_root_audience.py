@@ -27,7 +27,7 @@ def main() -> int:
     violations: list[str] = []
 
     for path in sorted(library.glob("*.md")):
-        text = path.read_text(encoding="utf-8")
+        text = path.read_text(encoding="utf-8-sig")
         lines = text.splitlines()
         scope_line = next((line for line in lines if line.strip()), "")
 

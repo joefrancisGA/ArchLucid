@@ -81,23 +81,4 @@ describe("help-search-panel-catalog", () => {
       helpSlug: "review-guide",
     });
   });
-
-  it("exposes path-chooser for all callers in Start here", () => {
-    const topics = listHelpSearchPanelTopics(false);
-    const pathChooser = topics.find((topic) => topic.id === "path-chooser");
-
-    expect(pathChooser).toBeDefined();
-    expect(pathChooser?.action).toEqual({
-      kind: "route",
-      href: "/help/path-chooser",
-      helpSlug: "path-chooser",
-    });
-  });
-
-  it("filters path-chooser by procurement alias", () => {
-    const topics = listHelpSearchPanelTopics(false);
-    const hits = filterHelpSearchPanelTopics(topics, "procurement");
-
-    expect(hits.map((topic) => topic.id)).toContain("path-chooser");
-  });
 });

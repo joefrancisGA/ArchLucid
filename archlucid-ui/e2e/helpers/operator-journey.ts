@@ -7,6 +7,7 @@ import {
 
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { getAppMain } from "./app-main";
+import { waitForLiveManifestDetailHydration } from "./live-page-readiness";
 import { normalizeRunIdForCompare } from "./live-api-client";
 
 import {
@@ -90,6 +91,24 @@ export function auditPageMainHeading(page: Page): Locator {
   return page.getByRole("heading", { level: 2, name: AUDIT_PAGE_PRIMARY_HEADING_PATTERN });
 }
 
+/** `/governance?runId=` review context — query picker is hidden; approvals load via URL param. */
+export async function expectGovernanceRunWorkflowVisible(
+  page: Page,
+  approvalRequestId: string,
+  statusLabel: string,
+): Promise<void> {
+  const section = page.getByTestId("governance-approval-requests-section");
+
+  await expect(section).toBeVisible({ timeout: 60_000 });
+
+  const requestRow = section.locator('[data-testid="governance-approval-request-row"]').filter({
+    hasText: approvalRequestId,
+  }).first();
+
+  await expect(requestRow).toBeVisible({ timeout: 60_000 });
+  await expect(requestRow.getByText(new RegExp(`^${statusLabel}$`, "i"))).toBeVisible({ timeout: 60_000 });
+}
+
 /** Expands buyer-polished audit optional filters (`audit-filters-collapsible-trigger`). */
 export async function expandAuditBuyerFiltersIfPresent(page: Page): Promise<void> {
   const trigger = page.getByTestId("audit-filters-collapsible-trigger");
@@ -108,8 +127,13 @@ export async function expandAuditBuyerFiltersIfPresent(page: Page): Promise<void
 export async function expectAuditSearchNoResults(page: Page, options?: { timeoutMs?: number }): Promise<void> {
   const timeout = options?.timeoutMs ?? 60_000;
 
-  await expect(page.getByTestId("audit-search-summary")).toContainText(/Showing 0 events/i, { timeout });
-  await expect(page.getByTestId("audit-search-no-results")).toBeVisible({ timeout });
+  await expect(page.getByTestId("audit-search-summary")).toContainText(
+    /Showing 0 events|No audit events in this view/i,
+    { timeout },
+  );
+  await expect(
+    page.getByTestId("audit-search-no-results").or(page.getByTestId("audit-buyer-empty-state")),
+  ).toBeVisible({ timeout });
 }
 
 function matchesAuditSearchGet(response: Response, runId?: string): boolean {
@@ -331,6 +355,11 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
+/** Tabbed buyer-polished run detail workspace (`ReviewDetailWorkspace`). */
+export function buyerPolishedReviewDetailWorkspace(page: Page): Locator {
+  return page.getByTestId("review-detail-workspace");
+}
+
 /** Buyer-polished run detail sticky section nav (`RunDetailSectionNav`). */
 export function buyerPolishedReviewDetailSectionNav(page: Page): Locator {
   return page.getByRole("navigation", { name: "Review detail sections" });
@@ -349,6 +378,58 @@ const BUYER_POLISHED_REVIEW_DETAIL_CORE_SECTION_IDS = [
   "pipeline-timeline",
   "artifacts-exports",
 ] as const;
+
+const BUYER_POLISHED_REVIEW_DETAIL_CORE_WORKSPACE_TABS: readonly ReviewDetailTabId[] = [
+  "overview",
+  "findings",
+  "evidence",
+  "policies",
+  "activity",
+];
+
+/** Run detail loaded — tabbed workspace (current) or legacy sticky section nav. */
+export async function expectBuyerPolishedReviewDetailShellReady(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+
+  await expectLiveRunDetailPageReady(page, timeoutMs);
+  await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0, { timeout: timeoutMs });
+
+  const workspace = buyerPolishedReviewDetailWorkspace(page);
+  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+
+  await expect(async () => {
+    const hasWorkspace = (await workspace.count()) > 0;
+    const hasSectionNav = (await sectionNav.count()) > 0;
+
+    expect(hasWorkspace || hasSectionNav).toBe(true);
+  }).toPass({ timeout: timeoutMs });
+
+  if ((await workspace.count()) > 0) {
+    await expect(workspace).toBeVisible({ timeout: timeoutMs });
+    await expect(page.getByTestId("review-detail-workspace-tabs")).toBeVisible({ timeout: timeoutMs });
+
+    return;
+  }
+
+  await expect(sectionNav).toBeVisible({ timeout: timeoutMs });
+}
+
+/** Canonical buyer-polished workspace tabs on committed review detail. */
+export async function expectBuyerPolishedReviewDetailWorkspaceCore(
+  page: Page,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeout = options?.timeoutMs ?? 15_000;
+
+  await expect(buyerPolishedReviewDetailWorkspace(page)).toBeVisible({ timeout });
+
+  for (const tab of BUYER_POLISHED_REVIEW_DETAIL_CORE_WORKSPACE_TABS) {
+    await expect(page.getByTestId(`review-detail-workspace-tab-${tab}`)).toBeVisible({ timeout });
+  }
+}
 
 /** Canonical buyer-polished section strip labels from `buildRunDetailNavSections`. */
 export async function expectBuyerPolishedReviewDetailSectionNavCore(
@@ -378,7 +459,105 @@ export async function expectQuickDecisionSeverityVisible(
 
 /** Main-content review outcome strip — `.first()` avoids strict-mode duplicates during hydration. */
 export function reviewOutcomeSummaryStrip(page: Page): Locator {
-  return page.getByRole("main").locator('section[aria-label="Review outcome summary"]').first();
+  return getAppMain(page).locator('section[aria-label="Review outcome summary"]').first();
+}
+
+function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator {
+  return page.getByTestId(`review-detail-workspace-panel-${tab}`);
+}
+
+/** Radix tab panels hide inactive workspace content — open the tab before tab-scoped assertions. */
+export async function openReviewDetailWorkspaceTab(
+  page: Page,
+  runId: string,
+  tab: ReviewDetailTabId,
+): Promise<void> {
+  const href = buildReviewDetailTabHref(runId, tab);
+  const url = new URL(page.url());
+  const onRunDetail = url.pathname === `/reviews/${encodeURIComponent(runId.trim())}`;
+  const activeTab = url.searchParams.get("reviewTab");
+
+  if (!onRunDetail || activeTab !== tab) {
+    await page.goto(href);
+  } else {
+    const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+    if ((await trigger.getAttribute("data-state")) !== "active") {
+      await trigger.click();
+    }
+  }
+
+  await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId(`review-detail-workspace-tab-${tab}`)).toHaveAttribute("data-state", "active", {
+    timeout: 15_000,
+  });
+}
+
+function reviewDetailOutcomeCardsDetails(page: Page): Locator {
+  return reviewDetailWorkspacePanel(page, "activity")
+    .locator("details")
+    .filter({ has: page.getByText("Detailed outcome cards", { exact: true }) })
+    .first();
+}
+
+/** Activity tab folds outcome cards by default — expand before asserting the outcome summary strip. */
+export async function expandReviewDetailOutcomeCards(page: Page): Promise<void> {
+  const details = reviewDetailOutcomeCardsDetails(page);
+
+  await expect(details).toBeVisible({ timeout: 60_000 });
+
+  const isOpen: boolean = await details.evaluate((element) => (element as HTMLDetailsElement).open);
+
+  if (!isOpen) {
+    await details.locator(":scope > summary").click();
+  }
+
+  await expect(details).toHaveAttribute("open");
+}
+
+/** Findings tab workspace cards fold row actions by default — expand before chip/link assertions. */
+export async function expandFindingWorkspaceCard(scope: Locator, findingId: string): Promise<Locator> {
+  const card = scope.getByTestId(`finding-workspace-card-${findingId}`);
+
+  await expect(card).toBeVisible({ timeout: 60_000 });
+
+  const details = card.locator("details");
+
+  const isOpen: boolean = await details.evaluate((element) => (element as HTMLDetailsElement).open);
+
+  if (!isOpen) {
+    await details.locator(":scope > summary").click();
+  }
+
+  await expect(details).toHaveAttribute("open");
+
+  return card;
+}
+
+/** Opens activity tab, expands outcome cards, and returns the visible outcome summary strip. */
+export async function openVisibleReviewOutcomeSummaryStrip(page: Page, runId: string): Promise<Locator> {
+  await openReviewDetailWorkspaceTab(page, runId, "activity");
+
+  const outcomeStrip = reviewOutcomeSummaryStrip(page);
+  const manifestLink = runDetailFinalizedPackageLink(page);
+
+  await expect(async () => {
+    if (await outcomeStrip.isVisible()) {
+      return;
+    }
+
+    await expandReviewDetailOutcomeCards(page);
+
+    if (await outcomeStrip.isVisible()) {
+      return;
+    }
+
+    await expect(manifestLink).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: 60_000 });
+
+  await expect(outcomeStrip).toBeVisible({ timeout: 5_000 });
+
+  return outcomeStrip;
 }
 
 function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator {
@@ -448,7 +627,7 @@ export async function openVisibleReviewOutcomeSummaryStrip(page: Page, runId: st
 
 /** Finalized package deep link on run detail (prefer over nested outcome-strip traversal). */
 export function runDetailFinalizedPackageLink(page: Page): Locator {
-  return page.getByRole("main").getByTestId("run-detail-finalized-package-link").first();
+  return getAppMain(page).getByTestId("run-detail-finalized-package-link").first();
 }
 
 /** Featured package proof summary on buyer-polished home — visible instance only. */
@@ -471,12 +650,19 @@ export function outcomeStripSignedRecordLink(outcomeStrip: Locator): Locator {
  */
 export async function expectBuyerPipelineTimelineSectionVisible(
   page: Page,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number; runId?: string },
 ): Promise<void> {
   const timeout = options?.timeoutMs ?? 60_000;
   const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  await buyerPolishedReviewDetailSectionNavLink(sectionNav, "pipeline-timeline").click();
+  if ((await sectionNav.count()) > 0) {
+    await buyerPolishedReviewDetailSectionNavLink(sectionNav, "pipeline-timeline").click();
+  } else if (options?.runId !== undefined && options.runId.trim().length > 0) {
+    await openReviewDetailWorkspaceTab(page, options.runId, "activity");
+  } else {
+    await page.getByTestId("review-detail-workspace-tab-activity").click();
+    await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout });
+  }
 
   const collapsible = page.getByTestId("run-pipeline-timeline-collapsible");
 
@@ -495,8 +681,21 @@ export async function expectBuyerPipelineTimelineSectionVisible(
 }
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
-export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promise<void> {
-  const deliverablesDetails = page.locator("#artifacts-exports details").first();
+export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?: string): Promise<void> {
+  const artifactsSection = page.locator("#artifacts-exports");
+
+  if ((await artifactsSection.count()) === 0 || !(await artifactsSection.isVisible())) {
+    if (runId !== undefined && runId.trim().length > 0) {
+      await openReviewDetailWorkspaceTab(page, runId, "activity");
+    } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
+      await page.getByTestId("review-detail-workspace-tab-activity").click();
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+    }
+  }
+
+  await artifactsSection.scrollIntoViewIfNeeded();
+
+  const deliverablesDetails = artifactsSection.locator("details").first();
   const deliverablesSummary = deliverablesDetails.locator("summary", { hasText: /^Deliverables$/ });
 
   await expect(deliverablesSummary).toBeVisible({ timeout: 60_000 });
@@ -511,9 +710,20 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page): Promis
 }
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */
-export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page): Promise<void> {
-  const sponsorHandoff = page.locator("#sponsor-handoff").first();
+export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
+  let sponsorHandoff = page.locator("#sponsor-handoff").first();
 
+  if ((await sponsorHandoff.count()) === 0 || !(await sponsorHandoff.isVisible())) {
+    if (runId !== undefined && runId.trim().length > 0) {
+      await openReviewDetailWorkspaceTab(page, runId, "activity");
+    } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
+      await page.getByTestId("review-detail-workspace-tab-activity").click();
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+    }
+  }
+
+  sponsorHandoff = page.locator("#sponsor-handoff").first();
+  await sponsorHandoff.scrollIntoViewIfNeeded();
   await expect(sponsorHandoff).toBeVisible({ timeout: 60_000 });
 
   const briefingDetails = page.locator("details:has(#sponsor-handoff)").first();
@@ -623,14 +833,31 @@ export function structuredCompareSponsorRecommendationParagraph(page: Page): Loc
   return page.locator("#compare-structured").getByTestId("compare-sponsor-recommendation");
 }
 
+/** Navigates to `/reviews/{runId}` with encoded id and DOM-ready wait (live API E2E parity). */
+export async function gotoLiveRunDetailPage(
+  page: Page,
+  runId: string,
+  options?: { waitUntil?: "commit" | "domcontentloaded" | "load" },
+): Promise<void> {
+  await page.goto(`/reviews/${encodeURIComponent(runId)}`, {
+    waitUntil: options?.waitUntil ?? "domcontentloaded",
+  });
+}
+
 /** Run detail page: loading finished and primary review headline (`RunDetailPageHeader` H1) is visible. */
 export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_000): Promise<void> {
-  await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: timeoutMs });
-  await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
-  await expect(page.getByTestId("run-detail-load-failure")).toHaveCount(0, { timeout: timeoutMs });
-  await expect(page.getByTestId("branded-not-found")).toHaveCount(0, { timeout: timeoutMs });
-  await expect(page.getByTestId("review-detail-root")).toBeVisible({ timeout: timeoutMs });
-  await expect(page.locator("main h1").first()).toBeVisible({ timeout: timeoutMs });
+  const loadingReviewDetail = page.getByLabel("Loading review detail");
+  const reviewDetailRoot = page.getByTestId("review-detail-root");
+  const mainHeading = page.locator("main h1").first();
+
+  await expect(async () => {
+    await expect(loadingReviewDetail).toHaveCount(0, { timeout: 5_000 });
+    await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
+    await expect(page.getByTestId("run-detail-load-failure")).toHaveCount(0, { timeout: 2_000 });
+    await expect(page.getByTestId("branded-not-found")).toHaveCount(0, { timeout: 2_000 });
+    await expect(reviewDetailRoot).toBeVisible({ timeout: 5_000 });
+    await expect(mainHeading).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: timeoutMs });
 }
 
 /** Live manifest detail after navigation — buyer-polished shell hides raw manifest UUID in the DOM. */
@@ -639,23 +866,23 @@ export async function expectLiveManifestDetailPageReady(
   manifestId: string,
   options?: { timeoutMs?: number },
 ): Promise<void> {
-  const timeoutMs = options?.timeoutMs ?? 60_000;
+  const timeoutMs = options?.timeoutMs ?? 90_000;
   const manifestMain = getAppMain(page);
   const normalizedManifestId = normalizeRunIdForCompare(manifestId);
 
-  await expect(manifestMain.getByTestId("manifest-detail-loading-shell")).toHaveCount(0, {
-    timeout: timeoutMs,
-  });
-  await expect(manifestMain.getByText(/Loading review record/i)).toHaveCount(0, {
-    timeout: timeoutMs,
-  });
-  await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
-    timeout: timeoutMs,
-  });
+  await waitForLiveManifestDetailHydration(page, manifestId, { timeoutMs });
 
-  await expect(
-    manifestMain.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
-  ).toBeVisible({ timeout: timeoutMs });
+  const heading = manifestMain
+    .getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN })
+    .first();
+
+  await expect(async () => {
+    const headingVisible = await heading.isVisible().catch(() => false);
+    const overviewVisible = await manifestMain.locator("#manifest-overview").isVisible().catch(() => false);
+    const hasSignedRecordRoute = /\/(?:signed-records|manifests)\//i.test(new URL(page.url()).pathname);
+
+    expect(headingVisible || (overviewVisible && hasSignedRecordRoute)).toBe(true);
+  }).toPass({ timeout: timeoutMs });
 
   await expect
     .poll(() => normalizeRunIdForCompare(new URL(page.url()).pathname).includes(normalizedManifestId), {

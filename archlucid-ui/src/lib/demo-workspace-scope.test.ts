@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   isPinnedDemoWorkspaceRunId,
+  resolveDemoWorkspaceScopeHeadersForProjectId,
   resolveDemoWorkspaceScopeHeadersForRunId,
   resolveDemoWorkspaceScopeHeadersFromProxyPath,
 } from "./demo-workspace-scope";
@@ -30,6 +31,21 @@ describe("demo-workspace-scope", () => {
   it("returns null for unrelated run ids", () => {
     expect(resolveDemoWorkspaceScopeHeadersForRunId("00000000-0000-0000-0000-000000000000")).toBeNull();
     expect(isPinnedDemoWorkspaceRunId("00000000-0000-0000-0000-000000000000")).toBe(false);
+  });
+
+  it("resolves workspace A scope for pinned product tour project id", () => {
+    expect(
+      resolveDemoWorkspaceScopeHeadersForProjectId("9beb918c-83d4-1385-0486-21f341806c5c"),
+    ).toEqual({
+      "x-tenant-id": "11111111-1111-1111-1111-111111111111",
+      "x-workspace-id": "2b2571e1-1884-62a2-1e8b-15a2a70a0342",
+      "x-project-id": "9beb918c-83d4-1385-0486-21f341806c5c",
+    });
+  });
+
+  it("returns null for unrelated project ids", () => {
+    expect(resolveDemoWorkspaceScopeHeadersForProjectId("default")).toBeNull();
+    expect(resolveDemoWorkspaceScopeHeadersForProjectId("33333333-3333-3333-3333-333333333333")).toBeNull();
   });
 
   it("extracts pinned demo scope from pilot-run-deltas proxy paths", () => {

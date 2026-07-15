@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
+import { BUYER_EARLY_ADOPTER_PRICING_NOTE } from "@/lib/buyer-polish-copy";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import { buildMarketingSelfServeBillingHref } from "@/lib/marketing/marketing-billing-plan-href";
 import {
@@ -139,7 +140,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
                 const includedLine = formatIncludedUsersAndWorkspaces(pkg);
                 const aiCreditsLine = formatMonthlyAiCredits(pkg);
-                const billingHref = tierId !== null && selfServeCheckoutEnabled ? buildMarketingSelfServeBillingHref(tierId) : null;
+                const stripeHref = tierId !== null ? resolveStripeCheckoutHref(pricing, tierId) : null;
                 const bullets = BILLING_TIER_FEATURE_BULLETS[pkg.id] ?? [];
 
                 return (
@@ -237,6 +238,12 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 );
               })}
           </ul>
+          <p
+            className={cn("mt-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="pricing-early-adopter-framing"
+          >
+            {BUYER_EARLY_ADOPTER_PRICING_NOTE}
+          </p>
           {props.showAiUsageNote === true ? (
             <p className={cn("mt-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="pricing-ai-usage-note">
               {BUYER_MARKETING_PRICING_AI_USAGE_NOTE}

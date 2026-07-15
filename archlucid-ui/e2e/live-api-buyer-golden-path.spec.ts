@@ -4,7 +4,6 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
   expectBuyerExecutiveReviewPrimaryHeading,
   expectBuyerExecutiveSummarySurface,
@@ -19,12 +18,18 @@ import {
   injectDemoWorkspaceOperatorScope,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
-import { waitForLiveApiReady } from "./helpers/live-api-client";
+import { waitForAuthorityBuyerSummaryGoldenManifest, waitForLiveApiReady } from "./helpers/live-api-client";
 import { getAppMain } from "./helpers/app-main";
+import {
+  waitForLiveAuthorityRunDetailResponse,
+  waitForLiveManifestSummaryResponse,
+  waitForLiveOperatorPageHydration,
+} from "./helpers/live-page-readiness";
 import {
   askPageMainHeading,
   comparePageMainHeading,
   expectGraphPageReadySurface,
+  expectLiveManifestDetailPageReady,
   governancePageMainHeading,
 } from "./helpers/operator-journey";
 
@@ -34,7 +39,6 @@ const productTourRunEnc = encodeURIComponent(productTourRunId);
 const liveBuyerGoldenPathHrefs = {
   executive: `/reviews/${productTourRunEnc}`,
   reviewPackage: `/reviews/${productTourRunEnc}`,
-  signedManifestFriendly: `/reviews/${productTourRunEnc}/signed-record`,
   evidenceGraph: `/graph?runId=${productTourRunEnc}`,
   governanceApproval: `/governance?runId=${productTourRunEnc}`,
   auditTrail: `/audit?runId=${productTourRunEnc}`,
@@ -42,11 +46,24 @@ const liveBuyerGoldenPathHrefs = {
   ask: `/ask?runId=${productTourRunEnc}`,
 } as const;
 
+let liveProductTourGoldenManifestId = "";
+
+function liveSignedManifestHref(manifestId: string): string {
+  return `/signed-records/${encodeURIComponent(manifestId)}`;
+}
+
 test.describe("live-api-buyer-golden-path", () => {
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
 
     await ensureDemoWorkspaceSeedReady(request);
+
+    liveProductTourGoldenManifestId = await waitForAuthorityBuyerSummaryGoldenManifest(
+      request,
+      DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+      90_000,
+      DEMO_WORKSPACE_A_LIVE_IDS,
+    );
   });
 
   test("walks five-step diligence spine against live API without generic error @smoke @smoke-golden-path", async ({
@@ -57,23 +74,28 @@ test.describe("live-api-buyer-golden-path", () => {
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
 
     await page.goto(liveBuyerGoldenPathHrefs.executive);
+    await waitForLiveOperatorPageHydration(page);
+    await waitForLiveAuthorityRunDetailResponse(page, productTourRunId);
     await expectBuyerExecutiveSummarySurface(page);
-    await expect(getAppMain(page)).toBeVisible({ timeout: 60_000 });
-    await expectBuyerExecutiveReviewPrimaryHeading(page);
+    await expect(getAppMain(page)).toBeVisible({ timeout: 90_000 });
+    await expectBuyerExecutiveReviewPrimaryHeading(page, { timeout: 90_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(liveBuyerGoldenPathHrefs.reviewPackage);
+    await waitForLiveOperatorPageHydration(page);
+    await waitForLiveAuthorityRunDetailResponse(page, productTourRunId);
     await expectBuyerGoldenPageReady(page);
-    await expect(getAppMain(page)).toBeVisible({ timeout: 60_000 });
-    await expectBuyerReviewPackagePrimaryHeading(page);
+    await expect(getAppMain(page)).toBeVisible({ timeout: 90_000 });
+    await expectBuyerReviewPackagePrimaryHeading(page, { timeout: 90_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    await page.goto(liveBuyerGoldenPathHrefs.signedManifestFriendly);
-    await expect(
-      getAppMain(page).getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
-    ).toBeVisible({ timeout: 60_000 });
+    // GUID `/reviews/{id}/signed-record` rewrites to review detail — canonical manifest route uses seeded goldenManifestId.
+    await page.goto(liveSignedManifestHref(liveProductTourGoldenManifestId));
+    await waitForLiveOperatorPageHydration(page);
+    await waitForLiveManifestSummaryResponse(page, liveProductTourGoldenManifestId);
+    await expectLiveManifestDetailPageReady(page, liveProductTourGoldenManifestId, { timeoutMs: 90_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

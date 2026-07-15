@@ -1,9 +1,12 @@
 "use client";
 
 import { RunDetailOverviewTab, type RunDetailOverviewTabProps } from "@/components/reviews/RunDetailOverviewTab";
+import { useReviewDetailTabNavigation } from "@/components/reviews/ReviewDetailWorkspace";
 
 export function RunDetailOverviewPanelClient(
-  props: RunDetailOverviewTabProps,
+  props: Omit<RunDetailOverviewTabProps, "onNavigateTab">,
 ): React.JSX.Element {
-  return <RunDetailOverviewTab {...props} />;
+  const navigateTab = useReviewDetailTabNavigation();
+
+  return <RunDetailOverviewTab {...props} onNavigateTab={navigateTab} />;
 }

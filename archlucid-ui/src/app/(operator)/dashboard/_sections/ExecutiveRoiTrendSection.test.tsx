@@ -50,7 +50,7 @@ describe("ExecutiveRoiTrendSection", () => {
   });
 
   it("shows mixed-mode footnote and simulator-only badge when history includes both modes", async () => {
-    render(<ExecutiveRoiTrendSection />);
+    render(<ExecutiveRoiTrendSection defaultTimeRange="all" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("exec-roi-trend-chart")).toBeInTheDocument();

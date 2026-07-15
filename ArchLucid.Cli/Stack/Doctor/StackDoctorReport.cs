@@ -2,17 +2,17 @@ namespace ArchLucid.Cli.Stack.Doctor;
 
 internal sealed class StackDoctorReport
 {
-    internal required string Profile { get; init; }
+    public required string Profile { get; init; }
 
-    internal required string RepositoryRoot { get; init; }
+    public required string RepositoryRoot { get; init; }
 
-    internal required DateTime GeneratedUtc { get; init; }
+    public required DateTime GeneratedUtc { get; init; }
 
-    internal required StackDoctorVerdict OverallVerdict { get; init; }
+    public required StackDoctorVerdict OverallVerdict { get; init; }
 
-    internal required IReadOnlyList<StackDoctorStepResult> Steps { get; init; }
+    public required IReadOnlyList<StackDoctorStepResult> Steps { get; init; }
 
-    internal string? JsonArtifactPath { get; init; }
+    public string? JsonArtifactPath { get; init; }
 
-    internal string? MarkdownArtifactPath { get; init; }
+    public string? MarkdownArtifactPath { get; init; }
 }

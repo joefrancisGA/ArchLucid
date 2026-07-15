@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestDemoBatch5Dt(unittest.TestCase):
     def test_audit_completion_card_uses_buyer_polish_copy(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "audit" / "_sections" / "AuditResultsSection.tsx"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "governance" / "audit" / "_sections" / "AuditResultsSection.tsx"
         text = path.read_text(encoding="utf-8")
 
         self.assertIn("BUYER_AUDIT_TRAIL_COMPLETE_HEADING", text)

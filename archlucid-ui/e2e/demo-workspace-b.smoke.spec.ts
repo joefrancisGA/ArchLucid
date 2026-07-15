@@ -22,10 +22,11 @@ import {
   postConsultingAnalysisDocxRaw,
 } from "./helpers/live-api-client";
 import {
-  buyerPolishedReviewDetailSectionNav,
-  buyerPolishedReviewDetailSectionNavLink,
   ensureBuyerDeliverablesSectionExpanded,
+  expectBuyerPolishedReviewDetailShellReady,
+  expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
+  openReviewDetailWorkspaceTab,
 } from "./helpers/operator-journey";
 
 const releaseGateTag = "@release-gate";
@@ -133,17 +134,14 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_B_LIVE_IDS);
     await page.goto(`/reviews/${DEMO_WORKSPACE_B_REGULATED_RUN_ID}`, { waitUntil: "domcontentloaded" });
 
-    const sectionNav = buyerPolishedReviewDetailSectionNav(page);
+    await expectBuyerPolishedReviewDetailShellReady(page);
+    await expectBuyerPolishedReviewDetailWorkspaceCore(page);
 
-    await expect(sectionNav).toBeVisible({ timeout: 90_000 });
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "overview");
 
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
+    await expect(page.getByTestId("review-detail-workspace-panel-overview")).toBeVisible({ timeout: 60_000 });
 
-    await expect(page.getByText(/Review could not be loaded/i)).toHaveCount(0);
-
-    await expect(buyerPolishedReviewDetailSectionNavLink(sectionNav, "run-decision-summary")).toBeVisible();
-
-    await page.locator("#run-explanation").scrollIntoViewIfNeeded();
+    await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "findings");
 
     const quickSummary = page.getByTestId("quick-decision-summary");
 
@@ -235,9 +233,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     });
 
     /** Buyer deliverables still expose deterministic export affordances (ZIP + Markdown summary). */
-    await page.locator("#artifacts-exports").scrollIntoViewIfNeeded();
-
-    await ensureBuyerDeliverablesSectionExpanded(page);
+    await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID);
 
     await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence bundle/i })).toBeVisible({
       timeout: 60_000,
