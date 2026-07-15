@@ -16,11 +16,13 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   TEAMS_INTEGRATION_CONNECT_SECTION_LEAD,
   TEAMS_INTEGRATION_CONNECT_SECTION_TITLE,
+  TEAMS_INTEGRATION_DEMO_CAPABILITY_DESCRIPTION,
   TEAMS_INTEGRATION_DESTINATION_NAME_HELPER,
   TEAMS_INTEGRATION_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_PAGE_TITLE,
   TEAMS_INTEGRATION_SECRET_EXAMPLE,
   TEAMS_INTEGRATION_SECRET_HELPER,
+  TEAMS_INTEGRATION_SECRET_NAME_LABEL,
   teamsIntegrationConnectionStatusLabel,
 } from "@/lib/teams-integration-page-copy";
 import { cn } from "@/lib/utils";
@@ -41,7 +43,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Microsoft Teams integration"
-        description="In a connected tenant, administrators can connect Microsoft Teams notifications using a Key Vault secret reference."
+        description={TEAMS_INTEGRATION_DEMO_CAPABILITY_DESCRIPTION}
       />
     );
   }
@@ -126,7 +128,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
 
               <div className="grid max-w-xl gap-5">
                 <div>
-                  <Label htmlFor="kv-secret">Key Vault secret name</Label>
+                  <Label htmlFor="kv-secret">{TEAMS_INTEGRATION_SECRET_NAME_LABEL}</Label>
                   <Input
                     id="kv-secret"
                     name="keyVaultSecretName"

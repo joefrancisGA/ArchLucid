@@ -3,6 +3,7 @@
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { labelForTeamsNotificationEventType } from "@/lib/teams-integration-notification-catalog";
 import {
+  TEAMS_INTEGRATION_SECRET_NAME_LABEL,
   teamsIntegrationConnectionStatusLabel,
   type TeamsIntegrationConnectionStatus,
 } from "@/lib/teams-integration-page-copy";
@@ -43,7 +44,7 @@ export function TeamsConnectionSummary(props: TeamsConnectionSummaryProps): Reac
           </dd>
         </div>
         <div>
-          <dt className="font-medium text-al-text-secondary">Key Vault secret name</dt>
+          <dt className="font-medium text-al-text-secondary">{TEAMS_INTEGRATION_SECRET_NAME_LABEL}</dt>
           <dd className="m-0 mt-1 font-mono text-al-text-primary">{props.conn.keyVaultSecretName ?? "—"}</dd>
         </div>
         <div className="sm:col-span-2">

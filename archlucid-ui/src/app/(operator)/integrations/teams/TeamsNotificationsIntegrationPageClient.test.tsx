@@ -30,6 +30,8 @@ import { TeamsNotificationsIntegrationPageClient } from "@/app/(operator)/integr
 import {
   TEAMS_INTEGRATION_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_PAGE_TITLE,
+  TEAMS_INTEGRATION_SECRET_NAME_LABEL,
+  TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE,
 } from "@/lib/teams-integration-page-copy";
 
 const CATALOG = [
@@ -120,14 +122,14 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(screen.queryByText("com.archlucid.authority.run.completed")).not.toBeInTheDocument();
   });
 
-  it("validates a Key Vault secret name and sends a test notification", async () => {
+  it("validates a secret name and sends a test notification", async () => {
     render(
       <TeamsNotificationsIntegrationPageClient
         loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
       />,
     );
 
-    const secretInput = await screen.findByLabelText("Key Vault secret name");
+    const secretInput = await screen.findByLabelText(TEAMS_INTEGRATION_SECRET_NAME_LABEL);
     fireEvent.change(secretInput, { target: { value: "teams-governance-alerts-prod" } });
     fireEvent.click(screen.getByRole("button", { name: "Validate secret" }));
 
@@ -157,13 +159,13 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
       />,
     );
 
-    const secretInput = await screen.findByLabelText("Key Vault secret name");
+    const secretInput = await screen.findByLabelText(TEAMS_INTEGRATION_SECRET_NAME_LABEL);
     fireEvent.change(secretInput, {
       target: { value: "https://webhook.office.com/webhookb2/secret" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Validate secret" }));
 
-    expect(await screen.findByText("Enter a Key Vault secret name, not a webhook URL.")).toBeInTheDocument();
+    expect(await screen.findByText(TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE)).toBeInTheDocument();
     expect(mockValidate).not.toHaveBeenCalled();
   });
 });

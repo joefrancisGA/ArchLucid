@@ -6,14 +6,17 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { TEAMS_INTEGRATION_SECURITY_NOTE } from "@/lib/teams-integration-page-copy";
+import {
+  TEAMS_INTEGRATION_HOSTED_SECRET_STORE_FOOTNOTE,
+  TEAMS_INTEGRATION_SECURITY_NOTE,
+} from "@/lib/teams-integration-page-copy";
 import { cn } from "@/lib/utils";
 
 const BEFORE_YOU_CONNECT_STEPS = [
   "Create an incoming webhook for the Teams channel that should receive notifications.",
-  "Store the webhook URL as a secret in the Key Vault used by this ArchLucid workspace.",
+  "Store the webhook URL in your organization's approved secret store.",
   "Confirm that the ArchLucid delivery identity can read that secret.",
-  "Enter the secret name on this page.",
+  "Enter the secret name or reference on this page.",
   "Validate the secret, then send a test notification before saving.",
 ] as const;
 
@@ -32,6 +35,9 @@ export function TeamsIntegrationAside(props: TeamsIntegrationAsideProps): React.
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Security</h2>
         <p className={cn("m-0 mt-2 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {TEAMS_INTEGRATION_SECURITY_NOTE}
+        </p>
+        <p className={cn("m-0 mt-2 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {TEAMS_INTEGRATION_HOSTED_SECRET_STORE_FOOTNOTE}
         </p>
       </div>
 
