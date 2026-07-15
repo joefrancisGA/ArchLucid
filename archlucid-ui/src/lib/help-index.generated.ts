@@ -220,7 +220,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Configuration reference",
     "sectionSlug": "itsm-integration-posture-tb-387",
     "sectionHeading": "ITSM integration posture (TB-387)",
-    "excerpt": "Outbound vendor credentials remain under *`Integrations:ItsmOutbound:` and `Integrations:ItsmInbound:`* (unchanged)."
+    "excerpt": "Outbound vendor credentials are configured through deployment-level ITSM outbound and inbound connector settings (unchanged)."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",

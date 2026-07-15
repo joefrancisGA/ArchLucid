@@ -108,6 +108,30 @@ export function isDisabledConnector(connector: ConnectorSurfaceStatusDto): boole
   return connector.summary.toLowerCase().includes("disabled");
 }
 
+const INTEGRATIONS_CONFIG_KEY_PATTERN = /Integrations:/i;
+
+export const CONFLUENCE_PUBLISHING_DISABLED_CUSTOMER_SUMMARY =
+  "Confluence publishing is disabled for this deployment.";
+
+/** Maps deployment-operator connector summaries to buyer-safe text for integration readiness cards (TB-777). */
+export function formatConnectorCustomerSummary(connector: ConnectorSurfaceStatusDto): string {
+  if (isDisabledConnector(connector)) {
+    return CONFLUENCE_PUBLISHING_DISABLED_CUSTOMER_SUMMARY;
+  }
+
+  const summary = connector.summary.trim();
+
+  if (summary.length === 0) {
+    return "";
+  }
+
+  if (INTEGRATIONS_CONFIG_KEY_PATTERN.test(summary)) {
+    return resolveConnectorGuidance(connector, resolveConnectorHumanStatus(connector));
+  }
+
+  return summary;
+}
+
 export function resolveConnectorHumanStatus(connector: ConnectorSurfaceStatusDto): ConnectorHumanStatus {
   if (isDisabledConnector(connector)) {
     return "Disabled";
