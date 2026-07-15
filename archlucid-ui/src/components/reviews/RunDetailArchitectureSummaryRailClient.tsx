@@ -38,7 +38,6 @@ export function RunDetailArchitectureSummaryRailClient(
       architectureText={props.architectureText}
       evidenceCount={props.evidenceCount}
       userAssertions={null}
-      hasSubmittedArchitecture={props.hasSubmittedArchitecture}
       onNavigateTab={navigateTab}
     />
   );
