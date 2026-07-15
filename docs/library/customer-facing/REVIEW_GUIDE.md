@@ -1,8 +1,8 @@
-> **Scope:** Customer-facing guide — creating an architecture review on the New Architecture Review page.
+> **Scope:** Customer-facing field reference — what each step of the New architecture review wizard (`/reviews/new`) asks for and why.
 
 # Review guide
 
-Create an architecture review package by uploading architecture evidence, adding context, and letting ArchLucid evaluate the design against default review standards.
+Use this page while you work through the **New architecture review** wizard. You can start from a saved architecture draft or attach evidence directly in the wizard — both paths use the steps below.
 
 ## Name the review
 
@@ -10,15 +10,17 @@ Give the review a clear title that sponsors and reviewers will recognize — for
 
 ## Upload architecture evidence
 
-Attach at least one architecture diagram, PDF export, or architecture document. Additional files are optional but help ArchLucid ground findings in your design.
+Attach at least one architecture diagram, PDF export, or document before you start analysis. See [Start a review](/help/evidence-intake) for accepted formats, cloud inventory ZIP rules, and how to verify uploads before finalize.
 
 ## Add architecture context
 
-Add as much useful context as you can: goals, constraints, risks, business drivers, integrations, data flows, security concerns, known tradeoffs, and what you want ArchLucid to focus on. Context is optional when files are attached; without files, provide enough detail for ArchLucid to understand what should be reviewed.
+Add goals, constraints, risks, integrations, and what you want ArchLucid to focus on. Context is optional when files are attached; without files, provide enough detail for ArchLucid to understand what should be reviewed.
 
 ## Confirm review scope
 
-ArchLucid applies default review standards automatically for your first review. Open **Review scope (optional)** if you want to limit evaluation to specific standards before you start.
+By default, your first review is evaluated against two standards — Security Architecture Baseline and FinOps & Cloud Cost Optimization. Open **Review scope (optional)** to turn this off and use every standard enabled for your workspace instead.
+
+Review scope controls which standards evaluate your design; it is not the same as workspace or tenant scope. See the [Workspace and scope guide](/help/scope) for tenant, workspace, and project isolation.
 
 ## Start the review
 
@@ -26,15 +28,17 @@ Select **Start architecture review** when the title and evidence requirements ar
 
 ## Review findings and evidence
 
-Open the review package to inspect findings, severity, rationale, and links back to evidence. Use the evidence trail to trace how each finding relates to your uploads.
+After analysis completes, open the review package to triage findings, severity, and evidence links — see [Findings](/help/findings).
 
 ## Finalize the review package
 
-Record decisions, confirm evidence, and finalize the signed review record when you are ready to share outputs with sponsors, security reviewers, or governance stakeholders. Download review artifacts and proof packets from the review package.
+When decisions are ready, finalize and export sponsor-ready outputs from the review package — see [Review packages](/help/review-packages).
 
 ## Related guides
 
-- [First-review guide](/help/first-hour-operator-path)
 - [Start a review](/help/evidence-intake)
 - [Review packages](/help/review-packages)
-- [Evidence trail](/help/evidence-trail)
+- [Evidence graph](/help/evidence-trail)
+- [Findings](/help/findings)
+- [First review guide](/help/first-hour-operator-path)
+- [Workspace and scope guide](/help/scope)
