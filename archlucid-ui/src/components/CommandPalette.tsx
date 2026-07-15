@@ -51,6 +51,7 @@ import { resolveOperateNavUnlockPhase } from "@/lib/usability/operate-advanced-f
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { stampRouteReferrer } from "@/lib/operator-navigation-referrer";
+import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
