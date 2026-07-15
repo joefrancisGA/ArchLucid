@@ -69,7 +69,8 @@ describe("WelcomeMarketingPage", () => {
     }
 
     expect(screen.getByTestId("welcome-use-cases")).toBeInTheDocument();
-    expect(screen.getByTestId("welcome-use-case-azure-waf")).toBeInTheDocument();
+    expect(screen.getByTestId("welcome-use-case-aws-waf")).toBeInTheDocument();
+    expect(screen.getByTestId("welcome-use-case-gcp-architecture-framework")).toBeInTheDocument();
     expect(screen.getByTestId("welcome-policy-pack-disclaimer")).toHaveTextContent(/thematic mapping/i);
     expect(screen.getByRole("heading", { name: /Proof at a glance/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Three pillars/i })).toBeInTheDocument();

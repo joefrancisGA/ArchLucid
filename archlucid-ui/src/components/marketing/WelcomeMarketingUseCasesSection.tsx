@@ -8,7 +8,7 @@ import {
 } from "@/components/marketing/welcome-marketing-copy";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
-/** Bundled policy-pack use cases for Azure-first buyers (with framework disclaimer). */
+/** Bundled policy-pack use cases across cloud frameworks (with thematic-mapping disclaimer). */
 export function WelcomeMarketingUseCasesSection() {
   return (
     <section
@@ -20,7 +20,7 @@ export function WelcomeMarketingUseCasesSection() {
         Use cases — bundled policy packs
       </h2>
       <p className={cn("mt-2 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Every net-new tenant ships curated governance packs — including Azure WAF and CAF/landing-zone themes — so
+        Every net-new tenant ships curated governance packs — including AWS, Azure, and Google Cloud framework themes — so
         pilots start with review-ready rules instead of an empty library.
       </p>
       <ul className="mt-6 grid list-none gap-4 p-0 md:grid-cols-3">

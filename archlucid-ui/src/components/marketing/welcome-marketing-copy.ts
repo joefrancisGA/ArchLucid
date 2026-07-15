@@ -89,14 +89,14 @@ export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
     body: "Default bundled policy packs seed responsible-AI and security-architecture rules on every new tenant — ready for regulated and cloud-native reviews without building packs from scratch.",
   },
   {
-    id: "azure-waf",
-    title: "Azure Well-Architected Framework",
-    body: "Curated WAF-themed compliance rules accelerate cloud posture reviews against reliability, security, cost, and operations pillars — mapped to architecture evidence, not checkbox theater.",
+    id: "aws-waf",
+    title: "AWS Well-Architected Framework",
+    body: "Curated Well-Architected themed compliance rules accelerate cloud posture reviews across operational excellence, security, reliability, performance, cost, and sustainability — mapped to architecture evidence, not checkbox theater.",
   },
   {
-    id: "azure-caf-lz",
-    title: "Azure CAF / landing zone",
-    body: "Landing-zone and Cloud Adoption Framework themes help teams sanity-check platform design, identity, and network patterns before ARB — especially for Azure-first estates.",
+    id: "gcp-architecture-framework",
+    title: "Google Cloud Architecture Framework",
+    body: "Google Cloud architecture and security themes help teams sanity-check platform design, identity, and network patterns before ARB — especially for Google Cloud–first estates.",
   },
 ] as const;
 
