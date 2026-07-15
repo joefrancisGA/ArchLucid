@@ -8,12 +8,14 @@ import type { RunSummary } from "@/types/authority";
 type OperatorHomeWorkspaceActivityContextValue = {
   readonly hasWorkspaceReviews: boolean;
   readonly hasActionNeededReviews: boolean;
+  readonly recentRunIds: readonly string[];
   readonly reportWorkspaceReviews: (items: readonly RunSummary[]) => void;
 };
 
 const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
   hasWorkspaceReviews: false,
   hasActionNeededReviews: false,
+  recentRunIds: [],
   reportWorkspaceReviews: () => {},
 };
 
@@ -22,6 +24,7 @@ const OperatorHomeWorkspaceActivityContext =
 
 type OperatorHomeWorkspaceActivityProviderProps = {
   readonly initialHasReviews: boolean;
+  readonly initialRecentRunIds?: readonly string[];
   readonly children: ReactNode;
 };
 
@@ -31,21 +34,24 @@ export function OperatorHomeWorkspaceActivityProvider(
 ): React.JSX.Element {
   const [hasWorkspaceReviews, setHasWorkspaceReviews] = useState(props.initialHasReviews);
   const [hasActionNeededReviews, setHasActionNeededReviews] = useState(false);
+  const [recentRunIds, setRecentRunIds] = useState<readonly string[]>(props.initialRecentRunIds ?? []);
 
   const reportWorkspaceReviews = useCallback((items: readonly RunSummary[]) => {
     const activeItems = items.filter((run) => run.isArchived !== true);
 
     setHasWorkspaceReviews(activeItems.length > 0);
     setHasActionNeededReviews(activeItems.some(isRunNeedingAttention));
+    setRecentRunIds(activeItems.map((run) => run.runId));
   }, []);
 
   const value = useMemo(
     (): OperatorHomeWorkspaceActivityContextValue => ({
       hasWorkspaceReviews,
       hasActionNeededReviews,
+      recentRunIds,
       reportWorkspaceReviews,
     }),
-    [hasActionNeededReviews, hasWorkspaceReviews, reportWorkspaceReviews],
+    [hasActionNeededReviews, hasWorkspaceReviews, recentRunIds, reportWorkspaceReviews],
   );
 
   return (

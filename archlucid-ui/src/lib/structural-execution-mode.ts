@@ -1,18 +1,47 @@
 /** OpenAPI `StructuralExecutionMode` enum wire values (INV-002). */
 export const StructuralExecutionModeWire = {
-  Simulator: 0,
-  Real: 1,
-  Fallback: 2,
-  Mixed: 3,
+  Simulator: "Simulator",
+  Real: "Real",
+  Fallback: "Fallback",
+  Mixed: "Mixed",
 } as const;
 
 export type StructuralExecutionModeWireValue =
   (typeof StructuralExecutionModeWire)[keyof typeof StructuralExecutionModeWire];
 
+/** Accept string OpenAPI values and legacy numeric fixtures during the enum migration. */
+export type StructuralExecutionModeInput =
+  | StructuralExecutionModeWireValue
+  | number
+  | null
+  | undefined;
+
+function normalizeStructuralExecutionMode(
+  mode: StructuralExecutionModeInput,
+): StructuralExecutionModeWireValue | null {
+  if (mode === StructuralExecutionModeWire.Simulator || mode === 0) {
+    return StructuralExecutionModeWire.Simulator;
+  }
+
+  if (mode === StructuralExecutionModeWire.Real || mode === 1) {
+    return StructuralExecutionModeWire.Real;
+  }
+
+  if (mode === StructuralExecutionModeWire.Fallback || mode === 2) {
+    return StructuralExecutionModeWire.Fallback;
+  }
+
+  if (mode === StructuralExecutionModeWire.Mixed || mode === 3) {
+    return StructuralExecutionModeWire.Mixed;
+  }
+
+  return null;
+}
+
 export function formatStructuralExecutionModeLabel(
-  mode: number | null | undefined,
+  mode: StructuralExecutionModeInput,
 ): string {
-  switch (mode) {
+  switch (normalizeStructuralExecutionMode(mode)) {
     case StructuralExecutionModeWire.Real:
       return "Real";
     case StructuralExecutionModeWire.Fallback:
@@ -26,10 +55,11 @@ export function formatStructuralExecutionModeLabel(
   }
 }
 
-export function structuralExecutionModeBadgeTitle(mode: number | null | undefined): string {
+export function structuralExecutionModeBadgeTitle(mode: StructuralExecutionModeInput): string {
+  const normalized = normalizeStructuralExecutionMode(mode);
   const label = formatStructuralExecutionModeLabel(mode);
 
-  switch (mode) {
+  switch (normalized) {
     case StructuralExecutionModeWire.Real:
       return `${label} execution — agent steps used the configured model path for this review.`;
     case StructuralExecutionModeWire.Fallback:

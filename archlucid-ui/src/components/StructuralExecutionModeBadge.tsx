@@ -5,10 +5,11 @@ import {
   formatStructuralExecutionModeLabel,
   structuralExecutionModeBadgeTitle,
   StructuralExecutionModeWire,
+  type StructuralExecutionModeInput,
 } from "@/lib/structural-execution-mode";
 
 export type StructuralExecutionModeBadgeProps = {
-  readonly structuralExecutionMode: number | null | undefined;
+  readonly structuralExecutionMode: StructuralExecutionModeInput;
   readonly className?: string;
 };
 
@@ -24,7 +25,10 @@ export function StructuralExecutionModeBadge(props: StructuralExecutionModeBadge
   const title = structuralExecutionModeBadgeTitle(mode);
 
   const kind =
-    mode === StructuralExecutionModeWire.Fallback || mode === StructuralExecutionModeWire.Mixed
+    mode === StructuralExecutionModeWire.Fallback ||
+    mode === StructuralExecutionModeWire.Mixed ||
+    mode === 2 ||
+    mode === 3
       ? "needs-attention"
       : "neutral";
 

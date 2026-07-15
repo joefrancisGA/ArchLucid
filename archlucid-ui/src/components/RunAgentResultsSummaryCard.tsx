@@ -9,13 +9,13 @@ import type { RunDetailAgentResult, RunRetrievalGroundingSummary } from "@/types
 
 function agentTypeLabel(agentType: RunDetailAgentResult["agentType"]): string {
   switch (agentType) {
-    case 1:
+    case "Topology":
       return "Topology";
-    case 2:
+    case "Cost":
       return "Cost";
-    case 3:
+    case "Compliance":
       return "Compliance";
-    case 4:
+    case "Critic":
       return "Critic";
     default:
       return `Agent (${String(agentType)})`;
@@ -96,7 +96,9 @@ export function RunAgentResultsSummaryCard(props: {
                   {evidenceRefs} evidence ref{evidenceRefs === 1 ? "" : "s"}
                   {confidence !== null ? ` · confidence ${confidence}` : null}
                 </p>
-                {result.agentType === 1 ? topologyExemplarLink(props.retrievalGroundingSummary) : null}
+                {result.agentType === "Topology"
+                  ? topologyExemplarLink(props.retrievalGroundingSummary)
+                  : null}
               </li>
             );
           })}

@@ -124,6 +124,7 @@ export function RunDetailOverviewTab(props: RunDetailOverviewTabProps): React.JS
         architectureText={props.architectureText}
         evidenceCount={props.evidenceCount}
         userAssertions={props.userAssertions}
+        hasSubmittedArchitecture={props.architectureText !== null && props.architectureText.trim().length > 0}
         onNavigateTab={props.onNavigateTab}
       />
     </div>

@@ -52,10 +52,11 @@ function previewLines(text: string): readonly string[] {
 }
 
 export type RunDetailArchitectureSummaryCardProps = {
-  readonly architectureTitle: string;
+  readonly architectureTitle: string | null;
   readonly architectureText: string | null;
   readonly evidenceCount: number;
   readonly userAssertions: ArchitectureCreationUserAssertions | null;
+  readonly hasSubmittedArchitecture: boolean;
   readonly onNavigateTab: (tab: ReviewDetailTabId) => void;
 };
 
@@ -75,7 +76,10 @@ export function RunDetailArchitectureSummaryCard(
   const scopeSection = structured !== null ? findSection(structured.sections, "scope") : undefined;
   const domainsSection = structured !== null ? findSection(structured.sections, "systems-and-services") : undefined;
 
-  const summaryLines = text.length > 0 ? previewLines(text) : [];
+  const summaryLines =
+    props.hasSubmittedArchitecture && text.length > 0 ? previewLines(text) : [];
+
+  const architectureTitle = props.architectureTitle?.trim() ?? "";
 
   return (
     <section
@@ -90,10 +94,12 @@ export function RunDetailArchitectureSummaryCard(
         Architecture summary
       </h2>
       <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-        <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Architecture</dt>
-          <dd className="m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100">{props.architectureTitle}</dd>
-        </div>
+        {architectureTitle.length > 0 ? (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Architecture</dt>
+            <dd className="m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100">{architectureTitle}</dd>
+          </div>
+        ) : null}
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Evidence attached</dt>
           <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
@@ -133,22 +139,24 @@ export function RunDetailArchitectureSummaryCard(
             </p>
           ))}
         </div>
-      ) : (
+      ) : !props.hasSubmittedArchitecture ? (
         <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           No architecture description was submitted with this review.
         </p>
-      )}
-      <div className="mt-4">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-testid="run-detail-view-submitted-architecture"
-          onClick={() => props.onNavigateTab("architecture")}
-        >
-          View submitted architecture
-        </Button>
-      </div>
+      ) : null}
+      {props.hasSubmittedArchitecture ? (
+        <div className="mt-4">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid="run-detail-view-submitted-architecture"
+            onClick={() => props.onNavigateTab("architecture")}
+          >
+            View submitted architecture
+          </Button>
+        </div>
+      ) : null}
     </section>
   );
 }

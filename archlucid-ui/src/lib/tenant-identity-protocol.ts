@@ -1,5 +1,5 @@
-/** Mirrors `ArchLucid.Core.Identity.TenantIdentityProtocol` numeric OpenAPI values. */
+/** Mirrors OpenAPI `TenantIdentityProtocol` string enum values. */
 export const TENANT_IDENTITY_PROTOCOL = {
-  Oidc: 0,
-  Saml: 1,
+  Oidc: "Oidc",
+  Saml: "Saml",
 } as const;

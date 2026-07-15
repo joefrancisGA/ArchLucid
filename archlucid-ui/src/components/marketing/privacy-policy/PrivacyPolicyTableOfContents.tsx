@@ -135,13 +135,13 @@ export function PrivacyPolicyTableOfContents(props: PrivacyPolicyTableOfContents
     <>
       <details className={PRIVACY_POLICY_TOC.mobileDetails} data-testid="privacy-policy-toc-mobile">
         <summary className={PRIVACY_POLICY_TOC.mobileSummary}>On this page</summary>
-        <nav aria-label="On this page" className="mt-3">
+        <nav aria-label="On this page (mobile)" className="mt-3">
           <PrivacyPolicyTocList headings={props.headings} activeId={activeId} />
         </nav>
       </details>
 
       <nav
-        aria-label="On this page"
+        aria-label="On this page (desktop)"
         className={cn(PRIVACY_POLICY_TOC.nav, "hidden xl:block")}
         data-testid="privacy-policy-toc"
       >

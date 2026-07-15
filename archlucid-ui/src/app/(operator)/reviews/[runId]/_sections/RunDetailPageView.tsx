@@ -766,6 +766,8 @@ export function RunDetailPageView(props: {
                 <ReviewPackagePrimaryAction
                   action={reviewPackagePrimaryAction}
                   runId={m.resolvedDetail.run.runId}
+                  hasGoldenManifest={Boolean(m.manifestId)}
+                  commitBlockedReason={commitBlockedReason}
                 />
               ) : null}
 
@@ -970,7 +972,7 @@ export function RunDetailPageView(props: {
       ) : null}
 
       {governanceAlertsEl}
-      <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
+      {executiveBottomLineEl}
 
       {m.buyerPolishedArtifactTable ? (
         <RunDetailBuyerModeFallbackBanner
