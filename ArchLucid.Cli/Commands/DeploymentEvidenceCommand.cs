@@ -52,6 +52,12 @@ internal static class DeploymentEvidenceCommand
         using HttpClient http =
             ArchLucidApiClient.CreateSharedApiHttpClient(baseUrl, cli);
 
+        // Ready/live must stay anonymous. A valid Admin X-Api-Key with Authentication:ApiKey:TenantId
+        // binds tenant-scoped SQL on /health/ready; when that tenant has no active catalog binding,
+        // ready returns Unhealthy/503 and CD fails even though anonymous ready is Healthy.
+        // OpenAPI is mapped AllowAnonymous (canonical contract); curl CD smoke still sends the key.
+        http.DefaultRequestHeaders.Remove("X-Api-Key");
+
         http.Timeout = TimeSpan.FromSeconds(120);
 
         int maxAttempts = ReadPositiveIntEnv("CD_POST_DEPLOY_MAX_ATTEMPTS", fallback: 1);
