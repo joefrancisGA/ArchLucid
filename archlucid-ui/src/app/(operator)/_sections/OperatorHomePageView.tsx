@@ -86,24 +86,7 @@ function resolveHomeQuickJumpRunIds(model: OperatorHomePageViewModel): string[] 
     .filter((runId) => runId.length > 0);
 }
 
-function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewModel }) {
-  return (
-    <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
-      <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-        {OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD}
-      </p>
-      <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
-    </section>
-  );
-}
-
-
-
 function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
-  const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
-  const quickJumpRunIds = resolveHomeQuickJumpRunIds(props.model);
-
   const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
 
   return (
