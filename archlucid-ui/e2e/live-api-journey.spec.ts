@@ -25,6 +25,7 @@ import {
   resolveLiveAuthMode,
   waitForArchitectureRunListCommitted,
   waitForAuthorityBuyerSummaryGoldenManifest,
+  waitForAuthorityManifestSummaryReady,
   waitForAuthorityRunSummaryReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -32,6 +33,7 @@ import {
   searchAudit,
 } from "./helpers/live-api-client";
 import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
+import { waitForLiveManifestSummaryResponse } from "./helpers/live-page-readiness";
 import {
   auditPageMainHeading,
   expectLiveManifestDetailPageReady,
@@ -127,6 +129,8 @@ test.describe("live-api-journey", () => {
       );
     }
 
+    await waitForAuthorityManifestSummaryReady(request, goldenManifestId, 90_000, tenantScope);
+
     // `live-api-journey.spec.ts` also runs under the ApiKey and JWT CI jobs (see
     // `.github/workflows/ci.yml`), which don't support `x-tenant-id`-header scope overrides (ApiKey CI
     // keys carry no bound `tenant_id` claim → 403 via `ScopeIdentityBindingMiddleware`; JWT resolves
@@ -168,10 +172,11 @@ test.describe("live-api-journey", () => {
 
     await Promise.all([
       page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
+      waitForLiveManifestSummaryResponse(page, goldenManifestId, { timeoutMs: 90_000 }),
       manifestLink.click(),
     ]);
 
-    await expectLiveManifestDetailPageReady(page, goldenManifestId, { timeoutMs: 60_000 });
+    await expectLiveManifestDetailPageReady(page, goldenManifestId, { timeoutMs: 120_000 });
 
     const exportRes = await getRunExportZip(request, runId, tenantScope);
 

@@ -1261,6 +1261,37 @@ export async function waitForAuthorityBuyerSummaryGoldenManifest(
   );
 }
 
+/** Polls signed-record summary until visible in scope (manifest detail SSR + proxy hydration). */
+export async function waitForAuthorityManifestSummaryReady(
+  request: APIRequestContext,
+  manifestId: string,
+  timeoutMs = 90_000,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<void> {
+  const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
+  const encoded = encodeURIComponent(manifestId);
+
+  while (Date.now() < deadline) {
+    const res = await request.get(`${resolveLiveApiBase()}/v1/authority/signed-records/${encoded}/summary`, {
+      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+    });
+
+    if (res.ok()) {
+      return;
+    }
+
+    if (res.status() !== 404) {
+      await throwIfNotOk(res, `GET /v1/authority/signed-records/${encoded}/summary`);
+    }
+
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  throw new Error(
+    `Authority manifest summary for ${manifestId} not ready (GET /v1/authority/signed-records/{id}/summary) within ${liveE2eCommitWaitMs(timeoutMs)}ms`,
+  );
+}
+
 /** Polls GET /v1/architecture/runs until the row shows Committed or timeout (dashboard list consistency). */
 export async function waitForArchitectureRunListCommitted(
   request: APIRequestContext,

@@ -7,6 +7,7 @@ import {
 
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { getAppMain } from "./app-main";
+import { waitForLiveManifestDetailHydration } from "./live-page-readiness";
 import { normalizeRunIdForCompare } from "./live-api-client";
 
 import {
@@ -793,19 +794,11 @@ export async function expectLiveManifestDetailPageReady(
   manifestId: string,
   options?: { timeoutMs?: number },
 ): Promise<void> {
-  const timeoutMs = options?.timeoutMs ?? 60_000;
+  const timeoutMs = options?.timeoutMs ?? 90_000;
   const manifestMain = getAppMain(page);
   const normalizedManifestId = normalizeRunIdForCompare(manifestId);
 
-  await expect(manifestMain.getByTestId("manifest-detail-loading-shell")).toHaveCount(0, {
-    timeout: timeoutMs,
-  });
-  await expect(manifestMain.getByText(/Loading review record/i)).toHaveCount(0, {
-    timeout: timeoutMs,
-  });
-  await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
-    timeout: timeoutMs,
-  });
+  await waitForLiveManifestDetailHydration(page, manifestId, { timeoutMs });
 
   await expect(
     manifestMain.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),

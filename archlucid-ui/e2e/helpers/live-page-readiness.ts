@@ -82,6 +82,44 @@ export async function waitForLiveManifestSummaryResponse(
   );
 }
 
+/**
+ * Polls until manifest detail content is hydrated — tolerates SSR completing before the response listener attaches.
+ */
+export async function waitForLiveManifestDetailHydration(
+  page: Page,
+  manifestId: string,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+  const manifestMain = getAppMain(page);
+
+  await expectNoGenericErrorBoundary(page);
+
+  await expect(async () => {
+    await expect(manifestMain.getByTestId("branded-not-found")).toHaveCount(0, { timeout: 3_000 });
+    await expect(manifestMain.getByTestId("manifest-detail-loading-shell")).toHaveCount(0, { timeout: 3_000 });
+    await expect(manifestMain.getByText(/Loading review record/i)).toHaveCount(0, { timeout: 3_000 });
+    await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, { timeout: 3_000 });
+
+    const overviewVisible = await manifestMain.locator("#manifest-overview").isVisible();
+
+    if (!overviewVisible) {
+      await page
+        .waitForResponse(
+          (response) =>
+            matchesLiveProxyManifestSummary(new URL(response.url()), manifestId)
+            && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
+          { timeout: 8_000 },
+        )
+        .catch(() => {
+          // SSR may have hydrated before the listener attached.
+        });
+    }
+
+    await expect(manifestMain.locator("#manifest-overview")).toBeVisible({ timeout: 8_000 });
+  }).toPass({ timeout: timeoutMs });
+}
+
 /** Reviews hub list surface: page ready, list API completed, no generic error shell. */
 export async function expectLiveReviewsHubListReady(page: Page, options?: { timeoutMs?: number }): Promise<void> {
   const timeoutMs = options?.timeoutMs ?? 90_000;
