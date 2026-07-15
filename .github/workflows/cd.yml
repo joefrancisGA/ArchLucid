@@ -220,6 +220,8 @@ jobs:
     name: Terraform plan (${{ github.event.inputs.target || 'dev' }})
     needs: build-push-images
     if: (github.event.inputs.action || 'deploy') == 'deploy'
+    # Image-only deploys (apply=false) must not brick on TF drift/WIP; apply=true still requires a green plan.
+    continue-on-error: ${{ github.event.inputs.run_terraform_apply != 'true' }}
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target || 'dev' }}
     outputs:
@@ -377,7 +379,7 @@ jobs:
       always() &&
       (github.event.inputs.action || 'deploy') == 'deploy' &&
       needs.build-push-images.result == 'success' &&
-      needs.terraform-plan.result == 'success' &&
+      (needs.terraform-plan.result == 'success' || github.event.inputs.run_terraform_apply != 'true') &&
       (needs.terraform-apply.result == 'success' || needs.terraform-apply.result == 'skipped')
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target || 'dev' }}

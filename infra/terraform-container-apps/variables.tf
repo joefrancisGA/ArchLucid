@@ -210,24 +210,6 @@ variable "ui_ingress_external" {
   default     = true
 }
 
-# Custom domain bound directly to a Container App (Azure-managed certificate, no Front Door) — the
-# cost-aware alternative for environments where infra/terraform-edge's WAF/CDN is not warranted
-# (see docs/deployment/PILOT_PROFILE.md). Requires a TXT record at asuid.<hostname> (see output
-# ui_custom_domain_verification_id) and a CNAME to ui_container_app_fqdn before apply succeeds.
-variable "ui_custom_domain_name" {
-  type        = string
-  description = "Optional custom hostname (e.g. dev.archlucid.net) bound directly to the UI Container App. Empty = no custom domain (default *.azurecontainerapps.io FQDN, or front it with infra/terraform-edge instead)."
-  default     = ""
-}
-
-# Same pattern as ui_custom_domain_name; requires asuid.<hostname> TXT (output
-# api_custom_domain_verification_id) and a CNAME to api_container_app_fqdn.
-variable "api_custom_domain_name" {
-  type        = string
-  description = "Optional custom hostname bound directly to the API Container App. Empty = no custom domain."
-  default     = ""
-}
-
 variable "artifact_blob_service_uri" {
   type        = string
   description = "Blob service URL for large artifact offload (maps to ArtifactLargePayload__AzureBlobServiceUri), e.g. output primary_blob_endpoint from infra/terraform-storage."

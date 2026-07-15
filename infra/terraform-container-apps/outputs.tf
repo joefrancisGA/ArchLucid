@@ -63,16 +63,6 @@ output "ui_https_url" {
   value       = try("https://${azurerm_container_app.ui[0].latest_revision_fqdn}", null)
 }
 
-output "ui_custom_domain_verification_id" {
-  description = "TXT record value for asuid.<hostname> domain-ownership verification, needed before setting ui_custom_domain_name and applying."
-  value       = try(azurerm_container_app.ui[0].custom_domain_verification_id, null)
-}
-
-output "api_custom_domain_verification_id" {
-  description = "TXT record value for asuid.<hostname> domain-ownership verification, needed before setting api_custom_domain_name and applying."
-  value       = try(azurerm_container_app.api[0].custom_domain_verification_id, null)
-}
-
 output "container_apps_consumption_budget_id" {
   description = "Resource id of the Container Apps consumption budget when enable_container_apps_consumption_budget is true; otherwise null."
   value       = try(azurerm_consumption_budget_resource_group.container_apps[0].id, null)
