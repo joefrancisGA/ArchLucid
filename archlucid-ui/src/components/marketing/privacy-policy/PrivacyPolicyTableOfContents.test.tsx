@@ -14,7 +14,7 @@ const SAMPLE_HEADINGS: readonly HelpMarkdownHeading[] = [
 
 describe("PrivacyPolicyTableOfContents", () => {
   it("renders on-this-page navigation with anchor links", () => {
-    render(<PrivacyPolicyTableOfContents headings={SAMPLE_HEADINGS} />);
+    render(<PrivacyPolicyTableOfContents headings={SAMPLE_HEADINGS} variant="desktop" />);
 
     const desktopToc = screen.getByTestId("privacy-policy-toc");
     expect(within(desktopToc).getByTestId("privacy-policy-toc-heading")).toHaveTextContent("On this page");
@@ -27,7 +27,7 @@ describe("PrivacyPolicyTableOfContents", () => {
   it("marks the hash-matched section as current location", () => {
     window.location.hash = "#5-data-retention";
 
-    render(<PrivacyPolicyTableOfContents headings={SAMPLE_HEADINGS} />);
+    render(<PrivacyPolicyTableOfContents headings={SAMPLE_HEADINGS} variant="desktop" />);
 
     const desktopToc = screen.getByTestId("privacy-policy-toc");
     expect(within(desktopToc).getByRole("link", { name: "5. Data retention" })).toHaveAttribute("aria-current", "location");
@@ -36,7 +36,7 @@ describe("PrivacyPolicyTableOfContents", () => {
   it("updates active section when the location hash changes", () => {
     window.location.hash = "";
 
-    render(<PrivacyPolicyTableOfContents headings={SAMPLE_HEADINGS} />);
+    render(<PrivacyPolicyTableOfContents headings={SAMPLE_HEADINGS} variant="desktop" />);
 
     const desktopToc = screen.getByTestId("privacy-policy-toc");
     const retentionLink = within(desktopToc).getByRole("link", { name: "5. Data retention" });
