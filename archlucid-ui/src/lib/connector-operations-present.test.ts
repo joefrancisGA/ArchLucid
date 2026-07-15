@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatConnectorCustomerSummary,
   formatConnectorDisplayStatus,
   groupConnectorsByPurpose,
   resolveConnectorGuidance,
@@ -84,6 +85,9 @@ describe("connector-operations-present", () => {
 
     expect(resolveConnectorHumanStatus(confluence)).toBe("Disabled");
     expect(formatConnectorDisplayStatus(confluence)).toBe("Disabled");
+    expect(formatConnectorCustomerSummary(confluence)).toBe(
+      "Confluence publishing is disabled for this deployment.",
+    );
   });
 
   it("groups connectors by user-intent sections", () => {
@@ -95,7 +99,7 @@ describe("connector-operations-present", () => {
     ]);
 
     expect(grouped.get("notifications")?.map((row) => row.connectorKey)).toEqual(["teams", "outbound_webhooks"]);
-    expect(grouped.get("ticketing")?.map((row) => row.connectorKey)).toEqual(["jira", "azureBoards", "servicenow"]);
+    expect(grouped.get("ticketing")?.map((row) => row.connectorKey)).toEqual(["jira"]);
     expect(grouped.get("publishing")?.map((row) => row.connectorKey)).toEqual(["confluence"]);
   });
 

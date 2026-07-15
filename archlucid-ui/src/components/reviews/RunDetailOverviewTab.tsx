@@ -96,11 +96,11 @@ export function RunDetailOverviewTab(props: RunDetailOverviewTabProps): React.JS
             tab="decisions-remediation"
           />
           <OverviewLinkCard
-            title="Review package"
+            title="Signed review record"
             body={
               props.hasManifest
                 ? "Open finalized outputs, exports, and share actions."
-                : "Finalize the review to create the shareable review package."
+                : "Finalize the review to create the shareable signed review record."
             }
             runId={props.runId}
             tab="review-package"

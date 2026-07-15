@@ -12,6 +12,12 @@ import {
   governanceWorkflowIdleGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
 
+/** Honest qualifier for claims-intake sample CTAs — Azure reference architecture with fabricated data (TB-778). */
+export const AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL = "Explore sample review (Azure reference)";
+
+/** Honest qualifier for showcase static demo graph CTAs (TB-778). */
+export const AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL = "Open sample evidence graph (Azure reference)";
+
 export { SEARCH_EMPTY } from "./search-empty-preset";
 
 export const RUNS_EMPTY: EmptyStateProps = {
@@ -21,7 +27,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
     "Start an architecture review to gather evidence, evaluate findings, record decisions, and produce exports. Or explore the sample review to see a completed flow.",
   actions: [
     { label: "Start an architecture review", href: "/reviews/new" },
-    { label: "Explore the sample review", href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
   helpTopicPath: "starting-reviews",
 };
@@ -45,7 +51,7 @@ export const GRAPH_IDLE: EmptyStateProps = {
   actions: [
     { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     {
-      label: "Open sample evidence graph",
+      label: AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL,
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
       variant: "outline" as const,
     },
@@ -60,7 +66,7 @@ export const GRAPH_IDLE_BUYER: EmptyStateProps = {
     "Complete a review to generate an evidence graph, or open the sample graph to see how findings link to evidence, decisions, and audit records.",
   actions: [
     {
-      label: "Open sample evidence graph",
+      label: AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL,
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     },
     { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH, variant: "outline" as const },

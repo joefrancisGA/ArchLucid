@@ -78,6 +78,7 @@ import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActio
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
+import { RunDetailExecutiveSummary } from "@/components/reviews/RunDetailExecutiveSummary";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { RunDetailOperatorTechnicalDisclosure } from "./RunDetailOperatorTechnicalDisclosure";

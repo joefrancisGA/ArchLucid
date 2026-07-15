@@ -2,7 +2,7 @@
 
 # Complete review workflow
 
-ArchLucid turns architecture evidence into a review package with findings, decisions, evidence traceability, and export-ready artifacts.
+ArchLucid turns architecture evidence into a review with findings, decisions, evidence traceability, and export-ready artifacts.
 
 Use this guide when you need the full lifecycle from starting a review through sharing outputs with sponsors, security reviewers, or governance stakeholders.
 
