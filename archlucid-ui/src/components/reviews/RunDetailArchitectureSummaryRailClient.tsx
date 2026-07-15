@@ -34,7 +34,7 @@ export function RunDetailArchitectureSummaryRailClient(
 
   return (
     <RunDetailArchitectureSummaryCard
-      architectureTitle={props.architectureTitle}
+      architectureTitle={props.architectureTitle ?? ""}
       architectureText={props.architectureText}
       evidenceCount={props.evidenceCount}
       userAssertions={null}
