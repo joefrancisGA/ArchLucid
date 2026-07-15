@@ -227,4 +227,26 @@ describe("product-documentation-registry", () => {
     expect(packagesMarkdown).not.toContain("Workflow recipes by persona");
     expect(evidenceMarkdown).not.toBe(packagesMarkdown);
   });
+
+  it("serves evidence-trail from dedicated operator guide, not concepts primer (TB-762)", () => {
+    const evidenceTrail = getProductDocumentationEntry("evidence-trail");
+    const gettingStarted = getProductDocumentationEntry("getting-started");
+
+    expect(evidenceTrail?.sourcePaths).toEqual([
+      "docs/library/customer-facing/EVIDENCE_TRAIL_OPERATOR_GUIDE.md",
+    ]);
+    expect(gettingStarted?.sourcePaths).toEqual([
+      "docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md",
+    ]);
+    expect(evidenceTrail?.sourcePaths[0]).not.toBe(gettingStarted?.sourcePaths[0]);
+
+    const trailMarkdown = tryLoadProductDocumentation("evidence-trail")?.markdown ?? "";
+    const conceptsMarkdown = tryLoadProductDocumentation("getting-started")?.markdown ?? "";
+
+    expect(trailMarkdown).toContain("Trace table vs graph view");
+    expect(trailMarkdown).toContain("Evidence provenance");
+    expect(trailMarkdown).not.toContain("Plain-language vocabulary");
+    expect(conceptsMarkdown).toContain("Plain-language vocabulary");
+    expect(trailMarkdown).not.toBe(conceptsMarkdown);
+  });
 });

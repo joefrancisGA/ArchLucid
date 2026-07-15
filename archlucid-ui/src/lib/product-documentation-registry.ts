@@ -179,7 +179,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Evidence graph",
     summary: "Trace findings, artifacts, and provenance without exposing raw engineering logs.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
+    sourcePaths: ["docs/library/customer-facing/EVIDENCE_TRAIL_OPERATOR_GUIDE.md"],
   },
   {
     slug: "governance-approval",
