@@ -78,6 +78,15 @@ export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY =
 
 export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating ArchLucid";
 
+export const OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE =
+  "No completed sample has been selected for this workspace.";
+
+export const OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA = "Choose sample review";
+
+export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace owner.";
+
+export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another review";
+
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   "One lifecycle: describe your architecture, then run a governed review. The review is the durable work item.";
 
