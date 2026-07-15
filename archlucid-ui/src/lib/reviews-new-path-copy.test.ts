@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  REVIEWS_NEW_BRIEF_PLACEHOLDER,
   REVIEWS_NEW_PATH_HINTS,
   REVIEWS_NEW_PROOF_COLLECTION_HINT,
 } from "@/lib/reviews-new-path-copy";
@@ -23,5 +24,10 @@ describe("reviews-new-path-copy buyer-facing copy", () => {
   it("proof collection hint references the collect script and review-id", () => {
     expect(REVIEWS_NEW_PROOF_COLLECTION_HINT).toMatch(/collect-first-pilot-proof/i);
     expect(REVIEWS_NEW_PROOF_COLLECTION_HINT).toMatch(/review-id/i);
+  });
+
+  it("uses cloud-neutral example brief placeholder (TB-773)", () => {
+    expect(REVIEWS_NEW_BRIEF_PLACEHOLDER).toMatch(/private networking/i);
+    expect(REVIEWS_NEW_BRIEF_PLACEHOLDER).not.toMatch(/\bAzure\b/i);
   });
 });

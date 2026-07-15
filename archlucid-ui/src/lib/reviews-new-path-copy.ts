@@ -8,7 +8,7 @@ export const REVIEWS_NEW_CREATE_ARCHITECTURE_HREF = "/architectures/new" as cons
 
 /** Single-line example — sample brief button supplies the full narrative. */
 export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
-  "Example: Customer-facing retail API on Azure using App Service, Azure SQL, Redis, and private networking. Goals include PCI-sensitive payment isolation, 99.9% availability, EU data residency, and phased migration from an on-prem monolith.";
+  "Example: Customer-facing retail API with private networking, managed database, cache tier, and EU data residency goals. Include PCI-sensitive payment isolation, 99.9% availability targets, and phased migration from an on-prem monolith.";
 
 /** Mode-specific hint shown under the path tabs (one sentence per active mode). */
 export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
