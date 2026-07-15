@@ -377,9 +377,10 @@ export function RunDetailPageView(props: {
           overview: (
             <RunDetailOverviewPanelClient
               runId={m.resolvedDetail.run.runId}
-              architectureTitle={systemName ?? reviewDisplayTitle}
+              architectureTitle={architectureSummaryTitle}
               architectureText={submittedArchitectureText}
               evidenceCount={m.artifacts.length}
+              hasSubmittedArchitecture={hasSubmittedArchitecture}
               userAssertions={null}
               recommendedActions={recommendedActions}
               blockingCount={blockingApprovalCount}

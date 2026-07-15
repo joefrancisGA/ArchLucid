@@ -14,9 +14,10 @@ import { cn } from "@/lib/utils";
 
 export type RunDetailOverviewTabProps = {
   readonly runId: string;
-  readonly architectureTitle: string;
+  readonly architectureTitle: string | null;
   readonly architectureText: string | null;
   readonly evidenceCount: number;
+  readonly hasSubmittedArchitecture: boolean;
   readonly userAssertions: ArchitectureCreationUserAssertions | null;
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
   readonly blockingCount: number;
@@ -124,6 +125,7 @@ export function RunDetailOverviewTab(props: RunDetailOverviewTabProps): React.JS
         architectureText={props.architectureText}
         evidenceCount={props.evidenceCount}
         userAssertions={props.userAssertions}
+        hasSubmittedArchitecture={props.hasSubmittedArchitecture}
         onNavigateTab={props.onNavigateTab}
       />
     </div>
