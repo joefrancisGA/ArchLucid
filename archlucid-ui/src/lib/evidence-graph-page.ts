@@ -1,4 +1,5 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL } from "@/lib/empty-state-presets";
 
 export const EVIDENCE_GRAPH_PAGE_TITLE = "Evidence graph";
 
@@ -23,7 +24,7 @@ export const EVIDENCE_GRAPH_EMPTY_TITLE = "No completed reviews yet";
 export const EVIDENCE_GRAPH_EMPTY_BODY =
   "Complete a review to generate an evidence graph, or open the sample graph to see how evidence relationships work.";
 
-export const EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION = "Open sample evidence graph";
+export const EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION = AZURE_REFERENCE_SAMPLE_GRAPH_CTA_LABEL;
 
 export const EVIDENCE_GRAPH_EMPTY_SECONDARY_START = CREATE_ARCHITECTURE_LABEL;
 

@@ -17,10 +17,10 @@ export default function TryPage(): ReactNode {
     <MarketingPageShell variant="reading">
       <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Inspect a governed sample review</h1>
       <p className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
-        Open a sample review in your browser — fabricated data only, no cloud account setup, no corporate sign-in
-        required, and no credit card. Every finding traces to evidence and every decision leaves an audit trail, so you
-        can judge the product on its own terms. When you are ready, start an evaluation with your own architecture
-        evidence or sign in.
+        Open a sample review in your browser — the sample uses an Azure reference architecture with fabricated data;
+        no cloud account setup, no corporate sign-in required, and no credit card. Every finding traces to evidence and
+        every decision leaves an audit trail, so you can judge the product on its own terms. When you are ready, start
+        an evaluation with your own architecture evidence or sign in.
       </p>
       <div className="mt-6" data-testid="try-page-launcher">
         <FrictionlessTrialLauncher />

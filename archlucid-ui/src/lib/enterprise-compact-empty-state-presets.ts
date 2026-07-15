@@ -9,6 +9,9 @@ import {
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer-polish-copy";
+import {
+  AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
+} from "@/lib/empty-state-presets";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /** Reviews list when the project has zero reviews. */
@@ -19,7 +22,7 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     "Start an architecture review to gather evidence, evaluate findings, and record decisions. Or explore the sample review.",
   actions: [
     { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/reviews/new", variant: "primary" },
-    { label: "Explore the sample review", href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL, href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
 };
 
