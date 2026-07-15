@@ -140,7 +140,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
                 const includedLine = formatIncludedUsersAndWorkspaces(pkg);
                 const aiCreditsLine = formatMonthlyAiCredits(pkg);
-                const billingHref = tierId !== null && selfServeCheckoutEnabled ? buildMarketingSelfServeBillingHref(tierId) : null;
+                const stripeHref = tierId !== null ? resolveStripeCheckoutHref(pricing, tierId) : null;
                 const bullets = BILLING_TIER_FEATURE_BULLETS[pkg.id] ?? [];
 
                 return (

@@ -31,44 +31,10 @@ function isSignupVerifyFocusRoute(pathname: string): boolean {
   return pathname === "/signup/verify";
 }
 
-function isPrivacyPolicyRoute(pathname: string): boolean {
-  return pathname === "/privacy";
-}
-
-function readPrivacyFocusedReading(): boolean {
-  if (typeof document === "undefined") {
-    return false;
-  }
-
-  return document.body.classList.contains("privacy-focused-reading");
-}
-
 export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.JSX.Element {
   const pathname = usePathname();
   const hideThemeToggle = shouldHideThemeToggleOnMarketingRoute(pathname);
   const focusAuth = isSignupVerifyFocusRoute(pathname);
-  const [privacyFocusedReading, setPrivacyFocusedReading] = useState(false);
-  const onPrivacyRoute = isPrivacyPolicyRoute(pathname);
-  const focusReading = focusAuth || (onPrivacyRoute && privacyFocusedReading);
-
-  useEffect(() => {
-    if (!onPrivacyRoute) {
-      setPrivacyFocusedReading(false);
-
-      return;
-    }
-
-    const syncFocusedReading = (): void => {
-      setPrivacyFocusedReading(readPrivacyFocusedReading());
-    };
-
-    syncFocusedReading();
-    window.addEventListener("privacy-focused-reading-change", syncFocusedReading);
-
-    return () => {
-      window.removeEventListener("privacy-focused-reading-change", syncFocusedReading);
-    };
-  }, [onPrivacyRoute]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-al-surface-raised/95 shadow-sm backdrop-blur print:hidden dark:border-neutral-800">
@@ -77,34 +43,22 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
           <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
             <ArchLucidWordmarkLink href="/welcome" aria-label="ArchLucid — welcome" variant="marketing" />
           </Button>
-          {focusReading ? null : (
+          {focusAuth ? null : (
             <nav
               aria-label="Marketing"
               className="-mx-1 flex min-w-0 flex-1 flex-nowrap items-center gap-0.5 overflow-x-auto px-1 sm:flex-wrap sm:gap-1 sm:overflow-visible sm:pb-0 sm:pe-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               <span className="sr-only">Product pages:</span>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
+              <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-800 dark:text-neutral-100">
                 <Link href="/welcome">Overview</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
+              <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-800 dark:text-neutral-100">
                 <Link href="/pricing">Pricing</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
-                <Link
-                  href="/see-it"
-                  aria-current={
-                    pathname === "/see-it" ||
-                    pathname === "/demo/preview" ||
-                    pathname === "/get-started" ||
-                    pathname.startsWith("/showcase/")
-                      ? "page"
-                      : undefined
-                  }
-                >
-                  See it
-                </Link>
+              <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-800 dark:text-neutral-100">
+                <Link href="/see-it">See it</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
+              <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-800 dark:text-neutral-100">
                 <Link href="/pricing#pricing-quote-request">Request demo</Link>
               </Button>
               <span className="mx-0.5 hidden h-5 w-px shrink-0 bg-neutral-200 dark:bg-neutral-700 sm:block" aria-hidden />
@@ -113,8 +67,8 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          {hideThemeToggle || focusReading ? null : <ColorModeToggle />}
-          {focusReading ? null : (
+          {hideThemeToggle || focusAuth ? null : <ColorModeToggle />}
+          {focusAuth ? null : (
             <Button asChild variant="outline" size="sm">
               <Link href="/auth/signin">Sign in</Link>
             </Button>

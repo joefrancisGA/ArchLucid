@@ -1,4 +1,9 @@
 import { isTeamsWebhookHostname } from "@/lib/integration-webhook-hostname";
+import {
+  TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
+  TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE,
+  TEAMS_INTEGRATION_SECRET_NAME_REQUIRED_MESSAGE,
+} from "@/lib/teams-integration-page-copy";
 
 export type TeamsSecretValidationOutcome =
   | "valid"
@@ -12,20 +17,16 @@ export type TeamsSecretValidationResult = {
   readonly message: string;
 };
 
-const URL_IN_NAME_MESSAGE = "Enter a Key Vault secret name, not a webhook URL.";
-
-const REQUIRED_NAME_MESSAGE = "Enter a Key Vault secret name.";
-
-/** Mirrors server-side name validation before a Key Vault probe is attempted. */
+/** Mirrors server-side name validation before a secret-store probe is attempted. */
 export function validateTeamsKeyVaultSecretNameClient(secretName: string): TeamsSecretValidationResult {
   const trimmed = secretName.trim();
 
   if (trimmed.length === 0) {
-    return { outcome: "invalid-name", message: REQUIRED_NAME_MESSAGE };
+    return { outcome: "invalid-name", message: TEAMS_INTEGRATION_SECRET_NAME_REQUIRED_MESSAGE };
   }
 
   if (trimmed.includes("://")) {
-    return { outcome: "invalid-name", message: URL_IN_NAME_MESSAGE };
+    return { outcome: "invalid-name", message: TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE };
   }
 
   return { outcome: "valid", message: "Secret name format is valid." };
@@ -42,7 +43,7 @@ export function mapTeamsSecretValidationApiOutcome(outcome: string): TeamsSecret
     case "PermissionDenied":
       return {
         outcome: "permission-denied",
-        message: "ArchLucid cannot access this secret. Check the workspace’s Key Vault permissions.",
+        message: TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
       };
 
     case "InvalidValue":
@@ -52,12 +53,12 @@ export function mapTeamsSecretValidationApiOutcome(outcome: string): TeamsSecret
       };
 
     case "InvalidName":
-      return { outcome: "invalid-name", message: URL_IN_NAME_MESSAGE };
+      return { outcome: "invalid-name", message: TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE };
 
     default:
       return {
         outcome: "permission-denied",
-        message: "ArchLucid cannot access this secret. Check the workspace’s Key Vault permissions.",
+        message: TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
       };
   }
 }

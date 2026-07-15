@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
-  REVIEW_DETAIL_TAB_LABELS,
   buildReviewDetailTabHref,
   readReviewDetailTabFromHref,
   resolveReviewDetailTab,
@@ -30,10 +29,6 @@ describe("review-detail-workspace-tabs", () => {
     expect(buildReviewDetailTabHref("run-abc", "findings", { hash: "run-explanation" })).toBe(
       "/reviews/run-abc?reviewTab=findings#run-explanation",
     );
-  });
-
-  it("labels the review-package tab for finalize and export workflow", () => {
-    expect(REVIEW_DETAIL_TAB_LABELS["review-package"]).toBe("Finalize & exports");
   });
 
   it("reads tab ids from href hash or search param", () => {

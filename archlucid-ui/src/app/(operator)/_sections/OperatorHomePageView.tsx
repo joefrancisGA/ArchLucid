@@ -6,13 +6,21 @@ import {
   OperatorHomeDeferredOnboarding,
   OperatorHomeFirstValueCallout,
 } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
+
 import { OperatorHomeExamplesPlacement } from "@/components/operator-home/OperatorHomeExamplesPlacement";
-import { OperatorHomeRunsPanel } from "@/components/operator-home/OperatorHomeDeferredPanels";
+
+import {
+
+  OperatorHomeRunsPanel,
+
+} from "@/components/operator-home/OperatorHomeDeferredPanels";
+
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
-import { OperatorHomePageMainContent } from "@/components/operator-home/OperatorHomePageMainContent";
+
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
+
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
@@ -99,51 +107,75 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
   const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
 
   return (
-    <OperatorHomeWorkspaceActivityProvider
-      initialHasReviews={initialHasReviews}
-      initialRecentRunIds={quickJumpRunIds}
-    >
-      <OperatorHomePageMainContent
-        heroSection={<BuyerPolishedHomeHeroSection />}
-        recentReviewsSection={<HomeRecentReviewsSection model={props.model} />}
-        executiveRoiStrip={<OperatorHomeExecutiveRoiStrip />}
-        firstValueCallout={null}
-        examplesPlacement={buildExamplesPlacement(props.model, {
-          buyerPolishedShell: true,
-          fullOperatorShell: false,
-        })}
+
+    <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
+
+      <BuyerPolishedHomeHeroSection />
+
+      <HomeRecentReviewsSection model={props.model} />
+
+      <OperatorHomeExecutiveRoiStrip />
+
+      <OperatorHomeExamplesPlacement
+        beforeWorkspaceContext={null}
+        afterWorkspaceContext={
+          <>
+            <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} runsDashboard={props.model.runsDashboard} />
+            <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
+          </>
+        }
       />
+
       <DevTestingQuickSwitchPanel />
+
     </OperatorHomeWorkspaceActivityProvider>
+
   );
 }
 
 function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
   const fullOperatorShell = isOperatorExperienceFullShellEnv();
   const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
-  const quickJumpRunIds = resolveHomeQuickJumpRunIds(props.model);
+
+
 
   return (
-    <OperatorHomeWorkspaceActivityProvider
-      initialHasReviews={initialHasReviews}
-      initialRecentRunIds={quickJumpRunIds}
-    >
-      <OperatorHomePageMainContent
-        heroSection={
-          <section aria-label="Overview command center" data-testid="operator-home-pilot-command-center-host">
-            <PilotCommandCenterCard />
-          </section>
+
+    <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
+
+      <section aria-label="Overview command center" data-testid="operator-home-pilot-command-center-host">
+
+        <PilotCommandCenterCard />
+
+      </section>
+
+      <HomeRecentReviewsSection model={props.model} />
+
+      <OperatorHomeExecutiveRoiStrip />
+
+      <OperatorHomeFirstValueCallout />
+
+      <OperatorHomeExamplesPlacement
+        beforeWorkspaceContext={null}
+        afterWorkspaceContext={
+          <>
+            <OperatorHomeWorkspaceContextDisclosure
+              showWorkspaceStatus={fullOperatorShell}
+              runsDashboard={props.model.runsDashboard}
+            />
+            <OperatorHomeAdvancedGuidancePanel
+              buyerPolishedShell={false}
+              fullOperatorShell={fullOperatorShell}
+              checklistVariant={fullOperatorShell ? "full" : "compact"}
+            />
+          </>
         }
-        recentReviewsSection={<HomeRecentReviewsSection model={props.model} />}
-        executiveRoiStrip={<OperatorHomeExecutiveRoiStrip />}
-        firstValueCallout={<OperatorHomeFirstValueCallout />}
-        examplesPlacement={buildExamplesPlacement(props.model, {
-          buyerPolishedShell: false,
-          fullOperatorShell,
-        })}
       />
+
       <DevTestingQuickSwitchPanel />
+
     </OperatorHomeWorkspaceActivityProvider>
+
   );
 }
 

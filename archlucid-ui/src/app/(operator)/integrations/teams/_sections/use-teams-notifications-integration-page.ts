@@ -22,6 +22,7 @@ import {
   TEAMS_INTEGRATION_REMOVE_CONFIRM,
   TEAMS_INTEGRATION_REMOVE_SUCCESS,
   TEAMS_INTEGRATION_SAVE_SUCCESS,
+  TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
   TEAMS_INTEGRATION_TEST_FAILURE,
   TEAMS_INTEGRATION_TEST_SUCCESS,
 } from "@/lib/teams-integration-page-copy";
@@ -204,7 +205,7 @@ export function useTeamsNotificationsIntegrationPage(
     } catch {
       setSecretValidation({
         outcome: "permission-denied",
-        message: "ArchLucid cannot access this secret. Check the workspace’s Key Vault permissions.",
+        message: TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
       });
     } finally {
       setValidating(false);

@@ -4,13 +4,17 @@ import {
   mapTeamsSecretValidationApiOutcome,
   validateTeamsKeyVaultSecretNameClient,
 } from "./teams-integration-secret-validation";
+import {
+  TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE,
+  TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
+} from "./teams-integration-page-copy";
 
 describe("validateTeamsKeyVaultSecretNameClient", () => {
   it("rejects webhook URLs in the secret name field", () => {
     const result = validateTeamsKeyVaultSecretNameClient("https://webhook.office.com/secret");
 
     expect(result.outcome).toBe("invalid-name");
-    expect(result.message).toBe("Enter a Key Vault secret name, not a webhook URL.");
+    expect(result.message).toBe(TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE);
   });
 
   it("accepts a valid secret name", () => {
@@ -25,6 +29,9 @@ describe("mapTeamsSecretValidationApiOutcome", () => {
     expect(mapTeamsSecretValidationApiOutcome("Found").message).toBe("Secret found and accessible.");
     expect(mapTeamsSecretValidationApiOutcome("NotFound").message).toBe(
       "We could not find a secret with that name.",
+    );
+    expect(mapTeamsSecretValidationApiOutcome("PermissionDenied").message).toBe(
+      TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE,
     );
   });
 });

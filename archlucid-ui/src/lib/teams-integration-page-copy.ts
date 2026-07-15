@@ -4,15 +4,20 @@ export const TEAMS_INTEGRATION_PAGE_SUBTITLE =
   "Send selected ArchLucid governance and review notifications to a Microsoft Teams channel.";
 
 export const TEAMS_INTEGRATION_SECURITY_NOTE =
-  "ArchLucid uses a Key Vault reference instead of storing the Teams webhook URL directly. The webhook remains in your approved secret store and is retrieved only when a notification is sent.";
+  "ArchLucid stores a secret reference instead of the Teams webhook URL in the workspace database. The webhook remains in your organization's approved secret store and is read only when a notification is sent.";
+
+export const TEAMS_INTEGRATION_HOSTED_SECRET_STORE_FOOTNOTE =
+  "On ArchLucid-hosted deployments, the supported secret store is Azure Key Vault. AWS Secrets Manager and Google Secret Manager support is on the roadmap for customer-operated deployments.";
 
 export const TEAMS_INTEGRATION_CONNECT_SECTION_TITLE = "Connect a Teams channel";
 
 export const TEAMS_INTEGRATION_CONNECT_SECTION_LEAD =
-  "Reference the Key Vault secret that contains the Teams incoming webhook URL, then choose which notifications to send.";
+  "Reference the secret that contains your Teams incoming webhook URL, then choose which notifications to send.";
+
+export const TEAMS_INTEGRATION_SECRET_NAME_LABEL = "Secret name";
 
 export const TEAMS_INTEGRATION_SECRET_HELPER =
-  "Enter the name of the secret containing the Teams incoming webhook URL.";
+  "Enter the secret name or reference that contains the Teams incoming webhook URL.";
 
 export const TEAMS_INTEGRATION_SECRET_EXAMPLE = "Example: teams-governance-alerts-prod";
 
@@ -22,7 +27,7 @@ export const TEAMS_INTEGRATION_DESTINATION_NAME_HELPER =
 export const TEAMS_INTEGRATION_SAVE_SUCCESS = "Teams connection saved.";
 
 export const TEAMS_INTEGRATION_REMOVE_CONFIRM =
-  "Remove this Microsoft Teams connection? ArchLucid will stop sending notifications to this destination. The Key Vault secret will not be deleted.";
+  "Remove this Microsoft Teams connection? ArchLucid will stop sending notifications to this destination. The secret in your approved secret store will not be deleted.";
 
 export const TEAMS_INTEGRATION_REMOVE_SUCCESS = "Teams connection removed.";
 
@@ -32,9 +37,20 @@ export const TEAMS_INTEGRATION_DISABLE_CONFIRM =
 export const TEAMS_INTEGRATION_TEST_SUCCESS = "Test notification sent to Microsoft Teams.";
 
 export const TEAMS_INTEGRATION_TEST_FAILURE =
-  "We could not deliver the test notification. Check the webhook, Key Vault access, and Teams connector status.";
+  "We could not deliver the test notification. Check the webhook, secret-store access, and Teams connector status.";
 
 export const TEAMS_INTEGRATION_TRIGGER_REQUIRED = "Select at least one notification to send.";
+
+export const TEAMS_INTEGRATION_DEMO_CAPABILITY_DESCRIPTION =
+  "In a connected tenant, administrators can connect Microsoft Teams notifications using a secret reference from your approved secret store.";
+
+export const TEAMS_INTEGRATION_SECRET_NAME_REQUIRED_MESSAGE = "Enter a secret name or reference.";
+
+export const TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE =
+  "Enter a secret name or reference, not a webhook URL.";
+
+export const TEAMS_INTEGRATION_SECRET_ACCESS_FAILURE_MESSAGE =
+  "ArchLucid could not read the configured secret. Confirm the secret exists and that this deployment can access your organization's secret store.";
 
 export type TeamsIntegrationConnectionStatus = "not-configured" | "connected" | "disabled" | "connection-issue";
 

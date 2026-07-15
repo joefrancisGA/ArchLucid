@@ -14,10 +14,7 @@ export type SignupVerifyViewPhase =
   | "delivery_failed"
   | "resend_success"
   | "resend_cooldown"
-  | "resend_failed"
-  | "rate_limited";
-
-export type SignupVerifyIconTone = "neutral" | "success" | "pending";
+  | "resend_failed";
 
 export type SignupVerifyViewModel = {
   readonly phase: SignupVerifyViewPhase;
@@ -33,8 +30,6 @@ export type SignupVerifyViewModel = {
   readonly showDifferentEmail: boolean;
   readonly showReturnSignup: boolean;
   readonly showSignIn: boolean;
-  readonly signInLabel: string;
-  readonly iconTone: SignupVerifyIconTone;
   readonly statusMessage: string | null;
   readonly autoContinue: boolean;
 };
@@ -82,10 +77,7 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
   const maskedEmail = maskEmailForDisplay(destinationEmail);
   const displayEmail = maskedEmail.length > 0 ? maskedEmail : "your work email";
 
-  const basePending: Omit<
-    SignupVerifyViewModel,
-    "phase" | "heading" | "body" | "primaryLabel" | "statusMessage" | "iconTone" | "signInLabel"
-  > = {
+  const basePending: Omit<SignupVerifyViewModel, "phase" | "heading" | "body" | "primaryLabel" | "statusMessage"> = {
     maskedEmail: displayEmail,
     helperText: SIGNUP_VERIFY_PAGE_COPY.deliveryHint,
     primaryDisabled: input.checking || input.resendPending,
@@ -100,8 +92,6 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
     autoContinue: false,
   };
 
-  const defaultSignInLabel = SIGNUP_VERIFY_PAGE_COPY.secondarySignIn;
-
   if (input.checking && input.trialStatus === null && input.registration !== null) {
     return {
       phase: "loading",
@@ -109,8 +99,6 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       body: interpolate(SIGNUP_VERIFY_PAGE_COPY.checkInboxBody, displayEmail, 0),
       statusMessage: null,
       primaryLabel: SIGNUP_VERIFY_PAGE_COPY.primaryContinueChecking,
-      signInLabel: defaultSignInLabel,
-      iconTone: "pending",
       ...basePending,
       primaryDisabled: true,
       showResend: false,
@@ -121,17 +109,12 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
   }
 
   if (!hasValidRegistrationSession(input.registration)) {
-    const sessionEmailHint =
-      displayEmail !== "your work email"
-        ? interpolate(SIGNUP_VERIFY_PAGE_COPY.sessionExpiredEmailHint, displayEmail, 0)
-        : null;
-
     return {
       phase: "missing_session",
       heading: SIGNUP_VERIFY_PAGE_COPY.sessionExpiredHeading,
       body: SIGNUP_VERIFY_PAGE_COPY.sessionExpiredBody,
-      helperText: sessionEmailHint,
-      maskedEmail: displayEmail !== "your work email" ? displayEmail : "",
+      helperText: null,
+      maskedEmail: "",
       primaryLabel: SIGNUP_VERIFY_PAGE_COPY.primarySessionExpired,
       primaryDisabled: false,
       showResend: false,
@@ -140,10 +123,8 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       showDifferentEmail: false,
       showReturnSignup: false,
       showSignIn: true,
-      signInLabel: SIGNUP_VERIFY_PAGE_COPY.secondarySignInInstead,
       statusMessage: null,
       autoContinue: false,
-      iconTone: "neutral",
     };
   }
 
@@ -162,10 +143,8 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       showDifferentEmail: true,
       showReturnSignup: true,
       showSignIn: false,
-      signInLabel: defaultSignInLabel,
       statusMessage: null,
       autoContinue: false,
-      iconTone: "neutral",
     };
   }
 
@@ -186,10 +165,8 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       showDifferentEmail: true,
       showReturnSignup: true,
       showSignIn: true,
-      signInLabel: defaultSignInLabel,
       statusMessage: null,
       autoContinue: false,
-      iconTone: "neutral",
     };
   }
 
@@ -208,32 +185,8 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       showDifferentEmail: false,
       showReturnSignup: false,
       showSignIn: false,
-      signInLabel: defaultSignInLabel,
       statusMessage: null,
       autoContinue: true,
-      iconTone: "success",
-    };
-  }
-
-  if (input.trialStatus?.kind === "throttled" && !input.resendCooldown.active) {
-    return {
-      phase: "rate_limited",
-      heading: SIGNUP_VERIFY_PAGE_COPY.rateLimitedHeading,
-      body: SIGNUP_VERIFY_PAGE_COPY.rateLimitedBody,
-      helperText: null,
-      maskedEmail: displayEmail,
-      primaryLabel: SIGNUP_VERIFY_PAGE_COPY.primaryRateLimited,
-      primaryDisabled: false,
-      showResend: false,
-      resendDisabled: true,
-      resendLabel: SIGNUP_VERIFY_PAGE_COPY.primaryResend,
-      showDifferentEmail: false,
-      showReturnSignup: false,
-      showSignIn: true,
-      signInLabel: SIGNUP_VERIFY_PAGE_COPY.secondarySignInInstead,
-      statusMessage: null,
-      autoContinue: false,
-      iconTone: "neutral",
     };
   }
 
@@ -241,7 +194,7 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
     return {
       phase: "resend_success",
       heading: SIGNUP_VERIFY_PAGE_COPY.checkInboxHeading,
-      body: interpolate(SIGNUP_VERIFY_PAGE_COPY.checkInboxResendBody, displayEmail, 0),
+      body: interpolate(SIGNUP_VERIFY_PAGE_COPY.checkInboxBody, displayEmail, 0),
       helperText: SIGNUP_VERIFY_PAGE_COPY.deliveryHint,
       maskedEmail: displayEmail,
       primaryLabel: SIGNUP_VERIFY_PAGE_COPY.primaryPending,
@@ -252,10 +205,8 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       showDifferentEmail: true,
       showReturnSignup: true,
       showSignIn: false,
-      signInLabel: defaultSignInLabel,
       statusMessage: SIGNUP_VERIFY_PAGE_COPY.resendSuccess,
       autoContinue: false,
-      iconTone: "pending",
     };
   }
 
@@ -274,10 +225,8 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       showDifferentEmail: true,
       showReturnSignup: true,
       showSignIn: true,
-      signInLabel: defaultSignInLabel,
       statusMessage: SIGNUP_VERIFY_PAGE_COPY.resendFailed,
       autoContinue: false,
-      iconTone: "pending",
     };
   }
 
@@ -296,14 +245,12 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       showDifferentEmail: true,
       showReturnSignup: true,
       showSignIn: false,
-      signInLabel: defaultSignInLabel,
       statusMessage: interpolate(
         SIGNUP_VERIFY_PAGE_COPY.resendCooldown,
         displayEmail,
         input.resendCooldown.secondsRemaining,
       ),
       autoContinue: false,
-      iconTone: "pending",
     };
   }
 
@@ -324,10 +271,8 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
       showDifferentEmail: true,
       showReturnSignup: true,
       showSignIn: true,
-      signInLabel: defaultSignInLabel,
       statusMessage: null,
       autoContinue: false,
-      iconTone: "pending",
     };
   }
 
@@ -352,10 +297,10 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
     showDifferentEmail: true,
     showReturnSignup: true,
     showSignIn: false,
-    signInLabel: defaultSignInLabel,
-    statusMessage: null,
+    statusMessage: input.trialStatus?.kind === "throttled"
+      ? interpolate(SIGNUP_VERIFY_PAGE_COPY.resendCooldown, displayEmail, 45)
+      : null,
     autoContinue: false,
-    iconTone: "pending",
   };
 }
 

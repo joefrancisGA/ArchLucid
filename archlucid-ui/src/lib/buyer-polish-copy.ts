@@ -64,17 +64,17 @@ export const OPERATOR_HOME_CREATION_EXAMPLE_BODY =
 export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE = "Guided review example";
 
 export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
-  "Prefill a sample architecture review intake. Progress is saved only after you submit the intake.";
+  "See how ArchLucid evaluates a sample architecture.";
 
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
-  "Describe your architecture, run a governed review, or explore a completed example. ArchLucid produces evidence-backed findings, decisions, and a record stakeholders can use.";
+  "Create an architecture, review an existing design, or explore a completed review. ArchLucid produces evidence-backed findings, decisions, and a record stakeholders can use.";
 
 export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "Start the architecture review lifecycle";
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE = "Explore a completed review";
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY =
-  "Inspect real findings, evidence, decisions, and a finalized review before using your own architecture.";
+  "Inspect real findings, evidence, decisions, and a finalized review package before using your own architecture.";
 
 export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating ArchLucid";
 
@@ -89,7 +89,7 @@ export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Step 2 — Run a governed review";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Use the architecture you described — or material you already have — to gather evidence, evaluate findings, and finalize.";
+  "Provide the architecture information you already have, including diagrams, descriptions, requirements, evidence, or other supporting material.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
@@ -238,19 +238,7 @@ export const OPERATOR_HOME_CONNECT_CLOUD_BODY =
   "Import architecture evidence from Azure, AWS, or Google Cloud.";
 
 /** Low-emphasis cloud shortcut beneath the review architecture path. */
-export const OPERATOR_HOME_CLOUD_EVIDENCE_LINK =
-  "Have cloud evidence? Connect an Azure, AWS, or Google Cloud environment.";
-
-export const OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE =
-  "No completed sample has been selected for this workspace.";
-
-export const OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA = "Choose sample review";
-
-export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace owner.";
-
-export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another review";
-
-export const OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING = "Examples and learning";
+export const OPERATOR_HOME_CLOUD_EVIDENCE_LINK = "Have cloud evidence? Connect a cloud environment.";
 
 export const OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT =
   "Cloud connection requires workspace administrator access.";

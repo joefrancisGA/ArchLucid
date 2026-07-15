@@ -186,9 +186,9 @@ public sealed class ArchitectureRunExecuteOrchestratorPreSealedAnchorsTests
             Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
-            tail.TopologyProposalSeeder,
-            tail.DemoExpensiveActionGate,
-            tail.Logger);
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
+            NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);
 

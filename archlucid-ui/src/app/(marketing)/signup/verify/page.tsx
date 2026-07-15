@@ -22,7 +22,7 @@ function VerifyFallback() {
 
 export default function SignupVerifyPage() {
   return (
-    <MarketingPageShell className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-lg items-start justify-center px-4 pb-12 pt-[10vh] sm:pt-[12vh]">
+    <MarketingPageShell className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-lg items-center px-4 py-10 sm:py-12">
       <Suspense fallback={<VerifyFallback />}>
         <SignupVerifyClient />
       </Suspense>

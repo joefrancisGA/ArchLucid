@@ -97,75 +97,76 @@ export function resolveBuyerGoldenJourneyNav(
 
   let stepIdx: number | null = null;
 
-  if (
+  const signedRecordFriendly = /^\/reviews\/([^/]+)\/signed-record\b/.exec(path);
+
+  if (signedRecordFriendly !== null && isBuyerGoldenSpineRunId(signedRecordFriendly[1])) {
+    stepIdx = 1;
+  } else if (
     path === manifestBase
     || path.startsWith(`${manifestBase}/`)
     || path === manifestRecord
     || path === manifestArchitecturePath
   ) {
     stepIdx = 1;
-  } else if (path === execBase || path.startsWith(`${execBase}/`)) {
+  } else if (path === execBase) {
     stepIdx = 0;
-  } else if (path.startsWith("/graph")) {
-    const graphRunId =
-      options?.searchRunId?.trim() ??
-      new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
-      "";
-
-    if (
-      graphRunId.length > 0 &&
-      canonicalizeDemoRunId(graphRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
-    ) {
-      stepIdx = 2;
-    } else {
-      return null;
-    }
-  } else if (path.startsWith("/ask")) {
-    return null;
-  } else if (path.startsWith("/compare")) {
-    return null;
-  } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
-    return null;
-  } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
-    return null;
-  } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
-    return null;
-  } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
-    return null;
-  } else if (pathMatchesGovernanceAlerts(path)) {
-    return null;
-  } else if (path === "/governance") {
-    const governanceRunId =
-      options?.searchRunId?.trim() ??
-      new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
-      "";
-
-    if (governanceRunId.length === 0) {
-      return null;
-    }
-
-    if (canonicalizeDemoRunId(governanceRunId) !== canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
-      return null;
-    }
-
-    stepIdx = 3;
-  } else if (path.startsWith("/governance")) {
-    return null;
-  } else if (path.startsWith("/audit")) {
-    stepIdx = 4;
   } else {
     const reviewExecutive = /^\/reviews\/([^/]+)$/.exec(path);
 
-    if (
-      workspace !== null &&
-      canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
-    ) {
-      return {
-        summaryLine: `Review overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
-        prev: { label: defs[0].label, href: defs[0].href },
-        next: { label: defs[1].label, href: defs[1].href },
-        currentStepIndex: null,
-      };
+    if (reviewExecutive !== null && isBuyerGoldenSpineRunId(reviewExecutive[1])) {
+      stepIdx = 0;
+    } else if (path.startsWith("/graph")) {
+      const graphRunId =
+        options?.searchRunId?.trim() ??
+        new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
+        "";
+
+      if (graphRunId.length > 0 && isBuyerGoldenSpineRunId(graphRunId)) {
+        stepIdx = 2;
+      } else {
+        return null;
+      }
+    } else if (path.startsWith("/ask")) {
+      return null;
+    } else if (path.startsWith("/compare")) {
+      return null;
+    } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
+      return null;
+    } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
+      return null;
+    } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
+      return null;
+    } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+      return null;
+    } else if (pathMatchesGovernanceAlerts(path)) {
+      return null;
+    } else if (path === "/governance") {
+      const governanceRunId =
+        options?.searchRunId?.trim() ??
+        new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
+        "";
+
+      if (governanceRunId.length === 0) {
+        return null;
+      }
+
+      if (!isBuyerGoldenSpineRunId(governanceRunId)) {
+        return null;
+      }
+
+      stepIdx = 3;
+    } else if (path.startsWith("/governance")) {
+      return null;
+    } else if (path.startsWith("/audit")) {
+      stepIdx = 4;
+    } else {
+      const findingInspect = /^\/reviews\/([^/]+)\/findings\/[^/]+\/inspect\b/.exec(path);
+
+      if (findingInspect !== null && isBuyerGoldenSpineRunId(findingInspect[1])) {
+        stepIdx = 2;
+      } else {
+        return null;
+      }
     }
   }
 

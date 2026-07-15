@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { PageHeading } from "@/components/PageHeading";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,7 +22,7 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import {
   SERVICENOW_CMDB_AUTO_CREATE_HELPER,
   SERVICENOW_CMDB_AUTO_CREATE_LABEL,
@@ -239,25 +238,18 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
       className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8"
       data-testid="integrations-servicenow-page"
     >
-      <PageHeading
-        navHref={INTEGRATIONS_SERVICENOW_PATH}
-        title={SERVICENOW_INTEGRATION_PAGE_TITLE}
-        variant="integration"
-        bordered
-        description={
-          <>
-            <p className={`m-0 max-w-2xl leading-relaxed ${OPERATOR_TYPOGRAPHY.helper}`}>
-              {SERVICENOW_INTEGRATION_PAGE_DESCRIPTION}
-            </p>
-            <p className={`m-0 max-w-2xl ${OPERATOR_TYPOGRAPHY.helper}`}>
-              <Link href={INTEGRATIONS_READINESS_PATH} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
-                Integration readiness
-              </Link>
-              {" — status across ServiceNow, Jira, Teams, Slack, cloud connections, and webhooks."}
-            </p>
-          </>
-        }
-      />
+      <header className={cn("space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}>
+        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{SERVICENOW_INTEGRATION_PAGE_TITLE}</h1>
+        <p className={`m-0 max-w-2xl leading-relaxed ${OPERATOR_TYPOGRAPHY.helper}`}>
+          {SERVICENOW_INTEGRATION_PAGE_DESCRIPTION}
+        </p>
+        <p className={`m-0 max-w-2xl ${OPERATOR_TYPOGRAPHY.helper}`}>
+          <Link href={INTEGRATIONS_READINESS_PATH} className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}>
+            Integration readiness
+          </Link>
+          {" — status across ServiceNow, Jira, Teams, Slack, cloud connections, and webhooks."}
+        </p>
+      </header>
 
       {isLoading && health === null && settings === null ? (
         <OperatorLoadingNotice>{SERVICENOW_LOADING_MESSAGE}</OperatorLoadingNotice>

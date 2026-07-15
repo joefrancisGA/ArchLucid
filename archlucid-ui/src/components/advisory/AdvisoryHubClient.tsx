@@ -109,7 +109,7 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
                   "-mb-px mb-0 rounded border-0 border-b-0 px-3 py-1.5 shadow-none",
                   selected
                     ? "bg-white text-al-text-primary shadow-sm dark:bg-neutral-950"
-                    : "bg-transparent text-al-text-secondary hover:text-al-text-primary",
+                    : "bg-transparent text-neutral-700 hover:text-al-text-primary dark:text-neutral-300",
                 )}
               >
                 {TAB_LABEL[id]}
