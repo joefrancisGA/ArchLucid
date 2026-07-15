@@ -1,0 +1,214 @@
+/**
+ * V1 registry of surfaces allowed to render Report Problem (TB-782).
+ * TB-785 / TB-786 import this module — do not duplicate route lists elsewhere.
+ */
+
+export type ReportProblemSurfaceKind =
+  | "reviews-hub-fatal"
+  | "review-detail-fatal"
+  | "executive-summary-fatal"
+  | "governance-queue-fatal"
+  | "review-commit-export-fatal"
+  | "api-problem-high-stakes"
+  | "connectivity-error"
+  | "auth-session-break";
+
+export type ReportProblemSurfaceEntry = {
+  /** Stable id for tests and telemetry. */
+  id: string;
+  kind: ReportProblemSurfaceKind;
+  /** App Router path pattern (`[param]` = single dynamic segment). Use `*` for component-global surfaces. */
+  routePattern: string;
+  /** `exact` (default) or `exact-or-child` for section roots like `/value-report`. */
+  routeMatch?: "exact" | "exact-or-child";
+  /** Source path under `archlucid-ui/src` (drift guard in TB-791). */
+  componentPath: string;
+  /** Operator-facing description for docs and support runbooks. */
+  description: string;
+};
+
+/**
+ * Initial high-stakes surfaces for V1 private beta.
+ * Validation-only 400 cards are intentionally absent until owner expands the registry.
+ */
+export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = [
+  {
+    id: "reviews-hub-unexpected-response",
+    kind: "reviews-hub-fatal",
+    routePattern: "/reviews",
+    componentPath: "app/(operator)/reviews/_sections/RunsPageView.tsx",
+    description: "Reviews hub unexpected/broken response — not the empty-state list.",
+  },
+  {
+    id: "review-detail-hard-load-failure",
+    kind: "review-detail-fatal",
+    routePattern: "/reviews/[runId]",
+    componentPath: "app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx",
+    description: "Review detail page-level load failure.",
+  },
+  {
+    id: "executive-value-report-load-failure",
+    kind: "executive-summary-fatal",
+    routePattern: "/value-report",
+    routeMatch: "exact-or-child",
+    componentPath: "app/(operator)/value-report/_sections",
+    description: "Executive / sponsor value report hard load failure.",
+  },
+  {
+    id: "governance-findings-queue-hard-failure",
+    kind: "governance-queue-fatal",
+    routePattern: "/governance/findings",
+    componentPath: "app/(operator)/governance/findings",
+    description: "Governance findings queue cannot load.",
+  },
+  {
+    id: "review-commit-export-page-failure",
+    kind: "review-commit-export-fatal",
+    routePattern: "/reviews/[runId]",
+    componentPath: "app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx",
+    description: "Commit, seal, or export failure surfaced as page-level error on a review.",
+  },
+  {
+    id: "operator-api-problem-high-stakes",
+    kind: "api-problem-high-stakes",
+    routePattern: "*",
+    componentPath: "components/OperatorApiProblem.tsx",
+    description: "High-stakes API failure cards with correlation context (excludes validation-only 400 unless registry expands).",
+  },
+  {
+    id: "operator-layered-connectivity-error",
+    kind: "connectivity-error",
+    routePattern: "*",
+    componentPath: "components/OperatorLayeredConnectivityError.tsx",
+    description: "Layered upstream/API connectivity failure presentation.",
+  },
+  {
+    id: "operator-role-gate-session-break",
+    kind: "auth-session-break",
+    routePattern: "*",
+    componentPath: "components/OperatorRoleGate.tsx",
+    description: "User-visible auth or session break (not silent redirect).",
+  },
+] as const;
+
+/** Static App Router siblings that must not satisfy `[runId]`-style dynamic segments. */
+const REPORT_PROBLEM_RESERVED_DYNAMIC_SEGMENTS: Readonly<Record<string, readonly string[]>> = {
+  "/reviews/[runId]": ["new"],
+};
+
+/**
+ * Returns whether a pathname matches a registered route pattern.
+ * Exact match for static paths; segment-count match for `[param]` patterns.
+ */
+export function pathnameMatchesReportProblemRoute(
+  pattern: string,
+  pathname: string,
+  routeMatch: "exact" | "exact-or-child" = "exact",
+): boolean {
+  if (pattern === "*") {
+    return true;
+  }
+
+  const normalizedPath = normalizePathname(pathname);
+  const normalizedPattern = normalizePathname(pattern);
+
+  if (matchesReservedDynamicSegment(normalizedPattern, normalizedPath)) {
+    return false;
+  }
+
+  if (!normalizedPattern.includes("[")) {
+    if (normalizedPath === normalizedPattern) {
+      return true;
+    }
+
+    if (routeMatch === "exact-or-child") {
+      return normalizedPath.startsWith(`${normalizedPattern}/`);
+    }
+
+    return false;
+  }
+
+  const patternParts = normalizedPattern.split("/").filter((part) => part.length > 0);
+  const pathParts = normalizedPath.split("/").filter((part) => part.length > 0);
+
+  if (patternParts.length !== pathParts.length) {
+    return false;
+  }
+
+  return patternParts.every((segment, index) => {
+    if (segment.startsWith("[") && segment.endsWith("]")) {
+      return pathParts[index]!.length > 0;
+    }
+
+    return segment === pathParts[index];
+  });
+}
+
+/**
+ * Surfaces whose route pattern matches the current pathname (includes `*` component-global entries).
+ */
+export function reportProblemSurfacesForPathname(pathname: string): ReportProblemSurfaceEntry[] {
+  return REPORT_PROBLEM_V1_SURFACES.filter((surface) =>
+    pathnameMatchesReportProblemRoute(
+      surface.routePattern,
+      pathname,
+      surface.routeMatch ?? "exact",
+    ),
+  );
+}
+
+export function findReportProblemSurfaceById(surfaceId: string): ReportProblemSurfaceEntry | undefined {
+  const id = surfaceId.trim();
+
+  if (id.length === 0) {
+    return undefined;
+  }
+
+  return REPORT_PROBLEM_V1_SURFACES.find((surface) => surface.id === id);
+}
+
+function matchesReservedDynamicSegment(pattern: string, pathname: string): boolean {
+  const reservedSegments = REPORT_PROBLEM_RESERVED_DYNAMIC_SEGMENTS[pattern];
+
+  if (reservedSegments === undefined || reservedSegments.length === 0) {
+    return false;
+  }
+
+  const pathParts = pathname.split("/").filter((part) => part.length > 0);
+  const patternParts = pattern.split("/").filter((part) => part.length > 0);
+
+  if (pathParts.length !== patternParts.length) {
+    return false;
+  }
+
+  for (let index = 0; index < patternParts.length; index += 1) {
+    const patternPart = patternParts[index]!;
+    const pathPart = pathParts[index]!;
+
+    if (!patternPart.startsWith("[") || !patternPart.endsWith("]")) {
+      continue;
+    }
+
+    if (reservedSegments.includes(pathPart)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function normalizePathname(pathname: string): string {
+  const trimmed = pathname.trim();
+
+  if (trimmed.length === 0) {
+    return "/";
+  }
+
+  const withoutTrailing = trimmed.replace(/\/+$/, "");
+
+  if (withoutTrailing.length === 0) {
+    return "/";
+  }
+
+  return withoutTrailing.startsWith("/") ? withoutTrailing : `/${withoutTrailing}`;
+}
