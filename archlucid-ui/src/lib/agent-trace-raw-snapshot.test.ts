@@ -9,7 +9,7 @@ describe("buildAgentTraceRawSnapshotByTraceId", () => {
         traceId: "t1",
         runId: "r1",
         taskId: "task-1",
-        agentType: 1,
+        agentType: "Topology",
         parseSucceeded: true,
         createdUtc: "2026-05-01T12:00:00Z",
         userPrompt: "hello",

@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:293 -->
+<!-- audit-core-const-count:304 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -531,6 +531,11 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TrialArchitecturePreseedFailed` | `TrialArchitecturePreseedFailed` | `TrialArchitecturePreseedExecutor` |
 | `BillingCheckoutInitiated` | `BillingCheckoutInitiated` | `BillingCheckoutController` |
 | `BillingCheckoutCompleted` | `BillingCheckoutCompleted` | `BillingCheckoutController` |
+| `BillingPortalInitiated` | `BillingPortalInitiated` | `BillingCheckoutController` (Billing Portal session create start) |
+| `BillingPortalCompleted` | `BillingPortalCompleted` | `BillingCheckoutController` (Billing Portal session created) |
+| `BillingSubscriptionSuspended` | `BillingSubscriptionSuspended` | `StripeBillingSubscriptionWebhookProcessor` (dunning / payment failure) |
+| `BillingSubscriptionReinstated` | `BillingSubscriptionReinstated` | `StripeBillingSubscriptionWebhookProcessor` (return to Active) |
+| `BillingSubscriptionCanceled` | `BillingSubscriptionCanceled` | `StripeBillingSubscriptionWebhookProcessor` (canceled / deleted) |
 | `TenantNotificationChannelPreferencesUpdated` | `TenantNotificationChannelPreferencesUpdated` | `CustomerNotificationChannelPreferencesController` |
 | `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
@@ -601,6 +606,11 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantItsmConnectorConnectionUpserted` | `TenantItsmConnectorConnectionUpserted` | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/{provider}`; `POST /v1/integrations/itsm/connections/jira/oauth/consent/start`; `POST /v1/integrations/itsm/connections/jira/oauth/consent/complete`) |
 | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionsController` (`DELETE /v1/integrations/itsm/connections/{provider}`) |
 | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsController` (`PUT /v1/integrations/itsm/settings`) |
+| `TenantAzureBoardsOutboundSettingsUpserted` | `TenantAzureBoardsOutboundSettingsUpserted` | `AzureBoardsIntegrationsController` (outbound settings upsert) |
+| `IntegrationAzureBoardsConnectionTested` | `Integration.AzureBoardsConnectionTested` | `AzureBoardsIntegrationsController` (connection test; no work item created) |
+| `IntegrationAzureBoardsWorkItemCreateSucceeded` | `Integration.AzureBoardsWorkItemCreateSucceeded` | `AzureBoardsExternalTicketConnector` / ITSM outbound create path |
+| `IntegrationAzureBoardsWorkItemCreateFailed` | `Integration.AzureBoardsWorkItemCreateFailed` | same |
+| `IntegrationAzureBoardsWorkItemCreateSkipped` | `Integration.AzureBoardsWorkItemCreateSkipped` | same |
 | `IntegrationItsmFindingCorrelationRegistered` | `Integration.ItsmFindingCorrelationRegistered` | `ItsmCorrelationController` (`POST …/integrations/itsm/correlations`) |
 | `IntegrationItsmFindingCorrelationUpdated` | `Integration.ItsmFindingCorrelationUpdated` | `ItsmCorrelationController` (`PATCH …/integrations/itsm/correlations`) |
 | `IntegrationItsmFindingCorrelationRemoved` | `Integration.ItsmFindingCorrelationRemoved` | `ItsmCorrelationController` (`DELETE …/integrations/itsm/correlations`) |

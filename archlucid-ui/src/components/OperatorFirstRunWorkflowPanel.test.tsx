@@ -74,7 +74,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
   it("exploreCompletedOutput lists manifest link before review detail and walkthrough", async () => {
     render(<OperatorFirstRunWorkflowPanel exploreCompletedOutput />);
 
-    expect(await screen.findByRole("heading", { name: "Sample package shortcuts" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Sample review shortcuts" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View signed record summary" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization/signed-record",

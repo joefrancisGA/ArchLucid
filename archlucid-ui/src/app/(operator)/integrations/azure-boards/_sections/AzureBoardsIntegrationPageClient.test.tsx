@@ -38,11 +38,12 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
 
 import { AzureBoardsIntegrationPageClient } from "./AzureBoardsIntegrationPageClient";
 import {
+  AZURE_BOARDS_BANNED_UI_PATTERNS,
+  AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE,
   AZURE_BOARDS_PAGE_DESCRIPTION,
   AZURE_BOARDS_PAGE_TITLE,
   AZURE_BOARDS_TEST_CONNECTION_LABEL,
 } from "@/lib/azure-boards-page-copy";
-import { AZURE_BOARDS_BANNED_UI_PATTERNS } from "@/lib/azure-boards-page-copy";
 
 function baseHealth(overrides: Record<string, unknown> = {}) {
   return {
@@ -100,7 +101,7 @@ describe("AzureBoardsIntegrationPageClient", () => {
 
     expect(await screen.findByRole("heading", { name: AZURE_BOARDS_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(AZURE_BOARDS_PAGE_DESCRIPTION)).toBeInTheDocument();
-    expect(screen.getByText(/independent of whether your architecture runs on Azure, AWS, or Google Cloud/i)).toBeInTheDocument();
+    expect(screen.getByText(AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE)).toBeInTheDocument();
 
     const page = screen.getByTestId("integrations-azure-boards-page");
     const text = page.textContent ?? "";

@@ -34,7 +34,7 @@ describe("FindingItsmExportPanel", () => {
     render(<FindingItsmExportPanel runId="run-001" findingId="finding-001" payload={payload} />);
 
     expect(screen.getByTestId("finding-itsm-native-default-panel")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Sync to Jira or ServiceNow" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Sync to Jira, Azure Boards, or ServiceNow" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Create issue" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy work item" })).toBeInTheDocument();
   });
@@ -49,7 +49,7 @@ describe("FindingItsmExportPanel", () => {
     render(<FindingItsmExportPanel runId="run-001" findingId="finding-001" payload={payload} />);
 
     expect(screen.getByTestId("finding-itsm-export-panel")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Copy for Jira or ServiceNow" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Copy for Jira, Azure Boards, or ServiceNow" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Create issue" })).not.toBeInTheDocument();
   });
 

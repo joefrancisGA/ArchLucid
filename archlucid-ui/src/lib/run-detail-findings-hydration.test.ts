@@ -35,13 +35,13 @@ function operatorDetailWithFindings(): RunDetail {
         resultId: "r1",
         taskId: "t1",
         runId: "operator-demo-review-e2e",
-        agentType: 3,
+        agentType: "Compliance",
         findings: [
           {
             findingId: "demo-finding-1",
             message: "Public SQL endpoint without private link",
             category: "Security",
-            severity: 3,
+            severity: "Critical",
             policyRuleId: "sec-base-001",
             reasoningTrace: "Remediate public sql endpoint to satisfy sec-base-001.",
           },

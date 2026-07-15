@@ -8,7 +8,7 @@
 import { expect, test } from "@playwright/test";
 
 import {
-  CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN,
+  START_REVIEW_PAGE_HEADING_PATTERN,
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
   SHOWCASE_DEMO_RUN_ID,
 } from "../e2e/fixtures";
@@ -50,7 +50,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
 
     await page.goto("/reviews/new");
     await expect(
-      page.getByRole("heading", { name: CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN, level: 2 }),
+      page.getByRole("heading", { name: START_REVIEW_PAGE_HEADING_PATTERN, level: 2 }),
     ).toBeVisible();
 
     await page.goto("/reviews?projectId=default");

@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import {
   GOVERNANCE_OVERVIEW_PAGE_TITLE,
@@ -35,9 +35,15 @@ export const GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
   "i",
 );
 
-/** `/reviews/new` page H2 — {@link CREATE_ARCHITECTURE_LABEL} (replaces legacy "New architecture review"). */
+/** `/architectures/new` page H2 — {@link CREATE_ARCHITECTURE_LABEL}. */
 export const CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN = new RegExp(
   `^${escapeRegExpLiteral(CREATE_ARCHITECTURE_LABEL)}$`,
+  "i",
+);
+
+/** `/reviews/new` page H2 — {@link START_REVIEW_LABEL}. */
+export const START_REVIEW_PAGE_HEADING_PATTERN = new RegExp(
+  `^${escapeRegExpLiteral(START_REVIEW_LABEL)}$`,
   "i",
 );
 

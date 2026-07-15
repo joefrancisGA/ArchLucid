@@ -49,6 +49,7 @@ export {
   CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN,
   GOVERNANCE_PAGE_PRIMARY_HEADING_PATTERN,
   RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN,
+  START_REVIEW_PAGE_HEADING_PATTERN,
 } from "./runs-list-heading";
 export { fixtureRunDetail, fixtureRunDetailAlignedToShowcase } from "./run-detail";
 export {

@@ -72,10 +72,7 @@ describe("RunInspectorPreview", () => {
 
     expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();
     expect(screen.getByText("Risks reviewed")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open approved package" })).toHaveAttribute(
-      "href",
-      "/reviews/claims-intake-modernization",
-    );
+    expect(screen.queryByRole("link", { name: "Open approved package" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Related actions"));
     expect(screen.getByRole("link", { name: "View signed record" })).toHaveAttribute(
       "href",

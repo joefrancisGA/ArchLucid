@@ -15,7 +15,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
     data-testid="why-brand-category-paragraph"
   >
-    ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence package carries the citation-backed drill-down for diligence teams who need paperwork parity.
+    ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.
   </p>
   <div
     class="mt-8"
@@ -122,13 +122,13 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-2 text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-hero-outcome-heading"
     >
-      One buyer problem, one proof package
+      One buyer problem, one proof export
     </h2>
     <p
       class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
       data-testid="why-outcome-led-value-proposition"
     >
-      Cut architecture review cycle time with an evidence-backed proof package — signed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
+      Cut architecture review cycle time with an evidence-backed proof export — signed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
     </p>
     <p
       class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
@@ -328,7 +328,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400"
     >
-      Summarized wording only — citations and benchmark detail are included in the evidence package linked from this page.
+      Summarized wording only — citations and benchmark detail are included in the evidence bundle linked from this page.
     </p>
     <div
       class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -474,7 +474,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <h2
       class="text-lg font-semibold leading-[26px] text-al-text-primary"
     >
-      Side-by-side audit evidence package
+      Side-by-side audit evidence bundle
     </h2>
     <p
       class="mt-2 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
@@ -499,7 +499,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         download="why-archlucid-pack.pdf"
         href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
       >
-        Download the audit evidence package (PDF)
+        Download the audit evidence bundle (PDF)
       </a>
     </p>
   </section>
@@ -678,7 +678,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   download=""
                   href="/v1/marketing/trust-center/evidence-pack.zip"
                 >
-                  Assurance evidence package (ZIP)
+                  Assurance evidence bundle (ZIP)
                 </a>
                 <a
                   class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"

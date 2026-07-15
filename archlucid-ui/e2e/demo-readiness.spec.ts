@@ -85,12 +85,17 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       /completed architecture output|Completed example/i,
     );
 
-    await page.getByRole("link", { name: /Review/i }).first().click();
+    // Scope to ShowcaseQuickNav — loose /Review/i also matches "Review finding" / timeline "Open review".
+    const showcaseQuickNav = page.getByRole("region", { name: /Explore in workspace/i });
+    await showcaseQuickNav.getByRole("link", { name: "Review", exact: true }).click();
     await expect(page).toHaveURL(showcaseDemoReviewDetailUrlPattern());
     await expect(getAppMain(page)).not.toContainText(/Invalid Date/i);
 
     await page.goto(claimsShowcasePath);
-    await page.getByRole("link", { name: "Open signed record" }).first().click();
+    await page
+      .getByRole("region", { name: /Explore in workspace/i })
+      .getByRole("link", { name: "Open signed record", exact: true })
+      .click();
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
   });
