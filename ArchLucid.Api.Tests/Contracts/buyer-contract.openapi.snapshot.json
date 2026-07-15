@@ -16986,6 +16986,9 @@
           "description": {
             "type": "string"
           },
+          "distributionScope": {
+            "type": "string"
+          },
           "isDeleted": {
             "type": "boolean"
           },

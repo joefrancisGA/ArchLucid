@@ -122242,6 +122242,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string? Description { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("distributionScope")]
+        public string? DistributionScope { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("isDeleted")]
         public bool? IsDeleted { get; set; } = default!;
 

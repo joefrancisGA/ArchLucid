@@ -14,6 +14,7 @@ const selectedPack: PolicyPack = {
   name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
   description: "Healthcare Claims pack",
   packType: "BuiltIn",
+  distributionScope: "Platform",
   status: "Active",
   createdUtc: "2026-01-10T12:00:00.000Z",
   currentVersion: "3.4.1",

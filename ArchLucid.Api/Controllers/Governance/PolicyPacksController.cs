@@ -335,11 +335,21 @@ public sealed class PolicyPacksController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        PolicyPackCatalogEntryDetail? row = await _policyPackCatalogAdminService.TryPromoteFromSourcePackAsync(
-            scope,
-            request.SourcePolicyPackId,
-            request.Version,
-            ct);
+
+        PolicyPackCatalogEntryDetail? row;
+
+        try
+        {
+            row = await _policyPackCatalogAdminService.TryPromoteFromSourcePackAsync(
+                scope,
+                request.SourcePolicyPackId,
+                request.Version,
+                ct);
+        }
+        catch (PolicyPackCrossTenantDistributionBlockedException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
 
         if (row is null)
             return this.NotFoundProblem(

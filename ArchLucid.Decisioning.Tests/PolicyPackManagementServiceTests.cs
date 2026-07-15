@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -69,6 +70,14 @@ public sealed class PolicyPackManagementServiceTests
         Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
         await sut.CreatePackAsync(tenantId, workspaceId, projectId, "MyPack", "d", PolicyPackType.ProjectCustom, "{}", CancellationToken.None);
+
+        packRepo.Verify(
+            p => p.CreateAsync(
+                It.Is<PolicyPack>(pack => pack.DistributionScope == PolicyPackDistributionScope.OrganizationPrivate),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()),
+            Times.Once);
 
         changeLog.Verify(
             c => c.AppendAsync(

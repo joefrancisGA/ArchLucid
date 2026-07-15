@@ -7,6 +7,11 @@ import {
   policyPacksPackSelectReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { policyPackTypeBuyerDisplayLabel, policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
+import {
+  isOrganizationPrivatePolicyPackDistributionScope,
+  policyPackDistributionScopeBuyerLabel,
+  POLICY_PACK_ORGANIZATION_PRIVATE_HELPER_COPY,
+} from "@/lib/policy-pack-distribution-scope-label";
 import { isStandardBaselinePolicyPackName } from "@/lib/policy-pack-standard-baseline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -46,6 +51,13 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
                 ) : (
                   <StatusTag kind="neutral" label="Advanced / domain" data-testid={`policy-pack-advanced-${p.policyPackId}`} />
                 )}
+                {isOrganizationPrivatePolicyPackDistributionScope(p.distributionScope) ? (
+                  <StatusTag
+                    kind="neutral"
+                    label={policyPackDistributionScopeBuyerLabel(p.distributionScope) ?? "Organization private"}
+                    data-testid={`policy-pack-org-private-${p.policyPackId}`}
+                  />
+                ) : null}
                 <BooleanStatusChip
                   value={effectivePackIds.has(p.policyPackId)}
                   trueLabel="Enabled in scope"
@@ -67,6 +79,14 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
                 {!buyerPolishedShell ? <code>{p.currentVersion}</code> : null}
               </span>
               <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{p.description}</div>
+              {isOrganizationPrivatePolicyPackDistributionScope(p.distributionScope) ? (
+                <p
+                  className={cn("mt-1 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                  data-testid={`policy-pack-org-private-copy-${p.policyPackId}`}
+                >
+                  {POLICY_PACK_ORGANIZATION_PRIVATE_HELPER_COPY}
+                </p>
+              ) : null}
             </li>
           ))}
         </ul>

@@ -75,6 +75,15 @@ All rows below are seeded as **`PlatformDefault`** (Operator UI: **Bundled defau
 
 Assignments seed **cloud-neutral + Azure baseline** packs **enabled** by default (`PolicyPackAssignments.IsEnabled = true` for `DefaultPolicyPackCatalog.ResolveStandardBaselineDisplayNames(CloudProvider.Azure)`); AWS/GCP-specific baselines auto-enable when a run targets `CloudProvider.Aws` or `CloudProvider.Gcp` via `DefaultPolicyPackCloudBaselineApplicator`. Merges participate in **`PolicyPackResolver`** like any other activated assignment.
 
+### Organization Private vs Review Engine Knowledge
+
+| Knowledge class | `PackType` (origin) | `DistributionScope` | Buyer meaning |
+| --- | --- | --- | --- |
+| **Review Engine Knowledge** | `BuiltIn` / `PlatformDefault` | `Platform` | ArchLucid-curated expertise bundled with the product |
+| **Organization Knowledge** | `TenantCustom` / `WorkspaceCustom` / `ProjectCustom` | `OrganizationPrivate` | Your institutional standards — not published, not discoverable outside your tenant, and not used to train or improve other customers' packs |
+
+Customer-authored packs remain versionable **inside your tenant** (`PublishVersion` / SemVer). Organization Private blocks **distribution outside the tenant** (global catalog promotion, marketplace, org-shared installs) — not in-tenant lifecycle.
+
 ---
 
 ## 2. Framework & jurisdiction disclaimers (all bundled rules)
