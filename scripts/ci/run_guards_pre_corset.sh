@@ -24,6 +24,7 @@ python3 scripts/ci/detect_mutating_route_idempotency_drift.py
 python3 scripts/ci/assert_route_tier_policy_nav.py
 python3 scripts/ci/test_coordinator_parity_probe.py
 python3 scripts/ci/assert_rollback_scripts_exist.py
+python3 scripts/ci/assert_reference_architecture_exemplars.py
 
 if [[ -n "${ARCHLUCID_GIT_DIFF_RANGE:-}" ]]; then
   python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py

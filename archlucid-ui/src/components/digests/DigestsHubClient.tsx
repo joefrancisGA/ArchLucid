@@ -241,7 +241,6 @@ export function DigestsHubClient(): ReactElement {
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">
         <TabsList aria-label="Digest hub sections" data-testid="digests-hub-tablist">
           {DIGESTS_HUB_TAB_IDS.map((id) => {
-            const softMuted: boolean = !canMutate && (id === "subscriptions" || id === "schedule");
             const tabTitle: string | undefined =
               !canMutate && id === "subscriptions"
                 ? SUBSCRIPTIONS_TAB_READER_TITLE
@@ -255,7 +254,6 @@ export function DigestsHubClient(): ReactElement {
                 value={id}
                 data-testid={`digests-hub-tab-${id}`}
                 title={tabTitle}
-                className={softMuted ? "opacity-70" : undefined}
               >
                 {TAB_LABEL[id]}
               </TabsTrigger>

@@ -44,7 +44,7 @@ export function ImpactPreviewSimulationResultsSection(
         </h2>
         <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {IMPACT_PREVIEW_EXPECTED_CHANGE_LABEL}: compare <strong>{IMPACT_PREVIEW_BEFORE_LABEL}</strong> against{" "}
-          <strong>{IMPACT_PREVIEW_AFTER_LABEL}</strong> for the selected baseline review package.
+          <strong>{IMPACT_PREVIEW_AFTER_LABEL}</strong> for the selected baseline review.
         </p>
       </div>
 

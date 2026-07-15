@@ -1,4 +1,6 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import type { Metadata } from "next";
@@ -11,7 +13,6 @@ import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleto
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer-polish-copy";
-import { REVIEWS_NEW_CREATE_ARCHITECTURE_PAGE_LEAD } from "@/lib/reviews-new-path-copy";
 
 const ReviewsNewPathSwitcher = dynamic(
   () => import("./ReviewsNewPathSwitcher").then((module) => module.ReviewsNewPathSwitcher),
@@ -19,7 +20,7 @@ const ReviewsNewPathSwitcher = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: CREATE_ARCHITECTURE_LABEL,
+  title: START_REVIEW_LABEL,
 };
 
 type NewRunPageProps = {
@@ -39,16 +40,20 @@ export default async function NewRunPage(props: NewRunPageProps) {
   const isCreateArchitectureIntent =
     resolveIntentParam(resolvedSearchParams.intent) === CREATE_ARCHITECTURE_INTENT;
 
+  if (isCreateArchitectureIntent) {
+    redirect(ARCHITECTURES_NEW_PATH);
+  }
+
   return (
     <OperatorPageContainer variant="workflow">
       <div className={cn("mt-6 mb-1 flex flex-wrap items-baseline gap-3")}>
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{CREATE_ARCHITECTURE_LABEL}</h2>
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{START_REVIEW_LABEL}</h2>
         <InAppHelpLink helpSlug="review-guide" label="Review guide" variant="text" />
       </div>
       <p className={cn("mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-page-lead">
-        {isCreateArchitectureIntent ? REVIEWS_NEW_CREATE_ARCHITECTURE_PAGE_LEAD : REVIEWS_NEW_PAGE_LEAD}
+        {REVIEWS_NEW_PAGE_LEAD}
       </p>
-      {isCreateArchitectureIntent ? null : <NewReviewSampleEscapeLink className="mt-2" />}
+      <NewReviewSampleEscapeLink className="mt-2" />
       <div id="new-review-wizard" className="mt-4 scroll-mt-24">
         <Suspense fallback={<NewRunWizardSkeleton />}>
           <ReviewsNewPathSwitcher />

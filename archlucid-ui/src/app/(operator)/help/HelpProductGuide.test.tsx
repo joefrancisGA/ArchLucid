@@ -17,7 +17,7 @@ describe("HelpProductGuide", () => {
 
     expect(screen.getByRole("heading", { name: "Using ArchLucid" })).toBeInTheDocument();
     expect(screen.getAllByText("Getting started").length).toBeGreaterThan(0);
-    expect(screen.getByText("Working with a completed review package")).toBeInTheDocument();
+    expect(screen.getByText("Working with a completed review")).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Start a review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "Open executive summary" })).toBeInTheDocument();

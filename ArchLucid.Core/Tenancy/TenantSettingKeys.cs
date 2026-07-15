@@ -13,4 +13,7 @@ public static class TenantSettingKeys
     ///     Tenant opt-in for manifest-derived fine-tuning export (<c>Disabled</c>, <c>Enabled</c>, <c>Withdrawn</c>).
     /// </summary>
     public const string FineTuningManifestConsent = "FineTuning.ManifestConsent";
+
+    /// <summary>Workspace-owner-selected completed review opened from the operator home explore path.</summary>
+    public const string FeaturedCompletedSampleRunId = "Homepage.FeaturedCompletedSampleRunId";
 }

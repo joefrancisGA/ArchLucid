@@ -59,7 +59,7 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
           <EnterpriseTable ariaLabel={REVIEWS_HUB_RECENT_SECTION_TITLE} data-testid="reviews-hub-packages-table">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell>Review package</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
@@ -76,19 +76,19 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
                 return (
                   <EnterpriseTableRow
                     key={row.runId}
-                    data-testid={row.isSamplePackage ? "reviews-hub-sample-row" : `reviews-hub-row-${row.runId}`}
+                    data-testid={row.isSampleReview ? "reviews-hub-sample-row" : `reviews-hub-row-${row.runId}`}
                   >
                     <EnterpriseTableCell>
                       <div className="min-w-[12rem]">
-                        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{row.name}</p>
-                        {row.isSamplePackage ? (
-                          <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Sample package</p>
+                        <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{row.reviewTitle}</p>
+                        {row.isSampleReview ? (
+                          <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Sample review</p>
                         ) : null}
                       </div>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
                       <RunStatusBadge run={run} />
-                      <span className="sr-only">{row.statusLabel}</span>
+                      <span className="sr-only">{row.overallStatus}</span>
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{row.lastUpdated}</EnterpriseTableCell>
                     <EnterpriseTableCell className="text-right tabular-nums">

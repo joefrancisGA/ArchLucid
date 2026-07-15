@@ -98,7 +98,7 @@ export const FINDINGS_HELP_EVIDENCE_ITEMS = [
 export const FINDINGS_HELP_EVIDENCE_ACTIONS = [
   {
     label: "Open finding",
-    description: "Open the finding from the risk register or review package.",
+    description: "Open the finding from the risk register or review.",
     href: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href,
   },
   {
@@ -226,7 +226,7 @@ export const FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = 
 ] as const;
 
 export const FINDINGS_HELP_WHAT_IS_BODY =
-  "During a review, ArchLucid compares architecture evidence against active policies and standards. When a gap or risk is detected, the product records a finding with severity, impact, and recommended action. Findings stay linked to the review package so teams can investigate, govern, and report on them consistently.";
+  "During a review, ArchLucid compares architecture evidence against active policies and standards. When a gap or risk is detected, the product records a finding with severity, impact, and recommended action. Findings stay linked to the review so teams can investigate, govern, and report on them consistently.";
 
 export const FINDINGS_HELP_SEVERITY_INTRO =
   "Severity reflects how urgently a finding should be addressed. Business impact explains why the issue matters to delivery, security, or compliance. Both appear on the finding and in governance summaries.";

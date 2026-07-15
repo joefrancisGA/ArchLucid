@@ -6,10 +6,10 @@ export function ReplayPageDemoShell() {
   return (
     <div>
       <LayerHeader pageKey="replay" density="compact" />
-      <OperatorPageHeader title="Validate review package" helpKey="replay-run" />
+      <OperatorPageHeader title="Validate review" helpKey="replay-run" />
       <DemoWorkspaceCapabilityUnavailablePanel
         layout="embedded"
-        capability="Validate review package"
+        capability="Validate review"
         description="In a connected tenant, operators validate stored review output for diagnostics and audit support."
       />
     </div>

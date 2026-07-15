@@ -108,8 +108,12 @@ export function resolvePatternLibraryRecords(
   apiPatternKeys: readonly string[],
   useSampleCatalog: boolean,
 ): PatternLibraryRecord[] {
-  if (useSampleCatalog || apiPatternKeys.length === 0) {
+  if (useSampleCatalog) {
     return [...PATTERN_LIBRARY_SAMPLE_CATALOG];
+  }
+
+  if (apiPatternKeys.length === 0) {
+    return [];
   }
 
   const matched = apiPatternKeys

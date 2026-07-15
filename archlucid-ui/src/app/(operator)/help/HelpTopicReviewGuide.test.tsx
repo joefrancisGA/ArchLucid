@@ -32,7 +32,7 @@ const TOC_SECTION_TITLES = [
   "Confirm review scope",
   "Start the review",
   "Review findings and evidence",
-  "Finalize the review package",
+  "Finalize the review",
   "Related guides",
 ] as const;
 

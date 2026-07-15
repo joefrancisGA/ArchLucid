@@ -14,6 +14,10 @@ import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { RUNS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { getBreadcrumbs } from "@/lib/breadcrumb-map";
+import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
+import { ROUTE_TITLES } from "@/lib/route-static-titles";
+import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import {
   REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS,
@@ -32,8 +36,9 @@ import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canoni
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
 
 describe("review terminology guard", () => {
-  it("uses review package as the primary buyer noun in shared vocabulary", () => {
-    expect(ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp.toLowerCase()).toContain("review package");
+  it("uses architecture review as the primary buyer noun in shared vocabulary", () => {
+    expect(ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp.toLowerCase()).toContain("architecture review");
+    expect(ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp.toLowerCase()).not.toContain("review package");
     expect(ARCHITECTURE_REVIEW_VOCABULARY.correlationIdLabel.toLowerCase()).toContain("review");
     expect(ARCHITECTURE_REVIEW_VOCABULARY.runIdBridgeSentence.toLowerCase()).toContain("runid");
     expect(ARCHITECTURE_REVIEW_VOCABULARY.correlationIdFieldBridge.toLowerCase()).toContain("review id");
@@ -115,7 +120,7 @@ describe("review terminology guard", () => {
     }
   });
 
-  it("TB-738: nav and hub/home list empty surfaces avoid review-only package list nouns", () => {
+  it("TB-738: reviews hub and nav use review-centered list nouns without package jargon", () => {
     for (const relativePath of REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS) {
       const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
 
@@ -124,12 +129,12 @@ describe("review terminology guard", () => {
       }
     }
 
-    expect(OPERATOR_NAV_LINK_LABELS.reviewPackage).toBe("Architecture packages");
-    expect(RUNS_LIST_PAGE_TITLES.buyerPolished).toBe("Architecture Packages");
-    expect(governanceModeVocabulary(false).reviewPlural).toBe("Architecture packages");
+    expect(OPERATOR_NAV_LINK_LABELS.reviewPackage).toBe("Reviews");
+    expect(RUNS_LIST_PAGE_TITLES.buyerPolished).toBe("Reviews");
+    expect(governanceModeVocabulary(false).reviewPlural).toBe("Reviews");
     expect(governanceModeVocabulary(true).reviewPlural).toBe("Reviews");
-    expect(RUNS_EMPTY.title).toBe("No architecture packages yet");
-    expect(RUNS_EMPTY_COMPACT.title).toBe("No architecture packages yet");
+    expect(RUNS_EMPTY.title).toBe("No reviews yet");
+    expect(RUNS_EMPTY_COMPACT.title).toBe("No reviews yet");
     expect(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE).toBe("No reviews yet");
     expect(OPERATOR_HOME_WORKSPACE_EMPTY_BODY.toLowerCase()).toContain("in-progress and completed");
   });
@@ -147,6 +152,28 @@ describe("review terminology guard", () => {
         violations,
         violations.map((v) => `${v.relativePath}:${v.line} "${v.pattern}" — ${v.excerpt}`).join("\n"),
       ).toEqual([]);
+    }
+  });
+
+  it("IA-006: converged surfaces share one nav label per route family", () => {
+    const alignedRoutes = [
+      { path: "/graph", navLabel: OPERATOR_NAV_LINK_LABELS.evidenceTrail, paletteHref: "/graph" },
+      { path: "/governance/findings", navLabel: OPERATOR_NAV_LINK_LABELS.findings, paletteHref: null },
+      { path: "/settings/tenant", navLabel: OPERATOR_NAV_LINK_LABELS.settings, paletteHref: null },
+    ] as const;
+
+    for (const route of alignedRoutes) {
+      const crumbs = getBreadcrumbs(route.path);
+
+      expect(crumbs[crumbs.length - 1]?.label, route.path).toBe(route.navLabel);
+      expect(ROUTE_TITLES[route.path], route.path).toBe(route.navLabel);
+      expect(pageHelpTopicForPathname(route.path)?.label, route.path).toBe(route.navLabel);
+
+      if (route.paletteHref !== null) {
+        const paletteTask = COMMAND_PALETTE_CURATED_TASKS.find((task) => task.href === route.paletteHref);
+
+        expect(paletteTask?.label, route.path).toBe(route.navLabel);
+      }
     }
   });
 

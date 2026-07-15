@@ -51,9 +51,7 @@ const nextConfig: NextConfig = {
     tsconfigPath: "tsconfig.build.json",
   },
   reactStrictMode: true,
-  devIndicators: {
-    position: "bottom-right",
-  },
+  devIndicators: false,
   // Standalone output copies only required node_modules into .next/standalone,
   // producing a self-contained deployment unit suitable for Docker / App Service.
   //
@@ -170,6 +168,10 @@ const nextConfig: NextConfig = {
       // Executive reviews retired — operator /reviews tree is canonical (TB-608 follow-on).
       { source: "/executive/reviews", destination: "/reviews", permanent: true },
       { source: "/executive/reviews/:path*", destination: "/reviews/:path*", permanent: true },
+      // Per-cloud help topics — slash aliases are canonical (retired hyphen slug URLs).
+      { source: "/help/cloud-connections-azure", destination: "/help/cloud-connections/azure", permanent: true },
+      { source: "/help/cloud-connections-aws", destination: "/help/cloud-connections/aws", permanent: true },
+      { source: "/help/cloud-connections-gcp", destination: "/help/cloud-connections/gcp", permanent: true },
     ];
   },
   async rewrites() {

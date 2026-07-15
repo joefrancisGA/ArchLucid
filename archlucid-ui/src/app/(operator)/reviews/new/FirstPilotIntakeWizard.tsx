@@ -183,7 +183,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       <div className="space-y-1" data-testid="first-pilot-intake-progress">
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Your first review package</p>
+        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Your first review</p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           {CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeLead}
         </p>

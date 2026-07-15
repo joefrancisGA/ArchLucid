@@ -46,7 +46,7 @@ describe("help-markdown-presentation", () => {
     const source = "See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for details.";
     const rewritten = rewriteHelpMarkdownDocLinks(source, "docs/library/operator-shell.md");
 
-    expect(rewritten).toBe("See [Product Packaging](/help/billing-and-plans) for details.");
+    expect(rewritten).toBe("See Product Packaging for details.");
     expect(rewritten.includes(".md")).toBe(false);
   });
 
@@ -92,7 +92,7 @@ describe("help-markdown-presentation", () => {
     const prepared = prepareHelpMarkdownForPresentation(excerpt, "docs/library/operator-shell.md");
 
     expect(prepared.includes(".md")).toBe(false);
-    expect(prepared).toContain("[Workspace route map](/help/operator-shell)");
+    expect(prepared).toContain("[Workspace route map](/help/pilot-nav-profile)");
     expect(prepared).toMatch(/\[Your first architecture review\]\(\/help\/core-pilot\)/);
   });
 
@@ -150,7 +150,7 @@ describe("help-markdown-presentation", () => {
       "An empty artifact list can be valid: manifest exists but none stored for that manifest. See [/runs/new](/runs/new).";
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/operator-shell.md");
 
-    expect(prepared).toContain("review package exists");
+    expect(prepared).toContain("review exists");
     expect(prepared).toContain("](/reviews/new)");
     expect(prepared.includes("manifest exists")).toBe(false);
     expect(prepared.includes("/runs/")).toBe(false);
@@ -171,7 +171,6 @@ describe("help-markdown-presentation", () => {
 
 describe("help topic product-language drift guards", () => {
   const SCOPED_ARCHITECT_HELP_SLUGS = [
-    "operator-shell",
     "pilot-nav-profile",
     "troubleshooting",
     "admin-diagnostics",
@@ -232,7 +231,8 @@ describe("MarketingAccessibilityMarkdownFragment help presentation", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Product Packaging" })).toHaveAttribute("href", "/help/billing-and-plans");
+    expect(screen.getByText(/Product Packaging/)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Product Packaging" })).toBeNull();
     expect(screen.queryByText(/\.md/i)).toBeNull();
   });
 

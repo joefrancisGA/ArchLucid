@@ -20,7 +20,7 @@ describe("RunProvenanceInline", () => {
     expect(list.querySelectorAll("li")).toHaveLength(4);
   });
 
-  it("shows Review package complete when buyer polished and all stages present", () => {
+  it("shows Review complete when buyer polished and all stages present", () => {
     render(
       <RunProvenanceInline
         buyerPolished
@@ -33,7 +33,7 @@ describe("RunProvenanceInline", () => {
       />,
     );
 
-    expect(screen.getByTestId("run-provenance-inline-summary")).toHaveTextContent("Review package complete");
+    expect(screen.getByTestId("run-provenance-inline-summary")).toHaveTextContent("Review complete");
   });
 
   it("uses Risks reviewed chip label when buyer polished and findings snapshot present", () => {

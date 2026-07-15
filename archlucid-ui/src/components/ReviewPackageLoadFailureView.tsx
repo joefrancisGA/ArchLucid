@@ -119,7 +119,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
 
       if (Date.now() - pendingStartedAt >= PENDING_MAX_MS) {
         setPhase("failed");
-        setLastRetryMessage("Review package was not available after waiting — open diagnostics or retry.");
+        setLastRetryMessage("Review was not available after waiting — open diagnostics or retry.");
 
         return;
       }
@@ -175,7 +175,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
           return;
         }
 
-        setLastRetryMessage(`Retry at ${now} did not load the review package.`);
+        setLastRetryMessage(`Retry at ${now} did not load the review.`);
         router.refresh();
       })();
     });
@@ -183,14 +183,14 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
 
   const title = fromGeneration
     ? "We could not open the review that was just generated"
-    : "Review package could not be opened";
+    : "Review could not be opened";
 
   if (phase === "pending") {
     return (
       <OperatorLoadingNotice>
         <strong className={OPERATOR_TYPOGRAPHY.body}>Opening your generated review…</strong>
         <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-          ArchLucid is waiting for the new review package to become available. This usually takes a few seconds after
+          ArchLucid is waiting for the new review to become available. This usually takes a few seconds after
           generation starts.
         </p>
         <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -199,13 +199,13 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
         <div className="mt-4 flex flex-wrap gap-3">
           <Button type="button" variant="outline" size="sm" asChild>
             <Link href={REVIEW_PACKAGES_HREF} data-testid="pending-open-review-packages">
-              Open review packages
+              Open reviews
             </Link>
           </Button>
         </div>
         <OperatorRouteDiagnosticsPanel payload={diagnostics} />
         <span data-testid="review-package-pending" className="sr-only">
-          Waiting for generated review package
+          Waiting for generated review
         </span>
       </OperatorLoadingNotice>
     );
@@ -215,8 +215,8 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
     notFoundReason === "workspace-mismatch"
       ? "The review exists but is not visible in the current workspace. Confirm the workspace selector matches where the review was created."
       : fromGeneration
-        ? "ArchLucid attempted to open the generated review package, but the package could not be loaded. This may be caused by a delayed package commit, workspace mismatch, failed generation job, or API error."
-        : "ArchLucid attempted to open this review package, but it could not be loaded.";
+        ? "ArchLucid attempted to open the generated review, but the package could not be loaded. This may be caused by a delayed package commit, workspace mismatch, failed generation job, or API error."
+        : "ArchLucid attempted to open this review, but it could not be loaded.";
 
   const guidance =
     "Retry first. If the problem continues, open diagnostics or copy the error details.";
@@ -242,7 +242,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
           {isRetryPending ? "Retrying…" : "Retry loading review"}
         </Button>
         <Link className="text-teal-800 underline dark:text-teal-300" href={REVIEW_PACKAGES_HREF} data-testid="open-review-packages">
-          Open review packages
+          Open reviews
         </Link>
         <Link className="text-teal-800 underline dark:text-teal-300" href={START_REVIEW_HREF} data-testid="start-new-review">
           {OPERATOR_NAV_LINK_LABELS.capture}
@@ -253,7 +253,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
         ArchLucid · REVIEW LOAD FAILURE
       </p>
       <span data-testid="review-package-load-failure" className="sr-only">
-        Review package could not be opened
+        Review could not be opened
       </span>
     </OperatorEmptyState>
   );

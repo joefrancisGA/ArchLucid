@@ -64,7 +64,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             ) : null}
           </div>
           <div>
-            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review package</span>{" "}
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review</span>{" "}
             <Link
               className={OPERATOR_LINK.inline}
               href={`/reviews/${encodeURIComponent(a.runId)}`}
@@ -103,7 +103,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
               <div>Completed {formatInstantForBuyerGovernance(data.run.completedUtc)}</div>
             ) : null}
             {data.run.currentManifestVersion ? (
-              <div>Current review package version {data.run.currentManifestVersion}</div>
+              <div>Current review version {data.run.currentManifestVersion}</div>
             ) : null}
           </CardContent>
         </Card>

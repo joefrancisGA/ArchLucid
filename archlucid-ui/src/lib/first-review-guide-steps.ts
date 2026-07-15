@@ -32,7 +32,7 @@ export const FIRST_REVIEW_GUIDE_STEPS: readonly FirstReviewGuideStepDefinition[]
     explanation: "Commit the review record and preserve its evidence and decisions.",
   },
   {
-    title: "Share the review package",
+    title: "Share the review",
     explanation: "Open or export the finalized package for stakeholders.",
   },
 ] as const;

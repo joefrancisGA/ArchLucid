@@ -32,7 +32,7 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
         </Link>
       </nav>
       <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-        {props.buyerPolishedLayout ? "Architecture review package" : "Finalized architecture review package"}
+        {props.buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
       </h1>
       {props.children}
     </div>

@@ -2,8 +2,10 @@ import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lu
 
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_IDLE_TITLE, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
+import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
@@ -14,21 +16,21 @@ export { SEARCH_EMPTY } from "./search-empty-preset";
 
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
-  title: "No architecture packages yet",
+  title: "No reviews yet",
   description:
-    "Create or review an architecture to generate a package with findings, evidence, signed review record, and exports. Or open the sample package to see the completed flow.",
+    "Start an architecture review to gather evidence, evaluate findings, record decisions, and produce exports. Or explore the sample review to see a completed flow.",
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new" },
-    { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: "Start an architecture review", href: "/reviews/new" },
+    { label: "Explore the sample review", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
-  helpTopicPath: "creating-runs",
+  helpTopicPath: "starting-reviews",
 };
 
 export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
   icon: Bell,
   title: "No alerts for this filter",
   description:
-    "Try another status or time range. Alerts appear when rules evaluate against findings from completed reviews — finish a review package first if you are in an empty tenant.",
+    "Try another status or time range. Alerts appear when rules evaluate against findings from completed reviews — finish a review first if you are in an empty tenant.",
   actions: [
     { label: "Set up alert rules", href: "/governance/alert-rules" },
     { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
@@ -41,7 +43,7 @@ export const GRAPH_IDLE: EmptyStateProps = {
   title: OPERATOR_GRAPH_IDLE_TITLE,
   description: `${OPERATOR_GRAPH_WHAT_YOU_WILL_SEE} ${OPERATOR_GRAPH_IDLE_BODY}`,
   actions: [
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new" },
+    { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     {
       label: "Open sample evidence graph",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
@@ -53,15 +55,15 @@ export const GRAPH_IDLE: EmptyStateProps = {
 /** Buyer-polished graph idle: sample graph is the primary next action. */
 export const GRAPH_IDLE_BUYER: EmptyStateProps = {
   icon: Network,
-  title: "No completed review packages yet",
+  title: "No completed reviews yet",
   description:
-    "Complete a review package to generate an evidence graph, or open the sample graph to see how findings link to evidence, decisions, and audit records.",
+    "Complete a review to generate an evidence graph, or open the sample graph to see how findings link to evidence, decisions, and audit records.",
   actions: [
     {
       label: "Open sample evidence graph",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     },
-    { label: CREATE_ARCHITECTURE_LABEL, href: "/reviews/new", variant: "outline" as const },
+    { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH, variant: "outline" as const },
     { label: "Upload evidence", href: "/reviews/new", variant: "outline" as const },
   ],
 };
@@ -71,7 +73,7 @@ export const COMPARE_WAITING: EmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default" },
+    { label: "Open reviews", href: "/reviews?projectId=default" },
   ],
 };
 
@@ -81,7 +83,7 @@ export const COMPARE_WAITING_BUYER: EmptyStateProps = {
   title: "Select two reviews to compare",
   description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default" },
+    { label: "Open reviews", href: "/reviews?projectId=default" },
   ],
 };
 
@@ -100,11 +102,11 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   icon: Shield,
   title: "Load a review to see workflow rows",
   description:
-    "Pick a finalized review package under Approval requests, then Load — approvals, releases, and activations appear for that review.",
+    "Pick a finalized review under Approval requests, then Load — approvals, releases, and activations appear for that review.",
   actions: [
-    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
     { label: "Risk register", href: "/governance/findings", variant: "outline" },
-    { label: "Policy packs", href: "/policy-packs", variant: "outline" },
+    { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH, variant: "outline" },
   ],
   helpTopicPath: "governance",
   gettingStarted: governanceWorkflowIdleGettingStartedOperator,

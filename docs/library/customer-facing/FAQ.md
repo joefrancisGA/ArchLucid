@@ -36,7 +36,7 @@ Versioned REST under **`/v1/*`** with OpenAPI; AsyncAPI where published for work
 SCIM 2.0 is **in V1 scope**; validate against your IdP and staging tenant per **[V1_SCOPE.md](../V1_SCOPE.md)**.
 
 **Can I connect ITSM in V1?**  
-First-party ITSM/chat connectors are **V1.1** buyer-contract items, not V1 GA obligations. V1 pilots use REST, CLI, operator UI, SCIM, Azure DevOps, and GitHub — see **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)** and **[V1_DEFERRED.md](../V1_DEFERRED.md)**.
+Yes. First-party **Jira**, **ServiceNow**, **Microsoft Teams**, and **Slack** connectors are **V1 GA** (owner scope 2026-07-03). Configure them under **Integrations** in the operator UI — see **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)**. OAuth 2.0 upgrades (**TB-600**) tighten enterprise auth; they do not remove the V1 GA connector commitment. **CloudEvents** outbound webhooks and customer-operated **recipes** remain **V1.1** buyer-contract paths for teams that prefer a self-operated bridge.
 
 ## Pricing
 

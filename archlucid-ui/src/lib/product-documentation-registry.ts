@@ -38,9 +38,9 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
   "cloud-connections/aws": "cloud-connections-aws",
   "cloud-connections/gcp": "cloud-connections-gcp",
-  "security/workload-identity-federation": "workload-identity-federation",
-  "security/azure-permissions": "azure-permissions",
-  "users-and-roles": "operator-auth-roles",
+  "users-and-roles": "users-and-roles",
+  "operator-auth-roles": "users-and-roles",
+  "creating-runs": "starting-reviews",
 };
 
 export function normalizeHelpTopicSlug(slug: string): string {
@@ -75,7 +75,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "first-hour-operator-path",
     title: "First-review guide",
     summary:
-      "Complete one review package before opening deeper governance, reporting, or integration workflows.",
+      "Complete one review before opening deeper governance, reporting, or integration workflows.",
     audience: "buyer",
     sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
     pdfStatus: "public",
@@ -84,7 +84,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "review-guide",
     title: "Review guide",
     summary:
-      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review package.",
+      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
+  },
+  {
+    slug: "starting-reviews",
+    title: "Starting architecture reviews",
+    summary:
+      "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/REVIEW_GUIDE.md"],
   },
@@ -97,20 +105,20 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md"],
   },
   {
-    slug: "first-pilot-operator-runbook",
-    title: "First-pilot workspace runbook",
-    summary:
-      "Internal phase checklist — platform readiness, evidence ingest, proof collection, and pilot recovery for platform and release owners.",
-    audience: "developer",
-    sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
-  },
-  {
     slug: "pilot-guide",
     title: "Pilot guide",
     summary:
       "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/PILOT_GUIDE.md"],
+  },
+  {
+    slug: "prior-manifest-retrieval",
+    title: "Prior manifest retrieval",
+    summary:
+      "How finalized reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy runs.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md"],
   },
   {
     slug: "getting-started",
@@ -129,6 +137,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/WORKSPACE_SCOPE_GUIDE.md"],
   },
   {
+    slug: "glossary",
+    title: "Glossary",
+    summary:
+      "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CUSTOMER_GLOSSARY.md"],
+    pdfStatus: "customer",
+  },
+  {
     slug: "evidence-intake",
     title: "Start a review",
     summary: "Start a review from a brief, diagram, document, or cloud evidence; verify intake before finalize.",
@@ -137,8 +154,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "review-packages",
-    title: "Review packages",
-    summary: "Browse, inspect, and export governed review packages in the architect workspace.",
+    title: "Reviews",
+    summary: "Browse, inspect, and export governed reviews in the architect workspace.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"],
   },
@@ -159,7 +176,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "evidence-trail",
-    title: "Evidence trail",
+    title: "Evidence graph",
     summary: "Trace findings, artifacts, and provenance without exposing raw engineering logs.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
@@ -248,20 +265,13 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "customer",
   },
   {
-    slug: "workload-identity-federation",
-    title: "Workload identity federation",
-    summary: "How ArchLucid-hosted Azure ingestion authenticates without storing client secrets.",
-    audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
-    sectionAnchors: ["workload-identity-federation"],
-  },
-  {
     slug: "azure-permissions",
     title: "Azure permissions for cloud connections",
-    summary: "Reader and Cost Management Reader scope — what ArchLucid requires and what to avoid.",
+    summary:
+      "Grant ArchLucid the minimum read-only Azure roles, scopes, and verification steps for hosted cloud connections.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
-    sectionAnchors: ["azure-permissions"],
+    sourcePaths: ["docs/library/customer-facing/AZURE_CLOUD_CONNECTION_PERMISSIONS.md"],
+    pdfStatus: "customer",
   },
   {
     slug: "enterprise-onboarding",
@@ -280,6 +290,14 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/INTEGRATION_READINESS.md"],
   },
   {
+    slug: "integrations/azure-boards",
+    title: "Azure Boards integration",
+    summary:
+      "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md"],
+  },
+  {
     slug: "procurement",
     title: "Procurement FAQ",
     summary: "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
@@ -289,9 +307,10 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "billing-and-plans",
     title: "Billing and plans",
-    summary: "Team, Professional, and Enterprise packaging — plans, limits, and upgrade paths.",
+    summary:
+      "How ArchLucid billing works — manage subscriptions, payment methods, seats, and usage from Billing and plans.",
     audience: "operator",
-    sourcePaths: ["docs/library/PRODUCT_PACKAGING.md"],
+    sourcePaths: ["docs/library/customer-facing/BILLING_AND_PLANS.md"],
   },
   {
     slug: "core-pilot",
@@ -305,7 +324,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "first-value-20-minutes",
     title: "First value in 20 minutes",
-    summary: "Time-boxed runbook for a first governed review package when platform wiring is already green.",
+    summary: "Time-boxed runbook for a first governed review when platform wiring is already green.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_VALUE_20_MINUTES.md"],
   },
@@ -354,11 +373,13 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/walkthroughs/README.md"],
   },
   {
-    slug: "operator-auth-roles",
+    slug: "users-and-roles",
     title: "Users and roles",
-    summary: "JWT bearer role mapping, Entra app roles, and least-privilege role expectations for tenant admins.",
-    audience: "developer",
-    sourcePaths: ["docs/library/contributor-reference/SECURITY.md"],
+    summary:
+      "Understand ArchLucid roles, who can manage access, and how permissions apply across your workspace.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/USERS_AND_ROLES_GUIDE.md"],
+    pdfStatus: "customer",
   },
   {
     slug: "troubleshooting",
@@ -417,31 +438,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },
   {
-    slug: "knowledge-graph",
-    title: "Review trail graph",
-    summary: "Visual review trail and provenance for one architecture review.",
-    audience: "operator",
-    sourcePaths: ["docs/library/KNOWLEDGE_GRAPH.md"],
-  },
-  {
-    slug: "operator-shell",
-    title: "Architect workspace map",
-    summary: "UI routes, review workflows, and what can wait until later for first review vs advanced surfaces.",
-    audience: "operator",
-    sourcePaths: ["docs/library/operator-shell.md"],
-    sectionAnchors: [
-      "what-it-is",
-      "what-you-see",
-      "main-workflow",
-      "trial-banner",
-      "keyboard-and-accessibility",
-      "empty-loading-and-error-states",
-      "audit-log",
-      "artifact-review",
-      "evidence-graph-vs-compare-vs-replay",
-    ],
-  },
-  {
     slug: "alerts",
     title: "Understanding governance alerts",
     summary:
@@ -455,49 +451,6 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "Versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record.",
     audience: "developer",
     sourcePaths: ["docs/library/API_CONTRACTS.md"],
-  },
-  {
-    slug: "observability",
-    title: "Observability",
-    summary: "Custom metrics, OTEL export paths, and health diagnostics.",
-    audience: "operator",
-    sourcePaths: ["docs/library/OBSERVABILITY.md"],
-  },
-  {
-    slug: "projection-cache-replicas",
-    title: "Projection cache and API replicas",
-    summary: "When in-process graph caching is enough, when to enable Redis, and multi-replica footguns.",
-    audience: "operator",
-    sourcePaths: ["docs/operations/PROJECTION_CACHE_AND_REPLICAS.md"],
-  },
-  {
-    slug: "glossary",
-    title: "Glossary",
-    summary: "Tenant, workspace, project scope headers and core product terms.",
-    audience: "operator",
-    sourcePaths: ["docs/library/GLOSSARY.md"],
-  },
-  {
-    slug: "privacy-policy",
-    title: "Privacy policy",
-    summary: "How ArchLucid collects, uses, and protects personal information — GDPR and CCPA coverage.",
-    audience: "buyer",
-    sourcePaths: ["docs/go-to-market/PRIVACY_POLICY.md"],
-  },
-  {
-    slug: "example-roi-bulletin",
-    title: "Example aggregate ROI bulletin (synthetic)",
-    summary:
-      "Illustrative aggregate baseline bulletin shape for procurement — not production data; real publication gates on admin preview with minTenants.",
-    audience: "marketing",
-    sourcePaths: ["docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"],
-  },
-  {
-    slug: "resilience-exercises",
-    title: "Resilience exercise log",
-    summary: "Staging fault-injection exercise summaries and operational resilience practices.",
-    audience: "buyer",
-    sourcePaths: ["docs/quality/game-day-log/README.md"],
   },
   {
     slug: "pilot-feedback",

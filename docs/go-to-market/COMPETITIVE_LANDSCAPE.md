@@ -169,9 +169,9 @@ Buyer-repeatable claim rows (symbols only in product columns). Row order and lab
 
 | Claim | ArchLucid | draw.io+Confluence | GitHub Copilot for generic IaC review | Generic AI architect tool |
 | --- | --- | --- | --- | --- |
-| Every commit produces a versioned, immutable manifest | ✓ | partial | — | — |
+| Every commit produces a versioned, immutable review record | ✓ | partial | — | — |
 | Every material change produces a typed audit record in an append-only store | ✓ | partial | — | — |
-| Tenant isolation uses **database-per-tenant** SQL catalogs via `TenantDatabaseBindings`, plus application-layer scope enforcement within each tenant (SQL RLS is not the production boundary) | ✓ | — | — | — |
+| Tenant isolation uses separate database catalogs per tenant, with application-layer scope enforcement on every request | ✓ | — | — | — |
 | Authentication fails closed by default (API keys disabled until enabled) | ✓ | partial | — | — |
 | Comparison replay can re-derive the same artifact and detect drift | ✓ | — | — | — |
 | Findings carry typed payloads per category, not free-text | ✓ | — | partial | partial |

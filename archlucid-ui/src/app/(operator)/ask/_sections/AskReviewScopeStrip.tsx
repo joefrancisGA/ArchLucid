@@ -19,7 +19,7 @@ export type AskReviewScopeStripProps = {
   readonly buyerPolishedShell: boolean;
 };
 
-/** Compact review package context above the question input. */
+/** Compact review context above the question input. */
 export function AskReviewScopeStrip(props: AskReviewScopeStripProps) {
   const trimmed = props.runId.trim();
 
@@ -39,7 +39,7 @@ export function AskReviewScopeStrip(props: AskReviewScopeStripProps) {
       </p>
       <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
         <Link className={OPERATOR_LINK.nav} href={`/reviews/${encodeURIComponent(canonical)}`}>
-          Open review package
+          Open review
         </Link>
         {isShowcase ? (
           <>

@@ -67,5 +67,7 @@ public static class ApiV1Routes
 
     public const string ItsmConnectorConnections = "v1/integrations/itsm/connections";
 
+    public const string AzureBoardsIntegrations = "v1/integrations/azure-boards";
+
     public const string Evolution = "v1/evolution";
 }

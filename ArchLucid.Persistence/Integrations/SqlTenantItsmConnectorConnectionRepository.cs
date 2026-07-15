@@ -80,7 +80,7 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
         Row? row = await connection.QueryFirstOrDefaultAsync<Row>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderLabel(provider) },
+                new { TenantId = tenantId, Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderPersistenceLabel(provider) },
                 cancellationToken: cancellationToken));
 
         return row is null ? null : ToRecord(row);
@@ -177,7 +177,7 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
                 new
                 {
                     TenantId = tenantId,
-                    Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderLabel(provider),
+                    Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderPersistenceLabel(provider),
                     command.InstanceBaseUrl,
                     AuthMode = TenantItsmConnectorConnectionUpsertValidation.ToAuthModeLabel(command.AuthMode),
                     command.AuthUserName,
@@ -210,7 +210,7 @@ public sealed class SqlTenantItsmConnectorConnectionRepository(ISqlConnectionFac
         int affected = await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderLabel(provider) },
+                new { TenantId = tenantId, Provider = TenantItsmConnectorConnectionUpsertValidation.ToProviderPersistenceLabel(provider) },
                 cancellationToken: cancellationToken));
 
         return affected > 0;

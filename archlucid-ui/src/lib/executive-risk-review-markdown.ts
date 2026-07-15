@@ -80,7 +80,7 @@ export function buildExecutiveRiskReviewMarkdown(
       : null,
     faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
     isDeterministicExplanationFallback(summary)
-      ? "Some narrative was deterministically aligned to the review package when live synthesis was unavailable."
+      ? "Some narrative was deterministically aligned to the review when live synthesis was unavailable."
       : null,
   ].filter((s): s is string => typeof s === "string" && s.length > 0);
 
@@ -89,10 +89,10 @@ export function buildExecutiveRiskReviewMarkdown(
     typeof summary.findingCount === "number" && Number.isFinite(summary.findingCount)
       ? `${Math.trunc(summary.findingCount)} architecture finding${
           Math.trunc(summary.findingCount) === 1 ? "" : "s"
-        } surfaced in this review package.`
+        } surfaced in this review.`
       : null,
     typeof summary.unresolvedIssueCount === "number" && Number.isFinite(summary.unresolvedIssueCount)
-      ? `${summary.unresolvedIssueCount} unresolved review package issue${
+      ? `${summary.unresolvedIssueCount} unresolved review issue${
           Math.trunc(summary.unresolvedIssueCount) === 1 ? "" : "s"
         }.`
       : null,
@@ -150,7 +150,7 @@ export function buildExecutiveRiskReviewMarkdown(
     findingLines,
     "---",
     "",
-    "_Generated for sponsor/board handoff from ArchLucid at export time. The DOCX architecture package may add formatting and annexes._",
+    "_Generated for sponsor/board handoff from ArchLucid at export time. The DOCX architecture review may add formatting and annexes._",
     "",
     buildSponsorMarkdownMethodologyFooter(),
     "",

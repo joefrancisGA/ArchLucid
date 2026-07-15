@@ -180,7 +180,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
             </p>
             {ev.runId ? (
               <p className="m-0">
-                Review package id: <code>{ev.runId}</code>
+                Review id: <code>{ev.runId}</code>
               </p>
             ) : null}
             {ev.correlationId ? (

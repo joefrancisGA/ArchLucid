@@ -1,4 +1,4 @@
-import { resolveInAppDocHref } from "./in-app-doc-href";
+import { tryResolveInAppDocHref } from "./in-app-doc-href";
 
 /**
  * Static contextual help index for the operator shell. Doc paths are relative to the repository root.
@@ -34,7 +34,6 @@ export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "policy-packs",
   "system-health",
   "admin-configuration",
-  "projection-cache-replicas",
   "pilot-feedback",
   "scope",
 ];
@@ -60,7 +59,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: "first-run",
-    title: "Create your first review package",
+    title: "Create your first review",
     keywords: ["wizard", "create", "pipeline", "review", "request"],
     summary:
       "Create a request, track progress, finalize the signed review record, and review artifacts, findings, and the review trail.",
@@ -70,7 +69,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "artifacts",
     title: "Reviewing artifacts",
-    keywords: ["download", "review package", "bundle", "zip"],
+    keywords: ["download", "review", "bundle", "zip"],
     summary: "Open a review, then review artifact list, previews, and bundle downloads from review detail.",
     docPath: "docs/library/operator-shell.md",
     routes: ["/reviews"],
@@ -79,15 +78,15 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "compare",
     title: "Compare two reviews",
     keywords: ["diff", "delta", "replay"],
-    summary: "Use Compare to diff two reviews’ review packages and persisted comparison records.",
+    summary: "Use Compare to diff two reviews’ reviews and persisted comparison records.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/compare"],
   },
   {
     id: "replay",
-    title: "Validate review package",
+    title: "Validate review",
     keywords: ["verify", "drift", "validation"],
-    summary: "Validate whether a finalized review package can still be reproduced and its signed review record remains valid.",
+    summary: "Validate whether a finalized review can still be reproduced and its signed review record remains valid.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/replay"],
   },
@@ -114,7 +113,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Governance approvals",
     keywords: ["approval", "promote", "staging", "production"],
     summary:
-      "Submit → review → approve → promote: walk approvals for a finalized review package when your workspace enables governance.",
+      "Submit → review → approve → promote: walk approvals for a finalized review when your workspace enables governance.",
     docPath: "docs/library/API_CONTRACTS.md",
     routes: ["/governance"],
   },
@@ -140,7 +139,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "System health dashboard",
     keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
     summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the workspace.",
-    docPath: "docs/library/OBSERVABILITY.md",
+    docPath: "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
     routes: ["/health", "/admin/health"],
   },
   {
@@ -151,15 +150,6 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Read-only Effective configuration snapshot: catalog sections, declared sources, set flags, and masked values for sensitive keys.",
     docPath: "docs/library/CONFIGURATION_REFERENCE.md",
     routes: ["/admin/configuration"],
-  },
-  {
-    id: "projection-cache-replicas",
-    title: "Projection cache & API replicas",
-    keywords: ["redis", "cache", "replica", "graph", "memory", "distributed", "scale"],
-    summary:
-      "When in-process graph projection caching is enough, when to enable Redis-backed Distributed cache, and how to spot multi-replica footguns.",
-    docPath: "docs/operations/PROJECTION_CACHE_AND_REPLICAS.md",
-    routes: ["/admin/configuration", "/settings/tenant", "/integrations/cloud-connections", "/graph"],
   },
   {
     id: "troubleshooting",
@@ -194,12 +184,28 @@ export const HELP_TOPICS: HelpTopic[] = [
     routes: [],
   },
   {
+    id: "glossary",
+    title: "Glossary",
+    keywords: ["terms", "definitions", "finding", "risk", "review", "evidence trail"],
+    summary: "Customer-facing definitions for review, evidence, governance, and organization terms.",
+    docPath: "docs/library/customer-facing/CUSTOMER_GLOSSARY.md",
+    routes: ["/help/glossary"],
+  },
+  {
+    id: "users-and-roles",
+    title: "Users and roles",
+    keywords: ["roles", "permissions", "admin", "reader", "auditor", "invite"],
+    summary: "Workspace roles, access management, and reviewer invitations.",
+    docPath: "docs/library/customer-facing/USERS_AND_ROLES_GUIDE.md",
+    routes: ["/help/users-and-roles"],
+  },
+  {
     id: "scope",
     title: "Tenant / workspace / project scope",
     keywords: ["headers", "x-tenant-id", "isolation"],
     summary: "Scope headers isolate data; keep the same scope between UI and API integrations.",
-    docPath: "docs/library/GLOSSARY.md",
-    routes: [],
+    docPath: "docs/library/customer-facing/WORKSPACE_SCOPE_GUIDE.md",
+    routes: ["/help/scope"],
   },
   {
     id: "pilot-feedback",
@@ -221,7 +227,7 @@ export function getDocHref(docPath: string): string | null {
     return null;
   }
 
-  return resolveInAppDocHref(relative);
+  return tryResolveInAppDocHref(relative);
 }
 
 export function helpTopicsForGuidesTab(): HelpTopic[] {

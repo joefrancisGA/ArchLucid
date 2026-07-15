@@ -8,7 +8,7 @@ export function reviewsHubRecentPackagesSection(main: Locator): Locator {
 }
 
 /**
- * Buyer-polished `/reviews` hub table row for a package (sample packages use `reviews-hub-sample-row`).
+ * Buyer-polished `/reviews` hub table row for a package (sample reviews use `reviews-hub-sample-row`).
  */
 export function reviewsHubPackageRow(main: Locator, runId: string = SHOWCASE_DEMO_RUN_ID): Locator {
   return main

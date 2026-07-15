@@ -58,9 +58,10 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
   }, [reload]);
 
   const jiraLinked = correlations.some((c) => c.provider === "Jira");
+  const azureBoardsLinked = correlations.some((c) => c.provider === "Azure Boards");
   const serviceNowLinked = correlations.some((c) => c.provider === "ServiceNow");
 
-  async function onCreate(provider: "Jira" | "ServiceNow"): Promise<void> {
+  async function onCreate(provider: "Jira" | "ServiceNow" | "Azure Boards"): Promise<void> {
     setBusy(true);
     setErrorMessage(null);
     setStatusMessage(null);
@@ -96,6 +97,24 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
             aria-label={jiraLinked ? "Jira issue already linked" : "Create linked Jira issue"}
           >
             {jiraLinked ? "Jira linked" : compact ? "Sync Jira" : "Create Jira issue"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)}
+            disabled={busy || azureBoardsLinked}
+            onClick={() => void onCreate("Azure Boards")}
+            data-testid="itsm-sync-azure-boards"
+            aria-label={
+              azureBoardsLinked ? "Azure Boards work item already linked" : "Create linked Azure Boards work item"
+            }
+          >
+            {azureBoardsLinked
+              ? "Azure Boards linked"
+              : compact
+                ? "Sync Azure Boards"
+                : "Create Azure Boards work item"}
           </Button>
           <Button
             type="button"

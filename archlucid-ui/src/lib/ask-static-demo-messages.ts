@@ -31,7 +31,7 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
           "PHI minimization at intake is the primary executive concern: legacy connectors may retain more identifiers than the target architecture allows. The risk is accepted with monitoring and is non-blocking for go-live.\n\n" +
           "Risk:\n\nExpanded breach and audit scope if minimization is understated at the intake boundary.\n\n" +
           "Evidence:\n\nSigned review record disposition, evidence trail anchors, and audit events for approval and findings capture.\n\n" +
-          "Mitigation:\n\nAlign adapters to the minimization posture documented in the review package before sign-off.\n\n" +
+          "Mitigation:\n\nAlign adapters to the minimization posture documented in the review before sign-off.\n\n" +
           "Validation:\n\nConfirm checklist completion on the findings record and signed decision record before go-live.",
         createdUtc: "2026-01-12T10:06:12.000Z",
         metadataJson: "{}",
@@ -56,7 +56,7 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
         content:
           "Legal review should confirm that every HIPAA-boundary data flow and retention control is documented before sign-off.\n\n" +
           "Risk:\n\nUndocumented data flows or retention gaps across the HIPAA boundary could block sign-off.\n\n" +
-          "Evidence:\n\nReview package narratives, evidence trail anchors, and audit events tied to boundary controls.\n\n" +
+          "Evidence:\n\nReview narratives, evidence trail anchors, and audit events tied to boundary controls.\n\n" +
           "Mitigation:\n\nDocument flows, subprocessors touching PHI, and monitoring proof before legal review completes.\n\n" +
           "Validation:\n\nCheck that each legal question maps to an artifact or finding with a clear owner.",
         createdUtc: "2026-01-10T14:25:18.000Z",

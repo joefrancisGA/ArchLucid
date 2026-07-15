@@ -18,7 +18,7 @@ export function resolveReviewPackageAttentionLine(
 
   if (input.mode === "draft") {
     if (!input.hasGoldenManifest) {
-      return "Finalize the review package when findings and evidence are ready.";
+      return "Finalize the review when findings and evidence are ready.";
     }
 
     return null;

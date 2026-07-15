@@ -24,7 +24,7 @@ export function buyerPolishedOperateBackLink(pathnameWithSearch: string): BuyerO
     path.startsWith("/showcase/") ||
     path.startsWith("/ask")
   ) {
-    return { label: "Back to review package", href: packageHref };
+    return { label: "Back to review", href: packageHref };
   }
 
   return null;

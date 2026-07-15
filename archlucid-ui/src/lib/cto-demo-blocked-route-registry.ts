@@ -6,8 +6,8 @@ export const DEMO_ALLOWED_SETTINGS_PATHS = new Set<string>(["/settings/extract-u
 export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/admin", label: "Admin console", description: "Tenant configuration, user management, and system health monitoring." },
   { prefix: "/settings", label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
-  { prefix: "/search", label: "Search", description: "Full-text search across all review packages, findings, and decisions." },
-  { prefix: "/replay", label: "Validate review package", description: "Check whether stored review output for a finalized package still validates." },
+  { prefix: "/search", label: "Search", description: "Full-text search across all reviews, findings, and decisions." },
+  { prefix: "/replay", label: "Validate review", description: "Check whether stored review output for a finalized package still validates." },
   { prefix: "/planning", label: "Planning", description: "Multi-quarter governance roadmap and remediation scheduling." },
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines. Native one-click ITSM create is gated by Integrations:Itsm:NativeEnabled." },
   { prefix: "/evolution-review", label: "Change simulation", description: "Preview the expected impact of proposed architecture changes before implementation." },
@@ -16,7 +16,7 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/product-learning", label: "Pilot feedback", description: "Feedback on review outputs and recurring improvement opportunities." },
   { prefix: "/recommendation-learning", label: "Recommendation tuning", description: "Calibrate recommendation thresholds for your organization." },
   { prefix: "/demo/explain", label: "Demo explain", description: "Internal demo explanation surfaces for engineering audiences." },
-  { prefix: "/compare", label: "Compare", description: "Side-by-side diff of two finalized review packages." },
+  { prefix: "/compare", label: "Compare", description: "Side-by-side diff of two finalized reviews." },
   { prefix: "/users", label: "Users & roles", description: "Role-based access control and authority assignment." },
   { prefix: "/billing", label: "Billing", description: "Subscription management and usage reporting." },
 ];

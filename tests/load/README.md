@@ -109,6 +109,7 @@ All scripts accept **`ARCHLUCID_BASE_URL`** (preferred) or **`BASE_URL`** (alias
 | **`smoke.js`** | — | — | `k6 run tests/load/smoke.js --out json=k6-results.json` | `--out` / `--summary-export` |
 | **`soak.js`** | — | `SOAK_VUS` (`3`), `SOAK_DURATION` (`4m`) | `k6 run tests/load/soak.js --summary-export /tmp/k6-soak.json` | `--summary-export` arg |
 | **`per-tenant-burst.js`** | — | `K6_BURST_DURATION` (`5m`), `ARCHLUCID_API_KEY`, `K6_SUMMARY_PATH` | `K6_BURST_DURATION=30s k6 run tests/load/per-tenant-burst.js --summary-export /tmp/k6-burst.json` | **`handleSummary`** default under `tests/load/results/` |
+| **`large-evidence-package.js`** | — | `K6_LARGE_EVIDENCE_RATE` (`4` iters/s), `K6_LARGE_EVIDENCE_VUS` (`3`), `K6_LARGE_EVIDENCE_MAX_VUS`, `K6_LARGE_EVIDENCE_DURATION` (`45s`), `K6_LARGE_EVIDENCE_CONSTRAINTS` (`120`), `K6_LARGE_EVIDENCE_CAPABILITIES` (`80`), `K6_SUMMARY_PATH` | `k6 run tests/load/large-evidence-package.js` | **`handleSummary`** → `tests/load/results/large-evidence-package.json` |
 
 > **Tip:** CI sets **`RateLimiting__FixedWindow__PermitLimit=200000`** on the API process to avoid mass **`429`** from rate limiting. Do the same locally when running k6 at higher VU counts. With **`ArchLucid:StorageProvider=Sql`**, **`appsettings.Advanced.json`** enables **`SqlServer:RowLevelSecurity:ApplySessionContext`**; startup then needs **`ARCHLUCID_ALLOW_RLS_BYPASS=true`** and **`ArchLucid__Persistence__AllowRlsBypass=true`** (see **`scripts/ci/start_api_for_k6.sh`**).
 
@@ -188,6 +189,21 @@ Job **`Performance: k6 CI smoke (read + write baseline)`** in **`.github/workflo
 Low-rate read-only mix (`health`, `version`, `runs_list`, `audit_search`). Duration and VUs configurable via **`SOAK_DURATION`** and **`SOAK_VUS`**. Relaxed thresholds.
 
 **Workflow:** `.github/workflows/k6-soak-scheduled.yml` (weekly cron + `workflow_dispatch`). Set repository secret **`ARCHLUCID_SOAK_BASE_URL`** or the job no-ops.
+
+## `large-evidence-package.js` — paced large ArchitectureRequest create
+
+Production-like profile for **`POST /v1/architecture/request`** with a large JSON body (many constraints + capabilities). Uses **`constant-arrival-rate`** pacing (default **4** iters/s for **45s**) so a normal Development API (**`RateLimiting:FixedWindow:PermitLimit=2000`/min**) is not exhausted by a tight VU loop. This is **not** merge-blocking; scheduled workflow **`.github/workflows/k6-production-like-scheduled.yml`** runs it after **`post-commit-operator-path.js`** with API startup via **`scripts/ci/start_api_for_k6.sh`** (raised permit limit).
+
+**Local run**
+
+```powershell
+$env:ARCHLUCID_BASE_URL = "http://127.0.0.1:5128"
+k6 run tests/load/large-evidence-package.js
+```
+
+Requires **DevelopmentBypass** + **Simulator** (same as other operator-path load scripts). See **`docs/library/PERFORMANCE_TESTING.md`** for rate-limit guidance when intentionally stressing above the default paced profile.
+
+**Stdout diagnostics:** `payloadBytes`, `errorRate`, and `status2xx` / `status429` / `statusOther` counters. Dominant **429** responses usually mean the arrival rate exceeds the fixed window — raise **`RateLimiting__FixedWindow__PermitLimit`** only for deliberate throughput experiments.
 
 ## Other scripts
 

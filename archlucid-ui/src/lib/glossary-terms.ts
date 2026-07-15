@@ -12,23 +12,23 @@ export type GlossaryTermEntry = {
 export const GLOSSARY_TERMS = {
   run: {
     term: "Architecture review",
-    definition: "A structured examination of architecture change or design intent tied to artifacts and policies. In product copy, prefer architecture review when the reader might confuse “review” with code review alone.",
-    docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
+    definition: "A structured examination of architecture change or design intent tied to artifacts and policies. In product copy, prefer architecture review when the reader might confuse \"review\" with code review alone.",
+    docLink: "/help/glossary#term-review",
   },
   golden_manifest: {
     term: "Signed review record",
-    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing of manifests is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise. Treat “manifest” alone as ambiguous until provenance semantics are stated.",
-    docLink: "/docs/library/GLOSSARY.md#golden-manifest",
+    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current V1 storage unless a deployment explicitly enables it — treat \"signed\" as lineage / provenance closure unless an architecture note says otherwise. Former terms: *signed manifest*, *golden manifest*.",
+    docLink: "/help/glossary#term-signed-review-record",
   },
   review_package: {
-    term: "Review package",
-    definition: "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
-    docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
+    term: "Architecture review",
+    definition: "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list. Former term: *review package*.",
+    docLink: "/help/glossary#term-review-package",
   },
   findings: {
     term: "Finding",
-    definition: "A machine- or assisted-generated observation from decisioning (risk, drift, conformance, duplication, etc.). Finding severity and policy mapping live in packs and workflows; distinguish from informal “comments” outside the ledger.",
-    docLink: "/docs/library/GLOSSARY.md#finding",
+    definition: "A machine- or assisted-generated observation from decisioning (risk, drift, conformance, duplication, etc.). Finding severity and policy mapping live in packs and workflows; distinguish from informal \"comments\" outside the ledger.",
+    docLink: "/help/glossary#term-finding",
   },
   authority_pipeline: {
     term: "Review pipeline",
@@ -48,7 +48,7 @@ export const GLOSSARY_TERMS = {
   provenance: {
     term: "Provenance",
     definition: "The chronological, inspectable lineage from inputs (prompts, repositories, citations) through deterministic steps to reviewer-visible outputs. Evidence that cannot be reconstructed from stored traces is weaker procurement posture — call that gap explicitly.",
-    docLink: "/docs/library/GLOSSARY.md#decision-trace",
+    docLink: "/help/glossary#term-evidence-trail",
   },
   effective_governance: {
     term: "Effective governance",
@@ -58,7 +58,7 @@ export const GLOSSARY_TERMS = {
   policy_pack: {
     term: "Policy pack",
     definition: "A versioned bundle of rules, thresholds, and governance mappings applied to reviews (compliance, finding treatment, pre-commit gates). Packs are assigned, published, and audited — not informal one-off prose.",
-    docLink: "/docs/library/GLOSSARY.md#policy-pack",
+    docLink: "/help/glossary#term-policy-pack",
   },
   knowledge_graph: {
     term: "Knowledge graph",
@@ -68,12 +68,12 @@ export const GLOSSARY_TERMS = {
   artifact_bundle: {
     term: "Artifact bundle",
     definition: "An exportable artifact aimed at a specific audience (executive summary, architecture board packet, security appendix, diligence bundle). Distinct from a raw finding row: deliverables are packaged outputs.",
-    docLink: "/docs/library/GLOSSARY.md#artifact-bundle",
+    docLink: "/help/glossary#term-deliverable",
   },
   scope: {
     term: "Scope",
-    definition: "The top-level customer boundary for data isolation; scoped rows carry `TenantId`. In typical SaaS posture, one tenant is one customer organization unless the contract defines otherwise.",
-    docLink: "/docs/library/GLOSSARY.md#scope-tenant--workspace--project",
+    definition: "The top-level customer boundary for data isolation. In typical SaaS posture, one tenant is one customer organization unless the contract defines otherwise.",
+    docLink: "/help/scope",
   },
   comparison_replay: {
     term: "Comparison replay",
@@ -101,11 +101,11 @@ export const GLOSSARY_TERMS = {
   },
   governance_workflow: {
     term: "Governance workflow",
-    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled “Approve” unless they write to governance state.",
+    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
   },
   architecture_manifest: {
     term: "Signed review record",
-    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing of manifests is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise. Treat “manifest” alone as ambiguous until provenance semantics are stated.",
+    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {
@@ -120,7 +120,7 @@ export const GLOSSARY_TERMS = {
   },
   approval_request: {
     term: "Approval request",
-    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled “Approve” unless they write to governance state.",
+    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
     docLink: "/docs/library/GLOSSARY.md#governance-workflow",
   },
   governance_resolution: {

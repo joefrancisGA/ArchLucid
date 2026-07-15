@@ -53,7 +53,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "5. Governance and alerts",
     body:
-      "After finalizing your first review package, dashboards and alerts can highlight policy gaps and approval queues. These are " +
+      "After finalizing your first review, dashboards and alerts can highlight policy gaps and approval queues. These are " +
       "available when you are ready — they are not required for a successful first pilot.",
   },
   {

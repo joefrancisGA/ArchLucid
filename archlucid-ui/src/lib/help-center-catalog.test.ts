@@ -18,7 +18,6 @@ describe("help-center-catalog", () => {
 
     expect(slugs).toContain("cloud-connections");
     expect(slugs).not.toContain("cli-usage");
-    expect(slugs).not.toContain("operator-shell");
 
     const adminAdvanced = listHelpCenterTopics({ showAdvanced: true, isAdmin: true }).map((entry) => entry.slug);
 
@@ -40,7 +39,8 @@ describe("help topic slug aliases", () => {
     expect(normalizeHelpTopicSlug("cloud-connections/aws")).toBe("cloud-connections-aws");
     expect(normalizeHelpTopicSlug("cloud-connections/gcp")).toBe("cloud-connections-gcp");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
-    expect(getProductDocumentationEntry("users-and-roles")?.slug).toBe("operator-auth-roles");
+    expect(getProductDocumentationEntry("users-and-roles")?.slug).toBe("users-and-roles");
+    expect(getProductDocumentationEntry("operator-auth-roles")?.slug).toBe("users-and-roles");
   });
 });
 

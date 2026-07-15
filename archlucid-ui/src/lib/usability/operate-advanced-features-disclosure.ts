@@ -29,12 +29,12 @@ export function operateNavUnlockPhaseForAdvancedFeatures(advancedFeaturesEnabled
 
 export function syncOperateNavUnlockWithAdvancedFeatures(advancedFeaturesEnabled: boolean): void {
   if (advancedFeaturesEnabled) {
-    advanceOperateNavUnlockToGovernance();
+    advanceOperateNavUnlockToGovernance("disclosure-toggle");
 
     return;
   }
 
   if (readOperateNavUnlockPhase() >= 1) {
-    writeOperateNavUnlockPhase(1);
+    writeOperateNavUnlockPhase(1, "disclosure-toggle");
   }
 }

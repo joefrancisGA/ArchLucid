@@ -11,12 +11,12 @@ describe("operator-recent-views", () => {
     const initial = parseStoredRecentViews(null);
     const once = recordRecentView(initial, {
       href: "/reviews/abc",
-      label: "Review package",
+      label: "Review",
       kind: "review",
     });
     const twice = recordRecentView(once, {
       href: "/reviews/abc",
-      label: "Review package",
+      label: "Review",
       kind: "review",
     });
 
@@ -26,7 +26,7 @@ describe("operator-recent-views", () => {
 
   it("maps pathname labels", () => {
     expect(recentViewLabelFromPathname("/")).toBeNull();
-    expect(recentViewLabelFromPathname("/reviews/run-1")).toBe("Review package");
+    expect(recentViewLabelFromPathname("/reviews/run-1")).toBe("Review");
     expect(recentViewLabelFromPathname("/audit")).toBe("Audit trail");
   });
 });

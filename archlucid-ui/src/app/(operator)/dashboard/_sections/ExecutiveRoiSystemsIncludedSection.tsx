@@ -55,7 +55,7 @@ export function ExecutiveRoiSystemsIncludedSection(
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
             <EnterpriseTableHeaderCell>System</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Review package</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span className="inline-flex items-baseline gap-1.5">
                 Estimated savings

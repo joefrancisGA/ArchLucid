@@ -11,11 +11,13 @@ public sealed class TrialFunnelOperationalSummaryBuilderTests
     [Fact]
     public void Build_empty_summary_labels_cogs_as_estimated()
     {
-        var summary = TrialFunnelOperationalSummaryBuilder.BuildEmpty(activeTrials: 3);
+        var summary = TrialFunnelOperationalSummaryBuilder.BuildEmpty(activeTrials: 3, periodDays: 30, comparePrevious: false);
 
         summary.ActiveSelfServiceTrials.Should().Be(3);
         summary.CogsBasisLabel.Should().Be("estimated");
         summary.EstimatedFirstReviewCogsUsdMid.Should().BeNull();
+        summary.DataQuality.Should().NotBeNull();
+        summary.Stages.Should().HaveCount(4);
     }
 
     [Fact]
@@ -42,6 +44,8 @@ public sealed class TrialFunnelOperationalSummaryBuilderTests
     {
         var summary = TrialFunnelOperationalSummaryBuilder.Build(
             activeTrials: 2,
+            periodDays: 30,
+            comparePrevious: false,
             signupAttempts: 10,
             signupFailures: 1,
             firstCommits: 4,
@@ -49,7 +53,9 @@ public sealed class TrialFunnelOperationalSummaryBuilderTests
             checkouts: 3,
             budgetCutoffs: 1,
             signupToCommitSeconds: [10.0, 20.0, 30.0],
-            firstReviewCogsUsd: [1.5m, 2.0m, 4.0m]);
+            firstReviewCogsUsd: [1.5m, 2.0m, 4.0m],
+            costRatesConfigured: true,
+            cohortRows: []);
 
         summary.MedianSignupToFirstCommitSeconds.Should().Be(20.0);
         summary.EstimatedFirstReviewCogsUsdLow.Should().Be(1.5m);
@@ -64,6 +70,8 @@ public sealed class TrialFunnelOperationalSummaryBuilderTests
     {
         var summary = TrialFunnelOperationalSummaryBuilder.Build(
             activeTrials: 0,
+            periodDays: 30,
+            comparePrevious: false,
             signupAttempts: 0,
             signupFailures: 0,
             firstCommits: 0,
@@ -71,7 +79,9 @@ public sealed class TrialFunnelOperationalSummaryBuilderTests
             checkouts: 0,
             budgetCutoffs: 0,
             signupToCommitSeconds: [],
-            firstReviewCogsUsd: []);
+            firstReviewCogsUsd: [],
+            costRatesConfigured: false,
+            cohortRows: []);
 
         summary.MedianSignupToFirstCommitSeconds.Should().BeNull();
         summary.EstimatedFirstReviewCogsUsdLow.Should().BeNull();

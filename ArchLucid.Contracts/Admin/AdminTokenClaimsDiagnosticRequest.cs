@@ -4,9 +4,9 @@ namespace ArchLucid.Contracts.Admin;
 public sealed class AdminTokenClaimsDiagnosticRequest
 {
     /// <summary>Raw JWT or <c>Bearer &lt;jwt&gt;</c> string. Never logged or persisted.</summary>
-    public string BearerToken
+    public required string BearerToken
     {
         get;
         set;
-    } = string.Empty;
+    }
 }

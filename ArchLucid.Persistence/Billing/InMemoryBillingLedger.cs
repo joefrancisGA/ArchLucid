@@ -209,6 +209,32 @@ public sealed class InMemoryBillingLedger : IBillingLedger
                 row.Status));
     }
 
+    public Task<string?> TryGetProviderSubscriptionIdAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+            return Task.FromResult<string?>(null);
+
+        return Task.FromResult<string?>(row.ProviderSubscriptionId);
+    }
+
+    public Task<Guid?> TryResolveTenantIdByProviderSubscriptionIdAsync(
+        string providerSubscriptionId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(providerSubscriptionId))
+            return Task.FromResult<Guid?>(null);
+
+        string trimmed = providerSubscriptionId.Trim();
+
+        foreach (KeyValuePair<Guid, BillingSubRow> pair in _subscriptions)
+        {
+            if (string.Equals(pair.Value.ProviderSubscriptionId, trimmed, StringComparison.Ordinal))
+                return Task.FromResult<Guid?>(pair.Key);
+        }
+
+        return Task.FromResult<Guid?>(null);
+    }
+
     private void RecordStateChange(string changeKind, BillingSubRow? previous, BillingSubRow next)
     {
         lock (_historyGate)

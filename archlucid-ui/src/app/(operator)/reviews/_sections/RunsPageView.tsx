@@ -16,14 +16,14 @@ import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer-polish-copy";
-import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
-import { REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE, REVIEWS_HUB_PAGE_SUBTITLE } from "./reviews-hub-copy";
+import { REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE, REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PAGE_TITLE } from "./reviews-hub-copy";
 import { ReviewsHubExploreSamples } from "./ReviewsHubExploreSamples";
 import { ReviewsHubPackageIncludes } from "./ReviewsHubPackageIncludes";
 import { ReviewsHubPrimaryActions } from "./ReviewsHubPrimaryActions";
-import { ReviewsHubRecentPackages } from "./ReviewsHubRecentPackages";
+import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
+import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import type { RunsPageModel } from "./runs-page-model";
 import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
@@ -45,11 +45,7 @@ export function RunsPageView(props: Props) {
     <OperatorPageContainer variant="dashboard">
       <OperatorWelcomeOnboarding serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
-        title={
-          isOperatorExperienceFullShellEnv()
-            ? RUNS_LIST_PAGE_TITLES.fullOperator
-            : RUNS_LIST_PAGE_TITLES.buyerPolished
-        }
+        title={REVIEWS_HUB_PAGE_TITLE}
         subtitle={REVIEWS_HUB_PAGE_SUBTITLE}
         metadata={
           <>
@@ -68,13 +64,15 @@ export function RunsPageView(props: Props) {
         docsPageKey="/runs"
       />
 
+      <ReviewsHubResumeDrafts />
+
       {loadFailure === null && malformedMessage === null ? (
         <>
           <ReviewsHubSummaryRow summary={workspaceSummary} />
           <ReviewsHubPrimaryActions />
           <ReviewsHubExploreSamples />
           <ReviewsHubPackageIncludes />
-          <ReviewsHubRecentPackages runs={m.runs} />
+          <ReviewsHubReviewInventory runs={m.runs} />
         </>
       ) : null}
 

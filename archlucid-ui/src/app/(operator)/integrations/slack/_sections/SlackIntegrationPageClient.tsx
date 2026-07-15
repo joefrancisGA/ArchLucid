@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 
+import { PageHeading } from "@/components/PageHeading";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -16,7 +17,7 @@ import {
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   slackIntegrationDefaultValues,
@@ -201,29 +202,36 @@ export function SlackIntegrationPageClient(): React.ReactElement {
 
   return (
     <div className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="integrations-slack-page">
-      <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{SLACK_INTEGRATION_PAGE_TITLE}</h1>
-        <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {SLACK_INTEGRATION_PAGE_SUBTITLE}
-        </p>
-        <p
-          className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          data-testid="slack-configuration-status"
-        >
-          {loading ? "Loading configuration status…" : slackIntegrationConfigurationStatusLabel(activeDestinationCount)}
-        </p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          See{" "}
-          <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
-            Integration readiness
-          </Link>
-          . Need a different channel?{" "}
-          <Link className={OPERATOR_LINK.inline} href="/integrations/teams">
-            Configure Microsoft Teams
-          </Link>
-          .
-        </p>
-      </header>
+      <PageHeading
+        navHref={INTEGRATIONS_SLACK_PATH}
+        title={SLACK_INTEGRATION_PAGE_TITLE}
+        variant="integration"
+        bordered
+        description={
+          <>
+            <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {SLACK_INTEGRATION_PAGE_SUBTITLE}
+            </p>
+            <p
+              className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              data-testid="slack-configuration-status"
+            >
+              {loading ? "Loading configuration status…" : slackIntegrationConfigurationStatusLabel(activeDestinationCount)}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              See{" "}
+              <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
+                Integration readiness
+              </Link>
+              . Need a different channel?{" "}
+              <Link className={OPERATOR_LINK.inline} href="/integrations/teams">
+                Configure Microsoft Teams
+              </Link>
+              .
+            </p>
+          </>
+        }
+      />
 
       {failure !== null ? (
         <div role="alert">

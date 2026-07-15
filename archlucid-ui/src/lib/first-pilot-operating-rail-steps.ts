@@ -56,7 +56,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
   },
   {
     id: "finalize-package",
-    title: "Finalize the review package",
+    title: "Finalize the review",
     shortBody: "Finalize the signed review record on review detail to lock artifacts and exports.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Finalize on review detail",

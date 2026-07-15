@@ -183,7 +183,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                 <ol className={cn("m-0 list-decimal space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>
                   <li>Start a review with no cloud target selected (evidence-only).</li>
                   <li>Upload files or paste your architecture brief — a cloud connector is not required.</li>
-                  <li>Start the review, finalize the package, and export the sponsor packet.</li>
+                  <li>Start the review, finalize the review, and export the sponsor packet.</li>
                 </ol>
                 <Button asChild size="sm">
                   <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
@@ -219,7 +219,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           >
             <HelpSectionHeading id="ready-to-begin">Ready to begin?</HelpSectionHeading>
             <p id="ready-to-begin-heading" className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-              Start your first review now, or explore the sample package to see a completed outcome.
+              Start your first review now, or explore the sample review to see a completed outcome.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button asChild size="sm">

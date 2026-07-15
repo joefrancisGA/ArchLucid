@@ -70,7 +70,11 @@ public sealed class BillingCheckoutController(
 
         BillingCheckoutTier tier = ParseCheckoutTier(body.TargetTier);
 
-        if (await _billingLedger.TenantHasActiveSubscriptionAsync(scope.TenantId, cancellationToken))
+        BillingSubscriptionSnapshot? existingSubscription =
+            await _billingLedger.TryGetSubscriptionAsync(scope.TenantId, cancellationToken);
+
+        if (existingSubscription is not null &&
+            !string.Equals(existingSubscription.Status, "Canceled", StringComparison.OrdinalIgnoreCase))
         {
             IBillingProvider conflictProvider = _billingProviderRegistry.ResolveActiveProvider();
             ArchLucidInstrumentation.RecordBillingCheckout(
@@ -79,7 +83,7 @@ public sealed class BillingCheckoutController(
                 "conflict_active_subscription");
 
             return this.ConflictProblem(
-                "An active billing subscription already exists for this tenant.",
+                "A billing subscription already exists for this tenant. Use Manage billing to update payment or cancel.",
                 ProblemTypes.Conflict);
         }
 
@@ -157,6 +161,115 @@ public sealed class BillingCheckoutController(
             });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("portal")]
+    [SkipTrialWriteLimit]
+    [ProducesResponseType(typeof(BillingPortalResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> PortalAsync(
+        [FromBody] BillingPortalPostRequest? body,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        if (body is null || string.IsNullOrWhiteSpace(body.ReturnUrl))
+        {
+            return this.BadRequestProblem(
+                "ReturnUrl is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        IBillingProvider providerForAudit = _billingProviderRegistry.ResolveActiveProvider();
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.BillingPortalInitiated,
+                ActorUserId = User.Identity?.Name ?? "admin",
+                ActorUserName = User.Identity?.Name ?? "admin",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(new { provider = providerForAudit.ProviderName })
+            },
+            cancellationToken);
+
+        BillingPortalRequest request = new()
+        {
+            TenantId = scope.TenantId,
+            ReturnUrl = body.ReturnUrl.Trim()
+        };
+
+        IBillingProvider provider = _billingProviderRegistry.ResolveActiveProvider();
+
+        BillingPortalResult result;
+
+        try
+        {
+            result = await provider.CreateBillingPortalSessionAsync(request, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.BillingPortalCompleted,
+                ActorUserId = User.Identity?.Name ?? "admin",
+                ActorUserName = User.Identity?.Name ?? "admin",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        provider = provider.ProviderName,
+                        providerSessionId = result.ProviderSessionId
+                    })
+            },
+            cancellationToken);
+
+        return Ok(
+            new BillingPortalResponseDto
+            {
+                PortalUrl = result.PortalUrl,
+                ProviderSessionId = result.ProviderSessionId
+            });
+    }
+
+    [HttpGet("subscription")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(BillingSubscriptionStatusResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSubscriptionStatusAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        BillingSubscriptionSnapshot? snapshot =
+            await _billingLedger.TryGetSubscriptionAsync(scope.TenantId, cancellationToken);
+
+        if (snapshot is null)
+        {
+            return Ok(
+                new BillingSubscriptionStatusResponseDto
+                {
+                    HasSubscription = false,
+                    IsPaymentPastDue = false
+                });
+        }
+
+        bool isPastDue = string.Equals(snapshot.Status, "Suspended", StringComparison.OrdinalIgnoreCase);
+
+        return Ok(
+            new BillingSubscriptionStatusResponseDto
+            {
+                HasSubscription = true,
+                Provider = snapshot.Provider,
+                TierCode = snapshot.TierCode,
+                Status = snapshot.Status,
+                IsPaymentPastDue = isPastDue
+            });
+    }
+
     private static BillingCheckoutTier ParseCheckoutTier(string? label)
     {
         if (string.IsNullOrWhiteSpace(label))
@@ -164,6 +277,7 @@ public sealed class BillingCheckoutController(
 
         return label.Trim() switch
         {
+            "Architect" => BillingCheckoutTier.Architect,
             "Pro" => BillingCheckoutTier.Pro,
             "Enterprise" => BillingCheckoutTier.Enterprise,
             _ => BillingCheckoutTier.Team

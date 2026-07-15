@@ -11,7 +11,7 @@ export const GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE =
   "Learn how architecture work moves from submission to approval, revision, or rejection.";
 
 export const GOVERNANCE_APPROVAL_HELP_OVERVIEW =
-  "Governance approval connects a finalized architecture review package to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.";
+  "Governance approval connects a finalized architecture review to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.";
 
 export const GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS = {
   openWorkflow: {
@@ -34,7 +34,7 @@ export const GOVERNANCE_APPROVAL_HELP_DEVELOPER_DOCS = {
 } as const;
 
 export const GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS = [
-  "Prepare architecture package",
+  "Prepare architecture review",
   "Resolve required findings",
   "Submit for approval",
   "Review evidence and risk",
@@ -60,13 +60,13 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
     id: "solution-architect",
     title: "Solution architect",
     description:
-      "Prepare an architecture package, resolve required findings, and submit it for approval.",
+      "Prepare an architecture review, resolve required findings, and submit it for approval.",
     tasks: [
-      "Finalize the review package and confirm the signed review record version.",
+      "Finalize the review and confirm the signed review record version.",
       "Confirm required fields, environments, and supporting evidence are complete.",
       "Resolve blocking findings or record an accepted disposition before submission.",
       "Submit the approval request with source and target environments.",
-      "If a reviewer rejects with comments, revise the package and submit again when ready.",
+      "If a reviewer rejects with comments, revise the review and submit again when ready.",
     ],
   },
   {
@@ -97,7 +97,7 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
     title: "Platform engineer",
     description: "Attach CI, deployment, and operational evidence to support governance decisions.",
     tasks: [
-      "Attach CI and build evidence to the review package before finalize.",
+      "Attach CI and build evidence to the review before finalize.",
       "Link deployment and environment validation results reviewers can inspect.",
       "Provide operational validation notes when findings reference runtime posture.",
       "Confirm evidence freshness before approvers record a decision.",
@@ -138,7 +138,7 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
   {
     status: "Changes requested",
     meaning:
-      "The product records this outcome as Rejected with reviewer comments. The submitter revises the package and may submit a new linked request.",
+      "The product records this outcome as Rejected with reviewer comments. The submitter revises the review and may submit a new linked request.",
     whoCanAct: "Original submitter or another user with submission permission.",
     nextAction: "Address reviewer comments, update evidence, and submit again when ready.",
   },
@@ -152,7 +152,7 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
     status: "Rejected",
     meaning: "The reviewer declined the request. Rationale remains in the audit trail.",
     whoCanAct: "Submitter or governance lead, per organization policy.",
-    nextAction: "Revise the package or open a new request according to current process.",
+    nextAction: "Revise the review or open a new request according to current process.",
   },
   {
     status: "Superseded",
@@ -164,7 +164,7 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
 ] as const;
 
 export const GOVERNANCE_APPROVAL_HELP_PREREQUISITES = [
-  "A finalized review package exists with a signed review record version.",
+  "A finalized review exists with a signed review record version.",
   "Required submission fields are complete, including source and target environments.",
   "Blocking findings are resolved, remediated, or explicitly accepted with disposition.",
   "Supporting evidence is attached where your policy requires it.",
@@ -216,7 +216,7 @@ export type GovernanceApprovalHelpCommonAction = {
 export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprovalHelpCommonAction[] = [
   {
     label: "Submit for approval",
-    description: "Start an approval request on a finalized review package.",
+    description: "Start an approval request on a finalized review.",
     href: "/governance",
   },
   {
@@ -276,7 +276,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Evidence appears missing",
     resolution:
-      "Return to the review package, attach artifacts, re-run policy checks, and reload the workflow for that review.",
+      "Return to the review, attach artifacts, re-run policy checks, and reload the workflow for that review.",
   },
   {
     issue: "You lack permission to approve or submit",

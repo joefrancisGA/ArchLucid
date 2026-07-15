@@ -242,7 +242,7 @@ export default function RecurrenceSchedulesClient() {
   }
 
   const secondaryActions = [
-    { label: "View governed review packages", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF },
+    { label: "View governed reviews", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF },
     { label: "View pending approvals", href: RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF },
     { label: "Open risk register", href: RECURRENCE_SCHEDULES_RISK_REGISTER_HREF },
   ] as const;
@@ -300,7 +300,7 @@ export default function RecurrenceSchedulesClient() {
                 description={`${RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION} ${RECURRENCE_SCHEDULES_EMPTY_SUPPORTING}`}
                 actions={[
                   {
-                    label: "View governed review packages",
+                    label: "View governed reviews",
                     href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
                     variant: "primary",
                   },
@@ -330,7 +330,7 @@ export default function RecurrenceSchedulesClient() {
               <EnterpriseTableHead>
                 <EnterpriseTableHeadRow>
                   <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Scope / Review package</EnterpriseTableHeaderCell>
+                  <EnterpriseTableHeaderCell>Scope / Review</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Cadence</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Next run</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>Last run</EnterpriseTableHeaderCell>

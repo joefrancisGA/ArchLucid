@@ -80,9 +80,9 @@ export function GovernanceApprovalStoryCard(props: {
         </CardTitle>
         <div className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0 leading-relaxed">
-            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized review package
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized review
             version <span className="font-semibold">{row.manifestVersion}</span> — approved as architecture decision record for
-            this review package. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
+            this review. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
           </p>
           {reviewed ? (
             <dl className={cn("m-0 mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -106,7 +106,7 @@ export function GovernanceApprovalStoryCard(props: {
       </CardHeader>
       <CardContent className="pt-0">
         <p className={cn("m-0 mb-3 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Approval path for this package
+          Approval path for this review
         </p>
         <ol className="m-0 flex list-none flex-col gap-3 p-0 sm:flex-row sm:items-stretch sm:gap-2">
           {steps.map((s, index) => (

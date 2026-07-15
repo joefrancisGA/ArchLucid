@@ -1,31 +1,44 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /** Buyer-polished shell left-nav label for `/reviews/new`. */
-export const BUYER_NEW_REVIEW_NAV_LABEL = CREATE_ARCHITECTURE_LABEL;
+export const BUYER_NEW_REVIEW_NAV_LABEL = START_REVIEW_LABEL;
 
 /** Quick actions, hero CTAs, and empty states that open `/reviews/new`. */
-export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = CREATE_ARCHITECTURE_LABEL;
+export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = START_REVIEW_LABEL;
 
 /** Default left-nav label for `/reviews/new` when buyer vocabulary pass is active (TB-646). */
 export const NEW_REVIEW_NAV_LINK_LABEL = BUYER_NEW_REVIEW_NAV_LABEL;
 
-const NEW_REVIEW_NAV_TOOLTIP = `${CREATE_ARCHITECTURE_LABEL} — Quick review, Guided intake, or full wizard (Alt+N)`;
+const NEW_REVIEW_NAV_TOOLTIP = `${START_REVIEW_LABEL} — Quick review, Guided intake, or full wizard (Alt+N)`;
+
+const CREATE_ARCHITECTURE_NAV_TOOLTIP = `${CREATE_ARCHITECTURE_LABEL} — save drafts and resume later without starting a review`;
 
 export function resolveNewReviewWizardBreadcrumbLabel(): string {
   if (isBuyerVocabularyPassActive()) {
     return BUYER_NEW_REVIEW_NAV_LABEL;
   }
 
-  return CREATE_ARCHITECTURE_LABEL;
+  return START_REVIEW_LABEL;
 }
 
-/** Sidebar / pilot nav tooltip for `/reviews/new` — creation-first, not mechanism-first. */
+/** Sidebar / pilot nav tooltip for `/reviews/new` — explicit review initiation. */
+export function resolveStartReviewPrimaryNavTitle(): string {
+  return `${START_REVIEW_LABEL} — evaluate an existing architecture or submitted material (Alt+N)`;
+}
+
+/** Sidebar / pilot nav tooltip for `/architectures/new`. */
+export function resolveCreateArchitecturePrimaryNavTitle(): string {
+  return CREATE_ARCHITECTURE_NAV_TOOLTIP;
+}
+
+/** @deprecated Use {@link resolveStartReviewPrimaryNavTitle} for `/reviews/new`. */
 export function resolveNewReviewPrimaryNavTitle(): string {
-  return `${CREATE_ARCHITECTURE_LABEL} — brief, diagram, document, or optional cloud context (Alt+N)`;
+  return resolveStartReviewPrimaryNavTitle();
 }
 
 /** Matches `/reviews` list routes (with optional query), not `/reviews/new` or `/reviews/{id}`. */
@@ -44,7 +57,7 @@ export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): strin
     return BUYER_NEW_REVIEW_NAV_LABEL;
   }
 
-  return OPERATOR_NAV_LINK_LABELS.capture;
+  return START_REVIEW_LABEL;
 }
 
 export function resolveNewReviewNavLinkTitle(): string {
@@ -72,6 +85,14 @@ export function resolveNavLinkPresentation(
 ): NavLinkPresentationSource {
   const vocabularyPassActive = isBuyerVocabularyPassActive();
 
+  if (link.href === ARCHITECTURES_NEW_PATH && (buyerPolishedShell || vocabularyPassActive)) {
+    return applyBuyerNavVocabulary({
+      href: link.href,
+      label: CREATE_ARCHITECTURE_LABEL,
+      title: resolveCreateArchitecturePrimaryNavTitle(),
+    });
+  }
+
   if (link.href === "/reviews/new" && (buyerPolishedShell || vocabularyPassActive)) {
     return applyBuyerNavVocabulary({
       href: link.href,
@@ -95,6 +116,14 @@ export function resolveNavLinkPresentation(
 export function resolveQuickActionNavLinkPresentation(
   link: NavLinkPresentationSource,
 ): NavLinkPresentationSource {
+  if (link.href === ARCHITECTURES_NEW_PATH) {
+    return applyBuyerNavVocabulary({
+      href: link.href,
+      label: CREATE_ARCHITECTURE_LABEL,
+      title: CREATE_ARCHITECTURE_NAV_TOOLTIP,
+    });
+  }
+
   if (link.href === "/reviews/new") {
     return applyBuyerNavVocabulary({
       href: link.href,

@@ -98,7 +98,7 @@ export function ImpactPreviewSetupCard(props: ImpactPreviewSetupCardProps): Reac
               }}
             >
               <SelectTrigger id="impact-preview-baseline" data-testid="impact-preview-baseline-select">
-                <SelectValue placeholder="Select a baseline review package" />
+                <SelectValue placeholder="Select a baseline review" />
               </SelectTrigger>
               <SelectContent>
                 {props.baselineOptions.map((option) => (

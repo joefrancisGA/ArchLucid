@@ -17,9 +17,9 @@ export const GLOSSARY_DEFINITIONS = {
   },
   manifest: {
     displayLabel: "Signed review record",
-    shortDefinition: "The finalized, signed architecture package treated as source of truth for a review.",
+    shortDefinition: "The finalized, signed architecture review treated as source of truth for a review.",
     longDefinition:
-      "The signed review record is the immutable, versioned design package for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
+      "The signed review record is the immutable, versioned design record for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
   },
   finding: {
     displayLabel: "Finding",
@@ -34,10 +34,10 @@ export const GLOSSARY_DEFINITIONS = {
       "Artifacts are versioned deliverables produced after decisioning—anything from diagrams to narrative packs—packaged for download or downstream systems.",
   },
   evidence_package: {
-    displayLabel: "Evidence package",
+    displayLabel: "Evidence bundle",
     shortDefinition: "The curated trace bundle proving how conclusions were reached for a review.",
     longDefinition:
-      "An evidence package aggregates citations, snapshots, and decision traces so sponsors and auditors can verify claims without replaying the entire pipeline.",
+      "An evidence bundle aggregates citations, snapshots, and decision traces so sponsors and auditors can verify claims without replaying the entire pipeline.",
   },
   authority_chain: {
     displayLabel: "Authority chain",
@@ -49,7 +49,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Governance approval",
     shortDefinition: "Checkpoints where policy, reviewers, or thresholds must pass before advancing.",
     longDefinition:
-      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a review package or deliverable state advances—blocking unsafe silent changes.",
+      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advances—blocking unsafe silent changes.",
   },
   policy_pack: {
     displayLabel: "Policy pack",
@@ -59,7 +59,7 @@ export const GLOSSARY_DEFINITIONS = {
   },
   comparison: {
     displayLabel: "Comparison",
-    shortDefinition: "A structured diff between two finalized review packages or persisted comparison results.",
+    shortDefinition: "A structured diff between two finalized reviews or persisted comparison results.",
     longDefinition:
       "Comparison highlights field-level and semantic deltas across reviews or snapshots so teams see what changed in decisions, findings, and evidence without re-running agents.",
   },

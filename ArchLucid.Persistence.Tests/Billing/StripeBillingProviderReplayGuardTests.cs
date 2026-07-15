@@ -45,10 +45,12 @@ public sealed class StripeBillingProviderReplayGuardTests
         Mock<IAuditService> audit = new();
         BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
         Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
+        StripeBillingSubscriptionWebhookProcessor subscriptionProcessor =
+            new(ledger.Object, activator, changePlan.Object, audit.Object);
         StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(
             monitor,
             ledger,
-            activator,
+            subscriptionProcessor,
             changePlan,
             replayGuard);
 

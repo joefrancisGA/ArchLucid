@@ -22,4 +22,11 @@ public sealed class BillingWebhookInbound
         get;
         init;
     }
+
+    /// <summary>When set, selects the Stripe signing secret and allowed event families for subscription vs wallet routes.</summary>
+    public StripeBillingWebhookRoute? StripeWebhookRoute
+    {
+        get;
+        init;
+    }
 }

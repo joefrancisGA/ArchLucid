@@ -32,6 +32,8 @@ FORBIDDEN_SCOPE_DENIAL_PHRASES: tuple[str, ...] = (
     "**Two-way** SNOW→ArchLucid status sync is **not** in committed V1 scope **unless**",
     "**Two-way** SNOW→ArchLucid status sync is **not** in committed **V1** scope",
     "**bi-directional** status sync **in V1** (may fast-follow)",
+    "First-party ITSM/chat connectors are **V1.1** buyer-contract items, not V1 GA obligations",
+    "without first-party ITSM connectors (deferred to V1.1)",
 )
 
 HIGH_RISK_DOC_RELS: tuple[Path, ...] = (
@@ -39,6 +41,8 @@ HIGH_RISK_DOC_RELS: tuple[Path, ...] = (
     Path("docs/go-to-market/INTEGRATION_CATALOG.md"),
     Path("dist/procurement-pack/INTEGRATION_CATALOG.md"),
     Path("docs/library/V1_SCOPE.md"),
+    Path("docs/library/customer-facing/FAQ.md"),
+    Path("docs/library/customer-facing/CI_CD_INTEGRATION_GUIDE.md"),
     Path("docs/integrations/recipes/SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md"),
     Path("docs/integrations/recipes/JIRA_ISSUE_VIA_POWER_AUTOMATE.md"),
     Path("templates/integrations/jira/jira-webhook-bridge-recipe.md"),

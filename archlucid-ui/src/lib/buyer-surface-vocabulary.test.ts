@@ -11,7 +11,7 @@ describe("buyer terminology vocabulary", () => {
     const vocabulary = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
     expect(vocabulary.emptyStateDescription).toMatch(/commit/i);
-    expect(vocabulary.emptyStatePrimaryAction).toBe("Start architecture review");
+    expect(vocabulary.emptyStatePrimaryAction).toBe("Start an architecture review");
     expect(vocabulary.emptyStateSecondaryAction).toBe("Load sample dashboard");
     expect(vocabulary.portfolioMetricsUnavailableDescription).toContain("Commit");
     expect(vocabulary.metricsPreviewUnavailableFootnote).toBe("Available after first committed review");
@@ -22,5 +22,16 @@ describe("buyer terminology vocabulary", () => {
     expect(OPERATOR_NAV_LINK_LABELS.pilotValueReport).toBe(BUYER_TERMINOLOGY.evaluationValueReport);
     expect(OPERATOR_NAV_LINK_LABELS.scorecard).toBe(BUYER_TERMINOLOGY.reviewScorecard);
     expect(OPERATOR_NAV_LINK_LABELS.portfolioOverview).toBe(BUYER_TERMINOLOGY.portfolioOverview);
+  });
+
+  it("aligns executive dashboard and sponsor scorecard customer nouns (IA-010)", () => {
+    const vocabulary = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+
+    expect(vocabulary.pageTitle).toBe("Executive dashboard");
+    expect(vocabulary.portfolioPageTitle).toBe(vocabulary.pageTitle);
+    expect(vocabulary.pageTitle).toBe(BUYER_TERMINOLOGY.portfolioOverview);
+    expect(vocabulary.scorecardPageTitle).toBe("Sponsor scorecard");
+    expect(vocabulary.sponsorExportsScorecardTitle).toBe(vocabulary.scorecardPageTitle);
+    expect(vocabulary.reviewExecutiveSummaryLabel).toBe("Executive summary");
   });
 });

@@ -1,0 +1,286 @@
+"""Discover routable ArchLucid UI paths for the owner traffic workbook."""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+UI_APP_DIR = REPO_ROOT / "archlucid-ui" / "src" / "app"
+UI_LIB_DIR = REPO_ROOT / "archlucid-ui" / "src" / "lib"
+HELP_REGISTRY = UI_LIB_DIR / "product-documentation-registry.ts"
+
+# Legacy workbook paths → canonical catalog paths (scores and Hit% merge on collision).
+WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
+    "/alerts": "/governance/alerts",
+    "/audit": "/governance/audit",
+    "/settings/cloud-connections": "/integrations/cloud-connections",
+    "/settings/roles": "/settings/users?tab=roles",
+    "/settings/roles/invite-reviewer": "/settings/users/invite-reviewer",
+    "/admin/users": "/settings/users",
+    "/admin/support": "/settings/support",
+    "/workspace/security-trust": "/settings/security-trust",
+    "/governance-resolution": "/governance/resolution",
+    "/help/cloud-connections-azure": "/help/cloud-connections/azure",
+    "/help/cloud-connections-aws": "/help/cloud-connections/aws",
+    "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
+}
+
+DEFAULT_NEW_HIT_PCT = "0.02%"
+
+
+@dataclass(frozen=True)
+class CatalogEntry:
+    path: str
+    section: str
+    source: str
+
+
+def _omit_from_url(segment: str) -> bool:
+    if segment.startswith("@"):
+        return True
+    if segment.startswith("_"):
+        return True
+    if len(segment) >= 2 and segment[0] == "(" and segment[-1] == ")":
+        return True
+    return False
+
+
+def url_path_for_page(page_file: Path, app_dir: Path) -> str:
+    rel_parent = page_file.parent.relative_to(app_dir)
+    parts: list[str] = []
+    for segment in rel_parent.parts:
+        if _omit_from_url(segment):
+            continue
+        parts.append(segment)
+    if not parts:
+        return "/"
+    return "/" + "/".join(parts)
+
+
+def discover_app_router_paths(app_dir: Path = UI_APP_DIR) -> list[str]:
+    if not app_dir.is_dir():
+        return []
+    paths: list[str] = []
+    for page in sorted(app_dir.rglob("page.tsx")):
+        if page.is_file():
+            paths.append(url_path_for_page(page, app_dir))
+    return sorted(set(paths))
+
+
+def _parse_ts_string_array(file_path: Path, const_name: str) -> list[str]:
+    if not file_path.is_file():
+        return []
+    text = file_path.read_text(encoding="utf-8")
+    pattern = rf"export const {re.escape(const_name)} = \[([^\]]+)\]"
+    match = re.search(pattern, text, re.DOTALL)
+    if match is None:
+        return []
+    return re.findall(r'"([^"]+)"', match.group(1))
+
+
+def _parse_help_slugs(registry_path: Path = HELP_REGISTRY) -> list[str]:
+    if not registry_path.is_file():
+        return []
+    text = registry_path.read_text(encoding="utf-8")
+    return sorted(set(re.findall(r'^\s+slug:\s*"([^"]+)"', text, flags=re.MULTILINE)))
+
+
+def _parse_help_aliases(registry_path: Path = HELP_REGISTRY) -> dict[str, str]:
+    if not registry_path.is_file():
+        return {}
+    text = registry_path.read_text(encoding="utf-8")
+    match = re.search(
+        r"HELP_TOPIC_SLUG_ALIASES.*?=\s*\{([^}]+)\}",
+        text,
+        flags=re.DOTALL,
+    )
+    if match is None:
+        return {}
+    aliases: dict[str, str] = {}
+    for alias, canonical in re.findall(r'"([^"]+)":\s*"([^"]+)"', match.group(1)):
+        aliases[alias] = canonical
+    return aliases
+
+
+def _tab_path(base_path: str, param: str, value: str) -> str:
+    return f"{base_path}?{param}={value}"
+
+
+def discover_tab_paths() -> list[str]:
+    advisory_tabs = _parse_ts_string_array(UI_LIB_DIR / "advisory-hub-tab.ts", "ADVISORY_HUB_TAB_IDS")
+    digests_tabs = _parse_ts_string_array(UI_LIB_DIR / "digests-hub-tab.ts", "DIGESTS_HUB_TAB_IDS")
+    alert_rules_tabs = _parse_ts_string_array(UI_LIB_DIR / "alerts-hub-tab.ts", "ALERT_RULES_HUB_TAB_IDS")
+    arch_tabs = _parse_ts_string_array(
+        UI_LIB_DIR / "architecture-workspace-tabs.ts",
+        "ARCHITECTURE_WORKSPACE_TAB_IDS",
+    )
+
+    paths: list[str] = []
+    for tab_id in advisory_tabs:
+        paths.append(_tab_path("/advisory", "tab", tab_id))
+    for tab_id in digests_tabs:
+        paths.append(_tab_path("/digests", "tab", tab_id))
+    for tab_id in alert_rules_tabs:
+        paths.append(_tab_path("/governance/alert-rules", "tab", tab_id))
+    # Inbox is the only non-redirect tab on the alerts hub.
+    paths.append(_tab_path("/governance/alerts", "tab", "inbox"))
+    for tab_id in ("users", "roles", "keys"):
+        paths.append(_tab_path("/settings/users", "tab", tab_id))
+    for path_mode in ("quick-review", "guided-intake", "detailed"):
+        paths.append(_tab_path("/reviews/new", "path", path_mode))
+    for tab_id in arch_tabs:
+        paths.append(_tab_path("/reviews/[runId]", "archTab", tab_id))
+    return sorted(set(paths))
+
+
+def _retired_help_slug_paths(aliases: dict[str, str]) -> set[str]:
+    """Hyphen slug URLs superseded by per-cloud slash aliases in HELP_TOPIC_SLUG_ALIASES."""
+    retired: set[str] = set()
+
+    for _alias, canonical in aliases.items():
+
+        if canonical.startswith("cloud-connections-"):
+            retired.add(f"/help/{canonical}")
+
+    return retired
+
+
+def discover_help_paths() -> tuple[list[str], set[str]]:
+    slugs = _parse_help_slugs()
+    aliases = _parse_help_aliases()
+    retired_slug_paths = _retired_help_slug_paths(aliases)
+    paths = ["/help"]
+    paths.extend(f"/help/{slug}" for slug in slugs if f"/help/{slug}" not in retired_slug_paths)
+    paths.extend(f"/help/{alias}" for alias in aliases)
+    alias_paths = {f"/help/{alias}" for alias in aliases}
+    return sorted(set(paths)), alias_paths
+
+
+def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
+    if "?" in path:
+        return "Tab surface"
+    if path == "/help":
+        return "Help hub"
+    if path.startswith("/help/"):
+        if path in help_alias_paths:
+            return "Help alias"
+        return "Help topic"
+    if path.startswith("/reviews"):
+        return "Core review"
+    if path.startswith("/architectures"):
+        return "Core review"
+    if path in ("/", "/dashboard", "/ask"):
+        return "Core review"
+    if path.startswith("/governance") or path.startswith("/alert"):
+        return "Alerts/gov"
+    if path.startswith("/settings"):
+        return "Settings"
+    if path.startswith("/integrations"):
+        return "Integrations"
+    if path.startswith("/admin"):
+        return "Admin"
+    if path.startswith("/auth") or path == "/login" or path == "/403":
+        return "Auth"
+    if path.startswith("/help"):
+        return "Help topic"
+    if path.startswith("/executive"):
+        return "Executive"
+    if path.startswith("/advisory") or path.startswith("/operate") or path == "/advisory-scheduling":
+        return "Advisory"
+    if path.startswith("/digests") or path == "/digest-subscriptions":
+        return "Digests"
+    if path.startswith("/onboard") or path.startswith("/getting-started") or path == "/product-learning":
+        return "Onboarding"
+    if path.startswith("/planning") or path.startswith("/graph") or path == "/compare":
+        return "Planning"
+    if path in ("/why-archlucid", "/demo/explain"):
+        return "Learning"
+    return "Marketing"
+
+
+def build_catalog() -> dict[str, CatalogEntry]:
+    help_paths, help_alias_paths = discover_help_paths()
+    catalog: dict[str, CatalogEntry] = {}
+
+    for path in discover_app_router_paths():
+        catalog[path] = CatalogEntry(path=path, section=infer_section(path, help_alias_paths=help_alias_paths), source="app_router")
+
+    for path in help_paths:
+        if path not in catalog:
+            catalog[path] = CatalogEntry(
+                path=path,
+                section=infer_section(path, help_alias_paths=help_alias_paths),
+                source="help_alias" if path in help_alias_paths else "help_topic",
+            )
+
+    for path in discover_tab_paths():
+        catalog[path] = CatalogEntry(path=path, section="Tab surface", source="tab_surface")
+
+    return catalog
+
+
+def migrate_workbook_path(path: str) -> str:
+    current = path
+    seen: set[str] = set()
+    while current in WORKBOOK_PATH_MIGRATIONS:
+        if current in seen:
+            break
+        seen.add(current)
+        current = WORKBOOK_PATH_MIGRATIONS[current]
+    return current
+
+
+def suggest_row_id(path: str, used_ids: set[str]) -> str:
+    base_path, _, query = path.partition("?")
+    tokens: list[str] = []
+    for segment in base_path.strip("/").split("/"):
+        if not segment:
+            continue
+        if segment.startswith("[") and segment.endswith("]"):
+            inner = segment[1:-1]
+            tokens.append(inner[:2].upper() if inner else "X")
+        else:
+            tokens.append(segment[0].upper())
+            if len(segment) > 1:
+                tokens.append(segment[1].upper())
+
+    if query:
+        for key in ("archTab", "path", "tab"):
+            marker = f"{key}="
+            if marker in query:
+                value = query.split(marker, 1)[1].split("&", 1)[0]
+                if value:
+                    tokens.append(value[0].upper())
+                break
+
+    seed = "".join(tokens)
+    if not seed:
+        seed = "RT"
+    candidates: list[str] = []
+    candidates.append(seed[:3])
+    if len(seed) > 3:
+        candidates.append(seed[:2] + seed[-1])
+    candidates.append(seed[0] + seed[-2:] if len(seed) >= 3 else seed.ljust(3, "X"))
+    for length in (3, 2, 1):
+        for start in range(0, max(1, len(seed) - length + 1)):
+            candidates.append(seed[start : start + length].ljust(3, "X")[:3])
+
+    for candidate in candidates:
+        normalized = candidate.upper()[:3]
+        if normalized and normalized not in used_ids:
+            return normalized
+
+    for suffix in range(2, 100):
+        candidate = f"{seed[:2]}{suffix}"[:3]
+        if candidate not in used_ids:
+            return candidate
+
+    raise ValueError(f"Could not allocate a unique row id for path {path!r}")
+
+
+def app_router_page_count(app_dir: Path = UI_APP_DIR) -> int:
+    if not app_dir.is_dir():
+        return 0
+    return sum(1 for page in app_dir.rglob("page.tsx") if page.is_file())

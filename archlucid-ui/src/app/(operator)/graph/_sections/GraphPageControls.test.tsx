@@ -9,7 +9,7 @@ vi.mock("@/components/AskRunIdPicker", () => ({
 }));
 
 describe("GraphPageControls buyer presentation tabs (TB-669)", () => {
-  it("hides load button when workspace has no completed review packages", () => {
+  it("hides load button when workspace has no completed reviews", () => {
     render(
       <GraphPageControls
         graphMainColumnMaxClass="max-w-3xl"

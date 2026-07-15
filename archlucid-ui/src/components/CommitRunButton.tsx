@@ -180,7 +180,7 @@ export function CommitRunButton({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         title="Finalize this review?"
-        description={`Merges agent results for this review through the decision engine and saves the architecture snapshot. If the review package is not ready, the API returns a conflict — adjust inputs and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
+        description={`Merges agent results for this review through the decision engine and saves the architecture snapshot. If the review is not ready, the API returns a conflict — adjust inputs and try again. ${FINALIZE_REPLAY_COMPARE_TOOLTIP}`}
         confirmLabel="Finalize review"
         cancelLabel="Cancel"
         variant="default"
@@ -222,6 +222,15 @@ export function CommitRunButton({
                   Total findings: {findingsCount}
                 </span>
               )}
+              <span className={cn("mt-2 block", OPERATOR_TYPOGRAPHY.helper)}>
+                This review&apos;s decisions are now searchable in Ask.{" "}
+                <Link
+                  href="/help/prior-manifest-retrieval"
+                  className="font-medium text-neutral-900 underline underline-offset-2 hover:text-neutral-700 dark:text-neutral-100 dark:hover:text-neutral-300"
+                >
+                  Prior manifest guide
+                </Link>
+              </span>
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-4">

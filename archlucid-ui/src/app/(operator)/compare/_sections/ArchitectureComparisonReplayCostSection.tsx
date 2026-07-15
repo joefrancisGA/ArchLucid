@@ -98,7 +98,7 @@ export function ArchitectureComparisonReplayCostSection() {
     <section className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-3xl p-4">
       <h3 className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Comparison replay cost estimate (warn-only)</h3>
       <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        Estimate relative cost before you replay a saved comparison record. This is separate from validating a single review package on the
+        Estimate relative cost before you replay a saved comparison record. This is separate from validating a single review on the
         validate page.
       </p>
 

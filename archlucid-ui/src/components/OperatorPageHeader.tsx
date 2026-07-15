@@ -1,11 +1,14 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
+import { PageHeading } from "@/components/PageHeading";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type OperatorPageHeaderProps = {
   title: string;
   subtitle?: string;
+  /** Canonical nav href — when set, renders the same icon as primary navigation. */
+  navHref?: string;
   /** Stable Playwright anchor for the primary page title. */
   titleTestId?: string;
   /**
@@ -36,11 +39,30 @@ export type OperatorPageHeaderProps = {
 export function OperatorPageHeader({
   title,
   subtitle,
+  navHref,
   titleTestId,
   metadata,
   actions,
   children,
 }: OperatorPageHeaderProps) {
+  if (navHref !== undefined) {
+    return (
+      <PageHeading
+        navHref={navHref}
+        title={title}
+        description={subtitle}
+        metadata={metadata}
+        actions={actions}
+        headingLevel="h2"
+        bordered
+        className="mb-6"
+        titleTestId={titleTestId}
+      >
+        {children}
+      </PageHeading>
+    );
+  }
+
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
       <div className="flex flex-wrap items-center gap-2">

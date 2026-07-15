@@ -40,7 +40,7 @@ export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps)
           className={OPERATOR_LINK.nav}
           data-testid="run-detail-replay-review"
         >
-          Validate review package
+          Validate review
         </Link>
       </div>
     </section>

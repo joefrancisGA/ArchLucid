@@ -13,6 +13,8 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { showError, showInfo } from "@/lib/toast";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { OperatorBillingManageBillingAction } from "./OperatorBillingManageBillingAction";
+
 type WalletResponse = {
   balanceUsd: number;
   autoReplenishEnabled: boolean;
@@ -79,14 +81,6 @@ export function OperatorBillingWalletPanel() {
     const data = (await res.json()) as WalletResponse;
     setWallet(data);
     showInfo("AI credit settings saved.");
-  };
-
-  const onAddPaymentMethod = () => {
-    if (!canMutate) {
-      return;
-    }
-
-    showInfo("Payment method setup is coming soon. Contact support if you need to attach a card before self-serve checkout ships.");
   };
 
   if (loading) {
@@ -180,15 +174,12 @@ export function OperatorBillingWalletPanel() {
             <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               {wallet.hasPaymentMethod ? "Payment method on file." : "No payment method on file."}
             </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onAddPaymentMethod}
-              disabled={!canMutate}
-              title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-            >
-              {wallet.hasPaymentMethod ? "Update payment method" : "Add payment method"}
-            </Button>
+            <OperatorBillingManageBillingAction
+              canMutate={canMutate}
+              idleLabel={wallet.hasPaymentMethod ? "Update payment method" : "Add payment method"}
+              loadingLabel="Opening portal…"
+              testId="operator-billing-payment-method-action"
+            />
           </CardContent>
         </Card>
       </section>

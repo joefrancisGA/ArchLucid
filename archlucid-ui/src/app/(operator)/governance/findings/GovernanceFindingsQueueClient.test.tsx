@@ -54,7 +54,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
       headline: "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
       useWhen: "Start with open risks, expiring exceptions, or risks without owners.",
       firstPilotNote: null,
-      enterpriseFootnote: "Each row should trace back to its source review package, evidence trail, and signed review record.",
+      enterpriseFootnote: "Each row should trace back to its source review, evidence trail, and signed review record.",
       omitReviewPackageScopeHelp: true,
     },
     contextHints: {
@@ -126,7 +126,7 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(
       screen.getByText(/Risks appear here when accepted findings, waivers, exceptions, or governance decisions/),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open review packages" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",
       "/reviews?projectId=default",
     );
@@ -153,7 +153,7 @@ describe("GovernanceFindingsQueueClient", () => {
 
     expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Risk" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Source review package" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Source review" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Exception expiry" })).toBeInTheDocument();
     const desktopRegion = screen.getByTestId("governance-findings-queue-keyboard-region");
 

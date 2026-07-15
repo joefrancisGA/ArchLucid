@@ -2,27 +2,37 @@ import { describe, expect, it } from "vitest";
 
 import {
   REVIEWS_HUB_PAGE_SUBTITLE,
+  REVIEWS_HUB_PAGE_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
 } from "./reviews-hub-copy";
 
-const REVIEW_ONLY_EMPTY_PHRASES = [
-  "start an architecture review from a brief",
-  "no review packages yet",
+const BANNED_PACKAGE_PHRASES = [
+  "review",
+  "architecture package",
+  "sample package",
 ] as const;
 
 describe("reviews-hub-copy", () => {
-  it("TB-738: uses architecture package as the hub list noun", () => {
-    expect(REVIEWS_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("architecture package");
-    expect(REVIEWS_HUB_RECENT_EMPTY_TITLE).toBe("No architecture packages yet");
-    expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("create or review an architecture");
+  it("centers the hub on architecture reviews", () => {
+    expect(REVIEWS_HUB_PAGE_TITLE).toBe("Reviews");
+    expect(REVIEWS_HUB_PAGE_SUBTITLE).toBe("Create, refine, evaluate, and approve architecture reviews.");
+    expect(REVIEWS_HUB_RECENT_EMPTY_TITLE).toBe("Start your first architecture review");
+    expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("describe or import an architecture");
   });
 
-  it("TB-738: hub empty copy avoids review-only list phrases", () => {
-    const emptyCopy = `${REVIEWS_HUB_RECENT_EMPTY_TITLE} ${REVIEWS_HUB_RECENT_EMPTY_BODY}`.toLowerCase();
+  it("avoids retired package terminology in hub copy", () => {
+    const hubCopy = [
+      REVIEWS_HUB_PAGE_TITLE,
+      REVIEWS_HUB_PAGE_SUBTITLE,
+      REVIEWS_HUB_RECENT_EMPTY_TITLE,
+      REVIEWS_HUB_RECENT_EMPTY_BODY,
+    ]
+      .join(" ")
+      .toLowerCase();
 
-    for (const phrase of REVIEW_ONLY_EMPTY_PHRASES) {
-      expect(emptyCopy, `should not contain "${phrase}"`).not.toContain(phrase);
+    for (const phrase of BANNED_PACKAGE_PHRASES) {
+      expect(hubCopy, `should not contain "${phrase}"`).not.toContain(phrase);
     }
   });
 });

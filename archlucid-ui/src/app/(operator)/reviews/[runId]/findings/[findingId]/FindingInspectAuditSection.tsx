@@ -29,7 +29,7 @@ export function FindingInspectAuditSection({
       {auditRowId ? (
         buyerPolishedShell ? (
           <div className={cn("m-0 mt-2 flex flex-wrap items-center gap-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            <span>Recorded in the audit trail for this review package.</span>
+            <span>Recorded in the audit trail for this review.</span>
             <CopyIdButton value={auditRowId} aria-label="Copy audit event ID" />
             <Link href="/audit" className={OPERATOR_LINK.nav}>
               View in audit trail

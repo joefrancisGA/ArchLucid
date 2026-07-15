@@ -95,7 +95,7 @@ export function RunDetailArtifactsExportsSection(
           defaultOpen={deliverablesSectionDefaultOpen}
         >
           <p className={cn("m-0 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Review the decisions, findings, and supporting evidence for this review package. Download artifacts for offline
+            Review the decisions, findings, and supporting evidence for this review. Download artifacts for offline
             review below.
           </p>
           <div className="mb-4 flex flex-wrap gap-3">
@@ -130,7 +130,7 @@ export function RunDetailArtifactsExportsSection(
               ) : null}
               <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 Rows are grouped by executive and review-board consumers.{" "}
-                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence package</strong> is the
+                <strong className="text-neutral-800 dark:text-neutral-200">Download evidence bundle</strong> is the
                 diligence bundle.{" "}
                 <strong className="text-neutral-800 dark:text-neutral-200">Download review summary</strong> captures a concise
                 narrative handoff aligned to this manifest.
@@ -151,7 +151,7 @@ export function RunDetailArtifactsExportsSection(
               <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 {buyerPolishedArtifactTable ? (
                   <>
-                    Try reloading, or return to the review. You can still use <strong>Download evidence package</strong> when
+                    Try reloading, or return to the review. You can still use <strong>Download evidence bundle</strong> when
                     the bundle is available.
                   </>
                 ) : (
@@ -236,7 +236,7 @@ export function RunDetailArtifactsExportsSection(
               <div className="flex flex-wrap items-center gap-3">
                 <Button variant="primary" size="sm" asChild>
                   <ExportTrackedAnchor href={getBundleDownloadUrl(manifestId)}>
-                    Download evidence package
+                    Download evidence bundle
                   </ExportTrackedAnchor>
                 </Button>
                 <GoldenManifestExportMenu

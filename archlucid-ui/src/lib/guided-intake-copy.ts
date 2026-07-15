@@ -97,7 +97,7 @@ export const GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION =
   "Answer the guided questions about reliability, security, cost, operations, performance, and deployment.";
 
 export const GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT =
-  "Architecture draft only. Nothing is submitted for review until you explicitly create a review package.";
+  "Architecture draft only. Nothing is submitted for review until you explicitly create a review.";
 
 export const GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT =
   "Draft guidance only. Nothing is added to review evidence until you submit.";

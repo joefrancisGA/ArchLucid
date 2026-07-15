@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance-mutation-idempotency-key";
+import { recordBulkFindingDisposition, type FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 import { showError, showSuccess } from "@/lib/toast";
 
 type GovernanceFindingsBulkActionsProps = {
@@ -15,7 +17,7 @@ type GovernanceFindingsBulkActionsProps = {
   readonly onApplied: () => void;
 };
 
-type BulkDisposition = "Accepted" | "RejectedAsNotApplicable" | "Deferred";
+type BulkDisposition = FindingDispositionKind;
 
 /** Bulk accept / waive / defer for governance findings queue rows. */
 export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActionsProps) {
@@ -37,25 +39,20 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
 
     setBusy(true);
 
+    const idempotencyKey = createGovernanceMutationIdempotencyKey();
+
     try {
-      const response = await fetch("/api/proxy/v1/governance/findings/bulk-disposition", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const result = await recordBulkFindingDisposition(
+        {
           findingIds: props.selectedFindingIds,
           disposition,
           rationale: trimmedReason,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Bulk disposition failed: ${response.statusText}`);
-      }
+        },
+        { idempotencyKey },
+      );
 
       showSuccess(
-        `Marked ${props.selectedFindingIds.length} finding(s) as ${disposition === "RejectedAsNotApplicable" ? "waived" : disposition.toLowerCase()}.`,
+        `Marked ${result.processedCount} finding(s) as ${disposition === "RejectedAsNotApplicable" ? "waived" : disposition.toLowerCase()}.`,
       );
       props.onApplied();
       setReason("");

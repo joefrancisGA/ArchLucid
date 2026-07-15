@@ -8,7 +8,7 @@ import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export const metadata: Metadata = {
   title: "Inspect a sample review · ArchLucid",
-  description: "Inspect a governed sample architecture review package in your browser — no Azure setup, no Entra ID sign-in, no sales call.",
+  description: "Inspect a governed sample architecture review in your browser — no Azure setup, no Entra ID sign-in, no sales call.",
 };
 
 export default function TryPage(): ReactNode {
@@ -16,7 +16,7 @@ export default function TryPage(): ReactNode {
     <MarketingPageShell variant="reading">
       <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Inspect a governed sample review</h1>
       <p className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
-        Open a sample review package in your browser — fabricated data only, no Azure infrastructure, no Entra ID, and no
+        Open a sample review in your browser — fabricated data only, no Azure infrastructure, no Entra ID, and no
         credit card. Every finding traces to evidence and every decision leaves an audit trail, so you can judge the
         product on its own terms. When you are ready, start an evaluation with your own architecture evidence or sign in.
       </p>

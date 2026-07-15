@@ -106,4 +106,28 @@ public sealed class RunRetrievalGroundingSummaryBuilderTests
 
         summary.GraphRagQualityPosture.Should().Be(GraphRagQualityPosture.UnprovenValue);
     }
+
+    [Fact]
+    public void Build_WhenTopologyReferenceArchitectureTracePresent_PropagatesExemplarSummary()
+    {
+        List<RetrievalGroundingTraceRecord> traces =
+        [
+            new RetrievalGroundingTraceRecord
+            {
+                AgentName = "Topology",
+                RetrievedChunkIds = ["ra-1"],
+                CorpusKind = "ReferenceArchitecture",
+                DocumentIdsJson = """["exemplar-standard-3-tier"]""",
+                CitationCoverage = 0.9,
+            },
+        ];
+
+        RunRetrievalGroundingSummaryDto summary =
+            RunRetrievalGroundingSummaryBuilder.Build(traces, null);
+
+        summary.TopologyReferenceArchitectureExemplarMissing.Should().BeFalse();
+        summary.TopologyReferenceArchitectureExemplarCount.Should().Be(1);
+        summary.TopologyReferenceArchitectureExemplarDocumentIds.Should().ContainSingle()
+            .Which.Should().Be("exemplar-standard-3-tier");
+    }
 }

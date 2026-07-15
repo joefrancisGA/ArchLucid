@@ -33,7 +33,7 @@ function runPackageExportHref(runId: string, format: "docx" | "pdf" | "html"): s
 
 /** Shown instead of a live download link when the page is rendering curated sample data (no backend-persisted review). */
 const SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT =
-  "Downloads aren't available for this sample review package. Start a review with your own input to export a package.";
+  "Downloads aren't available for this sample review. Start a review with your own input to export a package.";
 
 function BuyerExecutiveBriefExports({ runId, usedStaticDemoRun }: { runId: string; usedStaticDemoRun: boolean }) {
   return (

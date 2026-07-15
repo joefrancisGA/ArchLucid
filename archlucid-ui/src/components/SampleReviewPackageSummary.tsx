@@ -23,7 +23,7 @@ type SampleReviewPackageSummaryProps = {
   readonly findingCount: number | null;
 };
 
-/** Demo-only first-value summary for the curated sample review package. */
+/** Demo-only first-value summary for the curated sample review. */
 export function SampleReviewPackageSummary({
   runId,
   manifestId,
@@ -48,9 +48,9 @@ export function SampleReviewPackageSummary({
         aria-labelledby="sample-review-package-summary-heading"
         className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 p-4", OPERATOR_TYPOGRAPHY.body)}
       >
-        <p className={cn("m-0 font-semibold uppercase tracking-wide", OPERATOR_TYPOGRAPHY.helper)}>Sample review package</p>
+        <p className={cn("m-0 font-semibold uppercase tracking-wide", OPERATOR_TYPOGRAPHY.helper)}>Sample review</p>
         <h2 id="sample-review-package-summary-heading" className="m-0 mt-1 text-lg font-semibold">
-          Claims Intake sample review package
+          Claims Intake sample review
         </h2>
         <p className={cn("m-0 mt-2 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
           Inspect the signed review record, evidence trail, and audit record when you need the full package. Numbers are
@@ -70,7 +70,7 @@ export function SampleReviewPackageSummary({
           <div className="rounded-lg border border-amber-200 bg-white/70 px-3 py-2 dark:border-amber-800 dark:bg-neutral-950/50">
             <dt className={cn("font-medium uppercase tracking-wide opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Artifacts</dt>
             <dd className="m-0 text-lg font-semibold">{artifactCount}</dd>
-            <p className={cn("m-0 opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Generated outputs attached to the review package.</p>
+            <p className={cn("m-0 opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Generated outputs attached to the review.</p>
           </div>
           <div className="rounded-lg border border-amber-200 bg-white/70 px-3 py-2 dark:border-amber-800 dark:bg-neutral-950/50">
             <dt className={cn("font-medium uppercase tracking-wide opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Evidence confidence</dt>

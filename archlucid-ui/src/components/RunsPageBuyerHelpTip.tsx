@@ -17,17 +17,17 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
 
   const label =
     variant === "search"
-      ? "Search review packages on this page"
+      ? "Search reviews on this page"
       : demoMarketing
         ? "this demonstration workspace"
         : "this workspace";
 
   const hint =
     variant === "search"
-      ? "Use Search review packages below to narrow by title or description. Each row opens the full review package — signed review record, evidence trail, findings, and deliverables — for that run."
+      ? "Use Search reviews below to narrow by title or description. Each row opens the full review — signed review record, evidence trail, findings, and deliverables — for that run."
       : demoMarketing
         ? "Demonstration workspace — suitable for understanding output shape and navigation, not as customer-specific ROI or compliance evidence."
-        : "Example review package — illustrates structure and navigation for your workspace. Start a review on your own architecture when you are ready for customer-specific evidence.";
+        : "Example review — illustrates structure and navigation for your workspace. Start a review on your own architecture when you are ready for customer-specific evidence.";
 
   return <FieldHelpTooltip label={label} hint={hint} />;
 }

@@ -1,0 +1,21 @@
+/** Canonical dev quick-jump paths for operator home entity chips (local dev only). */
+
+export function devTestingPlanDetailPath(planId: string): string {
+  return `/planning/plans/${encodeURIComponent(planId.trim())}`;
+}
+
+export function devTestingRunDetailPath(runId: string): string {
+  return `/reviews/${encodeURIComponent(runId.trim())}`;
+}
+
+export function devTestingApprovalLineagePath(approvalRequestId: string): string {
+  return `/governance/approval-requests/${encodeURIComponent(approvalRequestId.trim())}/lineage`;
+}
+
+export function devTestingManifestDetailPath(manifestId: string): string {
+  return `/manifests/${encodeURIComponent(manifestId.trim())}`;
+}
+
+export function devTestingManifestArtifactPath(manifestId: string, artifactId: string): string {
+  return `${devTestingManifestDetailPath(manifestId)}/artifacts/${encodeURIComponent(artifactId.trim())}`;
+}

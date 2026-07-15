@@ -26,3 +26,4 @@
 ## See also
 
 - Sustained throughput and p50/p95/p99 baselines: `docs/LOAD_TEST_BASELINE.md` (k6 against Compose `full-stack`, plus scaling thresholds).
+- **Free-cost CD cold-start ops cluster (no Azure SKU bump):** **TB-754**–**TB-759** in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) — post-deploy retries, canary+bake, avoid no-op revisions, UI warm-up tolerance, synthetic smoke path, measurement runbook.

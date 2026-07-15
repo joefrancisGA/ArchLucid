@@ -82,7 +82,7 @@ describe("HelpSearchPanel", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: /Create your first review package\./i,
+        name: /Create your first review\./i,
       }),
     );
 

@@ -81,7 +81,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
               ) : (
                 <>
                   Recent <span className="font-mono">{GOVERNANCE_BYPASS_INVOKED_EVENT_TYPE}</span> audit events from the
-                  rolling 30-day window — actor, justification, and review package context.
+                  rolling 30-day window — actor, justification, and review context.
                 </>
               )}
             </p>
@@ -114,7 +114,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
                 <EnterpriseTableHeaderCell>When (UTC)</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Actor</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Justification</EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell>Review package</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
                 <EnterpriseTableHeaderCell>Blocked findings</EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
             </EnterpriseTableHead>

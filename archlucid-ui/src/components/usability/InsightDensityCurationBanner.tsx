@@ -12,7 +12,7 @@ export type InsightDensityCurationBannerProps = {
   readonly curation: InsightDensityCurationCounts | null;
 };
 
-/** TB-385: communicates insight-density demotion vs retention on the review package. */
+/** TB-385: communicates insight-density demotion vs retention on the review. */
 export function InsightDensityCurationBanner(props: InsightDensityCurationBannerProps): ReactElement | null {
   const curation = props.curation;
 

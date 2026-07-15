@@ -54,6 +54,12 @@ public sealed class CommittedEffectiveGovernanceSnapshotDescriptor
         set;
     } = [];
 
+    public List<CommittedCoverageAssignmentSnapshot> CoverageAssignments
+    {
+        get;
+        set;
+    } = [];
+
     /// <summary>True when at least one pack assignment or compliance rule key was present at commit.</summary>
     public bool HasEffectivePolicy
     {

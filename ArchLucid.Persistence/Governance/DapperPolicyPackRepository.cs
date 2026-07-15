@@ -1,6 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Governance.Coverage;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
@@ -37,13 +39,13 @@ public sealed class DapperPolicyPackRepository(
                            (
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                Name, Description, PackType, Status,
-                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            )
                            VALUES
                            (
                                @PolicyPackId, @TenantId, @WorkspaceId, @ProjectId,
                                @Name, @Description, @PackType, @Status,
-                               @CreatedUtc, @ActivatedUtc, @CurrentVersion, @IsDeleted
+                               @CreatedUtc, @ActivatedUtc, @CurrentVersion, @IsDeleted, @QualityDimension
                            );
                            """;
 
@@ -52,7 +54,7 @@ public sealed class DapperPolicyPackRepository(
 
         try
         {
-            await conn.ExecuteAsync(new CommandDefinition(sql, pack, transaction, cancellationToken: ct));
+            await conn.ExecuteAsync(new CommandDefinition(sql, ToSqlParameters(pack), transaction, cancellationToken: ct));
         }
         finally
         {
@@ -74,12 +76,13 @@ public sealed class DapperPolicyPackRepository(
                                Status = @Status,
                                ActivatedUtc = @ActivatedUtc,
                                CurrentVersion = @CurrentVersion,
-                               IsDeleted = @IsDeleted
+                               IsDeleted = @IsDeleted,
+                               QualityDimension = @QualityDimension
                            WHERE PolicyPackId = @PolicyPackId;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct));
+        await connection.ExecuteAsync(new CommandDefinition(sql, ToSqlParameters(pack), cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -89,7 +92,7 @@ public sealed class DapperPolicyPackRepository(
                            SELECT
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                Name, Description, PackType, Status,
-                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            FROM dbo.PolicyPacks
                            WHERE PolicyPackId = @PolicyPackId
                              AND IsDeleted = 0;
@@ -115,7 +118,7 @@ public sealed class DapperPolicyPackRepository(
                            SELECT
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                Name, Description, PackType, Status,
-                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            FROM dbo.PolicyPacks
                            WHERE PolicyPackId IN @PolicyPackIds
                              AND IsDeleted = 0;
@@ -139,7 +142,7 @@ public sealed class DapperPolicyPackRepository(
                            SELECT TOP 200
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
                                Name, Description, PackType, Status,
-                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted
+                               CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            FROM dbo.PolicyPacks
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -157,4 +160,21 @@ public sealed class DapperPolicyPackRepository(
                 cancellationToken: ct));
         return rows.ToList();
     }
+    private static object ToSqlParameters(PolicyPack pack) => new
+    {
+        pack.PolicyPackId,
+        pack.TenantId,
+        pack.WorkspaceId,
+        pack.ProjectId,
+        pack.Name,
+        pack.Description,
+        pack.PackType,
+        pack.Status,
+        pack.CreatedUtc,
+        pack.ActivatedUtc,
+        pack.CurrentVersion,
+        pack.IsDeleted,
+        QualityDimension = pack.QualityDimension?.ToString(),
+    };
+
 }

@@ -34,7 +34,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         6e8c4a102b1f4c9a9d3e10b2a4f0c501
       </code>
        
-      · review package 
+      · review 
       <code>
         v3
       </code>
@@ -87,7 +87,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             <span
               class="rounded bg-neutral-200 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800 text-[11px] font-medium leading-none"
             >
-              Review package
+              Review
             </span>
           </p>
           <p

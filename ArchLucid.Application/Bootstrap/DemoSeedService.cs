@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Threading;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Authority;
@@ -94,8 +95,25 @@ public sealed class DemoSeedService(
 
     private static readonly JsonSerializerOptions DemoExportPersistJsonOptions = new(JsonSerializerDefaults.Web);
 
+    /// <summary>Startup hosted seed and <c>POST /v1/demo/seed</c> can overlap in CI — serialize to avoid partial workspace fixtures.</summary>
+    private static readonly SemaphoreSlim DemoSeedConcurrencyGate = new(1, 1);
+
     /// <inheritdoc/>
     public async Task SeedAsync(CancellationToken cancellationToken = default)
+    {
+        await DemoSeedConcurrencyGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            await SeedAsyncCore(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            DemoSeedConcurrencyGate.Release();
+        }
+    }
+
+    private async Task SeedAsyncCore(CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(scope.TenantId);

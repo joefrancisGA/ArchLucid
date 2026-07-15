@@ -30,7 +30,7 @@ export function RunsListEmptyState() {
   return (
     <div
       role="status"
-      aria-label="No review packages yet"
+      aria-label="No reviews yet"
       data-testid="runs-list-empty-state"
       className={cn("mt-6 flex max-w-4xl flex-col", OPERATOR_LAYOUT.sectionStack)}
     >

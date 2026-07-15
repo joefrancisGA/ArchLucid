@@ -34,13 +34,13 @@ describe("buyerPolishedRouteOrientation", () => {
     const o = buyerPolishedRouteOrientation("/dashboard");
 
     expect(o?.label).toBe("Executive dashboard");
-    expect(o?.line).toContain("committed review packages");
+    expect(o?.line).toContain("committed reviews");
   });
 
   it("orients the executive scorecard route", () => {
     const o = buyerPolishedRouteOrientation("/executive/scorecard");
 
-    expect(o?.label).toBe("Executive scorecard");
+    expect(o?.label).toBe("Sponsor scorecard");
     expect(o?.line).toBe("Value metrics and recommended actions.");
   });
 
@@ -125,6 +125,6 @@ describe("buyerPolishedRouteOrientation", () => {
     const o = buyerPolishedRouteOrientation("/governance", { searchRunId: SHOWCASE_STATIC_DEMO_RUN_ID });
 
     expect(o?.label).toBe("Sample review context");
-    expect(o?.line).toContain("Claims Intake sample review package");
+    expect(o?.line).toContain("Claims Intake sample review");
   });
 });

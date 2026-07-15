@@ -53,6 +53,9 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("review-guide")).toBe("/help/review-guide");
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
+    expect(getProductDocumentationEntry("starting-reviews")?.title).toBe("Starting architecture reviews");
+    expect(getProductDocumentationEntry("creating-runs")?.slug).toBe("starting-reviews");
+    expect(inAppHelpHref("starting-reviews")).toBe("/help/starting-reviews");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
     expect(getProductDocumentationEntry("cloud-connections/aws")?.title).toBe("Connect AWS securely");
     expect(getProductDocumentationEntry("cloud-connections/gcp")?.title).toBe("Connect GCP securely");
@@ -146,6 +149,7 @@ describe("product-documentation-registry", () => {
       "cloud-connections-azure": "customer",
       "cloud-connections-aws": "customer",
       "cloud-connections-gcp": "customer",
+      "azure-permissions": "customer",
       "governance-approval": "customer",
       "audit-trail": "customer",
       "pilot-roi-model": null,
@@ -177,10 +181,7 @@ describe("product-documentation-registry", () => {
   });
 
   it("tags internal-runbook slugs with internal-runbook contentKind (TB-732)", () => {
-    const internalRunbookSlugs = [
-      "first-pilot-operator-runbook",
-      "first-value-20-minutes",
-    ] as const;
+    const internalRunbookSlugs = ["first-value-20-minutes"] as const;
 
     for (const slug of internalRunbookSlugs) {
       expect(isInternalRunbookSlug(slug)).toBe(true);
@@ -191,15 +192,10 @@ describe("product-documentation-registry", () => {
   it("tags technical-documentation slugs per IA foundation (TB-732)", () => {
     const technicalSlugs: readonly string[] = [
       "configuration-reference",
-      "operator-auth-roles",
       "cli-usage",
       "governance-api-contracts",
       "admin-diagnostics",
       "developer-troubleshooting",
-      "workload-identity-federation",
-      "azure-permissions",
-      "observability",
-      "projection-cache-replicas",
     ];
 
     for (const slug of technicalSlugs) {

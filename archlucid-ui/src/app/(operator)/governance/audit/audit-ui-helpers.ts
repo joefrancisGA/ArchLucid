@@ -90,7 +90,7 @@ export const AUDIT_EVENT_LIFECYCLE_STAGE_ORDER: ReadonlyArray<string> = [
   "Source context captured",
   "Graph created",
   "Findings generated",
-  "Review package finalized",
+  "Review finalized",
   "Governance approval recorded",
   "Artifacts bundled",
 ];
@@ -110,7 +110,7 @@ function lifecycleStageHeading(stage: ReviewAuditLifecycleStageValue): string | 
       return "Findings generated";
 
     case ReviewAuditLifecycleStage.ManifestFinalized:
-      return "Review package finalized";
+      return "Review finalized";
 
     case ReviewAuditLifecycleStage.ArtifactsBundled:
       return "Artifacts bundled";
@@ -148,7 +148,7 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
       return "Findings generated";
 
     case "finalize.run":
-      return "Review package finalized";
+      return "Review finalized";
 
     case "GovernanceApprovalRequested":
       return "Governance approval recorded";

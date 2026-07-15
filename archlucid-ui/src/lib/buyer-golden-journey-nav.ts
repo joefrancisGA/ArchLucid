@@ -20,7 +20,7 @@ const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
     step: 1,
-    label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+    label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
     href: getShowcaseExecutiveHref(),
     chipTooltip:
       "Condensed outcomes, posture, and monitored risks for sponsor sign-off — the diligence starting point.",
@@ -29,7 +29,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     step: 2,
     label: SIGNED_MANIFEST_LABEL,
     href: getShowcaseManifestHref(),
-    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs in this finalized review package.",
+    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs in this finalized review.",
   },
   {
     step: 3,
@@ -41,7 +41,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     step: 4,
     label: "Governance approval",
     href: `/governance?runId=${showcaseRunEnc}`,
-    chipTooltip: "Governance posture, approvals, and monitoring hooks tied to this review package.",
+    chipTooltip: "Governance posture, approvals, and monitoring hooks tied to this review.",
   },
   {
     step: 5,
@@ -97,76 +97,75 @@ export function resolveBuyerGoldenJourneyNav(
 
   let stepIdx: number | null = null;
 
-  const signedRecordFriendly = /^\/reviews\/([^/]+)\/signed-record\b/.exec(path);
-
-  if (signedRecordFriendly !== null && isBuyerGoldenSpineRunId(signedRecordFriendly[1])) {
-    stepIdx = 1;
-  } else if (
+  if (
     path === manifestBase
     || path.startsWith(`${manifestBase}/`)
     || path === manifestRecord
     || path === manifestArchitecturePath
   ) {
     stepIdx = 1;
-  } else if (path === execBase) {
+  } else if (path === execBase || path.startsWith(`${execBase}/`)) {
     stepIdx = 0;
+  } else if (path.startsWith("/graph")) {
+    const graphRunId =
+      options?.searchRunId?.trim() ??
+      new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
+      "";
+
+    if (
+      graphRunId.length > 0 &&
+      canonicalizeDemoRunId(graphRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
+    ) {
+      stepIdx = 2;
+    } else {
+      return null;
+    }
+  } else if (path.startsWith("/ask")) {
+    return null;
+  } else if (path.startsWith("/compare")) {
+    return null;
+  } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
+    return null;
+  } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
+    return null;
+  } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
+    return null;
+  } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
+    return null;
+  } else if (pathMatchesGovernanceAlerts(path)) {
+    return null;
+  } else if (path === "/governance") {
+    const governanceRunId =
+      options?.searchRunId?.trim() ??
+      new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
+      "";
+
+    if (governanceRunId.length === 0) {
+      return null;
+    }
+
+    if (canonicalizeDemoRunId(governanceRunId) !== canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
+      return null;
+    }
+
+    stepIdx = 3;
+  } else if (path.startsWith("/governance")) {
+    return null;
+  } else if (path.startsWith("/audit")) {
+    stepIdx = 4;
   } else {
     const reviewExecutive = /^\/reviews\/([^/]+)$/.exec(path);
 
-    if (reviewExecutive !== null && isBuyerGoldenSpineRunId(reviewExecutive[1])) {
-      stepIdx = 0;
-    } else if (path.startsWith("/graph")) {
-      const graphRunId =
-        options?.searchRunId?.trim() ??
-        new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
-        "";
-
-      if (graphRunId.length > 0 && isBuyerGoldenSpineRunId(graphRunId)) {
-        stepIdx = 2;
-      } else {
-        return null;
-      }
-    } else if (path.startsWith("/ask")) {
-      return null;
-    } else if (path.startsWith("/compare")) {
-      return null;
-    } else if (path === "/governance/policy-packs" || path.startsWith("/governance/policy-packs/")) {
-      return null;
-    } else if (path === "/governance/resolution" || path.startsWith("/governance/resolution/")) {
-      return null;
-    } else if (path === "/governance/findings" || path.startsWith("/governance/findings/")) {
-      return null;
-    } else if (path === "/governance/risk-exceptions" || path.startsWith("/governance/risk-exceptions/")) {
-      return null;
-    } else if (pathMatchesGovernanceAlerts(path)) {
-      return null;
-    } else if (path === "/governance") {
-      const governanceRunId =
-        options?.searchRunId?.trim() ??
-        new URL(pathname, "http://archlucid.local").searchParams.get("runId")?.trim() ??
-        "";
-
-      if (governanceRunId.length === 0) {
-        return null;
-      }
-
-      if (!isBuyerGoldenSpineRunId(governanceRunId)) {
-        return null;
-      }
-
-      stepIdx = 3;
-    } else if (path.startsWith("/governance")) {
-      return null;
-    } else if (path.startsWith("/audit")) {
-      stepIdx = 4;
-    } else {
-      const findingInspect = /^\/reviews\/([^/]+)\/findings\/[^/]+\/inspect\b/.exec(path);
-
-      if (findingInspect !== null && isBuyerGoldenSpineRunId(findingInspect[1])) {
-        stepIdx = 2;
-      } else {
-        return null;
-      }
+    if (
+      workspace !== null &&
+      canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
+    ) {
+      return {
+        summaryLine: `Review overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
+        prev: { label: defs[0].label, href: defs[0].href },
+        next: { label: defs[1].label, href: defs[1].href },
+        currentStepIndex: null,
+      };
     }
   }
 

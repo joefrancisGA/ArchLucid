@@ -29,6 +29,7 @@ describe("ItsmOutboundQuickActions", () => {
     render(<ItsmOutboundQuickActions findingId="finding-001" />);
 
     expect(await screen.findByTestId("itsm-sync-jira")).toHaveTextContent("Create Jira issue");
+    expect(screen.getByTestId("itsm-sync-azure-boards")).toHaveTextContent("Create Azure Boards work item");
     expect(screen.getByTestId("itsm-sync-servicenow")).toHaveTextContent("Create ServiceNow incident");
   });
 

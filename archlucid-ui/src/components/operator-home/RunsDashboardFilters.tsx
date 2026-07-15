@@ -22,7 +22,7 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
       className="flex flex-wrap items-center gap-x-2 gap-y-1.5"
       data-testid="runs-dashboard-filters"
       role="group"
-      aria-label="Filter review packages"
+      aria-label="Filter reviews"
     >
       <div className="flex items-center gap-2">
         <input

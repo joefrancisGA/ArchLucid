@@ -706,19 +706,7 @@ public sealed class GovernanceController(
         if (!required)
             return (null, null);
 
-        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) ||
-            string.IsNullOrWhiteSpace(raw.ToString()))
-            return (this.BadRequestProblem(
-                "Idempotency-Key header is required for persisted governance mutations (use dryRun=true on approval or promotion calls to validate without persisting).",
-                ProblemTypes.ValidationFailed), null);
-
-        string trimmed = raw.ToString().Trim();
-        if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
-            return (this.BadRequestProblem(
-                $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
-                ProblemTypes.ValidationFailed), null);
-
-        return (null, trimmed);
+        return GovernanceIdempotencyKeySupport.ReadRequired(this);
     }
 
     private async Task LogGovernanceApprovalRequestedAuditAsync(

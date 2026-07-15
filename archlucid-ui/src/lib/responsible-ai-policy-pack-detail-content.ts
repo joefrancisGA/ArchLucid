@@ -23,7 +23,7 @@ export const RESPONSIBLE_AI_POLICY_PACK_APPLICABILITY =
   "Apply during architecture reviews where inference, training, retrieval-augmented generation, or agent orchestration is in scope. Rules surface as findings when evidence is missing or controls are immature.";
 
 export const RESPONSIBLE_AI_POLICY_PACK_GOVERNANCE_WORKFLOW =
-  "Enable the pack in your workspace policy library, assign it to the target project, then run or refresh an architecture review. Findings tie back to rule families here; finalize the review package to record governance decisions and signed evidence lineage.";
+  "Enable the pack in your workspace policy library, assign it to the target project, then run or refresh an architecture review. Findings tie back to rule families here; finalize the review to record governance decisions and signed evidence lineage.";
 
 export type ResponsibleAiPolicyRuleRow = {
   readonly ruleName: string;

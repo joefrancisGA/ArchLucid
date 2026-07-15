@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { PageHeading } from "@/components/PageHeading";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
+import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
@@ -56,31 +57,38 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
 
   return (
     <div className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8" data-testid="integrations-teams-page">
-      <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{TEAMS_INTEGRATION_PAGE_TITLE}</h1>
-        <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {TEAMS_INTEGRATION_PAGE_SUBTITLE}
-        </p>
-        <p
-          className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          data-testid="teams-connection-status"
-        >
-          {m.loading ? "Loading connection status…" : teamsIntegrationConnectionStatusLabel(m.connectionStatus)}
-        </p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("troubleshooting")}>
-            Microsoft Teams notification help
-          </Link>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
-            Integration readiness
-          </Link>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_SLACK_PATH}>
-            Slack notifications
-          </Link>
-        </p>
-      </header>
+      <PageHeading
+        navHref={INTEGRATIONS_TEAMS_PATH}
+        title={TEAMS_INTEGRATION_PAGE_TITLE}
+        variant="integration"
+        bordered
+        description={
+          <>
+            <p className={cn("m-0 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+              {TEAMS_INTEGRATION_PAGE_SUBTITLE}
+            </p>
+            <p
+              className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              data-testid="teams-connection-status"
+            >
+              {m.loading ? "Loading connection status…" : teamsIntegrationConnectionStatusLabel(m.connectionStatus)}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("troubleshooting")}>
+                Microsoft Teams notification help
+              </Link>
+              {" · "}
+              <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_READINESS_PATH}>
+                Integration readiness
+              </Link>
+              {" · "}
+              <Link className={OPERATOR_LINK.inline} href={INTEGRATIONS_SLACK_PATH}>
+                Slack notifications
+              </Link>
+            </p>
+          </>
+        }
+      />
 
       {m.failure !== null ? (
         <div role="alert">

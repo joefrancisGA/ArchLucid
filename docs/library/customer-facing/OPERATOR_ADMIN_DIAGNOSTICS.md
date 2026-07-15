@@ -2,7 +2,7 @@
 
 # Admin diagnostics
 
-Use these checks when a workspace symptom points to platform health rather than a single review package.
+Use these checks when a workspace symptom points to platform health rather than a single architecture review.
 
 ## Start here
 

@@ -153,7 +153,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             onChange={(event) => {
               setRunId(event.target.value);
             }}
-            placeholder="Paste a committed review package ID"
+            placeholder="Paste a committed review ID"
             autoComplete="off"
           />
           {props.selectedPackId.trim().length > 0 && latestPublishedVersion !== null ? (

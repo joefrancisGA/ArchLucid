@@ -18,7 +18,7 @@ export type CtoDemoReviewRouteGuardProps = {
 };
 
 /**
- * When the CTO tour is active, warn presenters who navigate to a non-showcase review package.
+ * When the CTO tour is active, warn presenters who navigate to a non-showcase review.
  */
 export function CtoDemoReviewRouteGuard(props: CtoDemoReviewRouteGuardProps): React.JSX.Element | null {
   const { runId } = props;

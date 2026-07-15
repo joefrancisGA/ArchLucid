@@ -14,6 +14,10 @@ import {
   readArchitectureCreationDraftId,
   writeArchitectureCreationDraftId,
 } from "@/lib/architecture-creation-session";
+import {
+  buildArchitectureDraftRegistryEntry,
+  upsertArchitectureDraftRegistryEntry,
+} from "@/lib/architecture-draft-registry";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { buildDefaultActorSet, createDraftRequest, getDraftRequest } from "@/lib/api/draft-intake-api";
 import type { DraftRequestResponse } from "@/types/draft-intake";
@@ -41,14 +45,21 @@ function loadStaticQuestionSelection() {
   return { selection, timings };
 }
 
+function registerArchitectureDraft(draft: DraftRequestResponse): void {
+  upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(draft));
+}
+
 async function restoreOrCreateDraft(timings: ArchitectureCreationInitTimings): Promise<DraftRequestResponse | null> {
   const existingDraftId = readArchitectureCreationDraftId();
 
   if (existingDraftId !== null) {
     try {
-      return await measureArchitectureCreationPhase("draft-restore", timings, async () =>
+      const restored = await measureArchitectureCreationPhase("draft-restore", timings, async () =>
         getDraftRequest(existingDraftId),
       );
+      registerArchitectureDraft(restored);
+
+      return restored;
     } catch {
       clearArchitectureCreationDraftId();
     }
@@ -59,6 +70,7 @@ async function restoreOrCreateDraft(timings: ArchitectureCreationInitTimings): P
       createDraftRequest(ARCHITECTURE_CREATION_BOOTSTRAP_INTENT, CREATE_ARCHITECTURE_INTENT),
     );
     writeArchitectureCreationDraftId(created.draftId);
+    registerArchitectureDraft(created);
 
     return created;
   } catch {

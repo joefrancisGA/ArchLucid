@@ -101,7 +101,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
               Advanced: filter by review ID
             </summary>
             <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Paste a review ID when the review package is not in the recent list. The filter above accepts the same
+              Paste a review ID when the review is not in the recent list. The filter above accepts the same
               value.
             </p>
             <div className="mt-3 space-y-2">

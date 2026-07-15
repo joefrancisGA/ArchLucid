@@ -7,5 +7,7 @@ public enum BillingCheckoutTier
 
     Pro = 1,
 
-    Enterprise = 2
+    Enterprise = 2,
+
+    Architect = 3
 }

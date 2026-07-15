@@ -149,7 +149,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
         </Button>
         {runMissing ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-select-review-helper">
-            Select a review package first.
+            Select a review first.
           </p>
         ) : null}
       </div>

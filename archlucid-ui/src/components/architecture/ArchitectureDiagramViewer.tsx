@@ -1,5 +1,6 @@
 "use client";
 
+import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
@@ -142,6 +143,18 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
     };
   }, [adjustZoom]);
 
+  const sanitizedSvg = useMemo(() => {
+    if (svgMarkup === null) {
+      return null;
+    }
+
+    // SVG profile allowlists attributes; event handlers (on*) are not permitted.
+    return DOMPurify.sanitize(svgMarkup, {
+      USE_PROFILES: { svg: true, svgFilters: true },
+      FORBID_TAGS: ["script", "foreignObject"],
+    });
+  }, [svgMarkup]);
+
   const diagramBody = (
     <>
       {renderError !== null ? (
@@ -153,7 +166,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
             </Button>
           ) : null}
         </div>
-      ) : svgMarkup === null ? (
+      ) : sanitizedSvg === null ? (
         <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
           Rendering architecture diagram…
         </p>
@@ -161,8 +174,7 @@ export function ArchitectureDiagramViewer(props: ArchitectureDiagramViewerProps)
         <div
           className="origin-top-left transition-transform"
           style={{ transform: `scale(${zoom})` }}
-          // Mermaid SVG is generated from structured architecture data in operator UI.
-          dangerouslySetInnerHTML={{ __html: svgMarkup }}
+          dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
         />
       )}
     </>

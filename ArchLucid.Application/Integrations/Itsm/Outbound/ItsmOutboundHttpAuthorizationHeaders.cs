@@ -18,6 +18,16 @@ public static class ItsmOutboundHttpAuthorizationHeaders
         return new AuthenticationHeaderValue("Basic", basic);
     }
 
+    /// <summary>Azure DevOps PAT auth uses an empty username and the PAT as the password.</summary>
+    public static AuthenticationHeaderValue CreatePat(string personalAccessToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(personalAccessToken);
+
+        string basic = Convert.ToBase64String(Encoding.UTF8.GetBytes($":{personalAccessToken.Trim()}"));
+
+        return new AuthenticationHeaderValue("Basic", basic);
+    }
+
     public static AuthenticationHeaderValue CreateBearer(string accessToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);

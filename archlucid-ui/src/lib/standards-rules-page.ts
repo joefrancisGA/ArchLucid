@@ -19,7 +19,7 @@ export const STANDARDS_RULES_TABLE_TITLE = "Enforced rules";
 export const STANDARDS_RULES_EMPTY_HEADING = "No rules applied to this review";
 
 export const STANDARDS_RULES_EMPTY_BODY =
-  "Rules appear here when a policy pack, standard, or governance configuration applies checks to a review package.";
+  "Rules appear here when a policy pack, standard, or governance configuration applies checks to a review.";
 
 export const STANDARDS_RULES_VIEW_EXPLANATION_SUMMARY =
   "Inspect the standards and checks applied to this review. Rules may come from policy packs, regulatory mappings, or workspace governance configuration.";

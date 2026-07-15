@@ -1,10 +1,16 @@
 import { fetchItsmIntegrationHealth, type ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
+import {
+  fetchAzureBoardsHealth,
+  fetchAzureBoardsSettings,
+  isAzureBoardsNativeCreateReady,
+} from "@/lib/api/azure-boards-api";
 import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm-native-create-readiness";
 
 export type ItsmNativeCreateReadiness = {
   deploymentEnabled: boolean;
   defaultPathReady: boolean;
   health: ItsmIntegrationHealthResponse | null;
+  azureBoardsReady: boolean;
 };
 
 let cachedReadiness: ItsmNativeCreateReadiness | undefined;
@@ -18,18 +24,36 @@ export async function resolveItsmNativeCreateReadiness(): Promise<ItsmNativeCrea
   try {
     const health = await fetchItsmIntegrationHealth();
     const deploymentEnabled = health.nativeEnabled === true;
-    const defaultPathReady = isItsmNativeCreateDefaultPathReady(health);
+    let azureBoardsReady = false;
+
+    if (deploymentEnabled) {
+      try {
+        const [azureHealth, azureSettings] = await Promise.all([
+          fetchAzureBoardsHealth(),
+          fetchAzureBoardsSettings(),
+        ]);
+        azureBoardsReady = isAzureBoardsNativeCreateReady(azureHealth, azureSettings);
+      } catch {
+        azureBoardsReady = false;
+      }
+    }
+
+    const defaultPathReady =
+      deploymentEnabled
+      && (isItsmNativeCreateDefaultPathReady(health) || azureBoardsReady);
 
     cachedReadiness = {
       deploymentEnabled,
       defaultPathReady,
       health,
+      azureBoardsReady,
     };
   } catch {
     cachedReadiness = {
       deploymentEnabled: false,
       defaultPathReady: false,
       health: null,
+      azureBoardsReady: false,
     };
   }
 

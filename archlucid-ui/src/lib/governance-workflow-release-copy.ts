@@ -23,7 +23,7 @@ export const GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE =
   "Enter your name for the audit trail before recording a governance release.";
 
 export const GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST =
-  "Review package released to target environment.";
+  "Review released to target environment.";
 
 export const GOVERNANCE_WORKFLOW_TIMELINE_LEAD =
   "Selected review timeline · governance releases newest first; activations follow.";

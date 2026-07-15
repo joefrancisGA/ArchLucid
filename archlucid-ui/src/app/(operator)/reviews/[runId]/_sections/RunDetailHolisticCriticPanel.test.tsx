@@ -8,7 +8,7 @@ vi.mock("@/lib/api/holistic-critic-api", () => ({
 }));
 
 describe("RunDetailHolisticCriticPanel", () => {
-  it("renders nothing when the review package is not committed", () => {
+  it("renders nothing when the review is not committed", () => {
     const { container } = render(
       <RunDetailHolisticCriticPanel runId="run-1" hasGoldenManifest={false} />,
     );

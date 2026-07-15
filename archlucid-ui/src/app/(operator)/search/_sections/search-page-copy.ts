@@ -5,9 +5,9 @@ export const SEARCH_PAGE_SUBTITLE =
 export const SEARCH_QUERY_PLACEHOLDER =
   "Search for a finding, decision, policy, component, or evidence phrase…";
 
-export const SEARCH_REVIEW_FILTER_LABEL = "Limit to review package (optional)";
+export const SEARCH_REVIEW_FILTER_LABEL = "Limit to review (optional)";
 
-export const SEARCH_REVIEW_FILTER_PLACEHOLDER = "All review packages";
+export const SEARCH_REVIEW_FILTER_PLACEHOLDER = "All reviews";
 
 export const SEARCH_EXAMPLE_QUERIES = [
   "PHI boundary",

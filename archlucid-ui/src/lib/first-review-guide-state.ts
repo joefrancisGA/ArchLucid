@@ -124,7 +124,7 @@ export function resolveFirstReviewGuideReadiness(input: FirstReviewGuideStateInp
     return {
       kind: "completed",
       headline: "First review completed",
-      detail: "Your finalized architecture review package is ready to inspect and share.",
+      detail: "Your finalized architecture review is ready to inspect and share.",
     };
   }
 

@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RunRetrievalGraphRagDiagnosticsStrip } from "@/components/RunRetrievalGraphRagDiagnosticsStrip";
+import { RunRetrievalExemplarStylePriorStrip } from "@/components/RunRetrievalExemplarStylePriorStrip";
 import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
@@ -76,6 +77,8 @@ export function RunRetrievalGroundingSummaryCard(props: {
         ) : null}
 
         <RunRetrievalGraphRagDiagnosticsStrip summary={summary} />
+
+        <RunRetrievalExemplarStylePriorStrip summary={summary} />
 
         <p className="m-0">
           <a

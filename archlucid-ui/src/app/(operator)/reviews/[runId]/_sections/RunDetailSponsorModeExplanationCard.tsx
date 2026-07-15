@@ -54,7 +54,7 @@ export function RunDetailSponsorModeExplanationCard(
   const basisLabel =
     citationCount > 0
       ? `${citationCount} persisted citation${citationCount === 1 ? "" : "s"}`
-      : "committed review package and finding records";
+      : "committed review and finding records";
 
   return (
     <section
@@ -114,7 +114,7 @@ export function RunDetailSponsorModeExplanationCard(
       ) : null}
 
       <p className={cn("m-0 mt-4 text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
-        Next action: {buyerPolishedArtifactTable ? "send the executive briefing package" : "open the sponsor packet"}
+        Next action: {buyerPolishedArtifactTable ? "send the executive briefing export" : "open the sponsor packet"}
         {" "}after confirming the evidence and ROI basis labels. This is decision support, not a legal or compliance
         attestation.
       </p>

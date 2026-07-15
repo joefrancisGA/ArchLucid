@@ -226,7 +226,7 @@ export default async function ManifestArtifactReviewPage({
         ) : siblingArtifacts.length === 0 ? (
           <div className="mt-3">
             <OperatorMalformedCallout>
-              No sibling artifacts were returned for this package.
+              No sibling artifacts were returned for this review.
             </OperatorMalformedCallout>
           </div>
         ) : (

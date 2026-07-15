@@ -287,9 +287,9 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
                 />
               </label>
               <label>
-                Review package{" "}
+                Review{" "}
                 <input
-                  aria-label="Review package"
+                  aria-label="Review"
                   data-testid="audit-review-id-input"
                   value={auditRunIdInputDisplayValue(buyerPolishedShell, runId)}
                   onChange={(e) => setRunId(auditRunIdParseInputValue(buyerPolishedShell, e.target.value))}

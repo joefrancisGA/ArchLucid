@@ -65,6 +65,22 @@ Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs 
 
 When adding a nav link whose URL prefix differs from its sidebar group, **add a registry row first** (or move the route under **TB-405–408**).
 
+### Hub pages (TB-680)
+
+Hub surfaces (`/onboarding`, operator home setup cards, Core Pilot checklist, optional workspace setup) are **status + deep-link** pages — not second homes for settings wizards or Internal Operations tooling.
+
+| Rule | Rationale |
+|------|-----------|
+| Every action has **exactly one owning page** | Avoid duplicate SSO, health, or role-management flows across hubs. |
+| Hub pages may show **completion status** and **deep-link** only | No embedded forms, wizards, or mutation controls for actions owned elsewhere. |
+| Hub pages must **not** link to `operator-system-admin` cluster routes in default customer shells | e.g. `/admin/health`, `/admin/configuration`, `/operate/integration-events/dlq`, internal value-report tabs. Use buyer-safe `/health` when platform health is linked (see **TB-677**). |
+| Role-gated blocks use **authority flags**, not disclosure alone | Optional setup stays collapsed **and** non-admins see delegation copy only (**TB-678**). |
+
+**Contract module:** `src/lib/onboarding-hub-contract.ts`  
+**CI drift guard:** `scripts/onboarding-hub-drift-guard.test.ts` — fails when scanned hub sources reintroduce forbidden internal href prefixes or embed `FinishSetupWizardPanel` / `Tier2ConnectionWizard`.
+
+Cross-ref: First review guide redundancy audit (**TB-674**–**TB-679**).
+
 ### Breadcrumb contract
 
 `breadcrumb-map.ts` may show a logical parent label that differs from the URL prefix **only** when the href is listed in `NAV_ROUTE_NAMESPACE_EXCEPTIONS`. Do not invent ad hoc breadcrumb remaps for undocumented cross-namespace paths.

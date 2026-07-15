@@ -25,10 +25,12 @@ public sealed class AdminTrialFunnelOperationalController(ITrialFunnelOperationa
     [Produces("application/json")]
     [ProducesResponseType(typeof(TrialFunnelOperationalSummaryResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<TrialFunnelOperationalSummaryResponse>> GetTrialFunnelSummary(
-        CancellationToken cancellationToken)
+        [FromQuery] int days = 30,
+        [FromQuery] bool comparePrevious = false,
+        CancellationToken cancellationToken = default)
     {
         TrialFunnelOperationalSummaryResponse summary =
-            await _metricsReader.GetOperationalSummaryAsync(cancellationToken);
+            await _metricsReader.GetOperationalSummaryAsync(days, comparePrevious, cancellationToken);
 
         return Ok(summary);
     }

@@ -33,6 +33,14 @@ tags = {
   tier     = "dev"
 }
 
+# Custom domain bound directly to the UI/API Container App (no Front Door) — cost-aware for dev.
+# Leave unset for the default *.azurecontainerapps.io FQDN. To adopt a custom hostname: apply once
+# without these set, read ui_custom_domain_verification_id / api_custom_domain_verification_id from
+# state, create the asuid.<hostname> TXT + CNAME records at your DNS host, then set and re-apply.
+# See infra/terraform-container-apps/README.md "Custom domain without Front Door".
+# ui_custom_domain_name  = "dev.archlucid.net"
+# api_custom_domain_name = "api-dev.archlucid.net"
+
 # Least-privilege SQL runtime identity, separate from the API's system-assigned identity used for
 # schema bootstrap (see docs/security/MANAGED_IDENTITY_SQL_BLOB.md). After apply, create a matching
 # SQL user (CREATE USER [<api_sql_runtime_identity_name output>] FROM EXTERNAL PROVIDER) in the tenant

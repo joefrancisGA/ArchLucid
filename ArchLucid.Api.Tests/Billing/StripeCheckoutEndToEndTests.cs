@@ -80,7 +80,7 @@ public sealed class StripeCheckoutEndToEndTests
             StripeCheckoutE2EWebhookTestSigning.WebhookSigningSecret,
             json);
 
-        using HttpRequestMessage webhook = new(HttpMethod.Post, "/v1/billing/webhooks/stripe");
+        using HttpRequestMessage webhook = new(HttpMethod.Post, "/v1/billing/webhooks/stripe/subscriptions");
         webhook.Content = new StringContent(json, Encoding.UTF8, "application/json");
         webhook.Headers.TryAddWithoutValidation("Stripe-Signature", signature);
 

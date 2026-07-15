@@ -78,6 +78,6 @@ describe("interpretRoiSummaryMeaning", () => {
   it("explains the zero-data case constructively", () => {
     const metrics = computeRoiSummaryPeriodMetrics(periodInput({}), 150);
 
-    expect(interpretRoiSummaryMeaning(metrics, 150)).toMatch(/finalized review packages/i);
+    expect(interpretRoiSummaryMeaning(metrics, 150)).toMatch(/finalized reviews/i);
   });
 });

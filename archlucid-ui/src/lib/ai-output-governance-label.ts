@@ -9,11 +9,11 @@ export type AiOutputGovernanceLabelModel = {
 export const AI_OUTPUT_GOVERNANCE_LABELS = {
   governed: {
     label: "Governed finding",
-    title: "Persisted in the committed review package with a stable FindingId.",
+    title: "Persisted in the committed review with a stable FindingId.",
   },
   advisory: {
-    label: "Advisory — not in review package",
-    title: "LLM narrative only — not persisted as a governed finding in the review package.",
+    label: "Advisory — not in review",
+    title: "LLM narrative only — not persisted as a governed finding in the review.",
   },
 } as const;
 

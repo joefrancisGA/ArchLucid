@@ -18,13 +18,13 @@ export function auditTrailNavHref(runId: string | null | undefined): string {
   const trimmed = runId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return LEGACY_AUDIT_PATH;
+    return GOVERNANCE_AUDIT_PATH;
   }
 
   const params = new URLSearchParams();
   params.set("runId", trimmed);
 
-  return `${LEGACY_AUDIT_PATH}?${params.toString()}`;
+  return `${GOVERNANCE_AUDIT_PATH}?${params.toString()}`;
 }
 
 export function pathMatchesAuditTrail(pathname: string): boolean {

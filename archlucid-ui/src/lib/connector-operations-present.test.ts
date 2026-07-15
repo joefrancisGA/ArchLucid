@@ -95,7 +95,7 @@ describe("connector-operations-present", () => {
     ]);
 
     expect(grouped.get("notifications")?.map((row) => row.connectorKey)).toEqual(["teams", "outbound_webhooks"]);
-    expect(grouped.get("ticketing")?.map((row) => row.connectorKey)).toEqual(["jira"]);
+    expect(grouped.get("ticketing")?.map((row) => row.connectorKey)).toEqual(["jira", "azureBoards", "servicenow"]);
     expect(grouped.get("publishing")?.map((row) => row.connectorKey)).toEqual(["confluence"]);
   });
 

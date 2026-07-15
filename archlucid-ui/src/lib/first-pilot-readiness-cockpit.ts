@@ -150,7 +150,7 @@ export function buildFirstPilotReadinessRows(input: {
             ? "attention"
             : "attention",
       summary: input.signals.hasCommittedManifest
-        ? "At least one review package is finalized."
+        ? "At least one review is finalized."
         : input.signals.readyToFinalize
           ? "A review appears ready to finalize on review detail."
           : canExecute
@@ -164,7 +164,7 @@ export function buildFirstPilotReadinessRows(input: {
       label: "Sample review availability",
       group: "execution" as const,
       status: "ready",
-      summary: "The curated sample package remains available when real evidence is not ready yet.",
+      summary: "The curated sample review remains available when real evidence is not ready yet.",
       href: "/see-it",
       cta: "Open sample",
     },
@@ -195,29 +195,29 @@ export function buildFirstPilotReadinessRows(input: {
       label: "Procurement evidence readiness",
       group: "evidence" as const,
       status: "attention",
-      summary: "Procurement evidence package has not been generated yet.",
+      summary: "Procurement evidence bundle has not been generated yet.",
       href: "/trust",
-      cta: "Generate package",
+      cta: "Generate export",
     },
     {
       id: "sponsor-packet",
-      label: "Executive evidence package",
+      label: "Executive evidence bundle",
       group: "evidence" as const,
       status: input.signals.hasCommittedManifest ? "ready" : "attention",
       summary: input.signals.hasCommittedManifest
-        ? "Executive evidence package and export surfaces are available from finalized review detail."
-        : "Finalize a review package before exporting the executive evidence package.",
+        ? "Executive evidence bundle and export surfaces are available from finalized review detail."
+        : "Finalize a review before exporting the executive evidence bundle.",
       href: committedRunHref,
-      cta: "Open evidence package",
+      cta: "Open evidence bundle",
     },
     {
       id: "proof-pipeline",
-      label: "Pilot evidence package",
+      label: "Pilot evidence bundle",
       group: "followup" as const,
       status: input.signals.hasCommittedManifest ? "attention" : "unknown",
       summary: input.signals.hasCommittedManifest
         ? `${FIRST_PILOT_BUYER_COPY.proofPipelineAction} from diagnostics for go/no-go review.`
-        : "Finalize a review before collecting the pilot evidence package.",
+        : "Finalize a review before collecting the pilot evidence bundle.",
       href: inAppHelpHref("pilot-guide"),
       cta: "Open pilot guide",
     },

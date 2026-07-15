@@ -10,14 +10,9 @@ const source = readFileSync(
 );
 
 describe("OperatorHomePageView progressive disclosure", () => {
-  it("places workspace activity after hero and examples via state-aware placement", () => {
-    const heroIndex = source.indexOf("PilotCommandCenterCard");
-    const reviewsIndex = source.indexOf('aria-labelledby="operator-home-reviews-heading"');
-    const examplesPlacementIndex = source.indexOf("<OperatorHomeExamplesPlacement");
-
-    expect(heroIndex).toBeGreaterThan(-1);
-    expect(reviewsIndex).toBeGreaterThan(heroIndex);
-    expect(examplesPlacementIndex).toBeGreaterThan(reviewsIndex);
+  it("delegates section ordering to OperatorHomePageMainContent", () => {
+    expect(source).toContain("OperatorHomePageMainContent");
+    expect(source).toContain("OperatorHomeWorkspaceActivityProvider");
     expect(source).not.toContain("<OperatorHomeContinueSetupCard");
     expect(source).not.toContain("<OperatorHomeContinueSetupSlot");
     expect(source).not.toContain("<OperatorHomeSampleReviewPreview />");

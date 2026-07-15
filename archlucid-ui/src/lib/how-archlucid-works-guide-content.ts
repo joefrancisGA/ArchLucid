@@ -27,7 +27,7 @@ export const HOW_ARCHLUCID_WORKS_SECTIONS: readonly HowArchLucidWorksSection[] =
     id: "start-with-evidence",
     title: "Start with architecture evidence",
     description:
-      "Upload briefs, diagrams, documents, IaC exports, screenshots, or optional cloud inventory to open a review package.",
+      "Upload briefs, diagrams, documents, IaC exports, screenshots, or optional cloud inventory to open a review.",
   },
   {
     id: "analyze-policy-context",
@@ -45,7 +45,7 @@ export const HOW_ARCHLUCID_WORKS_SECTIONS: readonly HowArchLucidWorksSection[] =
     id: "record-decisions",
     title: "Record decisions",
     description:
-      "Capture approvals, accepted risks, remediation owners, and governance notes tied to the review package.",
+      "Capture approvals, accepted risks, remediation owners, and governance notes tied to the review.",
   },
   {
     id: "build-evidence-trail",
@@ -55,7 +55,7 @@ export const HOW_ARCHLUCID_WORKS_SECTIONS: readonly HowArchLucidWorksSection[] =
   },
   {
     id: "finalize-review-package",
-    title: "Finalize the review package",
+    title: "Finalize the review",
     description:
       "Lock the governed review record when findings, decisions, and evidence coverage are ready for release.",
   },

@@ -43,7 +43,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Audit trail",
     definition:
-      "The append-only log of every action taken in this workspace — reviews created, review packages finalized, governance decisions recorded.",
+      "The append-only log of every action taken in this workspace — reviews created, reviews finalized, governance decisions recorded.",
   },
   {
     term: "Risk exception",
@@ -63,7 +63,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Compare",
     definition:
-      "Side-by-side diff of two review packages — findings, review record changes, and governance disposition deltas.",
+      "Side-by-side diff of two reviews — findings, review record changes, and governance disposition deltas.",
   },
   {
     term: "Proof packet",

@@ -37,7 +37,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     category: "Getting Started",
     url: "/reviews/new",
   },
-  { title: "Review packages list", summary: "Browse review packages for the workspace.", category: "Operations", url: "/reviews" },
+  { title: "Reviews list", summary: "Browse reviews for the workspace.", category: "Operations", url: "/reviews" },
   {
     title: "Governance findings",
     summary: "Review findings across reviews and policy signals.",
@@ -47,7 +47,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
   { title: "Policy packs", summary: "Declarative policy bundles for review.", category: "Security", url: "/policy-packs" },
   {
     title: "Indexed search",
-    summary: "Search review packages, findings, and related records where enabled.",
+    summary: "Search reviews, findings, and related records where enabled.",
     category: "Operations",
     url: "/search",
   },

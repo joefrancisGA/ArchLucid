@@ -107,7 +107,7 @@ export function RecommendationLearningPageView(props: Props) {
           gettingStarted={{
             heading: "How to build history",
             steps: [
-              "Generate recommendations from completed review packages.",
+              "Generate recommendations from completed reviews.",
               "Mark each recommendation accepted, deferred, rejected, or implemented.",
               "Return here to load or rebuild the tuning profile.",
             ],

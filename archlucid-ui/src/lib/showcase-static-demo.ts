@@ -16,10 +16,9 @@ export const SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID = "claims-intake-run-v2";
 export const SHOWCASE_BUYER_REVIEW_TITLE = "Claims Intake Modernization Review";
 
 /**
- * Procurement-oriented label where “review package” wording is intentional (sample card headline, static demo
- * description, narrative hooks).
+ * Short list/link label for the curated sample review (architecture/system name).
  */
-export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = "Claims Intake Modernization Review Package";
+export const SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE = "Claims Intake Modernization";
 
 /** Canonical manifest UUID for the static showcase payload (matches operator mock + marketing body). */
 export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
@@ -164,7 +163,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       unresolvedIssueCount: 0,
       status: "Committed",
       operatorSummary:
-        "Finalized architecture review package for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
+        "Finalized architecture review for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
         "and sponsor-facing KPIs consolidated for sign-off.",
     },
     authorityChain: {

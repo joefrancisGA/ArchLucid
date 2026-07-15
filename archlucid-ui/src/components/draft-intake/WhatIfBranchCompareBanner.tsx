@@ -43,14 +43,14 @@ export function WhatIfBranchCompareBanner(props: WhatIfBranchCompareBannerProps)
   const compareHref = comparePageHrefAdaptive(parentRunId, props.currentRunId);
 
   let statusMessage =
-    "This review is a what-if branch — compare it to the parent review once both review packages are finalized.";
+    "This review is a what-if branch — compare it to the parent review once both reviews are finalized.";
 
   if (autoCompareEnabled && autoComparePhase === "polling") {
     statusMessage = "Waiting for both reviews to finalize — Compare will open automatically when ready.";
   }
 
   if (autoCompareEnabled && autoComparePhase === "redirecting") {
-    statusMessage = "Both review packages are ready — opening Compare…";
+    statusMessage = "Both reviews are ready — opening Compare…";
   }
 
   return (

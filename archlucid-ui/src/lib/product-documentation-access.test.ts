@@ -11,7 +11,6 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 
 describe("product-documentation-access", () => {
   it("treats internal-runbook slugs as admin-only", () => {
-    expect(isInternalRunbookHelpSlug("first-pilot-operator-runbook")).toBe(true);
     expect(isInternalRunbookHelpSlug("first-value-20-minutes")).toBe(true);
     expect(isInternalRunbookHelpSlug("review-guide")).toBe(false);
     expect(isInternalRunbookHelpSlug("pre-commit-ci-gate")).toBe(false);
@@ -34,7 +33,7 @@ describe("product-documentation-access", () => {
   });
 
   it("maps principal read-model to help access", () => {
-    const entry = getProductDocumentationEntry("first-pilot-operator-runbook");
+    const entry = getProductDocumentationEntry("first-value-20-minutes");
 
     expect(entry).not.toBeNull();
     expect(principalCanAccessHelpTopic(entry!, shellBootstrapReadPrincipal)).toBe(false);

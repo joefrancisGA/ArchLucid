@@ -75,7 +75,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <CardDescription>
           {buyerPolishedLayout
             ? "Status, policy posture, and what is included in this package."
-            : "Status, rules, and counts for this review package."}
+            : "Status, rules, and counts for this review."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -104,7 +104,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <CardDescription>
           {buyerPolishedLayout
             ? "This package records a monitored risk that maps back to the originating review and evidence trail."
-            : "Warnings or unresolved issues on this review package correspond to surfaced findings on the originating review."}
+            : "Warnings or unresolved issues on this review correspond to surfaced findings on the originating review."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -247,13 +247,13 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`
               : buyerPolishedLayout
                 ? BUYER_SIGNED_DECISION_RECORD_LABEL
-                : "Finalized architecture review package"}
+                : "Finalized architecture review"}
           </h1>
         </div>
         {buyerPolishedLayout !== true ? (
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestId)}>Export review package bundle</a>
+              <a href={getBundleDownloadUrl(manifestId)}>Export review bundle</a>
             </Button>
           </div>
         ) : null}
@@ -384,7 +384,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 {buyerPolishedLayout ? (
                   <>
-                    Try reloading, or return to the review. You can still use Download finalized review package when the
+                    Try reloading, or return to the review. You can still use Download finalized review when the
                     bundle is available.
                   </>
                 ) : (
@@ -416,7 +416,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           )}
 
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length === 0 && (
-            <OperatorEmptyState title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : "No artifacts listed for this review package"}>
+            <OperatorEmptyState title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : "No artifacts listed for this review"}>
               {buyerPolishedLayout ? (
                 <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
               ) : (

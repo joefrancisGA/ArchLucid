@@ -9,7 +9,7 @@ export type ImpactPreviewBaselineAvailability = {
   readonly finalizedCount: number;
 };
 
-/** Loads committed review packages available as impact preview baselines. */
+/** Loads committed reviews available as impact preview baselines. */
 export function useImpactPreviewBaselineAvailability(): ImpactPreviewBaselineAvailability {
   const [loading, setLoading] = useState(true);
   const [finalizedCount, setFinalizedCount] = useState(0);

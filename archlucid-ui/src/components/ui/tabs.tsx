@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   createContext,
   useCallback,
@@ -283,12 +282,12 @@ export function TabsTrigger(props: TabsTriggerProps): ReactElement {
       data-state={selected ? "active" : "inactive"}
       data-testid={props["data-testid"]}
       className={cn(
-        "px-4 py-2 font-medium leading-none outline-none transition-colors",
-        OPERATOR_TYPOGRAPHY.body,
+        "px-4 py-2 text-[13px] font-normal leading-5 outline-none transition-colors",
+        "font-medium leading-none",
         "-mb-px border-b-2",
         selected
-          ? "border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300"
-          : "border-transparent text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
+          ? "border-teal-600 text-al-text-primary dark:border-teal-400 dark:text-teal-300"
+          : "border-transparent text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100",
         "focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
         props.disabled && "cursor-not-allowed opacity-50",
         props.className,

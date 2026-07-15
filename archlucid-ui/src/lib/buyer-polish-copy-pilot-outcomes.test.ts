@@ -54,8 +54,8 @@ describe("buyer-polish-copy executive scorecard (TB-462)", () => {
 });
 
 describe("buyer-polish-copy evidence graph subtitle (TB-464)", () => {
-  it("uses finalized review package in operator graph page subtitle", () => {
-    expect(OPERATOR_GRAPH_PAGE_SUBTITLE).toContain("finalized review package");
+  it("uses finalized review in operator graph page subtitle", () => {
+    expect(OPERATOR_GRAPH_PAGE_SUBTITLE).toContain("finalized review");
     expect(OPERATOR_GRAPH_PAGE_SUBTITLE.toLowerCase()).not.toContain("committed");
   });
 });
@@ -108,16 +108,16 @@ describe("buyer-polish-copy operator home example review card (TB-471)", () => {
   it("uses Open example review heading and CTA without CTO demo framing", () => {
     expect(BUYER_HOME_START_CTO_DEMO_HEADING).toBe("Open example review");
     expect(BUYER_HOME_START_CTO_DEMO_CTA).toBe("Open example review");
-    expect(BUYER_HOME_START_CTO_DEMO_ARIA).toBe("Open example review — sample review package walkthrough");
+    expect(BUYER_HOME_START_CTO_DEMO_ARIA).toBe("Open example review — sample review walkthrough");
     expect(BUYER_HOME_START_CTO_DEMO_HEADING.toLowerCase()).not.toContain("cto demo");
     expect(BUYER_HOME_START_CTO_DEMO_CTA.toLowerCase()).not.toContain("cto demo");
   });
 });
 
 describe("buyer-polish-copy governance preview note (TB-509)", () => {
-  it("uses production framing with example review package and no pilot or demo jargon", () => {
+  it("uses production framing with example review and no pilot or demo jargon", () => {
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE).toBe(
-      "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review package.",
+      "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review.",
     );
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("live pilot");
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("demonstration purposes");
@@ -135,7 +135,7 @@ describe("buyer-polish-copy sample review AHA badge (TB-473)", () => {
 describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
   it("uses example review caption without demo-derived or execution mode jargon", () => {
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER).toBe(
-      "Example review — not your workspace data. Open the full package for findings, evidence, and the signed record.",
+      "Example review — not your workspace data. Open the full review for findings, evidence, and the signed record.",
     );
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");

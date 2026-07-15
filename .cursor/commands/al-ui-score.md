@@ -6,8 +6,8 @@ description: Set an ArchLucid UI route Evidence score by table ID and re-sort th
 
 Update one row in the owner workbook at `.local/owner/ui_route_traffic_estimates.md`
 by **ID** shorthand, then **re-sort** the master table:
-- **Score 0** — Hit% **descending** (most hits first); ties **A→Z** by path
-- **Scored** — **Weight descending**; ties **A→Z** by path
+- **Score 0** — rows with no Evidence score appear **first**; within that group, **Deficit descending** (equivalent to Hit% descending)
+- **Scored** — **Deficit descending** (`Hit% × (100 − score)`); ties **A→Z** by path
 
 Also recomputes **OVERALL WEIGHT SCORE** (actual Weight sum as a % of max possible: Hit% × 100 per row) at the top of the report.
 
@@ -73,9 +73,9 @@ python .\scripts\ci\set-archlucid-ui-route-score.py ASK 78
 The script:
 
 - Ensures the owner workbook exists (bootstrap from template when missing)
-- Updates the **Scores** cell and recomputed **Weight** (Hit% × Scores) for the matching **ID**
+- Updates the **Scores** cell and recomputed **Weight** (Hit% × Scores) and **Deficit** (Hit% × (100 − score)) for the matching **ID**
 - Leaves **Notes** unchanged (still `None` unless the owner edited them)
-- Re-sorts the master table: score **0** rows by Hit% **descending**; scored rows by **Weight descending**; ties A→Z by path
+- Re-sorts the master table: score **0** rows **first**, then by **Deficit descending** within each group; ties A→Z by path
 - Recomputes **OVERALL WEIGHT SCORE** near the top of the doc
 - Preserves the **ID** column and all other rows
 
@@ -95,6 +95,7 @@ Print a short confirmation:
 | Previous score | `<old>` |
 | New score | `<score>` |
 | Weight (Hit% × score) | `<weight>` |
+| Deficit (Hit% × (100 − score)) | `<deficit>` |
 | Rank | `<rank>` / `<total>` |
 ```
 
@@ -102,10 +103,10 @@ Use stdout from the script when available.
 
 ## Guardrails
 
-- **Do not** change Hit%, Weight, Section, Notes, or ID codes unless the user explicitly asks.
+- **Do not** change Hit%, Section, Notes, or ID codes unless the user explicitly asks.
 - **Do not** commit or push unless the user names a branch and asks to commit.
 - **Do not** invent scores for other rows.
-- **Do not** re-sort scored rows by Hit% × Scores ascending; they use **Weight descending**.
+- **Do not** re-sort scored rows by Weight descending; they use **Deficit descending**.
 - **Do not** edit `docs/architecture/ui_route_traffic_estimates.md` — that legacy path is gitignored and must not be re-tracked.
 
 ## Canonical file
@@ -120,4 +121,5 @@ Use stdout from the script when available.
 ## Related commands
 
 - `/al-ui-note` — add or replace Notes by ID
+- `/al-ui-tableupdate` — reconcile master table with live route catalog
 - Route catalog (paths, demo tiers): `docs/architecture/ui_routes.md`

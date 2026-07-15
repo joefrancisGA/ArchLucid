@@ -4,7 +4,7 @@
 
 # ADR 0051: Question selection engine — deterministic-first, LLM as a bounded selector, packs own questions
 
-**Status:** Accepted
+**Status:** Accepted — amended by [ADR 0058](0058-bounded-generative-question-tier.md) (bounded generative tier L2g + retrospective question mining; 2026-07-12)
 **Date:** 2026-06-07 (Accepted 2026-06-08; L0/L1 implemented, L2/VoI remain OPEN per O1-remainder)
 **Deciders:** Owner + Architecture review
 **Related:** [ADR 0007](0007-effective-governance-merge.md) (governance merge), [ADR 0031](0031-cross-tenant-pattern-library.md) (cross-tenant wall), [ADR 0036](0036-graph-rag-embedding-strategy.md) (RAG), [ADR 0048](0048-socratic-intake-mutable-draft-lifecycle.md), [ADR 0049](0049-actor-descriptor-model.md), `docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` (R7–R10)

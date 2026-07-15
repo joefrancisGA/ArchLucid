@@ -4,7 +4,7 @@ export const RECURRENCE_AI_BUDGET_DISCLOSURE =
   "Each scheduled assessment runs the full architecture review pipeline and may consume AI budget.";
 
 export const RECURRENCE_EACH_OCCURRENCE_NOTE =
-  "Each occurrence creates a new assessment run by cloning the source review package.";
+  "Each occurrence creates a new assessment run by cloning the source review.";
 
 export const RECURRENCE_SAVE_PAUSED_LABEL = "Save schedule (paused)";
 

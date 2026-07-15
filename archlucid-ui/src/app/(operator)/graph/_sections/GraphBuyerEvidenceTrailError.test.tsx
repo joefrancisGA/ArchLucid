@@ -21,7 +21,7 @@ describe("GraphBuyerEvidenceTrailError", () => {
 
     expect(screen.getByText("Workspace data unavailable")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open review package" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open troubleshooting" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "System health" })).toBeInTheDocument();
     expect(screen.queryByText(/Request failed/i)).toBeNull();
@@ -51,7 +51,7 @@ describe("GraphBuyerEvidenceTrailError", () => {
 
     expect(screen.getByText("Graph could not be loaded")).toBeInTheDocument();
     expect(
-      screen.getByText("ArchLucid could not load the evidence graph for this review package."),
+      screen.getByText("ArchLucid could not load the evidence graph for this review."),
     ).toBeInTheDocument();
     expect(screen.queryByText("Workspace data unavailable")).toBeNull();
   });

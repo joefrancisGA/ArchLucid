@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { normalizeSeeItMarketingPayload } from "../../see-it/normalize-see-it-payload";
 import { DemoPreviewMarketingBody } from "./DemoPreviewMarketingBody";
+import { DemoPreviewHero } from "./_sections/DemoPreviewHero";
+import { DemoPreviewResultAtAGlance } from "./_sections/DemoPreviewResultAtAGlance";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -9,26 +11,29 @@ import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ArchLucid · See a finalized review package (demo)",
-  description: "A live review package preview powered by the ArchLucid demo seed.",
+  title: "ArchLucid · See a finalized review (demo)",
+  description: "A live review preview powered by the ArchLucid demo seed.",
   robots: { index: false, follow: false },
 };
 
 function resolveDemoPreviewApiBase(): string {
   const explicit = process.env.NEXT_PUBLIC_DEMO_PREVIEW_API_BASE?.trim();
 
-  if (explicit)
+  if (explicit) {
     return explicit.replace(/\/$/, "");
+  }
 
   const server = process.env.ARCHLUCID_API_BASE_URL?.trim();
 
-  if (server)
+  if (server) {
     return server.replace(/\/$/, "");
+  }
 
   const pub = process.env.NEXT_PUBLIC_ARCHLUCID_API_BASE_URL?.trim();
 
-  if (pub)
+  if (pub) {
     return pub.replace(/\/$/, "");
+  }
 
   return "";
 }
@@ -37,22 +42,23 @@ function curatedOfflinePayload(): DemoCommitPagePreviewResponse {
   return normalizeSeeItMarketingPayload(getShowcaseStaticDemoPayload(SHOWCASE_STATIC_DEMO_RUN_ID));
 }
 
+function DemoPreviewPageShell({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
+  return (
+    <main className="mx-auto max-w-[72rem] px-4 py-10">
+      <DemoPreviewHero />
+      <div className="mt-8 space-y-10">
+        <DemoPreviewResultAtAGlance payload={payload} />
+        <DemoPreviewMarketingBody payload={payload} />
+      </div>
+    </main>
+  );
+}
+
 export default async function DemoPreviewMarketingPage() {
   const base = resolveDemoPreviewApiBase();
 
   if (!base) {
-    return (
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized review package (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
-          This public walkthrough uses illustrative sample data.
-        </p>
-        <div className="mt-8">
-          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
-        </div>
-      </main>
-    );
+    return <DemoPreviewPageShell payload={curatedOfflinePayload()} />;
   }
 
   const url = `${base}/v1/demo/preview`;
@@ -64,47 +70,14 @@ export default async function DemoPreviewMarketingPage() {
       signal: AbortSignal.timeout(MARKETING_UPSTREAM_FETCH_TIMEOUT_MS),
     });
   } catch {
-    return (
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized review package (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
-          This public walkthrough uses illustrative sample data.
-        </p>
-        <div className="mt-8">
-          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
-        </div>
-      </main>
-    );
+    return <DemoPreviewPageShell payload={curatedOfflinePayload()} />;
   }
 
   if (!response.ok) {
-    return (
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized review package (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
-          This public walkthrough uses illustrative sample data.
-        </p>
-        <div className="mt-8">
-          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
-        </div>
-      </main>
-    );
+    return <DemoPreviewPageShell payload={curatedOfflinePayload()} />;
   }
 
   const payload = normalizeSeeItMarketingPayload((await response.json()) as DemoCommitPagePreviewResponse);
 
-  return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized review package (demo)</h1>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
-        This public walkthrough uses illustrative sample data.
-      </p>
-      <div className="mt-8">
-        <DemoPreviewMarketingBody payload={payload} />
-      </div>
-    </main>
-  );
+  return <DemoPreviewPageShell payload={payload} />;
 }

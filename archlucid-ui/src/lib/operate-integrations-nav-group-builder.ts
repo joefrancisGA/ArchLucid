@@ -1,6 +1,7 @@
-import { CloudCog, Hash, Ticket, UsersRound, Webhook, Workflow } from "lucide-react";
+import { CloudCog, Hash, Ticket, Workflow } from "lucide-react";
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import {
+  INTEGRATIONS_AZURE_BOARDS_PATH,
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
   INTEGRATIONS_SLACK_PATH,
@@ -8,6 +9,9 @@ import {
   INTEGRATIONS_WEBHOOKS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { AZURE_BOARDS_SURFACE_ICON } from "@/lib/azure-boards-surface-icon";
+import { TEAMS_SURFACE_ICON } from "@/lib/teams-surface-icon";
+import { WEBHOOKS_SURFACE_ICON } from "@/lib/webhooks-surface-icon";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -37,6 +41,14 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "AdminAuthority",
         },
         {
+          href: INTEGRATIONS_AZURE_BOARDS_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.azureBoards,
+          title: OPERATOR_NAV_LINK_LABELS.azureBoards,
+          icon: AZURE_BOARDS_SURFACE_ICON,
+          tier: "extended",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
           href: INTEGRATIONS_SERVICENOW_PATH,
           label: OPERATOR_NAV_LINK_LABELS.servicenow,
           title: OPERATOR_NAV_LINK_LABELS.servicenow,
@@ -49,7 +61,7 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           href: INTEGRATIONS_TEAMS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
           title: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
-          icon: UsersRound,
+          icon: TEAMS_SURFACE_ICON,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
@@ -65,8 +77,8 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           href: INTEGRATIONS_WEBHOOKS_PATH,
           label: OPERATOR_NAV_LINK_LABELS.webhooks,
           title: OPERATOR_NAV_LINK_LABELS.webhooks,
-          icon: Webhook,
-          tier: "advanced",
+          icon: WEBHOOKS_SURFACE_ICON,
+          tier: "extended",
           requiredAuthority: "ExecuteAuthority",
         },
       ],

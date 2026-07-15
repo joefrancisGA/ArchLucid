@@ -46,12 +46,20 @@ export function resolvePatternLibraryProvenance(usingLiveAggregate: boolean): Pa
   };
 }
 
-export function isPatternLibraryNavVisible(): boolean {
-  return (
-    isBuyerPolishedOperatorShellEnv()
-    || isNextPublicDemoMode()
-    || isOperatorExperienceFullShellEnv()
-  );
+/** Demo and internal full-operator shells may show sample catalog when live aggregates are below threshold. */
+export function shouldUsePatternLibrarySampleCatalogWhenBelowThreshold(): boolean {
+  if (isNextPublicDemoMode()) {
+    return true;
+  }
+
+  if (
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true"
+    || process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
+  ) {
+    return true;
+  }
+
+  return isOperatorExperienceFullShellEnv() && !isBuyerPolishedOperatorShellEnv();
 }
 
 export function patternLibraryDetailPath(patternKey: string): string {

@@ -17,6 +17,7 @@ from archlucid_ui_route_traffic_table import (
     render_table,
     sort_rows,
     split_document,
+    update_method_line,
     upsert_overall_weight_line,
 )
 
@@ -56,6 +57,7 @@ def _normalize_template(text: str) -> str:
         row["notes"] = "None"
 
     rows = sort_rows(rows)
+    before = update_method_line(before)
     before = upsert_overall_weight_line(before, rows)
     table = "\n".join(render_table(rows))
     return before + table + "\n\n---\n" + after

@@ -75,7 +75,7 @@ export function TenantSettingsPageView(props: Props) {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
       <div>
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.workspaceSettings}</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{OPERATOR_NAV_LINK_LABELS.settings}</h1>
         <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
           Workspace defaults and operator-facing preferences for this workspace.
         </p>

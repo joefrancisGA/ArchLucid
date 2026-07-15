@@ -39,7 +39,7 @@ describe("help-product-language", () => {
 describe("help topic banned copy guard", () => {
   it("prepared troubleshooting excerpt avoids banned manifest/run fragments", () => {
     const sample =
-      "An empty artifact list can be valid: review package exists but no synthesized files yet.";
+      "An empty artifact list can be valid: review exists but no synthesized files yet.";
     const prepared = applyHelpTopicProductLanguage(sample).toLowerCase();
 
     for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {

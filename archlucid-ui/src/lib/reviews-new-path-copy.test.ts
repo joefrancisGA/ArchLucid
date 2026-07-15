@@ -16,7 +16,7 @@ describe("reviews-new-path-copy buyer-facing copy", () => {
     expect(REVIEWS_NEW_PATH_HINTS["quick-review"]).toMatch(/first-pilot|evidence|review title/i);
   });
 
-  it("detailed hint is for export-ready review packages", () => {
+  it("detailed hint is for export-ready reviews", () => {
     expect(REVIEWS_NEW_PATH_HINTS.detailed).toMatch(/templates|imports|export/i);
   });
 

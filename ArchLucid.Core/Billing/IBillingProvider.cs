@@ -12,6 +12,10 @@ public interface IBillingProvider
         BillingCheckoutRequest request,
         CancellationToken cancellationToken);
 
+    Task<BillingPortalResult> CreateBillingPortalSessionAsync(
+        BillingPortalRequest request,
+        CancellationToken cancellationToken);
+
     Task<BillingWebhookHandleResult> HandleWebhookAsync(
         BillingWebhookInbound inbound,
         CancellationToken cancellationToken);

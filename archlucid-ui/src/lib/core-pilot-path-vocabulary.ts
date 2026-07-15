@@ -29,7 +29,7 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   streamlinedFirstReviewBannerLabel: "Quick path:",
   streamlinedFirstReviewBannerBody: "upload one diagram to start. Review scope is pre-configured.",
   operateUnlockLead:
-    "Your first session focuses on starting and finalizing a review package. Compare, evidence graph, ask-this-review, and enterprise control routes stay hidden until you unlock them — or until you finalize your first review package.",
+    "Your first session focuses on starting and finalizing a review. Compare, evidence graph, ask-this-review, and enterprise control routes stay hidden until you unlock them — or until you finalize your first review.",
   operateUnlockAnalysisUnlocks: "Analysis — compare, graph, replay, and Q&A",
   operateUnlockStillHidden: "Enterprise controls — audit, alerts, and approval workflow (until you need them)",
   operateAutoUnlockHint:

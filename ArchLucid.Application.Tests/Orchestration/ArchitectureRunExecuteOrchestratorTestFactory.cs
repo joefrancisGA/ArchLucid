@@ -5,14 +5,28 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Microsoft.Extensions.Options;
 
 using Moq;
 
 namespace ArchLucid.Application.Tests.Orchestration;
 
+public sealed record ArchitectureRunExecuteOrchestratorTailDependencies(
+    TechnologyLedgerTopologyProposalSeeder TopologyProposalSeeder,
+    DemoExpensiveActionGate DemoExpensiveActionGate,
+    ILogger<ArchitectureRunExecuteOrchestrator> Logger);
+
 public static class ArchitectureRunExecuteOrchestratorTestFactory
 {
+    internal static ArchitectureRunExecuteOrchestratorTailDependencies CreateStandardTailDependencies(
+        IScopeContextProvider? scopeContextProvider = null) =>
+        new(
+            CreateDefaultTopologyProposalSeeder(scopeContextProvider),
+            CreatePermissiveDemoExpensiveActionGate(),
+            NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     internal static TechnologyLedgerTopologyProposalSeeder CreateDefaultTopologyProposalSeeder(
         IScopeContextProvider? scopeContextProvider = null) =>
         new(

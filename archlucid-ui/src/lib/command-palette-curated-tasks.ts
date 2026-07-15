@@ -2,6 +2,8 @@
  * High-value jumps merged into the command palette beside nav links. Each `href` must match
  * a configured nav target so visibility can be gated with {@link visibleOperatorShellHrefSet}.
  */
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+
 export type CuratedPaletteTask = {
   label: string;
   href: string;
@@ -15,7 +17,7 @@ export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
   { label: "New architecture review", href: "/reviews/new", searchValue: "task I want new review wizard" },
   { label: "Reviews list", href: "/reviews?projectId=default", searchValue: "task I want reviews list projects" },
   { label: "Compare two reviews", href: "/compare", searchValue: "task I want compare diff N N+1 delta" },
-  { label: "Provenance graph", href: "/graph", searchValue: "task I want graph visualization trail" },
+  { label: OPERATOR_NAV_LINK_LABELS.evidenceTrail, href: "/graph", searchValue: "task I want graph visualization trail" },
   { label: "Ask ArchLucid", href: "/ask", searchValue: "task I want ask question chat" },
   { label: "Semantic search", href: "/search", searchValue: "task I want search find architecture" },
   { label: "Alerts inbox", href: "/governance/alerts", searchValue: "task I want alerts triage inbox" },

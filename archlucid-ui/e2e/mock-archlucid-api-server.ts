@@ -265,7 +265,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
             nodes: [
               { id: "n1", label: "Request intake", type: "Context" },
               { id: "n2", label: "Policy evaluation", type: "Decision" },
-              { id: "n3", label: "Finalized review package", type: "Manifest" },
+              { id: "n3", label: "Finalized review", type: "Manifest" },
             ],
             edges: [
               { source: "n1", target: "n2", type: "derives" },

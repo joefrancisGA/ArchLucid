@@ -46,7 +46,7 @@ export const PILOT_FEEDBACK_VOCABULARY = {
   emptyStateTitle: "No feedback recorded yet",
   emptyStateDescription:
     "Feedback from pilots and review evaluations will appear here after users accept, reject, revise, or comment on review outputs.",
-  emptyStatePrimaryAction: "Open review packages",
+  emptyStatePrimaryAction: "Open reviews",
   emptyStateSecondaryAction: CREATE_ARCHITECTURE_LABEL,
   summaryKpiFeedbackSummaries: "Feedback summaries",
   summaryKpiRepeatedIssues: "Repeated issues",
@@ -72,27 +72,29 @@ export const PILOT_FEEDBACK_VOCABULARY = {
  * metadata, Ask grounding, and KPI cards stay aligned.
  */
 export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
-  pageTitle: "Executive summary",
-  /** `/dashboard` portfolio surface — aligns with sidebar “Executive dashboard”. */
+  /** Canonical `/dashboard` customer noun — matches sidebar “Executive dashboard”. */
+  pageTitle: "Executive dashboard",
   portfolioPageTitle: "Executive dashboard",
+  /** Review-scoped executive briefing (showcase spine, Ask grounding) — not the portfolio dashboard. */
+  reviewExecutiveSummaryLabel: "Executive summary",
   portfolioPageLead:
-    "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across committed review packages.",
-  portfolioPageNextStep: "Commit at least one review package to populate dashboard metrics.",
+    "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across committed reviews.",
+  portfolioPageNextStep: "Commit at least one review to populate dashboard metrics.",
   portfolioPageLearnMoreHref: "/help/executive-summary",
   portfolioPageLearnMoreLabel: "View dashboard guide",
   howItWorksSectionTitle: "How this dashboard works",
   howItWorksDescription:
-    "Create a review package from your architecture evidence, then commit it when findings are ready for executive reporting. Metrics and sponsor exports populate after the first committed review.",
+    "Create a review from your architecture evidence, then commit it when findings are ready for executive reporting. Metrics and sponsor exports populate after the first committed review.",
   pageLead:
     "Status, risk, ROI impact, and governance readiness for your current workspace — decision-first, with operator detail one click away.",
   roiMetricsSrOnly: "Executive ROI metrics",
   emptyStateTitle: "No committed reviews yet",
   emptyStateDescription:
-    "Commit a review package to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
+    "Commit a review to populate executive metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
   emptyStatePrimaryAction: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   emptyStateSecondaryAction: "Load sample dashboard",
   emptyStateSecondaryHelper: "Populate this workspace with sample review data.",
-  emptyStateTertiaryAction: "Open review packages",
+  emptyStateTertiaryAction: "Open reviews",
   metricsPreviewSectionTitle: "At a glance",
   metricsPreviewUnavailableFootnote: "Available after first committed review",
   metricsPreviewCards: [
@@ -131,9 +133,9 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     "Sponsor-ready exports",
   ] as const,
   scorecardLayerContextLine: "Value metrics and recommended actions.",
-  scorecardPageTitle: "Executive scorecard",
+  scorecardPageTitle: "Sponsor scorecard",
   scorecardEmptyStateDescription:
-    "The scorecard appears after at least one review package is finalized. It summarizes review volume, findings, estimated hours saved, compliance drift, and recommended actions.",
+    "The scorecard appears after at least one review is finalized. It summarizes review volume, findings, estimated hours saved, compliance drift, and recommended actions.",
   scorecardEmptyStatePrimaryAction: CREATE_ARCHITECTURE_LABEL,
   scorecardEmptyStateSecondaryAction: "Load sample workspace",
   scorecardEmptyStateTertiaryAction: "Open sample scorecard",
@@ -147,7 +149,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   ] as const,
   portfolioMetricsUnavailableTitle: "Portfolio metrics unavailable",
   portfolioMetricsUnavailableDescription:
-    "Commit a review package to populate findings, decisions, waivers, risks, and remediation trends.",
+    "Commit a review to populate findings, decisions, waivers, risks, and remediation trends.",
   estimatedSavingsNotAvailableYet: "Not available yet",
   estimatedSavingsNotAvailableFootnote:
     "Commit reviews or add cost evidence to estimate savings.",
@@ -164,10 +166,10 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   latestFindingsSectionTitle: "Latest findings and portfolio summary",
   executiveExportsTitle: "Executive exports",
   executiveExportsDescription:
-    "Sponsor-ready reports and board views from committed review packages.",
+    "Sponsor-ready reports and board views from committed reviews.",
   sponsorExportsUnavailableFootnote: "Available after first committed review",
   sponsorExportsPreviewSampleAction: "Preview sample",
-  sponsorExportsScorecardTitle: "Executive scorecard",
+  sponsorExportsScorecardTitle: "Sponsor scorecard",
   sponsorExportsScorecardDescription: "KPI summary and recommended actions for sponsor briefings.",
   sponsorExportsScorecardAction: "Open scorecard",
   sponsorExportsScorecardSampleHref: REVIEW_SCORECARD_SAMPLE_HREF,
@@ -179,7 +181,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   sponsorExportsRoiDescription: "How savings and ROI estimates are derived from review evidence.",
   sponsorExportsRoiAction: "View methodology",
   sponsorExportsDocxTitle: "Executive review (DOCX)",
-  sponsorExportsDocxDescription: "Board-ready narrative export from a committed review package.",
+  sponsorExportsDocxDescription: "Board-ready narrative export from a committed review.",
   sponsorExportsDocxAction: "Download DOCX",
   baselineInventoryUploadAction: "Upload baseline inventory",
   baselineInventorySectionTitle: "Improve ROI estimates",

@@ -93,7 +93,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
         return (
           el?.tagName === "P" &&
           text.toLowerCase().includes("guided assessment") &&
-          text.toLowerCase().includes("review package") &&
+          text.toLowerCase().includes("review") &&
           text.toLowerCase().includes("attach evidence") &&
           !text.toLowerCase().includes("co-architect") &&
           !text.toLowerCase().includes("pipeline")

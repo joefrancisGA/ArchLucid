@@ -32,7 +32,7 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
         <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button variant="primary" size="sm" asChild>
-            <a href={getBundleDownloadUrl(manifestId)}>Download finalized review package</a>
+            <a href={getBundleDownloadUrl(manifestId)}>Download finalized review</a>
           </Button>
         </div>
       </div>

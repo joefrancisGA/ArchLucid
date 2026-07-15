@@ -87,7 +87,7 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
           </ul>
           {buyerPolishedShell ? (
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Optional follow-up — not required to finish your first proof package.
+              Optional follow-up — not required to finish your first proof export.
             </p>
           ) : null}
         </CardContent>

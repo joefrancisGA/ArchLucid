@@ -10,7 +10,7 @@ export type CompareInsufficientFinalizedEmptyStateProps = {
   readonly onLoadSampleComparison?: () => void;
 };
 
-/** Compare page when fewer than two finalized review packages exist in the workspace. */
+/** Compare page when fewer than two finalized reviews exist in the workspace. */
 export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficientFinalizedEmptyStateProps) {
   const { finalizedCount, onLoadSampleComparison } = props;
   const preset = finalizedCount === 0 ? COMPARE_ZERO_FINALIZED_COMPACT : COMPARE_INSUFFICIENT_FINALIZED_COMPACT;

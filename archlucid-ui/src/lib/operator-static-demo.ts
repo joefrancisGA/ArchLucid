@@ -384,7 +384,7 @@ export function tryStaticDemoGoldenManifestComparison(
     costChanges: [{ baseCost: 42000, targetCost: 48500 }],
     summaryHighlights: [
       "Updated review adds guard-railed OCR bypass monitoring — the monitored PHI minimization risk remains accepted with sampling.",
-      "Two architecture decisions changed between baseline and updated finalized review packages; topology adds an OCR worker path.",
+      "Two architecture decisions changed between baseline and updated finalized reviews; topology adds an OCR worker path.",
     ],
     totalDeltaCount: 7,
   };
@@ -406,7 +406,7 @@ export function tryStaticDemoRunComparison(leftRunId: string, rightRunId: string
         diffKind: "Changed",
         beforeValue: "Accepted with manual sampling",
         afterValue: "Accepted with automated exception routing and monitoring",
-        notes: "Non-blocking monitored risk tracked in both packages.",
+        notes: "Non-blocking monitored risk tracked in both reviews.",
       },
     ],
     manifestComparison: {
@@ -468,7 +468,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Finalized signed review package with traceable evidence, governed outcomes, and audit-ready deliverables.",
+      "Finalized signed review with traceable evidence, governed outcomes, and audit-ready deliverables.",
     agentExecutionLlmCostEstimate: {
       estimatedCostUsd: null,
       tokenCounts: { prompt: 0, completion: 0 },
@@ -756,7 +756,7 @@ function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Born-governed created package — findings, manifest, and export produced from guided intake without a separate review pass.",
+      "Born-governed created review — findings, manifest, and export produced from guided intake without a separate review pass.",
     agentExecutionLlmCostEstimate: {
       estimatedCostUsd: null,
       tokenCounts: { prompt: 0, completion: 0 },
@@ -900,7 +900,7 @@ export function tryStaticDemoFindingInspect(runId: string, findingId: string): F
         },
       ],
       reasoningSummary:
-        "This finding was recorded because the created package promises a private AI plane while interim dev paths may still expose managed public endpoints.",
+        "This finding was recorded because the created review promises a private AI plane while interim dev paths may still expose managed public endpoints.",
       recommendedActions: [
         "Deny public network access on Azure OpenAI and AI Search resources.",
         "Validate private DNS zones resolve from orchestration spoke before workforce pilot.",
@@ -1186,7 +1186,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.artifactBundleId ?? "bundle-demo",
 
-        name: "Evidence package assembled",
+        name: "Evidence bundle assembled",
 
       },
 
@@ -1305,7 +1305,7 @@ export function tryStaticDemoPolicyPacksList(options?: PolicyPacksStaticFallback
       workspaceId: "demo-workspace",
       projectId: "default",
       name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
-      description: "Healthcare Claims pack aligned with the Claims Intake review package.",
+      description: "Healthcare Claims pack aligned with the Claims Intake review.",
       packType: "BuiltIn",
       status: "Active",
       createdUtc: "2026-01-10T12:00:00.000Z",
@@ -1477,7 +1477,7 @@ export function tryStaticDemoGovernanceApprovalRequests(runId: string): Governan
       status: "Approved",
       requestedBy: "Taylor Morgan",
       reviewedBy: "Jordan Lee",
-      requestComment: "Request governed use of the finalized intake review package after privacy review.",
+      requestComment: "Request governed use of the finalized intake review after privacy review.",
       reviewComment: "Approved — maintain weekly monitoring on unstructured attachment volume.",
       requestedUtc: "2026-01-14T21:00:00.000Z",
       reviewedUtc: "2026-01-14T22:05:00.000Z",
@@ -1505,7 +1505,7 @@ export function tryStaticDemoGovernancePromotions(runId: string): GovernanceProm
       targetEnvironment: "test",
       promotedBy: "Taylor Morgan",
       approvalRequestId: "claims-intake-approval-001",
-      notes: "Governed-use record aligned with this architecture review package.",
+      notes: "Governed-use record aligned with this architecture review.",
       promotedUtc: "2026-01-14T22:06:00.000Z",
     },
   ];

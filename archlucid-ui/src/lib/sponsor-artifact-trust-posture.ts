@@ -89,7 +89,7 @@ export function resolveSponsorArtifactTrustPostures(
       postureBadge(
         "manual-review-required",
         "Manual review required",
-        "Proof package is incomplete or not sendable — open the first-value report before external handoff.",
+        "Proof export is incomplete or not sendable — open the first-value report before external handoff.",
       ),
     );
   }

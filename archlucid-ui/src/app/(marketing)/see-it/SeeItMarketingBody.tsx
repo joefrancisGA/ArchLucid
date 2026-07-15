@@ -46,8 +46,8 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
 
   const previewDisclosure =
     source === "snapshot"
-      ? "Public read-only sample (finalized January 2026). Tenant-accurate review packages and full artifact bytes use a signed-in workspace — this page stays a stable evaluation slice."
-      : "Public read-only marketing preview. Tenant-accurate review packages and full artifact bytes use a signed-in workspace.";
+      ? "Public read-only sample (finalized January 2026). Tenant-accurate reviews and full artifact bytes use a signed-in workspace — this page stays a stable evaluation slice."
+      : "Public read-only marketing preview. Tenant-accurate reviews and full artifact bytes use a signed-in workspace.";
 
   return (
     <div className="space-y-6">
@@ -69,7 +69,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
       >
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-          Finalized sample architecture proof package (read-only)
+          Finalized sample architecture proof export (read-only)
         </h2>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
           One package links the review, evidence-backed findings, policy pack, artifacts, and sponsor-ready export so
@@ -123,7 +123,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
             href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
             download="why-archlucid-pack.pdf"
           >
-            Download evidence package (PDF)
+            Download evidence bundle (PDF)
           </a>
         </Button>
         <Link

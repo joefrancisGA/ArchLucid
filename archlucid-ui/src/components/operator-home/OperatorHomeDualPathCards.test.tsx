@@ -68,32 +68,53 @@ vi.mock("@/hooks/use-create-architecture-navigation", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
+  useFeaturedCompletedSampleQuery: () => ({
+    isPending: false,
+    isError: false,
+    data: {
+      selectedRunId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+      isConfigured: true,
+      isAvailable: true,
+      reviewTitle: "Claims intake modernization",
+      architectureName: "Claims intake modernization",
+      completedUtc: "2026-01-01T00:00:00.000Z",
+      isSampleApproved: true,
+    },
+  }),
+}));
+
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import {
+  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
   OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
   OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
+  OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_READY_STRIP_SUPPORT,
 } from "@/lib/buyer-polish-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { REVIEW_START_LOADING_LABEL } from "@/lib/review-start-progress-copy";
-import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
+import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
+
+const featuredSampleRunId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 
 describe("OperatorHomeDualPathCards", () => {
-  it("shows three intent cards with a single evaluation recommendation", () => {
+  it("shows lifecycle steps plus an evaluation explore card", () => {
     render(<OperatorHomeDualPathCards />);
 
+    expect(screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-explore-recommended-badge")).toHaveTextContent(
       OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
     );
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE })).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK })).toHaveAttribute(
@@ -118,17 +139,21 @@ describe("OperatorHomeDualPathCards", () => {
     expect(push).toHaveBeenCalledWith("/reviews/new");
   });
 
-  it("navigates to the completed review sample from the explore card", () => {
+  it("navigates to the workspace featured completed sample from the explore card", () => {
     render(<OperatorHomeDualPathCards />);
 
     fireEvent.click(screen.getByTestId("operator-home-explore-completed-review-cta"));
 
-    expect(prefetch).toHaveBeenCalledWith(
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
-    );
-    expect(push).toHaveBeenCalledWith(
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
-    );
+    expect(prefetch).toHaveBeenCalledWith(featuredCompletedSampleReviewHref(featuredSampleRunId));
+    expect(push).toHaveBeenCalledWith(featuredCompletedSampleReviewHref(featuredSampleRunId));
+  });
+
+  it("uses compact variant without the readiness strip", () => {
+    render(<OperatorHomeDualPathCards variant="compact" />);
+
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toHaveAttribute("data-variant", "compact");
+    expect(screen.queryByTestId("operator-home-readiness-strip")).toBeNull();
+    expect(screen.queryByTestId("operator-home-explore-recommended-badge")).toBeNull();
   });
 
   it("delegates create architecture to the dedicated navigation hook", () => {

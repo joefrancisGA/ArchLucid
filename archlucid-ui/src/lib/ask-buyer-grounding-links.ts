@@ -30,11 +30,11 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
 
   return [
     {
-      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.reviewExecutiveSummaryLabel,
       href: getShowcaseExecutiveHref(),
     },
     {
-      label: "Finalized review package",
+      label: "Finalized review",
       href: getShowcaseManifestHref(),
     },
     {

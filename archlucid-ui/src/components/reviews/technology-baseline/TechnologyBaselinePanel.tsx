@@ -208,7 +208,7 @@ export function TechnologyBaselinePanel({
       <div>
         <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>{sectionTitle}</h2>
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Authoritative technology choices for this review package — approve agent proposals and lock rows before finalize.
+          Authoritative technology choices for this review — approve agent proposals and lock rows before finalize.
         </p>
         {showConsistencyNote ? (
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -219,7 +219,7 @@ export function TechnologyBaselinePanel({
 
       {showPreFinalizeBanner ? (
         <OperatorWarningCallout>
-          Agent-proposed technology choices still need operator approval before this review package should be treated as
+          Agent-proposed technology choices still need operator approval before this review should be treated as
           authoritative. Approve Assumed rows below or adjust intake evidence.
         </OperatorWarningCallout>
       ) : null}

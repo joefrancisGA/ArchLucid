@@ -27,6 +27,6 @@ describe("ArchitectureCreatedHomeViewport", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Retail API platform" })).toBeInTheDocument();
     expect(screen.getByText("Business purpose")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-created-primary-action")).toHaveTextContent("Run initial assessment");
-    expect(screen.queryByText("Review package")).not.toBeInTheDocument();
+    expect(screen.queryByText("Review")).not.toBeInTheDocument();
   });
 });

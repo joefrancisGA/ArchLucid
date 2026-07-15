@@ -83,7 +83,7 @@ describe("MarketingTierPricingSection", () => {
     expect(screen.queryByTestId("pricing-early-adopter-framing")).toHaveTextContent(/Early adopter pricing/i);
   });
 
-  it("sets Team primary CTA to Stripe Checkout when NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED is true", async () => {
+  it("routes Team primary CTA to in-app billing when self-serve checkout is enabled", async () => {
     vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
 
     render(
@@ -100,46 +100,16 @@ describe("MarketingTierPricingSection", () => {
     }
 
     const teamScope = within(teamCard);
-    const stripeSubscribe = teamScope.getByTestId("pricing-team-subscribe-stripe");
+    const billingLink = teamScope.getByTestId("pricing-team-subscribe-stripe");
 
-    expect(stripeSubscribe.getAttribute("href")).toBe("https://pay.example.test/checkout");
-    expect(stripeSubscribe).toHaveTextContent(/subscribe with stripe/i);
-    teamScope.getByRole("link", { name: /start team evaluation/i });
-  });
-
-  it("uses NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL for Team primary CTA href when flag is true", async () => {
-    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
-    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL", "https://checkout.stripe.com/c/pay/cs_test_override");
-
-    render(<MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />);
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
-    });
-
-    const teamCard = screen.getByRole("heading", { name: "Team" }).closest("li");
-    if (teamCard === null) {
-      throw new Error("expected Team tier list item");
-    }
-
-    const stripeSubscribe = within(teamCard).getByTestId("pricing-team-subscribe-stripe");
-
-    expect(stripeSubscribe.getAttribute("href")).toBe("https://checkout.stripe.com/c/pay/cs_test_override");
-    expect(stripeSubscribe).toHaveTextContent(/subscribe \(stripe test\)/i);
-  });
-
-  it("labels Team primary Stripe CTA as test-only when checkout URL uses cs_test", async () => {
-    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          ...mockPricingDoc,
-          teamStripeCheckoutUrl: "https://checkout.stripe.com/c/pay/cs_test_json",
-        }),
-      }),
+    expect(billingLink.getAttribute("href")).toBe(
+      "/auth/signin?returnUrl=%2Fsettings%2Fbilling%3Fplan%3Dteam",
     );
+    expect(teamScope.getAllByRole("link", { name: /start team evaluation/i })).toHaveLength(2);
+  });
+
+  it("does not link marketing CTAs to external Stripe checkout URLs when self-serve is enabled", async () => {
+    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
 
     render(<MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />);
 
@@ -149,87 +119,11 @@ describe("MarketingTierPricingSection", () => {
 
     const stripeSubscribe = screen.getByTestId("pricing-team-subscribe-stripe");
 
-    expect(stripeSubscribe.getAttribute("href")).toBe("https://checkout.stripe.com/c/pay/cs_test_json");
-    expect(stripeSubscribe).toHaveTextContent(/subscribe \(stripe test\)/i);
+    expect(stripeSubscribe.getAttribute("href") ?? "").not.toContain("stripe.com");
+    expect(stripeSubscribe.getAttribute("href") ?? "").toContain("/auth/signin");
   });
 
-  it("labels Team primary Stripe CTA as test-only for buy.stripe.com test payment links", async () => {
-    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          ...mockPricingDoc,
-          teamStripeCheckoutUrl: "https://buy.stripe.com/test_some_link",
-        }),
-      }),
-    );
-
-    render(<MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />);
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
-    });
-
-    const stripeSubscribe = screen.getByTestId("pricing-team-subscribe-stripe");
-
-    expect(stripeSubscribe.getAttribute("href")).toBe("https://buy.stripe.com/test_some_link");
-    expect(stripeSubscribe).toHaveTextContent(/subscribe \(stripe test\)/i);
-  });
-
-  it("does not add test-only labeling for cs_live checkout URLs", async () => {
-    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          ...mockPricingDoc,
-          teamStripeCheckoutUrl: "https://checkout.stripe.com/c/pay/cs_live_abc",
-        }),
-      }),
-    );
-
-    render(<MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />);
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
-    });
-
-    const stripeSubscribe = screen.getByTestId("pricing-team-subscribe-stripe");
-
-    expect(stripeSubscribe).toHaveTextContent(/subscribe with stripe/i);
-    expect(stripeSubscribe.textContent?.toLowerCase() ?? "").not.toContain("stripe test");
-  });
-
-  it("hides Subscribe with Stripe when the configured URL is a placeholder", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          ...mockPricingDoc,
-          teamStripeCheckoutUrl: "https://checkout.stripe.com/placeholder-replace-before-launch",
-          architectStripeCheckoutUrl: "https://checkout.stripe.com/placeholder-replace-before-launch",
-        }),
-      }),
-    );
-
-    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
-
-    render(
-      <MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
-    });
-
-    expect(screen.queryByTestId("pricing-team-subscribe-stripe")).not.toBeInTheDocument();
-  });
-
-  it("hides Subscribe with Stripe when NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED is off even if pricing JSON has a URL", async () => {
+  it("hides in-app billing CTA when NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED is off even if pricing JSON has a URL", async () => {
     vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "0");
 
     render(

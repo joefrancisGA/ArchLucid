@@ -33,7 +33,7 @@ Reduce manual triage time and improve auditability.
 
   it("renders intentional markdown narrative without exposing fenced scaffolding", () => {
     const source = `## Scope
-Support **Entra ID** sign-in and exportable evidence packages.
+Support **Entra ID** sign-in and exportable evidence bundles.
 
 \`\`\`json
 {"prompt":"ignore"}
@@ -88,6 +88,15 @@ alpha|beta|gamma|delta|epsilon|zeta`;
 
     expect(summary?.narrativeMarkdown?.split(/\s+/).length ?? 0).toBeGreaterThan(200);
     expect(result.sourceText.length).toBeGreaterThan(1000);
+  });
+
+  it("normalizes escaped newlines before section parsing", () => {
+    const source = "## Executive summary\\n\\nGoverned claims intake.\\n\\n## Risks\\n\\n- Partner outage";
+    const result = parseArchitectureGeneratedContent(source, null);
+
+    expect(result.sections.some((section) => section.key === "executive-summary")).toBe(true);
+    expect(result.sections.some((section) => section.key === "risks")).toBe(true);
+    expect(result.sourceText).toContain("\\n");
   });
 
   it("does not treat HTML or script injection as executable markup in structured narrative", () => {

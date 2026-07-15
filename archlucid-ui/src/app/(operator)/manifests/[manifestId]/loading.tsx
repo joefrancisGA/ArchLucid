@@ -28,7 +28,7 @@ export default function ManifestDetailLoading() {
         </Link>
       </nav>
       <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
-        {buyerPolishedLayout ? "Architecture review package" : "Finalized architecture review package"}
+        {buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
       </h1>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading review record…</p>
     </div>

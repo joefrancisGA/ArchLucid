@@ -57,7 +57,7 @@ export function ExecutiveRoiBoardPackEvidenceBanner(
         Before you share the board pack: {extractorCount} cluster(s) are extractor-backed, {illustrativeCount} are
         illustrative for cost lines.
         {props.includeNarrative
-          ? " The optional AI narrative is advisory and not part of the governed review package."
+          ? " The optional AI narrative is advisory and not part of the governed review."
           : ""}
       </p>
 

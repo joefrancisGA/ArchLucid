@@ -59,7 +59,7 @@ export function ReplayValidationResultPanel(props: ReplayValidationResultPanelPr
 
         <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
           <div>
-            <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review package</dt>
+            <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review</dt>
             <dd className="m-0 font-mono">{result.runId}</dd>
           </div>
           <div>

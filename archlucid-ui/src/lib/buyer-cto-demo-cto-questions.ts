@@ -116,7 +116,7 @@ export const CTO_DEMO_QUESTIONS: readonly CtoDemoQuestion[] = [
     id: "rbac",
     question: "How granular is access control?",
     answer:
-      "Role-based access separates review, approve, and administer authorities; workspace scope limits which review packages a principal can see or mutate.",
+      "Role-based access separates review, approve, and administer authorities; workspace scope limits which reviews a principal can see or mutate.",
     proofHref: "/governance",
     proofLabel: "Governance roles",
     proofQueryParam: "focus=rbac",

@@ -97,9 +97,9 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
         </div>
         {reviewPackageHref !== null ? (
           <div className={cn("mb-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="text-neutral-500 dark:text-neutral-500">Review package:</span>{" "}
+            <span className="text-neutral-500 dark:text-neutral-500">Review:</span>{" "}
             <Link href={reviewPackageHref} className={cn(OPERATOR_LINK.inline, "font-medium")}>
-              Open package
+              Open review
             </Link>
           </div>
         ) : null}

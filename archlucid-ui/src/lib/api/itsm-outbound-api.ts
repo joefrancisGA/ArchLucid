@@ -104,13 +104,13 @@ export async function upsertTenantItsmOutboundSettings(
 }
 
 export async function fetchTenantItsmConnectorConnection(
-  provider: "jira" | "servicenow",
+  provider: "jira" | "servicenow" | "azureboards",
 ): Promise<TenantItsmConnectorConnectionResponse> {
   return apiGet<TenantItsmConnectorConnectionResponse>(`/v1/integrations/itsm/connections/${provider}`);
 }
 
 export async function upsertTenantItsmConnectorConnection(
-  provider: "jira" | "servicenow",
+  provider: "jira" | "servicenow" | "azureboards",
   body: TenantItsmConnectorConnectionUpsertRequest,
 ): Promise<TenantItsmConnectorConnectionResponse> {
   return apiPostJson<TenantItsmConnectorConnectionResponse>(
@@ -119,7 +119,9 @@ export async function upsertTenantItsmConnectorConnection(
   );
 }
 
-export async function deleteTenantItsmConnectorConnection(provider: "jira" | "servicenow"): Promise<void> {
+export async function deleteTenantItsmConnectorConnection(
+  provider: "jira" | "servicenow" | "azureboards",
+): Promise<void> {
   await apiDelete(`/v1/integrations/itsm/connections/${provider}`);
 }
 
@@ -161,7 +163,7 @@ export async function listItsmFindingCorrelations(
 
 export async function createItsmOutboundIssue(
   findingId: string,
-  provider: "Jira" | "ServiceNow",
+  provider: "Jira" | "ServiceNow" | "Azure Boards",
   onJobPending?: (job: BackgroundJobInfo) => void,
 ): Promise<CreateItsmOutboundIssueResponse> {
   return createItsmOutboundIssueWithJobPolling(findingId, provider, onJobPending);

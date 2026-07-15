@@ -765,7 +765,7 @@ export function NewRunWizardClient() {
               )}
               data-testid="new-run-follow-up-source-run-id"
             >
-              Follow-up review for prior review package{" "}
+              Follow-up review for prior review{" "}
               <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{followUpSourceRunId}</span>. Source context is stored for a
               future wizard prefill.
             </p>
@@ -821,7 +821,7 @@ export function NewRunWizardClient() {
               >
                 <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   <span className="font-medium text-neutral-900 dark:text-neutral-100">Quick start (3 steps)</span>
-                  {" — recommended for your first review package. Constraints, optional evidence, and advanced fields use safe defaults."}
+                  {" — recommended for your first review. Constraints, optional evidence, and advanced fields use safe defaults."}
                 </p>
                 <button
                   type="button"

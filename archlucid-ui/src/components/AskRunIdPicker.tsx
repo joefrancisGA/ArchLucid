@@ -103,18 +103,18 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   const labelText = label ?? "Review";
   const controlIdPrefix = fieldId ?? "ask-run-primary";
   const selectControlId = `${controlIdPrefix}-select`;
-  const reviewsUnavailablePlaceholder = reviewsLoadErrorPlaceholder ?? "Review packages unavailable";
+  const reviewsUnavailablePlaceholder = reviewsLoadErrorPlaceholder ?? "Reviews unavailable";
   const reviewsUnavailableHint = reviewsLoadErrorHint ?? "Check workspace setup or retry.";
   const syntheticSampleHintText =
     syntheticSampleHint ??
-    "No completed review packages are available yet. You can start a new review or explore the sample evidence graph.";
+    "No completed reviews are available yet. You can start a new review or explore the sample evidence graph.";
   const syntheticLoadErrorHintText =
     syntheticLoadErrorHint ??
-    "Review packages could not be loaded. Showing the sample review package for this page.";
-  const emptyListPlaceholderText = emptyListPlaceholder ?? "No completed review packages yet";
+    "Reviews could not be loaded. Showing the sample review for this page.";
+  const emptyListPlaceholderText = emptyListPlaceholder ?? "No completed reviews yet";
   const emptyListHintText =
     emptyListHint ??
-    "No completed review packages yet. Start a new review or open the sample evidence graph.";
+    "No completed reviews yet. Start a new review or open the sample evidence graph.";
 
   const onListAvailabilityChangeRef = useRef(onListAvailabilityChange);
   onListAvailabilityChangeRef.current = onListAvailabilityChange;

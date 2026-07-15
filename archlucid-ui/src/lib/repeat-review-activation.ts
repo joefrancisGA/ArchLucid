@@ -46,7 +46,7 @@ export function resolveRepeatReviewActivation(input: {
     return {
       headline: "Plan your second committed review",
       summary:
-        "The first proof package is the baseline. A follow-up review shows stickiness when you compare against the prior manifest, replay authority for regressions, or tighten governance dry-runs before enforce.",
+        "The first proof export is the baseline. A follow-up review shows stickiness when you compare against the prior manifest, replay authority for regressions, or tighten governance dry-runs before enforce.",
       primaryHref: "/reviews/new",
       primaryCta: "Start next review",
       actions: [

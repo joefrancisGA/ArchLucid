@@ -639,6 +639,9 @@ public static class AuditEventTypes
     /// <summary>Operator saved per-tenant ROI cost assumptions on <c>dbo.TenantCostSettings</c>.</summary>
     public const string TenantCostSettingsUpdated = "TenantCostSettingsUpdated";
 
+    /// <summary>Workspace owner updated the featured completed sample on operator home.</summary>
+    public const string TenantHomepageSettingsUpdated = "TenantHomepageSettingsUpdated";
+
     /// <summary>LLM prompt truncated because estimated tokens exceeded the configured context threshold.</summary>
     public const string LlmContextTruncated = "LlmContextTruncated";
 
@@ -668,6 +671,21 @@ public static class AuditEventTypes
 
     /// <summary>Hosted billing checkout session created successfully (payload may include provider session id).</summary>
     public const string BillingCheckoutCompleted = "BillingCheckoutCompleted";
+
+    /// <summary>Admin initiated Stripe Billing Portal session for self-serve billing management.</summary>
+    public const string BillingPortalInitiated = "BillingPortalInitiated";
+
+    /// <summary>Stripe Billing Portal session created successfully (payload may include provider session id).</summary>
+    public const string BillingPortalCompleted = "BillingPortalCompleted";
+
+    /// <summary>Stripe subscription moved to Suspended (dunning / payment failure) via webhook.</summary>
+    public const string BillingSubscriptionSuspended = "BillingSubscriptionSuspended";
+
+    /// <summary>Stripe subscription returned to Active after successful payment via webhook.</summary>
+    public const string BillingSubscriptionReinstated = "BillingSubscriptionReinstated";
+
+    /// <summary>Stripe subscription canceled or deleted via webhook.</summary>
+    public const string BillingSubscriptionCanceled = "BillingSubscriptionCanceled";
 
     /// <summary>
     ///     Tenant-level customer notification channel toggles updated (
@@ -909,6 +927,21 @@ public static class AuditEventTypes
 
     /// <summary>Outbound ServiceNow incident create skipped — unconfigured connector or prerequisite not met.</summary>
     public const string IntegrationServiceNowIncidentCreateSkipped = "Integration.ServiceNowIncidentCreateSkipped";
+
+    /// <summary>Outbound Azure Boards work item create succeeded.</summary>
+    public const string IntegrationAzureBoardsWorkItemCreateSucceeded = "Integration.AzureBoardsWorkItemCreateSucceeded";
+
+    /// <summary>Outbound Azure Boards work item create failed after vendor call or correlation persistence.</summary>
+    public const string IntegrationAzureBoardsWorkItemCreateFailed = "Integration.AzureBoardsWorkItemCreateFailed";
+
+    /// <summary>Outbound Azure Boards work item create skipped — unconfigured connector or informational severity dropped.</summary>
+    public const string IntegrationAzureBoardsWorkItemCreateSkipped = "Integration.AzureBoardsWorkItemCreateSkipped";
+
+    /// <summary>Per-tenant Azure Boards outbound settings upserted (project, work item type, optional paths).</summary>
+    public const string TenantAzureBoardsOutboundSettingsUpserted = "TenantAzureBoardsOutboundSettingsUpserted";
+
+    /// <summary>Azure Boards connection test executed (no work item created).</summary>
+    public const string IntegrationAzureBoardsConnectionTested = "Integration.AzureBoardsConnectionTested";
 
     /// <summary>Admin or CLI re-queued one or more integration outbox dead-letter rows for publish retry.</summary>
     public const string IntegrationOutboxDeadLetterRetried = "Integration.OutboxDeadLetterRetried";

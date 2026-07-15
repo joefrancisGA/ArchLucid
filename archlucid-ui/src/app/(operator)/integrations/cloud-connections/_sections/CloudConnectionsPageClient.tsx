@@ -12,6 +12,7 @@ import {
   CLOUD_CONNECTIONS_PAGE_SUBTITLE,
   CLOUD_CONNECTIONS_PAGE_TITLE,
 } from "@/lib/cloud-connections-copy";
+import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
   readCloudPlatformScopeFromStorage,
   subscribeCloudPlatformScopeChanges,
@@ -21,6 +22,7 @@ import {
 } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { PageHeading } from "@/components/PageHeading";
 import { CloudPlatformScopePanel } from "./CloudPlatformScopePanel";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { EvidenceOnlyConnectionCard } from "./EvidenceOnlyConnectionCard";
@@ -116,11 +118,17 @@ export function CloudConnectionsPageClient() {
 
   return (
     <div className="w-full max-w-5xl space-y-6" data-testid="cloud-connections-page">
-      <header className="space-y-2">
-        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{CLOUD_CONNECTIONS_PAGE_TITLE}</h1>
-        <p className={cn("max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_PAGE_SUBTITLE}</p>
-        <p className={cn("max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_OPTIONAL_NOTE}</p>
-      </header>
+      <PageHeading
+        navHref={CLOUD_CONNECTIONS_PATH}
+        title={CLOUD_CONNECTIONS_PAGE_TITLE}
+        variant="integration"
+        description={
+          <>
+            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_PAGE_SUBTITLE}</p>
+            <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_OPTIONAL_NOTE}</p>
+          </>
+        }
+      />
 
       <CloudPlatformScopePanel />
 

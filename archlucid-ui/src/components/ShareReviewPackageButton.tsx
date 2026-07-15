@@ -26,7 +26,7 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
       const markdown = await getFirstValueReportMarkdown(runId);
 
       if (markdown === null || markdown.trim().length === 0) {
-        showError("Share review package", "Finalize the review before generating the sponsor report.");
+        showError("Share review", "Finalize the review before generating the sponsor report.");
 
         return;
       }
@@ -44,7 +44,7 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Could not generate report.";
 
-      showError("Share review package", message);
+      showError("Share review", message);
     } finally {
       setBusy(false);
     }
@@ -60,7 +60,7 @@ export function ShareReviewPackageButton(props: ShareReviewPackageButtonProps): 
       data-testid="share-review-package-button"
       onClick={() => void onShare()}
     >
-      {busy ? "Preparing…" : "Share review package"}
+      {busy ? "Preparing…" : "Share review"}
     </Button>
   );
 }

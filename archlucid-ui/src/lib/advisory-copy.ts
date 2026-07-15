@@ -1,7 +1,7 @@
 /** Advisory scans hub — page chrome, form labels, empty states, and governance disposition copy. */
 
 export const ADVISORY_SCANS_PAGE_SUBTITLE =
-  "Generate prioritized follow-up recommendations from finalized review packages.";
+  "Generate prioritized follow-up recommendations from finalized reviews.";
 
 export const ADVISORY_SCANS_PAGE_VALUE_STATEMENT =
   "Use advisory scans after a review is finalized to identify changes, risks, tradeoffs, and implementation follow-up actions.";
@@ -11,9 +11,9 @@ export const ADVISORY_SCANS_TRUST_COPY =
 
 export const ADVISORY_SCANS_FORM_SECTION_TITLE = "Generate advisory scan";
 
-export const ADVISORY_SCANS_FINALIZED_REVIEW_LABEL = "Finalized review package";
+export const ADVISORY_SCANS_FINALIZED_REVIEW_LABEL = "Finalized review";
 
-export const ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER = "Choose a finalized review package";
+export const ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER = "Choose a finalized review";
 
 export const ADVISORY_SCANS_BASELINE_REVIEW_LABEL = "Baseline review for comparison";
 
@@ -25,9 +25,9 @@ export const ADVISORY_SCANS_BASELINE_REVIEW_HELPER =
 export const ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY = "Can't find a review?";
 
 export const ADVISORY_SCANS_CANT_FIND_REVIEW_BODY =
-  "Search recent finalized review packages below, or open the review packages list to locate the review you need.";
+  "Search recent finalized reviews below, or open the reviews list to locate the review you need.";
 
-export const ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL = "Open review packages";
+export const ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL = "Open reviews";
 
 export const ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
 
@@ -36,7 +36,7 @@ export const ADVISORY_SCANS_GENERATE_BUTTON_LABEL = "Generate advisory scan";
 export const ADVISORY_SCANS_GENERATE_BUTTON_WORKING_LABEL = "Generating advisory scan…";
 
 export const ADVISORY_SCANS_GENERATE_DISABLED_HINT =
-  "Select a finalized review package to generate an advisory scan.";
+  "Select a finalized review to generate an advisory scan.";
 
 export const ADVISORY_SCANS_GENERATE_OUTPUT_HINT =
   "The scan will produce prioritized recommendations with suggested dispositions.";
@@ -46,7 +46,7 @@ export const ADVISORY_SCANS_REFRESH_SAVED_LABEL = "Refresh saved recommendations
 export const ADVISORY_SCANS_EMPTY_TITLE = "No advisory scan generated yet";
 
 export const ADVISORY_SCANS_EMPTY_BODY =
-  "Select a finalized review package to generate recommendations, or view a sample advisory scan.";
+  "Select a finalized review to generate recommendations, or view a sample advisory scan.";
 
 export const ADVISORY_SCANS_VIEW_SAMPLE_LABEL = "View sample advisory scan";
 
@@ -106,7 +106,7 @@ export const ADVISORY_SCANS_CARD_OWNER_LABEL = "Owner or role";
 export const ADVISORY_SCANS_CARD_DISPOSITION_LABEL = "Governance disposition";
 
 export const ADVISORY_SCANS_SCHEDULES_INTRO =
-  "Run advisory scans on a schedule after review packages are committed.";
+  "Run advisory scans on a schedule after reviews are committed.";
 
 export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL = "Open recurrence schedules";
 

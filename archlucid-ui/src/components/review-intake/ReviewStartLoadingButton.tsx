@@ -6,7 +6,7 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { cn } from "@/lib/utils";
 
-type ReviewStartLoadingButtonProps = Omit<ButtonProps, "children"> & {
+export type ReviewStartLoadingButtonProps = Omit<ButtonProps, "children"> & {
   readonly idleLabel: string;
   readonly loadingLabel: string;
   readonly isLoading: boolean;

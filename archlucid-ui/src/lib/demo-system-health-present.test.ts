@@ -23,7 +23,7 @@ describe("demo-system-health-present", () => {
     expect(tiles[0]?.value).toBe("Healthy");
     expect(checks.map((check) => check.label)).toEqual([
       "Application shell",
-      "Review package navigation",
+      "Review navigation",
       "Evidence graph",
       "Search",
       "AI budget guardrails",

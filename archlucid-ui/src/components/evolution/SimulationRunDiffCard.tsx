@@ -59,7 +59,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
         <div className={colBeforeCls}>
           <div className={labelCls}>Before (current baseline)</div>
           <p className="mb-2 text-stone-700 dark:text-stone-300">
-            The review package associated with this proposed change before the simulated update is applied.
+            The review associated with this proposed change before the simulated update is applied.
           </p>
           <ul className="m-0 pl-[18px] text-stone-600 dark:text-stone-400">
             <li>
@@ -67,7 +67,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
               <strong>{isLinkedOnPlan ? "yes" : "no"}</strong>
               {planLinkedRunIds.length > 0 ? (
                 <span className="mt-1.5 block">
-                  Linked review packages:{" "}
+                  Linked reviews:{" "}
                   {planLinkedRunIds.map((id, idx) => (
                     <span key={`${id}-${idx}`} className="block">
                       <Link href={`/reviews/${encodeURIComponent(id)}`} className={monoCls}>
@@ -78,7 +78,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                   ))}
                 </span>
               ) : (
-                <span className="text-amber-700 dark:text-amber-400"> No review packages linked from planning.</span>
+                <span className="text-amber-700 dark:text-amber-400"> No reviews linked from planning.</span>
               )}
             </li>
           </ul>

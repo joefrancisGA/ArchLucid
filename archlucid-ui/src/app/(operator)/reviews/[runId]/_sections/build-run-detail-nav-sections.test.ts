@@ -19,6 +19,7 @@ describe("buildRunDetailNavSections", () => {
     expect(sections.find((s) => s.id === "review-summary")?.label).toBe("Summary");
     expect(sections.find((s) => s.id === "manifest-summary")?.label).toBe("Policies and standards");
     expect(sections.find((s) => s.id === "manifest-summary")?.available).toBe(true);
+    expect(sections.find((s) => s.id === "review-package")?.label).toBe("Finalize & exports");
     expect(sections.find((s) => s.id === "submitted-architecture")?.label).toBe("Submitted architecture");
   });
 

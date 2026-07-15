@@ -8,19 +8,19 @@ import {
 describe("buyerPolishedOperateBackLink", () => {
   it("returns showcase package link for golden-path satellites", () => {
     expect(buyerPolishedOperateBackLink("/graph?runId=x")).toEqual({
-      label: "Back to review package",
+      label: "Back to review",
       href: "/reviews/claims-intake-modernization",
     });
     expect(buyerPolishedOperateBackLink("/audit")).toEqual({
-      label: "Back to review package",
+      label: "Back to review",
       href: "/reviews/claims-intake-modernization",
     });
     expect(buyerPolishedOperateBackLink("/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890")).toEqual({
-      label: "Back to review package",
+      label: "Back to review",
       href: "/reviews/claims-intake-modernization",
     });
     expect(buyerPolishedOperateBackLink("/ask")).toEqual({
-      label: "Back to review package",
+      label: "Back to review",
       href: "/reviews/claims-intake-modernization",
     });
     expect(buyerPolishedOperateBackLink("/compare?prior=claims-intake-run-v1&later=claims-intake-run-v2")).toBeNull();
@@ -35,7 +35,7 @@ describe("buyerPolishedOperateBackLink", () => {
 
 describe("isBuyerOperateBackLinkRedundantWithBreadcrumbs", () => {
   const backLink = {
-    label: "Back to review package",
+    label: "Back to review",
     href: "/reviews/claims-intake-modernization",
   } as const;
 

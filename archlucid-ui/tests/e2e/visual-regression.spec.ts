@@ -42,7 +42,7 @@ test.describe("visual regression — operator UI", () => {
       }),
     ).toBeVisible();
     await expect(page.getByTestId("app-shell-main").getByRole("navigation", { name: "Breadcrumb" })).toContainText(
-      "Review packages",
+      "Reviews",
     );
 
     await expect(page).toHaveScreenshot("run-detail.png", screenshotOptions);

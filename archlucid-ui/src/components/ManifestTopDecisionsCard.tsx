@@ -51,13 +51,13 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
           <CardDescription>
             {buyer ? (
               <>
-                This review package records <strong>{summary.decisionCount}</strong> decision
+                This review records <strong>{summary.decisionCount}</strong> decision
                 {summary.decisionCount === 1 ? "" : "s"}.
                 {hasExcerpts ? " Preview:" : " Open the review for full context and evidence."}
               </>
             ) : (
               <>
-                This review package records <strong>{summary.decisionCount}</strong> decision
+                This review records <strong>{summary.decisionCount}</strong> decision
                 {summary.decisionCount === 1 ? "" : "s"}
                 {hasExcerpts ? " — preview:" : " — review the originating run for full evidence and narration."}
               </>
@@ -107,7 +107,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
         <CardHeader>
           <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Key decisions</CardTitle>
           <CardDescription>
-            Grouped by control area — main architecture choices captured in this review package.
+            Grouped by control area — main architecture choices captured in this review.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -147,8 +147,8 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
         <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{buyer ? "Key decisions" : "Top decisions"}</CardTitle>
         <CardDescription>
           {buyer
-            ? "Main architecture choices captured in this review package."
-            : "Preview of key architecture choices captured in this review package."}
+            ? "Main architecture choices captured in this review."
+            : "Preview of key architecture choices captured in this review."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

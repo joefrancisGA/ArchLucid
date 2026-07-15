@@ -136,14 +136,14 @@ export default function GovernanceFindingsQueueClient() {
             description={
               loadFailed
                 ? buyerPolishedShell
-                  ? "We could not load risks for this review. Check your connection, or open review packages and try again."
+                  ? "We could not load risks for this review. Check your connection, or open reviews and try again."
                   : "We could not load the architecture risk register for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
                 : buyerPolishedShell
                   ? BUYER_RISK_REGISTER_EMPTY_BODY
                   : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
             }
             actions={[
-              { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+              { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
               {
                 label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance workflow",
                 href: "/governance",

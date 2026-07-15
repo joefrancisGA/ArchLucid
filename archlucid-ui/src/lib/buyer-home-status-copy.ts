@@ -106,11 +106,11 @@ export const BUYER_COMMAND_CENTER_RECOMMENDED_HEADING = "Recommended next step";
 
 export const BUYER_COMMAND_CENTER_REVIEW_READY_SUMMARY =
 
-  "The review package is ready. Add ROI assumptions before sharing the sponsor package.";
+  "The review is ready. Add ROI assumptions before sharing the sponsor package.";
 
 
 
-export const BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK = "Open review package";
+export const BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK = "Open review";
 
 
 
@@ -140,7 +140,7 @@ export const BUYER_STATUS_REQUIRED = "Required";
 
 export const BUYER_PILOT_EVIDENCE_PENDING =
 
-  "Pilot evidence is pending until the first review package is finalized.";
+  "Pilot evidence is pending until the first review is finalized.";
 
 
 

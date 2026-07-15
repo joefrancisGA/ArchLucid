@@ -9,6 +9,12 @@ import {
  * Help-only replacements — preserves technical filenames like `manifest.json` (Azure extractor).
  */
 const HELP_PRODUCT_LANGUAGE_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/\breview packages\b/gi, "reviews"],
+  [/\breview package\b/gi, ARCHITECTURE_REVIEW_LABEL.toLowerCase()],
+  [/\barchitecture packages\b/gi, `${ARCHITECTURE_REVIEW_LABEL.toLowerCase()}s`],
+  [/\barchitecture package\b/gi, ARCHITECTURE_REVIEW_LABEL.toLowerCase()],
+  [/\bevidence packages\b/gi, "evidence bundles"],
+  [/\bevidence package\b/gi, "evidence bundle"],
   [/\bgolden manifests\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
   [/\bgolden manifest\b/gi, SIGNED_MANIFEST_LABEL],
   [/\bmanifest summary\b/gi, `${REVIEW_PACKAGE_LABEL.toLowerCase()} summary`],
@@ -52,6 +58,10 @@ export function applyHelpTopicProductLanguage(markdown: string): string {
 
 /** Lowercase fragments that must not appear in help presentation output (buyer-facing). */
 export const HELP_TOPIC_BANNED_COPY_PATTERNS = [
+  "review package",
+  "review packages",
+  "architecture package",
+  "evidence package",
   "golden manifest",
   "manifest summary",
   "manifest not found",

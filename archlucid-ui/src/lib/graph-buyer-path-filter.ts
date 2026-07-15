@@ -43,7 +43,7 @@ function collectReachable(startId: string, adjacency: Map<string, string[]>): Se
   return visited;
 }
 
-/** Nodes on paths between the selected node and the review package node, if both exist. */
+/** Nodes on paths between the selected node and the review node, if both exist. */
 export function resolveBuyerTrailPathNodeIds(
   graph: GraphViewModel,
   selectedNodeId: string,

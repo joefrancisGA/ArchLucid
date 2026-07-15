@@ -9,8 +9,13 @@ const dualPathSource = readFileSync(
   "utf8",
 );
 
-const socraticSource = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "../../app/(operator)/reviews/new/SocraticIntakeWizard.tsx"),
+const createNavSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../../hooks/use-create-architecture-navigation.ts"),
+  "utf8",
+);
+
+const pilotNavSource = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "../../lib/pilot-nav-group-builder.ts"),
   "utf8",
 );
 
@@ -26,10 +31,15 @@ describe("architecture creation vs review workflow separation", () => {
     expect(dualPathSource).not.toMatch(/createArchitectureNavigation\.showStagedPanel/);
   });
 
-  it("skips review admission for explicit create-architecture intent", () => {
-    expect(socraticSource).toContain("runCreateArchitectureContinuation");
-    expect(socraticSource).toContain("isCreateArchitectureFlow");
-    expect(socraticSource).toContain("getDraftQuestions(id)");
-    expect(socraticSource).toMatch(/void runAdmission\(\)/);
+  it("navigates create architecture to /architectures/new", () => {
+    expect(createNavSource).toContain("ARCHITECTURES_NEW_PATH");
+    expect(createNavSource).not.toContain("/reviews/new?path=guided-intake&intent=create-architecture");
+  });
+
+  it("separates create architecture and start review in pilot nav", () => {
+    expect(pilotNavSource).toContain('href: ARCHITECTURES_NEW_PATH');
+    expect(pilotNavSource).toContain('href: "/reviews/new"');
+    expect(pilotNavSource).toContain("START_REVIEW_LABEL");
+    expect(pilotNavSource).toContain("CREATE_ARCHITECTURE_LABEL");
   });
 });

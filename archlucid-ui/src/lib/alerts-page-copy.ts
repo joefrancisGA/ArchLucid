@@ -28,7 +28,7 @@ export const ALERTS_EMPTY_HEALTHY_BODY =
 
 export const ALERTS_EMPTY_NO_REVIEWS_TITLE = "No alerts yet";
 export const ALERTS_EMPTY_NO_REVIEWS_BODY =
-  "Finalize a review package before alert rules can evaluate findings.";
+  "Finalize a review before alert rules can evaluate findings.";
 
 export const ALERTS_EMPTY_NO_RULES_TITLE = "No alert rules configured";
 export const ALERTS_EMPTY_NO_RULES_BODY =
@@ -38,7 +38,7 @@ export const ALERTS_EMPTY_FILTERED_TITLE = "No alerts for this filter";
 export const ALERTS_EMPTY_FILTERED_BODY =
   "Try another status or refresh after new evaluations.";
 
-export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES = "Open review packages";
+export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES = "Open reviews";
 export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW = "Start architecture review";
 export const ALERTS_ACTION_CONFIGURE_ALERT_RULES = "Configure alert rules";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open governance setup guide";

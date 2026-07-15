@@ -111,7 +111,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
             </div>
             <div className={cn("flex min-w-0 flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className="underline" href={reviewPackageHref}>
-                Review package
+                Review
               </Link>
               <Link
                 className="underline"

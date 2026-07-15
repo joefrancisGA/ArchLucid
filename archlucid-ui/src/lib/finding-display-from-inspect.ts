@@ -185,7 +185,7 @@ export function findingDetailLeadSentence(payload: FindingInspectPayload): strin
   }
 
   if (isBuyerPolishedOperatorShellEnv()) {
-    return "Risk observation record for the finalized review package — see evidence and monitoring details below.";
+    return "Risk observation record for the finalized review — see evidence and monitoring details below.";
   }
 
   return "Review the recommendations and cited evidence below before sign-off.";
@@ -219,7 +219,7 @@ export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): 
 }
 
 /**
- * Eyebrow label for finding **detail** — distinct from the parent review package frame.
+ * Eyebrow label for finding **detail** — distinct from the parent review frame.
  */
 export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, findingId?: string): string {
   if (payload !== null ? isPhiMinimizationSampleFinding(payload) : isPhiMinimizationFindingId(findingId)) {
@@ -247,7 +247,7 @@ export function phiMinimizationBuyerConsequenceNarrative(): string {
   return (
     "If understated, PHI could accumulate in adapters or caches beyond the intended minimization boundary — " +
     "expanding breach impact, audit scope, and downstream processing obligations. " +
-    "The finalized review package documents classification at ingress, adapter boundaries, and retention controls; " +
+    "The finalized review documents classification at ingress, adapter boundaries, and retention controls; " +
     "the evidence trail shows how those controls tie to this observation. " +
     `Monitoring owner ${BUYER_SHOWCASE_RESIDUAL_RISK_OWNER} tracks exception paths, attachment volume, and OCR bypass rates on a ${BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE.toLowerCase()} cadence; next review ${BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}.`
   );

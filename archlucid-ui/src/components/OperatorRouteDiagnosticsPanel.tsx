@@ -139,7 +139,7 @@ export function OperatorRouteDiagnosticsPanel(props: OperatorRouteDiagnosticsPan
         <dl className={cn("m-0 grid gap-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           <DiagnosticRow label="Attempted route" value={payload.attemptedRoute} />
           <DiagnosticRow label="Review ID" value={payload.runId} />
-          {payload.packageId ? <DiagnosticRow label="Package ID" value={payload.packageId} /> : null}
+          {payload.packageId ? <DiagnosticRow label="Review ID" value={payload.packageId} /> : null}
           {payload.jobId ? <DiagnosticRow label="Job ID" value={payload.jobId} /> : null}
           {payload.workspaceId ? <DiagnosticRow label="Workspace ID" value={payload.workspaceId} /> : null}
           {payload.projectId ? <DiagnosticRow label="Project ID" value={payload.projectId} /> : null}

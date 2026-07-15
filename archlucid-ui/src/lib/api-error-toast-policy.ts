@@ -94,7 +94,7 @@ export function resolveApiRequestErrorToastPlan(
         action: "show",
         title: "Review assistant unavailable",
         detail:
-          "The review assistant stream could not be reached. Core review package navigation remains available.",
+          "The review assistant stream could not be reached. Core review navigation remains available.",
         type: "warning",
       };
     }

@@ -26,11 +26,14 @@ public sealed class ItsmOutboundHttpAuthenticator(
 
         if (credentials.AuthMode is ItsmConnectorAuthMode.BasicApiToken)
         {
-            if (string.IsNullOrWhiteSpace(credentials.BasicAuthUserName)
-                || string.IsNullOrWhiteSpace(credentials.BasicSecretValue))
-            {
+            if (string.IsNullOrWhiteSpace(credentials.BasicSecretValue))
                 return null;
-            }
+
+            if (provider is TenantItsmConnectorProvider.AzureBoards)
+                return ItsmOutboundHttpAuthorizationHeaders.CreatePat(credentials.BasicSecretValue);
+
+            if (string.IsNullOrWhiteSpace(credentials.BasicAuthUserName))
+                return null;
 
             return ItsmOutboundHttpAuthorizationHeaders.CreateBasic(
                 credentials.BasicAuthUserName,

@@ -10,7 +10,7 @@ export const SHOWCASE_CREATED_STATIC_DEMO_RUN_ID = "northwind-copilot-rag-platfo
 export const SHOWCASE_BUYER_CREATED_PACKAGE_TITLE = "Northwind Copilot RAG Platform";
 
 export const SHOWCASE_BUYER_CREATED_PACKAGE_PACKAGE_TITLE =
-  "Northwind Copilot RAG Platform — Created Architecture Package";
+  "Northwind Copilot RAG Platform — Created architecture review";
 
 export const SHOWCASE_CREATED_STATIC_DEMO_MANIFEST_ID = "b7c8d9e0-f1a2-3456-7890-abcdcreated74201";
 
@@ -78,7 +78,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
   return {
     generatedUtc: GENERATED_UTC,
     isDemoData: true,
-    demoStatusMessage: "Demonstration — born-governed created architecture package",
+    demoStatusMessage: "Demonstration — born-governed created architecture review",
     run: {
       runId,
       projectId: DEV_SCOPE_PROJECT_ID,
@@ -97,7 +97,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
       unresolvedIssueCount: 0,
       status: "Committed",
       operatorSummary:
-        "Born-governed architecture package created from guided intake — APIM-fronted copilot, private RAG plane, " +
+        "Born-governed architecture review created from guided intake — APIM-fronted copilot, private RAG plane, " +
         "content-safety hooks, and explicit evidence limits where ArchLucid does not conclude.",
     },
     authorityChain: {

@@ -1,4 +1,5 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
@@ -6,22 +7,27 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { PATTERN_LIBRARY_PAGE_TITLE } from "@/lib/pattern-library-copy";
+import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 
 /** Static pathname → announcement title mappings for documented top-level routes. */
 export const ROUTE_TITLES: Record<string, string> = {
   "/": OPERATOR_NAV_LINK_LABELS.home,
+  [ARCHITECTURES_LIST_PATH]: "Architectures",
+  [ARCHITECTURES_NEW_PATH]: CREATE_ARCHITECTURE_LABEL,
   "/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
-  "/reviews/new": CREATE_ARCHITECTURE_LABEL,
+  "/reviews/new": START_REVIEW_LABEL,
   "/alerts": "Alerts",
   "/alert-rules": "Alert rules",
   "/compare": "Compare",
-  "/graph": "Graph",
+  "/graph": OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   "/patterns": PATTERN_LIBRARY_PAGE_TITLE,
   "/governance": GOVERNANCE_OVERVIEW_PAGE_TITLE,
   "/governance/dashboard": "Executive Workspace Health",
-  "/governance/findings": "Architecture risk register",
+  "/governance/findings": OPERATOR_NAV_LINK_LABELS.findings,
   "/governance/decision-register": "Decision register",
+  [SIGNED_RECORDS_LIST_PATH]: "Signed review records",
+  "/manifests": "Signed review records",
   "/governance/policy-packs": "Policy packs",
   "/governance/resolution": OPERATOR_NAV_LINK_LABELS.governanceResolution,
   "/governance/audit": "Audit",
@@ -35,7 +41,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/planning": "Improvement planning",
   "/onboarding": OPERATOR_NAV_LINK_LABELS.onboarding,
   "/settings/billing": "Billing & plans",
-  "/settings/tenant": OPERATOR_NAV_LINK_LABELS.workspaceSettings,
+  "/settings/tenant": OPERATOR_NAV_LINK_LABELS.settings,
   "/settings/tenant/recycle-bin": "Projects recycle bin",
   [CLOUD_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.cloudConnections,
   "/settings/cloud-connections": OPERATOR_NAV_LINK_LABELS.cloudConnections,
@@ -48,6 +54,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.integrationReadiness,
   "/integrations/operations": OPERATOR_NAV_LINK_LABELS.integrationReadiness,
   "/dashboard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+  "/executive/scorecard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
   "/digests": "Digests",
   "/value-report/roi": "ROI summary",
   "/admin/demo-readiness": "Demo readiness",

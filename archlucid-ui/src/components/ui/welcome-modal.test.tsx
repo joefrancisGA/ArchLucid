@@ -64,7 +64,7 @@ describe("WelcomeModal", () => {
   it("buyer shell shows executive framing on step one", () => {
     render(<WelcomeModal open onDismiss={vi.fn()} buyerShell />);
 
-    expect(screen.getByText(/completed executive review package/i)).toBeInTheDocument();
+    expect(screen.getByText(/completed executive review/i)).toBeInTheDocument();
     expect(screen.queryByTestId("welcome-modal-brand-mark")).not.toBeInTheDocument();
   });
 

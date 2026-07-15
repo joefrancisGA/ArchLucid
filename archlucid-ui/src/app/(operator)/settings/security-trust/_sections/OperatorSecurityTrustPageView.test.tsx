@@ -9,7 +9,7 @@ describe("OperatorSecurityTrustPageView", () => {
     render(<OperatorSecurityTrustPageView />);
 
     expect(screen.getByText(/Security materials for procurement/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Review package and evidence trail/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Review and evidence trail/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Trust Center/i })).toHaveAttribute("href", "/trust");
     expect(screen.getByRole("link", { name: /Procurement contact/i })).toHaveAttribute(
       "href",
@@ -48,7 +48,7 @@ describe("OperatorSecurityTrustPageView", () => {
     );
     expect(within(retentionSection).getByRole("link", { name: /Privacy policy/i })).toHaveAttribute(
       "href",
-      "/help/privacy-policy",
+      "/privacy",
     );
   });
 

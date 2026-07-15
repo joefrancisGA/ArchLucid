@@ -63,7 +63,7 @@ export async function waitForComparePageReady(page: Page, options?: { timeout?: 
  */
 export function comparePageIntroGuidance(page: Page): Locator {
   return page.getByText(
-    /Select two finalized review packages to see what changed in scope, findings, decisions, and evidence/i,
+    /Select two finalized reviews to see what changed in scope, findings, decisions, and evidence/i,
   );
 }
 
@@ -556,6 +556,71 @@ export async function openVisibleReviewOutcomeSummaryStrip(page: Page, runId: st
   }).toPass({ timeout: 60_000 });
 
   await expect(outcomeStrip).toBeVisible({ timeout: 5_000 });
+
+  return outcomeStrip;
+}
+
+function reviewDetailWorkspacePanel(page: Page, tab: ReviewDetailTabId): Locator {
+  return page.getByTestId(`review-detail-workspace-panel-${tab}`);
+}
+
+/** Radix tab panels hide inactive workspace content — open the tab before tab-scoped assertions. */
+export async function openReviewDetailWorkspaceTab(
+  page: Page,
+  runId: string,
+  tab: ReviewDetailTabId,
+): Promise<void> {
+  const href = buildReviewDetailTabHref(runId, tab);
+  const url = new URL(page.url());
+  const onRunDetail = url.pathname === `/reviews/${encodeURIComponent(runId.trim())}`;
+  const activeTab = url.searchParams.get("reviewTab");
+
+  if (!onRunDetail || activeTab !== tab) {
+    await page.goto(href);
+  } else {
+    const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+
+    if ((await trigger.getAttribute("data-state")) !== "active") {
+      await trigger.click();
+    }
+  }
+
+  await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId(`review-detail-workspace-tab-${tab}`)).toHaveAttribute("data-state", "active", {
+    timeout: 15_000,
+  });
+}
+
+function reviewDetailOutcomeCardsDetails(page: Page): Locator {
+  return reviewDetailWorkspacePanel(page, "activity")
+    .locator("details")
+    .filter({ has: page.getByText("Detailed outcome cards", { exact: true }) })
+    .first();
+}
+
+/** Activity tab folds outcome cards by default — expand before asserting the outcome summary strip. */
+export async function expandReviewDetailOutcomeCards(page: Page): Promise<void> {
+  const details = reviewDetailOutcomeCardsDetails(page);
+
+  await expect(details).toBeVisible({ timeout: 60_000 });
+
+  const isOpen: boolean = await details.evaluate((element) => (element as HTMLDetailsElement).open);
+
+  if (!isOpen) {
+    await details.locator(":scope > summary").click();
+  }
+
+  await expect(details).toHaveAttribute("open");
+}
+
+/** Opens activity tab, expands outcome cards, and returns the visible outcome summary strip. */
+export async function openVisibleReviewOutcomeSummaryStrip(page: Page, runId: string): Promise<Locator> {
+  await openReviewDetailWorkspaceTab(page, runId, "activity");
+  await expandReviewDetailOutcomeCards(page);
+
+  const outcomeStrip = reviewOutcomeSummaryStrip(page);
+
+  await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
 
   return outcomeStrip;
 }

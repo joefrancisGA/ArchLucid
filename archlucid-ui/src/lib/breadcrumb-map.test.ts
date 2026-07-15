@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
 import { OPERATOR_NAV_LINK_LABELS } from "./i18n";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "./showcase-static-demo";
@@ -17,31 +17,39 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("uses Create architecture on the wizard path when buyer-polished breadcrumbs are requested", () => {
+  it("uses Start review on the wizard path when buyer-polished breadcrumbs are requested", () => {
     expect(getBreadcrumbs("/reviews/new", { buyerPolishedShell: true })).toEqual([
-      { label: CREATE_ARCHITECTURE_LABEL },
+      { label: START_REVIEW_LABEL },
     ]);
   });
 
-  it("shortens the new-review path to a single wizard crumb with creation-first label", () => {
+  it("shortens the new-review path to a single wizard crumb", () => {
     expect(getBreadcrumbs("/reviews/new")).toEqual([
+      { label: START_REVIEW_LABEL },
+    ]);
+  });
+
+  it("labels architecture draft inventory and detail crumbs", () => {
+    expect(getBreadcrumbs("/architectures")).toEqual([{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }]);
+    expect(getBreadcrumbs("/architectures/draft-001")).toEqual([
+      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architectures" },
       { label: CREATE_ARCHITECTURE_LABEL },
     ]);
   });
 
-  it("labels UUID review segments as Review package", () => {
+  it("labels UUID review segments as Review", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
     expect(getBreadcrumbs(`/reviews/${id}`)).toEqual([
-      { label: "Review packages", href: "/reviews" },
-      { label: "Review package" },
+      { label: "Reviews", href: "/reviews" },
+      { label: "Review" },
     ]);
   });
 
-  it("maps review provenance under the review package crumb", () => {
+  it("maps review provenance under the review crumb", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
     expect(getBreadcrumbs(`/reviews/${id}/provenance`)).toEqual([
-      { label: "Review packages", href: "/reviews" },
-      { label: "Review package", href: `/reviews/${id}` },
+      { label: "Reviews", href: "/reviews" },
+      { label: "Review", href: `/reviews/${id}` },
       { label: "Evidence provenance" },
     ]);
   });
@@ -49,7 +57,7 @@ describe("getBreadcrumbs", () => {
   it("maps showcase manifest detail trail", () => {
     expect(getBreadcrumbs(`/signed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
       { label: "Signed review records", href: "/signed-records" },
-      { label: "Claims Intake review package" },
+      { label: "Claims Intake review" },
     ]);
   });
 
@@ -91,6 +99,22 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps SSO wizard as Settings / Identity providers / Configure SSO", () => {
+    expect(getBreadcrumbs("/settings/identity/sso-wizard")).toEqual([
+      { label: "Settings", href: "/settings" },
+      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "Configure SSO" },
+    ]);
+  });
+
+  it("maps SCIM provisioning as Settings / Identity providers / SCIM provisioning", () => {
+    expect(getBreadcrumbs("/settings/scim-provisioning")).toEqual([
+      { label: "Settings", href: "/settings" },
+      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "SCIM provisioning" },
+    ]);
+  });
+
   it("maps cloud connections under Integrations (not Settings)", () => {
     expect(getBreadcrumbs("/integrations/cloud-connections")).toEqual([
       { label: "Integrations", href: "/integrations/readiness" },
@@ -100,16 +124,22 @@ describe("getBreadcrumbs", () => {
 
   it("maps cloud connections help without generic Cloud connections segment", () => {
     expect(getBreadcrumbs("/help/cloud-connections/azure")).toEqual([
-      { label: "Help", href: "/help" },
-      { label: "Cloud connections" },
+      { label: "Support", href: "/help" },
+      { label: "Cloud connections", href: "/integrations/cloud-connections" },
+      { label: "Azure" },
     ]);
     expect(getBreadcrumbs("/help/cloud-connections/aws")).toEqual([
       { label: "Help", href: "/help" },
-      { label: "Cloud connections" },
+      { label: "Cloud connections", href: "/integrations/cloud-connections" },
     ]);
     expect(getBreadcrumbs("/help/cloud-connections/gcp")).toEqual([
       { label: "Help", href: "/help" },
-      { label: "Cloud connections" },
+      { label: "Cloud connections", href: "/integrations/cloud-connections" },
+    ]);
+    expect(getBreadcrumbs("/help/azure-permissions")).toEqual([
+      { label: "Support", href: "/help" },
+      { label: "Cloud connections", href: "/integrations/cloud-connections" },
+      { label: "Azure permissions" },
     ]);
   });
 
@@ -165,7 +195,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: showcase runId on hub inserts review package title before the hub crumb", () => {
+  it("buyer-polished: showcase runId on hub inserts review title before the hub crumb", () => {
     expect(
       getBreadcrumbs("/graph", {
         buyerPolishedShell: true,
@@ -177,7 +207,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("does not inject review package crumb when runId is not a known demo or compare slug", () => {
+  it("does not inject review crumb when runId is not a known demo or compare slug", () => {
     expect(
       getBreadcrumbs("/graph", {
         buyerPolishedShell: true,
@@ -186,7 +216,7 @@ describe("getBreadcrumbs", () => {
     ).toEqual([{ label: "Evidence graph" }]);
   });
 
-  it("buyer-polished: compare demo runId on hub inserts review package title before the hub crumb", () => {
+  it("buyer-polished: compare demo runId on hub inserts review title before the hub crumb", () => {
     expect(
       getBreadcrumbs("/audit", {
         buyerPolishedShell: true,
@@ -198,7 +228,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: showcase runId on governance findings inserts review package title before governance crumbs", () => {
+  it("buyer-polished: showcase runId on governance findings inserts review title before governance crumbs", () => {
     expect(
       getBreadcrumbs("/governance/findings", {
         buyerPolishedShell: true,
@@ -225,7 +255,7 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: search hub with showcase runId inserts review package title before search crumb", () => {
+  it("buyer-polished: search hub with showcase runId inserts review title before search crumb", () => {
     expect(
       getBreadcrumbs("/search", {
         buyerPolishedShell: true,
@@ -244,7 +274,7 @@ describe("getBreadcrumbs", () => {
         { buyerPolishedShell: true },
       ),
     ).toEqual([
-      { label: "Review packages", href: "/reviews" },
+      { label: "Reviews", href: "/reviews" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
       { label: "Findings", href: "/reviews/claims-intake-modernization/findings" },
       {
@@ -255,11 +285,11 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("labels E2E demo finding segment under Review packages", () => {
+  it("labels E2E demo finding segment under Reviews", () => {
     expect(
       getBreadcrumbs("/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
     ).toEqual([
-      { label: "Review packages", href: "/reviews" },
+      { label: "Reviews", href: "/reviews" },
       { label: "Claims Intake Modernization", href: "/reviews/e2e-fixture-run-001" },
       { label: "Findings", href: "/reviews/e2e-fixture-run-001/findings" },
       { label: "Demonstration finding" },
@@ -274,13 +304,13 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("TB-528: maps governance with runId to Review packages · title · Governance", () => {
+  it("TB-528: maps governance with runId to Reviews · title · Governance", () => {
     expect(
       getBreadcrumbs("/governance", {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: "Review packages", href: "/reviews" },
+      { label: "Reviews", href: "/reviews" },
       {
         label: SHOWCASE_BUYER_REVIEW_TITLE,
         href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,

@@ -33,7 +33,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 
-    // Review package (between executive summary and signed manifest on the spine)
+    // Review (between executive summary and signed manifest on the spine)
     await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
     await expectBuyerGoldenPageReady(page);
     await expect(

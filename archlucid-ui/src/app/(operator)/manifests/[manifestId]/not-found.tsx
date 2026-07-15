@@ -10,9 +10,9 @@ export default function ManifestDetailNotFound() {
     <div className="w-full max-w-[1200px] px-1 py-6 sm:px-0">
       <OperatorBrandedNotFound showProcessingHint />
       <p className={cn("mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Open a finalized review package from{" "}
+        Open a finalized review from{" "}
         <Link href="/reviews?projectId=default" className={OPERATOR_LINK.nav}>
-          review packages
+          reviews
         </Link>{" "}
         to reach its signed review record.
       </p>

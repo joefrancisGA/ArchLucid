@@ -4,8 +4,13 @@ import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { HelpAlertsGuideView } from "../_sections/HelpAlertsGuideView";
+import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGuideView";
 import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
+import { HelpGlossaryPageView } from "../_sections/HelpGlossaryPageView";
+import { HelpUsersAndRolesGuideView } from "../_sections/HelpUsersAndRolesGuideView";
 import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
+import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
+import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
 import { HelpCorePilotGuideView } from "../_sections/HelpCorePilotGuideView";
 import { HelpSpecialtyWalkthroughTemplatesView } from "../_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { HelpGettingStartedGuideView } from "../_sections/HelpGettingStartedGuideView";
@@ -27,7 +32,35 @@ export const dynamic = "force-dynamic";
 
 type HelpTopicPageProps = {
   params: Promise<{ topic: string[] }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+
+function readSearchParam(
+  searchParams: Record<string, string | string[] | undefined> | undefined,
+  key: string,
+): string | undefined {
+  const value = searchParams?.[key];
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (Array.isArray(value) && value.length > 0) {
+    return value[0];
+  }
+
+  return undefined;
+}
+
+function resolveAzurePermissionsReturnHref(returnTo: string | undefined): string {
+  const trimmed = returnTo?.trim() ?? "";
+
+  if (trimmed.startsWith("/integrations/cloud-connections")) {
+    return trimmed;
+  }
+
+  return "/integrations/cloud-connections";
+}
 
 function helpSlugFromTopicSegments(topic: string[]): string {
   return topic.map((segment) => segment.trim()).filter((segment) => segment.length > 0).join("/");
@@ -44,7 +77,10 @@ export async function generateStaticParams(): Promise<Array<{ topic: string[] }>
   return [...registryParams, ...aliasParams];
 }
 
-function renderHelpTopicView(loaded: NonNullable<ReturnType<typeof tryLoadProductDocumentation>>): React.ReactElement {
+function renderHelpTopicView(
+  loaded: NonNullable<ReturnType<typeof tryLoadProductDocumentation>>,
+  searchParams?: Record<string, string | string[] | undefined>,
+): React.ReactElement {
   if (loaded.entry.slug === "core-pilot") {
     return <HelpCorePilotGuideView entry={loaded.entry} />;
   }
@@ -65,12 +101,43 @@ function renderHelpTopicView(loaded: NonNullable<ReturnType<typeof tryLoadProduc
     return <HelpAlertsGuideView entry={loaded.entry} />;
   }
 
+  if (loaded.entry.slug === "billing-and-plans") {
+    return <HelpBillingAndPlansGuideView entry={loaded.entry} />;
+  }
+
   if (loaded.entry.slug === "findings") {
     return <HelpFindingsGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "governance-approval") {
     return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "glossary") {
+    return <HelpGlossaryPageView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "users-and-roles") {
+    return <HelpUsersAndRolesGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "cloud-connections-azure") {
+    return (
+      <HelpConnectAzureSecurelyGuideView
+        entry={loaded.entry}
+        returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
+      />
+    );
+  }
+
+  if (loaded.entry.slug === "azure-permissions") {
+    return (
+      <HelpAzurePermissionsGuideView
+        entry={loaded.entry}
+        subscriptionId={readSearchParam(searchParams, "subscriptionId")}
+        returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
+      />
+    );
   }
 
   if (loaded.entry.slug === "specialty-walkthroughs") {
@@ -100,6 +167,7 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
 export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<React.ReactElement> {
   const { topic } = await props.params;
+  const resolvedSearchParams = props.searchParams !== undefined ? await props.searchParams : undefined;
   const slug = helpSlugFromTopicSegments(topic);
   const entry = getProductDocumentationEntry(slug);
 
@@ -125,7 +193,7 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
 
       return (
         <HelpTopicAuthorityGate entry={entry} denied={<HelpTopicNotFoundView />}>
-          {renderHelpTopicView(loaded)}
+          {renderHelpTopicView(loaded, resolvedSearchParams)}
         </HelpTopicAuthorityGate>
       );
     }
@@ -143,5 +211,5 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
     notFound();
   }
 
-  return renderHelpTopicView(loaded);
+  return renderHelpTopicView(loaded, resolvedSearchParams);
 }

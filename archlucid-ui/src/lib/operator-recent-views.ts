@@ -3,6 +3,7 @@
  */
 
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export const OPERATOR_RECENT_VIEWS_STORAGE_KEY = "archlucid.operatorRecentViews.v1";
 
@@ -79,7 +80,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
   const reviewMatch = /^\/reviews\/([^/]+)$/u.exec(path);
 
   if (reviewMatch !== null) {
-    return "Review package";
+    return "Review";
   }
 
   const findingMatch = /^\/reviews\/([^/]+)\/findings\/([^/]+)/u.exec(path);
@@ -95,11 +96,11 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
   }
 
   if (path === "/graph") {
-    return "Evidence trail";
+    return OPERATOR_NAV_LINK_LABELS.evidenceTrail;
   }
 
   if (path === "/governance/findings") {
-    return "Risk register";
+    return OPERATOR_NAV_LINK_LABELS.findings;
   }
 
   if (path === "/audit") {

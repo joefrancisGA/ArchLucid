@@ -30,7 +30,7 @@ const BANNED_DEVELOPER_COPY = [
   "composite rules",
   "policy-pack standards",
   "rules do not fire",
-  "finalized review package",
+  "finalized review",
 ] as const;
 
 describe("HelpAlertsGuideView", () => {

@@ -59,6 +59,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/alert-rules")?.slug).toBe("alerts");
     expect(pageHelpTopicForPathname("/integrations/readiness")?.slug).toBe("integration-readiness");
     expect(pageHelpTopicForPathname("/integrations/readiness")?.label).toBe("How integration readiness works");
+    expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/architectures")?.label).toBe("Getting started");
+    expect(pageHelpTopicForPathname("/architectures/draft-id-123")?.slug).toBe("getting-started");
   });
 
   it("searchHelpTopics finds pilot guide", () => {

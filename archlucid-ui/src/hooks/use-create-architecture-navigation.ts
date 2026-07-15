@@ -4,17 +4,18 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { initializeArchitectureCreation } from "@/lib/architecture-creation-init";
+import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import {
   CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE,
   CREATE_ARCHITECTURE_STARTING_LABEL,
 } from "@/lib/review-start-progress-copy";
-import { REVIEWS_NEW_CREATE_ARCHITECTURE_HREF } from "@/lib/reviews-new-path-copy";
 
 function preloadCreateArchitecturePageModules(): void {
-  void import("@/app/(operator)/reviews/new/SocraticIntakeWizard");
+  void import("@/components/architecture/ArchitectureCreationBootstrap");
+  void import("@/components/architecture/ArchitectureDraftWorkspace");
 }
 
-/** Fast homepage navigation for Create Architecture — no review staged progress or question generation. */
+/** Fast homepage navigation for Create Architecture — architecture route, no review initialization. */
 export function useCreateArchitectureNavigation() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -40,13 +41,13 @@ export function useCreateArchitectureNavigation() {
     inFlightRef.current = true;
     setError(null);
 
-    void router.prefetch(REVIEWS_NEW_CREATE_ARCHITECTURE_HREF);
+    void router.prefetch(ARCHITECTURES_NEW_PATH);
     preloadCreateArchitecturePageModules();
     void initializeArchitectureCreation();
 
     startTransition(() => {
       try {
-        router.push(REVIEWS_NEW_CREATE_ARCHITECTURE_HREF);
+        router.push(ARCHITECTURES_NEW_PATH);
       } catch {
         reset();
         setError(CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE);

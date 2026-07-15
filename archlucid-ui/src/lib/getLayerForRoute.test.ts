@@ -47,6 +47,8 @@ describe("getLayerForRoute", () => {
 
   it("prefers the longer nav path when multiple prefixes could match (reviews/new over reviews)", () => {
     expect(getLayerForRoute("/reviews/new")).toBe("pilot");
+    expect(getLayerForRoute("/architectures/new")).toBe("pilot");
+    expect(getLayerForRoute("/architectures/draft-1")).toBe("pilot");
   });
 
   it("maps review detail under the Reviews list path", () => {

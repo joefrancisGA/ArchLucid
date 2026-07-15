@@ -89,6 +89,12 @@ vi.mock("@/components/cto-demo/CtoDemoExecutiveLandingRedirect", () => ({
   CtoDemoExecutiveLandingRedirect: () => null,
 }));
 
+const useFeaturedCompletedSampleQuery = vi.fn();
+
+vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
+  useFeaturedCompletedSampleQuery: () => useFeaturedCompletedSampleQuery(),
+}));
+
 vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
   loadOperatorHomeRunsDashboardModel: vi.fn(),
 }));
@@ -131,6 +137,22 @@ function runsDashboardWithSampleRun(buyerPolishedShell = false): OperatorHomeRun
   };
 }
 
+function featuredCompletedSampleAvailable() {
+  return {
+    isPending: false,
+    isError: false,
+    data: {
+      selectedRunId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+      isConfigured: true,
+      isAvailable: true,
+      reviewTitle: "Claims intake modernization",
+      architectureName: "Claims intake modernization",
+      completedUtc: "2026-01-01T00:00:00.000Z",
+      isSampleApproved: true,
+    },
+  };
+}
+
 async function renderHomePage(): Promise<void> {
   const page = await HomePage();
 
@@ -144,6 +166,7 @@ afterEach(() => {
 
 beforeEach(() => {
   mockLoadOperatorHomeRunsDashboardModel.mockResolvedValue(defaultRunsDashboard());
+  useFeaturedCompletedSampleQuery.mockReturnValue(featuredCompletedSampleAvailable());
   listRunsByProjectPaged.mockResolvedValue({
     items: [],
     totalCount: 0,
@@ -237,7 +260,10 @@ describe("HomePage (55R smoke — landing)", () => {
     );
     expect(screen.getByRole("link", { name: "Run guided review" })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-explore-open-completed-sample")).toBeNull();
-    expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-explore-completed-review-cta")).toHaveAttribute(
+      "href",
+      "/reviews/dddddddd-dddd-dddd-dddd-dddddddddddd",
+    );
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });

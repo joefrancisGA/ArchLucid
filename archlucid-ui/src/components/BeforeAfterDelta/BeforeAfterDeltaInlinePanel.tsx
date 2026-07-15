@@ -112,7 +112,7 @@ function BeforeAfterDeltaInlineComparisonRow({
       </div>
       <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
         <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Time to finalized review package
+          Time to finalized review
         </dt>
         <dd
           data-testid="delta-inline-time"

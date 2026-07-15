@@ -11,7 +11,7 @@ export type CompareFinalizedRunAvailability = {
 };
 
 /**
- * Loads committed (finalized) review packages available for compare pickers.
+ * Loads committed (finalized) reviews available for compare pickers.
  * Demo fallback may inject showcase rows when the live list is empty.
  */
 export function useCompareFinalizedRunAvailability(): CompareFinalizedRunAvailability {

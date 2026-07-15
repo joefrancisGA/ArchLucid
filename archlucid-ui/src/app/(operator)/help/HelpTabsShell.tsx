@@ -2,9 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
-import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type HelpTabsShellProps = {
@@ -14,49 +13,29 @@ type HelpTabsShellProps = {
 
 /** Default Help tab shows product guidance; documentation index stays secondary per UX review. */
 export function HelpTabsShell({ guide, docs }: HelpTabsShellProps) {
-  const [tab, setTab] = useState<"guide" | "docs">("guide");
-
   return (
-    <div className="space-y-4">
-      <div
-        className="flex flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white/80 p-1 dark:border-neutral-800 dark:bg-neutral-950/80"
-        role="tablist"
+    <Tabs defaultValue="guide" className="space-y-4">
+      <TabsList
         aria-label="Help sections"
+        className="gap-2 rounded-lg border border-neutral-200 bg-white/80 p-1 dark:border-neutral-800 dark:bg-neutral-950/80"
+        data-testid="help-tabs-shell-tablist"
       >
-        <Button
-          type="button"
-          id="help-tab-guide"
-          variant={tab === "guide" ? "primary" : "ghost"}
-          size="sm"
-          className={cn(tab !== "guide" && "text-neutral-700 dark:text-neutral-300")}
-          aria-selected={tab === "guide"}
-          role="tab"
-          onClick={() => setTab("guide")}
-        >
+        <TabsTrigger value="guide" className="rounded-md border-0 px-3 py-1.5">
           Product guide
-        </Button>
-        <Button
-          type="button"
-          id="help-tab-docs"
-          variant={tab === "docs" ? "primary" : "ghost"}
-          size="sm"
-          className={cn(tab !== "docs" && "text-neutral-700 dark:text-neutral-300")}
-          aria-selected={tab === "docs"}
-          role="tab"
-          onClick={() => setTab("docs")}
-        >
+        </TabsTrigger>
+        <TabsTrigger value="docs" className="rounded-md border-0 px-3 py-1.5">
           Documentation
-        </Button>
-      </div>
-      <div role="tabpanel" aria-labelledby="help-tab-guide" hidden={tab !== "guide"}>
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="guide" className="pt-0" data-testid="help-tabs-shell-panel-guide">
         {guide}
-      </div>
-      <div role="tabpanel" aria-labelledby="help-tab-docs" hidden={tab !== "docs"}>
+      </TabsContent>
+      <TabsContent value="docs" className="pt-0" data-testid="help-tabs-shell-panel-docs">
         <p className={cn("mb-4", OPERATOR_TYPOGRAPHY.helper)}>
           Repository and reference topics. Use the Product guide tab for day-one tasks first.
         </p>
         {docs}
-      </div>
-    </div>
+      </TabsContent>
+    </Tabs>
   );
 }

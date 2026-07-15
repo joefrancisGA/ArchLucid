@@ -22,27 +22,27 @@ const CATALOG: Record<string, CatalogEntry> = {
     glossaryMatch: "Review",
     definition:
       "The top-level work unit: a request that flows through ingestion, graph, findings, decisioning, and artifacts, ending in a finalized golden manifest.",
-    docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
+    docLink: "/help/glossary#term-review",
   },
   golden_manifest: {
     term: "Signed review record",
-    glossaryMatch: "Signed manifest",
+    glossaryMatch: "Signed review record",
     definition:
       "The versioned, finalized design record for an architecture review—the source of truth for governance, comparison, and artifacts.",
-    docLink: "/docs/library/GLOSSARY.md#golden-manifest",
+    docLink: "/help/glossary#term-signed-review-record",
   },
   review_package: {
     term: "Review package",
     definition:
       "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
-    docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
+    docLink: "/help/glossary#term-review-package",
   },
   findings: {
     term: "Finding",
     glossaryMatch: "Finding",
     definition:
       "A structured observation from a finding engine about the architecture (policy gaps, cost, security, and similar).",
-    docLink: "/docs/library/GLOSSARY.md#finding",
+    docLink: "/help/glossary#term-finding",
   },
   authority_pipeline: {
     term: "Review pipeline",
@@ -67,7 +67,7 @@ const CATALOG: Record<string, CatalogEntry> = {
     glossaryMatch: "Evidence trail",
     definition:
       "A traceable record of how an architectural decision was made, linking findings, policy rules, and context snapshots.",
-    docLink: "/docs/library/GLOSSARY.md#decision-trace",
+    docLink: "/help/glossary#term-evidence-trail",
   },
   effective_governance: {
     term: "Effective governance",
@@ -80,7 +80,7 @@ const CATALOG: Record<string, CatalogEntry> = {
     glossaryMatch: "Policy pack",
     definition:
       "A versioned document that bundles rules, advisories, and alert wiring; assigned to scopes and merged at evaluation time.",
-    docLink: "/docs/library/GLOSSARY.md#policy-pack",
+    docLink: "/help/glossary#term-policy-pack",
   },
   knowledge_graph: {
     term: "Knowledge graph",
@@ -93,14 +93,14 @@ const CATALOG: Record<string, CatalogEntry> = {
     glossaryMatch: "Deliverable",
     definition:
       "A ZIP of artifacts for a run (diagrams, documents, JSON). Large bundles may be stored in blob storage.",
-    docLink: "/docs/library/GLOSSARY.md#artifact-bundle",
+    docLink: "/help/glossary#term-deliverable",
   },
   scope: {
     term: "Scope",
     glossaryMatch: "Tenant",
     definition:
       "Tenant / workspace / project identifiers that partition data; carried in claims or headers and enforced in SQL (RLS when enabled).",
-    docLink: "/docs/library/GLOSSARY.md#scope-tenant--workspace--project",
+    docLink: "/help/scope",
   },
   comparison_replay: {
     term: "Comparison replay",

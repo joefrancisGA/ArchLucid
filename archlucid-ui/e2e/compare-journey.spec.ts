@@ -69,7 +69,7 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expect(outcome).toContainText(FIXTURE_LEFT_RUN_ID);
     await expect(outcome).toContainText(FIXTURE_RIGHT_RUN_ID);
     await expect(outcome.getByText("Review comparison")).toBeVisible();
-    await expect(outcome.getByText("Supplementary review / review package diff")).toBeVisible();
+    await expect(outcome.getByText("Supplementary review / review diff")).toBeVisible();
     await expect(outcome.getByText("OK")).toHaveCount(2);
   });
 });

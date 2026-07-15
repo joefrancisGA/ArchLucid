@@ -59,7 +59,7 @@ describe("AskAssistantMessageBody", () => {
 
     const { container } = render(<AskAssistantMessageBody buyerPolishedLinks content={structured} />);
 
-    expect(screen.queryByText("Based on the evidence indexed for this review package:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
 
     const execLead = container.querySelector("div.space-y-4 > p.font-semibold");
 
@@ -88,7 +88,7 @@ describe("AskAssistantMessageBody", () => {
 
     expect(execLead?.textContent).toBe("Approved with monitoring.");
     expect(screen.getByText(/Evidence cites manifest section 4/)).toBeInTheDocument();
-    expect(screen.queryByText("Based on the evidence indexed for this review package:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
   });
 
   it("renders grounding links footer when provided", () => {
@@ -102,7 +102,7 @@ describe("AskAssistantMessageBody", () => {
       />,
     );
 
-    expect(screen.getByText("Sources in this review package")).toBeInTheDocument();
+    expect(screen.getByText("Sources in this review")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Manifest" })).toHaveAttribute("href", "/manifests/a1");
     expect(screen.getByRole("link", { name: "Finding" })).toHaveAttribute("href", "/reviews/r1/findings/f1");
   });

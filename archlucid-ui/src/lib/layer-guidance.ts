@@ -70,21 +70,21 @@ export type LayerGuidanceBlock = {
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
   compare: {
     layerBadge: "Compare two reviews",
-    headline: "See what changed between two finalized review packages.",
+    headline: "See what changed between two finalized reviews.",
     useWhen: "Choose a baseline and an updated review after both packages are finalized.",
     firstPilotNote:
       "Optional until first Pilot proof unless you deliberately compare two finalized reviews.",
   },
   replay: {
     layerBadge: "Advanced operations",
-    headline: "Answers: does stored review output still validate for this review package?",
+    headline: "Answers: does stored review output still validate for this review?",
     useWhen: "Use when you need drift or integrity checks on a single review, not a visual diff.",
     firstPilotNote: "Typically after Pilot proof when you validate stored review chains.",
   },
   graph: {
     layerBadge: "Evidence graph",
     headline: "Trace review evidence from inputs to findings, decisions, and audit events.",
-    useWhen: "Select a committed review package, choose a graph scope, load the graph, then inspect provenance.",
+    useWhen: "Select a committed review, choose a graph scope, load the graph, then inspect provenance.",
     firstPilotNote:
       "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
@@ -123,7 +123,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",
     enterpriseFootnote:
-      "Each risk should remain traceable to the review package, evidence, policy rule, and signed review record that produced it.",
+      "Each risk should remain traceable to the review, evidence, policy rule, and signed review record that produced it.",
     omitReviewPackageScopeHelp: true,
   },
   "governance-first-30-days": {
@@ -228,11 +228,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline:
       "Define repeatable review cadences for committed architecture records — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints.",
     useWhen:
-      "Create a schedule when a governed review package must be re-reviewed on a fixed cadence so accepted risks, policy exceptions, and control obligations do not lapse after approval.",
+      "Create a schedule when a governed review must be re-reviewed on a fixed cadence so accepted risks, policy exceptions, and control obligations do not lapse after approval.",
     firstPilotNote:
       "After Pilot proof when governance leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
     enterpriseFootnote:
-      "Schedules clone a committed review package on the cadence you define; manage approvals and risk disposition on linked governance surfaces.",
+      "Schedules clone a committed review on the cadence you define; manage approvals and risk disposition on linked governance surfaces.",
   },
   "risk-exceptions": {
     layerBadge: "Governance",
@@ -298,7 +298,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   audit: {
     headline: "Audit trail for finalized review activity.",
     useWhen:
-      "See who acted, when, and why — filter when needed; download the governance evidence package when ready.",
+      "See who acted, when, and why — filter when needed; download the governance evidence bundle when ready.",
     firstPilotNote: null,
     enterpriseFootnote:
       "Audit exports are available only to authorized audit or workspace administrators.",
@@ -314,12 +314,12 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     headline:
       "Use this page to trace review evidence — see how architecture inputs, pipeline steps, findings, decisions, and audit events connect for a finalized review.",
     useWhen:
-      "Select a review package, choose a graph scope, load the graph, then inspect provenance links and open related findings.",
+      "Select a review, choose a graph scope, load the graph, then inspect provenance links and open related findings.",
     firstPilotNote: null,
   },
   compare: {
     layerBadge: "Compare two reviews",
-    headline: "See what changed between two finalized review packages.",
+    headline: "See what changed between two finalized reviews.",
     useWhen: "Choose a baseline and an updated review after both packages are finalized.",
     firstPilotNote: null,
   },

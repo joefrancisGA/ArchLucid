@@ -12,8 +12,15 @@ const FOOTER_LINKS = [
   { label: "Sign in", href: "/auth/signin" },
 ] as const;
 
+type MarketingPublicFooterProps = {
+  readonly excludeHrefs?: readonly string[];
+};
+
 /** Shared public-site footer links for marketing trust surfaces. */
-export function MarketingPublicFooter(): ReactNode {
+export function MarketingPublicFooter(props: MarketingPublicFooterProps = {}): ReactNode {
+  const excluded = new Set(props.excludeHrefs ?? []);
+  const links = FOOTER_LINKS.filter((link) => !excluded.has(link.href));
+
   return (
     <footer
       className="mt-12 border-t border-neutral-200 pt-8 dark:border-neutral-800"
@@ -22,7 +29,7 @@ export function MarketingPublicFooter(): ReactNode {
     >
       <nav aria-label="Public site links">
         <ul className={cn("m-0 flex flex-wrap gap-x-5 gap-y-2 p-0 list-none", MARKETING_TYPOGRAPHY.body)}>
-          {FOOTER_LINKS.map((link) => (
+          {links.map((link) => (
             <li key={link.href}>
               <Link className={MARKETING_SURFACES.inlineLink} href={link.href}>
                 {link.label}

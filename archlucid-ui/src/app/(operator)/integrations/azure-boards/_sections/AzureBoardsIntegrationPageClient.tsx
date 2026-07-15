@@ -1,0 +1,678 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { PageHeading } from "@/components/PageHeading";
+import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { StatusTag } from "@/components/ui/status-tag";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import {
+  fetchAzureBoardsHealth,
+  fetchAzureBoardsSettings,
+  listAzureBoardsProjects,
+  listAzureBoardsWorkItemTypes,
+  testAzureBoardsConnection,
+  upsertAzureBoardsSettings,
+  type AzureBoardsIntegrationHealthResponse,
+  type AzureBoardsOutboundSettingsResponse,
+} from "@/lib/api/azure-boards-api";
+import {
+  fetchItsmIntegrationHealth,
+  fetchTenantItsmConnectorConnection,
+  upsertTenantItsmConnectorConnection,
+  type TenantItsmConnectorConnectionResponse,
+} from "@/lib/api/itsm-outbound-api";
+import {
+  formatAzureBoardsOrganizationUrl,
+  isAzureBoardsCredentialsReady,
+  resolveAzureBoardsConnectionStatus,
+  resolveAzureBoardsConnectionTestGate,
+  resolveAzureBoardsCredentialStatusLabel,
+  resolveAzureBoardsSetupSteps,
+  sanitizeCustomerFacingProbeSummary,
+} from "@/lib/azure-boards-integration-present";
+import {
+  AZURE_BOARDS_CONNECTION_SETTINGS_LEAD,
+  AZURE_BOARDS_CONNECTION_SETTINGS_TITLE,
+  AZURE_BOARDS_CONNECTION_STATUS_HEADING,
+  AZURE_BOARDS_DEFAULT_BEHAVIOR_LEAD,
+  AZURE_BOARDS_DEFAULT_BEHAVIOR_TITLE,
+  AZURE_BOARDS_FIELD_AREA_PATH,
+  AZURE_BOARDS_FIELD_CREDENTIAL_STATUS,
+  AZURE_BOARDS_FIELD_DEFAULT_TAGS,
+  AZURE_BOARDS_FIELD_ITERATION_PATH,
+  AZURE_BOARDS_FIELD_ORGANIZATION_URL,
+  AZURE_BOARDS_FIELD_PROJECT,
+  AZURE_BOARDS_FIELD_TOKEN_REFERENCE,
+  AZURE_BOARDS_FIELD_WORK_ITEM_TYPE,
+  AZURE_BOARDS_LOADING_MESSAGE,
+  AZURE_BOARDS_MUTATION_DISABLED_HELPER,
+  AZURE_BOARDS_ORGANIZATION_URL_PLACEHOLDER,
+  AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE,
+  AZURE_BOARDS_PAGE_DESCRIPTION,
+  AZURE_BOARDS_PAGE_TITLE,
+  AZURE_BOARDS_RELOAD_BUTTON,
+  AZURE_BOARDS_SAVE_CONNECTION_LABEL,
+  AZURE_BOARDS_SAVE_SETTINGS_LABEL,
+  AZURE_BOARDS_SAVE_SUCCESS,
+  AZURE_BOARDS_SAVING_CONNECTION_LABEL,
+  AZURE_BOARDS_SAVING_SETTINGS_LABEL,
+  AZURE_BOARDS_TEST_CONNECTION_LABEL,
+  AZURE_BOARDS_TEST_CONNECTION_LEAD,
+  AZURE_BOARDS_TEST_CONNECTION_PENDING,
+  AZURE_BOARDS_TEST_CONNECTION_TITLE,
+  AZURE_BOARDS_TOKEN_REFERENCE_PLACEHOLDER,
+} from "@/lib/azure-boards-page-copy";
+import { cn } from "@/lib/utils";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { INTEGRATIONS_AZURE_BOARDS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+
+import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
+
+function statusTagKind(
+  status: ReturnType<typeof resolveAzureBoardsConnectionStatus>["status"],
+): "ready" | "needs-attention" | "neutral" | "in-progress" {
+  if (status === "connected") {
+    return "ready";
+  }
+
+  if (status === "connection-issue") {
+    return "needs-attention";
+  }
+
+  if (status === "testing") {
+    return "in-progress";
+  }
+
+  return "neutral";
+}
+
+export function AzureBoardsIntegrationPageClient(): React.ReactElement {
+  const canMutate = useOperateCapability();
+  const showOperatorNotes = isShowSystemAdministrationNavEnabled();
+  const [health, setHealth] = useState<AzureBoardsIntegrationHealthResponse | null>(null);
+  const [itsmHealth, setItsmHealth] = useState<{ nativeEnabled?: boolean } | null>(null);
+  const [settings, setSettings] = useState<AzureBoardsOutboundSettingsResponse | null>(null);
+  const [connection, setConnection] = useState<TenantItsmConnectorConnectionResponse | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [connectionSaveError, setConnectionSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+  const [connectionSaveSuccess, setConnectionSaveSuccess] = useState<string | null>(null);
+  const [testError, setTestError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingConnection, setIsSavingConnection] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+  const [organizationUrl, setOrganizationUrl] = useState("");
+  const [tokenReference, setTokenReference] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [workItemType, setWorkItemType] = useState("");
+  const [areaPath, setAreaPath] = useState("");
+  const [iterationPath, setIterationPath] = useState("");
+  const [defaultTags, setDefaultTags] = useState("");
+  const [projects, setProjects] = useState<string[]>([]);
+  const [workItemTypes, setWorkItemTypes] = useState<string[]>([]);
+  const [discoveryError, setDiscoveryError] = useState<string | null>(null);
+  const [lastTestAt, setLastTestAt] = useState<string | null>(null);
+  const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
+  const [lastTestSuccess, setLastTestSuccess] = useState<boolean | null>(null);
+
+  const applySettings = useCallback((loaded: AzureBoardsOutboundSettingsResponse | null) => {
+    setSettings(loaded);
+    setProjectName(loaded?.projectName ?? "");
+    setWorkItemType(loaded?.defaultWorkItemType ?? "");
+    setAreaPath(loaded?.areaPath ?? "");
+    setIterationPath(loaded?.iterationPath ?? "");
+    setDefaultTags(loaded?.defaultTags ?? "");
+    setLastTestAt(loaded?.lastConnectionTestUtc ?? null);
+    setLastTestSummary(loaded?.lastConnectionTestSummary ?? null);
+    setLastTestSuccess(
+      loaded?.lastConnectionTestUtc ? loaded.lastConnectionTestSummary?.toLowerCase().includes("succeed") ?? null : null,
+    );
+  }, []);
+
+  const applyConnection = useCallback((loaded: TenantItsmConnectorConnectionResponse | null) => {
+    setConnection(loaded);
+    setOrganizationUrl(loaded?.instanceBaseUrl ?? "");
+    setTokenReference("");
+  }, []);
+
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
+
+    try {
+      const [healthResponse, itsmHealthResponse, settingsResponse, connectionResponse] = await Promise.all([
+        fetchAzureBoardsHealth(),
+        fetchItsmIntegrationHealth(),
+        fetchAzureBoardsSettings(),
+        fetchTenantItsmConnectorConnection("azureboards"),
+      ]);
+      setHealth(healthResponse);
+      setItsmHealth(itsmHealthResponse);
+      applySettings(settingsResponse);
+      applyConnection(connectionResponse);
+    } catch (error: unknown) {
+      setHealth(null);
+      setItsmHealth(null);
+      applySettings(null);
+      applyConnection(null);
+      setLoadError(error instanceof Error ? error.message : "Could not load Azure Boards configuration.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [applyConnection, applySettings]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const nativeEnabled = itsmHealth?.nativeEnabled ?? false;
+  const credentialsReady = isAzureBoardsCredentialsReady(connection, health);
+  const settingsReady =
+    (settings?.isConfigured === true && (settings.projectName?.trim().length ?? 0) > 0
+      && (settings.defaultWorkItemType?.trim().length ?? 0) > 0)
+    || ((projectName.trim().length > 0) && workItemType.trim().length > 0 && settings?.isConfigured === true);
+
+  const connectionStatus = useMemo(
+    () =>
+      resolveAzureBoardsConnectionStatus({
+        isLoading,
+        loadError,
+        isTesting,
+        nativeEnabled,
+        credentialsReady,
+        settingsReady: (settings?.projectName?.trim().length ?? 0) > 0 && (settings?.defaultWorkItemType?.trim().length ?? 0) > 0,
+        health,
+      }),
+    [credentialsReady, health, isLoading, isTesting, loadError, nativeEnabled, settings],
+  );
+
+  const testGate = useMemo(
+    () =>
+      resolveAzureBoardsConnectionTestGate({
+        nativeEnabled,
+        credentialsReady,
+        settingsReady:
+          projectName.trim().length > 0 && workItemType.trim().length > 0,
+        isTesting,
+        isSaving,
+      }),
+    [credentialsReady, isSaving, isTesting, nativeEnabled, projectName, workItemType],
+  );
+
+  const setupSteps = useMemo(
+    () =>
+      resolveAzureBoardsSetupSteps({
+        nativeEnabled,
+        credentialsReady,
+        settingsReady: (settings?.projectName?.trim().length ?? 0) > 0 && (settings?.defaultWorkItemType?.trim().length ?? 0) > 0,
+        health,
+      }),
+    [credentialsReady, health, nativeEnabled, settings],
+  );
+
+  const loadDiscovery = useCallback(async () => {
+    if (!credentialsReady) {
+      return;
+    }
+
+    setDiscoveryError(null);
+
+    try {
+      const projectList = await listAzureBoardsProjects();
+      setProjects(projectList);
+    } catch (error: unknown) {
+      setDiscoveryError(error instanceof Error ? error.message : "Could not load projects.");
+    }
+  }, [credentialsReady]);
+
+  useEffect(() => {
+    void loadDiscovery();
+  }, [loadDiscovery]);
+
+  useEffect(() => {
+    if (!credentialsReady || projectName.trim().length === 0) {
+      setWorkItemTypes([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const types = await listAzureBoardsWorkItemTypes(projectName.trim());
+
+        if (!cancelled) {
+          setWorkItemTypes(types);
+        }
+      } catch {
+        if (!cancelled) {
+          setWorkItemTypes([]);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [credentialsReady, projectName]);
+
+  const saveConnection = useCallback(async () => {
+    if (!canMutate) {
+      return;
+    }
+
+    setIsSavingConnection(true);
+    setConnectionSaveError(null);
+    setConnectionSaveSuccess(null);
+
+    try {
+      const saved = await upsertTenantItsmConnectorConnection("azureboards", {
+        instanceBaseUrl: organizationUrl.trim(),
+        authMode: "BasicApiToken",
+        authUserName: "",
+        credentialKeyVaultSecretName: tokenReference.trim() || connection?.credentialKeyVaultSecretName || "",
+        isEnabled: true,
+      });
+      applyConnection(saved);
+      setConnectionSaveSuccess("Connection saved.");
+      const healthResponse = await fetchAzureBoardsHealth();
+      setHealth(healthResponse);
+      await loadDiscovery();
+    } catch (error: unknown) {
+      setConnectionSaveError(error instanceof Error ? error.message : "Could not save connection.");
+    } finally {
+      setIsSavingConnection(false);
+    }
+  }, [applyConnection, canMutate, connection?.credentialKeyVaultSecretName, loadDiscovery, organizationUrl, tokenReference]);
+
+  const saveSettings = useCallback(async () => {
+    if (!canMutate) {
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveSuccess(null);
+
+    try {
+      const saved = await upsertAzureBoardsSettings({
+        projectName: projectName.trim(),
+        defaultWorkItemType: workItemType.trim(),
+        areaPath: areaPath.trim() || null,
+        iterationPath: iterationPath.trim() || null,
+        defaultTags: defaultTags.trim() || null,
+      });
+      applySettings(saved);
+      setSaveSuccess(AZURE_BOARDS_SAVE_SUCCESS);
+    } catch (error: unknown) {
+      setSaveError(error instanceof Error ? error.message : "Could not save work item settings.");
+    } finally {
+      setIsSaving(false);
+    }
+  }, [applySettings, areaPath, canMutate, defaultTags, iterationPath, projectName, workItemType]);
+
+  const runConnectionTest = useCallback(async () => {
+    if (!testGate.allowed) {
+      return;
+    }
+
+    setIsTesting(true);
+    setTestError(null);
+
+    try {
+      const result = await testAzureBoardsConnection();
+      const summary = sanitizeCustomerFacingProbeSummary(result.summary);
+      const success = result.ok === true;
+      setLastTestAt(new Date().toISOString());
+      setLastTestSummary(
+        success
+          ? summary.length > 0
+            ? summary
+            : "Connection check succeeded."
+          : summary.length > 0
+            ? summary
+            : "Connection check failed. Verify the organization URL and token permissions.",
+      );
+      setLastTestSuccess(success);
+      const healthResponse = await fetchAzureBoardsHealth();
+      setHealth(healthResponse);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Connection test failed.";
+      setTestError(message);
+      setLastTestAt(new Date().toISOString());
+      setLastTestSummary(message);
+      setLastTestSuccess(false);
+    } finally {
+      setIsTesting(false);
+    }
+  }, [testGate.allowed]);
+
+  const credentialStatus = resolveAzureBoardsCredentialStatusLabel(connection, credentialsReady);
+  const organizationDisplay = formatAzureBoardsOrganizationUrl(connection);
+
+  return (
+    <div
+      className="w-full max-w-[68rem] space-y-8 px-4 py-8 sm:px-6 lg:px-8"
+      data-testid="integrations-azure-boards-page"
+    >
+      <PageHeading
+        navHref={INTEGRATIONS_AZURE_BOARDS_PATH}
+        title={AZURE_BOARDS_PAGE_TITLE}
+        variant="integration"
+        bordered
+        description={
+          <>
+            <p className={`m-0 max-w-2xl leading-relaxed ${OPERATOR_TYPOGRAPHY.helper}`}>
+              {AZURE_BOARDS_PAGE_DESCRIPTION}
+            </p>
+            <p className={`m-0 max-w-2xl ${OPERATOR_TYPOGRAPHY.helper}`}>{AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE}</p>
+            <p className={`m-0 max-w-2xl ${OPERATOR_TYPOGRAPHY.helper}`}>
+              <Link
+                href={INTEGRATIONS_READINESS_PATH}
+                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+              >
+                Integration readiness
+              </Link>
+              {" — status across Azure Boards, Jira, ServiceNow, Teams, Slack, and webhooks."}
+            </p>
+          </>
+        }
+      />
+
+      {isLoading && health === null && settings === null ? (
+        <OperatorLoadingNotice>{AZURE_BOARDS_LOADING_MESSAGE}</OperatorLoadingNotice>
+      ) : (
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">
+          <div className="min-w-0 space-y-8">
+            <section aria-labelledby="azure-boards-status-heading" className="space-y-3" data-testid="azure-boards-connection-status">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 id="azure-boards-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                  {AZURE_BOARDS_CONNECTION_STATUS_HEADING}
+                </h2>
+                <StatusTag kind={statusTagKind(connectionStatus.status)} label={connectionStatus.label} />
+              </div>
+              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} role="status">
+                {connectionStatus.explanation}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <span className="font-medium text-al-text-primary">Next step:</span> {connectionStatus.nextAction}
+              </p>
+            </section>
+
+            <section
+              aria-labelledby="azure-boards-connection-settings-heading"
+              className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
+              data-testid="azure-boards-connection-settings"
+            >
+              <div>
+                <h2 id="azure-boards-connection-settings-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                  {AZURE_BOARDS_CONNECTION_SETTINGS_TITLE}
+                </h2>
+                <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {AZURE_BOARDS_CONNECTION_SETTINGS_LEAD}
+                </p>
+              </div>
+
+              {connectionSaveError ? (
+                <p className="m-0 text-red-600 dark:text-red-400" role="alert">
+                  {connectionSaveError}
+                </p>
+              ) : null}
+
+              {connectionSaveSuccess ? (
+                <p className="m-0 text-teal-800 dark:text-teal-200" role="status">
+                  {connectionSaveSuccess}
+                </p>
+              ) : null}
+
+              <div className="grid max-w-2xl gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="azure-boards-org-url">{AZURE_BOARDS_FIELD_ORGANIZATION_URL}</Label>
+                  <Input
+                    id="azure-boards-org-url"
+                    value={organizationUrl}
+                    onChange={(event) => setOrganizationUrl(event.target.value)}
+                    placeholder={AZURE_BOARDS_ORGANIZATION_URL_PLACEHOLDER}
+                    disabled={!canMutate || isSavingConnection}
+                    data-testid="azure-boards-organization-url"
+                  />
+                  {!canMutate ? (
+                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="azure-boards-organization-display">
+                      Saved: {organizationDisplay}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="azure-boards-token-ref">{AZURE_BOARDS_FIELD_TOKEN_REFERENCE}</Label>
+                  <Input
+                    id="azure-boards-token-ref"
+                    type="password"
+                    autoComplete="off"
+                    value={tokenReference}
+                    onChange={(event) => setTokenReference(event.target.value)}
+                    placeholder={AZURE_BOARDS_TOKEN_REFERENCE_PLACEHOLDER}
+                    disabled={!canMutate || isSavingConnection}
+                    data-testid="azure-boards-token-reference"
+                  />
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Enter a new secure reference to replace the saved token. Leave blank to keep the existing reference.
+                  </p>
+                </div>
+
+                <div>
+                  <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                    {AZURE_BOARDS_FIELD_CREDENTIAL_STATUS}
+                  </dt>
+                  <dd
+                    className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                    data-testid="azure-boards-credential-status"
+                  >
+                    {credentialStatus}
+                  </dd>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  onClick={() => void saveConnection()}
+                  disabled={isSavingConnection || !canMutate || organizationUrl.trim().length === 0}
+                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                >
+                  {isSavingConnection ? AZURE_BOARDS_SAVING_CONNECTION_LABEL : AZURE_BOARDS_SAVE_CONNECTION_LABEL}
+                </Button>
+              </div>
+
+              {!canMutate ? (
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{AZURE_BOARDS_MUTATION_DISABLED_HELPER}</p>
+              ) : null}
+            </section>
+
+            <section
+              aria-labelledby="azure-boards-default-behavior-heading"
+              className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
+              data-testid="azure-boards-default-behavior"
+            >
+              <div>
+                <h2 id="azure-boards-default-behavior-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                  {AZURE_BOARDS_DEFAULT_BEHAVIOR_TITLE}
+                </h2>
+                <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {AZURE_BOARDS_DEFAULT_BEHAVIOR_LEAD}
+                </p>
+              </div>
+
+              {discoveryError ? (
+                <p className="m-0 text-amber-800 dark:text-amber-200" role="status">
+                  {discoveryError}
+                </p>
+              ) : null}
+
+              {saveError ? (
+                <p className="m-0 text-red-600 dark:text-red-400" role="alert">
+                  {saveError}
+                </p>
+              ) : null}
+
+              {saveSuccess ? (
+                <p className="m-0 text-teal-800 dark:text-teal-200" role="status">
+                  {saveSuccess}
+                </p>
+              ) : null}
+
+              <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="azure-boards-project">{AZURE_BOARDS_FIELD_PROJECT}</Label>
+                  <Select
+                    value={projectName || undefined}
+                    onValueChange={setProjectName}
+                    disabled={!canMutate || isSaving || projects.length === 0}
+                  >
+                    <SelectTrigger id="azure-boards-project" data-testid="azure-boards-project-select">
+                      <SelectValue placeholder={projects.length === 0 ? "Save connection first" : "Select project"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((project) => (
+                        <SelectItem key={project} value={project}>
+                          {project}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="azure-boards-work-item-type">{AZURE_BOARDS_FIELD_WORK_ITEM_TYPE}</Label>
+                  <Select
+                    value={workItemType || undefined}
+                    onValueChange={setWorkItemType}
+                    disabled={!canMutate || isSaving || workItemTypes.length === 0}
+                  >
+                    <SelectTrigger id="azure-boards-work-item-type" data-testid="azure-boards-work-item-type-select">
+                      <SelectValue placeholder={workItemTypes.length === 0 ? "Select a project first" : "Select type"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {workItemTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="azure-boards-area-path">{AZURE_BOARDS_FIELD_AREA_PATH}</Label>
+                  <Input
+                    id="azure-boards-area-path"
+                    value={areaPath}
+                    onChange={(event) => setAreaPath(event.target.value)}
+                    disabled={!canMutate || isSaving}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="azure-boards-iteration-path">{AZURE_BOARDS_FIELD_ITERATION_PATH}</Label>
+                  <Input
+                    id="azure-boards-iteration-path"
+                    value={iterationPath}
+                    onChange={(event) => setIterationPath(event.target.value)}
+                    disabled={!canMutate || isSaving}
+                  />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="azure-boards-default-tags">{AZURE_BOARDS_FIELD_DEFAULT_TAGS}</Label>
+                  <Input
+                    id="azure-boards-default-tags"
+                    value={defaultTags}
+                    onChange={(event) => setDefaultTags(event.target.value)}
+                    disabled={!canMutate || isSaving}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  onClick={() => void saveSettings()}
+                  disabled={isSaving || !canMutate || projectName.trim().length === 0 || workItemType.trim().length === 0}
+                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                >
+                  {isSaving ? AZURE_BOARDS_SAVING_SETTINGS_LABEL : AZURE_BOARDS_SAVE_SETTINGS_LABEL}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => void refresh()} disabled={isSaving || isTesting}>
+                  {AZURE_BOARDS_RELOAD_BUTTON}
+                </Button>
+              </div>
+            </section>
+
+            <section
+              aria-labelledby="azure-boards-test-heading"
+              className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
+              data-testid="azure-boards-connection-test"
+            >
+              <div>
+                <h2 id="azure-boards-test-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                  {AZURE_BOARDS_TEST_CONNECTION_TITLE}
+                </h2>
+                <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {AZURE_BOARDS_TEST_CONNECTION_LEAD}
+                </p>
+              </div>
+
+              {testError ? (
+                <p className="m-0 text-red-600 dark:text-red-400" role="alert">
+                  {testError}
+                </p>
+              ) : null}
+
+              {!testGate.allowed && testGate.reason ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} id="azure-boards-test-disabled-reason">
+                  {testGate.reason}
+                </p>
+              ) : null}
+
+              <Button
+                type="button"
+                onClick={() => void runConnectionTest()}
+                disabled={!testGate.allowed || isTesting}
+                aria-describedby={!testGate.allowed ? "azure-boards-test-disabled-reason" : undefined}
+                data-testid="azure-boards-test-connection-button"
+              >
+                {isTesting ? AZURE_BOARDS_TEST_CONNECTION_PENDING : AZURE_BOARDS_TEST_CONNECTION_LABEL}
+              </Button>
+            </section>
+          </div>
+
+          <AzureBoardsIntegrationAside
+            status={connectionStatus}
+            setupSteps={setupSteps}
+            lastTestAt={lastTestAt}
+            lastTestSummary={lastTestSummary}
+            lastTestSuccess={lastTestSuccess}
+            showOperatorNotes={showOperatorNotes}
+            nativeEnabled={nativeEnabled}
+          />
+        </div>
+      )}
+    </div>
+  );
+}

@@ -10,7 +10,7 @@ describe("OperatorPilotOrientationBanner", () => {
     expect(screen.getByTestId("operator-pilot-primary-action")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("operator-pilot-secondary-first-run")).toHaveAttribute(
       "href",
-      "/help/first-pilot-operator-runbook",
+      "/help/first-pilot-path",
     );
     expect(screen.getByTestId("operator-pilot-secondary-help")).toHaveAttribute("href", "/help/first-pilot-path");
     expect(screen.getByTestId("operator-pilot-secondary-reviews")).toHaveAttribute("href", "/reviews");

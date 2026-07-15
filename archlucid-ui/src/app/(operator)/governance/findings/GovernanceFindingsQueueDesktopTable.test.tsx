@@ -72,7 +72,7 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
 
     expect(screen.queryByTestId("governance-findings-queue-virtual-scroll")).toBeNull();
 
-    const table = screen.getByRole("table", { name: "Architecture risk register" });
+    const table = screen.getByRole("table", { name: "Risk register" });
     const renderedRows = within(table).getAllByRole("row");
 
     expect(renderedRows).toHaveLength(rows.length + 1);

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { countWords, truncateToWordLimit } from "@/lib/architecture-structured-narrative";
+import {
+  countWords,
+  truncateMarkdownPreservingStructure,
+} from "@/lib/architecture-structured-narrative";
 
 describe("architecture structured narrative helpers", () => {
   it("counts words in narrative text", () => {
@@ -8,11 +11,23 @@ describe("architecture structured narrative helpers", () => {
     expect(countWords("  ")).toBe(0);
   });
 
-  it("truncates long narrative to the preview word limit", () => {
+  it("truncates long narrative while preserving markdown line breaks", () => {
     const words = Array.from({ length: 240 }, (_, index) => `word${index}`).join(" ");
-    const result = truncateToWordLimit(words, 200);
+    const markdown = `## Executive summary\n\n${words}\n\n## Risks\n\n- Partner outage`;
+    const result = truncateMarkdownPreservingStructure(markdown, 200);
 
     expect(result.truncated).toBe(true);
-    expect(countWords(result.preview)).toBeLessThanOrEqual(201);
+    expect(result.preview).toContain("## Executive summary");
+    expect(result.preview).not.toContain("## Risks");
+    expect(result.preview).toContain("\n");
+    expect(result.preview).not.toMatch(/^## Executive summary word0 word1/);
+  });
+
+  it("keeps short markdown unchanged", () => {
+    const markdown = "## Scope\n\nPrivate networking only.";
+    const result = truncateMarkdownPreservingStructure(markdown, 200);
+
+    expect(result.truncated).toBe(false);
+    expect(result.preview).toBe(markdown);
   });
 });

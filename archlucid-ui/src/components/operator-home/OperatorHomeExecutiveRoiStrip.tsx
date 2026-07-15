@@ -22,7 +22,7 @@ import {
 } from "@/lib/roi-resolution-priority";
 import { formatUsd } from "@/lib/roi-assumptions";
 
-/** Compact executive ROI strip on Overview after the first committed review package. */
+/** Compact executive ROI strip on Overview after the first committed review. */
 export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const summaryQuery = useExecutiveRoiSummaryQuery({ enabled: hasCommittedArchitectureReview });

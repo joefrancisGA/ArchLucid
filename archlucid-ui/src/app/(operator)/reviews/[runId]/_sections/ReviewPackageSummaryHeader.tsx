@@ -55,7 +55,7 @@ export function ReviewPackageSummaryHeader(props: ReviewPackageSummaryHeaderProp
       className={OPERATOR_LAYOUT.sectionStack}
       data-testid="review-package-summary-header"
       data-review-package-summary-mode={props.mode}
-      aria-label={props.mode === "finalized" ? "Review package summary" : "Review in progress"}
+      aria-label={props.mode === "finalized" ? "Review summary" : "Review in progress"}
     >
       <RunDetailPageHeader
         {...props.pageHeader}

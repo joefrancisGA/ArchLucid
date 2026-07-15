@@ -75,7 +75,7 @@ export function graphBuyerTrailPanelTitle(node: GraphNodeVm): string {
   }
 
   if (node.type === "GoldenManifest") {
-    return `Selected review package: ${label}`;
+    return `Selected review: ${label}`;
   }
 
   if (node.type === "Artifact") {

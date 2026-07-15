@@ -73,8 +73,10 @@ public sealed class BillingProviderRegistryTests
         Mock<IBillingLedger> ledger = new();
         BillingWebhookTrialActivator activator = new(ledger.Object, new Mock<ITenantRepository>().Object, new Mock<IAuditService>().Object);
         Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
+        StripeBillingSubscriptionWebhookProcessor subscriptionProcessor =
+            new(ledger.Object, activator, changePlan.Object, new Mock<IAuditService>().Object);
 
-        return StripeBillingProviderTestSupport.CreateSut(monitor, ledger, activator, changePlan);
+        return StripeBillingProviderTestSupport.CreateSut(monitor, ledger, subscriptionProcessor, changePlan);
     }
 
     private static AzureMarketplaceBillingProvider CreateAzureProvider(IOptionsMonitor<BillingOptions> monitor)

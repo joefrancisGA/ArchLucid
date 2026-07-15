@@ -12,7 +12,7 @@ export default function ReviewDetailNotFound() {
       <p className={cn("mt-4", OPERATOR_TYPOGRAPHY.helper)}>
         Return to your{" "}
         <Link href="/reviews?projectId=default" className={OPERATOR_LINK.nav}>
-          review packages list
+          reviews list
         </Link>{" "}
         to pick an active architecture review.
       </p>

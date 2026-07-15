@@ -49,7 +49,7 @@ export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps)
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Share review package</DialogTitle>
+          <DialogTitle>Share review</DialogTitle>
           <DialogDescription>
             Send this read-only link to sponsors who do not need operator access. Scope and retention follow your tenant policy.
           </DialogDescription>

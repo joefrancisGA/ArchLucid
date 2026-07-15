@@ -12,6 +12,7 @@ const CONNECTOR_CONFIGURE_HELPER: Readonly<Record<string, string>> = {
   teams: "Send review notifications to a channel.",
   slack: "Send review alerts to a channel.",
   jira: "Create backlog tickets from findings.",
+  azureBoards: "Create Azure Boards work items from findings.",
   servicenow: "Create incident or compliance workflow records.",
   digests_advisory: "Send recurring architecture summaries.",
   outbound_webhooks: "Deliver signed HTTPS events to your endpoint.",

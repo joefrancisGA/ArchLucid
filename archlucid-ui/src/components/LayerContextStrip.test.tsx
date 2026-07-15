@@ -9,7 +9,7 @@ describe("LayerContextStrip", () => {
     [
       {
         id: "pilot" as const,
-        wantLabel: "Review packages",
+        wantLabel: "Reviews",
         wantQuestion: "Finalized packages with findings, evidence, decisions, and audit trail."
       },
       {
@@ -53,12 +53,12 @@ describe("LayerContextStrip", () => {
       <LayerContextStrip
         layerId="pilot"
         buyerRouteOrientation={{ label: "Signed review record", line: "Demo review record copy." }}
-        buyerOperateBackLink={{ label: "Back to review package", href: "/reviews/demo-run" }}
+        buyerOperateBackLink={{ label: "Back to review", href: "/reviews/demo-run" }}
       />,
     );
 
     const link = getByTestId("layer-context-back-pilot");
-    expect(link).toHaveTextContent("Back to review package");
+    expect(link).toHaveTextContent("Back to review");
     expect(link).toHaveAttribute("href", "/reviews/demo-run");
     unmount();
   });
@@ -113,7 +113,7 @@ describe("LayerContextStrip", () => {
     const { queryByTestId, unmount } = render(
       <LayerContextStrip
         layerId="operate-analysis"
-        buyerRouteOrientation={{ label: "Ask review questions", line: "Ask questions about a finalized review package." }}
+        buyerRouteOrientation={{ label: "Ask review questions", line: "Ask questions about a finalized review." }}
         hideOperateBackLink
       />,
     );

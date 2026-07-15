@@ -4,10 +4,7 @@ export type ProductDocumentationContentKind =
   | "technical-documentation"
   | "internal-runbook";
 
-const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
-  "first-pilot-operator-runbook",
-  "first-value-20-minutes",
-]);
+const INTERNAL_RUNBOOK_SLUGS = new Set<string>(["first-value-20-minutes"]);
 
 /** Canonical `contentKind` for every `product-documentation-registry.ts` slug. */
 export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
@@ -17,13 +14,13 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "admin-diagnostics": "technical-documentation",
   alerts: "product-help",
   "audit-trail": "product-help",
-  "azure-permissions": "technical-documentation",
   "billing-and-plans": "product-help",
   "cli-usage": "technical-documentation",
   "cloud-connections": "product-help",
   "cloud-connections-aws": "product-help",
   "cloud-connections-azure": "product-help",
   "cloud-connections-gcp": "product-help",
+  "azure-permissions": "product-help",
   "comparison-replay": "product-help",
   "configuration-reference": "technical-documentation",
   "core-pilot": "product-help",
@@ -33,42 +30,36 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "evaluator-workbook": "product-help",
   "evidence-intake": "product-help",
   "evidence-trail": "product-help",
-  "example-roi-bulletin": "product-help",
   "executive-summary": "product-help",
   findings: "product-help",
   "first-hour-operator-path": "product-help",
-  "first-pilot-operator-runbook": "internal-runbook",
   "first-pilot-path": "product-help",
   "first-review": "product-help",
   "first-value-20-minutes": "internal-runbook",
   "getting-started": "product-help",
-  glossary: "product-help",
   "governance-api-contracts": "technical-documentation",
   "governance-approval": "product-help",
   "how-it-works": "product-help",
   "integration-readiness": "product-help",
-  "knowledge-graph": "product-help",
-  "operator-auth-roles": "technical-documentation",
-  "operator-shell": "product-help",
+  "integrations/azure-boards": "product-help",
+  "users-and-roles": "product-help",
   "path-chooser": "product-help",
   "pilot-feedback": "product-help",
   "pilot-guide": "product-help",
   "pilot-nav-profile": "product-help",
   "pilot-roi-model": "product-help",
+  "prior-manifest-retrieval": "product-help",
   "policy-pack-delta-demo": "product-help",
-  "privacy-policy": "product-help",
   procurement: "product-help",
-  "projection-cache-replicas": "technical-documentation",
   "repeat-review-loop": "product-help",
-  "resilience-exercises": "product-help",
   "review-guide": "product-help",
+  "starting-reviews": "product-help",
   "review-packages": "product-help",
   scope: "product-help",
+  glossary: "product-help",
   "security-trust": "product-help",
   "specialty-walkthroughs": "product-help",
   troubleshooting: "product-help",
-  observability: "technical-documentation",
-  "workload-identity-federation": "technical-documentation",
 };
 
 export function isInternalRunbookSlug(slug: string): boolean {

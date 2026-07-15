@@ -36,7 +36,7 @@ function mapJobResultToResponse(result: ItsmOutboundCreateJobResult): CreateItsm
 
 async function postOutboundCreateRequest(
   findingId: string,
-  provider: "Jira" | "ServiceNow",
+  provider: "Jira" | "ServiceNow" | "Azure Boards",
 ): Promise<{ status: number; body: unknown }> {
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest("/v1/integrations/itsm/outbound/issues");
@@ -66,7 +66,7 @@ async function postOutboundCreateRequest(
 /** Creates a linked ITSM issue — polls the background job when the API returns 202 (TB-394). */
 export async function createItsmOutboundIssueWithJobPolling(
   findingId: string,
-  provider: "Jira" | "ServiceNow",
+  provider: "Jira" | "ServiceNow" | "Azure Boards",
   onJobPending?: (job: BackgroundJobInfo) => void,
 ): Promise<CreateItsmOutboundIssueResponse> {
   const { status, body } = await postOutboundCreateRequest(findingId, provider);

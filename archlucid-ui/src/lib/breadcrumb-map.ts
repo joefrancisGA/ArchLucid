@@ -1,5 +1,10 @@
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import {
+  ARCHITECTURES_LIST_PATH,
+  parseArchitectureDraftIdFromPath,
+} from "@/lib/architecture-routes";
+import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
@@ -23,7 +28,7 @@ export type GetBreadcrumbsOptions = {
   readonly buyerPolishedShell?: boolean;
   /**
    * When set (e.g. `runId` on graph, audit, ask, search, `/governance`, or `/governance/findings`),
-   * buyer-polished shell can insert the active review package title after **Overview**.
+   * buyer-polished shell can insert the active review title after **Overview**.
    */
   readonly queryRunId?: string;
   /** Persisted reviews list href (filters) for return navigation from detail pages. */
@@ -46,11 +51,11 @@ const BUYER_GOVERNANCE_RUN_SCOPED_PATHS = new Set<string>(["/governance/findings
 
 const SEGMENT_LABELS: Record<string, string> = {
   onboarding: OPERATOR_NAV_LINK_LABELS.onboarding,
-  reviews: "Review packages",
+  reviews: "Reviews",
   new: "New request",
-  graph: "Graph",
+  graph: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   compare: "Compare",
-  replay: "Validate review package",
+  replay: "Validate review",
   ask: "Ask",
   search: "Search",
   advisory: "Advisory",
@@ -91,6 +96,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   integrations: "Integrations",
   itsm: "ITSM",
   jira: "Jira",
+  "azure-boards": "Azure Boards",
   servicenow: "ServiceNow",
   slack: "Slack",
   teams: "Teams",
@@ -120,6 +126,21 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: newReviewWizardCrumbLabel() }];
   }
 
+  if (normalized === ARCHITECTURES_LIST_PATH) {
+    return [{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }];
+  }
+
+  if (normalized.startsWith(`${ARCHITECTURES_LIST_PATH}/`)) {
+    const architectureId = parseArchitectureDraftIdFromPath(normalized);
+
+    if (architectureId !== null) {
+      return [
+        { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
+        { label: CREATE_ARCHITECTURE_LABEL },
+      ];
+    }
+  }
+
   const governanceRunTrail = tryBuildGovernanceRunScopedBreadcrumbs(normalized, options);
 
   if (governanceRunTrail !== null) {
@@ -138,9 +159,37 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   }
 
   // Cloud connection help — avoid generic multi-cloud breadcrumb segments.
+  if (normalized === "/help/glossary") {
+    return [
+      { label: "Support", href: "/help" },
+      { label: "Glossary" },
+    ];
+  }
+
+  if (normalized === "/help/users-and-roles" || normalized === "/help/operator-auth-roles") {
+    return [
+      { label: "Support", href: "/help" },
+      { label: "Users and roles" },
+    ];
+  }
+
+  if (normalized === "/help/azure-permissions") {
+    return [
+      { label: "Support", href: "/help" },
+      { label: OPERATOR_NAV_LINK_LABELS.cloudConnections, href: "/integrations/cloud-connections" },
+      { label: "Azure permissions" },
+    ];
+  }
+
+  if (normalized === "/help/cloud-connections/azure" || normalized === "/help/cloud-connections-azure") {
+    return [
+      { label: "Support", href: "/help" },
+      { label: OPERATOR_NAV_LINK_LABELS.cloudConnections, href: "/integrations/cloud-connections" },
+      { label: "Azure" },
+    ];
+  }
+
   if (
-    normalized === "/help/cloud-connections/azure" ||
-    normalized === "/help/cloud-connections-azure" ||
     normalized === "/help/cloud-connections/aws" ||
     normalized === "/help/cloud-connections-aws" ||
     normalized === "/help/cloud-connections/gcp" ||
@@ -148,7 +197,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   ) {
     return [
       { label: "Help", href: "/help" },
-      { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
+      { label: OPERATOR_NAV_LINK_LABELS.cloudConnections, href: "/integrations/cloud-connections" },
     ];
   }
 
@@ -161,13 +210,29 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   }
 
   if (normalized === "/settings/tenant") {
-    return [{ label: OPERATOR_NAV_LINK_LABELS.workspaceSettings }];
+    return [{ label: OPERATOR_NAV_LINK_LABELS.settings }];
   }
 
   if (normalized === "/settings/tenant/recycle-bin") {
     return [
-      { label: OPERATOR_NAV_LINK_LABELS.workspaceSettings, href: "/settings/tenant" },
+      { label: OPERATOR_NAV_LINK_LABELS.settings, href: "/settings/tenant" },
       { label: "Projects recycle bin" },
+    ];
+  }
+
+  if (normalized === "/settings/identity/sso-wizard") {
+    return [
+      { label: "Settings", href: "/settings" },
+      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "Configure SSO" },
+    ];
+  }
+
+  if (normalized === "/settings/scim-provisioning") {
+    return [
+      { label: "Settings", href: "/settings" },
+      { label: "Identity providers", href: "/settings/identity-providers" },
+      { label: "SCIM provisioning" },
     ];
   }
 
@@ -243,7 +308,7 @@ function injectReviewPackagePathCrumbs(
     return items;
   }
 
-  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review package";
+  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review";
   const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
 
   return items.map((item, index) => {
@@ -310,9 +375,9 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-run-001": "Claims Intake Modernization",
   "e2e-fixture-left-run": "Baseline architecture review (compare)",
   "e2e-fixture-right-run": "Target architecture review (compare)",
-  "f0000001-0000-4000-8000-000000000001": "Sample finalized review package",
-  "f0000002-0000-4000-8000-000000000002": "Review package (artifacts pending)",
-  [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake review package",
+  "f0000001-0000-4000-8000-000000000001": "Sample finalized review",
+  "f0000002-0000-4000-8000-000000000002": "Review (artifacts pending)",
+  [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake review",
   "claims-intake-modernization": "Claims Intake Modernization",
   "e2e-plan-001": "Demonstration plan",
   "e2e-finding-001": "Demonstration finding",
@@ -415,7 +480,7 @@ function labelForSegment(
   }
 
   if (segment === "findings" && prev === "governance") {
-    return "Risk register";
+    return OPERATOR_NAV_LINK_LABELS.findings;
   }
 
   if (segment === "risk-exceptions" && prev === "governance") {
@@ -469,7 +534,7 @@ function labelForSegment(
 
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
     if (prev === "reviews") {
-      return "Review package";
+      return "Review";
     }
 
     if (prev === "manifests" || prev === "signed-records") {
@@ -489,7 +554,7 @@ function labelForSegment(
 
   if (/^[0-9a-f-]{16,}$/i.test(segment) && segment.includes("-")) {
     if (prev === "reviews") {
-      return "Review package";
+      return "Review";
     }
   }
 
@@ -507,7 +572,7 @@ function labelForSegment(
 
     if (buyer === true && segment === "reviews") {
 
-      return "Review packages";
+      return "Reviews";
     }
 
 
@@ -516,11 +581,6 @@ function labelForSegment(
       return "Audit trail";
     }
 
-
-    if (buyer === true && segment === "graph") {
-
-      return "Evidence graph";
-    }
 
     if (buyer === true && segment === "search") {
 
@@ -556,11 +616,11 @@ function tryBuildGovernanceRunScopedBreadcrumbs(
   }
 
   const reviewsListHref = resolveReviewsListBreadcrumbHref(options);
-  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review package";
+  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review";
   const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
 
   return [
-    { label: "Review packages", href: reviewsListHref },
+    { label: "Reviews", href: reviewsListHref },
     { label: packageTitle, href: reviewHref },
     { label: "Governance" },
   ];

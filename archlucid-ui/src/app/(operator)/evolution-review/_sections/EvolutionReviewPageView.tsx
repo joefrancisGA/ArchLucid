@@ -36,7 +36,7 @@ type Props = {
 };
 
 /**
- * Impact preview: compare proposed architecture changes against a baseline review package.
+ * Impact preview: compare proposed architecture changes against a baseline review.
  */
 export function EvolutionReviewPageView(props: Props): React.JSX.Element {
   const m = props.model;

@@ -597,7 +597,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
     const scoped = applyAuditNavRunScope(enterprise!.links, "run-abc");
     const auditLink = scoped.find((l) => isAuditNavPath(l.href.split("?")[0] ?? ""));
 
-    expect(auditLink?.href).toBe("/audit?runId=run-abc");
+    expect(auditLink?.href).toBe("/governance/audit?runId=run-abc");
   });
 
   it("omits AI usage from Administration for Read and Execute callers (TB-648)", () => {

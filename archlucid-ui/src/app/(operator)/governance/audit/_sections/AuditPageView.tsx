@@ -76,7 +76,7 @@ export function AuditPageView(props: AuditPageViewProps) {
                 {AUDIT_TRAIL_TECHNICAL_DETAILS_TITLE}
               </summary>
               <span className={cn("mt-1 block", OPERATOR_TYPOGRAPHY.helper)}>
-                Review package id: <code>{effectiveRunId}</code>
+                Review id: <code>{effectiveRunId}</code>
               </span>
             </details>
           ) : null

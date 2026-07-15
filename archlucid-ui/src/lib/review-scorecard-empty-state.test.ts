@@ -16,7 +16,7 @@ describe("review-scorecard-empty-state", () => {
   });
 
   it("exposes stable CTA labels and sample href", () => {
-    expect(REVIEW_SCORECARD_EMPTY_PRIMARY_CTA).toBe("Create review package");
+    expect(REVIEW_SCORECARD_EMPTY_PRIMARY_CTA).toBe("Create review");
     expect(REVIEW_SCORECARD_EMPTY_TERTIARY_CTA).toBe("View sample scorecard");
     expect(buildReviewScorecardSampleHref()).toBe(REVIEW_SCORECARD_SAMPLE_HREF);
   });

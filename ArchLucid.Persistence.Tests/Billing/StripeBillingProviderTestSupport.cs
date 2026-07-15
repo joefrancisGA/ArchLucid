@@ -13,7 +13,7 @@ internal static class StripeBillingProviderTestSupport
     internal static StripeBillingProvider CreateSut(
         IOptionsMonitor<ArchLucid.Core.Configuration.BillingOptions> monitor,
         Mock<ArchLucid.Core.Billing.IBillingLedger> ledger,
-        BillingWebhookTrialActivator activator,
+        StripeBillingSubscriptionWebhookProcessor subscriptionProcessor,
         Mock<ArchLucid.Core.Billing.IMarketplaceChangePlanWebhookMutationHandler> changePlan,
         Mock<ArchLucid.Core.Billing.IBillingWebhookReplayGuard>? replayGuard = null)
     {
@@ -39,8 +39,7 @@ internal static class StripeBillingProviderTestSupport
             monitor,
             ledger.Object,
             replayGuardMock.Object,
-            activator,
-            changePlan.Object,
+            subscriptionProcessor,
             walletProcessor.Object,
             walletRepository.Object);
     }

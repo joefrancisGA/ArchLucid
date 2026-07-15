@@ -25,7 +25,7 @@ const ONBOARDING_HUB_LINKS: ReadonlyArray<{ readonly label: string; readonly hre
   { label: "Enable governance workflow", href: "#governance-enablement" },
   { label: "Configure audit export", href: "#audit-export" },
   { label: "Connect Azure securely", href: "/help/cloud-connections/azure" },
-  { label: "Validate first review package", href: "/help/pilot-guide" },
+  { label: "Validate first review", href: "/help/pilot-guide" },
   { label: "Prepare procurement/trust review", href: "/help/procurement" },
 ];
 

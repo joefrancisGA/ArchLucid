@@ -43,12 +43,25 @@
 - **2026-06-27 — AWS/GCP Tier 2 cloud polling credential model (PQ-CLOUD-01):** **Option (a)** for both **AWS** and **GCP** — federated trust to ArchLucid's Azure Managed Identity; **no** long-lived access keys or service-account JSON in Key Vault. See *Resolved 2026-06-27 (PQ-CLOUD-01 — AWS/GCP Tier 2 credential model)* below.
 - **2026-05-01 — Third-party pen test:** **V1.1 backlog (TB-136)**; **V1** = owner-conducted (**TB-005**); supersedes prior **V2** framing where it conflicted — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
 - **2026-04-27:** (1) Auth default: Entra ID or explicit API keys (Resolved). (2) Hidden UI features: **404** (Resolved).
+- **2026-07-12 — Help evidence-intake / review-packages de-dup (PQ-HELP-01 / TB-761):** **Path 2** — relocate persona API/CLI recipes out of buyer/operator `/help`; rewrite both help slugs to match their titles. See *Resolved 2026-07-12 (PQ-HELP-01 — TB-761 Path 2)* below.
 
-**Last updated:** 2026-06-28 — **PQ-NAV-01 tenant admin URL namespace** (*Resolved 2026-06-28 — `/settings/*` for Administration; TB-406*). Prior **2026-06-27** — **PQ-CLOUD-01 AWS/GCP Tier 2 credential model** (*Resolved 2026-06-27*). Prior **2026-05-30** — Azure AI Search index field contract · Enterprise UI design system rollout sequencing · Team self-serve bundled Stripe SKU at launch · **`signup.archlucid.net` DNS readiness**. Prior **2026-05-18 — Connectors + integration contract:** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** and **Teams** / **webhooks** / **recipes** as **buyer-contract** paths → **V1.1** (*Resolved 2026-05-18* + scope clarification same day). **V1** buyer bar: **REST** / **CLI** / **operator UI** / **§2.16+**. Prior **2026-05-05** commerce / breadth / WCAG / pricing block unchanged except connector window.
+**Last updated:** 2026-07-12 — **PQ-HELP-01 TB-761 Path 2** (*Resolved 2026-07-12* — persona recipes out of buyer `/help`). Prior **2026-06-28** — **PQ-NAV-01 tenant admin URL namespace** (*Resolved 2026-06-28 — `/settings/*` for Administration; TB-406*). Prior **2026-06-27** — **PQ-CLOUD-01 AWS/GCP Tier 2 credential model** (*Resolved 2026-06-27*). Prior **2026-05-30** — Azure AI Search index field contract · Enterprise UI design system rollout sequencing · Team self-serve bundled Stripe SKU at launch · **`signup.archlucid.net` DNS readiness**. Prior **2026-05-18 — Connectors + integration contract:** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** and **Teams** / **webhooks** / **recipes** as **buyer-contract** paths → **V1.1** (*Resolved 2026-05-18* + scope clarification same day). **V1** buyer bar: **REST** / **CLI** / **operator UI** / **§2.16+**. Prior **2026-05-05** commerce / breadth / WCAG / pricing block unchanged except connector window.
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-07-12 (PQ-HELP-01 — TB-761 Path 2)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Evidence-intake / review-packages de-dup path** | **Path 2:** relocate `WORKFLOW_RECIPES_BY_PERSONA.md` persona API/CLI recipes **out of** buyer/operator `/help` (treat as integration/engineering documentation). Do **not** keep recipes in featured product help under a new slug (that was Path 1). | [`help_review_and_architecture_guidance_assessment.md`](architecture/help_review_and_architecture_guidance_assessment.md) §11 Unresolved #2; **TB-761** |
+| **`/help/evidence-intake`** | Rewrite to match title **"Start a review"** — evidence formats, verifying intake, and quick-start / guided-intake / templates-and-imports path switcher (`ReviewsNewPathSwitcher`). | `product-documentation-registry.ts` slug `evidence-intake`; new buyer-safe markdown source |
+| **`/help/review-packages`** | Rewrite to match title **"Review packages"** — browse, inspect, and export packages in the workspace (content that does not exist in the help corpus today). | Registry slug `review-packages`; new buyer-safe markdown source |
+| **Persona recipes preservation** | Keep `WORKFLOW_RECIPES_BY_PERSONA.md` (or successor) as an integration/engineering doc — **not** deleted; **not** featured as product-help Guides. Optional later: expose under Documentation (not Guides) after **TB-734**. | `docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md`, IA taxonomy **TB-732**–**TB-734** |
+| **Unblocks** | **TB-761** is **cleared to implement** (owner decision logged). Does **not** resolve assessment Unresolved #1 (review package vs architecture package terminology). | [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) `## TB-761` |
 
 ---
 

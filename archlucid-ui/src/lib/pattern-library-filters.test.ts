@@ -4,6 +4,7 @@ import {
   DEFAULT_PATTERN_LIBRARY_FILTERS,
   filterPatternLibraryRecords,
   derivePatternLibrarySummary,
+  resolvePatternLibraryRecords,
 } from "@/lib/pattern-library-filters";
 import { PATTERN_LIBRARY_SAMPLE_CATALOG } from "@/lib/pattern-library-catalog";
 
@@ -39,5 +40,15 @@ describe("derivePatternLibrarySummary", () => {
     expect(summary.domainsRepresented).toBeGreaterThan(3);
     expect(summary.platformsRepresented).toBeGreaterThan(3);
     expect(summary.minimumTenantThreshold).toBe(5);
+  });
+});
+
+describe("resolvePatternLibraryRecords", () => {
+  it("returns an empty list when live keys are absent and sample catalog is disabled", () => {
+    expect(resolvePatternLibraryRecords([], false)).toEqual([]);
+  });
+
+  it("returns the sample catalog when sample mode is enabled", () => {
+    expect(resolvePatternLibraryRecords([], true).length).toBeGreaterThan(0);
   });
 });

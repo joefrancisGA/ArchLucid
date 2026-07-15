@@ -65,7 +65,7 @@ export function useOperateNavUnlockPhase(): {
 
   const unlockOperateFeatures = useCallback(() => {
     clearOperateNavAutoUnlockHintPending();
-    advanceOperateNavUnlockToAnalysis();
+    advanceOperateNavUnlockToAnalysis("manual-unlock");
     refreshPhase();
   }, [refreshPhase]);
 

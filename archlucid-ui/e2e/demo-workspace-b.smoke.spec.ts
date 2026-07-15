@@ -235,7 +235,7 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     /** Buyer deliverables still expose deterministic export affordances (ZIP + Markdown summary). */
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID);
 
-    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence package/i })).toBeVisible({
+    await expect(page.locator("#artifacts-exports").getByRole("link", { name: /Download evidence bundle/i })).toBeVisible({
       timeout: 60_000,
     });
     await expect(page.getByTestId("golden-manifest-markdown-download-button")).toBeVisible();

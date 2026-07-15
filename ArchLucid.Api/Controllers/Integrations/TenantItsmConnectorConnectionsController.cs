@@ -65,7 +65,10 @@ public sealed class TenantItsmConnectorConnectionsController(
                 : TenantItsmConnectorConnectionMapper.Empty(scope.TenantId, TenantItsmConnectorProvider.Jira),
             byProvider.TryGetValue(TenantItsmConnectorProvider.ServiceNow, out TenantItsmConnectorConnectionRecord? snow)
                 ? TenantItsmConnectorConnectionMapper.ToResponse(snow)
-                : TenantItsmConnectorConnectionMapper.Empty(scope.TenantId, TenantItsmConnectorProvider.ServiceNow)
+                : TenantItsmConnectorConnectionMapper.Empty(scope.TenantId, TenantItsmConnectorProvider.ServiceNow),
+            byProvider.TryGetValue(TenantItsmConnectorProvider.AzureBoards, out TenantItsmConnectorConnectionRecord? azureBoards)
+                ? TenantItsmConnectorConnectionMapper.ToResponse(azureBoards)
+                : TenantItsmConnectorConnectionMapper.Empty(scope.TenantId, TenantItsmConnectorProvider.AzureBoards)
         ];
 
         return Ok(new TenantItsmConnectorConnectionsListResponse { Connections = connections });
@@ -107,7 +110,8 @@ public sealed class TenantItsmConnectorConnectionsController(
         if (!TenantItsmConnectorConnectionUpsertValidation.TryParseProvider(provider, out TenantItsmConnectorProvider parsed, out string? parseError))
             return this.BadRequestProblem(parseError!, ProblemTypes.ValidationFailed);
 
-        if (!TenantItsmConnectorConnectionUpsertValidation.TryBuildUpsertCommand(
+        if (!TenantItsmConnectorConnectionUpsertValidation.TryBuildUpsertCommandForProvider(
+                parsed,
                 body.InstanceBaseUrl,
                 body.AuthMode,
                 body.AuthUserName,

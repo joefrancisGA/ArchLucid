@@ -52,6 +52,9 @@ public static class RunRetrievalGroundingSummaryBuilder
 
         List<string> expectedAgentsMissingTraces = ResolveExpectedAgentsMissingTraces(agentResults, agentsWithTraces);
 
+        TopologyReferenceArchitectureExemplarSummary exemplarSummary =
+            TopologyReferenceArchitectureExemplarSummaryResolver.Resolve(traces);
+
         string disposition = ResolveDisposition(
             traceCount,
             totalChunks,
@@ -72,6 +75,9 @@ public static class RunRetrievalGroundingSummaryBuilder
             TotalRetrievalTokensIn = totalRetrievalTokensIn,
             GraphRagPilotFloorDisposition = graphRagPilotFloorDisposition,
             GraphRagQualityPosture = graphRagQualityPosture,
+            TopologyReferenceArchitectureExemplarCount = exemplarSummary.ExemplarCount,
+            TopologyReferenceArchitectureExemplarDocumentIds = exemplarSummary.ExemplarDocumentIds,
+            TopologyReferenceArchitectureExemplarMissing = exemplarSummary.ExemplarMissing,
             Disposition = disposition,
             OperatorDetail = BuildOperatorDetail(
                 disposition,

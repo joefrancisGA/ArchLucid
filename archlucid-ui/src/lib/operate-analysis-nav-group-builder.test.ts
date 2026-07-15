@@ -20,7 +20,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(graphLink?.keyShortcut).toBe("alt+y");
   });
 
-  it("lists Pattern library last in Insights nav when preview is enabled", () => {
+  it("lists Pattern library last in Insights nav", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.href)).toEqual([

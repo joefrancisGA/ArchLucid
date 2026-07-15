@@ -83,7 +83,7 @@ async function readErrorDetail(response: Response): Promise<string> {
   return `${FALLBACK_ERROR_MESSAGE} (status ${response.status})`;
 }
 
-/** One-click operator demo review — seeds built-in policy packs and redirects to the generated review package. */
+/** One-click operator demo review — seeds built-in policy packs and redirects to the generated review. */
 export function RunDemoReviewButton({
   className,
   label = "Run demo review",

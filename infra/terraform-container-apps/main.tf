@@ -780,3 +780,58 @@ resource "azurerm_container_app" "ui" {
     ]
   }
 }
+
+locals {
+  ui_custom_domain_enabled  = local.enabled && trimspace(var.ui_custom_domain_name) != ""
+  api_custom_domain_enabled = local.enabled && trimspace(var.api_custom_domain_name) != ""
+}
+
+# Custom domain bound directly to the UI Container App — no Front Door required. Azure verifies
+# domain ownership via a TXT record at asuid.<hostname> (see output ui_custom_domain_verification_id)
+# before this resource can apply; create that record (and the CNAME to ui_container_app_fqdn) first.
+resource "azurerm_container_app_custom_domain" "ui" {
+  count = local.ui_custom_domain_enabled ? 1 : 0
+
+  name             = trimspace(var.ui_custom_domain_name)
+  container_app_id = azurerm_container_app.ui[0].id
+
+  # The managed certificate below is provisioned/rotated by Azure asynchronously, outside
+  # Terraform's control; ignoring these prevents apply from reverting that out-of-band binding.
+  lifecycle {
+    ignore_changes = [certificate_binding_type, container_app_environment_certificate_id]
+  }
+}
+
+resource "azurerm_container_app_environment_managed_certificate" "ui" {
+  count = local.ui_custom_domain_enabled ? 1 : 0
+
+  name                         = "cert-${replace(trimspace(var.ui_custom_domain_name), ".", "-")}"
+  container_app_environment_id = azurerm_container_app_environment.main[0].id
+  subject_name                 = trimspace(var.ui_custom_domain_name)
+  domain_control_validation    = "CNAME"
+
+  depends_on = [azurerm_container_app_custom_domain.ui]
+}
+
+# Same pattern as the UI custom domain above, for the API Container App.
+resource "azurerm_container_app_custom_domain" "api" {
+  count = local.api_custom_domain_enabled ? 1 : 0
+
+  name             = trimspace(var.api_custom_domain_name)
+  container_app_id = azurerm_container_app.api[0].id
+
+  lifecycle {
+    ignore_changes = [certificate_binding_type, container_app_environment_certificate_id]
+  }
+}
+
+resource "azurerm_container_app_environment_managed_certificate" "api" {
+  count = local.api_custom_domain_enabled ? 1 : 0
+
+  name                         = "cert-${replace(trimspace(var.api_custom_domain_name), ".", "-")}"
+  container_app_environment_id = azurerm_container_app_environment.main[0].id
+  subject_name                 = trimspace(var.api_custom_domain_name)
+  domain_control_validation    = "CNAME"
+
+  depends_on = [azurerm_container_app_custom_domain.api]
+}

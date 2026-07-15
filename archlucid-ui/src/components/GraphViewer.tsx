@@ -366,7 +366,7 @@ export function GraphViewer({
 
     return (
       <OperatorEmptyState title="No graph data to display">
-        <p className="m-0">This review package has no graph nodes to display yet.</p>
+        <p className="m-0">This review has no graph nodes to display yet.</p>
       </OperatorEmptyState>
     );
   }

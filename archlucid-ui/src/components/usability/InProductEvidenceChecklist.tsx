@@ -74,7 +74,7 @@ export function InProductEvidenceChecklist() {
         },
         {
           id: "first-commit",
-          label: "First review package committed",
+          label: "First review committed",
           status: checklistSteps.some((step) => step.stepIndex === 4 && step.isCompleted) ? "ready" : "pending",
           actionHref: "/reviews?projectId=default",
           actionLabel: "Open reviews",

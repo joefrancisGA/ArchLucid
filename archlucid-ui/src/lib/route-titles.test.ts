@@ -1,6 +1,6 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
-import { describe, expect, it } from "vitest";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";import { describe, expect, it } from "vitest";
 
 import { getRouteTitle } from "./route-titles";
 
@@ -8,8 +8,12 @@ describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
     expect(getRouteTitle("/")).toBe("Overview");
     expect(getRouteTitle("/alerts")).toBe("Alerts");
-    expect(getRouteTitle("/reviews/new")).toBe(CREATE_ARCHITECTURE_LABEL);
+    expect(getRouteTitle("/reviews/new")).toBe(START_REVIEW_LABEL);
+    expect(getRouteTitle("/architectures/draft-1")).toBe(CREATE_ARCHITECTURE_LABEL);
     expect(getRouteTitle("/governance")).toBe(GOVERNANCE_OVERVIEW_PAGE_TITLE);
+    expect(getRouteTitle("/signed-records")).toBe("Signed review records");
+    expect(getRouteTitle("/dashboard")).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle);
+    expect(getRouteTitle("/executive/scorecard")).toBe(BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle);
   });
 });
 
@@ -20,8 +24,8 @@ describe("getRouteTitle — dynamic review detail", () => {
 });
 
 describe("getRouteTitle — manifest detail", () => {
-  it("returns Architecture package", () => {
-    expect(getRouteTitle("/signed-records/abc-123")).toBe("Architecture package");
+  it("returns Signed review record", () => {
+    expect(getRouteTitle("/signed-records/abc-123")).toBe("Signed review record");
   });
 });
 

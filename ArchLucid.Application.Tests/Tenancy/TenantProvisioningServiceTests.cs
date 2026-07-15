@@ -23,8 +23,6 @@ public sealed class TenantProvisioningServiceTests
 {
     private static void SetupSlugNotFound(Mock<ITenantRepository> repo)
     {
-        repo.Setup(r => r.GetByNormalizedOrganizationNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantRecord?)null);
         repo.Setup(r => r.GetBySlugFromControlPlaneCatalogAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
         repo.Setup(r => r.GetBySlugAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))

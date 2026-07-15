@@ -86,4 +86,25 @@ public sealed class RunRetrievalGroundingSummaryDto
         get;
         set;
     }
+
+    /// <summary>Reference-architecture exemplar chunks retrieved for Topology style prior (TB-663).</summary>
+    public int TopologyReferenceArchitectureExemplarCount
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Distinct exemplar document ids from Topology grounding traces (redaction-safe ids only).</summary>
+    public IReadOnlyList<string> TopologyReferenceArchitectureExemplarDocumentIds
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>True when Topology ran but no reference-architecture exemplar chunks were retrieved.</summary>
+    public bool TopologyReferenceArchitectureExemplarMissing
+    {
+        get;
+        set;
+    }
 }

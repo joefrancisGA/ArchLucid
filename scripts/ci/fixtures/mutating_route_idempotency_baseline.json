@@ -1,5 +1,5 @@
 {
-  "discoveredRouteCount": 201,
+  "discoveredRouteCount": 202,
   "formatVersion": "1.0",
   "routes": {
     "DELETE /scim/v2/Users/{id}": "naturally-idempotent",
@@ -102,6 +102,7 @@
     "POST /v1/azure-extractor/upload-sessions/{sessionId}/complete": "operator-documented-safe-retry",
     "POST /v1/billing/webhooks/marketplace": "inbound-webhook-pipeline",
     "POST /v1/billing/webhooks/stripe": "inbound-webhook-pipeline",
+    "POST /v1/billing/webhooks/stripe/subscriptions": "inbound-webhook-pipeline",
     "POST /v1/composite-alert-rules": "operator-documented-safe-retry",
     "POST /v1/demo/quickstart": "operator-documented-safe-retry",
     "POST /v1/demo/seed": "operator-documented-safe-retry",
@@ -128,7 +129,8 @@
     "POST /v1/governance/approval-requests/batch-review": "operator-documented-safe-retry",
     "POST /v1/governance/approval-requests/{approvalRequestId}/approve": "operator-documented-safe-retry",
     "POST /v1/governance/approval-requests/{approvalRequestId}/reject": "operator-documented-safe-retry",
-    "POST /v1/governance/findings/{findingId}/dispositions": "operator-documented-safe-retry",
+    "POST /v1/governance/findings/bulk-disposition": "explicit-idempotency-key",
+    "POST /v1/governance/findings/{findingId}/dispositions": "explicit-idempotency-key",
     "POST /v1/governance/policy-pack/draft": "dry-run-no-persist",
     "POST /v1/governance/policy-pack/generate": "dry-run-no-persist",
     "POST /v1/explain/runs/{runId}/holistic-critic": "dry-run-no-persist",
@@ -186,6 +188,7 @@
     "POST /v1/runs/{runId}/manifest/finalize": "explicit-idempotency-key",
     "POST /v1/runs/{runId}/submit": "explicit-idempotency-key",
     "POST /v1/tenant/billing/checkout": "operator-documented-safe-retry",
+    "POST /v1/tenant/billing/portal": "operator-documented-safe-retry",
     "POST /v1/tenant/billing/marketplace/webhook-test": "inbound-webhook-pipeline",
     "POST /v1/tenant/convert": "operator-documented-safe-retry",
     "POST /v1/tenant/customer-success/product-feedback": "operator-documented-safe-retry",

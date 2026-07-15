@@ -3,9 +3,8 @@ export type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 /** Deep link for born-governed creation intake (guided clarifying questions). */
 export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/reviews/new?path=guided-intake" as const;
 
-/** Homepage Create Architecture — explicit creation intent, no review initialization. */
-export const REVIEWS_NEW_CREATE_ARCHITECTURE_HREF =
-  "/reviews/new?path=guided-intake&intent=create-architecture" as const;
+/** Homepage Create Architecture — canonical architecture draft bootstrap route. */
+export const REVIEWS_NEW_CREATE_ARCHITECTURE_HREF = "/architectures/new" as const;
 
 /** Single-line example — sample brief button supplies the full narrative. */
 export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
@@ -18,7 +17,7 @@ export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
   "quick-review":
     "Fastest first-pilot path: review title, attach evidence, and start analysis in one screen.",
   detailed:
-    "Use templates, imports, and evidence upload when you need an export-ready review package with full configuration.",
+    "Use templates, imports, and evidence upload when you need an export-ready review with full configuration.",
 };
 
 /** Create-architecture intake — calmer path tab labels and hints. */

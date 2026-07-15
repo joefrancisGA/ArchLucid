@@ -11,10 +11,10 @@ import {
   createRun,
   executeRun,
   freshIsolatedTenantScope,
-  liveApiBase,
   liveE2eArchitectureDescription,
   postAdvisoryScanRaw,
   searchAudit,
+  waitForLiveApiReady,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
@@ -23,13 +23,7 @@ test.describe("live-api-advisory-flow", () => {
   const tenantScope = freshIsolatedTenantScope();
 
   test.beforeAll(async ({ request }) => {
-    const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
-
-    if (!health.ok()) {
-      throw new Error(
-        `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
-      );
-    }
+    await waitForLiveApiReady(request);
   });
 
   test("schedule advisory scan after committed run and verify audit trail", async ({ request }) => {

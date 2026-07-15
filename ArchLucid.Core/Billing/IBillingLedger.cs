@@ -67,4 +67,15 @@ public interface IBillingLedger
 
     /// <summary>Returns the tenant billing row when present (any status); null when no subscription exists.</summary>
     Task<BillingSubscriptionSnapshot?> TryGetSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the provider subscription or checkout session id stored for <paramref name="tenantId" /> when a billing row
+    ///     exists; otherwise null.
+    /// </summary>
+    Task<string?> TryGetProviderSubscriptionIdAsync(Guid tenantId, CancellationToken cancellationToken);
+
+    /// <summary>Resolves a tenant from a Stripe subscription or checkout session id persisted on the billing row.</summary>
+    Task<Guid?> TryResolveTenantIdByProviderSubscriptionIdAsync(
+        string providerSubscriptionId,
+        CancellationToken cancellationToken);
 }

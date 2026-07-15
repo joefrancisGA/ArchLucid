@@ -146,6 +146,19 @@ Configure per **environment** (`dev` / `staging` / `production`) or organization
 - **Terraform vs CLI**: **CD owns runtime Container App image tags.** `cd.yml` rolls API, worker, and UI via `az containerapp update`; `infra/terraform-container-apps` seeds warm-start pins in tfvars but each `azurerm_container_app` uses `lifecycle { ignore_changes = [template[0].container[0].image] }` (TB-657) so a later `terraform apply` does **not** revert CD rollouts. Update tfvars when you want Terraform to change the *seed* pin for net-new environments; routine releases do not require a matching apply.
 - **Migrations**: Schema still travels with the **API** process (DbUp / bootstrap on startup). Deploy API before relying on worker-only features that need new schema, or run a one-off migration job per your runbook.
 
+## Dev: dropping Front Door for the Container Apps FQDN (cost-aware)
+
+`dev` is the one target where **Front Door / WAF is optional** — see [`PILOT_PROFILE.md`](../deployment/PILOT_PROFILE.md) ("omit Front Door for pilots; use Container Apps direct FQDN + TLS"). The pre-deploy configuration check only pins **`Cors__AllowedOrigins__0`** to `https://www.archlucid.net` for **staging/production**; for `dev` it just requires the value to be **set** (any origin), since a Container Apps FQDN is unique per environment and can't be hardcoded.
+
+**Cutover order (avoids downtime — do not reverse):**
+
+1. Keep the existing `infra/terraform-edge` Front Door stack for `dev` running as-is.
+2. Point `dev` at the Container App FQDN: set the `dev` environment's **`SMOKE_TEST_BASE_URL`** and the API Container App's **`Cors__AllowedOrigins__0`** to the `terraform-container-apps` output `api_https_url` / `ui_https_url` — or a custom domain bound directly to the Container App via `ui_custom_domain_name` / `api_custom_domain_name` (see [`infra/terraform-container-apps/README.md`](../../infra/terraform-container-apps/README.md#custom-domain-without-front-door-ui_custom_domain_name--api_custom_domain_name), still no Front Door) — and update the Entra app registration's redirect URIs to match.
+3. Run CD for `target=dev` and confirm a **green** post-deploy validation against the FQDN directly.
+4. Only **after** that green run, disable Front Door for dev (`enable_front_door_waf = false` in `infra/terraform-edge` tfvars, then apply — or `terraform destroy` scoped to that root).
+
+Front Door and Container Apps are separate Terraform roots with no resource dependency, so step 4 never restarts or redeploys the running Container Apps — it only removes the edge profile/WAF/custom-domain association. The risk is entirely on the **public hostname** (whatever DNS pointed at Front Door stops resolving once the custom-domain association is removed), which is why step 4 must come after step 3 is verified green, not before.
+
 ## Related workflows
 
 - **CI** (`.github/workflows/ci.yml`): validation, tests, Docker smoke caches.

@@ -63,6 +63,7 @@ def _legacy_rows() -> list[dict[str, str]]:
 
 def main() -> None:
     registry_rows = _parse_registry()
+    registry_urls = {row["url"] for row in registry_rows}
     aliases = _parse_aliases()
     seen_titles = {row["title"].lower() for row in registry_rows}
     merged = list(registry_rows)
@@ -74,6 +75,10 @@ def main() -> None:
             continue
 
         url = row.get("url", "")
+
+        # Retired in-app help topics must not reappear from the previous doc-index snapshot.
+        if url.startswith("/help/") and url not in registry_urls:
+            continue
 
         if "github.com" in url:
             if "/blob/" in url:
@@ -92,6 +97,12 @@ def main() -> None:
 
         merged.append(row)
         seen_titles.add(title_key)
+
+    merged = [
+        row
+        for row in merged
+        if not row.get("url", "").startswith("/help/") or row.get("url", "") in registry_urls
+    ]
 
     merged.sort(key=lambda r: (r.get("category", ""), r.get("title", "")))
     DOC_INDEX.write_text(json.dumps(merged, indent=2) + "\n", encoding="utf-8")

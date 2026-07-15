@@ -89,8 +89,8 @@ Logs go to **stdout** unless your host redirects them (Docker/Kubernetes, IIS, W
 
 ## Artifact list empty or download 404
 
-- An **empty artifact list** (`[]`) can be valid: signed review record exists but **no synthesized files** yet or **none stored** for that review package.
-- **Bundle ZIP 404** can mean “no bundle” vs “review package not found” depending on API **ProblemDetails** — compare `title` / `type` / `detail` in the response.
+- An **empty artifact list** (`[]`) can be valid: signed review record exists but **no synthesized files** yet or **none stored** for that architecture review.
+- **Bundle ZIP 404** can mean “no bundle” vs “review not found” depending on API **ProblemDetails** — compare `title` / `type` / `detail` in the response.
 
 See [operator-shell.md](../library/operator-shell.md) and [API_CONTRACTS.md](../library/API_CONTRACTS.md).
 

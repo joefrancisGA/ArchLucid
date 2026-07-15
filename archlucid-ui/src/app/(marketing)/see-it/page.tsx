@@ -37,7 +37,7 @@ export default async function SeeItMarketingPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>
-        See a finalized review package in 30 seconds
+        See a finalized review in 30 seconds
       </h1>
       <p
         className={cn("mt-2", MARKETING_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)}
@@ -62,7 +62,7 @@ export default async function SeeItMarketingPage() {
         </p>
         <p className={cn("mt-2 m-0", MARKETING_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)}>
           Open the read-only demo walkthrough with manifest, audit trail, and artifacts — the same projection buyers use
-          on the executive summary and review package pages.
+          on the executive summary and review pages.
         </p>
         <div className="mt-4">
           <Button asChild variant="primary" data-testid="see-it-cta-demo-preview">

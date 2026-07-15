@@ -832,6 +832,16 @@
       "nav_operator_href": "/compare"
     },
     {
+      "controller_file": "Authority/RunCoverageController.cs",
+      "class_name": "RunCoverageController",
+      "route_template": "v{version:apiVersion}/runs",
+      "normalized_prefix": "/v1/runs",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/RunQueryController.cs",
       "class_name": "RunQueryController",
       "route_template": "v{version:apiVersion}/architecture",
@@ -1072,6 +1082,16 @@
       "nav_operator_href": "/governance"
     },
     {
+      "controller_file": "Governance/GovernanceCoverageController.cs",
+      "class_name": "GovernanceCoverageController",
+      "route_template": "v{version:apiVersion}/governance",
+      "normalized_prefix": "/v1/governance",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Governance/GovernancePreCommitSimulationController.cs",
       "class_name": "GovernancePreCommitSimulationController",
       "route_template": "v{version:apiVersion}/governance/pre-commit",
@@ -1130,6 +1150,16 @@
       "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": "/governance/policy-packs"
+    },
+    {
+      "controller_file": "Integrations/AzureBoardsIntegrationsController.cs",
+      "class_name": "AzureBoardsIntegrationsController",
+      "route_template": "v{version:apiVersion}/integrations/azure-boards",
+      "normalized_prefix": "/v1/integrations/azure-boards",
+      "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
     },
     {
       "controller_file": "Integrations/ItsmCorrelationController.cs",
@@ -1587,6 +1617,16 @@
       "route_template": "v{version:apiVersion}/tenant",
       "normalized_prefix": "/v1/tenant",
       "commercial_tier": "standard",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Tenancy/TenantHomepageSettingsController.cs",
+      "class_name": "TenantHomepageSettingsController",
+      "route_template": "v{version:apiVersion}/tenant/homepage-settings",
+      "normalized_prefix": "/v1/tenant/homepage-settings",
+      "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
       "nav_operator_href": null

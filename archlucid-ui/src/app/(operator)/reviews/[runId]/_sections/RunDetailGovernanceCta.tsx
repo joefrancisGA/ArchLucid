@@ -29,7 +29,7 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
           Governance approval
         </CardTitle>
         <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-          This review package is finalized. Continue in Governance to submit source and target environments for approval.
+          This review is finalized. Continue in Governance to submit source and target environments for approval.
         </CardDescription>
       </CardHeader>
       <CardContent className={OPERATOR_CARD.content}>

@@ -9,7 +9,7 @@ describe("ValueReportEmptyState", () => {
     render(<ValueReportEmptyState />);
 
     expect(screen.getByText("No finalized reviews in this report period")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open review packages" })).toHaveAttribute("href", "/reviews?projectId=default");
+    expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
     expect(screen.getByRole("link", { name: "Start architecture review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "View sample value report" })).toHaveAttribute("href", "/value-report/pilot");
     expect(screen.queryByRole("link", { name: "Create architecture" })).not.toBeInTheDocument();
@@ -23,7 +23,7 @@ describe("ValueReportIncludesSection", () => {
 
     expect(screen.getByTestId("value-report-includes")).toBeInTheDocument();
     expect(screen.getByText("Sponsor report includes")).toBeInTheDocument();
-    expect(screen.getByText("Finalized review packages")).toBeInTheDocument();
+    expect(screen.getByText("Finalized reviews")).toBeInTheDocument();
     expect(screen.getByText("Recommended next actions")).toBeInTheDocument();
   });
 });

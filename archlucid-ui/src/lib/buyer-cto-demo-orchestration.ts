@@ -21,7 +21,7 @@ export const BUYER_CTO_DEMO_AUDIENCE_CAPTION_LINES: readonly string[] = [
   "Executive outcomes, residual risk posture, and sponsor-ready actions.",
   "Signed package — decisions, findings, and downloadable deliverables.",
   "Evidence-linked traceability from inputs through findings to decisions.",
-  "Governance approvals and segregation-of-duties for this review package.",
+  "Governance approvals and segregation-of-duties for this review.",
   "Append-only audit trail for compliance and GRC follow-up.",
 ];
 

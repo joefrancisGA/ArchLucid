@@ -31,9 +31,9 @@ export const FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE: Readonly<
   "evidence-needed": "Phase B — Evidence ingest",
   "review-in-progress": "Phase C — Review lifecycle",
   "ready-to-commit": "Phase C — Review lifecycle",
-  "sponsor-packet-send": "Phase D — Review package and sponsor export",
-  "sponsor-packet-hold": "Phase D — Review package and sponsor export",
-  "deferred-buyer-requirement": "Phase D — Review package and sponsor export",
+  "sponsor-packet-send": "Phase D — Review and sponsor export",
+  "sponsor-packet-hold": "Phase D — Review and sponsor export",
+  "deferred-buyer-requirement": "Phase D — Review and sponsor export",
 };
 
 export type FirstPilotCommandCenterPhaseSummary = {
@@ -129,7 +129,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
       headline: "Evidence needed",
 
       summary:
-        "Add architecture evidence — brief, documents, diagrams, IaC, or a cloud inventory ZIP (AWS, Azure, or GCP) — or acknowledge the sample package before starting the first architecture review.",
+        "Add architecture evidence — brief, documents, diagrams, IaC, or a cloud inventory ZIP (AWS, Azure, or GCP) — or acknowledge the sample review before starting the first architecture review.",
 
       href: "/settings/extract-upload",
 
@@ -227,13 +227,13 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
       summary: !baselinesEntered
 
-        ? "A review package is finalized, but buyer ROI baselines are missing. Capture scorecard baselines before sponsor handoff."
+        ? "A review is finalized, but buyer ROI baselines are missing. Capture scorecard baselines before sponsor handoff."
 
         : hasBlockingRow
 
-          ? "A review package is finalized, but one or more readiness checks still need attention before sponsor handoff."
+          ? "A review is finalized, but one or more readiness checks still need attention before sponsor handoff."
 
-          : "A review package is finalized, but the current principal cannot complete sponsor handoff steps.",
+          : "A review is finalized, but the current principal cannot complete sponsor handoff steps.",
 
       href: !baselinesEntered ? "/scorecard" : committedReviewHref(signals),
 
@@ -279,7 +279,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
     summary:
 
-      "Review package and ROI baselines look ready. Collect the first-pilot proof bundle and follow the sponsor handoff runbook before sending externally.",
+      "Review and ROI baselines look ready. Collect the first-pilot proof bundle and follow the sponsor handoff runbook before sending externally.",
 
     href: committedReviewHref(signals),
 

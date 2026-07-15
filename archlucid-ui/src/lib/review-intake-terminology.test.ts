@@ -8,7 +8,7 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } fr
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
 
 describe("review intake terminology", () => {
-  it("uses Create review package heading with Start architecture review CTA in operating-rail steps", () => {
+  it("uses Create review heading with Start architecture review CTA in operating-rail steps", () => {
     for (const buyerPolished of [false, true] as const) {
       const step = resolveFirstPilotOperatingRailStepsForDisplay(buyerPolished).find(
         (candidate) => candidate.id === "create-review",

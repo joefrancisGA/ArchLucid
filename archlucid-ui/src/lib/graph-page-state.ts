@@ -16,7 +16,7 @@ export type GraphReviewPickerState =
   | "real-review"
   | "sample-review";
 
-/** Whether the active run id is the showcase sample review package. */
+/** Whether the active run id is the showcase sample review. */
 export function isShowcaseDemoRunId(runId: string): boolean {
   const trimmed = runId.trim();
 

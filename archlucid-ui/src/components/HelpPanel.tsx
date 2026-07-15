@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KeyboardShortcutsTabContent, matchesShortcutQuery } from "@/components/KeyboardShortcutsHelpContent";
 import { ALERTS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
 import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
@@ -270,62 +271,55 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
           </DialogDescription>
         </DialogHeader>
 
-        <div className="shrink-0 space-y-3 border-b border-neutral-100 px-5 py-3 dark:border-neutral-800">
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400"
-              aria-hidden
-            />
-            <Input
-              id="help-guides-search"
-              type="search"
-              className={cn(
-                "h-9 border-neutral-200 bg-white pl-8 font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-              placeholder="Search help, docs, or shortcuts"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-              }}
-              aria-label="Search help, docs, or shortcuts"
-            />
-          </div>
-          <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Help sections">
-            {(
-              [
-                { id: "guides" as const, label: "Guides" },
-                { id: "shortcuts" as const, label: "Keyboard shortcuts" },
-                { id: "troubleshooting" as const, label: "Troubleshooting" },
-              ] as const
-            ).map(({ id, label }) => (
-              <Button
-                key={id}
-                type="button"
-                role="tab"
-                size="sm"
-                variant="ghost"
+        <Tabs
+          value={tab}
+          onValueChange={(next) => {
+            setTab(next as HelpTabId);
+          }}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="shrink-0 space-y-3 border-b border-neutral-100 px-5 py-3 dark:border-neutral-800">
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400"
+                aria-hidden
+              />
+              <Input
+                id="help-guides-search"
+                type="search"
                 className={cn(
-                  "h-8 rounded-full px-3 font-medium",
-                  OPERATOR_TYPOGRAPHY.tab,
-                  tab === id
-                    ? "bg-teal-100 text-teal-900 dark:bg-teal-900/50 dark:text-teal-100"
-                    : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400",
+                  "h-9 border-neutral-200 bg-white pl-8 font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+                  OPERATOR_TYPOGRAPHY.body,
                 )}
-                aria-selected={tab === id}
-                onClick={() => {
-                  setTab(id);
+                placeholder="Search help, docs, or shortcuts"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
                 }}
+                aria-label="Search help, docs, or shortcuts"
+              />
+            </div>
+            <TabsList aria-label="Help sections" className="flex-wrap gap-1.5 border-0" data-testid="help-panel-tablist">
+              <TabsTrigger value="guides" className="h-8 rounded-full border-0 px-3">
+                Guides
+              </TabsTrigger>
+              <TabsTrigger
+                value="shortcuts"
+                className="h-8 rounded-full border-0 px-3"
               >
-                {label}
-              </Button>
-            ))}
+                Keyboard shortcuts
+              </TabsTrigger>
+              <TabsTrigger
+                value="troubleshooting"
+                className="h-8 rounded-full border-0 px-3"
+              >
+                Troubleshooting
+              </TabsTrigger>
+            </TabsList>
           </div>
-        </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4" role="tabpanel">
-          {tab === "guides" ? (
-            <div className="space-y-4">
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+            <TabsContent value="guides" className="space-y-4 pt-0" data-testid="help-panel-tabpanel-guides">
               {corePilotPinnedHelp}
               <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
                 <h3 className={cn("m-0 font-semibold text-teal-900 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
@@ -372,11 +366,9 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                   })}
                 </ul>
               )}
-            </div>
-          ) : null}
+            </TabsContent>
 
-          {tab === "troubleshooting" ? (
-            <div className="space-y-3">
+            <TabsContent value="troubleshooting" className="space-y-3 pt-0" data-testid="help-panel-tabpanel-troubleshooting">
               <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800">
                 <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Support bundle</p>
                 <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
@@ -414,11 +406,9 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                   })}
                 </ul>
               )}
-            </div>
-          ) : null}
+            </TabsContent>
 
-          {tab === "shortcuts" ? (
-            <div className="space-y-3">
+            <TabsContent value="shortcuts" className="space-y-3 pt-0" data-testid="help-panel-tabpanel-shortcuts">
               {query.trim().length > 0 && shortcutsSearchHits.length === 0 ? (
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No shortcuts match your search.</p>
               ) : query.trim().length > 0 ? (
@@ -443,9 +433,9 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
               ) : (
                 <KeyboardShortcutsTabContent />
               )}
-            </div>
-          ) : null}
-        </div>
+            </TabsContent>
+          </div>
+        </Tabs>
 
         <footer className="shrink-0 border-t border-neutral-100 px-5 py-3 dark:border-neutral-800">
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

@@ -29,7 +29,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     prefix: "/replay",
     hint: {
       id: "replay-review",
-      message: "Validate stored review output for a single review package — not a visual diff.",
+      message: "Validate stored review output for a single review — not a visual diff.",
       learnMoreHref: "/help/comparison-replay",
     },
   },
@@ -37,7 +37,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     prefix: "/ask",
     hint: {
       id: "ask-review",
-      message: "Ask plain-language questions scoped to the active review package.",
+      message: "Ask plain-language questions scoped to the active review.",
       learnMoreHref: "/help/review-packages",
     },
   },

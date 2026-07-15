@@ -151,10 +151,52 @@ public sealed class GovernanceStickinessControllerTests
         ok.Value.Should().BeSameAs(expected);
     }
 
+    private static void SetIdempotencyKey(GovernanceStickinessController controller, string key = "test-idempotency-key")
+    {
+        controller.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = key;
+    }
+
+    [Fact]
+    public async Task RecordDisposition_returns_bad_request_when_idempotency_key_missing()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-1",
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "ok"
+        };
+
+        IActionResult action = await controller.RecordDisposition("finding-1", request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_bad_request_when_idempotency_key_missing()
+    {
+        GovernanceStickinessController controller = BuildSut();
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = ["finding-1"],
+            Disposition = FindingDisposition.Accepted,
+            Rationale = "bulk"
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
     [Fact]
     public async Task RecordDisposition_returns_bad_request_when_body_null()
     {
         GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
 
         IActionResult action =
             await controller.RecordDisposition("finding-1", null, CancellationToken.None);
@@ -176,6 +218,7 @@ public sealed class GovernanceStickinessControllerTests
             .ThrowsAsync(new ArgumentException("invalid disposition"));
 
         GovernanceStickinessController controller = BuildSut(dispositionService: dispositions);
+        SetIdempotencyKey(controller);
 
         RecordFindingDispositionRequest request = new()
         {
@@ -194,6 +237,7 @@ public sealed class GovernanceStickinessControllerTests
     public async Task RecordBulkDisposition_returns_bad_request_when_finding_ids_empty()
     {
         GovernanceStickinessController controller = BuildSut();
+        SetIdempotencyKey(controller);
 
         RecordBulkFindingDispositionRequest request = new()
         {

@@ -22,9 +22,9 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(forensicsIndex).toBeGreaterThan(-1);
   });
 
-  it("prioritizes workspace header and summary before tabbed workspace render", () => {
+  it("prioritizes workspace header and executive summary before tabbed workspace render", () => {
     const headerIndex = source.indexOf("<RunDetailWorkspaceHeader");
-    const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStrip");
+    const summaryIndex = source.indexOf("workspaceStatus={workspaceStatus}");
     const workspaceRenderIndex = source.indexOf("{tabbedWorkspaceEl}");
 
     expect(headerIndex).toBeGreaterThan(-1);
@@ -35,11 +35,9 @@ describe("RunDetailPageView progressive disclosure", () => {
   });
 
   it("places proof status in overview tab before findings panel", () => {
-    const tabbedWorkspaceIndex = source.indexOf("const tabbedWorkspaceEl");
-    const overviewPanelIndex = source.indexOf("<RunDetailOverviewPanelClient", tabbedWorkspaceIndex);
+    const overviewPanelIndex = source.indexOf("overview: (");
     const findingsPanelIndex = source.indexOf("findings: (", overviewPanelIndex);
 
-    expect(tabbedWorkspaceIndex).toBeGreaterThan(-1);
     expect(overviewPanelIndex).toBeGreaterThan(-1);
     expect(findingsPanelIndex).toBeGreaterThan(-1);
     expect(overviewPanelIndex).toBeLessThan(findingsPanelIndex);
@@ -98,6 +96,12 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(source).toContain("RunDetailOverviewPanelClient");
     expect(source).toContain("tabbedWorkspaceEl");
     expect(source).toContain("useStructuredPresentation");
+  });
+
+  it("keeps a single desktop primary export action in sticky actions", () => {
+    expect(source).toContain('className="lg:hidden"');
+    expect(source).toContain("<RunDetailWorkspaceStickyActions");
+    expect(source).toContain("<ReviewPackagePrimaryAction");
   });
 
   it("uses tabbed architecture workspace for create-architecture handoff", () => {

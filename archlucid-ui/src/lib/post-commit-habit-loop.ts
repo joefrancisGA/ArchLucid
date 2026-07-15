@@ -113,7 +113,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
       kind: "optional",
       label: "Open evidence chain",
       href: trustEvidenceHref,
-      description: "Trace evidence → finding → review package → artifact in one view.",
+      description: "Trace evidence → finding → review → artifact in one view.",
     });
   }
 

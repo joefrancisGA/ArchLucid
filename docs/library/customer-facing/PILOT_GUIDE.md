@@ -61,6 +61,8 @@ After finalize, each review package includes:
 
 **Good to know:** Use **Email this review to your sponsor** on review detail after finalize when sponsor handoff is enabled for your workspace.
 
+**Tenant memory:** Finalized decisions and findings are automatically searchable in **Ask** for future reviews in the same project. See [Prior manifest retrieval](/help/prior-manifest-retrieval) for what makes a useful prior and when to avoid noisy runs.
+
 ## Report an issue
 
 When something fails during a pilot, include:

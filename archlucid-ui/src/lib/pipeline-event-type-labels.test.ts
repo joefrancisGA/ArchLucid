@@ -5,7 +5,7 @@ import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel
 describe("pipelineEventTypeFriendlyLabel", () => {
   it("maps canonical com.archlucid integration codes", () => {
     expect(pipelineEventTypeFriendlyLabel("com.archlucid.authority.run.completed")).toBe("Review finalized");
-    expect(pipelineEventTypeFriendlyLabel("com.archlucid.manifest.finalized.v1")).toBe("Review package finalized");
+    expect(pipelineEventTypeFriendlyLabel("com.archlucid.manifest.finalized.v1")).toBe("Review finalized");
   });
 
   it("maps legacy short keys used by mocks", () => {
@@ -14,7 +14,7 @@ describe("pipelineEventTypeFriendlyLabel", () => {
   });
 
   it("falls back to Contracts-aligned titles for durable spine codes not in the pipeline map", () => {
-    expect(pipelineEventTypeFriendlyLabel("ManifestViewed")).toBe("Review package viewed");
+    expect(pipelineEventTypeFriendlyLabel("ManifestViewed")).toBe("Review viewed");
     expect(pipelineEventTypeFriendlyLabel("ReviewTrailAccessed")).toBe("Review trail accessed");
   });
 

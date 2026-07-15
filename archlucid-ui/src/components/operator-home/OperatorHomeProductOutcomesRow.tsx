@@ -8,7 +8,7 @@ import {
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-/** Compact payoff row for first-run home — what a completed review package contains. */
+/** Compact payoff row for first-run home — what a completed review contains. */
 export function OperatorHomeProductOutcomesRow(): React.JSX.Element | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
 

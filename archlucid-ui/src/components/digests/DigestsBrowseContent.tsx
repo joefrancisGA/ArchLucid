@@ -403,7 +403,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                       <dd className="m-0 font-mono">{selected.digestId}</dd>
                     </div>
                     <div>
-                      <dt className="font-medium text-al-text-primary">Review package</dt>
+                      <dt className="font-medium text-al-text-primary">Review</dt>
                       <dd className="m-0 font-mono">{selected.runId ?? "—"}</dd>
                     </div>
                     {selected.comparedToRunId ? (

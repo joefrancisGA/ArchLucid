@@ -19,11 +19,11 @@ export const ARCHITECTURE_REVIEW_VOCABULARY = {
   pipelineStagesAriaLabel: "Architecture review pipeline stages completed",
   /**
    * Shown under {@link LayerHeader} on Advanced operations / Governance surfaces.
-   * Review package = governed artifact; evidence trail = provenance for how outputs were produced.
+   * Architecture review = governed work unit; evidence trail = provenance for how outputs were produced.
    */
   reviewManifestTraceHelp:
-    "A review package contains the finalized review record, findings, decisions, evidence, and audit trail. An architecture review is the end-to-end work unit from intake through those outputs. The evidence trail explains how the review package was produced.",
+    "An architecture review contains the signed review record, findings, decisions, evidence, and audit trail. It is the end-to-end work unit from intake through those outputs. The evidence trail explains how the review was produced.",
   /** LayerHeader and governance surfaces — same vocabulary as {@link reviewManifestTraceHelp}. */
   buyerReviewPackageScopeHelp:
-    "A review package contains the finalized review record, findings, decisions, evidence, and audit trail. An architecture review is the end-to-end work unit from intake through those outputs. The evidence trail explains how the review package was produced.",
+    "An architecture review contains the signed review record, findings, decisions, evidence, and audit trail. It is the end-to-end work unit from intake through those outputs. The evidence trail explains how the review was produced.",
 } as const;

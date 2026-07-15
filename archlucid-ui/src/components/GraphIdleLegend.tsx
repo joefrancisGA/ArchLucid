@@ -21,7 +21,7 @@ export function GraphIdleLegend(props: { readonly buyerPolished?: boolean }) {
       </p>
       {buyerPolished ? (
         <p className={cn("m-0 mt-1 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Shapes how reviewed context, findings, and deliverables connect to the signed review record for this review package.
+          Shapes how reviewed context, findings, and deliverables connect to the signed review record for this review.
         </p>
       ) : (
         <p className={cn("m-0 mt-1 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

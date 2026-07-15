@@ -4,9 +4,9 @@ import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
 
 describe("audit-nav-paths", () => {
   it("builds scoped audit URLs with runId query params (TB-649)", () => {
-    expect(auditTrailNavHref("run-abc")).toBe("/audit?runId=run-abc");
-    expect(auditTrailNavHref("")).toBe("/audit");
-    expect(auditTrailNavHref(null)).toBe("/audit");
+    expect(auditTrailNavHref("run-abc")).toBe("/governance/audit?runId=run-abc");
+    expect(auditTrailNavHref("")).toBe("/governance/audit");
+    expect(auditTrailNavHref(null)).toBe("/governance/audit");
   });
 
   it("recognizes governance and legacy audit nav paths", () => {

@@ -13,7 +13,7 @@ export function isExplicitStaticDemoMarketingBuild(): boolean {
 }
 
 /**
- * Operator demo chrome (Demonstration workspace banner, sample package summary disclaimers) may render for a static
+ * Operator demo chrome (Demonstration workspace banner, sample review summary disclaimers) may render for a static
  * demo run only when demo marketing is explicitly enabled, or when the shell is not buyer-polished (operator build).
  */
 export function shouldShowOperatorDemoMarketingChrome(

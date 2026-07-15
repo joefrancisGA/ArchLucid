@@ -27,7 +27,7 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     navGroupId: "operator-system-admin",
     href: "/replay",
     canonicalPrefixes: ["/admin"],
-    exceptionReason: "Validate review package tool duplicated under Internal Ops for employee diagnostics (also in Operate analysis history).",
+    exceptionReason: "Validate review tool duplicated under Internal Ops for employee diagnostics (also in Operate analysis history).",
   },
   {
     navGroupId: "operate-reports",
@@ -40,5 +40,11 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     href: "/advisory",
     canonicalPrefixes: ["/governance"],
     exceptionReason: "Architecture advisory hub uses a top-level route; grouped under Enterprise governance until TB-408 canonical route consolidation.",
+  },
+  {
+    navGroupId: "operate-governance",
+    href: "/signed-records",
+    canonicalPrefixes: ["/governance"],
+    exceptionReason: "Signed review records list uses canonical signed-records URL (TB-399); grouped under Enterprise governance per IA-001.",
   },
 ];

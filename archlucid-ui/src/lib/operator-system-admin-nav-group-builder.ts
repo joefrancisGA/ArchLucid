@@ -34,7 +34,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/admin/trial-funnel",
           label: "Trial funnel",
-          title: "Trial funnel — signup, first commit, conversion, and estimated first-review COGS",
+          title: "Trial funnel — trial activation, review completion, conversion, and estimated first-review AI cost",
           icon: LineChart,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",
@@ -98,7 +98,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/replay",
           label: OPERATOR_NAV_LINK_LABELS.replayReview,
-          title: this.shortcutTitle("Validate review package — check stored review output integrity", "alt+p"),
+          title: this.shortcutTitle("Validate review — check stored review output integrity", "alt+p"),
           keyShortcut: "alt+p",
           icon: PackageCheck,
           tier: "extended",

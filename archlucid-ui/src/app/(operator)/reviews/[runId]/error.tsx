@@ -44,7 +44,7 @@ export default function RunDetailSegmentError({
           <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {isBuyerPolished
               ? "Open the signed review record first, or use the read-only walkthrough below, to explore the Claims Intake outputs."
-              : "Open the sample review package or the public walkthrough below to explore the Claims Intake review outputs."}
+              : "Open the sample review or the public walkthrough below to explore the Claims Intake review outputs."}
           </p>
           {isDev ? (
             <pre
@@ -61,7 +61,7 @@ export default function RunDetailSegmentError({
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="primary" asChild>
             <Link href={`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
-              Open sample review package
+              Open sample review
             </Link>
           </Button>
           <Button type="button" variant="outline" asChild>

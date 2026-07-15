@@ -99,7 +99,7 @@ export function buyerFacingAuditTrailScopeLabel(runId: string): string | null {
   const label = buyerFacingReviewLinkLabelFromRunId(effectiveRunId);
 
   return label
-    .replace(/ Review Package$/, "")
+    .replace(/ Review Package$/i, "")
     .replace(/ Review$/, "")
     .trim();
 }
@@ -118,7 +118,7 @@ export function formatAuditTrailReviewFilterChipLabel(runId: string): string {
   const scopeLabel = buyerFacingAuditTrailScopeLabel(runId);
 
   if (scopeLabel === null || scopeLabel.length === 0) {
-    return "Review package selected";
+    return "Review selected";
   }
 
   return `Review: ${scopeLabel}`;

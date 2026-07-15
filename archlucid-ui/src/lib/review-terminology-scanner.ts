@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
+  REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
 } from "@/lib/review-terminology-surfaces";
 
@@ -120,13 +121,43 @@ const LINE_SAFELIST_PATTERNS = [
   /MANIFEST_DETAIL/i,
   /MANIFEST_ID/i,
   /manifestishEvent/i,
-  /console\.error/i,
+  /type:\s*"packaged"/i,
+  /packaged demo/i,
+  /Former terms?:/i,
+  /deprecatedAliases/i,
+  /ReviewPackage/i,
+  /review-package/i,
+  /packageOrigin/i,
+  /AzureExtractorPackage/i,
+  /WizardStepBaselineZip/i,
+  /policy pack/i,
+  /policy-pack/i,
+  /PolicyPack/i,
+  /npm package/i,
+  /node_modules/i,
+  /BUYER_.*PACKAGE/i,
+  /EXAMPLE_PACKAGE/i,
+  /SAMPLE_PACKAGE/i,
+  /PACKAGE_HEADING/i,
+  /PACKAGE_SHORTCUTS/i,
+  /PACKAGE_VALIDATION/i,
+  /PACKAGE_PRIMARY/i,
+  /PACKAGE_SECTION/i,
+  /PACKAGE_SUMMARY/i,
+  /PACKAGE_PLAIN/i,
+  /PACKAGE_EVIDENCE/i,
+  /PACKAGE_INCLUDES/i,
+  /ReviewsHubRecentPackages/i,
+  /ReplaySelectedPackage/i,
+  /ReviewPackageValidation/i,
+  /Review Package\$/i,
 ] as const;
 
 const ALL_BANNED_PATTERNS = [
   ...REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
   ...REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS,
   ...REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS,
+  ...REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS,
 ] as const;
 
 export type ReviewTerminologyViolation = {

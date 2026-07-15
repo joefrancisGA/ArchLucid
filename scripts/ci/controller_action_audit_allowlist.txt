@@ -57,7 +57,8 @@ ArchLucid.Api.Controllers.Authority.RunsController.ExecuteRun
 ArchLucid.Api.Controllers.Authority.RunsController.ReplayRun
 ArchLucid.Api.Controllers.Authority.RunsController.SubmitAgentResult
 ArchLucid.Api.Controllers.Billing.BillingMarketplaceWebhookController.MarketplaceAsync
-ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController.StripeAsync
+ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController.StripeWalletAsync
+ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController.StripeSubscriptionsAsync
 ArchLucid.Api.Controllers.E2e.E2EHarnessController.SetTrialExpiresAsync
 ArchLucid.Api.Controllers.E2e.E2EHarnessController.SimulateSubscriptionActivatedAsync
 ArchLucid.Api.Controllers.Evolution.EvolutionController.CreateCandidateFromPlan

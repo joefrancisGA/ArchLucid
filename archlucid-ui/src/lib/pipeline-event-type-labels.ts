@@ -8,17 +8,17 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   RunStarted: "Review started",
   RunCompleted: "Review completed",
   RunSubmitted: "Review submitted",
-  ManifestGenerated: "Review package generated",
-  ManifestFinalized: "Review package finalized",
+  ManifestGenerated: "Review generated",
+  ManifestFinalized: "Review finalized",
   FindingsSnapshotSealed: "Findings captured",
   ArtifactsGenerated: "Deliverables ready",
   GovernanceApprovalRequested: "Governance approval requested",
-  "finalize.run": "Review package finalized",
+  "finalize.run": "Review finalized",
   "run.finalized": "Review finalized",
   "context.snapshot.created": "Source context captured",
   "graph.snapshot.created": "Evidence graph created",
   "findings.snapshot.created": "Findings generated",
-  "manifest.committed": "Architecture package approved",
+  "manifest.committed": "Architecture review approved",
   "artifact.bundle.created": "Deliverables ready",
   "audit.pipeline.step": "Pipeline step recorded",
   Commit: "Review submitted",
@@ -28,7 +28,7 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
 
   // Canonical integration events (see ArchLucid.Core.Integration.IntegrationEventTypes)
   "com.archlucid.authority.run.completed": "Review finalized",
-  "com.archlucid.manifest.finalized.v1": "Review package finalized",
+  "com.archlucid.manifest.finalized.v1": "Review finalized",
   "com.archlucid.governance.approval.submitted": "Governance approval requested",
   "com.archlucid.governance.approval.recorded": "Governance approval recorded",
   "com.archlucid.governance.promotion.activated": "Governance promotion activated",
@@ -58,34 +58,34 @@ export function pipelineEventTypeFriendlyLabel(eventType: string): string {
 const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   RunStarted: "Creates the review record and starts the evidence capture timeline.",
   RunCompleted: "Closes the review with a durable outcome snapshot for governance and audit.",
-  RunSubmitted: "Hands off the review package for formal review or governance steps.",
-  ManifestGenerated: "Produces the versioned review package backing decisions and exports.",
+  RunSubmitted: "Hands off the review for formal review or governance steps.",
+  ManifestGenerated: "Produces the versioned review backing decisions and exports.",
   ManifestFinalized:
     "Finalizes the signed review record as the authoritative record for decisions, deliverables, and audit.",
   FindingsSnapshotSealed: "Freezes finding text and severities for traceability and remediation tickets.",
-  ArtifactsGenerated: "Materializes sponsor and compliance deliverables attached to the review package.",
+  ArtifactsGenerated: "Materializes sponsor and compliance deliverables attached to the review.",
   GovernanceApprovalRequested:
     "Creates an auditable governance checkpoint before any governed downstream handoff.",
   "finalize.run": "Finalizes the signed review record as the authoritative record for decisions, deliverables, and audit.",
   "run.finalized": "Closes the review with a durable outcome snapshot for governance and audit.",
   "context.snapshot.created": "Captures the ingested context used to justify findings and graph evidence.",
   "graph.snapshot.created": "Persists the architecture relationship graph used in the evidence trail.",
-  "findings.snapshot.created": "Persists generated findings before final review package packaging.",
+  "findings.snapshot.created": "Persists generated findings before final review packaging.",
   "manifest.committed": "Commits the signed review record as the contract for deliverables and audits.",
   "artifact.bundle.created": "Bundles downloadable outputs for sponsor and audit audiences.",
-  Commit: "Hands off the review package for formal review or governance steps.",
+  Commit: "Hands off the review for formal review or governance steps.",
   context_snapshot: "Captures the ingested context used to justify findings and graph evidence.",
   graph_snapshot: "Persists the architecture relationship graph used in the evidence trail.",
-  findings_snapshot: "Persists generated findings before final review package packaging.",
+  findings_snapshot: "Persists generated findings before final review packaging.",
   "com.archlucid.authority.run.completed": "Closes the review with a durable outcome snapshot for governance and audit.",
   "com.archlucid.manifest.finalized.v1":
     "Finalizes the signed review record as the authoritative record for decisions, deliverables, and audit.",
   "com.archlucid.governance.approval.submitted":
     "Creates an auditable governance checkpoint before any governed downstream handoff.",
   "com.archlucid.governance.approval.recorded":
-    "Records that the required governance approval sequence completed for this finalized signed review package.",
+    "Records that the required governance approval sequence completed for this finalized signed review.",
   "com.archlucid.governance.promotion.activated":
-    "Records that an approved package was authorized to advance within the governed change boundary.",
+    "Records that an approved review was authorized to advance within the governed change boundary.",
 };
 
 export function pipelineEventTypeBuyerMilestoneSubtitle(eventType: string): string {

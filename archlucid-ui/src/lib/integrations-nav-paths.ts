@@ -11,6 +11,8 @@ export const LEGACY_INTEGRATIONS_ITSM_PATH = "/integrations/itsm";
 
 export const INTEGRATIONS_JIRA_PATH = "/integrations/jira";
 
+export const INTEGRATIONS_AZURE_BOARDS_PATH = "/integrations/azure-boards";
+
 export const INTEGRATIONS_SERVICENOW_PATH = "/integrations/servicenow";
 
 export const INTEGRATIONS_TEAMS_PATH = "/integrations/teams";

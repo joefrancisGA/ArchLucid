@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **173** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **177** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:173 -->
+<!-- route-tier-policy-nav-registry-count:177 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -155,6 +155,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/ReviewsDemoController.cs` | `/v1/reviews` | none | ExecuteAuthority |  |  |
 | `Authority/RunAgentEvaluationController.cs` | `/v1/internal/architecture` | none | ReadAuthority |  | internal_architecture_diagnostics |
 | `Authority/RunComparisonController.cs` | `/v1/architecture` | standard | ReadAuthority | /compare |  |
+| `Authority/RunCoverageController.cs` | `/v1/runs` | none | ReadAuthority |  |  |
 | `Authority/RunQueryController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/RunsController.cs` | `/v1/architecture` | none | ReadAuthority | /reviews?projectId=default |  |
 | `Authority/RunsExportController.cs` | `/v1/runs` | standard | ReadAuthority |  |  |
@@ -179,12 +180,14 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Findings/FindingMuteController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
 | `Findings/FindingRemediationAssignmentController.cs` | `/v1/findings` | standard | ExecuteAuthority | /governance/findings |  |
 | `Governance/GovernanceController.cs` | `/v1/governance` | standard | ReadAuthority | /governance |  |
+| `Governance/GovernanceCoverageController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-commit` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |
 | `Governance/GovernanceResolutionController.cs` | `/v1/governance-resolution` | standard | ReadAuthority | /governance/resolution |  |
 | `Governance/GovernanceStickinessController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/ManifestsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Governance/PolicyPacksController.cs` | `/v1/policy-packs` | standard | ReadAuthority | /governance/policy-packs |  |
+| `Integrations/AzureBoardsIntegrationsController.cs` | `/v1/integrations/azure-boards` | standard | Authorize |  |  |
 | `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ReadAuthority |  |  |
 | `Integrations/ItsmInboundWebhooksController.cs` | `/v1/integrations/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Integrations/ItsmIntegrationHealthController.cs` | `/v1/integrations/itsm/health` | standard | Authorize |  |  |
@@ -231,6 +234,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/TenantCustomerSuccessController.cs` | `/v1/tenant/customer-success` | standard | Authorize |  |  |
 | `Tenancy/TenantErasureLegalHoldController.cs` | `/v1/tenant/erasure` | none | Authorize |  |  |
 | `Tenancy/TenantExecDigestPreferencesController.cs` | `/v1/tenant` | standard | Authorize |  |  |
+| `Tenancy/TenantHomepageSettingsController.cs` | `/v1/tenant/homepage-settings` | none | Authorize |  |  |
 | `Tenancy/TenantIntegrationsOperationsController.cs` | `/v1/tenant/integrations/operations` | standard | Authorize |  |  |
 | `Tenancy/TenantLlmCostReportingController.cs` | `/v1/tenant` | none | ReadAuthority |  |  |
 | `Tenancy/TenantMeasuredRoiController.cs` | `/v1/tenant/measured-roi` | standard | Authorize | /value-report/roi |  |

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { SHOWCASE_DEMO_RUN_ID } from "./fixtures";
 import { expectBuyerGoldenPageReady } from "./helpers/buyer-golden-path";
-import { expandFindingWorkspaceCard, openReviewDetailWorkspaceTab } from "./helpers/operator-journey";
+import { openReviewDetailWorkspaceTab } from "./helpers/operator-journey";
 import { waitForAppReady } from "./helpers/waits";
 
 const showcaseFindingId = "phi-minimization-risk";
@@ -31,10 +31,7 @@ test.describe("finding evidence deep-links @demo-readiness", () => {
 
     await openReviewDetailWorkspaceTab(page, SHOWCASE_DEMO_RUN_ID, "findings");
 
-    const findingsPanel = page.getByTestId("review-detail-workspace-panel-findings");
-    const showcaseCard = await expandFindingWorkspaceCard(findingsPanel, showcaseFindingId);
-    const evidenceChip = showcaseCard.getByTestId("finding-evidence-link-chip");
-    await evidenceChip.scrollIntoViewIfNeeded();
+    const evidenceChip = page.getByTestId("finding-evidence-link-chip").first();
     await expect(evidenceChip).toBeVisible({ timeout: 60_000 });
     await expect(evidenceChip).toHaveAttribute(
       "href",

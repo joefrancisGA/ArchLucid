@@ -37,7 +37,7 @@ export const DEMO_SYSTEM_HEALTH_OVERALL_STATUS: DemoSystemHealthStatus = "Health
 export const DEMO_SYSTEM_HEALTH_OVERALL_TITLE = "Platform ready for review workflows";
 
 export const DEMO_SYSTEM_HEALTH_OVERALL_SUBTITLE =
-  "Core application paths, evidence navigation, and sample review packages are operating normally in this demo workspace.";
+  "Core application paths, evidence navigation, and sample reviews are operating normally in this demo workspace.";
 
 export function demoSystemHealthStatusSeverity(status: DemoSystemHealthStatus): HealthDisplaySeverity | "neutral" {
   switch (status) {
@@ -130,15 +130,15 @@ export function buildDemoOperationalChecks(): DemoOperationalCheck[] {
     },
     {
       id: "review-package-navigation",
-      label: "Review package navigation",
+      label: "Review navigation",
       status: "Healthy",
-      explanation: "Sample review packages open with findings, evidence, and signed records.",
+      explanation: "Sample reviews open with findings, evidence, and signed records.",
     },
     {
       id: "evidence-graph",
       label: "Evidence graph",
       status: "Healthy",
-      explanation: "Evidence trail links resolve for the demo review package.",
+      explanation: "Evidence trail links resolve for the demo review.",
     },
     {
       id: "search",
@@ -156,7 +156,7 @@ export function buildDemoOperationalChecks(): DemoOperationalCheck[] {
       id: "background-job-queue",
       label: "Background job queue",
       status: "Healthy",
-      explanation: "Queued review work completes for sample packages without delay.",
+      explanation: "Queued review work completes for sample reviews without delay.",
     },
     {
       id: "digest-delivery",

@@ -35,6 +35,25 @@ public sealed class NoopBillingProvider(IBillingLedger ledger) : IBillingProvide
         };
     }
 
+    public async Task<BillingPortalResult> CreateBillingPortalSessionAsync(
+        BillingPortalRequest request,
+        CancellationToken cancellationToken)
+    {
+        string? providerRef = await _ledger.TryGetProviderSubscriptionIdAsync(request.TenantId, cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(providerRef))
+            throw new InvalidOperationException(
+                "No Stripe customer is linked to this tenant yet. Complete checkout or add a payment method first.");
+
+        string sessionId = $"noop_portal_{Guid.NewGuid():N}";
+
+        return new BillingPortalResult
+        {
+            PortalUrl = $"https://billing.archlucid.local/noop-portal?session={sessionId}",
+            ProviderSessionId = sessionId
+        };
+    }
+
     public Task<BillingWebhookHandleResult> HandleWebhookAsync(
         BillingWebhookInbound inbound,
         CancellationToken cancellationToken)

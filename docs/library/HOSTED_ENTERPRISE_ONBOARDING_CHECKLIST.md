@@ -11,7 +11,7 @@ ArchLucid is delivered as hosted SaaS. Enterprise onboarding configures tenant s
 > Task-oriented links for enterprise tenant configuration:
 >
 > - **[Configure SSO](#workforce-sso)**
-> - **[Map roles and groups](#saml-claim-mapping-reference)** · **[Users and roles](/help/operator-auth-roles)**
+> - **[Map roles and groups](#saml-claim-mapping-reference)** · **[Users and roles](/help/users-and-roles)**
 > - **[Assign policy packs](#default-policy-packs)**
 > - **[Enable governance workflow](#governance-enablement)**
 > - **[Configure audit export](#audit-export)**
@@ -26,7 +26,7 @@ ArchLucid is delivered as hosted SaaS. Enterprise onboarding configures tenant s
 Use this checklist to track hosted SaaS enterprise onboarding. For task-specific guidance, open:
 
 - **[Configure SSO](#workforce-sso)**
-- **[Map roles and groups](#saml-claim-mapping-reference)** · **[Users and roles](/help/operator-auth-roles)**
+- **[Map roles and groups](#saml-claim-mapping-reference)** · **[Users and roles](/help/users-and-roles)**
 - **[Assign policy packs](#default-policy-packs)**
 - **[Enable governance workflow](#governance-enablement)**
 - **[Configure audit export](#audit-export)**

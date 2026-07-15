@@ -2,10 +2,10 @@
 
 # Retrieval IR report
 
-- **Cases evaluated:** 47
-- **Mean recall@5:** 0.9787
-- **Mean MRR:** 0.9220
-- **Mean NDCG@10:** 0.9399
+- **Cases evaluated:** 53
+- **Mean recall@5:** 0.9811
+- **Mean MRR:** 0.9308
+- **Mean NDCG@10:** 0.9467
 - **Floor recall@5:** 0.8500
 - **Floor MRR:** 0.7500
 
@@ -19,6 +19,7 @@
 | PlatformDoc | 9 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
 | PolicyPack | 15 | 0.9333 | 0.8000 | 0.8485 | 0.5152 |
 | PriorManifest | 13 | 1.0000 | 1.0000 | 1.0000 | — |
+| ReferenceArchitecture | 6 | 1.0000 | 1.0000 | 1.0000 | — |
 
 ## Per-case results
 
@@ -71,3 +72,9 @@
 | ir-pp-kv-03 | PolicyPack | 1.0000 | 1.0000 | 1.0000 | no |
 | ir-pm-run-05 | PriorManifest | 1.0000 | 1.0000 | 1.0000 | no |
 | ir-pd-arch-04 | PlatformDoc | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ra-ms-01 | ReferenceArchitecture | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ra-ms-02 | ReferenceArchitecture | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ra-3tier-01 | ReferenceArchitecture | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ra-dr-01 | ReferenceArchitecture | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ra-platform-scope | ReferenceArchitecture | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ra-noise | ReferenceArchitecture | 1.0000 | 1.0000 | 1.0000 | no |

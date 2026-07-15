@@ -125,7 +125,7 @@ export function SignInClient() {
     <div className="max-w-[560px]">
       <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Signing in</h2>
       <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Secure access to architecture review packages, evidence-linked findings, and governance exports for your organization.
+        Secure access to architecture reviews, evidence-linked findings, and governance exports for your organization.
       </p>
       <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Redirecting to your identity provider…</p>
       {showSlowHint ? (

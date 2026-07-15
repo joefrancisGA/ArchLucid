@@ -12,6 +12,7 @@ if str(_REPO_ROOT / "scripts" / "ci") not in sys.path:
 from archlucid_ui_route_traffic_table import (  # noqa: E402
     DOC,
     OWNER_DOC,
+    deficit,
     format_overall_weight_total,
     parse_rows,
     sort_key,
@@ -33,12 +34,28 @@ def test_parse_rows_seven_columns() -> None:
     assert rows[1]["path"] == "/ask"
 
 
+def test_parse_rows_eight_columns_with_deficit() -> None:
+    table = """
+| ID | Path | Hit% | Scores | Weight | Deficit | Section | Notes |
+|----|------|------|--------|--------|---------|---------|-------|
+| HOM | `/` | 3% | 0 | 0 | 300 | Core review | None |
+"""
+    rows = parse_rows(table)
+    assert len(rows) == 1
+    assert rows[0]["id"] == "HOM"
+
+
 def test_weight_is_hit_pct_times_score() -> None:
     row = {"pct": "3%", "score": "74"}
     assert weight(row) == 222
 
 
-def test_sort_zero_scores_by_hit_desc_then_scored_by_weight_desc() -> None:
+def test_deficit_is_hit_pct_times_evidence_gap() -> None:
+    row = {"pct": "4%", "score": "78"}
+    assert deficit(row) == 88
+
+
+def test_sort_zero_scores_before_scored_by_deficit_desc() -> None:
     rows = [
         {"id": "HOM", "path": "/", "pct": "3%", "score": "0", "section": "Core review", "notes": "None"},
         {"id": "RE", "path": "/reviews", "pct": "12%", "score": "0", "section": "Core review", "notes": "None"},
@@ -46,7 +63,7 @@ def test_sort_zero_scores_by_hit_desc_then_scored_by_weight_desc() -> None:
         {"id": "AL", "path": "/alerts", "pct": "3%", "score": "61", "section": "Alerts/gov", "notes": "None"},
     ]
     sorted_rows = sort_rows(rows)
-    assert [row["id"] for row in sorted_rows] == ["RE", "HOM", "ASK", "AL"]
+    assert [row["id"] for row in sorted_rows] == ["RE", "HOM", "AL", "ASK"]
 
 
 def test_sort_key_groups_zero_scores_before_scored_rows() -> None:

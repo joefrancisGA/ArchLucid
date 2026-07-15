@@ -51,9 +51,7 @@ export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_HREF = resolveInAppDocHr
 
 export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_DPA_LABEL = "DPA template";
 
-export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF = resolveInAppDocHref(
-  "docs/go-to-market/privacy_policy.md",
-);
+export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_HREF = "/privacy";
 
 export const OPERATOR_SECURITY_TRUST_DATA_RETENTION_PRIVACY_LABEL = "Privacy policy";
 

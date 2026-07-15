@@ -104,7 +104,7 @@ import {
 } from "@/lib/guided-intake-copy";
 
 const validIntent =
-  "We are designing a governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture packages.";
+  "We are designing a governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews.";
 
 describe("SocraticIntakeWizard create-architecture intent", () => {
   beforeEach(() => {

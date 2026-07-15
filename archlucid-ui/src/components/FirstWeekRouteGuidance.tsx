@@ -11,6 +11,7 @@ import {
   resolveFirstWeekRouteGuidanceForShell,
   FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY,
   FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY,
+  FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY,
   type FirstWeekRouteGuidanceVariant,
 } from "@/lib/first-week-route-guidance";
 
@@ -87,6 +88,27 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
         defaultExpanded={false}
         collapsedSummary={FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY}
+      >
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
+        <GuidanceBody
+          useWhen={config.useWhen}
+          bridgeCopy={config.bridgeCopy}
+          operateDeferralNote={config.operateDeferralNote}
+          primaryAction={config.primaryAction}
+        />
+      </OperatorHomeDisclosureSection>
+    );
+  }
+
+  if (props.variant === "review-detail-committed") {
+    return (
+      <OperatorHomeDisclosureSection
+        title="Review guidance"
+        titleId="first-week-guidance-review-detail-committed"
+        sectionTestId="first-week-route-guidance-review-detail-committed"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
+        defaultExpanded={false}
+        collapsedSummary={FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY}
       >
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
         <GuidanceBody

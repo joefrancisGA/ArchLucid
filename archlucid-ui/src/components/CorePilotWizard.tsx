@@ -116,7 +116,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
   },
   {
     id: "commit",
-    title: "Finalize the architecture review package",
+    title: "Finalize the architecture review",
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">

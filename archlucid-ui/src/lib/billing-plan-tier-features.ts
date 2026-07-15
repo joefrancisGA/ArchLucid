@@ -6,7 +6,7 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
   architect: [
     "1 user · 1 workspace",
     "Monthly AI credit allowance (hard cap)",
-    "Architecture creation and review packages",
+    "Architecture creation and reviews",
     "Evidence graph, evidence Q&A, and review findings",
     "Basic exports and sample workspace",
   ],

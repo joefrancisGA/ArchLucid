@@ -6,9 +6,8 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { SeverityTag } from "@/components/ui/severity-tag";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 export type RunDetailWorkspaceHeaderProps = {
@@ -22,11 +21,8 @@ export type RunDetailWorkspaceHeaderProps = {
   readonly templateLabel: string | null;
 };
 
-/** Customer-facing review header — no internal run, package, or route identifiers. */
+/** Customer-facing review header — title and review identity without repeating executive metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
-  const lastEvaluatedLabel =
-    props.lastEvaluatedUtc !== null ? formatInstantForLocale(props.lastEvaluatedUtc) : null;
-
   return (
     <header
       className="space-y-3 border-b border-neutral-200 pb-5 dark:border-neutral-800"
@@ -63,36 +59,6 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
             <StatusTag kind={props.workspaceStatus.statusTagKind} label={props.workspaceStatus.label} />
           </dd>
         </div>
-        <div>
-          <dt className="font-medium text-neutral-500 dark:text-neutral-400">Overall posture</dt>
-          <dd className="m-0 mt-1 font-medium text-neutral-900 dark:text-neutral-100">{props.overallPosture}</dd>
-        </div>
-        {props.highestSeverity !== null ? (
-          <div>
-            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Highest finding severity</dt>
-            <dd className="m-0 mt-1">
-              <SeverityTag
-                severity={props.highestSeverity}
-                kind={
-                  props.highestSeverity === "Critical"
-                    ? "critical"
-                    : props.highestSeverity === "High"
-                      ? "high"
-                      : props.highestSeverity === "Medium"
-                        ? "medium"
-                        : "low"
-                }
-                label={props.highestSeverity}
-              />
-            </dd>
-          </div>
-        ) : null}
-        {lastEvaluatedLabel !== null ? (
-          <div>
-            <dt className="font-medium text-neutral-500 dark:text-neutral-400">Last evaluated</dt>
-            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">{lastEvaluatedLabel}</dd>
-          </div>
-        ) : null}
         {props.reviewOwner !== null ? (
           <div>
             <dt className="font-medium text-neutral-500 dark:text-neutral-400">Review owner</dt>
@@ -177,7 +143,7 @@ export function RunDetailWorkspaceSummaryStrip(
 
 export type RunDetailWorkspaceBlockingBannerProps = {
   readonly blockingCount: number;
-  readonly findingsTabHref: string;
+  readonly runId: string;
 };
 
 export function RunDetailWorkspaceBlockingBanner(
@@ -200,7 +166,7 @@ export function RunDetailWorkspaceBlockingBanner(
           {label}
         </p>
         <Button variant="outline" size="sm" asChild>
-          <Link href={props.findingsTabHref}>Review blocking findings</Link>
+          <Link href={buildReviewDetailTabHref(props.runId, "findings")}>Review blocking findings</Link>
         </Button>
       </div>
     </div>
@@ -284,7 +250,7 @@ export function RunDetailWorkspaceSeverityRail(
 
 export type RunDetailWorkspaceLayoutProps = {
   readonly main: React.ReactNode;
-  readonly rail: React.ReactNode;
+  readonly rail: React.ReactNode | null;
   readonly stickyActions?: React.ReactNode;
 };
 
@@ -296,9 +262,11 @@ export function RunDetailWorkspaceLayout(props: RunDetailWorkspaceLayoutProps): 
       ) : null}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div className={cn("min-w-0 space-y-4", OPERATOR_LAYOUT.sectionStack)}>{props.main}</div>
-        <aside className="hidden space-y-4 lg:block">
-          <div className="sticky top-36 space-y-4">{props.rail}</div>
-        </aside>
+        {props.rail !== null ? (
+          <aside className="space-y-4">
+            <div className="space-y-4 lg:sticky lg:top-36">{props.rail}</div>
+          </aside>
+        ) : null}
       </div>
     </div>
   );

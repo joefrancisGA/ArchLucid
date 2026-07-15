@@ -404,7 +404,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Compatible with the{" "}
                 <Link className={OPERATOR_LINK.nav} href="/help/review-packages">
-                  review package import
+                  review import
                 </Link>{" "}
                 schema.
               </p>

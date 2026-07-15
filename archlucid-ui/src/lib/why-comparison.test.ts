@@ -37,6 +37,15 @@ describe("why-comparison (front-door table drift guards)", () => {
     expect(WHY_COMPARISON_ROWS.map((row) => row.label)).toEqual([...WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER]);
   });
 
+  it("tenant isolation row avoids internal implementation leakage (TB-768)", () => {
+    const isolationLabel = WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER[2];
+
+    expect(isolationLabel).toContain("separate database catalogs per tenant");
+    expect(isolationLabel).not.toMatch(/TenantDatabaseBindings/i);
+    expect(isolationLabel).not.toMatch(/\bRLS\b/i);
+    expect(isolationLabel).not.toMatch(/\bSQL\b/i);
+  });
+
   it("marketing verify link rows stay aligned with comparison row count", () => {
     expect(WHY_COMPARISON_VERIFY_LINK_ROWS).toHaveLength(WHY_COMPARISON_ROWS.length);
 

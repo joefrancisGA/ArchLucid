@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
@@ -121,7 +122,8 @@ public sealed class GovernanceStickinessController(
         return Ok(response);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
+    // idempotency-posture: explicit-idempotency-key
+    [IdempotencyFilter]
     [HttpPost("findings/{findingId}/dispositions")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FindingDispositionEventDto), StatusCodes.Status200OK)]
@@ -132,6 +134,11 @@ public sealed class GovernanceStickinessController(
         [FromBody] RecordFindingDispositionRequest? request,
         CancellationToken cancellationToken = default)
     {
+        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
+
+        if (idempotencyError is not null)
+            return idempotencyError;
+
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
@@ -162,6 +169,8 @@ public sealed class GovernanceStickinessController(
         }
     }
 
+    // idempotency-posture: explicit-idempotency-key
+    [IdempotencyFilter]
     [HttpPost("findings/bulk-disposition")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecordBulkFindingDispositionResponse), StatusCodes.Status200OK)]
@@ -171,6 +180,11 @@ public sealed class GovernanceStickinessController(
         [FromBody] RecordBulkFindingDispositionRequest? request,
         CancellationToken cancellationToken = default)
     {
+        (IActionResult? idempotencyError, _) = GovernanceIdempotencyKeySupport.ReadRequired(this);
+
+        if (idempotencyError is not null)
+            return idempotencyError;
+
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 

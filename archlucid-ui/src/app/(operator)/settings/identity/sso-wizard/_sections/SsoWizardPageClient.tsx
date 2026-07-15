@@ -2,24 +2,48 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
-import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  formatSsoWizardActivateError,
+  formatSsoWizardDiscoveryError,
+  formatSsoWizardTestLoginError,
+  formatSsoWizardUnexpectedError,
+  sanitizeSsoWizardDiagnosticSummary,
+} from "@/lib/sso-wizard-error-present";
+import {
+  SSO_WIZARD_ACTIVATE_INTRO,
+  SSO_WIZARD_BACK_LINK_LABEL,
+  SSO_WIZARD_CANCEL_UNSAVED_CONFIRM,
+  SSO_WIZARD_CREDENTIALS_REFERENCE_LABEL,
+  SSO_WIZARD_CREDENTIALS_REFERENCE_PLACEHOLDER,
+  SSO_WIZARD_IDENTITY_PROVIDERS_HREF,
+  SSO_WIZARD_PAGE_INTRO,
+  SSO_WIZARD_PAGE_TITLE,
+  SSO_WIZARD_PROTOCOL_STEP_HEADING,
+  SSO_WIZARD_PROTOCOL_STEP_INSTRUCTION,
+  SSO_WIZARD_STATUS_NOT_ACTIVE,
+  SSO_WIZARD_TRUST_REASSURANCE,
+} from "@/lib/sso-wizard-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { SsoWizardFooter } from "./SsoWizardFooter";
+import { SsoWizardProtocolHelpDisclosure } from "./SsoWizardProtocolHelpDisclosure";
+import { SsoWizardProtocolSelector } from "./SsoWizardProtocolSelector";
+import { SsoWizardStepper } from "./SsoWizardStepper";
 import {
   ARCHLUCID_ROLES,
   createDefaultSsoWizardState,
   SSO_WIZARD_STEPS,
-  type SsoWizardProtocol,
+  ssoWizardHasUnsavedChanges,
   type SsoWizardState,
 } from "./sso-wizard-state";
 
@@ -66,6 +90,7 @@ async function postJson<T>(path: string, body: unknown): Promise<{ ok: boolean; 
 }
 
 export function SsoWizardPageClient() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [state, setState] = useState<SsoWizardState>(() => createDefaultSsoWizardState());
   const [busy, setBusy] = useState(false);
@@ -110,7 +135,7 @@ export function SsoWizardPageClient() {
 
   const runDiscover = useCallback(async () => {
     if (state.protocol === null) {
-      setError("Choose OIDC or SAML 2.0 first.");
+      setError("Choose OpenID Connect or SAML 2.0 first.");
 
       return;
     }
@@ -125,7 +150,7 @@ export function SsoWizardPageClient() {
       });
 
       if (!result.ok) {
-        setError(result.text ?? `Discovery failed (HTTP ${result.status}).`);
+        setError(formatSsoWizardDiscoveryError(result.text));
 
         return;
       }
@@ -133,7 +158,7 @@ export function SsoWizardPageClient() {
       const data = result.data;
 
       if (!data?.discoverySucceeded) {
-        setError(data?.diagnosticSummary ?? "Discovery did not succeed.");
+        setError(formatSsoWizardDiscoveryError(data?.diagnosticSummary));
 
         return;
       }
@@ -146,9 +171,9 @@ export function SsoWizardPageClient() {
         availableClaimNames: data.availableClaimNames ?? prev.availableClaimNames,
       }));
 
-      showSuccess("Metadata discovered — confirm issuer and signing material.");
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e));
+      showSuccess("Provider metadata retrieved. Confirm issuer and signing details.");
+    } catch (error: unknown) {
+      setError(formatSsoWizardUnexpectedError(error));
     } finally {
       setBusy(false);
     }
@@ -181,7 +206,7 @@ export function SsoWizardPageClient() {
 
       if (!result.ok) {
         setState((prev) => ({ ...prev, testLoginSuccess: false, testLoginSummary: null, mappedRoles: [] }));
-        setError(result.text ?? `Test login failed (HTTP ${result.status}).`);
+        setError(formatSsoWizardTestLoginError(result.text));
 
         return;
       }
@@ -197,14 +222,14 @@ export function SsoWizardPageClient() {
       }));
 
       if (!success) {
-        setError(data?.diagnosticSummary ?? "Test login did not map any roles.");
+        setError(formatSsoWizardTestLoginError(data?.diagnosticSummary));
 
         return;
       }
 
-      showSuccess("Sandbox test login succeeded.");
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e));
+      showSuccess("Connection test succeeded.");
+    } catch (error: unknown) {
+      setError(formatSsoWizardUnexpectedError(error));
     } finally {
       setBusy(false);
     }
@@ -232,69 +257,98 @@ export function SsoWizardPageClient() {
       });
 
       if (!result.ok) {
-        setError(result.text ?? `Activation failed (HTTP ${result.status}).`);
+        setError(formatSsoWizardActivateError(result.text));
 
         return;
       }
 
-      showSuccess("Tenant SSO configuration activated.");
+      showSuccess("Single sign-on activated for this workspace.");
       setStep(4);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e));
+    } catch (error: unknown) {
+      setError(formatSsoWizardUnexpectedError(error));
     } finally {
       setBusy(false);
     }
   }, [state]);
 
+  const handleCancel = useCallback(() => {
+    if (ssoWizardHasUnsavedChanges(state, step)) {
+      const confirmed = window.confirm(SSO_WIZARD_CANCEL_UNSAVED_CONFIRM);
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    router.push(SSO_WIZARD_IDENTITY_PROVIDERS_HREF);
+  }, [router, state, step]);
+
+  const handleContinue = useCallback(() => {
+    if (!canProceed || busy) {
+      return;
+    }
+
+    setError(null);
+    setStep((current) => Math.min(SSO_WIZARD_STEPS.length - 1, current + 1));
+  }, [busy, canProceed]);
+
+  const handleBack = useCallback(() => {
+    setError(null);
+    setStep((current) => Math.max(0, current - 1));
+  }, []);
+
+  const currentStepMeta = SSO_WIZARD_STEPS[step];
+
   return (
-    <div className="w-full max-w-3xl space-y-6">
-      <div>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          <Link href="/settings/identity-providers" className={OPERATOR_LINK.nav}>
-            ← Identity providers
+    <div className="mx-auto w-full max-w-[62rem] space-y-6 px-1 sm:px-0" data-testid="sso-wizard-page">
+      <header className="space-y-3">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={SSO_WIZARD_IDENTITY_PROVIDERS_HREF} className={OPERATOR_LINK.nav} data-testid="sso-wizard-back-link">
+            ← {SSO_WIZARD_BACK_LINK_LABEL}
           </Link>
         </p>
-        <h1 className={cn("mt-2", OPERATOR_TYPOGRAPHY.pageTitle)}>SSO configuration wizard</h1>
-        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Guided setup for OIDC or SAML 2.0. Saves a tenant-scoped row in{" "}
-          <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-            dbo.TenantIdentityProviderConfigurations
-          </code>{" "}
-          — host{" "}
-          <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>ArchLucidAuth</code> startup
-          wiring is unchanged.
-        </p>
-      </div>
 
-      <WizardStepper steps={[...SSO_WIZARD_STEPS]} currentStep={step} completedSteps={completedSteps} />
+        <div className="space-y-2">
+          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SSO_WIZARD_PAGE_TITLE}</h1>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_PAGE_INTRO}</p>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+            {SSO_WIZARD_STATUS_NOT_ACTIVE}
+          </p>
+        </div>
+      </header>
+
+      <SsoWizardStepper currentStep={step} completedSteps={completedSteps} />
 
       {error ? <OperatorApiProblem problem={null} fallbackMessage={error} /> : null}
 
       <Card>
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SSO_WIZARD_STEPS[step]?.label}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {step === 0 ? SSO_WIZARD_PROTOCOL_STEP_HEADING : currentStepMeta?.label}
+          </CardTitle>
           {step === 0 ? (
-            <div className="flex flex-wrap gap-3">
-              {(["oidc", "saml"] as SsoWizardProtocol[]).map((p) => (
-                <Button
-                  key={p}
-                  type="button"
-                  variant={state.protocol === p ? "primary" : "outline"}
-                  onClick={() => setState((prev) => ({ ...prev, protocol: p }))}
-                  data-testid={`sso-protocol-${p}`}
-                >
-                  {p === "oidc" ? "OpenID Connect (OIDC)" : "SAML 2.0"}
-                </Button>
-              ))}
-            </div>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_PROTOCOL_STEP_INSTRUCTION}</p>
+          ) : null}
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {step === 0 ? (
+            <>
+              <SsoWizardProtocolSelector
+                value={state.protocol}
+                disabled={busy}
+                onChange={(protocol) => setState((prev) => ({ ...prev, protocol }))}
+              />
+              <SsoWizardProtocolHelpDisclosure />
+            </>
           ) : null}
 
           {step === 1 ? (
             <div className="space-y-3">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Enter the metadata or discovery URL from your identity provider.
+              </p>
               <div>
-                <Label htmlFor="metadata-url">Discovery / metadata URL</Label>
+                <Label htmlFor="metadata-url">Metadata or discovery URL</Label>
                 <Input
                   id="metadata-url"
                   value={state.metadataUrl}
@@ -308,7 +362,7 @@ export function SsoWizardPageClient() {
                 />
               </div>
               <Button type="button" variant="outline" disabled={busy || !state.metadataUrl.trim()} onClick={() => void runDiscover()}>
-                Fetch metadata
+                Fetch provider metadata
               </Button>
               {state.issuerUri ? (
                 <div
@@ -327,7 +381,7 @@ export function SsoWizardPageClient() {
                   ) : null}
                   {state.signingCertificateThumbprints.length > 0 ? (
                     <p className="mt-2 m-0">
-                      <strong>Signing cert thumbprints:</strong> {state.signingCertificateThumbprints.join(", ")}
+                      <strong>Signing certificate thumbprints:</strong> {state.signingCertificateThumbprints.join(", ")}
                     </p>
                   ) : null}
                 </div>
@@ -338,7 +392,7 @@ export function SsoWizardPageClient() {
           {step === 2 ? (
             <div className="space-y-3">
               <div>
-                <Label htmlFor="role-claim">IdP role / group claim name</Label>
+                <Label htmlFor="role-claim">Identity provider group or role claim</Label>
                 <Input
                   id="role-claim"
                   list="sso-claim-names"
@@ -360,7 +414,7 @@ export function SsoWizardPageClient() {
               <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="sso-role-mapping-table">
                 <thead>
                   <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
-                    <th className="py-2 pr-2">IdP value</th>
+                    <th className="py-2 pr-2">Identity provider value</th>
                     <th className="py-2">ArchLucid role</th>
                   </tr>
                 </thead>
@@ -413,7 +467,7 @@ export function SsoWizardPageClient() {
                 </tbody>
               </table>
               <div>
-                <Label htmlFor="group-regex">Optional custom group claim regex</Label>
+                <Label htmlFor="group-regex">Optional group claim pattern</Label>
                 <Input
                   id="group-regex"
                   value={state.claimMapping.customGroupClaimRegex ?? ""}
@@ -431,8 +485,11 @@ export function SsoWizardPageClient() {
 
           {step === 3 ? (
             <div className="space-y-3">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Run a test sign-in with sample claim values before activating SSO for users.
+              </p>
               <div>
-                <Label htmlFor="sample-claims">Sample IdP claim values (comma or newline separated)</Label>
+                <Label htmlFor="sample-claims">Sample identity provider claim values (comma or newline separated)</Label>
                 <textarea
                   id="sample-claims"
                   className={cn(
@@ -445,14 +502,14 @@ export function SsoWizardPageClient() {
                 />
               </div>
               <Button type="button" variant="outline" disabled={busy} onClick={() => void runTestLogin()}>
-                Run sandbox test login
+                Test connection
               </Button>
               {state.testLoginSummary ? (
                 <p
                   className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
                   data-testid="sso-test-login-summary"
                 >
-                  {state.testLoginSummary}
+                  {sanitizeSsoWizardDiagnosticSummary(state.testLoginSummary)}
                   {state.mappedRoles.length > 0 ? ` Roles: ${state.mappedRoles.join(", ")}.` : ""}
                 </p>
               ) : null}
@@ -461,54 +518,43 @@ export function SsoWizardPageClient() {
 
           {step === 4 ? (
             <div className="space-y-3">
-              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                Review and activate. Activation writes the tenant row and emits{" "}
-                <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-                  Identity.SsoConfigurationActivated
-                </code>{" "}
-                audit event. Host configuration keys in SECURITY.md remain authoritative for runtime auth.
-              </p>
+              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{SSO_WIZARD_ACTIVATE_INTRO}</p>
               <div>
-                <Label htmlFor="kv-secret">Key Vault secret name (optional reference)</Label>
+                <Label htmlFor="kv-secret">{SSO_WIZARD_CREDENTIALS_REFERENCE_LABEL}</Label>
                 <Input
                   id="kv-secret"
                   value={state.keyVaultSecretName}
                   onChange={(e) => setState((prev) => ({ ...prev, keyVaultSecretName: e.target.value }))}
-                  placeholder="archlucid-sso-signing-cert"
+                  placeholder={SSO_WIZARD_CREDENTIALS_REFERENCE_PLACEHOLDER}
                 />
               </div>
               <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                <li>Protocol: {state.protocol}</li>
+                <li>Protocol: {state.protocol === "oidc" ? "OpenID Connect" : state.protocol === "saml" ? "SAML 2.0" : "—"}</li>
                 <li>Issuer: {state.issuerUri}</li>
                 <li>Mapped roles (test): {state.mappedRoles.join(", ") || "—"}</li>
               </ul>
             </div>
           ) : null}
+
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SSO_WIZARD_TRUST_REASSURANCE}</p>
+
+          <SsoWizardFooter
+            isFirstStep={step === 0}
+            isLastStep={step === SSO_WIZARD_STEPS.length - 1}
+            canContinue={canProceed}
+            canActivate={canActivate}
+            busy={busy}
+            onCancel={handleCancel}
+            onBack={handleBack}
+            onContinue={handleContinue}
+            onActivate={() => {
+              void runActivate().catch((error: unknown) => {
+                showError(formatSsoWizardUnexpectedError(error));
+              });
+            }}
+          />
         </CardContent>
       </Card>
-
-      <WizardNavButtons
-        isFirstStep={step === 0}
-        isLastInputStep={step === SSO_WIZARD_STEPS.length - 1}
-        canProceed={canProceed}
-        canSubmit={canActivate}
-        submitting={busy}
-        onBack={() => {
-          setError(null);
-          setStep((s) => Math.max(0, s - 1));
-        }}
-        onNext={() => {
-          setError(null);
-          setStep((s) => Math.min(SSO_WIZARD_STEPS.length - 1, s + 1));
-        }}
-        onSubmit={() => {
-          void runActivate().catch((e: unknown) => {
-            showError(e instanceof Error ? e.message : String(e));
-          });
-        }}
-        submitLabel="Activate SSO configuration"
-        submittingLabel="Activating…"
-      />
     </div>
   );
 }

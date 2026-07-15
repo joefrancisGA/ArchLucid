@@ -21,7 +21,7 @@ public static class TenantItsmConnectorConnectionUpsertValidation
     public const string AuthUserNameRequiredMessage =
         "AuthUserName is required (Jira service account email or ServiceNow integration username).";
 
-    public const string ProviderRequiredMessage = "Provider must be Jira or ServiceNow.";
+    public const string ProviderRequiredMessage = "Provider must be Jira, ServiceNow, or Azure Boards.";
 
     public const string AuthModeInvalidMessage =
         "AuthMode must be BasicApiToken, OAuth2ClientCredentials, or OAuth2RefreshToken.";
@@ -63,6 +63,13 @@ public static class TenantItsmConnectorConnectionUpsertValidation
             return true;
         }
 
+        if (raw.Trim().Equals("AzureBoards", StringComparison.OrdinalIgnoreCase))
+        {
+            provider = TenantItsmConnectorProvider.AzureBoards;
+
+            return true;
+        }
+
         errorMessage = ProviderRequiredMessage;
 
         return false;
@@ -73,6 +80,16 @@ public static class TenantItsmConnectorConnectionUpsertValidation
         {
             TenantItsmConnectorProvider.Jira => "Jira",
             TenantItsmConnectorProvider.ServiceNow => "ServiceNow",
+            TenantItsmConnectorProvider.AzureBoards => "Azure Boards",
+            _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
+        };
+
+    public static string ToProviderPersistenceLabel(TenantItsmConnectorProvider provider) =>
+        provider switch
+        {
+            TenantItsmConnectorProvider.Jira => "Jira",
+            TenantItsmConnectorProvider.ServiceNow => "ServiceNow",
+            TenantItsmConnectorProvider.AzureBoards => "AzureBoards",
             _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null)
         };
 
@@ -131,6 +148,48 @@ public static class TenantItsmConnectorConnectionUpsertValidation
         }
 
         return true;
+    }
+
+    public static bool TryBuildUpsertCommandForProvider(
+        TenantItsmConnectorProvider provider,
+        string? instanceBaseUrl,
+        string? authModeRaw,
+        string? authUserName,
+        string? credentialKeyVaultSecretName,
+        string? oauthClientIdKeyVaultSecretName,
+        string? oauthClientSecretKeyVaultSecretName,
+        string? oauthRefreshTokenKeyVaultSecretName,
+        string? inboundWebhookKeyVaultSecretName,
+        bool isEnabled,
+        string? label,
+        out TenantItsmConnectorConnectionUpsertCommand? command,
+        out string? errorMessage)
+    {
+        if (provider is TenantItsmConnectorProvider.AzureBoards)
+            return TryBuildAzureBoardsUpsertCommand(
+                instanceBaseUrl,
+                authModeRaw,
+                authUserName,
+                credentialKeyVaultSecretName,
+                inboundWebhookKeyVaultSecretName,
+                isEnabled,
+                label,
+                out command,
+                out errorMessage);
+
+        return TryBuildUpsertCommand(
+            instanceBaseUrl,
+            authModeRaw,
+            authUserName,
+            credentialKeyVaultSecretName,
+            oauthClientIdKeyVaultSecretName,
+            oauthClientSecretKeyVaultSecretName,
+            oauthRefreshTokenKeyVaultSecretName,
+            inboundWebhookKeyVaultSecretName,
+            isEnabled,
+            label,
+            out command,
+            out errorMessage);
     }
 
     public static bool TryBuildUpsertCommand(
@@ -320,6 +379,63 @@ public static class TenantItsmConnectorConnectionUpsertValidation
         }
 
         trimmed = authUserName.Trim();
+
+        return true;
+    }
+
+    private static bool TryBuildAzureBoardsUpsertCommand(
+        string? instanceBaseUrl,
+        string? authModeRaw,
+        string? authUserName,
+        string? credentialKeyVaultSecretName,
+        string? inboundWebhookKeyVaultSecretName,
+        bool isEnabled,
+        string? label,
+        out TenantItsmConnectorConnectionUpsertCommand? command,
+        out string? errorMessage)
+    {
+        command = null;
+        errorMessage = null;
+
+        if (!TryValidateInstanceBaseUrl(instanceBaseUrl, out string? trimmedInstanceBaseUrl, out errorMessage))
+            return false;
+
+        if (!TryParseAuthMode(authModeRaw, out ItsmConnectorAuthMode authMode, out errorMessage))
+            return false;
+
+        if (authMode is not ItsmConnectorAuthMode.BasicApiToken)
+        {
+            errorMessage = "Azure Boards connector supports BasicApiToken (PAT) auth mode only.";
+
+            return false;
+        }
+
+        if (!TryValidateCredentialKeyVaultSecretName(credentialKeyVaultSecretName, out string? trimmedCredential, out errorMessage))
+            return false;
+
+        if (!TryValidateInboundWebhookKeyVaultSecretName(
+                inboundWebhookKeyVaultSecretName,
+                out string? inboundSecretName,
+                out errorMessage))
+        {
+            return false;
+        }
+
+        string authUserNameTrimmed = string.IsNullOrWhiteSpace(authUserName) ? "" : authUserName.Trim();
+
+        command = new TenantItsmConnectorConnectionUpsertCommand
+        {
+            InstanceBaseUrl = trimmedInstanceBaseUrl!,
+            AuthMode = ItsmConnectorAuthMode.BasicApiToken,
+            AuthUserName = authUserNameTrimmed,
+            CredentialKeyVaultSecretName = trimmedCredential!,
+            OAuthClientIdKeyVaultSecretName = null,
+            OAuthClientSecretKeyVaultSecretName = null,
+            OAuthRefreshTokenKeyVaultSecretName = null,
+            InboundWebhookKeyVaultSecretName = inboundSecretName,
+            IsEnabled = isEnabled,
+            Label = string.IsNullOrWhiteSpace(label) ? null : label.Trim()
+        };
 
         return true;
     }

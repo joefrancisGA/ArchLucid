@@ -72,7 +72,7 @@ describe("nav-config structure", () => {
       for (const link of group.links) {
         if (link.requiredAuthority === "AdminAuthority") {
           if (group.id === "operate-integrations") {
-            expect(["/integrations/jira", "/integrations/servicenow"], link.href).toContain(link.href);
+            expect(["/integrations/jira", "/integrations/azure-boards", "/integrations/servicenow"], link.href).toContain(link.href);
             expect(group.surface).toBe("review-workflow");
           } else {
             expect(["operator-admin", "operator-system-admin"], group.id).toContain(group.id);
@@ -190,6 +190,7 @@ describe("nav-config structure", () => {
       "/governance/policy-packs",
       "/governance/resolution",
       "/governance/decision-register",
+      "/signed-records",
       "/advisory",
       "/governance/audit",
       "/governance/alerts",
@@ -206,6 +207,7 @@ describe("nav-config structure", () => {
     expect(integrationsHrefs).toEqual([
       "/integrations/cloud-connections",
       "/integrations/jira",
+      "/integrations/azure-boards",
       "/integrations/servicenow",
       "/integrations/teams",
       "/integrations/slack",
@@ -279,7 +281,7 @@ describe("nav-config structure", () => {
 
   it("keeps governance nav hrefs under /governance/* (TB-405)", () => {
     const governance = NAV_GROUPS.find((group) => group.id === "operate-governance");
-    const governanceNamespaceExceptions = new Set(["/advisory"]);
+    const governanceNamespaceExceptions = new Set(["/advisory", "/signed-records"]);
 
     expect(governance).toBeDefined();
 

@@ -6,7 +6,7 @@ export function manifestJsonDownloadFileName(runId: string): string {
   return `${safe.length > 0 ? safe : "review"}-manifest.json`;
 }
 
-/** Fetches and pretty-prints the committed golden manifest JSON for a review package. */
+/** Fetches and pretty-prints the committed golden manifest JSON for a review. */
 export async function fetchManifestJsonText(runId: string): Promise<string> {
   const trimmedRunId = runId.trim();
 

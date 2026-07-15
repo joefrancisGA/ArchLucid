@@ -14,80 +14,10 @@ export type HelpDocSearchRecord = {
 export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
+    "docTitle": "Maintainer note — troubleshooting UI",
     "sectionSlug": "",
-    "sectionHeading": "Troubleshooting — overview",
-    "excerpt": "Start with the symptom that matches what you see. Each entry lists a first check inside ArchLucid, then where to go next."
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "most-common-issues",
-    "sectionHeading": "Most common issues",
-    "excerpt": "Most common issues"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "overview-page-or-workspace-readiness-looks-empty",
-    "sectionHeading": "Overview page or workspace readiness looks empty",
-    "excerpt": "Overview page or workspace readiness looks empty"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "sample-review-package-missing",
-    "sectionHeading": "Sample review package missing",
-    "excerpt": "Sample review package missing"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "review-package-does-not-open",
-    "sectionHeading": "Review package does not open",
-    "excerpt": "Review package does not open"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "findings-count-looks-wrong",
-    "sectionHeading": "Findings count looks wrong",
-    "excerpt": "Findings count looks wrong"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "export-or-deliverable-download-unavailable",
-    "sectionHeading": "Export or deliverable download unavailable",
-    "excerpt": "Export or deliverable download unavailable"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "ask-or-compare-unavailable",
-    "sectionHeading": "Ask or compare unavailable",
-    "excerpt": "Ask or compare unavailable"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "evidence-upload-failed",
-    "sectionHeading": "Evidence upload failed",
-    "excerpt": "Evidence upload failed"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "permissions-or-sign-in-issue",
-    "sectionHeading": "Permissions or sign-in issue",
-    "excerpt": "Permissions or sign-in issue"
-  },
-  {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting",
-    "sectionSlug": "decision-tree-deeper-triage",
-    "sectionHeading": "Decision tree (deeper triage)",
-    "excerpt": "The sections below walk API, SQL, auth, execute stalls, and commit conflicts step by step. Use them when the quick fixes above are not enough."
+    "sectionHeading": "Maintainer note — troubleshooting UI — overview",
+    "excerpt": "Buyer-facing troubleshooting is rendered by `HelpTroubleshootingGuideView` from `archlucid-ui/src/lib/troubleshooting-help-guide-content.ts`."
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
@@ -171,7 +101,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "",
     "sectionHeading": "Admin diagnostics — overview",
-    "excerpt": "Use these checks when a workspace symptom points to platform health rather than a single review package."
+    "excerpt": "Use these checks when a workspace symptom points to platform health rather than a single architecture review."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
@@ -248,7 +178,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "artifact-list-empty-or-download-404",
     "sectionHeading": "Artifact list empty or download 404",
-    "excerpt": "- An empty artifact list (`[]`) can be valid: signed review record exists but no synthesized files yet or none stored for that review package. - Bundle ZIP 404 can mean “no bundle” vs “review package not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
+    "excerpt": "- An empty artifact list (`[]`) can be valid: signed review record exists but no synthesized files yet or none stored for that architecture review. - Bundle ZIP 404 can mean “no bundle” vs “review not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
@@ -350,10 +280,10 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   },
   {
     "docPath": "docs/library/CORE_PILOT.md",
-    "docTitle": "Core Pilot (pointer)",
+    "docTitle": "Your first architecture review (pointer)",
     "sectionSlug": "",
-    "sectionHeading": "Core Pilot (pointer) — overview",
-    "excerpt": "The operator-facing Core Pilot walkthrough is [`docs/CORE_PILOT.md`](../CORE_PILOT.md)."
+    "sectionHeading": "Your first architecture review (pointer) — overview",
+    "excerpt": "The customer-facing first-session walkthrough is [`docs/CORE_PILOT.md`](../CORE_PILOT.md)."
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",

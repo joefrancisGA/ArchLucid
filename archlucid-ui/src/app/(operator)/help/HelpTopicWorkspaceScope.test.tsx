@@ -61,7 +61,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
 
     expect(screen.getByRole("heading", { name: "When content looks wrong" })).toBeInTheDocument();
     expect(screen.getByText("Empty reviews list")).toBeInTheDocument();
-    expect(screen.getByText("Review package not found")).toBeInTheDocument();
+    expect(screen.getByText("Review not found")).toBeInTheDocument();
     expect(screen.getByText("Sample badge unexpected")).toBeInTheDocument();
   });
 
@@ -95,7 +95,6 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
       "href",
       "/help/getting-started",
     );
-    expect(within(contentColumn).getByRole("link", { name: "Glossary" })).toHaveAttribute("href", "/help/glossary");
     expect(relatedHelpHeading).toBeInTheDocument();
   });
 

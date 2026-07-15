@@ -58,7 +58,7 @@ describe("core-pilot-path-vocabulary", () => {
   it("pilot path preview step 3 uses finalize vocabulary", () => {
     const finalizeStep = PILOT_PATH_PREVIEW_STEPS.find((step) => step.id === "commit");
 
-    expect(finalizeStep?.label).toBe("Finalize review package");
+    expect(finalizeStep?.label).toBe("Finalize review");
     expect(finalizeStep?.label.toLowerCase()).not.toContain("commit");
   });
 });

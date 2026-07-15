@@ -62,7 +62,7 @@ describe("onboarding-secondary-surfaces (TB-342)", () => {
   it("keeps first-run tour copy workflow-oriented and free of internal jargon", () => {
     expect(listOnboardingTourCopyViolations()).toEqual([]);
 
-    expect(ONBOARDING_TOUR_WELCOME_BODY).toContain("review packages");
+    expect(ONBOARDING_TOUR_WELCOME_BODY).toContain("reviews");
     expect(ONBOARDING_TOUR_NEW_REVIEW_BODY).toContain(CREATE_ARCHITECTURE_LABEL);
     expect(ONBOARDING_TOUR_REVIEW_PACKAGES_BODY).toContain("audit trail");
     expect(ONBOARDING_TOUR_FOLLOW_WORKFLOW_BODY).toContain("Architecture");

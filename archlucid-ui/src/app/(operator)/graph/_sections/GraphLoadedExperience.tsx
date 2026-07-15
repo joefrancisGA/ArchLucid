@@ -112,7 +112,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                   How to read this graph
                 </p>
                 <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>
-                  Trace how architecture evidence supports findings, decisions, approvals, and the final review package.
+                  Trace how architecture evidence supports findings, decisions, approvals, and the final review.
                 </p>
               </div>
             ) : null}

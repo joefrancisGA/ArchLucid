@@ -32,7 +32,7 @@ describe("GovernanceApprovalStoryCard", () => {
     expect(
       screen.getByText(/Ready for implementation planning, subject to enterprise change control\./),
     ).toBeInTheDocument();
-    expect(screen.getByText(/review package version/i)).toBeInTheDocument();
+    expect(screen.getByText(/review version/i)).toBeInTheDocument();
     const recordedPackageParagraph = screen.getByText(/Recorded package:/i).closest("p");
     expect(recordedPackageParagraph).toHaveTextContent("3.4.1");
     expect(screen.queryByText(/Development → Staging/)).toBeNull();

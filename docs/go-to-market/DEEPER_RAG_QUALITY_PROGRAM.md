@@ -29,7 +29,7 @@ Nightly: `.github/workflows/golden-cohort-nightly.yml` job `cohort-rag-live-mode
 
 | Dataset | Cases | Corpus kinds covered |
 | --- | ---: | --- |
-| `tests/eval-datasets/retrieval-golden/cases.json` | **47** | PolicyPack, PriorManifest, PlatformDoc, AzureRetail, DemoDerived, CustomerProvided + tenant-isolation |
+| `tests/eval-datasets/retrieval-golden/cases.json` | **53** | PolicyPack, PriorManifest, PlatformDoc, AzureRetail, DemoDerived, CustomerProvided, **ReferenceArchitecture** (Topology exemplar style-prior fingerprints) + tenant-isolation |
 | `tests/eval-datasets/faithfulness-golden/cases.json` | **33** | Ask-shaped positive + negative controls across all major corpus kinds |
 
 Manifest: `scripts/ci/data/rag_golden_dataset_manifest.v1.json`.
@@ -52,7 +52,7 @@ Output-side citation faithfulness on policy-pack and Ask-shaped scenarios lives 
 - **Positive readiness:** policy-pack identity, AI governance, healthcare regulatory, Azure SaaS readiness rows with required `sourceId` citations.
 - **Negative controls:** missing citation, wrong corpus, unsupported ROI/cost, deferred-scope compliance claims.
 
-Retrieval-side golden queries live in `tests/eval-datasets/retrieval-golden/cases.json` with per-corpus floors (PolicyPack MRR and ordering-sensitive NDCG@10).
+Retrieval-side golden queries live in `tests/eval-datasets/retrieval-golden/cases.json` with per-corpus floors (PolicyPack MRR and ordering-sensitive NDCG@10; **ReferenceArchitecture** MRR for Topology exemplar fingerprint regressions; **PriorManifest** operator corpus guidance in [`PRIOR_MANIFEST_RETRIEVAL_GUIDE.md`](../library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md)). Output-side citation faithfulness (**RAG-V1-005**) is a separate harness in `tests/eval-datasets/faithfulness-golden/cases.json`.
 
 ## Verification
 

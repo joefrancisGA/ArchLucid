@@ -3,24 +3,22 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
-
 test.describe("marketing-demo-preview", () => {
-  test("/demo/preview loads manifest narrative, outcome strip, and signup CTA without auth", async ({ page }) => {
+  test("/demo/preview loads hero, result panel, artifact navigation, and signup CTA without auth", async ({ page }) => {
     await page.goto("/demo/preview", { waitUntil: "load" });
-    await expect(page.getByRole("heading", { name: "See a finalized review package (demo)", level: 1 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "See a finalized architecture review", level: 1 })).toBeVisible({
       timeout: 60_000,
     });
 
-    await expect(page.getByRole("heading", { name: "Review package summary" })).toBeVisible();
-    // Default marketing chrome uses buyer-safe copy ("Review lifecycle timeline"); tooling/tests may use "Review trail".
-    await expect(page.getByRole("heading", { name: /^(Review lifecycle timeline|Review trail)$/ })).toBeVisible();
+    await expect(page.getByTestId("demo-preview-result-at-a-glance")).toBeVisible();
+    await expect(page.getByTestId("demo-preview-artifact-nav")).toBeVisible();
+    await expect(page.getByTestId("demo-preview-executive-conclusion")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Review lifecycle" })).toBeVisible();
     await expect(page.locator('[data-testid="demo-preview-review-trail"]')).toBeVisible();
 
-    const outcomeStrip = page.getByRole("region", { name: "Open completed output" });
-    await expect(outcomeStrip).toBeVisible();
-    await expect(outcomeStrip.getByText(/1 · Executive summary/)).toBeVisible();
-    await expect(outcomeStrip.getByText(`2 · ${SIGNED_MANIFEST_LABEL}`)).toBeVisible();
+    const artifactNav = page.getByTestId("demo-preview-artifact-nav");
+    await expect(artifactNav.getByRole("button", { name: /1 · Executive summary/i })).toBeVisible();
+    await expect(artifactNav.getByRole("button", { name: /2 · Signed review record/i })).toBeVisible();
 
     const signup = page.locator('[data-testid="demo-preview-cta-signup"]');
 
@@ -31,7 +29,8 @@ test.describe("marketing-demo-preview", () => {
       "/auth/signin",
     );
 
-    await expect(page.getByTestId("demo-preview-guided-callouts")).toBeVisible();
+    await expect(page.getByTestId("demo-preview-guided-callouts")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Review summary" })).toHaveCount(0);
   });
 
   test("/see-it links to full demo preview with no-sign-in copy", async ({ page }) => {

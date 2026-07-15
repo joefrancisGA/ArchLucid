@@ -43,7 +43,18 @@ export type RunDetailWorkspaceRecommendedAction = {
   readonly relatedFindingCount: number | null;
   readonly ownerOrRole: string | null;
   readonly href: string;
+  readonly actionLabel: string;
 };
+
+export type ExecutiveBottomLineContent =
+  | {
+      readonly kind: "narrative";
+      readonly text: string;
+    }
+  | {
+      readonly kind: "considerations";
+      readonly themes: readonly string[];
+    };
 
 export type DeriveRunDetailWorkspaceStatusInput = {
   readonly run: RunDetail["run"];
@@ -281,6 +292,7 @@ export function deriveRecommendedWorkspaceActions(input: {
   readonly operatorGovernanceDecision: string | null | undefined;
   readonly manifestStatus: string | null | undefined;
   readonly runCompleted: boolean;
+  readonly evidenceCoverageComplete?: boolean;
 }): RunDetailWorkspaceRecommendedAction[] {
   const actions: RunDetailWorkspaceRecommendedAction[] = [];
   const severityCounts = countFindingsBySeverity(input.findings);
@@ -305,6 +317,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
       href: buildReviewDetailTabHref(input.runId, "activity", { hash: "pipeline-timeline" }),
+      actionLabel: "Continue review",
     });
   }
 
@@ -318,6 +331,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: count,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "findings"),
+      actionLabel: "Review findings",
     });
   } else if (severityCounts.critical > 0 || severityCounts.high > 0) {
     const count = severityCounts.critical + severityCounts.high;
@@ -329,6 +343,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: count,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "findings"),
+      actionLabel: "Review findings",
     });
   }
 
@@ -340,6 +355,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: unassignedHigh,
       ownerOrRole: "Remediation lead",
       href: buildReviewDetailTabHref(input.runId, "findings"),
+      actionLabel: "Assign owners",
     });
   }
 
@@ -351,10 +367,13 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: pendingDecision,
       ownerOrRole: "Governance reviewer",
       href: buildReviewDetailTabHref(input.runId, "decisions-remediation", { hash: "governance-decision" }),
+      actionLabel: "Record decision",
     });
   }
 
-  if (evidenceGaps > 0 && actions.length < 4) {
+  const evidenceCoverageComplete = input.evidenceCoverageComplete === true;
+
+  if (evidenceGaps > 0 && !evidenceCoverageComplete && actions.length < 4) {
     actions.push({
       id: "add-evidence",
       title: "Add missing evidence",
@@ -362,6 +381,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: evidenceGaps,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "evidence"),
+      actionLabel: "Add evidence",
     });
   }
 
@@ -380,6 +400,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: null,
       ownerOrRole: "Governance approver",
       href: `/governance?runId=${encodeURIComponent(input.runId)}`,
+      actionLabel: "Record decision",
     });
   }
 
@@ -389,25 +410,58 @@ export function deriveRecommendedWorkspaceActions(input: {
     actions.push({
       id: "finalize-review",
       title: "Finalize review",
-      reason: "Analysis is complete — finalize to create the shareable review package.",
+      reason: "Analysis is complete — finalize to create the shareable review.",
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
       href: buildReviewDetailTabHref(input.runId, "review-package"),
-    });
-  }
-
-  if (manifestId.length > 0) {
-    actions.push({
-      id: "open-package",
-      title: "Open review package",
-      reason: "Exports and deliverables are available for this finalized review.",
-      relatedFindingCount: null,
-      ownerOrRole: null,
-      href: buildReviewDetailTabHref(input.runId, "review-package"),
+      actionLabel: "Open review",
     });
   }
 
   return actions.slice(0, 5);
+}
+
+export function deriveExecutiveBottomLineContent(input: {
+  readonly governanceDecisionLabel: string;
+  readonly governanceDecisionRationale: string | null | undefined;
+  readonly overallPosture: string;
+  readonly blockingFindingCount: number;
+  readonly highestSeverity: string | null;
+  readonly themeSummaries: readonly string[] | null | undefined;
+}): ExecutiveBottomLineContent | null {
+  const decision = input.governanceDecisionLabel.trim();
+  const rationale = (input.governanceDecisionRationale ?? "").trim();
+  const themes = (input.themeSummaries ?? []).map((theme) => theme.trim()).filter((theme) => theme.length > 0);
+  const hasGovernanceNarrative =
+    decision.length > 0 &&
+    decision !== "No governance decision recorded" &&
+    (rationale.length > 0 || input.blockingFindingCount > 0 || input.overallPosture.length > 0);
+
+  if (hasGovernanceNarrative) {
+    const parts: string[] = [decision.endsWith(".") ? decision : `${decision}.`];
+
+    if (rationale.length > 0) {
+      parts.push(rationale.endsWith(".") ? rationale : `${rationale}.`);
+    } else if (input.overallPosture.length > 0) {
+      parts.push(`Overall posture is ${input.overallPosture.toLowerCase()}.`);
+    }
+
+    if (input.blockingFindingCount > 0) {
+      const severityLabel = (input.highestSeverity ?? "material").toLowerCase();
+
+      parts.push(
+        `${input.blockingFindingCount} unresolved ${severityLabel} finding${input.blockingFindingCount === 1 ? "" : "s"} still require an assigned owner and supporting evidence before unrestricted production use.`,
+      );
+    }
+
+    return { kind: "narrative", text: parts.join(" ") };
+  }
+
+  if (themes.length > 0) {
+    return { kind: "considerations", themes };
+  }
+
+  return null;
 }
 
 export function deriveReviewDisplayTitle(run: RunSummary, headline: string): string {
