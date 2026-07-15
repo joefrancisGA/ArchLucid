@@ -5,6 +5,7 @@
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export type PageHelpTopic = {
   readonly slug: string;
@@ -18,9 +19,10 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: START_REVIEW_LABEL } },
   { prefix: "/reviews", topic: { slug: "review-packages", label: "Reviews" } },
   { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Executive dashboard" } },
-  { prefix: "/graph", topic: { slug: "evidence-trail", label: "Evidence trail" } },
+  { prefix: "/graph", topic: { slug: "evidence-trail", label: OPERATOR_NAV_LINK_LABELS.evidenceTrail } },
   { prefix: "/compare", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
+  { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
@@ -37,6 +39,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/settings/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },
   { prefix: "/settings/cloud-connections/gcp", topic: { slug: "cloud-connections-gcp", label: "GCP cloud connection" } },
   { prefix: "/settings/cloud-connections", topic: { slug: "cloud-connections", label: "Cloud connections" } },
+  { prefix: "/settings/tenant", topic: { slug: "getting-started", label: OPERATOR_NAV_LINK_LABELS.settings } },
   { prefix: "/settings/baseline", topic: { slug: "pilot-roi-model", label: "View ROI methodology" } },
   { prefix: "/help", topic: { slug: "getting-started", label: "Help" } },
 ];

@@ -1,7 +1,8 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-export const ARCHITECTURE_RISK_REGISTER_PAGE_TITLE = "Architecture risk register";
+export const ARCHITECTURE_RISK_REGISTER_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.findings;
 
 export const ARCHITECTURE_RISK_REGISTER_PAGE_SUBTITLE =
   "Track architecture risks created from findings, waivers, exceptions, and governance decisions for this review.";

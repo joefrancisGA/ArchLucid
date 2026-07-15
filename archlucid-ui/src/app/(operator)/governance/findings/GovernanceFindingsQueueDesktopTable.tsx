@@ -1,6 +1,7 @@
 "use client";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import type { CSSProperties, ReactElement } from "react";
@@ -286,7 +287,7 @@ export function GovernanceFindingsQueueDesktopTable(
     onSelectionChange(next);
   }
 
-  const ariaLabel = buyerPolishedShell ? "Risk register" : "Architecture risk register";
+  const ariaLabel = OPERATOR_NAV_LINK_LABELS.findings;
   const resourceGroups = groupByResource ? groupGovernanceFindingQueueRows(rows) : [];
 
   const tableHead = (

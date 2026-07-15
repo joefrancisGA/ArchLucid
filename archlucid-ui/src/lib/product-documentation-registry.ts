@@ -176,7 +176,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "evidence-trail",
-    title: "Evidence trail",
+    title: "Evidence graph",
     summary: "Trace findings, artifacts, and provenance without exposing raw engineering logs.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],

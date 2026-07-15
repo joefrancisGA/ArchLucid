@@ -63,7 +63,7 @@ export const REVIEWS_HUB_INCLUDES_LEAD =
 export const REVIEWS_HUB_INCLUDES_ITEMS = [
   "Architecture description",
   "Findings",
-  "Evidence trail",
+  "Evidence graph",
   "Signed review record",
   "Governance approval",
   "Exports",

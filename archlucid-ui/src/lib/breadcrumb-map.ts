@@ -53,7 +53,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   onboarding: OPERATOR_NAV_LINK_LABELS.onboarding,
   reviews: "Reviews",
   new: "New request",
-  graph: "Graph",
+  graph: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   compare: "Compare",
   replay: "Validate review",
   ask: "Ask",
@@ -210,12 +210,12 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   }
 
   if (normalized === "/settings/tenant") {
-    return [{ label: OPERATOR_NAV_LINK_LABELS.workspaceSettings }];
+    return [{ label: OPERATOR_NAV_LINK_LABELS.settings }];
   }
 
   if (normalized === "/settings/tenant/recycle-bin") {
     return [
-      { label: OPERATOR_NAV_LINK_LABELS.workspaceSettings, href: "/settings/tenant" },
+      { label: OPERATOR_NAV_LINK_LABELS.settings, href: "/settings/tenant" },
       { label: "Projects recycle bin" },
     ];
   }
@@ -480,7 +480,7 @@ function labelForSegment(
   }
 
   if (segment === "findings" && prev === "governance") {
-    return "Risk register";
+    return OPERATOR_NAV_LINK_LABELS.findings;
   }
 
   if (segment === "risk-exceptions" && prev === "governance") {
@@ -581,11 +581,6 @@ function labelForSegment(
       return "Audit trail";
     }
 
-
-    if (buyer === true && segment === "graph") {
-
-      return "Evidence graph";
-    }
 
     if (buyer === true && segment === "search") {
 

@@ -14,6 +14,10 @@ import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { RUNS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { getBreadcrumbs } from "@/lib/breadcrumb-map";
+import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
+import { ROUTE_TITLES } from "@/lib/route-static-titles";
+import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import {
   REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_ARCHITECT_WORKSPACE_SURFACE_PATHS,
@@ -148,6 +152,28 @@ describe("review terminology guard", () => {
         violations,
         violations.map((v) => `${v.relativePath}:${v.line} "${v.pattern}" — ${v.excerpt}`).join("\n"),
       ).toEqual([]);
+    }
+  });
+
+  it("IA-006: converged surfaces share one nav label per route family", () => {
+    const alignedRoutes = [
+      { path: "/graph", navLabel: OPERATOR_NAV_LINK_LABELS.evidenceTrail, paletteHref: "/graph" },
+      { path: "/governance/findings", navLabel: OPERATOR_NAV_LINK_LABELS.findings, paletteHref: null },
+      { path: "/settings/tenant", navLabel: OPERATOR_NAV_LINK_LABELS.settings, paletteHref: null },
+    ] as const;
+
+    for (const route of alignedRoutes) {
+      const crumbs = getBreadcrumbs(route.path);
+
+      expect(crumbs[crumbs.length - 1]?.label, route.path).toBe(route.navLabel);
+      expect(ROUTE_TITLES[route.path], route.path).toBe(route.navLabel);
+      expect(pageHelpTopicForPathname(route.path)?.label, route.path).toBe(route.navLabel);
+
+      if (route.paletteHref !== null) {
+        const paletteTask = COMMAND_PALETTE_CURATED_TASKS.find((task) => task.href === route.paletteHref);
+
+        expect(paletteTask?.label, route.path).toBe(route.navLabel);
+      }
     }
   });
 

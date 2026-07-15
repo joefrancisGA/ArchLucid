@@ -427,13 +427,14 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Acceptance:** home, nav caption, and hub CTAs describe the same single lifecycle; both entry CTAs remain one click from home.
 - **Risk if deferred:** misleading product model at the highest-traffic entry point.
 
-**IA-006 · Converge evidence-tool and governance naming** — **P1 · S**
+**IA-006 · Converge evidence-tool and governance naming** — **Done (2026-07-14)** — **P1 · S**
 - **Problem:** One capability, four names: "Evidence graph" (nav), "Evidence trail" (hub includes, help topic label), "Graph" (default breadcrumb segment), "Provenance graph" (command palette). Also "Risk register" (nav) vs. "Findings" (breadcrumb); "Settings" (nav) vs. "Workspace settings" (crumb). `[PUI]`
 - **Change:** Canonical noun per surface family: tool = **"Evidence graph"** everywhere (nav, crumbs, palette, help label); "evidence trail" allowed only in prose about lineage. Breadcrumb segment labels for `graph`, `findings` (under governance), `tenant` sourced from `OPERATOR_NAV_LINK_LABELS` constants instead of parallel literals.
 - **Files:** `breadcrumb-map.ts`, `command-palette-curated-tasks.ts`, `page-help-topic-map.ts`, `reviews-hub-copy.ts` includes item, related tests.
 - **Implementation notes:** extend the terminology drift-guard test to assert nav label ↔ breadcrumb segment equality for these keys.
 - **Acceptance:** for `/graph`, `/governance/findings`, `/settings/tenant`: nav label, breadcrumb, page title, palette entry, and contextual help label all use one string each.
 - **Priority/complexity:** P1/S. **Risk if deferred:** users treat one tool as several; help searches fail.
+- **Shipped:** `OPERATOR_NAV_LINK_LABELS` sourcing in breadcrumbs, route titles, palette, contextual help, hub includes, and registry title; `review-terminology-guard.test.ts` IA-006 alignment test.
 
 **IA-007 · Draft → review hand-off lock** — **P1 · S**
 - **Problem:** After a draft spawns a review (`spawnedRunId`), the draft workspace remains fully editable in parallel with the review's Architecture tab; later draft edits do not propagate. `[PI]`
@@ -541,7 +542,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 |---|---|---|
 | **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 ✓ | Dead ends, stranded work, wrong mental model, empty flagship |
 | **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004 ✓, IA-010 ✓, IA-012 ✓, IA-013 ✓ | XS copy items; batch into one terminology PR so drift guards update once |
-| **Wave 3 — early beta (P1 structural-lite)** | IA-019 ✓, IA-006, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
+| **Wave 3 — early beta (P1 structural-lite)** | IA-019 ✓, IA-006 ✓, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
 | **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |
 | **Wave 5 — post-telemetry (P2/P3)** | IA-009, IA-015, IA-021, IA-022 | Each is explicitly gated on usage evidence |
 
