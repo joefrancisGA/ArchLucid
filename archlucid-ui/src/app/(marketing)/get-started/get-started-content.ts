@@ -30,12 +30,15 @@ export type GetStartedMilestone = {
   readonly outcome: string;
 };
 
+export const GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE =
+  "Sign in with work identity (Microsoft, Google, or your organization's SSO provider).";
+
 export const GET_STARTED_MILESTONES: readonly GetStartedMilestone[] = [
   {
     n: 1,
     title: "Sign in and open your workspace",
     estimate: "2–3 minutes",
-    body: "Sign in with a supported work identity. ArchLucid creates or opens your workspace without requiring a credit card.",
+    body: `${GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE} ArchLucid creates or opens your workspace without requiring a credit card.`,
     outcome: "You land in a workspace ready for your first guided sample review.",
   },
   {
