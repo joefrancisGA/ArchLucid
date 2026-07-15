@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **177** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **178** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:177 -->
+<!-- route-tier-policy-nav-registry-count:178 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -114,6 +114,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /settings/tenant |  |
 | `Admin/SupportBundleController.cs` | `/v1/admin` | none | ExecuteAuthority | /settings/support |  |
 | `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /settings/users |  |
+| `Admin/UsersAdminController.cs` | `/v1/admin/users` | none | AdminAuthority |  |  |
 | `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /advisory |  |
 | `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |
 | `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /digests |  |

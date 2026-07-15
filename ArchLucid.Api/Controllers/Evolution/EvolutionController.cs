@@ -25,6 +25,11 @@ namespace ArchLucid.Api.Controllers.Evolution;
 /// <summary>
 ///     60R controlled evolution: candidate change sets from 59R plans and read-only shadow evaluation (simulation only).
 /// </summary>
+/// <remarks>
+///     Read actions intentionally omit <see cref="IEvolutionSimulationService" /> from the primary constructor.
+///     Resolving that graph pulls analysis → replay → agent handlers → a DI factory that blocks on
+///     <c>GetAwaiter().GetResult()</c> (schema-remediation completion client), which hung Impact preview list loads.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -32,7 +37,6 @@ namespace ArchLucid.Api.Controllers.Evolution;
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class EvolutionController(
-    IEvolutionSimulationService evolutionSimulationService,
     IEvolutionCandidateChangeSetRepository candidateRepository,
     IEvolutionSimulationRunRepository simulationRunRepository,
     IScopeContextProvider scopeProvider)
@@ -53,6 +57,7 @@ public sealed class EvolutionController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateCandidateFromPlan(
         Guid planId,
+        [FromServices] IEvolutionSimulationService evolutionSimulationService,
         CancellationToken cancellationToken)
     {
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
@@ -84,7 +89,10 @@ public sealed class EvolutionController(
     [ProducesResponseType(typeof(EvolutionShadowEvaluateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ShadowEvaluate(Guid candidateId, CancellationToken cancellationToken)
+    public async Task<IActionResult> ShadowEvaluate(
+        Guid candidateId,
+        [FromServices] IEvolutionSimulationService evolutionSimulationService,
+        CancellationToken cancellationToken)
     {
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
@@ -120,7 +128,10 @@ public sealed class EvolutionController(
     [ProducesResponseType(typeof(EvolutionSimulateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Simulate(Guid candidateId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Simulate(
+        Guid candidateId,
+        [FromServices] IEvolutionSimulationService evolutionSimulationService,
+        CancellationToken cancellationToken)
     {
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 

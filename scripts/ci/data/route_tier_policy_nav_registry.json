@@ -422,6 +422,16 @@
       "nav_operator_href": "/settings/users"
     },
     {
+      "controller_file": "Admin/UsersAdminController.cs",
+      "class_name": "UsersAdminController",
+      "route_template": "v{version:apiVersion}/admin/users",
+      "normalized_prefix": "/v1/admin/users",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Advisory/AdvisoryController.cs",
       "class_name": "AdvisoryController",
       "route_template": "v{version:apiVersion}/advisory",
