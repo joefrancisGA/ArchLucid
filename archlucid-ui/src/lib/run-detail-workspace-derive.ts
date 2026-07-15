@@ -317,6 +317,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
       href: buildReviewDetailTabHref(input.runId, "activity", { hash: "pipeline-timeline" }),
+      actionLabel: "Continue analysis",
     });
   }
 
@@ -330,6 +331,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: count,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "findings"),
+      actionLabel: "Review findings",
     });
   } else if (severityCounts.critical > 0 || severityCounts.high > 0) {
     const count = severityCounts.critical + severityCounts.high;
@@ -341,6 +343,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: count,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "findings"),
+      actionLabel: "Review findings",
     });
   }
 
@@ -352,6 +355,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: unassignedHigh,
       ownerOrRole: "Remediation lead",
       href: buildReviewDetailTabHref(input.runId, "findings"),
+      actionLabel: "Assign owners",
     });
   }
 
@@ -363,6 +367,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: pendingDecision,
       ownerOrRole: "Governance reviewer",
       href: buildReviewDetailTabHref(input.runId, "decisions-remediation", { hash: "governance-decision" }),
+      actionLabel: "Record decision",
     });
   }
 
@@ -376,6 +381,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: evidenceGaps,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "evidence"),
+      actionLabel: "Add evidence",
     });
   }
 
@@ -408,6 +414,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: null,
       ownerOrRole: "Review owner",
       href: buildReviewDetailTabHref(input.runId, "review-package"),
+      actionLabel: "Finalize review",
     });
   }
 
@@ -419,6 +426,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: null,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "review-package"),
+      actionLabel: "Open package",
     });
   }
 
