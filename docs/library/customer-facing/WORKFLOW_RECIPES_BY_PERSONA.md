@@ -18,7 +18,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 1. **Request** — UI: `/reviews/new` (legacy `/runs/new` may redirect) · API: `POST /v1/architecture/request` · CLI: `dotnet run --project ArchLucid.Cli -- run` (see [CLI_USAGE.md](../CLI_USAGE.md)).
 2. **Track pipeline** — UI: `/runs/{runId}` · API: `GET /v1/architecture/run/{runId}` · CLI: `… status <runId>`.
 3. **Commit** — UI: run detail commit control · API: `POST /v1/architecture/run/{runId}/commit` · CLI: `… commit <runId>` (manifest must exist before downstream exports).
-4. **Package for stakeholders** — UI: run detail exports · API: `GET /v1/pilots/runs/{runId}/first-value-report` (Markdown) · CLI: `… first-value-report <runId> [--save]`, `… sponsor-one-pager <runId> [--save]` where applicable.
+4. **Package for stakeholders** — UI: review detail exports (first-value report, sponsor artefacts) · API: **review export** — first-value report (`text/markdown`, ReadAuthority) · CLI: `… first-value-report <runId> [--save]`, `… sponsor-one-pager <runId> [--save]` where applicable.
 
 **Expected outputs:** Committed run with golden manifest; Markdown/PDF-style sponsor artefacts when generated; shareable links into `/runs/{runId}` (or review routes under `/reviews/...` if your shell aliases them).
 
@@ -59,7 +59,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 1. **Read trust posture** — Hosted narrative: [trust-center.md](../../go-to-market/trust-center.md) · UI: `/trust` (download control mirrors API; workspace variant `/workspace/security-trust` per [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md)).
 2. **Download evidence pack** — API (anonymous): `GET /v1/marketing/trust-center/evidence-pack.zip` · Index / fast lane: [go-to-market/PROCUREMENT_PACK_INDEX.md](../../go-to-market/PROCUREMENT_PACK_INDEX.md), [go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md](../../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md).
-3. **Run-level proof (after commit)** — API: `GET /v1/pilots/runs/{runId}/first-value-report`, `GET /v1/pilots/runs/{runId}/pilot-run-deltas` · UI: exports on run detail.
+3. **Review-level proof (after commit)** — UI: exports on review detail (first-value report, before/after proof metrics) · API: **review exports** — first-value report (`text/markdown`) and review proof metrics (`PilotRunDeltasResponse` JSON), ReadAuthority.
 4. **Operational bundle (internal)** — UI: `/admin/support` · API: `POST /v1/admin/support-bundle` · CLI: `archlucid support-bundle` — use only with explicit disclosure rules ([OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md)).
 
 **Expected outputs:** ZIP + Markdown/JSON run exports suitable for RFP appendices; internal support ZIP only when policy allows.
@@ -88,3 +88,18 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 **Failure hints:** `403` on compare → tier; `404` on compare → uncommitted baseline/target; OpenAPI probe fails → break-glass documented in CLI triage only when policy demands (`ArchLucid.Cli/Commands/DeploymentEvidenceTriageCatalog.cs`).
 
 **Reference:** [go-to-market/INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md), [DEPLOYMENT_TERRAFORM.md](../DEPLOYMENT_TERRAFORM.md).
+
+
+<details>
+<summary>API alias (backward compatibility) — legacy <code>/v1/pilots/</code> routes</summary>
+
+The numbered steps above use **review** vocabulary. HTTP clients that still call pilot-scoped routes can use these backward-compatible aliases (same auth and payloads; see [API_CONTRACTS.md](../API_CONTRACTS.md) Pilots section):
+
+| Review export | Backward-compatible alias |
+| --- | --- |
+| First-value report (Markdown) | `GET /v1/pilots/runs/{runId}/first-value-report` |
+| Review proof metrics (JSON) | `GET /v1/pilots/runs/{runId}/pilot-run-deltas` |
+| Sponsor PDF attachment | `POST /v1/pilots/runs/{runId}/first-value-report.pdf` |
+| Recent review proof rows | `GET /v1/pilots/runs/recent-deltas?count=…` |
+
+</details>
