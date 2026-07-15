@@ -4,7 +4,7 @@ export const AZURE_BOARDS_PAGE_DESCRIPTION =
   "Connect an Azure DevOps organization and create work items from ArchLucid findings.";
 
 export const AZURE_BOARDS_PAGE_CLOUD_NEUTRALITY_NOTE =
-  "Azure Boards is work management — it is independent of whether your architecture runs on Azure, AWS, or Google Cloud.";
+  "Azure Boards is work management — it is independent of whether your reviews run on Azure, AWS, or Google Cloud.";
 
 export const AZURE_BOARDS_CONNECTION_STATUS_HEADING = "Connection status";
 

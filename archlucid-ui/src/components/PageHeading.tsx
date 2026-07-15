@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { createElement, type ReactNode } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
@@ -10,6 +10,32 @@ const PAGE_HEADING_ICON_CLASS =
 
 const PAGE_HEADING_TILE_CLASS =
   "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-900";
+
+function renderPageHeadingIcon(
+  resolvedIcon: LucideIcon | undefined,
+  variant: "default" | "integration",
+): ReactNode {
+  if (resolvedIcon === undefined) {
+    return null;
+  }
+
+  if (variant === "integration") {
+    return (
+      <div className={PAGE_HEADING_TILE_CLASS} data-testid="page-heading-icon-tile" aria-hidden>
+        {createElement(resolvedIcon, {
+          className: PAGE_HEADING_ICON_CLASS,
+          "data-testid": "page-heading-icon",
+        })}
+      </div>
+    );
+  }
+
+  return createElement(resolvedIcon, {
+    className: PAGE_HEADING_ICON_CLASS,
+    "data-testid": "page-heading-icon",
+    "aria-hidden": true,
+  });
+}
 
 export type PageHeadingProps = {
   /** Canonical nav href used to resolve the decorative icon from nav-config. */
@@ -50,19 +76,10 @@ export function PageHeading({
   "data-testid": dataTestId,
   children,
 }: PageHeadingProps): React.JSX.Element {
-  const Icon = icon ?? resolveNavIconForHref(navHref);
+  const resolvedIcon = icon ?? resolveNavIconForHref(navHref);
   const HeadingTag = headingLevel;
 
-  const iconNode =
-    Icon !== undefined ? (
-      variant === "integration" ? (
-        <div className={PAGE_HEADING_TILE_CLASS} data-testid="page-heading-icon-tile" aria-hidden>
-          <Icon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" />
-        </div>
-      ) : (
-        <Icon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" aria-hidden />
-      )
-    ) : null;
+  const iconNode = renderPageHeadingIcon(resolvedIcon, variant);
 
   return (
     <header
