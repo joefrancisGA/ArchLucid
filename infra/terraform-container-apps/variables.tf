@@ -210,6 +210,40 @@ variable "ui_ingress_external" {
   default     = true
 }
 
+# Production-like hosts enforce TB-304: ApiKey auth must emit tenant_id + workspace_id + project_id
+# claims (headers/defaults are rejected). Bind all three to the ScopeIds (or seeded demo) GUIDs the
+# UI and tenant SQL catalog use. Empty = omit env (existing apps may still set these via
+# `az containerapp update`; see README "ApiKey scope claims").
+variable "api_key_tenant_id" {
+  type        = string
+  description = "Authentication:ApiKey:TenantId GUID claim for the host admin/read-only API keys. Required with workspace/project on Production-like hosts."
+  default     = ""
+
+  validation {
+    condition = (
+      (length(trimspace(var.api_key_tenant_id)) == 0 &&
+        length(trimspace(var.api_key_workspace_id)) == 0 &&
+        length(trimspace(var.api_key_project_id)) == 0) ||
+      (length(trimspace(var.api_key_tenant_id)) > 0 &&
+        length(trimspace(var.api_key_workspace_id)) > 0 &&
+        length(trimspace(var.api_key_project_id)) > 0)
+    )
+    error_message = "Set api_key_tenant_id, api_key_workspace_id, and api_key_project_id together (all empty or all non-empty)."
+  }
+}
+
+variable "api_key_workspace_id" {
+  type        = string
+  description = "Authentication:ApiKey:WorkspaceId GUID claim. Pair with api_key_tenant_id and api_key_project_id."
+  default     = ""
+}
+
+variable "api_key_project_id" {
+  type        = string
+  description = "Authentication:ApiKey:ProjectId GUID claim. Pair with api_key_tenant_id and api_key_workspace_id."
+  default     = ""
+}
+
 variable "artifact_blob_service_uri" {
   type        = string
   description = "Blob service URL for large artifact offload (maps to ArtifactLargePayload__AzureBlobServiceUri), e.g. output primary_blob_endpoint from infra/terraform-storage."

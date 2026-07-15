@@ -71,6 +71,13 @@ locals {
 
   api_has_user_assigned_identities    = length(local.api_user_assigned_identity_ids) > 0
   worker_has_user_assigned_identities = length(local.worker_user_assigned_identity_ids) > 0
+
+  # TB-304: Production-like ApiKey hosts need all three claim GUIDs (not headers/defaults).
+  api_key_scope_bound = (
+    length(trimspace(var.api_key_tenant_id)) > 0 &&
+    length(trimspace(var.api_key_workspace_id)) > 0 &&
+    length(trimspace(var.api_key_project_id)) > 0
+  )
 }
 
 data "azurerm_resource_group" "target" {
@@ -215,6 +222,32 @@ resource "azurerm_container_app" "api" {
         name  = "Hosting__Role"
         value = "Api"
       }
+
+      # TB-304 trusted ApiKey scope claims (omit when unset — see variables api_key_*_id).
+      dynamic "env" {
+        for_each = local.api_key_scope_bound ? [1] : []
+        content {
+          name  = "Authentication__ApiKey__TenantId"
+          value = trimspace(var.api_key_tenant_id)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.api_key_scope_bound ? [1] : []
+        content {
+          name  = "Authentication__ApiKey__WorkspaceId"
+          value = trimspace(var.api_key_workspace_id)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.api_key_scope_bound ? [1] : []
+        content {
+          name  = "Authentication__ApiKey__ProjectId"
+          value = trimspace(var.api_key_project_id)
+        }
+      }
+
       dynamic "env" {
         for_each = local.api_keyvault_uami_enabled && length(trimspace(var.api_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
         content {
