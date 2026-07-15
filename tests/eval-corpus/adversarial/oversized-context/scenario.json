@@ -12,7 +12,7 @@
     "mode": "simulator",
     "agentType": "Critic",
     "agentResultPath": "adversarial/oversized-context/agent-result.simulator.json",
-    "notes": "Simulator captures graceful truncation + explicit boundary signaling in findings."
+    "notes": "Simulator omits evidenceRefs so offline gate must not accept oversized-context anchors."
   },
   "expectedFindings": [
     {
