@@ -6,6 +6,7 @@ using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -77,6 +78,12 @@ public sealed class TenantHomepageSettingsControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
 
-        return new TenantHomepageSettingsController(service, scopeProvider.Object, Mock.Of<IAuditService>());
+        TenantHomepageSettingsController controller = new(service, scopeProvider.Object, Mock.Of<IAuditService>());
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext(),
+        };
+
+        return controller;
     }
 }

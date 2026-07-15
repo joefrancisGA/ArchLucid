@@ -98,6 +98,7 @@ vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
 }));
 
 vi.mock("@/components/usability/PilotCommandCenterCard", async () => {
+  const Link = (await import("next/link")).default;
   const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture-workflow-labels");
   const { OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA } = await import("@/lib/buyer-polish-copy");
 
@@ -107,7 +108,7 @@ vi.mock("@/components/usability/PilotCommandCenterCard", async () => {
         <div data-testid="operator-home-dual-path-cards">
           <button type="button">{CREATE_ARCHITECTURE_LABEL}</button>
           <button type="button">{START_REVIEW_LABEL}</button>
-          <a href="/reviews/claims-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</a>
+          <Link href="/reviews/claims-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
         </div>
       </div>
     ),
@@ -115,6 +116,7 @@ vi.mock("@/components/usability/PilotCommandCenterCard", async () => {
 });
 
 vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", async () => {
+  const Link = (await import("next/link")).default;
   const { OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA } = await import("@/lib/buyer-polish-copy");
 
   return {
@@ -125,12 +127,12 @@ vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", async () => 
     }) => (
       <>
         <section data-testid="operator-home-explore-sample-section">
-          <a
+          <Link
             data-testid="operator-home-explore-run-sample-review"
             href="/reviews/new?template=claims-intake-modernization"
           >
             {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
-          </a>
+          </Link>
         </section>
         {afterWorkspaceContext}
       </>
@@ -138,19 +140,23 @@ vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", async () => 
   };
 });
 
-vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
-  OperatorHomeRunsPanel: ({
-    initialModel,
-  }: {
-    initialModel?: { items?: ReadonlyArray<unknown> } | null;
-  }) => (
-    <div data-testid="runs-dashboard-panel">
-      {(initialModel?.items?.length ?? 0) > 0 ? (
-        <a href="/reviews?projectId=default">Open all reviews</a>
-      ) : null}
-    </div>
-  ),
-}));
+vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", async () => {
+  const Link = (await import("next/link")).default;
+
+  return {
+    OperatorHomeRunsPanel: ({
+      initialModel,
+    }: {
+      initialModel?: { items?: ReadonlyArray<unknown> } | null;
+    }) => (
+      <div data-testid="runs-dashboard-panel">
+        {(initialModel?.items?.length ?? 0) > 0 ? (
+          <Link href="/reviews?projectId=default">Open all reviews</Link>
+        ) : null}
+      </div>
+    ),
+  };
+});
 
 const useFeaturedCompletedSampleQuery = vi.fn();
 
