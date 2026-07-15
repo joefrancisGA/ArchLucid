@@ -1,5 +1,6 @@
 import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture-draft-status";
 import { architectureDraftDisplayName } from "@/lib/architecture-draft-status";
+import { architectureDraftSpawnedRunId } from "@/lib/architecture-draft-handoff-gate";
 import type { DraftRequestResponse } from "@/types/draft-intake";
 
 const STORAGE_KEY = "archlucid_architecture_draft_registry_v1";
@@ -92,7 +93,7 @@ export function buildArchitectureDraftRegistryEntry(
     customerStatus: options.customerStatus ?? "draft",
     ownerLabel: options.ownerLabel ?? "You",
     lastUpdatedUtc: draft.updatedUtc,
-    linkedReviewId: options.linkedReviewId ?? draft.spawnedRunId ?? null,
+    linkedReviewId: options.linkedReviewId ?? architectureDraftSpawnedRunId(draft),
     serverUpdatedUtc: draft.updatedUtc,
   };
 }

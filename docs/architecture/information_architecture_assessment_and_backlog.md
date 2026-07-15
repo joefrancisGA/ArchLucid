@@ -436,13 +436,14 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 - **Priority/complexity:** P1/S. **Risk if deferred:** users treat one tool as several; help searches fail.
 - **Shipped:** `OPERATOR_NAV_LINK_LABELS` sourcing in breadcrumbs, route titles, palette, contextual help, hub includes, and registry title; `review-terminology-guard.test.ts` IA-006 alignment test.
 
-**IA-007 · Draft → review hand-off lock** — **P1 · S**
+**IA-007 · Draft → review hand-off lock** — **Done (2026-07-14)** — **P1 · S**
 - **Problem:** After a draft spawns a review (`spawnedRunId`), the draft workspace remains fully editable in parallel with the review's Architecture tab; later draft edits do not propagate. `[PI]`
 - **Impact:** Architects edit the wrong copy and lose changes. **Routes:** `/architectures/[id]`, `/reviews/[runId]`.
 - **Change (per D4, resolved 2026-07-14 — soft gate):** When `spawnedRunId` exists, the draft workspace renders a hand-off banner — "This draft became review {title}; continue editing there" — and the editor is disabled until the user explicitly acknowledges that further draft edits will not flow into the existing review. A hard permanent lock was considered and rejected by the owner.
 - **Files:** `ArchitectureDraftWorkspace.tsx`, draft registry helpers, tests.
 - **Telemetry:** count of post-spawn draft edits (validates severity before/after). **Acceptance:** post-spawn, the primary CTA on the draft is the linked review; no silent parallel editing.
 - **Priority/complexity:** P1/S. **Risk if deferred:** silent divergence and "two objects" illusion.
+- **Shipped:** `architecture-draft-handoff-gate.ts`, `ArchitectureDraftHandoffBanner`, workspace soft-lock + `ArchitectureDraftHandoffAcknowledged` / `ArchitectureDraftPostSpawnEdit` telemetry; tests in `architecture-draft-handoff-gate.test.ts` and `ArchitectureDraftWorkspace.test.tsx`.
 
 **IA-008 · Hide Pattern library nav until content threshold** — **Done (2026-07-14)** — **P1 · XS**
 - **Problem:** `/patterns` requires ≥5 contributing tenants and ≥3 live cards for live aggregates; private-beta tenants will see an empty/below-threshold flagship "reuse" destination. Nav visibility flag exists (`isPatternLibraryNavVisible()`). `[PI]`
@@ -542,7 +543,7 @@ Complexity: XS/S/M/L/XL per the brief. All items are UI-only unless noted. Share
 |---|---|---|
 | **Wave 1 — before beta invites (P0)** | IA-001 ✓, IA-002 ✓, IA-005 ✓, IA-008 ✓ | Dead ends, stranded work, wrong mental model, empty flagship |
 | **Wave 2 — with wave 1 or first beta patch (P1 copy/labels)** | IA-003 ✓, IA-004 ✓, IA-010 ✓, IA-012 ✓, IA-013 ✓ | XS copy items; batch into one terminology PR so drift guards update once |
-| **Wave 3 — early beta (P1 structural-lite)** | IA-019 ✓, IA-006 ✓, IA-007, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
+| **Wave 3 — early beta (P1 structural-lite)** | IA-019 ✓, IA-006 ✓, IA-007 ✓, IA-011, IA-020 | Telemetry must precede the still-deferred decisions; naming convergence, hand-off gate, and governance-view removal ride behind it |
 | **Wave 4 — mid-beta hygiene (P2)** | IA-014, IA-016, IA-017, IA-018, IA-009 D6 carve-out (`/governance/dashboard` removal) | No user-facing risk; reduces engineering drag |
 | **Wave 5 — post-telemetry (P2/P3)** | IA-009, IA-015, IA-021, IA-022 | Each is explicitly gated on usage evidence |
 

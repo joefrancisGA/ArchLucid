@@ -2,20 +2,27 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
+import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
+import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import {
   applyArchitectureCreationDraftToFormState,
   architectureCreationDefaultActorSet,
 } from "@/lib/architecture-creation-init";
+import {
+  acknowledgeArchitectureDraftHandoff,
+  architectureDraftSpawnedRunId,
+  isArchitectureDraftHandoffAcknowledged,
+  trackArchitectureDraftPostSpawnEdit,
+} from "@/lib/architecture-draft-handoff-gate";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftDisplayName,
@@ -30,7 +37,9 @@ import {
   reviewDetailPath,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture-routes";
+import { getRunSummary } from "@/lib/api/architecture-runs";
 import { getDraftRequest } from "@/lib/api/draft-intake-api";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -55,23 +64,29 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   });
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [exitPending, setExitPending] = useState(false);
+  const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
+  const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
+  const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
+
+  const linkedReviewId = architectureDraftSpawnedRunId(draft);
+  const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
 
   const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft } = useArchitectureDraftAutosave({
     architectureId: props.architectureId,
     fields,
     actorSet,
+    enabled: !handoffEditorLocked,
     onDraftLoaded: setDraft,
   });
 
   const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
-  useUnsavedChangesGuard({ when: hasUnsavedChanges });
+  useUnsavedChangesGuard({ when: hasUnsavedChanges && !handoffEditorLocked });
 
   const displayName = useMemo(
     () => architectureDraftDisplayName(fields.systemName, fields.freeTextIntent),
     [fields.freeTextIntent, fields.systemName],
   );
 
-  const linkedReviewId = draft?.spawnedRunId ?? null;
   const reviewReadiness = useMemo(() => validateArchitectureReviewReadiness(fields), [fields]);
 
   const loadDraft = useCallback(async () => {
@@ -91,9 +106,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       setActorSet(
         loaded.document.actorSet.actors.length > 0 ? loaded.document.actorSet : architectureCreationDefaultActorSet(),
       );
+      setHandoffAcknowledged(isArchitectureDraftHandoffAcknowledged(props.architectureId));
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(loaded, {
-          linkedReviewId: loaded.spawnedRunId ?? null,
+          linkedReviewId: architectureDraftSpawnedRunId(loaded),
         }),
       );
     } catch {
@@ -106,6 +122,43 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   useEffect(() => {
     void loadDraft();
   }, [loadDraft]);
+
+  useEffect(() => {
+    if (linkedReviewId === null) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void getRunSummary(linkedReviewId)
+      .then((summary) => {
+        if (!cancelled) {
+          setLinkedReviewTitle(buyerFacingReviewTitleFromSummary(summary));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setLinkedReviewTitle(linkedReviewId);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [linkedReviewId]);
+
+  useEffect(() => {
+    if (
+      linkedReviewId !== null &&
+      handoffAcknowledged &&
+      previousSaveStateRef.current === "saving" &&
+      saveState === "saved"
+    ) {
+      trackArchitectureDraftPostSpawnEdit(props.architectureId, linkedReviewId);
+    }
+
+    previousSaveStateRef.current = saveState;
+  }, [handoffAcknowledged, linkedReviewId, props.architectureId, saveState]);
 
   const handleSaveDraft = useCallback(async () => {
     const saved = await saveDraft();
@@ -162,6 +215,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     router.push(startReviewFromArchitectureHref(props.architectureId));
   }, [draft, linkedReviewId, props.architectureId, reviewReadiness, router, saveDraft]);
 
+  const handleAcknowledgeHandoff = useCallback(() => {
+    if (linkedReviewId === null) {
+      return;
+    }
+
+    acknowledgeArchitectureDraftHandoff(props.architectureId, linkedReviewId);
+    setHandoffAcknowledged(true);
+  }, [linkedReviewId, props.architectureId]);
+
   if (loading) {
     return <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading architecture draft…</p>;
   }
@@ -199,6 +261,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         <ArchitectureDraftSaveStatus saveState={saveState} lastSavedUtc={lastSavedUtc} />
       </div>
 
+      {linkedReviewId !== null ? (
+        <ArchitectureDraftHandoffBanner
+          linkedReviewId={linkedReviewId}
+          linkedReviewTitle={linkedReviewTitle}
+          editorLocked={handoffEditorLocked}
+          onAcknowledgeEditAnyway={handleAcknowledgeHandoff}
+        />
+      ) : null}
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <ArchitectureDraftGuidanceDisclosure className="flex-1" />
         <PageContextualHelpButton />
@@ -224,7 +295,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           <ArchitectureDraftFormFields
             fields={fields}
             actorSet={actorSet}
-            disabled={exitPending}
+            disabled={handoffEditorLocked || exitPending}
             onFieldsChange={setFields}
             onActorSetChange={setActorSet}
           />
@@ -232,11 +303,29 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       </Card>
 
       <div className="flex flex-wrap gap-2">
+        {linkedReviewId !== null ? (
+          <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
+            <Link href={reviewDetailPath(linkedReviewId)}>Continue in review</Link>
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            disabled={saveState === "saving"}
+            onClick={() => {
+              void handleStartReview();
+            }}
+            data-testid="architecture-start-review"
+          >
+            {BUYER_START_ARCHITECTURE_REVIEW_CTA}
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
           size="sm"
-          disabled={saveState === "saving" || !hasUnsavedChanges}
+          disabled={handoffEditorLocked || saveState === "saving" || !hasUnsavedChanges}
           onClick={() => {
             void handleSaveDraft();
           }}
@@ -248,7 +337,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           type="button"
           variant="outline"
           size="sm"
-          disabled={saveState === "saving" || exitPending}
+          disabled={handoffEditorLocked || saveState === "saving" || exitPending}
           onClick={() => {
             void handleSaveAndExit();
           }}
@@ -256,21 +345,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         >
           Save and exit
         </Button>
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          disabled={saveState === "saving" || linkedReviewId !== null}
-          onClick={() => {
-            void handleStartReview();
-          }}
-          data-testid="architecture-start-review"
-        >
-          {BUYER_START_ARCHITECTURE_REVIEW_CTA}
-        </Button>
       </div>
 
-      {!reviewReadiness.isValid ? (
+      {!reviewReadiness.isValid && linkedReviewId === null ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
           Review readiness: add {reviewReadiness.blockers.join(" and ")} before starting a review.
         </p>
