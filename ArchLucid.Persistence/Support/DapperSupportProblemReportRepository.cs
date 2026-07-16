@@ -22,7 +22,7 @@ public sealed class DapperSupportProblemReportRepository(ISqlConnectionFactory c
     {
         ArgumentNullException.ThrowIfNull(insert);
 
-        Guid id = Guid.NewGuid();
+        Guid id = insert.Id != Guid.Empty ? insert.Id : Guid.NewGuid();
 
         const string sql = """
                            INSERT INTO dbo.SupportProblemReports
@@ -88,6 +88,42 @@ public sealed class DapperSupportProblemReportRepository(ISqlConnectionFactory c
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, Id = reportId },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<SupportProblemReportRecord?> UpdateSupportBundleBlobPathAsync(
+        Guid tenantId,
+        Guid reportId,
+        string supportBundleBlobPath,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(supportBundleBlobPath);
+
+        const string sql = """
+                           UPDATE dbo.SupportProblemReports
+                           SET SupportBundleBlobPath = @SupportBundleBlobPath
+                           OUTPUT INSERTED.Id,
+                                  INSERTED.TenantId,
+                                  INSERTED.WorkspaceId,
+                                  INSERTED.ProjectId,
+                                  INSERTED.SubmittedByActorId,
+                                  INSERTED.ContextJson,
+                                  INSERTED.OperatorNote,
+                                  INSERTED.CorrelationId,
+                                  INSERTED.ClientRequestId,
+                                  INSERTED.SupportBundleBlobPath,
+                                  INSERTED.Status,
+                                  INSERTED.CreatedUtc
+                           WHERE TenantId = @TenantId
+                             AND Id = @Id;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        return await connection.QuerySingleOrDefaultAsync<SupportProblemReportRecord>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, Id = reportId, SupportBundleBlobPath = supportBundleBlobPath },
                 cancellationToken: cancellationToken));
     }
 }

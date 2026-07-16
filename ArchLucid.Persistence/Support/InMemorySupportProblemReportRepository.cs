@@ -18,7 +18,7 @@ public sealed class InMemorySupportProblemReportRepository : ISupportProblemRepo
         DateTimeOffset createdUtc = TimeProvider.System.GetUtcNow();
         SupportProblemReportRecord row = new()
         {
-            Id = Guid.NewGuid(),
+            Id = insert.Id != Guid.Empty ? insert.Id : Guid.NewGuid(),
             TenantId = insert.TenantId,
             WorkspaceId = insert.WorkspaceId,
             ProjectId = insert.ProjectId,
@@ -55,5 +55,40 @@ public sealed class InMemorySupportProblemReportRepository : ISupportProblemRepo
         }
 
         return Task.FromResult<SupportProblemReportRecord?>(row);
+    }
+
+    public Task<SupportProblemReportRecord?> UpdateSupportBundleBlobPathAsync(
+        Guid tenantId,
+        Guid reportId,
+        string supportBundleBlobPath,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+        ArgumentException.ThrowIfNullOrWhiteSpace(supportBundleBlobPath);
+
+        if (!_byId.TryGetValue(reportId, out SupportProblemReportRecord? row) || row.TenantId != tenantId)
+        {
+            return Task.FromResult<SupportProblemReportRecord?>(null);
+        }
+
+        SupportProblemReportRecord updated = new()
+        {
+            Id = row.Id,
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
+            SubmittedByActorId = row.SubmittedByActorId,
+            ContextJson = row.ContextJson,
+            OperatorNote = row.OperatorNote,
+            CorrelationId = row.CorrelationId,
+            ClientRequestId = row.ClientRequestId,
+            SupportBundleBlobPath = supportBundleBlobPath,
+            Status = row.Status,
+            CreatedUtc = row.CreatedUtc
+        };
+
+        _byId[reportId] = updated;
+
+        return Task.FromResult<SupportProblemReportRecord?>(updated);
     }
 }

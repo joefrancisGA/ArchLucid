@@ -61,6 +61,32 @@ public sealed class SupportProblemReportEndpointTests
     }
 
     [SkippableFact]
+    public async Task Post_with_attach_support_bundle_returns_accepted_and_persists_blob_path()
+    {
+        await using ArchLucidApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        SubmitSupportProblemReportRequest request = BuildValidRequest();
+        request.AttachSupportBundle = true;
+
+        using HttpResponseMessage response = await client.PostAsJsonAsync(EndpointPath, request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        SubmitSupportProblemReportResponse? body =
+            await response.Content.ReadFromJsonAsync<SubmitSupportProblemReportResponse>();
+
+        body.Should().NotBeNull();
+        body!.SupportBundleAttached.Should().BeTrue();
+        body.SupportBundleAttachWarning.Should().BeNull();
+
+        string? blobPath = await ReadSupportBundleBlobPathAsync(factory.SqlConnectionString, body.ReferenceId);
+
+        blobPath.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [SkippableFact]
     public async Task Post_with_operator_role_returns_accepted_reference()
     {
         await using ArchLucidApiFactory factory = new();
@@ -125,6 +151,25 @@ public sealed class SupportProblemReportEndpointTests
                 ErrorCode = "500"
             }
         };
+    }
+
+    private static async Task<string?> ReadSupportBundleBlobPathAsync(string connectionString, Guid reportId)
+    {
+        await using SqlConnection connection = new(connectionString);
+        await connection.OpenAsync();
+
+        await using SqlCommand cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT TOP 1 SupportBundleBlobPath
+            FROM dbo.SupportProblemReports
+            WHERE Id = @Id;
+            """;
+        cmd.Parameters.AddWithValue("@Id", reportId);
+
+        object? scalar = await cmd.ExecuteScalarAsync();
+
+        return scalar is DBNull or null ? null : Convert.ToString(scalar);
     }
 
     private static async Task<SupportProblemReportRow?> ReadReportRowAsync(string connectionString, Guid reportId)

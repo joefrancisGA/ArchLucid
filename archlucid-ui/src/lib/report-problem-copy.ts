@@ -56,8 +56,12 @@ export const REPORT_PROBLEM_OPERATOR_NOTE_MAX_LENGTH = 2000;
 
 export const REPORT_PROBLEM_ATTACH_BUNDLE_LABEL = "Attach a redacted support bundle";
 
-export const REPORT_PROBLEM_ATTACH_BUNDLE_DISABLED_HINT =
-  "Optional bundle attach ships in a follow-up release (TB-787).";
+export const REPORT_PROBLEM_ATTACH_BUNDLE_HINT =
+  "Optional ZIP with redacted build, health, and config summaries — no browser logs or evidence bodies.";
+
+export const REPORT_PROBLEM_ATTACH_BUNDLE_HELP_HREF = "/help/troubleshooting#support-bundle-attach-to-tickets";
+
+export const REPORT_PROBLEM_ATTACH_BUNDLE_HELP_LINK_LABEL = "Support bundle checklist";
 
 export const REPORT_PROBLEM_SUBMIT_LABEL = "Submit report";
 

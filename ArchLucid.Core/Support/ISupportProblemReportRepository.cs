@@ -10,10 +10,22 @@ public interface ISupportProblemReportRepository
         Guid tenantId,
         Guid reportId,
         CancellationToken cancellationToken);
+
+    Task<SupportProblemReportRecord?> UpdateSupportBundleBlobPathAsync(
+        Guid tenantId,
+        Guid reportId,
+        string supportBundleBlobPath,
+        CancellationToken cancellationToken);
 }
 
 public sealed class SupportProblemReportInsert
 {
+    public Guid Id
+    {
+        get;
+        init;
+    }
+
     public Guid TenantId
     {
         get;

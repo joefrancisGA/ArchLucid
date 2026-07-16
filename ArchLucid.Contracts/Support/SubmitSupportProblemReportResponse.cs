@@ -19,4 +19,16 @@ public sealed class SubmitSupportProblemReportResponse
         get;
         set;
     } = string.Empty;
+
+    public bool SupportBundleAttached
+    {
+        get;
+        set;
+    }
+
+    public string? SupportBundleAttachWarning
+    {
+        get;
+        set;
+    }
 }

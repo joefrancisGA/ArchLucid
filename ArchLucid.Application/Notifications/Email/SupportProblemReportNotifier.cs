@@ -30,6 +30,7 @@ public sealed class SupportProblemReportNotifier(
     public async Task NotifySupportInboxAsync(
         SupportProblemReportRecord report,
         string submittedByActorId,
+        bool supportBundleAttached,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(report);
@@ -75,6 +76,7 @@ public sealed class SupportProblemReportNotifier(
                       $"<p><strong>Submitter actor id:</strong> {safeActor}</p>" +
                       $"<p><strong>Correlation id:</strong> {safeCorrelation}</p>" +
                       $"<p><strong>Client request id:</strong> {safeClientRequest}</p>" +
+                      $"<p><strong>Redacted support bundle attached:</strong> {(supportBundleAttached ? "Yes" : "No")}</p>" +
                       $"<p><strong>SLA:</strong> {WebUtility.HtmlEncode(SupportProblemReportIntakeService.SlaMessage)}</p>";
         string text = "ArchLucid support problem report\n" +
                       $"Report reference: {referenceId}\n" +
@@ -82,6 +84,7 @@ public sealed class SupportProblemReportNotifier(
                       $"Submitter actor id: {submittedByActorId}\n" +
                       $"Correlation id: {report.CorrelationId ?? "—"}\n" +
                       $"Client request id: {report.ClientRequestId ?? "—"}\n" +
+                      $"Redacted support bundle attached: {(supportBundleAttached ? "Yes" : "No")}\n" +
                       $"SLA: {SupportProblemReportIntakeService.SlaMessage}\n";
         EmailMessage emailMessage = new()
         {

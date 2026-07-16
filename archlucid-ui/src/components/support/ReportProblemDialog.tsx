@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -19,10 +20,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReportProblemContext } from "@/lib/report-problem-context";
+import type { SubmitReportProblemIntakeResult } from "@/lib/api/report-problem-intake-api";
 import {
   formatReportProblemAcknowledgement,
   REPORT_PROBLEM_ACK_HEADING,
-  REPORT_PROBLEM_ATTACH_BUNDLE_DISABLED_HINT,
+  REPORT_PROBLEM_ATTACH_BUNDLE_HELP_HREF,
+  REPORT_PROBLEM_ATTACH_BUNDLE_HELP_LINK_LABEL,
+  REPORT_PROBLEM_ATTACH_BUNDLE_HINT,
   REPORT_PROBLEM_ATTACH_BUNDLE_LABEL,
   REPORT_PROBLEM_CANCEL_LABEL,
   REPORT_PROBLEM_CONSENT_LABEL,
@@ -48,11 +52,16 @@ export type ReportProblemSubmitPayload = {
   readonly attachSupportBundle: boolean;
 };
 
+export type ReportProblemSubmitResult = Pick<
+  SubmitReportProblemIntakeResult,
+  "referenceId" | "supportBundleAttachWarning"
+>;
+
 export type ReportProblemDialogProps = {
   readonly open: boolean;
   readonly onOpenChange: (open: boolean) => void;
   readonly context: ReportProblemContext;
-  readonly onSubmit: (payload: ReportProblemSubmitPayload) => Promise<{ referenceId: string }>;
+  readonly onSubmit: (payload: ReportProblemSubmitPayload) => Promise<ReportProblemSubmitResult>;
 };
 
 type ReportProblemDialogPhase = "form" | "acknowledged";
@@ -148,13 +157,23 @@ function ReportProblemContextSummary(props: { readonly context: ReportProblemCon
 
 function ReportProblemAcknowledgementPanel(props: {
   readonly referenceId: string;
+  readonly supportBundleAttachWarning: string | null;
 }): React.JSX.Element {
-  const { referenceId } = props;
+  const { referenceId, supportBundleAttachWarning } = props;
   const acknowledgement = formatReportProblemAcknowledgement(referenceId);
 
   return (
     <div className="space-y-4" data-testid="report-problem-ack-panel">
       <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{acknowledgement}</p>
+      {supportBundleAttachWarning !== null ? (
+        <p
+          className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="report-problem-bundle-attach-warning"
+          role="status"
+        >
+          {supportBundleAttachWarning}
+        </p>
+      ) : null}
       <div className="flex items-center gap-2">
         <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {REPORT_PROBLEM_FIELD_LABEL_REFERENCE_ID}
@@ -176,8 +195,10 @@ export function ReportProblemDialog({
   const [phase, setPhase] = useState<ReportProblemDialogPhase>("form");
   const [operatorNote, setOperatorNote] = useState("");
   const [consentGranted, setConsentGranted] = useState(false);
+  const [attachSupportBundle, setAttachSupportBundle] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [referenceId, setReferenceId] = useState<string | null>(null);
+  const [supportBundleAttachWarning, setSupportBundleAttachWarning] = useState<string | null>(null);
 
   const trimmedNote = operatorNote.trim();
   const submitDisabled = !consentGranted || submitting;
@@ -187,17 +208,19 @@ export function ReportProblemDialog({
       context,
       operatorNote: trimmedNote.length > 0 ? trimmedNote : null,
       consentGranted,
-      attachSupportBundle: false,
+      attachSupportBundle,
     }),
-    [consentGranted, context, trimmedNote],
+    [attachSupportBundle, consentGranted, context, trimmedNote],
   );
 
   const resetDialogState = useCallback((): void => {
     setPhase("form");
     setOperatorNote("");
     setConsentGranted(false);
+    setAttachSupportBundle(false);
     setSubmitting(false);
     setReferenceId(null);
+    setSupportBundleAttachWarning(null);
   }, []);
 
   useEffect(() => {
@@ -224,6 +247,7 @@ export function ReportProblemDialog({
       }
 
       setReferenceId(resolvedReferenceId);
+      setSupportBundleAttachWarning(result.supportBundleAttachWarning);
       setPhase("acknowledged");
     } catch {
       showError("Report could not be submitted. Try again or email support.");
@@ -252,7 +276,10 @@ export function ReportProblemDialog({
         </DialogHeader>
 
         {phase === "acknowledged" && referenceId !== null ? (
-          <ReportProblemAcknowledgementPanel referenceId={referenceId} />
+          <ReportProblemAcknowledgementPanel
+            referenceId={referenceId}
+            supportBundleAttachWarning={supportBundleAttachWarning}
+          />
         ) : (
           <div className="space-y-4">
             <ReportProblemContextSummary context={context} />
@@ -288,13 +315,16 @@ export function ReportProblemDialog({
               </Label>
             </div>
 
-            <div className="flex items-start gap-2 opacity-60">
+            <div className="flex items-start gap-2">
               <Checkbox
                 id="report-problem-attach-bundle"
-                checked={false}
-                disabled
+                checked={attachSupportBundle}
+                disabled={!consentGranted || submitting}
                 aria-describedby="report-problem-attach-bundle-hint"
                 data-testid="report-problem-attach-bundle"
+                onCheckedChange={(checked) => {
+                  setAttachSupportBundle(checked === true);
+                }}
               />
               <div className="space-y-1">
                 <Label htmlFor="report-problem-attach-bundle" className={OPERATOR_TYPOGRAPHY.body}>
@@ -304,7 +334,14 @@ export function ReportProblemDialog({
                   id="report-problem-attach-bundle-hint"
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 >
-                  {REPORT_PROBLEM_ATTACH_BUNDLE_DISABLED_HINT}
+                  {REPORT_PROBLEM_ATTACH_BUNDLE_HINT}{" "}
+                  <Link
+                    href={REPORT_PROBLEM_ATTACH_BUNDLE_HELP_HREF}
+                    className="font-medium text-teal-800 underline dark:text-teal-300"
+                  >
+                    {REPORT_PROBLEM_ATTACH_BUNDLE_HELP_LINK_LABEL}
+                  </Link>
+                  .
                 </p>
               </div>
             </div>

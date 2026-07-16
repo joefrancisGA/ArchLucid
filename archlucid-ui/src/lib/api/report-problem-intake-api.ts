@@ -14,6 +14,8 @@ export class ReportProblemIntakeUnavailableError extends Error {
 
 export type SubmitReportProblemIntakeResult = {
   readonly referenceId: string;
+  readonly supportBundleAttached: boolean;
+  readonly supportBundleAttachWarning: string | null;
 };
 
 function parseSubmitReportProblemIntakeResponse(json: unknown): SubmitReportProblemIntakeResult | null {
@@ -28,7 +30,12 @@ function parseSubmitReportProblemIntakeResponse(json: unknown): SubmitReportProb
     return null;
   }
 
-  return { referenceId };
+  const supportBundleAttached = record.supportBundleAttached === true;
+  const warningRaw = record.supportBundleAttachWarning;
+  const supportBundleAttachWarning =
+    typeof warningRaw === "string" && warningRaw.trim().length > 0 ? warningRaw.trim() : null;
+
+  return { referenceId, supportBundleAttached, supportBundleAttachWarning };
 }
 
 /** Posts structured problem-report context to `POST /v1/support/problem-reports` (TB-788). */

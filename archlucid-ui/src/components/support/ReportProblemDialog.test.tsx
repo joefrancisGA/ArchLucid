@@ -49,7 +49,10 @@ beforeAll(() => {
 
 function renderDialog(overrides?: Partial<React.ComponentProps<typeof ReportProblemDialog>>) {
   const onOpenChange = vi.fn();
-  const onSubmit = vi.fn().mockResolvedValue({ referenceId: "PR-2026-00042" });
+  const onSubmit = vi.fn().mockResolvedValue({
+    referenceId: "PR-2026-00042",
+    supportBundleAttachWarning: null,
+  });
 
   render(
     <ReportProblemDialog
@@ -109,6 +112,52 @@ describe("ReportProblemDialog (TB-784)", () => {
     expect(
       screen.getByText(formatReportProblemAcknowledgement("PR-2026-00042")),
     ).toBeInTheDocument();
+  });
+
+  it("includes attachSupportBundle when optional bundle checkbox is checked", async () => {
+    const { onSubmit } = renderDialog();
+
+    fireEvent.click(screen.getByTestId("report-problem-consent"));
+    fireEvent.click(screen.getByTestId("report-problem-attach-bundle"));
+    fireEvent.click(screen.getByRole("button", { name: REPORT_PROBLEM_SUBMIT_LABEL }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          consentGranted: true,
+          attachSupportBundle: true,
+        }),
+      );
+    });
+  });
+
+  it("shows bundle attach warning on acknowledgement when submit returns one", async () => {
+    const warning =
+      "Your report was submitted, but the redacted support bundle could not be attached. You can download one from Settings → Support if needed.";
+
+    renderDialog({
+      onSubmit: vi.fn().mockResolvedValue({
+        referenceId: "PR-2026-00043",
+        supportBundleAttachWarning: warning,
+      }),
+    });
+
+    fireEvent.click(screen.getByTestId("report-problem-consent"));
+    fireEvent.click(screen.getByRole("button", { name: REPORT_PROBLEM_SUBMIT_LABEL }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("report-problem-bundle-attach-warning")).toHaveTextContent(warning);
+    });
+  });
+
+  it("keeps attach bundle checkbox disabled until consent is granted", () => {
+    renderDialog();
+
+    expect(screen.getByTestId("report-problem-attach-bundle")).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("report-problem-consent"));
+
+    expect(screen.getByTestId("report-problem-attach-bundle")).toBeEnabled();
   });
 
   it("prefers correlation id over client request id for reference display", () => {

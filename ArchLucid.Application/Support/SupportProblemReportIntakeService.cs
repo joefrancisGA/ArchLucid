@@ -5,14 +5,21 @@ using ArchLucid.Contracts.Support;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Support;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Support;
 
 public sealed class SupportProblemReportIntakeService(
     ISupportProblemReportRepository reports,
     ISupportProblemReportNotifier notifier,
-    TimeProvider timeProvider) : ISupportProblemReportIntakeService
+    ISupportBundleAssembler bundleAssembler,
+    ISupportProblemReportBundleStore bundleStore,
+    ILogger<SupportProblemReportIntakeService> logger) : ISupportProblemReportIntakeService
 {
     public const string SlaMessage = "We'll respond by the next business day.";
+
+    public const string SupportBundleAttachFailedWarning =
+        "Your report was submitted, but the redacted support bundle could not be attached. You can download one from Settings → Support if needed.";
 
     private const int MaxOperatorNoteLength = 2000;
 
@@ -32,7 +39,14 @@ public sealed class SupportProblemReportIntakeService(
     private readonly ISupportProblemReportNotifier _notifier =
         notifier ?? throw new ArgumentNullException(nameof(notifier));
 
-    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+    private readonly ISupportBundleAssembler _bundleAssembler =
+        bundleAssembler ?? throw new ArgumentNullException(nameof(bundleAssembler));
+
+    private readonly ISupportProblemReportBundleStore _bundleStore =
+        bundleStore ?? throw new ArgumentNullException(nameof(bundleStore));
+
+    private readonly ILogger<SupportProblemReportIntakeService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<SubmitSupportProblemReportResponse> SubmitAsync(
         ScopeContext scope,
@@ -59,9 +73,11 @@ public sealed class SupportProblemReportIntakeService(
         string? operatorNote = NormalizeOptional(request.OperatorNote, MaxOperatorNoteLength, nameof(request.OperatorNote));
         ReportProblemContextDto envelope = BuildRedactedEnvelope(scope, request.Context);
         string contextJson = JsonSerializer.Serialize(envelope, ContextJsonOptions);
+        Guid reportId = Guid.NewGuid();
 
         SupportProblemReportInsert insert = new()
         {
+            Id = reportId,
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
@@ -69,21 +85,83 @@ public sealed class SupportProblemReportIntakeService(
             ContextJson = contextJson,
             OperatorNote = operatorNote,
             CorrelationId = envelope.CorrelationId,
-            ClientRequestId = envelope.ClientRequestId,
-            SupportBundleBlobPath = null
+            ClientRequestId = envelope.ClientRequestId
         };
 
         SupportProblemReportRecord created = await _reports.InsertAsync(insert, cancellationToken).ConfigureAwait(false);
 
-        await _notifier.NotifySupportInboxAsync(created, submittedByActorId.Trim(), cancellationToken)
+        string? bundleAttachWarning = null;
+        bool supportBundleAttached = false;
+        SupportProblemReportRecord reportForNotify = created;
+
+        if (request.AttachSupportBundle)
+        {
+            (string? supportBundleBlobPath, supportBundleAttached, bundleAttachWarning) =
+                await TryAttachSupportBundleAsync(reportId, submittedByActorId.Trim(), cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (supportBundleBlobPath is not null)
+            {
+                SupportProblemReportRecord? updated = await _reports
+                    .UpdateSupportBundleBlobPathAsync(scope.TenantId, reportId, supportBundleBlobPath, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (updated is null)
+                {
+                    supportBundleAttached = false;
+                    bundleAttachWarning = SupportBundleAttachFailedWarning;
+                }
+                else
+                {
+                    reportForNotify = updated;
+                }
+            }
+        }
+
+        await _notifier.NotifySupportInboxAsync(reportForNotify, submittedByActorId.Trim(), supportBundleAttached, cancellationToken)
             .ConfigureAwait(false);
 
         return new SubmitSupportProblemReportResponse
         {
             ReferenceId = created.Id,
             SubmittedAtUtc = created.CreatedUtc,
-            SlaMessage = SlaMessage
+            SlaMessage = SlaMessage,
+            SupportBundleAttached = supportBundleAttached,
+            SupportBundleAttachWarning = bundleAttachWarning
         };
+    }
+
+    private async Task<(string? BlobPath, bool Attached, string? Warning)> TryAttachSupportBundleAsync(
+        Guid reportId,
+        string submittedByActorId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            SupportBundleArtifact artifact = await _bundleAssembler
+                .AssembleAsync(new SupportBundleRequest(submittedByActorId, null), cancellationToken)
+                .ConfigureAwait(false);
+
+            string? blobPath = await _bundleStore
+                .TryStoreAsync(reportId, artifact.Bytes, artifact.FileName, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (blobPath is null)
+            {
+                return (null, false, SupportBundleAttachFailedWarning);
+            }
+
+            return (blobPath, true, null);
+        }
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(ex, "Support bundle attach failed for problem report {ReportId}.", reportId);
+            }
+
+            return (null, false, SupportBundleAttachFailedWarning);
+        }
     }
 
     private static void ValidateScopeAlignment(ScopeContext scope, ReportProblemContextDto context)

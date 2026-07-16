@@ -7,5 +7,6 @@ public interface ISupportProblemReportNotifier
     Task NotifySupportInboxAsync(
         SupportProblemReportRecord report,
         string submittedByActorId,
+        bool supportBundleAttached,
         CancellationToken cancellationToken);
 }
