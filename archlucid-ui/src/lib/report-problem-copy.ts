@@ -30,6 +30,43 @@ export const REPORT_PROBLEM_CONSENT_LABEL =
 /** Primary action label on error shells and API problem cards. */
 export const REPORT_PROBLEM_ACTION_LABEL = "Report problem";
 
+/** Dialog chrome (TB-784). */
+export const REPORT_PROBLEM_DIALOG_TITLE = "Report a problem";
+
+export const REPORT_PROBLEM_DIALOG_DESCRIPTION =
+  "Review the diagnostic details we can share with support, add a short note if helpful, and confirm consent before submitting.";
+
+export const REPORT_PROBLEM_SUMMARY_TITLE = "Diagnostic details";
+
+export const REPORT_PROBLEM_FIELD_LABEL_REVIEW_ID = "Review ID";
+
+export const REPORT_PROBLEM_FIELD_LABEL_WORKSPACE = "Workspace";
+
+export const REPORT_PROBLEM_FIELD_LABEL_REFERENCE_ID = "Reference ID";
+
+export const REPORT_PROBLEM_FIELD_LABEL_PRODUCT_VERSION = "Product version";
+
+export const REPORT_PROBLEM_NOTE_LABEL = "What happened?";
+
+export const REPORT_PROBLEM_NOTE_PLACEHOLDER =
+  "Optional — describe what you were trying to do. Avoid secrets or customer PII.";
+
+/** Max operator note length enforced in dialog and intake API (TB-788). */
+export const REPORT_PROBLEM_OPERATOR_NOTE_MAX_LENGTH = 2000;
+
+export const REPORT_PROBLEM_ATTACH_BUNDLE_LABEL = "Attach a redacted support bundle";
+
+export const REPORT_PROBLEM_ATTACH_BUNDLE_DISABLED_HINT =
+  "Optional bundle attach ships in a follow-up release (TB-787).";
+
+export const REPORT_PROBLEM_SUBMIT_LABEL = "Submit report";
+
+export const REPORT_PROBLEM_CANCEL_LABEL = "Cancel";
+
+export const REPORT_PROBLEM_ACK_HEADING = "Report submitted";
+
+export const REPORT_PROBLEM_MISSING_VALUE = "—";
+
 /** Tertiary mailto affordance may remain alongside Report problem (TB-786). */
 export const REPORT_PROBLEM_EMAIL_SUPPORT_LABEL = "Email support";
 
