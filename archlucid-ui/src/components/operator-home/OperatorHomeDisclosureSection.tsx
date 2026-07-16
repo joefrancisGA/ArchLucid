@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useId, useLayoutEffect, useState, type ReactNode } from "react";
@@ -12,10 +13,12 @@ import {
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type OperatorHomeDisclosureSectionProps = {
   title: string;
+  /** When set, the section title is a navigation link (chevron still expands/collapses). */
+  titleHref?: string;
   titleId?: string;
   sectionTestId?: string;
   storageKey: string;
@@ -36,6 +39,7 @@ type OperatorHomeDisclosureSectionProps = {
 export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSectionProps): React.JSX.Element {
   const {
     title,
+    titleHref,
     titleId: titleIdProp,
     sectionTestId,
     storageKey,
@@ -50,6 +54,9 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     sectionDataAttributes,
     children,
   } = props;
+
+  const trimmedTitleHref = titleHref?.trim() ?? "";
+  const hasTitleHref = trimmedTitleHref.length > 0;
 
   const generatedTitleId = useId().replaceAll(":", "");
   const titleId = titleIdProp ?? generatedTitleId;
@@ -91,7 +98,15 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
       <div className={cn(OPERATOR_CARD.header, "flex flex-row items-start justify-between gap-3 pb-0")}>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <OperatorHomeCardSectionTitle id={titleId}>{title}</OperatorHomeCardSectionTitle>
+            <OperatorHomeCardSectionTitle id={titleId}>
+              {hasTitleHref ? (
+                <Link href={trimmedTitleHref} className={cn(OPERATOR_LINK.inline, "font-inherit")}>
+                  {title}
+                </Link>
+              ) : (
+                title
+              )}
+            </OperatorHomeCardSectionTitle>
             {headerAside}
           </div>
 

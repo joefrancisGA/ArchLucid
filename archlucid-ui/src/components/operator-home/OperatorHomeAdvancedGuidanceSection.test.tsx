@@ -19,7 +19,10 @@ describe("OperatorHomeAdvancedGuidanceSection", () => {
   it("buyer-polished shell shows Explore ArchLucid rows without demo readiness controls", async () => {
     render(<OperatorHomeAdvancedGuidanceSection buyerPolishedShell />);
 
-    expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();
+    const titleLink = screen.getByRole("link", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE });
+
+    expect(titleLink).toBeInTheDocument();
+    expect(titleLink).toHaveAttribute("href", "/help/core-pilot");
     expect(screen.queryByText("How ArchLucid works")).toBeNull();
     expect(screen.queryByTestId("buyer-cto-demo-readiness-panel")).toBeNull();
     expect(screen.queryByText("Demo readiness")).toBeNull();
@@ -39,6 +42,8 @@ describe("OperatorHomeAdvancedGuidanceSection", () => {
     render(<OperatorHomeAdvancedGuidanceSection buyerPolishedShell={false} checklistVariant="compact" />);
 
     expect(screen.queryByTestId("explore-archlucid-buyer-content")).toBeNull();
+    expect(screen.queryByRole("link", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeNull();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();
 
     const expand = screen.getByRole("button", { name: new RegExp(`expand ${OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}`, "i") });
     expand.click();

@@ -9,6 +9,7 @@ import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 type OperatorHomeAdvancedGuidanceSectionProps = {
   readonly buyerPolishedShell: boolean;
@@ -26,6 +27,7 @@ export function OperatorHomeAdvancedGuidanceSection(
   return (
     <OperatorHomeDisclosureSection
       title={OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE}
+      titleHref={props.buyerPolishedShell ? inAppHelpHref("core-pilot") : undefined}
       titleId="operator-home-advanced-guidance-heading"
       sectionTestId="operator-home-advanced-guidance"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}

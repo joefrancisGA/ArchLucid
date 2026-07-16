@@ -20919,4 +20919,25 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**; guardrail `.cursor/rules/
 
 **Size estimate:** L.
 
+---
+
+## TB-866 — Home “Learn the architecture workflow” title is the workflow link (P1) — **Done** (2026-07-15)
+
+**Window:** V1 — operator home buyer-polished disclosure UX.
+
+**Problem (PD-001):** On operator home, “Learn the architecture workflow” is a collapsed disclosure whose only navigation control is the expanded-body “View workflow” link. Buyers must expand the card to discover the walkthrough.
+
+**Scope:** Buyer-polished shell only (`buyerPolishedShell`); operator-shell checklist path unchanged.
+
+**Closed (2026-07-15):** `OperatorHomeDisclosureSection` accepts optional `titleHref`; `OperatorHomeAdvancedGuidanceSection` sets it to `/help/core-pilot` for buyer polish; Vitest asserts the heading is a link.
+
+**Acceptance:**
+
+- Met — collapsed card title is a link to the same destination as “View workflow”; expand chevron still works; non-buyer shell title remains plain text.
+
+**Affected files:** `OperatorHomeDisclosureSection.tsx`, `OperatorHomeAdvancedGuidanceSection.tsx`, `OperatorHomeAdvancedGuidanceSection.test.tsx`, `docs/library/PRODUCTION_DEFECT_LOG.md` (**PD-001**).
+
+**Refs:** **PD-001**.
+
+**Size estimate:** S.
 
