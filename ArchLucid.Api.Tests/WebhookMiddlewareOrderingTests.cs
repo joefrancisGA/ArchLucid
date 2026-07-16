@@ -10,7 +10,7 @@ public sealed class WebhookMiddlewareOrderingTests
 {
     private static string FindRepoRoot()
     {
-        for (DirectoryInfo? d = new(AppContext.BaseDirectory); d != null; d = d.Parent)
+        for (DirectoryInfo? d = new(AppContext.BaseDirectory); d is not null; d = d.Parent)
         {
             string sln = Path.Combine(d.FullName, "ArchLucid.sln");
 
