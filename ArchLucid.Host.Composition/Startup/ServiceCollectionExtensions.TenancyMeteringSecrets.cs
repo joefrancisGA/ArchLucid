@@ -33,6 +33,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<IntegrationsAtlassianOAuthOptions>(
             configuration.GetSection(IntegrationsAtlassianOAuthOptions.SectionName));
         services.Configure<TrialAuthOptions>(configuration.GetSection(TrialAuthOptions.SectionPath));
+        services.Configure<EmailOtpAuthOptions>(configuration.GetSection(EmailOtpAuthOptions.SectionPath));
+        services.PostConfigure<EmailOtpAuthOptions>(static options => options.Normalize());
         services.Configure<TrialLifecycleSchedulerOptions>(
             configuration.GetSection(TrialLifecycleSchedulerOptions.SectionName));
         services.Configure<TrialLifecycleEmailRoutingOptions>(
@@ -52,6 +54,11 @@ public static partial class ServiceCollectionExtensions
             });
         services.AddScoped<ITrialLocalIdentityAccountExistsNotifier, TrialLocalIdentityAccountExistsEmailNotifier>();
         services.AddScoped<ITrialLocalIdentityService, TrialLocalIdentityService>();
+        services.AddScoped<IPlatformIdentityService, PlatformIdentityService>();
+        services.AddScoped<ILegacyPlatformIdentityMigrationService, LegacyPlatformIdentityMigrationService>();
+        services.AddScoped<IEmailOtpAuthService, EmailOtpAuthService>();
+        services.AddScoped<IEmailOtpSignInDomainPolicyService, EmailOtpSignInDomainPolicyService>();
+        services.AddScoped<IEmailOtpEmailNotifier, EmailOtpEmailNotifier>();
         services.AddScoped<IUserInvitationAdminService, UserInvitationAdminService>();
         services.AddScoped<ISupportProblemReportIntakeService, SupportProblemReportIntakeService>();
 

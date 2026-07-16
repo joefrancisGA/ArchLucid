@@ -724,6 +724,34 @@ public static class AuditEventTypes
     /// <summary>Tenant admin revoked a pending user invitation.</summary>
     public const string AdminUserInvitationRevoked = "Admin.UserInvitationRevoked";
 
+    /// <summary>Canonical platform user created from a verified external identity.</summary>
+    public const string PlatformUserCreated = "Identity.PlatformUserCreated";
+
+    /// <summary>Authentication identity created for a new platform user.</summary>
+    public const string AuthenticationIdentityCreated = "Identity.AuthenticationIdentityCreated";
+
+    /// <summary>Authentication identity attached to an existing platform user.</summary>
+    public const string AuthenticationIdentityAttached = "Identity.AuthenticationIdentityAttached";
+
+    /// <summary>Authentication identity disabled (user retained).</summary>
+    public const string AuthenticationIdentityDisabled = "Identity.AuthenticationIdentityDisabled";
+
+    public const string EmailOtpCodeRequested = "Identity.EmailOtpCodeRequested";
+
+    public const string EmailOtpCodeSent = "Identity.EmailOtpCodeSent";
+
+    public const string EmailOtpVerificationSucceeded = "Identity.EmailOtpVerificationSucceeded";
+
+    public const string EmailOtpVerificationFailed = "Identity.EmailOtpVerificationFailed";
+
+    public const string EmailOtpRateLimitTriggered = "Identity.EmailOtpRateLimitTriggered";
+
+    public const string EmailOtpSsoRedirectRequired = "Identity.EmailOtpSsoRedirectRequired";
+
+    public const string EmailOtpSuspiciousBehaviorDetected = "Identity.EmailOtpSuspiciousBehaviorDetected";
+
+    public const string AdminUserInvitationAccepted = "Admin.UserInvitationAccepted";
+
     /// <summary>Admin invoked JWT role-claim diagnostic (<c>POST /v1/admin/auth/diagnose-token</c>); payload excludes token material.</summary>
     public const string AuthTokenDiagnosticRequested = "Auth.TokenDiagnosticRequested";
 

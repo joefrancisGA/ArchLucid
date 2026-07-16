@@ -9463,3 +9463,203 @@ BEGIN
         ON dbo.SupportProblemReports (TenantId, CreatedUtc DESC);
 END;
 GO
+
+/* 279: Provider-independent platform identity model (see Migrations/279_PlatformIdentityModel.sql). */
+IF OBJECT_ID(N'dbo.PlatformUsers', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PlatformUsers
+    (
+        Id                     UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_PlatformUsers PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        PrimaryEmail           NVARCHAR(320)    NULL,
+        NormalizedPrimaryEmail NVARCHAR(320)    NULL,
+        DisplayName            NVARCHAR(256)    NULL,
+        Status                 NVARCHAR(16)     NOT NULL,
+        CreatedUtc             DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_PlatformUsers_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedUtc             DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_PlatformUsers_UpdatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_PlatformUsers_Status CHECK (Status IN (N'Active', N'Suspended', N'Disabled'))
+    );
+
+    CREATE INDEX IX_PlatformUsers_NormalizedPrimaryEmail
+        ON dbo.PlatformUsers (NormalizedPrimaryEmail)
+        WHERE NormalizedPrimaryEmail IS NOT NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuthenticationIdentities', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuthenticationIdentities
+    (
+        Id                        UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_AuthenticationIdentities PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        UserId                    UNIQUEIDENTIFIER NOT NULL,
+        ProviderType              NVARCHAR(32)     NOT NULL,
+        NormalizedIssuer          NVARCHAR(512)    NOT NULL,
+        Subject                   NVARCHAR(256)    NOT NULL,
+        NormalizedEmail           NVARCHAR(320)    NULL,
+        DisplayEmail              NVARCHAR(320)    NULL,
+        EmailVerified             BIT              NOT NULL
+            CONSTRAINT DF_AuthenticationIdentities_EmailVerified DEFAULT (0),
+        TenantId                  UNIQUEIDENTIFIER NULL,
+        TenantIdentityProviderId  UNIQUEIDENTIFIER NULL,
+        IdentityScopeKey          AS (
+            CONCAT(
+                ISNULL(CONVERT(NCHAR(36), TenantId), N'00000000-0000-0000-0000-000000000000'),
+                N'|',
+                ISNULL(CONVERT(NCHAR(36), TenantIdentityProviderId), N'00000000-0000-0000-0000-000000000000'))
+        ) PERSISTED NOT NULL,
+        CreatedUtc                DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_AuthenticationIdentities_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        LastAuthenticatedUtc      DATETIME2(7)     NULL,
+        DisabledUtc               DATETIME2(7)     NULL,
+        CONSTRAINT FK_AuthenticationIdentities_PlatformUsers FOREIGN KEY (UserId)
+            REFERENCES dbo.PlatformUsers (Id),
+        CONSTRAINT FK_AuthenticationIdentities_Tenants FOREIGN KEY (TenantId)
+            REFERENCES dbo.Tenants (Id),
+        CONSTRAINT CK_AuthenticationIdentities_ProviderType CHECK (ProviderType IN (
+            N'EmailOneTimeCode',
+            N'MicrosoftIdentity',
+            N'GoogleIdentity',
+            N'TrialLocalPassword',
+            N'TenantOidc',
+            N'TenantSaml'))
+    );
+
+    CREATE UNIQUE INDEX UX_AuthenticationIdentities_ExternalKey
+        ON dbo.AuthenticationIdentities (ProviderType, NormalizedIssuer, Subject, IdentityScopeKey)
+        WHERE DisabledUtc IS NULL;
+
+    CREATE INDEX IX_AuthenticationIdentities_UserId
+        ON dbo.AuthenticationIdentities (UserId)
+        INCLUDE (ProviderType, DisabledUtc);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.WorkspaceMemberships', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.WorkspaceMemberships
+    (
+        UserId       UNIQUEIDENTIFIER NOT NULL,
+        TenantId     UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId  UNIQUEIDENTIFIER NOT NULL,
+        Role         NVARCHAR(64)     NOT NULL,
+        Status       NVARCHAR(16)     NOT NULL,
+        CreatedUtc   DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_WorkspaceMemberships_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedUtc   DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_WorkspaceMemberships_UpdatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_WorkspaceMemberships PRIMARY KEY (UserId, WorkspaceId),
+        CONSTRAINT FK_WorkspaceMemberships_PlatformUsers FOREIGN KEY (UserId)
+            REFERENCES dbo.PlatformUsers (Id),
+        CONSTRAINT FK_WorkspaceMemberships_Tenants FOREIGN KEY (TenantId)
+            REFERENCES dbo.Tenants (Id),
+        CONSTRAINT FK_WorkspaceMemberships_TenantWorkspaces FOREIGN KEY (WorkspaceId)
+            REFERENCES dbo.TenantWorkspaces (Id),
+        CONSTRAINT CK_WorkspaceMemberships_Status CHECK (Status IN (N'Active', N'Suspended', N'Revoked'))
+    );
+
+    CREATE INDEX IX_WorkspaceMemberships_Tenant_Workspace
+        ON dbo.WorkspaceMemberships (TenantId, WorkspaceId, Status);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.IdentityMigrationReviewItems', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.IdentityMigrationReviewItems
+    (
+        Id               UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_IdentityMigrationReviewItems PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        LegacySourceType NVARCHAR(32)     NOT NULL,
+        LegacySourceId   UNIQUEIDENTIFIER NOT NULL,
+        TenantId         UNIQUEIDENTIFIER NULL,
+        ReasonCode       NVARCHAR(64)     NOT NULL,
+        ReasonDetail     NVARCHAR(2000)   NOT NULL,
+        DetectedUtc      DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_IdentityMigrationReviewItems_DetectedUtc DEFAULT SYSUTCDATETIME(),
+        ResolvedUtc      DATETIME2(7)     NULL,
+        CONSTRAINT UQ_IdentityMigrationReviewItems_LegacySource UNIQUE (LegacySourceType, LegacySourceId)
+    );
+
+    CREATE INDEX IX_IdentityMigrationReviewItems_Unresolved
+        ON dbo.IdentityMigrationReviewItems (DetectedUtc DESC)
+        WHERE ResolvedUtc IS NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ScimUsers', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ScimUsers', N'PlatformUserId') IS NULL
+BEGIN
+    ALTER TABLE dbo.ScimUsers ADD PlatformUserId UNIQUEIDENTIFIER NULL;
+
+    ALTER TABLE dbo.ScimUsers
+        ADD CONSTRAINT FK_ScimUsers_PlatformUsers FOREIGN KEY (PlatformUserId)
+            REFERENCES dbo.PlatformUsers (Id);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.IdentityUsers', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.IdentityUsers', N'PlatformUserId') IS NULL
+BEGIN
+    ALTER TABLE dbo.IdentityUsers ADD PlatformUserId UNIQUEIDENTIFIER NULL;
+
+    ALTER TABLE dbo.IdentityUsers
+        ADD CONSTRAINT FK_IdentityUsers_PlatformUsers FOREIGN KEY (PlatformUserId)
+            REFERENCES dbo.PlatformUsers (Id);
+END;
+GO
+
+/* 280: Passwordless email OTP challenges and tenant sign-in domain policy (see Migrations/280_EmailOtpAuthentication.sql). */
+IF OBJECT_ID(N'dbo.EmailOtpChallenges', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.EmailOtpChallenges
+    (
+        Id                  UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_EmailOtpChallenges PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        NormalizedEmail     NVARCHAR(320)    NOT NULL,
+        CodeHash            NVARCHAR(128)    NOT NULL,
+        CreatedUtc          DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_EmailOtpChallenges_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        ExpiresUtc          DATETIME2(7)     NOT NULL,
+        FailedAttemptCount  INT              NOT NULL
+            CONSTRAINT DF_EmailOtpChallenges_FailedAttemptCount DEFAULT (0),
+        CompletedUtc        DATETIME2(7)     NULL,
+        InvalidatedUtc      DATETIME2(7)     NULL,
+        ClientIpHash        NVARCHAR(64)     NULL,
+        UserAgentHash       NVARCHAR(64)     NULL,
+        InvitationId        UNIQUEIDENTIFIER NULL,
+        RowVersion          ROWVERSION       NOT NULL
+    );
+
+    CREATE INDEX IX_EmailOtpChallenges_Email_Active
+        ON dbo.EmailOtpChallenges (NormalizedEmail, CreatedUtc DESC)
+        WHERE CompletedUtc IS NULL AND InvalidatedUtc IS NULL;
+
+    CREATE INDEX IX_EmailOtpChallenges_ClientIpHash_CreatedUtc
+        ON dbo.EmailOtpChallenges (ClientIpHash, CreatedUtc DESC)
+        WHERE ClientIpHash IS NOT NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.TenantSignInEmailDomains', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantSignInEmailDomains
+    (
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        NormalizedDomain        NVARCHAR(253)    NOT NULL,
+        RequireEnterpriseSso    BIT              NOT NULL
+            CONSTRAINT DF_TenantSignInEmailDomains_RequireEnterpriseSso DEFAULT (1),
+        AllowEmailOtpRecovery   BIT              NOT NULL
+            CONSTRAINT DF_TenantSignInEmailDomains_AllowEmailOtpRecovery DEFAULT (0),
+        CreatedUtc              DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_TenantSignInEmailDomains_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_TenantSignInEmailDomains PRIMARY KEY (TenantId, NormalizedDomain),
+        CONSTRAINT FK_TenantSignInEmailDomains_Tenants FOREIGN KEY (TenantId)
+            REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE UNIQUE INDEX UX_TenantSignInEmailDomains_NormalizedDomain
+        ON dbo.TenantSignInEmailDomains (NormalizedDomain);
+END;
+GO

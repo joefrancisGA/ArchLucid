@@ -602,6 +602,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Auth/EmailOtpAuthController.cs",
+      "class_name": "EmailOtpAuthController",
+      "route_template": "v{version:apiVersion}/auth/email-otp",
+      "normalized_prefix": "/v1/auth/email-otp",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Auth/TrialLocalIdentityAuthController.cs",
       "class_name": "TrialLocalIdentityAuthController",
       "route_template": "v{version:apiVersion}/auth/trial/local",

@@ -23,4 +23,12 @@ public interface IUserInvitationRepository
         CancellationToken cancellationToken);
 
     Task<bool> RevokeAsync(Guid tenantId, Guid invitationId, DateTimeOffset revokedUtc, CancellationToken cancellationToken);
+
+    Task<UserInvitationRecord?> GetPendingByTokenHashAsync(byte[] tokenHash, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<UserInvitationRecord>> ListPendingByNormalizedEmailAsync(
+        string normalizedEmail,
+        CancellationToken cancellationToken);
+
+    Task<bool> MarkAcceptedAsync(Guid invitationId, DateTimeOffset acceptedUtc, CancellationToken cancellationToken);
 }

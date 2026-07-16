@@ -144,6 +144,26 @@ internal static class InfrastructureExtensions
                         });
                 });
 
+            int emailOtpPermitLimit = configuration.GetValue("RateLimiting:EmailOtp:PermitLimit", 10);
+            int emailOtpWindowMinutes = configuration.GetValue("RateLimiting:EmailOtp:WindowMinutes", 15);
+            int emailOtpQueueLimit = configuration.GetValue("RateLimiting:EmailOtp:QueueLimit", 0);
+
+            options.AddPolicy(
+                "email-otp",
+                httpContext =>
+                {
+                    string ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        $"email-otp:{ip}",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = emailOtpPermitLimit,
+                            Window = TimeSpan.FromMinutes(emailOtpWindowMinutes),
+                            QueueLimit = emailOtpQueueLimit
+                        });
+                });
+
             int expensivePermitLimit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
             int expensiveWindowMinutes = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
             int expensiveQueueLimit = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
