@@ -239,6 +239,9 @@ jobs:
       - name: CD BUILD_ID / OCI label contract (unit tests)
         run: python -m unittest discover -s scripts/ci/tests -p "test_oci_build_identity.py"
 
+      - name: CD deployment lineage contract (unit tests)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_cd_deployment_lineage.py"
+
       - name: Terraform plan data-region guard (unit tests)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_terraform_plan_data_regions.py"

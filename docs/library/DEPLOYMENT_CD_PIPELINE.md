@@ -121,6 +121,14 @@ Failures emit **`::error::`** lines on GitHub Actions for visible annotations wh
   - runtime `ARCHLUCID_BUILD_COMMIT_SHA` on Container Apps.
 - Default image tag is **`BUILD_ID`**, overridable via repository variable `IMAGE_TAG` (must not be `latest` or `latest-*`). Friendly `latest-dev` / `latest-staging` / `latest-production` tags are **aliases only**; deploy uses the SHA tag and/or `@sha256:<digest>`.
 - Drift guard: `scripts/ci/oci_build_identity.py` (unit tests in `scripts/ci/tests/test_oci_build_identity.py`).
+- **Deployment lineage (fail-closed when Azure deploy is configured):**
+  1. build-push requires non-empty `sha256:` digests for API + UI,
+  2. deploy job consumes only `needs.build-push-images` outputs (no tag re-inference),
+  3. pre-deploy `az acr manifest show-metadata` proves the digest exists in ACR,
+  4. Container Apps update uses `@sha256:…` only (not `latest*`),
+  5. revision image verify hard-fails unless the running revision contains that digest,
+  6. smoke compares `GET /version` `commitSha` to `BUILD_ID`.
+- Lineage summary: step summary + `artifacts/deployment-lineage-<target>-<run_id>.{md,json}` (`scripts/ci/cd_deployment_lineage.py`).
 - Terraform plan is stored as a run artifact named with the target environment for audit and optional `terraform apply` in a later job in the same run.
 
 ## GitHub Environment secrets and variables (checklist)

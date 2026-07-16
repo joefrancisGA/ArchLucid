@@ -95,8 +95,9 @@ jobs:
       build_id: ${{ steps.build_identity.outputs.build_id }}
       image_tag: ${{ steps.image_tag_out.outputs.image_tag }}
       build_timestamp: ${{ steps.build_metadata.outputs.build_timestamp }}
-      api_image_digest: ${{ steps.build_push_api.outputs.digest }}
-      ui_image_digest: ${{ steps.build_push_ui.outputs.digest }}
+      images_pushed: ${{ steps.acr.outputs.configured }}
+      api_image_digest: ${{ steps.require_digests.outputs.api_image_digest }}
+      ui_image_digest: ${{ steps.require_digests.outputs.ui_image_digest }}
     env:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
@@ -144,10 +145,11 @@ jobs:
           echo "DEPLOY_ENV=${{ github.event.inputs.target || 'dev' }}" >> "$GITHUB_ENV"
           echo "build_timestamp=$BUILD_TS" >> "$GITHUB_OUTPUT"
 
-      - name: Assert BUILD_ID / OCI label contract
+      - name: Assert BUILD_ID / OCI label / lineage contract
         run: |
           python3 scripts/ci/oci_build_identity.py --assert-workflows
           python3 scripts/ci/oci_build_identity.py --assert-image-tag "$IMAGE_TAG"
+          python3 scripts/ci/cd_deployment_lineage.py --assert-workflows
 
       - name: Export image_tag output
         id: image_tag_out
@@ -243,6 +245,20 @@ jobs:
           sbom: false
           cache-from: type=gha,scope=ui-docker-smoke-v2
           cache-to: type=gha,scope=ui-docker-smoke-v2,mode=max
+
+      - name: Require immutable digests from this build
+        id: require_digests
+        if: steps.acr.outputs.configured == 'true'
+        env:
+          API_DIGEST: ${{ steps.build_push_api.outputs.digest }}
+          UI_DIGEST: ${{ steps.build_push_ui.outputs.digest }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/cd_deployment_lineage.py --require-digest "$API_DIGEST" --digest-name API_IMAGE_DIGEST
+          python3 scripts/ci/cd_deployment_lineage.py --require-digest "$UI_DIGEST" --digest-name UI_IMAGE_DIGEST
+          echo "api_image_digest=${API_DIGEST}" >> "$GITHUB_OUTPUT"
+          echo "ui_image_digest=${UI_DIGEST}" >> "$GITHUB_OUTPUT"
+          echo "Immutable digests for this run: API=${API_DIGEST} UI=${UI_DIGEST} tag=${IMAGE_TAG} BUILD_ID=${BUILD_ID}"
 
   terraform-plan:
     name: Terraform plan (${{ github.event.inputs.target || 'dev' }})
@@ -419,12 +435,15 @@ jobs:
       worker_revision_after: ${{ steps.worker_rev_after.outputs.revision }}
       worker_rev_before_skip: ${{ steps.worker_rev_before.outputs.skip }}
       ui_fqdn: ${{ steps.ui_fqdn.outputs.fqdn }}
+      deploy_ran: ${{ steps.lineage_gate.outputs.deploy_ran }}
+      verify_result: ${{ steps.verify_image.outputs.verify_result }}
     env:
       BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
       IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
       BUILD_TIMESTAMP: ${{ needs.build-push-images.outputs.build_timestamp }}
       API_IMAGE_DIGEST: ${{ needs.build-push-images.outputs.api_image_digest }}
       UI_IMAGE_DIGEST: ${{ needs.build-push-images.outputs.ui_image_digest }}
+      IMAGES_PUSHED: ${{ needs.build-push-images.outputs.images_pushed }}
     steps:
       # Required before the RAG auto-heal step below: it invokes scripts/deploy/*.ps1 from
       # this job's workspace, which is otherwise empty (deploy-container-apps has no other
@@ -438,6 +457,54 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Require immutable digests before deploy
+        id: lineage_gate
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            echo "deploy_ran=false" >> "$GITHUB_OUTPUT"
+            echo "Container Apps deploy not configured — skipping lineage gate."
+            exit 0
+          fi
+          if [ "${IMAGES_PUSHED:-}" != "true" ]; then
+            echo "::error::Deploy is configured but images were not pushed in this run (ACR missing at build)."
+            exit 1
+          fi
+          if [ -z "${BUILD_ID:-}" ] || [ -z "${IMAGE_TAG:-}" ]; then
+            echo "::error::Missing BUILD_ID or IMAGE_TAG from build-push-images outputs — refusing to infer tags."
+            exit 1
+          fi
+          python3 scripts/ci/cd_deployment_lineage.py --require-digest "$API_IMAGE_DIGEST" --digest-name API_IMAGE_DIGEST
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            python3 scripts/ci/cd_deployment_lineage.py --require-digest "$UI_IMAGE_DIGEST" --digest-name UI_IMAGE_DIGEST
+          fi
+          echo "deploy_ran=true" >> "$GITHUB_OUTPUT"
+          echo "Lineage gate OK: BUILD_ID=${BUILD_ID} IMAGE_TAG=${IMAGE_TAG} API_DIGEST=${API_IMAGE_DIGEST} UI_DIGEST=${UI_IMAGE_DIGEST:-n/a}"
+
+      - name: Pre-deploy registry manifest check
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          REG_NAME="${ACR_NAME:-${ACR_LOGIN_SERVER%%.*}}"
+          az acr login --name "$REG_NAME"
+          echo "Checking registry manifests (no credentials logged): registry=${ACR_LOGIN_SERVER} tag=${IMAGE_TAG}"
+          echo "Expected API digest: ${API_IMAGE_DIGEST}"
+          az acr manifest show-metadata --registry "$REG_NAME" --name "archlucid-api@${API_IMAGE_DIGEST}" --query digest -o tsv
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            echo "Expected UI digest: ${UI_IMAGE_DIGEST}"
+            az acr manifest show-metadata --registry "$REG_NAME" --name "archlucid-ui@${UI_IMAGE_DIGEST}" --query digest -o tsv
+          fi
+          echo "Pre-deploy registry manifest check passed."
 
       # RAG retrieval (Azure AI Search) is ephemeral by design (owner 2026-07-05): dev auto-heals it
       # here on every deploy; a nightly job may stash + tear it back down (see rag-nightly-stash.yml).
@@ -589,6 +656,7 @@ jobs:
 
       - name: Update Azure Container Apps (optional)
         id: containerapp_update
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
         env:
           ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
@@ -597,24 +665,17 @@ jobs:
           CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
           CD_CANARY_ENABLED: ${{ vars.CD_CANARY_ENABLED }}
         run: |
-          if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
-            echo "Skipping Container Apps update (set ACR_LOGIN_SERVER, AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME)."
-            exit 0
-          fi
-          API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
-          if [ -n "${API_IMAGE_DIGEST:-}" ]; then
-            API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}"
-          fi
+          set -euo pipefail
+          # Digest-only deploy — never resolve latest, never rebuild, never re-infer tag from github.sha.
+          API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}"
           UI_IMAGE=""
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
-            UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui:${IMAGE_TAG}"
-            if [ -n "${UI_IMAGE_DIGEST:-}" ]; then
-              UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui@${UI_IMAGE_DIGEST}"
-            fi
+            UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui@${UI_IMAGE_DIGEST}"
           fi
           DEPLOY_STAMP="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT:-1}"
           REV_SFX="r${GITHUB_RUN_ID}a${GITHUB_RUN_ATTEMPT:-1}"
-          echo "Deploy API image: ${API_IMAGE}"
+          echo "Deploy API image (digest): ${API_IMAGE}"
+          echo "Deploy API tag (lineage): ${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
           A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
             --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
               "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
@@ -626,7 +687,8 @@ jobs:
               --query "properties.latestRevisionName" -o tsv)
           fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then
-            echo "Deploy UI image: ${UI_IMAGE}"
+            echo "Deploy UI image (digest): ${UI_IMAGE}"
+            echo "Deploy UI tag (lineage): ${ACR_LOGIN_SERVER}/archlucid-ui:${IMAGE_TAG}"
             U_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE" \
               --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
               --query "properties.latestRevisionName" -o tsv)
@@ -656,13 +718,12 @@ jobs:
           echo "w_latest=${W_LATEST:-}" >> "$GITHUB_OUTPUT"
           echo "u_latest=${U_LATEST:-}" >> "$GITHUB_OUTPUT"
 
-      # Hard-fail if the deployed revision's image does not contain the SHA tag or the expected digest.
-      # This catches the case where the Container App was previously pointing at a mutable tag (e.g.
-      # latest-dev) and the update was silently skipped or applied the wrong image.
+      # Hard-fail if the deployed revision's image does not contain the expected digest from this run.
+      # Soft-skip only when deploy_ran=false (Azure deploy not configured for this environment).
       - name: Verify deployed revisions use the SHA-tagged image
         id: verify_image
         env:
-          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          DEPLOY_RAN: ${{ steps.lineage_gate.outputs.deploy_ran }}
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
           CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
@@ -671,28 +732,21 @@ jobs:
           W_LATEST: ${{ steps.containerapp_update.outputs.w_latest }}
           U_LATEST: ${{ steps.containerapp_update.outputs.u_latest }}
         run: |
-          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
-            echo "Image verification skipped (Container App secrets not configured)."
+          set -euo pipefail
+          if [ "${DEPLOY_RAN:-}" != "true" ]; then
+            echo "verify_result=skipped" >> "$GITHUB_OUTPUT"
+            echo "Image verification skipped (deploy_ran=false)."
             exit 0
           fi
-          # Determine what we expect in the image string.  Prefer the sha256 digest (immutable); fall back to the SHA tag.
-          EXPECTED_API=""
-          EXPECTED_UI=""
-          if [ -n "${API_IMAGE_DIGEST:-}" ]; then
-            EXPECTED_API="${API_IMAGE_DIGEST}"
-          else
-            EXPECTED_API="${IMAGE_TAG}"
-          fi
-          if [ -n "${UI_IMAGE_DIGEST:-}" ]; then
-            EXPECTED_UI="${UI_IMAGE_DIGEST}"
-          else
-            EXPECTED_UI="${IMAGE_TAG}"
-          fi
+          EXPECTED_API="${API_IMAGE_DIGEST}"
+          EXPECTED_UI="${UI_IMAGE_DIGEST:-}"
 
           FAILED=0
           check_image() {
             local app_name="$1" rev="$2" expected="$3"
-            if [ -z "$rev" ]; then return; fi
+            if [ -z "${app_name:-}" ] || [ -z "${rev:-}" ] || [ -z "${expected:-}" ]; then
+              return
+            fi
             local img
             img=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$app_name" --revision "$rev" \
               --query "properties.template.containers[0].image" -o tsv 2>/dev/null || true)
@@ -701,21 +755,25 @@ jobs:
               echo "::error::IMAGE VERIFY: Could not read image for ${app_name} revision ${rev}"
               FAILED=1
             elif ! echo "$img" | grep -qF "$expected"; then
-              echo "::error::IMAGE VERIFY: ${app_name} revision ${rev} image '${img}' does not contain expected '${expected}' — Container App may still be running a stale mutable tag."
+              echo "::error::IMAGE VERIFY: ${app_name} revision ${rev} image '${img}' does not contain expected digest '${expected}'."
               FAILED=1
             fi
           }
 
-          echo "Verifying deployed revision images (expected sha/digest: ${EXPECTED_API}):"
+          echo "Verifying deployed revision images (expected digest: ${EXPECTED_API}):"
           check_image "$CONTAINER_APP_API_NAME"    "${A_LATEST}" "$EXPECTED_API"
           check_image "$CONTAINER_APP_WORKER_NAME" "${W_LATEST}" "$EXPECTED_API"
-          check_image "$CONTAINER_APP_UI_NAME"     "${U_LATEST}" "$EXPECTED_UI"
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            check_image "$CONTAINER_APP_UI_NAME" "${U_LATEST}" "$EXPECTED_UI"
+          fi
 
           if [ "$FAILED" -ne 0 ]; then
-            echo "::error::Deployed revision image verification FAILED. The Container App revision is not running the expected SHA-tagged image. Investigate and manually update the app before retrying."
+            echo "verify_result=failure" >> "$GITHUB_OUTPUT"
+            echo "::error::Deployed revision image verification FAILED — refusing success for this deploy."
             exit 1
           fi
-          echo "All deployed revisions verified — images match expected SHA/digest."
+          echo "verify_result=success" >> "$GITHUB_OUTPUT"
+          echo "All deployed revisions verified — images match expected digest from this build."
 
       # Wait for the API revision to reach Running state and confirm 100% traffic before smoke tests begin.
       # Prevents smoke checks from hitting an older revision while the new one is still starting.
@@ -866,7 +924,7 @@ jobs:
 
   smoke-test:
     name: Post-deploy validation (${{ github.event.inputs.target || 'dev' }})
-    needs: deploy-container-apps
+    needs: [build-push-images, deploy-container-apps]
     # always() is required here: without it, GitHub's implicit success() check walks the
     # entire transitive needs graph (including terraform-apply, which is intentionally
     # 'skipped' when run_terraform_apply=false) and silently skips this job even though
@@ -953,6 +1011,36 @@ jobs:
             fi
             echo "/health/ready status: Healthy"
           fi
+
+      - name: Smoke — runtime commitSha matches BUILD_ID
+        id: smoke_build_id
+        if: needs.deploy-container-apps.outputs.deploy_ran == 'true'
+        env:
+          SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+          BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
+            echo "SMOKE_TEST_BASE_URL not set — skipping runtime BUILD_ID check."
+            exit 0
+          fi
+          if [ -z "${BUILD_ID:-}" ]; then
+            echo "::error::BUILD_ID missing from build-push-images outputs."
+            exit 1
+          fi
+          BASE="${SMOKE_TEST_BASE_URL%/}"
+          CODE=$(curl -sS -o /tmp/version.json -w "%{http_code}" --connect-timeout 20 --max-time 60 "${BASE}/version" || echo "000")
+          if [ "$CODE" != "200" ]; then
+            echo "::error::SMOKE: GET /version returned HTTP ${CODE}"
+            exit 1
+          fi
+          RUNTIME_SHA=$(jq -r '.commitSha // empty' /tmp/version.json)
+          echo "Runtime commitSha=${RUNTIME_SHA} expected BUILD_ID=${BUILD_ID}"
+          if [ "$RUNTIME_SHA" != "$BUILD_ID" ]; then
+            echo "::error::SMOKE: runtime commitSha '${RUNTIME_SHA}' does not match BUILD_ID '${BUILD_ID}' — wrong artifact may be running."
+            exit 1
+          fi
+          echo "Runtime BUILD_ID match OK."
 
       - name: Smoke — OpenAPI contract (X-Api-Key)
         id: smoke_openapi
@@ -1273,21 +1361,57 @@ jobs:
             -d "{\"text\":\"CD ${{ job.status }} — ${{ github.event.inputs.action || 'deploy' }} / ${{ github.event.inputs.target || 'dev' }} — image ${TAG} — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
             "$CD_NOTIFY_WEBHOOK_URL" || true
 
-      - name: CD summary
+      - name: Checkout (lineage helper)
+        uses: actions/checkout@v5
+
+      - name: Deployment lineage summary
         env:
           BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
           IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
+          API_IMAGE_DIGEST: ${{ needs.build-push-images.outputs.api_image_digest }}
+          UI_IMAGE_DIGEST: ${{ needs.build-push-images.outputs.ui_image_digest }}
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          VERIFY_RESULT: ${{ needs.deploy-container-apps.outputs.verify_result }}
         run: |
+          set -euo pipefail
           echo "## CD summary" >> "$GITHUB_STEP_SUMMARY"
           echo "- Action: ${{ github.event.inputs.action || 'deploy' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Target: ${{ github.event.inputs.target || 'dev' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- BUILD_ID (immutable): \`${BUILD_ID:-${{ github.sha }}}\`" >> "$GITHUB_STEP_SUMMARY"
-          if [ -n "${IMAGE_TAG:-}" ]; then
-            echo "- Image tag (SHA-pinned by default): \`${IMAGE_TAG}\`" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "- Image tag: \`${{ github.sha }}\` (no build job output)" >> "$GITHUB_STEP_SUMMARY"
-          fi
-          echo "- BuildCommitSha stamped: yes (BUILD_ID → BUILD_SHA / SourceRevisionId + OCI revision label)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image tag: \`${IMAGE_TAG:-n/a}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Terraform apply requested: ${{ github.event.inputs.run_terraform_apply }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- NuGet API client version (when \`NUGET_API_KEY\` is set on production after successful smoke): \`1.0.${{ github.run_number }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Job results: build=${{ needs.build-push-images.result }}, plan=${{ needs.terraform-plan.result }}, apply=${{ needs.terraform-apply.result }}, deploy=${{ needs.deploy-container-apps.result }}, smoke=${{ needs.smoke-test.result }}, rollback=${{ needs.rollback.result }}, nuget=${{ needs.nuget-push.result }}, manual-rollback=${{ needs.manual-rollback.result }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${API_IMAGE_DIGEST:-}" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "## Deployment lineage" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Skipped detailed lineage (ACR digest outputs unavailable for this run)." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          BID="${BUILD_ID:-${{ github.sha }}}"
+          TAG="${IMAGE_TAG:-$BID}"
+          UI_DIGEST="${UI_IMAGE_DIGEST:-$API_IMAGE_DIGEST}"
+          python3 scripts/ci/cd_deployment_lineage.py --write-summary \
+            --commit-sha "${{ github.sha }}" \
+            --build-id "$BID" \
+            --target-environment "${{ github.event.inputs.target || 'dev' }}" \
+            --image-tag "$TAG" \
+            --api-tag-ref "${ACR_LOGIN_SERVER}/archlucid-api:${TAG}" \
+            --api-digest-ref "${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}" \
+            --ui-tag-ref "${ACR_LOGIN_SERVER}/archlucid-ui:${TAG}" \
+            --ui-digest-ref "${ACR_LOGIN_SERVER}/archlucid-ui@${UI_DIGEST}" \
+            --worker-digest-ref "${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}" \
+            --build-result "${{ needs.build-push-images.result }}" \
+            --deploy-result "${{ needs.deploy-container-apps.result }}" \
+            --verify-result "${VERIFY_RESULT:-unknown}" \
+            --smoke-result "${{ needs.smoke-test.result }}" \
+            --summary-path "artifacts/deployment-lineage-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md" \
+            --json-path "artifacts/deployment-lineage-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.json" \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload deployment lineage artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-lineage-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}
+          path: artifacts/deployment-lineage-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.*
+          if-no-files-found: ignore
