@@ -11,8 +11,9 @@
 #   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push (TB-657: CD owns runtime image tags; Terraform `lifecycle.ignore_changes` on container image)
 #   CONTAINER_APP_WORKER_NAME — optional; worker uses the same image as the API (ArchLucid.Api Dockerfile publishes Worker.dll; CA command is already set in Terraform)
 #   CONTAINER_APP_UI_NAME — optional second Container App for the UI image
-#   SMOKE_TEST_BASE_URL — optional; post-deploy validation + deployment-evidence Markdown (`archlucid deployment-evidence`; legacy: scripts/ci/cd-post-deploy-verify.sh)
-#   ARCHLUCID_API_KEY — required for OpenAPI post-deploy probe when ArchLucidAuth__Mode=ApiKey (admin X-Api-Key; not break-glass)
+#   SMOKE_TEST_BASE_URL — required for staging/production post-deploy smoke; optional skip for dev only
+#   ARCHLUCID_API_KEY — required for product-path smoke + deployment-evidence OpenAPI (admin X-Api-Key; not break-glass)
+#   Product-path smoke: scripts/ci/cd_post_deploy_product_smoke.py (workspaces + why-archlucid read, UI /api/health, BFF)
 #   CD_MAINTENANCE_WINDOW_OVERRIDE — optional repo var "true" for break-glass dev deploy outside 22:00-23:00 America/New_York
 #
 # Dev schedule: nightly 22:00 America/New_York (target=dev, action=deploy). Manual staging/production remain workflow_dispatch only.
@@ -1088,17 +1089,21 @@ jobs:
           CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
           CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
         run: |
+          set -euo pipefail
+          TARGET="${{ github.event.inputs.target || 'dev' }}"
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "SMOKE_TEST_BASE_URL not set — skipping health smoke checks."
+            if [ "$TARGET" = "staging" ] || [ "$TARGET" = "production" ]; then
+              echo "::error::SMOKE_TEST_BASE_URL is required for ${TARGET} post-deploy smoke."
+              exit 1
+            fi
+            echo "SMOKE_TEST_BASE_URL not set — skipping health smoke checks (dev only)."
             exit 0
           fi
-          set -euo pipefail
           BASE="${SMOKE_TEST_BASE_URL%/}"
           MAX="${CD_POST_DEPLOY_MAX_ATTEMPTS:-6}"
           WAIT="${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}"
           case "$MAX" in ''|*[!0-9]*) MAX=6 ;; esac
           case "$WAIT" in ''|*[!0-9]*) WAIT=10 ;; esac
-          TARGET="${{ github.event.inputs.target || 'dev' }}"
 
           smoke_one() {
             local attempt=1
@@ -1144,8 +1149,13 @@ jobs:
           BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
         run: |
           set -euo pipefail
+          TARGET="${{ github.event.inputs.target || 'dev' }}"
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "SMOKE_TEST_BASE_URL not set — skipping runtime BUILD_ID check."
+            if [ "$TARGET" = "staging" ] || [ "$TARGET" = "production" ]; then
+              echo "::error::SMOKE_TEST_BASE_URL is required for ${TARGET} BUILD_ID smoke."
+              exit 1
+            fi
+            echo "SMOKE_TEST_BASE_URL not set — skipping runtime BUILD_ID check (dev only)."
             exit 0
           fi
           if [ -z "${BUILD_ID:-}" ]; then
@@ -1166,76 +1176,43 @@ jobs:
           fi
           echo "Runtime BUILD_ID match OK."
 
-      - name: Smoke — OpenAPI contract (X-Api-Key)
-        id: smoke_openapi
+      - name: Smoke — product path (required/optional matrix)
+        id: smoke_product
         env:
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
           ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+          BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
+          UI_FQDN: ${{ needs.deploy-container-apps.outputs.ui_fqdn }}
           CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
           CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
         run: |
-          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "SMOKE_TEST_BASE_URL not set — skipping OpenAPI smoke."
-            exit 0
-          fi
-          if [ -z "${ARCHLUCID_API_KEY:-}" ]; then
-            echo "::error::ARCHLUCID_API_KEY not set — required for GET /openapi/v1.json when ArchLucidAuth__Mode=ApiKey."
-            exit 1
-          fi
           set -euo pipefail
-          BASE="${SMOKE_TEST_BASE_URL%/}"
-          MAX="${CD_POST_DEPLOY_MAX_ATTEMPTS:-6}"
-          WAIT="${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}"
-          case "$MAX" in ''|*[!0-9]*) MAX=6 ;; esac
-          case "$WAIT" in ''|*[!0-9]*) WAIT=10 ;; esac
           TARGET="${{ github.event.inputs.target || 'dev' }}"
-          URL="${BASE}/openapi/v1.json"
-          attempt=1
-          while [ "$attempt" -le "$MAX" ]; do
-            bash scripts/ci/cd-maintenance-deadline-check.sh "$TARGET"
-            echo "[attempt ${attempt}/${MAX}] GET ${URL} (authenticated)"
-            CODE=$(curl -sS -o /tmp/openapi.json -w "%{http_code}" --connect-timeout 20 --max-time 60 \
-              -H "X-Api-Key: ${ARCHLUCID_API_KEY}" "$URL" || echo "000")
-            echo "  HTTP $CODE"
-            if [ "$CODE" = "200" ]; then
-              TITLE=$(jq -r '.info.title // empty' /tmp/openapi.json 2>/dev/null || true)
-              if [ -z "$TITLE" ]; then
-                echo "::error::SMOKE: /openapi/v1.json missing .info.title"
-                exit 1
-              fi
-              echo "OpenAPI title: ${TITLE}"
-              exit 0
-            fi
-            head -c 512 /tmp/openapi.json 2>/dev/null || true
-            echo ""
-            if [ "$attempt" -ge "$MAX" ]; then
-              echo "::error::SMOKE: ${URL} returned HTTP ${CODE} after ${MAX} attempt(s)"
-              exit 1
-            fi
-            echo "Waiting ${WAIT}s..."
-            sleep "$WAIT"
-            attempt=$((attempt + 1))
-          done
+          UI_BASE=""
+          if [ -n "${UI_FQDN:-}" ]; then
+            UI_BASE="https://${UI_FQDN}"
+          fi
+          mkdir -p artifacts
+          python scripts/ci/cd_post_deploy_product_smoke.py \
+            --environment "$TARGET" \
+            --expected-build-id "${BUILD_ID}" \
+            --api-base-url "${SMOKE_TEST_BASE_URL:-}" \
+            --api-key "${ARCHLUCID_API_KEY:-}" \
+            --ui-base-url "${UI_BASE}" \
+            --max-attempts "${CD_POST_DEPLOY_MAX_ATTEMPTS:-6}" \
+            --retry-wait-seconds "${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}" \
+            --summary-path "artifacts/cd-product-smoke-${TARGET}-${{ github.run_id }}.md" \
+            --json-path "artifacts/cd-product-smoke-${TARGET}-${{ github.run_id }}.json"
 
-      - name: Smoke — UI public URL
-        id: smoke_ui
-        env:
-          UI_FQDN: ${{ needs.deploy-container-apps.outputs.ui_fqdn }}
-        run: |
-          if [ -z "${UI_FQDN:-}" ]; then
-            echo "UI FQDN not available — skipping UI smoke check."
-            exit 0
-          fi
-          set -euo pipefail
-          UI_URL="https://${UI_FQDN}"
-          echo "Checking UI public URL: ${UI_URL}"
-          CODE=$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 20 --max-time 60 -L "$UI_URL" || echo "000")
-          echo "HTTP $CODE"
-          if [ "$CODE" != "200" ]; then
-            echo "::error::SMOKE: UI public URL ${UI_URL} returned HTTP ${CODE}"
-            exit 1
-          fi
-          echo "UI smoke check passed."
+      - name: Upload product-path smoke summary
+        if: always() && steps.smoke_product.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cd-product-smoke-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}
+          path: |
+            artifacts/cd-product-smoke-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md
+            artifacts/cd-product-smoke-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.json
+          if-no-files-found: ignore
 
       - name: Post-deploy validation and deployment evidence (CLI)
         id: smoke_api
@@ -1248,8 +1225,13 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
+          TARGET="${{ github.event.inputs.target || 'dev' }}"
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "SMOKE_TEST_BASE_URL not set — skipping post-deploy validation."
+            if [ "$TARGET" = "staging" ] || [ "$TARGET" = "production" ]; then
+              echo "::error::SMOKE_TEST_BASE_URL is required for ${TARGET} deployment-evidence."
+              exit 1
+            fi
+            echo "SMOKE_TEST_BASE_URL not set — skipping post-deploy validation (dev only)."
             exit 0
           fi
           if [ -z "${ARCHLUCID_API_KEY:-}" ]; then

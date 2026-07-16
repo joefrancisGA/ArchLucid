@@ -417,8 +417,8 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "SMOKE_TEST_BASE_URL not set — skipping runtime BUILD_ID check."
-            exit 0
+            echo "::error::SMOKE_TEST_BASE_URL is required for staging BUILD_ID smoke."
+            exit 1
           fi
           BASE="${SMOKE_TEST_BASE_URL%/}"
           CODE=$(curl -sS -o /tmp/version.json -w "%{http_code}" --connect-timeout 20 --max-time 60 "${BASE}/version" || echo "000")
@@ -434,10 +434,71 @@ jobs:
           fi
           echo "Runtime BUILD_ID match OK."
 
+      - name: Resolve UI public FQDN for product smoke
+        id: ui_fqdn
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_UI_NAME:-}" ]; then
+            echo "fqdn=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          FQDN=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+          echo "fqdn=${FQDN}" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke — product path
+        id: smoke_product
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+          ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+          CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
+          CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
+            echo "::error::SMOKE_TEST_BASE_URL is required for staging product-path smoke."
+            exit 1
+          fi
+          if [ -z "${ARCHLUCID_API_KEY:-}" ]; then
+            echo "::error::ARCHLUCID_API_KEY is required for staging product-path smoke."
+            exit 1
+          fi
+          UI_BASE=""
+          if [ -n "${{ steps.ui_fqdn.outputs.fqdn }}" ]; then
+            UI_BASE="https://${{ steps.ui_fqdn.outputs.fqdn }}"
+          fi
+          mkdir -p artifacts
+          python scripts/ci/cd_post_deploy_product_smoke.py \
+            --environment staging \
+            --expected-build-id "${BUILD_ID}" \
+            --api-base-url "${SMOKE_TEST_BASE_URL}" \
+            --api-key "${ARCHLUCID_API_KEY}" \
+            --ui-base-url "${UI_BASE}" \
+            --max-attempts "${CD_POST_DEPLOY_MAX_ATTEMPTS:-6}" \
+            --retry-wait-seconds "${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}" \
+            --summary-path "artifacts/cd-product-smoke-staging-${{ github.run_id }}.md" \
+            --json-path "artifacts/cd-product-smoke-staging-${{ github.run_id }}.json"
+
+      - name: Upload product-path smoke summary
+        if: always() && steps.smoke_product.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cd-product-smoke-staging-${{ github.run_id }}
+          path: |
+            artifacts/cd-product-smoke-staging-${{ github.run_id }}.md
+            artifacts/cd-product-smoke-staging-${{ github.run_id }}.json
+          if-no-files-found: ignore
+
       - name: Post-deploy validation and deployment evidence (CLI)
         id: smoke_api
         env:
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+          ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
           SMOKE_SYNTHETIC_PATH: ${{ vars.SMOKE_SYNTHETIC_PATH }}
           CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
           CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
@@ -445,8 +506,8 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "SMOKE_TEST_BASE_URL not set — skipping post-deploy validation."
-            exit 0
+            echo "::error::SMOKE_TEST_BASE_URL is required for staging deployment-evidence."
+            exit 1
           fi
           OUT="artifacts/deployment-evidence-staging-${{ github.run_id }}.md"
           dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj -- \
@@ -466,7 +527,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Roll back API and worker on failed smoke
-        if: ${{ failure() && steps.smoke_api.outcome == 'failure' && steps.lineage_gate.outputs.deploy_ran == 'true' }}
+        if: ${{ failure() && (steps.smoke_api.outcome == 'failure' || steps.smoke_product.outcome == 'failure') && steps.lineage_gate.outputs.deploy_ran == 'true' }}
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
