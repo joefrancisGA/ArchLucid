@@ -2,7 +2,7 @@
 
 # Production defect log
 
-**Updated:** 2026-07-15 (**PD-001** logged — home architecture-workflow disclosure title not a link).
+**Updated:** 2026-07-15 (**PD-002** escalated to **TB-867** — ServiceNow ITSM settings/health wrong SQL catalog).
 
 ## How this differs from the technical backlog
 
@@ -30,12 +30,24 @@ Every `PD-###` entry resolves to exactly one disposition:
 | ID | Reported | Status | Title | Disposition |
 | --- | --- | --- | --- | --- |
 | PD-001 | 2026-07-15 | Escalated to TB-866 — Done | Home “Learn the architecture workflow” title not a link | Escalated to TB-866 |
+| PD-002 | 2026-07-15 | Escalated to TB-867 — Done | Database error when opening ServiceNow menu item | Escalated to TB-867 |
 
 ---
 
 ## Per-defect detail
 
 <!-- /al-defect appends one "## PD-###" section below this line per report. Do not reorder existing sections. -->
+
+## PD-002 — Database error when opening ServiceNow menu item
+
+- **Reported:** 2026-07-15
+- **Target branch:** `RC10`
+- **Reporter context:** route `/integrations/servicenow` (inferred from ServiceNow nav label); env production (assumed); tenant/workspace not specified; timestamp not specified
+- **Description:** There is a database error when pulling the ServiceNow menu item
+- **Screenshot:** none provided
+- **Status:** Escalated to TB-867 — Done
+- **Investigation:** Reproduced on hosted API (`archlucid-api`): `GET /v1/integrations/itsm/settings` and `GET /v1/integrations/itsm/health` → **500** title **Database Query Failed**; `GET /v1/integrations/itsm/connections/servicenow` → **200**; `GET /v1/alerts` → **200** (Tenants schema OK). Root cause: `SqlTenantItsmOutboundSettingsRepository` used `IBackgroundWorkerSqlConnectionFactory` (primary catalog) while `dbo.TenantItsmOutboundSettings` is tenant-catalog data; ServiceNow page `Promise.all` loads health + settings + connection, so one missing table surfaces as a page-load database error.
+- **Disposition evidence:** TB-867 switches the repository to scoped `ISqlConnectionFactory` (parity with `SqlTenantItsmConnectorConnectionRepository`); contract test locks the constructor parameter type.
 
 ## PD-001 — Home architecture-workflow card title is not the workflow link
 
