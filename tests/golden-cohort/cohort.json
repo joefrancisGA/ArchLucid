@@ -105,7 +105,7 @@
     {
       "id": "gc-010",
       "title": "PCI-scoped payment capture (tokenization boundary)",
-      "expectedCommittedManifestSha256": "2ad14f79934e55778f843c0b1a87bd03dc37f6b0b8f54e403c5e1874849434c",
+      "expectedCommittedManifestSha256": "2ad14f79934e55778f843c0b1a87bd03dc37f6b0b8f54e403c5e1874849434c0",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",

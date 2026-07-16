@@ -3336,7 +3336,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
         run: |
           npm ci
-          npm run test
+          npm run test:vitest-single-worker
 
       - name: Generate npm SBOM (CycloneDX)
         working-directory: archlucid-ui

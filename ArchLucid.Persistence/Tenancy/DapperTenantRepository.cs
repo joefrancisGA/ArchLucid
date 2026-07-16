@@ -55,7 +55,10 @@ public sealed class DapperTenantRepository(
 
         string normalizedSlug = slug.Trim().ToLowerInvariant();
 
-        return await QueryTenantDirectoryBySlugAsync(normalizedSlug, ct).ConfigureAwait(false);
+        await using SqlConnection connection =
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await QueryTenantBySlugAsync(connection, normalizedSlug, ct).ConfigureAwait(false);
     }
 
     public async Task<TenantRecord?> GetByNormalizedOrganizationNameAsync(string normalizedOrganizationName, CancellationToken ct)
@@ -63,6 +66,16 @@ public sealed class DapperTenantRepository(
         ArgumentException.ThrowIfNullOrWhiteSpace(normalizedOrganizationName);
 
         string normalizedName = normalizedOrganizationName.Trim().ToUpperInvariant();
+
+        await using SqlConnection catalogConnection =
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        TenantRecord? fromCatalog =
+            await QueryTenantByNormalizedOrganizationNameAsync(catalogConnection, normalizedName, ct)
+                .ConfigureAwait(false);
+
+        if (fromCatalog is not null)
+            return fromCatalog;
 
         return await QueryTenantDirectoryByNormalizedOrganizationNameAsync(normalizedName, ct).ConfigureAwait(false);
     }
@@ -342,7 +355,7 @@ public sealed class DapperTenantRepository(
         int? enterpriseScimSeatsLimit = null)
     {
         await using SqlConnection connection =
-            await OpenDirectoryMetadataConnectionAsync(ct).ConfigureAwait(false);
+            await _catalogConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
         string normalizedSlug = slug.Trim().ToLowerInvariant();
 
