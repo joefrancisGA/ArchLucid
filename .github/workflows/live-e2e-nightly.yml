@@ -63,6 +63,9 @@ jobs:
           npm ci
           npm run build
 
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
       - name: Create SQL catalog
         run: |
           set -e
@@ -80,22 +83,22 @@ jobs:
           ArchLucidAuth__Mode: DevelopmentBypass
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
+          Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-bypass.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-nightly-bypass.pid"
-          for i in $(seq 1 90); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              exit 0
-            fi
-            if [ "$i" -eq 90 ]; then
-              tail -n 200 "${RUNNER_TEMP}/live-api-nightly-bypass.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+
+      - name: Wait for API readiness
+        env:
+          API_URL: http://127.0.0.1:5128
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-bypass.log"
 
       - name: Playwright full live suite
         working-directory: archlucid-ui
@@ -103,6 +106,7 @@ jobs:
           CI: true
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
           # Api host is DevelopmentBypass — prevent inherited JWT/API key env from forcing the wrong client auth lane.
           LIVE_JWT_TOKEN: ""
@@ -191,6 +195,9 @@ jobs:
           npm ci
           npm run build
 
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
       - name: Create SQL catalog (ApiKey nightly)
         run: |
           set -e
@@ -214,22 +221,22 @@ jobs:
           Authentication__ApiKey__WorkspaceId: "22222222-2222-2222-2222-222222222222"
           Authentication__ApiKey__ProjectId: "33333333-3333-3333-3333-333333333333"
           AgentExecution__Mode: Simulator
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
+          Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-apikey.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-nightly-apikey.pid"
-          for i in $(seq 1 90); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              exit 0
-            fi
-            if [ "$i" -eq 90 ]; then
-              tail -n 200 "${RUNNER_TEMP}/live-api-nightly-apikey.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+
+      - name: Wait for API readiness
+        env:
+          API_URL: http://127.0.0.1:5128
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-apikey.log"
 
       - name: Playwright full live suite (ApiKey)
         working-directory: archlucid-ui
@@ -239,6 +246,7 @@ jobs:
           LIVE_API_KEY: nightly-apikey-admin
           LIVE_API_KEY_READONLY: nightly-apikey-readonly
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npx playwright install --with-deps chromium
@@ -334,6 +342,9 @@ jobs:
           openssl genrsa -out "${RUNNER_TEMP}/nightly-jwt-priv.pem" 2048
           openssl rsa -in "${RUNNER_TEMP}/nightly-jwt-priv.pem" -pubout -out "${RUNNER_TEMP}/nightly-jwt-pub.pem"
 
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
       - name: Create SQL catalog (JwtBearer nightly)
         run: |
           set -e
@@ -356,22 +367,22 @@ jobs:
           ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-nightly-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
+          Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-jwt.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/live-api-nightly-jwt.pid"
-          for i in $(seq 1 90); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              exit 0
-            fi
-            if [ "$i" -eq 90 ]; then
-              tail -n 200 "${RUNNER_TEMP}/live-api-nightly-jwt.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+
+      - name: Wait for API readiness
+        env:
+          API_URL: http://127.0.0.1:5128
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-jwt.log"
 
       - name: Playwright full live suite (JwtBearer)
         working-directory: archlucid-ui
@@ -379,6 +390,7 @@ jobs:
           CI: true
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           set -e
