@@ -184,6 +184,7 @@ public sealed class AzureBoardsIntegrationsController(
         return Ok(response);
     }
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("test-connection")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AzureBoardsConnectionTestResponse), StatusCodes.Status200OK)]

@@ -627,6 +627,7 @@ public sealed class GovernanceController(
     ///     <see cref="IPolicyPackGovernanceDryRunService" /> (same event family as
     ///     <see cref="DryRunPolicyPack" />). Uses <c>governancePolicyPackDryRun</c> rate limiting.
     /// </summary>
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("policy-packs/dry-run")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [EnableRateLimiting("governancePolicyPackDryRun")]
@@ -666,6 +667,7 @@ public sealed class GovernanceController(
     ///     server-clamped to 100 per Q38. Uses the <c>governancePolicyPackDryRun</c> rate-limit partition (
     ///     per authenticated user, tighter than the controller default).
     /// </summary>
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("policy-packs/{id:guid}/dry-run")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [EnableRateLimiting("governancePolicyPackDryRun")]
