@@ -22,6 +22,7 @@ Run Playwright **`live-api-*.spec.ts`** against **`ArchLucidAuth:Mode=JwtBearer`
 
 - Issuer and audience on the API **must** match the mint script (`scripts/ci/mint_ci_jwt.py`).
 - CI job **`ui-e2e-live-jwt`** is merge-blocking when enabled in **`.github/workflows/ci.yml`**; failures indicate JWT + UI proxy + RSC auth drift.
+- **Private-beta gate:** **`ui-e2e-live-beta-access`** runs **`live-api-private-beta-access.spec.ts`** only, with **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt-bearer`** at build time and scope claims on the minted JWT — required before sending beta invites (TB-797).
 
 ## Architecture overview
 

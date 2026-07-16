@@ -21,6 +21,7 @@ CRITICAL_JOBS: tuple[str, ...] = (
     "ui-e2e-live",
     "ui-e2e-live-apikey",
     "ui-e2e-live-jwt",
+    "ui-e2e-live-beta-access",
     "openapi-contract-snapshot",
     "release-smoke-rc",
     "rc-signoff-gate",
