@@ -1,3 +1,4 @@
+using ArchLucid.Application.Admin;
 using ArchLucid.Application.Identity;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Notifications.Email;
@@ -50,6 +51,7 @@ public static partial class ServiceCollectionExtensions
             });
         services.AddScoped<ITrialLocalIdentityAccountExistsNotifier, TrialLocalIdentityAccountExistsEmailNotifier>();
         services.AddScoped<ITrialLocalIdentityService, TrialLocalIdentityService>();
+        services.AddScoped<IUserInvitationAdminService, UserInvitationAdminService>();
 
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();
         services.AddSingleton<ApiRequestUsageEventBuffer>();
