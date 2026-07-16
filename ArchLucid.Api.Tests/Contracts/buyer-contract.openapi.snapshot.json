@@ -7010,6 +7010,23 @@
         ],
         "type": "object"
       },
+      "CreateUserInvitationRequest": {
+        "properties": {
+          "appRole": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "CrossTenantPortfolioSummaryResponse": {
         "properties": {
           "headlineSavingsScopeCode": {
@@ -25720,6 +25737,59 @@
         ],
         "type": "string"
       },
+      "UserInvitationListResponse": {
+        "properties": {
+          "invitations": {
+            "items": {
+              "$ref": "#/components/schemas/UserInvitationResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "UserInvitationResponse": {
+        "properties": {
+          "appRole": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "expiresUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "invitedByActorId": {
+            "type": "string"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "tenantName": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "UserPreferencesResponse": {
         "properties": {
           "appearancePreference": {
@@ -31135,6 +31205,9 @@
     },
     {
       "name": "UserPreferences"
+    },
+    {
+      "name": "UsersAdmin"
     },
     {
       "name": "ValueReport"
