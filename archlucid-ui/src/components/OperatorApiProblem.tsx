@@ -15,7 +15,9 @@ import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiRefere
 import { OperatorLayeredConnectivityError } from "@/components/OperatorLayeredConnectivityError";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
+import { OperatorReportProblemAction } from "@/components/support/OperatorReportProblemAction";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
+import { isReportProblemEnabledForApiProblemFailure } from "@/lib/report-problem-surfaces";
 
 type OperatorApiProblemFromFailure = {
   failure: ApiLoadFailureState;
@@ -126,6 +128,13 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
           <span className="shrink-0">with steps to reproduce.</span>
         </p>
         <CopyIdButton value={trimmedCorrelation} aria-label="Copy request ID" />
+        <OperatorReportProblemAction
+          enabled={isReportProblemEnabledForApiProblemFailure({ httpStatus, isValidationFailure: isValidationFailure ?? false })}
+          problem={problem}
+          httpStatus={httpStatus}
+          correlationId={correlationId}
+          errorTitle={heading}
+        />
       </div>
       <OperatorErrorRecoveryActions helpSlug="troubleshooting" />
       <p className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

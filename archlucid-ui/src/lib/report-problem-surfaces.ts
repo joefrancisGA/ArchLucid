@@ -167,6 +167,27 @@ export function findReportProblemSurfaceById(surfaceId: string): ReportProblemSu
   return REPORT_PROBLEM_V1_SURFACES.find((surface) => surface.id === id);
 }
 
+/** Whether `OperatorApiProblem` may render Report problem (excludes validation-only 400). */
+export function isReportProblemEnabledForApiProblemFailure(input: {
+  readonly httpStatus: number | null;
+  readonly isValidationFailure: boolean;
+}): boolean {
+  if (findReportProblemSurfaceById("operator-api-problem-high-stakes") === undefined) {
+    return false;
+  }
+
+  if (input.isValidationFailure && input.httpStatus === 400) {
+    return false;
+  }
+
+  return true;
+}
+
+/** Whether `OperatorLayeredConnectivityError` may render Report problem. */
+export function isReportProblemEnabledForConnectivityError(): boolean {
+  return findReportProblemSurfaceById("operator-layered-connectivity-error") !== undefined;
+}
+
 function matchesReservedDynamicSegment(pattern: string, pathname: string): boolean {
   const reservedSegments = REPORT_PROBLEM_RESERVED_DYNAMIC_SEGMENTS[pattern];
 

@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   REPORT_PROBLEM_V1_SURFACES,
   findReportProblemSurfaceById,
+  isReportProblemEnabledForApiProblemFailure,
+  isReportProblemEnabledForConnectivityError,
   pathnameMatchesReportProblemRoute,
   reportProblemSurfacesForPathname,
 } from "@/lib/report-problem-surfaces";
@@ -36,5 +38,18 @@ describe("report-problem-surfaces (TB-782)", () => {
     expect(reportProblemSurfacesForPathname("/reviews/new").map((surface) => surface.id)).not.toContain(
       "review-detail-hard-load-failure",
     );
+  });
+
+  it("excludes validation-only HTTP 400 from api-problem Report problem (TB-785)", () => {
+    expect(
+      isReportProblemEnabledForApiProblemFailure({ httpStatus: 400, isValidationFailure: true }),
+    ).toBe(false);
+    expect(
+      isReportProblemEnabledForApiProblemFailure({ httpStatus: 503, isValidationFailure: false }),
+    ).toBe(true);
+  });
+
+  it("enables connectivity error Report problem when registry entry exists (TB-785)", () => {
+    expect(isReportProblemEnabledForConnectivityError()).toBe(true);
   });
 });
