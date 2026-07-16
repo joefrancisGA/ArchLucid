@@ -1,0 +1,35 @@
+import { describe, expect, it } from "vitest";
+
+import nextConfig from "../next.config";
+
+describe("next.config hub bookmark redirects", () => {
+  it("keeps permanent redirects for advisory and digest legacy shims", async () => {
+    const redirectRules = await nextConfig.redirects?.();
+
+    expect(redirectRules).toBeDefined();
+
+    expect(
+      redirectRules?.find(
+        (rule) =>
+          rule.source === "/advisory-scheduling"
+          && rule.destination === "/advisory?tab=schedules",
+      )?.permanent,
+    ).toBe(true);
+
+    expect(
+      redirectRules?.find(
+        (rule) =>
+          rule.source === "/settings/exec-digest"
+          && rule.destination === "/digests?tab=schedule",
+      )?.permanent,
+    ).toBe(true);
+
+    expect(
+      redirectRules?.find(
+        (rule) =>
+          rule.source === "/digest-subscriptions"
+          && rule.destination === "/digests?tab=subscriptions",
+      )?.permanent,
+    ).toBe(true);
+  });
+});

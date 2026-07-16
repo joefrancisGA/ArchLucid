@@ -23,6 +23,7 @@ import {
   registerScreenshotSuiteProxyRoutes,
 } from "./helpers/register-operator-api-routes";
 import { publicDirUnderUi } from "./screenshot-output-helpers";
+import { screenshotEffectiveHref, waitForScreenshotLegacyRedirects } from "./screenshot-legacy-redirects";
 import { assertPageFreeOfScreenshotDemoFailures, waitForScreenshotOperatorShellChildren } from "./screenshot-demo-quality-gates";
 
 const OUT = publicDirUnderUi("screenshots", "all-routes");
@@ -137,14 +138,10 @@ test.describe.parallel("all routes screenshots (mock API)", () => {
 
   for (const href of HREFS) {
     test(`PNG ${slugForHref(href)}`, async ({ page }) => {
-      // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve ù see registerScreenshotSuiteProxyRoutes.
+      // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve A1 see registerScreenshotSuiteProxyRoutes.
       await page.goto(href, { waitUntil: "load", timeout: 120_000 });
 
-
-      if (href === "/advisory-scheduling")
-        await page.waitForURL(/\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/, { timeout: 60_000, waitUntil: "commit" });
-      else if (href === "/settings/exec-digest")
-        await page.waitForURL(/\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/, { timeout: 60_000, waitUntil: "commit" });
+      await waitForScreenshotLegacyRedirects(page, href);
 
       /** Wait for hydrated shell ({@link AppShellClient} / {@link ShellReadySurface}); `networkidle` is unreliable on Next.js. */
       try {
@@ -156,10 +153,12 @@ test.describe.parallel("all routes screenshots (mock API)", () => {
         );
       }
 
-      await waitForScreenshotOperatorShellChildren(page, href);
+      const effectiveHref = screenshotEffectiveHref(page.url());
+
+      await waitForScreenshotOperatorShellChildren(page, href, effectiveHref);
 
       await expect(page.locator("body")).toBeVisible({ timeout: 120_000 });
-      await assertPageFreeOfScreenshotDemoFailures(page, href);
+      await assertPageFreeOfScreenshotDemoFailures(page, effectiveHref);
       await page.screenshot({ path: filePathForHref(href), fullPage: true });
     });
   }
