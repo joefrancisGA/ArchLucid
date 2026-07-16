@@ -19728,6 +19728,90 @@
         },
         "type": "object"
       },
+      "ReportProblemContextDto": {
+        "properties": {
+          "browserClient": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "clientRequestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errorTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "httpStatus": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "productVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "routePath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "submittedAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "uiVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workspaceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "RequestEvidence": {
         "properties": {
           "assumptions": {
@@ -22991,6 +23075,49 @@
           },
           "status": {
             "$ref": "#/components/schemas/DraftRequestStatus"
+          }
+        },
+        "type": "object"
+      },
+      "SubmitSupportProblemReportRequest": {
+        "properties": {
+          "attachSupportBundle": {
+            "type": "boolean"
+          },
+          "consentGranted": {
+            "type": "boolean"
+          },
+          "context": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReportProblemContextDto"
+              }
+            ]
+          },
+          "operatorNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SubmitSupportProblemReportResponse": {
+        "properties": {
+          "referenceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "slaMessage": {
+            "type": "string"
+          },
+          "submittedAtUtc": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "type": "object"
@@ -113425,6 +113552,181 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/support/problem-reports": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SubmitSupportProblemReportRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SubmitSupportProblemReportRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SubmitSupportProblemReportRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitSupportProblemReportResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitSupportProblemReportResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitSupportProblemReportResponse"
+                }
+              }
+            },
+            "description": "Accepted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "SupportProblemReports"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/tenant/baseline": {
       "get": {
         "responses": {
@@ -120271,6 +120573,9 @@
     },
     {
       "name": "SupportBundle"
+    },
+    {
+      "name": "SupportProblemReports"
     },
     {
       "name": "SyntheticOperatorDemoPack"

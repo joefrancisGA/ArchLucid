@@ -19728,6 +19728,90 @@
         },
         "type": "object"
       },
+      "ReportProblemContextDto": {
+        "properties": {
+          "browserClient": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "clientRequestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errorTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "httpStatus": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "productVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "routePath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "submittedAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "uiVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workspaceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "RequestEvidence": {
         "properties": {
           "assumptions": {
@@ -22991,6 +23075,49 @@
           },
           "status": {
             "$ref": "#/components/schemas/DraftRequestStatus"
+          }
+        },
+        "type": "object"
+      },
+      "SubmitSupportProblemReportRequest": {
+        "properties": {
+          "attachSupportBundle": {
+            "type": "boolean"
+          },
+          "consentGranted": {
+            "type": "boolean"
+          },
+          "context": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReportProblemContextDto"
+              }
+            ]
+          },
+          "operatorNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SubmitSupportProblemReportResponse": {
+        "properties": {
+          "referenceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "slaMessage": {
+            "type": "string"
+          },
+          "submittedAtUtc": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "type": "object"
@@ -31127,6 +31254,9 @@
     },
     {
       "name": "SupportBundle"
+    },
+    {
+      "name": "SupportProblemReports"
     },
     {
       "name": "SyntheticOperatorDemoPack"
