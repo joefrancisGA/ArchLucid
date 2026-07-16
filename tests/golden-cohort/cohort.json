@@ -28,7 +28,7 @@
     {
       "id": "gc-003",
       "title": "Lift-and-shift VM fleet with ExpressRoute",
-      "expectedCommittedManifestSha256": "8685c859ce9de789d0db29f591644f5d61aa8307a45c107e9eb7a7a66eecd8482",
+      "expectedCommittedManifestSha256": "8685c859ce9de789d0db29f591644f5d61aa8307a45c107e9eb7a7a66eecd848",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",

@@ -26,7 +26,7 @@ public sealed class WebhookMiddlewareOrderingTests
     {
         AssertWebhookMethodBuffersBodyBeforeHandler(
             Path.Combine("ArchLucid.Api", "Controllers", "Billing", "BillingStripeWebhookController.cs"),
-            "public async Task<IActionResult> StripeAsync(",
+            "private async Task<IActionResult> HandleStripeWebhookAsync(",
             "HandleWebhookAsync");
     }
 

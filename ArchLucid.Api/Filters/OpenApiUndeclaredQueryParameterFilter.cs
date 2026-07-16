@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Host.Core.ProblemDetails;
 
@@ -28,6 +30,25 @@ public sealed class OpenApiUndeclaredQueryParameterFilter : IActionFilter
 
             if (!string.IsNullOrWhiteSpace(parameter.Name))
                 _ = allowed.Add(parameter.Name);
+
+            Type? parameterType = parameter.ParameterType;
+
+            if (parameterType is null || IsSimpleQueryType(parameterType))
+                continue;
+
+            foreach (PropertyInfo property in parameterType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (!property.CanRead)
+                    continue;
+
+                string propertyName = property.Name;
+                FromQueryAttribute? fromQuery = property.GetCustomAttribute<FromQueryAttribute>();
+
+                if (!string.IsNullOrWhiteSpace(fromQuery?.Name))
+                    propertyName = fromQuery.Name;
+
+                _ = allowed.Add(propertyName);
+            }
         }
 
         foreach (string key in context.HttpContext.Request.Query.Keys)
@@ -55,5 +76,19 @@ public sealed class OpenApiUndeclaredQueryParameterFilter : IActionFilter
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
+    }
+
+    private static bool IsSimpleQueryType(Type type)
+    {
+        Type underlying = Nullable.GetUnderlyingType(type) ?? type;
+
+        return underlying.IsPrimitive
+            || underlying == typeof(string)
+            || underlying == typeof(decimal)
+            || underlying == typeof(Guid)
+            || underlying == typeof(DateTime)
+            || underlying == typeof(DateTimeOffset)
+            || underlying == typeof(TimeSpan)
+            || underlying.IsEnum;
     }
 }
