@@ -23,6 +23,9 @@ const result = spawnSync(
       NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE ?? "true",
       /** Curated run/manifest detail when API errors (demo parity with Showcase). */
       NEXT_PUBLIC_DEMO_STATIC_OPERATOR: process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR ?? "true",
+      NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: process.env.NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES ?? "1",
+      NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED ?? "1",
+      NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: process.env.NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR ?? "1",
     },
   }
 );

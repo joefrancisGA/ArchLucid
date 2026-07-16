@@ -120,7 +120,7 @@ async function primeAuditSearchIfStillEmpty(page: Page): Promise<void> {
  * Audit page briefly renders “Showing 0 events” until the client search resolves (initial state is an empty list).
  * Buyer-polished shells tuck Search inside a collapsed panel — expand and trigger search when auto-prime races.
  */
-async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Promise<void> {
+export async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Promise<void> {
   const pathOnly = href.split("?", 1)[0];
 
   if (pathOnly !== "/governance/audit" && pathOnly !== "/audit") {
@@ -129,7 +129,8 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
 
   const summary = page.getByTestId("audit-search-summary");
 
-  await expect(summary).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("audit-page-title")).toBeVisible({ timeout: 60_000 });
+  await expect(summary).toBeVisible({ timeout: 60_000 });
 
   void page.waitForResponse(isAuditSearchProxyResponse, { timeout: 90_000 }).catch(() => undefined);
 
@@ -158,6 +159,40 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
       { timeout: 90_000, intervals: [500, 1_000, 2_000] },
     )
     .toBe(true);
+}
+
+/**
+ * TB-730 sets `data-app-ready` on deferred access-gate chrome before route children mount.
+ * Screenshot crawls must wait for the gate to clear, then for route anchors on flaky paths.
+ */
+export async function waitForScreenshotOperatorShellChildren(
+  page: Page,
+  _href: string,
+  effectiveHref: string,
+): Promise<void> {
+  await expect(page.getByTestId("operator-shell-access-gate-loading")).toHaveCount(0, { timeout: 90_000 });
+
+  const pathOnly = effectiveHref.split("?", 1)[0];
+  const search = effectiveHref.includes("?") ? effectiveHref.split("?", 2)[1] ?? "" : "";
+  const tabParam = new URLSearchParams(search).get("tab");
+
+  if (
+    pathOnly === "/advisory-scheduling"
+    || (pathOnly === "/advisory" && tabParam === "schedules")
+  ) {
+    await expect(page.getByTestId("advisory-hub")).toBeVisible({ timeout: 60_000 });
+  }
+
+  if (pathOnly === "/replay") {
+    const validateReviewHeading = page.getByRole("heading", { name: /^Validate review$/i });
+
+    if ((await validateReviewHeading.count()) > 0) {
+      await expect(validateReviewHeading).toBeVisible({ timeout: 60_000 });
+    }
+    else {
+      await expect(page.locator("h2").filter({ hasText: /^Validate review$/i })).toBeVisible({ timeout: 60_000 });
+    }
+  }
 }
 
 export async function assertPageFreeOfScreenshotDemoFailures(page: Page, href: string): Promise<void> {

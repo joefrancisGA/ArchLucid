@@ -128,6 +128,10 @@ const nextConfig: NextConfig = {
       { source: "/alerts/:path*", destination: "/governance/alerts/:path*", permanent: true },
       { source: "/alert-rules", destination: "/governance/alert-rules", permanent: false },
       { source: "/alert-routing", destination: "/governance/alert-rules?tab=routing", permanent: false },
+      // Hub bookmark shims — HTTP redirects so standalone E2E/screenshot crawls do not depend on App Router `redirect()`.
+      { source: "/advisory-scheduling", destination: "/advisory?tab=schedules", permanent: true },
+      { source: "/settings/exec-digest", destination: "/digests?tab=schedule", permanent: true },
+      { source: "/digest-subscriptions", destination: "/digests?tab=subscriptions", permanent: true },
       { source: "/composite-alert-rules", destination: "/governance/alert-rules?tab=composite", permanent: false },
       { source: "/alert-simulation", destination: "/governance/alert-rules?tab=simulation", permanent: false },
       { source: "/alert-tuning", destination: "/governance/alert-rules?tab=simulation", permanent: false },

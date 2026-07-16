@@ -43,6 +43,12 @@ jobs:
           CI: true
           NODE_OPTIONS: --max-old-space-size=6144
           MOCK_E2E_SKIP_NEXT_BUILD: "0"
+          # NEXT_PUBLIC_* is inlined at build time — must match playwright.mock.config webServer demo harness.
+          NEXT_PUBLIC_DEMO_MODE: "true"
+          NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true"
+          NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: "true"
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: "1"
         run: |
           npm ci
           npm run build
