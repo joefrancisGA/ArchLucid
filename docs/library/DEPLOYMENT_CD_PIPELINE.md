@@ -129,6 +129,7 @@ Failures emit **`::error::`** lines on GitHub Actions for visible annotations wh
   5. revision image verify hard-fails unless the running revision contains that digest,
   6. smoke compares `GET /version` `commitSha` to `BUILD_ID`.
 - Lineage summary: step summary + `artifacts/deployment-lineage-<target>-<run_id>.{md,json}` (`scripts/ci/cd_deployment_lineage.py`).
+- **Azure deployment-target preflight** (`scripts/ci/cd_deploy_target_preflight.py`): after every `azure/login`, compare live `az account show` tenant/subscription to expected values; when ACR + RG + API app are configured, also prove those resources exist in that subscription/RG before push/update/apply. Optional GitHub Environment variables `EXPECTED_AZURE_*` / `EXPECTED_ACR_*` / `EXPECTED_CONTAINER_APP_*` override; otherwise the matching deploy secrets are the expected values (still fail on live mismatch).
 - Terraform plan is stored as a run artifact named with the target environment for audit and optional `terraform apply` in a later job in the same run.
 
 ## GitHub Environment secrets and variables (checklist)

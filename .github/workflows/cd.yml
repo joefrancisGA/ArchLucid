@@ -145,11 +145,12 @@ jobs:
           echo "DEPLOY_ENV=${{ github.event.inputs.target || 'dev' }}" >> "$GITHUB_ENV"
           echo "build_timestamp=$BUILD_TS" >> "$GITHUB_OUTPUT"
 
-      - name: Assert BUILD_ID / OCI label / lineage contract
+      - name: Assert BUILD_ID / OCI label / lineage / target-preflight contract
         run: |
           python3 scripts/ci/oci_build_identity.py --assert-workflows
           python3 scripts/ci/oci_build_identity.py --assert-image-tag "$IMAGE_TAG"
           python3 scripts/ci/cd_deployment_lineage.py --assert-workflows
+          python3 scripts/ci/cd_deploy_target_preflight.py --assert-workflows
 
       - name: Export image_tag output
         id: image_tag_out
@@ -166,6 +167,38 @@ jobs:
             echo "configured=false" >> "$GITHUB_OUTPUT"
             echo "ACR_LOGIN_SERVER not set — skipping image build/push."
           fi
+
+      - name: Azure deployment-target preflight
+        env:
+          EXPECTED_AZURE_TENANT_ID: ${{ vars.EXPECTED_AZURE_TENANT_ID }}
+          EXPECTED_AZURE_SUBSCRIPTION_ID: ${{ vars.EXPECTED_AZURE_SUBSCRIPTION_ID }}
+          EXPECTED_AZURE_RESOURCE_GROUP: ${{ vars.EXPECTED_AZURE_RESOURCE_GROUP }}
+          EXPECTED_AZURE_LOCATION: ${{ vars.EXPECTED_AZURE_LOCATION }}
+          EXPECTED_ACR_LOGIN_SERVER: ${{ vars.EXPECTED_ACR_LOGIN_SERVER }}
+          EXPECTED_CONTAINER_APP_API_NAME: ${{ vars.EXPECTED_CONTAINER_APP_API_NAME }}
+          EXPECTED_CONTAINER_APP_WORKER_NAME: ${{ vars.EXPECTED_CONTAINER_APP_WORKER_NAME }}
+          EXPECTED_CONTAINER_APP_UI_NAME: ${{ vars.EXPECTED_CONTAINER_APP_UI_NAME }}
+          EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME: ${{ vars.EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          ARGS=(
+            --environment "${{ github.event.inputs.target || 'dev' }}"
+            --build-id "${BUILD_ID}"
+            --summary-path "artifacts/deploy-target-preflight-build-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md"
+          )
+          if [ "${{ steps.acr.outputs.configured }}" = "true" ] \
+            && [ -n "${AZURE_RESOURCE_GROUP:-}" ] \
+            && [ -n "${CONTAINER_APP_API_NAME:-}" ]; then
+            ARGS+=(--check-resources)
+          fi
+          python3 scripts/ci/cd_deploy_target_preflight.py "${ARGS[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Assert Persistence Pilots sources for API Docker context
         if: steps.acr.outputs.configured == 'true'
@@ -305,6 +338,37 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Azure deployment-target preflight
+        env:
+          EXPECTED_AZURE_TENANT_ID: ${{ vars.EXPECTED_AZURE_TENANT_ID }}
+          EXPECTED_AZURE_SUBSCRIPTION_ID: ${{ vars.EXPECTED_AZURE_SUBSCRIPTION_ID }}
+          EXPECTED_AZURE_RESOURCE_GROUP: ${{ vars.EXPECTED_AZURE_RESOURCE_GROUP }}
+          EXPECTED_AZURE_LOCATION: ${{ vars.EXPECTED_AZURE_LOCATION }}
+          EXPECTED_ACR_LOGIN_SERVER: ${{ vars.EXPECTED_ACR_LOGIN_SERVER }}
+          EXPECTED_CONTAINER_APP_API_NAME: ${{ vars.EXPECTED_CONTAINER_APP_API_NAME }}
+          EXPECTED_CONTAINER_APP_WORKER_NAME: ${{ vars.EXPECTED_CONTAINER_APP_WORKER_NAME }}
+          EXPECTED_CONTAINER_APP_UI_NAME: ${{ vars.EXPECTED_CONTAINER_APP_UI_NAME }}
+          EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME: ${{ vars.EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+          BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
+        run: |
+          set -euo pipefail
+          ARGS=(
+            --environment "${{ github.event.inputs.target || 'dev' }}"
+            --build-id "${BUILD_ID:-${{ github.sha }}}"
+            --summary-path "artifacts/deploy-target-preflight-plan-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md"
+          )
+          if [ -n "${ACR_LOGIN_SERVER:-}" ] && [ -n "${AZURE_RESOURCE_GROUP:-}" ] && [ -n "${CONTAINER_APP_API_NAME:-}" ]; then
+            ARGS+=(--check-resources)
+          fi
+          python3 scripts/ci/cd_deploy_target_preflight.py "${ARGS[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Terraform plan gate
         id: plan_gate
         run: |
@@ -393,6 +457,36 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Azure deployment-target preflight
+        env:
+          EXPECTED_AZURE_TENANT_ID: ${{ vars.EXPECTED_AZURE_TENANT_ID }}
+          EXPECTED_AZURE_SUBSCRIPTION_ID: ${{ vars.EXPECTED_AZURE_SUBSCRIPTION_ID }}
+          EXPECTED_AZURE_RESOURCE_GROUP: ${{ vars.EXPECTED_AZURE_RESOURCE_GROUP }}
+          EXPECTED_AZURE_LOCATION: ${{ vars.EXPECTED_AZURE_LOCATION }}
+          EXPECTED_ACR_LOGIN_SERVER: ${{ vars.EXPECTED_ACR_LOGIN_SERVER }}
+          EXPECTED_CONTAINER_APP_API_NAME: ${{ vars.EXPECTED_CONTAINER_APP_API_NAME }}
+          EXPECTED_CONTAINER_APP_WORKER_NAME: ${{ vars.EXPECTED_CONTAINER_APP_WORKER_NAME }}
+          EXPECTED_CONTAINER_APP_UI_NAME: ${{ vars.EXPECTED_CONTAINER_APP_UI_NAME }}
+          EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME: ${{ vars.EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          ARGS=(
+            --environment "${{ github.event.inputs.target || 'dev' }}"
+            --build-id "${{ github.sha }}"
+            --summary-path "artifacts/deploy-target-preflight-apply-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md"
+          )
+          if [ -n "${ACR_LOGIN_SERVER:-}" ] && [ -n "${AZURE_RESOURCE_GROUP:-}" ] && [ -n "${CONTAINER_APP_API_NAME:-}" ]; then
+            ARGS+=(--check-resources)
+          fi
+          python3 scripts/ci/cd_deploy_target_preflight.py "${ARGS[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
         with:
@@ -457,6 +551,36 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure deployment-target preflight
+        env:
+          EXPECTED_AZURE_TENANT_ID: ${{ vars.EXPECTED_AZURE_TENANT_ID }}
+          EXPECTED_AZURE_SUBSCRIPTION_ID: ${{ vars.EXPECTED_AZURE_SUBSCRIPTION_ID }}
+          EXPECTED_AZURE_RESOURCE_GROUP: ${{ vars.EXPECTED_AZURE_RESOURCE_GROUP }}
+          EXPECTED_AZURE_LOCATION: ${{ vars.EXPECTED_AZURE_LOCATION }}
+          EXPECTED_ACR_LOGIN_SERVER: ${{ vars.EXPECTED_ACR_LOGIN_SERVER }}
+          EXPECTED_CONTAINER_APP_API_NAME: ${{ vars.EXPECTED_CONTAINER_APP_API_NAME }}
+          EXPECTED_CONTAINER_APP_WORKER_NAME: ${{ vars.EXPECTED_CONTAINER_APP_WORKER_NAME }}
+          EXPECTED_CONTAINER_APP_UI_NAME: ${{ vars.EXPECTED_CONTAINER_APP_UI_NAME }}
+          EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME: ${{ vars.EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          ARGS=(
+            --environment "${{ github.event.inputs.target || 'dev' }}"
+            --build-id "${BUILD_ID:-${{ github.sha }}}"
+            --summary-path "artifacts/deploy-target-preflight-deploy-${{ github.event.inputs.target || 'dev' }}-${{ github.run_id }}.md"
+          )
+          if [ -n "${ACR_LOGIN_SERVER:-}" ] && [ -n "${AZURE_RESOURCE_GROUP:-}" ] && [ -n "${CONTAINER_APP_API_NAME:-}" ]; then
+            ARGS+=(--check-resources)
+          fi
+          python3 scripts/ci/cd_deploy_target_preflight.py "${ARGS[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Require immutable digests before deploy
         id: lineage_gate
