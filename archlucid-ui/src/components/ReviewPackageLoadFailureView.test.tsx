@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -26,6 +26,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   useRouter: () => ({
     refresh: refreshMock,
   }),
+  usePathname: () => "/reviews/22222222-2222-2222-2222-222222222222",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -38,6 +39,16 @@ vi.mock("@/lib/api", () => ({
 
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import { recordReviewGenerationHandoff } from "@/lib/review-generation-handoff";
+
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+});
 
 const RUN_ID = "22222222-2222-2222-2222-222222222222";
 
@@ -63,6 +74,7 @@ describe("ReviewPackageLoadFailureView", () => {
     expect(screen.getByText("We could not open the review that was just generated")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry loading review" })).toBeInTheDocument();
     expect(screen.getByTestId("copy-diagnostics")).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open sample review" })).not.toBeInTheDocument();
   });
 

@@ -188,6 +188,11 @@ export function isReportProblemEnabledForConnectivityError(): boolean {
   return findReportProblemSurfaceById("operator-layered-connectivity-error") !== undefined;
 }
 
+/** Whether a registry surface id is enabled for fatal page Report problem (TB-786). */
+export function isReportProblemEnabledForSurface(surfaceId: string): boolean {
+  return findReportProblemSurfaceById(surfaceId) !== undefined;
+}
+
 function matchesReservedDynamicSegment(pattern: string, pathname: string): boolean {
   const reservedSegments = REPORT_PROBLEM_RESERVED_DYNAMIC_SEGMENTS[pattern];
 

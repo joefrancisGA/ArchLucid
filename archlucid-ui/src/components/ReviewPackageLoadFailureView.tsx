@@ -10,6 +10,7 @@ import {
   OperatorRouteDiagnosticsPanel,
   type OperatorRouteDiagnosticsPayload,
 } from "@/components/OperatorRouteDiagnosticsPanel";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { getRunDetail } from "@/lib/api";
@@ -248,6 +249,15 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
           {OPERATOR_NAV_LINK_LABELS.capture}
         </Link>
       </div>
+      <FatalPageReportProblemSupportRow
+        surfaceId="review-detail-hard-load-failure"
+        reviewId={runId}
+        routePath={attemptedRoute}
+        correlationId={loadFailure?.correlationId ?? null}
+        httpStatus={loadFailure?.httpStatus ?? null}
+        problem={loadFailure?.problem ?? null}
+        errorTitle={title}
+      />
       <OperatorRouteDiagnosticsPanel payload={diagnostics} />
       <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         ArchLucid · REVIEW LOAD FAILURE

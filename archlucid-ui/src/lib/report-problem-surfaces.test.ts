@@ -5,6 +5,7 @@ import {
   findReportProblemSurfaceById,
   isReportProblemEnabledForApiProblemFailure,
   isReportProblemEnabledForConnectivityError,
+  isReportProblemEnabledForSurface,
   pathnameMatchesReportProblemRoute,
   reportProblemSurfacesForPathname,
 } from "@/lib/report-problem-surfaces";
@@ -51,5 +52,10 @@ describe("report-problem-surfaces (TB-782)", () => {
 
   it("enables connectivity error Report problem when registry entry exists (TB-785)", () => {
     expect(isReportProblemEnabledForConnectivityError()).toBe(true);
+  });
+
+  it("enables fatal page surfaces by registry id (TB-786)", () => {
+    expect(isReportProblemEnabledForSurface("reviews-hub-unexpected-response")).toBe(true);
+    expect(isReportProblemEnabledForSurface("unknown-surface")).toBe(false);
   });
 });

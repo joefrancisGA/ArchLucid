@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeAll } from "vitest";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -18,6 +18,7 @@ vi.mock("next/navigation", async (importOriginal) => {
   useRouter: () => ({
     refresh: vi.fn(),
   }),
+  usePathname: () => "/reviews/run-1",
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -25,6 +26,16 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import { OperatorBrandedTransientFailure } from "./OperatorBrandedTransientFailure";
+
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+});
 
 describe("OperatorBrandedTransientFailure", () => {
   it("renders timeout copy and retry affordance", () => {
@@ -63,5 +74,23 @@ describe("OperatorBrandedTransientFailure", () => {
 
     expect(screen.getByText("ArchLucid is temporarily unavailable")).toBeInTheDocument();
     expect(screen.getByText("ArchLucid · UNAVAILABLE")).toBeInTheDocument();
+  });
+
+  it("renders fatal-page Report problem when surface id is provided (TB-786)", () => {
+    render(
+      <OperatorBrandedTransientFailure
+        failure={{
+          message: "Timed out",
+          problem: null,
+          correlationId: "corr-transient-1",
+          httpStatus: 504,
+          retryAfterSeconds: null,
+        }}
+        reportProblemSurfaceId="review-detail-hard-load-failure"
+      />,
+    );
+
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
   });
 });
