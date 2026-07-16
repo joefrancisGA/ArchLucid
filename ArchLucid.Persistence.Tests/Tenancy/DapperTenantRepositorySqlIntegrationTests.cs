@@ -1,3 +1,4 @@
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Tests.Support;
@@ -98,6 +99,34 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             CancellationToken.None);
 
         await duplicateInsert.Should().ThrowAsync<SqlException>();
+    }
+
+    [SkippableFact]
+    public async Task Insert_control_plane_slug_is_visible_to_control_plane_slug_lookup_under_per_tenant_topology()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForPerTenantCatalogSameDatabaseIntegration(factory);
+        Guid tenantId = Guid.NewGuid();
+        string organizationName = "Reg Org " + Guid.NewGuid().ToString("N");
+        string slug = TenantSlugNormalizer.FromName(organizationName);
+
+        await sut.InsertTenantAsync(
+            tenantId,
+            organizationName,
+            slug,
+            TenantTier.Free,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        (await sut.GetBySlugFromControlPlaneCatalogAsync(slug, CancellationToken.None))!.Id.Should().Be(tenantId);
+        (await sut.GetByNormalizedOrganizationNameAsync(
+                TenantOrganizationDuplicateDetector.NormalizeOrganizationName(organizationName),
+                CancellationToken.None))!.Id
+            .Should()
+            .Be(tenantId);
     }
 
     [SkippableFact]
