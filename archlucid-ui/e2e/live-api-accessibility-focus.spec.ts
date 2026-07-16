@@ -13,6 +13,48 @@ const pilotNavGroupAriaLabel = "Architecture";
 /** Canonical reviews list route — pilot sidebar + minimal-shell header both link here. */
 const reviewsListNavHref = "/reviews?projectId=default";
 
+/** Client-side App Router navigations do not emit `load`; `commit` matches soft route changes. */
+const reviewsRouteUrlPattern = /\/reviews(?:\/|\?|$|#)/;
+
+/** Session guard key — must match `TrialWelcomeRunDeepLink` so home stays on `/` until the test clicks Reviews. */
+const trialWelcomeHomeRedirectSessionKey = "archlucid_trial_welcome_home_redirect_v1";
+
+async function waitForOperatorShellReady(page: Page): Promise<void> {
+  await page.locator('[data-app-ready="true"]').waitFor({ state: "attached", timeout: 60_000 });
+  await expect(page.getByTestId("operator-shell-access-gate-loading")).toHaveCount(0, { timeout: 60_000 });
+}
+
+/**
+ * `TrialWelcomeRunDeepLink` can race sidebar clicks on operator home. Mark the welcome redirect consumed once
+ * trial-status resolves so client navigation tests start from `/` reliably.
+ */
+async function preventTrialWelcomeHomeAutoRedirect(page: Page): Promise<void> {
+  await page.evaluate(async (sessionKey) => {
+    try {
+      const response = await fetch("/api/proxy/v1/tenant/trial-status", {
+        headers: { Accept: "application/json" },
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const json = (await response.json()) as { trialWelcomeRunId?: string | null };
+      const welcomeId = json.trialWelcomeRunId?.trim() ?? "";
+
+      if (welcomeId.length > 0) {
+        sessionStorage.setItem(sessionKey, welcomeId);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, trialWelcomeHomeRedirectSessionKey);
+}
+
+async function waitForReviewsRoute(page: Page): Promise<void> {
+  await page.waitForURL(reviewsRouteUrlPattern, { timeout: 60_000, waitUntil: "commit" });
+}
+
 /** Waits until the desktop sidebar pilot nav cluster is visible (links are always expanded). */
 async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
   const minimalRoot = page.getByTestId("app-shell-minimal-root");
@@ -28,15 +70,20 @@ async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
 }
 
 async function navigateToReviewsViaOperatorShell(page: Page): Promise<void> {
+  await waitForOperatorShellReady(page);
   await ensureCorePilotSectionExpanded(page);
 
   const sidebarNav = page.getByTestId("sidebar-nav");
 
   if ((await sidebarNav.count()) > 0) {
-    const reviewsLink = sidebarNav.locator(`a[href="${reviewsListNavHref}"]`).first();
+    const reviewsLink = sidebarNav
+      .locator(`a[href="${reviewsListNavHref}"]`)
+      .or(sidebarNav.getByRole("link", { name: OPERATOR_NAV_LINK_LABELS.reviewPackage }))
+      .first();
 
     await expect(reviewsLink).toBeVisible({ timeout: 60_000 });
-    await reviewsLink.click();
+
+    await Promise.all([waitForReviewsRoute(page), reviewsLink.click()]);
 
     return;
   }
@@ -49,7 +96,8 @@ async function navigateToReviewsViaOperatorShell(page: Page): Promise<void> {
     .first();
 
   await expect(minimalReviewsLink).toBeVisible({ timeout: 60_000 });
-  await minimalReviewsLink.click();
+
+  await Promise.all([waitForReviewsRoute(page), minimalReviewsLink.click()]);
 }
 
 /** Live API + SQL focus/announcer checks (merge-blocking via `ui-e2e-live`). */
@@ -75,10 +123,9 @@ test.describe("route focus and announcements", () => {
   test("client navigation moves focus to main content", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+    await preventTrialWelcomeHomeAutoRedirect(page);
 
     await navigateToReviewsViaOperatorShell(page);
-
-    await page.waitForURL("**/reviews**", { timeout: 60_000 });
 
     // `waitForURL` can resolve before React's `useLayoutEffect` (route-change focus) runs; poll until the landmark is focused.
     await expect(page.locator("#main-content")).toBeFocused({ timeout: 10_000 });
@@ -87,9 +134,9 @@ test.describe("route focus and announcements", () => {
   test("route announcer updates after navigation", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+    await preventTrialWelcomeHomeAutoRedirect(page);
 
     await navigateToReviewsViaOperatorShell(page);
-    await page.waitForURL("**/reviews**", { timeout: 60_000 });
 
     await expect(page.getByTestId("route-announcer")).toContainText(
       `Navigated to ${RUNS_LIST_PAGE_TITLES.buyerPolished}`,
