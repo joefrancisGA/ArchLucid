@@ -23119,14 +23119,14 @@
             "format": "date-time",
             "type": "string"
           },
-          "supportBundleAttached": {
-            "type": "boolean"
-          },
           "supportBundleAttachWarning": {
             "type": [
               "null",
               "string"
             ]
+          },
+          "supportBundleAttached": {
+            "type": "boolean"
           }
         },
         "type": "object"

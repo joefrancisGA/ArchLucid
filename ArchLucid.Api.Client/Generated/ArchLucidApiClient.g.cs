@@ -129101,6 +129101,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("submittedAtUtc")]
         public System.DateTimeOffset? SubmittedAtUtc { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("supportBundleAttachWarning")]
+        public string? SupportBundleAttachWarning { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("supportBundleAttached")]
+        public bool? SupportBundleAttached { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
