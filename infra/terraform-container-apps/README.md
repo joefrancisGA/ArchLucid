@@ -4,9 +4,9 @@ Optional root that deploys:
 
 - **Log Analytics** workspace (required by Container Apps Environment)
 - **Container Apps Environment** (consumption; optional **VNet integration** + internal load balancer)
-- **`azurerm_container_app`** for **ArchLucid.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/live`, `ASPNETCORE_URLS`)
-- **`azurerm_container_app`** for **ArchLucid.Worker** (same image by default, **`command` = `dotnet ArchLucid.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, health probes on **8080**; optional **`azure-queue`** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set; optional **`prometheus`** scale rule when **`worker_enable_authority_outbox_prom_scale`** — see **Background services**)
-- **`azurerm_container_app`** for **archlucid-ui** (port **3000**, probes on `/`)
+- **`azurerm_container_app`** for **ArchLucid.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/live` — deep `/health/ready` is the CD gate; see [`HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md`](../../docs/operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md), `ASPNETCORE_URLS`)
+- **`azurerm_container_app`** for **ArchLucid.Worker** (same image by default, **`command` = `dotnet ArchLucid.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, liveness `/health/live` + readiness `/health/ready` on **8080**; optional **`azure-queue`** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set; optional **`prometheus`** scale rule when **`worker_enable_authority_outbox_prom_scale`** — see **Background services**)
+- **`azurerm_container_app`** for **archlucid-ui** (port **3000**, probes on `/api/health`)
 
 HTTP **KEDA-style** scale rules scale each app between **min/max replicas** using **concurrent request** targets. The **UI** app defaults to **`ui_max_replicas = 6`** and **`ui_scale_concurrent_requests = 10`** so traffic bursts on the shared Container App scale out before requests queue heavily on a single replica.
 

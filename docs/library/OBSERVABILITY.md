@@ -28,6 +28,8 @@ If **none** of the above are active (typical bare **local** `dotnet run` without
 
 **Health-check trace suppression:** ASP.NET Core trace instrumentation filters out requests under **`/health`** (all sub-paths, e.g. **`/health/live`**, **`/health/ready`**) so recurring liveness/readiness polling — container orchestrator probes, the local **`Dockerfile HEALTHCHECK`** — never reaches the console, OTLP, or Azure Monitor trace exporters. See **`ObservabilityExtensions.IsHealthCheckRequest`**.
 
+**Live vs ready dependency matrix (which check blocks traffic safety, ACA vs CD):** [`docs/operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md`](../operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md). UI process probe: **`GET /api/health`** (Next.js; not under `/health`).
+
 **Repo-local readiness report (no Azure login, no network):** merge committed appsettings the same way the **Api** host does (`appsettings.json` → `appsettings.{Environment}.json` → `appsettings.Advanced.json` → `appsettings.SaaS.json`) and the **Worker** host does (`appsettings.json` → `appsettings.{Environment}.json`), then optionally overlay **process environment** keys (values are never printed). Warns with exact configuration keys when no Application Insights connection string, OTLP endpoint, or Prometheus scrape is active.
 
 ```bash

@@ -382,8 +382,9 @@ resource "azurerm_container_app" "api" {
         failure_count_threshold = 3
       }
 
-      # ACA readiness uses /health/live (fast). Deep /health/ready remains the CD smoke gate —
-      # default probe timeout is 1s and recycles revisions when ready runs full dependency checks.
+      # ACA readiness uses /health/live (fast). CD smoke requires GET /health/ready Healthy —
+      # deep ready exceeds ACA probe budgets and recycled revisions. See
+      # docs/operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md.
       readiness_probe {
         transport               = "HTTP"
         port                    = 8080
@@ -781,16 +782,17 @@ resource "azurerm_container_app" "ui" {
         value = "0.0.0.0"
       }
 
+      # Lightweight UI process health (build fingerprint JSON). Does not call the API.
       liveness_probe {
         transport = "HTTP"
         port      = 3000
-        path      = "/"
+        path      = "/api/health"
       }
 
       readiness_probe {
         transport = "HTTP"
         port      = 3000
-        path      = "/"
+        path      = "/api/health"
       }
     }
 

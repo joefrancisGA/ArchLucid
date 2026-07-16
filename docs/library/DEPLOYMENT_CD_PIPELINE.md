@@ -71,6 +71,18 @@ flowchart LR
 | `nuget-push` | Production only, after successful smoke: packs and pushes `ArchLucid.Api.Client` when `NUGET_API_KEY` is set. |
 | `notify` | `if: always()` webhook (optional) + consolidated step summary. |
 
+## Platform probes vs CD readiness gate
+
+Azure Container Apps **API** liveness and readiness both probe **`GET /health/live`** (fast). That keeps platform probes from recycling revisions when deep dependency checks are slow. **CD smoke requires `GET /health/ready`** (Healthy) before a release is traffic-safe — platform “ready” alone is not enough.
+
+| Component | ACA liveness | ACA readiness | Release / traffic-safety gate |
+|-----------|--------------|---------------|-------------------------------|
+| API | `/health/live` | `/health/live` | CD: `/health/ready` Healthy + `/version` lineage |
+| Worker | `/health/live` | `/health/ready` | Worker role deep ready |
+| UI | `/api/health` | `/api/health` | Process up + build fingerprint JSON |
+
+Full check → live/ready matrix: [`docs/operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md`](../operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md). Drift guard: `scripts/ci/container_app_probe_paths.py`.
+
 ## Post-deploy validation behavior
 
 **Primary (CD):** the **`smoke-test`** job runs **`dotnet run --project ArchLucid.Cli -- deployment-evidence`** with `--environment` set to the CD target (`dev` / `staging` / `production`), `--api-base-url` from secret **`SMOKE_TEST_BASE_URL`**, and the same retry environment variables as the legacy script. It writes **Markdown** under `artifacts/deployment-evidence-<target>-<run_id>.md` and uploads it as a **`deployment-evidence-…`** workflow artifact. **Exit code non-zero fails the job** (release gate); there is no warn-only default.

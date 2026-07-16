@@ -245,6 +245,9 @@ jobs:
       - name: CD deployment-target preflight contract (unit tests)
         run: python -m unittest discover -s scripts/ci/tests -p "test_cd_deploy_target_preflight.py"
 
+      - name: Container Apps health probe path contract (unit tests)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_container_app_probe_paths.py"
+
       - name: Terraform plan data-region guard (unit tests)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_terraform_plan_data_regions.py"
