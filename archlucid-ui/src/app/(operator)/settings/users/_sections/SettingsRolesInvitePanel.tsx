@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { sendAdminUserInvitation } from "@/lib/admin-user-invitations";
 import { showError, showSuccess } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -30,46 +30,14 @@ type InviteFormState = {
 
 const EMPTY_FORM: InviteFormState = { email: "", role: "", message: "" };
 
-/**
- * Submits an invite via the admin API. Returns whether the API persisted the
- * invite, accepted a preview-only path (missing endpoint), or failed.
- */
-async function requestSendInvite(
-  email: string,
-  role: string,
-  message: string,
-): Promise<"sent" | "preview" | "failed"> {
-  try {
-    const res = await fetch(
-      "/api/proxy/v1/admin/users/invite",
-      mergeRegistrationScopeForProxy({
-        method: "POST",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ email, appRole: role, message: message || undefined }),
-      }),
-    );
-
-    if (res.ok) {
-      return "sent";
-    }
-
-    if (res.status === 404 || res.status === 405 || res.status === 501) {
-      return "preview";
-    }
-
-    return "failed";
-  } catch {
-    return "failed";
-  }
-}
-
 type Props = {
   /** When true, show the directory-unavailable error state instead of the form. */
   readonly directoryUnavailable: boolean;
   readonly onRetry: () => void;
+  readonly onInviteSent?: () => void;
 };
 
-export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry }: Props) {
+export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInviteSent }: Props) {
   const [form, setForm] = useState<InviteFormState>(EMPTY_FORM);
   const [sending, setSending] = useState(false);
 
@@ -104,25 +72,22 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry }: Prop
 
     setSending(true);
 
-    const outcome = await requestSendInvite(form.email.trim(), form.role, form.message);
+    const result = await sendAdminUserInvitation(form.email.trim(), form.role, form.message);
 
     setSending(false);
 
-    if (outcome === "sent") {
-      showSuccess(`Invite sent to ${form.email}.`);
-      setForm(EMPTY_FORM);
+    if (!result.ok) {
+      showError(
+        "Could not send invite",
+        "The invitation service rejected the request or is unavailable. Check the email and try again.",
+      );
 
       return;
     }
 
-    if (outcome === "preview") {
-      showSuccess(`Invite recorded in the UI for ${form.email}. The invite API is not available on this environment yet.`);
-      setForm(EMPTY_FORM);
-
-      return;
-    }
-
-    showError("Could not send invite", "The server rejected the invitation. Check the email and try again.");
+    showSuccess(`Invite sent to ${form.email} (reference ${result.invitation.id}).`);
+    setForm(EMPTY_FORM);
+    onInviteSent?.();
   }
 
   function handleCancel() {

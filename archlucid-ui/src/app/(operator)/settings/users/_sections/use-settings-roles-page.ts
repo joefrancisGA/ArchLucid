@@ -146,12 +146,6 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
         return;
       }
 
-      if (outcome === "preview") {
-        showSuccess("Role change recorded in the UI. The admin role API is not available on this environment yet.");
-
-        return;
-      }
-
       setRows(snapshot);
       showError("Could not update role", "The server rejected the role change.");
     },

@@ -24,6 +24,7 @@ import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-toke
 import { FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE } from "@/lib/buyer-polish-copy";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
+import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 import { settingsRolesEmptyStateDescription, settingsRolesEmptyStateTitle } from "./settings-roles-page-empty-copy";
 import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
@@ -70,6 +71,7 @@ export function SettingsRolesPageView(props: Props) {
   const tabs = visibleTabs(canManageApiKeys);
   const urlTab = sanitizeSettingsRolesTab(searchParams.get("tab"), canManageApiKeys);
   const [activeTab, setActiveTab] = useState<TabId>(urlTab);
+  const [invitationsRefreshKey, setInvitationsRefreshKey] = useState(0);
 
   useEffect(() => {
     setActiveTab(urlTab);
@@ -162,7 +164,17 @@ export function SettingsRolesPageView(props: Props) {
                 <SettingsRolesInvitePanel
                   directoryUnavailable={directoryUnavailable}
                   onRetry={() => void m.load()}
+                  onInviteSent={() => setInvitationsRefreshKey((key) => key + 1)}
                 />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Pending invitations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PendingInvitationsPanel refreshKey={invitationsRefreshKey} />
               </CardContent>
             </Card>
 
