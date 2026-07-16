@@ -249,7 +249,7 @@ describe("SignInFlowClient", () => {
     fireEvent.click(screen.getByTestId("sign-in-code-continue"));
 
     await waitFor(() => {
-      expect(window.location.replace).toHaveBeenCalledWith("/signup");
+      expect(window.location.replace).toHaveBeenCalledWith("/auth/bootstrap");
     });
   });
 

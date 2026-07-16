@@ -164,6 +164,27 @@ internal static class InfrastructureExtensions
                         });
                 });
 
+            int bootstrapWorkspacePermitLimit = configuration.GetValue("RateLimiting:BootstrapWorkspace:PermitLimit", 5);
+            int bootstrapWorkspaceWindowMinutes = configuration.GetValue("RateLimiting:BootstrapWorkspace:WindowMinutes", 60);
+
+            options.AddPolicy(
+                "bootstrap-workspace",
+                httpContext =>
+                {
+                    string? sub = httpContext.User.FindFirst("sub")?.Value
+                        ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                    string key = string.IsNullOrWhiteSpace(sub) ? "anonymous" : sub;
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        $"bootstrap-workspace:{key}",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = bootstrapWorkspacePermitLimit,
+                            Window = TimeSpan.FromMinutes(bootstrapWorkspaceWindowMinutes),
+                            QueueLimit = 0
+                        });
+                });
+
             int expensivePermitLimit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
             int expensiveWindowMinutes = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
             int expensiveQueueLimit = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);

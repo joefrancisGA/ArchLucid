@@ -57,6 +57,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPlatformIdentityService, PlatformIdentityService>();
         services.AddScoped<ILegacyPlatformIdentityMigrationService, LegacyPlatformIdentityMigrationService>();
         services.AddScoped<IEmailOtpAuthService, EmailOtpAuthService>();
+        services.AddScoped<IPostAuthBootstrapService, PostAuthBootstrapService>();
         services.AddScoped<IEmailOtpSignInDomainPolicyService, EmailOtpSignInDomainPolicyService>();
         services.AddScoped<IEmailOtpEmailNotifier, EmailOtpEmailNotifier>();
         services.AddScoped<IUserInvitationAdminService, UserInvitationAdminService>();

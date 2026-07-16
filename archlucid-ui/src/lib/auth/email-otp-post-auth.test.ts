@@ -15,15 +15,21 @@ describe("resolveEmailOtpPostAuthPath", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/saved-return");
   });
 
-  it("routes AcceptInvitation to signup", () => {
-    expect(resolveEmailOtpPostAuthPath("AcceptInvitation", "/")).toBe("/signup");
+  it("routes AcceptInvitation to bootstrap", () => {
+    expect(resolveEmailOtpPostAuthPath("AcceptInvitation", "/")).toBe("/auth/bootstrap");
   });
 
-  it("routes CreateWorkspace to signup", () => {
-    expect(resolveEmailOtpPostAuthPath("CreateWorkspace", "/")).toBe("/signup");
+  it("routes CreateWorkspace to bootstrap", () => {
+    expect(resolveEmailOtpPostAuthPath("CreateWorkspace", "/")).toBe("/auth/bootstrap");
   });
 
-  it("routes SelectWorkspace to home", () => {
-    expect(resolveEmailOtpPostAuthPath("SelectWorkspace", "/")).toBe("/");
+  it("routes CreateWorkspace with returnUrl", () => {
+    expect(resolveEmailOtpPostAuthPath("CreateWorkspace", "/reviews/1")).toBe(
+      "/auth/bootstrap?returnUrl=%2Freviews%2F1",
+    );
+  });
+
+  it("routes SelectWorkspace to bootstrap", () => {
+    expect(resolveEmailOtpPostAuthPath("SelectWorkspace", "/")).toBe("/auth/bootstrap");
   });
 });

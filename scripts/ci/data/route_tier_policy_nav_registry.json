@@ -612,6 +612,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Auth/PostAuthBootstrapController.cs",
+      "class_name": "PostAuthBootstrapController",
+      "route_template": "v{version:apiVersion}/auth/bootstrap",
+      "normalized_prefix": "/v1/auth/bootstrap",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Auth/TrialLocalIdentityAuthController.cs",
       "class_name": "TrialLocalIdentityAuthController",
       "route_template": "v{version:apiVersion}/auth/trial/local",
