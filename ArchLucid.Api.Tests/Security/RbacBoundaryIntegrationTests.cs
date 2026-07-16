@@ -345,6 +345,13 @@ public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidAp
             return true;
         }
 
+        if (string.Equals(name, "project", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "rbac-probe-project";
+
+            return true;
+        }
+
         failureReason = $"unsupported route parameter '{name}' (constraint '{constraint}')";
 
         return false;

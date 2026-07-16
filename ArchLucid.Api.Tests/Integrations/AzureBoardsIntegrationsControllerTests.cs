@@ -6,6 +6,7 @@ using System.Text.Json;
 using ArchLucid.Api.Routing;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -24,7 +25,13 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Get_settings_with_reader_jwt_succeeds()
     {
-        string token = factory.MintLocalBearerJwt("ReaderUser", [ArchLucidRoles.Reader]);
+        Guid tenantId = Guid.NewGuid();
+        string token = factory.MintLocalBearerJwt(
+            "ReaderUser",
+            [ArchLucidRoles.Reader],
+            tenantId,
+            ScopeIds.DefaultWorkspace,
+            ScopeIds.DefaultProject);
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -43,7 +50,13 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Put_settings_with_reader_jwt_returns_forbidden()
     {
-        string token = factory.MintLocalBearerJwt("ReaderUser", [ArchLucidRoles.Reader]);
+        Guid tenantId = Guid.NewGuid();
+        string token = factory.MintLocalBearerJwt(
+            "ReaderUser",
+            [ArchLucidRoles.Reader],
+            tenantId,
+            ScopeIds.DefaultWorkspace,
+            ScopeIds.DefaultProject);
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -63,7 +76,13 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Put_settings_with_admin_jwt_succeeds()
     {
-        string token = factory.MintLocalBearerJwt("AdminUser", [ArchLucidRoles.Admin]);
+        Guid tenantId = Guid.NewGuid();
+        string token = factory.MintLocalBearerJwt(
+            "AdminUser",
+            [ArchLucidRoles.Admin],
+            tenantId,
+            ScopeIds.DefaultWorkspace,
+            ScopeIds.DefaultProject);
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 

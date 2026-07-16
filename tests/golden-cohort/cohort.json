@@ -39,7 +39,7 @@
     {
       "id": "gc-004",
       "title": "Kubernetes ingress \u002B internal-only APIs",
-      "expectedCommittedManifestSha256": "a48e67060d121ff0ad7aa8387d005d3da679fce9a3fe6bc451be5020241bc1a",
+      "expectedCommittedManifestSha256": "a48e67060d121ff0ad7aa8387d005d3da679fce9a3fe6bc451be5020241bc1a0",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",

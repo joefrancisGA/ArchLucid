@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Routing;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts;
 
@@ -87,11 +88,11 @@ public sealed class AlertLifecycleIntegrationTests
                     .GetAsync(new Uri($"/{ApiV1Routes.Alerts}?take=50", UriKind.Relative), requestTimeout.Token);
 
                 listAlertsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-                List<AlertRecord>? alerts = await listAlertsResponse.Content
-                    .ReadFromJsonAsync<List<AlertRecord>>(JsonOptions, requestTimeout.Token);
+                PagedResponse<AlertRecord>? alertsPage = await listAlertsResponse.Content
+                    .ReadFromJsonAsync<PagedResponse<AlertRecord>>(JsonOptions, requestTimeout.Token);
 
-                alerts.Should().NotBeNull();
-                alerts.Should().Contain(a =>
+                alertsPage.Should().NotBeNull();
+                alertsPage!.Items.Should().Contain(a =>
                     a.RuleId == ruleId && string.Equals(a.Status, AlertStatus.Open, StringComparison.OrdinalIgnoreCase));
             });
     }
