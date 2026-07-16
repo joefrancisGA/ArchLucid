@@ -25,13 +25,7 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Get_settings_with_reader_jwt_succeeds()
     {
-        Guid tenantId = Guid.NewGuid();
-        string token = factory.MintLocalBearerJwt(
-            "ReaderUser",
-            [ArchLucidRoles.Reader],
-            tenantId,
-            ScopeIds.DefaultWorkspace,
-            ScopeIds.DefaultProject);
+        string token = MintTenantScopedToken("ReaderUser", [ArchLucidRoles.Reader], Guid.NewGuid());
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -50,13 +44,7 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Put_settings_with_reader_jwt_returns_forbidden()
     {
-        Guid tenantId = Guid.NewGuid();
-        string token = factory.MintLocalBearerJwt(
-            "ReaderUser",
-            [ArchLucidRoles.Reader],
-            tenantId,
-            ScopeIds.DefaultWorkspace,
-            ScopeIds.DefaultProject);
+        string token = MintTenantScopedToken("ReaderUser", [ArchLucidRoles.Reader], Guid.NewGuid());
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -76,13 +64,7 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Put_settings_with_admin_jwt_succeeds()
     {
-        Guid tenantId = Guid.NewGuid();
-        string token = factory.MintLocalBearerJwt(
-            "AdminUser",
-            [ArchLucidRoles.Admin],
-            tenantId,
-            ScopeIds.DefaultWorkspace,
-            ScopeIds.DefaultProject);
+        string token = MintTenantScopedToken("AdminUser", [ArchLucidRoles.Admin], Guid.NewGuid());
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -107,4 +89,15 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
         saved.ProjectName.Should().Be("ArchLucid");
         saved.DefaultWorkItemType.Should().Be("Task");
     }
+
+    private string MintTenantScopedToken(string name, IReadOnlyList<string> roles, Guid tenantId) =>
+        JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+            factory.PrivatePemForTests,
+            JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
+            name,
+            roles,
+            tenantId,
+            ScopeIds.DefaultWorkspace,
+            ScopeIds.DefaultProject);
 }
