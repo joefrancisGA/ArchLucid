@@ -23,8 +23,12 @@ function matchesLiveProxyAuthorityRunDetail(url: URL, runId: string): boolean {
 
 function matchesLiveProxyManifestSummary(url: URL, manifestId: string): boolean {
   const path = backendApiPath(url);
+  const encoded = encodeURIComponent(manifestId);
 
-  return path === `/v1/authority/signed-records/${encodeURIComponent(manifestId)}/summary`;
+  return (
+    path === `/v1/authority/signed-records/${encoded}/summary`
+    || path === `/v1/authority/manifests/${encoded}/summary`
+  );
 }
 
 /** Waits for operator shell hydration without treating optional trial-status 404 as failure. */
@@ -73,13 +77,23 @@ export async function waitForLiveManifestSummaryResponse(
   options?: { timeoutMs?: number },
 ): Promise<void> {
   const timeoutMs = options?.timeoutMs ?? 60_000;
+  const manifestMain = getAppMain(page);
 
-  await page.waitForResponse(
-    (response) =>
-      matchesLiveProxyManifestSummary(new URL(response.url()), manifestId)
-      && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
-    { timeout: timeoutMs },
-  );
+  if (await manifestMain.locator("#manifest-overview").isVisible().catch(() => false)) {
+    return;
+  }
+
+  try {
+    await page.waitForResponse(
+      (response) =>
+        matchesLiveProxyManifestSummary(new URL(response.url()), manifestId)
+        && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
+      { timeout: timeoutMs },
+    );
+  } catch {
+    // RSC/SSR may hydrate manifest summary before the listener attaches — poll UI like detail hydration.
+    await waitForLiveManifestDetailHydration(page, manifestId, { timeoutMs });
+  }
 }
 
 /**

@@ -33,7 +33,6 @@ import {
   searchAudit,
 } from "./helpers/live-api-client";
 import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
-import { waitForLiveManifestSummaryResponse } from "./helpers/live-page-readiness";
 import {
   auditPageMainHeading,
   expectLiveManifestDetailPageReady,
@@ -172,7 +171,6 @@ test.describe("live-api-journey", () => {
 
     await Promise.all([
       page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
-      waitForLiveManifestSummaryResponse(page, goldenManifestId, { timeoutMs: 90_000 }),
       manifestLink.click(),
     ]);
 
