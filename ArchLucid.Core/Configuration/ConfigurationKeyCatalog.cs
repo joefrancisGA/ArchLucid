@@ -468,6 +468,9 @@ public static class ConfigurationKeyCatalog
                 "If ACS for email in prod",
                 "Azure Communication Services **Email** resource endpoint (HTTPS) when that provider is selected (see validation).",
                 ConfigKeyRequirementKind.WhenAcsEmail),
+            E("Email", "Email:SupportInbox", M("appsettings", "env"), "support@archlucid.net", "—",
+                "Inbox for operator Report problem intake notifications (`POST /v1/support/problem-reports`).",
+                ConfigKeyRequirementKind.None),
         }.AsReadOnly();
     }
 

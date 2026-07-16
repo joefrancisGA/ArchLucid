@@ -1572,6 +1572,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Support/SupportProblemReportsController.cs",
+      "class_name": "SupportProblemReportsController",
+      "route_template": "v{version:apiVersion}/support",
+      "normalized_prefix": "/v1/support",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Tenancy/CorePilotTeamChecklistController.cs",
       "class_name": "CorePilotTeamChecklistController",
       "route_template": "v{version:apiVersion}/tenant/core-pilot-checklist",

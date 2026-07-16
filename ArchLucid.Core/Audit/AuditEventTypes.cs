@@ -196,6 +196,12 @@ public static class AuditEventTypes
     /// </summary>
     public const string SupportBundleDownloaded = "SupportBundleDownloaded";
 
+    /// <summary>
+    ///     Structured support problem report accepted (<c>POST …/support/problem-reports</c>). Payload JSON
+    ///     includes reference id and correlation metadata only (no evidence bodies).
+    /// </summary>
+    public const string SupportProblemReportSubmitted = "SupportProblemReportSubmitted";
+
     public const string RunExported = "RunExported";
 
     /// <summary>

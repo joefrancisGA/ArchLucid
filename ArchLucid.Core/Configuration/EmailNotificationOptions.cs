@@ -81,6 +81,13 @@ public sealed class EmailNotificationOptions
         get;
         init;
     } = "sales@archlucid.net";
+
+    /// <summary>Inbox for operator <c>POST /v1/support/problem-reports</c> notifications (TB-788).</summary>
+    public string? SupportInbox
+    {
+        get;
+        init;
+    } = "support@archlucid.net";
 }
 
 /// <summary>Stable <see cref="EmailNotificationOptions.Provider" /> literals.</summary>
