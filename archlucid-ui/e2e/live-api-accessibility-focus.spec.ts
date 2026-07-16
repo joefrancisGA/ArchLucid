@@ -52,7 +52,42 @@ async function preventTrialWelcomeHomeAutoRedirect(page: Page): Promise<void> {
 }
 
 async function waitForReviewsRoute(page: Page): Promise<void> {
-  await page.waitForURL(reviewsRouteUrlPattern, { timeout: 60_000, waitUntil: "commit" });
+  await expect(page).toHaveURL(reviewsRouteUrlPattern, { timeout: 60_000 });
+}
+
+/** Operator home (`/`) is stable for sidebar client navigation — auth resolved, no trial welcome redirect race. */
+async function prepareOperatorHomeForClientNavigation(page: Page): Promise<void> {
+  const trialStatusSettled = page
+    .waitForResponse(
+      (response) => response.url().includes("/v1/tenant/trial-status") && response.ok(),
+      { timeout: 60_000 },
+    )
+    .then(async (response) => {
+      const json = (await response.json()) as { trialWelcomeRunId?: string | null };
+      const welcomeId = json.trialWelcomeRunId?.trim() ?? "";
+
+      if (welcomeId.length > 0) {
+        await page.evaluate(
+          ([sessionKey, id]) => {
+            sessionStorage.setItem(sessionKey, id);
+          },
+          [trialWelcomeHomeRedirectSessionKey, welcomeId] as const,
+        );
+      }
+    })
+    .catch(() => undefined);
+
+  await page.goto("/", { waitUntil: "load" });
+  await trialStatusSettled;
+  await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+  await preventTrialWelcomeHomeAutoRedirect(page);
+
+  // If TrialWelcomeRunDeepLink won the race, land back on home so both focus + announcer tests exercise `/` → reviews.
+  if (new URL(page.url()).pathname !== "/") {
+    await page.goto("/", { waitUntil: "load" });
+    await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+    await preventTrialWelcomeHomeAutoRedirect(page);
+  }
 }
 
 /** Waits until the desktop sidebar pilot nav cluster is visible (links are always expanded). */
@@ -121,9 +156,7 @@ test.describe("route focus and announcements", () => {
   });
 
   test("client navigation moves focus to main content", async ({ page }) => {
-    await page.goto("/", { waitUntil: "load" });
-    await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
-    await preventTrialWelcomeHomeAutoRedirect(page);
+    await prepareOperatorHomeForClientNavigation(page);
 
     await navigateToReviewsViaOperatorShell(page);
 
@@ -132,9 +165,7 @@ test.describe("route focus and announcements", () => {
   });
 
   test("route announcer updates after navigation", async ({ page }) => {
-    await page.goto("/", { waitUntil: "load" });
-    await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
-    await preventTrialWelcomeHomeAutoRedirect(page);
+    await prepareOperatorHomeForClientNavigation(page);
 
     await navigateToReviewsViaOperatorShell(page);
 
