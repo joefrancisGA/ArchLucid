@@ -120,7 +120,7 @@ async function primeAuditSearchIfStillEmpty(page: Page): Promise<void> {
  * Audit page briefly renders “Showing 0 events” until the client search resolves (initial state is an empty list).
  * Buyer-polished shells tuck Search inside a collapsed panel — expand and trigger search when auto-prime races.
  */
-async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Promise<void> {
+export async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Promise<void> {
   const pathOnly = href.split("?", 1)[0];
 
   if (pathOnly !== "/governance/audit" && pathOnly !== "/audit") {
@@ -129,7 +129,7 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
 
   const summary = page.getByTestId("audit-search-summary");
 
-  await expect(summary).toBeVisible({ timeout: 30_000 });
+  await expect(summary).toBeVisible({ timeout: 60_000 });
 
   void page.waitForResponse(isAuditSearchProxyResponse, { timeout: 90_000 }).catch(() => undefined);
 
@@ -158,6 +158,24 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
       { timeout: 90_000, intervals: [500, 1_000, 2_000] },
     )
     .toBe(true);
+}
+
+/**
+ * TB-730 sets `data-app-ready` on deferred access-gate chrome before route children mount.
+ * Screenshot crawls must wait for the gate to clear, then for route anchors on flaky paths.
+ */
+export async function waitForScreenshotOperatorShellChildren(page: Page, href: string): Promise<void> {
+  await expect(page.getByTestId("operator-shell-access-gate-loading")).toHaveCount(0, { timeout: 90_000 });
+
+  const pathOnly = href.split("?", 1)[0];
+
+  if (pathOnly === "/advisory-scheduling") {
+    await expect(page.getByTestId("advisory-hub")).toBeVisible({ timeout: 60_000 });
+  }
+
+  if (pathOnly === "/replay") {
+    await expect(page.getByRole("heading", { name: /^Validate review$/i })).toBeVisible({ timeout: 60_000 });
+  }
 }
 
 export async function assertPageFreeOfScreenshotDemoFailures(page: Page, href: string): Promise<void> {

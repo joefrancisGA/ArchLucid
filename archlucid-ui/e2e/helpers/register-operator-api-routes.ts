@@ -388,6 +388,16 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
       return;
     }
 
+    if (apiPath === "/api/auth/me") {
+      await fulfillJson(route, 200, {
+        name: "E2E screenshot operator",
+        claims: [{ type: "roles", value: "Admin" }],
+        hasCommittedArchitectureReview: true,
+      });
+
+      return;
+    }
+
     if (apiPath === "/v1/conversations" && url.searchParams.has("take")) {
       await fulfillJson(route, 200, fixtureConversationThreads());
 

@@ -23,7 +23,7 @@ import {
   registerScreenshotSuiteProxyRoutes,
 } from "./helpers/register-operator-api-routes";
 import { publicDirUnderUi } from "./screenshot-output-helpers";
-import { assertPageFreeOfScreenshotDemoFailures } from "./screenshot-demo-quality-gates";
+import { assertPageFreeOfScreenshotDemoFailures, waitForScreenshotOperatorShellChildren } from "./screenshot-demo-quality-gates";
 
 const OUT = publicDirUnderUi("screenshots", "all-routes");
 
@@ -137,14 +137,14 @@ test.describe.parallel("all routes screenshots (mock API)", () => {
 
   for (const href of HREFS) {
     test(`PNG ${slugForHref(href)}`, async ({ page }) => {
-      // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve — see registerScreenshotSuiteProxyRoutes.
+      // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve Ã¹ see registerScreenshotSuiteProxyRoutes.
       await page.goto(href, { waitUntil: "load", timeout: 120_000 });
 
 
       if (href === "/advisory-scheduling")
-        await page.waitForURL(/\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/, { timeout: 30_000, waitUntil: "commit" });
+        await page.waitForURL(/\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/, { timeout: 60_000, waitUntil: "commit" });
       else if (href === "/settings/exec-digest")
-        await page.waitForURL(/\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/, { timeout: 30_000, waitUntil: "commit" });
+        await page.waitForURL(/\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/, { timeout: 60_000, waitUntil: "commit" });
 
       /** Wait for hydrated shell ({@link AppShellClient} / {@link ShellReadySurface}); `networkidle` is unreliable on Next.js. */
       try {
@@ -155,6 +155,8 @@ test.describe.parallel("all routes screenshots (mock API)", () => {
             `and avoid MOCK_E2E_REUSE_SERVER unless the correct standalone app is already listening. ${(e as Error).message}`,
         );
       }
+
+      await waitForScreenshotOperatorShellChildren(page, href);
 
       await expect(page.locator("body")).toBeVisible({ timeout: 120_000 });
       await assertPageFreeOfScreenshotDemoFailures(page, href);
