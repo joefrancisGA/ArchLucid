@@ -14,9 +14,13 @@ permissions:
 jobs:
   live-e2e-nightly-developmentbypass:
     if: github.event.repository.fork == false
-    name: "Nightly: live-api full (DevelopmentBypass)"
+    name: "Nightly: live-api full (DevelopmentBypass) [shard ${{ matrix.shard }}/${{ strategy.job-total }}]"
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -26,11 +30,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 20s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -72,23 +76,29 @@ jobs:
           docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
             mcr.microsoft.com/mssql/server:2022-latest \
             -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
-            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eNightly') CREATE DATABASE ArchLucidLiveE2eNightly;"
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eNightly${{ matrix.shard }}') CREATE DATABASE ArchLucidLiveE2eNightly${{ matrix.shard }};"
 
       - name: Start ArchLucid.Api (DevelopmentBypass)
         env:
           ASPNETCORE_ENVIRONMENT: Development
           ASPNETCORE_URLS: http://127.0.0.1:5128
-          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eNightly"
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eNightly${{ matrix.shard }}"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: DevelopmentBypass
+          ArchLucidAuth__AllowTestActorHeaders: "true"
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
+          Observability__Prometheus__Enabled: "true"
+          Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
           DataConsistency__InitialDelaySeconds: "0"
           HostLeaderElection__Enabled: "false"
+          Demo__Enabled: "true"
+          Demo__SeedOnStartup: "true"
+          Demo__AnonymousViewer__Enabled: "true"
           Observability__ConsoleExporter__Enabled: "false"
         run: |
           set -e
@@ -100,47 +110,72 @@ jobs:
           API_URL: http://127.0.0.1:5128
         run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-bypass.log"
 
+      - name: Wait for demo preview (demo workspace smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-bypass.log
+          ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+        run: bash scripts/ci/wait-for-demo-preview.sh
+
+      - name: Wait for DB-backed pilot-run-deltas (demo workspace smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-bypass.log
+          ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+        run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+
       - name: Playwright full live suite
         working-directory: archlucid-ui
         env:
           CI: true
+          API_URL: http://127.0.0.1:5128
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-bypass.log
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
+          E2E_INFRA_MAX_ATTEMPTS: "12"
+          E2E_INFRA_DB_MAX_ATTEMPTS: "25"
+          E2E_INFRA_BASE_DELAY_MS: "1000"
+          E2E_INFRA_PROBE_ATTEMPTS: "45"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
           # Api host is DevelopmentBypass — prevent inherited JWT/API key env from forcing the wrong client auth lane.
           LIVE_JWT_TOKEN: ""
           LIVE_API_KEY: ""
           LIVE_API_KEY_READONLY: ""
         run: |
           npx playwright install --with-deps chromium
-          npx playwright test
+          bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
+          bash ../scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+          echo "Playwright nightly DevelopmentBypass shard ${{ matrix.shard }}/${{ strategy.job-total }} start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npx playwright test --workers=1 --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          echo "Playwright nightly DevelopmentBypass shard ${{ matrix.shard }}/${{ strategy.job-total }} end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: nightly-live-e2e-developmentbypass-playwright-report
+          name: nightly-live-e2e-developmentbypass-playwright-report-${{ matrix.shard }}
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: nightly-live-e2e-developmentbypass-test-results
+          name: nightly-live-e2e-developmentbypass-test-results-${{ matrix.shard }}
           path: archlucid-ui/test-results
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: nightly-live-e2e-developmentbypass-blob-report
+          name: nightly-live-e2e-developmentbypass-blob-report-${{ matrix.shard }}
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         if: failure()
         with:
-          name: nightly-live-e2e-developmentbypass-log
+          name: nightly-live-e2e-developmentbypass-log-${{ matrix.shard }}
           path: ${{ runner.temp }}/live-api-nightly-bypass.log
           if-no-files-found: warn
 
