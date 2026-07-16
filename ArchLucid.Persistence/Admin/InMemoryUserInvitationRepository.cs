@@ -18,6 +18,7 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
         UserInvitationRecord? found = _byId.Values.FirstOrDefault(row =>
             row.TenantId == tenantId
             && row.Status == UserInvitationStatus.Pending
+            && row.ExpiresUtc > TimeProvider.System.GetUtcNow()
             && string.Equals(row.Email, normalizedEmail, StringComparison.Ordinal));
 
         return Task.FromResult(found);

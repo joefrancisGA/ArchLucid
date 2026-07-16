@@ -26,7 +26,8 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
                            FROM dbo.UserInvitations
                            WHERE TenantId = @TenantId
                              AND Email = @Email
-                             AND Status = N'Pending';
+                             AND Status = N'Pending'
+                             AND ExpiresUtc > SYSUTCDATETIME();
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

@@ -4049,6 +4049,7 @@ jobs:
           npx playwright test --workers=1 \
             live-api-apikey-auth.spec.ts \
             live-api-auth-parity-spine.spec.ts \
+            live-api-invite-flow.spec.ts \
             live-api-journey.spec.ts \
             live-api-negative-paths.spec.ts
 
@@ -4228,6 +4229,7 @@ jobs:
           npx playwright test --workers=1 \
             live-api-jwt-auth.spec.ts \
             live-api-auth-parity-spine.spec.ts \
+            live-api-invite-flow.spec.ts \
             live-api-journey.spec.ts \
             live-api-negative-paths.spec.ts
 

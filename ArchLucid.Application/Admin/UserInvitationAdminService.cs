@@ -84,7 +84,7 @@ public sealed class UserInvitationAdminService(
         UserInvitationRecord? pending =
             await _invitations.GetPendingByEmailAsync(scope.TenantId, normalizedEmail, cancellationToken);
 
-        if (pending is not null)
+        if (pending is not null && pending.ExpiresUtc > _timeProvider.GetUtcNow())
         {
             return await MapResponseAsync(pending, cancellationToken);
         }
@@ -214,6 +214,16 @@ public sealed class UserInvitationAdminService(
         }
     }
 
+    private string ResolveDisplayStatus(UserInvitationRecord record)
+    {
+        if (record.Status == UserInvitationStatus.Pending && record.ExpiresUtc < _timeProvider.GetUtcNow())
+        {
+            return "Expired";
+        }
+
+        return record.Status.ToString();
+    }
+
     private async Task<UserInvitationResponse> MapResponseAsync(
         UserInvitationRecord record,
         CancellationToken cancellationToken)
@@ -226,7 +236,7 @@ public sealed class UserInvitationAdminService(
             Id = record.Id,
             Email = record.Email,
             AppRole = record.AppRole,
-            Status = record.Status.ToString(),
+            Status = ResolveDisplayStatus(record),
             TenantName = tenantName,
             WorkspaceId = record.WorkspaceId,
             InvitedByActorId = record.InvitedByActorId,
