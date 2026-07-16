@@ -103,6 +103,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         (IActionResult? idempotencyError, string? idempotencyKey) = ReadGovernanceIdempotencyKey(!dryRun);
+
         if (idempotencyError is not null)
             return idempotencyError;
 
@@ -373,6 +374,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(!dryRun);
+
         if (idempotencyError is not null)
             return idempotencyError;
 
@@ -419,6 +421,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(true);
+
         if (idempotencyError is not null)
             return idempotencyError;
 

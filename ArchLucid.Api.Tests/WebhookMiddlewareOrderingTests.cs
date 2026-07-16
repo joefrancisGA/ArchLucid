@@ -53,6 +53,7 @@ public sealed class WebhookMiddlewareOrderingTests
         methodStart.Should().BeGreaterThan(0);
 
         int scopeEnd = text.IndexOf("public ", methodStart + 1, StringComparison.Ordinal);
+
         if (scopeEnd < 0)
             scopeEnd = text.Length;
 

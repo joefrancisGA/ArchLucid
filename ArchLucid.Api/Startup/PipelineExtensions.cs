@@ -211,6 +211,7 @@ internal static class PipelineExtensions
             .AllowAnonymous();
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
+
         if (prometheusEnabled)
         {
             app.UseMiddleware<PrometheusScrapeAuthMiddleware>();
