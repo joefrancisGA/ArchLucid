@@ -31,7 +31,9 @@
 # Rollback: set repository variable CD_ROLLBACK_ON_SMOKE_FAILURE=true to deactivate the new API revision when smoke fails.
 # Manual rollback: workflow_dispatch with action=rollback (same target environment).
 #
-# Traceability: images and Terraform runs are tagged with git SHA (`IMAGE_TAG`, default github.sha).
+# Traceability: one immutable BUILD_ID (git commit SHA) is set at the start of build-push-images and stamped into
+# API/UI build-args, OCI labels, IMAGE_TAG (default), and ARCHLUCID_BUILD_COMMIT_SHA. Friendly latest-* aliases are
+# additional tags only — deploy never uses mutable `latest` as the primary identity.
 # Container Apps: deploy uses `registry/repo@sha256:<digest>` from the build-push job when the build-push step exports
 # a digest (immutable manifest). `CD_DEPLOY_RUN` plus a unique `--revision-suffix` still forces a new revision when the
 # image string would otherwise match a prior deploy (ACA can skip pulls / new revision for identical `:tag` refs).
@@ -90,6 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target || 'dev' }}
     outputs:
+      build_id: ${{ steps.build_identity.outputs.build_id }}
       image_tag: ${{ steps.image_tag_out.outputs.image_tag }}
       build_timestamp: ${{ steps.build_metadata.outputs.build_timestamp }}
       api_image_digest: ${{ steps.build_push_api.outputs.digest }}
@@ -112,10 +115,18 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set image tag and latest alias
+      - name: Set BUILD_ID, image tag, and latest alias
+        id: build_identity
         run: |
+          BUILD_ID="${{ github.sha }}"
+          echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
           TAG="${{ vars.IMAGE_TAG }}"
-          if [ -z "$TAG" ]; then TAG="${{ github.sha }}"; fi
+          if [ -z "$TAG" ]; then TAG="$BUILD_ID"; fi
+          if [ "$TAG" = "latest" ] || [[ "$TAG" == latest-* ]]; then
+            echo "::error::IMAGE_TAG must not be a mutable latest* tag (got: $TAG). Use BUILD_ID (git SHA)."
+            exit 1
+          fi
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
           if [ "${{ github.event.inputs.target || 'dev' }}" = "staging" ]; then
             echo "LATEST_ALIAS=latest-staging" >> "$GITHUB_ENV"
@@ -132,6 +143,11 @@ jobs:
           echo "BUILD_TIMESTAMP=$BUILD_TS" >> "$GITHUB_ENV"
           echo "DEPLOY_ENV=${{ github.event.inputs.target || 'dev' }}" >> "$GITHUB_ENV"
           echo "build_timestamp=$BUILD_TS" >> "$GITHUB_OUTPUT"
+
+      - name: Assert BUILD_ID / OCI label contract
+        run: |
+          python3 scripts/ci/oci_build_identity.py --assert-workflows
+          python3 scripts/ci/oci_build_identity.py --assert-image-tag "$IMAGE_TAG"
 
       - name: Export image_tag output
         id: image_tag_out
@@ -180,8 +196,14 @@ jobs:
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.LATEST_ALIAS }}
+          labels: |
+            org.opencontainers.image.title=archlucid-api
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.BUILD_ID }}
+            org.opencontainers.image.version=${{ env.BUILD_ID }}
+            org.opencontainers.image.created=${{ env.BUILD_TIMESTAMP }}
           build-args: |
-            BUILD_SHA=${{ github.sha }}
+            BUILD_SHA=${{ env.BUILD_ID }}
             BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             DEPLOY_ENV=${{ env.DEPLOY_ENV }}
           push: true
@@ -201,11 +223,17 @@ jobs:
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.LATEST_ALIAS }}
+          labels: |
+            org.opencontainers.image.title=archlucid-ui
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.BUILD_ID }}
+            org.opencontainers.image.version=${{ env.BUILD_ID }}
+            org.opencontainers.image.created=${{ env.BUILD_TIMESTAMP }}
           build-args: |
-            BUILD_SHA=${{ github.sha }}
+            BUILD_SHA=${{ env.BUILD_ID }}
             BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             DEPLOY_ENV=${{ env.DEPLOY_ENV }}
-            NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ github.sha }}
+            NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ env.BUILD_ID }}
             NEXT_PUBLIC_BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             NEXT_PUBLIC_DEPLOY_ENV=${{ env.DEPLOY_ENV }}
             NEXT_PUBLIC_API_UPSTREAM_HOST=${{ vars.API_UPSTREAM_HOST }}
@@ -392,6 +420,7 @@ jobs:
       worker_rev_before_skip: ${{ steps.worker_rev_before.outputs.skip }}
       ui_fqdn: ${{ steps.ui_fqdn.outputs.fqdn }}
     env:
+      BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
       IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
       BUILD_TIMESTAMP: ${{ needs.build-push-images.outputs.build_timestamp }}
       API_IMAGE_DIGEST: ${{ needs.build-push-images.outputs.api_image_digest }}
@@ -588,12 +617,12 @@ jobs:
           echo "Deploy API image: ${API_IMAGE}"
           A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
             --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
-              "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=${{ github.sha }}" \
+              "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
             --query "properties.latestRevisionName" -o tsv)
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
             W_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" \
               --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
-                "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=${{ github.sha }}" \
+                "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
               --query "properties.latestRevisionName" -o tsv)
           fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then
@@ -1246,17 +1275,19 @@ jobs:
 
       - name: CD summary
         env:
+          BUILD_ID: ${{ needs.build-push-images.outputs.build_id }}
           IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
         run: |
           echo "## CD summary" >> "$GITHUB_STEP_SUMMARY"
           echo "- Action: ${{ github.event.inputs.action || 'deploy' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Target: ${{ github.event.inputs.target || 'dev' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- BUILD_ID (immutable): \`${BUILD_ID:-${{ github.sha }}}\`" >> "$GITHUB_STEP_SUMMARY"
           if [ -n "${IMAGE_TAG:-}" ]; then
-            echo "- Image tag (SHA-pinned): \`${IMAGE_TAG}\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Image tag (SHA-pinned by default): \`${IMAGE_TAG}\`" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- Image tag: \`${{ github.sha }}\` (no build job output)" >> "$GITHUB_STEP_SUMMARY"
           fi
-          echo "- BuildCommitSha stamped: yes (SourceRevisionId injected via BUILD_SHA build-arg)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- BuildCommitSha stamped: yes (BUILD_ID → BUILD_SHA / SourceRevisionId + OCI revision label)" >> "$GITHUB_STEP_SUMMARY"
           echo "- Terraform apply requested: ${{ github.event.inputs.run_terraform_apply }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- NuGet API client version (when \`NUGET_API_KEY\` is set on production after successful smoke): \`1.0.${{ github.run_number }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Job results: build=${{ needs.build-push-images.result }}, plan=${{ needs.terraform-plan.result }}, apply=${{ needs.terraform-apply.result }}, deploy=${{ needs.deploy-container-apps.result }}, smoke=${{ needs.smoke-test.result }}, rollback=${{ needs.rollback.result }}, nuget=${{ needs.nuget-push.result }}, manual-rollback=${{ needs.manual-rollback.result }}" >> "$GITHUB_STEP_SUMMARY"

@@ -8,6 +8,8 @@
 # and `head_repository` is this repo (not a fork PR whose source branch happens to be named main).
 # This avoids deploying when only a PR branch passed CI, or when merge bypassed checks.
 # Checkout uses `workflow_run.head_sha` so the images match the commit that CI validated.
+# BUILD_ID is that same head SHA — stamped into build-args, OCI labels, IMAGE_TAG (default), and
+# ARCHLUCID_BUILD_COMMIT_SHA. Friendly `latest-staging` is an additional tag only.
 # Container Apps deploy uses `registry/repo@sha256:<digest>` when build-push exports a digest, plus `CD_DEPLOY_RUN` and
 # a unique `--revision-suffix`, so ACA creates a new revision and ingress can pin to that revision (not a stale `show`).
 name: CD staging on merge
@@ -54,18 +56,27 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set image tag
+      - name: Set BUILD_ID and image tag
         run: |
+          BUILD_ID="${{ github.event.workflow_run.head_sha }}"
+          echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
           TAG="${{ vars.IMAGE_TAG }}"
-          if [ -z "$TAG" ]; then TAG="${{ github.event.workflow_run.head_sha }}"; fi
+          if [ -z "$TAG" ]; then TAG="$BUILD_ID"; fi
+          if [ "$TAG" = "latest" ] || [[ "$TAG" == latest-* ]]; then
+            echo "::error::IMAGE_TAG must not be a mutable latest* tag (got: $TAG). Use BUILD_ID (git SHA)."
+            exit 1
+          fi
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
-          # DEPLOY_SHA is the exact commit being deployed; always the workflow_run head SHA regardless of IMAGE_TAG override.
-          echo "DEPLOY_SHA=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_ENV"
 
       - name: Capture deployment build metadata
         run: |
           echo "BUILD_TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
           echo "DEPLOY_ENV=staging" >> "$GITHUB_ENV"
+
+      - name: Assert BUILD_ID / OCI label contract
+        run: |
+          python3 scripts/ci/oci_build_identity.py --assert-workflows
+          python3 scripts/ci/oci_build_identity.py --assert-image-tag "$IMAGE_TAG"
 
       - name: Detect ACR configuration
         id: acr
@@ -110,8 +121,14 @@ jobs:
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:latest-staging
+          labels: |
+            org.opencontainers.image.title=archlucid-api
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.BUILD_ID }}
+            org.opencontainers.image.version=${{ env.BUILD_ID }}
+            org.opencontainers.image.created=${{ env.BUILD_TIMESTAMP }}
           build-args: |
-            BUILD_SHA=${{ github.event.workflow_run.head_sha }}
+            BUILD_SHA=${{ env.BUILD_ID }}
             BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             DEPLOY_ENV=${{ env.DEPLOY_ENV }}
           push: true
@@ -131,11 +148,17 @@ jobs:
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:latest-staging
+          labels: |
+            org.opencontainers.image.title=archlucid-ui
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.BUILD_ID }}
+            org.opencontainers.image.version=${{ env.BUILD_ID }}
+            org.opencontainers.image.created=${{ env.BUILD_TIMESTAMP }}
           build-args: |
-            BUILD_SHA=${{ github.event.workflow_run.head_sha }}
+            BUILD_SHA=${{ env.BUILD_ID }}
             BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             DEPLOY_ENV=${{ env.DEPLOY_ENV }}
-            NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ github.event.workflow_run.head_sha }}
+            NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ env.BUILD_ID }}
             NEXT_PUBLIC_BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             NEXT_PUBLIC_DEPLOY_ENV=${{ env.DEPLOY_ENV }}
             NEXT_PUBLIC_API_UPSTREAM_HOST=${{ vars.API_UPSTREAM_HOST }}
@@ -203,12 +226,12 @@ jobs:
           echo "Deploy API image: ${API_IMAGE}"
           A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
             --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
-              "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$DEPLOY_SHA" \
+              "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
             --query "properties.latestRevisionName" -o tsv)
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
             W_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" \
               --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
-                "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$DEPLOY_SHA" \
+                "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
               --query "properties.latestRevisionName" -o tsv)
           fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then

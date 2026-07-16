@@ -113,7 +113,14 @@ Failures emit **`::error::`** lines on GitHub Actions for visible annotations wh
 
 ## Traceability
 
-- Default image tag is the **git SHA** (`github.sha`), overridable via repository variable `IMAGE_TAG`.
+- **`BUILD_ID`** is the immutable build identity: the full git commit SHA (`github.sha` on manual CD; `workflow_run.head_sha` on staging-on-merge). It is set once at the start of image build and reused for:
+  - `BUILD_SHA` / `SourceRevisionId` (API + worker in the API image),
+  - `NEXT_PUBLIC_BUILD_COMMIT_SHA` (UI),
+  - OCI labels (`org.opencontainers.image.revision` / `.version` / `.source` / `.created` / `.title`),
+  - default **`IMAGE_TAG`**,
+  - runtime `ARCHLUCID_BUILD_COMMIT_SHA` on Container Apps.
+- Default image tag is **`BUILD_ID`**, overridable via repository variable `IMAGE_TAG` (must not be `latest` or `latest-*`). Friendly `latest-dev` / `latest-staging` / `latest-production` tags are **aliases only**; deploy uses the SHA tag and/or `@sha256:<digest>`.
+- Drift guard: `scripts/ci/oci_build_identity.py` (unit tests in `scripts/ci/tests/test_oci_build_identity.py`).
 - Terraform plan is stored as a run artifact named with the target environment for audit and optional `terraform apply` in a later job in the same run.
 
 ## GitHub Environment secrets and variables (checklist)
