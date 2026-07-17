@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:304 -->
+<!-- audit-core-const-count:349 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -392,6 +392,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArtifactDownloaded` | `ArtifactDownloaded` | `ArtifactExportController` |
 | `BundleDownloaded` | `BundleDownloaded` | `ArtifactExportController` |
 | `SupportBundleDownloaded` | `SupportBundleDownloaded` | `SupportBundleController` (`POST /v1/admin/support-bundle`) |
+| `SupportProblemReportSubmitted` | `SupportProblemReportSubmitted` | `SupportProblemReportsController` (`POST /v1/support/problem-reports`) |
 | `SyntheticOperatorDemoPackMarker` | `SyntheticOperatorDemoPack.Marker` | `SyntheticOperatorDemoPackWriter` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `SyntheticOperatorDemoPackInvoked` | `SyntheticOperatorDemoPack.Invoked` | `SyntheticOperatorDemoPackController` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
@@ -545,6 +546,50 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AgentOutputLlmFaithfulnessWarned` | `AgentOutput.LlmFaithfulnessWarned` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness warn floor) |
 | `AgentOutputLlmFaithfulnessRejected` | `AgentOutput.LlmFaithfulnessRejected` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness reject floor) |
 | `AdminApiKeyRotationMaterialIssued` | `Admin.ApiKeyRotationMaterialIssued` | `AdminApiKeySettingsController` (`POST …/admin/settings/api-keys/rotate`) |
+| `AdminUserInvitationAccepted` | `Admin.UserInvitationAccepted` | `PostAuthBootstrapService`, `EmailOtpAuthService`, `PostAuthBootstrapController` |
+| `AdminUserInvitationCreated` | `Admin.UserInvitationCreated` | `UsersAdminController` (`POST /v1/admin/users/invite`) |
+| `AdminUserInvitationRevoked` | `Admin.UserInvitationRevoked` | `UsersAdminController` |
+| `AuthDomainEnforcementEnabled` | `Identity.AuthDomainEnforcementEnabled` | `TenantAuthDomainAdminController` |
+| `AuthDomainEnforcementModeChanged` | `Identity.AuthDomainEnforcementModeChanged` | `TenantAuthDomainAdminController` |
+| `AuthDomainLastRecoveryPathRemoved` | `Identity.AuthDomainLastRecoveryPathRemoved` | `TenantAuthDomainAdminController` |
+| `AuthDomainProposed` | `Identity.AuthDomainProposed` | `TenantAuthDomainAdminController` |
+| `AuthDomainRecoveryAdminAdded` | `Identity.AuthDomainRecoveryAdminAdded` | `TenantAuthDomainAdminController` |
+| `AuthDomainRecoveryAdminAuthenticationVerified` | `Identity.AuthDomainRecoveryAdminAuthenticationVerified` | `EmailOtpAuthService` (recovery-admin OTP verification) |
+| `AuthDomainRecoveryAdminRemoved` | `Identity.AuthDomainRecoveryAdminRemoved` | `TenantAuthDomainAdminController` |
+| `AuthDomainRecoveryBypassUsed` | `Identity.AuthDomainRecoveryBypassUsed` | `EmailOtpAuthService` |
+| `AuthDomainRemoved` | `Identity.AuthDomainRemoved` | `TenantAuthDomainAdminController` |
+| `AuthDomainVerificationChecked` | `Identity.AuthDomainVerificationChecked` | `TenantAuthDomainAdminController` |
+| `AuthDomainVerificationStarted` | `Identity.AuthDomainVerificationStarted` | `TenantAuthDomainAdminController` |
+| `AuthSignInRoutingEvaluated` | `Identity.AuthSignInRoutingEvaluated` | `AuthSignInRoutingController`, `TenantAuthDomainAdminController` |
+| `AuthenticationIdentityAttached` | `Identity.AuthenticationIdentityAttached` | `PlatformIdentityService` |
+| `AuthenticationIdentityCreated` | `Identity.AuthenticationIdentityCreated` | `PlatformIdentityService` |
+| `AuthenticationIdentityDisabled` | `Identity.AuthenticationIdentityDisabled` | `PlatformIdentityService` |
+| `AuthenticationIdentityLinkCancelled` | `Identity.AuthenticationIdentityLinkCancelled` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `AuthenticationIdentityLinkChallengeRequested` | `Identity.AuthenticationIdentityLinkChallengeRequested` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `AuthenticationIdentityLinkConfirmed` | `Identity.AuthenticationIdentityLinkConfirmed` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `AuthenticationIdentityLinkFailed` | `Identity.AuthenticationIdentityLinkFailed` | `AuthenticationIdentityLinkingService` |
+| `AuthenticationIdentityLinkProposed` | `Identity.AuthenticationIdentityLinkProposed` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `AuthenticationIdentityRemovalRequested` | `Identity.AuthenticationIdentityRemovalRequested` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `EmailOtpCodeRequested` | `Identity.EmailOtpCodeRequested` | `EmailOtpAuthService`, `EmailOtpAuthController` |
+| `EmailOtpCodeSent` | `Identity.EmailOtpCodeSent` | `EmailOtpAuthService` |
+| `EmailOtpRateLimitTriggered` | `Identity.EmailOtpRateLimitTriggered` | `EmailOtpAuthService` |
+| `EmailOtpSsoRedirectRequired` | `Identity.EmailOtpSsoRedirectRequired` | `EmailOtpAuthService` |
+| `EmailOtpSuspiciousBehaviorDetected` | `Identity.EmailOtpSuspiciousBehaviorDetected` | `EmailOtpAuthService` |
+| `EmailOtpVerificationFailed` | `Identity.EmailOtpVerificationFailed` | `EmailOtpAuthService` |
+| `EmailOtpVerificationSucceeded` | `Identity.EmailOtpVerificationSucceeded` | `EmailOtpAuthService` |
+| `PlatformTenantAuthRecoveryGranted` | `Identity.PlatformTenantAuthRecoveryGranted` | `PlatformAuthRecoveryService` |
+| `PlatformTenantAuthRecoveryRevoked` | `Identity.PlatformTenantAuthRecoveryRevoked` | `PlatformAuthRecoveryService` |
+| `PlatformTenantAuthRecoveryTenantNotified` | `Identity.PlatformTenantAuthRecoveryTenantNotified` | `PlatformRecoveryNotificationService` |
+| `PlatformTenantAuthRecoveryUnauthorizedAttempt` | `Identity.PlatformTenantAuthRecoveryUnauthorizedAttempt` | `PlatformIdentityRecoveryController` (unauthorized grant attempt) |
+| `PlatformUserCreated` | `Identity.PlatformUserCreated` | `PlatformIdentityService` |
+| `PostAuthAccessRequestInitiated` | `Identity.PostAuthAccessRequestInitiated` | `PostAuthBootstrapController` |
+| `PostAuthExistingOrganizationDetected` | `Identity.PostAuthExistingOrganizationDetected` | `PostAuthBootstrapService` |
+| `PostAuthInitialOwnerAssigned` | `Identity.PostAuthInitialOwnerAssigned` | `PostAuthBootstrapService` |
+| `PostAuthWorkspaceCreated` | `Identity.PostAuthWorkspaceCreated` | `PostAuthBootstrapService`, `PostAuthBootstrapController` |
+| `PostAuthWorkspaceCreationDenied` | `Identity.PostAuthWorkspaceCreationDenied` | `PostAuthBootstrapService` |
+| `UserAccountPrimaryEmailChangeRequested` | `Identity.UserAccountPrimaryEmailChangeRequested` | `UserAccountRecoveryService` |
+| `UserAccountPrimaryEmailChanged` | `Identity.UserAccountPrimaryEmailChanged` | `UserAccountRecoveryService` |
+| `UserInvitationValidated` | `Identity.UserInvitationValidated` | `UserInvitationPublicController` |
 | `ApiKeyRotated` | `Security.ApiKeyRotated` | `AdminApiKeySettingsController` (`POST …/admin/apikeys/{keyId}/rotate`) |
 | `TenantReviewBoardCoverLogoUploaded` | `Tenant.ReviewBoardCoverLogoUploaded` | `AdminController` (`POST /v1/admin/tenant/logo`) |
 | `TenantTeamsIncomingWebhookConnectionUpserted` | `TenantTeamsIncomingWebhookConnectionUpserted` | `TeamsIncomingWebhookConnectionsController` |
