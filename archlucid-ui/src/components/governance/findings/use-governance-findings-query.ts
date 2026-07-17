@@ -1,25 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
-import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
-import {
-  getArchitectureDecisionRegister,
-  getArchitectureRiskRegister,
-} from "@/lib/api/governance-stickiness-api";
-import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import {
-  staticDemoGovernanceFindingRows,
-} from "@/components/governance/findings/governance-findings-demo-rows";
+  fetchGovernanceFindingQueueRows,
+} from "@/components/governance/findings/governance-findings-query-fetch";
+import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
-  dedupeGovernanceFindingRows,
-  decisionRegisterRows,
-  mergeShowcasePhiWhenMissing,
-  riskRegisterRows,
-  traceRowsForRun,
-} from "@/components/governance/findings/governance-findings-row-mappers";
+  OPERATOR_QUERY_GC_MS,
+  OPERATOR_QUERY_STALE_MS,
+} from "@/lib/query/operator-query-stale-time";
 
 export type GovernanceFindingsQueryState = {
   readonly rows: GovernanceFindingQueueRow[];
@@ -29,107 +23,24 @@ export type GovernanceFindingsQueryState = {
 };
 
 export function useGovernanceFindingsQuery(): GovernanceFindingsQueryState {
-  const [rows, setRows] = useState<GovernanceFindingQueueRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadFailed, setLoadFailed] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const useCuratedDemoSpine = shouldUseGovernanceCuratedDemoSpine();
+  const scope = useOperatorScopeQueryKey();
+
+  const query = useQuery({
+    queryKey: operatorQueryKeys.governanceFindingsQueue(scope, useCuratedDemoSpine),
+    queryFn: () => fetchGovernanceFindingQueueRows(useCuratedDemoSpine),
+    staleTime: OPERATOR_QUERY_STALE_MS,
+    gcTime: OPERATOR_QUERY_GC_MS,
+  });
 
   const refresh = useCallback(() => {
-    setRefreshTrigger((current) => current + 1);
-  }, []);
+    void query.refetch();
+  }, [query]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      setLoading(true);
-      setLoadFailed(false);
-
-      const useCuratedDemoSpine = shouldUseGovernanceCuratedDemoSpine();
-
-      if (useCuratedDemoSpine) {
-        if (!cancelled) {
-          setRows(staticDemoGovernanceFindingRows());
-          setLoading(false);
-        }
-
-        return;
-      }
-
-      try {
-        const [riskRegister, decisionRegister] = await Promise.all([
-          getArchitectureRiskRegister(),
-          getArchitectureDecisionRegister(),
-        ]);
-        const registerRows = dedupeGovernanceFindingRows([
-          ...riskRegisterRows(riskRegister.entries ?? []),
-          ...decisionRegisterRows(decisionRegister.decisions ?? []),
-        ]);
-
-        if (registerRows.length > 0) {
-          if (!cancelled) {
-            setRows(registerRows);
-            setLoading(false);
-          }
-
-          return;
-        }
-
-        const page = await listRunsByProjectPaged("default", 1, 25);
-        const runItems = page.items ?? [];
-        const maxRuns = Math.min(runItems.length, 12);
-        const slice = runItems.slice(0, maxRuns);
-        const collected: GovernanceFindingQueueRow[] = [];
-
-        await Promise.all(
-          slice.map(async (run) => {
-            try {
-              const summary = await getRunExplanationSummary(run.runId);
-              const traces =
-                summary.findingTraceConfidences ?? summary.explanation?.findingTraceConfidences ?? [];
-
-              if (traces === null || traces.length === 0) {
-                return;
-              }
-
-              collected.push(...traceRowsForRun(run, traces));
-            } catch {
-              /* omit runs that cannot load aggregate (permissions, draft run, etc.) */
-            }
-          }),
-        );
-
-        if (cancelled) {
-          return;
-        }
-
-        let merged = dedupeGovernanceFindingRows(collected);
-
-        if (merged.length === 0 && useCuratedDemoSpine) {
-          merged = staticDemoGovernanceFindingRows();
-        } else if (useCuratedDemoSpine) {
-          merged = mergeShowcasePhiWhenMissing(merged);
-        }
-
-        setRows(merged);
-      } catch {
-        if (cancelled) {
-          return;
-        }
-
-        setLoadFailed(true);
-        setRows(useCuratedDemoSpine ? staticDemoGovernanceFindingRows() : []);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [refreshTrigger]);
-
-  return { rows, loading, loadFailed, refresh };
+  return {
+    rows: query.data?.rows ?? [],
+    loading: query.isPending || query.isFetching,
+    loadFailed: query.data?.loadFailed ?? false,
+    refresh,
+  };
 }

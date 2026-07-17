@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
+import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import { getBreadcrumbs } from "@/lib/breadcrumb-map";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
@@ -24,8 +25,16 @@ vi.mock("next/navigation", async (importOriginal) => {
 
 vi.mock("@/lib/api", () => ({
   getRunExplanationSummary: vi.fn().mockResolvedValue({ traces: [] }),
-  listRunsByProjectPaged: vi.fn().mockResolvedValue({ runs: [] }),
+  listRunsByProjectPaged: vi.fn().mockResolvedValue({ items: [] }),
 }));
+
+function renderGovernanceFindingsQueue() {
+  return render(
+    <OperatorQueryProvider>
+      <GovernanceFindingsQueueClient />
+    </OperatorQueryProvider>,
+  );
+}
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   getArchitectureDecisionRegister: vi.fn(),
@@ -129,7 +138,7 @@ describe("GovernanceFindingsQueueClient", () => {
   });
 
   it("renders empty state guidance, actions, and summary metrics", async () => {
-    render(<GovernanceFindingsQueueClient />);
+    renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
     expect(screen.getByText("No risks recorded for this review")).toBeInTheDocument();
@@ -159,7 +168,7 @@ describe("GovernanceFindingsQueueClient", () => {
   it("renders Report problem when the risk register load fails (TB-786)", async () => {
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
 
-    render(<GovernanceFindingsQueueClient />);
+    renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
     expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
@@ -167,7 +176,7 @@ describe("GovernanceFindingsQueueClient", () => {
   });
 
   it("does not render Report problem on benign empty risk register", async () => {
-    render(<GovernanceFindingsQueueClient />);
+    renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
     expect(screen.queryByTestId("report-problem-trigger")).not.toBeInTheDocument();
@@ -176,7 +185,7 @@ describe("GovernanceFindingsQueueClient", () => {
   it("renders operational table rows and filters when risk data is loaded", async () => {
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
-    render(<GovernanceFindingsQueueClient />);
+    renderGovernanceFindingsQueue();
 
     expect(await screen.findByTestId("architecture-risk-register-filters")).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Risk" })).toBeInTheDocument();

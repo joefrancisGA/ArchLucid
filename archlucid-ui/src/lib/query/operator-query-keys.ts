@@ -1,4 +1,5 @@
 import type { RunsByProjectPagedParams } from "@/lib/query/runs-by-project-paged-params";
+import type { OperatorScopeQueryKey } from "@/lib/operator-scope-query-key";
 
 export const operatorQueryKeys = {
   tenantTrialStatus: ["operator", "tenant", "trial-status"] as const,
@@ -8,6 +9,11 @@ export const operatorQueryKeys = {
   adminAiUsageDashboard: ["operator", "admin", "ai-usage-dashboard"] as const,
   executiveRoiSummary: ["operator", "roi", "executive-summary"] as const,
   complianceDriftTrend30d: ["operator", "governance", "compliance-drift-trend", "30d"] as const,
+  governanceFindingsQueue: (
+    scope: OperatorScopeQueryKey,
+    useCuratedDemoSpine: boolean,
+  ) =>
+    ["operator", "governance", "findings-queue", scope, { useCuratedDemoSpine }] as const,
   corePilotCommitContext: ["operator", "core-pilot", "commit-context"] as const,
   pilotRecentDeltas: (count: number) => ["operator", "pilots", "recent-deltas", { count }] as const,
   runsByProjectPaged: (params: RunsByProjectPagedParams) => ["operator", "runs", "paged", params] as const,
