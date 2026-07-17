@@ -17251,6 +17251,51 @@
         },
         "type": "object"
       },
+      "PlatformAuthRecoveryGrantRequestBody": {
+        "properties": {
+          "durationHours": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "evidenceReference": {
+            "type": "string"
+          },
+          "normalizedDomain": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PlatformAuthRecoveryGrantView": {
+        "properties": {
+          "expiresUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "grantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "normalizedDomain": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PolicyControlItem": {
         "properties": {
           "controlId": {
@@ -24173,6 +24218,55 @@
         },
         "type": "object"
       },
+      "TenantAuthDomainEnforcementChecklistItem": {
+        "properties": {
+          "complete": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAuthDomainEnforcementReadiness": {
+        "properties": {
+          "blockEnforcement": {
+            "type": "boolean"
+          },
+          "blockReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "canEnableEnforcement": {
+            "type": "boolean"
+          },
+          "checklist": {
+            "items": {
+              "$ref": "#/components/schemas/TenantAuthDomainEnforcementChecklistItem"
+            },
+            "type": "array"
+          },
+          "hasRecoveryRoute": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "TenantAuthDomainEnforcementRequest": {
         "properties": {
           "allowEmailOtpRecovery": {
@@ -24188,6 +24282,23 @@
         "properties": {
           "domain": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAuthDomainRecoveryAdminRemovalResult": {
+        "properties": {
+          "removed": {
+            "type": "boolean"
+          },
+          "warningMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "wasLastRecoveryAdmin": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -25434,6 +25545,13 @@
       },
       "TenantSignInEmailDomainRecoveryAdminRecord": {
         "properties": {
+          "authenticationVerifiedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdByActorId": {
             "type": "string"
           },
@@ -31986,6 +32104,9 @@
     },
     {
       "name": "PilotsBoardPack"
+    },
+    {
+      "name": "PlatformIdentityRecovery"
     },
     {
       "name": "PolicyPacks"
