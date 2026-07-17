@@ -9,16 +9,19 @@ from typing import Any
 
 SCHEMA_REPORT = "archlucid.sql-dependency-latency-report.v1"
 
+# In Log Analytics, table column Type is always "AppDependencies". SQL calls from
+# Microsoft.Data.SqlClient often land as DependencyType="Other" with an Azure SQL Target.
 KQL_SQL_DEPENDENCY_LATENCY = """
 AppDependencies
 | where TimeGenerated > ago({hours}h)
-| where Type in ("SQL", "sql", "Microsoft.Data.SqlClient")
+| where Target has "database.windows.net"
+    or DependencyType in ("SQL", "sql", "Microsoft.Data.SqlClient")
 | summarize
     Count = count(),
     p50 = percentile(DurationMs, 50),
     p95 = percentile(DurationMs, 95),
     p99 = percentile(DurationMs, 99)
-  by Name, Data
+  by Name, Target, DependencyType
 | order by p95 desc
 | take {limit}
 """.strip()
@@ -27,7 +30,8 @@ AppDependencies
 @dataclass(frozen=True)
 class SqlLatencyRow:
     name: str
-    data: str
+    target: str
+    dependency_type: str
     count: int
     p50_ms: float
     p95_ms: float
@@ -79,7 +83,8 @@ def rows_from_records(records: list[dict[str, Any]]) -> list[SqlLatencyRow]:
         rows.append(
             SqlLatencyRow(
                 name=str(record.get("Name") or "unknown"),
-                data=str(record.get("Data") or ""),
+                target=str(record.get("Target") or ""),
+                dependency_type=str(record.get("DependencyType") or ""),
                 count=int(parse_number(record.get("Count", 0))),
                 p50_ms=parse_number(record.get("p50")),
                 p95_ms=parse_number(record.get("p95")),
@@ -115,7 +120,8 @@ def build_report_payload(
         "rows": [
             {
                 "name": row.name,
-                "data": row.data,
+                "target": row.target,
+                "dependencyType": row.dependency_type,
                 "count": row.count,
                 "p50Ms": row.p50_ms,
                 "p95Ms": row.p95_ms,
@@ -157,7 +163,7 @@ def render_markdown_report(payload: dict[str, Any]) -> str:
         f"- Total dependency events: **{totals.get('eventCount', 0)}**",
         f"- Max p95 (ms): **{float(totals.get('maxP95Ms') or 0.0):.1f}**",
         "",
-        "Source: `AppDependencies` where Type is SQL / Microsoft.Data.SqlClient.",
+        "Source: `AppDependencies` targeting `*.database.windows.net` (or DependencyType SQL).",
         "",
     ]
 
@@ -166,20 +172,20 @@ def render_markdown_report(payload: dict[str, Any]) -> str:
     else:
         lines.extend(
             [
-                "| p95 (ms) | p50 | p99 | Count | Name | Statement (truncated) |",
+                "| p95 (ms) | p50 | p99 | Count | Name | Target |",
                 "| ---: | ---: | ---: | ---: | --- | --- |",
             ]
         )
 
         for row in rows:
             lines.append(
-                "| {p95:.1f} | {p50:.1f} | {p99:.1f} | {count} | `{name}` | `{data}` |".format(
+                "| {p95:.1f} | {p50:.1f} | {p99:.1f} | {count} | `{name}` | `{target}` |".format(
                     p95=float(row.get("p95Ms") or 0.0),
                     p50=float(row.get("p50Ms") or 0.0),
                     p99=float(row.get("p99Ms") or 0.0),
                     count=int(row.get("count") or 0),
                     name=truncate(str(row.get("name") or ""), max_len=80).replace("|", "/"),
-                    data=truncate(str(row.get("data") or ""), max_len=140).replace("|", "/"),
+                    target=truncate(str(row.get("target") or ""), max_len=80).replace("|", "/"),
                 )
             )
 

@@ -10,8 +10,9 @@
 ## What it does
 
 1. Runs **nightly at 06:00 America/New_York** (and on `workflow_dispatch`).
-2. Queries Log Analytics `AppDependencies` for SQL / `Microsoft.Data.SqlClient` over the last 24 hours.
-3. Summarizes **count, p50, p95, p99** by dependency `Name` + statement `Data`.
+2. Queries Log Analytics `AppDependencies` for Azure SQL targets (`*.database.windows.net`) over the last 24 hours.
+   Note: in this workspace SQL often appears as `DependencyType=Other` (not `SQL`); filtering by Target is required.
+3. Summarizes **count, p50, p95, p99** by dependency `Name` + `Target`.
 4. Emails the digest to `APP_INSIGHTS_REPORT_EMAIL_TO` (same mailbox as the App Insights error digest).
 5. Uploads JSON + Markdown artifacts.
 

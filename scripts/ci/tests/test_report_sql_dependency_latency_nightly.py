@@ -40,7 +40,7 @@ class SqlDependencyLatencyNightlyTests(unittest.TestCase):
 
         self.assertEqual(len(rows), 2)
         self.assertGreaterEqual(rows[0].p95_ms, rows[1].p95_ms)
-        self.assertIn("SampleRunPurgeBatch", rows[0].data)
+        self.assertIn("dbo.Runs", rows[0].name)
 
     def test_report_script_generates_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -68,7 +68,8 @@ class SqlDependencyLatencyNightlyTests(unittest.TestCase):
             self.assertEqual(payload["totals"]["rowCount"], 2)
             self.assertIn("emailSubject", payload)
             self.assertIn("# SQL dependency latency (nightly)", markdown)
-            self.assertIn("SampleRunPurgeBatch", markdown)
+            self.assertIn("dbo.Runs", markdown)
+            self.assertIn("database.windows.net", markdown)
 
 
 if __name__ == "__main__":

@@ -1,20 +1,22 @@
 [
   {
     "Count": "42",
-    "Data": "SELECT TOP (1) RunId, TenantId FROM dbo.Runs WHERE RunId = @RunId",
-    "Name": "master | ArchLucidTenantDev",
+    "DependencyType": "Other",
+    "Name": "SELECT dbo.Runs",
     "TableName": "PrimaryResult",
+    "Target": "archlucid-dev.database.windows.net",
     "p50": "12.5",
     "p95": "48.2",
     "p99": "120.0"
   },
   {
-    "Count": "11",
-    "Data": "EXEC dbo.SampleRunPurgeBatch",
-    "Name": "master | ArchLucidTenantDev",
+    "Count": "4299",
+    "DependencyType": "Other",
+    "Name": "SELECT dbo.HostLeaderLeases",
     "TableName": "PrimaryResult",
-    "p50": "80.0",
-    "p95": "350.5",
-    "p99": "900.0"
+    "Target": "archlucid-dev.database.windows.net",
+    "p50": "29.8",
+    "p95": "34.7",
+    "p99": "41.2"
   }
 ]
