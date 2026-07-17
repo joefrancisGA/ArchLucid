@@ -155,7 +155,7 @@ describe("product-documentation-registry", () => {
       "azure-permissions": "customer",
       "governance-approval": "customer",
       "audit-trail": "customer",
-      "pilot-roi-model": null,
+      "pilot-roi-model": "public",
     };
 
     for (const [slug, pdfStatus] of Object.entries(expected)) {

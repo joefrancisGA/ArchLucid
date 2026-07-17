@@ -11,7 +11,7 @@
 
 **Narrative of record for sponsors:** **[EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**. This ROI model is the measurement companion; keep headline buyer claims in the brief.
 
-**Related:** [README.md](../REPOSITORY_README.md) · [CORE_PILOT.md](../CORE_PILOT.md) · [PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) · [GENERIC_AI_BAKEOFF_PROTOCOL.md](../go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md) · [PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md) · [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) · [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams*, *Four UI shaping surfaces*, *Contributor drift guard* when a measured capability crosses UI layers or Enterprise mutation affordances — shell metrics are **shaped**, **API** responses remain **authoritative**; Vitest **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** for cross-module seam locks; **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** for the **Execute** nav vs mutation floor; **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** for catalog **`ExecuteAuthority`** nav rows vs rank; **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** for read-tier Enterprise page layout) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
+**Related:** [README.md](../REPOSITORY_README.md) · [CORE_PILOT.md](../CORE_PILOT.md) · [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
 
 ---
 
@@ -59,7 +59,7 @@ For one representative architecture workflow, record:
 4. **How much governance evidence is missing or manually reconstructed** during review?
 5. **How much architect time is spent on packaging and review preparation rather than on design quality?**
 
-ArchLucid now optionally captures the **median hours from architecture request to reviewable package** (question 1) electronically at **self-service trial signup** (`POST /v1/register` — optional `baselineReviewCycleHours` / `baselineReviewCycleSource`), persists it on the tenant row, and surfaces **before vs measured** review-cycle deltas automatically in the tenant **value-report DOCX** and the **first-value Markdown** report (same copy via `ValueReportReviewCycleSectionFormatter` / `DocxValueReportRenderer`), so sponsors see a consistent narrative without operator post-editing when the prospect supplied a number or when the conservative ROI-model default applies.
+ArchLucid now optionally captures the **median hours from architecture request to reviewable package** (question 1) electronically at **self-service trial signup** (optional baseline review-cycle hours), persists it on the tenant row, and surfaces **before vs measured** review-cycle deltas automatically in the tenant **value-report DOCX** and the **first-value report** (Markdown and PDF), so sponsors see a consistent narrative without operator post-editing when the prospect supplied a number or when the conservative ROI-model default applies.
 
 ### 3.2 Keep the baseline light
 
@@ -85,11 +85,11 @@ These are the most useful V1 measures.
 
 | Metric | Why it matters | How to judge | Computed by ArchLucid? |
 |--------|----------------|--------------|------------------------|
-| **Time to committed manifest** | Measures speed from request to durable architecture output | Faster than current-state workflow, or meaningfully more predictable | **Yes — `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc`** rendered in the *Computed deltas* section of the first-value report (Markdown + PDF). |
-| **Findings (total + by severity)** | Measures how much risk the agents surface that a human would otherwise miss | Severity mix should be defensible to a reviewer | **Yes — aggregated from `ArchitectureRunDetail.Results[*].Findings`.** |
-| **LLM calls for the run** | Measures cost-shape and behavioural footprint of one run | Should fit the cost envelope agreed during pilot kickoff | **Yes — counted from per-run `AgentExecutionTrace` rows (sibling of the `archlucid_llm_calls_per_run` histogram).** |
-| **Audit rows for the run** | Measures how thoroughly the run is observable / forensically reviewable | Higher is generally better, with caveats below | **Yes — `IAuditRepository.GetFilteredAsync(RunId)` (capped to 500 rows; if the cap is hit the value is shown as a lower bound).** |
-| **Top-severity finding evidence chain** | Lets a reviewer trace one finding back to the manifest version, snapshot ids, and graph nodes used to produce it | A sponsor can hand a reviewer the chain ids and they resolve | **Yes — pulled from `IFindingEvidenceChainService` for the highest-severity finding on the run.** |
+| **Time to committed manifest** | Measures speed from request to durable architecture output | Faster than current-state workflow, or meaningfully more predictable | **Yes — from run start to commit timestamps in the *Computed deltas* section of the first-value report (Markdown + PDF).** |
+| **Findings (total + by severity)** | Measures how much risk the agents surface that a human would otherwise miss | Severity mix should be defensible to a reviewer | **Yes — aggregated from run findings in the first-value report.** |
+| **LLM calls for the run** | Measures cost-shape and behavioural footprint of one run | Should fit the cost envelope agreed during pilot kickoff | **Yes — counted from the run's agent execution trace in the report.** |
+| **Audit rows for the run** | Measures how thoroughly the run is observable / forensically reviewable | Higher is generally better, with caveats below | **Yes — from the run audit trail (capped display when very large; may show as a lower bound).** |
+| **Top-severity finding evidence chain** | Lets a reviewer trace one finding back to the manifest version, snapshot ids, and graph nodes used to produce it | A sponsor can hand a reviewer the chain ids and they resolve | **Yes — from the highest-severity finding's evidence chain in the report.** |
 | **Time to reviewable artifact package** | Measures how quickly stakeholders can review something concrete | Faster package preparation with less manual assembly | No — operator-filled (qualitative). |
 | **Manual preparation effort reduced** | Measures architect/admin time saved | Fewer hand-built documents, fewer manual stitching steps | No — operator-filled (qualitative). |
 | **Decision traceability completeness** | Measures whether decisions and evidence are easier to explain | More complete, easier-to-follow review narrative | No — operator-filled (qualitative). |
@@ -98,7 +98,7 @@ These are the most useful V1 measures.
 
 ### 4.1.1 How to read the demo numbers
 
-The first-value report (`GET /v1/pilots/runs/{runId}/first-value-report` and the `…/first-value-report.pdf` companion) and the sponsor one-pager PDF compute the five "Computed by ArchLucid" rows above straight from persisted run state. **Baseline confidence appendix:** Markdown and PDF append **`## ROI evidence completeness`** (from `RoiEvidenceCompletenessMarkdownFormatter`) so sponsors see whether dollar narratives rely on tenant-captured baselines (**Strong / Partial**) or illustrative defaults (**Low confidence**).
+The first-value report (Markdown and PDF) and the sponsor one-pager PDF compute the five "Computed by ArchLucid" rows above straight from persisted run state. **Baseline confidence appendix:** Markdown and PDF append an **ROI evidence completeness** section so sponsors see whether dollar narratives rely on tenant-captured baselines (**Strong / Partial**) or illustrative defaults (**Low confidence**).
 
 **Baseline input basis labels** (sponsor outputs and proof-package badges — do not conflate):
 
@@ -112,7 +112,7 @@ The first-value report (`GET /v1/pilots/runs/{runId}/first-value-report` and the
 
 Every first-value report also includes a **Buyer-safe proof package contract**. Treat that table as the send/no-send checklist before a sponsor email: architecture review identity, support run id, time to committed manifest, findings by severity, top finding evidence-chain pointer, audit-row count or lower bound, LLM-call count, ROI evidence confidence, and demo-data warning when applicable. Do not hand-edit missing fields into the report; either rerun the check, explain the gap, or mark the proof package incomplete.
 
-When the report is generated **for one of the canonical Contoso Retail demo runs** (or any run whose `RequestId` carries the `req-contoso-demo-` prefix that `ContosoRetailDemoIds.ForTenant(...)` mints for non-default tenants), every report renders the banner:
+When the report is generated **for a canonical Contoso Retail demo run** (or any other seeded demo tenant run), every report renders the banner:
 
 > _demo tenant — replace before publishing._
 
@@ -121,8 +121,6 @@ Treat that banner as a **non-negotiable redaction marker**:
 - **Do not screenshot** the computed-deltas table from a demo run for an external deck without removing the numbers or replacing them with figures from a live tenant.
 - **Do not quote** "ArchLucid produced N findings in T minutes for our pilot" using a demo number — the seed is deterministic and was tuned for clarity, not to represent any specific customer's environment.
 - **Do** use the demo numbers to walk a sponsor through *what the report will look like* once they run it against their own tenant — this is the entire point of having the seed render the same shape as a live pilot.
-
-If you need to verify the matcher logic, the unit tests in `ArchLucid.Application.Tests/Pilots/PilotRunDeltaComputerTests.cs` and `ArchLucid.Application.Tests/Bootstrap/ContosoRetailDemoIdentifiersMatcherTests.cs` lock in both the canonical-RunId match and the multi-tenant `req-contoso-demo-*` prefix match.
 
 ### 4.2 Secondary pilot metrics
 

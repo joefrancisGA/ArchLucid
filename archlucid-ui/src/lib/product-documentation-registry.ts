@@ -412,6 +412,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
     audience: "buyer",
     sourcePaths: ["docs/library/PILOT_ROI_MODEL.md"],
+    pdfStatus: "public",
   },
   {
     slug: "cli-usage",

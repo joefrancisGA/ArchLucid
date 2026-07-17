@@ -78,7 +78,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "pilot-feedback": "internal",
   "comparison-replay": "internal",
   "repeat-review-loop": "internal",
-  "pilot-roi-model": "internal",
+  "pilot-roi-model": "product",
 };
 
 const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterDisplay>>> = {
