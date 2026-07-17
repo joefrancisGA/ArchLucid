@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { PolicyRuleAuthoringWizard } from "./PolicyRuleAuthoringWizard";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
+import { PolicyRuleAuthoringWizardDeferred } from "./policy-packs-authoring-deferred-chunks";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -29,7 +29,7 @@ export function PolicyPacksAuthoringTabSection(props: PolicyPacksAuthoringTabSec
         onSelectedPackIdChange={m.setSelectedPackId}
       />
 
-      <PolicyRuleAuthoringWizard
+      <PolicyRuleAuthoringWizardDeferred
         canMutatePacks={m.canMutatePacks}
         loading={m.loading}
         bundledPublishBlocked={m.bundledPublishBlocked}

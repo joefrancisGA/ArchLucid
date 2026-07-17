@@ -37,6 +37,7 @@ import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
 import { isBundledPlatformDefaultPackType } from "@/lib/policy-pack-type-label";
 
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
+import { preloadPolicyRuleAuthoringWizardChunk } from "./policy-packs-authoring-deferred-chunks";
 import type { PolicyPacksPageServerLoad } from "./load-policy-packs-page-data";
 import type { PolicyPacksPageTab, PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 
@@ -466,17 +467,27 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   );
 
   const openAuthoringWizardFromGenerator = useCallback(() => {
+    preloadPolicyRuleAuthoringWizardChunk();
     setAuthoringWizardInputMode("visual");
     setAuthoringToolsOpen(true);
     setPageTab("author");
 
-    window.setTimeout(() => {
+    const deadlineMs = Date.now() + 5000;
+
+    const tryScrollToWizard = () => {
       const wizard = globalThis.document.querySelector("[data-testid='policy-rule-authoring-wizard']");
 
       if (wizard !== null) {
         wizard.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
       }
-    }, 100);
+
+      if (Date.now() < deadlineMs) {
+        window.setTimeout(tryScrollToWizard, 100);
+      }
+    };
+
+    window.setTimeout(tryScrollToWizard, 0);
   }, []);
 
   const onCreateFromGenerator = useCallback(async () => {

@@ -10,7 +10,7 @@ import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
-import { PolicyPackNaturalLanguageBuilder } from "./PolicyPackNaturalLanguageBuilder";
+import { PolicyPackNaturalLanguageBuilderDeferred } from "./policy-packs-authoring-deferred-chunks";
 
 export type PolicyPackGeneratorSectionProps = {
   readonly canMutatePacks: boolean;
@@ -67,7 +67,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
         </p>
       </div>
 
-      <PolicyPackNaturalLanguageBuilder canMutatePacks={canMutatePacks} onGenerated={onGenerated} />
+      <PolicyPackNaturalLanguageBuilderDeferred canMutatePacks={canMutatePacks} onGenerated={onGenerated} />
 
       {validationErrors.length > 0 ? (
         <div

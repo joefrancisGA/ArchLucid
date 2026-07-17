@@ -35,8 +35,10 @@ import type { RunSummary } from "@/types/authority";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
 import { CuratedRulesAuthoringSection } from "./CuratedRulesAuthoringSection";
-import { PolicyPackVisualBuilder } from "./PolicyPackVisualBuilder";
-import { PolicyPackNaturalLanguageBuilder } from "./PolicyPackNaturalLanguageBuilder";
+import {
+  PolicyPackNaturalLanguageBuilderDeferred,
+  PolicyPackVisualBuilderDeferred,
+} from "./policy-packs-authoring-deferred-chunks";
 
 const AUTH_WIZARD_PROJECT_ID = "default";
 
@@ -415,14 +417,14 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           </div>
 
           {inputMode === "ai" ? (
-            <PolicyPackNaturalLanguageBuilder
+            <PolicyPackNaturalLanguageBuilderDeferred
               canMutatePacks={canMutatePacks}
               onGenerated={applyGeneratedCuratedDocument}
             />
           ) : null}
 
           {inputMode === "visual" ? (
-            <PolicyPackVisualBuilder
+            <PolicyPackVisualBuilderDeferred
               canMutatePacks={canMutatePacks}
               policyContentJson={policyContentJson}
               onPolicyContentJsonSync={onPolicyContentJsonSync}
