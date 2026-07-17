@@ -418,6 +418,11 @@ public sealed class EmailOtpAuthServiceTests
             AuthenticationVerifiedUtc = DateTimeOffset.UtcNow
         });
 
+        Mock<IEmailOtpEmailNotifier> notifier = new();
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         EmailOtpAuthService sut = new(
             Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 }),
             new InMemoryEmailOtpChallengeRepository(),
@@ -429,7 +434,7 @@ public sealed class EmailOtpAuthServiceTests
                     new InMemoryUserInvitationRepository(),
                     new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
                     TimeProvider.System)),
-            Mock.Of<IEmailOtpEmailNotifier>(),
+            notifier.Object,
             new PlatformIdentityService(
                 new InMemoryPlatformUserRepository(),
                 new InMemoryAuthenticationIdentityRepository(),
@@ -478,6 +483,8 @@ public sealed class EmailOtpAuthServiceTests
             CancellationToken.None);
 
         Assert.Contains("If that address can receive email", result.Message);
+        Assert.Null(result.ChallengeId);
+        Assert.NotEqual(false, result.EmailDeliverySucceeded);
 
         audit.Verify(
             service => service.LogAsync(

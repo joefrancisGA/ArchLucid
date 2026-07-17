@@ -12,10 +12,21 @@ public static class AuthSignInReturnPathGuard
 
         string candidate = returnPath.Trim();
 
+        // Reject control-character smuggling used to bypass naive startsWith("/") checks.
+        foreach (char ch in candidate)
+        {
+            if (char.IsControl(ch))
+            {
+                return null;
+            }
+        }
+
         if (!candidate.StartsWith("/", StringComparison.Ordinal)
             || candidate.StartsWith("//", StringComparison.Ordinal)
+            || candidate.StartsWith("/\\", StringComparison.Ordinal)
             || candidate.Contains('\\', StringComparison.Ordinal)
-            || candidate.Contains('@', StringComparison.Ordinal))
+            || candidate.Contains('@', StringComparison.Ordinal)
+            || candidate.Contains("://", StringComparison.Ordinal))
         {
             return null;
         }

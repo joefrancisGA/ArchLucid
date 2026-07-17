@@ -18,7 +18,7 @@ import {
   selectPostAuthWorkspace,
   type PostAuthBootstrapStatusResponse,
 } from "@/lib/auth/post-auth-bootstrap-api";
-import { resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
+import { isSafeReturnPath, resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { persistTokenResponse } from "@/lib/oidc/session";
 
@@ -34,7 +34,8 @@ function applyBootstrapSession(session: {
     expires_in: session.expiresInSeconds,
   });
 
-  window.location.replace(session.redirectPath);
+  const destination = isSafeReturnPath(session.redirectPath) ? session.redirectPath : "/";
+  window.location.replace(destination);
 }
 
 export function PostAuthBootstrapClient() {
@@ -64,7 +65,8 @@ export function PostAuthBootstrapClient() {
       }
 
       if (nextStatus.destination === "ResumeWorkflow" && nextStatus.resumePath) {
-        window.location.replace(nextStatus.resumePath);
+        const resume = isSafeReturnPath(nextStatus.resumePath) ? nextStatus.resumePath : "/";
+        window.location.replace(resume);
       }
     } catch {
       setErrorMessage("We could not determine your next step. Try signing in again.");

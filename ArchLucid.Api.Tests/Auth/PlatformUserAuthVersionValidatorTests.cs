@@ -29,13 +29,27 @@ public sealed class PlatformUserAuthVersionValidatorTests
     }
 
     [Fact]
-    public async Task ValidateAsync_skips_local_tokens_without_auth_version_claim()
+    public async Task ValidateAsync_rejects_platform_user_tokens_without_auth_version_claim()
     {
         PlatformUserAuthVersionValidator sut = CreateSut(new InMemoryPlatformUserRepository());
 
         bool valid = await sut.ValidateAsync(
             "https://issuer.test",
             Guid.NewGuid().ToString("D"),
+            null,
+            CancellationToken.None);
+
+        valid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ValidateAsync_allows_non_guid_local_subjects_without_auth_version_claim()
+    {
+        PlatformUserAuthVersionValidator sut = CreateSut(new InMemoryPlatformUserRepository());
+
+        bool valid = await sut.ValidateAsync(
+            "https://issuer.test",
+            "test-sub",
             null,
             CancellationToken.None);
 

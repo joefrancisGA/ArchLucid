@@ -26,17 +26,15 @@ public sealed class PlatformUserAuthVersionValidator(
             return true;
         }
 
-        if (string.IsNullOrWhiteSpace(authVersionClaim))
+        // Platform-user JWTs use Guid subjects. Opaque CI/test subjects are not stamp-checked.
+        if (!Guid.TryParse(subject, out Guid userId))
         {
             return true;
         }
 
-        if (!Guid.TryParse(subject, out Guid userId))
-        {
-            return false;
-        }
-
-        if (!Guid.TryParse(authVersionClaim, out Guid tokenAuthVersion))
+        // Fail closed for platform users: identity-removal rotation only works when the claim is present.
+        if (string.IsNullOrWhiteSpace(authVersionClaim)
+            || !Guid.TryParse(authVersionClaim, out Guid tokenAuthVersion))
         {
             return false;
         }

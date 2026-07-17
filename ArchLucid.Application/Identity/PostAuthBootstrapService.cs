@@ -47,6 +47,7 @@ public sealed class PostAuthBootstrapService(
     ITenantProvisioningService tenantProvisioning,
     ITrialTenantBootstrapService trialBootstrap,
     IEmailOtpSignInDomainPolicyService domainPolicy,
+    ISelfServiceTrialAbusePolicy trialAbusePolicy,
     IAuditService auditService,
     TimeProvider timeProvider) : IPostAuthBootstrapService
 {
@@ -63,6 +64,9 @@ public sealed class PostAuthBootstrapService(
 
     private readonly IEmailOtpSignInDomainPolicyService _domainPolicy =
         domainPolicy ?? throw new ArgumentNullException(nameof(domainPolicy));
+
+    private readonly ISelfServiceTrialAbusePolicy _trialAbusePolicy =
+        trialAbusePolicy ?? throw new ArgumentNullException(nameof(trialAbusePolicy));
 
     private readonly IUserInvitationRepository _invitations =
         invitations ?? throw new ArgumentNullException(nameof(invitations));
@@ -274,6 +278,23 @@ public sealed class PostAuthBootstrapService(
             return DenyCreate(ActiveTrialDenialMessage);
         }
 
+        SelfServiceTrialAbuseEvaluation abuseEvaluation = await _trialAbusePolicy.EvaluateAsync(
+            new SelfServiceTrialAbuseEvaluationRequest
+            {
+                NormalizedEmail = normalizedEmail,
+                InvitationToken = request.InvitationToken,
+                PlatformUserId = platformUserId
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        if (!abuseEvaluation.Allowed)
+        {
+            await AuditDeniedAsync(platformUserId, displayEmail, abuseEvaluation.DenyReasonCode, cancellationToken)
+                .ConfigureAwait(false);
+
+            return DenyCreate(abuseEvaluation.CustomerMessage);
+        }
+
         PostAuthBootstrapDuplicateOrganizationHint duplicateHint =
             await EvaluateDuplicateOrganizationHintAsync(normalizedEmail, request.InvitationToken, cancellationToken)
                 .ConfigureAwait(false);
@@ -392,6 +413,13 @@ public sealed class PostAuthBootstrapService(
             request.IncludeDemoSeed,
             cancellationToken).ConfigureAwait(false);
 
+        await _trialAbusePolicy.RecordSuccessfulClaimAsync(
+            normalizedEmail,
+            platformUserId,
+            provisioned.TenantId,
+            "post_auth_bootstrap",
+            cancellationToken).ConfigureAwait(false);
+
         string onboardingPath = BuildOnboardingPath(request.IndustryVertical);
 
         return new PostAuthCreateWorkspaceResult
@@ -447,6 +475,7 @@ public sealed class PostAuthBootstrapService(
                 TenantId = invitation.TenantId,
                 WorkspaceId = invitation.WorkspaceId,
                 ProjectId = existingLink?.DefaultProjectId ?? Guid.Empty,
+                Role = existingMembership.Role,
                 RedirectPath = IsResumePath(safeReturnPath) ? safeReturnPath! : "/"
             };
         }
@@ -499,6 +528,7 @@ public sealed class PostAuthBootstrapService(
             TenantId = invitation.TenantId,
             WorkspaceId = invitation.WorkspaceId,
             ProjectId = projectId,
+            Role = invitation.AppRole,
             RedirectPath = IsResumePath(safeReturnPath) ? safeReturnPath! : "/onboarding?source=invitation"
         };
     }
@@ -598,6 +628,7 @@ public sealed class PostAuthBootstrapService(
             TenantId = request.TenantId,
             WorkspaceId = request.WorkspaceId,
             ProjectId = workspace.DefaultProjectId,
+            Role = membership.Role,
             RedirectPath = IsResumePath(safeReturnPath) ? safeReturnPath! : "/"
         };
     }

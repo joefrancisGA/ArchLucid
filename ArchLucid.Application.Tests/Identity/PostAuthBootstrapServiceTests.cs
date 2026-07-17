@@ -330,6 +330,20 @@ public sealed class PostAuthBootstrapServiceTests
 
         Guid userId = Guid.NewGuid();
 
+        Mock<ISelfServiceTrialAbusePolicy> abusePolicy = new();
+        abusePolicy
+            .Setup(policy =>
+                policy.EvaluateAsync(It.IsAny<SelfServiceTrialAbuseEvaluationRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SelfServiceTrialAbuseEvaluation.Allow());
+        abusePolicy
+            .Setup(policy => policy.RecordSuccessfulClaimAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         PostAuthBootstrapService sut = new(
             memberships,
             invitations,
@@ -347,6 +361,7 @@ public sealed class PostAuthBootstrapServiceTests
             provisioning.Object,
             trialBootstrap.Object,
             domainPolicy.Object,
+            abusePolicy.Object,
             audit.Object,
             TimeProvider.System);
 

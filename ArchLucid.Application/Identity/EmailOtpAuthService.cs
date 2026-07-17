@@ -354,17 +354,13 @@ public sealed class EmailOtpAuthService(
             _options.CodeLifetimeMinutes,
             cancellationToken).ConfigureAwait(false);
 
-        if (sent)
+        if (!sent)
         {
-            await _auditService.LogAsync(
-                BuildAudit(
-                    AuditEventTypes.EmailOtpCodeSent,
-                    emailCorrelation,
-                    new { emailCorrelation, challengeId }),
-                cancellationToken).ConfigureAwait(false);
-        }
-        else
-        {
+            // Invalidate so clients cannot distinguish delivery failure from soft denials via challengeId,
+            // and so an undelivered code cannot be verified if the hash row were retained.
+            await _challenges.InvalidateActiveChallengesForEmailAsync(normalizedEmail, now, cancellationToken)
+                .ConfigureAwait(false);
+
             ArchLucidInstrumentation.RecordEmailOtpDeliveryFailed();
 
             await _auditService.LogAsync(
@@ -373,7 +369,18 @@ public sealed class EmailOtpAuthService(
                     emailCorrelation,
                     new { emailCorrelation, reason = "email_delivery_failed" }),
                 cancellationToken).ConfigureAwait(false);
+
+            ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("delivery_failed");
+
+            return NeutralResult();
         }
+
+        await _auditService.LogAsync(
+            BuildAudit(
+                AuditEventTypes.EmailOtpCodeSent,
+                emailCorrelation,
+                new { emailCorrelation, challengeId }),
+            cancellationToken).ConfigureAwait(false);
 
         ArchLucidInstrumentation.RecordEmailOtpChallengeRequested("accepted");
 
@@ -381,7 +388,7 @@ public sealed class EmailOtpAuthService(
         {
             Message = NeutralSentMessage,
             ChallengeId = challengeId,
-            EmailDeliverySucceeded = sent
+            EmailDeliverySucceeded = true
         };
     }
 

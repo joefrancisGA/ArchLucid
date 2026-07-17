@@ -141,6 +141,7 @@ public sealed class PostAuthBootstrapController(
         PostAuthBootstrapSessionResponse session = IssueSession(
             user.Id,
             displayEmail,
+            ArchLucid.Core.Authorization.ArchLucidRoles.WorkspaceAdmin,
             result.TenantId.Value,
             result.WorkspaceId.Value,
             result.ProjectId.Value,
@@ -214,6 +215,7 @@ public sealed class PostAuthBootstrapController(
             IssueSession(
                 user.Id,
                 displayEmail,
+                ResolveSessionRole(accepted.Role),
                 accepted.TenantId,
                 accepted.WorkspaceId,
                 accepted.ProjectId,
@@ -270,6 +272,7 @@ public sealed class PostAuthBootstrapController(
             IssueSession(
                 user.Id,
                 displayEmail,
+                ResolveSessionRole(selected.Role),
                 selected.TenantId,
                 selected.WorkspaceId,
                 selected.ProjectId,
@@ -312,6 +315,7 @@ public sealed class PostAuthBootstrapController(
     private PostAuthBootstrapSessionResponse IssueSession(
         Guid platformUserId,
         string displayEmail,
+        string role,
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
@@ -323,7 +327,7 @@ public sealed class PostAuthBootstrapController(
         string jwt = _jwtIssuer.IssueAccessToken(
             platformUserId,
             displayEmail,
-            ArchLucid.Core.Authorization.ArchLucidRoles.WorkspaceAdmin,
+            role,
             tenantId,
             workspaceId,
             projectId,
@@ -334,26 +338,22 @@ public sealed class PostAuthBootstrapController(
             AccessToken = jwt,
             TokenType = "Bearer",
             ExpiresInSeconds = lifetimeSeconds,
-            RedirectPath = redirectPath
+            RedirectPath = SanitizeReturnPath(redirectPath)
         };
     }
 
-    private static string SanitizeReturnPath(string? returnUrl)
+    private static string ResolveSessionRole(string? membershipRole)
     {
-        if (string.IsNullOrWhiteSpace(returnUrl))
+        if (string.IsNullOrWhiteSpace(membershipRole))
         {
-            return "/";
+            return ArchLucid.Core.Authorization.ArchLucidRoles.Reader;
         }
 
-        string trimmed = returnUrl.Trim();
-
-        if (!trimmed.StartsWith('/') || trimmed.StartsWith("//") || trimmed.Contains("://", StringComparison.Ordinal))
-        {
-            return "/";
-        }
-
-        return trimmed;
+        return membershipRole.Trim();
     }
+
+    private static string SanitizeReturnPath(string? returnUrl) =>
+        AuthSignInReturnPathGuard.TryNormalize(returnUrl) ?? "/";
 
     private static PostAuthBootstrapStatusResponse MapStatus(PostAuthBootstrapStatusResult status) =>
         new()

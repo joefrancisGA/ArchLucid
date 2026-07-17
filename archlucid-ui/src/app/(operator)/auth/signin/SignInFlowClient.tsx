@@ -169,6 +169,16 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
       const nextChallengeId = responseChallengeId?.trim() ?? null;
 
+      // Soft denials (rate limit, cooldown, delivery) return the same message without a challengeId.
+      if (nextChallengeId === null || nextChallengeId.length === 0) {
+        setEmail(normalizedEmail);
+        setEmailError(null);
+        setEmailStatus(SIGN_IN_PAGE_COPY.codeSentAnnouncement);
+        recordEmailOtpAuthAnalytics("email_otp_code_requested");
+
+        return;
+      }
+
       storeEmailOtpChallengeSession(nextChallengeId, displayMasked, normalizedEmail);
       markEmailOtpResendSent();
       setEmail(normalizedEmail);

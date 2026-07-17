@@ -283,6 +283,13 @@ public sealed class PostAuthBootstrapSessionResult
         init;
     }
 
+    /// <summary>Workspace membership role to embed in the ArchLucid-issued JWT (never elevate beyond membership).</summary>
+    public string Role
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public string AccessToken
     {
         get;
