@@ -2,6 +2,7 @@ using System.Net;
 
 using ArchLucid.Application.Support;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Support;
 
@@ -115,8 +116,8 @@ public sealed class SupportProblemReportNotifier(
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 _logger.LogInformation(
-                    "Would send problem report acknowledgement to {Mailbox} for report id {ReportId} (Email:Provider is {Provider}).",
-                    submitterMailbox.Trim(),
+                    "Would send problem report acknowledgement to domain {EmailDomain} for report id {ReportId} (Email:Provider is {Provider}).",
+                    LogSanitizer.EmailDomainForLogs(submitterMailbox),
                     report.Id,
                     _emailProvider.ProviderName);
             }
