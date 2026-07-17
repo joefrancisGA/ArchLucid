@@ -31,6 +31,8 @@
 
 **Deeper checks:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (local **`release-smoke`**) for a fuller path than CD’s HTTP gate.
 
+**Cold-start evidence (TB-759):** When smoke “succeeds after retries” or users see brief 502/503 during deploy, capture a baseline per [`COLD_START_MEASUREMENT.md`](../runbooks/COLD_START_MEASUREMENT.md) before raising `min_replicas` or CPU — see [`cold-start-baselines/`](../operations/cold-start-baselines/README.md).
+
 ---
 
 ## 2. Image publish succeeded but Container Apps deploy failed

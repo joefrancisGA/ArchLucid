@@ -66,8 +66,8 @@ flowchart LR
 | `terraform-apply` | Runs only when `run_terraform_apply` is true and a plan was produced. Downloads the plan artifact and runs `terraform apply tfplan`. Uses the same environment as the target (reviewer gate). |
 | `deploy-container-apps` | OIDC, records API (and optional worker) revision **before** update, `az containerapp update --image` for API, **worker** (same image URI as API: `…/archlucid-api:<tag>`), and UI when configured, then records revisions **after**. Skips the whole update when `ACR_LOGIN_SERVER`, `AZURE_RESOURCE_GROUP`, or `CONTAINER_APP_API_NAME` is missing. Worker update runs only when secret **`CONTAINER_APP_WORKER_NAME`** is set (matches Terraform default `archlucid-worker`). |
 | `smoke-test` (job id; UI label **Post-deploy validation**) | Optional when `SMOKE_TEST_BASE_URL` unset. Otherwise runs **`archlucid deployment-evidence`** (same checks as `scripts/ci/cd-post-deploy-verify.sh`), writes `artifacts/deployment-evidence-<target>-<run_id>.md`, **fails the job** on probe failure, and uploads the Markdown as a workflow artifact. |
-| `rollback` | On **smoke failure** only: if repo variable `CD_ROLLBACK_ON_SMOKE_FAILURE` is `true`, deactivates the new **API** revision and, when `CONTAINER_APP_WORKER_NAME` is configured, the new **worker** revision (keeps API and worker on the same rollback story). |
-| `manual-rollback` | `workflow_dispatch` with `action = rollback`: deactivates the current latest API revision and verifies a different revision became active. |
+| `rollback` | On **smoke failure** only: if `CD_ROLLBACK_ON_SMOKE_FAILURE=true`, restores traffic to the captured **last-known-good** API/worker/UI revisions (digest/BUILD_ID identity), verifies runtime BUILD_ID, and writes a rollback report. Schema-incompatible deploys **block** auto-rollback. |
+| `manual-rollback` | `workflow_dispatch` with `action = rollback` + required `rollback_build_id` (immutable git SHA): validates ACR digests, schema gate, digest-pinned restore, essential smoke + BUILD_ID verify, report artifact. |
 | `nuget-push` | Production only, after successful smoke: packs and pushes `ArchLucid.Api.Client` when `NUGET_API_KEY` is set. |
 | `notify` | `if: always()` webhook (optional) + consolidated step summary. |
 
@@ -124,6 +124,8 @@ Failures emit **`::error::`** lines on GitHub Actions for visible annotations wh
 **Retries:** Set repository variables **`CD_POST_DEPLOY_MAX_ATTEMPTS`** & **`CD_POST_DEPLOY_RETRY_WAIT_SECONDS`** to re-run the full check sequence after deploy (helps new revisions still starting). **Cold-start checklist:** `6` / `10` (GitHub Actions retries only — no Azure compute increase). Audit with `.\scripts\ci\verify-cd-post-deploy-retry-vars.ps1` (see [`GITHUB_CD_ENVIRONMENTS.md`](../operations/GITHUB_CD_ENVIRONMENTS.md)).
 
 **Canary (API):** When **`CD_CANARY_ENABLED=true`**, the deploy job splits ingress traffic to the new API revision (`CD_CANARY_INITIAL_PERCENT`, default **10**), optionally bakes (`CD_CANARY_BAKE_MINUTES`), then smoke promotes to 100% on success. Requires Terraform **`api_revision_mode = "Multiple"`** on the API Container App. Audit with `.\scripts\ci\verify-cd-canary-vars.ps1`. See [`CANARY_DEPLOYMENT.md`](../runbooks/CANARY_DEPLOYMENT.md).
+
+**Cold-start measurement (TB-759):** After routine CD, record revision → `/health/ready` vs first authenticated business latency (`/api/auth/me` when **TB-758** is set) before proposing paid Azure levers. Runbook: [`COLD_START_MEASUREMENT.md`](../runbooks/COLD_START_MEASUREMENT.md) · baseline register: [`cold-start-baselines/`](../operations/cold-start-baselines/README.md).
 
 **Local run (legacy bash):** `bash scripts/ci/cd-post-deploy-verify.sh https://your-api.example.com /version`
 
@@ -216,6 +218,52 @@ See also [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) §2 (deploy failed / unn
 4. Only **after** that green run, disable Front Door for dev (`enable_front_door_waf = false` in `infra/terraform-edge` tfvars, then apply — or `terraform destroy` scoped to that root).
 
 Front Door and Container Apps are separate Terraform roots with no resource dependency, so step 4 never restarts or redeploys the running Container Apps — it only removes the edge profile/WAF/custom-domain association. The risk is entirely on the **public hostname** (whatever DNS pointed at Front Door stops resolving once the custom-domain association is removed), which is why step 4 must come after step 3 is verified green, not before.
+
+## Application rollback
+
+Focus: **application** rollback after failed deploy/smoke. **No automatic database rollback** (DbUp is forward-only — see [`docs/runbooks/MIGRATION_ROLLBACK.md`](../runbooks/MIGRATION_ROLLBACK.md)).
+
+Helpers: `scripts/ci/cd_rollback.py`, `cd_capture_last_known_good.py`, `cd_plan_rollback.py`, `cd_finalize_rollback_report.py`. Tests: `scripts/ci/tests/test_cd_rollback.py`.
+
+### Before each deploy
+
+`deploy-container-apps` captures a **last-known-good** JSON artifact (`cd-last-known-good-<target>-<run_id>`) from the active API/worker/UI revisions: revision name, image digest, and `ARCHLUCID_BUILD_COMMIT_SHA` when present.
+
+### When automatic rollback runs
+
+All of the following:
+
+1. Post-deploy **smoke-test job fails**.
+2. Repository variable **`CD_ROLLBACK_ON_SMOKE_FAILURE=true`**.
+3. `SMOKE_TEST_BASE_URL` is configured.
+4. A distinct failed revision exists vs the pre-deploy revision.
+5. Last-known-good artifact is usable (API revision + digest/BUILD_ID).
+6. Schema gate passes: no **destructive** forward migrations between LKG BUILD_ID and failed BUILD_ID (DROP TABLE/COLUMN, destructive ALTER, `sp_rename`, etc.).
+
+Then CD restores ingress traffic to LKG revisions (API + worker + UI when configured), deactivates the failed revisions, re-checks `/health/live`, `/health/ready`, and `/version` BUILD_ID, and uploads `cd-rollback-*` artifacts. **The workflow remains failed** because smoke failed — rollback success does not greenwash the deploy.
+
+### When automatic rollback is skipped or blocked (human intervention)
+
+| Condition | Behavior |
+|-----------|----------|
+| `CD_ROLLBACK_ON_SMOKE_FAILURE` ≠ `true` | Skip (operator must run manual rollback or re-deploy) |
+| Smoke URL missing | Skip (refuses blind rollback) |
+| No distinct new revision / missing LKG | Skip |
+| Destructive migrations after LKG | **Block** with schema error — do **not** auto-roll app; follow migration restore guidance |
+| Post-rollback BUILD_ID/health verify fails | Rollback job fails; operator investigates |
+
+### Manual rollback
+
+`workflow_dispatch` → `action=rollback` → protected Environment approval → required input **`rollback_build_id`** (immutable git SHA / BUILD_ID):
+
+1. Validate ACR manifests `archlucid-api:<BUILD_ID>` and (when UI configured) `archlucid-ui:<BUILD_ID>`.
+2. Schema gate vs currently running BUILD_ID.
+3. Digest-pinned `az containerapp update` (never mutable `latest*`).
+4. Essential smoke + BUILD_ID verify + report artifact.
+
+### Staging / production expectation
+
+Keep **`CD_ROLLBACK_ON_SMOKE_FAILURE=true`** on staging/production Environments (bootstrap script sets this by default). Dev may temporarily set `false` for experimentation; restore before relying on auto-rollback.
 
 ## Related workflows
 
