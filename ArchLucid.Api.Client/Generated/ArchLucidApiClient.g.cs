@@ -2434,12 +2434,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PostAuthBootstrapStatusResponse> StatusAsync(string? returnUrl);
+        System.Threading.Tasks.Task<PostAuthBootstrapStatusResponse> StatusAsync(string? returnUrl, string? invitationToken);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PostAuthBootstrapStatusResponse> StatusAsync(string? returnUrl, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PostAuthBootstrapStatusResponse> StatusAsync(string? returnUrl, string? invitationToken, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2476,6 +2476,15 @@ namespace ArchLucid.Api.Client.Generated
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<EmailOtpVerifyResponse> VerifyPOSTAsync(EmailOtpVerifyRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<InvitationValidationResponse> ValidateGETAsync(string? token);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<InvitationValidationResponse> ValidateGETAsync(string? token, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4655,12 +4664,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidateAsync(JsonElement? body);
+        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(JsonElement? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidateAsync(JsonElement? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(JsonElement? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -51930,15 +51939,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PostAuthBootstrapStatusResponse> StatusAsync(string? returnUrl)
+        public virtual System.Threading.Tasks.Task<PostAuthBootstrapStatusResponse> StatusAsync(string? returnUrl, string? invitationToken)
         {
-            return StatusAsync(returnUrl, System.Threading.CancellationToken.None);
+            return StatusAsync(returnUrl, invitationToken, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PostAuthBootstrapStatusResponse> StatusAsync(string? returnUrl, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PostAuthBootstrapStatusResponse> StatusAsync(string? returnUrl, string? invitationToken, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -51957,6 +51966,10 @@ namespace ArchLucid.Api.Client.Generated
                     if (returnUrl != null)
                     {
                         urlBuilder_.Append(System.Uri.EscapeDataString("returnUrl")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(returnUrl, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (invitationToken != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("invitationToken")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(invitationToken, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -52705,6 +52718,180 @@ namespace ArchLucid.Api.Client.Generated
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new ArchLucidApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Forbidden.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Not Found.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 409)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Conflict.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 422)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unprocessable Entity.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 429)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Too Many Requests.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Internal Server Error.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 503)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Service Unavailable.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<InvitationValidationResponse> ValidateGETAsync(string? token)
+        {
+            return ValidateGETAsync(token, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<InvitationValidationResponse> ValidateGETAsync(string? token, System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/auth/invitations/validate"
+                    urlBuilder_.Append("v1/auth/invitations/validate");
+                    urlBuilder_.Append('?');
+                    if (token != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("token")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(token, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<InvitationValidationResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Bad Request (validation or malformed input).", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unauthorized.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 403)
@@ -94488,15 +94675,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidateAsync(JsonElement? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(JsonElement? body)
         {
-            return ValidateAsync(body, System.Threading.CancellationToken.None);
+            return ValidatePOSTAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidateAsync(JsonElement? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidatePOSTAsync(JsonElement? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -124868,6 +125055,39 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class InvitationValidationResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("allowEmailCode")]
+        public bool? AllowEmailCode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("appRole")]
+        public string? AppRole { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("maskedInvitedEmail")]
+        public string? MaskedInvitedEmail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("requireEnterpriseSso")]
+        public bool? RequireEnterpriseSso { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("routingMessage")]
+        public string? RoutingMessage { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        public string? Status { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ItsmAtlassianOAuthConsentCompleteRequest
     {
 
@@ -129218,6 +129438,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class PostAuthAcceptInvitationBody
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("confirmEmailMismatch")]
+        public bool? ConfirmEmailMismatch { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("invitationId")]
         public System.Guid? InvitationId { get; set; } = default!;
 
@@ -129281,11 +129504,20 @@ namespace ArchLucid.Api.Client.Generated
     public partial class PostAuthBootstrapInvitationResponse
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("confirmationMessage")]
+        public string? ConfirmationMessage { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("invitationId")]
         public System.Guid? InvitationId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
         public string? Label { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("maskedInvitedEmail")]
+        public string? MaskedInvitedEmail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("requiresEmailMismatchConfirmation")]
+        public bool? RequiresEmailMismatchConfirmation { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -137691,6 +137923,12 @@ namespace ArchLucid.Api.Client.Generated
     public partial class UserInvitationResponse
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("acceptPath")]
+        public string? AcceptPath { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("acceptUrl")]
+        public string? AcceptUrl { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("appRole")]
         public string? AppRole { get; set; } = default!;
 
@@ -137705,6 +137943,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         public System.Guid? Id { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("invitationToken")]
+        public string? InvitationToken { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("invitedByActorId")]
         public string? InvitedByActorId { get; set; } = default!;

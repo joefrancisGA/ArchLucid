@@ -13930,6 +13930,38 @@
         },
         "type": "object"
       },
+      "InvitationValidationResponse": {
+        "properties": {
+          "allowEmailCode": {
+            "type": "boolean"
+          },
+          "appRole": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "maskedInvitedEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requireEnterpriseSso": {
+            "type": "boolean"
+          },
+          "routingMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ItsmAtlassianOAuthConsentCompleteRequest": {
         "properties": {
           "code": {
@@ -18186,6 +18218,9 @@
       },
       "PostAuthAcceptInvitationBody": {
         "properties": {
+          "confirmEmailMismatch": {
+            "type": "boolean"
+          },
           "invitationId": {
             "format": "uuid",
             "type": "string"
@@ -18226,12 +18261,27 @@
       },
       "PostAuthBootstrapInvitationResponse": {
         "properties": {
+          "confirmationMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "invitationId": {
             "format": "uuid",
             "type": "string"
           },
           "label": {
             "type": "string"
+          },
+          "maskedInvitedEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiresEmailMismatchConfirmation": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -26625,6 +26675,18 @@
       },
       "UserInvitationResponse": {
         "properties": {
+          "acceptPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "acceptUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "appRole": {
             "type": "string"
           },
@@ -26642,6 +26704,12 @@
           "id": {
             "format": "uuid",
             "type": "string"
+          },
+          "invitationToken": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "invitedByActorId": {
             "type": "string"
@@ -32098,6 +32166,9 @@
     },
     {
       "name": "TrustCenterEvidencePack"
+    },
+    {
+      "name": "UserInvitationPublic"
     },
     {
       "name": "UserPreferences"
