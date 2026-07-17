@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -29,8 +30,13 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
     <article className={OPERATOR_LAYOUT.majorSectionGap}>
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
-        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
-        <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
+            <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
+          </div>
+          <HelpTopicPdfDownloadButton entry={entry} />
+        </div>
         {entry.audience === "developer" ? (
           <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
             Engineering runbook — CLI commands, environment variables, and log detail. For symptom-first operator help,

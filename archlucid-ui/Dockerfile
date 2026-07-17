@@ -119,6 +119,7 @@ COPY --from=build --chown=archlucid:archlucid /app/.next/standalone ./
 # Static assets and public folder must be copied separately.
 COPY --from=build --chown=archlucid:archlucid /app/.next/static ./.next/static
 COPY --from=build --chown=archlucid:archlucid /app/public ./public
+COPY --from=build --chown=archlucid:archlucid /app/.build/docs-pdf-customer ./.build/docs-pdf-customer
 COPY --from=build --chown=archlucid:archlucid /app/go-to-market-samples ./go-to-market-samples
 
 USER archlucid
