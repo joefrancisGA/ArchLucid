@@ -2,19 +2,19 @@
 
 Data flow, tenant isolation, audit trail, and portability for architecture review evidence.
 
-## What ArchLucid does
+## What ArchLucid does {#what-archlucid-does}
 
 ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **signed review package** with findings, decisions, and an audit record. ArchLucid does not execute code in your environment and does not require write access to your systems.
 
 For the end-to-end product workflow, see [How ArchLucid works](/help/how-it-works).
 
-## What leaves your tenant
+## What leaves your tenant {#what-leaves-your-tenant}
 
 Architecture brief text and evidence context you provide may be sent to the **configured model provider** for the workspace to produce review outputs. When configured, review evidence may be processed by the approved AI provider for the workspace, such as Azure OpenAI.
 
 ArchLucid does not send source code repositories, secrets, or credentials as part of the standard review intake path. Review your customer-approved AI endpoint data processing terms for inference retention and subprocessors.
 
-## What stays in your tenant
+## What stays in your tenant {#what-stays-in-your-tenant}
 
 All findings, signed decision records, manifests, governance approvals, and audit log entries are stored in your ArchLucid tenant database. ArchLucid does not retain copies outside your tenant boundary for product analytics on governed review content.
 
@@ -22,11 +22,11 @@ All findings, signed decision records, manifests, governance approvals, and audi
 
 ArchLucid is not designed to ingest production secrets, credentials, or privileged access tokens through the standard architecture review intake path. Optional cloud connectors use read-only roles scoped to evidence collection — not administrative control of your cloud estate.
 
-## Isolation
+## Isolation {#isolation}
 
 Each customer tenant uses a dedicated database. Cross-tenant data access is not part of the product design. Append-only audit logging records every governed action within your tenant.
 
-## Audit trail
+## Audit trail {#audit-trail}
 
 Every inference that contributed to a finding can be traced through the append-only audit log and evidence trail — you can see what input produced each output.
 

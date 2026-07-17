@@ -147,6 +147,17 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "customer",
   },
   {
+    slug: "evidence-only-review",
+    title: "Evidence-only review guide",
+    summary:
+      "Fast path when connector access is not approved yet — upload briefs, diagrams, or exports and finalize without cloud inventory.",
+    audience: "buyer",
+    sourcePaths: ["docs/CORE_PILOT.md"],
+    sectionAnchors: ["fast-path-evidence-only-review"],
+    includeIntroWithSections: true,
+    pdfStatus: "public",
+  },
+  {
     slug: "evidence-intake",
     title: "Start a review",
     summary: "Start a review from a brief, diagram, document, or cloud evidence; verify intake before finalize.",
@@ -225,6 +236,31 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REPORT_A_PROBLEM.md"],
     pdfStatus: "customer",
+  },
+  {
+    slug: "data-handling-tenant-isolation",
+    title: "Data handling and tenant isolation",
+    summary:
+      "How review evidence flows through ArchLucid, what stays in your tenant, and how logical isolation is enforced.",
+    audience: "buyer",
+    sourcePaths: [
+      "docs/library/customer-facing/DATA_HANDLING.md",
+      "docs/go-to-market/TENANT_ISOLATION.md",
+    ],
+    sectionAnchors: [
+      "what-archlucid-does",
+      "what-leaves-your-tenant",
+      "what-stays-in-your-tenant",
+      "isolation",
+      "audit-trail",
+      "three-layers",
+      "encryption",
+      "network",
+      "audit-and-accountability",
+      "what-we-do-not-claim-here",
+    ],
+    includeIntroWithSections: true,
+    pdfStatus: "public",
   },
   {
     slug: "data-handling",
@@ -315,6 +351,22 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
       "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/AZURE_BOARDS_INTEGRATION.md"],
+  },
+  {
+    slug: "product-overview",
+    title: "ArchLucid product overview",
+    summary:
+      "What ArchLucid is, the problems it solves, core value pillars, and sponsor-ready elevator pitches.",
+    audience: "buyer",
+    sourcePaths: ["docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md"],
+    sectionAnchors: [
+      "what-archlucid-is",
+      "what-problem-it-solves",
+      "core-value-pillars",
+      "elevator-pitches",
+    ],
+    includeIntroWithSections: true,
+    pdfStatus: "public",
   },
   {
     slug: "procurement",

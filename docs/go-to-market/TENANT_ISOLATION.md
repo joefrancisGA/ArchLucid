@@ -15,7 +15,7 @@
 
 ---
 
-## 1. Three layers
+## 1. Three layers {#three-layers}
 
 ```mermaid
 flowchart TB
@@ -46,7 +46,7 @@ flowchart TB
 
 ---
 
-## 2. Encryption
+## 2. Encryption {#encryption}
 
 - **In transit:** TLS to the API; TLS to Azure services per Microsoft’s stack.
 - **At rest:** Azure SQL (TDE) and blob encryption are standard Azure controls; see [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md).
@@ -54,19 +54,19 @@ flowchart TB
 
 ---
 
-## 3. Network
+## 3. Network {#network}
 
 Optional **Front Door + WAF**, optional **APIM**, and **private endpoints** for SQL and blob reduce exposure ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)). **SMB (445)** is not used for tenant data at the API boundary (workspace security rule).
 
 ---
 
-## 4. Audit and accountability
+## 4. Audit and accountability {#audit-and-accountability}
 
 Durable **append-only** audit events and correlation IDs support forensic review ([../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md), [SECURITY.md](../library/SECURITY.md)).
 
 ---
 
-## 5. What we do not claim here
+## 5. What we do not claim here {#what-we-do-not-claim-here}
 
 Hosted **trial** tenants and **commercial** pilots use ArchLucid's **single supported multitenant data-plane model**: **`SystemWithPerTenantCatalogs`** (**database-per-tenant** routing via **`TenantDatabaseBindings`** — one product catalog per tenant organization). `SingleCatalog` may exist only for narrow **developer/CI convenience** and is **not** the hosted SaaS posture; deep detail: **[`../library/TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md)**, **[`TRUST_CENTER.md`](TRUST_CENTER.md)** (*Data isolation*).
 

@@ -29,7 +29,7 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 ---
 
-## 1. What ArchLucid is
+## 1. What ArchLucid is {#what-archlucid-is}
 
 ArchLucid turns buyer architecture evidence into one reviewable, defensible architecture proof package.
 
@@ -49,7 +49,7 @@ At a practical level, ArchLucid is an AI-assisted architecture workflow system t
 
 ---
 
-## 2. What problem it solves
+## 2. What problem it solves {#what-problem-it-solves}
 
 In many organizations, architecture work slows down because teams must manually assemble review packages, explain design reasoning, reconcile revisions, and prepare governance evidence.
 
@@ -66,7 +66,7 @@ ArchLucid is designed to reduce those problems.
 
 ---
 
-## 3. Core Value Pillars
+## 3. Core Value Pillars {#core-value-pillars}
 
 ### Pillar 1: AI-native architecture analysis
 
@@ -82,7 +82,7 @@ Architecture decisions in ArchLucid are not just analyzed — they are governed.
 
 ---
 
-## 4. Elevator Pitches
+## 4. Elevator Pitches {#elevator-pitches}
 
 ### 30-second pitch
 

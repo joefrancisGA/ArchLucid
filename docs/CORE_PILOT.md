@@ -34,7 +34,7 @@ Cloud connectors are available for **Azure, AWS, and GCP** when live inventory, 
 | Security intake checklist | [Cloud connections guide](/help/cloud-connections) |
 | Evidence-only upload | [Upload evidence](/settings/extract-upload) |
 
-## Fast path: evidence-only review
+## Fast path: evidence-only review {#fast-path-evidence-only-review}
 
 Recommended when connector access has not yet been approved, or when your first session only has briefs, diagrams, IaC, screenshots, exports, or policy documents.
 

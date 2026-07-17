@@ -145,7 +145,10 @@ describe("product-documentation-registry", () => {
       "first-hour-operator-path": "public",
       "how-it-works": "public",
       "data-handling": "public",
+      "data-handling-tenant-isolation": "public",
       "security-trust": "public",
+      "evidence-only-review": "public",
+      "product-overview": "public",
       "cloud-connections-azure": "customer",
       "cloud-connections-aws": "customer",
       "cloud-connections-gcp": "customer",
@@ -248,5 +251,22 @@ describe("product-documentation-registry", () => {
     expect(trailMarkdown).not.toContain("Plain-language vocabulary");
     expect(conceptsMarkdown).toContain("Plain-language vocabulary");
     expect(trailMarkdown).not.toBe(conceptsMarkdown);
+  });
+
+  it("loads TB-727 sectionAnchor registry entries from existing markdown only", () => {
+    const productOverview = tryLoadProductDocumentation("product-overview");
+    const evidenceOnlyReview = tryLoadProductDocumentation("evidence-only-review");
+    const dataHandlingIsolation = tryLoadProductDocumentation("data-handling-tenant-isolation");
+
+    expect(productOverview?.markdown).toContain("What ArchLucid is");
+    expect(productOverview?.markdown).toContain("Elevator Pitches");
+    expect(productOverview?.markdown).not.toContain("What Pilot proves");
+
+    expect(evidenceOnlyReview?.markdown).toContain("evidence-only review");
+    expect(evidenceOnlyReview?.markdown).not.toContain("What can wait");
+
+    expect(dataHandlingIsolation?.markdown).toContain("What stays in your tenant");
+    expect(dataHandlingIsolation?.markdown).toContain("Three layers");
+    expect(dataHandlingIsolation?.markdown).not.toContain("Verification pack");
   });
 });
