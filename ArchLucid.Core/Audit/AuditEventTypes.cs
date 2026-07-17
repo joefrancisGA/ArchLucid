@@ -750,6 +750,36 @@ public static class AuditEventTypes
 
     public const string EmailOtpSuspiciousBehaviorDetected = "Identity.EmailOtpSuspiciousBehaviorDetected";
 
+    public const string AuthDomainProposed = "Identity.AuthDomainProposed";
+
+    public const string AuthDomainVerificationStarted = "Identity.AuthDomainVerificationStarted";
+
+    public const string AuthDomainVerificationChecked = "Identity.AuthDomainVerificationChecked";
+
+    public const string AuthDomainEnforcementEnabled = "Identity.AuthDomainEnforcementEnabled";
+
+    public const string AuthDomainRecoveryAdminAdded = "Identity.AuthDomainRecoveryAdminAdded";
+
+    public const string AuthDomainRecoveryAdminRemoved = "Identity.AuthDomainRecoveryAdminRemoved";
+
+    public const string AuthDomainRemoved = "Identity.AuthDomainRemoved";
+
+    public const string AuthDomainEnforcementModeChanged = "Identity.AuthDomainEnforcementModeChanged";
+
+    public const string AuthDomainRecoveryBypassUsed = "Identity.AuthDomainRecoveryBypassUsed";
+
+    public const string AuthSignInRoutingEvaluated = "Identity.AuthSignInRoutingEvaluated";
+
+    public const string PostAuthWorkspaceCreated = "Identity.PostAuthWorkspaceCreated";
+
+    public const string PostAuthInitialOwnerAssigned = "Identity.PostAuthInitialOwnerAssigned";
+
+    public const string PostAuthExistingOrganizationDetected = "Identity.PostAuthExistingOrganizationDetected";
+
+    public const string PostAuthAccessRequestInitiated = "Identity.PostAuthAccessRequestInitiated";
+
+    public const string PostAuthWorkspaceCreationDenied = "Identity.PostAuthWorkspaceCreationDenied";
+
     public const string AdminUserInvitationAccepted = "Admin.UserInvitationAccepted";
 
     /// <summary>Admin invoked JWT role-claim diagnostic (<c>POST /v1/admin/auth/diagnose-token</c>); payload excludes token material.</summary>

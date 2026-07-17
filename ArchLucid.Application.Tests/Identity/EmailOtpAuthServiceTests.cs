@@ -35,6 +35,8 @@ public sealed class EmailOtpAuthServiceTests
         memberships = new InMemoryWorkspaceMembershipRepository();
         invitations = new InMemoryUserInvitationRepository();
         signInDomains = new InMemoryTenantSignInEmailDomainRepository();
+        InMemoryTenantSignInEmailDomainRecoveryAdminRepository recoveryAdmins =
+            new InMemoryTenantSignInEmailDomainRecoveryAdminRepository();
         notifier = new Mock<IEmailOtpEmailNotifier>();
         audit = new Mock<IAuditService>();
 
@@ -57,12 +59,19 @@ public sealed class EmailOtpAuthServiceTests
 
         InMemoryTenantIdentityProviderConfigurationRepository idpConfigs = new();
 
+        IAuthSignInRoutingService routingService = new AuthSignInRoutingService(
+            signInDomains,
+            recoveryAdmins,
+            idpConfigs,
+            invitations,
+            timeProvider);
+
         EmailOtpAuthOptions opts = options ?? new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 };
 
         return new EmailOtpAuthService(
             Options.Create(opts),
             challenges,
-            new EmailOtpSignInDomainPolicyService(signInDomains, idpConfigs, invitations, timeProvider),
+            new EmailOtpSignInDomainPolicyService(routingService),
             notifier.Object,
             platformIdentity,
             identities,
@@ -235,9 +244,17 @@ public sealed class EmailOtpAuthServiceTests
             new TenantSignInEmailDomainRecord
             {
                 TenantId = tenantId,
+                DisplayDomain = "enterprise.example",
                 NormalizedDomain = "enterprise.example",
+                VerificationStatus = AuthDomainVerificationStatus.Verified,
+                EnforcementMode = AuthDomainEnforcementMode.SsoRequiredForVerifiedDomain,
                 RequireEnterpriseSso = true,
-                AllowEmailOtpRecovery = false
+                AllowEmailOtpRecovery = false,
+                CreatedUtc = DateTimeOffset.UtcNow,
+                VerifiedUtc = DateTimeOffset.UtcNow,
+                RoutingTestPassedUtc = DateTimeOffset.UtcNow,
+                EnforcementEnabledUtc = DateTimeOffset.UtcNow,
+                DnsVerificationToken = "verification-token"
             });
 
         InMemoryTenantIdentityProviderConfigurationRepository idp = new();
@@ -253,10 +270,18 @@ public sealed class EmailOtpAuthServiceTests
                 IsActive = true
             });
 
+        InMemoryTenantSignInEmailDomainRecoveryAdminRepository recoveryAdmins = new();
+
         EmailOtpAuthService sutWithIdp = new(
             Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 }),
             new InMemoryEmailOtpChallengeRepository(),
-            new EmailOtpSignInDomainPolicyService(signInDomains, idp, new InMemoryUserInvitationRepository(), TimeProvider.System),
+            new EmailOtpSignInDomainPolicyService(
+                new AuthSignInRoutingService(
+                    signInDomains,
+                    recoveryAdmins,
+                    idp,
+                    new InMemoryUserInvitationRepository(),
+                    TimeProvider.System)),
             Mock.Of<IEmailOtpEmailNotifier>(),
             new PlatformIdentityService(
                 new InMemoryPlatformUserRepository(),

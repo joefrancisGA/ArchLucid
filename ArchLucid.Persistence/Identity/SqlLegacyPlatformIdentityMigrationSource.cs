@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -10,6 +11,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Identity;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent migration source; exercised via integration tests.")]
+[TenantScopeExempt(TenantScopeExemptReason.SystemPlaneOnly, "One-time platform identity migration reads legacy identity tables across tenants.")]
 public sealed class SqlLegacyPlatformIdentityMigrationSource(ISqlConnectionFactory connectionFactory)
     : ILegacyPlatformIdentityMigrationSource
 {

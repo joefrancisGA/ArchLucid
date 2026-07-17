@@ -48,7 +48,7 @@ public sealed class EmailOtpAuthController(
     [EnableRateLimiting("email-otp")]
     [ProducesResponseType(typeof(EmailOtpChallengeResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> RequestChallengeAsync(
-        [FromBody] EmailOtpChallengeRequest? body,
+        [FromBody] ArchLucid.Api.Models.Auth.EmailOtpChallengeRequest? body,
         CancellationToken cancellationToken)
     {
         if (!IsEmailOtpEnabled())
@@ -101,7 +101,7 @@ public sealed class EmailOtpAuthController(
     [ProducesResponseType(typeof(EmailOtpVerifyResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> VerifyAsync(
-        [FromBody] EmailOtpVerifyRequest? body,
+        [FromBody] ArchLucid.Api.Models.Auth.EmailOtpVerifyRequest? body,
         CancellationToken cancellationToken)
     {
         if (!IsEmailOtpEnabled())

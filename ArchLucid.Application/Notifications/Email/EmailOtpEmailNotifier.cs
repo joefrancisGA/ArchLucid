@@ -1,6 +1,8 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Identity;
 
 public interface IEmailOtpEmailNotifier
@@ -15,6 +17,7 @@ public interface IEmailOtpEmailNotifier
 public sealed class EmailOtpEmailNotifier(
     IEmailProvider emailProvider,
     Microsoft.Extensions.Options.IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
+    TimeProvider timeProvider,
     Microsoft.Extensions.Logging.ILogger<EmailOtpEmailNotifier> logger) : IEmailOtpEmailNotifier
 {
     private const string DefaultProductName = "ArchLucid";
@@ -28,6 +31,9 @@ public sealed class EmailOtpEmailNotifier(
 
     private readonly Microsoft.Extensions.Logging.ILogger<EmailOtpEmailNotifier> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     public async Task<bool> TrySendSignInCodeAsync(
         string displayEmail,
@@ -53,7 +59,7 @@ public sealed class EmailOtpEmailNotifier(
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
-            IdempotencyKey = $"{TemplateId}:{EmailOtpCorrelationFingerprint.ComputeHexPrefix(displayEmail)}:{DateTimeOffset.UtcNow:yyyyMMddHHmm}",
+            IdempotencyKey = $"{TemplateId}:{EmailOtpCorrelationFingerprint.ComputeHexPrefix(displayEmail)}:{_timeProvider.GetUtcNow():yyyyMMddHHmm}",
             Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
 

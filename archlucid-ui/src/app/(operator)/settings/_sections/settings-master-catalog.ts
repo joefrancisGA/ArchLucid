@@ -303,6 +303,21 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
     tier: "advanced",
     destinations: [
       {
+        id: "auth-domains",
+        title: "Sign-in domains",
+        description: "Verify email domains, test routing, and enforce organization SSO.",
+        href: "/settings/auth-domains",
+        cta: "Manage sign-in domains",
+        keywords: ["domain", "sso", "email", "verification", "routing"],
+        requiredAuthority: "AdminAuthority",
+        tier: "advanced",
+        scope: "tenant",
+        source: "overridden",
+        editability: "admin-only",
+        saveBehavior: "Save on destination page",
+        highImpact: true,
+      },
+      {
         id: "identity-providers",
         title: "Identity providers",
         description: "OIDC authority and audience catalog for this tenant.",

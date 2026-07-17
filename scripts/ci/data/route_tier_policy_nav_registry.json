@@ -412,6 +412,16 @@
       "nav_operator_href": "/settings/support"
     },
     {
+      "controller_file": "Admin/TenantAuthDomainAdminController.cs",
+      "class_name": "TenantAuthDomainAdminController",
+      "route_template": "v{version:apiVersion}/admin/identity/domains",
+      "normalized_prefix": "/v1/admin/identity/domains",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/TenantsAdminController.cs",
       "class_name": "TenantsAdminController",
       "route_template": "v{version:apiVersion}/admin/tenants",
@@ -598,6 +608,16 @@
       "normalized_prefix": "/v1/architecture/draft",
       "commercial_tier": "standard",
       "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Auth/AuthSignInRoutingController.cs",
+      "class_name": "AuthSignInRoutingController",
+      "route_template": "v{version:apiVersion}/auth/routing",
+      "normalized_prefix": "/v1/auth/routing",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
       "exemption": null,
       "nav_operator_href": null
     },

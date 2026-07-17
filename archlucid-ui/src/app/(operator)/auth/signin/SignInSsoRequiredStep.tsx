@@ -7,18 +7,22 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
 
 export type SignInSsoRequiredStepProps = {
+  readonly message?: string | null;
   readonly onContinueOrganizationSignIn: () => void;
   readonly onUseAnotherEmail: () => void;
 };
 
 export function SignInSsoRequiredStep({
+  message,
   onContinueOrganizationSignIn,
   onUseAnotherEmail,
 }: SignInSsoRequiredStepProps) {
+  const lead = message?.trim() || SIGN_IN_PAGE_COPY.ssoLead;
+
   return (
     <div className="max-w-[560px]" data-testid="sign-in-sso-required-step">
       <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SIGN_IN_PAGE_COPY.ssoTitle}</h1>
-      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SIGN_IN_PAGE_COPY.ssoLead}</p>
+      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{lead}</p>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <Button
           type="button"

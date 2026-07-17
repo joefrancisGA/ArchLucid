@@ -346,6 +346,16 @@ public sealed class EmailOtpAuthService(
             return await FailWithAuditAsync("unknown_challenge", null, cancellationToken).ConfigureAwait(false);
         }
 
+        EmailOtpSignInDomainEvaluation verifyDomainEvaluation =
+            await _domainPolicy.EvaluateAsync(challenge.NormalizedEmail, request.InvitationToken, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (verifyDomainEvaluation.Decision == EmailOtpSignInDomainDecision.RequireEnterpriseSso)
+        {
+            return await FailWithAuditAsync("sso_required", emailCorrelation: null, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         string emailCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(challenge.NormalizedEmail);
         DateTimeOffset now = _timeProvider.GetUtcNow();
         DateTimeOffset since = now.AddHours(-1);

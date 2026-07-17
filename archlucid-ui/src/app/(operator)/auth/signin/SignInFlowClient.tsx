@@ -7,6 +7,7 @@ import { SignInEmailStep } from "@/app/(operator)/auth/signin/SignInEmailStep";
 import { SignInMethodPicker } from "@/app/(operator)/auth/signin/SignInMethodPicker";
 import { SignInSsoRequiredStep } from "@/app/(operator)/auth/signin/SignInSsoRequiredStep";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
+import { evaluateAuthSignInRouting } from "@/lib/auth/auth-sign-in-routing-api";
 import { recordEmailOtpAuthAnalytics } from "@/lib/auth/email-otp-analytics";
 import { requestEmailOtpChallenge, verifyEmailOtpCode } from "@/lib/auth/email-otp-api";
 import { resolveEmailOtpPostAuthPath } from "@/lib/auth/email-otp-post-auth";
@@ -59,6 +60,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
   const [codeError, setCodeError] = useState<string | null>(null);
   const [emailStatus, setEmailStatus] = useState<string | null>(null);
   const [codeStatus, setCodeStatus] = useState<string | null>(null);
+  const [ssoMessage, setSsoMessage] = useState<string | null>(null);
   const [fatalError, setFatalError] = useState<string | null>(null);
   const [resendSecondsRemaining, setResendSecondsRemaining] = useState(
     () => readEmailOtpResendCooldown().secondsRemaining,
@@ -135,17 +137,24 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
     setCodeError(null);
     setEmailStatus(null);
     setCodeStatus(null);
+    setSsoMessage(null);
     setStep("options");
   }, []);
 
   const applyChallengeSuccess = useCallback(
-    (normalizedEmail: string, responseChallengeId: string | null | undefined, ssoRequired: boolean) => {
+    (
+      normalizedEmail: string,
+      responseChallengeId: string | null | undefined,
+      ssoRequired: boolean,
+      nextSsoMessage?: string | null,
+    ) => {
       const masked = maskEmailForDisplay(normalizedEmail);
       const displayMasked = masked.length > 0 ? masked : "your email address";
 
       if (ssoRequired) {
         setEmail(normalizedEmail);
         setMaskedEmail(displayMasked);
+        setSsoMessage(nextSsoMessage?.trim() || null);
         recordEmailOtpAuthAnalytics("email_otp_sso_redirect_required");
         setStep("sso");
 
@@ -182,7 +191,16 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
       setCodeError(null);
 
       const invitationToken = readInvitationToken();
-      const result = await requestEmailOtpChallenge(targetEmail.trim(), invitationToken);
+      const trimmedEmail = targetEmail.trim();
+      const routingPreview = await evaluateAuthSignInRouting(trimmedEmail, invitationToken, safeReturnUrl);
+
+      if (routingPreview?.ssoRequired) {
+        applyChallengeSuccess(trimmedEmail, null, true, routingPreview.message);
+
+        return;
+      }
+
+      const result = await requestEmailOtpChallenge(trimmedEmail, invitationToken);
 
       setEmailPending(false);
       setResendPending(false);
@@ -200,9 +218,14 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
         return;
       }
 
-      applyChallengeSuccess(targetEmail, result.response.challengeId, result.response.ssoRequired);
+      applyChallengeSuccess(
+        targetEmail,
+        result.response.challengeId,
+        result.response.ssoRequired,
+        result.response.ssoMessage,
+      );
     },
-    [applyChallengeSuccess, step],
+    [applyChallengeSuccess, safeReturnUrl, step],
   );
 
   const handleEmailSubmit = useCallback(() => {
@@ -296,6 +319,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
   if (step === "sso") {
     return (
       <SignInSsoRequiredStep
+        message={ssoMessage}
         onContinueOrganizationSignIn={beginWorkSchool}
         onUseAnotherEmail={() => {
           clearEmailOtpChallengeSession();

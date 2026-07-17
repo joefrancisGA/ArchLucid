@@ -102,7 +102,12 @@ public sealed class TenantProvisioningService(
             try
             {
                 await _tenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync(tenantId, TenantDatabaseNaming.SqlLogicalNameForTenant(tenantId), ct);
-                await _tenantRepository.InsertWorkspaceAsync(workspaceId, tenantId, "Default", projectId, ct);
+                await _tenantRepository.InsertWorkspaceAsync(
+                    workspaceId,
+                    tenantId,
+                    ResolveWorkspaceDisplayName(request.WorkspaceDisplayName),
+                    projectId,
+                    ct);
                 await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
 
                 await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct);
@@ -204,5 +209,17 @@ public sealed class TenantProvisioningService(
 
         using (AmbientScopeContext.Push(tenantScope))
             return await _tenantRepository.GetFirstWorkspaceAsync(tenantId, ct);
+    }
+
+    private static string ResolveWorkspaceDisplayName(string? workspaceDisplayName)
+    {
+        if (string.IsNullOrWhiteSpace(workspaceDisplayName))
+        {
+            return "Default";
+        }
+
+        string trimmed = workspaceDisplayName.Trim();
+
+        return trimmed.Length > 200 ? trimmed[..200] : trimmed;
     }
 }

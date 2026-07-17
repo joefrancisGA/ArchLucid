@@ -159,6 +159,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ILegacyPlatformIdentityMigrationSource, InMemoryLegacyPlatformIdentityMigrationSource>();
         services.AddSingleton<IEmailOtpChallengeRepository, InMemoryEmailOtpChallengeRepository>();
         services.AddSingleton<ITenantSignInEmailDomainRepository, InMemoryTenantSignInEmailDomainRepository>();
+        services.AddSingleton<ITenantSignInEmailDomainRecoveryAdminRepository, InMemoryTenantSignInEmailDomainRecoveryAdminRepository>();
         services.AddSingleton<IAdminNotificationsRepository, NoOpAdminNotificationsRepository>();
         services.AddSingleton<IScimGroupRepository, InMemoryScimGroupRepository>();
         services.AddSingleton<IRoiBulletinAggregateReader, InMemoryRoiBulletinAggregateReader>();

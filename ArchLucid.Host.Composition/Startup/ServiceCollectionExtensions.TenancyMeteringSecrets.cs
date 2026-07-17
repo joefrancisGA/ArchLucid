@@ -1,5 +1,6 @@
 using ArchLucid.Application.Admin;
 using ArchLucid.Application.Identity;
+using ArchLucid.Core.Identity;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
@@ -59,6 +60,15 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IEmailOtpAuthService, EmailOtpAuthService>();
         services.AddScoped<IPostAuthBootstrapService, PostAuthBootstrapService>();
         services.AddScoped<IEmailOtpSignInDomainPolicyService, EmailOtpSignInDomainPolicyService>();
+        services.AddScoped<IAuthSignInRoutingService, AuthSignInRoutingService>();
+        services.AddScoped<AuthDomainDnsVerificationService>();
+        services.AddScoped<TenantAuthDomainAdminService>();
+        services.AddHttpClient<CloudflareDnsTxtRecordLookup>(static client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
+        });
+        services.AddScoped<IDnsTxtRecordLookup>(static sp =>
+            sp.GetRequiredService<CloudflareDnsTxtRecordLookup>());
         services.AddScoped<IEmailOtpEmailNotifier, EmailOtpEmailNotifier>();
         services.AddScoped<IUserInvitationAdminService, UserInvitationAdminService>();
         services.AddScoped<ISupportProblemReportIntakeService, SupportProblemReportIntakeService>();

@@ -25,6 +25,11 @@ type IdentityProvidersSettingsPageViewProps = {
 
 const CONFIGURATION_AREAS = [
   {
+    href: "/settings/auth-domains",
+    label: "Sign-in domains",
+    description: "Verify email domains and enforce organization SSO routing.",
+  },
+  {
     href: "/settings/identity-providers/saml",
     label: IDENTITY_PROVIDERS_NAV_SAML,
     description: "Configure SAML metadata, issuer, and group-to-role mapping.",
