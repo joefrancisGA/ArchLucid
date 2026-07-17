@@ -85,7 +85,14 @@ Repository **variables** (GitHub Actions `vars`):
 
 ## Cost
 
-- Multiple active revisions consume **additional** CPU/memory allocation within min/max replica bounds; size `max_replicas` accordingly.
+- Multiple active revisions may use **additional** CPU/memory **within existing min/max replica bounds** during the brief canary window; this does **not** require raising `min_replicas` (TB-755 cold-start posture).
+- Size `max_replicas` if you routinely hold two revisions at high traffic percentages for extended periods.
+
+## Operator expectations (cold start)
+
+- A short period where **two API revisions** share ingress is **normal** when canary is enabled.
+- Most user traffic stays on the previous revision until smoke passes and promotion sets 100% on the new revision.
+- Failed smoke with `CD_ROLLBACK_ON_SMOKE_FAILURE=true` deactivates the bad revision; reset traffic manually if weights look stuck.
 
 ## References
 

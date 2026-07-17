@@ -127,6 +127,9 @@ foreach ($envName in $Environments) {
 Set-RepoVariable -Name 'CD_ROLLBACK_ON_SMOKE_FAILURE' -Value 'true'
 Set-RepoVariable -Name 'CD_POST_DEPLOY_MAX_ATTEMPTS' -Value '6'
 Set-RepoVariable -Name 'CD_POST_DEPLOY_RETRY_WAIT_SECONDS' -Value '10'
+Set-RepoVariable -Name 'CD_CANARY_ENABLED' -Value 'true'
+Set-RepoVariable -Name 'CD_CANARY_INITIAL_PERCENT' -Value '10'
+Set-RepoVariable -Name 'CD_CANARY_BAKE_MINUTES' -Value '3'
 
 Set-RepoSecretIfPresent -Name 'ALERT_SMS_PHONE_NUMBER' -Value $AlertSmsPhone
 Set-RepoSecretIfPresent -Name 'ALERT_VOICE_PHONE_NUMBER' -Value $AlertVoicePhone
@@ -137,4 +140,10 @@ Write-Host 'Bootstrap complete. Verify environments under GitHub Settings → En
 
 if ($LASTEXITCODE -ne 0) {
     throw 'Post-deploy retry repository variable verification failed after bootstrap.'
+}
+
+& (Join-Path $PSScriptRoot 'verify-cd-canary-vars.ps1')
+
+if ($LASTEXITCODE -ne 0) {
+    throw 'CD canary repository variable verification failed after bootstrap.'
 }

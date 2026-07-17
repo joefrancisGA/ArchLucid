@@ -24,6 +24,9 @@ worker_max_replicas = 30
 api_scale_concurrent_requests = 20
 ui_scale_concurrent_requests  = 10
 
+# TB-755: required before CD canary traffic split (cd.yml CD_CANARY_ENABLED). Does not raise min_replicas.
+api_revision_mode = "Multiple"
+
 artifact_blob_service_uri   = "https://<storage-account>.blob.core.windows.net/"
 artifact_storage_account_id = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
 

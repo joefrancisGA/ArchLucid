@@ -46,6 +46,10 @@ worker_max_replicas = 20
 api_scale_concurrent_requests = 10
 ui_scale_concurrent_requests  = 10
 
+# Staging/production cold-start canary (TB-755): set api_revision_mode = "Multiple" before enabling CD_CANARY_* repo vars.
+# Dev may keep the module default "Single".
+# api_revision_mode = "Multiple"
+
 # Large artifact offload (golden manifests, bundles, artifact content) — required when enable_container_apps = true.
 # Apply infra/terraform-storage first; use its outputs (primary_blob_endpoint, storage_account_id).
 artifact_blob_service_uri     = "https://<storage-account>.blob.core.windows.net/"
