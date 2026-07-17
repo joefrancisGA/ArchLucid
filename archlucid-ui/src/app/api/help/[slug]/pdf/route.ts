@@ -45,7 +45,8 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return new NextResponse(loadedPdf.bytes, {
+  // NextResponse BodyInit accepts Uint8Array; Node Buffer is not assignable under current DOM typings.
+  return new NextResponse(new Uint8Array(loadedPdf.bytes), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
