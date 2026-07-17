@@ -18658,7 +18658,7 @@ Closed 2026-07-07: unit tests for `PagingParameters`, `ReplayArtifactResponseFac
 
 **Window:** V1.
 
-**Status:** **Done** (2026-07-17) — extracted `AppShellIdleOverlays` (tour/wizard/demo overlays mount after `requestIdleCallback`/1.2s fallback); `AppShellWorkspaceFooter` dynamically loads trust/health footer strips; `AppShellMainAffordances` and `FrictionlessTrialBanner` moved to `dynamic()` imports; `AppShellIdleOverlays.test.tsx` guards pre-idle mount.
+**Status:** **Done** (2026-07-17) — extracted `AppShellIdleOverlays` (wizard/demo overlays mount after `requestIdleCallback`/1.2s fallback; onboarding tour + registration auto-start remain eager); `AppShellWorkspaceFooter` dynamically loads trust/health footer strips; `AppShellMainAffordances` and `FrictionlessTrialBanner` moved to `dynamic()` imports; `AppShellIdleOverlays.test.tsx` guards pre-idle mount.
 
 **Why:** Every route under `(operator)/layout.tsx` mounts `AppShellClient.tsx` (~496 lines), a client component wiring `OperatorQueryProvider`, telemetry, sidebar, help panels, tours, and auth. **TB-568** already memoized/split some context providers and several panels (sidebar, help, command palette, evidence graph) are already `dynamic()`. What remains eagerly bundled/mounted is still paid by every operator page regardless of whether that page needs tours, wizards, or heavier providers.
 
