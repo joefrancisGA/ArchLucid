@@ -6,7 +6,7 @@ export const SCREENSHOT_LEGACY_REDIRECT_URL_PATTERNS: Readonly<Record<string, Re
   "/settings/exec-digest": /\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/,
   "/digest-subscriptions": /\/digests\?tab=subscriptions(?:&[^#]*)?(?:$|#)/,
   "/audit": /\/governance\/audit(?:\?|$|#)/,
-  "/alerts": /\/governance\/alert-rules(?:\?|$|#)/,
+  "/alerts": /\/governance\/(?:alerts|alert-rules)(?:\?|$|#)/,
   "/governance-resolution": /\/governance\/resolution(?:\?|$|#)/,
 };
 
