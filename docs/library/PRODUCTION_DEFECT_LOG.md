@@ -1,4 +1,4 @@
-> **Scope:** Owner/operator-reported production defect intake — investigation-first triage register. Distinct from `TECH_BACKLOG.md`, which holds items whose scope and fix approach are already decided. A defect only becomes a `TB-###` backlog item once investigation confirms it is genuinely unfixed on `master` and not already fixed on some other branch.
+> **Scope:** Contributor — owner/operator-reported production defect intake — investigation-first triage register. Distinct from `TECH_BACKLOG.md`, which holds items whose scope and fix approach are already decided. A defect only becomes a `TB-###` backlog item once investigation confirms it is genuinely unfixed on `master` and not already fixed on some other branch.
 
 # Production defect log
 

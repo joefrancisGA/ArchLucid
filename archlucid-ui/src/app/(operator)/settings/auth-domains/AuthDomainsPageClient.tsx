@@ -139,7 +139,7 @@ export function AuthDomainsPageClient() {
         </p>
         <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Configure the identity provider under{" "}
-          <Link href="/settings/identity-providers" className={OPERATOR_LINK}>
+          <Link href="/settings/identity-providers" className={OPERATOR_LINK.nav}>
             Identity providers
           </Link>{" "}
           before enabling enforcement.
