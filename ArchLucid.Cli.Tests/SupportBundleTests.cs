@@ -144,6 +144,8 @@ public sealed class SupportBundleTests
             payload.Workspace.FileCount.Should().Be(1);
             payload.References.Documentation.Should()
                 .Contain(d => d.StartsWith(SupportBundleDocLinks.PilotRescuePlaybookRelativePath, StringComparison.Ordinal));
+            payload.References.Documentation.Should()
+                .Contain(d => d.StartsWith(SupportBundleDocLinks.SupportProblemReportTriageRelativePath, StringComparison.Ordinal));
             payload.Health.AttemptedHealthRelativePaths.Should()
                 .Equal("/health/live", "/health/ready", "/health/diagnostics");
             payload.References.CorrelationTraceGuidance.Should().HaveCount(SupportBundleCorrelationTraceCatalog.GuidanceBullets.Count);

@@ -8,4 +8,7 @@ public static class SupportBundleDocLinks
 {
     /// <summary>V1 symptom-first triage for pilots; linked from <c>references.json</c> and <c>doctor</c> output.</summary>
     public const string PilotRescuePlaybookRelativePath = "docs/runbooks/PILOT_RESCUE_PLAYBOOK.md";
+
+    /// <summary>Report problem intake triage for support inbox notifications; linked from <c>references.json</c>.</summary>
+    public const string SupportProblemReportTriageRelativePath = "docs/runbooks/SUPPORT_PROBLEM_REPORT_TRIAGE.md";
 }

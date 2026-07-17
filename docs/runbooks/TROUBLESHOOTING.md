@@ -7,7 +7,7 @@
 
 **Goal:** Faster triage without reading the whole codebase.
 
-**Symptom index:** [First-pilot troubleshooting decision tree](FIRST_PILOT_TROUBLESHOOTING.md) (symptom → first check → escalation artifact) · [Pilot rescue playbook](PILOT_RESCUE_PLAYBOOK.md) (quick matrix) · [First-pilot support triage one-pager](FIRST_PILOT_SUPPORT_TRIAGE.md) (support bundle + audit escalation order).
+**Symptom index:** [First-pilot troubleshooting decision tree](FIRST_PILOT_TROUBLESHOOTING.md) (symptom → first check → escalation artifact) · [Pilot rescue playbook](PILOT_RESCUE_PLAYBOOK.md) (quick matrix) · [First-pilot support triage one-pager](FIRST_PILOT_SUPPORT_TRIAGE.md) (support bundle + audit escalation order) · [Report problem intake triage](SUPPORT_PROBLEM_REPORT_TRIAGE.md) (reference id → SQL + App Insights).
 
 ## First-line steps (try in order)
 
