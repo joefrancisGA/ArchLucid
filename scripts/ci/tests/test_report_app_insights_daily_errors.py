@@ -60,6 +60,23 @@ class AppInsightsDailyErrorTelemetryTests(unittest.TestCase):
         self.assertIn("System.Data.SqlClient.SqlException", new_labels)
         self.assertEqual(sum(1 for row in marked if row.is_new), 1)
 
+    def test_parse_log_analytics_response_maps_cli_array_rows(self) -> None:
+        payload = [
+            {
+                "Count": "11",
+                "ProblemId": "sample-problem",
+                "SampleOuterMessage": "permission denied",
+                "TableName": "PrimaryResult",
+                "Type": "AppExceptions",
+            }
+        ]
+        records = TELEMETRY.parse_log_analytics_response(payload)
+
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["Count"], "11")
+        self.assertEqual(records[0]["Type"], "AppExceptions")
+        self.assertNotIn("TableName", records[0])
+
     def test_report_script_generates_artifacts_from_fixture(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
