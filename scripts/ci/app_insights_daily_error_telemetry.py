@@ -108,7 +108,23 @@ def build_dependency_signature(dep_type: Any, name: Any, result_code: Any) -> st
     )
 
 
-def parse_log_analytics_response(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def parse_log_analytics_response(payload: Any) -> list[dict[str, Any]]:
+    if isinstance(payload, list):
+        records: list[dict[str, Any]] = []
+
+        for row in payload:
+            if not isinstance(row, dict):
+                continue
+
+            record = dict(row)
+            record.pop("TableName", None)
+            records.append(record)
+
+        return records
+
+    if not isinstance(payload, dict):
+        return []
+
     tables = payload.get("tables")
 
     if not isinstance(tables, list) or not tables:
@@ -133,7 +149,7 @@ def parse_log_analytics_response(payload: dict[str, Any]) -> list[dict[str, Any]
         else:
             names.append("")
 
-    records: list[dict[str, Any]] = []
+    records = []
 
     for row in rows:
         if not isinstance(row, list):
@@ -153,12 +169,27 @@ def parse_log_analytics_response(payload: dict[str, Any]) -> list[dict[str, Any]
     return records
 
 
+def parse_count(value: Any) -> int:
+    if isinstance(value, bool):
+        return int(value)
+
+    if isinstance(value, int):
+        return value
+
+    if isinstance(value, float):
+        return int(value)
+
+    if isinstance(value, str) and value.strip().isdigit():
+        return int(value.strip())
+
+    return 0
+
+
 def rows_from_exceptions(records: list[dict[str, Any]]) -> list[ErrorRow]:
     parsed: list[ErrorRow] = []
 
     for record in records:
-        count_raw = record.get("Count", 0)
-        count = int(count_raw) if isinstance(count_raw, (int, float)) else 0
+        count = parse_count(record.get("Count", 0))
         exception_type = record.get("Type")
         problem_id = record.get("ProblemId")
         outer_message = record.get("SampleOuterMessage")
@@ -189,8 +220,7 @@ def rows_from_failed_requests(records: list[dict[str, Any]]) -> list[ErrorRow]:
     parsed: list[ErrorRow] = []
 
     for record in records:
-        count_raw = record.get("Count", 0)
-        count = int(count_raw) if isinstance(count_raw, (int, float)) else 0
+        count = parse_count(record.get("Count", 0))
         name = record.get("Name")
         result_code = record.get("ResultCode")
         signature = build_request_signature(name, result_code)
@@ -211,8 +241,7 @@ def rows_from_failed_dependencies(records: list[dict[str, Any]]) -> list[ErrorRo
     parsed: list[ErrorRow] = []
 
     for record in records:
-        count_raw = record.get("Count", 0)
-        count = int(count_raw) if isinstance(count_raw, (int, float)) else 0
+        count = parse_count(record.get("Count", 0))
         dep_type = record.get("Type")
         name = record.get("Name")
         result_code = record.get("ResultCode")

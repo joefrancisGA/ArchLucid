@@ -89,9 +89,6 @@ def run_log_analytics_query(workspace_id: str, query: str) -> dict[str, Any]:
 
     payload = json.loads(completed.stdout)
 
-    if not isinstance(payload, dict):
-        raise SystemExit("Log Analytics query returned a non-object JSON payload.")
-
     return payload
 
 
