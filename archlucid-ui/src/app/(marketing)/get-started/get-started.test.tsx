@@ -49,6 +49,8 @@ describe("GetStartedPageClient", () => {
     expect(text.toLowerCase()).not.toContain("frictionless");
     expect(text.toLowerCase()).not.toContain("within a few seconds");
     expect(text.toLowerCase()).not.toContain("first commit");
+    expect(text).not.toMatch(/Entra/i);
+    expect(text).toMatch(/Microsoft, Google/i);
   });
 
   it("renders industry cards with differentiated public-sector labels and sample links", () => {

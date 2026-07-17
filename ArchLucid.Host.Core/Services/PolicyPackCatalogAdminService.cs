@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Host.Core.Services;
@@ -38,6 +39,8 @@ public sealed class PolicyPackCatalogAdminService(
 
         if (versionRow is null || string.IsNullOrWhiteSpace(versionRow.ContentJson))
             return null;
+
+        PolicyPackDistributionScopeRules.EnsureCanPromoteToGlobalCatalog(pack);
 
         return await _catalogRepository.UpsertPromotedFromSnapshotAsync(
             sourcePolicyPackId,

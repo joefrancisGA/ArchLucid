@@ -82,7 +82,7 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
           <CardDescription>
             {panelVariant === "optional"
               ? "Configure identity, health, and tenant settings when you are ready. These steps are not required to complete your first review unless noted below."
-              : "Complete these steps after infrastructure deploy so your team can run the first architecture review without manual Key Vault edits."}
+              : "Complete these steps after infrastructure deploy so your team can run the first architecture review without manual secret-store configuration."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

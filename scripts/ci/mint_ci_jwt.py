@@ -26,6 +26,13 @@ def main() -> int:
     parser.add_argument("--sub", default="jwt-e2e-sub")
     parser.add_argument("--name", default="JwtE2eAdmin", help="Matches LIVE_JWT_ACTOR_NAME / JWT name claim.")
     parser.add_argument("--roles", nargs="+", default=["Admin"], help="ArchLucid role names (e.g. Admin Operator Reader).")
+    parser.add_argument(
+        "--tenant-id",
+        default="",
+        help="Optional tenant_id claim (GUID). When omitted, API scope falls back to ScopeIds.DefaultTenant.",
+    )
+    parser.add_argument("--workspace-id", default="", help="Optional workspace_id claim (GUID).")
+    parser.add_argument("--project-id", default="", help="Optional project_id claim (GUID).")
     parser.add_argument("--out-token", required=True, help="Write JWT string to this file.")
     args = parser.parse_args()
 
@@ -52,6 +59,14 @@ def main() -> int:
         "iss": args.issuer,
         "aud": args.audience,
     }
+    for claim_key, raw in (
+        ("tenant_id", args.tenant_id),
+        ("workspace_id", args.workspace_id),
+        ("project_id", args.project_id),
+    ):
+        value = raw.strip()
+        if value:
+            payload[claim_key] = value
 
     encoded = jwt.encode(payload, private_pem, algorithm="RS256")
     token_str = encoded if isinstance(encoded, str) else encoded.decode("ascii")

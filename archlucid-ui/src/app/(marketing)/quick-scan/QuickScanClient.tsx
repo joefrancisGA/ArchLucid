@@ -123,7 +123,7 @@ export function QuickScanClient(): ReactElement {
             }}
             autoComplete="off"
             className="w-full rounded-md border border-neutral-300 bg-white p-3 text-sm text-neutral-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
-            placeholder="e.g. Azure"
+            placeholder="e.g. AWS, Azure, or GCP"
           />
         </div>
 

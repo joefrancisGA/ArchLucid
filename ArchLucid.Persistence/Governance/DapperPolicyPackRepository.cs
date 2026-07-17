@@ -38,13 +38,13 @@ public sealed class DapperPolicyPackRepository(
                            INSERT INTO dbo.PolicyPacks
                            (
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
-                               Name, Description, PackType, Status,
+                               Name, Description, PackType, DistributionScope, Status,
                                CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            )
                            VALUES
                            (
                                @PolicyPackId, @TenantId, @WorkspaceId, @ProjectId,
-                               @Name, @Description, @PackType, @Status,
+                               @Name, @Description, @PackType, @DistributionScope, @Status,
                                @CreatedUtc, @ActivatedUtc, @CurrentVersion, @IsDeleted, @QualityDimension
                            );
                            """;
@@ -67,12 +67,18 @@ public sealed class DapperPolicyPackRepository(
     {
         ArgumentNullException.ThrowIfNull(pack);
 
+        PolicyPack? persisted = await GetByIdAsync(pack.PolicyPackId, ct);
+
+        if (persisted is not null)
+            PolicyPackDistributionScopeRules.EnsureDistributionScopeUnchanged(persisted, pack);
+
         const string sql = """
                            UPDATE dbo.PolicyPacks
                            SET
                                Name = @Name,
                                Description = @Description,
                                PackType = @PackType,
+                               DistributionScope = @DistributionScope,
                                Status = @Status,
                                ActivatedUtc = @ActivatedUtc,
                                CurrentVersion = @CurrentVersion,
@@ -91,7 +97,7 @@ public sealed class DapperPolicyPackRepository(
         const string sql = """
                            SELECT
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
-                               Name, Description, PackType, Status,
+                               Name, Description, PackType, DistributionScope, Status,
                                CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            FROM dbo.PolicyPacks
                            WHERE PolicyPackId = @PolicyPackId
@@ -117,7 +123,7 @@ public sealed class DapperPolicyPackRepository(
         const string sql = """
                            SELECT
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
-                               Name, Description, PackType, Status,
+                               Name, Description, PackType, DistributionScope, Status,
                                CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            FROM dbo.PolicyPacks
                            WHERE PolicyPackId IN @PolicyPackIds
@@ -141,7 +147,7 @@ public sealed class DapperPolicyPackRepository(
         const string sql = """
                            SELECT TOP 200
                                PolicyPackId, TenantId, WorkspaceId, ProjectId,
-                               Name, Description, PackType, Status,
+                               Name, Description, PackType, DistributionScope, Status,
                                CreatedUtc, ActivatedUtc, CurrentVersion, IsDeleted, QualityDimension
                            FROM dbo.PolicyPacks
                            WHERE TenantId = @TenantId
@@ -169,6 +175,7 @@ public sealed class DapperPolicyPackRepository(
         pack.Name,
         pack.Description,
         pack.PackType,
+        pack.DistributionScope,
         pack.Status,
         pack.CreatedUtc,
         pack.ActivatedUtc,

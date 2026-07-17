@@ -3,6 +3,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import {
+  WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE,
   WELCOME_POLICY_PACK_DISCLAIMER,
   WELCOME_USE_CASE_CARDS,
 } from "@/components/marketing/welcome-marketing-copy";
@@ -39,6 +40,7 @@ export function WelcomeMarketingUseCasesSection() {
         className={cn("mt-4 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="welcome-policy-pack-disclaimer"
       >
+        {WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE}{" "}
         {WELCOME_POLICY_PACK_DISCLAIMER}{" "}
         <Link
           className="text-teal-700 underline underline-offset-2 dark:text-teal-300"

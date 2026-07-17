@@ -42,9 +42,12 @@ For step-by-step recovery, open [Troubleshooting](/help/troubleshooting).
 
 Tenant name, access, and visibility are managed in **Settings → Tenant**. Workspace and project assignment may be controlled by your tenant admin or identity provider integration.
 
+**Review scope** (which standards evaluate a review) is separate from workspace scope. See the [Review guide](/help/review-guide) for the wizard's **Review scope (optional)** control.
+
 ## Related help
 
 | Topic | When to use it |
 |-------|----------------|
 | [Getting started](/help/getting-started) | First review and core concepts |
+| [Review guide](/help/review-guide) | Review scope vs. workspace scope |
 | [Troubleshooting](/help/troubleshooting) | Symptom-first fixes when scope or API errors appear |

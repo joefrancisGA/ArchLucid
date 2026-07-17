@@ -334,7 +334,7 @@ export function QuickStartClient(): ReactElement {
             "w-full rounded-md border border-neutral-300 bg-white p-3 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50",
             MARKETING_TYPOGRAPHY.body,
           )}
-          placeholder="Three-tier web application on Azure with redundancy and private networking…"
+          placeholder="Customer-facing web application with redundancy, private networking, and managed data stores…"
         />
       </div>
 

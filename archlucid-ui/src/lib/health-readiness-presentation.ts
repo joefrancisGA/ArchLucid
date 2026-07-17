@@ -53,7 +53,7 @@ const READINESS_CHECK_LABELS: Readonly<Record<string, string>> = {
   "sql-read-replica": "Read replica",
   redis: "Distributed cache (Redis)",
   blob_storage: "Artifact storage",
-  keyvault: "Key vault connectivity",
+  keyvault: "Secrets store connectivity",
   openai: "AI model service",
   azure_service_bus: "Message bus",
   vector_store: "Search index",
@@ -73,7 +73,7 @@ const READINESS_CHECK_LABELS: Readonly<Record<string, string>> = {
 const CONFIGURATION_PROBE_LABELS: Readonly<Record<string, string>> = {
   sql_server: "SQL Server connectivity",
   oidc_authority: "Sign-in authority (OIDC)",
-  key_vault: "Key vault access",
+  key_vault: "Secrets store access",
 };
 
 const SKIPPED_EXPLANATIONS: Readonly<Record<string, string>> = {
@@ -81,7 +81,7 @@ const SKIPPED_EXPLANATIONS: Readonly<Record<string, string>> = {
     "SQL connectivity probe is not required for the current in-memory or demo storage configuration.",
   redis: "Redis is optional; the deployment can use in-memory cache instead.",
   "sql-read-replica": "Read replica is not configured for this deployment.",
-  keyvault: "Key vault is not configured for this environment.",
+  keyvault: "Secrets store is not configured for this environment.",
   vector_store: "Vector search is not enabled for this deployment profile.",
   retrieval_index_freshness: "Search index freshness is not monitored in this configuration.",
   "graph-projection-cache": "Evidence graph cache is not enabled for this deployment.",

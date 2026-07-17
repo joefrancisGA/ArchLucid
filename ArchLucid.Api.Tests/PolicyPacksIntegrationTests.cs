@@ -5,9 +5,14 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Routing;
+using ArchLucid.Application.Governance.DefaultPolicyPacks;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -69,6 +74,7 @@ public sealed class PolicyPacksIntegrationTests
             PolicyPackResponse? created =
                 await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             created.Should().NotBeNull();
+            created!.DistributionScope.Should().Be(PolicyPackDistributionScope.OrganizationPrivate);
             Guid packId = created.PolicyPackId;
 
             HttpResponseMessage assignResponse = await client.PostAsync(
@@ -648,71 +654,95 @@ public sealed class PolicyPacksIntegrationTests
     [SkippableFact]
     public async Task PolicyPackCatalog_Promote_list_detail_demote_roundtrip()
     {
+        await using ArchLucidApiFactory factory = new();
+        await factory.EnsureServicesStartedAsync();
+
+        using (IServiceScope serviceScope = factory.Services.CreateScope())
+        {
+            IDefaultPolicyPackSeeder seeder =
+                serviceScope.ServiceProvider.GetRequiredService<IDefaultPolicyPackSeeder>();
+            await seeder.EnsureDefaultPolicyPacksAsync(
+                ScopeIds.DefaultTenant,
+                ScopeIds.DefaultWorkspace,
+                ScopeIds.DefaultProject,
+                CancellationToken.None);
+        }
+
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage listPacksResponse = await client.GetAsync("/v1/policy-packs");
+        listPacksResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        List<PolicyPackResponse>? packs =
+            await listPacksResponse.Content.ReadFromJsonAsync<List<PolicyPackResponse>>(JsonOptions);
+        packs.Should().NotBeNull();
+        PolicyPackResponse? platformPack = packs!
+            .FirstOrDefault(p => p.DistributionScope == PolicyPackDistributionScope.Platform);
+        platformPack.Should().NotBeNull();
+        Guid packId = platformPack!.PolicyPackId;
+
+        HttpResponseMessage promoteResponse = await client.PostAsync(
+            "/v1/policy-packs/catalog/promote",
+            JsonContent(new { sourcePolicyPackId = packId, version = platformPack.CurrentVersion }));
+
+        promoteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        PolicyPackCatalogEntryDetailResponse? promoted =
+            await promoteResponse.Content.ReadFromJsonAsync<PolicyPackCatalogEntryDetailResponse>(JsonOptions);
+        promoted.Should().NotBeNull();
+        Guid catalogId = promoted!.PolicyPackCatalogEntryId;
+        promoted.SnapshotContentJson.Should().NotBeNullOrWhiteSpace();
+
+        HttpResponseMessage listResponse = await client.GetAsync("/v1/policy-packs/catalog");
+        listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        List<PolicyPackCatalogListItemResponse>? list =
+            await listResponse.Content.ReadFromJsonAsync<List<PolicyPackCatalogListItemResponse>>(JsonOptions);
+        list.Should().NotBeNull();
+        list!.Should().ContainSingle(x => x.PolicyPackCatalogEntryId == catalogId);
+
+        HttpResponseMessage getResponse = await client.GetAsync($"/v1/policy-packs/catalog/{catalogId:D}");
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        HttpResponseMessage demoteResponse = await client.PostAsync(
+            "/v1/policy-packs/catalog/demote",
+            JsonContent(new { policyPackCatalogEntryId = catalogId }));
+
+        demoteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        HttpResponseMessage listAfter = await client.GetAsync("/v1/policy-packs/catalog");
+        listAfter.StatusCode.Should().Be(HttpStatusCode.OK);
+        List<PolicyPackCatalogListItemResponse>? after =
+            await listAfter.Content.ReadFromJsonAsync<List<PolicyPackCatalogListItemResponse>>(JsonOptions);
+        after.Should().NotBeNull();
+        after!.Should().BeEmpty();
+
+        HttpResponseMessage getAfterDemote = await client.GetAsync($"/v1/policy-packs/catalog/{catalogId:D}");
+        getAfterDemote.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [SkippableFact]
+    public async Task PolicyPackCatalog_Promote_rejects_organization_private_pack()
+    {
         await WithIsolatedFactory(async client =>
         {
-            const string contentJson = """
-                                       {
-                                         "complianceRuleIds": [],
-                                         "complianceRuleKeys": [ "catalog-probe" ],
-                                         "alertRuleIds": [],
-                                         "compositeAlertRuleIds": [],
-                                         "advisoryDefaults": {},
-                                         "metadata": { "catalog": "yes" }
-                                       }
-                                       """;
-
             HttpResponseMessage createResponse = await client.PostAsync(
                 "/v1/policy-packs",
                 JsonContent(
                     new
                     {
-                        name = "Catalog probe pack",
-                        description = "promotion probe",
+                        name = "Org private pack",
+                        description = "must not promote",
                         packType = "ProjectCustom",
-                        initialContentJson = contentJson
+                        initialContentJson = "{}"
                     }));
 
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             created.Should().NotBeNull();
-            Guid packId = created!.PolicyPackId;
 
             HttpResponseMessage promoteResponse = await client.PostAsync(
                 "/v1/policy-packs/catalog/promote",
-                JsonContent(new { sourcePolicyPackId = packId, version = "1.0.0" }));
+                JsonContent(new { sourcePolicyPackId = created!.PolicyPackId, version = "1.0.0" }));
 
-            promoteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackCatalogEntryDetailResponse? promoted =
-                await promoteResponse.Content.ReadFromJsonAsync<PolicyPackCatalogEntryDetailResponse>(JsonOptions);
-            promoted.Should().NotBeNull();
-            Guid catalogId = promoted!.PolicyPackCatalogEntryId;
-            promoted.SnapshotContentJson.Should().Contain("catalog-probe");
-
-            HttpResponseMessage listResponse = await client.GetAsync("/v1/policy-packs/catalog");
-            listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            List<PolicyPackCatalogListItemResponse>? list =
-                await listResponse.Content.ReadFromJsonAsync<List<PolicyPackCatalogListItemResponse>>(JsonOptions);
-            list.Should().NotBeNull();
-            list!.Should().ContainSingle(x => x.PolicyPackCatalogEntryId == catalogId);
-
-            HttpResponseMessage getResponse = await client.GetAsync($"/v1/policy-packs/catalog/{catalogId:D}");
-            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            HttpResponseMessage demoteResponse = await client.PostAsync(
-                "/v1/policy-packs/catalog/demote",
-                JsonContent(new { policyPackCatalogEntryId = catalogId }));
-
-            demoteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
-
-            HttpResponseMessage listAfter = await client.GetAsync("/v1/policy-packs/catalog");
-            listAfter.StatusCode.Should().Be(HttpStatusCode.OK);
-            List<PolicyPackCatalogListItemResponse>? after =
-                await listAfter.Content.ReadFromJsonAsync<List<PolicyPackCatalogListItemResponse>>(JsonOptions);
-            after.Should().NotBeNull();
-            after!.Should().BeEmpty();
-
-            HttpResponseMessage getAfterDemote = await client.GetAsync($"/v1/policy-packs/catalog/{catalogId:D}");
-            getAfterDemote.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            promoteResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         });
     }
 
@@ -755,6 +785,18 @@ public sealed class PolicyPacksIntegrationTests
         }
 
         public string Name
+        {
+            get;
+            init;
+        } = "";
+
+        public string CurrentVersion
+        {
+            get;
+            init;
+        } = "";
+
+        public string DistributionScope
         {
             get;
             init;

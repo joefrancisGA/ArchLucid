@@ -7010,6 +7010,23 @@
         ],
         "type": "object"
       },
+      "CreateUserInvitationRequest": {
+        "properties": {
+          "appRole": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "CrossTenantPortfolioSummaryResponse": {
         "properties": {
           "headlineSavingsScopeCode": {
@@ -16986,6 +17003,9 @@
           "description": {
             "type": "string"
           },
+          "distributionScope": {
+            "type": "string"
+          },
           "isDeleted": {
             "type": "boolean"
           },
@@ -19704,6 +19724,90 @@
           },
           "tracePresent": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ReportProblemContextDto": {
+        "properties": {
+          "browserClient": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "clientRequestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errorTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "httpStatus": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "productVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "routePath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "submittedAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "uiVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workspaceId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -22975,6 +23079,58 @@
         },
         "type": "object"
       },
+      "SubmitSupportProblemReportRequest": {
+        "properties": {
+          "attachSupportBundle": {
+            "type": "boolean"
+          },
+          "consentGranted": {
+            "type": "boolean"
+          },
+          "context": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReportProblemContextDto"
+              }
+            ]
+          },
+          "operatorNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SubmitSupportProblemReportResponse": {
+        "properties": {
+          "referenceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "slaMessage": {
+            "type": "string"
+          },
+          "submittedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "supportBundleAttachWarning": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "supportBundleAttached": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "SynthesisTrace": {
         "properties": {
           "createdUtc": {
@@ -25716,6 +25872,59 @@
           "AgentExecution"
         ],
         "type": "string"
+      },
+      "UserInvitationListResponse": {
+        "properties": {
+          "invitations": {
+            "items": {
+              "$ref": "#/components/schemas/UserInvitationResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "UserInvitationResponse": {
+        "properties": {
+          "appRole": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "expiresUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "invitedByActorId": {
+            "type": "string"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "tenantName": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "UserPreferencesResponse": {
         "properties": {
@@ -31056,6 +31265,9 @@
       "name": "SupportBundle"
     },
     {
+      "name": "SupportProblemReports"
+    },
+    {
       "name": "SyntheticOperatorDemoPack"
     },
     {
@@ -31132,6 +31344,9 @@
     },
     {
       "name": "UserPreferences"
+    },
+    {
+      "name": "UsersAdmin"
     },
     {
       "name": "ValueReport"

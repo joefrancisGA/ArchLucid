@@ -21,6 +21,7 @@ public sealed class EmailNotificationOptionsTests
         options.Provider.Should().Be(EmailProviderNames.Noop);
         options.SmtpPort.Should().Be(25);
         options.PricingQuoteSalesInbox.Should().Be("sales@archlucid.net");
+        options.SupportInbox.Should().Be("support@archlucid.net");
         options.AzureCommunicationServicesEndpoint.Should().BeNull();
         options.AzureManagedIdentityClientId.Should().BeNull();
         options.SmtpHost.Should().BeNull();
@@ -58,6 +59,7 @@ public sealed class EmailNotificationOptionsTests
                 OperatorBaseUrl = "https://operator.example/",
                 ProductDisplayName = "ArchLucid",
                 PricingQuoteSalesInbox = "quotes@example.com",
+                SupportInbox = "support@example.com",
             };
 
         options.Provider.Should().Be(EmailProviderNames.AzureCommunicationServices);
@@ -72,6 +74,7 @@ public sealed class EmailNotificationOptionsTests
         options.OperatorBaseUrl.Should().Be("https://operator.example/");
         options.ProductDisplayName.Should().Be("ArchLucid");
         options.PricingQuoteSalesInbox.Should().Be("quotes@example.com");
+        options.SupportInbox.Should().Be("support@example.com");
     }
 
     [Fact]

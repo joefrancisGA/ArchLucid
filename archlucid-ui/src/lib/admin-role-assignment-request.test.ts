@@ -15,12 +15,12 @@ describe("requestPrincipalAppRoleAssignment", () => {
     );
   });
 
-  it("returns preview when role endpoint is not implemented", async () => {
+  it("returns failed when role endpoint is not implemented", async () => {
     const fetchFn = vi.fn(async () => new Response(null, { status: 404 }));
 
     const result = await requestPrincipalAppRoleAssignment({ kind: "api_key", id: "k1" }, "Operator", fetchFn);
 
-    expect(result).toBe("preview");
+    expect(result).toBe("failed");
     expect(fetchFn).toHaveBeenCalledWith(
       "/api/proxy/v1/admin/api-keys/k1/role",
       expect.objectContaining({ method: "PUT" }),

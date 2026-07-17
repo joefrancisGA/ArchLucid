@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -13,6 +14,7 @@ import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 export type OperatorBrandedTransientFailureProps = {
   readonly failure?: ApiLoadFailureState | null;
   readonly retryLabel?: string;
+  readonly reportProblemSurfaceId?: string;
 };
 
 function isTimeoutFailure(failure: ApiLoadFailureState | null | undefined): boolean {
@@ -39,6 +41,7 @@ function isTimeoutFailure(failure: ApiLoadFailureState | null | undefined): bool
 export function OperatorBrandedTransientFailure({
   failure = null,
   retryLabel = "Retry",
+  reportProblemSurfaceId,
 }: OperatorBrandedTransientFailureProps) {
   const timedOut = isTimeoutFailure(failure);
   const title = timedOut ? "ArchLucid is taking longer than expected" : "ArchLucid is temporarily unavailable";
@@ -80,6 +83,15 @@ export function OperatorBrandedTransientFailure({
           <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{correlationId}</code>
           <CopyIdButton value={correlationId} aria-label="Copy correlation ID" />
         </div>
+      ) : null}
+      {reportProblemSurfaceId !== undefined && reportProblemSurfaceId.length > 0 ? (
+        <FatalPageReportProblemSupportRow
+          surfaceId={reportProblemSurfaceId}
+          problem={failure?.problem ?? null}
+          httpStatus={failure?.httpStatus ?? null}
+          correlationId={failure?.correlationId ?? null}
+          errorTitle={title}
+        />
       ) : null}
       <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         ArchLucid · {footerLabel}

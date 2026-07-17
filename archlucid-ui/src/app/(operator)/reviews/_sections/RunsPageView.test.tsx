@@ -1,6 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+  return {
+    ...actual,
+    usePathname: () => "/reviews",
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  };
+});
 
 import {
   BUYER_RUNS_LIST_MALFORMED_BODY,
@@ -9,6 +18,16 @@ import {
 import { REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PAGE_TITLE, REVIEWS_HUB_PRIMARY_START_LABEL, REVIEWS_HUB_RECENT_EMPTY_TITLE } from "./reviews-hub-copy";
 import { RunsPageView } from "./RunsPageView";
 import type { RunsPageModel } from "./runs-page-model";
+
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+});
 
 vi.mock("next/link", () => ({
   default: ({
@@ -211,5 +230,27 @@ describe("RunsPageView malformed response", () => {
 
     expect(screen.getByText(diagnostic)).toBeInTheDocument();
     expect(screen.getByText(/expected paged review summary shape/i)).toBeInTheDocument();
+  });
+
+  it("renders Report problem on malformed reviews hub response (TB-786)", () => {
+    process.env.NODE_ENV = "production";
+
+    render(
+      <RunsPageView
+        model={baseModel({
+          malformedMessage: "Expected array at items[] but received object.",
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-summary-row")).toBeNull();
+  });
+
+  it("does not render Report problem on benign empty reviews hub", () => {
+    render(<RunsPageView model={baseModel({ totalCount: 0 })} />);
+
+    expect(screen.queryByTestId("report-problem-trigger")).not.toBeInTheDocument();
   });
 });

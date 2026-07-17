@@ -6,6 +6,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
+import { OperatorReportProblemAction } from "@/components/support/OperatorReportProblemAction";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
@@ -17,6 +18,7 @@ import {
   resolveOperatorConnectivityTechnicalDetails,
   type OperatorConnectivityPresentationInput,
 } from "@/lib/operator-connectivity-error-present";
+import { isReportProblemEnabledForConnectivityError } from "@/lib/report-problem-surfaces";
 
 export type OperatorLayeredConnectivityErrorProps = OperatorConnectivityPresentationInput;
 
@@ -46,6 +48,15 @@ export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectiv
         <strong>{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_HEADING}</strong>
         <p className="mt-2">{OPERATOR_CONNECTIVITY_ERROR_PRIMARY_BODY}</p>
         <OperatorErrorRecoveryActions helpSlug="troubleshooting" helpHashFragment="overview-workspace-empty" showSystemHealth />
+        <div className="mt-3">
+          <OperatorReportProblemAction
+            enabled={isReportProblemEnabledForConnectivityError()}
+            problem={props.problem}
+            httpStatus={props.httpStatus}
+            correlationId={technical.correlationId}
+            errorTitle={OPERATOR_CONNECTIVITY_ERROR_PRIMARY_HEADING}
+          />
+        </div>
       </div>
       <OperatorErrorUiReferenceLine />
       <details

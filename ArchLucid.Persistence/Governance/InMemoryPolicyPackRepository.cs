@@ -44,7 +44,10 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
             int i = _items.FindIndex(x => x.PolicyPackId == pack.PolicyPackId);
 
             if (i >= 0)
+            {
+                PolicyPackDistributionScopeRules.EnsureDistributionScopeUnchanged(_items[i], pack);
                 _items[i] = pack;
+            }
         }
 
         return Task.CompletedTask;

@@ -9365,3 +9365,101 @@ BEGIN
     );
 END;
 GO
+
+/* 276: Policy pack DistributionScope — Organization Private vs Platform (see Migrations/276_PolicyPackDistributionScope.sql). */
+IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPacks', N'DistributionScope') IS NULL
+BEGIN
+    ALTER TABLE dbo.PolicyPacks
+        ADD DistributionScope NVARCHAR(50) NOT NULL
+            CONSTRAINT DF_PolicyPacks_DistributionScope_Create DEFAULT (N'OrganizationPrivate');
+END;
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPacks', N'DistributionScope') IS NOT NULL
+BEGIN
+    UPDATE dbo.PolicyPacks
+    SET DistributionScope = N'Platform'
+    WHERE PackType IN (N'BuiltIn', N'PlatformDefault');
+
+    UPDATE dbo.PolicyPacks
+    SET DistributionScope = N'OrganizationPrivate'
+    WHERE PackType IN (N'TenantCustom', N'WorkspaceCustom', N'ProjectCustom')
+       OR DistributionScope IS NULL
+       OR LTRIM(RTRIM(DistributionScope)) = N'';
+END;
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPacks', N'DistributionScope') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_PolicyPacks_DistributionScope')
+BEGIN
+    ALTER TABLE dbo.PolicyPacks
+        ADD CONSTRAINT CK_PolicyPacks_DistributionScope CHECK (
+            DistributionScope IN (
+                N'Platform',
+                N'OrganizationPrivate',
+                N'OrganizationShared',
+                N'Marketplace'));
+END;
+GO
+
+/* 277: Tenant-scoped user invitations — admin invite UI (see Migrations/277_UserInvitations.sql). */
+IF OBJECT_ID(N'dbo.UserInvitations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.UserInvitations
+    (
+        Id               UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_UserInvitations PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        Email            NVARCHAR(320)    NOT NULL,
+        AppRole          NVARCHAR(64)     NOT NULL,
+        InvitedByActorId NVARCHAR(256)    NOT NULL,
+        Message          NVARCHAR(2000)   NULL,
+        TokenHash        VARBINARY(32)    NOT NULL,
+        Status           NVARCHAR(16)     NOT NULL,
+        CreatedUtc       DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_UserInvitations_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        ExpiresUtc       DATETIME2(7)     NOT NULL,
+        RevokedUtc       DATETIME2(7)     NULL,
+        AcceptedUtc      DATETIME2(7)     NULL,
+        CONSTRAINT CK_UserInvitations_Status CHECK (Status IN (N'Pending', N'Revoked', N'Accepted'))
+    );
+
+    CREATE UNIQUE INDEX UX_UserInvitations_PendingEmail
+        ON dbo.UserInvitations (TenantId, Email)
+        WHERE Status = N'Pending';
+
+    CREATE INDEX IX_UserInvitations_Tenant_List
+        ON dbo.UserInvitations (TenantId, CreatedUtc DESC);
+END;
+GO
+
+/* 278: Tenant-scoped support problem reports — Report problem intake (see Migrations/278_SupportProblemReports.sql). */
+IF OBJECT_ID(N'dbo.SupportProblemReports', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SupportProblemReports
+    (
+        Id                    UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_SupportProblemReports PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        TenantId              UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId           UNIQUEIDENTIFIER NOT NULL,
+        ProjectId             UNIQUEIDENTIFIER NULL,
+        SubmittedByActorId    NVARCHAR(256)    NOT NULL,
+        ContextJson           NVARCHAR(MAX)    NOT NULL,
+        OperatorNote          NVARCHAR(2000)   NULL,
+        CorrelationId         NVARCHAR(128)    NULL,
+        ClientRequestId       NVARCHAR(128)    NULL,
+        SupportBundleBlobPath NVARCHAR(1024)   NULL,
+        Status                NVARCHAR(16)     NOT NULL,
+        CreatedUtc            DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_SupportProblemReports_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_SupportProblemReports_Status CHECK (Status IN (N'Open', N'Closed'))
+    );
+
+    CREATE INDEX IX_SupportProblemReports_Tenant_Created
+        ON dbo.SupportProblemReports (TenantId, CreatedUtc DESC);
+END;
+GO

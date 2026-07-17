@@ -44,12 +44,27 @@ public sealed class CreatePolicyPackRequestValidatorTests
     }
 
     [Fact]
-    public void Invalid_initial_json_fails()
+    public void Invalid_pack_type_built_in_fails()
     {
         CreatePolicyPackRequest request = new()
         {
             Name = "Pack",
             PackType = PolicyPackType.BuiltIn,
+            InitialContentJson = "{}",
+        };
+
+        ValidationResult result = _validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Invalid_initial_json_fails()
+    {
+        CreatePolicyPackRequest request = new()
+        {
+            Name = "Pack",
+            PackType = PolicyPackType.TenantCustom,
             InitialContentJson = "{bad",
         };
 

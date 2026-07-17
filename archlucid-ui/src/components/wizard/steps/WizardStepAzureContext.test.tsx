@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { WizardStepAzureContext } from "@/components/wizard/steps/WizardStepAzureContext";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
+import { WIZARD_CLOUD_PROVIDER_OPTIONS } from "@/lib/cloud-neutral-primary-copy";
 import { DEV_SCOPE_TENANT_ID } from "@/lib/scope";
 
 const writeTextMock = vi.fn().mockResolvedValue(undefined);
@@ -80,7 +81,7 @@ describe("WizardStepAzureContext", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("shows the Azure inventory command by default when cloud target is None", async () => {
+  it("does not show the Azure inventory command when cloud target is None until a provider is selected", async () => {
     render(
       <WizardFormTestHarness>
         <WizardStepAzureContext />
@@ -88,6 +89,26 @@ describe("WizardStepAzureContext", () => {
     );
 
     fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-inventory-select-cloud-hint")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("wizard-cloud-inventory-ingest-panel")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("wizard-cloud-inventory-ingest-command")).not.toBeInTheDocument();
+  });
+
+  it("shows the Azure inventory command after selecting Azure in the optional inventory picker", async () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepAzureContext />
+      </WizardFormTestHarness>,
+    );
+
+    fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
+
+    fireEvent.click(screen.getByTestId("wizard-inventory-cloud-target-select"));
+    fireEvent.click(await screen.findByRole("option", { name: WIZARD_CLOUD_PROVIDER_OPTIONS.azure }));
 
     await waitFor(() => {
       expect(screen.getByTestId("wizard-cloud-inventory-ingest-panel")).toHaveAttribute("data-platform", "azure");
@@ -118,7 +139,7 @@ describe("WizardStepAzureContext", () => {
 
   it("copies the active cloud inventory command", async () => {
     render(
-      <WizardFormTestHarness>
+      <WizardFormTestHarness values={{ cloudProvider: "Azure" }}>
         <WizardStepAzureContext />
       </WizardFormTestHarness>,
     );

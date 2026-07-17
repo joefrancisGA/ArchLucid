@@ -5,12 +5,14 @@ using Polly;
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Application.Support;
 using ArchLucid.Notifications.Email.RazorLight;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Support;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
@@ -119,6 +121,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.TryAddScoped<ICommitSponsorEmailNotifier, CommitSponsorEmailNotifier>();
         services.TryAddScoped<IMarketingPricingQuoteSalesNotifier, MarketingPricingQuoteSalesNotifier>();
         services.TryAddScoped<IMarketingEarlyAccessSalesNotifier, MarketingEarlyAccessSalesNotifier>();
+        services.TryAddScoped<ISupportProblemReportNotifier, SupportProblemReportNotifier>();
         services.TryAddScoped<TrialScheduledLifecycleEmailScanner>();
         services.TryAddSingleton<IAzureCommunicationEmailApi, AzureCommunicationEmailApi>();
 
@@ -480,6 +483,11 @@ public static class ArchLucidStorageServiceCollectionExtensions
                     sp.GetRequiredService<IScopeContextProvider>(),
                     sp.GetRequiredService<ITenantRegionalArtifactBlobClients>(),
                     sp.GetRequiredService<TokenCredential>()));
+            services.AddScoped<ISupportProblemReportBundleStore>(sp =>
+                new SupportProblemReportBundleStore(
+                    sp.GetRequiredService<IScopeContextProvider>(),
+                    sp.GetRequiredService<ITenantRegionalArtifactBlobClients>(),
+                    sp.GetRequiredService<TokenCredential>()));
         }
         else if (string.Equals(provider, "Local", StringComparison.OrdinalIgnoreCase))
         {
@@ -506,6 +514,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
                 new Application.Exports.TenantReviewBoardCoverLogoStore(
                     sp.GetRequiredService<IScopeContextProvider>(),
                     resolvedRoot));
+            services.AddScoped<ISupportProblemReportBundleStore>(sp =>
+                new SupportProblemReportBundleStore(
+                    sp.GetRequiredService<IScopeContextProvider>(),
+                    resolvedRoot));
         }
         else
 
@@ -515,6 +527,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
             services.AddSingleton<IAzureExtractorChunkSessionStore, NullAzureExtractorChunkSessionStore>();
 
             services.AddSingleton<ITenantReviewBoardCoverLogoStore, NullTenantReviewBoardCoverLogoStore>();
+            services.AddSingleton<ISupportProblemReportBundleStore, NullSupportProblemReportBundleStore>();
         }
 
     }

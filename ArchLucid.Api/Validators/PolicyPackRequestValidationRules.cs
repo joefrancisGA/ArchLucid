@@ -33,7 +33,6 @@ public static class PolicyPackRequestValidationRules
     public static readonly HashSet<string> ValidPackTypes = new(StringComparer.OrdinalIgnoreCase)
 #pragma warning restore IDE0028 // Simplify collection initialization
     {
-        PolicyPackType.BuiltIn,
         PolicyPackType.TenantCustom,
         PolicyPackType.WorkspaceCustom,
         PolicyPackType.ProjectCustom

@@ -39,7 +39,11 @@ export function RunDetailPageFetchErrorView(props: {
     return (
       <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
         <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
-        <OperatorBrandedTransientFailure failure={props.loadFailure} retryLabel="Retry loading review" />
+        <OperatorBrandedTransientFailure
+          failure={props.loadFailure}
+          retryLabel="Retry loading review"
+          reportProblemSurfaceId="review-detail-hard-load-failure"
+        />
       </div>
     );
   }

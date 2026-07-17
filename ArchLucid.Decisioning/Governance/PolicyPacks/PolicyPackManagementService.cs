@@ -2,6 +2,7 @@ using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Governance.Resolution;
@@ -55,6 +56,9 @@ public sealed class PolicyPackManagementService(
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(packType);
 
+        string distributionScope = PolicyPackDistributionScopeRules.ResolveForPackType(packType);
+        PolicyPackDistributionScopeRules.RejectReservedScope(distributionScope);
+
         PolicyPack pack = new()
         {
             PolicyPackId = Guid.NewGuid(),
@@ -64,6 +68,7 @@ public sealed class PolicyPackManagementService(
             Name = name,
             Description = description,
             PackType = packType,
+            DistributionScope = distributionScope,
             Status = PolicyPackStatus.Draft,
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentVersion = InitialVersion
@@ -120,7 +125,7 @@ public sealed class PolicyPackManagementService(
         }
 
         string newValueJson = JsonSerializer.Serialize(
-            new { name, description, packType, initialVersion = InitialVersion },
+            new { name, description, packType, distributionScope = pack.DistributionScope, initialVersion = InitialVersion },
             ChangeLogJsonOptions);
 
         await AppendChangeLogAsync(

@@ -248,7 +248,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
                   autoComplete="off"
                   value={deploymentPreference}
                   onChange={(ev) => setDeploymentPreference(ev.target.value)}
-                  placeholder="e.g. SaaS, customer-managed, private Azure"
+                  placeholder="e.g. SaaS, customer-managed, single-tenant hosted"
                   className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
                 />
               </label>

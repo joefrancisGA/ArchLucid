@@ -5,6 +5,7 @@ import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
@@ -111,6 +112,11 @@ export function RunsPageView(props: Props) {
               </p>
             ) : null}
           </OperatorMalformedCallout>
+          <FatalPageReportProblemSupportRow
+            surfaceId="reviews-hub-unexpected-response"
+            errorTitle={BUYER_RUNS_LIST_MALFORMED_HEADING}
+            errorCode="malformed-response"
+          />
           {isDev ? (
             <OperatorTryNext>The server response was unexpected. If this persists, contact support.</OperatorTryNext>
           ) : null}

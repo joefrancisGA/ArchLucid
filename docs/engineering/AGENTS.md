@@ -51,3 +51,5 @@ After adding or renaming **`*.csproj`** files under the repo root, update the **
 ## Canonical extension map
 
 Contributor decision tree and entry points: **`.cursor/rules/Architecture-Invariants.mdc`**, **`docs/library/V1_SCOPE.md`**, **`docs/library/API_CONTRACTS.md`**.
+
+**Report Problem V1 contract (TB-782):** **`docs/library/REPORT_PROBLEM_V1_SCOPE.md`** — high-stakes surfaces registry (`archlucid-ui/src/lib/report-problem-surfaces.ts`) and shared copy (`report-problem-copy.ts`). Dialog/API wiring is **TB-784**–**TB-792**.

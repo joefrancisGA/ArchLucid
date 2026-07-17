@@ -196,6 +196,12 @@ public static class AuditEventTypes
     /// </summary>
     public const string SupportBundleDownloaded = "SupportBundleDownloaded";
 
+    /// <summary>
+    ///     Structured support problem report accepted (<c>POST …/support/problem-reports</c>). Payload JSON
+    ///     includes reference id and correlation metadata only (no evidence bodies).
+    /// </summary>
+    public const string SupportProblemReportSubmitted = "SupportProblemReportSubmitted";
+
     public const string RunExported = "RunExported";
 
     /// <summary>
@@ -711,6 +717,12 @@ public static class AuditEventTypes
 
     /// <summary>Admin issued new host API key rotation material (payload excludes key material).</summary>
     public const string AdminApiKeyRotationMaterialIssued = "Admin.ApiKeyRotationMaterialIssued";
+
+    /// <summary>Tenant admin created a pending user invitation (<c>POST /v1/admin/users/invite</c>).</summary>
+    public const string AdminUserInvitationCreated = "Admin.UserInvitationCreated";
+
+    /// <summary>Tenant admin revoked a pending user invitation.</summary>
+    public const string AdminUserInvitationRevoked = "Admin.UserInvitationRevoked";
 
     /// <summary>Admin invoked JWT role-claim diagnostic (<c>POST /v1/admin/auth/diagnose-token</c>); payload excludes token material.</summary>
     public const string AuthTokenDiagnosticRequested = "Auth.TokenDiagnosticRequested";

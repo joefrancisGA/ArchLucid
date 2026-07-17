@@ -1,7 +1,21 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/reviews/run-502",
+}));
 
 import { OperatorApiProblem } from "./OperatorApiProblem";
+
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+});
 
 describe("OperatorApiProblem", () => {
   it("renders heading and body from problem", () => {
@@ -164,5 +178,38 @@ describe("OperatorApiProblem", () => {
     expect(detailsEl).not.toHaveAttribute("open");
     expect(detailsEl.textContent ?? "").toContain("fetch failed");
     expect(detailsEl.textContent ?? "").toContain("req-layered-502");
+  });
+
+  it("renders Report problem and opens dialog with correlation id prefilled (TB-785)", () => {
+    render(
+      <OperatorApiProblem
+        problem={{ title: "Service unavailable", detail: "Try again later." }}
+        fallbackMessage="Service unavailable"
+        correlationId="corr-api-502"
+        httpStatus={503}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("report-problem-trigger"));
+
+    expect(screen.getByTestId("report-problem-dialog")).toBeInTheDocument();
+    expect(within(screen.getByTestId("report-problem-context-summary")).getByText("corr-api-502")).toBeInTheDocument();
+  });
+
+  it("hides Report problem on validation-only HTTP 400 (TB-785)", () => {
+    render(
+      <OperatorApiProblem
+        problem={{
+          title: "One or more validation errors occurred.",
+          status: 400,
+          instance: "/v1/architecture/request",
+          fieldErrors: [{ field: "Description", messages: ["Description must not exceed 4000 characters."] }],
+        }}
+        fallbackMessage="fallback"
+        httpStatus={400}
+      />,
+    );
+
+    expect(screen.queryByTestId("report-problem-trigger")).not.toBeInTheDocument();
   });
 });

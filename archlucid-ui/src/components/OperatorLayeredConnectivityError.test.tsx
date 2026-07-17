@@ -1,5 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/reviews",
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -12,6 +16,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { OperatorLayeredConnectivityError } from "./OperatorLayeredConnectivityError";
+
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+});
 
 const buyerPolishedMock = vi.mocked(isBuyerPolishedOperatorShellEnv);
 
@@ -97,5 +111,16 @@ describe("OperatorLayeredConnectivityError", () => {
     render(<OperatorLayeredConnectivityError {...upstreamFailure} />);
 
     expect(screen.getByText("Connectivity checklist")).toBeInTheDocument();
+  });
+
+  it("renders Report problem and opens dialog with correlation id prefilled (TB-785)", () => {
+    render(<OperatorLayeredConnectivityError {...upstreamFailure} />);
+
+    fireEvent.click(screen.getByTestId("report-problem-trigger"));
+
+    expect(screen.getByTestId("report-problem-dialog")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("report-problem-context-summary")).getByText("req-connectivity-abc"),
+    ).toBeInTheDocument();
   });
 });

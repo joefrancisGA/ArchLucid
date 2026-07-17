@@ -17,6 +17,7 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
   CONNECTOR_PURPOSE_GROUPS,
   connectorCardTitle,
+  formatConnectorCustomerSummary,
   formatIntegrationEventBusTechnicalDetails,
   groupConnectorsByPurpose,
   resolveConnectorBestFor,
@@ -136,7 +137,7 @@ export function ConnectorOperationsDashboard(): ReactElement {
                     configurationHref={connector.configurationHref ?? null}
                     configureHelper={resolveConnectorConfigureHelper(connector.connectorKey)}
                     detailsLabel={resolveConnectorDetailsLabel(displayStatus, disabledForDeployment)}
-                    technicalDetails={connector.summary}
+                    technicalDetails={formatConnectorCustomerSummary(connector)}
                     disabledForDeployment={disabledForDeployment}
                     testId={`connector-card-${connector.connectorKey}`}
                   />

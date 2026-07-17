@@ -53,6 +53,20 @@ describe("FinishSetupWizardPanel", () => {
     expect(document.querySelector('a[href="/admin/health"]')).toBeNull();
   });
 
+  it("uses secret-store language in the required setup description", () => {
+    process.env.NODE_ENV = "production";
+    delete process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED;
+
+    render(<FinishSetupWizardPanel />);
+
+    expect(
+      screen.getByText(
+        /without manual secret-store configuration/i,
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Key Vault/i)).toBeNull();
+  });
+
   it("links self-hosted health confirmation to /health", () => {
     process.env.NODE_ENV = "production";
     process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED = "true";

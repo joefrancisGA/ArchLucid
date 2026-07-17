@@ -67,7 +67,7 @@ describe("OperatorRoleGate", () => {
     expect(replace).toHaveBeenCalledWith("/403");
   });
 
-  it("redirects unsigned JWT sessions to welcome and hides page content", () => {
+  it("redirects unsigned JWT sessions to sign-in with returnUrl and hides page content", () => {
     signedInState.value = false;
     principalState.loading = false;
     replace.mockClear();
@@ -80,7 +80,30 @@ describe("OperatorRoleGate", () => {
 
     expect(view.getByTestId("operator-shell-access-gate-loading")).toBeInTheDocument();
     expect(view.queryByTestId("protected-page")).not.toBeInTheDocument();
-    expect(replace).toHaveBeenCalledWith("/welcome");
+    expect(replace).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Freviews");
+  });
+
+  it("preserves query string in sign-in returnUrl for unsigned JWT sessions", () => {
+    signedInState.value = false;
+    principalState.loading = false;
+    replace.mockClear();
+
+    const locationSpy = vi.spyOn(window, "location", "get").mockReturnValue({
+      ...window.location,
+      search: "?x=1",
+    });
+
+    try {
+      render(
+        <OperatorRoleGate>
+          <div data-testid="protected-page">protected</div>
+        </OperatorRoleGate>,
+      );
+
+      expect(replace).toHaveBeenCalledWith("/auth/signin?returnUrl=%2Freviews%3Fx%3D1");
+    } finally {
+      locationSpy.mockRestore();
+    }
   });
 
   it("renders neutral loading without page content while authority resolves", () => {

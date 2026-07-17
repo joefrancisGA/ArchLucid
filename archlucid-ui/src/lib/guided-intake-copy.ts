@@ -33,7 +33,7 @@ export const GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER =
   "Describe the system, business outcome, users, integrations, constraints, risks, and what you want ArchLucid to evaluate.";
 
 export const GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER =
-  "Example: A customer-facing API on Azure with private networking, Entra ID sign-in, and EU data residency.";
+  "Example: Customer-facing API with private networking, managed database, cache tier, and EU data residency goals.";
 
 export function guidedIntakeArchitectureIntentHelperText(trimmedLength: number): string {
   if (trimmedLength === 0) {

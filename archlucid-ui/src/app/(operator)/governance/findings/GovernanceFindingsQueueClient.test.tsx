@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
@@ -78,6 +78,16 @@ vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
   ItsmOutboundQuickActions: () => null,
 }));
 
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+});
+
 const loadedRiskRow = {
   runId: "run-1",
   runLabel: "Claims Intake Review",
@@ -144,6 +154,23 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(screen.getByTestId("architecture-risk-register-summary-overdue")).toHaveTextContent("Overdue review: 0");
 
     expect(screen.queryByText("Terminology reference")).not.toBeInTheDocument();
+  });
+
+  it("renders Report problem when the risk register load fails (TB-786)", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockRejectedValue(new Error("network"));
+
+    render(<GovernanceFindingsQueueClient />);
+
+    expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
+  });
+
+  it("does not render Report problem on benign empty risk register", async () => {
+    render(<GovernanceFindingsQueueClient />);
+
+    expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
+    expect(screen.queryByTestId("report-problem-trigger")).not.toBeInTheDocument();
   });
 
   it("renders operational table rows and filters when risk data is loaded", async () => {

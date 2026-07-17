@@ -33,3 +33,9 @@ Findings influence review readiness, may require approval or exception, and appe
 ## Role guidance {#role-guidance}
 
 Solution architects investigate and assign remediation. Reviewers validate evidence and severity. Governance leads record decisions. Executives review material risk.
+
+## Related guides {#related-guides}
+
+- [Review guide](/help/review-guide) — start a review and confirm review scope in the wizard.
+- [Evidence graph](/help/evidence-trail) — trace a finding back to source artifacts.
+- [Review packages](/help/review-packages) — open and export completed packages.

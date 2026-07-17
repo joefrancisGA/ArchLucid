@@ -6,6 +6,7 @@ import { useEffect, type ReactNode } from "react";
 import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { operatorPrincipalLacksArchLucidAccess } from "@/lib/access-denied-context";
+import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import {
   pathnameExemptFromOperatorAccessGate,
   shouldDeferOperatorShellChrome,
@@ -38,7 +39,10 @@ export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
     }
 
     if (isJwtAuthMode() && !isLikelySignedIn()) {
-      router.replace("/welcome");
+      const returnPath =
+        typeof window !== "undefined" ? `${pathname}${window.location.search}` : pathname;
+
+      router.replace(buildAuthSignInHref({ returnPath }));
 
       return;
     }

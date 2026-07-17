@@ -47,6 +47,16 @@ public class PolicyPack
         set;
     } = PolicyPackType.BuiltIn;
 
+    /// <summary>
+    ///     Who may see or install this pack (<see cref="PolicyPackDistributionScope" />).
+    ///     Orthogonal to <see cref="PackType" /> (authorship origin).
+    /// </summary>
+    public string DistributionScope
+    {
+        get;
+        set;
+    } = PolicyPackDistributionScope.Platform;
+
     public string Status
     {
         get;

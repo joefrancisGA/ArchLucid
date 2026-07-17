@@ -9,6 +9,7 @@ export type PolicyPack = {
   name: string;
   description: string;
   packType: string;
+  distributionScope: string;
   status: string;
   createdUtc: string;
   activatedUtc?: string | null;

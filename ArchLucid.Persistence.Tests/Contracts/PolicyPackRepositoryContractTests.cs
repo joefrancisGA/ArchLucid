@@ -25,6 +25,7 @@ public abstract class PolicyPackRepositoryContractTests
             Name = name,
             Description = "desc",
             PackType = PolicyPackType.BuiltIn,
+            DistributionScope = PolicyPackDistributionScope.Platform,
             Status = PolicyPackStatus.Draft,
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CurrentVersion = "1.0.0"

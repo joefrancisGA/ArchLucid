@@ -109,8 +109,8 @@ export function AzureBoardsIntegrationAside(props: Props): React.ReactElement {
       {props.showOperatorNotes ? (
         <CollapsibleSection title="Platform operator notes" defaultOpen={false}>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Deployment flag Integrations:ItsmOutbound:NativeEnabled controls whether finding create actions appear.
-            Current status: {props.nativeEnabled ? "enabled" : "disabled"}.
+            Native work item creation from findings is {props.nativeEnabled ? "enabled" : "disabled"} for this
+            deployment.
           </p>
         </CollapsibleSection>
       ) : null}

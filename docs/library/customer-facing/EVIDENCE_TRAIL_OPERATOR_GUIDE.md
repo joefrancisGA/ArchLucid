@@ -64,6 +64,7 @@ If a finding shows an **evidence gap**, the trace table and graph still help you
 
 ## Related guides {#related-guides}
 
+- [Review guide](/help/review-guide) — wizard field reference for each intake step.
 - [Review packages](/help/review-packages) — browse and open review packages before tracing.
 - [Findings](/help/findings) — interpret severity, rationale, and evidence links on a package.
 - [Start a review](/help/evidence-intake) — attach the evidence the trail will reference.
