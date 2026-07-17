@@ -426,11 +426,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       relatedFindingCount: null,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "review-package"),
-<<<<<<< HEAD
-      actionLabel: "Open package",
-=======
       actionLabel: "Open record",
->>>>>>> origin/RC11
     });
   }
 
