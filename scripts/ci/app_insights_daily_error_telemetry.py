@@ -16,12 +16,11 @@ SCHEMA_REPORT = "archlucid.app-insights-daily-error-report.v1"
 KQL_EXCEPTIONS = """
 AppExceptions
 | where TimeGenerated > ago({hours}h)
-| extend Role = tostring(cloud_RoleName)
 | summarize
     Count = count(),
     SampleOuterMessage = take_any(OuterMessage),
     SampleOperation = take_any(OperationName),
-    SampleRole = take_any(Role)
+    SampleRole = take_any(AppRoleName)
   by Type, ProblemId
 | order by Count desc
 | take {limit}
