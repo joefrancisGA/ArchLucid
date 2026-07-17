@@ -13930,6 +13930,38 @@
         },
         "type": "object"
       },
+      "InvitationValidationResponse": {
+        "properties": {
+          "allowEmailCode": {
+            "type": "boolean"
+          },
+          "appRole": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "maskedInvitedEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requireEnterpriseSso": {
+            "type": "boolean"
+          },
+          "routingMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ItsmAtlassianOAuthConsentCompleteRequest": {
         "properties": {
           "code": {
@@ -18186,6 +18218,9 @@
       },
       "PostAuthAcceptInvitationBody": {
         "properties": {
+          "confirmEmailMismatch": {
+            "type": "boolean"
+          },
           "invitationId": {
             "format": "uuid",
             "type": "string"
@@ -18226,12 +18261,27 @@
       },
       "PostAuthBootstrapInvitationResponse": {
         "properties": {
+          "confirmationMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "invitationId": {
             "format": "uuid",
             "type": "string"
           },
           "label": {
             "type": "string"
+          },
+          "maskedInvitedEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiresEmailMismatchConfirmation": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -26625,6 +26675,18 @@
       },
       "UserInvitationResponse": {
         "properties": {
+          "acceptPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "acceptUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "appRole": {
             "type": "string"
           },
@@ -26642,6 +26704,12 @@
           "id": {
             "format": "uuid",
             "type": "string"
+          },
+          "invitationToken": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "invitedByActorId": {
             "type": "string"
@@ -70134,6 +70202,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "invitationToken",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -70929,6 +71004,135 @@
         },
         "tags": [
           "EmailOtpAuth"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/auth/invitations/validate": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationValidationResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationValidationResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationValidationResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "UserInvitationPublic"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -125314,6 +125518,9 @@
     },
     {
       "name": "TrustCenterEvidencePack"
+    },
+    {
+      "name": "UserInvitationPublic"
     },
     {
       "name": "UserPreferences"

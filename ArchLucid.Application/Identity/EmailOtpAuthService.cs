@@ -449,7 +449,11 @@ public sealed class EmailOtpAuthService(
                 cancellationToken).ConfigureAwait(false);
 
         (EmailOtpAuthNextStep nextStep, Guid? tenantId, Guid? workspaceId, Guid? invitationId) =
-            await ResolveNextStepAsync(user.Id, normalizedEmail, acceptedInvitationId, cancellationToken)
+            await ResolveNextStepAsync(
+                    user.Id,
+                    normalizedEmail,
+                    acceptedInvitationId ?? completion.Challenge.InvitationId,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
         await _auditService.LogAsync(
@@ -545,7 +549,6 @@ public sealed class EmailOtpAuthService(
             await _invitations.GetPendingByTokenHashAsync(tokenHash, cancellationToken).ConfigureAwait(false);
 
         if (invitation is null
-            || !string.Equals(invitation.Email, normalizedEmail, StringComparison.Ordinal)
             || invitation.ExpiresUtc <= _timeProvider.GetUtcNow())
         {
             return null;
@@ -635,7 +638,7 @@ public sealed class EmailOtpAuthService(
         ResolveNextStepAsync(
             Guid platformUserId,
             string normalizedEmail,
-            Guid? acceptedInvitationId,
+            Guid? linkedInvitationId,
             CancellationToken cancellationToken)
     {
         IReadOnlyList<WorkspaceMembershipRecord> memberships =
@@ -644,11 +647,11 @@ public sealed class EmailOtpAuthService(
         IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
             memberships.Where(row => row.Status == WorkspaceMembershipStatus.Active).ToList();
 
-        if (acceptedInvitationId is Guid invitationId && activeMemberships.Count > 0)
+        if (linkedInvitationId is Guid acceptedInvitationId && activeMemberships.Count > 0)
         {
             WorkspaceMembershipRecord membership = activeMemberships[^1];
 
-            return (EmailOtpAuthNextStep.Complete, membership.TenantId, membership.WorkspaceId, invitationId);
+            return (EmailOtpAuthNextStep.Complete, membership.TenantId, membership.WorkspaceId, acceptedInvitationId);
         }
 
         if (activeMemberships.Count == 1)
@@ -661,6 +664,17 @@ public sealed class EmailOtpAuthService(
         if (activeMemberships.Count > 1)
         {
             return (EmailOtpAuthNextStep.SelectWorkspace, null, null, null);
+        }
+
+        if (linkedInvitationId is Guid invitationId)
+        {
+            UserInvitationRecord? linked =
+                await _invitations.GetPendingByIdAsync(invitationId, cancellationToken).ConfigureAwait(false);
+
+            if (linked is not null)
+            {
+                return (EmailOtpAuthNextStep.AcceptInvitation, linked.TenantId, linked.WorkspaceId, linked.Id);
+            }
         }
 
         IReadOnlyList<UserInvitationRecord> openInvitations =

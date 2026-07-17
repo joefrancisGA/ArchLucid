@@ -62,6 +62,24 @@ public sealed class PostAuthBootstrapInvitationResponse
         get;
         init;
     } = string.Empty;
+
+    public string? MaskedInvitedEmail
+    {
+        get;
+        init;
+    }
+
+    public bool RequiresEmailMismatchConfirmation
+    {
+        get;
+        init;
+    }
+
+    public string? ConfirmationMessage
+    {
+        get;
+        init;
+    }
 }
 
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; auto-properties only.")]
@@ -204,6 +222,12 @@ public sealed class PostAuthAcceptInvitationBody
     }
 
     public string? InvitationToken
+    {
+        get;
+        init;
+    }
+
+    public bool ConfirmEmailMismatch
     {
         get;
         init;

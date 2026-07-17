@@ -672,6 +672,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Auth/UserInvitationPublicController.cs",
+      "class_name": "UserInvitationPublicController",
+      "route_template": "v{version:apiVersion}/auth/invitations",
+      "normalized_prefix": "/v1/auth/invitations",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/AnalysisReportsController.cs",
       "class_name": "AnalysisReportsController",
       "route_template": "v{version:apiVersion}/architecture",

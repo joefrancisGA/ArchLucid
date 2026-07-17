@@ -794,6 +794,8 @@ public static class AuditEventTypes
 
     public const string AdminUserInvitationAccepted = "Admin.UserInvitationAccepted";
 
+    public const string UserInvitationValidated = "Identity.UserInvitationValidated";
+
     /// <summary>Admin invoked JWT role-claim diagnostic (<c>POST /v1/admin/auth/diagnose-token</c>); payload excludes token material.</summary>
     public const string AuthTokenDiagnosticRequested = "Auth.TokenDiagnosticRequested";
 

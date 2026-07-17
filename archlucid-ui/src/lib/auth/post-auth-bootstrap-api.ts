@@ -8,7 +8,13 @@ export type PostAuthBootstrapDestination =
 
 export type PostAuthBootstrapStatusResponse = {
   destination: PostAuthBootstrapDestination;
-  pendingInvitations: ReadonlyArray<{ invitationId: string; label: string }>;
+  pendingInvitations: ReadonlyArray<{
+    invitationId: string;
+    label: string;
+    maskedInvitedEmail?: string | null;
+    requiresEmailMismatchConfirmation?: boolean;
+    confirmationMessage?: string | null;
+  }>;
   workspaces: ReadonlyArray<{ tenantId: string; workspaceId: string; workspaceName: string }>;
   resumePath?: string | null;
   duplicateOrganization?: {
@@ -40,8 +46,19 @@ export type PostAuthCreateWorkspaceBody = {
 
 export async function fetchPostAuthBootstrapStatus(
   returnUrl?: string,
+  invitationToken?: string | null,
 ): Promise<PostAuthBootstrapStatusResponse> {
-  const query = returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : "";
+  const params = new URLSearchParams();
+
+  if (returnUrl) {
+    params.set("returnUrl", returnUrl);
+  }
+
+  if (invitationToken) {
+    params.set("invitationToken", invitationToken);
+  }
+
+  const query = params.size > 0 ? `?${params.toString()}` : "";
   const response = await fetch(`/api/proxy/v1/auth/bootstrap/status${query}`, {
     headers: { Accept: "application/json" },
   });
@@ -87,12 +104,13 @@ export async function acceptPostAuthInvitation(
   invitationId: string,
   invitationToken: string | null,
   returnUrl?: string,
+  confirmEmailMismatch = false,
 ): Promise<PostAuthBootstrapSessionResponse | null> {
   const query = returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : "";
   const response = await fetch(`/api/proxy/v1/auth/bootstrap/invitations/accept${query}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ invitationId, invitationToken }),
+    body: JSON.stringify({ invitationId, invitationToken, confirmEmailMismatch }),
   });
 
   if (!response.ok) {

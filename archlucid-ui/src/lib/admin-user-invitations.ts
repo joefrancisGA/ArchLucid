@@ -14,6 +14,9 @@ export type AdminUserInvitationRow = {
   message: string | null;
   createdUtc: string;
   expiresUtc: string;
+  invitationToken?: string | null;
+  acceptPath?: string | null;
+  acceptUrl?: string | null;
 };
 
 export type SendAdminUserInvitationResult =
@@ -43,6 +46,9 @@ export function parseAdminUserInvitation(json: unknown): AdminUserInvitationRow 
     message: typeof record.message === "string" ? record.message : null,
     createdUtc: String(record.createdUtc ?? ""),
     expiresUtc: String(record.expiresUtc ?? ""),
+    invitationToken: typeof record.invitationToken === "string" ? record.invitationToken : null,
+    acceptPath: typeof record.acceptPath === "string" ? record.acceptPath : null,
+    acceptUrl: typeof record.acceptUrl === "string" ? record.acceptUrl : null,
   };
 }
 

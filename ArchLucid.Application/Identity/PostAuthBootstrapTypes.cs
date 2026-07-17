@@ -24,6 +24,24 @@ public sealed class PostAuthBootstrapInvitationSummary
         get;
         init;
     } = "Organization workspace";
+
+    public string? MaskedInvitedEmail
+    {
+        get;
+        init;
+    }
+
+    public bool RequiresEmailMismatchConfirmation
+    {
+        get;
+        init;
+    }
+
+    public string? ConfirmationMessage
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class PostAuthBootstrapWorkspaceSummary
@@ -233,6 +251,12 @@ public sealed class PostAuthAcceptInvitationRequest
     }
 
     public string? InvitationToken
+    {
+        get;
+        init;
+    }
+
+    public bool ConfirmEmailMismatch
     {
         get;
         init;

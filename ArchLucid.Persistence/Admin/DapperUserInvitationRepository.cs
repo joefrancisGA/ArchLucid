@@ -65,6 +65,27 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
         return row?.ToRecord();
     }
 
+    public async Task<UserInvitationRecord?> GetPendingByIdAsync(
+        Guid invitationId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT Id, TenantId, WorkspaceId, Email, AppRole, InvitedByActorId, Message, Status,
+                                  CreatedUtc, ExpiresUtc, RevokedUtc, AcceptedUtc
+                           FROM dbo.UserInvitations
+                           WHERE Id = @Id
+                             AND Status = N'Pending'
+                             AND ExpiresUtc > SYSUTCDATETIME();
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        InvitationRow? row = await connection.QuerySingleOrDefaultAsync<InvitationRow>(
+            new CommandDefinition(sql, new { Id = invitationId }, cancellationToken: cancellationToken));
+
+        return row?.ToRecord();
+    }
+
     public async Task<IReadOnlyList<UserInvitationRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken)
@@ -172,6 +193,25 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
                            WHERE TokenHash = @TokenHash
                              AND Status = N'Pending'
                              AND ExpiresUtc > SYSUTCDATETIME();
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        InvitationRow? row = await connection.QuerySingleOrDefaultAsync<InvitationRow>(
+            new CommandDefinition(sql, new { TokenHash = tokenHash }, cancellationToken: cancellationToken));
+
+        return row?.ToRecord();
+    }
+
+    public async Task<UserInvitationRecord?> GetByTokenHashAsync(
+        byte[] tokenHash,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT Id, TenantId, WorkspaceId, Email, AppRole, InvitedByActorId, Message, Status,
+                                  CreatedUtc, ExpiresUtc, RevokedUtc, AcceptedUtc
+                           FROM dbo.UserInvitations
+                           WHERE TokenHash = @TokenHash;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

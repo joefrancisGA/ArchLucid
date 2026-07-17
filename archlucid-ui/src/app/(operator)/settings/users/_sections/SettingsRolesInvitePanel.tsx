@@ -85,7 +85,13 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
       return;
     }
 
-    showSuccess(`Invite sent to ${form.email} (reference ${result.invitation.id}).`);
+    showSuccess(
+      result.invitation.acceptUrl
+        ? `Invitation sent to ${form.email}. Share link: ${result.invitation.acceptUrl}`
+        : result.invitation.acceptPath
+          ? `Invitation sent to ${form.email}. Share path: ${result.invitation.acceptPath}`
+          : `Invite sent to ${form.email} (reference ${result.invitation.id}).`,
+    );
     setForm(EMPTY_FORM);
     onInviteSent?.();
   }

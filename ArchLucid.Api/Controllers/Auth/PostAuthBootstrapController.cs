@@ -49,6 +49,7 @@ public sealed class PostAuthBootstrapController(
     [ProducesResponseType(typeof(PostAuthBootstrapStatusResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetStatusAsync(
         [FromQuery] string? returnUrl,
+        [FromQuery] string? invitationToken,
         CancellationToken cancellationToken)
     {
         PlatformUserRecord? user = await ResolveUserAsync(cancellationToken).ConfigureAwait(false);
@@ -66,7 +67,7 @@ public sealed class PostAuthBootstrapController(
 
         string safeReturn = SanitizeReturnPath(returnUrl);
         PostAuthBootstrapStatusResult status =
-            await _bootstrap.ResolveStatusAsync(user.Id, normalizedEmail, safeReturn, cancellationToken)
+            await _bootstrap.ResolveStatusAsync(user.Id, normalizedEmail, safeReturn, invitationToken, cancellationToken)
                 .ConfigureAwait(false);
 
         return Ok(MapStatus(status));
@@ -195,7 +196,8 @@ public sealed class PostAuthBootstrapController(
             new PostAuthAcceptInvitationRequest
             {
                 InvitationId = body.InvitationId,
-                InvitationToken = body.InvitationToken
+                InvitationToken = body.InvitationToken,
+                ConfirmEmailMismatch = body.ConfirmEmailMismatch
             },
             SanitizeReturnPath(returnUrl),
             cancellationToken).ConfigureAwait(false);
@@ -356,7 +358,10 @@ public sealed class PostAuthBootstrapController(
                 .Select(row => new PostAuthBootstrapInvitationResponse
                 {
                     InvitationId = row.InvitationId,
-                    Label = row.Label
+                    Label = row.Label,
+                    MaskedInvitedEmail = row.MaskedInvitedEmail,
+                    RequiresEmailMismatchConfirmation = row.RequiresEmailMismatchConfirmation,
+                    ConfirmationMessage = row.ConfirmationMessage
                 })
                 .ToList(),
             Workspaces = status.Workspaces

@@ -73,6 +73,8 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<CloudflareDnsTxtRecordLookup>());
         services.AddScoped<IEmailOtpEmailNotifier, EmailOtpEmailNotifier>();
         services.AddScoped<IUserInvitationAdminService, UserInvitationAdminService>();
+        services.AddScoped<IUserInvitationFlowService, UserInvitationFlowService>();
+        services.AddScoped<IUserInvitationEmailNotifier, UserInvitationEmailNotifier>();
         services.AddScoped<ISupportProblemReportIntakeService, SupportProblemReportIntakeService>();
 
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();

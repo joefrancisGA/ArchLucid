@@ -53,7 +53,10 @@ export function PostAuthBootstrapClient() {
     setErrorMessage(null);
 
     try {
-      const nextStatus = await fetchPostAuthBootstrapStatus(safeReturnUrl !== "/" ? safeReturnUrl : undefined);
+      const nextStatus = await fetchPostAuthBootstrapStatus(
+        safeReturnUrl !== "/" ? safeReturnUrl : undefined,
+        readInvitationToken(),
+      );
       setStatus(nextStatus);
 
       if (nextStatus.destination === "Complete") {
@@ -100,7 +103,7 @@ export function PostAuthBootstrapClient() {
     applyBootstrapSession(result.session);
   };
 
-  const handleAcceptInvitation = async (invitationId: string) => {
+  const handleAcceptInvitation = async (invitationId: string, confirmEmailMismatch = false) => {
     setPending(true);
     setErrorMessage(null);
 
@@ -108,6 +111,7 @@ export function PostAuthBootstrapClient() {
       invitationId,
       readInvitationToken(),
       safeReturnUrl !== "/" ? safeReturnUrl : undefined,
+      confirmEmailMismatch,
     );
 
     setPending(false);
@@ -171,18 +175,32 @@ export function PostAuthBootstrapClient() {
         </p>
         <div className="mt-6 flex flex-col gap-3">
           {status.pendingInvitations.map((invitation) => (
-            <Button
-              key={invitation.invitationId}
-              type="button"
-              variant="primary"
-              disabled={pending}
-              data-testid={`bootstrap-accept-invitation-${invitation.invitationId}`}
-              onClick={() => {
-                void handleAcceptInvitation(invitation.invitationId);
-              }}
-            >
-              Join {invitation.label}
-            </Button>
+            <div key={invitation.invitationId} className="space-y-2 rounded-md border border-al-border p-3">
+              {invitation.maskedInvitedEmail ? (
+                <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                  Invited: {invitation.maskedInvitedEmail}
+                </p>
+              ) : null}
+              {invitation.requiresEmailMismatchConfirmation && invitation.confirmationMessage ? (
+                <p className={cn("m-0 text-sm text-amber-800 dark:text-amber-300", OPERATOR_TYPOGRAPHY.body)}>
+                  {invitation.confirmationMessage}
+                </p>
+              ) : null}
+              <Button
+                type="button"
+                variant="primary"
+                disabled={pending}
+                data-testid={`bootstrap-accept-invitation-${invitation.invitationId}`}
+                onClick={() => {
+                  void handleAcceptInvitation(
+                    invitation.invitationId,
+                    invitation.requiresEmailMismatchConfirmation === true,
+                  );
+                }}
+              >
+                {invitation.requiresEmailMismatchConfirmation ? "Confirm and join" : `Join ${invitation.label}`}
+              </Button>
+            </div>
           ))}
         </div>
         {errorMessage ? (

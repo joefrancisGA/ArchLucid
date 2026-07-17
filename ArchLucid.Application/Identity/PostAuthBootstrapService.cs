@@ -15,6 +15,7 @@ public interface IPostAuthBootstrapService
         Guid platformUserId,
         string normalizedEmail,
         string? safeReturnPath,
+        string? invitationToken,
         CancellationToken cancellationToken);
 
     Task<PostAuthCreateWorkspaceResult> CreateWorkspaceAsync(
@@ -41,6 +42,7 @@ public interface IPostAuthBootstrapService
 public sealed class PostAuthBootstrapService(
     IWorkspaceMembershipRepository memberships,
     IUserInvitationRepository invitations,
+    IUserInvitationFlowService invitationFlow,
     ITenantRepository tenantRepository,
     ITenantProvisioningService tenantProvisioning,
     ITrialTenantBootstrapService trialBootstrap,
@@ -65,6 +67,9 @@ public sealed class PostAuthBootstrapService(
     private readonly IUserInvitationRepository _invitations =
         invitations ?? throw new ArgumentNullException(nameof(invitations));
 
+    private readonly IUserInvitationFlowService _invitationFlow =
+        invitationFlow ?? throw new ArgumentNullException(nameof(invitationFlow));
+
     private readonly IWorkspaceMembershipRepository _memberships =
         memberships ?? throw new ArgumentNullException(nameof(memberships));
 
@@ -84,20 +89,53 @@ public sealed class PostAuthBootstrapService(
         Guid platformUserId,
         string normalizedEmail,
         string? safeReturnPath,
+        string? invitationToken,
         CancellationToken cancellationToken)
     {
         IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
             await ListActiveMembershipsAsync(platformUserId, cancellationToken).ConfigureAwait(false);
 
+        UserInvitationRecord? tokenInvitation = null;
+
+        if (!string.IsNullOrWhiteSpace(invitationToken))
+        {
+            tokenInvitation =
+                await _invitationFlow.ResolvePendingByTokenAsync(invitationToken, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (tokenInvitation is not null)
+        {
+            WorkspaceMembershipRecord? existingMembership = activeMemberships.FirstOrDefault(row =>
+                row.TenantId == tokenInvitation.TenantId && row.WorkspaceId == tokenInvitation.WorkspaceId);
+
+            if (existingMembership is not null)
+            {
+                return new PostAuthBootstrapStatusResult
+                {
+                    Destination = PostAuthBootstrapDestination.Complete,
+                    Workspaces = await BuildWorkspaceSummariesAsync(activeMemberships, cancellationToken).ConfigureAwait(false),
+                    CanCreateWorkspace = false
+                };
+            }
+
+            bool emailMismatch = !string.Equals(tokenInvitation.Email, normalizedEmail, StringComparison.Ordinal);
+
+            return new PostAuthBootstrapStatusResult
+            {
+                Destination = PostAuthBootstrapDestination.AcceptInvitation,
+                PendingInvitations =
+                [
+                    BuildInvitationSummary(tokenInvitation, normalizedEmail, emailMismatch)
+                ],
+                CanCreateWorkspace = false
+            };
+        }
+
         IReadOnlyList<UserInvitationRecord> pendingInvitations =
             await _invitations.ListPendingByNormalizedEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false);
 
         List<PostAuthBootstrapInvitationSummary> invitationSummaries = pendingInvitations
-            .Select(row => new PostAuthBootstrapInvitationSummary
-            {
-                InvitationId = row.Id,
-                Label = InvitationLabel
-            })
+            .Select(row => BuildInvitationSummary(row, normalizedEmail, emailMismatch: false))
             .ToList();
 
         if (pendingInvitations.Count > 0)
@@ -370,28 +408,44 @@ public sealed class PostAuthBootstrapService(
         string? safeReturnPath,
         CancellationToken cancellationToken)
     {
-        UserInvitationRecord? invitation = null;
+        UserInvitationRecord? invitation = await ResolveInvitationForAcceptanceAsync(
+                request,
+                normalizedEmail,
+                cancellationToken)
+            .ConfigureAwait(false);
 
-        if (!string.IsNullOrWhiteSpace(request.InvitationToken))
-        {
-            byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(request.InvitationToken);
-
-            invitation = await _invitations.GetPendingByTokenHashAsync(tokenHash, cancellationToken).ConfigureAwait(false);
-        }
-
-        if (invitation is null || invitation.Id != request.InvitationId)
-        {
-            IReadOnlyList<UserInvitationRecord> pending =
-                await _invitations.ListPendingByNormalizedEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false);
-
-            invitation = pending.FirstOrDefault(row => row.Id == request.InvitationId);
-        }
-
-        if (invitation is null
-            || !string.Equals(invitation.Email, normalizedEmail, StringComparison.Ordinal)
-            || invitation.ExpiresUtc <= _timeProvider.GetUtcNow())
+        if (invitation is null)
         {
             return null;
+        }
+
+        if (!string.Equals(invitation.Email, normalizedEmail, StringComparison.Ordinal)
+            && !request.ConfirmEmailMismatch)
+        {
+            return null;
+        }
+
+        IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
+            await ListActiveMembershipsAsync(platformUserId, cancellationToken).ConfigureAwait(false);
+
+        WorkspaceMembershipRecord? existingMembership = activeMemberships.FirstOrDefault(row =>
+            row.TenantId == invitation.TenantId && row.WorkspaceId == invitation.WorkspaceId);
+
+        if (existingMembership is not null)
+        {
+            await _invitations.MarkAcceptedAsync(invitation.Id, _timeProvider.GetUtcNow(), cancellationToken)
+                .ConfigureAwait(false);
+
+            TenantWorkspaceLink? existingLink =
+                await _tenantRepository.GetFirstWorkspaceAsync(invitation.TenantId, cancellationToken).ConfigureAwait(false);
+
+            return new PostAuthBootstrapSessionResult
+            {
+                TenantId = invitation.TenantId,
+                WorkspaceId = invitation.WorkspaceId,
+                ProjectId = existingLink?.DefaultProjectId ?? Guid.Empty,
+                RedirectPath = IsResumePath(safeReturnPath) ? safeReturnPath! : "/"
+            };
         }
 
         DateTimeOffset now = _timeProvider.GetUtcNow();
@@ -422,7 +476,13 @@ public sealed class PostAuthBootstrapService(
                 ActorUserName = normalizedEmail,
                 TenantId = invitation.TenantId,
                 WorkspaceId = invitation.WorkspaceId,
-                DataJson = JsonSerializer.Serialize(new { invitationId = invitation.Id, userId = platformUserId })
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        invitationId = invitation.Id,
+                        userId = platformUserId,
+                        emailMismatch = !string.Equals(invitation.Email, normalizedEmail, StringComparison.Ordinal)
+                    })
             },
             cancellationToken).ConfigureAwait(false);
 
@@ -438,6 +498,68 @@ public sealed class PostAuthBootstrapService(
             ProjectId = projectId,
             RedirectPath = IsResumePath(safeReturnPath) ? safeReturnPath! : "/onboarding?source=invitation"
         };
+    }
+
+    private async Task<UserInvitationRecord?> ResolveInvitationForAcceptanceAsync(
+        PostAuthAcceptInvitationRequest request,
+        string normalizedEmail,
+        CancellationToken cancellationToken)
+    {
+        UserInvitationRecord? invitation = null;
+
+        if (!string.IsNullOrWhiteSpace(request.InvitationToken))
+        {
+            invitation = await _invitationFlow.ResolvePendingByTokenAsync(request.InvitationToken, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        if (invitation is null || invitation.Id != request.InvitationId)
+        {
+            IReadOnlyList<UserInvitationRecord> pending =
+                await _invitations.ListPendingByNormalizedEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false);
+
+            invitation = pending.FirstOrDefault(row => row.Id == request.InvitationId);
+        }
+
+        if (invitation is null || invitation.ExpiresUtc <= _timeProvider.GetUtcNow())
+        {
+            return null;
+        }
+
+        return invitation;
+    }
+
+    private static PostAuthBootstrapInvitationSummary BuildInvitationSummary(
+        UserInvitationRecord invitation,
+        string authenticatedEmail,
+        bool emailMismatch) =>
+        new()
+        {
+            InvitationId = invitation.Id,
+            Label = InvitationLabel,
+            MaskedInvitedEmail = MaskEmail(invitation.Email),
+            RequiresEmailMismatchConfirmation = emailMismatch,
+            ConfirmationMessage = emailMismatch
+                ? $"This invitation was sent to {MaskEmail(invitation.Email)}. You are signed in as {MaskEmail(authenticatedEmail)}. Confirm to join."
+                : null
+        };
+
+    private static string MaskEmail(string normalizedEmail)
+    {
+        int at = normalizedEmail.IndexOf('@');
+
+        if (at <= 1)
+        {
+            return "***";
+        }
+
+        string local = normalizedEmail[..at];
+        string domain = normalizedEmail[(at + 1)..];
+        string maskedLocal = local.Length <= 2
+            ? $"{local[0]}*"
+            : $"{local[0]}***{local[^1]}";
+
+        return $"{maskedLocal}@{domain}";
     }
 
     public async Task<PostAuthBootstrapSessionResult?> SelectWorkspaceAsync(

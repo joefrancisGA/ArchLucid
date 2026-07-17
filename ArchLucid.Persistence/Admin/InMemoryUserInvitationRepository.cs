@@ -34,6 +34,24 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
             _byId.TryGetValue(invitationId, out UserInvitationRecord? row) && row.TenantId == tenantId ? row : null);
     }
 
+    public Task<UserInvitationRecord?> GetPendingByIdAsync(Guid invitationId, CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        if (!_byId.TryGetValue(invitationId, out UserInvitationRecord? row))
+        {
+            return Task.FromResult<UserInvitationRecord?>(null);
+        }
+
+        if (row.Status != UserInvitationStatus.Pending || row.ExpiresUtc <= now)
+        {
+            return Task.FromResult<UserInvitationRecord?>(null);
+        }
+
+        return Task.FromResult<UserInvitationRecord?>(row);
+    }
+
     public Task<IReadOnlyList<UserInvitationRecord>> ListByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         _ = cancellationToken;
@@ -144,6 +162,27 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
             }
 
             return Task.FromResult<UserInvitationRecord?>(row);
+        }
+
+        return Task.FromResult<UserInvitationRecord?>(null);
+    }
+
+    public Task<UserInvitationRecord?> GetByTokenHashAsync(byte[] tokenHash, CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+        ArgumentNullException.ThrowIfNull(tokenHash);
+
+        foreach (KeyValuePair<Guid, byte[]> entry in _tokenHashesByInvitationId)
+        {
+            if (!CryptographicEquals(entry.Value, tokenHash))
+            {
+                continue;
+            }
+
+            if (_byId.TryGetValue(entry.Key, out UserInvitationRecord? row))
+            {
+                return Task.FromResult<UserInvitationRecord?>(row);
+            }
         }
 
         return Task.FromResult<UserInvitationRecord?>(null);

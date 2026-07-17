@@ -220,4 +220,52 @@ public sealed class AuthSignInRoutingServiceTests
         Assert.True(live.AllowEmailCode);
         Assert.True(preview.SsoRequired);
     }
+
+    [Fact]
+    public async Task EvaluateAsync_allows_email_code_for_sso_domain_when_valid_invitation_token_present()
+    {
+        Guid tenantId = Guid.NewGuid();
+        const string token = "invite-bypass-token";
+
+        AuthSignInRoutingService sut = CreateSut(
+            out InMemoryTenantSignInEmailDomainRepository domains,
+            out _,
+            out InMemoryTenantIdentityProviderConfigurationRepository idpConfigs,
+            out InMemoryUserInvitationRepository invitations);
+
+        domains.Seed(EnforcedDomain(tenantId, "enterprise.example"));
+        idpConfigs.Seed(
+            new TenantIdentityProviderConfigurationRecord
+            {
+                TenantId = tenantId,
+                Protocol = TenantIdentityProtocol.Oidc,
+                IssuerUri = "https://login.enterprise.example",
+                ClaimMappingJson = "{}",
+                UpdatedUtc = DateTimeOffset.UtcNow,
+                UpdatedByActorId = "admin",
+                IsActive = true
+            });
+
+        await invitations.InsertAsync(
+            tenantId,
+            Guid.NewGuid(),
+            "invitee@enterprise.example",
+            "Reader",
+            "admin",
+            null,
+            EmailOtpInvitationTokenHasher.Hash(token),
+            DateTimeOffset.UtcNow.AddDays(7),
+            CancellationToken.None);
+
+        AuthSignInRoutingEvaluation result = await sut.EvaluateAsync(
+            new AuthSignInRoutingRequest
+            {
+                NormalizedEmail = "personal@gmail.com",
+                InvitationToken = token
+            },
+            CancellationToken.None);
+
+        Assert.True(result.AllowEmailCode);
+        Assert.False(result.SsoRequired);
+    }
 }

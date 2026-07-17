@@ -224,7 +224,6 @@ public sealed class AuthSignInRoutingService(
 
             if (invitation is not null
                 && invitation.TenantId == tenantId
-                && string.Equals(invitation.Email, normalizedEmail, StringComparison.Ordinal)
                 && invitation.ExpiresUtc > _timeProvider.GetUtcNow())
             {
                 return true;
