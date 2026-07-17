@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorJwtBearerRoleMappingCallout } from "@/components/OperatorJwtBearerRoleMappingCallout";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -144,6 +145,13 @@ export function OperatorAccessDeniedPageClient() {
             <p className="m-0">Support details: Request ID {correlationId}</p>
           )}
         </div>
+
+        <FatalPageReportProblemSupportRow
+          surfaceId="operator-role-gate-session-break"
+          errorTitle={ACCESS_DENIED_HEADING}
+          correlationId={correlationId}
+          errorCode="access-denied"
+        />
       </CardContent>
     </Card>
   );

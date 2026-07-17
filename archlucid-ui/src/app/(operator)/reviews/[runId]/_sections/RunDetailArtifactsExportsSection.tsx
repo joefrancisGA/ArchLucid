@@ -14,6 +14,7 @@ import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu"
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
 import { RunScopedAuditExportButton } from "@/components/RunScopedAuditExportButton";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import {
   OperatorEmptyState,
   OperatorMalformedCallout,
@@ -177,6 +178,16 @@ export function RunDetailArtifactsExportsSection(
                 </strong>
                 <p className="mt-2">{artifactsMalformed}</p>
               </OperatorMalformedCallout>
+              <FatalPageReportProblemSupportRow
+                surfaceId="review-commit-export-page-failure"
+                errorTitle={
+                  buyerPolishedArtifactTable
+                    ? "Deliverables response was not usable."
+                    : "Artifact list response was not usable."
+                }
+                errorCode="malformed-response"
+                reviewId={runId}
+              />
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 {buyerPolishedArtifactTable
                   ? "Try reloading, or return to the review. ZIP download may still work."

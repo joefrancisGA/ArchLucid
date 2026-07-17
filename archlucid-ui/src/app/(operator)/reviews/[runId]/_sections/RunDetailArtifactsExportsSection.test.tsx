@@ -1,5 +1,10 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/reviews/run-1",
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+}));
 
 import type { ManifestSummary } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
@@ -33,6 +38,16 @@ vi.mock("@/components/RunScopedAuditExportButton", () => ({
     <div data-testid="run-scoped-audit-export" data-run-id={runId} />
   ),
 }));
+
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+});
 
 const hardInfeasibleVerdict: ManifestFeasibilityVerdict = {
   kind: "HardInfeasible",
@@ -151,5 +166,52 @@ describe("RunDetailArtifactsExportsSection", () => {
     expect(screen.getByRole("link", { name: "Finalize this review" })).toHaveAttribute("href", "#finalize-review");
     expect(screen.getByRole("button", { name: "Reload" })).toBeInTheDocument();
     expect(screen.getByTestId("run-scoped-audit-export")).toHaveAttribute("data-run-id", "run-1");
+  });
+
+  it("renders Report problem when deliverables API load fails (TB-791)", () => {
+    render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable
+        artifacts={[]}
+        artifactsFailure={{
+          correlationId: "corr-artifacts-503",
+          message: "Deliverables list could not be loaded.",
+          problem: { title: "Service unavailable", detail: "Try again later." },
+          httpStatus: 503,
+          retryAfterSeconds: null,
+        }}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+        samplePolicyPackContextLine={null}
+      />,
+    );
+
+    expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
+  });
+
+  it("renders Report problem when deliverables response is malformed (TB-791)", () => {
+    render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed="Expected array at items[] but received object."
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={manifestSummary}
+        manifestSummary={manifestSummary}
+        trustEvidenceCard={null}
+        samplePolicyPackContextLine={null}
+      />,
+    );
+
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
   });
 });
