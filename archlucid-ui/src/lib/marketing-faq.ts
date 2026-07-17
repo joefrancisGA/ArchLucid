@@ -72,7 +72,21 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "evaluation-first-review",
     question: "How does the evaluation workspace work?",
     answer:
-      "Start an evaluation workspace with sample architecture review data — no sales call required. You can inspect findings, evidence trails, governance outputs, and reports, then run your own review when ready.",
+      "Start an evaluation workspace from the signup page, then sign in with a work or school account or a one-time email code. You can inspect sample findings, evidence trails, governance outputs, and reports before running your own review.",
+  },
+  {
+    id: "how-do-i-sign-in",
+    categoryId: "security-trust",
+    question: "How do I sign in to ArchLucid?",
+    answer:
+      "Use a work or school account (Microsoft, Google, or your organization's SSO when configured) or request a one-time code sent to any email address. ArchLucid does not use product passwords for routine sign-in.",
+  },
+  {
+    id: "enterprise-sso-enforcement",
+    categoryId: "security-trust",
+    question: "When does my organization require SSO?",
+    answer:
+      "Organizations can configure SAML or OpenID Connect and require members of verified domains to use the organization's identity provider. When enforcement applies to your email domain, routine email-code sign-in is not available.",
   },
   {
     id: "cloud-access-optional",

@@ -74,7 +74,7 @@ export function SignInMethodPicker({
         ))}
       </div>
       <p className={cn("mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/settings/support">
+        <Link className={OPERATOR_LINK.nav} href="/help/authentication-sign-in">
           Need help signing in?
         </Link>
       </p>

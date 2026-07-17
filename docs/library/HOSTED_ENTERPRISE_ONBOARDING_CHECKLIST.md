@@ -47,6 +47,12 @@ Use this checklist to track hosted SaaS enterprise onboarding. For task-specific
 
 ---
 
+## Sign-in models {#sign-in-models}
+
+ArchLucid supports **individual passwordless sign-in** through work or school accounts and one-time email codes. **Optional enterprise SSO** lets organizations configure SAML or OpenID Connect. **Tenant-enforced SSO** requires members of verified email domains to use the organization's identity provider for routine access — email-code sign-in is not available as a routine bypass when enforcement applies.
+
+Customer-facing overview: **[Authentication and sign-in](/help/authentication-sign-in)**.
+
 ## Workforce SSO {#workforce-sso}
 
 Choose **one** workforce authentication path for the tenant (many customers run SAML SP; OIDC JwtBearer is equally supported in V1 GA).

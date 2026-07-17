@@ -16,7 +16,7 @@ ArchLucid is a SaaS product. You will not install anything to evaluate it. Evalu
 
 Five steps. Roughly thirty minutes end-to-end on a normal connection.
 
-1. **Sign in.** Open [`archlucid.net`](https://archlucid.net) and sign in with your work identity. 
+1. **Choose your path.** Explore an illustrative sample at [archlucid.net/get-started](https://archlucid.net/get-started) with **no sign-in required**, or sign in at [archlucid.net](https://archlucid.net) with a supported identity or a one-time email code to open a guided workspace.
 2. **Pick a vertical.** Choose the closest match (`financial-services`, `healthcare`, `public-sector`, `retail`, `saas`). The vertical sets default compliance rules, terminology, and analysis priorities.
 3. **Try a sample.** ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline. No upload required for the first **review pass**.
 4. **Read your first finding.** Open the finalized **review** and read the first typed finding — what was flagged, why it was flagged, what evidence backs it.

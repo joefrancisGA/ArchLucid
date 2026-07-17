@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE,
   GET_STARTED_VERTICAL_PRESENTATIONS,
-  GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE,
   buildGuidedTrialHref,
 } from "./get-started-content";
 
@@ -21,9 +21,10 @@ describe("get-started-content", () => {
     expect(buildGuidedTrialHref("retail")).not.toContain("templates");
   });
 
-  it("describes supported work identity without Entra-first framing (TB-774)", () => {
-    expect(GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE).toMatch(/Microsoft, Google/i);
-    expect(GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE).toMatch(/SSO provider/i);
-    expect(GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE).not.toMatch(/Entra/i);
+  it("describes guided workspace sign-in without work-identity-only framing", () => {
+    expect(GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE).toMatch(/one-time code/i);
+    expect(GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE).toMatch(/supported identity/i);
+    expect(GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE).not.toMatch(/work identity/i);
+    expect(GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE).not.toMatch(/Entra/i);
   });
 });

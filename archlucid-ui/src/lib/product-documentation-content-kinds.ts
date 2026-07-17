@@ -14,6 +14,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "admin-diagnostics": "technical-documentation",
   alerts: "product-help",
   "audit-trail": "product-help",
+  "authentication-sign-in": "product-help",
   "billing-and-plans": "product-help",
   "cli-usage": "technical-documentation",
   "cloud-connections": "product-help",

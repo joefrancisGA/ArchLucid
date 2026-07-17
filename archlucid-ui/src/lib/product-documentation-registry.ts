@@ -209,6 +209,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "public",
   },
   {
+    slug: "authentication-sign-in",
+    title: "Authentication and sign-in",
+    summary:
+      "Passwordless sign-in with work or school accounts or email one-time codes; invitations, SSO, and recovery.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/AUTHENTICATION_AND_SIGN_IN.md"],
+    pdfStatus: "public",
+  },
+  {
     slug: "data-handling",
     title: "What ArchLucid does with your data",
     summary:

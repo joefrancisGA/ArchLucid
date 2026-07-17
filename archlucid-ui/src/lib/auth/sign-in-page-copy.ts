@@ -1,11 +1,15 @@
 import type { EmailOtpApiFailureCategory } from "@/lib/auth/email-otp-api";
+import {
+  CUSTOMER_AUTH_DUAL_METHOD_LEAD,
+  CUSTOMER_AUTH_EMAIL_CODE_ACTION,
+  CUSTOMER_AUTH_WORK_SCHOOL_ACTION,
+} from "@/lib/auth/customer-auth-messaging";
 
 export const SIGN_IN_PAGE_COPY = {
   optionsTitle: "Sign in to ArchLucid",
-  optionsLead:
-    "Secure access to architecture reviews, evidence-linked findings, and governance exports for your organization.",
-  workSchoolPrimary: "Continue with work or school account",
-  emailCodeSecondary: "Continue with email code",
+  optionsLead: CUSTOMER_AUTH_DUAL_METHOD_LEAD,
+  workSchoolPrimary: CUSTOMER_AUTH_WORK_SCHOOL_ACTION,
+  emailCodeSecondary: CUSTOMER_AUTH_EMAIL_CODE_ACTION,
   microsoftSupplemental: "Continue with Microsoft",
   googleSupplemental: "Continue with Google",
   emailTitle: "Sign in with email",
