@@ -687,6 +687,31 @@ jobs:
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
+      # TB-756: informational only — same digest still rolls via --revision-suffix; do not block force-roll.
+      - name: Note when active API revision already uses this digest (informational)
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          API_REV_BEFORE: ${{ steps.api_rev_before.outputs.revision }}
+          API_REV_BEFORE_SKIP: ${{ steps.api_rev_before.outputs.skip }}
+        run: |
+          if [ "${API_REV_BEFORE_SKIP:-}" = "true" ] || [ -z "${API_REV_BEFORE:-}" ]; then
+            exit 0
+          fi
+          set -euo pipefail
+          ACTIVE_IMAGE=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+            --revision "$API_REV_BEFORE" --query "properties.template.containers[0].image" -o tsv 2>/dev/null || true)
+          if [ -z "$ACTIVE_IMAGE" ]; then
+            exit 0
+          fi
+          if echo "$ACTIVE_IMAGE" | grep -qF "${API_IMAGE_DIGEST}"; then
+            echo "::notice title=Digest unchanged (TB-756)::Active API revision ${API_REV_BEFORE} already runs digest ${API_IMAGE_DIGEST}. CD will still create a new revision (--revision-suffix + CD_DEPLOY_RUN). Skip manual reruns when only docs/scripts changed and no image rebuild is needed."
+            echo "digest_unchanged=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "digest_unchanged=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # Fail fast before the deploy if the API Container App is missing required env vars for the RC6
       # production-like configuration. Catches config drift before wasting time on a bad deployment.
       - name: Configuration completeness check (pre-deploy)

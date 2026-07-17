@@ -49,6 +49,8 @@
    ```
 5. Re-run the failed job or run **CD** again with **workflow_dispatch** after fixing IAM or naming. The image tag (often **git SHA**) is already in ACR; you do not need to rebuild unless the image itself was wrong.
 
+**Avoid unnecessary reruns (TB-756):** If the failure was in **post-deploy validation** but the **deploy** step already rolled a new revision, do not immediately re-run full CD "to be safe" when the fix is config-only or transient cold start — use retries (`CD_POST_DEPLOY_MAX_ATTEMPTS`) or fix the dependency first. Do not run CD for docs-only or test-only commits with no API/UI image change. CD uses digest-pinned images plus `--revision-suffix`; even an unchanged digest still creates a new revision on deploy.
+
 **Terraform note:** If you use **`terraform apply`** with image variables, a later apply can reset images to tfvars. Align tfvars with the tag you intend, or rely on CLI-only rollouts until the next planned apply ([DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md)).
 
 ---

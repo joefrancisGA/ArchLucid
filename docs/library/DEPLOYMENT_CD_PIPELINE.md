@@ -184,6 +184,24 @@ Configure per **environment** (`dev` / `staging` / `production`) or organization
 - **Terraform vs CLI**: **CD owns runtime Container App image tags.** `cd.yml` rolls API, worker, and UI via `az containerapp update`; `infra/terraform-container-apps` seeds warm-start pins in tfvars but each `azurerm_container_app` uses `lifecycle { ignore_changes = [template[0].container[0].image] }` (TB-657) so a later `terraform apply` does **not** revert CD rollouts. Update tfvars when you want Terraform to change the *seed* pin for net-new environments; routine releases do not require a matching apply.
 - **Migrations**: Schema still travels with the **API** process (DbUp / bootstrap on startup). Deploy API before relying on worker-only features that need new schema, or run a one-off migration job per your runbook.
 
+## When to skip full CD (avoid no-op revision churn)
+
+**TB-756 posture:** Each `az containerapp update` (including routine CD) can start a **new revision** and cold-start window even when the container image digest is unchanged. Avoid unnecessary deploys — they do not raise `min_replicas`, but they do add revision churn and transient cold-start risk.
+
+| Situation | Action |
+|-----------|--------|
+| Docs, backlog, tests-only, or CI config with **no** API/UI/Dockerfile change | **Do not** run `workflow_dispatch` deploy |
+| Green CD just finished; operator wants to "refresh" | **Do not** run manual `az containerapp update` — CD already pinned digest + revision |
+| Same git commit re-run without a new image build | Usually **skip** — digest is unchanged; deploy job emits an informational notice |
+| API/Worker/UI code, Dockerfile, or Container App env vars changed | **Run** CD (digest-pinned `@sha256:…` + `--revision-suffix`) |
+| Infra/tfvars must move with the release | CD with **`run_terraform_apply=true`** when appropriate |
+
+**How CD rolls intentionally:** `cd.yml` deploys with **`registry/repo@sha256:<digest>`** (never `latest`) and **`--revision-suffix`** so a deliberate roll still creates a new revision when the image string would otherwise match a prior deploy. That is correct for real releases; it is wasteful when nothing image-relevant changed.
+
+**Terraform:** CD owns runtime image tags (**TB-657**). `terraform apply` does not refresh live images after CD; do not apply Container Apps Terraform solely to "sync" an image CD already rolled.
+
+See also [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) §2 (deploy failed / unnecessary reruns).
+
 ## Dev: dropping Front Door for the Container Apps FQDN (cost-aware)
 
 `dev` is the one target where **Front Door / WAF is optional** — see [`PILOT_PROFILE.md`](../deployment/PILOT_PROFILE.md) ("omit Front Door for pilots; use Container Apps direct FQDN + TLS"). The pre-deploy configuration check only pins **`Cors__AllowedOrigins__0`** to `https://www.archlucid.net` for **staging/production**; for `dev` it just requires the value to be **set** (any origin), since a Container Apps FQDN is unique per environment and can't be hardcoded.
