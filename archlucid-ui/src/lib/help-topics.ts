@@ -162,10 +162,10 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "auth",
     title: "Authentication",
-    keywords: ["jwt", "entra", "api key", "bearer"],
-    summary: "Match UI auth mode to API ArchLucidAuth; API key is server-side in the Next.js proxy.",
-    docPath: "docs/library/LIVE_E2E_JWT_SETUP.md",
-    routes: ["/auth/signin"],
+    keywords: ["sign in", "sso", "email code", "invitation", "recovery", "passwordless"],
+    summary: "Passwordless sign-in with work or school accounts or email one-time codes; SSO enforcement and recovery.",
+    docPath: "docs/library/customer-facing/AUTHENTICATION_AND_SIGN_IN.md",
+    routes: ["/auth/signin", "/signup"],
   },
   {
     id: "cli",

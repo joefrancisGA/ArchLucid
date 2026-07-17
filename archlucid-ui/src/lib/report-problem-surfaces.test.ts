@@ -9,6 +9,13 @@ import {
   pathnameMatchesReportProblemRoute,
   reportProblemSurfacesForPathname,
 } from "@/lib/report-problem-surfaces";
+import {
+  findReportProblemMailtoDriftFindings,
+  findReportProblemSurfaceGuardViolations,
+  REPORT_PROBLEM_SURFACE_WIRING_RULES,
+} from "@/lib/report-problem-surfaces-guard";
+
+const UI_ROOT = process.cwd();
 
 describe("report-problem-surfaces (TB-782)", () => {
   it("lists initial high-stakes surfaces with component paths", () => {
@@ -57,5 +64,35 @@ describe("report-problem-surfaces (TB-782)", () => {
   it("enables fatal page surfaces by registry id (TB-786)", () => {
     expect(isReportProblemEnabledForSurface("reviews-hub-unexpected-response")).toBe(true);
     expect(isReportProblemEnabledForSurface("unknown-surface")).toBe(false);
+  });
+});
+
+describe("report-problem-surfaces guard (TB-791)", () => {
+  it("keeps a wiring rule for every registry surface", () => {
+    const wiredIds = new Set(REPORT_PROBLEM_SURFACE_WIRING_RULES.map((rule) => rule.surfaceId));
+
+    for (const surface of REPORT_PROBLEM_V1_SURFACES) {
+      expect(wiredIds.has(surface.id), surface.id).toBe(true);
+    }
+  });
+
+  it("keeps registry component paths on disk with expected Report problem wiring", () => {
+    const violations = findReportProblemSurfaceGuardViolations(UI_ROOT);
+
+    expect(violations).toEqual([]);
+  });
+
+  it("warns only (does not fail) when operator error surfaces add mailto without Report problem nearby", () => {
+    const findings = findReportProblemMailtoDriftFindings(UI_ROOT);
+
+    if (findings.length > 0) {
+      // Warn-only guard: surface drift in CI output without blocking merges.
+      console.warn(
+        "report-problem mailto drift (warn-only):",
+        findings.map((finding) => `${finding.relativePath}:${finding.line}`).join(", "),
+      );
+    }
+
+    expect(findings.length).toBeGreaterThanOrEqual(0);
   });
 });

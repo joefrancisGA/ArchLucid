@@ -2,6 +2,22 @@ import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
+export const TROUBLESHOOTING_REPORT_PROBLEM_LINK = {
+  label: "Report a problem",
+  href: inAppHelpHref("report-a-problem"),
+} as const;
+
+export const TROUBLESHOOTING_EMAIL_SUPPORT_LINK = {
+  label: "Email support",
+  href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}`,
+} as const;
+
+function supportEscalationLinks(
+  ...additional: readonly TroubleshootingLink[]
+): readonly TroubleshootingLink[] {
+  return [TROUBLESHOOTING_REPORT_PROBLEM_LINK, TROUBLESHOOTING_EMAIL_SUPPORT_LINK, ...additional];
+}
+
 export const TROUBLESHOOTING_HELP_SUBTITLE =
   "Find common issues, try the first fix, and collect support details when needed.";
 
@@ -44,7 +60,8 @@ export const TROUBLESHOOTING_START_HERE_ITEMS = [
 
 export const TROUBLESHOOTING_PRIMARY_ACTIONS = {
   systemHealth: { href: "/health", label: "Open System health" },
-  contactSupport: { href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}`, label: "Contact support" },
+  reportProblem: TROUBLESHOOTING_REPORT_PROBLEM_LINK,
+  contactSupport: TROUBLESHOOTING_EMAIL_SUPPORT_LINK,
 } as const;
 
 export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
@@ -59,7 +76,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "Open System health", href: "/health" },
       { label: "Open reviews", href: "/reviews" },
-      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+      ...supportEscalationLinks(),
     ],
   },
   {
@@ -129,7 +146,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
       { label: "Open policy packs", href: "/policy-packs" },
-      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+      ...supportEscalationLinks(),
     ],
   },
   {
@@ -143,7 +160,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "View first review guide", href: inAppHelpHref("first-hour-operator-path") },
       { label: "Open reviews", href: "/reviews" },
-      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+      ...supportEscalationLinks(),
     ],
   },
   {
@@ -157,7 +174,35 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     nextSteps: [
       { label: "Open evidence upload guide", href: inAppHelpHref("evidence-intake") },
       { label: "Start architecture review", href: "/reviews/new" },
-      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+      ...supportEscalationLinks(),
+    ],
+  },
+  {
+    id: "organization-sso-required",
+    title: "Organization sign-in required",
+    kind: "user-fixable",
+    whatYouSee: "ArchLucid asks you to continue through your organization's identity provider instead of email code.",
+    likelyCause: "Your email domain has tenant-enforced SSO for ArchLucid access.",
+    tryFirst: "Select Continue to organization sign-in and authenticate with your company identity provider.",
+    ifStillBlocked: "Contact your workspace administrator or IT team if you cannot reach your organization's sign-in page.",
+    nextSteps: [
+      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
+      { label: "Enterprise onboarding checklist", href: inAppHelpHref("enterprise-onboarding") },
+      ...supportEscalationLinks(),
+    ],
+  },
+  {
+    id: "email-code-sign-in-failed",
+    title: "Email one-time code did not work",
+    kind: "user-fixable",
+    whatYouSee: "The sign-in code is rejected, expired, or never arrives.",
+    likelyCause: "Typo, expired code, rate limiting, or mail delivery delay.",
+    tryFirst: "Request a new code, check spam or junk folders, and confirm the email address is correct.",
+    ifStillBlocked: "Wait a few minutes if you see too many attempts, then try again or use a work or school account.",
+    nextSteps: [
+      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
+      { label: "Sign in", href: "/auth/signin" },
+      ...supportEscalationLinks(),
     ],
   },
   {
@@ -169,9 +214,10 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     tryFirst: "Sign out and back in. Confirm your role in workspace settings.",
     ifStillBlocked: "Ask your workspace admin or IT team to verify identity and role assignment.",
     nextSteps: [
+      { label: "Authentication and sign-in", href: inAppHelpHref("authentication-sign-in") },
       { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
       { label: "Open workspace settings", href: "/settings/tenant" },
-      { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}` },
+      ...supportEscalationLinks(),
     ],
   },
 ] as const;
@@ -195,8 +241,8 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
     branches: [
       {
         label: "No",
-        href: inAppHelpHref("troubleshooting", "permissions-or-sign-in-issue"),
-        linkLabel: "Open permissions and sign-in help",
+        href: inAppHelpHref("authentication-sign-in"),
+        linkLabel: "Open authentication and sign-in help",
       },
       { label: "Yes", href: "#decision-workspace", linkLabel: "Continue to workspace check" },
     ],
@@ -249,12 +295,18 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
     question: "Still blocked?",
     branches: [
       { label: "Download support bundle", href: "#before-contacting-support", linkLabel: "Before contacting support" },
+      {
+        label: "Report a problem",
+        href: inAppHelpHref("report-a-problem"),
+        linkLabel: "Report a problem help",
+      },
       { label: "Contact support", href: `mailto:${ARCHLUCID_SUPPORT_EMAIL}`, linkLabel: "Email support" },
     ],
   },
 ] as const;
 
 export const TROUBLESHOOTING_BEFORE_CONTACT_ITEMS = [
+  "Report reference id (from Report problem on error pages)",
   "Workspace name",
   "Review name or ID if visible",
   "Approximate time of issue",

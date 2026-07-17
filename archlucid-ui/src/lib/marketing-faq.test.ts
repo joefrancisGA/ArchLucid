@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { MARKETING_FAQ_CATEGORIES, MARKETING_FAQ_ITEMS, filterMarketingFaqItems } from "./marketing-faq";
+import { findCustomerAuthBannedPhrases } from "@/lib/auth/customer-auth-messaging";
 
 const BANNED_FAQ_TERMS = [
   "operator run view",
@@ -14,10 +15,11 @@ const BANNED_FAQ_TERMS = [
 
 describe("marketing-faq", () => {
   it("lists buyer-ordered questions with category coverage", () => {
-    expect(MARKETING_FAQ_ITEMS).toHaveLength(19);
+    expect(MARKETING_FAQ_ITEMS).toHaveLength(21);
     expect(MARKETING_FAQ_ITEMS[0]?.question).toBe("What is ArchLucid?");
     expect(MARKETING_FAQ_ITEMS[4]?.question).toBe("Can I start with one architect or one license?");
-    expect(MARKETING_FAQ_ITEMS[6]?.question).toBe("Do I need cloud access to get value?");
+    expect(MARKETING_FAQ_ITEMS[6]?.question).toBe("How do I sign in to ArchLucid?");
+    expect(MARKETING_FAQ_ITEMS[8]?.question).toBe("Do I need cloud access to get value?");
 
     for (const category of MARKETING_FAQ_CATEGORIES) {
       expect(MARKETING_FAQ_ITEMS.some((item) => item.categoryId === category.id)).toBe(true);
@@ -30,6 +32,8 @@ describe("marketing-faq", () => {
     for (const term of BANNED_FAQ_TERMS) {
       expect(corpus, term).not.toContain(term);
     }
+
+    expect(findCustomerAuthBannedPhrases(corpus)).toEqual([]);
   });
 
   it("filters items by search query", () => {

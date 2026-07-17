@@ -29,9 +29,14 @@ vi.mock("@/lib/oidc/session", () => ({
   signOutAndRedirectHome: mocks.signOutAndRedirectHome,
 }));
 
-vi.mock("@/lib/operator-scope-storage", () => ({
-  readOperatorScopeFromStorage: mocks.readOperatorScopeFromStorage,
-}));
+vi.mock("@/lib/operator-scope-storage", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator-scope-storage")>();
+
+  return {
+    ...actual,
+    readOperatorScopeFromStorage: mocks.readOperatorScopeFromStorage,
+  };
+});
 
 vi.mock("@/lib/registration-session", () => ({
   readLastRegistrationPayload: mocks.readLastRegistrationPayload,
@@ -79,6 +84,8 @@ describe("OperatorAccessDeniedPageClient", () => {
     expect(screen.getByTestId("operator-access-denied-support-details")).toHaveTextContent("jane@contoso.com");
     expect(screen.getByTestId("operator-access-denied-support-details")).toHaveTextContent("Contoso Workspace");
     expect(screen.getByText(/Support details: Request ID/i)).toBeInTheDocument();
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
     expect(screen.getByTestId("operator-access-denied-jwt-role-callout")).not.toBeVisible();
   });
 

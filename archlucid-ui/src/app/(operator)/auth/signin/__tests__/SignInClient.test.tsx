@@ -42,6 +42,33 @@ vi.mock("@/lib/oidc/session", () => ({
   isLikelySignedIn: isLikelySignedInMock,
   storePkceState: vi.fn(),
   storePostSignInReturnUrl: vi.fn(),
+  persistTokenResponse: vi.fn(),
+}));
+
+vi.mock("@/lib/auth/sign-in-method-options", () => ({
+  resolveSignInMethodOptions: vi.fn(() => ({
+    workSchool: true,
+    emailCode: true,
+    supplementalProviders: [],
+  })),
+}));
+
+vi.mock("@/lib/auth/email-otp-api", () => ({
+  requestEmailOtpChallenge: vi.fn(),
+  verifyEmailOtpCode: vi.fn(),
+}));
+
+vi.mock("@/lib/auth/email-otp-session", () => ({
+  readEmailOtpChallengeSession: vi.fn(() => null),
+  storeEmailOtpChallengeSession: vi.fn(),
+  clearEmailOtpChallengeSession: vi.fn(),
+  readInvitationToken: vi.fn(() => null),
+  storeInvitationToken: vi.fn(),
+}));
+
+vi.mock("@/lib/auth/email-otp-resend", () => ({
+  readEmailOtpResendCooldown: vi.fn(() => ({ active: false, secondsRemaining: 0 })),
+  markEmailOtpResendSent: vi.fn(),
 }));
 
 vi.mock("@/lib/oidc/pkce", () => ({
@@ -65,6 +92,7 @@ vi.mock("@/lib/oidc/build-authorize-url", () => ({
 // -------------------------------------------------------------------
 
 import { SignInClient } from "@/app/(operator)/auth/signin/SignInClient";
+import { resolveSignInMethodOptions } from "@/lib/auth/sign-in-method-options";
 
 // -------------------------------------------------------------------
 // Helpers
@@ -153,6 +181,12 @@ describe("SignInClient — idle-timeout session-expired view", () => {
     fireEvent.click(screen.getByTestId("session-expired-sign-in"));
 
     await waitFor(() => {
+      expect(screen.getByTestId("sign-in-method-picker")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("sign-in-work-school"));
+
+    await waitFor(() => {
       expect(window.location.assign).toHaveBeenCalledWith(
         "https://login.example.com/authorize?foo=bar",
       );
@@ -226,7 +260,7 @@ describe("SignInClient — other recognized session-message reasons", () => {
   });
 });
 
-describe("SignInClient — normal auto-sign-in flow (no reason param)", () => {
+describe("SignInClient — normal sign-in flow (no reason param)", () => {
   beforeEach(() => {
     vi.stubGlobal("location", {
       assign: vi.fn(),
@@ -241,19 +275,21 @@ describe("SignInClient — normal auto-sign-in flow (no reason param)", () => {
     clearSearchParams();
   });
 
-  it("renders 'Signing in' status, not session-expired heading", () => {
+  it("renders sign-in method picker instead of auto-redirecting", () => {
     clearSearchParams();
 
     render(<SignInClient />);
 
-    expect(screen.getByText("Signing in")).toBeInTheDocument();
+    expect(screen.getByTestId("sign-in-method-picker")).toBeInTheDocument();
     expect(screen.queryByTestId("session-expired-heading")).toBeNull();
   });
 
-  it("auto-starts OIDC redirect when no reason is present", async () => {
+  it("starts OIDC only after work/school is selected", async () => {
     clearSearchParams();
 
     render(<SignInClient />);
+
+    fireEvent.click(screen.getByTestId("sign-in-work-school"));
 
     await waitFor(() => {
       expect(window.location.assign).toHaveBeenCalledWith(
@@ -271,8 +307,12 @@ describe("SignInClient — normal auto-sign-in flow (no reason param)", () => {
     expect(window.location.replace).toHaveBeenCalledWith("/");
   });
 
-  it("shows error state when OIDC is not configured", () => {
-    isJwtAuthModeMock.mockReturnValueOnce(false);
+  it("shows error state when no sign-in methods are configured", () => {
+    vi.mocked(resolveSignInMethodOptions).mockReturnValueOnce({
+      workSchool: false,
+      emailCode: false,
+      supplementalProviders: [],
+    });
     clearSearchParams();
 
     render(<SignInClient />);

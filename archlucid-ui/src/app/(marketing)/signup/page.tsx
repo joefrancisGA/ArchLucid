@@ -3,13 +3,14 @@ import Link from "next/link";
 
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { SignupForm } from "@/components/marketing/SignupForm";
+import { CUSTOMER_AUTH_EVALUATION_SIGNUP_LEAD } from "@/lib/auth/customer-auth-messaging";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Start your evaluation",
   description:
-    "Create an evaluation workspace with sample architecture review data. No sales call required.",
+    "Create an evaluation workspace with sample architecture review data. Sign in later with a work account or email one-time code.",
 };
 
 export default function SignupPage() {
@@ -18,7 +19,7 @@ export default function SignupPage() {
       <header className="text-center">
         <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Start your evaluation</h1>
         <p className={cn("mt-3 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-          Create an evaluation workspace with sample architecture review data. No sales call required.
+          {CUSTOMER_AUTH_EVALUATION_SIGNUP_LEAD} No sales call required.
         </p>
         <p className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
           Questions before you start? Read the{" "}

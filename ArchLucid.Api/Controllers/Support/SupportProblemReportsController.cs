@@ -54,12 +54,14 @@ public sealed class SupportProblemReportsController(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
+        string? submitterMailbox = _actorContext.TryGetSubmitterMailbox();
 
         try
         {
             SubmitSupportProblemReportResponse response = await _intakeService.SubmitAsync(
                 scope,
                 actorId,
+                submitterMailbox,
                 request,
                 cancellationToken).ConfigureAwait(false);
 

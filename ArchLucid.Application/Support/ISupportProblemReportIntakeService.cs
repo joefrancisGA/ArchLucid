@@ -8,6 +8,7 @@ public interface ISupportProblemReportIntakeService
     Task<SubmitSupportProblemReportResponse> SubmitAsync(
         ScopeContext scope,
         string submittedByActorId,
+        string? submittedByMailbox,
         SubmitSupportProblemReportRequest request,
         CancellationToken cancellationToken);
 }

@@ -45,6 +45,13 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/getting-started", helpSlug: "getting-started" },
   },
   {
+    id: "authentication-sign-in",
+    title: "Authentication and sign-in",
+    description: "Work or school accounts, email one-time codes, invitations, SSO, and account recovery.",
+    keywords: ["sign in", "authentication", "email code", "sso", "invitation", "recovery", "passwordless"],
+    action: { kind: "route", href: "/help/authentication-sign-in", helpSlug: "authentication-sign-in" },
+  },
+  {
     id: "how-archlucid-works",
     title: "How ArchLucid works",
     description: "Product workflow from architecture evidence through findings, decisions, governance, and exports.",
@@ -224,9 +231,9 @@ const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "sso-identity",
     title: "SSO and identity",
-    description: "Configure identity providers, SSO, SCIM, and access controls.",
-    keywords: ["sso", "saml", "scim", "entra", "identity", "idp"],
-    action: { kind: "route", href: "/settings/identity/sso-wizard", helpSlug: "enterprise-onboarding" },
+    description: "Optional or enforced organizational SSO, SCIM provisioning, and enterprise onboarding.",
+    keywords: ["sso", "saml", "scim", "identity", "idp", "enforcement"],
+    action: { kind: "route", href: "/help/enterprise-onboarding", helpSlug: "enterprise-onboarding" },
   },
 ];
 
@@ -323,7 +330,8 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
   { prefix: "/onboarding", topicIds: ["how-archlucid-works", "first-review-guide", "product-faq", "create-first-review", "sample-review"] },
   { prefix: "/help", topicIds: ["getting-started-help", "how-archlucid-works", "path-chooser", "first-review-guide", "product-faq", "cloud-connections", "data-handling-help", "security-trust-help", "troubleshoot"] },
   { prefix: "/pricing", topicIds: ["product-faq", "first-review-guide"] },
-  { prefix: "/signup", topicIds: ["product-faq", "first-review-guide"] },
+  { prefix: "/signup", topicIds: ["authentication-sign-in", "product-faq", "first-review-guide"] },
+  { prefix: "/auth/signin", topicIds: ["authentication-sign-in"] },
   {
     prefix: "/integrations/cloud-connections",
     topicIds: ["cloud-connections", "connect-azure", "azure-permissions", "connect-aws", "connect-gcp", "troubleshoot"],

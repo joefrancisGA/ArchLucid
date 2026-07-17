@@ -192,4 +192,62 @@ public sealed class TrialTenantBootstrapService(
             }
         }
     }
+
+    /// <inheritdoc/>
+    public async Task TryBootstrapAfterPostAuthWorkspaceAsync(
+        TenantProvisioningResult result,
+        string auditActorEmail,
+        TrialSignupCompanyProfileCapture? companyProfile,
+        bool includeDemoSeed,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        ArgumentException.ThrowIfNullOrWhiteSpace(auditActorEmail);
+        _ = companyProfile;
+
+        if (result.WasAlreadyProvisioned || !includeDemoSeed)
+        {
+            return;
+        }
+
+        ScopeContext scope = new()
+        {
+            TenantId = result.TenantId,
+            WorkspaceId = result.DefaultWorkspaceId,
+            ProjectId = result.DefaultProjectId
+        };
+
+        using (AmbientScopeContext.Push(scope))
+        {
+            try
+            {
+                await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken).ConfigureAwait(false);
+
+                try
+                {
+                    await _demoSeedService.SeedAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                    {
+                        _logger.LogWarning(
+                            ex,
+                            "Post-auth demo seed failed for tenant {TenantId}; welcome run may still be available.",
+                            result.TenantId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Post-auth workspace bootstrap failed for tenant {TenantId}.",
+                        result.TenantId);
+                }
+            }
+        }
+    }
 }

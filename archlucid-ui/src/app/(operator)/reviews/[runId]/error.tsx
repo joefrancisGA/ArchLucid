@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,12 @@ export default function RunDetailSegmentError({
           </Link>
           .
         </p>
+        <FatalPageReportProblemSupportRow
+          surfaceId="review-detail-hard-load-failure"
+          errorTitle="Sample review unavailable"
+          errorCode="segment-error"
+          {...(digest.length > 0 ? { correlationId: digest } : {})}
+        />
         </div>
       </RunDetailMinimalChromeMount>
     );
@@ -117,6 +124,20 @@ export default function RunDetailSegmentError({
           </div>
         ) : null}
       </OperatorErrorCallout>
+      {digest.length === 0 ? (
+        <FatalPageReportProblemSupportRow
+          surfaceId="review-detail-hard-load-failure"
+          errorTitle="Review could not be loaded"
+          errorCode="segment-error"
+        />
+      ) : (
+        <FatalPageReportProblemSupportRow
+          surfaceId="review-detail-hard-load-failure"
+          errorTitle="Review could not be loaded"
+          errorCode="segment-error"
+          correlationId={digest}
+        />
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" variant="primary" asChild>
           <Link href="/reviews?projectId=default">Back to reviews</Link>

@@ -101,8 +101,8 @@ export function GetStartedPageClient(): ReactElement {
             <p className={cn("m-0", MARKETING_TYPOGRAPHY.eyebrow)}>Guided trial</p>
             <h3 className={cn("mt-2", MARKETING_TYPOGRAPHY.sectionTitle)}>Create your first review</h3>
             <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-              Sign in with work identity (Microsoft, Google, or your organization&apos;s SSO provider), choose an industry
-              profile, and complete a guided sample review in approximately 30 minutes.
+              Sign in with a supported identity or verify your email with a one-time code, choose an industry profile,
+              and complete a guided sample review in approximately 30 minutes.
             </p>
             <p className={cn("mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
               Best for experiencing the review workflow inside an ArchLucid workspace.
@@ -110,7 +110,7 @@ export function GetStartedPageClient(): ReactElement {
             <div className="mt-4 flex flex-wrap gap-2">
               <PathBadge>No credit card</PathBadge>
               <PathBadge>No local installation</PathBadge>
-              <PathBadge>Work sign-in required</PathBadge>
+              <PathBadge>Sign-in required</PathBadge>
             </div>
             <Button
               type="button"

@@ -16,13 +16,17 @@ import {
   SUPPORT_BUNDLE_INCLUDED_ITEMS,
   SUPPORT_BUNDLE_SAFETY_SUMMARY,
   SUPPORT_CONTACT_WORKFLOW,
+  SUPPORT_EMAIL_FALLBACK_SUMMARY,
   SUPPORT_PAGE_GUIDANCE,
+  SUPPORT_REPORT_PROBLEM_HELP_HREF,
+  SUPPORT_REPORT_PROBLEM_SUMMARY,
   SUPPORT_REQUEST_CHECKLIST,
   SUPPORT_TROUBLESHOOTING_SHORTCUTS,
   buildSupportRequestTemplate,
   resolveSupportBundleStatusLabel,
   resolveSupportTroubleshootingHref,
 } from "@/lib/support-workspace-present";
+import { REPORT_PROBLEM_HELP_SLA_SENTENCE } from "@/lib/report-problem-help-copy-guard";
 
 import type { UseAdminSupportPageModel } from "./use-admin-support-page";
 
@@ -94,8 +98,23 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-6">
+          <SupportSection title="Report a problem" testId="admin-support-report-problem">
+            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{SUPPORT_REPORT_PROBLEM_SUMMARY}</p>
+            <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {REPORT_PROBLEM_HELP_SLA_SENTENCE}
+            </p>
+            <div className="mt-4">
+              <Link href={SUPPORT_REPORT_PROBLEM_HELP_HREF} className={cn("font-medium", OPERATOR_LINK.nav)}>
+                Read the Report problem help topic
+              </Link>
+            </div>
+          </SupportSection>
+
           <SupportSection title="Contact support" testId="admin-support-contact">
             <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{SUPPORT_CONTACT_WORKFLOW}</p>
+            <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {SUPPORT_EMAIL_FALLBACK_SUMMARY}
+            </p>
 
             <div className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/60 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-900/40">
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Support email</p>
@@ -155,7 +174,8 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
 
         <SupportSection title="Support bundle" testId="admin-support-bundle">
           <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            Download a redacted diagnostics bundle to attach when ArchLucid support requests it.
+            Advanced: download a redacted diagnostics bundle when ArchLucid support requests it, or when attaching
+            manually to email. Report problem can optionally attach a bundle in one step.
           </p>
 
           <p

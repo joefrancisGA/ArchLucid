@@ -137,7 +137,7 @@ function ShowcaseBottomCTA(): ReactElement {
           href="/signup"
           className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
         >
-          Start free trial
+          Start guided evaluation
         </Link>
         <Link
           href="/auth/signin"

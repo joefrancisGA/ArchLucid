@@ -1,6 +1,11 @@
 import type { LucideIcon } from "lucide-react";
 import { Building2, Cloud, Flag, HeartPulse, Landmark, ShoppingCart } from "lucide-react";
 
+import {
+  CUSTOMER_AUTH_GUIDED_WORKSPACE_SIGN_IN,
+  CUSTOMER_AUTH_PUBLIC_SAMPLE_NO_SIGN_IN,
+} from "@/lib/auth/customer-auth-messaging";
+
 import type { BuyerGetStartedVerticalSlug } from "./get-started-verticals";
 
 export const GET_STARTED_PAGE_TITLE = "See what ArchLucid can do in 30 minutes";
@@ -30,15 +35,19 @@ export type GetStartedMilestone = {
   readonly outcome: string;
 };
 
-export const GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE =
-  "Sign in with work identity (Microsoft, Google, or your organization's SSO provider).";
+export const GET_STARTED_PUBLIC_SAMPLE_SIGN_IN_NOTE = CUSTOMER_AUTH_PUBLIC_SAMPLE_NO_SIGN_IN;
+
+export const GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE = CUSTOMER_AUTH_GUIDED_WORKSPACE_SIGN_IN;
+
+/** @deprecated Prefer {@link GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE}. */
+export const GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE = GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE;
 
 export const GET_STARTED_MILESTONES: readonly GetStartedMilestone[] = [
   {
     n: 1,
     title: "Sign in and open your workspace",
     estimate: "2–3 minutes",
-    body: `${GET_STARTED_WORK_IDENTITY_SIGN_IN_NOTE} ArchLucid creates or opens your workspace without requiring a credit card.`,
+    body: `${GET_STARTED_GUIDED_WORKSPACE_SIGN_IN_NOTE} ArchLucid creates or opens your workspace without requiring a credit card.`,
     outcome: "You land in a workspace ready for your first guided sample review.",
   },
   {

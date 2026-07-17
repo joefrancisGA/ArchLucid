@@ -94,6 +94,11 @@ public static class ArchLucidAuthorizationPoliciesExtensions
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireClaim("permission", ArchLucidPlatformPermissionClaims.CrossTenantRead);
+            })
+            .AddPolicy(ArchLucidPolicies.PlatformIdentityRecoveryAuthority, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim("permission", ArchLucidPlatformPermissionClaims.IdentityRecovery);
             });
 
         return services;

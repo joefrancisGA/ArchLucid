@@ -51,7 +51,9 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
             new("roles", role),
             new("tenant_id", tenantId.ToString("D")),
             new("workspace_id", workspaceId.ToString("D")),
-            new("project_id", projectId.ToString("D"))
+            new("project_id", projectId.ToString("D")),
+            new("auth_time", EpochSeconds(now).ToString(System.Globalization.CultureInfo.InvariantCulture)),
+            new(JwtRegisteredClaimNames.Iat, EpochSeconds(now).ToString(System.Globalization.CultureInfo.InvariantCulture), ClaimValueTypes.Integer64)
         ];
 
         JwtSecurityToken token = new(
@@ -66,6 +68,8 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
 
         return handler.WriteToken(token);
     }
+
+    private static long EpochSeconds(DateTimeOffset instant) => instant.ToUnixTimeSeconds();
 
     private RsaSecurityKey LoadPrivateKey()
     {

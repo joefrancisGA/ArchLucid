@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **179** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **187** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:179 -->
+<!-- route-tier-policy-nav-registry-count:187 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -100,6 +100,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/HostedAzureExtractorAdminController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
 | `Admin/HostedAzureExtractorRunController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
 | `Admin/HostedGcpExtractorRunController.cs` | `/v1/admin/gcp-extractor/hosted` | none | AdminAuthority | /integrations/cloud-connections |  |
+| `Admin/IdentityMigrationReviewAdminController.cs` | `/v1/admin/identity/migration-reviews` | none | AdminAuthority |  |  |
 | `Admin/IdentityProviderConfigurationController.cs` | `/v1/admin/identity` | none | AdminAuthority |  |  |
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
@@ -113,6 +114,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/SecurityTrustPublicationController.cs` | `/v1/admin/security-trust` | none | AdminAuthority | /settings/security-trust |  |
 | `Admin/SettingsController.cs` | `/v1/admin/settings` | none | AdminAuthority | /settings/tenant |  |
 | `Admin/SupportBundleController.cs` | `/v1/admin` | none | ExecuteAuthority | /settings/support |  |
+| `Admin/TenantAuthDomainAdminController.cs` | `/v1/admin/identity/domains` | none | AdminAuthority |  |  |
 | `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /settings/users |  |
 | `Admin/UsersAdminController.cs` | `/v1/admin/users` | none | AdminAuthority |  |  |
 | `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /advisory |  |
@@ -132,7 +134,12 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Analytics/PatternInsightsController.cs` | `/v1/analytics/patterns` | none | Authorize |  |  |
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
 | `Architecture/DraftRequestsController.cs` | `/v1/architecture/draft` | standard | AuthenticatedUserOnly |  |  |
+| `Auth/AuthSignInRoutingController.cs` | `/v1/auth/routing` | none | AllowAnonymous |  |  |
+| `Auth/AuthenticationSignInMethodsController.cs` | `/v1/auth/sign-in-methods` | none | AuthenticatedUserOnly |  |  |
+| `Auth/EmailOtpAuthController.cs` | `/v1/auth/email-otp` | none | AllowAnonymous |  |  |
+| `Auth/PostAuthBootstrapController.cs` | `/v1/auth/bootstrap` | none | Authorize |  |  |
 | `Auth/TrialLocalIdentityAuthController.cs` | `/v1/auth/trial/local` | none | AllowAnonymous |  | trial_local_identity_auth |
+| `Auth/UserInvitationPublicController.cs` | `/v1/auth/invitations` | none | AllowAnonymous |  |  |
 | `Authority/AnalysisReportsController.cs` | `/v1/architecture` | standard | ExecuteAuthority |  |  |
 | `Authority/ArchitectureDefinitionImportController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/ArchitectureExportController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
@@ -199,6 +206,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Integrations/TenantItsmOutboundSettingsController.cs` | `/v1/integrations/itsm/settings` | standard | Authorize | /integrations/readiness |  |
 | `Integrations/WebhookConnectionsController.cs` | `/v1/integrations/webhooks` | standard | ReadAuthority |  |  |
 | `Integrations/WebhookSimulationController.cs` | `/v1/integrations/webhooks` | none | ExecuteAuthority |  |  |
+| `Internal/PlatformIdentityRecoveryController.cs` | `/v1/internal/identity/recovery` | none | PlatformIdentityRecoveryAuthority |  |  |
 | `Marketing/EnterpriseComparisonMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/MarketingEarlyAccessRequestController.cs` | `/v1/marketing/early-access` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/MarketingPricingQuoteRequestController.cs` | `/v1/marketing/pricing` | none | AllowAnonymous |  | marketing_public_api |

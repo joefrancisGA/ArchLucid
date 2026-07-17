@@ -86,8 +86,8 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     id: "operator-role-gate-session-break",
     kind: "auth-session-break",
     routePattern: "*",
-    componentPath: "components/OperatorRoleGate.tsx",
-    description: "User-visible auth or session break (not silent redirect).",
+    componentPath: "components/OperatorAccessDeniedPageClient.tsx",
+    description: "User-visible auth or session break on /403 (OperatorRoleGate redirects here).",
   },
 ] as const;
 

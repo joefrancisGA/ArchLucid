@@ -16,7 +16,7 @@ public sealed class SupportProblemReportIntakeService(
     ISupportProblemReportBundleStore bundleStore,
     ILogger<SupportProblemReportIntakeService> logger) : ISupportProblemReportIntakeService
 {
-    public const string SlaMessage = "We'll respond by the next business day.";
+    public const string SlaMessage = SupportProblemReportCopy.SlaMessage;
 
     public const string SupportBundleAttachFailedWarning =
         "Your report was submitted, but the redacted support bundle could not be attached. You can download one from Settings → Support if needed.";
@@ -51,6 +51,7 @@ public sealed class SupportProblemReportIntakeService(
     public async Task<SubmitSupportProblemReportResponse> SubmitAsync(
         ScopeContext scope,
         string submittedByActorId,
+        string? submittedByMailbox,
         SubmitSupportProblemReportRequest request,
         CancellationToken cancellationToken)
     {
@@ -120,6 +121,12 @@ public sealed class SupportProblemReportIntakeService(
 
         await _notifier.NotifySupportInboxAsync(reportForNotify, submittedByActorId.Trim(), supportBundleAttached, cancellationToken)
             .ConfigureAwait(false);
+
+        if (!string.IsNullOrWhiteSpace(submittedByMailbox))
+        {
+            await _notifier.NotifySubmitterAsync(reportForNotify, submittedByMailbox.Trim(), cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         return new SubmitSupportProblemReportResponse
         {

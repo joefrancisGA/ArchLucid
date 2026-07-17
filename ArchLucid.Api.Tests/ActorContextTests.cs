@@ -198,4 +198,58 @@ public sealed class ActorContextTests
         sut.GetActor().Should().Be("friendly-sp-name-only");
         sut.GetActorId().Should().Be("jwt:t1:real-oid-guid");
     }
+
+    [SkippableFact]
+    public void TryGetSubmitterMailbox_when_email_claim_present_returns_normalized_address()
+    {
+        Mock<IHttpContextAccessor> accessor = new();
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [new Claim("email", "  Operator@Example.COM  ")],
+                    "test"))
+        };
+        accessor.Setup(a => a.HttpContext).Returns(httpContext);
+
+        HttpActorContext sut = new(accessor.Object);
+
+        sut.TryGetSubmitterMailbox().Should().Be("Operator@Example.COM");
+    }
+
+    [SkippableFact]
+    public void TryGetSubmitterMailbox_when_only_preferred_username_claim_present_returns_mailbox()
+    {
+        Mock<IHttpContextAccessor> accessor = new();
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [new Claim("preferred_username", "operator@example.com")],
+                    "test"))
+        };
+        accessor.Setup(a => a.HttpContext).Returns(httpContext);
+
+        HttpActorContext sut = new(accessor.Object);
+
+        sut.TryGetSubmitterMailbox().Should().Be("operator@example.com");
+    }
+
+    [SkippableFact]
+    public void TryGetSubmitterMailbox_when_no_mailbox_claims_returns_null()
+    {
+        Mock<IHttpContextAccessor> accessor = new();
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [new Claim("name", "spi-user")],
+                    "test"))
+        };
+        accessor.Setup(a => a.HttpContext).Returns(httpContext);
+
+        HttpActorContext sut = new(accessor.Object);
+
+        sut.TryGetSubmitterMailbox().Should().BeNull();
+    }
 }

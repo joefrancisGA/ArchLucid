@@ -724,6 +724,94 @@ public static class AuditEventTypes
     /// <summary>Tenant admin revoked a pending user invitation.</summary>
     public const string AdminUserInvitationRevoked = "Admin.UserInvitationRevoked";
 
+    /// <summary>Canonical platform user created from a verified external identity.</summary>
+    public const string PlatformUserCreated = "Identity.PlatformUserCreated";
+
+    /// <summary>Authentication identity created for a new platform user.</summary>
+    public const string AuthenticationIdentityCreated = "Identity.AuthenticationIdentityCreated";
+
+    /// <summary>Authentication identity attached to an existing platform user.</summary>
+    public const string AuthenticationIdentityAttached = "Identity.AuthenticationIdentityAttached";
+
+    /// <summary>Authentication identity disabled (user retained).</summary>
+    public const string AuthenticationIdentityDisabled = "Identity.AuthenticationIdentityDisabled";
+
+    public const string AuthenticationIdentityLinkChallengeRequested = "Identity.AuthenticationIdentityLinkChallengeRequested";
+
+    public const string AuthenticationIdentityLinkProposed = "Identity.AuthenticationIdentityLinkProposed";
+
+    public const string AuthenticationIdentityLinkConfirmed = "Identity.AuthenticationIdentityLinkConfirmed";
+
+    public const string AuthenticationIdentityLinkCancelled = "Identity.AuthenticationIdentityLinkCancelled";
+
+    public const string AuthenticationIdentityLinkFailed = "Identity.AuthenticationIdentityLinkFailed";
+
+    public const string AuthenticationIdentityRemovalRequested = "Identity.AuthenticationIdentityRemovalRequested";
+
+    public const string EmailOtpCodeRequested = "Identity.EmailOtpCodeRequested";
+
+    public const string EmailOtpCodeSent = "Identity.EmailOtpCodeSent";
+
+    public const string EmailOtpVerificationSucceeded = "Identity.EmailOtpVerificationSucceeded";
+
+    public const string EmailOtpVerificationFailed = "Identity.EmailOtpVerificationFailed";
+
+    public const string EmailOtpRateLimitTriggered = "Identity.EmailOtpRateLimitTriggered";
+
+    public const string EmailOtpSsoRedirectRequired = "Identity.EmailOtpSsoRedirectRequired";
+
+    public const string EmailOtpSuspiciousBehaviorDetected = "Identity.EmailOtpSuspiciousBehaviorDetected";
+
+    public const string AuthDomainProposed = "Identity.AuthDomainProposed";
+
+    public const string AuthDomainVerificationStarted = "Identity.AuthDomainVerificationStarted";
+
+    public const string AuthDomainVerificationChecked = "Identity.AuthDomainVerificationChecked";
+
+    public const string AuthDomainEnforcementEnabled = "Identity.AuthDomainEnforcementEnabled";
+
+    public const string AuthDomainRecoveryAdminAdded = "Identity.AuthDomainRecoveryAdminAdded";
+
+    public const string AuthDomainRecoveryAdminRemoved = "Identity.AuthDomainRecoveryAdminRemoved";
+
+    public const string AuthDomainRemoved = "Identity.AuthDomainRemoved";
+
+    public const string AuthDomainEnforcementModeChanged = "Identity.AuthDomainEnforcementModeChanged";
+
+    public const string AuthDomainRecoveryBypassUsed = "Identity.AuthDomainRecoveryBypassUsed";
+
+    public const string AuthDomainRecoveryAdminAuthenticationVerified = "Identity.AuthDomainRecoveryAdminAuthenticationVerified";
+
+    public const string AuthDomainLastRecoveryPathRemoved = "Identity.AuthDomainLastRecoveryPathRemoved";
+
+    public const string PlatformTenantAuthRecoveryGranted = "Identity.PlatformTenantAuthRecoveryGranted";
+
+    public const string PlatformTenantAuthRecoveryRevoked = "Identity.PlatformTenantAuthRecoveryRevoked";
+
+    public const string PlatformTenantAuthRecoveryTenantNotified = "Identity.PlatformTenantAuthRecoveryTenantNotified";
+
+    public const string PlatformTenantAuthRecoveryUnauthorizedAttempt = "Identity.PlatformTenantAuthRecoveryUnauthorizedAttempt";
+
+    public const string UserAccountPrimaryEmailChangeRequested = "Identity.UserAccountPrimaryEmailChangeRequested";
+
+    public const string UserAccountPrimaryEmailChanged = "Identity.UserAccountPrimaryEmailChanged";
+
+    public const string AuthSignInRoutingEvaluated = "Identity.AuthSignInRoutingEvaluated";
+
+    public const string PostAuthWorkspaceCreated = "Identity.PostAuthWorkspaceCreated";
+
+    public const string PostAuthInitialOwnerAssigned = "Identity.PostAuthInitialOwnerAssigned";
+
+    public const string PostAuthExistingOrganizationDetected = "Identity.PostAuthExistingOrganizationDetected";
+
+    public const string PostAuthAccessRequestInitiated = "Identity.PostAuthAccessRequestInitiated";
+
+    public const string PostAuthWorkspaceCreationDenied = "Identity.PostAuthWorkspaceCreationDenied";
+
+    public const string AdminUserInvitationAccepted = "Admin.UserInvitationAccepted";
+
+    public const string UserInvitationValidated = "Identity.UserInvitationValidated";
+
     /// <summary>Admin invoked JWT role-claim diagnostic (<c>POST /v1/admin/auth/diagnose-token</c>); payload excludes token material.</summary>
     public const string AuthTokenDiagnosticRequested = "Auth.TokenDiagnosticRequested";
 

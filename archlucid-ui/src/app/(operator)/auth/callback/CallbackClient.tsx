@@ -24,6 +24,7 @@ import {
   humanizeAuthorizeCallbackError,
 } from "@/lib/oidc/oauth-callback-messages";
 import { consumePkceState, persistTokenResponse, consumePostSignInReturnUrl } from "@/lib/oidc/session";
+import { readInvitationToken } from "@/lib/auth/email-otp-session";
 import { clearLastRegistrationPayload } from "@/lib/registration-session";
 
 /** Matches `SignInClient` — token exchange can be slow on cold IdP or corporate proxies. */
@@ -159,6 +160,21 @@ export function CallbackClient() {
         persistTokenResponse(tokens);
 
         const returnUrl = consumePostSignInReturnUrl();
+        const invitationToken = readInvitationToken();
+
+        if (invitationToken) {
+          const bootstrapParams = new URLSearchParams();
+
+          if (returnUrl && returnUrl !== "/") {
+            bootstrapParams.set("returnUrl", returnUrl);
+          }
+
+          const bootstrapPath = bootstrapParams.size > 0 ? `/auth/bootstrap?${bootstrapParams.toString()}` : "/auth/bootstrap";
+
+          window.location.replace(bootstrapPath);
+
+          return;
+        }
 
         window.location.replace(returnUrl ?? "/");
       } catch (e) {

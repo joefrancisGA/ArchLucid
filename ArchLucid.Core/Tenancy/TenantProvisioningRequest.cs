@@ -49,4 +49,11 @@ public sealed class TenantProvisioningRequest
         get;
         init;
     }
+
+    /// <summary>Optional display name for the default workspace created during provisioning.</summary>
+    public string? WorkspaceDisplayName
+    {
+        get;
+        init;
+    }
 }

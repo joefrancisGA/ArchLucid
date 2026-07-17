@@ -33,7 +33,7 @@ public sealed class SupportProblemReportIntakeServiceTests
             Context = new ReportProblemContextDto { RoutePath = "/reviews" }
         };
 
-        Func<Task> act = async () => await sut.SubmitAsync(DefaultScope, "actor-1", request, CancellationToken.None);
+        Func<Task> act = async () => await sut.SubmitAsync(DefaultScope, "actor-1", null, request, CancellationToken.None);
 
         await act.Should().ThrowAsync<SupportProblemReportConsentRequiredException>();
     }
@@ -53,7 +53,7 @@ public sealed class SupportProblemReportIntakeServiceTests
             }
         };
 
-        Func<Task> act = async () => await sut.SubmitAsync(DefaultScope, "actor-1", request, CancellationToken.None);
+        Func<Task> act = async () => await sut.SubmitAsync(DefaultScope, "actor-1", null, request, CancellationToken.None);
 
         await act.Should().ThrowAsync<SupportProblemReportScopeMismatchException>();
     }
@@ -98,7 +98,7 @@ public sealed class SupportProblemReportIntakeServiceTests
         };
 
         SubmitSupportProblemReportResponse response =
-            await sut.SubmitAsync(DefaultScope, "actor-1", request, CancellationToken.None);
+            await sut.SubmitAsync(DefaultScope, "actor-1", null, request, CancellationToken.None);
 
         response.ReferenceId.Should().Be(referenceId);
         response.SubmittedAtUtc.Should().Be(createdUtc);
@@ -122,6 +122,55 @@ public sealed class SupportProblemReportIntakeServiceTests
                 It.IsAny<SupportProblemReportRecord>(),
                 "actor-1",
                 false,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        notifier.Verify(
+            n => n.NotifySubmitterAsync(
+                It.IsAny<SupportProblemReportRecord>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitAsync_with_submitter_mailbox_sends_auto_ack()
+    {
+        SupportProblemReportIntakeService sut = BuildSut(
+            out Mock<ISupportProblemReportRepository> repo,
+            out Mock<ISupportProblemReportNotifier> notifier,
+            out _,
+            out _);
+
+        Guid referenceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        DateTimeOffset createdUtc = new(2026, 7, 17, 10, 0, 0, TimeSpan.Zero);
+
+        repo.Setup(r => r.InsertAsync(It.IsAny<SupportProblemReportInsert>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new SupportProblemReportRecord
+                {
+                    Id = referenceId,
+                    TenantId = DefaultScope.TenantId,
+                    WorkspaceId = DefaultScope.WorkspaceId,
+                    ProjectId = DefaultScope.ProjectId,
+                    SubmittedByActorId = "actor-1",
+                    ContextJson = "{}",
+                    Status = SupportProblemReportStatus.Open,
+                    CreatedUtc = createdUtc
+                });
+
+        SubmitSupportProblemReportRequest request = new()
+        {
+            ConsentGranted = true,
+            Context = new ReportProblemContextDto { RoutePath = "/reviews" }
+        };
+
+        await sut.SubmitAsync(DefaultScope, "actor-1", "operator@example.com", request, CancellationToken.None);
+
+        notifier.Verify(
+            n => n.NotifySubmitterAsync(
+                It.Is<SupportProblemReportRecord>(record => record.Id == referenceId),
+                "operator@example.com",
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -196,7 +245,7 @@ public sealed class SupportProblemReportIntakeServiceTests
         };
 
         SubmitSupportProblemReportResponse response =
-            await sut.SubmitAsync(DefaultScope, "actor-1", request, CancellationToken.None);
+            await sut.SubmitAsync(DefaultScope, "actor-1", null, request, CancellationToken.None);
 
         capturedReportId.Should().NotBe(Guid.Empty);
         response.ReferenceId.Should().Be(capturedReportId);
@@ -275,7 +324,7 @@ public sealed class SupportProblemReportIntakeServiceTests
         };
 
         SubmitSupportProblemReportResponse response =
-            await sut.SubmitAsync(DefaultScope, "actor-1", request, CancellationToken.None);
+            await sut.SubmitAsync(DefaultScope, "actor-1", null, request, CancellationToken.None);
 
         response.SupportBundleAttached.Should().BeFalse();
         response.SupportBundleAttachWarning.Should().Be(SupportProblemReportIntakeService.SupportBundleAttachFailedWarning);
@@ -315,6 +364,11 @@ public sealed class SupportProblemReportIntakeServiceTests
                 It.IsAny<SupportProblemReportRecord>(),
                 It.IsAny<string>(),
                 It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        notifier.Setup(n => n.NotifySubmitterAsync(
+                It.IsAny<SupportProblemReportRecord>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

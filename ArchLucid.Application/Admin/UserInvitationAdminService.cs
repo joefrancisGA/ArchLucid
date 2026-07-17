@@ -1,12 +1,15 @@
-using System.Net.Mail;
-using System.Security.Cryptography;
-
+using ArchLucid.Application.Admin;
+using ArchLucid.Application.Identity;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Admin;
 
@@ -27,6 +30,8 @@ public sealed class UserInvitationAdminService(
     IUserInvitationRepository invitations,
     IScimUserRepository scimUsers,
     ITenantRepository tenants,
+    IUserInvitationEmailNotifier invitationEmailNotifier,
+    IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     TimeProvider timeProvider) : IUserInvitationAdminService
 {
     private static readonly HashSet<string> AssignableRoles = new(StringComparer.OrdinalIgnoreCase)
@@ -47,6 +52,12 @@ public sealed class UserInvitationAdminService(
         scimUsers ?? throw new ArgumentNullException(nameof(scimUsers));
 
     private readonly ITenantRepository _tenants = tenants ?? throw new ArgumentNullException(nameof(tenants));
+
+    private readonly IUserInvitationEmailNotifier _invitationEmailNotifier =
+        invitationEmailNotifier ?? throw new ArgumentNullException(nameof(invitationEmailNotifier));
+
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
+        emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
@@ -86,11 +97,12 @@ public sealed class UserInvitationAdminService(
 
         if (pending is not null && pending.ExpiresUtc > _timeProvider.GetUtcNow())
         {
-            return await MapResponseAsync(pending, cancellationToken);
+            return await MapResponseAsync(pending, includeSecrets: false, rawToken: null, cancellationToken);
         }
 
         DateTimeOffset expiresUtc = _timeProvider.GetUtcNow().AddDays(DefaultExpiryDays);
-        byte[] tokenHash = HashInvitationToken(RandomNumberGenerator.GetBytes(32));
+        string rawToken = InvitationTokenGenerator.GenerateUrlSafeToken();
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
 
         UserInvitationRecord created = await _invitations.InsertAsync(
             scope.TenantId,
@@ -103,7 +115,21 @@ public sealed class UserInvitationAdminService(
             expiresUtc,
             cancellationToken);
 
-        return await MapResponseAsync(created, cancellationToken);
+        string acceptPath = BuildAcceptPath(rawToken);
+        string? acceptUrl = BuildAcceptUrl(acceptPath);
+
+        if (acceptUrl is not null)
+        {
+            await _invitationEmailNotifier.TrySendInvitationAsync(
+                normalizedEmail,
+                acceptUrl,
+                appRole,
+                DefaultExpiryDays,
+                message,
+                cancellationToken);
+        }
+
+        return await MapResponseAsync(created, includeSecrets: true, rawToken: rawToken, cancellationToken);
     }
 
     public async Task<IReadOnlyList<UserInvitationResponse>> ListAsync(
@@ -119,7 +145,7 @@ public sealed class UserInvitationAdminService(
 
         foreach (UserInvitationRecord row in rows)
         {
-            responses.Add(await MapResponseAsync(row, cancellationToken));
+            responses.Add(await MapResponseAsync(row, includeSecrets: false, rawToken: null, cancellationToken));
         }
 
         return responses;
@@ -147,7 +173,7 @@ public sealed class UserInvitationAdminService(
 
         try
         {
-            MailAddress parsed = new(email.Trim());
+            System.Net.Mail.MailAddress parsed = new(email.Trim());
 
             if (string.IsNullOrWhiteSpace(parsed.Address))
             {
@@ -181,9 +207,19 @@ public sealed class UserInvitationAdminService(
         return trimmed;
     }
 
-    private static byte[] HashInvitationToken(byte[] tokenBytes)
+    private static string BuildAcceptPath(string rawToken) =>
+        $"/auth/invite?token={Uri.EscapeDataString(rawToken)}";
+
+    private string? BuildAcceptUrl(string acceptPath)
     {
-        return SHA256.HashData(tokenBytes);
+        string? baseUrl = _emailOptionsMonitor.CurrentValue.OperatorBaseUrl?.Trim().TrimEnd('/');
+
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            return null;
+        }
+
+        return $"{baseUrl}{acceptPath}";
     }
 
     private async Task<bool> DirectoryUserExistsByEmailAsync(
@@ -226,12 +262,14 @@ public sealed class UserInvitationAdminService(
 
     private async Task<UserInvitationResponse> MapResponseAsync(
         UserInvitationRecord record,
+        bool includeSecrets,
+        string? rawToken,
         CancellationToken cancellationToken)
     {
         TenantRecord? tenant = await _tenants.GetByIdAsync(record.TenantId, cancellationToken);
         string tenantName = tenant?.Name ?? "—";
 
-        return new UserInvitationResponse
+        UserInvitationResponse response = new()
         {
             Id = record.Id,
             Email = record.Email,
@@ -244,5 +282,14 @@ public sealed class UserInvitationAdminService(
             CreatedUtc = record.CreatedUtc,
             ExpiresUtc = record.ExpiresUtc
         };
+
+        if (includeSecrets && !string.IsNullOrWhiteSpace(rawToken))
+        {
+            response.InvitationToken = rawToken;
+            response.AcceptPath = BuildAcceptPath(rawToken);
+            response.AcceptUrl = BuildAcceptUrl(response.AcceptPath);
+        }
+
+        return response;
     }
 }

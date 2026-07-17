@@ -1,5 +1,6 @@
 using ArchLucid.Application.Admin;
 using ArchLucid.Application.Identity;
+using ArchLucid.Core.Identity;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
@@ -33,6 +34,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<IntegrationsAtlassianOAuthOptions>(
             configuration.GetSection(IntegrationsAtlassianOAuthOptions.SectionName));
         services.Configure<TrialAuthOptions>(configuration.GetSection(TrialAuthOptions.SectionPath));
+        services.Configure<EmailOtpAuthOptions>(configuration.GetSection(EmailOtpAuthOptions.SectionPath));
+        services.PostConfigure<EmailOtpAuthOptions>(static options => options.Normalize());
         services.Configure<TrialLifecycleSchedulerOptions>(
             configuration.GetSection(TrialLifecycleSchedulerOptions.SectionName));
         services.Configure<TrialLifecycleEmailRoutingOptions>(
@@ -52,7 +55,29 @@ public static partial class ServiceCollectionExtensions
             });
         services.AddScoped<ITrialLocalIdentityAccountExistsNotifier, TrialLocalIdentityAccountExistsEmailNotifier>();
         services.AddScoped<ITrialLocalIdentityService, TrialLocalIdentityService>();
+        services.AddScoped<IPlatformIdentityService, PlatformIdentityService>();
+        services.AddScoped<ILegacyPlatformIdentityMigrationService, LegacyPlatformIdentityMigrationService>();
+        services.AddScoped<IEmailOtpAuthService, EmailOtpAuthService>();
+        services.AddScoped<IPostAuthBootstrapService, PostAuthBootstrapService>();
+        services.AddScoped<IEmailOtpSignInDomainPolicyService, EmailOtpSignInDomainPolicyService>();
+        services.AddScoped<IAuthSignInRoutingService, AuthSignInRoutingService>();
+        services.AddScoped<AuthDomainDnsVerificationService>();
+        services.AddScoped<TenantAuthDomainAdminService>();
+        services.AddScoped<IPlatformAuthRecoveryService, PlatformAuthRecoveryService>();
+        services.AddScoped<IPlatformRecoveryNotificationService, PlatformRecoveryNotificationService>();
+        services.AddScoped<IUserAccountRecoveryService, UserAccountRecoveryService>();
+        services.AddScoped<IAuthenticationIdentityLinkingService, AuthenticationIdentityLinkingService>();
+        services.AddScoped<ISignInMethodRemovalPolicyService, SignInMethodRemovalPolicyService>();
+        services.AddHttpClient<CloudflareDnsTxtRecordLookup>(static client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
+        });
+        services.AddScoped<IDnsTxtRecordLookup>(static sp =>
+            sp.GetRequiredService<CloudflareDnsTxtRecordLookup>());
+        services.AddScoped<IEmailOtpEmailNotifier, EmailOtpEmailNotifier>();
         services.AddScoped<IUserInvitationAdminService, UserInvitationAdminService>();
+        services.AddScoped<IUserInvitationFlowService, UserInvitationFlowService>();
+        services.AddScoped<IUserInvitationEmailNotifier, UserInvitationEmailNotifier>();
         services.AddScoped<ISupportProblemReportIntakeService, SupportProblemReportIntakeService>();
 
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();

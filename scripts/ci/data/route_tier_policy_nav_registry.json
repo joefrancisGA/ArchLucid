@@ -282,6 +282,16 @@
       "nav_operator_href": "/integrations/cloud-connections"
     },
     {
+      "controller_file": "Admin/IdentityMigrationReviewAdminController.cs",
+      "class_name": "IdentityMigrationReviewAdminController",
+      "route_template": "v{version:apiVersion}/admin/identity/migration-reviews",
+      "normalized_prefix": "/v1/admin/identity/migration-reviews",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/IdentityProviderConfigurationController.cs",
       "class_name": "IdentityProviderConfigurationController",
       "route_template": "v{version:apiVersion}/admin/identity",
@@ -410,6 +420,16 @@
       "class_policy": "ExecuteAuthority",
       "exemption": null,
       "nav_operator_href": "/settings/support"
+    },
+    {
+      "controller_file": "Admin/TenantAuthDomainAdminController.cs",
+      "class_name": "TenantAuthDomainAdminController",
+      "route_template": "v{version:apiVersion}/admin/identity/domains",
+      "normalized_prefix": "/v1/admin/identity/domains",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
     },
     {
       "controller_file": "Admin/TenantsAdminController.cs",
@@ -602,6 +622,46 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Auth/AuthenticationSignInMethodsController.cs",
+      "class_name": "AuthenticationSignInMethodsController",
+      "route_template": "v{version:apiVersion}/auth/sign-in-methods",
+      "normalized_prefix": "/v1/auth/sign-in-methods",
+      "commercial_tier": "none",
+      "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Auth/AuthSignInRoutingController.cs",
+      "class_name": "AuthSignInRoutingController",
+      "route_template": "v{version:apiVersion}/auth/routing",
+      "normalized_prefix": "/v1/auth/routing",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Auth/EmailOtpAuthController.cs",
+      "class_name": "EmailOtpAuthController",
+      "route_template": "v{version:apiVersion}/auth/email-otp",
+      "normalized_prefix": "/v1/auth/email-otp",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Auth/PostAuthBootstrapController.cs",
+      "class_name": "PostAuthBootstrapController",
+      "route_template": "v{version:apiVersion}/auth/bootstrap",
+      "normalized_prefix": "/v1/auth/bootstrap",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Auth/TrialLocalIdentityAuthController.cs",
       "class_name": "TrialLocalIdentityAuthController",
       "route_template": "v{version:apiVersion}/auth/trial/local",
@@ -609,6 +669,16 @@
       "commercial_tier": "none",
       "class_policy": "AllowAnonymous",
       "exemption": "trial_local_identity_auth",
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Auth/UserInvitationPublicController.cs",
+      "class_name": "UserInvitationPublicController",
+      "route_template": "v{version:apiVersion}/auth/invitations",
+      "normalized_prefix": "/v1/auth/invitations",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": null,
       "nav_operator_href": null
     },
     {
@@ -1268,6 +1338,16 @@
       "normalized_prefix": "/v1/integrations/webhooks",
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Internal/PlatformIdentityRecoveryController.cs",
+      "class_name": "PlatformIdentityRecoveryController",
+      "route_template": "v{version:apiVersion}/internal/identity/recovery",
+      "normalized_prefix": "/v1/internal/identity/recovery",
+      "commercial_tier": "none",
+      "class_policy": "PlatformIdentityRecoveryAuthority",
       "exemption": null,
       "nav_operator_href": null
     },

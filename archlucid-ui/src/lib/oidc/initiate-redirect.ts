@@ -45,3 +45,48 @@ export async function initiateOidcRedirect(returnUrl?: string): Promise<void> {
 
   window.location.assign(url);
 }
+
+/**
+ * Starts OIDC for an explicitly configured supplemental provider (e.g. Google when
+ * `NEXT_PUBLIC_GOOGLE_OIDC_*` is set separately from the primary work/school IdP).
+ */
+export async function initiateSupplementalOidcRedirect(
+  provider: "google",
+  returnUrl?: string,
+): Promise<void> {
+  if (provider !== "google") {
+    throw new Error("Unsupported supplemental identity provider.");
+  }
+
+  const authority = process.env.NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY?.trim() ?? "";
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID?.trim() ?? "";
+
+  if (authority.length === 0 || clientId.length === 0) {
+    throw new Error("Google sign-in is not configured for this environment.");
+  }
+
+  const redirectUri = getOidcRedirectUri();
+  const scope = process.env.NEXT_PUBLIC_GOOGLE_OIDC_SCOPES?.trim() || "openid profile email";
+  const { verifier, challenge } = await createPkcePair();
+  const state = randomOpaqueState();
+  const nonce = randomOpaqueState();
+
+  storePkceState(state, verifier, nonce);
+
+  if (returnUrl !== undefined && isSafeReturnPath(returnUrl)) {
+    storePostSignInReturnUrl(returnUrl);
+  }
+
+  const doc = await loadDiscoveryDocument(authority);
+  const url = buildAuthorizeUrl({
+    doc,
+    clientId,
+    redirectUri,
+    scope,
+    state,
+    codeChallenge: challenge,
+    nonce,
+  });
+
+  window.location.assign(url);
+}

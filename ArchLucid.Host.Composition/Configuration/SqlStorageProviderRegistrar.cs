@@ -482,6 +482,16 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IArchitectureProjectRetentionPurgeService, SqlArchitectureProjectRetentionPurgeService>();
         services.AddScoped<IScimTenantTokenRepository, DapperScimTenantTokenRepository>();
         services.AddScoped<IScimUserRepository, DapperScimUserRepository>();
+        services.AddScoped<IPlatformUserRepository, DapperPlatformUserRepository>();
+        services.AddScoped<IAuthenticationIdentityRepository, DapperAuthenticationIdentityRepository>();
+        services.AddScoped<IWorkspaceMembershipRepository, DapperWorkspaceMembershipRepository>();
+        services.AddScoped<IIdentityMigrationReviewRepository, DapperIdentityMigrationReviewRepository>();
+        services.AddScoped<ILegacyPlatformIdentityMigrationSource, SqlLegacyPlatformIdentityMigrationSource>();
+        services.AddScoped<IEmailOtpChallengeRepository, DapperEmailOtpChallengeRepository>();
+        services.AddScoped<ITenantSignInEmailDomainRepository, DapperTenantSignInEmailDomainRepository>();
+        services.AddScoped<ITenantSignInEmailDomainRecoveryAdminRepository, DapperTenantSignInEmailDomainRecoveryAdminRepository>();
+        services.AddScoped<IPlatformTenantAuthRecoveryGrantRepository, DapperPlatformTenantAuthRecoveryGrantRepository>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalRepository, DapperAuthenticationIdentityLinkProposalRepository>();
         services.AddScoped<IAdminNotificationsRepository, DapperAdminNotificationsRepository>();
         services.AddScoped<IScimGroupRepository, DapperScimGroupRepository>();
         services.AddScoped<IRoiBulletinAggregateReader, SqlRoiBulletinAggregateReader>();

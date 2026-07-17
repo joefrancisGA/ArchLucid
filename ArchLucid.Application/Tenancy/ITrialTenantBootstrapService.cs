@@ -15,4 +15,12 @@ public interface ITrialTenantBootstrapService
         TrialSignupBaselineReviewCycleCapture? baselineReviewCycle,
         TrialSignupCompanyProfileCapture? companyProfile,
         CancellationToken cancellationToken);
+
+    /// <summary>Best-effort demo seed after post-auth workspace creation; skips email verification gating.</summary>
+    Task TryBootstrapAfterPostAuthWorkspaceAsync(
+        TenantProvisioningResult result,
+        string auditActorEmail,
+        TrialSignupCompanyProfileCapture? companyProfile,
+        bool includeDemoSeed,
+        CancellationToken cancellationToken);
 }

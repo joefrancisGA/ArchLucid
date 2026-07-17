@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorMalformedCallout } from "@/components/OperatorShellMessage";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -17,6 +18,11 @@ export function RunDetailPageMalformedResponseView(props: { readonly message: st
             The review record could not be displayed. Try reloading.
           </p>
         </OperatorMalformedCallout>
+        <FatalPageReportProblemSupportRow
+          surfaceId="review-detail-hard-load-failure"
+          errorTitle="Review detail response was not usable."
+          errorCode="malformed-response"
+        />
         <p>
           <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
             ← Back to reviews

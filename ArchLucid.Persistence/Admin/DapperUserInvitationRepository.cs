@@ -65,6 +65,27 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
         return row?.ToRecord();
     }
 
+    public async Task<UserInvitationRecord?> GetPendingByIdAsync(
+        Guid invitationId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT Id, TenantId, WorkspaceId, Email, AppRole, InvitedByActorId, Message, Status,
+                                  CreatedUtc, ExpiresUtc, RevokedUtc, AcceptedUtc
+                           FROM dbo.UserInvitations
+                           WHERE Id = @Id
+                             AND Status = N'Pending'
+                             AND ExpiresUtc > SYSUTCDATETIME();
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        InvitationRow? row = await connection.QuerySingleOrDefaultAsync<InvitationRow>(
+            new CommandDefinition(sql, new { Id = invitationId }, cancellationToken: cancellationToken));
+
+        return row?.ToRecord();
+    }
+
     public async Task<IReadOnlyList<UserInvitationRecord>> ListByTenantAsync(
         Guid tenantId,
         CancellationToken cancellationToken)
@@ -156,6 +177,91 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
                     Id = invitationId,
                     RevokedUtc = revokedUtc.UtcDateTime
                 },
+                cancellationToken: cancellationToken));
+
+        return affected == 1;
+    }
+
+    public async Task<UserInvitationRecord?> GetPendingByTokenHashAsync(
+        byte[] tokenHash,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT Id, TenantId, WorkspaceId, Email, AppRole, InvitedByActorId, Message, Status,
+                                  CreatedUtc, ExpiresUtc, RevokedUtc, AcceptedUtc
+                           FROM dbo.UserInvitations
+                           WHERE TokenHash = @TokenHash
+                             AND Status = N'Pending'
+                             AND ExpiresUtc > SYSUTCDATETIME();
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        InvitationRow? row = await connection.QuerySingleOrDefaultAsync<InvitationRow>(
+            new CommandDefinition(sql, new { TokenHash = tokenHash }, cancellationToken: cancellationToken));
+
+        return row?.ToRecord();
+    }
+
+    public async Task<UserInvitationRecord?> GetByTokenHashAsync(
+        byte[] tokenHash,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT Id, TenantId, WorkspaceId, Email, AppRole, InvitedByActorId, Message, Status,
+                                  CreatedUtc, ExpiresUtc, RevokedUtc, AcceptedUtc
+                           FROM dbo.UserInvitations
+                           WHERE TokenHash = @TokenHash;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        InvitationRow? row = await connection.QuerySingleOrDefaultAsync<InvitationRow>(
+            new CommandDefinition(sql, new { TokenHash = tokenHash }, cancellationToken: cancellationToken));
+
+        return row?.ToRecord();
+    }
+
+    public async Task<IReadOnlyList<UserInvitationRecord>> ListPendingByNormalizedEmailAsync(
+        string normalizedEmail,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT Id, TenantId, WorkspaceId, Email, AppRole, InvitedByActorId, Message, Status,
+                                  CreatedUtc, ExpiresUtc, RevokedUtc, AcceptedUtc
+                           FROM dbo.UserInvitations
+                           WHERE Email = @Email
+                             AND Status = N'Pending'
+                             AND ExpiresUtc > SYSUTCDATETIME()
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<InvitationRow> rows = await connection.QueryAsync<InvitationRow>(
+            new CommandDefinition(sql, new { Email = normalizedEmail }, cancellationToken: cancellationToken));
+
+        return rows.Select(static row => row.ToRecord()).ToList();
+    }
+
+    public async Task<bool> MarkAcceptedAsync(
+        Guid invitationId,
+        DateTimeOffset acceptedUtc,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE dbo.UserInvitations
+                           SET Status = N'Accepted', AcceptedUtc = @AcceptedUtc
+                           WHERE Id = @Id
+                             AND Status = N'Pending';
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new { Id = invitationId, AcceptedUtc = acceptedUtc.UtcDateTime },
                 cancellationToken: cancellationToken));
 
         return affected == 1;
