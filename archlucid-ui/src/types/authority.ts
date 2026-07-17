@@ -19,6 +19,8 @@ type RunSummaryWireExtensions = {
   idempotencyReplayed?: boolean | null;
   /** Package origin for list badges (`Created` | `Reviewed`). */
   packageOrigin?: string | null;
+  /** Detail merge: pipeline re-attempt count when run detail is projected onto summary props. */
+  retryCount?: number | null;
 };
 
 /**
