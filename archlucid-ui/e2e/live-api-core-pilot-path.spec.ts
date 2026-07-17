@@ -4,7 +4,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "./fixtures";
@@ -51,7 +51,8 @@ test.describe("live-api-core-pilot-path", () => {
     ).toBeVisible();
 
     await page.goto("/reviews/new");
-    await expect(page.getByRole("heading", { name: CREATE_ARCHITECTURE_LABEL, level: 2 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 2 })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("reviews-new-page-lead")).toBeVisible({ timeout: 60_000 });
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto(liveReviewsListHref);
