@@ -105,6 +105,12 @@ Work tracked for a future release window; see linked deferral register (e.g. PGP
 
 ---
 
+## Support responsiveness
+
+In-product **Report problem** (on high-stakes error surfaces) submits through the structured intake API and returns a durable **report reference** id in the dialog, with submitter email acknowledgement when your account has a mailbox on file. ArchLucid commits to **respond by the next business day** for those structured reports — not immediate chat and not always-on live monitoring. Email to **support@archlucid.net** remains a manual path when you are not on a failure page; it does not automatically mint a system report reference. Operators can read the full workflow in **Report a problem** (`/help/report-a-problem`).
+
+---
+
 ## Customer-facing artifacts
 
 - [Data Processing Agreement (template)](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/DPA_TEMPLATE.md)

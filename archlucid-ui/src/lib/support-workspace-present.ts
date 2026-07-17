@@ -1,13 +1,21 @@
 export const ARCHLUCID_SUPPORT_EMAIL = "support@archlucid.net";
 
 export const SUPPORT_PAGE_GUIDANCE =
-  "Need help with a review, evidence source, integration, or system health issue? Start by checking system health, then download a redacted support bundle if requested by ArchLucid support.";
+  "When a page shows Report problem, use it first — it sends structured diagnostics and a report reference. For general questions or when you are not on an error surface, use Settings → Support or email below.";
 
 export const SUPPORT_BUNDLE_SAFETY_SUMMARY =
   "The bundle is redacted before download. Review it before sharing outside your organization.";
 
 export const SUPPORT_CONTACT_WORKFLOW =
-  "Email ArchLucid support with the details below. Attach a support bundle only when support requests diagnostics.";
+  "Prefer Report problem on in-product error surfaces (review failures, API problem cards, connectivity errors). Email ArchLucid support when you need a manual thread or are not on a failure page.";
+
+export const SUPPORT_REPORT_PROBLEM_HELP_HREF = "/help/report-a-problem";
+
+export const SUPPORT_REPORT_PROBLEM_SUMMARY =
+  "Report problem captures review and workspace context, product version, correlation id, route, and your note — only after you confirm consent. You receive a report reference and a next-business-day response commitment.";
+
+export const SUPPORT_EMAIL_FALLBACK_SUMMARY =
+  "Email is a secondary path when Report problem is not available on the current page.";
 
 export const SUPPORT_BUNDLE_INCLUDED_ITEMS = [
   "Workspace diagnostics",
@@ -25,6 +33,7 @@ export const SUPPORT_BUNDLE_EXCLUDED_ITEMS = [
 ] as const;
 
 export const SUPPORT_REQUEST_CHECKLIST = [
+  "Report reference id (from Report problem) or correlation / request id",
   "Workspace name",
   "Affected review or page",
   "What you expected",
@@ -53,6 +62,12 @@ export const SUPPORT_TROUBLESHOOTING_SHORTCUTS: readonly SupportTroubleshootingS
     title: "Open troubleshooting guide",
     detail: "Follow step-by-step fixes for loading, review, evidence, and export issues.",
     route: "help:troubleshooting",
+  },
+  {
+    id: "report-a-problem",
+    title: "How Report problem works",
+    detail: "What we capture, consent, optional bundle attach, and the next-business-day response commitment.",
+    route: "help:report-a-problem",
   },
   {
     id: "admin-diagnostics",
