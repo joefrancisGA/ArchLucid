@@ -1,5 +1,6 @@
 "use client";
 
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { cn } from "@/lib/utils";
 import {
   BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE,
@@ -8,11 +9,14 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { mergeLayerGuidanceForGraphDisclosure } from "@/lib/layer-guidance";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { useNavSurface } from "@/lib/use-nav-surface";
 
 export type GraphEvidenceTrailGuidanceDisclosureProps = {
   className?: string;
 };
+
+const GRAPH_PAGE_HELP_TOPIC = pageHelpTopicForPathname("/graph");
 
 /** Collapses long graph explanation so the page leads with selection and load actions. */
 export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGuidanceDisclosureProps) {
@@ -34,6 +38,15 @@ export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGu
         <p className="m-0">{BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD}</p>
         <p className="m-0">{block.useWhen}</p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_GRAPH_WHAT_THIS_PROVES}</p>
+        {GRAPH_PAGE_HELP_TOPIC !== null ? (
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <InAppHelpLink
+              helpSlug={GRAPH_PAGE_HELP_TOPIC.slug}
+              label={`${GRAPH_PAGE_HELP_TOPIC.label} guide`}
+              variant="text"
+            />
+          </p>
+        ) : null}
       </div>
     </details>
   );
