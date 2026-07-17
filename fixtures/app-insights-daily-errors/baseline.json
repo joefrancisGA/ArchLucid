@@ -1,0 +1,12 @@
+{
+  "schema": "archlucid.app-insights-error-baseline.v1",
+  "updatedAtUtc": "2026-07-16T12:00:00+00:00",
+  "signatures": {
+    "ex:System.Data.SqlClient.SqlException|208|invalid object name 'dbo.tenantsettings'.": {
+      "firstSeenUtc": "2026-07-15T08:00:00+00:00",
+      "lastSeenUtc": "2026-07-16T12:00:00+00:00",
+      "category": "exception",
+      "label": "System.Data.SqlClient.SqlException"
+    }
+  }
+}
