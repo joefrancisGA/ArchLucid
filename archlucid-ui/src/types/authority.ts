@@ -21,6 +21,8 @@ type RunSummaryWireExtensions = {
   packageOrigin?: string | null;
   /** Detail merge: pipeline re-attempt count when run detail is projected onto summary props. */
   retryCount?: number | null;
+  /** Detail merge: creation-span OTel trace id from `RunRecord` when run detail is projected onto summary props. */
+  otelTraceId?: string | null;
 };
 
 /**
