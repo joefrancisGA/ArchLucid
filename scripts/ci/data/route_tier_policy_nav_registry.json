@@ -282,6 +282,16 @@
       "nav_operator_href": "/integrations/cloud-connections"
     },
     {
+      "controller_file": "Admin/IdentityMigrationReviewAdminController.cs",
+      "class_name": "IdentityMigrationReviewAdminController",
+      "route_template": "v{version:apiVersion}/admin/identity/migration-reviews",
+      "normalized_prefix": "/v1/admin/identity/migration-reviews",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/IdentityProviderConfigurationController.cs",
       "class_name": "IdentityProviderConfigurationController",
       "route_template": "v{version:apiVersion}/admin/identity",
@@ -607,6 +617,16 @@
       "route_template": "v{version:apiVersion}/architecture/draft",
       "normalized_prefix": "/v1/architecture/draft",
       "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Auth/AuthenticationSignInMethodsController.cs",
+      "class_name": "AuthenticationSignInMethodsController",
+      "route_template": "v{version:apiVersion}/auth/sign-in-methods",
+      "normalized_prefix": "/v1/auth/sign-in-methods",
+      "commercial_tier": "none",
       "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null

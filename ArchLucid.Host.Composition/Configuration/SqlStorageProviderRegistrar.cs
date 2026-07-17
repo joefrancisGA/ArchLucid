@@ -489,7 +489,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ILegacyPlatformIdentityMigrationSource, SqlLegacyPlatformIdentityMigrationSource>();
         services.AddScoped<IEmailOtpChallengeRepository, DapperEmailOtpChallengeRepository>();
         services.AddScoped<ITenantSignInEmailDomainRepository, DapperTenantSignInEmailDomainRepository>();
-        services.AddScoped<ITenantSignInEmailDomainRecoveryAdminRepository, DapperTenantSignInEmailDomainRecoveryAdminRepository>();
+        services.AddScoped<IAuthenticationIdentityLinkProposalRepository, DapperAuthenticationIdentityLinkProposalRepository>();
         services.AddScoped<IAdminNotificationsRepository, DapperAdminNotificationsRepository>();
         services.AddScoped<IScimGroupRepository, DapperScimGroupRepository>();
         services.AddScoped<IRoiBulletinAggregateReader, SqlRoiBulletinAggregateReader>();

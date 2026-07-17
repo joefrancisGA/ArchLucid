@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **183** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **185** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:183 -->
+<!-- route-tier-policy-nav-registry-count:185 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -100,6 +100,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/HostedAzureExtractorAdminController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
 | `Admin/HostedAzureExtractorRunController.cs` | `/v1/admin/azure-extractor/hosted` | none | AdminAuthority |  |  |
 | `Admin/HostedGcpExtractorRunController.cs` | `/v1/admin/gcp-extractor/hosted` | none | AdminAuthority | /integrations/cloud-connections |  |
+| `Admin/IdentityMigrationReviewAdminController.cs` | `/v1/admin/identity/migration-reviews` | none | AdminAuthority |  |  |
 | `Admin/IdentityProviderConfigurationController.cs` | `/v1/admin/identity` | none | AdminAuthority |  |  |
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
@@ -134,6 +135,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
 | `Architecture/DraftRequestsController.cs` | `/v1/architecture/draft` | standard | AuthenticatedUserOnly |  |  |
 | `Auth/AuthSignInRoutingController.cs` | `/v1/auth/routing` | none | AllowAnonymous |  |  |
+| `Auth/AuthenticationSignInMethodsController.cs` | `/v1/auth/sign-in-methods` | none | AuthenticatedUserOnly |  |  |
 | `Auth/EmailOtpAuthController.cs` | `/v1/auth/email-otp` | none | AllowAnonymous |  |  |
 | `Auth/PostAuthBootstrapController.cs` | `/v1/auth/bootstrap` | none | Authorize |  |  |
 | `Auth/TrialLocalIdentityAuthController.cs` | `/v1/auth/trial/local` | none | AllowAnonymous |  | trial_local_identity_auth |

@@ -229,7 +229,7 @@ public sealed class LegacyPlatformIdentityMigrationServiceTests
             EmailVerifiedUtc = DateTimeOffset.UtcNow
         });
 
-        PlatformIdentityService sut = CreateSut(legacySource, out PlatformIdentityService platformIdentity);
+        LegacyPlatformIdentityMigrationService sut = CreateSut(legacySource, out PlatformIdentityService platformIdentity);
 
         IdentityMigrationReport report = await sut.MigrateAsync(CancellationToken.None);
 

@@ -63,6 +63,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAuthSignInRoutingService, AuthSignInRoutingService>();
         services.AddScoped<AuthDomainDnsVerificationService>();
         services.AddScoped<TenantAuthDomainAdminService>();
+        services.AddScoped<IAuthenticationIdentityLinkingService, AuthenticationIdentityLinkingService>();
+        services.AddScoped<ISignInMethodRemovalPolicyService, SignInMethodRemovalPolicyService>();
         services.AddHttpClient<CloudflareDnsTxtRecordLookup>(static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);

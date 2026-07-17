@@ -736,6 +736,18 @@ public static class AuditEventTypes
     /// <summary>Authentication identity disabled (user retained).</summary>
     public const string AuthenticationIdentityDisabled = "Identity.AuthenticationIdentityDisabled";
 
+    public const string AuthenticationIdentityLinkChallengeRequested = "Identity.AuthenticationIdentityLinkChallengeRequested";
+
+    public const string AuthenticationIdentityLinkProposed = "Identity.AuthenticationIdentityLinkProposed";
+
+    public const string AuthenticationIdentityLinkConfirmed = "Identity.AuthenticationIdentityLinkConfirmed";
+
+    public const string AuthenticationIdentityLinkCancelled = "Identity.AuthenticationIdentityLinkCancelled";
+
+    public const string AuthenticationIdentityLinkFailed = "Identity.AuthenticationIdentityLinkFailed";
+
+    public const string AuthenticationIdentityRemovalRequested = "Identity.AuthenticationIdentityRemovalRequested";
+
     public const string EmailOtpCodeRequested = "Identity.EmailOtpCodeRequested";
 
     public const string EmailOtpCodeSent = "Identity.EmailOtpCodeSent";
