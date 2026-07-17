@@ -7,12 +7,15 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Host.Core.Startup;
 
 /// <summary>
-/// Ensures <see cref="ScopeIds"/> default tenant (and workspace) rows exist in SQL so Development hosts pass
-/// <c>CommercialTenantTierFilter</c> for the well-known integration scope.
+/// Ensures <see cref="ScopeIds"/> default tenant (and workspace) rows exist in SQL so Development hosts and
+/// hosted ApiKey demo scopes pass <c>CommercialTenantTierFilter</c> / draft FKs for the well-known integration scope.
 /// </summary>
 public static class DevelopmentDefaultScopeTenantBootstrap
 {
-    /// <summary>Idempotent inserts for empty greenfield / integration catalogs.</summary>
+    /// <summary>
+    /// Idempotent inserts for empty greenfield / integration catalogs (tenant plane under
+    /// <c>SystemWithPerTenantCatalogs</c>, including hosted Container Apps that bind ApiKey to DefaultTenant).
+    /// </summary>
     public static void TryEnsure(string connectionString, ILogger logger)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
