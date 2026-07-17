@@ -17,6 +17,7 @@ export const HELP_CENTER_FEATURED_SLUGS: readonly string[] = [
   "how-it-works",
   "evidence-intake",
   "review-packages",
+  "review-guide",
   "findings",
   "evidence-trail",
   "governance-approval",

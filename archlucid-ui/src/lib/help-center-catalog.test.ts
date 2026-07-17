@@ -8,8 +8,18 @@ import {
 import { getProductDocumentationEntry, normalizeHelpTopicSlug } from "@/lib/product-documentation-registry";
 
 describe("help-center-catalog", () => {
-  it("keeps the default landing grid to fourteen featured topics", () => {
-    expect(HELP_CENTER_FEATURED_SLUGS).toHaveLength(14);
+  it("keeps the default landing grid to fifteen featured topics", () => {
+    expect(HELP_CENTER_FEATURED_SLUGS).toHaveLength(15);
+  });
+
+  it("features review-guide on the help landing grid for browse discovery", () => {
+    const defaultTopics = listHelpCenterTopics({ showAdvanced: false, isAdmin: false });
+    const slugs = defaultTopics.map((entry) => entry.slug);
+
+    expect(slugs).toContain("review-guide");
+    expect(HELP_CENTER_FEATURED_SLUGS.indexOf("review-guide")).toBeGreaterThan(
+      HELP_CENTER_FEATURED_SLUGS.indexOf("getting-started"),
+    );
   });
 
   it("hides internal topics until advanced is expanded for admins", () => {
