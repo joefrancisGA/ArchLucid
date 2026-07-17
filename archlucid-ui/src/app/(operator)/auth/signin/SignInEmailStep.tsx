@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useId, useRef } from "react";
 
+import { TurnstileBotChallenge } from "@/components/auth/TurnstileBotChallenge";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
@@ -15,6 +16,7 @@ export type SignInEmailStepProps = {
   readonly onEmailChange: (value: string) => void;
   readonly onSubmit: () => void;
   readonly onBack: () => void;
+  readonly onBotChallengeTokenChange?: (token: string | null) => void;
 };
 
 export function SignInEmailStep({
@@ -25,6 +27,7 @@ export function SignInEmailStep({
   onEmailChange,
   onSubmit,
   onBack,
+  onBotChallengeTokenChange,
 }: SignInEmailStepProps) {
   const emailId = useId();
   const errorId = useId();
@@ -77,6 +80,9 @@ export function SignInEmailStep({
           <p id={statusId} role="status" aria-live="polite" className="text-sm text-al-text-secondary">
             {statusMessage}
           </p>
+        ) : null}
+        {onBotChallengeTokenChange ? (
+          <TurnstileBotChallenge onTokenChange={onBotChallengeTokenChange} />
         ) : null}
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit" variant="primary" disabled={pending} data-testid="sign-in-send-code">

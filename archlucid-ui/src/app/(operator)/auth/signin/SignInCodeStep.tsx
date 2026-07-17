@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useId, useRef } from "react";
 
+import { TurnstileBotChallenge } from "@/components/auth/TurnstileBotChallenge";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGN_IN_PAGE_COPY } from "@/lib/auth/sign-in-page-copy";
@@ -19,6 +20,8 @@ export type SignInCodeStepProps = {
   readonly onSubmit: () => void;
   readonly onResend: () => void;
   readonly onDifferentEmail: () => void;
+  /** Fresh Turnstile token for resend (tokens are single-use). */
+  readonly onBotChallengeTokenChange?: (token: string | null) => void;
 };
 
 export function SignInCodeStep({
@@ -33,6 +36,7 @@ export function SignInCodeStep({
   onSubmit,
   onResend,
   onDifferentEmail,
+  onBotChallengeTokenChange,
 }: SignInCodeStepProps) {
   const codeId = useId();
   const errorId = useId();
@@ -97,6 +101,9 @@ export function SignInCodeStep({
           <p id={statusId} role="status" aria-live="polite" className="text-sm text-al-text-secondary">
             {statusMessage}
           </p>
+        ) : null}
+        {onBotChallengeTokenChange ? (
+          <TurnstileBotChallenge onTokenChange={onBotChallengeTokenChange} />
         ) : null}
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit" variant="primary" disabled={pending} data-testid="sign-in-code-continue">

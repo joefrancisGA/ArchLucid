@@ -346,6 +346,30 @@ public sealed class PlatformIdentityServiceTests
     }
 
     [Fact]
+    public async Task DisableIdentityAsync_rotates_platform_user_auth_version()
+    {
+        PlatformIdentityService sut = CreateSut(out InMemoryPlatformUserRepository users, out _, out _);
+
+        PlatformUserRecord user = await sut.CreateUserFromVerifiedIdentityAsync(
+            CreateRequest(MicrosoftKey(Guid.NewGuid(), "keep-me")),
+            CancellationToken.None);
+
+        AuthenticationIdentityRecord secondary = await sut.AttachIdentityToExistingUserAsync(
+            user.Id,
+            CreateRequest(GoogleKey("disable-me")),
+            CancellationToken.None);
+
+        Guid authVersionBeforeDisable = (await users.GetByIdAsync(user.Id, CancellationToken.None))!.AuthVersion;
+
+        await sut.DisableIdentityAsync(secondary.Id, "admin", CancellationToken.None);
+
+        PlatformUserRecord? updated = await users.GetByIdAsync(user.Id, CancellationToken.None);
+
+        Assert.NotNull(updated);
+        Assert.NotEqual(authVersionBeforeDisable, updated.AuthVersion);
+    }
+
+    [Fact]
     public async Task FindUserByExternalIdentityAsync_returns_user_for_active_identity()
     {
         PlatformIdentityService sut = CreateSut(out _, out _, out _);

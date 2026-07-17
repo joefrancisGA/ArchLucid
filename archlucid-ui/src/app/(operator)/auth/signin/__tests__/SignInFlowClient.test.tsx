@@ -50,6 +50,11 @@ vi.mock("@/lib/auth/email-otp-resend", () => ({
   markEmailOtpResendSent: vi.fn(),
 }));
 
+vi.mock("@/lib/auth/turnstile-config", () => ({
+  isTurnstileBotChallengeConfigured: vi.fn(() => false),
+  readTurnstileSiteKey: vi.fn(() => null),
+}));
+
 import { SignInFlowClient } from "@/app/(operator)/auth/signin/SignInFlowClient";
 
 describe("SignInFlowClient", () => {
@@ -108,7 +113,7 @@ describe("SignInFlowClient", () => {
     });
 
     expect(screen.getByText(/o\*\*\*@example\.com/i)).toBeInTheDocument();
-    expect(requestChallengeMock).toHaveBeenCalledWith("ops@example.com", "invite-token");
+    expect(requestChallengeMock).toHaveBeenCalledWith("ops@example.com", "invite-token", null);
   });
 
   it("shows SSO required step when domain policy requires organization sign-in", async () => {

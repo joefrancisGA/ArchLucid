@@ -256,7 +256,11 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | Auth | `Auth:SelfServiceAbuse:MaxTrialsPerDomainPerWindow` | appsettings, env | 5 | Optional (When public signup) | Api, Combined | Maximum distinct trials per email domain per rolling window. |
 | Auth | `Auth:SelfServiceAbuse:DomainVelocityWindowHours` | appsettings, env | 24 | Optional (When public signup) | Api, Combined | Rolling window for domain velocity limits. |
 | Auth | `Auth:EmailOtp:Enabled` | appsettings, env | true | Optional (passwordless sign-in) | Api, Combined | Enables email OTP challenge endpoints. |
-| Auth | `Auth:EmailOtp:RequireBotChallenge` | appsettings, env | false | Optional (public signup) | Api, Combined | When true, OTP challenge requests require a valid bot-challenge token (Turnstile/CAPTCHA adapter). |
+| Auth | `Auth:EmailOtp:RequireBotChallenge` | appsettings, env | false | Required before public signup | Api, Combined | When true, OTP challenge requests require a verified bot-challenge token. |
+| Auth | `Auth:EmailOtp:BotChallenge:Provider` | appsettings, env | `None` | When `RequireBotChallenge` | Api, Combined | `None`, `Turnstile`, or `HCaptcha`. |
+| Auth | `Auth:EmailOtp:BotChallenge:SecretKey` | env, Key Vault | empty | Required in prod-like when challenge on | Api, Combined | Server secret for Turnstile/hCaptcha siteverify (never commit). |
+| Auth | `Auth:EmailOtp:HashPepper` | env, Key Vault | empty | Required in prod-like when OTP enabled | Api, Combined | Mixed into OTP code hashes; minimum 32 characters in Production/Staging (`ValidateOnStart`). Changing pepper invalidates in-flight challenges. |
+| UI | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | env | empty | When bot challenge enabled | UI | Cloudflare Turnstile site key on email OTP challenge/resend steps. Absent = widget hidden. |
 | Cors | `Cors:AllowedOrigins:0` | appsettings, env, Cors__* | http://localhost:3000 | Optional (not mode-gated) | Api, Combined | First allowed origin; additional indices use 1,2,… in JSON. |
 | RateLimiting | `RateLimiting:Registration:PermitLimit` | appsettings, env | 5 | Optional (not mode-gated) | Api, Combined | Throttling: registration path. |
 | RateLimiting | `RateLimiting:Registration:WindowMinutes` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Registration throttling window. |

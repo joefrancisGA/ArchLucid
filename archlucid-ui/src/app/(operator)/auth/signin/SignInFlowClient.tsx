@@ -23,6 +23,7 @@ import {
   storeInvitationToken,
 } from "@/lib/auth/email-otp-session";
 import { resolveSignInMethodOptions } from "@/lib/auth/sign-in-method-options";
+import { isTurnstileBotChallengeConfigured } from "@/lib/auth/turnstile-config";
 import {
   mapEmailOtpFailureToCustomerMessage,
   SIGN_IN_PAGE_COPY,
@@ -65,8 +66,13 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
   const [resendSecondsRemaining, setResendSecondsRemaining] = useState(
     () => readEmailOtpResendCooldown().secondsRemaining,
   );
+  const [botChallengeToken, setBotChallengeToken] = useState<string | null>(null);
 
   const submitLockRef = useRef(false);
+  const turnstileRequired = useMemo(() => isTurnstileBotChallengeConfigured(), []);
+  const handleBotChallengeTokenChange = useCallback((token: string | null) => {
+    setBotChallengeToken(token);
+  }, []);
 
   useEffect(() => {
     if (invitationTokenFromQuery && invitationTokenFromQuery.trim().length > 0) {
@@ -192,19 +198,39 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
 
       const invitationToken = readInvitationToken();
       const trimmedEmail = targetEmail.trim();
+
+      if (turnstileRequired && (botChallengeToken === null || botChallengeToken.length === 0)) {
+        setEmailPending(false);
+        setResendPending(false);
+        submitLockRef.current = false;
+
+        if (step === "code") {
+          setCodeError(mapEmailOtpFailureToCustomerMessage("unknown"));
+        } else {
+          setEmailError(mapEmailOtpFailureToCustomerMessage("unknown"));
+        }
+
+        return;
+      }
+
       const routingPreview = await evaluateAuthSignInRouting(trimmedEmail, invitationToken, safeReturnUrl);
 
       if (routingPreview?.ssoRequired) {
+        setEmailPending(false);
+        setResendPending(false);
+        submitLockRef.current = false;
         applyChallengeSuccess(trimmedEmail, null, true, routingPreview.message);
 
         return;
       }
 
-      const result = await requestEmailOtpChallenge(trimmedEmail, invitationToken);
+      const result = await requestEmailOtpChallenge(trimmedEmail, invitationToken, botChallengeToken);
 
       setEmailPending(false);
       setResendPending(false);
       submitLockRef.current = false;
+      // Turnstile tokens are single-use; clear so resend requires a fresh solve.
+      setBotChallengeToken(null);
 
       if (result.kind === "failure") {
         recordEmailOtpAuthAnalytics("email_otp_failure", { failureCategory: result.category });
@@ -225,7 +251,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
         result.response.ssoMessage,
       );
     },
-    [applyChallengeSuccess, safeReturnUrl, step],
+    [applyChallengeSuccess, botChallengeToken, safeReturnUrl, step, turnstileRequired],
   );
 
   const handleEmailSubmit = useCallback(() => {
@@ -312,6 +338,7 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
         onEmailChange={setEmail}
         onSubmit={handleEmailSubmit}
         onBack={resetEmailOtpFlow}
+        onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
       />
     );
   }
@@ -352,8 +379,10 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
         setCode("");
         setCodeError(null);
         setCodeStatus(null);
+        setBotChallengeToken(null);
         setStep("email");
       }}
+      onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
     />
   );
 }

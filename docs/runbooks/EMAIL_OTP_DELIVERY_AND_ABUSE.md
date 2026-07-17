@@ -16,6 +16,13 @@
 4. If abuse: confirm rate limits firing; review IP hash scope `ip_request_hourly`; escalate to enable `Auth:EmailOtp:RequireBotChallenge` if farm continues.
 5. Customer-safe words: "Wait a few minutes and request a new code" / "Check spam folder."
 
+## Production checklist (before open OTP / public signup)
+
+- [ ] `Auth:EmailOtp:HashPepper` ≥ 32 characters from Key Vault / env (`Auth__EmailOtp__HashPepper`)
+- [ ] `Auth:EmailOtp:RequireBotChallenge=true` with `BotChallenge:Provider=Turnstile` and secret configured
+- [ ] UI `NEXT_PUBLIC_TURNSTILE_SITE_KEY` set to the matching site key
+- [ ] Rate-limit and delivery-failed alerts wired (see [OBSERVABILITY.md](../library/OBSERVABILITY.md))
+
 ## Abuse drill
 
 See [EMAIL_OTP_ABUSE_DRILL.md](EMAIL_OTP_ABUSE_DRILL.md).
