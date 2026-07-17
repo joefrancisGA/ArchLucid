@@ -1,7 +1,7 @@
 # Optional Azure Monitor managed Prometheus rule group — mirrors key PromQL from
 # ../prometheus/archlucid-slo-rules.yml (p99 latency, 5xx ratio, outbox depth)
 # and ../prometheus/archlucid-alerts.yml (integration event outbox dead-letter gauge,
-# plus LLM monthly budget utilization fraction by tenant).
+# LLM monthly budget utilization fraction by tenant, TB-731 signup funnel volume).
 # Requires an Azure Monitor workspace (scopes) scraped with the same metric names as self-hosted Prometheus.
 
 locals {
@@ -119,6 +119,44 @@ EOT
 
     action {
       action_group_id = azurerm_monitor_action_group.ops[0].id
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.marketing_product_resplit_signup_daily_threshold > 0 ? [1] : []
+    content {
+      enabled    = true
+      alert      = "ArchLucidMarketingProductResplitSignupDailyTf"
+      severity   = 2
+      for        = "PT15M"
+      expression = "sum(increase(archlucid_first_tenant_funnel_events_total{event=\"signup\"}[24h])) >= ${var.marketing_product_resplit_signup_daily_threshold}"
+      annotations = {
+        summary     = "TB-731: Self-serve signup funnel volume reached the 24h marketing/product re-split review threshold."
+        runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/library/MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md"
+      }
+
+      action {
+        action_group_id = azurerm_monitor_action_group.ops[0].id
+      }
+    }
+  }
+
+  dynamic "rule" {
+    for_each = var.marketing_product_resplit_signup_hourly_threshold > 0 ? [1] : []
+    content {
+      enabled    = true
+      alert      = "ArchLucidMarketingProductResplitSignupHourlyBurstTf"
+      severity   = 2
+      for        = "PT10M"
+      expression = "sum(increase(archlucid_first_tenant_funnel_events_total{event=\"signup\"}[1h])) >= ${var.marketing_product_resplit_signup_hourly_threshold}"
+      annotations = {
+        summary     = "TB-731: Self-serve signup funnel burst reached the 1h marketing/product re-split review threshold."
+        runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/library/MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md"
+      }
+
+      action {
+        action_group_id = azurerm_monitor_action_group.ops[0].id
+      }
     }
   }
 

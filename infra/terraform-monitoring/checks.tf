@@ -91,3 +91,10 @@ check "wire_container_app_observability_env_requires_apps" {
     error_message = "wire_container_app_observability_env = true requires api/worker app identifiers and enable_application_insights = true. Env injection is applied via scripts/ops/wire-application-insights-env.ps1 (AzAPI full-container PUT breaks secret refs)."
   }
 }
+
+check "ui_replica_saturation_within_max" {
+  assert {
+    condition     = var.ui_replica_saturation_threshold == 0 || var.ui_replica_saturation_threshold <= var.ui_max_replicas_expected
+    error_message = "ui_replica_saturation_threshold must be <= ui_max_replicas_expected."
+  }
+}

@@ -267,6 +267,39 @@ groups:
             `archlucid_trial_signup_failures_total` rate exceeded 5 events/min for 10m. Check registration / local identity /
             trial bootstrap logs; see docs/runbooks/TRIAL_FUNNEL.md.
 
+      - alert: ArchLucidEmailOtpRateLimitHigh
+        expr: sum(rate(archlucid_email_otp_rate_limit_triggered_total[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          tier: p1
+        annotations:
+          summary: Email OTP rate limits firing sustained
+          description: >-
+            `archlucid_email_otp_rate_limit_triggered_total` exceeded 0.5/sec for 10m. See docs/runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md.
+
+      - alert: ArchLucidEmailOtpDeliveryFailedHigh
+        expr: sum(rate(archlucid_email_otp_delivery_failed_total[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: critical
+          tier: p0
+        annotations:
+          summary: Email OTP delivery failures elevated
+          description: >-
+            `archlucid_email_otp_delivery_failed_total` spike — check ESP/notifier. See docs/runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md.
+
+      - alert: ArchLucidSelfServiceTrialAbuseDeniedHigh
+        expr: sum(rate(archlucid_self_service_trial_abuse_denied_total[5m])) > 0.2
+        for: 15m
+        labels:
+          severity: warning
+          tier: p1
+        annotations:
+          summary: Self-service trial abuse denials elevated
+          description: >-
+            Review `archlucid_self_service_trial_abuse_denied_total` by reason label. See docs/runbooks/SELF_SERVICE_TRIAL_ABUSE_DRILL.md.
+
       - alert: ArchLucidTrialFirstRunLatencyP95High
         expr: |
           histogram_quantile(
@@ -282,6 +315,31 @@ groups:
           description: >-
             p95 of `archlucid_trial_first_run_seconds` is above 600s for 30m. Treat as product funnel friction; see
             docs/runbooks/TRIAL_FUNNEL.md and Grafana dashboard `archlucid-trial-funnel`.
+
+  - name: archlucid-marketing-product-resplit
+    rules:
+      - alert: ArchLucidMarketingProductResplitSignupDaily
+        expr: sum(increase(archlucid_first_tenant_funnel_events_total{event="signup"}[24h])) >= 25
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Self-serve signup volume reached 24h marketing/product re-split review threshold (TB-731)
+          description: >-
+            Aggregated signup funnel events crossed the daily threshold documented in
+            docs/library/MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md §6. Review whether Option B /
+            Front Door marketing split is warranted; do not split on calendar alone.
+
+      - alert: ArchLucidMarketingProductResplitSignupHourlyBurst
+        expr: sum(increase(archlucid_first_tenant_funnel_events_total{event="signup"}[1h])) >= 10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Self-serve signup burst reached 1h marketing/product re-split review threshold (TB-731)
+          description: >-
+            Signup funnel burst may indicate marketing-driven load on the shared UI Container App.
+            See docs/library/MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md §6 and infra/terraform-monitoring TB-731 alerts.
 
   - name: archlucid-resilience
     rules:

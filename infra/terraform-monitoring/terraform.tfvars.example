@@ -13,6 +13,15 @@ enable_monitoring_stack = false
 # Full resource IDs from Azure Portal or terraform-container-apps outputs (Container Apps).
 # api_container_app_resource_id    = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-api"
 # worker_container_app_resource_id = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-worker"
+# ui_container_app_resource_id   = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-ui"  # TB-731
+
+# TB-731 — marketing/product re-split trigger thresholds (defaults shown; set 0 to disable a signal).
+# ui_container_cpu_percent_threshold = 70
+# ui_replica_saturation_threshold    = 5
+# ui_max_replicas_expected           = 6
+# marketing_product_resplit_signup_daily_threshold  = 25
+# marketing_product_resplit_signup_hourly_threshold = 10
+# enable_first_tenant_funnel_workbook = false
 
 # ~0.5 vCPU sustained â†’ 500000000 nano cores (tune per allocation).
 # container_cpu_nanos_threshold = 500000000

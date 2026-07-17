@@ -41,6 +41,73 @@ variable "worker_container_app_resource_id" {
   default     = ""
 }
 
+variable "ui_container_app_resource_id" {
+  type        = string
+  description = "Full Azure resource ID of the UI Container App. Empty skips TB-731 UI traffic-pressure alerts."
+  default     = ""
+}
+
+variable "ui_container_cpu_percent_threshold" {
+  type        = number
+  description = "TB-731: Average UI Container App CPU percent (0-100) over 15m before marketing/product re-split traffic-pressure alert. Set 0 to skip."
+  default     = 70
+
+  validation {
+    condition     = var.ui_container_cpu_percent_threshold >= 0 && var.ui_container_cpu_percent_threshold <= 100
+    error_message = "ui_container_cpu_percent_threshold must be between 0 and 100."
+  }
+}
+
+variable "ui_replica_saturation_threshold" {
+  type        = number
+  description = "TB-731: Alert when UI Container App average replica count stays at or above this value for 10m (default 5 when ui_max_replicas is 6 per TB-729). Set 0 to skip."
+  default     = 5
+
+  validation {
+    condition     = var.ui_replica_saturation_threshold >= 0
+    error_message = "ui_replica_saturation_threshold must be >= 0."
+  }
+}
+
+variable "ui_max_replicas_expected" {
+  type        = number
+  description = "TB-731 documentation anchor: expected ui_max_replicas from terraform-container-apps (default 6). Used for checks only."
+  default     = 6
+
+  validation {
+    condition     = var.ui_max_replicas_expected >= 1
+    error_message = "ui_max_replicas_expected must be >= 1."
+  }
+}
+
+variable "enable_first_tenant_funnel_workbook" {
+  type        = bool
+  description = "TB-731: When true with enable_monitoring_stack and Application Insights, deploy the first-tenant funnel Azure Monitor workbook (signup funnel visibility)."
+  default     = false
+}
+
+variable "marketing_product_resplit_signup_daily_threshold" {
+  type        = number
+  description = "TB-731: Prometheus alert when aggregated signup funnel events in 24h reach this count (0 disables the daily signup alert)."
+  default     = 25
+
+  validation {
+    condition     = var.marketing_product_resplit_signup_daily_threshold >= 0
+    error_message = "marketing_product_resplit_signup_daily_threshold must be >= 0."
+  }
+}
+
+variable "marketing_product_resplit_signup_hourly_threshold" {
+  type        = number
+  description = "TB-731: Prometheus alert when signup funnel events in 1h reach this count (0 disables the hourly burst alert)."
+  default     = 10
+
+  validation {
+    condition     = var.marketing_product_resplit_signup_hourly_threshold >= 0
+    error_message = "marketing_product_resplit_signup_hourly_threshold must be >= 0."
+  }
+}
+
 variable "container_cpu_percent_threshold" {
   type        = number
   description = "Average CPU percent (0-100) over 5m for API/worker Container App metric alerts. Set 0 to skip CPU alerts."

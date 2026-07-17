@@ -36,7 +36,16 @@ alert_secrets_key_vault_resource_group_name  = "rg-ArchLucid-dev"
 # Wire after container apps exist:
 # api_container_app_resource_id   = "/subscriptions/.../Microsoft.App/containerApps/archlucid-api"
 # worker_container_app_resource_id = "/subscriptions/.../Microsoft.App/containerApps/archlucid-worker"
+# ui_container_app_resource_id    = "/subscriptions/.../Microsoft.App/containerApps/archlucid-ui"  # TB-731 traffic-pressure alerts
 container_cpu_percent_threshold = 80
+
+# TB-731 — marketing/product re-split triggers (see MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md §6)
+# ui_container_cpu_percent_threshold = 70
+# ui_replica_saturation_threshold    = 5
+# ui_max_replicas_expected           = 6
+# marketing_product_resplit_signup_daily_threshold  = 25
+# marketing_product_resplit_signup_hourly_threshold = 10
+# enable_first_tenant_funnel_workbook = true  # optional signup funnel workbook
 
 tags = {
   workload = "archlucid"

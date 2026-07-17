@@ -64,3 +64,8 @@ output "container_app_environment_otel_patch_id" {
   value       = try(azapi_update_resource.container_app_environment_otel[0].id, null)
   description = "AzAPI resource id when CAE OpenTelemetry configuration was patched."
 }
+
+output "first_tenant_funnel_workbook_id" {
+  value       = module.first_tenant_funnel_workbook.workbook_id
+  description = "TB-731: Azure Monitor workbook id for first-tenant signup funnel when enable_first_tenant_funnel_workbook is true."
+}

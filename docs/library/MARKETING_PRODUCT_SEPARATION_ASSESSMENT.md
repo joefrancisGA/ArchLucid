@@ -70,6 +70,21 @@ The original strongest argument for a deployment split was "a marketing traffic 
   2. Harden `OperatorRoleGate` / `OperatorHomeGate` so unauthenticated/unauthorized visitors never render operator shell chrome pre-redirect (TB-730) — directly addresses "public buyers do not see product-admin UI artifacts," which a domain split would not have fixed anyway.
   3. Instrument one concrete re-split trigger metric — sustained Container App CPU/replica saturation during a traffic burst, or self-serve signup volume crossing a threshold where a marketing-caused incident would risk paying-customer access (TB-731). Revisit Front Door "Option B" or a real subdomain split only when that trigger fires.
 
+### Concrete thresholds (TB-731, shipped 2026-07-17)
+
+These values are provisioned in `infra/terraform-monitoring` (Azure Monitor metric alerts + Prometheus rule group) and mirrored in `infra/prometheus/archlucid-alerts.yml` for self-hosted scrape. **Any one row firing** is sufficient to schedule an owner review of Option B — not an automatic split.
+
+| Signal | Metric / source | Threshold | Window | Terraform variable / alert name |
+| --- | --- | --- | --- | --- |
+| UI traffic pressure — CPU | Container App `CpuPercentage` (average) | **> 70%** | **15m** sustained | `ui_container_cpu_percent_threshold` → `*-ui-cpu-high` |
+| UI traffic pressure — replicas | Container App `Replicas` (average) | **≥ 5** replicas | **15m** sustained | `ui_replica_saturation_threshold` (expects `ui_max_replicas` = 6 per TB-729) → `*-ui-replicas-saturated` |
+| Self-serve signup volume — daily | `archlucid_first_tenant_funnel_events_total{event="signup"}` | **≥ 25** signups | rolling **24h** | `marketing_product_resplit_signup_daily_threshold` → `ArchLucidMarketingProductResplitSignupDaily*` |
+| Self-serve signup volume — burst | same counter | **≥ 10** signups | rolling **1h** | `marketing_product_resplit_signup_hourly_threshold` → `ArchLucidMarketingProductResplitSignupHourlyBurst*` |
+
+**Visibility (no new analytics vendor):** set `ui_container_app_resource_id` to enable the CPU/replica alerts; enable `enable_prometheus_slo_rule_group` for signup PromQL alerts; optionally set `enable_first_tenant_funnel_workbook = true` to deploy the existing first-tenant funnel Azure Monitor workbook (`infra/modules/first-tenant-funnel-dashboard`). Signup events are already emitted from `SignupForm.tsx` via `recordFirstTenantFunnelEvent("signup")`.
+
+**Runbook:** when an alert fires, review whether marketing traffic is degrading operator UX or signup volume justifies a dedicated marketing origin — then decide whether to pick up Front Door Option B (`PUBLIC_MARKETING_SITE_TOPOLOGY.md`). Do **not** split on calendar alone.
+
 ## 7. Security, scalability, reliability, cost
 
 - **Security:** the actual security-relevant finding from this assessment is the soft client-side operator gate (§3), not the marketing/product coupling — fixing it (TB-730) is a direct, scoped improvement. Front Door WAF coverage is unchanged either way since Front Door itself is not being modified.
