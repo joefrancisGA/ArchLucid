@@ -9,4 +9,9 @@ public interface ISupportProblemReportNotifier
         string submittedByActorId,
         bool supportBundleAttached,
         CancellationToken cancellationToken);
+
+    Task NotifySubmitterAsync(
+        SupportProblemReportRecord report,
+        string submitterMailbox,
+        CancellationToken cancellationToken);
 }

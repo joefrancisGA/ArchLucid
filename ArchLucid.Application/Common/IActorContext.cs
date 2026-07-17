@@ -17,4 +17,10 @@ public interface IActorContext
     ///     otherwise falls back to <see cref="GetActor" /> (API key or non-JWT paths).
     /// </summary>
     string GetActorId();
+
+    /// <summary>
+    ///     Returns a deliverable submitter mailbox when present on the principal (email / UPN claims); otherwise
+    ///     <see langword="null" /> (API key and service principals without mailbox).
+    /// </summary>
+    string? TryGetSubmitterMailbox();
 }

@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using System.Security.Claims;
 
 using ArchLucid.Application.Common;
@@ -17,6 +18,9 @@ public sealed class HttpActorContext(IHttpContextAccessor httpContextAccessor) :
     private const string TidClaimType = "tid";
     private const string OidShortClaimType = "oid";
     private const string OidLongClaimType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+    private const string EmailShortClaimType = "email";
+    private const string PreferredUsernameClaimType = "preferred_username";
+    private const string UpnClaimType = "upn";
 
     /// <inheritdoc/>
     public string GetActor()
@@ -32,6 +36,42 @@ public sealed class HttpActorContext(IHttpContextAccessor httpContextAccessor) :
         string? jwtName = user?.FindFirst("name")?.Value;
 
         return !string.IsNullOrWhiteSpace(jwtName) ? jwtName.Trim() : FallbackActor;
+    }
+
+    /// <inheritdoc/>
+    public string? TryGetSubmitterMailbox()
+    {
+        HttpContext? httpContext = _httpContextAccessor.HttpContext;
+        ClaimsPrincipal? user = httpContext?.User;
+
+        string? fromEmailClaim = TryGetClaimValue(user, EmailShortClaimType)
+            ?? TryGetClaimValue(user, ClaimTypes.Email);
+
+        if (TryNormalizeMailbox(fromEmailClaim, out string? normalizedEmail))
+        {
+            return normalizedEmail;
+        }
+
+        string? fromPreferredUsername = TryGetClaimValue(user, PreferredUsernameClaimType);
+
+        if (TryNormalizeMailbox(fromPreferredUsername, out string? normalizedPreferred))
+        {
+            return normalizedPreferred;
+        }
+
+        string? fromUpn = TryGetClaimValue(user, UpnClaimType);
+
+        if (TryNormalizeMailbox(fromUpn, out string? normalizedUpn))
+        {
+            return normalizedUpn;
+        }
+
+        if (TryNormalizeMailbox(GetActor(), out string? normalizedActor))
+        {
+            return normalizedActor;
+        }
+
+        return null;
     }
 
     /// <inheritdoc/>
@@ -57,5 +97,34 @@ public sealed class HttpActorContext(IHttpContextAccessor httpContextAccessor) :
         Claim? first = user?.FindFirst(claimType);
 
         return string.IsNullOrWhiteSpace(first?.Value) ? null : first.Value;
+    }
+
+    private static bool TryNormalizeMailbox(string? candidate, out string? mailbox)
+    {
+        mailbox = null;
+
+        if (string.IsNullOrWhiteSpace(candidate))
+        {
+            return false;
+        }
+
+        string trimmed = candidate.Trim();
+
+        if (!trimmed.Contains('@', StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        try
+        {
+            MailAddress parsed = new(trimmed);
+            mailbox = parsed.Address;
+
+            return !string.IsNullOrWhiteSpace(mailbox);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }
