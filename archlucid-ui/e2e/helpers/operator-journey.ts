@@ -565,6 +565,33 @@ export function runDetailFinalizedPackageLink(page: Page): Locator {
   return getAppMain(page).getByTestId("run-detail-finalized-package-link").first();
 }
 
+/** Poll until the finalized manifest deep link is visible (activity tab + folded outcome cards). */
+export async function expectFinalizedManifestLinkVisible(
+  page: Page,
+  options?: { runId?: string; timeoutMs?: number },
+): Promise<Locator> {
+  const timeoutMs = options?.timeoutMs ?? 120_000;
+  const manifestLink = runDetailFinalizedPackageLink(page);
+
+  await expect(async () => {
+    if (options?.runId !== undefined && options.runId.trim().length > 0) {
+      await openReviewDetailWorkspaceTab(page, options.runId, "activity");
+    } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
+      await page.getByTestId("review-detail-workspace-tab-activity").click();
+      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+    }
+
+    if (await manifestLink.isVisible()) {
+      return;
+    }
+
+    await expandReviewDetailOutcomeCards(page);
+    await expect(manifestLink).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: timeoutMs });
+
+  return manifestLink;
+}
+
 /** Featured package proof summary on buyer-polished home — visible instance only. */
 export function runsDashboardBuyerProofSummary(page: Page): Locator {
   return page.getByRole("main").getByTestId("runs-dashboard-buyer-proof-summary").first();

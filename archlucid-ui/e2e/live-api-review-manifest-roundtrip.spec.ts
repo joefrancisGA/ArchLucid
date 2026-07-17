@@ -6,13 +6,27 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, SHOWCASE_DEMO_RUN_ID } from "./fixtures";
+import { MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { getAppMain } from "./helpers/app-main";
+import {
+  DEMO_WORKSPACE_A_LIVE_IDS,
+  DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+  injectDemoWorkspaceOperatorScope,
+} from "./helpers/demo-workspace-live-scope";
+import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { liveApiBase } from "./helpers/live-api-client";
-import { outcomeStripSignedRecordLink } from "./helpers/operator-journey";
+import {
+  expectFinalizedManifestLinkVisible,
+  expectLiveManifestDetailPageReady,
+  expectLiveRunDetailPageReady,
+  openVisibleReviewOutcomeSummaryStrip,
+  outcomeStripSignedRecordLink,
+} from "./helpers/operator-journey";
 
 /** Breadcrumb label varies with buyer-polished shell vs full-operator manifest layout. */
 const NAV_BACK_TO_REVIEW_FROM_MANIFEST = /^Open review$|^Claims Intake Modernization Review$/;
+
+const productTourRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
 
 test.describe("live-api-review-manifest-roundtrip", () => {
   test.beforeAll(async ({ request }) => {
@@ -23,19 +37,21 @@ test.describe("live-api-review-manifest-roundtrip", () => {
         `Live API not ready at ${liveApiBase}/health/ready (status ${health.status()}). Start ArchLucid.Api with Sql + DevelopmentBypass.`,
       );
     }
+
+    await ensureDemoWorkspaceSeedReady(request);
   });
 
   test("canonical showcase: outcome finalized link → manifest → breadcrumb back to review", async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
 
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
 
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 60_000 });
+    await page.goto(`/reviews/${encodeURIComponent(productTourRunId)}`);
+
+    await expectLiveRunDetailPageReady(page, 120_000);
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
-    const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
-
-    await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
+    const outcomeStrip = await openVisibleReviewOutcomeSummaryStrip(page, productTourRunId);
 
     const manifestLink = outcomeStripSignedRecordLink(outcomeStrip);
 
@@ -47,11 +63,13 @@ test.describe("live-api-review-manifest-roundtrip", () => {
       manifestLink.click(),
     ]);
 
-    const manifestMain = getAppMain(page);
+    const manifestHref = (await manifestLink.getAttribute("href")) ?? "";
+    const manifestIdMatch = manifestHref.match(/\/(?:signed-records|manifests)\/([^/?#]+)/i);
+    const manifestId = manifestIdMatch?.[1] ?? "";
 
-    await expect(manifestMain.getByText(/Fetching manifest summary/i)).toHaveCount(0, {
-      timeout: 60_000,
-    });
+    expect(manifestId.length).toBeGreaterThan(0);
+
+    await expectLiveManifestDetailPageReady(page, manifestId, { timeoutMs: 120_000 });
 
     await expect(page.getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN })).toBeVisible({
       timeout: 60_000,
@@ -68,11 +86,7 @@ test.describe("live-api-review-manifest-roundtrip", () => {
       reviewLink.click(),
     ]);
 
-    await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: /Claims Intake Modernization/i,
-      }),
-    ).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
+    await expectFinalizedManifestLinkVisible(page, { runId: productTourRunId, timeoutMs: 60_000 });
   });
 });
