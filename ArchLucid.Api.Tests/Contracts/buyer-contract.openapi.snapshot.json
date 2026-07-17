@@ -4520,6 +4520,37 @@
         },
         "type": "object"
       },
+      "AuthenticationIdentityLinkProposalView": {
+        "properties": {
+          "confirmationMessage": {
+            "type": "string"
+          },
+          "expiresUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "maskedIdentifier": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "proposalId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "providerLabel": {
+            "type": "string"
+          },
+          "providerType": {
+            "type": "string"
+          },
+          "requiresExplicitConfirmation": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "AwsTier2ConnectionConfigureBody": {
         "properties": {
           "accountId": {
@@ -8860,6 +8891,35 @@
           "Should"
         ],
         "type": "string"
+      },
+      "EmailLinkChallengeRequest": {
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "EmailLinkChallengeResponse": {
+        "properties": {
+          "challengeId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "EmailLinkVerifyRequest": {
+        "properties": {
+          "challengeId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "EmailOtpChallengeRequest": {
         "properties": {
@@ -13236,6 +13296,56 @@
           }
         },
         "type": "object"
+      },
+      "IdentityMigrationReviewItemRecord": {
+        "properties": {
+          "detectedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "legacySourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "legacySourceType": {
+            "type": "string"
+          },
+          "reasonCode": {
+            "$ref": "#/components/schemas/IdentityMigrationReviewReason"
+          },
+          "reasonDetail": {
+            "type": "string"
+          },
+          "resolvedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "IdentityMigrationReviewReason": {
+        "enum": [
+          "DuplicateExternalIdentity",
+          "EmailCollisionNoMerge",
+          "LinkedEntraOidConflict",
+          "MissingEntraTenantId",
+          "MissingDefaultWorkspace"
+        ],
+        "type": "string"
       },
       "IdentityProviderActivateRequest": {
         "properties": {
@@ -23123,6 +23233,56 @@
         },
         "type": "object"
       },
+      "SignInMethodConfirmedResponse": {
+        "properties": {
+          "identityId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "providerType": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SignInMethodSummary": {
+        "properties": {
+          "addedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "canRemove": {
+            "type": "boolean"
+          },
+          "identityId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "lastUsedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "maskedIdentifier": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "providerLabel": {
+            "type": "string"
+          },
+          "providerType": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SimulatedAlertOutcome": {
         "properties": {
           "comparedToRunId": {
@@ -31514,6 +31674,9 @@
       "name": "AuthSignInRouting"
     },
     {
+      "name": "AuthenticationSignInMethods"
+    },
+    {
       "name": "AuthorityCompare"
     },
     {
@@ -31677,6 +31840,9 @@
     },
     {
       "name": "HostedGcpExtractorRun"
+    },
+    {
+      "name": "IdentityMigrationReviewAdmin"
     },
     {
       "name": "IdentityProviderConfiguration"
