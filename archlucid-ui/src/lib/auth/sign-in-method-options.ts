@@ -1,6 +1,6 @@
-import { assertOidcSignInConfig, getOidcAuthority } from "@/lib/oidc/config";
-
+import { authorityHostnameMatches } from "@/lib/auth/oidc-authority-host";
 import { isEmailOtpAuthEnabled, isWorkSchoolSignInAvailable } from "@/lib/auth/email-otp-config";
+import { assertOidcSignInConfig, getOidcAuthority } from "@/lib/oidc/config";
 
 export type SupplementalSignInProvider = "microsoft" | "google";
 
@@ -23,17 +23,17 @@ export function resolveSignInMethodOptions(): SignInMethodOptions {
   const supplementalProviders: SupplementalSignInProvider[] = [];
 
   if (workSchool && isSupplementalProviderEnabled("microsoft")) {
-    const authority = getOidcAuthority().toLowerCase();
+    const authority = getOidcAuthority();
 
-    if (authority.includes("login.microsoftonline.com")) {
+    if (authorityHostnameMatches(authority, ["login.microsoftonline.com"])) {
       supplementalProviders.push("microsoft");
     }
   }
 
   if (isSupplementalProviderEnabled("google")) {
-    const googleAuthority = process.env.NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY?.trim().toLowerCase() ?? "";
+    const googleAuthority = process.env.NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY?.trim() ?? "";
 
-    if (googleAuthority.includes("accounts.google.com")) {
+    if (authorityHostnameMatches(googleAuthority, ["accounts.google.com"])) {
       supplementalProviders.push("google");
     }
   }

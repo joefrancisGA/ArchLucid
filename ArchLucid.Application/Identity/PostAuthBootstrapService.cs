@@ -234,9 +234,12 @@ public sealed class PostAuthBootstrapService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (!request.TermsAccepted) // codeql[cs/user-controlled-bypass]: server-side attestation gate; denies workspace creation when false.
+        PostAuthCreateWorkspaceResult? termsDenial =
+            PostAuthTermsAttestationGate.DenyIfTermsNotAccepted(request.TermsAccepted);
+
+        if (termsDenial is not null)
         {
-            return DenyCreate("Accept the terms to create a workspace.");
+            return termsDenial;
         }
 
         if (!WorkspaceNameValidator.TryValidate(request.WorkspaceName, out string workspaceName, out string workspaceMessage))

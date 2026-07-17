@@ -12,6 +12,7 @@ import {
 import {
   findReportProblemMailtoDriftFindings,
   findReportProblemSurfaceGuardViolations,
+  readSurfaceSourceBundle,
   REPORT_PROBLEM_SURFACE_WIRING_RULES,
 } from "@/lib/report-problem-surfaces-guard";
 
@@ -80,6 +81,17 @@ describe("report-problem-surfaces guard (TB-791)", () => {
     const violations = findReportProblemSurfaceGuardViolations(UI_ROOT);
 
     expect(violations).toEqual([]);
+  });
+
+  it("readSurfaceSourceBundle returns file contents without exists-then-read", () => {
+    const source = readSurfaceSourceBundle(UI_ROOT, "components/OperatorApiProblem.tsx");
+
+    expect(source.length).toBeGreaterThan(0);
+    expect(source).toContain("OperatorApiProblem");
+  });
+
+  it("readSurfaceSourceBundle returns empty string for missing paths", () => {
+    expect(readSurfaceSourceBundle(UI_ROOT, "components/__missing__.tsx")).toBe("");
   });
 
   it("warns only (does not fail) when operator error surfaces add mailto without Report problem nearby", () => {

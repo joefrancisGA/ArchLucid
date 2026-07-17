@@ -58,6 +58,25 @@ describe("resolveSignInMethodOptions", () => {
     expect(options.supplementalProviders).toEqual(["google"]);
   });
 
+  it("does not advertise Microsoft supplemental for substring bypass authorities", () => {
+    process.env.NEXT_PUBLIC_ARCHLUCID_SUPPLEMENTAL_SIGN_IN_PROVIDERS = "microsoft";
+    process.env.NEXT_PUBLIC_OIDC_AUTHORITY =
+      "https://evil.example/login.microsoftonline.com/tenant/v2.0";
+
+    const options = resolveSignInMethodOptions();
+
+    expect(options.supplementalProviders).toEqual([]);
+  });
+
+  it("does not advertise Google supplemental for substring bypass authorities", () => {
+    process.env.NEXT_PUBLIC_ARCHLUCID_SUPPLEMENTAL_SIGN_IN_PROVIDERS = "google";
+    process.env.NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY = "https://evil.com/?x=accounts.google.com";
+
+    const options = resolveSignInMethodOptions();
+
+    expect(options.supplementalProviders).toEqual([]);
+  });
+
   it("hides work/school when auth mode is not jwt", () => {
     process.env.NEXT_PUBLIC_ARCHLUCID_AUTH_MODE = "development-bypass";
     delete process.env.NEXT_PUBLIC_OIDC_CLIENT_ID;

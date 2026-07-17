@@ -4,13 +4,13 @@ import type { ReactElement } from "react";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import type { RunDetail } from "@/types/authority";
+import type { RunSummary } from "@/types/authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailRunMetadataSectionProps = {
-  readonly run: RunDetail["run"];
+  readonly run: RunSummary;
   readonly runDetailTraceId: string | null;
 };
 

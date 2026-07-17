@@ -115,10 +115,10 @@ public sealed class SupportProblemReportNotifier(
         {
             if (_logger.IsEnabled(LogLevel.Information))
             {
-                _logger.LogInformation(
-                    "Would send problem report acknowledgement to domain {EmailDomain} for report id {ReportId} (Email:Provider is {Provider}).",
-                    LogSanitizer.EmailDomainForLogs(submitterMailbox),
+                SanitizedLoggerSupportProblemReportExtensions.LogInformationProblemReportAckWouldSend(
+                    _logger,
                     report.Id,
+                    submitterMailbox,
                     _emailProvider.ProviderName);
             }
 

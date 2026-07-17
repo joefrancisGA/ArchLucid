@@ -107,22 +107,33 @@ export function collectTsxSourceFiles(absoluteRoot: string): string[] {
   return files;
 }
 
+function isNodeErrno(error: unknown, code: string): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === code
+  );
+}
+
 export function readSurfaceSourceBundle(uiRoot: string, relativePath: string): string {
   const absolutePath = join(uiRoot, "src", relativePath);
 
-  if (!existsSync(absolutePath)) {
+  try {
+    return readFileSync(absolutePath, "utf8");
+  } catch (error) {
+    if (isNodeErrno(error, "ENOENT")) {
+      return "";
+    }
+  }
+
+  try {
+    return collectTsxSourceFiles(absolutePath)
+      .map((filePath) => readFileSync(filePath, "utf8"))
+      .join("\n");
+  } catch {
     return "";
   }
-
-  const stat = statSync(absolutePath);
-
-  if (stat.isFile()) {
-    return readFileSync(absolutePath, "utf8");
-  }
-
-  return collectTsxSourceFiles(absolutePath)
-    .map((filePath) => readFileSync(filePath, "utf8"))
-    .join("\n");
 }
 
 export function registryComponentPathExists(uiRoot: string, entry: ReportProblemSurfaceEntry): boolean {
