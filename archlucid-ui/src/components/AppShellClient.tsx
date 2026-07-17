@@ -10,11 +10,11 @@ import { usePathname } from "next/navigation";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppInsightsTelemetryInit } from "@/components/AppInsightsTelemetryInit";
 import { OperatorRouteEnteredTelemetry } from "@/components/OperatorRouteEnteredTelemetry";
-import { FrictionlessTrialBanner } from "@/components/FrictionlessTrialBanner";
 import { AppToaster } from "@/components/AppToaster";
 import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
 import { AuthPanel } from "@/components/AuthPanel";
-import { AppShellMainAffordances } from "@/components/shell/AppShellMainAffordances";
+import { AppShellIdleOverlays } from "@/components/shell/AppShellIdleOverlays";
+import { AppShellWorkspaceFooter } from "@/components/shell/AppShellWorkspaceFooter";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
@@ -31,9 +31,6 @@ import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { OperatorShellDeferredChrome } from "@/components/OperatorShellDeferredChrome";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
-import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
-import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { Button } from "@/components/ui/button";
@@ -58,20 +55,31 @@ import { useOperatorShellChromeDeferred } from "@/hooks/useOperatorShellChromeDe
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
 
+const FrictionlessTrialBanner = dynamic(
+  () =>
+    import("@/components/FrictionlessTrialBanner").then(
+      (module) => module.FrictionlessTrialBanner,
+    ),
+  { ssr: false },
+);
+
+const AppShellMainAffordances = dynamic(
+  () =>
+    import("@/components/shell/AppShellMainAffordances").then(
+      (module) => module.AppShellMainAffordances,
+    ),
+  { ssr: false, loading: () => null },
+);
+
 const OnboardingTour = dynamic(
   () => import("@/components/OnboardingTour").then((module) => module.OnboardingTour),
   { ssr: false },
 );
 
-const BuyerCtoDemoTourOverlay = dynamic(
-  () => import("@/components/BuyerCtoDemoTourOverlay").then((module) => module.BuyerCtoDemoTourOverlay),
-  { ssr: false },
-);
-
-const CtoDemoSpotlightOverlay = dynamic(
+const RegistrationOnboardingTourAutoStart = dynamic(
   () =>
-    import("@/components/cto-demo/CtoDemoSpotlightOverlay").then(
-      (module) => module.CtoDemoSpotlightOverlay,
+    import("@/components/usability/RegistrationOnboardingTourAutoStart").then(
+      (module) => module.RegistrationOnboardingTourAutoStart,
     ),
   { ssr: false },
 );
@@ -83,19 +91,6 @@ const HelpSearchPanel = dynamic(
 
 const HelpPanel = dynamic(
   () => import("@/components/HelpPanel").then((module) => module.HelpPanel),
-  { ssr: false },
-);
-
-const CorePilotWizardLauncher = dynamic(
-  () => import("@/components/CorePilotWizard").then((module) => module.CorePilotWizardLauncher),
-  { ssr: false },
-);
-
-const PilotBaselineWizardLauncher = dynamic(
-  () =>
-    import("@/components/PilotBaselineWizardLauncher").then(
-      (module) => module.PilotBaselineWizardLauncher,
-    ),
   { ssr: false },
 );
 
@@ -122,34 +117,10 @@ const TrialLimitModalHost = dynamic(
   { ssr: false },
 );
 
-const RegistrationOnboardingTourAutoStart = dynamic(
-  () =>
-    import("@/components/usability/RegistrationOnboardingTourAutoStart").then(
-      (module) => module.RegistrationOnboardingTourAutoStart,
-    ),
-  { ssr: false },
-);
-
 const CtoDemoJourneyCaptionBar = dynamic(
   () =>
     import("@/components/cto-demo/CtoDemoJourneyCaptionBar").then(
       (module) => module.CtoDemoJourneyCaptionBar,
-    ),
-  { ssr: false },
-);
-
-const CtoDemoOfflineAutoFallbackListener = dynamic(
-  () =>
-    import("@/components/cto-demo/CtoDemoOfflineAutoFallbackListener").then(
-      (module) => module.CtoDemoOfflineAutoFallbackListener,
-    ),
-  { ssr: false },
-);
-
-const CtoDemoPanicModeBanner = dynamic(
-  () =>
-    import("@/components/cto-demo/CtoDemoPanicModeBanner").then(
-      (module) => module.CtoDemoPanicModeBanner,
     ),
   { ssr: false },
 );
@@ -471,26 +442,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               </KeyboardShortcutProvider>
             </div>
           </div>
-          {isBuyerPolishedOperatorShellEnv() ? (
-            <footer
-              className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
-              aria-label="Trust and compliance"
-            >
-              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-col items-end gap-1 px-4 lg:px-6")}>
-                <TrustCenterShellLink variant="footer" />
-              </div>
-            </footer>
-          ) : !isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (
-            <footer
-              className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
-              aria-label="Workspace footer"
-            >
-              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-col gap-1 px-4 lg:px-6")}>
-                <SystemHealthStatusStrip className="mb-0 min-w-0 flex-1" />
-                <DeploymentBuildFingerprintStrip />
-              </div>
-            </footer>
-          ) : null}
+          <AppShellWorkspaceFooter hideWorkspaceHealthFooter={hideWorkspaceHealthFooter} />
         </div>
         <AppToaster />
         <RouteAnnouncer />
@@ -503,18 +455,11 @@ function AppShellInner({ children }: AppShellClientProps) {
           onHelpGuidesOpenChange={setHelpGuidesOpen}
           onOpenGuidesPanel={openHelpGuidesPanel}
         />
-        <CorePilotWizardLauncher />
-        <PilotBaselineWizardLauncher />
         <OnboardingTour />
         <Suspense fallback={null}>
           <RegistrationOnboardingTourAutoStart />
         </Suspense>
-        <CtoDemoOfflineAutoFallbackListener />
-        <CtoDemoPanicModeBanner />
-        <CtoDemoSpotlightOverlay />
-        <Suspense fallback={null}>
-          <BuyerCtoDemoTourOverlay />
-        </Suspense>
+        <AppShellIdleOverlays />
       </TooltipProvider>
       </AppShellDeferChromeBoundary>
     </OperatorShellProviders>
