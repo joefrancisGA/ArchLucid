@@ -185,6 +185,7 @@ public sealed class StripeBillingSubscriptionWebhookProcessor(
         return null;
     }
 
+    [InformationalAudit]
     private async Task LogLifecycleAsync(
         Guid tenantId,
         string eventType,

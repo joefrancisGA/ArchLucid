@@ -71,6 +71,13 @@ locals {
 
   api_has_user_assigned_identities    = length(local.api_user_assigned_identity_ids) > 0
   worker_has_user_assigned_identities = length(local.worker_user_assigned_identity_ids) > 0
+
+  # TB-304: Production-like ApiKey hosts need all three claim GUIDs (not headers/defaults).
+  api_key_scope_bound = (
+    length(trimspace(var.api_key_tenant_id)) > 0 &&
+    length(trimspace(var.api_key_workspace_id)) > 0 &&
+    length(trimspace(var.api_key_project_id)) > 0
+  )
 }
 
 data "azurerm_resource_group" "target" {
@@ -215,6 +222,32 @@ resource "azurerm_container_app" "api" {
         name  = "Hosting__Role"
         value = "Api"
       }
+
+      # TB-304 trusted ApiKey scope claims (omit when unset — see variables api_key_*_id).
+      dynamic "env" {
+        for_each = local.api_key_scope_bound ? [1] : []
+        content {
+          name  = "Authentication__ApiKey__TenantId"
+          value = trimspace(var.api_key_tenant_id)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.api_key_scope_bound ? [1] : []
+        content {
+          name  = "Authentication__ApiKey__WorkspaceId"
+          value = trimspace(var.api_key_workspace_id)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.api_key_scope_bound ? [1] : []
+        content {
+          name  = "Authentication__ApiKey__ProjectId"
+          value = trimspace(var.api_key_project_id)
+        }
+      }
+
       dynamic "env" {
         for_each = local.api_keyvault_uami_enabled && length(trimspace(var.api_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
         content {
@@ -340,15 +373,27 @@ resource "azurerm_container_app" "api" {
       }
 
       liveness_probe {
-        transport = "HTTP"
-        port      = 8080
-        path      = "/health/live"
+        transport               = "HTTP"
+        port                    = 8080
+        path                    = "/health/live"
+        initial_delay           = 10
+        interval_seconds        = 10
+        timeout                 = 5
+        failure_count_threshold = 3
       }
 
+      # ACA readiness uses /health/live (fast). CD smoke requires GET /health/ready Healthy —
+      # deep ready exceeds ACA probe budgets and recycled revisions. See
+      # docs/operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md.
       readiness_probe {
-        transport = "HTTP"
-        port      = 8080
-        path      = "/health/ready"
+        transport               = "HTTP"
+        port                    = 8080
+        path                    = "/health/live"
+        initial_delay           = 5
+        interval_seconds        = 5
+        timeout                 = 5
+        failure_count_threshold = 6
+        success_count_threshold = 1
       }
     }
 
@@ -737,16 +782,17 @@ resource "azurerm_container_app" "ui" {
         value = "0.0.0.0"
       }
 
+      # Lightweight UI process health (build fingerprint JSON). Does not call the API.
       liveness_probe {
         transport = "HTTP"
         port      = 3000
-        path      = "/"
+        path      = "/api/health"
       }
 
       readiness_probe {
         transport = "HTTP"
         port      = 3000
-        path      = "/"
+        path      = "/api/health"
       }
     }
 
@@ -779,59 +825,4 @@ resource "azurerm_container_app" "ui" {
       secret,
     ]
   }
-}
-
-locals {
-  ui_custom_domain_enabled  = local.enabled && trimspace(var.ui_custom_domain_name) != ""
-  api_custom_domain_enabled = local.enabled && trimspace(var.api_custom_domain_name) != ""
-}
-
-# Custom domain bound directly to the UI Container App — no Front Door required. Azure verifies
-# domain ownership via a TXT record at asuid.<hostname> (see output ui_custom_domain_verification_id)
-# before this resource can apply; create that record (and the CNAME to ui_container_app_fqdn) first.
-resource "azurerm_container_app_custom_domain" "ui" {
-  count = local.ui_custom_domain_enabled ? 1 : 0
-
-  name             = trimspace(var.ui_custom_domain_name)
-  container_app_id = azurerm_container_app.ui[0].id
-
-  # The managed certificate below is provisioned/rotated by Azure asynchronously, outside
-  # Terraform's control; ignoring these prevents apply from reverting that out-of-band binding.
-  lifecycle {
-    ignore_changes = [certificate_binding_type, container_app_environment_certificate_id]
-  }
-}
-
-resource "azurerm_container_app_environment_managed_certificate" "ui" {
-  count = local.ui_custom_domain_enabled ? 1 : 0
-
-  name                         = "cert-${replace(trimspace(var.ui_custom_domain_name), ".", "-")}"
-  container_app_environment_id = azurerm_container_app_environment.main[0].id
-  subject_name                 = trimspace(var.ui_custom_domain_name)
-  domain_control_validation    = "CNAME"
-
-  depends_on = [azurerm_container_app_custom_domain.ui]
-}
-
-# Same pattern as the UI custom domain above, for the API Container App.
-resource "azurerm_container_app_custom_domain" "api" {
-  count = local.api_custom_domain_enabled ? 1 : 0
-
-  name             = trimspace(var.api_custom_domain_name)
-  container_app_id = azurerm_container_app.api[0].id
-
-  lifecycle {
-    ignore_changes = [certificate_binding_type, container_app_environment_certificate_id]
-  }
-}
-
-resource "azurerm_container_app_environment_managed_certificate" "api" {
-  count = local.api_custom_domain_enabled ? 1 : 0
-
-  name                         = "cert-${replace(trimspace(var.api_custom_domain_name), ".", "-")}"
-  container_app_environment_id = azurerm_container_app_environment.main[0].id
-  subject_name                 = trimspace(var.api_custom_domain_name)
-  domain_control_validation    = "CNAME"
-
-  depends_on = [azurerm_container_app_custom_domain.api]
 }

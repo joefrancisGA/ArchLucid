@@ -66,6 +66,7 @@ test.describe("live-api-socratic-intake", () => {
       await questionBlocks.nth(index).getByRole("button", { name: "Skip this clarification" }).click();
     }
 
+    await expect(page.getByTestId("socratic-questions-done")).toBeEnabled({ timeout: 120_000 });
     await page.getByTestId("socratic-questions-done").click();
     await page.getByTestId("socratic-submit").click();
 

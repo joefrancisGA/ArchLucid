@@ -22,7 +22,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View review");
+    expect(link.label).toBe("Open review");
     expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 
@@ -35,7 +35,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View review");
+    expect(link.label).toBe("Open review");
     expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 
@@ -46,7 +46,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("View review");
+    expect(link.label).toBe("Open review");
     expect(link.href).toBe("/reviews/claims-intake-modernization");
   });
 

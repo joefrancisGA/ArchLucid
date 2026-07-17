@@ -7,6 +7,8 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+
 import {
   createRun,
   executeRun,
@@ -22,8 +24,8 @@ import {
   searchAudit,
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
-import { expectLiveManifestDetailPageReady, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
-import { manifestIdFromSignedRecordHref } from "./helpers/run-id-from-href";
+import { expectFinalizedManifestLinkVisible, expectLiveManifestDetailPageReady, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { manifestIdFromSignedRecordHref, runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
 type Register201 = {
   tenantId: string;
@@ -237,10 +239,11 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 
-    const manifestLink = page.locator("main").locator('a[href^="/signed-records/"]').first();
+    const sampleRunIdFromHref = runIdFromReviewsHref(sampleHref);
 
-    await expect(manifestLink, "Sample run should link a manifest once summaries hydrate.").toBeVisible({
-      timeout: 120_000,
+    const manifestLink = await expectFinalizedManifestLinkVisible(page, {
+      runId: sampleRunIdFromHref,
+      timeoutMs: 120_000,
     });
 
     const manifestHref = (await manifestLink.getAttribute("href")) ?? "";
@@ -261,7 +264,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await page.goto(`/reviews/new?sampleRunId=${encodeURIComponent(sampleRunId)}`);
 
-    await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 2 })).toBeVisible({
       timeout: 60_000,
     });
 

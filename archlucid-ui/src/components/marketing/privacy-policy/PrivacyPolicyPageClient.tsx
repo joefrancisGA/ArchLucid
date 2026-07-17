@@ -176,7 +176,7 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
             ) : null}
 
             <div className="xl:hidden">
-              <PrivacyPolicyTableOfContents headings={props.headings} />
+              <PrivacyPolicyTableOfContents headings={props.headings} variant="mobile" />
             </div>
           </header>
 
@@ -211,7 +211,7 @@ export function PrivacyPolicyPageClient(props: PrivacyPolicyPageClientProps): Re
         </article>
 
         <div className="hidden xl:block">
-          <PrivacyPolicyTableOfContents headings={props.headings} />
+          <PrivacyPolicyTableOfContents headings={props.headings} variant="desktop" />
         </div>
       </div>
 

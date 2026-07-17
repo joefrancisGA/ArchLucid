@@ -2011,10 +2011,14 @@ export async function getGraphForRunRaw(request: APIRequestContext, runGuidPathS
 export async function postAskRaw(
   request: APIRequestContext,
   body: { runId: string; question: string },
+  options?: { timeoutMs?: number },
 ): Promise<APIResponse> {
+  const timeoutMs = options?.timeoutMs ?? 45_000;
+
   return request.post(`${resolveLiveApiBase()}/v1/ask`, {
     data: { runId: body.runId, question: body.question },
     headers: liveJsonHeaders(),
+    timeout: timeoutMs,
   });
 }
 

@@ -3,7 +3,7 @@ export type AgentExecutionTraceRow = {
   traceId: string;
   runId: string;
   taskId: string;
-  agentType: number;
+  agentType: string | number;
   parseSucceeded: boolean;
   blobUploadFailed?: boolean | null;
   qualityWarning?: boolean;
@@ -34,7 +34,7 @@ export type AgentExecutionTraceListPayload = {
 /** Nested semantic payload under each evaluation row (`AgentOutputSemanticScore`). */
 export type AgentOutputSemanticScoreRow = {
   traceId: string;
-  agentType: number;
+  agentType: string | number;
   claimsQualityRatio: number;
   findingsQualityRatio: number;
   emptyClaimCount: number;
@@ -59,7 +59,7 @@ export type AgentOutputSemanticScoreRow = {
 
 export type AgentOutputEvaluationScoreRow = {
   traceId: string;
-  agentType: number;
+  agentType: string | number;
   structuralCompletenessRatio: number;
   isJsonParseFailure: boolean;
   missingKeys: string[];

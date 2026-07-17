@@ -49,7 +49,10 @@ public sealed class ArchLucidApiClient
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true, WriteIndented = false
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = false,
+        Converters = { new JsonStringEnumConverter() },
     };
 
     public ArchLucidApiClient(string baseUrl, ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
@@ -1584,8 +1587,8 @@ public sealed class ArchLucidApiClient
             set;
         }
 
-        /// <summary>INV-002 persisted structural execution mode (0=Simulator, 1=Real, 2=Fallback, 3=Mixed).</summary>
-        public int? StructuralExecutionMode
+        /// <summary>INV-002 persisted structural execution mode.</summary>
+        public StructuralExecutionMode? StructuralExecutionMode
         {
             get;
             set;

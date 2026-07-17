@@ -3,6 +3,7 @@ import { expect, type Page } from "@playwright/test";
 import { backendApiPath } from "./route-match";
 import { getAppMain } from "./app-main";
 import { expectNoGenericErrorBoundary } from "./buyer-golden-path";
+import { expectAnyLocatorVisible } from "./locator-readiness";
 
 const liveProxyOkStatuses = [200, 201] as const;
 
@@ -23,8 +24,23 @@ function matchesLiveProxyAuthorityRunDetail(url: URL, runId: string): boolean {
 
 function matchesLiveProxyManifestSummary(url: URL, manifestId: string): boolean {
   const path = backendApiPath(url);
+  const encoded = encodeURIComponent(manifestId);
 
-  return path === `/v1/authority/signed-records/${encodeURIComponent(manifestId)}/summary`;
+  return (
+    path === `/v1/authority/signed-records/${encoded}/summary`
+    || path === `/v1/authority/manifests/${encoded}/summary`
+  );
+}
+
+async function isLiveAuthorityRunDetailSurfaceVisible(page: Page): Promise<boolean> {
+  const main = getAppMain(page);
+
+  return (
+    (await page.locator('[data-buyer-golden-ready="true"]').isVisible().catch(() => false))
+    || (await main.getByTestId("review-detail-workspace").isVisible().catch(() => false))
+    || (await main.getByTestId("cto-demo-executive-above-fold").isVisible().catch(() => false))
+    || (await main.getByText("Executive summary", { exact: true }).isVisible().catch(() => false))
+  );
 }
 
 /** Waits for operator shell hydration without treating optional trial-status 404 as failure. */
@@ -56,14 +72,65 @@ export async function waitForLiveAuthorityRunDetailResponse(
   runId: string,
   options?: { timeoutMs?: number },
 ): Promise<void> {
-  const timeoutMs = options?.timeoutMs ?? 60_000;
+  const timeoutMs = options?.timeoutMs ?? 90_000;
 
-  await page.waitForResponse(
-    (response) =>
-      matchesLiveProxyAuthorityRunDetail(new URL(response.url()), runId)
-      && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
-    { timeout: timeoutMs },
-  );
+  if (await isLiveAuthorityRunDetailSurfaceVisible(page)) {
+    return;
+  }
+
+  try {
+    await page.waitForResponse(
+      (response) =>
+        matchesLiveProxyAuthorityRunDetail(new URL(response.url()), runId)
+        && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
+      { timeout: 8_000 },
+    );
+  } catch {
+    // RSC loads buyer-summary server-side; proxy listeners often miss the fetch.
+    await waitForLiveAuthorityRunDetailHydration(page, runId, { timeoutMs });
+  }
+}
+
+/**
+ * Polls until run detail buyer surface is hydrated — tolerates SSR completing before proxy listeners attach.
+ */
+export async function waitForLiveAuthorityRunDetailHydration(
+  page: Page,
+  runId: string,
+  options?: { timeoutMs?: number },
+): Promise<void> {
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+  const main = getAppMain(page);
+
+  await expectNoGenericErrorBoundary(page);
+
+  await expect(async () => {
+    await expect(main.getByTestId("branded-not-found")).toHaveCount(0, { timeout: 3_000 });
+    await expect(main.getByTestId("run-detail-load-failure")).toHaveCount(0, { timeout: 3_000 });
+
+    if (!(await isLiveAuthorityRunDetailSurfaceVisible(page))) {
+      await page
+        .waitForResponse(
+          (response) =>
+            matchesLiveProxyAuthorityRunDetail(new URL(response.url()), runId)
+            && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
+          { timeout: 8_000 },
+        )
+        .catch(() => {
+          // SSR may have hydrated before the listener attached.
+        });
+    }
+
+    await expectAnyLocatorVisible(
+      [
+        page.locator('[data-buyer-golden-ready="true"]'),
+        main.getByTestId("review-detail-workspace"),
+        main.getByTestId("cto-demo-executive-above-fold"),
+        main.getByText("Executive summary", { exact: true }),
+      ],
+      8_000,
+    );
+  }).toPass({ timeout: timeoutMs });
 }
 
 /** Waits for manifest summary hydration on canonical signed-records routes. */
@@ -72,14 +139,24 @@ export async function waitForLiveManifestSummaryResponse(
   manifestId: string,
   options?: { timeoutMs?: number },
 ): Promise<void> {
-  const timeoutMs = options?.timeoutMs ?? 60_000;
+  const timeoutMs = options?.timeoutMs ?? 90_000;
+  const manifestMain = getAppMain(page);
 
-  await page.waitForResponse(
-    (response) =>
-      matchesLiveProxyManifestSummary(new URL(response.url()), manifestId)
-      && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
-    { timeout: timeoutMs },
-  );
+  if (await manifestMain.locator("#manifest-overview").isVisible().catch(() => false)) {
+    return;
+  }
+
+  try {
+    await page.waitForResponse(
+      (response) =>
+        matchesLiveProxyManifestSummary(new URL(response.url()), manifestId)
+        && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
+      { timeout: 8_000 },
+    );
+  } catch {
+    // RSC loads manifest summary server-side; proxy listeners often miss the fetch.
+    await waitForLiveManifestDetailHydration(page, manifestId, { timeoutMs });
+  }
 }
 
 /**

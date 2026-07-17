@@ -103,7 +103,7 @@ test.describe("live-api-why-archlucid", () => {
     const explanationSection = page.getByTestId("why-archlucid-run-explanation");
 
     await expect(explanationSection).toBeVisible();
-    await expect(explanationSection).toContainText("Run explanation and citations");
+    await expect(explanationSection).toContainText("Architecture review explanation and citations");
     await expect(page.getByTestId("why-archlucid-citations")).toBeVisible();
   });
 });

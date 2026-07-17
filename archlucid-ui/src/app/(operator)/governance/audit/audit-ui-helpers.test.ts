@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
 
 import {
   auditBuyerEventIsSystemRecordedActor,
@@ -38,7 +39,7 @@ describe("formatBuyerAuditTrailSummaryLine", () => {
     const line = formatBuyerAuditTrailSummaryLine(demo, "claims-intake-modernization", "");
 
     expect(line).toContain("This audit trail shows the lifecycle from review creation through governance approval");
-    expect(line).toContain("Claims Intake Modernization Review");
+    expect(line).toContain(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
     expect(line).toContain("named human actors");
   });
 

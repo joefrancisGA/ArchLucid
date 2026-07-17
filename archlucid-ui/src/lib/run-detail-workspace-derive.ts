@@ -421,12 +421,16 @@ export function deriveRecommendedWorkspaceActions(input: {
   if (manifestId.length > 0) {
     actions.push({
       id: "open-package",
-      title: "Open review package",
+      title: "Open signed review record",
       reason: "Exports and deliverables are available for this finalized review.",
       relatedFindingCount: null,
       ownerOrRole: null,
       href: buildReviewDetailTabHref(input.runId, "review-package"),
+<<<<<<< HEAD
       actionLabel: "Open package",
+=======
+      actionLabel: "Open record",
+>>>>>>> origin/RC11
     });
   }
 

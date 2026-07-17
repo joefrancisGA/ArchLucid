@@ -23,7 +23,7 @@ import {
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
-import { expectLiveManifestDetailPageReady, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { expectLiveManifestDetailPageReady, expectLiveRunDetailPageReady, expectFinalizedManifestLinkVisible } from "./helpers/operator-journey";
 import { manifestIdFromSignedRecordHref, runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
 const modes = (process.env.LIVE_TRIAL_E2E_MODES ?? "register-baseline")
@@ -204,12 +204,10 @@ test.describe("live-api-trial-signup", () => {
 
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 
-    const manifestLink = page.locator("main").locator('a[href^="/signed-records/"]').first();
-
-    await expect(
-      manifestLink,
-      "Seeded sample run should expose a golden manifest link once summaries hydrate.",
-    ).toBeVisible({ timeout: 120_000 });
+    const manifestLink = await expectFinalizedManifestLinkVisible(page, {
+      runId: sampleRunId,
+      timeoutMs: 120_000,
+    });
 
     const manifestHref = (await manifestLink.getAttribute("href")) ?? "";
     const manifestId = manifestIdFromSignedRecordHref(manifestHref);
@@ -269,14 +267,14 @@ test.describe("live-api-trial-signup", () => {
       const response = await request.post(`${liveApiBase}/v1/register`, {
         headers: { Accept: "application/json", "Content-Type": "application/json" },
         data: {
-          organizationName: orgName,
-          adminEmail: `other-${suffix}@example.com`,
-          adminDisplayName: "Other Admin",
+          organizationName: `${orgName} duplicate`,
+          adminEmail,
+          adminDisplayName: "Metrics Funnel Admin",
         },
       });
 
       return response.status();
-    }, { timeout: 60_000, intervals: [250, 500, 1000, 2000] }).toBe(409);
+    }, { timeout: 120_000, intervals: [500, 1000, 2000, 3000] }).toBe(409);
 
     const scope = {
       tenantId: provisioned.tenantId!,

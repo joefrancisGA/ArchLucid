@@ -63,6 +63,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "Report Problem context Vitest: synthetic commitSha / build fingerprint fixtures, not API secrets (generic-api-key false positive in git history)"
+paths = [
+  '''(?:^|/)archlucid-ui/src/lib/report-problem-context\.test\.ts$''',
+]
+
+[[allowlists]]
 description = "Feasibility verdict Vitest fixture: transparency trail inferred keys are policy control ids, not API secrets"
 paths = [
   '''(?:^|/)archlucid-ui/src/app/\(operator\)/reviews/\[runId\]/_sections/RunDetailFeasibilityVerdictSection\.test\.tsx$''',

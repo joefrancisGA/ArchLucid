@@ -67,14 +67,14 @@ export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
   "See how ArchLucid evaluates a sample architecture.";
 
 export const OPERATOR_HOME_COMMAND_CENTER_TAGLINE =
-  "Create an architecture, review an existing design, or explore a completed review. ArchLucid produces evidence-backed findings, decisions, and a record stakeholders can use.";
+  "Describe your architecture, run a governed review, or explore a completed example. ArchLucid produces evidence-backed findings, decisions, and a record stakeholders can use.";
 
 export const OPERATOR_HOME_INTENT_CHOOSER_HEADING = "Start the architecture review lifecycle";
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE = "Explore a completed review";
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY =
-  "Inspect real findings, evidence, decisions, and a finalized review package before using your own architecture.";
+  "Inspect real findings, evidence, decisions, and a finalized review before using your own architecture.";
 
 export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating ArchLucid";
 

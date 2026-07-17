@@ -22,6 +22,7 @@ describe("help-search-panel-catalog", () => {
     expect(recommendedHelpSearchPanelTopicIds("/integrations/cloud-connections")).toEqual([
       "cloud-connections",
       "connect-azure",
+      "azure-permissions",
       "connect-aws",
       "connect-gcp",
       "troubleshoot",

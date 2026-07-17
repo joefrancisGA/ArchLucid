@@ -443,7 +443,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
         findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
         message: "PHI minimization risk",
         category: "Compliance",
-        severity: 2,
+        severity: "Error",
         reasoningTrace:
           "Confirm OCR bypass monitoring and alerting for unstructured attachment paths. Schedule sponsor + privacy review of exception volume before the next release train.",
       },
@@ -458,7 +458,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
         findingId: `${SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID}-${i + 2}`,
         message: title,
         category: "Architecture",
-        severity: 1,
+        severity: "Warning",
         reasoningTrace: "See finding detail for the decision context and evidence pointers.",
       });
     }
@@ -485,7 +485,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
       goldenManifestId: manifest.manifestId,
       decisionTraceId: chain.decisionTraceId ?? undefined,
       artifactBundleId: chain.artifactBundleId ?? undefined,
-      structuralExecutionMode: 0,
+      structuralExecutionMode: "Simulator",
     },
     contextSnapshot: { demo: true },
     graphSnapshot: { demo: true },
@@ -498,7 +498,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
         resultId: `${d.run.runId}-compliance-quick-decision`,
         taskId: `${d.run.runId}-compliance`,
         runId: d.run.runId,
-        agentType: 3,
+        agentType: "Compliance",
         claims: [
           "PHI minimization requires monitored exception routing and sponsor review before the next release train.",
         ],
@@ -741,7 +741,7 @@ function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): RunDetai
       findingId: SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID,
       message: "Private inference egress gap",
       category: "Security",
-      severity: 2,
+      severity: "Error",
       reasoningTrace:
         "Deny public network access on Azure OpenAI and AI Search before workforce pilot; validate private DNS from orchestration spoke.",
     },
@@ -749,7 +749,7 @@ function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): RunDetai
       findingId: `${SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID}-${index + 2}`,
       message: synopsis,
       category: "Architecture",
-      severity: 1,
+      severity: "Warning" as const,
       reasoningTrace: "See finding detail for the decision context and evidence pointers.",
     })),
   ];
@@ -773,7 +773,7 @@ function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): RunDetai
       goldenManifestId: manifest.manifestId,
       decisionTraceId: chain.decisionTraceId ?? undefined,
       artifactBundleId: chain.artifactBundleId ?? undefined,
-      structuralExecutionMode: 0,
+      structuralExecutionMode: "Simulator",
     },
     contextSnapshot: { demo: true },
     graphSnapshot: { demo: true },
@@ -786,7 +786,7 @@ function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): RunDetai
         resultId: `${d.run.runId}-compliance-quick-decision`,
         taskId: `${d.run.runId}-compliance`,
         runId: d.run.runId,
-        agentType: 3,
+        agentType: "Compliance",
         claims: [
           "Private-link cutover and APIM content-safety attachment are tracked before internal pilot.",
         ],

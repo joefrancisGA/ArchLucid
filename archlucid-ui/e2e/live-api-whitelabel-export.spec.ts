@@ -7,11 +7,10 @@ import path from "node:path";
 
 import { expect, test } from "@playwright/test";
 
-import { SHOWCASE_DEMO_RUN_ID } from "./fixtures";
-import { getAppMain } from "./helpers/app-main";
+import { DEMO_WORKSPACE_A_LIVE_IDS, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { liveApiBase, liveE2eArchitectureRunCyclePlaywrightTimeoutMs } from "./helpers/live-api-client";
-import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
+import { ensureBuyerDeliverablesSectionExpanded, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 test.describe("live-api-whitelabel-export", () => {
   test.beforeAll(async ({ request }) => {
@@ -31,12 +30,23 @@ test.describe("live-api-whitelabel-export", () => {
   }) => {
     test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
-    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
 
+    await page.goto(`/reviews/${encodeURIComponent(DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID)}`);
+
+    await expectLiveRunDetailPageReady(page, 120_000);
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
-    await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
-    await ensureBuyerDeliverablesSectionExpanded(page);
+    const buyerPolishedDeliverables = page.getByTestId("buyer-deliverables-artifact-tabs");
+
+    if (await buyerPolishedDeliverables.isVisible().catch(() => false)) {
+      test.skip(
+        true,
+        "Whitelabel consulting export is only rendered in full-operator deliverables chrome (buyer-polished live CI omits it).",
+      );
+    }
+
+    await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 
     const artifactsExports = page.locator("#artifacts-exports");
 

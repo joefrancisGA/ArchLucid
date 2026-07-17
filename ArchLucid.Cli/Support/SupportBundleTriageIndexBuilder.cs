@@ -215,9 +215,9 @@ public static class SupportBundleTriageIndexBuilder
         return string.IsNullOrWhiteSpace(value) ? "(not captured)" : value;
     }
 
-    private static string? FormatStructuralExecutionMode(int? modeValue, bool? realModeFellBackToSimulator)
+    private static string? FormatStructuralExecutionMode(StructuralExecutionMode? modeValue, bool? realModeFellBackToSimulator)
     {
-        if (modeValue is null || !Enum.IsDefined(typeof(StructuralExecutionMode), modeValue.Value))
+        if (modeValue is null)
         {
             if (realModeFellBackToSimulator == true)
                 return "Fallback";
@@ -225,7 +225,7 @@ public static class SupportBundleTriageIndexBuilder
             return null;
         }
 
-        return ((StructuralExecutionMode)modeValue.Value).ToString();
+        return modeValue.Value.ToString();
     }
 
     private static string? SummarizeLatestFailedGate(SupportBundlePayload payload)

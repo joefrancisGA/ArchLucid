@@ -80,7 +80,7 @@ public sealed class TenantHomepageSettingsController(
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        string actor = User.Identity?.Name ?? "operator";
+        string actor = User?.Identity?.Name ?? "operator";
         FeaturedCompletedSampleSnapshot snapshot;
 
         if (!body.SelectedRunId.HasValue)

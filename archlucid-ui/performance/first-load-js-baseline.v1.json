@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-07-12T16:10:00.000Z",
+  "updatedUtc": "2026-07-15T15:50:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/welcome": {
-      "firstLoadJsKb": 724.9
+      "firstLoadJsKb": 736
     },
     "/reviews": {
-      "firstLoadJsKb": 1633
+      "firstLoadJsKb": 1669.1
     },
     "/reviews/[runId]": {
-      "firstLoadJsKb": 2150.9
+      "firstLoadJsKb": 2211.1
     },
     "/governance": {
-      "firstLoadJsKb": 1399.9
+      "firstLoadJsKb": 1417
     }
   },
-  "notes": "Captured from Next.js 16 production `npm run build` output (`.next/diagnostics/route-bundle-stats.json`, `firstLoadUncompressedJsBytes` converted to kB). CI #2538 refresh after TB-691 fixture understated real route budgets. Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."
+  "notes": "RC11 refresh after OpenAPI api-types.generated.ts regeneration (string enums + expanded 4xx/5xx schemas). Captured from CI #2632 First Load JS check values. Refresh after intentional bundle changes: `npm run build && npm run write:first-load-js-baseline`."
 }

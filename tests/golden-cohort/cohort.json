@@ -28,7 +28,7 @@
     {
       "id": "gc-003",
       "title": "Lift-and-shift VM fleet with ExpressRoute",
-      "expectedCommittedManifestSha256": "8685c859ce9de789d0db29f591644f5d61aa8307a45c107e9eb7a7a66eecd8482",
+      "expectedCommittedManifestSha256": "8685c859ce9de789d0db29f591644f5d61aa8307a45c107e9eb7a7a66eecd848",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -39,7 +39,7 @@
     {
       "id": "gc-004",
       "title": "Kubernetes ingress \u002B internal-only APIs",
-      "expectedCommittedManifestSha256": "a48e67060d121ff0ad7aa8387d005d3da679fce9a3fe6bc451be5020241bc1a",
+      "expectedCommittedManifestSha256": "a48e67060d121ff0ad7aa8387d005d3da679fce9a3fe6bc451be5020241bc1a0",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -105,7 +105,7 @@
     {
       "id": "gc-010",
       "title": "PCI-scoped payment capture (tokenization boundary)",
-      "expectedCommittedManifestSha256": "2ad14f79934e55778f843c0b1a87bd03dc37f6b0b8f54e403c5e1874849434c",
+      "expectedCommittedManifestSha256": "2ad14f79934e55778f843c0b1a87bd03dc37f6b0b8f54e403c5e1874849434c0",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",

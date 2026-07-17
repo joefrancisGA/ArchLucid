@@ -21,6 +21,8 @@ using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Orchestration;

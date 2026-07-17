@@ -51,9 +51,10 @@ public sealed class ArchLucidApiClientHttpTests
                 {
                     runId,
                     requestId = "req-1",
-                    status = 0,
+                    status = "Created",
                     createdUtc = TimeProvider.System.UtcNowDateTime(),
-                    currentManifestVersion = (string?)null
+                    currentManifestVersion = (string?)null,
+                    structuralExecutionMode = "Simulator",
                 },
                 tasks = Array.Empty<object>()
             }, SJsonCamelCase);
@@ -104,9 +105,10 @@ public sealed class ArchLucidApiClientHttpTests
                 {
                     runId,
                     requestId = "req-1",
-                    status = 0,
+                    status = "Created",
                     createdUtc = TimeProvider.System.UtcNowDateTime(),
-                    currentManifestVersion = (string?)null
+                    currentManifestVersion = (string?)null,
+                    structuralExecutionMode = "Simulator",
                 },
                 tasks = Array.Empty<object>(),
                 results = Array.Empty<object>()

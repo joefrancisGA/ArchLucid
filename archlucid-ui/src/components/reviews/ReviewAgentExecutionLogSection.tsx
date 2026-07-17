@@ -24,13 +24,13 @@ function confidenceLabel(confidence: number | string | null | undefined): string
 
 function agentTypeLabel(agentType: RunDetailAgentResult["agentType"]): string {
   switch (agentType) {
-    case 1:
+    case "Topology":
       return "Topology";
-    case 2:
+    case "Cost":
       return "Cost";
-    case 3:
+    case "Compliance":
       return "Compliance";
-    case 4:
+    case "Critic":
       return "Critic";
     default:
       return `Agent (${String(agentType)})`;

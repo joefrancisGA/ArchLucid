@@ -38,6 +38,7 @@ export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
   "cloud-connections/azure": "cloud-connections-azure",
   "cloud-connections/aws": "cloud-connections-aws",
   "cloud-connections/gcp": "cloud-connections-gcp",
+  "integrations/azure-boards": "azure-boards",
   "users-and-roles": "users-and-roles",
   "operator-auth-roles": "users-and-roles",
   "creating-runs": "starting-reviews",
@@ -290,7 +291,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     sourcePaths: ["docs/library/customer-facing/INTEGRATION_READINESS.md"],
   },
   {
-    slug: "integrations/azure-boards",
+    slug: "azure-boards",
     title: "Azure Boards integration",
     summary:
       "Connect Azure DevOps for work item creation from ArchLucid findings — independent of your architecture cloud provider.",

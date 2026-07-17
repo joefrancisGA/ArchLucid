@@ -39,7 +39,12 @@ import {
   resolveLiveJwtMode,
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
-import { comparisonRequestOutcomePanel, comparePageMainHeading, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import {
+  comparisonRequestOutcomePanel,
+  comparePageMainHeading,
+  expectLiveRunDetailPageReady,
+  openReviewDetailWorkspaceTab,
+} from "./helpers/operator-journey";
 import { expandWizardBaselineZipEvidence } from "./helpers/wizard-baseline-zip-evidence";
 
 function makeLiveSmokeArchLucidZipForInput(): { name: string; mimeType: string; buffer: Buffer } {
@@ -225,6 +230,8 @@ test.describe("live-api-smoke", () => {
     await page.goto(`/reviews/${encodeURIComponent(runId)}`, { waitUntil: "domcontentloaded" });
 
     await expectLiveRunDetailPageReady(page, 120_000);
+
+    await openReviewDetailWorkspaceTab(page, runId, "findings");
 
     const runExplanation = page.locator("#run-explanation");
 

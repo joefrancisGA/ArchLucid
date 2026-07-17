@@ -22,7 +22,12 @@ public sealed class OpenApiJsonStringEnumSchemaMutatorTests
         OpenApiJsonStringEnumSchemaMutator.Apply(schema, typeof(FindingClassification));
 
         schema.Type.Should().Be(JsonSchemaType.String);
-        schema.Enum.Should().Contain("DecisionGradeFinding");
-        schema.Enum.Should().Contain("ChecklistCoverage");
+        IList<string> enumNames = schema.Enum!
+            .Select(static node => node?.GetValue<string>())
+            .Where(static name => name is not null)
+            .Cast<string>()
+            .ToList();
+        enumNames.Should().Contain("DecisionGradeFinding");
+        enumNames.Should().Contain("ChecklistCoverage");
     }
 }

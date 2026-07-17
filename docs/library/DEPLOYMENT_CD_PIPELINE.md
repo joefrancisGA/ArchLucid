@@ -71,9 +71,27 @@ flowchart LR
 | `nuget-push` | Production only, after successful smoke: packs and pushes `ArchLucid.Api.Client` when `NUGET_API_KEY` is set. |
 | `notify` | `if: always()` webhook (optional) + consolidated step summary. |
 
+## Platform probes vs CD readiness gate
+
+Azure Container Apps **API** liveness and readiness both probe **`GET /health/live`** (fast). That keeps platform probes from recycling revisions when deep dependency checks are slow. **CD smoke requires `GET /health/ready`** (Healthy) before a release is traffic-safe — platform “ready” alone is not enough.
+
+| Component | ACA liveness | ACA readiness | Release / traffic-safety gate |
+|-----------|--------------|---------------|-------------------------------|
+| API | `/health/live` | `/health/live` | CD: `/health/ready` Healthy + `/version` lineage |
+| Worker | `/health/live` | `/health/ready` | Worker role deep ready |
+| UI | `/api/health` | `/api/health` | Process up + build fingerprint JSON |
+
+Full check → live/ready matrix: [`docs/operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md`](../operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md). Drift guard: `scripts/ci/container_app_probe_paths.py`.
+
 ## Post-deploy validation behavior
 
-**Primary (CD):** the **`smoke-test`** job runs **`dotnet run --project ArchLucid.Cli -- deployment-evidence`** with `--environment` set to the CD target (`dev` / `staging` / `production`), `--api-base-url` from secret **`SMOKE_TEST_BASE_URL`**, and the same retry environment variables as the legacy script. It writes **Markdown** under `artifacts/deployment-evidence-<target>-<run_id>.md` and uploads it as a **`deployment-evidence-…`** workflow artifact. **Exit code non-zero fails the job** (release gate); there is no warn-only default.
+**Primary (CD):** after revision verification, CD runs:
+
+1. Fast curl **`/health/live`** + **`/health/ready`** (Healthy) with retries,
+2. **`scripts/ci/cd_post_deploy_product_smoke.py`** — required/optional product-path matrix (authenticated workspace + Why-ArchLucid reads, UI `/api/health`, BFF `/api/proxy/health/ready`, BUILD_ID table) — see [`docs/operations/CD_POST_DEPLOY_PRODUCT_SMOKE.md`](../operations/CD_POST_DEPLOY_PRODUCT_SMOKE.md),
+3. **`archlucid deployment-evidence`** Markdown artifact (same infra probes + OpenAPI + synthetic path).
+
+**Exit code non-zero fails the job** (release gate). For **`staging`** / **`production`**, **`SMOKE_TEST_BASE_URL`** and **`ARCHLUCID_API_KEY`** are required (no soft-skip). **`dev`** may skip when the smoke URL is unset.
 
 **Legacy / curl:** **`scripts/ci/cd-post-deploy-verify.sh`** remains available for shells that prefer `curl`+`jq` only (see table below).
 
@@ -81,9 +99,10 @@ flowchart LR
 |------|---------|---------------|----------------------|
 | 1 | `GET /health/live` | HTTP **200** | Logs HTTP code and body preview (redacted) on failure. |
 | 2 | `GET /health/ready` | HTTP **200** and JSON **`.status` == `"Healthy"`** | Logs compact JSON preview; on non-Healthy see probe **Next steps** in the Markdown report. Does **not** call `GET /health` (requires **ReadAuthority**). |
-| 3 | `GET /openapi/v1.json` | HTTP **200** with **`X-Api-Key`** (admin key from environment secret `ARCHLUCID_API_KEY`) | Required when `ArchLucidAuth__Mode=ApiKey`. Do **not** use `--allow-missing-openapi` in CD. |
-| 4 | `GET /version` | HTTP **200** | Compact JSON in report (redacted patterns). Anonymous per `VersionController`. |
-| 5 | `GET {SMOKE_SYNTHETIC_PATH}` | HTTP **200** | Omitted when the path is **`/version`** (already checked). |
+| 3 | Product-path smoke | Required checks in [`CD_POST_DEPLOY_PRODUCT_SMOKE.md`](../operations/CD_POST_DEPLOY_PRODUCT_SMOKE.md) | Summary table: check / pass-fail / duration / expected vs observed BUILD_ID. |
+| 4 | `GET /openapi/v1.json` | HTTP **200** with **`X-Api-Key`** | Covered by product smoke + deployment-evidence. |
+| 5 | `GET /version` | HTTP **200**, `commitSha` == `BUILD_ID` | Wrong artifact / stale revision. |
+| 6 | `GET {SMOKE_SYNTHETIC_PATH}` | HTTP **200** | Omitted when the path is **`/version`** (already checked). |
 
 **Operator CLI (local, non-blocking unless you treat exit code as gate):**
 
@@ -113,7 +132,23 @@ Failures emit **`::error::`** lines on GitHub Actions for visible annotations wh
 
 ## Traceability
 
-- Default image tag is the **git SHA** (`github.sha`), overridable via repository variable `IMAGE_TAG`.
+- **`BUILD_ID`** is the immutable build identity: the full git commit SHA (`github.sha` on manual CD; `workflow_run.head_sha` on staging-on-merge). It is set once at the start of image build and reused for:
+  - `BUILD_SHA` / `SourceRevisionId` (API + worker in the API image),
+  - `NEXT_PUBLIC_BUILD_COMMIT_SHA` (UI),
+  - OCI labels (`org.opencontainers.image.revision` / `.version` / `.source` / `.created` / `.title`),
+  - default **`IMAGE_TAG`**,
+  - runtime `ARCHLUCID_BUILD_COMMIT_SHA` on Container Apps.
+- Default image tag is **`BUILD_ID`**, overridable via repository variable `IMAGE_TAG` (must not be `latest` or `latest-*`). Friendly `latest-dev` / `latest-staging` / `latest-production` tags are **aliases only**; deploy uses the SHA tag and/or `@sha256:<digest>`.
+- Drift guard: `scripts/ci/oci_build_identity.py` (unit tests in `scripts/ci/tests/test_oci_build_identity.py`).
+- **Deployment lineage (fail-closed when Azure deploy is configured):**
+  1. build-push requires non-empty `sha256:` digests for API + UI,
+  2. deploy job consumes only `needs.build-push-images` outputs (no tag re-inference),
+  3. pre-deploy `az acr manifest show-metadata` proves the digest exists in ACR,
+  4. Container Apps update uses `@sha256:…` only (not `latest*`),
+  5. revision image verify hard-fails unless the running revision contains that digest,
+  6. smoke compares `GET /version` `commitSha` to `BUILD_ID`.
+- Lineage summary: step summary + `artifacts/deployment-lineage-<target>-<run_id>.{md,json}` (`scripts/ci/cd_deployment_lineage.py`).
+- **Azure deployment-target preflight** (`scripts/ci/cd_deploy_target_preflight.py`): after every `azure/login`, compare live `az account show` tenant/subscription to expected values; when ACR + RG + API app are configured, also prove those resources exist in that subscription/RG before push/update/apply. Optional GitHub Environment variables `EXPECTED_AZURE_*` / `EXPECTED_ACR_*` / `EXPECTED_CONTAINER_APP_*` override; otherwise the matching deploy secrets are the expected values (still fail on live mismatch).
 - Terraform plan is stored as a run artifact named with the target environment for audit and optional `terraform apply` in a later job in the same run.
 
 ## GitHub Environment secrets and variables (checklist)
@@ -131,7 +166,8 @@ Configure per **environment** (`dev` / `staging` / `production`) or organization
 | `CONTAINER_APP_WORKER_NAME` | Worker deploy / rollback | Optional; e.g. `archlucid-worker`. **Image** = same `archlucid-api:<tag>` as API; entrypoint/command stays `dotnet ArchLucid.Worker.dll` from Terraform. |
 | `CONTAINER_APP_UI_NAME` | UI deploy | Optional. |
 | `TF_WORKING_DIRECTORY` | Terraform jobs | e.g. `infra/terraform-container-apps`. Unset = plan/apply skipped. |
-| `SMOKE_TEST_BASE_URL` | Post-deploy validation | Public base URL for the API (trailing slash optional). |
+| `SMOKE_TEST_BASE_URL` | Post-deploy validation | Public API base URL (required for staging/production; optional skip for dev). |
+| `ARCHLUCID_API_KEY` | Product-path smoke + OpenAPI | Admin X-Api-Key for authenticated non-mutating reads (never logged). |
 | `NUGET_API_KEY` | NuGet job | Production manual CD only. |
 | `CD_NOTIFY_WEBHOOK_URL` | Notify | Optional Slack-style webhook. |
 

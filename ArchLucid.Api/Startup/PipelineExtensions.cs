@@ -90,6 +90,9 @@ internal static class PipelineExtensions
             });
         });
 
+        // Canonical contract for APIM, CD smoke, and client codegen — always mapped (not gated on the explorer UI).
+        app.MapOpenApi().AllowAnonymous();
+
         DeveloperExperienceOptions dxOptions = app.Configuration
             .GetSection(DeveloperExperienceOptions.SectionName)
             .Get<DeveloperExperienceOptions>() ?? new DeveloperExperienceOptions();
@@ -106,7 +109,6 @@ internal static class PipelineExtensions
                         "DeveloperExperience:EnableApiExplorer is true in a non-Development environment. " +
                         "Ensure this is intentional and restrict access at the network perimeter.");
 
-            app.MapOpenApi().AllowAnonymous();
             app.UseSwagger();
             app.MapScalarApiReference(options =>
             {
@@ -209,6 +211,7 @@ internal static class PipelineExtensions
             .AllowAnonymous();
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
+
         if (prometheusEnabled)
         {
             app.UseMiddleware<PrometheusScrapeAuthMiddleware>();

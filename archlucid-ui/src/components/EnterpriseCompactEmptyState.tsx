@@ -47,7 +47,7 @@ export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStatePr
 
             return (
               <Button
-                key={action.href}
+                key={`${action.href}-${action.label}`}
                 asChild
                 size="sm"
                 variant={isPrimary ? "primary" : "outline"}

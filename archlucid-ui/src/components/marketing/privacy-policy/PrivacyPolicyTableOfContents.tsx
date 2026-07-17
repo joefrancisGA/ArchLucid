@@ -8,6 +8,8 @@ import { PRIVACY_POLICY_TOC } from "@/lib/privacy-policy-layout";
 
 export type PrivacyPolicyTableOfContentsProps = {
   readonly headings: readonly HelpMarkdownHeading[];
+  /** Page client mounts this twice (mobile vs desktop column) — render only the matching landmark. */
+  readonly variant: "mobile" | "desktop";
 };
 
 const MIN_HEADINGS_FOR_TOC = 4;
@@ -131,25 +133,27 @@ export function PrivacyPolicyTableOfContents(props: PrivacyPolicyTableOfContents
     return null;
   }
 
-  return (
-    <>
+  if (props.variant === "mobile") {
+    return (
       <details className={PRIVACY_POLICY_TOC.mobileDetails} data-testid="privacy-policy-toc-mobile">
         <summary className={PRIVACY_POLICY_TOC.mobileSummary}>On this page</summary>
-        <nav aria-label="On this page" className="mt-3">
+        <nav aria-label="On this page (mobile)" className="mt-3">
           <PrivacyPolicyTocList headings={props.headings} activeId={activeId} />
         </nav>
       </details>
+    );
+  }
 
-      <nav
-        aria-label="On this page"
-        className={cn(PRIVACY_POLICY_TOC.nav, "hidden xl:block")}
-        data-testid="privacy-policy-toc"
-      >
-        <p className={PRIVACY_POLICY_TOC.heading} data-testid="privacy-policy-toc-heading">
-          On this page
-        </p>
-        <PrivacyPolicyTocList headings={props.headings} activeId={activeId} />
-      </nav>
-    </>
+  return (
+    <nav
+      aria-label="On this page (desktop)"
+      className={cn(PRIVACY_POLICY_TOC.nav, "hidden xl:block")}
+      data-testid="privacy-policy-toc"
+    >
+      <p className={PRIVACY_POLICY_TOC.heading} data-testid="privacy-policy-toc-heading">
+        On this page
+      </p>
+      <PrivacyPolicyTocList headings={props.headings} activeId={activeId} />
+    </nav>
   );
 }

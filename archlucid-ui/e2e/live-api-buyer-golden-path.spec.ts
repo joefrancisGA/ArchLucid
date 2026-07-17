@@ -22,7 +22,6 @@ import { waitForAuthorityBuyerSummaryGoldenManifest, waitForLiveApiReady } from 
 import { getAppMain } from "./helpers/app-main";
 import {
   waitForLiveAuthorityRunDetailResponse,
-  waitForLiveManifestSummaryResponse,
   waitForLiveOperatorPageHydration,
 } from "./helpers/live-page-readiness";
 import {
@@ -94,7 +93,6 @@ test.describe("live-api-buyer-golden-path", () => {
     // GUID `/reviews/{id}/signed-record` rewrites to review detail — canonical manifest route uses seeded goldenManifestId.
     await page.goto(liveSignedManifestHref(liveProductTourGoldenManifestId));
     await waitForLiveOperatorPageHydration(page);
-    await waitForLiveManifestSummaryResponse(page, liveProductTourGoldenManifestId);
     await expectLiveManifestDetailPageReady(page, liveProductTourGoldenManifestId, { timeoutMs: 90_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);

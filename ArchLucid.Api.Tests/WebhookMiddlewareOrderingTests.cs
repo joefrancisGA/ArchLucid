@@ -10,7 +10,7 @@ public sealed class WebhookMiddlewareOrderingTests
 {
     private static string FindRepoRoot()
     {
-        for (DirectoryInfo? d = new(AppContext.BaseDirectory); d != null; d = d.Parent)
+        for (DirectoryInfo? d = new(AppContext.BaseDirectory); d is not null; d = d.Parent)
         {
             string sln = Path.Combine(d.FullName, "ArchLucid.sln");
 
@@ -26,7 +26,7 @@ public sealed class WebhookMiddlewareOrderingTests
     {
         AssertWebhookMethodBuffersBodyBeforeHandler(
             Path.Combine("ArchLucid.Api", "Controllers", "Billing", "BillingStripeWebhookController.cs"),
-            "public async Task<IActionResult> StripeAsync(",
+            "private async Task<IActionResult> HandleStripeWebhookAsync(",
             "HandleWebhookAsync");
     }
 
@@ -53,6 +53,7 @@ public sealed class WebhookMiddlewareOrderingTests
         methodStart.Should().BeGreaterThan(0);
 
         int scopeEnd = text.IndexOf("public ", methodStart + 1, StringComparison.Ordinal);
+
         if (scopeEnd < 0)
             scopeEnd = text.Length;
 

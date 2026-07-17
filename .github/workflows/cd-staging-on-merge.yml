@@ -8,6 +8,8 @@
 # and `head_repository` is this repo (not a fork PR whose source branch happens to be named main).
 # This avoids deploying when only a PR branch passed CI, or when merge bypassed checks.
 # Checkout uses `workflow_run.head_sha` so the images match the commit that CI validated.
+# BUILD_ID is that same head SHA — stamped into build-args, OCI labels, IMAGE_TAG (default), and
+# ARCHLUCID_BUILD_COMMIT_SHA. Friendly `latest-staging` is an additional tag only.
 # Container Apps deploy uses `registry/repo@sha256:<digest>` when build-push exports a digest, plus `CD_DEPLOY_RUN` and
 # a unique `--revision-suffix`, so ACA creates a new revision and ingress can pin to that revision (not a stale `show`).
 name: CD staging on merge
@@ -54,18 +56,29 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set image tag
+      - name: Set BUILD_ID and image tag
         run: |
+          BUILD_ID="${{ github.event.workflow_run.head_sha }}"
+          echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
           TAG="${{ vars.IMAGE_TAG }}"
-          if [ -z "$TAG" ]; then TAG="${{ github.event.workflow_run.head_sha }}"; fi
+          if [ -z "$TAG" ]; then TAG="$BUILD_ID"; fi
+          if [ "$TAG" = "latest" ] || [[ "$TAG" == latest-* ]]; then
+            echo "::error::IMAGE_TAG must not be a mutable latest* tag (got: $TAG). Use BUILD_ID (git SHA)."
+            exit 1
+          fi
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
-          # DEPLOY_SHA is the exact commit being deployed; always the workflow_run head SHA regardless of IMAGE_TAG override.
-          echo "DEPLOY_SHA=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_ENV"
 
       - name: Capture deployment build metadata
         run: |
           echo "BUILD_TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
           echo "DEPLOY_ENV=staging" >> "$GITHUB_ENV"
+
+      - name: Assert BUILD_ID / OCI label / lineage / target-preflight contract
+        run: |
+          python3 scripts/ci/oci_build_identity.py --assert-workflows
+          python3 scripts/ci/oci_build_identity.py --assert-image-tag "$IMAGE_TAG"
+          python3 scripts/ci/cd_deployment_lineage.py --assert-workflows
+          python3 scripts/ci/cd_deploy_target_preflight.py --assert-workflows
 
       - name: Detect ACR configuration
         id: acr
@@ -78,6 +91,38 @@ jobs:
             echo "configured=false" >> "$GITHUB_OUTPUT"
             echo "ACR_LOGIN_SERVER not set — will skip image build/push."
           fi
+
+      - name: Azure deployment-target preflight
+        env:
+          EXPECTED_AZURE_TENANT_ID: ${{ vars.EXPECTED_AZURE_TENANT_ID }}
+          EXPECTED_AZURE_SUBSCRIPTION_ID: ${{ vars.EXPECTED_AZURE_SUBSCRIPTION_ID }}
+          EXPECTED_AZURE_RESOURCE_GROUP: ${{ vars.EXPECTED_AZURE_RESOURCE_GROUP }}
+          EXPECTED_AZURE_LOCATION: ${{ vars.EXPECTED_AZURE_LOCATION }}
+          EXPECTED_ACR_LOGIN_SERVER: ${{ vars.EXPECTED_ACR_LOGIN_SERVER }}
+          EXPECTED_CONTAINER_APP_API_NAME: ${{ vars.EXPECTED_CONTAINER_APP_API_NAME }}
+          EXPECTED_CONTAINER_APP_WORKER_NAME: ${{ vars.EXPECTED_CONTAINER_APP_WORKER_NAME }}
+          EXPECTED_CONTAINER_APP_UI_NAME: ${{ vars.EXPECTED_CONTAINER_APP_UI_NAME }}
+          EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME: ${{ vars.EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          ARGS=(
+            --environment staging
+            --build-id "${BUILD_ID}"
+            --summary-path "artifacts/deploy-target-preflight-staging-${{ github.run_id }}.md"
+          )
+          if [ "${{ steps.acr.outputs.configured }}" = "true" ] \
+            && [ -n "${AZURE_RESOURCE_GROUP:-}" ] \
+            && [ -n "${CONTAINER_APP_API_NAME:-}" ]; then
+            ARGS+=(--check-resources)
+          fi
+          python3 scripts/ci/cd_deploy_target_preflight.py "${ARGS[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Assert Persistence Pilots sources for API Docker context
         if: steps.acr.outputs.configured == 'true'
@@ -110,8 +155,14 @@ jobs:
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:latest-staging
+          labels: |
+            org.opencontainers.image.title=archlucid-api
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.BUILD_ID }}
+            org.opencontainers.image.version=${{ env.BUILD_ID }}
+            org.opencontainers.image.created=${{ env.BUILD_TIMESTAMP }}
           build-args: |
-            BUILD_SHA=${{ github.event.workflow_run.head_sha }}
+            BUILD_SHA=${{ env.BUILD_ID }}
             BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             DEPLOY_ENV=${{ env.DEPLOY_ENV }}
           push: true
@@ -131,11 +182,17 @@ jobs:
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:latest-staging
+          labels: |
+            org.opencontainers.image.title=archlucid-ui
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.BUILD_ID }}
+            org.opencontainers.image.version=${{ env.BUILD_ID }}
+            org.opencontainers.image.created=${{ env.BUILD_TIMESTAMP }}
           build-args: |
-            BUILD_SHA=${{ github.event.workflow_run.head_sha }}
+            BUILD_SHA=${{ env.BUILD_ID }}
             BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             DEPLOY_ENV=${{ env.DEPLOY_ENV }}
-            NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ github.event.workflow_run.head_sha }}
+            NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ env.BUILD_ID }}
             NEXT_PUBLIC_BUILD_TIMESTAMP=${{ env.BUILD_TIMESTAMP }}
             NEXT_PUBLIC_DEPLOY_ENV=${{ env.DEPLOY_ENV }}
             NEXT_PUBLIC_API_UPSTREAM_HOST=${{ vars.API_UPSTREAM_HOST }}
@@ -146,27 +203,88 @@ jobs:
           cache-from: type=gha,scope=ui-docker-smoke-v2
           cache-to: type=gha,scope=ui-docker-smoke-v2,mode=max
 
+      - name: Require immutable digests from this build
+        id: require_digests
+        if: steps.acr.outputs.configured == 'true'
+        env:
+          API_DIGEST: ${{ steps.build_push_api.outputs.digest }}
+          UI_DIGEST: ${{ steps.build_push_ui.outputs.digest }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/cd_deployment_lineage.py --require-digest "$API_DIGEST" --digest-name API_IMAGE_DIGEST
+          python3 scripts/ci/cd_deployment_lineage.py --require-digest "$UI_DIGEST" --digest-name UI_IMAGE_DIGEST
+          echo "API_IMAGE_DIGEST=${API_DIGEST}" >> "$GITHUB_ENV"
+          echo "UI_IMAGE_DIGEST=${UI_DIGEST}" >> "$GITHUB_ENV"
+          echo "Immutable digests for this run: API=${API_DIGEST} UI=${UI_DIGEST} tag=${IMAGE_TAG} BUILD_ID=${BUILD_ID}"
+
+      - name: Require immutable digests before deploy
+        id: lineage_gate
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+          IMAGES_PUSHED: ${{ steps.acr.outputs.configured }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            echo "deploy_ran=false" >> "$GITHUB_OUTPUT"
+            echo "Container Apps deploy not configured — skipping lineage gate."
+            exit 0
+          fi
+          if [ "${IMAGES_PUSHED:-}" != "true" ]; then
+            echo "::error::Deploy is configured but images were not pushed in this run (ACR missing at build)."
+            exit 1
+          fi
+          if [ -z "${BUILD_ID:-}" ] || [ -z "${IMAGE_TAG:-}" ]; then
+            echo "::error::Missing BUILD_ID or IMAGE_TAG — refusing to infer tags."
+            exit 1
+          fi
+          python3 scripts/ci/cd_deployment_lineage.py --require-digest "$API_IMAGE_DIGEST" --digest-name API_IMAGE_DIGEST
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            python3 scripts/ci/cd_deployment_lineage.py --require-digest "$UI_IMAGE_DIGEST" --digest-name UI_IMAGE_DIGEST
+          fi
+          echo "deploy_ran=true" >> "$GITHUB_OUTPUT"
+          echo "Lineage gate OK: BUILD_ID=${BUILD_ID} IMAGE_TAG=${IMAGE_TAG} API_DIGEST=${API_IMAGE_DIGEST}"
+
+      - name: Pre-deploy registry manifest check
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          REG_NAME="${ACR_NAME:-${ACR_LOGIN_SERVER%%.*}}"
+          az acr login --name "$REG_NAME"
+          echo "Checking registry manifests (no credentials logged): registry=${ACR_LOGIN_SERVER} tag=${IMAGE_TAG}"
+          echo "Expected API digest: ${API_IMAGE_DIGEST}"
+          az acr manifest show-metadata --registry "$REG_NAME" --name "archlucid-api@${API_IMAGE_DIGEST}" --query digest -o tsv
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            echo "Expected UI digest: ${UI_IMAGE_DIGEST}"
+            az acr manifest show-metadata --registry "$REG_NAME" --name "archlucid-ui@${UI_IMAGE_DIGEST}" --query digest -o tsv
+          fi
+          echo "Pre-deploy registry manifest check passed."
+
       - name: Record API revision before update
         id: api_rev_before
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
         run: |
-          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
           REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
       - name: Record worker revision before update
         id: worker_rev_before
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
         run: |
-          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_WORKER_NAME:-}" ]; then
+          if [ -z "${CONTAINER_APP_WORKER_NAME:-}" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -175,44 +293,37 @@ jobs:
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
       - name: Update Container Apps
+        id: containerapp_update
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
         env:
           ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
           CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
           CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
-          API_IMAGE_DIGEST: ${{ steps.build_push_api.outputs.digest }}
-          UI_IMAGE_DIGEST: ${{ steps.build_push_ui.outputs.digest }}
         run: |
-          if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
-            exit 0
-          fi
-          API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
-          if [ -n "${API_IMAGE_DIGEST:-}" ]; then
-            API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}"
-          fi
+          set -euo pipefail
+          API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}"
           UI_IMAGE=""
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
-            UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui:${IMAGE_TAG}"
-            if [ -n "${UI_IMAGE_DIGEST:-}" ]; then
-              UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui@${UI_IMAGE_DIGEST}"
-            fi
+            UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui@${UI_IMAGE_DIGEST}"
           fi
           DEPLOY_STAMP="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT:-1}"
           REV_SFX="r${GITHUB_RUN_ID}a${GITHUB_RUN_ATTEMPT:-1}"
-          echo "Deploy API image: ${API_IMAGE}"
+          echo "Deploy API image (digest): ${API_IMAGE}"
+          echo "Deploy API tag (lineage): ${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
           A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
             --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
-              "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$DEPLOY_SHA" \
+              "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
             --query "properties.latestRevisionName" -o tsv)
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
             W_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" \
               --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
-                "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$DEPLOY_SHA" \
+                "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
               --query "properties.latestRevisionName" -o tsv)
           fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then
-            echo "Deploy UI image: ${UI_IMAGE}"
+            echo "Deploy UI image (digest): ${UI_IMAGE}"
             U_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE" \
               --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
               --query "properties.latestRevisionName" -o tsv)
@@ -233,24 +344,61 @@ jobs:
                 || echo "UI: ingress traffic set skipped."
             fi
           fi
+          echo "a_latest=${A_LATEST:-}" >> "$GITHUB_OUTPUT"
+          echo "w_latest=${W_LATEST:-}" >> "$GITHUB_OUTPUT"
+          echo "u_latest=${U_LATEST:-}" >> "$GITHUB_OUTPUT"
 
-          echo ""
-          echo "Post-deploy revision verification (template image resolved for the revision we just updated)"
-          if [ -n "${A_LATEST:-}" ]; then
-            A_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$A_LATEST" \
-              --query "properties.template.containers[0].image" -o tsv)
-            echo "Post-deploy API: revision=${A_LATEST} image=${A_IMG}"
+      - name: Verify deployed revisions use the SHA-tagged image
+        id: verify_image
+        env:
+          DEPLOY_RAN: ${{ steps.lineage_gate.outputs.deploy_ran }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+          A_LATEST: ${{ steps.containerapp_update.outputs.a_latest }}
+          W_LATEST: ${{ steps.containerapp_update.outputs.w_latest }}
+          U_LATEST: ${{ steps.containerapp_update.outputs.u_latest }}
+        run: |
+          set -euo pipefail
+          if [ "${DEPLOY_RAN:-}" != "true" ]; then
+            echo "verify_result=skipped" >> "$GITHUB_OUTPUT"
+            echo "Image verification skipped (deploy_ran=false)."
+            exit 0
           fi
-          if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ] && [ -n "${W_LATEST:-}" ]; then
-            W_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --revision "$W_LATEST" \
-              --query "properties.template.containers[0].image" -o tsv)
-            echo "Post-deploy worker: revision=${W_LATEST} image=${W_IMG}"
+          EXPECTED_API="${API_IMAGE_DIGEST}"
+          EXPECTED_UI="${UI_IMAGE_DIGEST:-}"
+          FAILED=0
+          check_image() {
+            local app_name="$1" rev="$2" expected="$3"
+            if [ -z "${app_name:-}" ] || [ -z "${rev:-}" ] || [ -z "${expected:-}" ]; then
+              return
+            fi
+            local img
+            img=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$app_name" --revision "$rev" \
+              --query "properties.template.containers[0].image" -o tsv 2>/dev/null || true)
+            echo "  ${app_name}: revision=${rev} image=${img}"
+            if [ -z "$img" ]; then
+              echo "::error::IMAGE VERIFY: Could not read image for ${app_name} revision ${rev}"
+              FAILED=1
+            elif ! echo "$img" | grep -qF "$expected"; then
+              echo "::error::IMAGE VERIFY: ${app_name} revision ${rev} image '${img}' does not contain expected digest '${expected}'."
+              FAILED=1
+            fi
+          }
+          echo "Verifying deployed revision images (expected digest: ${EXPECTED_API}):"
+          check_image "$CONTAINER_APP_API_NAME" "${A_LATEST}" "$EXPECTED_API"
+          check_image "$CONTAINER_APP_WORKER_NAME" "${W_LATEST}" "$EXPECTED_API"
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            check_image "$CONTAINER_APP_UI_NAME" "${U_LATEST}" "$EXPECTED_UI"
           fi
-          if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${U_LATEST:-}" ]; then
-            U_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --revision "$U_LATEST" \
-              --query "properties.template.containers[0].image" -o tsv)
-            echo "Post-deploy UI: revision=${U_LATEST} image=${U_IMG}"
+          if [ "$FAILED" -ne 0 ]; then
+            echo "verify_result=failure" >> "$GITHUB_OUTPUT"
+            echo "::error::Deployed revision image verification FAILED — refusing success for this deploy."
+            exit 1
           fi
+          echo "verify_result=success" >> "$GITHUB_OUTPUT"
+          echo "All deployed revisions verified — images match expected digest from this build."
 
       - uses: actions/setup-dotnet@v5.2.0
         with:
@@ -261,19 +409,105 @@ jobs:
             global.json
             **/*.csproj
 
+      - name: Smoke — runtime commitSha matches BUILD_ID
+        id: smoke_build_id
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
+            echo "::error::SMOKE_TEST_BASE_URL is required for staging BUILD_ID smoke."
+            exit 1
+          fi
+          BASE="${SMOKE_TEST_BASE_URL%/}"
+          CODE=$(curl -sS -o /tmp/version.json -w "%{http_code}" --connect-timeout 20 --max-time 60 "${BASE}/version" || echo "000")
+          if [ "$CODE" != "200" ]; then
+            echo "::error::SMOKE: GET /version returned HTTP ${CODE}"
+            exit 1
+          fi
+          RUNTIME_SHA=$(jq -r '.commitSha // empty' /tmp/version.json)
+          echo "Runtime commitSha=${RUNTIME_SHA} expected BUILD_ID=${BUILD_ID}"
+          if [ "$RUNTIME_SHA" != "$BUILD_ID" ]; then
+            echo "::error::SMOKE: runtime commitSha '${RUNTIME_SHA}' does not match BUILD_ID '${BUILD_ID}'."
+            exit 1
+          fi
+          echo "Runtime BUILD_ID match OK."
+
+      - name: Resolve UI public FQDN for product smoke
+        id: ui_fqdn
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          set -euo pipefail
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_UI_NAME:-}" ]; then
+            echo "fqdn=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          FQDN=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" \
+            --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+          echo "fqdn=${FQDN}" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke — product path
+        id: smoke_product
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+          ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+          CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
+          CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
+            echo "::error::SMOKE_TEST_BASE_URL is required for staging product-path smoke."
+            exit 1
+          fi
+          if [ -z "${ARCHLUCID_API_KEY:-}" ]; then
+            echo "::error::ARCHLUCID_API_KEY is required for staging product-path smoke."
+            exit 1
+          fi
+          UI_BASE=""
+          if [ -n "${{ steps.ui_fqdn.outputs.fqdn }}" ]; then
+            UI_BASE="https://${{ steps.ui_fqdn.outputs.fqdn }}"
+          fi
+          mkdir -p artifacts
+          python scripts/ci/cd_post_deploy_product_smoke.py \
+            --environment staging \
+            --expected-build-id "${BUILD_ID}" \
+            --api-base-url "${SMOKE_TEST_BASE_URL}" \
+            --api-key "${ARCHLUCID_API_KEY}" \
+            --ui-base-url "${UI_BASE}" \
+            --max-attempts "${CD_POST_DEPLOY_MAX_ATTEMPTS:-6}" \
+            --retry-wait-seconds "${CD_POST_DEPLOY_RETRY_WAIT_SECONDS:-10}" \
+            --summary-path "artifacts/cd-product-smoke-staging-${{ github.run_id }}.md" \
+            --json-path "artifacts/cd-product-smoke-staging-${{ github.run_id }}.json"
+
+      - name: Upload product-path smoke summary
+        if: always() && steps.smoke_product.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cd-product-smoke-staging-${{ github.run_id }}
+          path: |
+            artifacts/cd-product-smoke-staging-${{ github.run_id }}.md
+            artifacts/cd-product-smoke-staging-${{ github.run_id }}.json
+          if-no-files-found: ignore
+
       - name: Post-deploy validation and deployment evidence (CLI)
         id: smoke_api
         env:
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+          ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
           SMOKE_SYNTHETIC_PATH: ${{ vars.SMOKE_SYNTHETIC_PATH }}
           CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
           CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
-          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "SMOKE_TEST_BASE_URL not set — skipping post-deploy validation."
-            exit 0
+            echo "::error::SMOKE_TEST_BASE_URL is required for staging deployment-evidence."
+            exit 1
           fi
           OUT="artifacts/deployment-evidence-staging-${{ github.run_id }}.md"
           dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj -- \
@@ -293,7 +527,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Roll back API and worker on failed smoke
-        if: ${{ failure() && steps.smoke_api.outcome == 'failure' }}
+        if: ${{ failure() && (steps.smoke_api.outcome == 'failure' || steps.smoke_product.outcome == 'failure') && steps.lineage_gate.outputs.deploy_ran == 'true' }}
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
@@ -313,13 +547,53 @@ jobs:
               az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$AFTER"
             fi
           fi
-          if [ "${{ steps.worker_rev_before.outputs.skip }}" != "true" ]; then
+          if [ "${{ steps.worker_rev_before.outputs.skip }}" != "true" ] && [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
             WBF="${{ steps.worker_rev_before.outputs.revision }}"
             WAF=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
             if [ -n "$WAF" ] && [ "$WAF" != "$WBF" ]; then
               az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --revision "$WAF"
             fi
           fi
+
+      - name: Deployment lineage summary
+        if: always()
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          VERIFY_RESULT: ${{ steps.verify_image.outputs.verify_result }}
+          SMOKE_RESULT: ${{ steps.smoke_api.outcome }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${API_IMAGE_DIGEST:-}" ]; then
+            echo "## Deployment lineage" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Skipped detailed lineage (ACR digest outputs unavailable for this run)." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          UI_DIGEST="${UI_IMAGE_DIGEST:-$API_IMAGE_DIGEST}"
+          python3 scripts/ci/cd_deployment_lineage.py --write-summary \
+            --commit-sha "${{ github.event.workflow_run.head_sha }}" \
+            --build-id "$BUILD_ID" \
+            --target-environment staging \
+            --image-tag "$IMAGE_TAG" \
+            --api-tag-ref "${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}" \
+            --api-digest-ref "${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}" \
+            --ui-tag-ref "${ACR_LOGIN_SERVER}/archlucid-ui:${IMAGE_TAG}" \
+            --ui-digest-ref "${ACR_LOGIN_SERVER}/archlucid-ui@${UI_DIGEST}" \
+            --worker-digest-ref "${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}" \
+            --build-result "${{ steps.acr.outputs.configured }}" \
+            --deploy-result "${{ steps.lineage_gate.outputs.deploy_ran }}" \
+            --verify-result "${VERIFY_RESULT:-unknown}" \
+            --smoke-result "${SMOKE_RESULT:-unknown}" \
+            --summary-path "artifacts/deployment-lineage-staging-${{ github.run_id }}.md" \
+            --json-path "artifacts/deployment-lineage-staging-${{ github.run_id }}.json" \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload deployment lineage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-lineage-staging-${{ github.run_id }}
+          path: artifacts/deployment-lineage-staging-${{ github.run_id }}.*
+          if-no-files-found: ignore
 
       - name: Notify webhook
         if: always()

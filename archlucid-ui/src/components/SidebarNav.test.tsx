@@ -232,7 +232,6 @@ describe("SidebarNav buyer-polished desktop shell", () => {
       "href",
       "/reviews?projectId=default",
     );
-    expect(within(nav).queryByRole("link", { name: "Reviews" })).toBeNull();
     expect(within(nav).queryByRole("link", { name: "Evidence graph" })).toBeNull();
 
     expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();

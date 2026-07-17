@@ -695,6 +695,7 @@ describe("committed architecture review gate — operator shell composition", ()
     expect(rows.map((r) => r.group.id)).toEqual(["pilot", "operator-admin"]);
     expect(rows[0]!.visibleLinks.map((l) => l.href)).toEqual([
       "/",
+      "/architectures/new",
       "/reviews/new",
       "/reviews?projectId=default",
       "/dashboard",

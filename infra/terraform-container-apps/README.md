@@ -4,9 +4,9 @@ Optional root that deploys:
 
 - **Log Analytics** workspace (required by Container Apps Environment)
 - **Container Apps Environment** (consumption; optional **VNet integration** + internal load balancer)
-- **`azurerm_container_app`** for **ArchLucid.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/ready`, `ASPNETCORE_URLS`)
-- **`azurerm_container_app`** for **ArchLucid.Worker** (same image by default, **`command` = `dotnet ArchLucid.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, health probes on **8080**; optional **`azure-queue`** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set; optional **`prometheus`** scale rule when **`worker_enable_authority_outbox_prom_scale`** — see **Background services**)
-- **`azurerm_container_app`** for **archlucid-ui** (port **3000**, probes on `/`)
+- **`azurerm_container_app`** for **ArchLucid.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/live` — deep `/health/ready` is the CD gate; see [`HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md`](../../docs/operations/HEALTH_LIVE_READY_DEPENDENCY_MATRIX.md), `ASPNETCORE_URLS`)
+- **`azurerm_container_app`** for **ArchLucid.Worker** (same image by default, **`command` = `dotnet ArchLucid.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, liveness `/health/live` + readiness `/health/ready` on **8080**; optional **`azure-queue`** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set; optional **`prometheus`** scale rule when **`worker_enable_authority_outbox_prom_scale`** — see **Background services**)
+- **`azurerm_container_app`** for **archlucid-ui** (port **3000**, probes on `/api/health`)
 
 HTTP **KEDA-style** scale rules scale each app between **min/max replicas** using **concurrent request** targets. The **UI** app defaults to **`ui_max_replicas = 6`** and **`ui_scale_concurrent_requests = 10`** so traffic bursts on the shared Container App scale out before requests queue heavily on a single replica.
 
@@ -39,7 +39,39 @@ Ensure **`infra/terraform-storage`** has created containers **`golden-manifests`
 
 ## Operator UI → API
 
-The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container Apps, set the server-side base URL for the UI container (e.g. **`ARCHIFORGE_API_BASE_URL`** or your Next.js env naming) to the **API HTTPS URL** from Terraform output **`api_https_url`**, or place **APIM** / **Front Door** in front and point at that hostname instead.
+The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container Apps, set the server-side base URL for the UI container (e.g. **`ARCHLUCID_API_BASE_URL`** or your Next.js env naming) to the **API HTTPS URL** from Terraform output **`api_https_url`**, or place **APIM** / **Front Door** in front and point at that hostname instead.
+
+## ApiKey scope claims (TB-304)
+
+On **Production**-like API hosts (`ASPNETCORE_ENVIRONMENT` unset defaults to Production in container images), every authenticated request must resolve **tenant + workspace + project** from **identity claims** (or ambient job override)—not from `x-*-id` headers or ScopeIds defaults. ApiKey auth emits those claims only when configured:
+
+| Setting | Env var |
+|---------|---------|
+| `Authentication:ApiKey:TenantId` | `Authentication__ApiKey__TenantId` |
+| `Authentication:ApiKey:WorkspaceId` | `Authentication__ApiKey__WorkspaceId` |
+| `Authentication:ApiKey:ProjectId` | `Authentication__ApiKey__ProjectId` |
+
+Terraform variables (all three required together, or all empty):
+
+- **`api_key_tenant_id`** / **`api_key_workspace_id`** / **`api_key_project_id`**
+
+Pilot ScopeIds defaults (match UI `getScopeHeaders()`):
+
+```hcl
+api_key_tenant_id    = "11111111-1111-1111-1111-111111111111"
+api_key_workspace_id = "22222222-2222-2222-2222-222222222222"
+api_key_project_id   = "33333333-3333-3333-3333-333333333333"
+```
+
+**Existing Container Apps:** this module’s API resource **`lifecycle.ignore_changes`** includes **`template[0].container[0].env`**, so a later `terraform apply` will **not** overwrite live env. For brownfield, set claims with:
+
+```powershell
+.\scripts\deploy\Set-ApiKeyScopeClaims.ps1 -ResourceGroup rg-ArchLucid-dev -ContainerApp archlucid-api
+```
+
+(or the same three `--set-env-vars` via `az containerapp update`). Put the GUIDs in **`DEV_TFVARS` / `DEV_TFVARS_EXTRA`** for greenfield applies and documentation.
+
+Without all three claims, UI Overview calls fail with **403** and body text about scope resolved from identity claims.
 
 ## Custom domain without Front Door (`ui_custom_domain_name` / `api_custom_domain_name`)
 

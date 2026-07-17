@@ -1,3 +1,6 @@
+using System.Net;
+using System.Text.Json;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
@@ -13,40 +16,69 @@ internal static class CitationIntegrityApiLoader
         ArgumentNullException.ThrowIfNull(http);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        ArchLucidApiClient apiClient = new(http);
-        ArchLucidApiClient.GetRunResult? run = await apiClient.GetRunAsync(runId, cancellationToken);
+        try
+        {
+            using HttpResponseMessage response = await http.GetAsync($"/v1/architecture/run/{runId}", cancellationToken);
 
-        if (run is null)
+            if (response.StatusCode != HttpStatusCode.OK)
+                return null;
+
+            string body = await response.Content.ReadAsStringAsync(cancellationToken);
+            using JsonDocument doc = JsonDocument.Parse(body);
+            JsonElement root = doc.RootElement;
+
+            if (!root.TryGetProperty("run", out JsonElement run) || run.ValueKind != JsonValueKind.Object)
+                return null;
+
+            ArchitectureRunStatus status = ParseRunStatus(run);
+            List<object> rawResults = [];
+
+            if (root.TryGetProperty("results", out JsonElement results) && results.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement result in results.EnumerateArray())
+                {
+                    object? raw = JsonSerializer.Deserialize<object>(result.GetRawText());
+
+                    if (raw is not null)
+                        rawResults.Add(raw);
+                }
+            }
+
+            return new CitationIntegrityRunBundle
+            {
+                RunId = runId,
+                Status = status,
+                AgentResults = CitationIntegrityAgentResultParser.Parse(rawResults),
+            };
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        {
             return null;
-
-        return new CitationIntegrityRunBundle
-        {
-            RunId = runId,
-            Status = run.Run.Status,
-            AgentResults = CitationIntegrityAgentResultParser.Parse(run.Results),
-        };
+        }
     }
-}
 
-internal static class CitationIntegrityAgentResultParser
-{
-    internal static List<AgentResult> Parse(IReadOnlyList<object> rawResults)
+    private static ArchitectureRunStatus ParseRunStatus(JsonElement run)
     {
-        ArgumentNullException.ThrowIfNull(rawResults);
+        if (!run.TryGetProperty("status", out JsonElement statusEl))
+            return default;
 
-        List<AgentResult> parsed = new();
-
-        foreach (object raw in rawResults)
+        if (statusEl.ValueKind == JsonValueKind.String)
         {
-            string json = System.Text.Json.JsonSerializer.Serialize(raw, CliCommandShared.JsonWriteIndented);
-            AgentResult? result = System.Text.Json.JsonSerializer.Deserialize<AgentResult>(
-                json,
-                CliCommandShared.JsonDeserializeAgentResult);
+            string? statusRaw = statusEl.GetString();
 
-            if (result is not null)
-                parsed.Add(result);
+            if (!string.IsNullOrWhiteSpace(statusRaw)
+                && Enum.TryParse(statusRaw, ignoreCase: true, out ArchitectureRunStatus parsed))
+            {
+                return parsed;
+            }
+
+            return default;
         }
 
-        return parsed;
+        if (statusEl.ValueKind == JsonValueKind.Number && statusEl.TryGetInt32(out int numericStatus))
+            return (ArchitectureRunStatus)numericStatus;
+
+        return default;
     }
 }
+

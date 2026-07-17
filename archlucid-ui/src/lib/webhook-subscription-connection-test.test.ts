@@ -26,7 +26,7 @@ describe("presentWebhookConnectionTestToasts", () => {
       responseBodyTruncated: false,
     });
 
-    expect(toastMocks.showSuccess).toHaveBeenCalledWith("Connection test succeeded — HTTP 204 No Content");
+    expect(toastMocks.showSuccess).toHaveBeenCalledWith("Test event delivered. HTTP 204");
     expect(toastMocks.showError).not.toHaveBeenCalled();
   });
 
@@ -39,7 +39,7 @@ describe("presentWebhookConnectionTestToasts", () => {
       responseBodyTruncated: false,
     });
 
-    expect(toastMocks.showError).toHaveBeenCalledWith("Connection test returned HTTP 500", "Internal Server Error");
+    expect(toastMocks.showError).toHaveBeenCalledWith("Test event returned HTTP 500", "Internal Server Error");
   });
 
   it("shows error toast when transport fails", () => {
@@ -51,7 +51,7 @@ describe("presentWebhookConnectionTestToasts", () => {
     });
 
     expect(toastMocks.showError).toHaveBeenCalledWith(
-      "Connection test failed — could not reach destination",
+      "We could not reach the destination.",
       "Connection refused",
     );
   });
@@ -66,6 +66,6 @@ describe("presentWebhookConnectionTestRequestFailure", () => {
   it("shows request failure toast", () => {
     presentWebhookConnectionTestRequestFailure(new Error("Network down"));
 
-    expect(toastMocks.showError).toHaveBeenCalledWith("Connection test failed", "Network down");
+    expect(toastMocks.showError).toHaveBeenCalledWith("We could not reach the destination.", "Network down");
   });
 });

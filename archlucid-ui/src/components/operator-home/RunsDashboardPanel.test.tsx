@@ -334,7 +334,10 @@ describe("RunsDashboardPanel", () => {
       );
       expect(screen.queryByRole("link", { name: "Signed manifest summary" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Full review detail" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Open all reviews" })).toBeNull();
+      expect(screen.getByRole("link", { name: BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA })).toHaveAttribute(
+        "data-testid",
+        "runs-dashboard-open-review-packages",
+      );
       expect(screen.queryByRole("link", { name: "All" })).toBeNull();
     } finally {
       runsDashBuyerPolishedForced.on = false;

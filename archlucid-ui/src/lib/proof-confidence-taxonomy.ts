@@ -34,7 +34,23 @@ function normalizeStructuralExecutionMode(
   raw: string | number | null | undefined,
 ): StructuralExecutionModeWireValue | null {
   if (typeof raw === "number" && Number.isFinite(raw)) {
-    return raw as StructuralExecutionModeWireValue;
+    if (raw === 0) {
+      return StructuralExecutionModeWire.Simulator;
+    }
+
+    if (raw === 1) {
+      return StructuralExecutionModeWire.Real;
+    }
+
+    if (raw === 2) {
+      return StructuralExecutionModeWire.Fallback;
+    }
+
+    if (raw === 3) {
+      return StructuralExecutionModeWire.Mixed;
+    }
+
+    return null;
   }
 
   if (typeof raw !== "string" || raw.trim().length === 0) {

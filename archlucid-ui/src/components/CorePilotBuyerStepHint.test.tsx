@@ -1,5 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -57,7 +56,7 @@ describe("CorePilotBuyerStepHint", () => {
     });
 
     expect(screen.getByTestId("core-pilot-buyer-step-badge")).toHaveTextContent("Step 1 of 4");
-    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveAttribute("href", ARCHITECTURES_NEW_PATH);
+    expect(screen.getByRole("link", { name: START_REVIEW_LABEL })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("shows Step 2–3 of 4 when a run exists without commit", async () => {

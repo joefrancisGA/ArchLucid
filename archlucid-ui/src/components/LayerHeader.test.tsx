@@ -14,6 +14,15 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: (): boolean => true,
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 import { LayerHeader } from "./LayerHeader";
 
 describe("LayerHeader", () => {
@@ -36,14 +45,14 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="compare" />);
 
     expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/Review and evidence trail/i);
-    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/finalized review record/i);
+    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/signed review record/i);
   });
 
   it("renders Governance responsibility footnote on audit", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(screen.getByText("Governance")).toBeInTheDocument();
-    expect(screen.getByText(/See who acted, when, and why/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tenant audit trail—who did what, when/i)).toBeInTheDocument();
   });
 
   /**
@@ -53,7 +62,7 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(
-      screen.getByRole("complementary", { name: /Governance:.*Audit trail for finalized review activity/i }),
+      screen.getByRole("complementary", { name: /Governance:.*Tenant audit trail—who did what, when/i }),
     ).toBeInTheDocument();
   });
 

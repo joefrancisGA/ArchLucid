@@ -65,6 +65,7 @@
     "dbo.SentEmails",
     "dbo.TenantAiBudgetPolicy",
     "dbo.TenantAwsConnectionRecords",
+    "dbo.TenantAzureBoardsOutboundSettings",
     "dbo.TenantCostSettings",
     "dbo.TenantGcpConnectionRecords",
     "dbo.TenantItsmConnectorConnections",

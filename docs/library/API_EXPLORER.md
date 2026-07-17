@@ -51,8 +51,8 @@ flowchart LR
 
 ## 7. Security Model
 
-- Default production: explorer endpoints not registered (`EnableApiExplorer: false` and not Development).
-- Opt-in: set `DeveloperExperience:EnableApiExplorer` to `true` only with network and identity controls aligned to your threat model.
+- Default production: Scalar / Swagger explorer UI not registered (`EnableApiExplorer: false` and not Development). **`GET /openapi/v1.json` remains mapped** (anonymous) so CD smoke, APIM import, and contract probes work without enabling the interactive explorer.
+- Opt-in explorer UI: set `DeveloperExperience:EnableApiExplorer` to `true` only with network and identity controls aligned to your threat model.
 - Static replay recipe HTML (`DocsController`) links to Scalar instead of legacy Swagger UI.
 
 ## 8. Operational Considerations

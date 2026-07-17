@@ -79,10 +79,14 @@ test.describe("live-api-search-ask-graph", () => {
     expect(Array.isArray(graphJson.edges)).toBeTruthy();
 
     const runGuid = toRunGuidPathSegment(runId);
-    const askRes = await postAskRaw(request, {
-      runId: runGuid,
-      question: "List the main components mentioned in the manifest context in one short sentence.",
-    });
+    const askRes = await postAskRaw(
+      request,
+      {
+        runId: runGuid,
+        question: "List the main components mentioned in the manifest context in one short sentence.",
+      },
+      { timeoutMs: 45_000 },
+    );
 
     if (askRes.ok()) {
       const askJson = (await askRes.json()) as { answer?: string };

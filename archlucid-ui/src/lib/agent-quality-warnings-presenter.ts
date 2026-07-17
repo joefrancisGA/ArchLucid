@@ -13,7 +13,7 @@ export type AgentQualityConcernStatus = "warned" | "rejected";
 
 export type AgentQualityConcernRow = {
   traceId: string;
-  agentType: number;
+  agentType: string | number;
   agentLabel: string;
   status: AgentQualityConcernStatus;
   structuralCompletenessRatio: number;
@@ -21,18 +21,23 @@ export type AgentQualityConcernRow = {
   breachedThresholds: string[];
 };
 
-function agentTypeLabel(agentType: number): string {
+/** OpenAPI emits string AgentType; accept legacy numeric wire values during UI/API rollout. */
+function agentTypeLabel(agentType: string | number): string {
   switch (agentType) {
+    case "Topology":
     case 1:
       return "Topology";
+    case "Cost":
     case 2:
       return "Cost";
+    case "Compliance":
     case 3:
       return "Compliance";
+    case "Critic":
     case 4:
       return "Critic";
     default:
-      return `AgentType(${agentType})`;
+      return `AgentType(${String(agentType)})`;
   }
 }
 

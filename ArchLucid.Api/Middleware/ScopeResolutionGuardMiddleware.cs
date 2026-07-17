@@ -58,6 +58,11 @@ internal sealed class ScopeResolutionGuardMiddleware(
         if (path.StartsWith("/health", StringComparison.OrdinalIgnoreCase))
             return true;
 
+        // Canonical OpenAPI document (MapOpenApi) — contract probes must not require tenant scope.
+
+        if (path.StartsWith("/openapi", StringComparison.OrdinalIgnoreCase))
+            return true;
+
         if (path is "/" or "/robots.txt" or "/sitemap.xml")
             return true;
 

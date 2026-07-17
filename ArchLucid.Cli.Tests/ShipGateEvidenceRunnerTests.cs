@@ -4,9 +4,6 @@ using System.Text.Json;
 
 using ArchLucid.Cli;
 using ArchLucid.Cli.Commands;
-using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Roi;
 
 using FluentAssertions;
@@ -45,7 +42,7 @@ public sealed class ShipGateEvidenceRunnerTests
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                        BuildRunPayload("Committed", "v1.0.0", BuildCitationCompliantResults())));
                 }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
@@ -102,7 +99,7 @@ public sealed class ShipGateEvidenceRunnerTests
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationFailingResults())));
+                        BuildRunPayload("Committed", "v1.0.0", BuildCitationFailingResults())));
                 }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
@@ -188,7 +185,7 @@ public sealed class ShipGateEvidenceRunnerTests
 
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                        BuildRunPayload("Committed", "v1.0.0", BuildCitationCompliantResults())));
                 }
 
                 if (TryHandleTenantIsolationRequest(req, out HttpResponseMessage? isolationResponse))
@@ -263,7 +260,7 @@ public sealed class ShipGateEvidenceRunnerTests
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                        BuildRunPayload("Committed", "v1.0.0", BuildCitationCompliantResults())));
                 }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
@@ -340,7 +337,7 @@ public sealed class ShipGateEvidenceRunnerTests
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                        BuildRunPayload("Committed", "v1.0.0", BuildCitationCompliantResults())));
                 }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
@@ -422,7 +419,7 @@ public sealed class ShipGateEvidenceRunnerTests
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                        BuildRunPayload("Committed", "v1.0.0", BuildCitationCompliantResults())));
                 }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
@@ -475,7 +472,7 @@ public sealed class ShipGateEvidenceRunnerTests
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                        BuildRunPayload("Committed", "v1.0.0", BuildCitationCompliantResults())));
                 }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
@@ -526,7 +523,7 @@ public sealed class ShipGateEvidenceRunnerTests
                 {
                     return Task.FromResult(JsonResponse(
                         HttpStatusCode.OK,
-                        BuildRunPayload(ArchitectureRunStatus.Committed, "v1.0.0", BuildCitationCompliantResults())));
+                        BuildRunPayload("Committed", "v1.0.0", BuildCitationCompliantResults())));
                 }
 
                 if (path.EndsWith($"/v1/artifacts/runs/{RunId}", StringComparison.Ordinal))
@@ -708,22 +705,25 @@ public sealed class ShipGateEvidenceRunnerTests
     {
         return
         [
-            new AgentResult
+            new
             {
-                ResultId = "result-compliance-1",
-                AgentType = AgentType.Compliance,
-                EvidenceRefs = ["evidence-1"],
-                Citations = [new Citation { SourceId = "POL-1", Description = "Mapped control policy." }],
-                Findings =
-                [
-                    new ArchitectureFinding
+                resultId = "result-compliance-1",
+                runId = RunId,
+                taskId = "task-compliance-1",
+                agentType = "Compliance",
+                evidenceRefs = new[] { "evidence-1" },
+                claims = Array.Empty<string>(),
+                citations = new[] { new { sourceId = "POL-1", description = "Mapped control policy." } },
+                findings = new[]
+                {
+                    new
                     {
-                        FindingId = "finding-1",
-                        Category = "Compliance",
-                        Severity = FindingSeverity.Warning,
-                        EvidenceRefs = ["evidence-1"],
+                        findingId = "finding-1",
+                        category = "Compliance",
+                        severity = "Warning",
+                        evidenceRefs = new[] { "evidence-1" },
                     },
-                ],
+                },
             },
         ];
     }
@@ -732,24 +732,28 @@ public sealed class ShipGateEvidenceRunnerTests
     {
         return
         [
-            new AgentResult
+            new
             {
-                ResultId = "result-compliance-1",
-                AgentType = AgentType.Compliance,
-                Findings =
-                [
-                    new ArchitectureFinding
+                resultId = "result-compliance-1",
+                runId = RunId,
+                taskId = "task-compliance-1",
+                agentType = "Compliance",
+                evidenceRefs = Array.Empty<string>(),
+                claims = Array.Empty<string>(),
+                findings = new[]
+                {
+                    new
                     {
-                        FindingId = "finding-1",
-                        Category = "Compliance",
-                        Severity = FindingSeverity.Warning,
+                        findingId = "finding-1",
+                        category = "Compliance",
+                        severity = "Warning",
                     },
-                ],
+                },
             },
         ];
     }
 
-    private static string BuildRunPayload(ArchitectureRunStatus status, string manifestVersion, object[] results)
+    private static string BuildRunPayload(string status, string manifestVersion, object[] results)
     {
         object payload = new
         {
@@ -757,11 +761,11 @@ public sealed class ShipGateEvidenceRunnerTests
             {
                 runId = RunId,
                 requestId = "22222222-2222-2222-2222-222222222222",
-                status = (int)status,
-                createdUtc = DateTime.UtcNow,
-                completedUtc = DateTime.UtcNow,
+                status,
+                createdUtc = DateTimeOffset.UtcNow,
+                completedUtc = DateTimeOffset.UtcNow,
                 currentManifestVersion = manifestVersion,
-                structuralExecutionMode = 1,
+                structuralExecutionMode = "Simulator",
             },
             tasks = Array.Empty<object>(),
             results,

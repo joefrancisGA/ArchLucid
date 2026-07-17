@@ -24,14 +24,23 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Get_settings_with_reader_jwt_succeeds()
     {
-        string token = factory.MintLocalBearerJwt("ReaderUser", [ArchLucidRoles.Reader]);
+        JwtLocalSigningIntegrationTestTenant.Scope testScope =
+            await JwtLocalSigningIntegrationTestTenant.SeedStandardTierScopeAsync(factory);
+
+        string token = JwtLocalSigningIntegrationTestTenant.MintBearerJwtForScope(
+            factory,
+            testScope,
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
+
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         HttpResponseMessage response = await client.GetAsync(
             new Uri($"/{ApiV1Routes.AzureBoardsIntegrations}/settings", UriKind.Relative));
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        string responseBody = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", responseBody);
 
         AzureBoardsOutboundSettingsResponse? body =
             await response.Content.ReadFromJsonAsync<AzureBoardsOutboundSettingsResponse>(JsonOptions);
@@ -43,7 +52,15 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Put_settings_with_reader_jwt_returns_forbidden()
     {
-        string token = factory.MintLocalBearerJwt("ReaderUser", [ArchLucidRoles.Reader]);
+        JwtLocalSigningIntegrationTestTenant.Scope testScope =
+            await JwtLocalSigningIntegrationTestTenant.SeedStandardTierScopeAsync(factory);
+
+        string token = JwtLocalSigningIntegrationTestTenant.MintBearerJwtForScope(
+            factory,
+            testScope,
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
+
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -63,7 +80,15 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
     [SkippableFact]
     public async Task Put_settings_with_admin_jwt_succeeds()
     {
-        string token = factory.MintLocalBearerJwt("AdminUser", [ArchLucidRoles.Admin]);
+        JwtLocalSigningIntegrationTestTenant.Scope testScope =
+            await JwtLocalSigningIntegrationTestTenant.SeedStandardTierScopeAsync(factory);
+
+        string token = JwtLocalSigningIntegrationTestTenant.MintBearerJwtForScope(
+            factory,
+            testScope,
+            "AdminUser",
+            [ArchLucidRoles.Admin]);
+
         HttpClient client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -78,7 +103,8 @@ public sealed class AzureBoardsIntegrationsControllerTests(JwtLocalSigningWebApp
             new Uri($"/{ApiV1Routes.AzureBoardsIntegrations}/settings", UriKind.Relative),
             body);
 
-        put.StatusCode.Should().Be(HttpStatusCode.OK);
+        string putBody = await put.Content.ReadAsStringAsync();
+        put.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", putBody);
 
         AzureBoardsOutboundSettingsResponse? saved =
             await put.Content.ReadFromJsonAsync<AzureBoardsOutboundSettingsResponse>(JsonOptions);

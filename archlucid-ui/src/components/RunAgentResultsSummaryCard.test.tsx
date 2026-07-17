@@ -12,7 +12,7 @@ describe("RunAgentResultsSummaryCard", () => {
             resultId: "result-1",
             taskId: "task-1",
             runId: "run-1",
-            agentType: 1,
+            agentType: "Topology",
             claims: ["Claim A"],
             evidenceRefs: ["evidence-1", "evidence-2"],
             findings: [{ findingId: "f-1" }],

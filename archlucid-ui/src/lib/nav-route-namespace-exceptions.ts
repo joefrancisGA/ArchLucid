@@ -41,4 +41,10 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     canonicalPrefixes: ["/governance"],
     exceptionReason: "Architecture advisory hub uses a top-level route; grouped under Enterprise governance until TB-408 canonical route consolidation.",
   },
+  {
+    navGroupId: "operate-governance",
+    href: "/signed-records",
+    canonicalPrefixes: ["/governance"],
+    exceptionReason: "Signed review records use a top-level route; grouped under Enterprise governance until TB-408.",
+  },
 ];

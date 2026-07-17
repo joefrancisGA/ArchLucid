@@ -7,7 +7,7 @@ vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
   return createCorePilotCommitContextModuleMock(importOriginal);
 });
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
@@ -76,7 +76,7 @@ describe("CorePilotNextStepsCard", () => {
       await expandNextStepsCardIfMinimized();
 
       expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(CREATE_ARCHITECTURE_LABEL);
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(START_REVIEW_LABEL);
     });
 
     it("shows Finalize checkpoint label in the step tracker", async () => {

@@ -82,15 +82,44 @@ See **[SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md)**.
 
 ## 7. **403 / empty scopes** despite good auth — tenant / RLS mismatch
 
-**Symptom:** Reads return empty sets or **`403 Forbidden`**.
+**Symptom:** Reads return empty sets or **`403 Forbidden`**. UI Overview may show **Request failed (403 Forbidden)** on Recent reviews.
 
-**Cause:** JWT claims omit tenant/workspace/project; **`SESSION_CONTEXT`** not propagated; stray scope headers.
+**Cause (JWT / RLS):** JWT claims omit tenant/workspace/project; **`SESSION_CONTEXT`** not propagated; stray scope headers.
 
-**Resolution:** Align **scope headers**/claims with seeded tenant GUIDs (`TenantId`/`WorkspaceId`/`ProjectId`); inspect **`IScopeContextProvider`** debug logs (**Debug** posture only).
+**Cause (ApiKey on Production-like hosts — TB-304):** Host admin key has **`Authentication:ApiKey:TenantId`** only (or none). Workspace/project resolve from defaults/headers and **`ScopeResolutionGuard`** rejects with: *Tenant, workspace, and project scope must be resolved from identity claims…*
 
-**Prevention:** Follow **[CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)** onboarding scripts.
+**Resolution:**
+
+- Align **scope headers**/claims with seeded tenant GUIDs; inspect **`IScopeContextProvider`** debug logs (**Debug** posture only).
+- For **ApiKey** Container Apps: set **all three** of `Authentication__ApiKey__TenantId`, `Authentication__ApiKey__WorkspaceId`, `Authentication__ApiKey__ProjectId` (Terraform **`api_key_*_id`** or `.\scripts\deploy\Set-ApiKeyScopeClaims.ps1`). See **[infra/terraform-container-apps/README.md](../../infra/terraform-container-apps/README.md)** § ApiKey scope claims.
+
+**Prevention:** Follow **[CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)** onboarding scripts; never deploy ApiKey with only TenantId on Production-like images.
 
 See **[MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)**.
+
+---
+
+## 7b. **Database Query Failed** — invalid column on `dbo.Tenants` (system catalog)
+
+**Symptom:** UI toast **Server error** / **Database Query Failed: The database rejected the query due to a programming error.** Correlation ID on routes gated by **`[RequiresCommercialTenantTier]`** (e.g. **`GET /v1/alerts`**).
+
+**Cause:** Control-plane SQL (`ArchLucid` / system catalog) is behind app DbUp — `DapperTenantRepository` selects columns such as **`OffboardedUtc`**, **`DataRegion`**, legal-hold / preseed fields that are missing (**SQL 207**).
+
+**Resolution:** Apply **system-plane DbUp** (or the matching `ALTER TABLE dbo.Tenants ADD …` blocks from **`ArchLucid_Unified_Schema.sql`** / migrations **172**, **196**, **222**, trial preseed columns). Confirm `SELECT` used by `QueryTenantByIdAsync` succeeds. For owner/dev tenants, ensure **`Tier`** is **`Free`/`Standard`/`Enterprise`** (not ad-hoc values like **`Dev`**) and that an **Active** trial is not blocking Standard commercial gates (`CommercialTenantEligibility`).
+
+**Prevention:** Do not skip system migrations when promoting API images; verify with **`ArchLucid.Persistence.MigrateVerify`** / sentinel manifests (**[SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md)**).
+
+---
+
+## 7c. **Database Query Failed** — ServiceNow / ITSM settings + health (wrong SQL catalog)
+
+**Symptom:** Opening **ServiceNow** (or Jira) under Integrations shows a server / **Database Query Failed** toast. Live probes: **`GET /v1/integrations/itsm/settings`** and **`GET /v1/integrations/itsm/health`** return **500**; **`GET /v1/integrations/itsm/connections/servicenow`** may still return **200**.
+
+**Cause:** `SqlTenantItsmOutboundSettingsRepository` queried the **primary/system** catalog via `IBackgroundWorkerSqlConnectionFactory` while `dbo.TenantItsmOutboundSettings` lives in the **tenant** catalog under `SystemWithPerTenantCatalogs` (**SQL 208** invalid object). Connections correctly use scoped `ISqlConnectionFactory`.
+
+**Resolution:** Use tenant-scoped `ISqlConnectionFactory` in that repository (**TB-867** / **PD-002**). Redeploy API after the fix. Confirm settings/health return **200** (empty overrides are fine).
+
+**Prevention:** Tenant-scoped tables must not inject `IBackgroundWorkerSqlConnectionFactory` (reserved for primary-catalog / no-session workers such as inbound webhook correlation). Regression: `SqlTenantItsmOutboundSettingsRepositoryConnectionFactoryContractTests`.
 
 ---
 

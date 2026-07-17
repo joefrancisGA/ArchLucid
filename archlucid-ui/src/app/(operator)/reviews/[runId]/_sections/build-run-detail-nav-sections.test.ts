@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
 import type { ManifestSummary } from "@/types/authority";
 
 import { buildRunDetailNavSections } from "./build-run-detail-nav-sections";
@@ -19,7 +20,7 @@ describe("buildRunDetailNavSections", () => {
     expect(sections.find((s) => s.id === "review-summary")?.label).toBe("Summary");
     expect(sections.find((s) => s.id === "manifest-summary")?.label).toBe("Policies and standards");
     expect(sections.find((s) => s.id === "manifest-summary")?.available).toBe(true);
-    expect(sections.find((s) => s.id === "review-package")?.label).toBe("Finalize & exports");
+    expect(sections.find((s) => s.id === "review-package")?.label).toBe(REVIEW_DETAIL_TAB_LABELS["review-package"]);
     expect(sections.find((s) => s.id === "submitted-architecture")?.label).toBe("Submitted architecture");
   });
 

@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:293 -->
+<!-- audit-core-const-count:304 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -220,6 +220,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Authority committed manifest FK chain (demo trusted-baseline seed) | `DemoSeedService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "demo-seed", projectSlug, richFindingsAndGraph, contextSnapshotId, graphSnapshotId, findingsSnapshotId, decisionTraceId, manifestId }` |
 | Authority committed manifest FK chain (replay commit) | `ReplayRunService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "replay-commit", projectSlug, richFindingsAndGraph: true, … }` — emitted only after `CommitAsync` succeeds. |
 | Billing checkout session (Noop / Stripe / Marketplace) | `BillingCheckoutController` | `BillingCheckoutInitiated`, `BillingCheckoutCompleted` | Tenant from ambient scope | `{ provider, tier, providerSessionId? }` |
+| Stripe Billing Portal session (self-serve) | `BillingCheckoutController` (`POST /v1/tenant/billing/portal`) | `BillingPortalInitiated`, `BillingPortalCompleted` | Tenant from ambient scope | `{ providerSessionId? }` — **no** portal URL or secret material |
 | Customer notification channel preferences upsert | `CustomerNotificationChannelPreferencesController` (`PUT …/customer-channel-preferences`) | `TenantNotificationChannelPreferencesUpdated` | Tenant + default workspace/project from scope | `{ email, teams, outboundWebhook }` booleans |
 | Tenant agent-output quality gate mode override | `SettingsController` (`PUT /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeUpdated` | Tenant + default workspace/project from scope | `{ effectiveMode }` (`WarnOnly` / `PilotStrict`) |
 | Tenant agent-output quality gate mode override cleared | `SettingsController` (`DELETE /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeOverrideCleared` | Tenant + default workspace/project from scope | `{ effectiveMode }` after revert to host default |
@@ -236,6 +237,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Jira OAuth consent flow started (Atlassian 3LO) | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/jira/oauth/consent/start`) | `TenantItsmConnectorConnectionUpserted` | Tenant + default workspace/project from scope | `{ provider, authMode, oauthConsentStarted }` — **no** OAuth state, PKCE verifier, or client secret material |
 | Jira OAuth consent flow completed (refresh token stored) | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/jira/oauth/consent/complete`) | `TenantItsmConnectorConnectionUpserted` | Tenant + default workspace/project from scope | `{ provider, authMode, oauthConsentCompleted, credentialKeyVaultSecretNameLength, hasOAuthClientIdSecretName, hasInboundWebhookSecretName, isEnabled }` — **no** refresh token or authorization code material |
 | Tenant ITSM outbound settings upsert | `TenantItsmOutboundSettingsController` (`PUT /v1/integrations/itsm/settings`) | `TenantItsmOutboundSettingsUpserted` | Tenant + default workspace/project from scope | override flags (project key, info severity send, issue-type map, ServiceNow CMDB auto-create) — **no** deployment credential material |
+| Azure Boards outbound settings upsert | `AzureBoardsIntegrationsController` (`PUT /v1/integrations/azure-boards/settings`) | `TenantAzureBoardsOutboundSettingsUpserted` | Tenant + default workspace/project from scope | project name, default work item type — **no** PAT or connection secret material |
+| Azure Boards connection test (no work item created) | `AzureBoardsIntegrationsController` (`POST /v1/integrations/azure-boards/test-connection`) | `IntegrationAzureBoardsConnectionTested` | Tenant + default workspace/project from scope | project / work item type probe summary — **no** secret material |
 | ITSM finding ↔ ticket correlation register / update / remove | `ItsmCorrelationController` (`POST …/integrations/itsm/correlations`, `PATCH …/integrations/itsm/correlations`, `DELETE …/integrations/itsm/correlations`) | `IntegrationItsmFindingCorrelationRegistered`, `IntegrationItsmFindingCorrelationUpdated`, `IntegrationItsmFindingCorrelationRemoved` | Tenant/Workspace/Project from ambient scope | finding id, provider, prior/new external key — **no** secrets or tokens |
 | ITSM outbound issue/incident create (Jira / ServiceNow) | `ItsmOutboundIssuesController` (`POST /v1/integrations/itsm/outbound/issues`) | `IntegrationJiraIssueCreateSucceeded`, `IntegrationJiraIssueCreateFailed`, `IntegrationJiraIssueCreateSkipped`, `IntegrationServiceNowIncidentCreateSucceeded`, `IntegrationServiceNowIncidentCreateFailed`, `IntegrationServiceNowIncidentCreateSkipped` | RunId / finding id when parseable | finding id, provider label, external key / skip reason — **no** secrets, tokens, or full external URLs with query strings |
 | ITSM outbound issue/incident create enqueued (async durable path) | `ItsmOutboundIssuesController` (`POST /v1/integrations/itsm/outbound/issues` when `DurableAsyncCreateEnabled`) | `IntegrationItsmOutboundCreateEnqueued` | Tenant/Workspace/Project from ambient scope | `{ jobId, findingId, provider }` — **no** secrets or tokens |
@@ -531,6 +534,11 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TrialArchitecturePreseedFailed` | `TrialArchitecturePreseedFailed` | `TrialArchitecturePreseedExecutor` |
 | `BillingCheckoutInitiated` | `BillingCheckoutInitiated` | `BillingCheckoutController` |
 | `BillingCheckoutCompleted` | `BillingCheckoutCompleted` | `BillingCheckoutController` |
+| `BillingPortalInitiated` | `BillingPortalInitiated` | `BillingCheckoutController` (Billing Portal session create start) |
+| `BillingPortalCompleted` | `BillingPortalCompleted` | `BillingCheckoutController` (Billing Portal session created) |
+| `BillingSubscriptionSuspended` | `BillingSubscriptionSuspended` | `StripeBillingSubscriptionWebhookProcessor` (dunning / payment failure) |
+| `BillingSubscriptionReinstated` | `BillingSubscriptionReinstated` | `StripeBillingSubscriptionWebhookProcessor` (return to Active) |
+| `BillingSubscriptionCanceled` | `BillingSubscriptionCanceled` | `StripeBillingSubscriptionWebhookProcessor` (canceled / deleted) |
 | `TenantNotificationChannelPreferencesUpdated` | `TenantNotificationChannelPreferencesUpdated` | `CustomerNotificationChannelPreferencesController` |
 | `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
@@ -601,6 +609,11 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantItsmConnectorConnectionUpserted` | `TenantItsmConnectorConnectionUpserted` | `TenantItsmConnectorConnectionsController` (`POST /v1/integrations/itsm/connections/{provider}`; `POST /v1/integrations/itsm/connections/jira/oauth/consent/start`; `POST /v1/integrations/itsm/connections/jira/oauth/consent/complete`) |
 | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionRemoved` | `TenantItsmConnectorConnectionsController` (`DELETE /v1/integrations/itsm/connections/{provider}`) |
 | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsUpserted` | `TenantItsmOutboundSettingsController` (`PUT /v1/integrations/itsm/settings`) |
+| `TenantAzureBoardsOutboundSettingsUpserted` | `TenantAzureBoardsOutboundSettingsUpserted` | `AzureBoardsIntegrationsController` (outbound settings upsert) |
+| `IntegrationAzureBoardsConnectionTested` | `Integration.AzureBoardsConnectionTested` | `AzureBoardsIntegrationsController` (connection test; no work item created) |
+| `IntegrationAzureBoardsWorkItemCreateSucceeded` | `Integration.AzureBoardsWorkItemCreateSucceeded` | `AzureBoardsExternalTicketConnector` / ITSM outbound create path |
+| `IntegrationAzureBoardsWorkItemCreateFailed` | `Integration.AzureBoardsWorkItemCreateFailed` | same |
+| `IntegrationAzureBoardsWorkItemCreateSkipped` | `Integration.AzureBoardsWorkItemCreateSkipped` | same |
 | `IntegrationItsmFindingCorrelationRegistered` | `Integration.ItsmFindingCorrelationRegistered` | `ItsmCorrelationController` (`POST …/integrations/itsm/correlations`) |
 | `IntegrationItsmFindingCorrelationUpdated` | `Integration.ItsmFindingCorrelationUpdated` | `ItsmCorrelationController` (`PATCH …/integrations/itsm/correlations`) |
 | `IntegrationItsmFindingCorrelationRemoved` | `Integration.ItsmFindingCorrelationRemoved` | `ItsmCorrelationController` (`DELETE …/integrations/itsm/correlations`) |

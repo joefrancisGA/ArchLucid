@@ -11,7 +11,7 @@ describe("buildPlainLanguageQualityBlockSummary", () => {
     const rows: AgentQualityConcernRow[] = [
       {
         traceId: "t1",
-        agentType: 1,
+        agentType: "Topology",
         agentLabel: "Topology",
         status: "warned",
         structuralCompletenessRatio: 0.8,
@@ -28,7 +28,7 @@ describe("buildPlainLanguageQualityBlockSummary", () => {
       scores: [
         {
           traceId: "t1",
-          agentType: 4,
+          agentType: "Critic",
           structuralCompletenessRatio: 0.5,
           qualityWarning: true,
           semantic: { overallSemanticScore: 0.4 },

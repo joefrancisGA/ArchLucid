@@ -41,9 +41,9 @@ export function SponsorArtifactEvidenceBadge(props: SponsorArtifactEvidenceBadge
 
   return (
     <span className="inline-flex flex-wrap items-center gap-2" data-testid="sponsor-artifact-evidence-badges">
-      {trustPostures.map((trust) => (
+      {trustPostures.map((trust, index) => (
         <span
-          key={trust.posture}
+          key={`${trust.posture}-${index}`}
           data-testid={`sponsor-trust-posture-${trust.posture}`}
           title={trust.detail}
           className={cn(

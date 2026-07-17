@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -12,7 +13,9 @@ internal static class CliCommandShared
 
     internal static readonly JsonSerializerOptions JsonDeserializeAgentResult = new()
     {
-        PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter() },
     };
 
     internal static ArchLucidProjectScaffolder.ArchLucidCliConfig? TryLoadConfigFromCwd()

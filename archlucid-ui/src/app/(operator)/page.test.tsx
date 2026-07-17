@@ -7,18 +7,14 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 const listRunsByProjectPaged = vi.fn();
 const getPilotScorecard = vi.fn();
 
-vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
+vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
   usePathname: () => "",
   useSearchParams: () => new URLSearchParams(),
   redirect: vi.fn(),
-    permanentRedirect: vi.fn(),
-    notFound: vi.fn(),
-  };
-});
+  permanentRedirect: vi.fn(),
+  notFound: vi.fn(),
+}));
 
 vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
@@ -64,14 +60,9 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
-vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/operator-static-demo")>();
-
-  return {
-    ...actual,
-    tryStaticDemoRunSummariesPaged: vi.fn(() => null),
-  };
-});
+vi.mock("@/lib/operator-static-demo", () => ({
+  tryStaticDemoRunSummariesPaged: vi.fn(() => null),
+}));
 
 vi.mock("@/components/cto-demo/CtoDemoResetButton", () => ({
   CtoDemoResetButton: () => (
@@ -89,10 +80,142 @@ vi.mock("@/components/cto-demo/CtoDemoExecutiveLandingRedirect", () => ({
   CtoDemoExecutiveLandingRedirect: () => null,
 }));
 
+vi.mock("@/components/operator-home/OperatorHomeExecutiveRoiStrip", () => ({
+  OperatorHomeExecutiveRoiStrip: () => null,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeWorkspaceContextDisclosure", () => ({
+  OperatorHomeWorkspaceContextDisclosure: () => null,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
+  OperatorHomeDeferredOnboarding: () => null,
+  OperatorHomeFirstValueCallout: () => null,
+}));
+
+vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
+  DevTestingQuickSwitchPanel: () => null,
+}));
+
+vi.mock("@/components/usability/PilotCommandCenterCard", async () => {
+  const Link = (await import("next/link")).default;
+  const { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } = await import("@/lib/architecture-workflow-labels");
+  const { OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA } = await import("@/lib/buyer-polish-copy");
+
+  return {
+    PilotCommandCenterCard: () => (
+      <div data-testid="pilot-command-center-card">
+        <div data-testid="operator-home-dual-path-cards">
+          <button type="button">{CREATE_ARCHITECTURE_LABEL}</button>
+          <button type="button">{START_REVIEW_LABEL}</button>
+          <Link href="/reviews/claims-intake-modernization">{OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}</Link>
+        </div>
+      </div>
+    ),
+  };
+});
+
+vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", async () => {
+  const Link = (await import("next/link")).default;
+  const { OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA } = await import("@/lib/buyer-polish-copy");
+
+  return {
+    OperatorHomeExamplesPlacement: ({
+      afterWorkspaceContext,
+    }: {
+      afterWorkspaceContext?: import("react").ReactNode;
+    }) => (
+      <>
+        <section data-testid="operator-home-explore-sample-section">
+          <Link
+            data-testid="operator-home-explore-run-sample-review"
+            href="/reviews/new?template=claims-intake-modernization"
+          >
+            {OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA}
+          </Link>
+        </section>
+        {afterWorkspaceContext}
+      </>
+    ),
+  };
+});
+
+vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", async () => {
+  const Link = (await import("next/link")).default;
+
+  return {
+    OperatorHomeRunsPanel: ({
+      initialModel,
+    }: {
+      initialModel?: { items?: ReadonlyArray<unknown> } | null;
+    }) => (
+      <div data-testid="runs-dashboard-panel">
+        {(initialModel?.items?.length ?? 0) > 0 ? (
+          <Link href="/reviews?projectId=default">Open all reviews</Link>
+        ) : null}
+      </div>
+    ),
+  };
+});
+
 const useFeaturedCompletedSampleQuery = vi.fn();
 
 vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
   useFeaturedCompletedSampleQuery: () => useFeaturedCompletedSampleQuery(),
+}));
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
+  useFinishSetupReadinessContext: () => ({
+    phase: "ready",
+    context: {
+      healthReady: true,
+      healthLoadFailed: false,
+      principalAdmin: true,
+    },
+    readyCount: 4,
+    totalCount: 4,
+  }),
+}));
+
+vi.mock("@/hooks/use-review-intake-navigation", () => ({
+  useReviewIntakeNavigation: () => ({
+    navigate: vi.fn(),
+    reset: vi.fn(),
+    isNavigating: false,
+    isPending: false,
+    activeStageId: null,
+    showStagedPanel: false,
+    stages: [],
+    loadingLabel: "Starting review…",
+    error: null,
+  }),
+}));
+
+vi.mock("@/hooks/use-create-architecture-navigation", () => ({
+  useCreateArchitectureNavigation: () => ({
+    navigate: vi.fn(),
+    reset: vi.fn(),
+    isNavigating: false,
+    loadingLabel: "Starting architecture…",
+    error: null,
+  }),
+}));
+
+vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
+  useCorePilotCommitContextQuery: () => ({
+    isPending: false,
+    isError: false,
+    data: {
+      hasCommittedManifest: false,
+      committedReviewCount: 0,
+      latestRunId: null,
+      firstCommittedRunId: null,
+    },
+  }),
 }));
 
 vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
@@ -102,9 +225,30 @@ vi.mock("./_sections/load-operator-home-runs-dashboard-model", () => ({
 import HomePage from "./page";
 import { loadOperatorHomeRunsDashboardModel } from "./_sections/load-operator-home-runs-dashboard-model";
 import type { OperatorHomeRunsDashboardModel } from "./_sections/operator-home-runs-dashboard-model";
+import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import {
+  OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+  OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
+} from "@/lib/buyer-polish-copy";
 import type { RunSummary } from "@/types/authority";
 
 const mockLoadOperatorHomeRunsDashboardModel = vi.mocked(loadOperatorHomeRunsDashboardModel);
+
+function featuredCompletedSampleAvailable() {
+  return {
+    isPending: false,
+    isError: false,
+    data: {
+      selectedRunId: "claims-intake-modernization",
+      isConfigured: true,
+      isAvailable: true,
+      reviewTitle: "Claims intake modernization",
+      architectureName: "Claims intake modernization",
+      completedUtc: "2026-01-01T00:00:00.000Z",
+      isSampleApproved: true,
+    },
+  };
+}
 
 function defaultRunsDashboard(buyerPolishedShell = false): OperatorHomeRunsDashboardModel {
   return {
@@ -242,9 +386,9 @@ describe("HomePage (55R smoke — landing)", () => {
       "href",
       "/reviews/new?template=claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Run guided review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-explore-open-completed-sample")).toBeNull();
-    expect(screen.getByRole("link", { name: "Open review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });
@@ -256,9 +400,9 @@ describe("HomePage (55R smoke — landing)", () => {
   it("exposes create and review CTAs from the dual-path hero", async () => {
     await renderHomePage();
 
-    expect(screen.getByRole("button", { name: "Create architecture" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Start review" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Run guided review" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: START_REVIEW_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
   });
 
   it("exposes primary workflow destinations matching shell review paths", async () => {

@@ -49,6 +49,24 @@ Set under **Settings → Secrets and variables → Actions → Variables** (or p
 | `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` | `10` | Wait between probe attempts |
 | `CD_MAINTENANCE_WINDOW_OVERRIDE` | unset (`false`) | Set `true` for break-glass dev deploy outside 22:00 ET |
 
+## Optional per-environment expected-target variables (recommended for production)
+
+CD runs **Azure deployment-target preflight** after OIDC login. Prefer setting these as **Environment variables** so expected targets are explicit and distinct from the login client id:
+
+| Variable | Compared against |
+|----------|------------------|
+| `EXPECTED_AZURE_TENANT_ID` | Live `az account show.tenantId` (fallback: secret `AZURE_TENANT_ID`) |
+| `EXPECTED_AZURE_SUBSCRIPTION_ID` | Live subscription id (fallback: secret `AZURE_SUBSCRIPTION_ID`) |
+| `EXPECTED_AZURE_RESOURCE_GROUP` | Live resource group (fallback: secret `AZURE_RESOURCE_GROUP`) |
+| `EXPECTED_AZURE_LOCATION` | Optional RG location |
+| `EXPECTED_ACR_LOGIN_SERVER` | Live ACR login server (fallback: secret `ACR_LOGIN_SERVER`) |
+| `EXPECTED_CONTAINER_APP_API_NAME` | API Container App (fallback: secret) |
+| `EXPECTED_CONTAINER_APP_WORKER_NAME` | Optional worker app |
+| `EXPECTED_CONTAINER_APP_UI_NAME` | Optional UI app |
+| `EXPECTED_CONTAINER_APP_ENVIRONMENT_NAME` | Optional managed environment name from API app |
+
+Mismatch **fails the job before** ACR push / Terraform apply / `az containerapp update`.
+
 ## Dev maintenance window (22:00–23:00 America/New_York)
 
 - **Scheduled deploy:** `cd.yml` runs at **22:00** `America/New_York` daily (`target=dev`, `action=deploy`).

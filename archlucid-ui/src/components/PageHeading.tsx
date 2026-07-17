@@ -57,9 +57,12 @@ export function PageHeading({
     Icon !== undefined ? (
       variant === "integration" ? (
         <div className={PAGE_HEADING_TILE_CLASS} data-testid="page-heading-icon-tile" aria-hidden>
+          {/* Icon comes from nav-config resolution — not a locally declared component. */}
+          {/* eslint-disable-next-line react-hooks/static-components -- Lucide icon resolved from navHref */}
           <Icon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" />
         </div>
       ) : (
+        // eslint-disable-next-line react-hooks/static-components -- Lucide icon resolved from navHref
         <Icon className={PAGE_HEADING_ICON_CLASS} data-testid="page-heading-icon" aria-hidden />
       )
     ) : null;

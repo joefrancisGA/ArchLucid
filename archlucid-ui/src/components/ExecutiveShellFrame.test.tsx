@@ -37,7 +37,7 @@ describe("ExecutiveShellFrame", () => {
       </ExecutiveShellFrame>,
     );
 
-    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/executive/dashboard");
     expect(screen.getByTestId("executive-shell-nav-scorecard")).toHaveAttribute("href", "/executive/scorecard");
   });
 

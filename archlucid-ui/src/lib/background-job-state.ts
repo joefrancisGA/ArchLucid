@@ -1,7 +1,7 @@
-/** Mirrors `ArchLucid.Application.Jobs.BackgroundJobState` numeric OpenAPI values. */
+/** Mirrors OpenAPI `BackgroundJobState` string enum values. */
 export const BACKGROUND_JOB_STATE = {
-  Pending: 0,
-  Running: 1,
-  Succeeded: 2,
-  Failed: 3,
+  Pending: "Pending",
+  Running: "Running",
+  Succeeded: "Succeeded",
+  Failed: "Failed",
 } as const;

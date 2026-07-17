@@ -272,9 +272,15 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | Authentication | `Authentication:ApiKey:ReadOnlyKey` | env, KeyVault, user secrets | null in template | Optional (If enabled (see at least one key rule)) | Api, Combined | Read-tier API key when `Enabled` (secret). |
 | Billing | `Billing:Provider` | appsettings, env | Stripe | Optional (not mode-gated) | All (Api, Worker, Combined) | Billing integrator: Stripe, marketplace, etc. |
 | Billing | `Billing:Stripe:SecretKey` | env, KeyVault | empty | Required — Production billing | All (Api, Worker, Combined) | Stripe live/test secret; required for paid flows in production. |
-| Billing | `Billing:Stripe:WebhookSigningSecret` | env, KeyVault | empty | Required — Production | All (Api, Worker, Combined) | Validates `Stripe-Signature` on the webhook path. |
+| Billing | `Billing:Stripe:CheckoutSecretKey` | env, KeyVault | empty | Required — When Stripe checkout enabled | All (Api, Worker, Combined) | Stripe Checkout session secret (or falls back to `Billing:Stripe:SecretKey`). |
+| Billing | `Billing:Stripe:WebhookSigningSecret` | env, KeyVault | empty | Required — Production | All (Api, Worker, Combined) | Validates `Stripe-Signature` on the wallet webhook path. |
+| Billing | `Billing:Stripe:SubscriptionWebhookSigningSecret` | env, KeyVault | empty | Required — When subscription billing on | All (Api, Worker, Combined) | Validates `Stripe-Signature` on subscription webhooks. |
+| Billing | `Billing:Stripe:WalletWebhookSigningSecret` | env, KeyVault | empty | Required — When wallet webhooks on | All (Api, Worker, Combined) | Validates `Stripe-Signature` on wallet webhooks. |
 | Billing | `Billing:Stripe:PublishableKey` | appsettings, env, KeyVault | empty | Optional (When checkout UI in app) | All (Api, Worker, Combined) | Publishable key (non-secret but still not echoed by CLI in raw form here). |
 | Billing | `Billing:Stripe:PriceIdTeam` | appsettings, env | empty | Optional (When using Stripe) | All (Api, Worker, Combined) | Default price for Team SKU. |
+| Billing | `Billing:Stripe:PriceIdArchitect` | appsettings, env | empty | Optional (When using Stripe) | All (Api, Worker, Combined) | Default price for Architect SKU. |
+| Billing | `Billing:Stripe:PriceIdPro` | appsettings, env | empty | Optional (When using Stripe) | All (Api, Worker, Combined) | Default price for Pro SKU. |
+| Billing | `Billing:Stripe:PriceIdEnterprise` | appsettings, env | empty | Optional (When using Stripe) | All (Api, Worker, Combined) | Default price for Enterprise SKU. |
 | Billing | `Billing:AzureMarketplace:LandingPageUrl` | appsettings, env | empty | Required — When marketplace GA in prod | All (Api, Worker, Combined) | Azure marketplace landing (production checks when GA). |
 | Billing | `Billing:AzureMarketplace:MarketplaceOfferId` | appsettings, env | empty | Required — When marketplace GA in prod | All (Api, Worker, Combined) | Commercial marketplace offer id. |
 | LlmPromptRedaction | `LlmPromptRedaction:Enabled` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Redact prompts in logging/traces. |
