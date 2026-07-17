@@ -8923,6 +8923,12 @@
       },
       "EmailOtpChallengeRequest": {
         "properties": {
+          "botChallengeToken": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "email": {
             "type": [
               "null",
@@ -8945,6 +8951,12 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "emailDeliverySucceeded": {
+            "type": [
+              "null",
+              "boolean"
             ]
           },
           "message": {

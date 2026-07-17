@@ -120790,6 +120790,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class EmailOtpChallengeRequest
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("botChallengeToken")]
+        public string? BotChallengeToken { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("email")]
         public string? Email { get; set; } = default!;
 
@@ -120813,6 +120816,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("challengeId")]
         public System.Guid? ChallengeId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("emailDeliverySucceeded")]
+        public bool? EmailDeliverySucceeded { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("message")]
         public string? Message { get; set; } = default!;
