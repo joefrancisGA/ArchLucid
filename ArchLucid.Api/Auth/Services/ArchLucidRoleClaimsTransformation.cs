@@ -102,6 +102,7 @@ public sealed class ArchLucidRoleClaimsTransformation(
         {
             AddPermission(ArchLucidPlatformPermissionClaims.TenantDelete);
             AddPermission(ArchLucidPlatformPermissionClaims.CrossTenantRead);
+            AddPermission(ArchLucidPlatformPermissionClaims.IdentityRecovery);
             mappedARole = true;
         }
         else if (roles.Contains(ArchLucidRoles.Admin))

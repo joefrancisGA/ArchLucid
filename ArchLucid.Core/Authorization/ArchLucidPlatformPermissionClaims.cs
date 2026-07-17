@@ -11,4 +11,7 @@ public static class ArchLucidPlatformPermissionClaims
 
     /// <summary>Fleet-wide aggregates and internal cross-tenant analytics (<see cref="ArchLucidPolicies.PlatformCrossTenantReadAuthority" />).</summary>
     public const string CrossTenantRead = "platform:cross-tenant-read";
+
+    /// <summary>Time-limited tenant SSO recovery grants (<see cref="ArchLucidPolicies.PlatformIdentityRecoveryAuthority" />).</summary>
+    public const string IdentityRecovery = "platform:identity-recovery";
 }

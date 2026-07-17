@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Connections;
 
@@ -93,6 +94,34 @@ public sealed class DapperWorkspaceMembershipRepository(ISqlConnectionFactory co
                     UpdatedUtc = updatedUtc.UtcDateTime
                 },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task<int> CountActivePrivilegedMembersByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           SELECT COUNT(DISTINCT UserId)
+                           FROM dbo.WorkspaceMemberships
+                           WHERE TenantId = @TenantId
+                             AND Status = 'Active'
+                             AND Role IN (@WorkspaceAdmin, @Admin);
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int count = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceAdmin = ArchLucidRoles.WorkspaceAdmin,
+                    Admin = ArchLucidRoles.Admin
+                },
+                cancellationToken: cancellationToken));
+
+        return count;
     }
 
     private sealed class WorkspaceMembershipRow

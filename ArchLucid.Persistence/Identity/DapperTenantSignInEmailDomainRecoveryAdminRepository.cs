@@ -27,7 +27,8 @@ public sealed class DapperTenantSignInEmailDomainRecoveryAdminRepository(ISqlCon
                                   NormalizedRecoveryAdminEmail,
                                   DisplayRecoveryAdminEmail,
                                   CreatedUtc,
-                                  CreatedByActorId
+                                  CreatedByActorId,
+                                  AuthenticationVerifiedUtc
                            FROM dbo.TenantSignInEmailDomainRecoveryAdmins
                            WHERE TenantId = @TenantId
                              AND NormalizedDomain = @NormalizedDomain
@@ -128,6 +129,36 @@ public sealed class DapperTenantSignInEmailDomainRecoveryAdminRepository(ISqlCon
                     TenantId = tenantId,
                     NormalizedDomain = normalizedDomain,
                     NormalizedRecoveryAdminEmail = normalizedRecoveryAdminEmail
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task MarkAuthenticationVerifiedAsync(
+        Guid tenantId,
+        string normalizedDomain,
+        string normalizedRecoveryAdminEmail,
+        DateTimeOffset verifiedUtc,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE dbo.TenantSignInEmailDomainRecoveryAdmins
+                           SET AuthenticationVerifiedUtc = @AuthenticationVerifiedUtc
+                           WHERE TenantId = @TenantId
+                             AND NormalizedDomain = @NormalizedDomain
+                             AND NormalizedRecoveryAdminEmail = @NormalizedRecoveryAdminEmail;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    NormalizedDomain = normalizedDomain,
+                    NormalizedRecoveryAdminEmail = normalizedRecoveryAdminEmail,
+                    AuthenticationVerifiedUtc = verifiedUtc.UtcDateTime
                 },
                 cancellationToken: cancellationToken));
     }

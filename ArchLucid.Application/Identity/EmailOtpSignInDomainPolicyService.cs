@@ -21,6 +21,12 @@ public sealed class EmailOtpSignInDomainEvaluation
         get;
         init;
     } = string.Empty;
+
+    public AuthSignInRoutingBypassKind BypassKind
+    {
+        get;
+        init;
+    }
 }
 
 public interface IEmailOtpSignInDomainPolicyService
@@ -61,7 +67,8 @@ public sealed class EmailOtpSignInDomainPolicyService(IAuthSignInRoutingService 
 
         return new EmailOtpSignInDomainEvaluation
         {
-            Decision = EmailOtpSignInDomainDecision.AllowEmailOtp
+            Decision = EmailOtpSignInDomainDecision.AllowEmailOtp,
+            BypassKind = evaluation.BypassKind
         };
     }
 }

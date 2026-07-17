@@ -152,7 +152,8 @@ public sealed class UserInvitationFlowServiceTests
                 new InMemoryTenantSignInEmailDomainRepository(),
                 new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
                 new InMemoryTenantIdentityProviderConfigurationRepository(),
-                invitations,
-                TimeProvider.System),
+                    invitations,
+                    new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
+                    TimeProvider.System),
             TimeProvider.System);
 }

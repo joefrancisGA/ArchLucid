@@ -101,6 +101,41 @@ public sealed class DapperPlatformUserRepository(ISqlConnectionFactory connectio
         }
     }
 
+    public async Task UpdatePrimaryEmailAsync(
+        Guid userId,
+        string primaryEmail,
+        string normalizedPrimaryEmail,
+        DateTimeOffset updatedUtc,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE dbo.PlatformUsers
+                           SET PrimaryEmail = @PrimaryEmail,
+                               NormalizedPrimaryEmail = @NormalizedPrimaryEmail,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE Id = @Id;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Id = userId,
+                    PrimaryEmail = primaryEmail,
+                    NormalizedPrimaryEmail = normalizedPrimaryEmail,
+                    UpdatedUtc = updatedUtc.UtcDateTime
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected == 0)
+        {
+            throw new PlatformUserNotFoundException(userId);
+        }
+    }
+
     private sealed class PlatformUserRow
     {
         public Guid Id

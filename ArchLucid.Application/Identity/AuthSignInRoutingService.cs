@@ -32,6 +32,12 @@ public sealed class AuthSignInRoutingEvaluation
         get;
         init;
     }
+
+    public AuthSignInRoutingBypassKind BypassKind
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class AuthSignInRoutingRequest
@@ -73,6 +79,7 @@ public sealed class AuthSignInRoutingService(
     ITenantSignInEmailDomainRecoveryAdminRepository recoveryAdmins,
     ITenantIdentityProviderConfigurationRepository identityProviders,
     IUserInvitationRepository invitations,
+    IPlatformTenantAuthRecoveryGrantRepository platformRecoveryGrants,
     TimeProvider timeProvider) : IAuthSignInRoutingService
 {
     private const string SsoRequiredMessage =
@@ -89,6 +96,9 @@ public sealed class AuthSignInRoutingService(
 
     private readonly IUserInvitationRepository _invitations =
         invitations ?? throw new ArgumentNullException(nameof(invitations));
+
+    private readonly IPlatformTenantAuthRecoveryGrantRepository _platformRecoveryGrants =
+        platformRecoveryGrants ?? throw new ArgumentNullException(nameof(platformRecoveryGrants));
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -115,9 +125,18 @@ public sealed class AuthSignInRoutingService(
             return Allow(safeReturnPath);
         }
 
-        if (await HasRecoveryBypassAsync(request, policy, cancellationToken).ConfigureAwait(false))
+        AuthSignInRoutingBypassKind bypassKind =
+            await ResolveBypassKindAsync(request, policy, cancellationToken).ConfigureAwait(false);
+
+        if (bypassKind != AuthSignInRoutingBypassKind.None)
         {
-            return Allow(safeReturnPath);
+            return Allow(safeReturnPath, bypassKind);
+        }
+
+        if (await HasActivePlatformRecoveryGrantAsync(policy.TenantId, policy.NormalizedDomain, cancellationToken)
+                .ConfigureAwait(false))
+        {
+            return Allow(safeReturnPath, AuthSignInRoutingBypassKind.PlatformGrant);
         }
 
         TenantIdentityProviderConfigurationRecord? idp =
@@ -158,9 +177,18 @@ public sealed class AuthSignInRoutingService(
             return Allow(safeReturnPath);
         }
 
-        if (await HasRecoveryBypassAsync(request, policy, cancellationToken).ConfigureAwait(false))
+        AuthSignInRoutingBypassKind bypassKind =
+            await ResolveBypassKindAsync(request, policy, cancellationToken).ConfigureAwait(false);
+
+        if (bypassKind != AuthSignInRoutingBypassKind.None)
         {
-            return Allow(safeReturnPath);
+            return Allow(safeReturnPath, bypassKind);
+        }
+
+        if (await HasActivePlatformRecoveryGrantAsync(policy.TenantId, policy.NormalizedDomain, cancellationToken)
+                .ConfigureAwait(false))
+        {
+            return Allow(safeReturnPath, AuthSignInRoutingBypassKind.PlatformGrant);
         }
 
         TenantIdentityProviderConfigurationRecord? idp =
@@ -179,7 +207,7 @@ public sealed class AuthSignInRoutingService(
         };
     }
 
-    private async Task<bool> HasRecoveryBypassAsync(
+    private async Task<AuthSignInRoutingBypassKind> ResolveBypassKindAsync(
         AuthSignInRoutingRequest request,
         TenantSignInEmailDomainRecord policy,
         CancellationToken cancellationToken)
@@ -191,22 +219,37 @@ public sealed class AuthSignInRoutingService(
                     cancellationToken)
                 .ConfigureAwait(false))
         {
-            return true;
+            return AuthSignInRoutingBypassKind.Invitation;
         }
 
         if (policy.EnforcementMode != AuthDomainEnforcementMode.SsoRequiredWithRecoveryException
             || !policy.AllowEmailOtpRecovery)
         {
-            return false;
+            return AuthSignInRoutingBypassKind.None;
         }
 
-        return await _recoveryAdmins
+        bool isRecoveryAdmin = await _recoveryAdmins
             .IsRecoveryAdminAsync(
                 policy.TenantId,
                 policy.NormalizedDomain,
                 request.NormalizedEmail,
                 cancellationToken)
             .ConfigureAwait(false);
+
+        return isRecoveryAdmin ? AuthSignInRoutingBypassKind.RecoveryAdmin : AuthSignInRoutingBypassKind.None;
+    }
+
+    private async Task<bool> HasActivePlatformRecoveryGrantAsync(
+        Guid tenantId,
+        string normalizedDomain,
+        CancellationToken cancellationToken)
+    {
+        PlatformTenantAuthRecoveryGrantRecord? grant =
+            await _platformRecoveryGrants
+                .GetActiveByTenantAndDomainAsync(tenantId, normalizedDomain, _timeProvider.GetUtcNow(), cancellationToken)
+                .ConfigureAwait(false);
+
+        return grant is not null;
     }
 
     private async Task<bool> HasValidInvitationRecoveryAsync(
@@ -237,11 +280,14 @@ public sealed class AuthSignInRoutingService(
         return pending is not null && pending.ExpiresUtc > _timeProvider.GetUtcNow();
     }
 
-    private static AuthSignInRoutingEvaluation Allow(string? safeReturnPath) =>
+    private static AuthSignInRoutingEvaluation Allow(
+        string? safeReturnPath,
+        AuthSignInRoutingBypassKind bypassKind = AuthSignInRoutingBypassKind.None) =>
         new()
         {
             Decision = AuthSignInRoutingDecision.AllowEmailCode,
-            SafeReturnPath = safeReturnPath
+            SafeReturnPath = safeReturnPath,
+            BypassKind = bypassKind
         };
 
     private static string? ExtractDomain(string normalizedEmail)

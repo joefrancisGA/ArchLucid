@@ -1342,6 +1342,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Internal/PlatformIdentityRecoveryController.cs",
+      "class_name": "PlatformIdentityRecoveryController",
+      "route_template": "v{version:apiVersion}/internal/identity/recovery",
+      "normalized_prefix": "/v1/internal/identity/recovery",
+      "commercial_tier": "none",
+      "class_policy": "PlatformIdentityRecoveryAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Marketing/EnterpriseComparisonMarketingController.cs",
       "class_name": "EnterpriseComparisonMarketingController",
       "route_template": "v{version:apiVersion}/marketing",

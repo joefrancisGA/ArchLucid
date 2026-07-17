@@ -337,6 +337,7 @@ public sealed class PostAuthBootstrapServiceTests
                     new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
                     new InMemoryTenantIdentityProviderConfigurationRepository(),
                     invitations,
+                    new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
                     TimeProvider.System),
                 TimeProvider.System),
             tenants,

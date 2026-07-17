@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
 
 namespace ArchLucid.Persistence.Identity;
@@ -75,5 +76,23 @@ public sealed class InMemoryWorkspaceMembershipRepository : IWorkspaceMembership
         _byKey[key] = created;
 
         return Task.CompletedTask;
+    }
+
+    public Task<int> CountActivePrivilegedMembersByTenantAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        HashSet<Guid> privilegedUsers = _byKey.Values
+            .Where(row =>
+                row.TenantId == tenantId
+                && row.Status == WorkspaceMembershipStatus.Active
+                && (string.Equals(row.Role, ArchLucidRoles.WorkspaceAdmin, StringComparison.Ordinal)
+                    || string.Equals(row.Role, ArchLucidRoles.Admin, StringComparison.Ordinal)))
+            .Select(row => row.UserId)
+            .ToHashSet();
+
+        int count = privilegedUsers.Count;
+
+        return Task.FromResult(count);
     }
 }

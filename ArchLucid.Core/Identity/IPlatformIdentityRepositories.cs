@@ -7,6 +7,13 @@ public interface IPlatformUserRepository
     Task<PlatformUserRecord> InsertAsync(PlatformUserInsert insert, CancellationToken cancellationToken);
 
     Task UpdateStatusAsync(Guid userId, PlatformUserStatus status, DateTimeOffset updatedUtc, CancellationToken cancellationToken);
+
+    Task UpdatePrimaryEmailAsync(
+        Guid userId,
+        string primaryEmail,
+        string normalizedPrimaryEmail,
+        DateTimeOffset updatedUtc,
+        CancellationToken cancellationToken);
 }
 
 public interface IAuthenticationIdentityRepository
@@ -47,6 +54,8 @@ public interface IWorkspaceMembershipRepository
         CancellationToken cancellationToken);
 
     Task UpsertAsync(WorkspaceMembershipInsert insert, DateTimeOffset updatedUtc, CancellationToken cancellationToken);
+
+    Task<int> CountActivePrivilegedMembersByTenantAsync(Guid tenantId, CancellationToken cancellationToken);
 }
 
 public interface IIdentityMigrationReviewRepository

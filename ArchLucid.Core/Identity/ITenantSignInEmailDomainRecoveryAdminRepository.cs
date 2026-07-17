@@ -20,4 +20,11 @@ public interface ITenantSignInEmailDomainRecoveryAdminRepository
         string normalizedDomain,
         string normalizedRecoveryAdminEmail,
         CancellationToken cancellationToken);
+
+    Task MarkAuthenticationVerifiedAsync(
+        Guid tenantId,
+        string normalizedDomain,
+        string normalizedRecoveryAdminEmail,
+        DateTimeOffset verifiedUtc,
+        CancellationToken cancellationToken);
 }

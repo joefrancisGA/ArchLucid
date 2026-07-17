@@ -25,6 +25,7 @@ public sealed class AuthSignInRoutingServiceTests
             recoveryAdmins,
             idpConfigs,
             invitations,
+            new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
             TimeProvider.System);
     }
 

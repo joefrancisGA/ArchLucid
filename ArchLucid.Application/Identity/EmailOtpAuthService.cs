@@ -251,6 +251,21 @@ public sealed class EmailOtpAuthService(
             };
         }
 
+        if (domainEvaluation.BypassKind == AuthSignInRoutingBypassKind.RecoveryAdmin
+            || domainEvaluation.BypassKind == AuthSignInRoutingBypassKind.PlatformGrant)
+        {
+            await _auditService.LogAsync(
+                BuildAudit(
+                    AuditEventTypes.AuthDomainRecoveryBypassUsed,
+                    emailCorrelation,
+                    new
+                    {
+                        emailCorrelation,
+                        bypassKind = domainEvaluation.BypassKind.ToString()
+                    }),
+                cancellationToken).ConfigureAwait(false);
+        }
+
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
         if (await IsRateLimitedForRequestAsync(normalizedEmail, request.ClientIp, now, emailCorrelation, cancellationToken)

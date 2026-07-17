@@ -360,6 +360,29 @@ public sealed class TenantAuthDomainAdminController(
         return Ok(ToResponse(record, _adminService));
     }
 
+    [HttpGet("{normalizedDomain}/enforcement-readiness")]
+    [MutatingAuditExcluded("Read-only enforcement readiness checklist.")]
+    [ProducesResponseType(typeof(TenantAuthDomainEnforcementReadiness), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetEnforcementReadinessAsync(
+        string normalizedDomain,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            TenantAuthDomainEnforcementReadiness readiness = await _adminService
+                .GetEnforcementReadinessAsync(scope.TenantId, normalizedDomain, cancellationToken)
+                .ConfigureAwait(false);
+
+            return Ok(readiness);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
     [HttpGet("{normalizedDomain}/recovery-admins")]
     [MutatingAuditExcluded("Read-only recovery administrator list.")]
     [ProducesResponseType(typeof(IReadOnlyList<TenantSignInEmailDomainRecoveryAdminRecord>), StatusCodes.Status200OK)]
@@ -429,23 +452,36 @@ public sealed class TenantAuthDomainAdminController(
     }
 
     [HttpDelete("{normalizedDomain}/recovery-admins/{normalizedRecoveryAdminEmail}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(TenantAuthDomainRecoveryAdminRemovalResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> RemoveRecoveryAdminAsync(
         string normalizedDomain,
         string normalizedRecoveryAdminEmail,
+        [FromQuery] bool confirmRemoveLast,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
 
-        await _adminService
-            .RemoveRecoveryAdminAsync(scope.TenantId, normalizedDomain, normalizedRecoveryAdminEmail, cancellationToken)
+        TenantAuthDomainRecoveryAdminRemovalResult result = await _adminService
+            .TryRemoveRecoveryAdminAsync(
+                scope.TenantId,
+                normalizedDomain,
+                normalizedRecoveryAdminEmail,
+                confirmRemoveLast,
+                cancellationToken)
             .ConfigureAwait(false);
+
+        if (!result.Removed)
+        {
+            return Ok(result);
+        }
 
         await _auditService.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.AuthDomainRecoveryAdminRemoved,
+                EventType = result.WasLastRecoveryAdmin
+                    ? AuditEventTypes.AuthDomainLastRecoveryPathRemoved
+                    : AuditEventTypes.AuthDomainRecoveryAdminRemoved,
                 ActorUserId = actorId,
                 ActorUserName = User.Identity?.Name ?? actorId,
                 TenantId = scope.TenantId,
@@ -456,7 +492,7 @@ public sealed class TenantAuthDomainAdminController(
             },
             cancellationToken).ConfigureAwait(false);
 
-        return NoContent();
+        return Ok(result);
     }
 
     [HttpDelete("{normalizedDomain}")]

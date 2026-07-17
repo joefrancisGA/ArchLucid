@@ -37,4 +37,10 @@ public sealed class TenantSignInEmailDomainRecoveryAdminRecord
         get;
         init;
     } = string.Empty;
+
+    public DateTimeOffset? AuthenticationVerifiedUtc
+    {
+        get;
+        init;
+    }
 }

@@ -73,4 +73,10 @@ public static class ArchLucidPolicies
     ///     principals are denied.
     /// </summary>
     public const string PlatformCrossTenantReadAuthority = "PlatformCrossTenantReadAuthority";
+
+    /// <summary>
+    ///     Platform-assisted tenant identity recovery grants. Requires
+    ///     <see cref="ArchLucidPlatformPermissionClaims.IdentityRecovery" />.
+    /// </summary>
+    public const string PlatformIdentityRecoveryAuthority = "PlatformIdentityRecoveryAuthority";
 }

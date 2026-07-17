@@ -64,6 +64,7 @@ public sealed class EmailOtpAuthServiceTests
             recoveryAdmins,
             idpConfigs,
             invitations,
+            new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
             timeProvider);
 
         EmailOtpAuthOptions opts = options ?? new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 };
@@ -281,6 +282,7 @@ public sealed class EmailOtpAuthServiceTests
                     recoveryAdmins,
                     idp,
                     new InMemoryUserInvitationRepository(),
+                    new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
                     TimeProvider.System)),
             Mock.Of<IEmailOtpEmailNotifier>(),
             new PlatformIdentityService(
@@ -364,6 +366,93 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_audits_recovery_bypass_for_break_glass_admin()
+    {
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Guid tenantId = Guid.NewGuid();
+        InMemoryTenantSignInEmailDomainRepository signInDomains = new();
+        InMemoryTenantSignInEmailDomainRecoveryAdminRepository recoveryAdmins = new();
+        InMemoryTenantIdentityProviderConfigurationRepository idp = new();
+
+        signInDomains.Seed(new TenantSignInEmailDomainRecord
+        {
+            TenantId = tenantId,
+            DisplayDomain = "enterprise.example",
+            NormalizedDomain = "enterprise.example",
+            VerificationStatus = AuthDomainVerificationStatus.Verified,
+            EnforcementMode = AuthDomainEnforcementMode.SsoRequiredWithRecoveryException,
+            RequireEnterpriseSso = true,
+            AllowEmailOtpRecovery = true,
+            CreatedUtc = DateTimeOffset.UtcNow,
+            VerifiedUtc = DateTimeOffset.UtcNow,
+            EnforcementEnabledUtc = DateTimeOffset.UtcNow,
+            RoutingTestPassedUtc = DateTimeOffset.UtcNow,
+            DnsVerificationToken = "verification-token"
+        });
+
+        idp.Seed(new TenantIdentityProviderConfigurationRecord
+        {
+            TenantId = tenantId,
+            Protocol = TenantIdentityProtocol.Oidc,
+            IssuerUri = "https://login.enterprise.example",
+            ClaimMappingJson = "{}",
+            UpdatedUtc = DateTimeOffset.UtcNow,
+            UpdatedByActorId = "admin",
+            IsActive = true
+        });
+
+        recoveryAdmins.Seed(new TenantSignInEmailDomainRecoveryAdminRecord
+        {
+            TenantId = tenantId,
+            NormalizedDomain = "enterprise.example",
+            NormalizedRecoveryAdminEmail = "breakglass@enterprise.example",
+            DisplayRecoveryAdminEmail = "breakglass@enterprise.example",
+            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedByActorId = "admin"
+        });
+
+        EmailOtpAuthService sut = new(
+            Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 }),
+            new InMemoryEmailOtpChallengeRepository(),
+            new EmailOtpSignInDomainPolicyService(
+                new AuthSignInRoutingService(
+                    signInDomains,
+                    recoveryAdmins,
+                    idp,
+                    new InMemoryUserInvitationRepository(),
+                    new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
+                    TimeProvider.System)),
+            Mock.Of<IEmailOtpEmailNotifier>(),
+            new PlatformIdentityService(
+                new InMemoryPlatformUserRepository(),
+                new InMemoryAuthenticationIdentityRepository(),
+                new InMemoryWorkspaceMembershipRepository(),
+                audit.Object,
+                TimeProvider.System),
+            new InMemoryAuthenticationIdentityRepository(),
+            new InMemoryWorkspaceMembershipRepository(),
+            new InMemoryUserInvitationRepository(),
+            audit.Object,
+            TimeProvider.System);
+
+        EmailOtpChallengeRequestResult result = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "breakglass@enterprise.example" },
+            CancellationToken.None);
+
+        Assert.NotNull(result.ChallengeId);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(evt => evt.EventType == AuditEventTypes.AuthDomainRecoveryBypassUsed),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_returns_neutral_message_when_email_delivery_fails()
     {
         EmailOtpAuthService sut = CreateSut(
@@ -430,6 +519,14 @@ public sealed class EmailOtpAuthServiceTests
     [Fact]
     public async Task VerifyCodeAsync_reuses_existing_email_code_identity()
     {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            ResendCooldownSeconds = 0,
+            MaxCodeRequestsPerEmailPerHour = 10
+        };
+
         EmailOtpAuthService sut = CreateSut(
             out InMemoryEmailOtpChallengeRepository challenges,
             out _,
@@ -438,13 +535,17 @@ public sealed class EmailOtpAuthServiceTests
             out _,
             out _,
             out _,
-            out _);
+            out _,
+            options,
+            clock);
 
         async Task<Guid> SignInOnceAsync()
         {
             EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
                 new EmailOtpChallengeRequest { Email = "existing@example.com" },
                 CancellationToken.None);
+
+            Assert.NotNull(requested.ChallengeId);
 
             EmailOtpChallengeRecord challenge =
                 (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
@@ -457,6 +558,7 @@ public sealed class EmailOtpAuthServiceTests
         }
 
         Guid firstUserId = await SignInOnceAsync();
+        clock.Advance(TimeSpan.FromMinutes(1));
         Guid secondUserId = await SignInOnceAsync();
 
         Assert.Equal(firstUserId, secondUserId);

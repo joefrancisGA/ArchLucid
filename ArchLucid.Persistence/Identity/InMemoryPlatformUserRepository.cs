@@ -67,4 +67,34 @@ public sealed class InMemoryPlatformUserRepository : IPlatformUserRepository
 
         return Task.CompletedTask;
     }
+
+    public Task UpdatePrimaryEmailAsync(
+        Guid userId,
+        string primaryEmail,
+        string normalizedPrimaryEmail,
+        DateTimeOffset updatedUtc,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (!_byId.TryGetValue(userId, out PlatformUserRecord? existing))
+        {
+            throw new PlatformUserNotFoundException(userId);
+        }
+
+        PlatformUserRecord updated = new()
+        {
+            Id = existing.Id,
+            PrimaryEmail = primaryEmail,
+            NormalizedPrimaryEmail = normalizedPrimaryEmail,
+            DisplayName = existing.DisplayName,
+            Status = existing.Status,
+            CreatedUtc = existing.CreatedUtc,
+            UpdatedUtc = updatedUtc
+        };
+
+        _byId[userId] = updated;
+
+        return Task.CompletedTask;
+    }
 }

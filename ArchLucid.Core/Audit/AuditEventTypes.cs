@@ -780,6 +780,22 @@ public static class AuditEventTypes
 
     public const string AuthDomainRecoveryBypassUsed = "Identity.AuthDomainRecoveryBypassUsed";
 
+    public const string AuthDomainRecoveryAdminAuthenticationVerified = "Identity.AuthDomainRecoveryAdminAuthenticationVerified";
+
+    public const string AuthDomainLastRecoveryPathRemoved = "Identity.AuthDomainLastRecoveryPathRemoved";
+
+    public const string PlatformTenantAuthRecoveryGranted = "Identity.PlatformTenantAuthRecoveryGranted";
+
+    public const string PlatformTenantAuthRecoveryRevoked = "Identity.PlatformTenantAuthRecoveryRevoked";
+
+    public const string PlatformTenantAuthRecoveryTenantNotified = "Identity.PlatformTenantAuthRecoveryTenantNotified";
+
+    public const string PlatformTenantAuthRecoveryUnauthorizedAttempt = "Identity.PlatformTenantAuthRecoveryUnauthorizedAttempt";
+
+    public const string UserAccountPrimaryEmailChangeRequested = "Identity.UserAccountPrimaryEmailChangeRequested";
+
+    public const string UserAccountPrimaryEmailChanged = "Identity.UserAccountPrimaryEmailChanged";
+
     public const string AuthSignInRoutingEvaluated = "Identity.AuthSignInRoutingEvaluated";
 
     public const string PostAuthWorkspaceCreated = "Identity.PostAuthWorkspaceCreated";

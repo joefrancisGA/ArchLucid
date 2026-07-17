@@ -96,5 +96,6 @@ public sealed class SignInMethodRemovalPolicyServiceTests
                 new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
                 new InMemoryTenantIdentityProviderConfigurationRepository(),
                 new InMemoryUserInvitationRepository(),
+                new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
                 clock));
 }

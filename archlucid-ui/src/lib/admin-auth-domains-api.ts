@@ -32,6 +32,29 @@ export type TenantAuthDomainRecoveryAdminRecord = {
   displayRecoveryAdminEmail: string;
   createdUtc: string;
   createdByActorId: string;
+  authenticationVerifiedUtc?: string | null;
+};
+
+export type TenantAuthDomainEnforcementChecklistItem = {
+  key: string;
+  label: string;
+  complete: boolean;
+  required: boolean;
+  detail?: string | null;
+};
+
+export type TenantAuthDomainEnforcementReadiness = {
+  canEnableEnforcement: boolean;
+  hasRecoveryRoute: boolean;
+  blockEnforcement: boolean;
+  blockReason?: string | null;
+  checklist: TenantAuthDomainEnforcementChecklistItem[];
+};
+
+export type TenantAuthDomainRecoveryAdminRemovalResult = {
+  removed: boolean;
+  wasLastRecoveryAdmin: boolean;
+  warningMessage?: string | null;
 };
 
 export type AuthSignInRoutingPreviewResponse = {
@@ -145,6 +168,27 @@ export async function enableTenantAuthDomainEnforcement(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ confirmTested }),
     },
+  );
+}
+
+export async function fetchTenantAuthDomainEnforcementReadiness(
+  normalizedDomain: string,
+): Promise<TenantAuthDomainEnforcementReadiness> {
+  return authDomainsFetch<TenantAuthDomainEnforcementReadiness>(
+    `/api/proxy/v1/admin/identity/domains/${encodeURIComponent(normalizedDomain)}/enforcement-readiness`,
+  );
+}
+
+export async function removeTenantAuthDomainRecoveryAdmin(
+  normalizedDomain: string,
+  normalizedRecoveryAdminEmail: string,
+  confirmRemoveLast: boolean,
+): Promise<TenantAuthDomainRecoveryAdminRemovalResult> {
+  const query = confirmRemoveLast ? "?confirmRemoveLast=true" : "?confirmRemoveLast=false";
+
+  return authDomainsFetch<TenantAuthDomainRecoveryAdminRemovalResult>(
+    `/api/proxy/v1/admin/identity/domains/${encodeURIComponent(normalizedDomain)}/recovery-admins/${encodeURIComponent(normalizedRecoveryAdminEmail)}${query}`,
+    { method: "DELETE" },
   );
 }
 

@@ -11,13 +11,16 @@ import {
   addTenantAuthDomainRecoveryAdmin,
   checkTenantAuthDomainVerification,
   enableTenantAuthDomainEnforcement,
+  fetchTenantAuthDomainEnforcementReadiness,
   fetchTenantAuthDomainRecoveryAdmins,
   fetchTenantAuthDomains,
   markTenantAuthDomainRoutingTested,
   proposeTenantAuthDomain,
+  removeTenantAuthDomainRecoveryAdmin,
   setTenantAuthDomainEnforcement,
   startTenantAuthDomainVerification,
   testTenantAuthDomainRouting,
+  type TenantAuthDomainEnforcementReadiness,
   type TenantAuthDomainRecord,
   type TenantAuthDomainRecoveryAdminRecord,
 } from "@/lib/admin-auth-domains-api";
@@ -30,6 +33,8 @@ export function AuthDomainsPageClient() {
   const [domains, setDomains] = useState<TenantAuthDomainRecord[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
   const [recoveryAdmins, setRecoveryAdmins] = useState<TenantAuthDomainRecoveryAdminRecord[]>([]);
+  const [readiness, setReadiness] = useState<TenantAuthDomainEnforcementReadiness | null>(null);
+  const [sessionAcknowledged, setSessionAcknowledged] = useState(false);
   const [newDomain, setNewDomain] = useState("");
   const [testEmail, setTestEmail] = useState("");
   const [recoveryEmail, setRecoveryEmail] = useState("");
@@ -61,6 +66,15 @@ export function AuthDomainsPageClient() {
     }
   }, []);
 
+  const refreshReadiness = useCallback(async (normalizedDomain: string) => {
+    try {
+      const row = await fetchTenantAuthDomainEnforcementReadiness(normalizedDomain);
+      setReadiness(row);
+    } catch {
+      setReadiness(null);
+    }
+  }, []);
+
   useEffect(() => {
     void refreshDomains();
   }, [refreshDomains]);
@@ -68,11 +82,13 @@ export function AuthDomainsPageClient() {
   useEffect(() => {
     if (selectedDomain === null) {
       setRecoveryAdmins([]);
+      setReadiness(null);
       return;
     }
 
     void refreshRecoveryAdmins(selectedDomain);
-  }, [refreshRecoveryAdmins, selectedDomain]);
+    void refreshReadiness(selectedDomain);
+  }, [refreshReadiness, refreshRecoveryAdmins, selectedDomain]);
 
   const selected = domains.find((row) => row.normalizedDomain === selectedDomain) ?? null;
 
@@ -272,6 +288,8 @@ export function AuthDomainsPageClient() {
                       await markTenantAuthDomainRoutingTested(selectedDomain, testEmail.trim());
                       setStatusMessage("Routing test recorded.");
                       await refreshDomains();
+                      await refreshReadiness(selectedDomain);
+                      await refreshRecoveryAdmins(selectedDomain);
                     } catch (error) {
                       setErrorMessage(error instanceof Error ? error.message : String(error));
                     }
@@ -280,6 +298,36 @@ export function AuthDomainsPageClient() {
                   Mark routing tested
                 </Button>
               </div>
+            </div>
+
+            <div className="space-y-2" data-testid="auth-domains-enforcement-checklist">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>Pre-enforcement checklist</p>
+              <ul className="space-y-1">
+                {(readiness?.checklist ?? []).map((item) => (
+                  <li key={item.key} className={OPERATOR_TYPOGRAPHY.body}>
+                    {item.complete ? "✓" : "○"} {item.label}
+                    {item.required ? "" : " (recommended)"}
+                    {item.detail ? ` — ${item.detail}` : ""}
+                  </li>
+                ))}
+                <li className={OPERATOR_TYPOGRAPHY.body}>
+                  {sessionAcknowledged ? "✓" : "○"} Current session acknowledged
+                </li>
+              </ul>
+              <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
+                <input
+                  type="checkbox"
+                  checked={sessionAcknowledged}
+                  onChange={(event) => setSessionAcknowledged(event.target.checked)}
+                  data-testid="auth-domains-session-ack"
+                />
+                I confirm I am signed in with authority to enable SSO enforcement for this organization.
+              </label>
+              {readiness?.blockReason ? (
+                <p className={cn("m-0 text-amber-900", OPERATOR_TYPOGRAPHY.helper)} role="note">
+                  {readiness.blockReason}
+                </p>
+              ) : null}
             </div>
 
             <div className="space-y-2">
@@ -329,6 +377,7 @@ export function AuthDomainsPageClient() {
                 type="button"
                 variant="primary"
                 data-testid="auth-domains-enable-enforcement"
+                disabled={!sessionAcknowledged || readiness?.canEnableEnforcement === false}
                 onClick={async () => {
                   if (selectedDomain === null) {
                     return;
@@ -344,6 +393,7 @@ export function AuthDomainsPageClient() {
                     await enableTenantAuthDomainEnforcement(selectedDomain, true);
                     setStatusMessage("SSO enforcement enabled.");
                     await refreshDomains();
+                    await refreshReadiness(selectedDomain);
                   } catch (error) {
                     setErrorMessage(error instanceof Error ? error.message : String(error));
                   }
@@ -360,6 +410,40 @@ export function AuthDomainsPageClient() {
                   {recoveryAdmins.map((row) => (
                     <li key={row.normalizedRecoveryAdminEmail} className={OPERATOR_TYPOGRAPHY.body}>
                       {row.displayRecoveryAdminEmail}
+                      {row.authenticationVerifiedUtc ? " · verified" : " · not verified"}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="ml-2"
+                        onClick={async () => {
+                          if (selectedDomain === null) {
+                            return;
+                          }
+
+                          const result = await removeTenantAuthDomainRecoveryAdmin(
+                            selectedDomain,
+                            row.normalizedRecoveryAdminEmail,
+                            false,
+                          );
+
+                          if (!result.removed && result.warningMessage) {
+                            if (!window.confirm(result.warningMessage)) {
+                              return;
+                            }
+
+                            await removeTenantAuthDomainRecoveryAdmin(
+                              selectedDomain,
+                              row.normalizedRecoveryAdminEmail,
+                              true,
+                            );
+                          }
+
+                          await refreshRecoveryAdmins(selectedDomain);
+                          await refreshReadiness(selectedDomain);
+                        }}
+                      >
+                        Remove
+                      </Button>
                     </li>
                   ))}
                 </ul>

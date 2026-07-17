@@ -63,4 +63,34 @@ public sealed class InMemoryTenantSignInEmailDomainRecoveryAdminRepository
 
         return Task.CompletedTask;
     }
+
+    public Task MarkAuthenticationVerifiedAsync(
+        Guid tenantId,
+        string normalizedDomain,
+        string normalizedRecoveryAdminEmail,
+        DateTimeOffset verifiedUtc,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        string key = Key(tenantId, normalizedDomain, normalizedRecoveryAdminEmail);
+
+        if (!_rows.TryGetValue(key, out TenantSignInEmailDomainRecoveryAdminRecord? existing))
+        {
+            return Task.CompletedTask;
+        }
+
+        _rows[key] = new TenantSignInEmailDomainRecoveryAdminRecord
+        {
+            TenantId = existing.TenantId,
+            NormalizedDomain = existing.NormalizedDomain,
+            NormalizedRecoveryAdminEmail = existing.NormalizedRecoveryAdminEmail,
+            DisplayRecoveryAdminEmail = existing.DisplayRecoveryAdminEmail,
+            CreatedUtc = existing.CreatedUtc,
+            CreatedByActorId = existing.CreatedByActorId,
+            AuthenticationVerifiedUtc = verifiedUtc
+        };
+
+        return Task.CompletedTask;
+    }
 }

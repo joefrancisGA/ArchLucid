@@ -50,6 +50,7 @@ public sealed class AuthenticationIdentityLinkingServiceTests
             new InMemoryTenantSignInEmailDomainRecoveryAdminRepository(),
             new InMemoryTenantIdentityProviderConfigurationRepository(),
             new InMemoryUserInvitationRepository(),
+            new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
             clock ?? TimeProvider.System);
 
         return new AuthenticationIdentityLinkingService(
