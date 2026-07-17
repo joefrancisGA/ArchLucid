@@ -167,6 +167,12 @@ def send_via_smtp(*, to_address: str, subject: str, plain_text: str, html_body: 
     if not host or not from_address:
         raise SystemExit("SMTP email requires SMTP_HOST and SMTP_FROM_ADDRESS (or SMTP_USERNAME)")
 
+    if username and not password:
+        raise SystemExit(
+            "SMTP_USERNAME is set but SMTP_PASSWORD is missing. "
+            "Add dev environment secret SMTP_PASSWORD (Comcast/Xfinity mailbox password)."
+        )
+
     try:
         port = int(port_raw)
     except ValueError as exc:

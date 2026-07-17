@@ -97,6 +97,7 @@ jobs:
 
       - name: Email digest (new signatures only)
         if: steps.eligibility.outputs.enabled == 'true'
+        continue-on-error: true
         env:
           APP_INSIGHTS_REPORT_EMAIL_TO: ${{ secrets.APP_INSIGHTS_REPORT_EMAIL_TO }}
           ACS_EMAIL_ENDPOINT: ${{ vars.ACS_EMAIL_ENDPOINT }}
