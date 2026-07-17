@@ -1,0 +1,20 @@
+[
+  {
+    "Count": "42",
+    "Data": "SELECT TOP (1) RunId, TenantId FROM dbo.Runs WHERE RunId = @RunId",
+    "Name": "master | ArchLucidTenantDev",
+    "TableName": "PrimaryResult",
+    "p50": "12.5",
+    "p95": "48.2",
+    "p99": "120.0"
+  },
+  {
+    "Count": "11",
+    "Data": "EXEC dbo.SampleRunPurgeBatch",
+    "Name": "master | ArchLucidTenantDev",
+    "TableName": "PrimaryResult",
+    "p50": "80.0",
+    "p95": "350.5",
+    "p99": "900.0"
+  }
+]
