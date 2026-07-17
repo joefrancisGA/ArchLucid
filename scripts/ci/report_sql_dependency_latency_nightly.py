@@ -44,14 +44,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def load_query_payload(*, workspace_id: str, window_hours: int, limit: int, fixture_json: Path | None) -> tuple[Any, str]:
     if fixture_json is not None:
-        payload = load_json(fixture_json)
-
-        if payload is None:
-            # CLI-shaped array fixtures are not objects — load raw JSON.
-            raw = json.loads(fixture_json.read_text(encoding="utf-8-sig"))
-            return raw, f"fixture:{fixture_json}"
-
-        return payload, f"fixture:{fixture_json}"
+        # Accept both CLI array shape and classic { "tables": [...] } payloads.
+        raw = json.loads(fixture_json.read_text(encoding="utf-8-sig"))
+        return raw, f"fixture:{fixture_json}"
 
     query = format_kql(KQL_SQL_DEPENDENCY_LATENCY, hours=window_hours, limit=limit)
     return run_log_analytics_query(workspace_id, query), f"log-analytics:{workspace_id}"
