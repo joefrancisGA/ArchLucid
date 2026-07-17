@@ -132,3 +132,9 @@ Set-RepoSecretIfPresent -Name 'ALERT_SMS_PHONE_NUMBER' -Value $AlertSmsPhone
 Set-RepoSecretIfPresent -Name 'ALERT_VOICE_PHONE_NUMBER' -Value $AlertVoicePhone
 
 Write-Host 'Bootstrap complete. Verify environments under GitHub Settings → Environments.'
+
+& (Join-Path $PSScriptRoot 'verify-cd-post-deploy-retry-vars.ps1')
+
+if ($LASTEXITCODE -ne 0) {
+    throw 'Post-deploy retry repository variable verification failed after bootstrap.'
+}

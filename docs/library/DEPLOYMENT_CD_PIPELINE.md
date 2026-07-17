@@ -119,7 +119,7 @@ dotnet run --project ArchLucid.Cli -- deployment-evidence \
 
 Failures emit **`::error::`** lines on GitHub Actions for visible annotations when probes fail.
 
-**Retries:** Set repository variables **`CD_POST_DEPLOY_MAX_ATTEMPTS`** & **`CD_POST_DEPLOY_RETRY_WAIT_SECONDS`** to re-run the full check sequence after deploy (helps new revisions still starting).
+**Retries:** Set repository variables **`CD_POST_DEPLOY_MAX_ATTEMPTS`** & **`CD_POST_DEPLOY_RETRY_WAIT_SECONDS`** to re-run the full check sequence after deploy (helps new revisions still starting). **Cold-start checklist:** `6` / `10` (GitHub Actions retries only — no Azure compute increase). Audit with `.\scripts\ci\verify-cd-post-deploy-retry-vars.ps1` (see [`GITHUB_CD_ENVIRONMENTS.md`](../operations/GITHUB_CD_ENVIRONMENTS.md)).
 
 **Local run (legacy bash):** `bash scripts/ci/cd-post-deploy-verify.sh https://your-api.example.com /version`
 
@@ -171,7 +171,7 @@ Configure per **environment** (`dev` / `staging` / `production`) or organization
 | `NUGET_API_KEY` | NuGet job | Production manual CD only. |
 | `CD_NOTIFY_WEBHOOK_URL` | Notify | Optional Slack-style webhook. |
 
-**Repository variables:** `IMAGE_TAG` (override default tag), `SMOKE_SYNTHETIC_PATH` (default `/version`; extra URL checked for HTTP 200 when not `/version`), `CD_ROLLBACK_ON_SMOKE_FAILURE` (`true` to auto-deactivate revisions on validation failure), `CD_POST_DEPLOY_MAX_ATTEMPTS` (default **1**; e.g. **6** with wait below for Container Apps cold start), `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` (default **10**).
+**Repository variables:** `IMAGE_TAG` (override default tag), `SMOKE_SYNTHETIC_PATH` (default `/version`; extra URL checked for HTTP 200 when not `/version`), `CD_ROLLBACK_ON_SMOKE_FAILURE` (`true` to auto-deactivate revisions on validation failure), `CD_POST_DEPLOY_MAX_ATTEMPTS` (recommended repo var **6**; `cd.yml` bash fallback **6** when unset; local `cd-post-deploy-verify.sh` defaults **1** unless env is exported), `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` (recommended **10**; same `cd.yml` fallback).
 
 **Manual dispatch:** `run_terraform_apply` defaults to **false** so routine releases only refresh images and Container App revisions; set **true** when infra tfvars (e.g. image pins) must move with the same run.
 

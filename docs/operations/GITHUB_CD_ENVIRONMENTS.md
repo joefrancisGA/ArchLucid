@@ -49,6 +49,14 @@ Set under **Settings → Secrets and variables → Actions → Variables** (or p
 | `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` | `10` | Wait between probe attempts |
 | `CD_MAINTENANCE_WINDOW_OVERRIDE` | unset (`false`) | Set `true` for break-glass dev deploy outside 22:00 ET |
 
+**Cold-start checklist (no Azure SKU change):** After bootstrap or any manual CD setup, confirm `CD_POST_DEPLOY_MAX_ATTEMPTS=6` and `CD_POST_DEPLOY_RETRY_WAIT_SECONDS=10` under **Settings → Secrets and variables → Actions → Variables**. These retries run only in GitHub Actions and do not raise Container Apps `min_replicas` or CPU/memory. Audit locally:
+
+```powershell
+.\scripts\ci\verify-cd-post-deploy-retry-vars.ps1
+```
+
+Use `-Apply` to set recommended values when vars are missing or too low. `bootstrap-github-cd-environments.ps1` sets both and re-runs this check.
+
 ## Optional per-environment expected-target variables (recommended for production)
 
 CD runs **Azure deployment-target preflight** after OIDC login. Prefer setting these as **Environment variables** so expected targets are explicit and distinct from the login client id:

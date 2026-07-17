@@ -9,7 +9,7 @@
 #   GET /version       — build identity (or synthetic_path)
 #
 # Environment (optional):
-#   CD_POST_DEPLOY_MAX_ATTEMPTS — default 1; set e.g. 6 with CD_POST_DEPLOY_RETRY_WAIT_SECONDS=10 for cold-start retries
+#   CD_POST_DEPLOY_MAX_ATTEMPTS — default 1 here; CD workflows use 6 when unset (set repo var 6 for parity)
 #   CD_POST_DEPLOY_RETRY_WAIT_SECONDS — seconds between attempts (default 10)
 
 set -euo pipefail
