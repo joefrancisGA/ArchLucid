@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import {
+  BUILD_IDENTITY_HTML_META_NAME,
+  readBuildIdentityHtmlMetaContent,
+} from "@/lib/build-identity-html-meta";
 import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import { PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE } from "@/lib/persona-shell-vocabulary";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
@@ -53,9 +57,14 @@ export const metadata: Metadata = {
 
 /** Root layout: global styles only. Route groups supply operator shell (`(operator)/layout`) or marketing chrome (`(marketing)/layout`). */
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const buildCommitSha = readBuildIdentityHtmlMetaContent();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {buildCommitSha.length > 0 ? (
+          <meta name={BUILD_IDENTITY_HTML_META_NAME} content={buildCommitSha} />
+        ) : null}
         <script
           dangerouslySetInnerHTML={{
             __html: buildColorModeBootstrapInlineScript(authorityThemeEnvDefault),

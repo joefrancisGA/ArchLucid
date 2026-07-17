@@ -34,6 +34,19 @@ WORKFLOW_MARKERS = (
 
 CONTOSO_AUTHORITY_RUN_BASELINE = "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501"
 
+# Public marketing page used for cache-bypass shell BUILD_ID verification (TB-868).
+PUBLIC_SHELL_SMOKE_PATH = "/welcome"
+
+BUILD_IDENTITY_HTML_META_NAME = "archlucid:build-commit"
+
+BUILD_IDENTITY_META_PATTERN = re.compile(
+    r'<meta\s+[^>]*(?:'
+    rf'name=["\']{re.escape(BUILD_IDENTITY_HTML_META_NAME)}["\'][^>]*content=["\']([^"\']+)["\']'
+    rf'|content=["\']([^"\']+)["\'][^>]*name=["\']{re.escape(BUILD_IDENTITY_HTML_META_NAME)}["\'])'
+    r"[^>]*>",
+    re.IGNORECASE,
+)
+
 HttpGet = Callable[[str, dict[str, str], float], tuple[int, str]]
 
 
@@ -53,6 +66,7 @@ class SmokeReport:
     expected_build_id: str
     observed_api_build_id: str = ""
     observed_ui_build_id: str = ""
+    observed_ui_public_page_build_id: str = ""
     checks: list[SmokeCheckResult] = field(default_factory=list)
 
     @property
@@ -74,6 +88,7 @@ class SmokeReport:
             f"- Expected BUILD_ID: `{self.expected_build_id or '(unset)'}`",
             f"- Observed API commitSha: `{self.observed_api_build_id or '(n/a)'}`",
             f"- Observed UI commitSha: `{self.observed_ui_build_id or '(n/a)'}`",
+            f"- Observed UI public-page commitSha: `{self.observed_ui_public_page_build_id or '(n/a)'}`",
             f"- Overall: **{'PASS' if self.ok else 'FAIL'}**",
             "",
             "| Check | Required | Result | Duration (ms) | Detail |",
@@ -161,6 +176,28 @@ def extract_static_asset_path(html: str) -> str | None:
         return None
 
     return match.group(1)
+
+
+def extract_build_identity_from_html(html: str) -> str | None:
+    match = BUILD_IDENTITY_META_PATTERN.search(html)
+
+    if match is None:
+        return None
+
+    value = (match.group(1) or match.group(2) or "").strip()
+
+    if not value:
+        return None
+
+    return value
+
+
+def cache_bypass_request_headers(*, accept: str) -> dict[str, str]:
+    return {
+        "Accept": accept,
+        "Cache-Control": "no-cache, no-store",
+        "Pragma": "no-cache",
+    }
 
 
 def run_with_retries(
@@ -525,6 +562,44 @@ def run_product_smoke(
         )
     )
 
+    shell_build_required = ui_required and bool(normalize(report.expected_build_id))
+
+    def check_public_shell_build_id() -> tuple[bool, str]:
+        if not report.expected_build_id:
+            return False, "expected BUILD_ID unset"
+
+        cache_bust_query = f"{PUBLIC_SHELL_SMOKE_PATH}?_shell_smoke={int(time.time())}"
+        code, body = get(
+            join_url(ui_base, cache_bust_query),
+            cache_bypass_request_headers(accept="text/html"),
+        )
+
+        if code != 200:
+            return False, f"HTTP {code}"
+
+        commit = extract_build_identity_from_html(body) or ""
+        report.observed_ui_public_page_build_id = commit
+
+        if not commit:
+            return False, f"missing {BUILD_IDENTITY_HTML_META_NAME!r} meta on {PUBLIC_SHELL_SMOKE_PATH}"
+
+        if commit != report.expected_build_id:
+            return False, (
+                f"public-page commit={commit!r} != BUILD_ID={report.expected_build_id!r}"
+            )
+
+        return True, f"{PUBLIC_SHELL_SMOKE_PATH} meta matches BUILD_ID"
+
+    report.checks.append(
+        run_with_retries(
+            name="ui_public_shell_build_id",
+            required=shell_build_required,
+            attempts=attempts,
+            wait_seconds=wait,
+            operation=check_public_shell_build_id,
+        )
+    )
+
     def check_homepage() -> tuple[bool, str]:
         code, body = get(join_url(ui_base, "/"), {"Accept": "text/html"})
         return code == 200, f"HTTP {code} bytes={len(body)}"
@@ -656,6 +731,7 @@ def main(argv: list[str] | None = None) -> int:
             "expectedBuildId": report.expected_build_id,
             "observedApiBuildId": report.observed_api_build_id,
             "observedUiBuildId": report.observed_ui_build_id,
+            "observedUiPublicPageBuildId": report.observed_ui_public_page_build_id,
             "checks": [
                 {
                     "name": c.name,

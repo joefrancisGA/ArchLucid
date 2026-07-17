@@ -33,3 +33,14 @@ See `variables.tf` and `terraform.tfvars.example`.
 ## Correlation IDs
 
 **X-Correlation-ID** is forwarded through Front Door by default. Keep sending it from clients so support can tie **WAF logs**, **Front Door metrics**, and **ArchLucid.Api** logs together.
+
+## CDN cache behavior (TB-868)
+
+Front Door **Standard** honors origin **`Cache-Control`** headers. The UI origin (`archlucid-ui/next.config.ts`, production) sends:
+
+- **`no-cache, no-store, max-age=0, must-revalidate`** on HTML / application shell routes (`/:path*`)
+- **`public, max-age=31536000, immutable`** on fingerprinted `/_next/static/*` and `/images/*`
+
+**Routine deploys do not require a Front Door purge.** Purge only during incident response when edge cache ignored origin policy — and purge **shell paths** (e.g. `/welcome`, `/`), not `/_next/static/*`.
+
+Post-deploy CD smoke fetches `/welcome` with cache-bypass request headers and asserts the `archlucid:build-commit` meta tag matches `BUILD_ID`. See [`docs/operations/FRONTEND_SHELL_CACHE.md`](../../docs/operations/FRONTEND_SHELL_CACHE.md).

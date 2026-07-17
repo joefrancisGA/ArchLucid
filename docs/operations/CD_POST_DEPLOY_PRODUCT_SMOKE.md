@@ -21,6 +21,7 @@ Operator opens the UI shell, the same-origin BFF reaches the API (`/api/proxy/he
 | `api_why_archlucid_snapshot_read` | Yes (when API key present / strict env) | HTTP 200 + `demoRunId` |
 | `ui_process_health` | Yes when UI base URL set | `/api/health` Healthy |
 | `ui_bff_health_ready` | Yes when UI base URL set | `/api/proxy/health/ready` 200 / Healthy |
+| `ui_public_shell_build_id` | Yes when UI base URL and `BUILD_ID` set | Cache-bypass `GET /welcome` HTML meta `archlucid:build-commit` == `BUILD_ID` |
 | `api_contoso_run_summary` | Optional | Contoso baseline authority summary |
 | `ui_homepage` | Optional | `/` HTTP 200 |
 | `ui_static_asset` | Optional | One `/_next/static/…` asset HTTP 200 |
@@ -34,7 +35,11 @@ Markdown + JSON under `artifacts/cd-product-smoke-<env>-<run_id>.{md,json}` and 
 | Check | Required | Result | Duration (ms) | Detail |
 | --- | --- | --- | ---: | --- |
 
-Plus expected / observed BUILD_ID (API and UI when available).
+Plus expected / observed BUILD_ID (API, UI `/api/health`, and public-page meta when available).
+
+## Frontend shell cache (TB-868)
+
+[`FRONTEND_SHELL_CACHE.md`](FRONTEND_SHELL_CACHE.md) — immutable hashed assets vs version-sensitive HTML, Front Door honor-origin posture, and why routine deploys skip CDN purge.
 
 ## Related
 

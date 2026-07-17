@@ -14,8 +14,11 @@ if str(_CI_DIR) not in sys.path:
     sys.path.insert(0, str(_CI_DIR))
 
 from cd_post_deploy_product_smoke import (  # noqa: E402
+    BUILD_IDENTITY_HTML_META_NAME,
     CONTOSO_AUTHORITY_RUN_BASELINE,
+    PUBLIC_SHELL_SMOKE_PATH,
     assert_workflows_declare_product_smoke,
+    extract_build_identity_from_html,
     extract_static_asset_path,
     is_strict_environment,
     join_url,
@@ -41,6 +44,15 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
             extract_static_asset_path('<script src="/_next/static/chunks/main.js"></script>'),
             "/_next/static/chunks/main.js",
         )
+        self.assertEqual(
+            extract_build_identity_from_html(
+                f'<meta name="{BUILD_IDENTITY_HTML_META_NAME}" content="abc123" />'
+            ),
+            "abc123",
+        )
+
+    def test_public_shell_smoke_path_constant(self) -> None:
+        self.assertEqual(PUBLIC_SHELL_SMOKE_PATH, "/welcome")
 
     def test_dev_skips_when_api_url_missing(self) -> None:
         report = run_product_smoke(
@@ -85,7 +97,15 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
             "/api/proxy/health/ready": (200, json.dumps({"status": "Healthy"})),
             "/": (
                 200,
-                '<html><script src="/_next/static/chunks/main-abc.js"></script></html>',
+                (
+                    '<html><head>'
+                    f'<meta name="{BUILD_IDENTITY_HTML_META_NAME}" content="{build_id}" />'
+                    '</head><script src="/_next/static/chunks/main-abc.js"></script></html>'
+                ),
+            ),
+            f"{PUBLIC_SHELL_SMOKE_PATH}": (
+                200,
+                f'<html><head><meta name="{BUILD_IDENTITY_HTML_META_NAME}" content="{build_id}" /></head></html>',
             ),
             "/_next/static/chunks/main-abc.js": (200, "/*js*/"),
         }
@@ -93,6 +113,7 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
         def http_get(url: str, _headers: dict[str, str], _timeout: float) -> tuple[int, str]:
             path = url.split("://", 1)[-1]
             path = "/" + path.split("/", 1)[1] if "/" in path else "/"
+            path = path.split("?", 1)[0]
 
             for suffix, payload in responses.items():
                 if path == suffix or path.endswith(suffix):
@@ -114,6 +135,8 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
         self.assertTrue(report.ok, report.summary_markdown())
         self.assertEqual(report.observed_api_build_id, build_id)
         self.assertEqual(report.observed_ui_build_id, build_id)
+        self.assertEqual(report.observed_ui_public_page_build_id, build_id)
+        self.assertIn("ui_public_shell_build_id", report.summary_markdown())
         self.assertIn("Journey approximated", report.summary_markdown())
         self.assertIn("api_tenant_workspaces_read", report.summary_markdown())
 

@@ -15,6 +15,15 @@ const immutableStaticAssetCacheControl = {
   value: "public, max-age=31536000, immutable",
 } as const;
 
+/**
+ * Application shell / HTML documents must not be cached across deploys (TB-868).
+ * Listed after this rule in `headers()`, `/_next/static` and `/images` override with immutable.
+ */
+const documentShellCacheControl = {
+  key: "Cache-Control",
+  value: "no-cache, no-store, max-age=0, must-revalidate",
+} as const;
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
@@ -86,6 +95,10 @@ const nextConfig: NextConfig = {
     }
 
     return [
+      {
+        source: "/:path*",
+        headers: [documentShellCacheControl],
+      },
       {
         source: "/_next/static/:path*",
         headers: [immutableStaticAssetCacheControl],
