@@ -595,7 +595,7 @@ public sealed class AuthenticationIdentityLinkingService(
         CancellationToken cancellationToken)
     {
         AuthenticationIdentityRecord? existing =
-            await _identities.FindByExternalKeyAsync(externalKey, cancellationToken).ConfigureAwait(false);
+            await _identities.FindAnyByExternalKeyAsync(externalKey, cancellationToken).ConfigureAwait(false);
 
         if (existing is null)
         {

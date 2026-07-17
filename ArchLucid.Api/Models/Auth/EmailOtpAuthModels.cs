@@ -13,6 +13,12 @@ public sealed class EmailOtpChallengeRequest
         get;
         init;
     }
+
+    public string? BotChallengeToken
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class EmailOtpChallengeResponse
@@ -36,6 +42,12 @@ public sealed class EmailOtpChallengeResponse
     }
 
     public string? SsoMessage
+    {
+        get;
+        init;
+    }
+
+    public bool? EmailDeliverySucceeded
     {
         get;
         init;

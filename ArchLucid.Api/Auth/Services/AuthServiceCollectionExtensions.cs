@@ -83,6 +83,7 @@ public static class AuthServiceCollectionExtensions
                     ArchLucidAuthOptions resolved = ArchLucidAuthConfigurationBridge.Resolve(jwtBearerConfiguration);
                     ArchLucidJwtBearerConfiguration.Apply(options, resolved, jwtBearerConfiguration);
                 });
+            services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, PlatformUserAuthVersionJwtBearerPostConfigure>();
         }
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))

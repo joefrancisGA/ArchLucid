@@ -361,4 +361,36 @@ public sealed class PlatformIdentityServiceTests
         Assert.NotNull(found);
         Assert.Equal(created.Id, found.Id);
     }
+
+    [Fact]
+    public async Task CreateUserFromVerifiedIdentityAsync_rejects_external_key_reserved_by_disabled_identity()
+    {
+        PlatformIdentityService sut = CreateSut(out _, out _, out _);
+
+        ExternalIdentityKey emailKey = new()
+        {
+            ProviderType = AuthenticationProviderType.EmailOneTimeCode,
+            NormalizedIssuer = IdentityIssuerNormalizer.Normalize(IdentityIssuerConstants.EmailOneTimeCode),
+            Subject = "reserved@example.com"
+        };
+
+        PlatformUserRecord owner = await sut.CreateUserFromVerifiedIdentityAsync(
+            CreateRequest(
+                MicrosoftKey(Guid.NewGuid(), "owner-subject"),
+                displayEmail: "owner@example.com",
+                emailVerified: true),
+            CancellationToken.None);
+
+        AuthenticationIdentityRecord attached = await sut.AttachIdentityToExistingUserAsync(
+            owner.Id,
+            CreateRequest(emailKey, displayEmail: "reserved@example.com", emailVerified: true),
+            CancellationToken.None);
+
+        await sut.DisableIdentityAsync(attached.Id, "admin", CancellationToken.None);
+
+        await Assert.ThrowsAsync<DuplicateAuthenticationIdentityException>(() =>
+            sut.CreateUserFromVerifiedIdentityAsync(
+                CreateRequest(emailKey, displayEmail: "reserved@example.com", emailVerified: true),
+                CancellationToken.None));
+    }
 }

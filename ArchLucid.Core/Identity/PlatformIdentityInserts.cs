@@ -31,6 +31,12 @@ public sealed class PlatformUserInsert
         get;
         init;
     } = PlatformUserStatus.Active;
+
+    public Guid AuthVersion
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class AuthenticationIdentityInsert

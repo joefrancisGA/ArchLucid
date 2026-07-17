@@ -107,6 +107,53 @@ public sealed class TenantAuthDomainAdminServiceTests
     }
 
     [Fact]
+    public async Task TryRemoveRecoveryAdminAsync_blocks_last_recovery_admin_when_enforcement_active_even_with_confirmation()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryTenantSignInEmailDomainRepository domains = new();
+        InMemoryTenantSignInEmailDomainRecoveryAdminRepository recoveryAdmins = new();
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+
+        domains.Seed(CreateVerifiedDomain(tenantId, "enterprise.example") with
+        {
+            EnforcementMode = AuthDomainEnforcementMode.SsoRequiredWithRecoveryException,
+            AllowEmailOtpRecovery = true,
+            EnforcementEnabledUtc = clock.GetUtcNow(),
+            RoutingTestPassedUtc = clock.GetUtcNow()
+        });
+
+        recoveryAdmins.Seed(new TenantSignInEmailDomainRecoveryAdminRecord
+        {
+            TenantId = tenantId,
+            NormalizedDomain = "enterprise.example",
+            NormalizedRecoveryAdminEmail = "breakglass@enterprise.example",
+            DisplayRecoveryAdminEmail = "breakglass@enterprise.example",
+            CreatedUtc = clock.GetUtcNow(),
+            CreatedByActorId = "admin",
+            AuthenticationVerifiedUtc = clock.GetUtcNow()
+        });
+
+        TenantAuthDomainAdminService sut = CreateSut(
+            domains,
+            recoveryAdmins,
+            new InMemoryTenantIdentityProviderConfigurationRepository(),
+            new InMemoryPlatformTenantAuthRecoveryGrantRepository(),
+            new InMemoryWorkspaceMembershipRepository(),
+            clock);
+
+        TenantAuthDomainRecoveryAdminRemovalResult result = await sut.TryRemoveRecoveryAdminAsync(
+            tenantId,
+            "enterprise.example",
+            "breakglass@enterprise.example",
+            confirmRemoveLast: true,
+            CancellationToken.None);
+
+        Assert.False(result.Removed);
+        Assert.True(result.WasLastRecoveryAdmin);
+        Assert.Contains("Cannot remove the last recovery administrator", result.WarningMessage!, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task EnableEnforcementAsync_rejects_sso_only_without_recovery_path()
     {
         Guid tenantId = Guid.NewGuid();

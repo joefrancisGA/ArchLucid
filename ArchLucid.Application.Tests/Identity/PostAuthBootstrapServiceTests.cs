@@ -3,11 +3,14 @@ using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Tenancy;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 

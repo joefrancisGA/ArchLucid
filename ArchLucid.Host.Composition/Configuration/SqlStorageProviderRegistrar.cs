@@ -488,6 +488,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IIdentityMigrationReviewRepository, DapperIdentityMigrationReviewRepository>();
         services.AddScoped<ILegacyPlatformIdentityMigrationSource, SqlLegacyPlatformIdentityMigrationSource>();
         services.AddScoped<IEmailOtpChallengeRepository, DapperEmailOtpChallengeRepository>();
+        services.AddScoped<ISelfServiceTrialAbuseRepository, DapperSelfServiceTrialAbuseRepository>();
         services.AddScoped<ITenantSignInEmailDomainRepository, DapperTenantSignInEmailDomainRepository>();
         services.AddScoped<ITenantSignInEmailDomainRecoveryAdminRepository, DapperTenantSignInEmailDomainRecoveryAdminRepository>();
         services.AddScoped<IPlatformTenantAuthRecoveryGrantRepository, DapperPlatformTenantAuthRecoveryGrantRepository>();

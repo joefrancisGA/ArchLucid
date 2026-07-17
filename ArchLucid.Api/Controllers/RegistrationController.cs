@@ -3,10 +3,13 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Api.Marketing;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Marketing;
 using ArchLucid.Core.Tenancy;
 
@@ -15,6 +18,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers;
 
@@ -31,8 +35,12 @@ public sealed class RegistrationController(
     ITenantProvisioningService provisioning,
     IAuditService audit,
     ITrialTenantBootstrapService trialBootstrap,
+    ISelfServiceTrialAbusePolicy abusePolicy,
+    IOptions<PublicSignupOptions> publicSignupOptions,
     TimeProvider timeProvider) : ControllerBase
 {
+    private const string InviteOnlyMessage =
+        "Registration is by invitation. Request access to join an evaluation workspace.";
     private const string FriendlyValidation =
         "The registration could not be completed. Check the organization name, email, and optional review-cycle fields, then try again.";
 
@@ -46,6 +54,12 @@ public sealed class RegistrationController(
 
     private readonly ITrialTenantBootstrapService _trialBootstrap =
         trialBootstrap ?? throw new ArgumentNullException(nameof(trialBootstrap));
+
+    private readonly ISelfServiceTrialAbusePolicy _abusePolicy =
+        abusePolicy ?? throw new ArgumentNullException(nameof(abusePolicy));
+
+    private readonly PublicSignupOptions _publicSignupOptions =
+        publicSignupOptions?.Value ?? throw new ArgumentNullException(nameof(publicSignupOptions));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
@@ -61,6 +75,13 @@ public sealed class RegistrationController(
         [FromBody] TenantRegistrationRequest? body,
         CancellationToken cancellationToken = default)
     {
+        if (_publicSignupOptions.IsInviteOnly())
+        {
+            ArchLucidInstrumentation.RecordTrialRegistrationFailure("validation");
+
+            return this.NotFoundProblem(InviteOnlyMessage, ProblemTypes.ResourceNotFound);
+        }
+
         if (body is null)
         {
             ArchLucidInstrumentation.RecordTrialRegistrationFailure("validation");
@@ -163,6 +184,44 @@ public sealed class RegistrationController(
         }
 
         string actorEmail = body.AdminEmail.Trim();
+
+        if (!IdentityEmailNormalizer.TryNormalize(actorEmail, out string normalizedAdminEmail, out _))
+        {
+            return await RegisterFailureValidationAsync(
+                body,
+                "validation",
+                "Admin email is invalid.",
+                "invalid_email",
+                FriendlyValidation,
+                cancellationToken);
+        }
+
+        SelfServiceTrialAbuseEvaluation abuseEvaluation = await _abusePolicy.EvaluateAsync(
+            new SelfServiceTrialAbuseEvaluationRequest
+            {
+                NormalizedEmail = normalizedAdminEmail,
+                ClientIp = HttpContext.Connection.RemoteIpAddress?.ToString()
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        if (!abuseEvaluation.Allowed)
+        {
+            ArchLucidInstrumentation.RecordSelfServiceTrialAbuseDenied(abuseEvaluation.DenyReasonCode);
+            ArchLucidInstrumentation.RecordTrialRegistrationFailure("validation");
+
+            await _audit.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialRegistrationFailed,
+                    ActorUserId = actorEmail,
+                    ActorUserName = actorEmail,
+                    TenantId = Guid.Empty,
+                    DataJson = JsonSerializer.Serialize(new { reason = abuseEvaluation.DenyReasonCode })
+                },
+                cancellationToken);
+
+            return this.BadRequestProblem(abuseEvaluation.CustomerMessage, ProblemTypes.ValidationFailed);
+        }
 
         await _audit.LogAsync(
             new AuditEvent
@@ -300,6 +359,13 @@ public sealed class RegistrationController(
             }
             else
                 ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
+
+            await _abusePolicy.RecordSuccessfulClaimAsync(
+                normalizedAdminEmail,
+                platformUserId: null,
+                result.TenantId,
+                "api_register",
+                cancellationToken).ConfigureAwait(false);
 
             ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_session_completed");
 

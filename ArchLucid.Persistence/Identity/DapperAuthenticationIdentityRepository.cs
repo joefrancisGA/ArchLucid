@@ -52,6 +52,42 @@ public sealed class DapperAuthenticationIdentityRepository(ISqlConnectionFactory
         return row?.ToRecord();
     }
 
+    public async Task<AuthenticationIdentityRecord?> FindAnyByExternalKeyAsync(
+        ExternalIdentityKey key,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        const string sql = """
+                           SELECT TOP 1 Id, UserId, ProviderType, NormalizedIssuer, Subject, NormalizedEmail, DisplayEmail,
+                                  EmailVerified, TenantId, TenantIdentityProviderId, CreatedUtc, LastAuthenticatedUtc, DisabledUtc
+                           FROM dbo.AuthenticationIdentities
+                           WHERE ProviderType = @ProviderType
+                             AND NormalizedIssuer = @NormalizedIssuer
+                             AND Subject = @Subject
+                             AND IdentityScopeKey = @IdentityScopeKey
+                           ORDER BY CASE WHEN DisabledUtc IS NULL THEN 0 ELSE 1 END, CreatedUtc DESC;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        AuthenticationIdentityRow? row = await connection.QuerySingleOrDefaultAsync<AuthenticationIdentityRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ProviderType = AuthenticationProviderTypeMapper.ToStorageString(key.ProviderType),
+                    key.NormalizedIssuer,
+                    key.Subject,
+                    IdentityScopeKey = AuthenticationProviderTypeMapper.BuildIdentityScopeKey(
+                        key.TenantId,
+                        key.TenantIdentityProviderId)
+                },
+                cancellationToken: cancellationToken));
+
+        return row?.ToRecord();
+    }
+
     public async Task<AuthenticationIdentityRecord?> GetByIdAsync(Guid identityId, CancellationToken cancellationToken)
     {
         const string sql = """
@@ -173,6 +209,23 @@ public sealed class DapperAuthenticationIdentityRepository(ISqlConnectionFactory
                 sql,
                 new { Id = identityId, DisabledUtc = disabledUtc.UtcDateTime },
                 cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> ReEnableAsync(Guid identityId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE dbo.AuthenticationIdentities
+                           SET DisabledUtc = NULL
+                           WHERE Id = @Id
+                             AND DisabledUtc IS NOT NULL;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { Id = identityId }, cancellationToken: cancellationToken));
+
+        return rows > 0;
     }
 
     public async Task RecordAuthenticationAsync(

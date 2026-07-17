@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -21,8 +22,14 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
     }
 
     /// <inheritdoc />
-    public string IssueAccessToken(Guid userId, string email, string role, Guid tenantId, Guid workspaceId,
-        Guid projectId)
+    public string IssueAccessToken(
+        Guid userId,
+        string email,
+        string role,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid? authVersion = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(role);
@@ -55,6 +62,11 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
             new("auth_time", EpochSeconds(now).ToString(System.Globalization.CultureInfo.InvariantCulture)),
             new(JwtRegisteredClaimNames.Iat, EpochSeconds(now).ToString(System.Globalization.CultureInfo.InvariantCulture), ClaimValueTypes.Integer64)
         ];
+
+        if (authVersion is { } version && version != Guid.Empty)
+        {
+            claims = [.. claims, new Claim(PlatformIdentityClaimTypes.AuthVersion, version.ToString("D"))];
+        }
 
         JwtSecurityToken token = new(
             local.JwtIssuer,

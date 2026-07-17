@@ -250,6 +250,13 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | Auth | `Auth:Trial:LocalIdentity:JwtIssuer` | appsettings, env | empty | Optional (When local IdP) | All (Api, Worker, Combined) | Local JWT issuer string. |
 | Auth | `Auth:Trial:LocalIdentity:JwtAudience` | appsettings, env | empty | Optional (When local IdP) | All (Api, Worker, Combined) | Local JWT audience. |
 | Auth | `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes` | appsettings, env | 60 | Optional (not mode-gated) | All (Api, Worker, Combined) | Access token TTL for local auth. |
+| Auth | `Auth:PublicSignup:Mode` | appsettings, env | `InviteOnly` | Required — public signup posture | Api, Combined | `InviteOnly` (default) returns 404 on `POST /v1/register` and blocks self-service workspace create without invitation; `PublicSelfService` enables open signup. UI mirror: `NEXT_PUBLIC_PUBLIC_SIGNUP_MODE`. |
+| Auth | `Auth:SelfServiceAbuse:Enabled` | appsettings, env | true | Optional (When public signup) | Api, Combined | Enables anti-farm evaluation on registration and post-auth workspace create. |
+| Auth | `Auth:SelfServiceAbuse:MaxTrialsPerEmailLifetime` | appsettings, env | 1 | Optional (When public signup) | Api, Combined | Maximum self-service trial claims per normalized email (invitation bypasses). |
+| Auth | `Auth:SelfServiceAbuse:MaxTrialsPerDomainPerWindow` | appsettings, env | 5 | Optional (When public signup) | Api, Combined | Maximum distinct trials per email domain per rolling window. |
+| Auth | `Auth:SelfServiceAbuse:DomainVelocityWindowHours` | appsettings, env | 24 | Optional (When public signup) | Api, Combined | Rolling window for domain velocity limits. |
+| Auth | `Auth:EmailOtp:Enabled` | appsettings, env | true | Optional (passwordless sign-in) | Api, Combined | Enables email OTP challenge endpoints. |
+| Auth | `Auth:EmailOtp:RequireBotChallenge` | appsettings, env | false | Optional (public signup) | Api, Combined | When true, OTP challenge requests require a valid bot-challenge token (Turnstile/CAPTCHA adapter). |
 | Cors | `Cors:AllowedOrigins:0` | appsettings, env, Cors__* | http://localhost:3000 | Optional (not mode-gated) | Api, Combined | First allowed origin; additional indices use 1,2,… in JSON. |
 | RateLimiting | `RateLimiting:Registration:PermitLimit` | appsettings, env | 5 | Optional (not mode-gated) | Api, Combined | Throttling: registration path. |
 | RateLimiting | `RateLimiting:Registration:WindowMinutes` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Registration throttling window. |

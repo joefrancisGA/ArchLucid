@@ -36,6 +36,11 @@ public static partial class ServiceCollectionExtensions
         services.Configure<TrialAuthOptions>(configuration.GetSection(TrialAuthOptions.SectionPath));
         services.Configure<EmailOtpAuthOptions>(configuration.GetSection(EmailOtpAuthOptions.SectionPath));
         services.PostConfigure<EmailOtpAuthOptions>(static options => options.Normalize());
+        services.AddSingleton<IValidateOptions<EmailOtpAuthOptions>, EmailOtpAuthOptionsValidator>();
+        services.AddOptions<EmailOtpAuthOptions>().ValidateOnStart();
+        services.Configure<PublicSignupOptions>(configuration.GetSection(PublicSignupOptions.SectionPath));
+        services.Configure<SelfServiceAbuseOptions>(configuration.GetSection(SelfServiceAbuseOptions.SectionPath));
+        services.PostConfigure<SelfServiceAbuseOptions>(static options => options.Normalize());
         services.Configure<TrialLifecycleSchedulerOptions>(
             configuration.GetSection(TrialLifecycleSchedulerOptions.SectionName));
         services.Configure<TrialLifecycleEmailRoutingOptions>(
@@ -58,6 +63,15 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPlatformIdentityService, PlatformIdentityService>();
         services.AddScoped<ILegacyPlatformIdentityMigrationService, LegacyPlatformIdentityMigrationService>();
         services.AddScoped<IEmailOtpAuthService, EmailOtpAuthService>();
+        services.AddHttpClient(
+            nameof(TurnstileEmailOtpBotChallengeVerifier),
+            static client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration);
+            });
+        services.AddScoped<TurnstileEmailOtpBotChallengeVerifier>();
+        services.AddScoped<IEmailOtpBotChallengeVerifier, EmailOtpBotChallengeVerifier>();
+        services.AddScoped<ISelfServiceTrialAbusePolicy, SelfServiceTrialAbusePolicy>();
         services.AddScoped<IPostAuthBootstrapService, PostAuthBootstrapService>();
         services.AddScoped<IEmailOtpSignInDomainPolicyService, EmailOtpSignInDomainPolicyService>();
         services.AddScoped<IAuthSignInRoutingService, AuthSignInRoutingService>();

@@ -1,13 +1,17 @@
 ﻿using ArchLucid.Api.Controllers;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -22,10 +26,8 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         Mock<IAuditService> audit = new();
         Mock<ITenantProvisioningService> prov = new();
         Mock<ITrialTenantBootstrapService> boot = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, TimeProvider.System)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        RegistrationController controller = CreateController(prov.Object, audit.Object, boot.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         controller.HttpContext.Request.Path = "/v1/register";
         controller.HttpContext.Response.Headers["X-Correlation-Id"] = "test-corr-1";
 
@@ -63,10 +65,8 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
                     TenantId = t, DefaultWorkspaceId = w, DefaultProjectId = p, WasAlreadyProvisioned = true
                 });
         Mock<ITrialTenantBootstrapService> boot = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, TimeProvider.System)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        RegistrationController controller = CreateController(prov.Object, audit.Object, boot.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         controller.HttpContext.Request.Path = "/v1/register";
 
         TenantRegistrationRequest body = new()
@@ -95,10 +95,8 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
             .Setup(p => p.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("simulated"));
         Mock<ITrialTenantBootstrapService> boot = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object, TimeProvider.System)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        RegistrationController controller = CreateController(prov.Object, audit.Object, boot.Object);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         controller.HttpContext.Request.Path = "/v1/register";
 
         TenantRegistrationRequest body = new()
@@ -114,5 +112,24 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
                                        && e.DataJson.Contains("InvalidOperationException", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    private static RegistrationController CreateController(
+        ITenantProvisioningService provisioning,
+        IAuditService audit,
+        ITrialTenantBootstrapService bootstrap)
+    {
+        Mock<ISelfServiceTrialAbusePolicy> abusePolicy = new();
+        abusePolicy
+            .Setup(policy => policy.EvaluateAsync(It.IsAny<SelfServiceTrialAbuseEvaluationRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(SelfServiceTrialAbuseEvaluation.Allow());
+
+        return new RegistrationController(
+            provisioning,
+            audit,
+            bootstrap,
+            abusePolicy.Object,
+            Options.Create(new PublicSignupOptions { Mode = PublicSignupMode.InviteOnly }),
+            TimeProvider.System);
     }
 }

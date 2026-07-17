@@ -15,7 +15,7 @@ public sealed class PostAuthTermsAttestationGateTests
 
         result.Should().NotBeNull();
         result!.Succeeded.Should().BeFalse();
-        result.CustomerMessage.Should().Contain("terms", StringComparison.OrdinalIgnoreCase);
+        result.CustomerMessage!.ToLowerInvariant().Should().Contain("terms");
     }
 
     [Fact]

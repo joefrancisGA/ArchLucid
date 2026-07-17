@@ -58,7 +58,8 @@ public sealed class DapperTenantSignInEmailDomainRecoveryAdminRepository(ISqlCon
                            FROM dbo.TenantSignInEmailDomainRecoveryAdmins
                            WHERE TenantId = @TenantId
                              AND NormalizedDomain = @NormalizedDomain
-                             AND NormalizedRecoveryAdminEmail = @NormalizedRecoveryAdminEmail;
+                             AND NormalizedRecoveryAdminEmail = @NormalizedRecoveryAdminEmail
+                             AND AuthenticationVerifiedUtc IS NOT NULL;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

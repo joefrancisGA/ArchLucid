@@ -14,11 +14,21 @@ public interface IPlatformUserRepository
         string normalizedPrimaryEmail,
         DateTimeOffset updatedUtc,
         CancellationToken cancellationToken);
+
+    Task RotateAuthVersionAsync(
+        Guid userId,
+        Guid authVersion,
+        DateTimeOffset updatedUtc,
+        CancellationToken cancellationToken);
 }
 
 public interface IAuthenticationIdentityRepository
 {
     Task<AuthenticationIdentityRecord?> FindByExternalKeyAsync(
+        ExternalIdentityKey key,
+        CancellationToken cancellationToken);
+
+    Task<AuthenticationIdentityRecord?> FindAnyByExternalKeyAsync(
         ExternalIdentityKey key,
         CancellationToken cancellationToken);
 
@@ -33,6 +43,8 @@ public interface IAuthenticationIdentityRepository
         CancellationToken cancellationToken);
 
     Task DisableAsync(Guid identityId, DateTimeOffset disabledUtc, CancellationToken cancellationToken);
+
+    Task<bool> ReEnableAsync(Guid identityId, CancellationToken cancellationToken);
 
     Task RecordAuthenticationAsync(
         Guid identityId,

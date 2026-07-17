@@ -32,6 +32,31 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         return Task.FromResult<AuthenticationIdentityRecord?>(record);
     }
 
+    public Task<AuthenticationIdentityRecord?> FindAnyByExternalKeyAsync(
+        ExternalIdentityKey key,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+        ArgumentNullException.ThrowIfNull(key);
+
+        string storageKey = BuildStorageKey(key);
+
+        AuthenticationIdentityRecord? active = _byId.Values
+            .Where(row => string.Equals(BuildStorageKey(new ExternalIdentityKey
+            {
+                ProviderType = row.ProviderType,
+                NormalizedIssuer = row.NormalizedIssuer,
+                Subject = row.Subject,
+                TenantId = row.TenantId,
+                TenantIdentityProviderId = row.TenantIdentityProviderId
+            }), storageKey, StringComparison.Ordinal))
+            .OrderBy(row => row.DisabledUtc is null ? 0 : 1)
+            .ThenByDescending(row => row.CreatedUtc)
+            .FirstOrDefault();
+
+        return Task.FromResult(active);
+    }
+
     public Task<AuthenticationIdentityRecord?> GetByIdAsync(Guid identityId, CancellationToken cancellationToken)
     {
         _ = cancellationToken;
@@ -137,6 +162,48 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         _activeExternalKeys.TryRemove(storageKey, out _);
 
         return Task.CompletedTask;
+    }
+
+    public Task<bool> ReEnableAsync(Guid identityId, CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? existing) || existing.DisabledUtc is null)
+        {
+            return Task.FromResult(false);
+        }
+
+        AuthenticationIdentityRecord updated = new()
+        {
+            Id = existing.Id,
+            UserId = existing.UserId,
+            ProviderType = existing.ProviderType,
+            NormalizedIssuer = existing.NormalizedIssuer,
+            Subject = existing.Subject,
+            NormalizedEmail = existing.NormalizedEmail,
+            DisplayEmail = existing.DisplayEmail,
+            EmailVerified = existing.EmailVerified,
+            TenantId = existing.TenantId,
+            TenantIdentityProviderId = existing.TenantIdentityProviderId,
+            CreatedUtc = existing.CreatedUtc,
+            LastAuthenticatedUtc = existing.LastAuthenticatedUtc,
+            DisabledUtc = null
+        };
+
+        _byId[identityId] = updated;
+
+        string storageKey = BuildStorageKey(new ExternalIdentityKey
+        {
+            ProviderType = existing.ProviderType,
+            NormalizedIssuer = existing.NormalizedIssuer,
+            Subject = existing.Subject,
+            TenantId = existing.TenantId,
+            TenantIdentityProviderId = existing.TenantIdentityProviderId
+        });
+
+        _activeExternalKeys[storageKey] = identityId;
+
+        return Task.FromResult(true);
     }
 
     public Task RecordAuthenticationAsync(

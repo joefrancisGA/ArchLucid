@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
+import { clearOperatorScopeStorage } from "@/lib/operator-scope-storage";
+import { clearOidcSession } from "@/lib/oidc/session";
 
 const IDLE_MS = 30 * 60 * 1000;
 const SESSION_STORAGE_KEY = "archlucid.session.clearedAt";
@@ -22,6 +24,8 @@ export function SessionIdleTimeoutGuard() {
 
       timerRef.current = window.setTimeout(() => {
         sessionStorage.setItem(SESSION_STORAGE_KEY, new Date().toISOString());
+        clearOidcSession();
+        clearOperatorScopeStorage();
 
         const returnPath = window.location.pathname + window.location.search;
 

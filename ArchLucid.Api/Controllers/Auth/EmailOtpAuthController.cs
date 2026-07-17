@@ -80,6 +80,7 @@ public sealed class EmailOtpAuthController(
             {
                 Email = body.Email,
                 InvitationToken = body.InvitationToken,
+                BotChallengeToken = body.BotChallengeToken,
                 ClientIp = HttpContext.Connection.RemoteIpAddress?.ToString(),
                 UserAgent = Request.Headers.UserAgent.ToString()
             },
@@ -91,7 +92,8 @@ public sealed class EmailOtpAuthController(
                 Message = result.Message,
                 ChallengeId = result.ChallengeId,
                 SsoRequired = result.SsoRequired,
-                SsoMessage = result.SsoMessage
+                SsoMessage = result.SsoMessage,
+                EmailDeliverySucceeded = result.EmailDeliverySucceeded
             });
     }
 
@@ -164,7 +166,8 @@ public sealed class EmailOtpAuthController(
             result.Role,
             tenantId,
             workspaceId,
-            projectId);
+            projectId,
+            result.AuthVersion);
 
         return Ok(
             new EmailOtpVerifyResponse

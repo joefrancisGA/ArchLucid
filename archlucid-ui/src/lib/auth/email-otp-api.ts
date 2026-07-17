@@ -3,6 +3,7 @@ export type EmailOtpChallengeApiResponse = {
   challengeId?: string | null;
   ssoRequired: boolean;
   ssoMessage?: string | null;
+  emailDeliverySucceeded?: boolean | null;
 };
 
 export type EmailOtpVerifyApiResponse = {
@@ -36,6 +37,7 @@ export type EmailOtpVerifyApiResult =
 export async function requestEmailOtpChallenge(
   email: string,
   invitationToken: string | null,
+  botChallengeToken?: string | null,
 ): Promise<EmailOtpChallengeApiResult> {
   try {
     const response = await fetch("/api/proxy/v1/auth/email-otp/challenge", {
@@ -44,6 +46,7 @@ export async function requestEmailOtpChallenge(
       body: JSON.stringify({
         email,
         invitationToken: invitationToken ?? undefined,
+        botChallengeToken: botChallengeToken ?? undefined,
       }),
     });
 
@@ -56,6 +59,10 @@ export async function requestEmailOtpChallenge(
     }
 
     const payload = (await response.json()) as EmailOtpChallengeApiResponse;
+
+    if (payload.emailDeliverySucceeded === false) {
+      return { kind: "failure", category: "delivery_failed" };
+    }
 
     return { kind: "success", response: payload };
   } catch {

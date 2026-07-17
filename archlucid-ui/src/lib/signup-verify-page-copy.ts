@@ -1,7 +1,7 @@
 export const SIGNUP_VERIFY_PAGE_COPY = {
   checkInboxHeading: "Check your inbox",
   emailVerifiedHeading: "Email verified",
-  sessionExpiredHeading: "Your signup session has expired",
+  sessionExpiredHeading: "We lost your signup handoff on this device",
   existingAccountHeading: "This organization is already registered",
   deliveryFailedHeading: "We could not confirm your signup",
   stillPendingHeading: "Verification not detected yet",
@@ -12,7 +12,8 @@ export const SIGNUP_VERIFY_PAGE_COPY = {
   emailVerifiedBody: "Your email is verified. Continue to set up your evaluation workspace.",
   stillPendingBody:
     "We have not detected verification yet. Open the link in your email, then try again.",
-  sessionExpiredBody: "Your signup session has expired. Start signup again.",
+  sessionExpiredBody:
+    "We could not restore your signup details on this browser. Start signup again, or sign in if you already have an account.",
   existingAccountBody:
     "An organization with this name is already registered. Sign in to access your workspace, or use a different email to start a new evaluation.",
   deliveryFailedBody:

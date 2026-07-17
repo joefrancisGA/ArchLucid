@@ -144,7 +144,12 @@ public sealed class AuthSignInRoutingService(
 
         if (idp is null || !idp.IsActive)
         {
-            return Allow(safeReturnPath);
+            return new AuthSignInRoutingEvaluation
+            {
+                Decision = AuthSignInRoutingDecision.RequireEnterpriseSso,
+                CustomerMessage = SsoRequiredMessage,
+                SafeReturnPath = safeReturnPath
+            };
         }
 
         return new AuthSignInRoutingEvaluation
@@ -196,7 +201,12 @@ public sealed class AuthSignInRoutingService(
 
         if (idp is null || !idp.IsActive)
         {
-            return Allow(safeReturnPath);
+            return new AuthSignInRoutingEvaluation
+            {
+                Decision = AuthSignInRoutingDecision.RequireEnterpriseSso,
+                CustomerMessage = SsoRequiredMessage,
+                SafeReturnPath = safeReturnPath
+            };
         }
 
         return new AuthSignInRoutingEvaluation
@@ -267,7 +277,8 @@ public sealed class AuthSignInRoutingService(
 
             if (invitation is not null
                 && invitation.TenantId == tenantId
-                && invitation.ExpiresUtc > _timeProvider.GetUtcNow())
+                && invitation.ExpiresUtc > _timeProvider.GetUtcNow()
+                && InvitationEmailMatches(normalizedEmail, invitation.Email))
             {
                 return true;
             }
@@ -278,6 +289,16 @@ public sealed class AuthSignInRoutingService(
                 .ConfigureAwait(false);
 
         return pending is not null && pending.ExpiresUtc > _timeProvider.GetUtcNow();
+    }
+
+    private static bool InvitationEmailMatches(string normalizedEmail, string invitationEmail)
+    {
+        if (!IdentityEmailNormalizer.TryNormalize(invitationEmail, out string normalizedInviteeEmail, out _))
+        {
+            return false;
+        }
+
+        return string.Equals(normalizedInviteeEmail, normalizedEmail, StringComparison.Ordinal);
     }
 
     private static AuthSignInRoutingEvaluation Allow(

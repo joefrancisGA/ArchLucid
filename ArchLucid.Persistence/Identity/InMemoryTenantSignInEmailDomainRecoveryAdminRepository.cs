@@ -39,7 +39,12 @@ public sealed class InMemoryTenantSignInEmailDomainRecoveryAdminRepository
     {
         _ = cancellationToken;
 
-        return Task.FromResult(_rows.ContainsKey(Key(tenantId, normalizedDomain, normalizedEmail)));
+        if (!_rows.TryGetValue(Key(tenantId, normalizedDomain, normalizedEmail), out TenantSignInEmailDomainRecoveryAdminRecord? record))
+        {
+            return Task.FromResult(false);
+        }
+
+        return Task.FromResult(record.AuthenticationVerifiedUtc is not null);
     }
 
     public Task InsertAsync(TenantSignInEmailDomainRecoveryAdminRecord record, CancellationToken cancellationToken)

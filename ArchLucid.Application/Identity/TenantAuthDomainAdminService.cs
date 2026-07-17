@@ -362,16 +362,13 @@ public sealed class TenantAuthDomainAdminService(
             && record.EnforcementMode == AuthDomainEnforcementMode.SsoRequiredWithRecoveryException
             && record.IsEnforcementActive)
         {
-            if (!confirmRemoveLast)
+            return new TenantAuthDomainRecoveryAdminRemovalResult
             {
-                return new TenantAuthDomainRecoveryAdminRemovalResult
-                {
-                    Removed = false,
-                    WasLastRecoveryAdmin = true,
-                    WarningMessage =
-                        "This is the last recovery administrator for an enforced domain. Removing it will eliminate tenant break-glass access."
-                };
-            }
+                Removed = false,
+                WasLastRecoveryAdmin = true,
+                WarningMessage =
+                    "Cannot remove the last recovery administrator while SSO enforcement is active. Add another recovery administrator first."
+            };
         }
 
         await _recoveryAdmins

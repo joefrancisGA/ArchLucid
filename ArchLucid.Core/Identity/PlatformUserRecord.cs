@@ -44,4 +44,10 @@ public sealed class PlatformUserRecord
         get;
         init;
     }
+
+    public Guid AuthVersion
+    {
+        get;
+        init;
+    }
 }

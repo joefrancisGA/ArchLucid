@@ -78,6 +78,7 @@ public sealed class EmailOtpAuthServiceTests
             identities,
             memberships,
             invitations,
+            new PermissiveEmailOtpBotChallengeVerifier(Options.Create(opts)),
             audit.Object,
             timeProvider);
     }
@@ -294,6 +295,7 @@ public sealed class EmailOtpAuthServiceTests
             new InMemoryAuthenticationIdentityRepository(),
             new InMemoryWorkspaceMembershipRepository(),
             new InMemoryUserInvitationRepository(),
+            new PermissiveEmailOtpBotChallengeVerifier(Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 })),
             audit.Object,
             TimeProvider.System);
 
@@ -412,7 +414,8 @@ public sealed class EmailOtpAuthServiceTests
             NormalizedRecoveryAdminEmail = "breakglass@enterprise.example",
             DisplayRecoveryAdminEmail = "breakglass@enterprise.example",
             CreatedUtc = DateTimeOffset.UtcNow,
-            CreatedByActorId = "admin"
+            CreatedByActorId = "admin",
+            AuthenticationVerifiedUtc = DateTimeOffset.UtcNow
         });
 
         EmailOtpAuthService sut = new(
@@ -436,6 +439,7 @@ public sealed class EmailOtpAuthServiceTests
             new InMemoryAuthenticationIdentityRepository(),
             new InMemoryWorkspaceMembershipRepository(),
             new InMemoryUserInvitationRepository(),
+            new PermissiveEmailOtpBotChallengeVerifier(Options.Create(new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 })),
             audit.Object,
             TimeProvider.System);
 

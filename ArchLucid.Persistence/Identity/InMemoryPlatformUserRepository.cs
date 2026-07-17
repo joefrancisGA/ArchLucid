@@ -31,7 +31,8 @@ public sealed class InMemoryPlatformUserRepository : IPlatformUserRepository
             DisplayName = insert.DisplayName,
             Status = insert.Status,
             CreatedUtc = now,
-            UpdatedUtc = now
+            UpdatedUtc = now,
+            AuthVersion = insert.AuthVersion != Guid.Empty ? insert.AuthVersion : Guid.NewGuid()
         };
 
         _byId[row.Id] = row;
@@ -60,7 +61,8 @@ public sealed class InMemoryPlatformUserRepository : IPlatformUserRepository
             DisplayName = existing.DisplayName,
             Status = status,
             CreatedUtc = existing.CreatedUtc,
-            UpdatedUtc = updatedUtc
+            UpdatedUtc = updatedUtc,
+            AuthVersion = existing.AuthVersion
         };
 
         _byId[userId] = updated;
@@ -90,7 +92,38 @@ public sealed class InMemoryPlatformUserRepository : IPlatformUserRepository
             DisplayName = existing.DisplayName,
             Status = existing.Status,
             CreatedUtc = existing.CreatedUtc,
-            UpdatedUtc = updatedUtc
+            UpdatedUtc = updatedUtc,
+            AuthVersion = existing.AuthVersion
+        };
+
+        _byId[userId] = updated;
+
+        return Task.CompletedTask;
+    }
+
+    public Task RotateAuthVersionAsync(
+        Guid userId,
+        Guid authVersion,
+        DateTimeOffset updatedUtc,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (!_byId.TryGetValue(userId, out PlatformUserRecord? existing))
+        {
+            throw new PlatformUserNotFoundException(userId);
+        }
+
+        PlatformUserRecord updated = new()
+        {
+            Id = existing.Id,
+            PrimaryEmail = existing.PrimaryEmail,
+            NormalizedPrimaryEmail = existing.NormalizedPrimaryEmail,
+            DisplayName = existing.DisplayName,
+            Status = existing.Status,
+            CreatedUtc = existing.CreatedUtc,
+            UpdatedUtc = updatedUtc,
+            AuthVersion = authVersion
         };
 
         _byId[userId] = updated;

@@ -1,4 +1,5 @@
 import { clearCachedColorModePreference } from "@/lib/color-mode-preference";
+import { clearOperatorScopeStorage } from "@/lib/operator-scope-storage";
 import {
   getOidcAuthority,
   getOidcClientId,
@@ -231,6 +232,7 @@ export async function signOutAndRedirectHome(): Promise<void> {
   const authority = getOidcAuthority();
 
   clearOidcSession();
+  clearOperatorScopeStorage();
 
   if (!authority) {
     window.location.assign("/");

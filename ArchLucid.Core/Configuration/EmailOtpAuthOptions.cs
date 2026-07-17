@@ -59,6 +59,18 @@ public sealed class EmailOtpAuthOptions
         set;
     } = 60;
 
+    public bool RequireBotChallenge
+    {
+        get;
+        set;
+    }
+
+    public EmailOtpBotChallengeOptions BotChallenge
+    {
+        get;
+        set;
+    } = new();
+
     /// <summary>Optional pepper mixed into OTP code hashes (configure via secret store in production).</summary>
     public string HashPepper
     {
@@ -76,5 +88,6 @@ public sealed class EmailOtpAuthOptions
         MaxVerificationAttemptsPerEmailPerHour = Math.Clamp(MaxVerificationAttemptsPerEmailPerHour, 5, 100);
         ResendCooldownSeconds = Math.Clamp(ResendCooldownSeconds, 15, 300);
         AccessTokenLifetimeMinutes = Math.Clamp(AccessTokenLifetimeMinutes, 5, 24 * 60);
+        BotChallenge.Normalize();
     }
 }

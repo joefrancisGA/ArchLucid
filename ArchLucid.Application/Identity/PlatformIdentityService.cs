@@ -11,6 +11,10 @@ public interface IPlatformIdentityService
         ExternalIdentityKey externalKey,
         CancellationToken cancellationToken);
 
+    Task<PlatformUserRecord?> FindUserByAnyExternalIdentityAsync(
+        ExternalIdentityKey externalKey,
+        CancellationToken cancellationToken);
+
     Task<IReadOnlyList<AuthenticationIdentityRecord>> GetIdentitiesForUserAsync(
         Guid userId,
         CancellationToken cancellationToken);
@@ -119,6 +123,25 @@ public sealed class PlatformIdentityService(
         return await _users.GetByIdAsync(identity.UserId, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<PlatformUserRecord?> FindUserByAnyExternalIdentityAsync(
+        ExternalIdentityKey externalKey,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(externalKey);
+
+        ExternalIdentityKey normalized = NormalizeExternalKey(externalKey);
+
+        AuthenticationIdentityRecord? identity =
+            await _identities.FindAnyByExternalKeyAsync(normalized, cancellationToken).ConfigureAwait(false);
+
+        if (identity is null)
+        {
+            return null;
+        }
+
+        return await _users.GetByIdAsync(identity.UserId, cancellationToken).ConfigureAwait(false);
+    }
+
     public Task<IReadOnlyList<AuthenticationIdentityRecord>> GetIdentitiesForUserAsync(
         Guid userId,
         CancellationToken cancellationToken)
@@ -139,7 +162,7 @@ public sealed class PlatformIdentityService(
         ExternalIdentityKey normalizedKey = NormalizeExternalKey(request.ExternalKey);
 
         AuthenticationIdentityRecord? existingIdentity =
-            await _identities.FindByExternalKeyAsync(normalizedKey, cancellationToken).ConfigureAwait(false);
+            await _identities.FindAnyByExternalKeyAsync(normalizedKey, cancellationToken).ConfigureAwait(false);
 
         if (existingIdentity is not null)
         {
@@ -226,11 +249,27 @@ public sealed class PlatformIdentityService(
         await EnsureTenantIsolationForAttachmentAsync(userId, normalizedKey, cancellationToken).ConfigureAwait(false);
 
         AuthenticationIdentityRecord? existingIdentity =
-            await _identities.FindByExternalKeyAsync(normalizedKey, cancellationToken).ConfigureAwait(false);
+            await _identities.FindAnyByExternalKeyAsync(normalizedKey, cancellationToken).ConfigureAwait(false);
 
         if (existingIdentity is not null)
         {
-            if (existingIdentity.UserId == userId)
+            if (existingIdentity.UserId == userId && existingIdentity.DisabledUtc is not null)
+            {
+                bool reEnabled = await _identities.ReEnableAsync(existingIdentity.Id, cancellationToken).ConfigureAwait(false);
+
+                if (reEnabled)
+                {
+                    AuthenticationIdentityRecord? reloaded =
+                        await _identities.GetByIdAsync(existingIdentity.Id, cancellationToken).ConfigureAwait(false);
+
+                    if (reloaded is not null)
+                    {
+                        return reloaded;
+                    }
+                }
+            }
+
+            if (existingIdentity.UserId == userId && existingIdentity.DisabledUtc is null)
             {
                 return existingIdentity;
             }
@@ -303,6 +342,11 @@ public sealed class PlatformIdentityService(
         DateTimeOffset disabledUtc = _timeProvider.GetUtcNow();
 
         await _identities.DisableAsync(identityId, disabledUtc, cancellationToken).ConfigureAwait(false);
+
+        Guid nextAuthVersion = Guid.NewGuid();
+
+        await _users.RotateAuthVersionAsync(target.UserId, nextAuthVersion, disabledUtc, cancellationToken)
+            .ConfigureAwait(false);
 
         await _auditService.LogAsync(
             BuildAuditEvent(

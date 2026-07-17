@@ -18,7 +18,7 @@ public sealed class DapperPlatformUserRepository(ISqlConnectionFactory connectio
     public async Task<PlatformUserRecord?> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         const string sql = """
-                           SELECT Id, PrimaryEmail, NormalizedPrimaryEmail, DisplayName, Status, CreatedUtc, UpdatedUtc
+                           SELECT Id, PrimaryEmail, NormalizedPrimaryEmail, DisplayName, Status, CreatedUtc, UpdatedUtc, AuthVersion
                            FROM dbo.PlatformUsers
                            WHERE Id = @Id;
                            """;
@@ -46,7 +46,8 @@ public sealed class DapperPlatformUserRepository(ISqlConnectionFactory connectio
                                   INSERTED.DisplayName,
                                   INSERTED.Status,
                                   INSERTED.CreatedUtc,
-                                  INSERTED.UpdatedUtc
+                                  INSERTED.UpdatedUtc,
+                                  INSERTED.AuthVersion
                            VALUES
                                (@Id, @PrimaryEmail, @NormalizedPrimaryEmail, @DisplayName, @Status);
                            """;
@@ -136,6 +137,38 @@ public sealed class DapperPlatformUserRepository(ISqlConnectionFactory connectio
         }
     }
 
+    public async Task RotateAuthVersionAsync(
+        Guid userId,
+        Guid authVersion,
+        DateTimeOffset updatedUtc,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE dbo.PlatformUsers
+                           SET AuthVersion = @AuthVersion,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE Id = @Id;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Id = userId,
+                    AuthVersion = authVersion,
+                    UpdatedUtc = updatedUtc.UtcDateTime
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected == 0)
+        {
+            throw new PlatformUserNotFoundException(userId);
+        }
+    }
+
     private sealed class PlatformUserRow
     {
         public Guid Id
@@ -180,6 +213,12 @@ public sealed class DapperPlatformUserRepository(ISqlConnectionFactory connectio
             init;
         }
 
+        public Guid AuthVersion
+        {
+            get;
+            init;
+        }
+
         public PlatformUserRecord ToRecord() =>
             new()
             {
@@ -189,7 +228,8 @@ public sealed class DapperPlatformUserRepository(ISqlConnectionFactory connectio
                 DisplayName = DisplayName,
                 Status = AuthenticationProviderTypeMapper.ParsePlatformUserStatus(Status),
                 CreatedUtc = CreatedUtc,
-                UpdatedUtc = UpdatedUtc
+                UpdatedUtc = UpdatedUtc,
+                AuthVersion = AuthVersion
             };
     }
 }

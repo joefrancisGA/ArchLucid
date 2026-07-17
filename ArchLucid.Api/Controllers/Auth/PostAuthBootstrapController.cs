@@ -144,7 +144,8 @@ public sealed class PostAuthBootstrapController(
             result.TenantId.Value,
             result.WorkspaceId.Value,
             result.ProjectId.Value,
-            result.OnboardingPath);
+            result.OnboardingPath,
+            user.AuthVersion);
 
         return Ok(
             new PostAuthCreateWorkspaceResponse
@@ -216,7 +217,8 @@ public sealed class PostAuthBootstrapController(
                 accepted.TenantId,
                 accepted.WorkspaceId,
                 accepted.ProjectId,
-                accepted.RedirectPath));
+                accepted.RedirectPath,
+                user.AuthVersion));
     }
 
     [HttpPost("workspaces/select")]
@@ -271,7 +273,8 @@ public sealed class PostAuthBootstrapController(
                 selected.TenantId,
                 selected.WorkspaceId,
                 selected.ProjectId,
-                selected.RedirectPath));
+                selected.RedirectPath,
+                user.AuthVersion));
     }
 
     [HttpPost("access-request")]
@@ -312,7 +315,8 @@ public sealed class PostAuthBootstrapController(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        string redirectPath)
+        string redirectPath,
+        Guid authVersion)
     {
         int lifetimeSeconds = Math.Clamp(_emailOtpOptions.AccessTokenLifetimeMinutes, 5, 24 * 60) * 60;
 
@@ -322,7 +326,8 @@ public sealed class PostAuthBootstrapController(
             ArchLucid.Core.Authorization.ArchLucidRoles.WorkspaceAdmin,
             tenantId,
             workspaceId,
-            projectId);
+            projectId,
+            authVersion);
 
         return new PostAuthBootstrapSessionResponse
         {
