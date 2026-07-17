@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
