@@ -31,6 +31,20 @@ Reuses the same **dev** environment secrets/vars as [`APP_INSIGHTS_DAILY_ERROR_R
 
 Set `APP_INSIGHTS_DAILY_REPORT_ENABLED=false` to disable both digests.
 
+### Comcast / Xfinity SMTP notes
+
+GitHub Actions runners authenticate to `smtp.comcast.net:587`. If the email step logs `535 authentication rejected`:
+
+1. Confirm the mailbox password still works in a normal mail client.
+2. Prefer an **Xfinity app password** (if available for the account) over the interactive login password.
+3. Update the secret without pasting into chat:
+
+```powershell
+gh secret set SMTP_PASSWORD --env dev
+```
+
+4. Re-run **Ops: SQL dependency latency nightly** from Actions.
+
 ---
 
 ## Local fixture test
