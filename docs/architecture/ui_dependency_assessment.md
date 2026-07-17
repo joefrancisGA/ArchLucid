@@ -516,9 +516,11 @@ Each prompt is scoped to one bounded issue, preserves behavior, is independently
 
 > In `archlucid-ui/`, remove both `ajv` and `ajv-formats` from `dependencies` in `package.json` in the same change (they were only used together). Run `npm install` to update the lockfile only. Before the change, grep the lockfile for `"ajv"` and `"ajv-formats"` node entries and record the count and versions present (expect to see `ajv@6.15.0`, from ESLint's toolchain, survive; `ajv@8.20.0` and `ajv-formats` should disappear). After the change, confirm via the same grep that only the ESLint-owned `ajv@6.15.0` branch remains, then run `npm run typecheck`, `npm run lint`, and `npm run test`. Report the before/after lockfile node counts.
 
-### Prompt 3 — Cross-validate with Knip (investigation only, no code change) (**TB-860**)
+### Prompt 3 — Cross-validate with Knip (investigation only, no code change) (**TB-860**) — **Done 2026-07-17**
 
 > In `archlucid-ui/`, run `npx knip` (temporary execution — do not add `knip` to `devDependencies`) and capture its full output to a scratch file outside version control. Compare its unused-dependency findings against the assessment in `docs/architecture/ui_dependency_assessment.md` §6. Report any *additional* candidates it surfaces beyond the three already identified, with the same standard of evidence (check dynamic imports/configs/scripts before concluding something is unused) — do not remove anything based on Knip's output alone without that same manual cross-check. This prompt should produce a short findings note, not a dependency change.
+
+**Closure:** Findings in [`ui_knip_cross_validation_tb860.md`](ui_knip_cross_validation_tb860.md) — Knip reported **no unused production `dependencies`** after TB-858/TB-859; devDependency CLI false positives (`@lhci/cli`) and redundant `@eslint/eslintrc` direct pin documented; no new Tier 1 removals.
 
 ### Prompt 4 — Add `engines.node` to the app manifest (**TB-861**)
 
