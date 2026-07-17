@@ -102,7 +102,9 @@ Full check → live/ready matrix: [`docs/operations/HEALTH_LIVE_READY_DEPENDENCY
 | 3 | Product-path smoke | Required checks in [`CD_POST_DEPLOY_PRODUCT_SMOKE.md`](../operations/CD_POST_DEPLOY_PRODUCT_SMOKE.md) | Summary table: check / pass-fail / duration / expected vs observed BUILD_ID. |
 | 4 | `GET /openapi/v1.json` | HTTP **200** with **`X-Api-Key`** | Covered by product smoke + deployment-evidence. |
 | 5 | `GET /version` | HTTP **200**, `commitSha` == `BUILD_ID` | Wrong artifact / stale revision. |
-| 6 | `GET {SMOKE_SYNTHETIC_PATH}` | HTTP **200** | Omitted when the path is **`/version`** (already checked). |
+| 6 | `GET {SMOKE_SYNTHETIC_PATH}` | HTTP **200** | Omitted when the path is **`/version`** (already checked). When not `/version`, send **`X-Api-Key`** (`ARCHLUCID_API_KEY`) — see synthetic warm-path below. |
+
+**Synthetic warm-path (TB-758):** Set repository variable **`SMOKE_SYNTHETIC_PATH=/api/auth/me`** (recommended) so deployment-evidence performs one extra authenticated GET after `/version`. That route is **ReadAuthority**, side-effect-free, and exercises auth + tenant scope without mutating data. Anonymous health probes stay keyless. Audit with `.\scripts\ci\verify-cd-synthetic-path-vars.ps1` (`-Apply` sets the recommended value). Legacy bash: export `ARCHLUCID_API_KEY` when calling `cd-post-deploy-verify.sh` with a non-`/version` synthetic path.
 
 **Operator CLI (local, non-blocking unless you treat exit code as gate):**
 
@@ -173,7 +175,7 @@ Configure per **environment** (`dev` / `staging` / `production`) or organization
 | `NUGET_API_KEY` | NuGet job | Production manual CD only. |
 | `CD_NOTIFY_WEBHOOK_URL` | Notify | Optional Slack-style webhook. |
 
-**Repository variables:** `IMAGE_TAG` (override default tag), `SMOKE_SYNTHETIC_PATH` (default `/version`; extra URL checked for HTTP 200 when not `/version`), `CD_ROLLBACK_ON_SMOKE_FAILURE` (`true` to auto-deactivate revisions on validation failure), `CD_POST_DEPLOY_MAX_ATTEMPTS` (recommended repo var **6**; `cd.yml` bash fallback **6** when unset; local `cd-post-deploy-verify.sh` defaults **1** unless env is exported), `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` (recommended **10**; same `cd.yml` fallback), `CD_CANARY_ENABLED` (`true` for staging/production cold-start canary), `CD_CANARY_INITIAL_PERCENT` (recommended **10**), `CD_CANARY_BAKE_MINUTES` (recommended **3**).
+**Repository variables:** `IMAGE_TAG` (override default tag), `SMOKE_SYNTHETIC_PATH` (recommended **`/api/auth/me`** for authenticated warm-path smoke; default effective **`/version`** when unset), `CD_ROLLBACK_ON_SMOKE_FAILURE` (`true` to auto-deactivate revisions on validation failure), `CD_POST_DEPLOY_MAX_ATTEMPTS` (recommended repo var **6**; `cd.yml` bash fallback **6** when unset; local `cd-post-deploy-verify.sh` defaults **1** unless env is exported), `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` (recommended **10**; same `cd.yml` fallback), `CD_CANARY_ENABLED` (`true` for staging/production cold-start canary), `CD_CANARY_INITIAL_PERCENT` (recommended **10**), `CD_CANARY_BAKE_MINUTES` (recommended **3**).
 
 **Manual dispatch:** `run_terraform_apply` defaults to **false** so routine releases only refresh images and Container App revisions; set **true** when infra tfvars (e.g. image pins) must move with the same run.
 

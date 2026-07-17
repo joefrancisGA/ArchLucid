@@ -14,6 +14,7 @@ internal static class DeploymentEvidenceProbeRunner
         string apiBaseUrl,
         string syntheticPath,
         bool allowMissingOpenApi,
+        string? syntheticProbeApiKey,
         CancellationToken cancellationToken)
     {
         string redactedBase = SupportBundleRedactor.RedactHttpUrl(apiBaseUrl);
@@ -25,6 +26,7 @@ internal static class DeploymentEvidenceProbeRunner
             "GET /health/live",
             code => code == 200,
             redactedBase,
+            apiKey: null,
             cancellationToken).ConfigureAwait(false);
 
         probes.Add(live);
@@ -53,6 +55,7 @@ internal static class DeploymentEvidenceProbeRunner
                 "GET " + syntheticPath + " (synthetic)",
                 code => code == 200,
                 redactedBase,
+                syntheticProbeApiKey,
                 cancellationToken).ConfigureAwait(false);
 
             probes.Add(syn);
@@ -81,12 +84,18 @@ internal static class DeploymentEvidenceProbeRunner
         string label,
         Func<int, bool> isPass,
         string redactedBase,
+        string? apiKey,
         CancellationToken cancellationToken)
     {
         try
         {
+            using HttpRequestMessage request = new(HttpMethod.Get, path);
+
+            if (!string.IsNullOrWhiteSpace(apiKey))
+                request.Headers.TryAddWithoutValidation("X-Api-Key", apiKey.Trim());
+
             using HttpResponseMessage response =
-                await http.GetAsync(path, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                     .ConfigureAwait(false);
             int code = (int)response.StatusCode;
             string body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);

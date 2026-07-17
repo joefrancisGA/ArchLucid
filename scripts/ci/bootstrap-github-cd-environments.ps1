@@ -130,6 +130,7 @@ Set-RepoVariable -Name 'CD_POST_DEPLOY_RETRY_WAIT_SECONDS' -Value '10'
 Set-RepoVariable -Name 'CD_CANARY_ENABLED' -Value 'true'
 Set-RepoVariable -Name 'CD_CANARY_INITIAL_PERCENT' -Value '10'
 Set-RepoVariable -Name 'CD_CANARY_BAKE_MINUTES' -Value '3'
+Set-RepoVariable -Name 'SMOKE_SYNTHETIC_PATH' -Value '/api/auth/me'
 
 Set-RepoSecretIfPresent -Name 'ALERT_SMS_PHONE_NUMBER' -Value $AlertSmsPhone
 Set-RepoSecretIfPresent -Name 'ALERT_VOICE_PHONE_NUMBER' -Value $AlertVoicePhone
@@ -146,4 +147,10 @@ if ($LASTEXITCODE -ne 0) {
 
 if ($LASTEXITCODE -ne 0) {
     throw 'CD canary repository variable verification failed after bootstrap.'
+}
+
+& (Join-Path $PSScriptRoot 'verify-cd-synthetic-path-vars.ps1')
+
+if ($LASTEXITCODE -ne 0) {
+    throw 'CD synthetic path repository variable verification failed after bootstrap.'
 }

@@ -50,6 +50,7 @@ Set under **Settings → Secrets and variables → Actions → Variables** (or p
 | `CD_CANARY_ENABLED` | `true` | Split API ingress to the new revision before smoke (requires `api_revision_mode = Multiple`) |
 | `CD_CANARY_INITIAL_PERCENT` | `10` | Weight on the new API revision during bake (1–99) |
 | `CD_CANARY_BAKE_MINUTES` | `3` | Minutes to wait after split before smoke runs |
+| `SMOKE_SYNTHETIC_PATH` | `/api/auth/me` | Extra authenticated GET after `/version` during deployment-evidence (ReadAuthority, no mutation) |
 | `CD_MAINTENANCE_WINDOW_OVERRIDE` | unset (`false`) | Set `true` for break-glass dev deploy outside 22:00 ET |
 
 **Cold-start checklist (no Azure SKU change):** After bootstrap or any manual CD setup, confirm `CD_POST_DEPLOY_MAX_ATTEMPTS=6` and `CD_POST_DEPLOY_RETRY_WAIT_SECONDS=10` under **Settings → Secrets and variables → Actions → Variables**. These retries run only in GitHub Actions and do not raise Container Apps `min_replicas` or CPU/memory. Audit locally:
@@ -67,6 +68,14 @@ Use `-Apply` to set recommended values when vars are missing or too low. `bootst
 ```
 
 See [`CANARY_DEPLOYMENT.md`](../runbooks/CANARY_DEPLOYMENT.md).
+
+**Synthetic warm-path checklist (staging/production):** Set `SMOKE_SYNTHETIC_PATH=/api/auth/me` so CD runs one extra authenticated GET after `/version` (warms auth + tenant scope; must not mutate data). Requires `ARCHLUCID_API_KEY` on the deployment-evidence step. Audit:
+
+```powershell
+.\scripts\ci\verify-cd-synthetic-path-vars.ps1
+```
+
+Use `-Apply` when the var is unset or still `/version`. `bootstrap-github-cd-environments.ps1` sets the recommended value and re-runs this check.
 
 ## Optional per-environment expected-target variables (recommended for production)
 

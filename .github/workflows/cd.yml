@@ -18,7 +18,7 @@
 #
 # Dev schedule: nightly 22:00 America/New_York (target=dev, action=deploy). Manual staging/production remain workflow_dispatch only.
 # Dev maintenance: deploy allowed during hour 22 ET; post-deploy validation must pass before 23:00 ET or rollback runs (when CD_ROLLBACK_ON_SMOKE_FAILURE=true).
-#   SMOKE_SYNTHETIC_PATH — optional extra path after /version (default /version); must return HTTP 200 if not /version
+#   SMOKE_SYNTHETIC_PATH — optional repo var; recommended /api/auth/me (authenticated warm-path GET after /version; requires ARCHLUCID_API_KEY)
 #   CD_POST_DEPLOY_MAX_ATTEMPTS / CD_POST_DEPLOY_RETRY_WAIT_SECONDS — optional repo vars for retry loop (cold start)
 #   CD_CANARY_ENABLED — optional repo var "true" to split API traffic after deploy (requires api_revision_mode=Multiple in Terraform)
 #   CD_CANARY_INITIAL_PERCENT — optional repo var (default 10) initial weight on the new revision

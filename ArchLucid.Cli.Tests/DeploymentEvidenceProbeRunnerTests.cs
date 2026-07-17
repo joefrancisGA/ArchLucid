@@ -19,11 +19,11 @@ public sealed class DeploymentEvidenceProbeRunnerTests
     [Fact]
     public async Task RunOnceAsync_all_green_succeeds_bundle()
     {
-        Dictionary<string, Func<HttpResponseMessage>> routes = new(StringComparer.Ordinal)
+        Dictionary<string, Func<HttpRequestMessage, HttpResponseMessage>> routes = new(StringComparer.Ordinal)
         {
-            ["/health/live"] = () => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("OK") },
+            ["/health/live"] = _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("OK") },
             ["/health/ready"] =
-                () => new HttpResponseMessage(HttpStatusCode.OK)
+                _ => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
                         JsonSerializer.Serialize(new
@@ -33,7 +33,7 @@ public sealed class DeploymentEvidenceProbeRunnerTests
                         }, JsonCamel))
                 },
             ["/openapi/v1.json"] =
-                () => new HttpResponseMessage(HttpStatusCode.OK)
+                _ => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
                         JsonSerializer.Serialize(new
@@ -45,7 +45,7 @@ public sealed class DeploymentEvidenceProbeRunnerTests
                         }, JsonCamel))
                 },
             ["/version"] =
-                () => new HttpResponseMessage(HttpStatusCode.OK)
+                _ => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
                         JsonSerializer.Serialize(
@@ -66,6 +66,7 @@ public sealed class DeploymentEvidenceProbeRunnerTests
             "https://api.example.com",
             "/version",
             allowMissingOpenApi: false,
+            syntheticProbeApiKey: null,
             CancellationToken.None);
 
         bundle.AllRequiredPassed.Should().BeTrue();
@@ -75,11 +76,11 @@ public sealed class DeploymentEvidenceProbeRunnerTests
     [Fact]
     public async Task RunOnceAsync_allow_missing_openapi_accepts_404()
     {
-        Dictionary<string, Func<HttpResponseMessage>> routes = new(StringComparer.Ordinal)
+        Dictionary<string, Func<HttpRequestMessage, HttpResponseMessage>> routes = new(StringComparer.Ordinal)
         {
-            ["/health/live"] = () => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("OK") },
+            ["/health/live"] = _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("OK") },
             ["/health/ready"] =
-                () => new HttpResponseMessage(HttpStatusCode.OK)
+                _ => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
                         JsonSerializer.Serialize(new
@@ -87,9 +88,9 @@ public sealed class DeploymentEvidenceProbeRunnerTests
                             status = "Healthy"
                         }, JsonCamel))
                 },
-            ["/openapi/v1.json"] = () => new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") },
+            ["/openapi/v1.json"] = _ => new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") },
             ["/version"] =
-                () => new HttpResponseMessage(HttpStatusCode.OK)
+                _ => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
                         JsonSerializer.Serialize(
@@ -109,19 +110,84 @@ public sealed class DeploymentEvidenceProbeRunnerTests
             "https://api.example.com",
             "/version",
             allowMissingOpenApi: true,
+            syntheticProbeApiKey: null,
             CancellationToken.None);
 
         bundle.AllRequiredPassed.Should().BeTrue();
     }
 
-    private sealed class RouterHandler(Dictionary<string, Func<HttpResponseMessage>> routes) : HttpMessageHandler
+    [Fact]
+    public async Task RunOnceAsync_authenticated_synthetic_sends_api_key_header()
+    {
+        string? capturedApiKey = null;
+
+        Dictionary<string, Func<HttpRequestMessage, HttpResponseMessage>> routes =
+            new(StringComparer.Ordinal)
+            {
+                ["/health/live"] =
+                    _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("OK") },
+                ["/health/ready"] =
+                    _ => new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(
+                            JsonSerializer.Serialize(new { status = "Healthy" }, JsonCamel))
+                    },
+                ["/openapi/v1.json"] =
+                    _ => new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(
+                            JsonSerializer.Serialize(new { info = new { title = "ArchLucid" } }, JsonCamel))
+                    },
+                ["/version"] =
+                    _ => new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(
+                            JsonSerializer.Serialize(new { informationalVersion = "1.0.0-test" }, JsonCamel))
+                    },
+                ["/api/auth/me"] =
+                    request =>
+                    {
+                        capturedApiKey = request.Headers.TryGetValues("X-Api-Key", out IEnumerable<string>? values)
+                            ? values.FirstOrDefault()
+                            : null;
+
+                        return new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                JsonSerializer.Serialize(new { name = "smoke-admin" }, JsonCamel))
+                        };
+                    }
+            };
+
+        using HttpClient http = new(new RouterHandler(routes));
+        http.BaseAddress = new Uri("https://api.example/");
+
+        DeploymentEvidenceProbeBundle bundle = await DeploymentEvidenceProbeRunner.RunOnceAsync(
+            http,
+            "https://api.example.com",
+            "/api/auth/me",
+            allowMissingOpenApi: false,
+            syntheticProbeApiKey: "smoke-key",
+            CancellationToken.None);
+
+        bundle.AllRequiredPassed.Should().BeTrue();
+        capturedApiKey.Should().Be("smoke-key");
+        bundle.Probes.Should().ContainSingle(probe =>
+            probe.Name.Contains("/api/auth/me", StringComparison.Ordinal) && probe.Passed);
+    }
+
+    private sealed class RouterHandler(Dictionary<string, Func<HttpRequestMessage, HttpResponseMessage>> routes)
+        : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             string path = request.RequestUri?.AbsolutePath ?? "";
 
-            return Task.FromResult(routes.TryGetValue(path, out Func<HttpResponseMessage>? factory) ? factory() : new HttpResponseMessage(HttpStatusCode.NotFound));
+            return Task.FromResult(
+                routes.TryGetValue(path, out Func<HttpRequestMessage, HttpResponseMessage>? factory)
+                    ? factory(request)
+                    : new HttpResponseMessage(HttpStatusCode.NotFound));
         }
     }
 }

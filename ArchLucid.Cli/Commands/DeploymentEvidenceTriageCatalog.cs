@@ -48,6 +48,7 @@ internal static class DeploymentEvidenceTriageCatalog
         return
         [
             $"Synthetic path `{path}` must return HTTP 200 for the CD gate — adjust `SMOKE_SYNTHETIC_PATH` or the route.",
+            "Authenticated paths (recommended `/api/auth/me`) require `ARCHLUCID_API_KEY` on the deployment-evidence step; health probes stay anonymous.",
             "If you only need `/version`, set `--synthetic-path /version` (duplicate GET is skipped)."
         ];
     }

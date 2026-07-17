@@ -27,6 +27,7 @@ internal static class StackDoctorDeploymentEvidenceStepRunner
                 baseUrl,
                 syntheticPath: "/version",
                 allowMissingOpenApi: false,
+                syntheticProbeApiKey: null,
                 cancellationToken)
             .ConfigureAwait(false);
 
