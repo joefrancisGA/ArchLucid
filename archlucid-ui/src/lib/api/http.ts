@@ -11,6 +11,7 @@ import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-stora
 import { getScopeHeaders } from "@/lib/scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
+import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
 
 /** Shared HTTP helpers (JSON + proxy routing). */
 
@@ -235,7 +236,10 @@ export async function apiGetJsonWithTrace<T>(
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(path, options);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
-  const response = await fetch(url, serverFetchInit(h));
+  const fetchOnce = () => fetch(url, serverFetchInit(h));
+  const response = isBrowser()
+    ? await fetchOnce()
+    : await fetchWithWarmupRetry(fetchOnce);
   captureTraceContextFromResponse(response);
   const text = await response.text();
   const traceId = extractTraceId(response);

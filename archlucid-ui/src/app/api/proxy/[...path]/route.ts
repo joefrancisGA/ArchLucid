@@ -14,6 +14,7 @@ import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
 import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
+import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
 
 const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
 /** Matches `ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength` on the API. */
@@ -315,12 +316,27 @@ async function forward(
   let res: Response;
 
   try {
-    res = await fetch(targetUrl, {
-      method: "GET",
-      headers,
-      cache: "no-store",
-      signal: AbortSignal.timeout(PROXY_UPSTREAM_FETCH_TIMEOUT_MS),
-    });
+    res = await fetchWithWarmupRetry(
+      () =>
+        fetch(targetUrl, {
+          method: "GET",
+          headers,
+          cache: "no-store",
+          signal: AbortSignal.timeout(PROXY_UPSTREAM_FETCH_TIMEOUT_MS),
+        }),
+      {
+        onRetry: ({ attemptIndex, reason, status }) => {
+          logProxyDiagnostic("upstream_warmup_retry", {
+            method,
+            path: pathForLog,
+            attempt: attemptIndex + 1,
+            reason,
+            status,
+            correlationId,
+          });
+        },
+      },
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     logProxyDiagnostic("upstream_fetch_failed", {
