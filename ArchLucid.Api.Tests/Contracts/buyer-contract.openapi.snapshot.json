@@ -4439,6 +4439,87 @@
         },
         "type": "object"
       },
+      "AuthDomainEnforcementMode": {
+        "enum": [
+          "SsoOptional",
+          "SsoRequiredForVerifiedDomain",
+          "SsoRequiredWithRecoveryException"
+        ],
+        "type": "string"
+      },
+      "AuthDomainVerificationStatus": {
+        "enum": [
+          "Unverified",
+          "VerificationPending",
+          "Verified",
+          "VerificationFailed",
+          "Removed"
+        ],
+        "type": "string"
+      },
+      "AuthSignInRoutingEvaluateBody": {
+        "properties": {
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "invitationToken": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "returnPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "AuthSignInRoutingPreviewResponse": {
+        "properties": {
+          "allowEmailCode": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ssoRequired": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "AuthSignInRoutingResponse": {
+        "properties": {
+          "allowEmailCode": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "returnPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ssoRequired": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "AwsTier2ConnectionConfigureBody": {
         "properties": {
           "accountId": {
@@ -8779,6 +8860,111 @@
           "Should"
         ],
         "type": "string"
+      },
+      "EmailOtpChallengeRequest": {
+        "properties": {
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "invitationToken": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "EmailOtpChallengeResponse": {
+        "properties": {
+          "challengeId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "ssoMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ssoRequired": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "EmailOtpVerifyRequest": {
+        "properties": {
+          "challengeId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "invitationToken": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "EmailOtpVerifyResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresInSeconds": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "invitationId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "nextStep": {
+            "type": "string"
+          },
+          "platformUserId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tokenType": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
       },
       "EndToEndReplayComparisonExportResponse": {
         "properties": {
@@ -17888,6 +18074,231 @@
         },
         "type": "object"
       },
+      "PostAuthAcceptInvitationBody": {
+        "properties": {
+          "invitationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "invitationToken": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthAccessRequestBody": {
+        "properties": {
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthBootstrapDuplicateOrganizationResponse": {
+        "properties": {
+          "accessRequestRecommended": {
+            "type": "boolean"
+          },
+          "customerMessage": {
+            "type": "string"
+          },
+          "detected": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthBootstrapInvitationResponse": {
+        "properties": {
+          "invitationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthBootstrapSessionResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresInSeconds": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "redirectPath": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthBootstrapStatusResponse": {
+        "properties": {
+          "canCreateWorkspace": {
+            "type": "boolean"
+          },
+          "denialReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "destination": {
+            "type": "string"
+          },
+          "duplicateOrganization": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PostAuthBootstrapDuplicateOrganizationResponse"
+              }
+            ]
+          },
+          "pendingInvitations": {
+            "items": {
+              "$ref": "#/components/schemas/PostAuthBootstrapInvitationResponse"
+            },
+            "type": "array"
+          },
+          "resumePath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workspaces": {
+            "items": {
+              "$ref": "#/components/schemas/PostAuthBootstrapWorkspaceResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthBootstrapWorkspaceResponse": {
+        "properties": {
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthCreateWorkspaceBody": {
+        "properties": {
+          "dataRegion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "includeDemoSeed": {
+            "type": "boolean"
+          },
+          "industryVertical": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "industryVerticalOther": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "invitationToken": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "termsAccepted": {
+            "type": "boolean"
+          },
+          "workspaceName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthCreateWorkspaceResponse": {
+        "properties": {
+          "customerMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "duplicateOrganization": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PostAuthBootstrapDuplicateOrganizationResponse"
+              }
+            ]
+          },
+          "onboardingPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "session": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PostAuthBootstrapSessionResponse"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PostAuthSelectWorkspaceBody": {
+        "properties": {
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PreCommitGateResult": {
         "properties": {
           "blockExplanation": {
@@ -23533,6 +23944,60 @@
         },
         "type": "object"
       },
+      "TenantAuthDomainAdminResponse": {
+        "properties": {
+          "dnsVerificationInstruction": {
+            "type": "string"
+          },
+          "domain": {
+            "$ref": "#/components/schemas/TenantSignInEmailDomainRecord"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAuthDomainEnableEnforcementRequest": {
+        "properties": {
+          "confirmTested": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAuthDomainEnforcementRequest": {
+        "properties": {
+          "allowEmailOtpRecovery": {
+            "type": "boolean"
+          },
+          "enforcementMode": {
+            "$ref": "#/components/schemas/AuthDomainEnforcementMode"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAuthDomainProposeRequest": {
+        "properties": {
+          "domain": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAuthDomainRecoveryAdminRequest": {
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantAuthDomainRoutingTestRequest": {
+        "properties": {
+          "testEmail": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "TenantBaselineGetResponse": {
         "properties": {
           "baselineReviewCycleCapturedUtc": {
@@ -24666,6 +25131,120 @@
           "adminEmail",
           "organizationName"
         ],
+        "type": "object"
+      },
+      "TenantSignInEmailDomainRecord": {
+        "properties": {
+          "allowEmailOtpRecovery": {
+            "type": "boolean"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayDomain": {
+            "type": "string"
+          },
+          "dnsVerificationToken": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "enforcementEnabledUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "enforcementMode": {
+            "$ref": "#/components/schemas/AuthDomainEnforcementMode"
+          },
+          "isEnforcementActive": {
+            "type": "boolean"
+          },
+          "normalizedDomain": {
+            "type": "string"
+          },
+          "removedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requireEnterpriseSso": {
+            "type": "boolean"
+          },
+          "routingTestPassedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verificationFailedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verificationPendingUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verificationStatus": {
+            "$ref": "#/components/schemas/AuthDomainVerificationStatus"
+          },
+          "verifiedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantSignInEmailDomainRecoveryAdminRecord": {
+        "properties": {
+          "createdByActorId": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayRecoveryAdminEmail": {
+            "type": "string"
+          },
+          "normalizedDomain": {
+            "type": "string"
+          },
+          "normalizedRecoveryAdminEmail": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "TenantTier": {
@@ -30932,6 +31511,9 @@
       "name": "AuthDebug"
     },
     {
+      "name": "AuthSignInRouting"
+    },
+    {
       "name": "AuthorityCompare"
     },
     {
@@ -31017,6 +31599,9 @@
     },
     {
       "name": "DraftRequests"
+    },
+    {
+      "name": "EmailOtpAuth"
     },
     {
       "name": "EnterpriseComparisonMarketing"
@@ -31172,6 +31757,9 @@
       "name": "PolicyPacks"
     },
     {
+      "name": "PostAuthBootstrap"
+    },
+    {
       "name": "ProductLearning"
     },
     {
@@ -31278,6 +31866,9 @@
     },
     {
       "name": "Templates"
+    },
+    {
+      "name": "TenantAuthDomainAdmin"
     },
     {
       "name": "TenantBaseline"
