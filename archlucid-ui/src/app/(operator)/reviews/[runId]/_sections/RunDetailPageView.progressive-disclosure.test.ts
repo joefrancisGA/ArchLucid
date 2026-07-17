@@ -50,8 +50,7 @@ describe("RunDetailPageView progressive disclosure", () => {
 
   it("hides operator forensics and metadata in sponsor mode", () => {
     expect(source).toContain("{!m.buyerPolishedArtifactTable ? (");
-    expect(source).toContain("RunDetailOperatorTechnicalDisclosure");
-    expect(source).toContain("RunDetailRunMetadataSection");
+    expect(source).toContain("RunDetailOperatorTechnicalForensicsPanel");
 
     const belowFoldSource = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
@@ -79,8 +78,7 @@ describe("RunDetailPageView progressive disclosure", () => {
       "utf8",
     );
 
-    expect(source).toContain("RunDetailOperatorTechnicalDisclosure");
-    expect(source).toContain("RunEstimatedLlmCostCard");
+    expect(source).toContain("RunDetailOperatorTechnicalForensicsPanel");
     expect(disclosureSource).toContain('data-testid="run-detail-advanced-options"');
     expect(disclosureSource).toContain('defaultOpen={false}');
   });

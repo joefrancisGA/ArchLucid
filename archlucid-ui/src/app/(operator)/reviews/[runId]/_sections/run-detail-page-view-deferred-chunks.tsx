@@ -54,3 +54,85 @@ export const RunDetailCompareToBaselineCta = dynamic(
     ),
   },
 );
+
+export const RunDetailEstimatedLlmCostCardDeferred = dynamic(
+  () => import("@/components/RunEstimatedLlmCostCard").then((module) => module.RunEstimatedLlmCostCard),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailAgentResultsSummaryCardDeferred = dynamic(
+  () => import("@/components/RunAgentResultsSummaryCard").then((module) => module.RunAgentResultsSummaryCard),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailReviewAgentExecutionLogSectionDeferred = dynamic(
+  () =>
+    import("@/components/reviews/ReviewAgentExecutionLogSection").then(
+      (module) => module.ReviewAgentExecutionLogSection,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailRetrievalGroundingSummaryCardDeferred = dynamic(
+  () =>
+    import("@/components/RunRetrievalGroundingSummaryCard").then(
+      (module) => module.RunRetrievalGroundingSummaryCard,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailRunMetadataSectionDeferred = dynamic(
+  () =>
+    import("./RunDetailRunMetadataSection").then((module) => module.RunDetailRunMetadataSection),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailLastFailureCardDeferred = dynamic(
+  () => import("@/components/RunDetailLastFailureCard").then((module) => module.RunDetailLastFailureCard),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailProgressTrackerDeferred = dynamic(
+  () => import("@/components/RunProgressTracker").then((module) => module.RunProgressTracker),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailTrustEvidenceCardSectionDeferred = dynamic(
+  () =>
+    import("@/components/RunTrustEvidenceCardSection").then((module) => module.RunTrustEvidenceCardSection),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailSampleReviewPackageSummaryDeferred = dynamic(
+  () => import("@/components/SampleReviewPackageSummary").then((module) => module.SampleReviewPackageSummary),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailArchitectureCreatedWorkspaceDeferred = dynamic(
+  () =>
+    import("@/components/architecture/ArchitectureCreatedWorkspace").then(
+      (module) => module.ArchitectureCreatedWorkspace,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailFirstWeekRouteGuidanceDeferred = dynamic(
+  () => import("@/components/FirstWeekRouteGuidance").then((module) => module.FirstWeekRouteGuidance),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailExplanationConfidenceBannerDeferred = dynamic(
+  () =>
+    import("@/components/RunExplanationConfidenceBanner").then(
+      (module) => module.RunExplanationConfidenceBanner,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailGovernanceAlertsDeferred = dynamic(
+  () =>
+    import("@/components/reviews/RunDetailGovernanceAlerts").then(
+      (module) => module.RunDetailGovernanceAlerts,
+    ),
+  { ssr: false, loading: () => null },
+);

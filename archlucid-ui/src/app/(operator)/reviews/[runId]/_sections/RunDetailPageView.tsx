@@ -5,7 +5,6 @@ import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
-import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { CommitBlockingFindingsBanner } from "@/components/usability/CommitBlockingFindingsBanner";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
@@ -13,17 +12,10 @@ import { StalledReviewGuidanceCallout } from "@/components/usability/StalledRevi
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
-import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { ReviewDetailPolicyPackImpactCallout } from "@/components/findings/ReviewDetailPolicyPackImpactCallout";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
-import { RunEstimatedLlmCostCard } from "@/components/RunEstimatedLlmCostCard";
-import { RunAgentResultsSummaryCard } from "@/components/RunAgentResultsSummaryCard";
-import { RunDetailLastFailureCard, resolveRunDetailLastFailureSummary } from "@/components/RunDetailLastFailureCard";
-import { RunRetrievalGroundingSummaryCard } from "@/components/RunRetrievalGroundingSummaryCard";
-import { RunProgressTracker } from "@/components/RunProgressTracker";
-import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
-import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
+import { resolveRunDetailLastFailureSummary } from "@/components/RunDetailLastFailureCard";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
@@ -33,7 +25,6 @@ import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
 } from "@/lib/showcase-static-demo";
 
-import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
 import { RunDetailOverviewPanelClient } from "@/components/reviews/RunDetailOverviewPanelClient";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
@@ -77,12 +68,9 @@ import {
 import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActions";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
-import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
-import { RunDetailExecutiveSummary } from "@/components/reviews/RunDetailExecutiveSummary";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
+import { RunDetailExecutiveSummary } from "@/components/reviews/RunDetailExecutiveSummary";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
-import { RunDetailOperatorTechnicalDisclosure } from "./RunDetailOperatorTechnicalDisclosure";
-import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
 import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
@@ -90,15 +78,23 @@ import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCta
 import { RunDetailGovernanceCta } from "./RunDetailGovernanceCta";
 import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
+import { RunDetailOperatorTechnicalForensicsPanel } from "./RunDetailOperatorTechnicalForensicsPanel";
 import {
+  RunDetailArchitectureCreatedWorkspaceDeferred,
   RunDetailCompareToBaselineCta,
+  RunDetailExplanationConfidenceBannerDeferred,
   RunDetailExportDeliverableDialog,
+  RunDetailFirstWeekRouteGuidanceDeferred,
   RunDetailGenerateAdrFromRunModal,
+  RunDetailGovernanceAlertsDeferred,
   RunDetailHolisticCriticPanelDeferred,
+  RunDetailLastFailureCardDeferred,
+  RunDetailProgressTrackerDeferred,
+  RunDetailSampleReviewPackageSummaryDeferred,
   RunDetailTechnologyBaselineSection,
+  RunDetailTrustEvidenceCardSectionDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
-import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
 import { ArchitectureCreateWorkItemSection } from "@/components/architecture/ArchitectureCreateWorkItemSection";
 import { ArchitectureSponsorSharingPanel } from "@/components/architecture/ArchitectureSponsorSharingPanel";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
@@ -134,7 +130,7 @@ export function RunDetailPageView(props: {
 
   const sampleReviewPackageSummaryEl =
     m.usedStaticDemoRun ? (
-      <SampleReviewPackageSummary
+      <RunDetailSampleReviewPackageSummaryDeferred
         runId={m.resolvedDetail.run.runId}
         manifestId={m.manifestId}
         artifactCount={m.artifacts.length}
@@ -166,7 +162,7 @@ export function RunDetailPageView(props: {
   const governanceAlertsEl = (
     <GovernanceModePresentationGate>
       <>
-        <RunDetailGovernanceAlerts
+        <RunDetailGovernanceAlertsDeferred
           run={m.resolvedDetail.run}
           hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
         />
@@ -395,7 +391,7 @@ export function RunDetailPageView(props: {
           findings: (
             <>
               {m.explanationSummary !== null ? (
-                <RunExplanationConfidenceBanner summary={m.explanationSummary} />
+                <RunDetailExplanationConfidenceBannerDeferred summary={m.explanationSummary} />
               ) : null}
               {explanationDeferredEl}
             </>
@@ -409,7 +405,7 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
               {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
-                <RunTrustEvidenceCardSection
+                <RunDetailTrustEvidenceCardSectionDeferred
                   card={m.resolvedDetail.trustEvidenceCard}
                   evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
                 />
@@ -483,11 +479,11 @@ export function RunDetailPageView(props: {
             <div className="space-y-4">
               {!m.manifestId && m.showProgressTracker ? (
                 <div id="pipeline-timeline" className="scroll-mt-24">
-                  <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                  <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
                 </div>
               ) : null}
               {m.showProgressTracker && m.manifestId ? (
-                <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
               ) : null}
               <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
                 <summary className="cursor-pointer font-semibold">Technology baseline</summary>
@@ -529,7 +525,7 @@ export function RunDetailPageView(props: {
                 hasGoldenManifest={Boolean(m.manifestId)}
               />
               {!m.buyerPolishedArtifactTable ? (
-                <RunDetailLastFailureCard
+                <RunDetailLastFailureCardDeferred
                   summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
                   legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
                 />
@@ -546,19 +542,13 @@ export function RunDetailPageView(props: {
                 <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
               ) : null}
               {!m.buyerPolishedArtifactTable ? (
-                <RunDetailOperatorTechnicalDisclosure>
-                  <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
-                  <RunAgentResultsSummaryCard
-                    results={m.resolvedDetail.results}
-                    retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
-                  />
-                  <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
-                  <RunRetrievalGroundingSummaryCard
-                    summary={m.resolvedDetail.retrievalGroundingSummary}
-                    runId={m.resolvedDetail.run.runId}
-                  />
-                  <RunDetailRunMetadataSection run={m.resolvedDetail.run} runDetailTraceId={m.runDetailTraceId} />
-                </RunDetailOperatorTechnicalDisclosure>
+                <RunDetailOperatorTechnicalForensicsPanel
+                  agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
+                  results={m.resolvedDetail.results}
+                  retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
+                  run={m.resolvedDetail.run}
+                  runDetailTraceId={m.runDetailTraceId}
+                />
               ) : null}
               <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
                 <RunDetailBelowFoldSections model={m} context={deferredContext} />
@@ -617,7 +607,7 @@ export function RunDetailPageView(props: {
             <>
               {showArchitectureCreatedHome ? (
                 <Suspense fallback={<RunDetailExplanationSkeleton />}>
-                  <ArchitectureCreatedWorkspace
+                  <RunDetailArchitectureCreatedWorkspaceDeferred
                     baseline={architectureCreatedBaseline}
                     architectureSourceText={submittedArchitectureText ?? ""}
                     canEditDiagram={!m.manifestId}
@@ -688,7 +678,7 @@ export function RunDetailPageView(props: {
                         <>
                           {!m.manifestId && m.showProgressTracker ? (
                             <div id="architecture-assessment-progress" className="scroll-mt-24">
-                              <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                              <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
                             </div>
                           ) : null}
                           <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" open={false}>
@@ -826,7 +816,7 @@ export function RunDetailPageView(props: {
         </>
       ) : null}
 
-      <FirstWeekRouteGuidance
+      <RunDetailFirstWeekRouteGuidanceDeferred
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
 
@@ -859,7 +849,7 @@ export function RunDetailPageView(props: {
           ) : null}
 
           {m.manifestId && m.resolvedDetail.trustEvidenceCard ? (
-            <RunTrustEvidenceCardSection
+            <RunDetailTrustEvidenceCardSectionDeferred
               card={m.resolvedDetail.trustEvidenceCard}
               evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
             />
@@ -891,7 +881,7 @@ export function RunDetailPageView(props: {
           ) : null}
 
           {m.explanationSummary !== null ? (
-            <RunExplanationConfidenceBanner summary={m.explanationSummary} />
+            <RunDetailExplanationConfidenceBannerDeferred summary={m.explanationSummary} />
           ) : null}
 
           <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
@@ -922,7 +912,7 @@ export function RunDetailPageView(props: {
           {buyerFinalizedPackage ? null : showGovernanceCtaCard ? governanceCtaEl : null}
 
           {!m.buyerPolishedArtifactTable ? (
-            <RunDetailLastFailureCard
+            <RunDetailLastFailureCardDeferred
               summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
               legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
             />
@@ -945,23 +935,17 @@ export function RunDetailPageView(props: {
           {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
 
           {!m.buyerPolishedArtifactTable ? (
-            <RunDetailOperatorTechnicalDisclosure>
-              <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
-              <RunAgentResultsSummaryCard
-                results={m.resolvedDetail.results}
-                retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
-              />
-              <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
-              <RunRetrievalGroundingSummaryCard
-                summary={m.resolvedDetail.retrievalGroundingSummary}
-                runId={m.resolvedDetail.run.runId}
-              />
-              <RunDetailRunMetadataSection run={m.resolvedDetail.run} runDetailTraceId={m.runDetailTraceId} />
-            </RunDetailOperatorTechnicalDisclosure>
+            <RunDetailOperatorTechnicalForensicsPanel
+              agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
+              results={m.resolvedDetail.results}
+              retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
+              run={m.resolvedDetail.run}
+              runDetailTraceId={m.runDetailTraceId}
+            />
           ) : null}
 
           {m.showProgressTracker && m.manifestId ? (
-            <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+            <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
           ) : null}
 
           {buyerFinalizedPackage ? null : sectionNavEl}
