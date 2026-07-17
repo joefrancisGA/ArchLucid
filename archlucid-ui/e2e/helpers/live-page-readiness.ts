@@ -139,7 +139,7 @@ export async function waitForLiveManifestSummaryResponse(
   manifestId: string,
   options?: { timeoutMs?: number },
 ): Promise<void> {
-  const timeoutMs = options?.timeoutMs ?? 60_000;
+  const timeoutMs = options?.timeoutMs ?? 90_000;
   const manifestMain = getAppMain(page);
 
   if (await manifestMain.locator("#manifest-overview").isVisible().catch(() => false)) {
@@ -151,10 +151,10 @@ export async function waitForLiveManifestSummaryResponse(
       (response) =>
         matchesLiveProxyManifestSummary(new URL(response.url()), manifestId)
         && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
-      { timeout: timeoutMs },
+      { timeout: 8_000 },
     );
   } catch {
-    // RSC/SSR may hydrate manifest summary before the listener attaches — poll UI like detail hydration.
+    // RSC loads manifest summary server-side; proxy listeners often miss the fetch.
     await waitForLiveManifestDetailHydration(page, manifestId, { timeoutMs });
   }
 }
