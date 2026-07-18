@@ -48,3 +48,5 @@ pwsh scripts/install-git-hooks.ps1
 
 - [`ui_routes.md`](ui_routes.md) — route catalog and demo tiers
 - [`ui_route_traffic_estimates.template.md`](ui_route_traffic_estimates.template.md) — tracked bootstrap template (scores default to 0)
+- `scripts/ci/sync-archlucid-ui-route-traffic-workbook.py` — reconcile owner workbook or template with canonical catalog
+- `scripts/ci/assert_ui_route_traffic_workbook_canonical.py` — CI drift guard (template must match catalog)

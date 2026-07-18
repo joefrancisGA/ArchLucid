@@ -3,7 +3,7 @@
 # ArchLucid UI routes
 
 **App root:** `archlucid-ui/src/app/`  
-**Route count:** 117 `page.tsx` files (verified by `scripts/ci/assert_archlucid_ui_app_router_unique_paths.py`).
+**Route count:** 142 `page.tsx` files (verified by `scripts/ci/assert_archlucid_ui_app_router_unique_paths.py`).
 
 **Route groups** — folders named `(marketing)`, `(operator)`, or `(executive)` — **do not** appear in the URL. Two pages under different groups that resolve to the same path will fail `next build`.
 
