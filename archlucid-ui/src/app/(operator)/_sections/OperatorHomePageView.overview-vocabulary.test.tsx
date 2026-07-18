@@ -77,6 +77,28 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
   OperatorHomeFirstValueCallout: () => null,
 }));
 
+vi.mock("@/components/operator-home/OperatorHomeExecutiveRoiStrip", () => ({
+  OperatorHomeExecutiveRoiStrip: () => <div data-testid="home-block-executive-roi" />,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
+  OperatorHomeDeltaPanel: () => <div data-testid="home-block-delta-panel" />,
+  OperatorHomeRunsPanel: () => <div data-testid="home-block-runs-dashboard" />,
+  OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeExamplesPlacement", () => ({
+  OperatorHomeExamplesPlacement: ({
+    afterWorkspaceContext,
+  }: {
+    afterWorkspaceContext: ReactNode;
+  }) => <>{afterWorkspaceContext}</>,
+}));
+
+vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
+  DevTestingQuickSwitchPanel: () => null,
+}));
+
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 3,
