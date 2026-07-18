@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { HelpTourTrigger } from "./HelpTourTrigger";
-import { HelpDocsClient } from "./HelpDocsClient";
+import { HelpDocumentationGuide } from "./HelpDocumentationGuide";
 import { HelpProductGuide } from "./HelpProductGuide";
 import { HelpTabsShell } from "./HelpTabsShell";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -20,7 +20,7 @@ export default function HelpPage() {
         <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>Help</h1>
         <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
-          Start with the product guide for review workflows and cloud connections. See{" "}
+          Start with <strong>Guides</strong> for review workflows and cloud connections. See{" "}
           <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/help/how-it-works">
             How ArchLucid works
           </Link>{" "}
@@ -32,13 +32,13 @@ export default function HelpPage() {
           <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/help/data-handling">
             data handling
           </Link>{" "}
-          for security posture. Open the Documentation tab for searchable reference links.
+          for security posture. Open the <strong>Documentation</strong> tab for configuration, CLI, and API reference.
         </p>
         </div>
         <HelpTourTrigger />
       </div>
 
-      <HelpTabsShell guide={<HelpProductGuide />} docs={<HelpDocsClient />} />
+      <HelpTabsShell guide={<HelpProductGuide />} docs={<HelpDocumentationGuide />} />
     </OperatorPageContainer>
   );
 }

@@ -9,6 +9,7 @@ import {
 } from "@/components/help/help-drawer-row-class";
 import type { HelpSearchPanelTopic } from "@/lib/help-search-panel-catalog";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveHelpTopicBrowseLabel } from "@/lib/help-center-browse-labels";
 
 export type HelpDrawerTopicRowProps = {
   readonly topic: HelpSearchPanelTopic;
@@ -24,7 +25,12 @@ export function HelpDrawerTopicRow({
   onActivate,
   onHighlight,
 }: HelpDrawerTopicRowProps): React.JSX.Element {
-  const accessibleLabel = `${topic.title}. ${topic.description}`;
+  const browseLabel =
+    topic.action.kind === "route" ? resolveHelpTopicBrowseLabel(topic.action.helpSlug) : null;
+  const accessibleLabel =
+    browseLabel !== null
+      ? `${browseLabel}. ${topic.title}. ${topic.description}`
+      : `${topic.title}. ${topic.description}`;
 
   return (
     <li className="list-none">
@@ -40,6 +46,17 @@ export function HelpDrawerTopicRow({
         onMouseEnter={onHighlight}
       >
         <span className="min-w-0 flex-1">
+          {browseLabel !== null ? (
+            <span
+              className={cn(
+                "mb-1 block font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400",
+                OPERATOR_TYPOGRAPHY.micro,
+              )}
+              data-testid="help-drawer-browse-label"
+            >
+              {browseLabel}
+            </span>
+          ) : null}
           <span
             className={cn(
               "block font-semibold text-neutral-900 dark:text-neutral-100",

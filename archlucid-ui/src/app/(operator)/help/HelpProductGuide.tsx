@@ -16,8 +16,8 @@ import {
   getHelpCenterDisplay,
   getHelpCenterTier,
   HELP_CENTER_FEATURED_SLUGS,
-  listHelpCenterAdvancedTopics,
-  listHelpCenterTopics,
+  listHelpCenterAdvancedGuideTopics,
+  listHelpCenterGuideTopics,
 } from "@/lib/help-center-catalog";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -39,12 +39,12 @@ export function HelpProductGuide() {
     [isAdmin, showAdvanced],
   );
 
-  const visibleTopics = useMemo(() => listHelpCenterTopics(topicFilters), [topicFilters]);
+  const visibleTopics = useMemo(() => listHelpCenterGuideTopics(topicFilters), [topicFilters]);
   const filteredTopics = useMemo(
     () => filterHelpCenterTopicsByQuery(visibleTopics, topicQuery),
     [topicQuery, visibleTopics],
   );
-  const advancedTopics = useMemo(() => listHelpCenterAdvancedTopics(topicFilters), [topicFilters]);
+  const advancedTopics = useMemo(() => listHelpCenterAdvancedGuideTopics(topicFilters), [topicFilters]);
 
   const featuredTopics = filteredTopics.filter((entry) => HELP_CENTER_FEATURED_SLUGS.includes(entry.slug));
   const expandedAdvancedTopics = filteredTopics.filter((entry) => advancedTopics.some((advanced) => advanced.slug === entry.slug));
@@ -183,10 +183,10 @@ export function HelpProductGuide() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h3 id="help-in-app-topics" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
-              In-app guides
+              Guides
             </h3>
             <p className={`m-0 mt-1 ${OPERATOR_TYPOGRAPHY.helper}`}>
-              Start with common tasks. Expand for admin, integration, and system-administration topics.
+              Product help for common tasks. Expand for admin and integration guides.
             </p>
           </div>
           <Button

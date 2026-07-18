@@ -21,7 +21,7 @@ export function HelpTabsShell({ guide, docs }: HelpTabsShellProps) {
         data-testid="help-tabs-shell-tablist"
       >
         <TabsTrigger value="guide" className="rounded-md border-0 px-3 py-1.5">
-          Product guide
+          Guides
         </TabsTrigger>
         <TabsTrigger value="docs" className="rounded-md border-0 px-3 py-1.5">
           Documentation
@@ -32,7 +32,8 @@ export function HelpTabsShell({ guide, docs }: HelpTabsShellProps) {
       </TabsContent>
       <TabsContent value="docs" className="pt-0" data-testid="help-tabs-shell-panel-docs">
         <p className={cn("mb-4", OPERATOR_TYPOGRAPHY.helper)}>
-          Repository and reference topics. Use the Product guide tab for day-one tasks first.
+          Technical reference for configuration, CLI, API contracts, and admin diagnostics. Use the Guides tab for
+          day-one product tasks first.
         </p>
         {docs}
       </TabsContent>

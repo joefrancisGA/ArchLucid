@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 
+import { InAppHelpLink } from "@/components/InAppHelpLink";
+
 import {
-  API_KEYS_TECHNICAL_DETAILS_DESCRIPTION,
   API_KEYS_TECHNICAL_DETAILS_TITLE,
 } from "@/lib/api-keys-settings-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -25,7 +26,10 @@ export function ApiKeysSettingsTechnicalDetails(props: ApiKeysSettingsTechnicalD
         {API_KEYS_TECHNICAL_DETAILS_TITLE}
       </summary>
       <div className={cn("mt-3 space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-        <p className="m-0">{API_KEYS_TECHNICAL_DETAILS_DESCRIPTION}</p>
+        <p className="m-0">
+          Live deployment values for this workspace. For configuration key names and hosting options, see{" "}
+          <InAppHelpLink helpSlug="configuration-reference" label="Configuration reference" variant="text" />.
+        </p>
         <dl className="m-0 grid grid-cols-[minmax(0,220px)_1fr] gap-2">
           <dt>Authentication:ApiKey:Enabled</dt>
           <dd className="font-mono text-al-text-primary">{String(props.settings.enabled)}</dd>

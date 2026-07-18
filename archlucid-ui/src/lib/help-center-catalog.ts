@@ -1,3 +1,4 @@
+import { resolveProductDocumentationContentKind } from "@/lib/product-documentation-content-kinds";
 import {
   listProductDocumentationEntries,
   type ProductDocumentationEntry,
@@ -140,6 +141,41 @@ export type HelpCenterTopicFilters = {
 
 function isFeaturedSlug(slug: string): boolean {
   return HELP_CENTER_FEATURED_SLUGS.includes(slug);
+}
+
+function isProductHelpEntry(entry: ProductDocumentationEntry): boolean {
+  return resolveProductDocumentationContentKind(entry.slug) === "product-help";
+}
+
+function isTechnicalDocumentationEntry(entry: ProductDocumentationEntry): boolean {
+  return resolveProductDocumentationContentKind(entry.slug) === "technical-documentation";
+}
+
+/** Product-help topics for the Guides tab — featured by default; admin/internal when expanded and permitted. */
+export function listHelpCenterGuideTopics(filters: HelpCenterTopicFilters): ProductDocumentationEntry[] {
+  return listHelpCenterTopics(filters).filter(isProductHelpEntry);
+}
+
+/** Non-featured guide topics revealed when advanced is expanded. */
+export function listHelpCenterAdvancedGuideTopics(filters: HelpCenterTopicFilters): ProductDocumentationEntry[] {
+  return listHelpCenterAdvancedTopics(filters).filter(isProductHelpEntry);
+}
+
+/** Technical-documentation topics for the Documentation tab; internal tier requires admin. */
+export function listHelpCenterDocumentationTopics(filters: Pick<HelpCenterTopicFilters, "isAdmin">): ProductDocumentationEntry[] {
+  return listProductDocumentationEntries().filter((entry) => {
+    if (!isTechnicalDocumentationEntry(entry)) {
+      return false;
+    }
+
+    const tier = getHelpCenterTier(entry);
+
+    if (tier === "internal") {
+      return filters.isAdmin;
+    }
+
+    return true;
+  });
 }
 
 /** Topics for the Help landing grid — featured by default; admin/internal when expanded and permitted. */
