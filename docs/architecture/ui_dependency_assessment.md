@@ -552,6 +552,8 @@ Each prompt is scoped to one bounded issue, preserves behavior, is independently
 
 **Closure:** Extended `next.config.optimize-package-imports.test.ts` with TB-865 drift guard (3 tests): canonical allowlist derived from `package.json`, no non-dependency entries, no duplicates. Vitest pass against current `next.config.ts`.
 
-### Prompt 6 — Measure `/reviews/[runId]` bundle composition (investigation only) (**TB-697**)
+### Prompt 6 — Measure `/reviews/[runId]` bundle composition (investigation only) (**TB-697**) — **Done 2026-07-18**
 
 > In `archlucid-ui/`, run `npm run build:analyze` (sets `ANALYZE=1` and runs the standard build) and capture the resulting bundle-analyzer HTML report for the `/reviews/[runId]` route. Cross-reference the largest modules in that route's client chunk against `performance/first-load-js-baseline.v1.json`'s recorded 2,150.9 KB figure. Produce a short note listing (a) the top 10 largest modules by size in that route's chunk, (b) which of them are already behind `dynamic()` elsewhere in the app but apparently not on this route, and (c) which appear to have no existing dynamic-import precedent. Do not modify any component's loading strategy in this prompt — it produces a findings list for a future, separately-scoped prompt per candidate.
+
+**Closure:** Findings in [`reviews_run_detail_bundle_composition_tb697.md`](reviews_run_detail_bundle_composition_tb697.md). Committed baseline **2,211.1 kB** (RC11); static import/deferred-chunk inventory post-TB-697 engineering pass. Local `build:analyze` blocked (docs-pdf/dotnet + dirty-tree `demo` import); prioritized follow-ups: defer `ArchitectureCreateWorkItemSection` / `ArchitectureSponsorSharingPanel`, then remeasure on CI. No production import changes in this prompt.
