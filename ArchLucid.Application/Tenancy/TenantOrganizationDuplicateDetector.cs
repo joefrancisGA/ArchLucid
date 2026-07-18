@@ -28,6 +28,7 @@ public static class TenantOrganizationDuplicateDetector
 
         return text.Contains("duplicate", StringComparison.OrdinalIgnoreCase)
                || text.Contains("unique", StringComparison.OrdinalIgnoreCase)
+               || text.Contains("already exists", StringComparison.OrdinalIgnoreCase)
                || text.Contains("IX_", StringComparison.OrdinalIgnoreCase)
                || IsDuplicateOrganization(ex.InnerException);
     }

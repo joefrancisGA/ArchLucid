@@ -35,7 +35,10 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
 
             SqlConnectionString = builder.ConnectionString;
             SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
-            _sqlCatalogEnvironment = new IntegrationTestSqlCatalogEnvironment(SqlConnectionString);
+            _sqlCatalogEnvironment = new IntegrationTestSqlCatalogEnvironment(
+                SqlConnectionString,
+                pinSystemCatalogToSameDatabase: true,
+                pinSingleCatalogTopology: true);
         }
         catch (Exception ex)
         {

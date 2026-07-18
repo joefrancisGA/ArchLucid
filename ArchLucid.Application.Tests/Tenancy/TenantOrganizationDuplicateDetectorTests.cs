@@ -33,4 +33,13 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeTrue();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_already_exists_text_in_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug 'acme' already exists."))
+            .Should()
+            .BeTrue();
+    }
 }
