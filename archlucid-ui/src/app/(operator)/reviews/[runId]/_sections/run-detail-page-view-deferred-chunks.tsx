@@ -116,6 +116,22 @@ export const RunDetailArchitectureCreatedWorkspaceDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
+export const RunDetailArchitectureCreateWorkItemSectionDeferred = dynamic(
+  () =>
+    import("@/components/architecture/ArchitectureCreateWorkItemSection").then(
+      (module) => module.ArchitectureCreateWorkItemSection,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailArchitectureSponsorSharingPanelDeferred = dynamic(
+  () =>
+    import("@/components/architecture/ArchitectureSponsorSharingPanel").then(
+      (module) => module.ArchitectureSponsorSharingPanel,
+    ),
+  { ssr: false, loading: () => null },
+);
+
 export const RunDetailFirstWeekRouteGuidanceDeferred = dynamic(
   () => import("@/components/FirstWeekRouteGuidance").then((module) => module.FirstWeekRouteGuidance),
   { ssr: false, loading: () => null },

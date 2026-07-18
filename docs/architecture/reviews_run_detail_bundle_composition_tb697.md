@@ -9,7 +9,7 @@
 
 `/reviews/[runId]` remains the **largest tracked operator route** at **2,211.1 kB** First Load JS (`performance/first-load-js-baseline.v1.json`, RC11 refresh 2026-07-15). The **TB-697** engineering pass (2026-07-17) already moved the heaviest forensics/architecture/progress modules behind `run-detail-page-view-deferred-chunks.tsx` with `run-detail-bundle-deferred-imports.test.ts` guards.
 
-What remains is a **wide first-paint shell**: `ReviewDetailWorkspace`, overview/executive-summary chrome, governance/outcome cards, usability banners, and two **still-static** architecture panels (`ArchitectureCreateWorkItemSection`, `ArchitectureSponsorSharingPanel`). None of these require replacing frameworks — they are candidates for the same `next/dynamic({ ssr: false })` pattern already proven on this route.
+What remains is a **wide first-paint shell**: `ReviewDetailWorkspace`, overview/executive-summary chrome, governance/outcome cards, usability banners, and tab-gated architecture panels (now deferred as of 2026-07-18). None of these require replacing frameworks — further wins use the same `next/dynamic({ ssr: false })` pattern already proven on this route.
 
 ## Baseline cross-reference
 
@@ -55,8 +55,8 @@ Ranked by **bundle-risk** (module size/transitive deps × first-paint necessity)
 | 4 | `RunDetailOutcomeCards` + executive summary stack (`RunDetailExecutiveSummary`, `RunDetailExecutiveBottomLine`, CTAs) | Yes | No |
 | 5 | `RunDetailSectionNav` + in-page section components (`RunDetailGovernanceDecisionSection`, `RunDetailReviewPackageSection`, …) | Yes | No |
 | 6 | Usability/demo banner cluster (`CommitBlockingFindingsBanner`, `StalledReviewGuidanceCallout`, `OperatorDemoStaticBanner`, …) | Often | **TB-696** defers similar chrome in `AppShell` — not yet here |
-| 7 | `ArchitectureCreateWorkItemSection` | Tab-gated | **No** — architecture workspace deferred, create-work-item is not |
-| 8 | `ArchitectureSponsorSharingPanel` | Tab-gated | **No** |
+| 7 | `ArchitectureCreateWorkItemSection` | Tab-gated | **Yes** — `RunDetailArchitectureCreateWorkItemSectionDeferred` (2026-07-18) |
+| 8 | `ArchitectureSponsorSharingPanel` | Tab-gated | **Yes** — `RunDetailArchitectureSponsorSharingPanelDeferred` (2026-07-18) |
 | 9 | `CtoDemoReviewRouteGuard` | Demo paths only | Could follow demo-gating lazy pattern |
 | 10 | `ReviewDetailPolicyPackImpactCallout` | Conditional | Policy packs route uses TB-698 authoring deferrals — callout is sync |
 

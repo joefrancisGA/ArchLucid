@@ -23,6 +23,8 @@ const bannedStaticImports = [
   '@/components/RunTrustEvidenceCardSection"',
   '@/components/SampleReviewPackageSummary"',
   '@/components/architecture/ArchitectureCreatedWorkspace"',
+  '@/components/architecture/ArchitectureCreateWorkItemSection"',
+  '@/components/architecture/ArchitectureSponsorSharingPanel"',
   '@/components/FirstWeekRouteGuidance"',
   '@/components/RunExplanationConfidenceBanner"',
   '@/components/reviews/RunDetailGovernanceAlerts"',
@@ -41,7 +43,15 @@ describe("run detail bundle deferred imports (TB-697)", () => {
   it("dynamic-imports operator forensics and activity-tab chunks", () => {
     expect(deferredChunksSource).toContain("RunDetailEstimatedLlmCostCardDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
+    expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
+    expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailProgressTrackerDeferred");
     expect(deferredChunksSource).toContain('import("@/components/RunEstimatedLlmCostCard")');
+    expect(deferredChunksSource).toContain(
+      'import("@/components/architecture/ArchitectureCreateWorkItemSection")',
+    );
+    expect(deferredChunksSource).toContain(
+      'import("@/components/architecture/ArchitectureSponsorSharingPanel")',
+    );
   });
 });

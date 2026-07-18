@@ -80,7 +80,9 @@ import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
 import { RunDetailOperatorTechnicalForensicsPanel } from "./RunDetailOperatorTechnicalForensicsPanel";
 import {
+  RunDetailArchitectureCreateWorkItemSectionDeferred,
   RunDetailArchitectureCreatedWorkspaceDeferred,
+  RunDetailArchitectureSponsorSharingPanelDeferred,
   RunDetailCompareToBaselineCta,
   RunDetailExplanationConfidenceBannerDeferred,
   RunDetailExportDeliverableDialog,
@@ -95,8 +97,6 @@ import {
   RunDetailTrustEvidenceCardSectionDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
-import { ArchitectureCreateWorkItemSection } from "@/components/architecture/ArchitectureCreateWorkItemSection";
-import { ArchitectureSponsorSharingPanel } from "@/components/architecture/ArchitectureSponsorSharingPanel";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
   RunDetailBelowFoldDeferredSkeleton,
@@ -659,14 +659,14 @@ export function RunDetailPageView(props: {
                             blockingFindingCount={blockingApprovalCount}
                             hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
                           />
-                          <ArchitectureCreateWorkItemSection
+                          <RunDetailArchitectureCreateWorkItemSectionDeferred
                             runId={m.resolvedDetail.run.runId}
                             architectureName={architectureCreatedBaseline.architectureName}
                             architectureOverview={architectureCreatedBaseline.architectureOverview}
                             ownerLabel={architectureCreatedBaseline.ownerLabel}
                             findings={quickDecisionFindings}
                           />
-                          <ArchitectureSponsorSharingPanel
+                          <RunDetailArchitectureSponsorSharingPanelDeferred
                             runId={m.resolvedDetail.run.runId}
                             architecture={architectureCreatedBaseline}
                             architectureSourceText={submittedArchitectureText ?? ""}
