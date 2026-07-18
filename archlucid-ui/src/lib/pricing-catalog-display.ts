@@ -1,4 +1,9 @@
 import {
+  BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
+  BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL,
+  BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
+} from "@/lib/billing-meter-vocabulary";
+import {
   MARKETING_PRICING_TIER_ORDER,
   type MarketingPricingTierId,
 } from "@/lib/marketing/marketing-public-pricing";
@@ -81,6 +86,14 @@ export function formatMonthlyAiCredits(pkg: PricingPackage): string | null {
   return null;
 }
 
+export function formatIncludedArchitecturePackagesPerMonth(pkg: PricingPackage): string | null {
+  if (typeof pkg.includedReviewsPerMonth !== "number" || pkg.includedReviewsPerMonth <= 0) {
+    return null;
+  }
+
+  return `${pkg.includedReviewsPerMonth} architecture packages / month`;
+}
+
 /** Primary plan summary lines for in-app billing cards — mirrors public pricing, not legacy SKUs. */
 export function buildOperatorBillingPlanSummaryLines(
   pricing: PricingDoc,
@@ -113,7 +126,7 @@ export function buildOperatorBillingPlanSummaryLines(
 
   if (typeof pkg.includedReviewsPerMonth === "number" && pkg.includedReviewsPerMonth > 0) {
     lines.push({
-      label: "Included reviews",
+      label: BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
       value: `${pkg.includedReviewsPerMonth} / month`,
     });
   }
@@ -127,8 +140,8 @@ export function buildOperatorBillingAddonLines(pricing: PricingDoc, pkg: Pricing
 
   if (typeof pkg.overageReviewUsd === "number") {
     lines.push({
-      label: "Additional reviews",
-      value: `${formatPricingMoney(pkg.overageReviewUsd, pricing.currency)} / review`,
+      label: BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
+      value: `${formatPricingMoney(pkg.overageReviewUsd, pricing.currency)} / ${BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL}`,
     });
   }
 

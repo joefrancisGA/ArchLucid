@@ -20,6 +20,7 @@ import {
 import type { PricingDoc } from "@/lib/pricing-types";
 import {
   formatIncludedUsersAndWorkspaces,
+  formatIncludedArchitecturePackagesPerMonth,
   formatMonthlyAiCredits,
   formatPlanPrice,
   pricingTierSortIndex,
@@ -139,6 +140,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 const cta = tierId !== null ? MARKETING_PRICING_TIER_CTAS[tierId] : undefined;
                 const isRecommended = tierId === MARKETING_PRICING_RECOMMENDED_TIER;
                 const includedLine = formatIncludedUsersAndWorkspaces(pkg);
+                const packagesLine = formatIncludedArchitecturePackagesPerMonth(pkg);
                 const aiCreditsLine = formatMonthlyAiCredits(pkg);
                 const billingHref =
                   tierId !== null && selfServeCheckoutEnabled
@@ -177,6 +179,9 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                     <p className={cn("mt-2 flex-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pkg.summary}</p>
                     {includedLine !== null ? (
                       <p className={cn("mt-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{includedLine}</p>
+                    ) : null}
+                    {packagesLine !== null ? (
+                      <p className={cn("mt-1 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{packagesLine}</p>
                     ) : null}
                     {aiCreditsLine !== null ? (
                       <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{aiCreditsLine}</p>

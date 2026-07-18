@@ -3,8 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
   buildOperatorBillingAddonLines,
   buildOperatorBillingPlanSummaryLines,
+  formatIncludedArchitecturePackagesPerMonth,
   formatPlanPrice,
 } from "@/lib/pricing-catalog-display";
+import {
+  BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
+  BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
+} from "@/lib/billing-meter-vocabulary";
 import type { PricingDoc } from "@/lib/pricing-types";
 
 const pricing: PricingDoc = {
@@ -65,7 +70,7 @@ describe("pricing-catalog-display", () => {
       "Plan price",
       "Included",
       "Included AI usage",
-      "Included reviews",
+      BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
     ]);
     expect(lines[0]?.value).toBe("$99 / mo");
     expect(lines.some((line) => line.label === "Workspace platform")).toBe(false);
@@ -80,6 +85,20 @@ describe("pricing-catalog-display", () => {
       seatMonthlyUsd: 79,
     });
 
-    expect(addonLines.map((line) => line.label)).toEqual(["Additional reviews", "Additional users"]);
+    expect(addonLines.map((line) => line.label)).toEqual([
+      BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
+      "Additional users",
+    ]);
+  });
+
+  it("formats included architecture packages for public pricing cards", () => {
+    expect(
+      formatIncludedArchitecturePackagesPerMonth({
+        id: "team",
+        title: "Team",
+        summary: "Team",
+        includedReviewsPerMonth: 20,
+      }),
+    ).toBe("20 architecture packages / month");
   });
 });

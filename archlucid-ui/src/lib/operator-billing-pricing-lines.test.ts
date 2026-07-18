@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
+  BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
+} from "./billing-meter-vocabulary";
+import {
   buildOperatorBillingAddonLines,
   buildOperatorBillingPlanSummaryLines,
 } from "./operator-billing-pricing-lines";
@@ -34,7 +38,7 @@ describe("operator-billing-pricing-lines", () => {
       "Plan price",
       "Included",
       "Included AI usage",
-      "Included reviews",
+      BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
     ]);
   });
 
@@ -61,6 +65,9 @@ describe("operator-billing-pricing-lines", () => {
       overageReviewUsd: 10,
     });
 
-    expect(addonLines.map((line) => line.label)).toEqual(["Additional reviews", "Additional users"]);
+    expect(addonLines.map((line) => line.label)).toEqual([
+      BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
+      "Additional users",
+    ]);
   });
 });
