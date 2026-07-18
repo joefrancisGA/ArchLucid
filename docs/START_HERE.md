@@ -5,6 +5,16 @@
 
 Use this page to pick **one** door based on your role.
 
+## Canonical setup paths (pick one)
+
+| Persona | Start here | After that |
+| --- | --- | --- |
+| **Contributor / developer** (local stack, first commit) | [`engineering/FIRST_30_MINUTES.md`](engineering/FIRST_30_MINUTES.md) | Install order: [`engineering/INSTALL_ORDER.md`](engineering/INSTALL_ORDER.md) · week one: [`onboarding/day-one-developer.md`](onboarding/day-one-developer.md) |
+| **Platform operator** (Azure / hosted deploy) | [`library/FIRST_AZURE_DEPLOYMENT.md`](library/FIRST_AZURE_DEPLOYMENT.md) | Stack answers: [`deploy/archlucid.stack.example.yaml`](../deploy/archlucid.stack.example.yaml) + `archlucid stack init` (**TB-654**) · deploy umbrella: [`engineering/DEPLOYMENT.md`](engineering/DEPLOYMENT.md) |
+| **Enterprise customer admin** (hosted tenant; no repo clone) | [`library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`](library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md) | In-product **Settings** and `/help` mirror this checklist |
+
+> **Buyer / evaluator (no local install):** [`CORE_PILOT.md`](CORE_PILOT.md) narrative + [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — not the contributor table row above.
+
 > **Role-based entry (3–4 docs per persona):** [`runbooks/ROLE_INDEX.md`](runbooks/ROLE_INDEX.md) — operator, platform engineer, and release owner sequences with failure branches.
 
 > **V1 critical path (minimum doc set):** [`library/V1_CRITICAL_PATH_MAP.md`](library/V1_CRITICAL_PATH_MAP.md) — one-page map for buyer, operator, security reviewer, and RC signoff; excludes deferred v1.1/v2 distractions.
@@ -34,8 +44,11 @@ START_HERE.md (you are here)
 │   └─ library/PILOT_ROI_MODEL.md         (optional depth)
 │
 ├─ Contributor / developer — local toolchain and repo orientation
-│   ├─ onboarding/day-one-developer.md         (canonical developer onboarding)
+│   ├─ engineering/FIRST_30_MINUTES.md          (**canonical first run — Docker only**)
+│   ├─ engineering/INSTALL_ORDER.md             (after first run — SDK/Node install order)
+│   ├─ onboarding/day-one-developer.md         (week one after install)
 │   ├─ onboarding/day-one-sre.md               (canonical SRE onboarding)
+│   ├─ library/FIRST_AZURE_DEPLOYMENT.md       (platform operator — first Azure deploy)
 │   ├─ onboarding/EVALUATION_GUIDE.md          (first pilot / operator motion)
 │   ├─ architecture/README.md                  (poster + ownership; map after first **review**)
 │   ├─ PENDING_QUESTIONS.md                    (owner decisions + gates)

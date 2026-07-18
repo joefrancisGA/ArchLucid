@@ -22,6 +22,17 @@ from urllib.parse import unquote
 #   [^()]*          — trailing characters after the last inner pair
 LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^()]*(?:\([^()]*\))*[^()]*)\)")
 
+# TB-659: allow only these *quickstart* markdown entry points under docs/ (case-insensitive basename).
+ALLOWED_ONBOARDING_QUICKSTART_DOCS = frozenset(
+    {
+        "docs/go-to-market/DEMO_QUICKSTART.md",
+        "docs/integrations/SCIM_PROVISIONING_QUICKSTART.md",
+        "docs/library/OPERATOR_QUICKSTART.md",
+        "docs/library/customer-facing/OPERATOR_QUICKSTART.md",
+        "docs/library/demo-quickstart.md",
+    }
+)
+
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -123,12 +134,48 @@ def collect_markdown_files(root: Path, paths: list[str] | None) -> list[Path]:
     return all_files
 
 
+def collect_onboarding_quickstart_violations(root: Path) -> list[str]:
+    """Fail when new *quickstart* markdown files appear outside the TB-659 allowlist."""
+    docs_dir = root / "docs"
+    violations: list[str] = []
+
+    if not docs_dir.is_dir():
+        return violations
+
+    for md in sorted(docs_dir.rglob("*.md")):
+        if "archive" in md.parts:
+            continue
+
+        if "quickstart" not in md.name.lower():
+            continue
+
+        rel = md.resolve().relative_to(root).as_posix()
+
+        if rel not in ALLOWED_ONBOARDING_QUICKSTART_DOCS:
+            violations.append(
+                f"{rel}: onboarding quickstart filename outside TB-659 allowlist "
+                f"(add to ALLOWED_ONBOARDING_QUICKSTART_DOCS only with START_HERE.md persona map update)"
+            )
+
+    return violations
+
+
 def main() -> int:
     root = repo_root()
     argv_paths = sys.argv[1:] if len(sys.argv) > 1 else None
     files = collect_markdown_files(root, argv_paths)
 
     broken: list[str] = []
+
+    quickstart_violations = collect_onboarding_quickstart_violations(root)
+
+    if quickstart_violations:
+        print("Banned onboarding quickstart markdown files:", file=sys.stderr)
+
+        for line in quickstart_violations:
+            print(line, file=sys.stderr)
+
+        return 1
 
     for md in files:
         if not md.is_file():

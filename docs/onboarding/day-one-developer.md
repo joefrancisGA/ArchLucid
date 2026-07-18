@@ -7,9 +7,11 @@
 
 **Goal:** Ship a small, safe change or run the **ArchLucid** stack locally with confidence. **Not** full domain mastery. (Repo and projects: `ArchLucid.*`.)
 
+**First run (before this page):** complete [`engineering/FIRST_30_MINUTES.md`](../engineering/FIRST_30_MINUTES.md) — the canonical Docker-only contributor path from `START_HERE.md`.
+
 **Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) (UI route × API × CLI × authority — use this instead of memorizing scattered onboarding-only lists).
 
-> **Install order moved.** See [INSTALL_ORDER.md](../archive/INSTALL_ORDER.md). This page now only covers Developer week-one tasks **after** install.
+> **Install order moved.** See [INSTALL_ORDER.md](../engineering/INSTALL_ORDER.md). This page covers Developer week-one tasks **after** install.
 
 **Ticket:** `ONBOARD-DEV-001` (copy into your work tracker)
 
