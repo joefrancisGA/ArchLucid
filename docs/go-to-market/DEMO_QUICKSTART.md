@@ -7,7 +7,7 @@
 
 **Audience:** Evaluators and champions who want to see the product in minutes without installing the .NET SDK, SQL Server, or Node.js locally.
 
-**Grounding:** Same demo data as [demo-quickstart.md](../library/demo-quickstart.md) (Contoso Retail) and [V1_SCOPE.md](../library/V1_SCOPE.md). The Docker path uses **Development** environment, **simulator** agent mode (no Azure OpenAI charges), and **startup demo seed** after DbUp.
+**Grounding:** Same demo data as [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) (Contoso Retail) and [V1_SCOPE.md](../library/V1_SCOPE.md). The Docker path uses **Development** environment, **simulator** agent mode (no Azure OpenAI charges), and **startup demo seed** after DbUp.
 
 ---
 
@@ -36,22 +36,25 @@ The script waits up to **120 seconds** for `http://localhost:5000/health/ready`,
 
 ---
 
-## Your first five minutes
+## Your first five minutes (finished-package-first)
 
-1. **Wizard** — Browser should open to **`/reviews/new`** (legacy `/runs/new` redirects; product copy: **New review**). Pick **Greenfield web app** (or another preset) and walk the seven steps; start a **new review** if you want live pipeline tracking, or explore existing data from the seeded demo.
-2. **Reviews** — Open **Reviews** (sidebar may still say *Runs*) and select a **review** to see status, findings, and manifest linkage. The seed creates baseline and hardened Contoso **reviews** when startup seed completes ([demo-quickstart.md](../library/demo-quickstart.md) §3).
-3. **Explainability** — Open a finding and review the structured explainability trace (what was examined, rules, decisions).
-4. **Compare** — Use **Compare** with two **reviews** (seeded IDs are documented in [demo-quickstart.md](../library/demo-quickstart.md)) to see structured deltas.
-5. **Graph** — Open the **Graph** view for a **review** to see provenance-style exploration.
-6. **Export** — From **review** detail or the export flow, generate Markdown/DOCX/ZIP as exposed in your build (consulting templates may require optional configuration).
+**Do not open with `/reviews/new` or generation.** Trust ladder: show a **completed architecture package** first, then optionally bridge to creation.
 
-Adjust the path if you prefer to start from the home dashboard at `http://localhost:3000/`.
+1. **Open a finalized package** — From home or **Architecture packages** (`/reviews`), open the seeded **hardened Contoso** review (`6e8c4a102b1f4c9a9d3e10b2a4f0c502` after startup seed; see [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) §3) or the static showcase **Claims Intake Modernization** package at `/reviews/claims-intake-modernization` when running UI-only fixtures. You should land on review detail with findings and manifest linkage already present.
+2. **Findings and explainability** — Open one finding. Walk the structured trace (what was examined, rules applied, evidence cited, confidence limits). Call out an **explicit non-conclusion** or evidence gap when the finding flags missing proof — do not imply the AI always concludes.
+3. **Commit output and manifest** — Show the signed review record / golden manifest summary (finding counts, decision trail). This is the sponsor-ready package, not a chat transcript.
+4. **Export** — Download Markdown, DOCX, or ZIP from review detail or the export flow (consulting templates may require optional configuration).
+5. **Creation bridge (one line)** — "Creation follows the same governed pipeline." Optional 30-second peek: home **Open created sample** → `/reviews/northwind-copilot-rag-platform` (**Created** origin badge; see **TB-742**). Do not start the five-minute path there.
+
+**Optional if time remains:** **Compare** two Contoso reviews (`…c501` baseline vs `…c502` hardened) or **Graph** on the opened package. Save **New review** wizard for a longer principal-architect session ([`DEMO_VIDEO_SCRIPT.md`](DEMO_VIDEO_SCRIPT.md) §30-minute variant).
+
+Adjust entry if you prefer the home dashboard at `http://localhost:3000/` — still open an existing package, not the wizard.
 
 ---
 
 ## What you are seeing
 
-- **Architecture Proof Engine** — A multi-agent pipeline (topology, cost, compliance, critic) produces structured findings and a versioned golden manifest; in simulator mode, agents run without calling cloud LLMs.
+- **Architecture Proof Engine** — A multi-agent pipeline produces structured findings and a versioned golden manifest on **architecture packages** (reviewed or created); in simulator mode, agents run without calling cloud LLMs.
 - **Governance and audit** — Policy packs, optional pre-commit gates, and durable audit patterns match [POSITIONING.md](POSITIONING.md) and [PRODUCT_DATASHEET.md](PRODUCT_DATASHEET.md).
 - **Explainability** — Findings carry traces suitable for review and audit narratives.
 
@@ -81,7 +84,7 @@ This runs `docker compose ... down -v` and removes named volumes (including Azur
 
 - **Production-style pilot:** [Pilot Guide](../library/PILOT_GUIDE.md)
 - **Business case:** [ROI_MODEL.md](ROI_MODEL.md) and [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)
-- **Developer / detailed demo seed:** [demo-quickstart.md](../library/demo-quickstart.md)
+- **Developer / detailed demo seed:** [demo-quickstart.md](../archive/onboarding/demo-quickstart.md)
 - **Hosted GA workspaces (anchors + Smoke):** [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md)
 
 ---
@@ -91,4 +94,4 @@ This runs `docker compose ... down -v` and removes named volumes (including Azur
 | Doc | Use |
 |-----|-----|
 | [CONTAINERIZATION.md](../library/CONTAINERIZATION.md) | All Docker workflows including demo overlay |
-| [demo-quickstart.md](../library/demo-quickstart.md) | Technical demo seed and HTTP verification |
+| [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) | Technical demo seed and HTTP verification |

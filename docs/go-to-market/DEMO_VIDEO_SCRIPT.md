@@ -1,4 +1,4 @@
-> **Scope:** Live-call demo script and two-minute video script for the core pilot path. The **five-minute version** (M-03) is the primary script for founder-led discovery calls and paid pilot intros. The two-minute version targets async video drop-off. Neither is a promise of marketing artifacts already produced.
+> **Scope:** Live-call demo scripts for the core pilot path. The **five-minute version** (M-03) opens on a **finished architecture package** — never generation-first. The **30-minute principal-architect variant** adds Graph, Ask, a created-package bridge, and **Compare** between reviewed and created packages. The two-minute version targets async video drop-off. Neither is a promise of marketing artifacts already produced.
 
 # Demo scripts
 
@@ -10,89 +10,85 @@
 
 **Grounding:** V1 Pilot layer only. All routes exist in `archlucid-ui` unless noted as conditional. If a capability is behind a feature flag or commercial tier, say "when this is enabled for your tenant" — never imply universal availability.
 
-**Setup:** Run with Simulator agents for a deterministic timeline. Use the Contoso Retail demo tenant so findings and manifests look realistic. Have the browser at 1440×900, 100% zoom, bookmarks hidden.
+**Setup:** Run with Simulator agents for a deterministic timeline. Use the Contoso Retail demo tenant (Docker seed) or the static showcase tenant (`claims-intake-modernization`). Have the browser at 1440×900, 100% zoom, bookmarks hidden.
+
+**Trust ladder:** Open on a **completed architecture package**. Do **not** start at `/reviews/new` or describe generation speed.
 
 ---
 
 ### Opening (0:00–0:30) — Frame the problem
 
-> "I want to show you ArchLucid from first principle — what it actually does in practice, not what it looks like in a screenshot.
+> "I want to show you ArchLucid from first principle — what it actually delivers in practice, not what it looks like in a screenshot.
 >
-> The problem we are solving: architecture review is one of the slowest, most manual steps in engineering. Teams assemble evidence in wikis and slide decks. Senior architects review everything serially. Decisions are made in meetings and reconstructed months later. And AI tools — Copilot, ChatGPT — produce fluent prose with no evidence links, no policy context, no governance trail.
+> The problem we are solving: architecture review is one of the slowest, most manual steps in engineering. Teams assemble evidence in wikis and slide decks. Senior architects review everything serially. Decisions are made in meetings and reconstructed months later. And AI tools produce fluent prose with no evidence links, no policy context, no governance trail.
 >
-> ArchLucid is structured around a different model: Capture the context, gather Evidence, run the Review, surface structured Findings, record Decisions, and produce a Report you can hand to an ARB or auditor. Let me show you that path end to end."
+> ArchLucid packages that work into a governed **architecture package**: structured findings, explicit confidence limits, a signed manifest, and exports you can hand to an ARB or auditor. Let me show you a finished package first — then we can talk about how new packages enter the same pipeline."
 
-**Visual:** Keep the landing page or home screen visible. No prompts yet.
+**Visual:** Home or Architecture packages list. No wizard.
 
 ---
 
-### Scene 1 (0:30–1:15) — Create a review
+### Scene 1 (0:30–1:15) — Open a finished package
 
-**Route:** `/reviews/new` (or the wizard entry point in the operator shell)
+**Route:** `/reviews/claims-intake-modernization` (showcase) **or** Contoso hardened run `6e8c4a102b1f4c9a9d3e10b2a4f0c502` (Docker seed)
 
-> "An operator — that is the person running the review — starts from a guided wizard. System name, a brief description of the architecture request, constraints, and requirement lines.
+> "This is a completed architecture package — not a draft prompt. Status, findings, and manifest linkage are already here because the governed pipeline ran against real intake context.
 >
-> This is not a freeform prompt box. The wizard shapes the input so the downstream agents receive consistent context — topology, cost, compliance, and design quality. I'll paste a short description of a cloud migration scenario for this demo."
+> Notice we are not opening with 'type a prompt and watch it generate.' The value is defensible output: what was examined, what was found, and what was recorded for audit."
 
-**Visual:** Fill in the wizard fields. Paste a 3–4 sentence description. Highlight the structured input — not a chat prompt.
+**Visual:** Review detail header, summary cards, pipeline complete state. Point to **Reviewed** origin if visible.
 
 ---
 
-### Scene 2 (1:15–2:00) — Execute
+### Scene 2 (1:15–2:15) — Findings, explainability, and explicit limits
 
-**Route:** Review detail → pipeline timeline / status view
+**Route:** Findings panel or `/reviews/{runId}/findings/{findingId}`
 
-> "Once submitted, the authority pipeline runs. You can see the stages: context ingestion, knowledge graph construction, findings analysis, decisioning, artifact synthesis. Each stage completes in sequence and the UI shows live progress.
+> "Each finding has severity, confidence, and a recommended action. The differentiator is the explainability trace: what was examined, which rules applied, what evidence was cited, and where confidence stops.
 >
-> The key thing here is that this is not a chat round-trip. This is a governed multi-stage pipeline — the same stages run the same way every time, against the same context, and the outputs are versioned and replayable."
+> When a finding flags an evidence gap, we say so explicitly — this is not 'the AI always concludes.' Operators can attach counter-evidence and record decisions; that trail stays in the audit log."
 
-**Visual:** Show the pipeline stages progressing. Point to stage labels. Let it complete or use a pre-seeded review that is already done.
+**Visual:** Expand one finding trace. Optionally show a finding with an evidence-gap signal.
 
 ---
 
-### Scene 3 (2:00–3:00) — Findings and explainability
+### Scene 3 (2:15–3:15) — Manifest and export
 
-**Route:** Findings panel on review detail or `/reviews/{reviewId}/findings/{findingId}`
+**Route:** Review detail → manifest summary and artifacts
 
-> "The findings board is where the review output lives. Each item has a severity rating, a confidence score, and a concrete recommended action. But the differentiator is the explainability trace.
+> "When the operator accepts the package, commit produces a golden manifest: a signed, versioned snapshot of findings, decisions, and artifacts on an append-only audit chain. This is what you hand to your architecture review board — not a chat export.
 >
-> Every finding records: what was examined, which rules were applied, what evidence was cited, what conclusion was reached, and what the stated limit of confidence is. This is not AI said so. This is the full reasoning trail — and it is structured, not a paragraph of prose.
->
-> If a finding says your topology has a single point of failure in the data tier, the trace shows exactly what the agent saw and which topology rules it applied to reach that conclusion. You can challenge it. You can attach your own evidence. And that decision is recorded."
+> Artifacts download as Markdown, DOCX, or ZIP. Consulting engagements can whitelabel the DOCX deliverable."
 
-**Visual:** Open one finding. Expand the explainability trace fields. Show the severity, confidence, recommended action. Optionally open a second finding of a different type.
+**Visual:** Manifest summary (counts). One artifact row + download.
 
 ---
 
-### Scene 4 (3:00–3:45) — Commit and manifest
+### Scene 4 (3:15–4:00) — Creation bridge (one line only)
 
-**Route:** Review detail → commit button → manifest summary and artifacts
+**Route:** Home → **Open created sample** → `/reviews/northwind-copilot-rag-platform`
 
-> "When the operator is satisfied with the findings — they can add evidence, annotate findings, or raise decisions — they commit. Commit produces a golden manifest: a signed, versioned snapshot of the review, findings, decisions, and artifacts, anchored to an audit chain of typed, append-only events. This is the package you hand to your architecture review board.
->
-> The artifacts are downloadable: structured Markdown, DOCX, or a ZIP bundle. If you are doing a consulting engagement, the DOCX export is the deliverable — and it supports whitelabeling so the report carries your firm's name."
+> "Creation uses the same governed pipeline — findings, confidence, manifest — not a separate toy path. Here is a **Created** sample package in one click; we do not need to run intake live in a five-minute slot."
 
-**Visual:** Click commit. Show the manifest summary — finding counts, decision counts. Show one artifact row and the download button.
+**Visual:** **Created** badge on list or detail. Ten-second peek; return to reviewed package if time is tight.
 
 ---
 
-### Scene 5 (3:45–4:30) — Compare across reviews (if time)
+### Scene 5 (4:00–4:30) — Compare (optional)
 
-**Route:** `/compare`
+**Route:** `/compare` — Contoso baseline vs hardened (`…c501` / `…c502`) when Docker seed is available
 
-> "When an architecture changes — a design iteration, a scope revision — you can compare two reviews side by side. The compare view shows structured deltas: findings added, findings resolved, severity shifts, and manifest differences. This is not a text diff. It is a semantic diff of your architecture decisions over time.
->
-> For regulated teams, this is the drift visibility they need. Change from review A to review B is traceable, replayable, and documented — not reconstructed from memory."
+> "When designs iterate, compare two packages for structured deltas — findings added, resolved, severity shifts — not a text diff."
 
-**Visual:** Select two reviews on the compare page. Show the delta highlights.
+**Visual:** Select two packages; highlight delta rows.
 
 ---
 
 ### Closing (4:30–5:00) — Offer
 
-> "What I am offering is a way for your team to run this workflow on your real architecture context, not a demo scenario. The productized engagement is called an ArchLucid AI and Cloud Architecture Readiness Review — we go through this together, apply relevant policy packs for your domain, and the deliverable is the exported report: findings register, decision record, executive summary.
+> "What I am offering is this workflow on your real architecture context. The productized engagement is an ArchLucid AI and Cloud Architecture Readiness Review — we apply relevant policy packs and deliver the exported report: findings register, decision record, executive summary.
 >
-> The next step is usually a 30-minute intake call where I learn your system context. From there, I scope and quote the review. Want to set that up?"
+> The next step is usually a 30-minute intake call. Want to set that up?"
 
 ---
 
@@ -101,10 +97,30 @@
 | Likely question | Suggested answer |
 |-----------------|-----------------|
 | "How does the AI know our architecture?" | "It doesn't infer it — you describe the request and attach your evidence. The agents analyze what you provide, not what they imagine." |
-| "What if a finding is wrong?" | "You annotate it, attach counter-evidence, and record the decision. The trace stays in the audit log. You're not stuck with the AI's conclusion." |
+| "What if a finding is wrong?" | "You annotate it, attach counter-evidence, and record the decision. The trace stays in the audit log." |
 | "Is this replacing our architects?" | "No. It removes the manual assembly burden so your senior architects spend time on judgment, not preparation." |
-| "What's the governance piece?" | "Policy packs define what rules apply to a review. Pre-commit gates can block promotion when findings exceed severity thresholds. Approval workflows enforce segregation of duties." |
-| "Can we self-host?" | "Yes — the stack is Azure-native and the infrastructure is fully Terraform'd. For an evaluation, I'm running this as a service on your behalf so you don't need to set it up first." |
+| "What's the governance piece?" | "Policy packs define what rules apply. Pre-commit gates and approval workflows enforce segregation of duties." |
+| "Can we self-host?" | "Yes — Azure-native, Terraform'd infrastructure. For evaluation I can run this as a service so you don't set up first." |
+
+---
+
+## 30-minute principal-architect live script
+
+**Audience:** Enterprise architects evaluating depth — graph traceability, Ask, create-vs-review symmetry, and governance close.
+
+**Grounding:** Same as five-minute script. Use showcase IDs when Docker seed is unavailable.
+
+| Phase | Time | Route(s) | Goal |
+|-------|------|----------|------|
+| Finished reviewed package | 0:00–8:00 | `/reviews/claims-intake-modernization` | Findings, traces, manifest (same spine as five-minute) |
+| Graph + Ask | 8:00–14:00 | `/graph`, `/ask` | Evidence trail and grounded Q&A on the opened package |
+| Created package bridge | 14:00–20:00 | Home → `/reviews/northwind-copilot-rag-platform` | Show **Created** origin; same findings/manifest shape (**TB-742**) |
+| **Compare reviewed vs created** | 20:00–26:00 | `/compare` | Left: `claims-intake-modernization` (Reviewed); Right: `northwind-copilot-rag-platform` (Created) — structured deltas, not generation speed |
+| Governance close | 26:00–30:00 | `/governance` or approval queue | Approval / promotion posture; offer pilot intake |
+
+**Compare talk track:** "Same noun — architecture package — two workflows. Reviewed intake vs born-governed creation. Compare shows semantic drift between packages, not which model typed faster."
+
+**Do not** open this session at `/reviews/new` unless the prospect explicitly asks to see intake live; defer wizard to a follow-up working session.
 
 ---
 
@@ -112,22 +128,24 @@
 
 **Audience:** prospects and executive sponsors who cannot self-host the API before a call. **Grounding:** [V1_SCOPE.md](../library/V1_SCOPE.md) Pilot layer only; no V1.1-only connectors.
 
+**Trust ladder:** Open on a **finished package** — not the wizard.
+
 ---
 
 ## Storyboard (timing)
 
 | Time | Scene | Operator UI route(s) | VO (voiceover, ~300 words total) | Visual |
 |------|--------|----------------------|-----------------------------------|--------|
-| 0:00–0:15 | Opening | Marketing or operator home | "Enterprise architecture review is still slow, inconsistent, and hard to prove. ArchLucid turns a structured request into governed, auditable outputs you can diff and replay." | Split: messy wiki slide vs clean manifest table (static slide ok). |
-| 0:15–0:35 | Create review — wizard | `/reviews/new` (legacy `/runs/new` redirects; product term **review**) | "An operator starts from a guided flow: system name, constraints, and requirement lines that feed the ingestion pipeline—no mystery prompts." | Highlight wizard steps; paste short description. |
-| 0:35–0:50 | Execute | Run detail → timeline / status | "Execution runs the multi-stage authority pipeline: ingestion, graph, findings, decisioning, artifacts—visible in the UI." | Show pipeline progressing (simulator or seeded env). |
-| 0:50–1:15 | Findings + explainability | `/runs/{runId}/findings/{findingId}` or finding panel on run | "Findings aren't a chat paragraph. Each item carries structured traces you can inspect for what was checked and why." | Expand Explainability / trace fields. |
-| 1:15–1:30 | Commit + manifest | Run detail → commit + Artifacts | "When ready, commit produces a signed golden manifest, backed by an audit chain, and downloadable artifacts—the reviewable package for your program." | Commit button → manifest summary + one artifact row. |
-| 1:30–1:45 | Governance (optional if enabled) | Policy packs or governance queue | "Policy packs and pre-commit gates can block promotion when severities exceed thresholds—segregation-of-duties workflows sit on the Operate layer." | Brief policy or approval screen; skip if not configured. |
-| 1:45–1:55 | Compare | `/compare` (two `runId`s) | "When designs iterate, compare two reviews with structured deltas—not just a text diff." | Select two reviews (`runId`); show delta highlights. |
-| 1:55–2:00 | Close | `/why-archlucid` if available | "Every recommendation traced. Every decision governed. Start a pilot on your terms." | Logo + CTA (contact / signup). |
+| 0:00–0:15 | Opening | Marketing or operator home | "Enterprise architecture review is still slow, inconsistent, and hard to prove. ArchLucid turns governed intake into auditable architecture packages you can diff and replay." | Split: messy wiki slide vs clean manifest table (static slide ok). |
+| 0:15–0:35 | Finished package | `/reviews/claims-intake-modernization` | "Start from a completed package: status, findings, and manifest linkage already on screen — not a blank wizard." | Review detail summary; pipeline complete. |
+| 0:35–0:55 | Findings + explainability | Finding panel or finding detail | "Findings carry structured traces — what was checked, which rules applied, and where confidence stops." | Expand explainability fields; optional evidence-gap tag. |
+| 0:55–1:15 | Manifest + export | Review detail → manifest + artifacts | "Commit produces a signed golden manifest and downloadable artifacts — the sponsor-ready package." | Manifest summary + one download row. |
+| 1:15–1:30 | Creation bridge | `/reviews/northwind-copilot-rag-platform` | "Creation follows the same pipeline; here is a Created sample in one click." | **Created** badge; brief. |
+| 1:30–1:45 | Compare (optional) | `/compare` | "Compare two packages for structured deltas when designs iterate." | Reviewed vs created or baseline vs hardened. |
+| 1:45–1:55 | Governance (if enabled) | `/governance` | "Policy packs and approvals enforce segregation of duties when enabled." | Brief queue screen. |
+| 1:55–2:00 | Close | `/why` or home | "Every recommendation traced. Every decision governed. Start a pilot on your terms." | Logo + CTA. |
 
-Trim governance/compare if time budget is tight—core story is **wizard → execute → findings → commit**.
+Trim governance or compare if time is tight — core story is **finished package → findings → manifest → export**.
 
 ---
 
@@ -135,7 +153,7 @@ Trim governance/compare if time budget is tight—core story is **wizard → exe
 
 1. **Stack:** Prefer `scripts/demo-start.ps1` / compose **full-stack** with **Simulator** agents so the timeline stays deterministic; use **DevelopmentBypass** locally per [CORE_PILOT.md](../CORE_PILOT.md).
 2. **Browser:** Chromium, 1440×900 or 1920×1080, **100%** zoom; hide bookmark bar; dark or light shell consistent throughout.
-3. **Data:** Use the Contoso Retail demo tenant so run ids and manifests look realistic ([DEMO_QUICKSTART.md](./DEMO_QUICKSTART.md)).
+3. **Data:** Contoso Docker seed for compare pairs; showcase routes `claims-intake-modernization` + `northwind-copilot-rag-platform` for finished-package + creation bridge without seed ([DEMO_QUICKSTART.md](./DEMO_QUICKSTART.md)).
 4. **Audio:** Narrate at ~150 wpm; total VO above is ~260 words → ~1:45; pad with transitions or shorten scenes.
 5. **Tools:** OBS Studio or similar; capture **browser** only unless you show CLI; no secrets on screen.
 
@@ -143,7 +161,8 @@ Trim governance/compare if time budget is tight—core story is **wizard → exe
 
 ## Acceptance checklist
 
+- Demos **open on a completed architecture package** — never `/reviews/new` generation-first.
+- Five-minute and two-minute scripts include manifest + export; five-minute and 30-minute scripts include **Compare** (30-minute: reviewed vs created).
 - Routes exist in **`archlucid-ui`** (App Router segments under `(operator)` / `(marketing)`).
 - Claims match **Pilot** capabilities in **[V1_SCOPE.md](../library/V1_SCOPE.md)** §2.
 - If a capability is gated (commercial tier / feature flag), voiceover states "when enabled for your tenant" rather than implying universal availability.
-
