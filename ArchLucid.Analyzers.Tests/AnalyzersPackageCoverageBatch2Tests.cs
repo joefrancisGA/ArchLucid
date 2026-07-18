@@ -41,28 +41,21 @@ public sealed class AnalyzersPackageCoverageBatch2Tests
 
     private static TenantScopedSqlExpressionResolver.ResolutionResult ResolveRightHandSide(string expression)
     {
-        string source = $$"""
-                          class Probe
-                          {
-                              void M()
-                              {
-                                  var sql = {{expression}};
-                              }
-                          }
-                          """;
+        string source =
+            "class Probe { void M() { const string filterColumn = \"TenantId = @TenantId\"; string sql; sql = "
+            + expression
+            + "; } }";
         SyntaxTree tree = CSharpSyntaxTree.ParseText(source);
         CSharpCompilation compilation = CSharpCompilation.Create(
             "TenantScopedSqlExpressionResolverTests",
             [tree],
             [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
         SemanticModel model = compilation.GetSemanticModel(tree);
-        ExpressionSyntax? initializer = tree.GetRoot()
+        AssignmentExpressionSyntax? assignment = tree.GetRoot()
             .DescendantNodes()
-            .OfType<LocalDeclarationStatementSyntax>()
-            .SelectMany(static statement => statement.Declaration.Variables)
-            .Select(static variable => variable.Initializer?.Value)
-            .FirstOrDefault(expression => expression is not null);
+            .OfType<AssignmentExpressionSyntax>()
+            .FirstOrDefault(node => node.IsKind(SyntaxKind.SimpleAssignmentExpression));
 
-        return TenantScopedSqlExpressionResolver.Resolve(initializer, model);
+        return TenantScopedSqlExpressionResolver.Resolve(assignment?.Right, model);
     }
 }
