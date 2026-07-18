@@ -189,6 +189,9 @@ const nextConfig: NextConfig = {
       { source: "/help/cloud-connections-azure", destination: "/help/cloud-connections/azure", permanent: true },
       { source: "/help/cloud-connections-aws", destination: "/help/cloud-connections/aws", permanent: true },
       { source: "/help/cloud-connections-gcp", destination: "/help/cloud-connections/gcp", permanent: true },
+      // Marketing first-run consolidation (TB-736) — single public CTA at /get-started.
+      { source: "/quick-start", destination: "/get-started", permanent: true },
+      { source: "/quick-start/:path*", destination: "/get-started", permanent: true },
     ];
   },
   async rewrites() {

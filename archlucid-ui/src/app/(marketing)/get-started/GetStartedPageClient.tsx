@@ -6,6 +6,7 @@ import { useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
+  GET_STARTED_HELP_GETTING_STARTED_HREF,
   buildGuidedTrialHref,
   buildSignInTrialHref,
   GET_STARTED_HERO_LEAD,
@@ -55,6 +56,11 @@ export function GetStartedPageClient(): ReactElement {
             </Link>
           </Button>
         </div>
+        <p className={cn("mt-4", MARKETING_TYPOGRAPHY.meta)}>
+          <Link className={MARKETING_SURFACES.inlineLink} href={GET_STARTED_HELP_GETTING_STARTED_HREF}>
+            Learn more in Getting started help
+          </Link>
+        </p>
       </header>
 
       <section aria-labelledby="path-selection-heading">
@@ -260,8 +266,8 @@ export function GetStartedPageClient(): ReactElement {
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Button asChild variant="primary">
-            <Link href="/help/core-pilot" data-analytics-event="get-started-start-guided-evaluation">
-              Start guided evaluation
+            <Link href={buildGuidedTrialHref()} data-analytics-event="get-started-start-guided-evaluation">
+              Continue in onboarding
             </Link>
           </Button>
           <Button asChild variant="outline">

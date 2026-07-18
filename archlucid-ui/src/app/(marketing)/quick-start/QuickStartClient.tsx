@@ -312,7 +312,7 @@ export function QuickStartClient(): ReactElement {
       <header>
         <h1 className={MARKETING_TYPOGRAPHY.heroTitle}>Quick start</h1>
         <p className={cn("mt-2", MARKETING_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)}>
-          Simulator-only architecture pass — no sign-in. Opens the full operator run when finished.
+          Simulator-only architecture pass — no sign-in. Opens the review workspace when finished.
         </p>
       </header>
 

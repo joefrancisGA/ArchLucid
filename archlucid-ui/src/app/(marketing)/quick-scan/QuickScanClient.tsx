@@ -85,7 +85,7 @@ export function QuickScanClient(): ReactElement {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Quick scan</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Single-pass architecture read — no sign-in. Results are ephemeral and not stored as a full operator run.
+          Single-pass architecture read — no sign-in. Results are ephemeral and are not saved as a workspace review.
         </p>
       </header>
 
@@ -158,7 +158,7 @@ export function QuickScanClient(): ReactElement {
 
       <p className="text-xs text-neutral-500 dark:text-neutral-400">
         Prefer the simulator-only demo that creates a run?{" "}
-        <Link href="/quick-start" className="font-medium text-sky-700 underline dark:text-sky-400">
+        <Link href="/get-started" className="font-medium text-sky-700 underline dark:text-sky-400">
           Open quick start
         </Link>
         .

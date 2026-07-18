@@ -13,7 +13,6 @@ export const MARKETING_SITEMAP_PATHNAMES: readonly string[] = [
   "/compliance-journey",
   "/signup",
   "/signup/verify",
-  "/quick-start",
   "/get-started",
   "/example-roi-bulletin",
   `/showcase/${SHOWCASE_STATIC_DEMO_RUN_ID}`,

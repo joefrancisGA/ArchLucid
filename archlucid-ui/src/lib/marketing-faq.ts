@@ -1,6 +1,10 @@
+import { formatPublicWorkSchoolProviderClaim } from "@/lib/marketing/public-auth-provider-claims";
+
 /**
  * Buyer-safe FAQ copy for /faq and FAQPage JSON-LD (TB-254). No internal or roadmap-heavy language.
+ * Sign-in provider claims are resolved at read time so Google is not advertised unless configured.
  */
+
 export type MarketingFaqCategoryId =
   | "product-basics"
   | "evaluation-first-review"
@@ -30,8 +34,12 @@ export const MARKETING_FAQ_CATEGORIES: ReadonlyArray<MarketingFaqCategory> = [
   { id: "security-trust", title: "Security and trust" },
 ] as const;
 
+export function buildHowDoISignInFaqAnswer(): string {
+  return `Use a work or school account (${formatPublicWorkSchoolProviderClaim()}, or your organization's SSO when configured) or request a one-time code sent to any email address. ArchLucid does not use product passwords for routine sign-in.`;
+}
+
 /** Ordered for buyer comprehension and monetization — do not sort alphabetically. */
-export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
+const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
   {
     id: "what-is-archlucid",
     categoryId: "product-basics",
@@ -78,8 +86,8 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
     id: "how-do-i-sign-in",
     categoryId: "security-trust",
     question: "How do I sign in to ArchLucid?",
-    answer:
-      "Use a work or school account (Microsoft, Google, or your organization's SSO when configured) or request a one-time code sent to any email address. ArchLucid does not use product passwords for routine sign-in.",
+    // Replaced by buildHowDoISignInFaqAnswer() in getMarketingFaqItems().
+    answer: "",
   },
   {
     id: "enterprise-sso-enforcement",
@@ -163,7 +171,7 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "security-trust",
     question: "What security assurance materials are available?",
     answer:
-      "ArchLucid provides security and trust materials describing current controls, data handling, and assurance posture. Formal third-party attestations, where applicable, should be handled through the security review process.",
+      "ArchLucid provides security and trust materials describing current controls, data handling, and assurance posture. For procurement diligence (SOC 2 posture, penetration testing, subprocessors), see the full procurement FAQ at /help/procurement. Formal third-party attestations, where applicable, should be handled through the security review process.",
   },
   {
     id: "evaluation-not-included",
@@ -180,6 +188,23 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
       "Start an evaluation workspace from the signup page, request a guided trial from pricing, or contact sales for a walkthrough tailored to your architecture review process.",
   },
 ] as const;
+
+/** Resolve FAQ answers at call time (env-gated IdP claims). */
+export function getMarketingFaqItems(): ReadonlyArray<MarketingFaqItem> {
+  return MARKETING_FAQ_ITEM_TEMPLATES.map((item) => {
+    if (item.id === "how-do-i-sign-in") {
+      return { ...item, answer: buildHowDoISignInFaqAnswer() };
+    }
+
+    return item;
+  });
+}
+
+/**
+ * Snapshot for callers that still import a constant. Prefer {@link getMarketingFaqItems}
+ * in React render paths so Google claims track `NEXT_PUBLIC_GOOGLE_OIDC_*`.
+ */
+export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = getMarketingFaqItems();
 
 export function filterMarketingFaqItems(
   items: ReadonlyArray<MarketingFaqItem>,

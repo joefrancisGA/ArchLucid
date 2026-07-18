@@ -156,12 +156,16 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
   },
 ] as const;
 
+export const GET_STARTED_HELP_GETTING_STARTED_HREF = "/help/getting-started" as const;
+
 export function buildGuidedTrialHref(verticalSlug?: BuyerGetStartedVerticalSlug): string {
-  if (verticalSlug === undefined) {
-    return "/signup";
+  const params = new URLSearchParams({ source: "get-started" });
+
+  if (verticalSlug !== undefined) {
+    params.set("vertical", verticalSlug);
   }
 
-  return `/signup?vertical=${encodeURIComponent(verticalSlug)}`;
+  return `/onboarding?${params.toString()}`;
 }
 
 export function buildSignInTrialHref(verticalSlug?: BuyerGetStartedVerticalSlug): string {

@@ -15,9 +15,9 @@ describe("get-started-content", () => {
     expect(financial?.publicSampleHref).toBe("/demo/preview");
   });
 
-  it("builds guided trial links without internal path leakage", () => {
-    expect(buildGuidedTrialHref()).toBe("/signup");
-    expect(buildGuidedTrialHref("retail")).toBe("/signup?vertical=retail");
+  it("builds guided trial links that hand off to onboarding", () => {
+    expect(buildGuidedTrialHref()).toBe("/onboarding?source=get-started");
+    expect(buildGuidedTrialHref("retail")).toBe("/onboarding?source=get-started&vertical=retail");
     expect(buildGuidedTrialHref("retail")).not.toContain("templates");
   });
 
