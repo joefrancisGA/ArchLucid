@@ -34,7 +34,7 @@ export const BUYER_SURFACE_VOCABULARY = {
 export const BUYER_TERMINOLOGY = {
   evaluationFeedback: "Review feedback",
   evaluationValueReport: "Review value report",
-  reviewScorecard: "Review scorecard",
+  reviewScorecard: "Architecture scorecard",
   governanceDashboard: "Governance dashboard",
   portfolioOverview: "Executive dashboard",
 } as const;

@@ -1,3 +1,5 @@
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+
 export type ValueReportOutcomesTab = {
   readonly href: string;
   readonly label: string;
@@ -24,7 +26,7 @@ export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
   },
   {
     href: "/scorecard",
-    label: "Review scorecard",
+    label: BUYER_TERMINOLOGY.reviewScorecard,
     match: (path: string) => path.startsWith("/scorecard"),
   },
 ] as const;

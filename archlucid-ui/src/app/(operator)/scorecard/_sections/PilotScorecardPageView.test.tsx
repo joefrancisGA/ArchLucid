@@ -64,11 +64,11 @@ describe("PilotScorecardPageView", () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams());
   });
 
-  it("uses consistent Review scorecard labeling and customer-safe subtitle", () => {
+  it("uses consistent Architecture scorecard labeling and customer-safe subtitle", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
-    expect(screen.getByRole("heading", { name: "Review scorecard" })).toBeInTheDocument();
-    expect(screen.getByText(/Track review throughput, evidence-backed decisions/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Architecture scorecard" })).toBeInTheDocument();
+    expect(screen.getByText(/Track architecture package throughput, evidence-backed decisions/i)).toBeInTheDocument();
     expect(screen.queryByText(/ROI_MODEL/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/roiEstimate/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/SOURCE:/i)).not.toBeInTheDocument();

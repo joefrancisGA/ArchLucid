@@ -65,7 +65,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       {
         href: "/scorecard",
         label: OPERATOR_NAV_LINK_LABELS.scorecard,
-        title: `${BUYER_TERMINOLOGY.reviewScorecard} — finalized-review metrics and ROI baselines`,
+        title: `${BUYER_TERMINOLOGY.reviewScorecard} — finalized package metrics and ROI baselines`,
         icon: BarChart3,
         tier: "extended",
         requiredAuthority: "ReadAuthority",

@@ -950,7 +950,7 @@ export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
 export const BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE = "How value reports work";
 
 export const BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS =
-  "Value reports aggregate finalized reviews, governance activity, and ROI estimates for the selected UTC period. Exports unlock after at least one finalized review falls in the window. Use Pilot outcomes, ROI summary, or Review scorecard for deeper drill-downs.";
+  "Value reports aggregate finalized architecture packages, governance activity, and ROI estimates for the selected UTC period. Exports unlock after at least one finalized package falls in the window. Use Pilot outcomes, ROI summary, or Architecture scorecard for deeper drill-downs.";
 
 export const BUYER_VALUE_REPORT_PERIOD_UTC_HELP = "Times are in UTC for consistent reporting.";
 

@@ -1,9 +1,11 @@
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
-export const REVIEW_SCORECARD_PAGE_TITLE = "Review scorecard";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+
+export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 
 export const REVIEW_SCORECARD_PAGE_SUBTITLE =
-  "Track review throughput, evidence-backed decisions, governance approvals, and estimated review-time savings.";
+  "Track architecture package throughput, evidence-backed decisions, governance approvals, and estimated review-time savings.";
 
 export type ReviewScorecardSummaryRow = {
   readonly finalizedPackages: number;

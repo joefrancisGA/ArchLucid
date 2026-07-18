@@ -36,10 +36,10 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     expect(group.links.at(-1)?.navBadge).toBe("Preview");
   });
 
-  it("lists Review scorecard before Pattern library in Insights nav", () => {
+  it("lists Architecture scorecard before Pattern library in Insights nav", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
-    expect(group.links.at(-2)?.label).toBe("Review scorecard");
+    expect(group.links.at(-2)?.label).toBe("Architecture scorecard");
   });
 });
 
