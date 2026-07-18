@@ -42,6 +42,10 @@ import { getDraftRequest } from "@/lib/api/draft-intake-api";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import {
+  ARCHITECTURE_DRAFT_ALTERNATIVES_HINT,
+  ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
+} from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -246,6 +250,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{displayName}</h2>
+          <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
+            {ARCHITECTURE_DRAFT_WORKSPACE_LEAD}
+          </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
             Status: {ARCHITECTURE_DRAFT_STATUS_LABELS.draft}
             {linkedReviewId !== null ? (
@@ -289,6 +296,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           </button>
         </p>
       ) : null}
+
+      <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-alternatives-hint">
+        {ARCHITECTURE_DRAFT_ALTERNATIVES_HINT}
+      </p>
 
       <Card>
         <CardContent className="space-y-6 pt-6">

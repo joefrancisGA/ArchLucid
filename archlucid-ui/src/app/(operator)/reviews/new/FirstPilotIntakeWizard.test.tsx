@@ -45,6 +45,10 @@ vi.mock("./QuickReviewWizardDeferredPanels", () => ({
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
+import {
+  REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD,
+  REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE,
+} from "@/lib/create-vs-review-intake-copy";
 import { showError } from "@/lib/toast";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 
@@ -56,6 +60,17 @@ describe("FirstPilotIntakeWizard", () => {
       "Add a review title and upload at least one architecture document, or fill in the description.",
     );
     expect(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE.toLowerCase()).not.toContain("evidence file");
+  });
+
+  it("surfaces evidence-first progress copy on step 1 (TB-747)", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    expect(screen.getByTestId("first-pilot-intake-progress")).toHaveTextContent(
+      REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE,
+    );
+    expect(screen.getByTestId("first-pilot-intake-progress")).toHaveTextContent(
+      REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD,
+    );
   });
 
   it("encourages rich architecture context without short-brief guidance", () => {

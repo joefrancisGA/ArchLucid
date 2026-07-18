@@ -30,6 +30,10 @@ import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-
 import { BUYER_NEW_REVIEW_TOAST_CATEGORY, BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer-polish-copy";
 import { REVIEW_START_CREATION_FAILED_MESSAGE, REVIEW_START_PREPARING_LABEL } from "@/lib/review-start-progress-copy";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
+import {
+  REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD,
+  REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE,
+} from "@/lib/create-vs-review-intake-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
@@ -183,10 +187,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       <div className="space-y-1" data-testid="first-pilot-intake-progress">
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Your first review</p>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          {CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeLead}
+        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
+          {REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_TITLE}
         </p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD}</p>
       </div>
 
       <FirstRunIntakeStepGuide titleReady={titleReady} evidenceReady={evidenceReady} />

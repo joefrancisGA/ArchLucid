@@ -49,6 +49,7 @@ vi.mock("@/lib/architecture-draft-handoff-gate", async () => {
 });
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
+import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
 
 const spawnedDraft = {
   draftId: "arch-001",
@@ -83,6 +84,23 @@ beforeEach(() => {
 });
 
 describe("ArchitectureDraftWorkspace", () => {
+  it("shows drafting-first workspace lead on load (TB-747)", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
+        ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
+      );
+    });
+  });
+
   it("locks the editor and promotes the linked review when a draft already spawned a review", async () => {
     render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
 
