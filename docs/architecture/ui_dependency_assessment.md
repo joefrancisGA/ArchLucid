@@ -522,9 +522,11 @@ Each prompt is scoped to one bounded issue, preserves behavior, is independently
 
 **Closure:** Findings in [`ui_knip_cross_validation_tb860.md`](ui_knip_cross_validation_tb860.md) — Knip reported **no unused production `dependencies`** after TB-858/TB-859; devDependency CLI false positives (`@lhci/cli`) and redundant `@eslint/eslintrc` direct pin documented; no new Tier 1 removals.
 
-### Prompt 4 — Add `engines.node` to the app manifest (**TB-861**)
+### Prompt 4 — Add `engines.node` to the app manifest (**TB-861**) — **Done 2026-07-17**
 
 > In `archlucid-ui/package.json`, add `"engines": { "node": ">=22" }` at the top level, matching the Node 22 convention already enforced by `archlucid-ui/Dockerfile` and the `.github/workflows/*.yml` CI pins. Do not change any dependency versions. Validate with `npm install` (should succeed silently on Node 22) and confirm CI's existing Node setup step is unaffected.
+
+**Closure:** Added `"engines": { "node": ">=22" }` to `archlucid-ui/package.json`; aligns with `node:22-alpine` Dockerfile stages and CI `node-version: "22"`. `npm install` succeeded on Node 22 with no lockfile churn.
 
 ### Prompt 5 — Add a `reactflow` import-policy test (TB-570-style) (**TB-862**)
 
