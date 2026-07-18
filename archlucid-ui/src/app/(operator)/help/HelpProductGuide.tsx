@@ -171,8 +171,8 @@ export function HelpProductGuide() {
             <li>Contact your tenant admin or ArchLucid support.</li>
           </ol>
           <SupportBundleDownloadButton showDiagnosticsLink={isAdmin} />
-          <p className="m-0">
-            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("troubleshooting")}>
+          <p className="m-0 mt-3">
+            <Link className={cn(OPERATOR_LINK.inline, "inline-flex min-h-6 items-center")} href={inAppHelpHref("troubleshooting")}>
               Open full troubleshooting guide
             </Link>
           </p>

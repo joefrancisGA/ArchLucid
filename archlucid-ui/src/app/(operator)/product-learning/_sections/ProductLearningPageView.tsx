@@ -56,6 +56,7 @@ export function ProductLearningPageView(props: Props) {
         <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
           <span className={OPERATOR_TYPOGRAPHY.helper}>Time range</span>
           <select
+            className="h-9 rounded-md border border-neutral-200 bg-white px-2 text-sm text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100"
             value={m.range}
             onChange={(e) => {
               m.setRange(e.target.value as ProductLearningTimeRangeKey);

@@ -24,6 +24,7 @@ export function SupportBundleDownloadButton({
     <div className={className ?? "space-y-2"}>
       <Button
         type="button"
+        className="min-h-6 min-w-6"
         data-testid="support-bundle-download-button"
         disabled={downloading}
         onClick={() => void onDownload()}

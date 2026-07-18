@@ -91,6 +91,9 @@ jobs:
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
+          # Full live matrix + axe scans exceed the default fixed window (100/min) and empty the operator shell (429).
+          RateLimiting__FixedWindow__PermitLimit: "10000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -257,6 +260,8 @@ jobs:
           Authentication__ApiKey__ProjectId: "33333333-3333-3333-3333-333333333333"
           AgentExecution__Mode: Simulator
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__FixedWindow__PermitLimit: "10000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -403,6 +408,8 @@ jobs:
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__FixedWindow__PermitLimit: "10000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"

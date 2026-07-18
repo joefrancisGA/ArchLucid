@@ -87,7 +87,7 @@ export function LayerHeader({
         {block.useWhen}
       </p>
       {!compact && block.firstPilotNote ? (
-        <p className={cn("m-0 mt-1.5 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 mt-1.5 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           <InlineGuidanceText text={block.firstPilotNote} />
         </p>
       ) : null}

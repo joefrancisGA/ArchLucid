@@ -5,5 +5,6 @@ export const dynamic = "force-static";
 
 /** Auth callback/sign-in pages are static shells; client handles tokens. */
 export default function OperatorAuthLayout({ children }: { children: ReactNode }) {
-  return children;
+  // Landmark required for live a11y suite (`main` gate) and skip-link targets on Access request shells.
+  return <main id="main-content">{children}</main>;
 }
