@@ -61,7 +61,7 @@
     {
       "id": "gc-006",
       "title": "Zero-trust segmentation for line-of-business tiers",
-      "expectedCommittedManifestSha256": "6365bd3c5d30ce5fd96cc658856cb1c03d0bfabc8beb7a7fe66aab9d0f639241e",
+      "expectedCommittedManifestSha256": "6365bd3c5d30ce5fd96cc658856cb1c03d0bfabc8beba7fe66aab9d0f639241e",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -83,7 +83,7 @@
     {
       "id": "gc-008",
       "title": "Batch analytics export to partner SFTP",
-      "expectedCommittedManifestSha256": "82d0b03c50e93ffd770bfacbe57ffa52a683c6e06b98cad78e37df5fb25fb92",
+      "expectedCommittedManifestSha256": "82d0b03c50e93ffd770bfacbe57ffa52a683c6e06b98cad78e37df5fbf25fb92",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
