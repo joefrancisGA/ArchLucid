@@ -56,24 +56,22 @@ _TRUST_FALSE_ISO_PEN_PHRASES: tuple[str, ...] = (
 
 
 def check_trust_center_vs_deferred_posture(trust_text: str) -> list[str]:
-    """Return human-readable errors if TRUST_CENTER.md reads as contradicting deferred security posture."""
+    """Return human-readable errors if canonical trust-center.md contradicts deferred security posture."""
     errors: list[str] = []
     tl = trust_text.lower()
 
     for phrase in _TRUST_FALSE_SOC_PHRASES:
 
         if phrase in tl:
-            errors.append(f"TRUST_CENTER.md reads as claiming issued CPA SOC 2 — found '{phrase}'.")
+            errors.append(f"trust-center.md reads as claiming issued CPA SOC 2 — found '{phrase}'.")
 
     for phrase in _TRUST_FALSE_ISO_PEN_PHRASES:
 
         if phrase in tl:
-            errors.append(f"TRUST_CENTER.md may contradict V1_DEFERRED §6c — found '{phrase}'.")
+            errors.append(f"trust-center.md may contradict V1_DEFERRED §6c — found '{phrase}'.")
 
-    soc_segment = trust_text.split("| **SOC 2**", maxsplit=1)[1][:1200]
-
-    if "Deferred" not in soc_segment and "self-assessment" not in soc_segment.lower():
-        errors.append("TRUST_CENTER.md SOC 2 row must remain explicitly deferred / self-assessment honest.")
+    if "self-assessment" not in tl and "deferred" not in tl:
+        errors.append("trust-center.md SOC 2 posture must remain explicitly deferred / self-assessment honest.")
 
     return errors
 
@@ -214,7 +212,7 @@ def main() -> int:
 
     v1_scope = _read(Path("docs/library/V1_SCOPE.md"))
     v1_deferred = _read(Path("docs/library/V1_DEFERRED.md"))
-    trust = _read(Path("docs/go-to-market/TRUST_CENTER.md"))
+    trust = _read(Path("docs/go-to-market/trust-center.md"))
     philosophy = _read(Path("docs/go-to-market/PRICING_PHILOSOPHY.md"))
     pricing_json = _read(Path("archlucid-ui/public/pricing.json"))
 

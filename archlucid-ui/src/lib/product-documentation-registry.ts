@@ -280,6 +280,38 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     pdfStatus: "public",
   },
   {
+    slug: "soc2-self-assessment",
+    title: "SOC 2 self-assessment",
+    summary: "Internal readiness mapping aligned to SOC 2 Common Criteria — not a CPA attestation report.",
+    audience: "buyer",
+    sourcePaths: ["docs/security/SOC2_SELF_ASSESSMENT_2026.md"],
+    pdfStatus: "public",
+  },
+  {
+    slug: "caiq-sig-response",
+    title: "CAIQ / SIG questionnaire responses",
+    summary: "CAIQ Lite and SIG Core pre-fills mapped to in-repo evidence for procurement reviewers.",
+    audience: "buyer",
+    sourcePaths: ["docs/security/CAIQ_LITE_2026.md", "docs/security/SIG_CORE_2026.md"],
+    pdfStatus: "public",
+  },
+  {
+    slug: "subprocessors",
+    title: "Subprocessors",
+    summary: "Third-party subprocessors register for hosted ArchLucid.",
+    audience: "buyer",
+    sourcePaths: ["docs/go-to-market/SUBPROCESSORS.md"],
+    pdfStatus: "public",
+  },
+  {
+    slug: "dpa-template",
+    title: "Data Processing Agreement (template)",
+    summary: "DPA template for contractual data-processing terms — requires legal review before execution.",
+    audience: "buyer",
+    sourcePaths: ["docs/go-to-market/DPA_TEMPLATE.md"],
+    pdfStatus: "public",
+  },
+  {
     slug: "cloud-connections",
     title: "Cloud connections",
     summary:

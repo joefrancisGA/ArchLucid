@@ -4,6 +4,8 @@
 
 <!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-05-01 -->
 
+**Last reviewed:** 2026-05-01
+
 **Last reviewed (UTC):** 2026-05-01
 
 This page is the **single buyer-facing index** for security questionnaires, self-assessments, and procurement artifacts. Status labels are honest about evidence type: **self-asserted** documentation, **planned but not yet scheduled** work, **engagements in flight**, or **third-party confirmed** only where a linked file states that explicitly.
@@ -28,9 +30,9 @@ ArchLucid is for **architecture and governance evidence** about systems you desc
 
 ## Azure connectivity (extractor)
 
-**Default (Tier 1):** You run the in-repo PowerShell collector and upload a schema-versioned ZIP — **no vendor Entra app or subscription role** is required in your tenant for that path. Details: [`TRUST_CENTER.md`](TRUST_CENTER.md) (**Azure connectivity**), operator runbook [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md), and technical follow-ups [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
+**Default (Tier 1):** You run the in-repo PowerShell collector and upload a schema-versioned ZIP — **no vendor Entra app or subscription role** is required in your tenant for that path. Details: operator runbook [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md) and technical follow-ups [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
 
-**What we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role — see [`TRUST_CENTER.md`](TRUST_CENTER.md) for the explicit buyer-facing list.
+**What we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role — see [`AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](AZURE_EXTRACTOR_INFOSEC_PREREAD.md) for the explicit buyer-facing list.
 
 ---
 

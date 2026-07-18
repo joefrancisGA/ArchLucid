@@ -30,7 +30,7 @@ def main() -> int:
     root = repo_root()
     today = datetime.now(timezone.utc).date()
     targets = [
-        (root / "docs" / "go-to-market" / "TRUST_CENTER.md", 45),
+        (root / "docs" / "go-to-market" / "trust-center.md", 45),
         (root / "docs" / "go-to-market" / "ASSURANCE_STATUS_CANONICAL.md", 90),
         (root / "docs" / "go-to-market" / "PROCUREMENT_PACK_INDEX.md", 90),
         (root / "docs" / "go-to-market" / "SUBPROCESSORS.md", 90),

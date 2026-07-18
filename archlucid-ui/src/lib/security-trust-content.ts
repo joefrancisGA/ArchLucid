@@ -4,8 +4,8 @@ import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
  * Engagement-metadata content for the public `/security-trust` marketing page.
  *
  * This module is the single source of truth for the marketing page; it MUST stay
- * structurally aligned with the "Recent assurance activity" table in
- * `docs/go-to-market/TRUST_CENTER.md`. The page intentionally publishes
+ * structurally aligned with the assurance posture table in
+ * `docs/go-to-market/trust-center.md`. The page intentionally publishes
  * **engagement metadata only** — never redacted findings, never customer names —
  * so the NDA wall stays intact while procurement gets a current, dated reference.
  */

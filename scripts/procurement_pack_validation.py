@@ -192,7 +192,7 @@ def forbidden_assurance_phrases(
         todo[rel.as_posix()] = root / rel
 
     extra_buyer_docs = (
-        Path("docs/go-to-market/TRUST_CENTER.md"),
+        Path("docs/go-to-market/trust-center.md"),
         Path("docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md"),
         Path("docs/go-to-market/PROCUREMENT_FAQ.md"),
         Path("docs/go-to-market/SOC2_STATUS_PROCUREMENT.md"),
@@ -284,7 +284,7 @@ def deal_ready_repo_checks(root: Path, entries: list[dict], max_review_age_days:
 
     required_docs = (
         root / "docs" / "go-to-market" / "ASSURANCE_STATUS_CANONICAL.md",
-        root / "docs" / "go-to-market" / "TRUST_CENTER.md",
+        root / "docs" / "go-to-market" / "trust-center.md",
         root / "docs" / "go-to-market" / "SOC2_STATUS_PROCUREMENT.md",
         root / "docs" / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md",
         root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md",
@@ -319,11 +319,11 @@ def deal_ready_repo_checks(root: Path, entries: list[dict], max_review_age_days:
                 f"(max {max_review_age_days})"
             )
 
-    trust = root / "docs" / "go-to-market" / "TRUST_CENTER.md"
+    trust = root / "docs" / "go-to-market" / "trust-center.md"
     incident = root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md"
 
     if trust.is_file() and "security@archlucid.net" not in trust.read_text(encoding="utf-8", errors="replace"):
-        violations.append("TRUST_CENTER.md: missing security contact mailbox (`security@archlucid.net`)")
+        violations.append("trust-center.md: missing security contact mailbox (`security@archlucid.net`)")
 
     if incident.is_file() and "security@archlucid.net" not in incident.read_text(
         encoding="utf-8", errors="replace"
@@ -420,7 +420,7 @@ def procurement_pack_quick_checks(
                 root,
                 paths_relative=(
                     Path("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md"),
-                    Path("docs/go-to-market/TRUST_CENTER.md"),
+                    Path("docs/go-to-market/trust-center.md"),
                 ),
                 max_review_age_days=max_assurance_review_age_days,
             ),
@@ -602,7 +602,7 @@ def collect_quality_snapshot(
         root,
         paths_relative=(
             Path("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md"),
-            Path("docs/go-to-market/TRUST_CENTER.md"),
+            Path("docs/go-to-market/trust-center.md"),
         ),
         max_review_age_days=max_assurance_review_age_days,
     )

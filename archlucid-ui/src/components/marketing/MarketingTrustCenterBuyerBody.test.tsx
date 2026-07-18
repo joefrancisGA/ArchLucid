@@ -15,6 +15,7 @@ describe("MarketingTrustCenterBuyerBody", () => {
         "Review ArchLucid’s current security posture, public assurance materials, and enterprise diligence process.",
       ),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("trust-center-page-purpose")).toBeInTheDocument();
 
     const primaryActions = screen.getAllByRole("link", { name: /Request diligence materials/i });
     expect(primaryActions[0]).toHaveAttribute("href", "mailto:security@archlucid.net");
@@ -70,6 +71,45 @@ describe("MarketingTrustCenterBuyerBody", () => {
       "href",
       expect.stringContaining("mailto:security@archlucid.net"),
     );
+  });
+
+  it("renders public assurance downloads without authentication gates", () => {
+    render(<MarketingTrustCenterBuyerBody lastReviewedUtc="2026-05-01" />);
+
+    const downloads = screen.getByTestId("trust-center-public-downloads");
+    expect(within(downloads).getByTestId("trust-public-artifact-link-evidence-pack-zip")).toHaveAttribute(
+      "href",
+      "/v1/marketing/trust-center/evidence-pack.zip",
+    );
+    expect(within(downloads).getByTestId("trust-public-artifact-link-soc2-self-assessment")).toHaveAttribute(
+      "href",
+      "/help/soc2-self-assessment",
+    );
+    expect(within(downloads).getByTestId("trust-public-artifact-link-caiq-lite")).toHaveAttribute(
+      "href",
+      "/help/caiq-sig-response",
+    );
+    expect(within(downloads).getByTestId("trust-public-artifact-link-owner-pentest-summary")).toHaveAttribute(
+      "href",
+      "/help/procurement",
+    );
+    expect(screen.getByTestId("trust-center-evidence-pack-link")).toHaveAttribute(
+      "href",
+      "/v1/marketing/trust-center/evidence-pack.zip",
+    );
+  });
+
+  it("cross-links tenant isolation, subprocessors, how-it-works, and audit trail help topics", () => {
+    render(<MarketingTrustCenterBuyerBody lastReviewedUtc="2026-05-01" />);
+
+    const related = screen.getByTestId("trust-center-related-help");
+    expect(within(related).getByTestId("trust-related-help-tenant-isolation")).toHaveAttribute(
+      "href",
+      "/help/data-handling-tenant-isolation",
+    );
+    expect(within(related).getByTestId("trust-related-help-subprocessors")).toHaveAttribute("href", "/help/subprocessors");
+    expect(within(related).getByTestId("trust-related-help-how-it-works")).toHaveAttribute("href", "/help/how-it-works");
+    expect(within(related).getByTestId("trust-related-help-audit-trail")).toHaveAttribute("href", "/help/audit-trail");
   });
 
   it("consolidates security contact at the bottom", () => {

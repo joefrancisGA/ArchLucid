@@ -68,6 +68,12 @@ describe("MarketingSecurityTrustView", () => {
   it("renders hero actions and primary diligence CTAs", () => {
     render(<MarketingSecurityTrustView />);
 
+    expect(screen.getByTestId("security-trust-page-purpose")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Open Trust Center downloads/i })).toHaveAttribute(
+      "href",
+      "/trust#trust-public-downloads",
+    );
+
     const heroCtas = screen.getByTestId("security-trust-hero-ctas");
     expect(within(heroCtas).getByRole("link", { name: /View public evidence/i })).toHaveAttribute("href", "/trust");
     expect(within(heroCtas).getByRole("link", { name: /Request diligence materials/i })).toHaveAttribute(

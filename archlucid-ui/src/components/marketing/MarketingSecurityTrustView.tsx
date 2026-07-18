@@ -18,6 +18,7 @@ import {
   type AssuranceEngagementRow,
   type AssuranceMaturityTier,
 } from "@/lib/security-trust-content";
+import { SECURITY_TRUST_PAGE_PURPOSE } from "@/lib/trust-center-public-assurance";
 
 const MATURITY_RENDER_ORDER: AssuranceMaturityTier[] = ["available_now", "during_diligence", "planned_next"];
 
@@ -101,6 +102,16 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
           Security and trust
         </h1>
         <p className={cn("m-0 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{SECURITY_TRUST_HERO_SUPPORTING}</p>
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}
+          data-testid="security-trust-page-purpose"
+        >
+          {SECURITY_TRUST_PAGE_PURPOSE}{" "}
+          <Link className={MARKETING_SURFACES.inlineLink} href="/trust#trust-public-downloads">
+            Open Trust Center downloads
+          </Link>
+          .
+        </p>
         <SecurityTrustPrimaryActions testId="security-trust-hero-ctas" />
       </section>
 

@@ -80,6 +80,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/security/soc2_self_assessment_2026.md": "soc2-self-assessment",
   "docs/security/caiq_lite_2026.md": "caiq-sig-response",
   "docs/security/sig_core_2026.md": "caiq-sig-response",
+  "docs/security/pen-test-summaries/2026-q2-owner-conducted.md": "procurement",
   "docs/go-to-market/trust_center.md": "security-trust",
   "docs/library/second_run.md": "repeat-review-loop",
   "docs/library/operator_atlas.md": "pilot-nav-profile",

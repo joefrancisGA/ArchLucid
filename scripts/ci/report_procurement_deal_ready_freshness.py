@@ -22,7 +22,7 @@ _DEFERRED_SCOPE_DOCS = frozenset(
 )
 
 _TARGETS: tuple[tuple[str, int, str], ...] = (
-    ("docs/go-to-market/TRUST_CENTER.md", 45, "required"),
+    ("docs/go-to-market/trust-center.md", 45, "required"),
     ("docs/go-to-market/PROCUREMENT_PACK_INDEX.md", 90, "required"),
     ("docs/go-to-market/SUBPROCESSORS.md", 90, "required"),
     ("docs/go-to-market/SLA_SUMMARY.md", 45, "required"),

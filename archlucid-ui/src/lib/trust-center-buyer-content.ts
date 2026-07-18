@@ -56,7 +56,7 @@ export const TRUST_CENTER_HERO = {
   title: "Trust Center",
   subtitle: "Review ArchLucid’s current security posture, public assurance materials, and enterprise diligence process.",
   intro:
-    "Use this page to orient procurement and security reviewers before requesting deeper diligence materials.",
+    "Use this page for public evidence downloads and procurement posture. For a one-page assurance ladder by maturity tier, see Security and trust details.",
 } as const;
 
 export const TRUST_ASSURANCE_GLANCE_PANELS: readonly TrustAssuranceGlancePanel[] = [

@@ -13,8 +13,8 @@
       "artifact_status": "Evidence"
     },
     {
-      "pack_path": "TRUST_CENTER.md",
-      "source_repo_path": "docs/go-to-market/TRUST_CENTER.md",
+      "pack_path": "trust-center.md",
+      "source_repo_path": "docs/go-to-market/trust-center.md",
       "description": "Buyer-facing trust index",
       "artifact_status": "Evidence"
     },

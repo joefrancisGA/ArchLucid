@@ -29,6 +29,7 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/go-to-market/SUBPROCESSORS.md")).toBe("/help/subprocessors");
     expect(resolveInAppDocHref("docs/security/SOC2_SELF_ASSESSMENT_2026.md")).toBe("/help/soc2-self-assessment");
     expect(resolveInAppDocHref("docs/security/CAIQ_LITE_2026.md")).toBe("/help/caiq-sig-response");
+    expect(resolveInAppDocHref("docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md")).toBe("/help/procurement");
     expect(resolveInAppDocHref("docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md")).toBe("/help/security-policies");
     expect(resolveInAppDocHref("docs/library/SECOND_RUN.md")).toBe("/help/repeat-review-loop");
   });

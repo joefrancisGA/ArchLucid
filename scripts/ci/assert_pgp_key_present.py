@@ -1,7 +1,7 @@
 """
 assert_pgp_key_present.py
 -------------------------
-PGP publication guard aligned with ``docs/go-to-market/TRUST_CENTER.md`` and ``docs/security/PGP_KEY_GENERATION_RECIPE.md``.
+PGP publication guard aligned with ``docs/go-to-market/trust-center.md`` and ``docs/security/PGP_KEY_GENERATION_RECIPE.md``.
 
 * If the Trust Center does **not** promise ``pgp-key.txt`` → exit **0** (nothing to check).
 * If it **does** promise PGP but ``archlucid-ui/public/.well-known/pgp-key.txt`` is **missing** → log
@@ -20,7 +20,7 @@ import sys
 
 REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-TRUST_CENTER_REL = os.path.normpath("docs/go-to-market/TRUST_CENTER.md")
+TRUST_CENTER_REL = os.path.normpath("docs/go-to-market/trust-center.md")
 PGP_KEY_REL = os.path.normpath("archlucid-ui/public/.well-known/pgp-key.txt")
 
 # Match buyer-facing PGP promise without firing on unrelated "pgp" substrings in URLs we do not control.

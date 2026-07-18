@@ -17,6 +17,12 @@ import {
   TRUST_SECURITY_CONTACT,
   type TrustAssuranceClassification,
 } from "@/lib/trust-center-buyer-content";
+import {
+  TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF,
+  TRUST_CENTER_PAGE_PURPOSE,
+  TRUST_CENTER_RELATED_HELP_LINKS,
+  TRUST_PUBLIC_ASSURANCE_ARTIFACTS,
+} from "@/lib/trust-center-public-assurance";
 
 export type MarketingTrustCenterBuyerBodyProps = {
   readonly lastReviewedUtc: string | null;
@@ -73,6 +79,12 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           </p>
           <p className={cn("mt-2 max-w-prose leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {TRUST_CENTER_HERO.intro}
+          </p>
+          <p
+            className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}
+            data-testid="trust-center-page-purpose"
+          >
+            {TRUST_CENTER_PAGE_PURPOSE}
           </p>
         </div>
 
@@ -140,6 +152,74 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
             </article>
           ))}
         </div>
+      </section>
+
+      <section
+        id="trust-public-downloads"
+        aria-labelledby="trust-public-downloads-heading"
+        data-testid="trust-center-public-downloads"
+      >
+        <h2
+          id="trust-public-downloads-heading"
+          className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}
+        >
+          Public assurance downloads
+        </h2>
+        <p className={cn("m-0 mt-2 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          CAIQ, SOC 2 self-assessment, SIG Core, and owner-conducted pen-test materials are included in the
+          anonymous evidence pack ZIP below. Individual help topics may require sign-in; the ZIP does not.
+          Independent third-party penetration testing is planned, not yet scheduled — not implied by these artifacts.
+        </p>
+        <ul className="m-0 mt-5 grid list-none gap-4 p-0 md:grid-cols-2">
+          {TRUST_PUBLIC_ASSURANCE_ARTIFACTS.map((artifact) => (
+            <li key={artifact.id}>
+              <article
+                className="flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
+                data-testid={`trust-public-artifact-${artifact.id}`}
+              >
+                <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.cardTitle)}>
+                  {artifact.title}
+                </h3>
+                <p className={cn("m-0 mt-2 flex-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+                  {artifact.description}
+                </p>
+                <p className="mt-4">
+                  <Link
+                    href={artifact.href}
+                    className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                    data-testid={`trust-public-artifact-link-${artifact.id}`}
+                    rel={artifact.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    target={artifact.href.startsWith("http") ? "_blank" : undefined}
+                  >
+                    {artifact.id === "evidence-pack-zip" ? "Download ZIP" : "View document"}
+                  </Link>
+                </p>
+              </article>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="trust-related-help-heading" data-testid="trust-center-related-help">
+        <h2
+          id="trust-related-help-heading"
+          className={cn("font-semibold text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}
+        >
+          Related product documentation
+        </h2>
+        <ul className={cn("m-0 mt-4 flex flex-wrap gap-x-4 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
+          {TRUST_CENTER_RELATED_HELP_LINKS.map((link) => (
+            <li key={link.id}>
+              <Link
+                href={link.href}
+                className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                data-testid={`trust-related-help-${link.id}`}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section aria-labelledby="trust-primary-content-heading" data-testid="trust-center-content-grid">
@@ -269,6 +349,15 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </dl>
         <p className={cn("m-0 mt-4 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {TRUST_PUBLIC_EVIDENCE_RELEASE.description}
+        </p>
+        <p className="mt-4">
+          <Link
+            href={TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF}
+            className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+            data-testid="trust-center-evidence-pack-link"
+          >
+            Download evidence pack (ZIP)
+          </Link>
         </p>
         <p className="mt-4">
           <Link

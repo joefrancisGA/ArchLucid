@@ -13,7 +13,7 @@ _LAST_REVIEWED = re.compile(r"^\s*\*\*Last reviewed:\*\*\s*(\d{4}-\d{2}-\d{2})\s
 _STALE_DAYS = 180
 
 _TARGETS = [
-    "docs/go-to-market/TRUST_CENTER.md",
+    "docs/go-to-market/trust-center.md",
     "docs/go-to-market/CLAIM_READINESS_STATUS.md",
     "docs/go-to-market/PROCUREMENT_PACK_INDEX.md",
     "docs/security/MULTI_TENANT_RLS.md",
