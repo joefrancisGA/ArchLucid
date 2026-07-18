@@ -19437,33 +19437,22 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**; guardrail `.cursor/rules/
 
 ---
 
-## TB-748 ΓÇö UI route traffic workbook canonical-path alignment + drift CI (P2)
+## TB-748 — UI route traffic workbook canonical-path alignment + drift CI (P2) — **Done** (2026-07-18)
 
 **Window:** V1.
 
 **Source:** Owner UI route traffic / Evidence scoring session (2026-07-10); [`UI_ROUTE_TRAFFIC_ESTIMATES_OWNER.md`](../architecture/UI_ROUTE_TRAFFIC_ESTIMATES_OWNER.md).
 
-**Problem:** The owner workbook (`.local/owner/ui_route_traffic_estimates.md`) still lists some **physical App Router paths** and **rewrite-only aliases** (`/alerts`, `/audit`, `/settings/cloud-connections`, `/integrations/readiness`, obsolete `/admin/cloud-connections/aws`) while nav and breadcrumbs already emit **canonical** URLs (`/governance/alerts`, `/integrations/cloud-connections`, etc.). Hit% and Evidence scores double-count or mis-label screens when both legacy and canonical rows exist. Legacy redirect-only paths were removed manually (**`scripts/ci/remove-archlucid-ui-legacy-route-rows.py`**) but there is no CI guard against regression.
+**Shipped (2026-07-18):**
 
-**Scope:**
+1. Synced `docs/architecture/ui_route_traffic_estimates.template.md` to **223** canonical catalog rows (9 legacy path migrations, 4 obsolete rows removed, 64 new surfaces added).
+2. Added `scripts/ci/assert_ui_route_traffic_workbook_canonical.py` + unit test; wired in `run_guards_pre_corset.sh`.
+3. Added `ui-route-traffic-template-canonical-guard.test.ts` (Vitest).
+4. Updated `ui_routes.md` page count (**142** `page.tsx` files) and owner maintenance docs.
 
-1. Remap existing workbook rows to **canonical nav hrefs** (one row per logical screen; preserve owner-assigned scores and notes).
-2. Add missing rows for new surfaces (artifact detail, `patterns/[patternKey]`, provider cloud-connection sub-pages, registry help topics `data-handling`, `integration-readiness`, `cloud-connections-aws`/`gcp`, etc.).
-3. Remove obsolete rows (e.g. `/admin/cloud-connections/aws`).
-4. Add `scripts/ci/assert_ui_route_traffic_workbook_canonical.py` (or extend `assert_archlucid_ui_app_router_unique_paths.py`) ΓÇö fail when workbook paths diverge from the canonical route manifest derived from nav builders + `product-documentation-registry.ts` + documented dynamic patterns.
-5. Refresh `docs/architecture/ui_route_traffic_estimates.template.md` and `ui_routes.md` route count (128 `page.tsx` files as of 2026-07-10).
+**Owner workbook:** run `sync-archlucid-ui-route-traffic-workbook.py` locally to reconcile `.local/owner/ui_route_traffic_estimates.md` (gitignored).
 
-**Explicitly out of scope:** Moving `page.tsx` files (**TB-749ΓÇô753**); changing Hit% heuristics without owner input.
-
-**Acceptance criteria:**
-
-- Workbook paths match canonical URLs users see after redirects (not shim-only aliases).
-- CI fails on drift between workbook/template and canonical manifest.
-- `OVERALL WEIGHT SCORE` recomputed after remap.
-
-**Affected files:** `.local/owner/ui_route_traffic_estimates.md` (owner copy), `docs/architecture/ui_route_traffic_estimates.template.md`, `scripts/ci/archlucid_ui_route_traffic_table.py`, new assert script + Vitest.
-
-**Cross-ref:** **TB-692** (Core Web Vitals route dimension), **TB-404ΓÇô408**, `remove-archlucid-ui-legacy-route-rows.py`.
+**Cross-ref:** **TB-692**, **TB-404–408**, `archlucid_ui_route_catalog.py`, `sync-archlucid-ui-route-traffic-workbook.py`.
 
 **Size estimate:** S.
 
