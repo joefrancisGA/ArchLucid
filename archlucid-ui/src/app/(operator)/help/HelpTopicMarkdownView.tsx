@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
+import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
@@ -35,7 +36,10 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
             <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>{entry.summary}</p>
           </div>
-          <HelpTopicPdfDownloadButton entry={entry} />
+          <div className="flex flex-wrap items-center gap-2" data-testid="help-topic-export-actions">
+            <HelpTopicPdfDownloadButton entry={entry} />
+            <HelpTopicPrintButton entry={entry} />
+          </div>
         </div>
         {entry.audience === "developer" ? (
           <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
