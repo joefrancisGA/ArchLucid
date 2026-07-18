@@ -56,11 +56,13 @@ public sealed class AnalyzersPackageCoverageBatch2Tests
             [tree],
             [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
         SemanticModel model = compilation.GetSemanticModel(tree);
-        AssignmentExpressionSyntax? assignment = tree.GetRoot()
+        ExpressionSyntax? initializer = tree.GetRoot()
             .DescendantNodes()
-            .OfType<AssignmentExpressionSyntax>()
-            .FirstOrDefault();
+            .OfType<LocalDeclarationStatementSyntax>()
+            .SelectMany(static statement => statement.Declaration.Variables)
+            .Select(static variable => variable.Initializer?.Value)
+            .FirstOrDefault(expression => expression is not null);
 
-        return TenantScopedSqlExpressionResolver.Resolve(assignment?.Right, model);
+        return TenantScopedSqlExpressionResolver.Resolve(initializer, model);
     }
 }

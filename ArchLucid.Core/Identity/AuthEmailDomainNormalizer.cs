@@ -34,7 +34,6 @@ public static partial class AuthEmailDomainNormalizer
             return false;
         }
 
-        displayDomain = candidate;
         normalizedDomain = candidate.ToLower(CultureInfo.InvariantCulture);
 
         if (!IsValidDomain(normalizedDomain))
@@ -44,6 +43,8 @@ public static partial class AuthEmailDomainNormalizer
 
             return false;
         }
+
+        displayDomain = normalizedDomain;
 
         return true;
     }

@@ -250,9 +250,17 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | Auth | `Auth:Trial:LocalIdentity:JwtIssuer` | appsettings, env | empty | Optional (When local IdP) | All (Api, Worker, Combined) | Local JWT issuer string. |
 | Auth | `Auth:Trial:LocalIdentity:JwtAudience` | appsettings, env | empty | Optional (When local IdP) | All (Api, Worker, Combined) | Local JWT audience. |
 | Auth | `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes` | appsettings, env | 60 | Optional (not mode-gated) | All (Api, Worker, Combined) | Access token TTL for local auth. |
+| Auth | `Auth:EmailOtp:Enabled` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Enables passwordless email OTP sign-in endpoints. |
+| Auth | `Auth:EmailOtp:CodeLifetimeMinutes` | appsettings, env | 10 | Optional (not mode-gated) | All (Api, Worker, Combined) | OTP code expiration in minutes. |
+| Auth | `Auth:EmailOtp:MaxVerificationAttemptsPerChallenge` | appsettings, env | 5 | Optional (not mode-gated) | All (Api, Worker, Combined) | Failed verification attempts before challenge invalidation. |
+| Auth | `Auth:EmailOtp:MaxCodeRequestsPerEmailPerHour` | appsettings, env | 5 | Optional (not mode-gated) | All (Api, Worker, Combined) | OTP challenge requests allowed per email per hour. |
+| Auth | `Auth:EmailOtp:MaxCodeRequestsPerIpPerHour` | appsettings, env | 20 | Optional (not mode-gated) | All (Api, Worker, Combined) | OTP challenge requests allowed per client IP per hour. |
+| Auth | `Auth:EmailOtp:ResendCooldownSeconds` | appsettings, env | 45 | Optional (not mode-gated) | All (Api, Worker, Combined) | Minimum seconds between OTP sends for the same email. |
 | Cors | `Cors:AllowedOrigins:0` | appsettings, env, Cors__* | http://localhost:3000 | Optional (not mode-gated) | Api, Combined | First allowed origin; additional indices use 1,2,… in JSON. |
 | RateLimiting | `RateLimiting:Registration:PermitLimit` | appsettings, env | 5 | Optional (not mode-gated) | Api, Combined | Throttling: registration path. |
 | RateLimiting | `RateLimiting:Registration:WindowMinutes` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Registration throttling window. |
+| RateLimiting | `RateLimiting:EmailOtp:PermitLimit` | appsettings, env | 10 | Optional (not mode-gated) | Api, Combined | HTTP rate limit for email OTP endpoints per IP. |
+| RateLimiting | `RateLimiting:EmailOtp:WindowMinutes` | appsettings, env | 15 | Optional (not mode-gated) | Api, Combined | HTTP rate limit window for email OTP endpoints. |
 | RateLimiting | `RateLimiting:FixedWindow:PermitLimit` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Default fixed window permit cap. |
 | RateLimiting | `RateLimiting:FixedWindow:WindowMinutes` | appsettings, env | 1 | Optional (not mode-gated) | Api, Combined | Fixed window length in minutes. |
 | RateLimiting | `RateLimiting:EvidenceBulkUpload:PermitLimit` | appsettings, env | 20 | Optional (not mode-gated) | Api, Combined | `POST …/evidence/bulk` per-tenant/per-window cap (policy `evidenceBulkUpload`; role multipliers apply). |
@@ -316,6 +324,7 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | ApplicationInsights | `ApplicationInsights:ConnectionString` | env, KeyVault | empty | Optional (When telemetry export) | All (Api, Worker, Combined) | Application Insights connection string (appsettings or Key Vault reference). |
 | Environment | `APPLICATIONINSIGHTS_CONNECTION_STRING` | env | empty | Optional (When telemetry export) | All (Api, Worker, Combined) | Azure Application Insights connection string env var (preferred on Azure App Service). |
 | Email | `Email:Provider` | appsettings, env | Noop | Optional (not mode-gated) | All (Api, Worker, Combined) | Noop, Smtp, or Azure Communication Services (see `Email` namespace). |
+| Email | `Email:SupportInbox` | appsettings, env | support@archlucid.net | Optional (not mode-gated) | All (Api, Worker, Combined) | Support intake mailbox for problem reports and auto-ack copy. |
 | Email | `Email:AzureCommunicationServicesEndpoint` | env, KeyVault | empty | Required — If ACS for email in prod | All (Api, Worker, Combined) | Azure Communication Services **Email** resource endpoint (HTTPS) when that provider is selected (see validation). |
 | Environment | `ASPNETCORE_ENVIRONMENT` | env, launchSettings, Service | (unset) | Optional (not mode-gated) | All | ASPNETCORE_ / DOTNET_ENVIRONMENT — cluster role for startup validation. Checked via environment variable, not appsettings path. |
 | CLI | `ARCHLUCID_API_URL` | env, archlucid.json | http://localhost:5128 (default) | Optional (When using the CLI) | CLI | Resolves the API base URL; not consumed by the API process. |

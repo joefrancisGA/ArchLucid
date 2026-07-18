@@ -203,17 +203,21 @@ public sealed class LegacyPlatformIdentityMigrationService(
                 continue;
             }
 
-            await _memberships.UpsertAsync(
-                new WorkspaceMembershipInsert
-                {
-                    UserId = platformUserId,
-                    TenantId = assignment.TenantId,
-                    WorkspaceId = assignment.WorkspaceId,
-                    Role = MapProjectRole(assignment.Role),
-                    Status = WorkspaceMembershipStatus.Active
-                },
-                now,
-                cancellationToken).ConfigureAwait(false);
+            if (!await TryCreateMembershipAsync(
+                    new WorkspaceMembershipInsert
+                    {
+                        UserId = platformUserId,
+                        TenantId = assignment.TenantId,
+                        WorkspaceId = assignment.WorkspaceId,
+                        Role = MapProjectRole(assignment.Role),
+                        Status = WorkspaceMembershipStatus.Active
+                    },
+                    now,
+                    cancellationToken)
+                .ConfigureAwait(false))
+            {
+                continue;
+            }
 
             membershipsCreated++;
         }
@@ -259,19 +263,23 @@ public sealed class LegacyPlatformIdentityMigrationService(
                 continue;
             }
 
-            await _memberships.UpsertAsync(
-                new WorkspaceMembershipInsert
-                {
-                    UserId = platformUserId,
-                    TenantId = scimUser.TenantId,
-                    WorkspaceId = defaultWorkspaceId.Value,
-                    Role = MapScimResolvedRole(scimUser.ResolvedRole),
-                    Status = scimUser.Active
-                        ? WorkspaceMembershipStatus.Active
-                        : WorkspaceMembershipStatus.Suspended
-                },
-                now,
-                cancellationToken).ConfigureAwait(false);
+            if (!await TryCreateMembershipAsync(
+                    new WorkspaceMembershipInsert
+                    {
+                        UserId = platformUserId,
+                        TenantId = scimUser.TenantId,
+                        WorkspaceId = defaultWorkspaceId.Value,
+                        Role = MapScimResolvedRole(scimUser.ResolvedRole),
+                        Status = scimUser.Active
+                            ? WorkspaceMembershipStatus.Active
+                            : WorkspaceMembershipStatus.Suspended
+                    },
+                    now,
+                    cancellationToken)
+                .ConfigureAwait(false))
+            {
+                continue;
+            }
 
             membershipsCreated++;
         }
@@ -328,6 +336,25 @@ public sealed class LegacyPlatformIdentityMigrationService(
         };
 
         return (key, reviewItemRecorded);
+    }
+
+    private async Task<bool> TryCreateMembershipAsync(
+        WorkspaceMembershipInsert insert,
+        DateTimeOffset updatedUtc,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<WorkspaceMembershipRecord> existingMemberships =
+            await _memberships.ListByUserAndTenantAsync(insert.UserId, insert.TenantId, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (existingMemberships.Any(row => row.WorkspaceId == insert.WorkspaceId))
+        {
+            return false;
+        }
+
+        await _memberships.UpsertAsync(insert, updatedUtc, cancellationToken).ConfigureAwait(false);
+
+        return true;
     }
 
     private async Task RecordReviewAsync(
