@@ -528,9 +528,11 @@ Each prompt is scoped to one bounded issue, preserves behavior, is independently
 
 **Closure:** Added `"engines": { "node": ">=22" }` to `archlucid-ui/package.json`; aligns with `node:22-alpine` Dockerfile stages and CI `node-version: "22"`. `npm install` succeeded on Node 22 with no lockfile churn.
 
-### Prompt 5 — Add a `reactflow` import-policy test (TB-570-style) (**TB-862**)
+### Prompt 5 — Add a `reactflow` import-policy test (TB-570-style) (**TB-862**) — **Done 2026-07-17**
 
 > In `archlucid-ui/src/lib/`, add a new Vitest test modeled directly on the existing `recharts-import-policy.test.ts` pattern, scoped to `reactflow`: assert that `reactflow` is statically imported only from its currently-known consumer module(s) (identify them first by searching `from ["']reactflow["']` across `src/`), and that its owning route/component is loaded via `next/dynamic` where applicable. Do not change any component's import strategy — this is a test-only change that documents and protects the current, already-correct behavior. Run `npm run test` to confirm the new test passes against current code as-is (if it fails, that means the current code does not yet meet the policy — stop and report rather than changing production code to force a pass).
+
+**Closure:** Added `src/lib/reactflow-import-policy.test.ts` (4 tests): reactflow imports confined to `GraphViewer`, `FindingEvidenceGraph`, and type-only `finding-evidence-graph-highlight` / `graph-mapper`; `GraphViewer` dynamic via `GraphInteractiveCanvas` + `ArchitectureGraphViewer`; `FindingEvidenceGraph` dynamic via `FindingEvidenceGraphLazy`; hot-path route modules remain reactflow-free. Vitest pass.
 
 ### Prompt 6 — Measure `/reviews/[runId]` bundle composition (investigation only) (**TB-697**)
 
