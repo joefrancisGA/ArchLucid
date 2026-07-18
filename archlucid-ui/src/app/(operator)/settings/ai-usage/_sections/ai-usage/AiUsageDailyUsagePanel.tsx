@@ -12,7 +12,7 @@ import {
 } from "@/lib/ai-usage-dashboard-model";
 import type { LlmCostDailyBucket } from "@/lib/llm-cost-reporting";
 import { hasLlmUsageInDailyBuckets } from "@/lib/llm-cost-reporting-display-labels";
-import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/cost-reporting/_sections/cost-reporting-page-helpers";
+import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/ai-usage/_sections/cost-reporting-page-helpers";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 

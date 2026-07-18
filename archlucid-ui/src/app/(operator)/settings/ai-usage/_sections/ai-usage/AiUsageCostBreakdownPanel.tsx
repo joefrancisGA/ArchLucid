@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AiUsageBreakdownRow } from "@/lib/ai-usage-dashboard-model";
 import type { AiUsageBreakdownGroupBy } from "@/lib/ai-usage-dashboard-filters";
-import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/cost-reporting/_sections/cost-reporting-page-helpers";
+import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/ai-usage/_sections/cost-reporting-page-helpers";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 

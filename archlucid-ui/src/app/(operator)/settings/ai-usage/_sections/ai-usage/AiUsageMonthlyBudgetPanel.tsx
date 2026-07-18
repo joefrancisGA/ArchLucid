@@ -11,7 +11,7 @@ import {
   formatAiUsageRemainingBudgetCopy,
   formatAiUsageUsedBudgetCopy,
 } from "@/lib/ai-usage-dashboard-model";
-import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/cost-reporting/_sections/cost-reporting-page-helpers";
+import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/ai-usage/_sections/cost-reporting-page-helpers";
 import { formatUtcBillingMonthLabel } from "@/lib/llm-cost-reporting-display-labels";
 import { OPERATOR_CARD, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { AiUsageSectionState } from "./AiUsageSectionState";

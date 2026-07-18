@@ -1,5 +1,5 @@
-import { CostReportingSettingsPageClient } from "@/app/(operator)/settings/cost-reporting/_sections/CostReportingSettingsPageClient";
-import { loadCostReportingSettingsPageData } from "@/app/(operator)/settings/cost-reporting/_sections/load-cost-reporting-settings-page-data";
+import { CostReportingSettingsPageClient } from "@/app/(operator)/settings/ai-usage/_sections/CostReportingSettingsPageClient";
+import { loadCostReportingSettingsPageData } from "@/app/(operator)/settings/ai-usage/_sections/load-cost-reporting-settings-page-data";
 
 /**
  * System-administration page for AI usage and cost: estimated LLM spend, token usage,

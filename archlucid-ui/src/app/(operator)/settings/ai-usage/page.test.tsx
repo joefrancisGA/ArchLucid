@@ -10,7 +10,7 @@ const nav = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
-  usePathname: () => "/settings/cost-reporting",
+  usePathname: () => "/settings/ai-usage",
   useSearchParams: () => new URLSearchParams(),
 }));
 

@@ -207,8 +207,6 @@ const nextConfig: NextConfig = {
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
-      { source: "/settings/ai-usage", destination: "/settings/cost-reporting" },
-      { source: "/settings/ai-usage/:path*", destination: "/settings/cost-reporting/:path*" },
     ];
   },
 };

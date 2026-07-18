@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import type { AiUsageKpiSummary } from "@/lib/ai-usage-dashboard-model";
-import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/cost-reporting/_sections/cost-reporting-page-helpers";
+import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/ai-usage/_sections/cost-reporting-page-helpers";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type Props = {

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AiUsageActivityRow } from "@/lib/ai-usage-dashboard-model";
 import { buildAiUsageActivityCsv } from "@/lib/ai-usage-dashboard-model";
-import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/cost-reporting/_sections/cost-reporting-page-helpers";
+import { formatCostReportingEstimatedUsd } from "@/app/(operator)/settings/ai-usage/_sections/cost-reporting-page-helpers";
 import { OPERATOR_CARD, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AiUsageSectionState } from "./AiUsageSectionState";
 
