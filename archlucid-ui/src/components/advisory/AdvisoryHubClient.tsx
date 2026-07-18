@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
@@ -79,7 +80,11 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
 
   return (
     <div className="px-0" data-testid="advisory-hub">
-      <OperatorPageHeader title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory} subtitle={ADVISORY_SCANS_PAGE_SUBTITLE}>
+      <OperatorPageHeader
+        title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory}
+        subtitle={ADVISORY_SCANS_PAGE_SUBTITLE}
+        actions={<PageContextualHelpButton />}
+      >
         <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {ADVISORY_SCANS_PAGE_VALUE_STATEMENT}
         </p>

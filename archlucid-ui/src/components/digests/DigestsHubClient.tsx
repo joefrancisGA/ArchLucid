@@ -8,6 +8,7 @@ import { useCallback, useMemo, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -142,7 +143,9 @@ export function DigestsHubClient(): ReactElement {
         subtitle={pageSubtitle}
         titleTestId="digests-page-title"
         actions={
-          showBrowseHeaderActions ? (
+          <>
+            <PageContextualHelpButton />
+            {showBrowseHeaderActions ? (
             <>
               <Button asChild size="sm" variant="primary" data-testid="digests-primary-action">
                 <Link href={primaryHref}>{primaryLabel}</Link>
@@ -207,7 +210,8 @@ export function DigestsHubClient(): ReactElement {
                 {refreshing ? "Refreshing…" : "Refresh"}
               </Button>
             </div>
-          ) : null
+          ) : null}
+          </>
         }
       />
 

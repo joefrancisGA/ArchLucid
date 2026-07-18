@@ -8,6 +8,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PlanningExportReadinessNote } from "@/components/planning/PlanningExportReadinessNote";
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
@@ -50,7 +51,11 @@ export function PlanningPageView(props: Props) {
 
   return (
     <div className="max-w-5xl">
-      <OperatorPageHeader title={IMPROVEMENT_PLANNING_PAGE_TITLE} subtitle={IMPROVEMENT_PLANNING_PAGE_SUBTITLE} />
+      <OperatorPageHeader
+        title={IMPROVEMENT_PLANNING_PAGE_TITLE}
+        subtitle={IMPROVEMENT_PLANNING_PAGE_SUBTITLE}
+        actions={<PageContextualHelpButton />}
+      />
 
       <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {IMPROVEMENT_PLANNING_PRODUCT_SAFE_INTRO}

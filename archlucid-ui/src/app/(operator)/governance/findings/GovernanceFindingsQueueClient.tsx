@@ -7,6 +7,7 @@ import { GovernanceApprovalStatusBanner } from "@/components/governance/Governan
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
@@ -92,6 +93,7 @@ export default function GovernanceFindingsQueueClient() {
             </>
           ) : undefined
         }
+        actions={<PageContextualHelpButton />}
       />
 
       <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>

@@ -8,6 +8,7 @@ import { OperatorMalformedCallout, OperatorTryNext } from "@/components/Operator
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
 import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
@@ -63,6 +64,7 @@ export function RunsPageView(props: Props) {
         }
         helpKey="runs-list-overview"
         docsPageKey="/runs"
+        actions={<PageContextualHelpButton />}
       />
 
       <ReviewsHubResumeDrafts />

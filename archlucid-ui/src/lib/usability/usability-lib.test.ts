@@ -62,6 +62,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/architectures")?.label).toBe("Getting started");
     expect(pageHelpTopicForPathname("/architectures/draft-id-123")?.slug).toBe("getting-started");
+    expect(pageHelpTopicForPathname("/digests")?.slug).toBe("how-it-works");
+    expect(pageHelpTopicForPathname("/planning")?.slug).toBe("pilot-feedback");
+    expect(pageHelpTopicForPathname("/advisory")?.slug).toBe("how-it-works");
   });
 
   it("searchHelpTopics finds pilot guide", () => {

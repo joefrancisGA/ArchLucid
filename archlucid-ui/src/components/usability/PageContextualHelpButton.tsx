@@ -1,4 +1,5 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -7,12 +8,25 @@ import { CircleHelp } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { PageScopedContextualHelpPanel } from "@/components/usability/PageScopedContextualHelpPanel";
 
-/** Contextual help link for the current route — maps to `/help/{topic}`. */
+/** Contextual help for the current route — inline answers when migrated, otherwise `/help/{topic}`. */
 export function PageContextualHelpButton() {
   const pathname = usePathname() ?? "/";
   const topic = pageHelpTopicForPathname(pathname);
+  const contextualEntry = contextualHelpForPathname(pathname);
+
+  if (contextualEntry !== null && topic !== null) {
+    return (
+      <PageScopedContextualHelpPanel
+        entry={contextualEntry}
+        triggerLabel={topic.label}
+        learnMoreHref={`/help/${topic.slug}`}
+      />
+    );
+  }
 
   if (topic === null) {
     return null;
