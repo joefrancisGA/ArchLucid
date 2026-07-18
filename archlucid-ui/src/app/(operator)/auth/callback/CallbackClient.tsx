@@ -18,7 +18,11 @@ import {
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
-import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer-safe-auth-messages";
+import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
+import {
+  BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE,
+  toBuyerSafeAuthFailureMessage,
+} from "@/lib/buyer-safe-auth-messages";
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
@@ -193,11 +197,15 @@ export function CallbackClient() {
   }, [code, oauthError, oauthErrorDescription, state]);
 
   if (failed) {
-    return <AuthCallbackAccessPanel technicalDetail={message} />;
+    return (
+      <AuthFlowShell>
+        <AuthCallbackAccessPanel technicalDetail={toBuyerSafeAuthFailureMessage(message)} />
+      </AuthFlowShell>
+    );
   }
 
   return (
-    <div className="max-w-[560px]">
+    <AuthFlowShell>
       <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Completing sign-in</h2>
 
       <div
@@ -218,6 +226,6 @@ export function CallbackClient() {
           </p>
         ) : null}
       </div>
-    </div>
+    </AuthFlowShell>
   );
 }

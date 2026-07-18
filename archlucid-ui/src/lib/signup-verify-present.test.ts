@@ -124,6 +124,28 @@ describe("buildSignupVerifyViewModel", () => {
     expect(model.statusMessage).toContain("45 seconds");
     expect(model.statusMessage?.toLowerCase()).not.toContain("rate limit");
   });
+
+  it("uses a distinct rate_limited phase for throttled trial-status", () => {
+    const model = buildSignupVerifyViewModel({
+      registration,
+      queryEmail: "",
+      trialStatus: { kind: "throttled" },
+      resendCooldown: { active: false, secondsRemaining: 0 },
+      checking: false,
+      resendPending: false,
+      resendOutcome: null,
+      stillPendingAfterCheck: false,
+      initialLoadFailed: false,
+    });
+
+    expect(model.phase).toBe("rate_limited");
+    expect(model.heading).toBe(SIGNUP_VERIFY_PAGE_COPY.rateLimitedHeading);
+    expect(model.body).toBe(SIGNUP_VERIFY_PAGE_COPY.rateLimitedBody);
+    expect(model.primaryDisabled).toBe(true);
+    expect(model.showSignIn).toBe(true);
+    expect(model.heading.toLowerCase()).not.toContain("rate limit");
+    expect(model.body.toLowerCase()).not.toContain("rate limit");
+  });
 });
 
 describe("SIGNUP_VERIFY_BANNED_CUSTOMER_STRINGS", () => {

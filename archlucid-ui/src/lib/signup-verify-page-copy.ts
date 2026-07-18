@@ -5,6 +5,7 @@ export const SIGNUP_VERIFY_PAGE_COPY = {
   existingAccountHeading: "This organization is already registered",
   deliveryFailedHeading: "We could not confirm your signup",
   stillPendingHeading: "Verification not detected yet",
+  rateLimitedHeading: "Please wait before trying again",
 
   checkInboxBody:
     "We sent a verification link to {email}. Open the email and select Verify email to continue setting up your ArchLucid workspace.",
@@ -12,6 +13,8 @@ export const SIGNUP_VERIFY_PAGE_COPY = {
   emailVerifiedBody: "Your email is verified. Continue to set up your evaluation workspace.",
   stillPendingBody:
     "We have not detected verification yet. Open the link in your email, then try again.",
+  rateLimitedBody:
+    "We are receiving too many checks right now. Wait a short moment, then try again.",
   sessionExpiredBody:
     "We could not restore your signup details on this browser. Start signup again, or sign in if you already have an account.",
   existingAccountBody:

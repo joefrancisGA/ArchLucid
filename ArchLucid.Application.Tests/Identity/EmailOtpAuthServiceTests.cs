@@ -528,6 +528,117 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_flood_rate_limits_same_email_burst()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            MaxCodeRequestsPerEmailPerHour = 3,
+            MaxCodeRequestsPerIpPerHour = 100,
+            ResendCooldownSeconds = 0
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IEmailOtpEmailNotifier> notifier,
+            out _,
+            options);
+
+        int withChallengeId = 0;
+        int neutral = 0;
+        List<string> messages = [];
+
+        for (int i = 0; i < 12; i++)
+        {
+            EmailOtpChallengeRequestResult result = await sut.RequestCodeAsync(
+                new EmailOtpChallengeRequest
+                {
+                    Email = "flood-same@example.com",
+                    ClientIp = "203.0.113.10"
+                },
+                CancellationToken.None);
+
+            messages.Add(result.Message);
+
+            if (result.ChallengeId is not null)
+            {
+                withChallengeId++;
+            }
+            else
+            {
+                neutral++;
+            }
+        }
+
+        Assert.True(withChallengeId <= 3, $"Expected at most 3 challenges, got {withChallengeId}.");
+        Assert.True(neutral >= 9, $"Expected majority neutral denials, got {neutral}.");
+        Assert.All(messages, message => Assert.DoesNotContain("Exception", message, StringComparison.OrdinalIgnoreCase));
+        Assert.All(messages, message => Assert.DoesNotContain("StackTrace", message, StringComparison.OrdinalIgnoreCase));
+
+        notifier.Verify(
+            n => n.TrySendSignInCodeAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.AtMost(3));
+    }
+
+    [Fact]
+    public async Task RequestCodeAsync_flood_rate_limits_shared_ip_across_emails()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            MaxCodeRequestsPerEmailPerHour = 50,
+            MaxCodeRequestsPerIpPerHour = 5,
+            ResendCooldownSeconds = 0
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            options);
+
+        int withChallengeId = 0;
+        int neutral = 0;
+
+        for (int i = 0; i < 20; i++)
+        {
+            EmailOtpChallengeRequestResult result = await sut.RequestCodeAsync(
+                new EmailOtpChallengeRequest
+                {
+                    Email = $"flood-ip-{i}@example.com",
+                    ClientIp = "198.51.100.44"
+                },
+                CancellationToken.None);
+
+            if (result.ChallengeId is not null)
+            {
+                withChallengeId++;
+            }
+            else
+            {
+                neutral++;
+            }
+        }
+
+        Assert.True(withChallengeId <= 5, $"Expected at most 5 IP-budget challenges, got {withChallengeId}.");
+        Assert.True(neutral >= 15, $"Expected IP flood denials, got {neutral}.");
+    }
+
+    [Fact]
     public async Task VerifyCodeAsync_reuses_existing_email_code_identity()
     {
         FakeTimeProvider clock = new(DateTimeOffset.UtcNow);

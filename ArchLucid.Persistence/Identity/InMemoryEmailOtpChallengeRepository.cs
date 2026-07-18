@@ -165,7 +165,7 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
                 });
             }
 
-            if (!string.Equals(existing.CodeHash, codeHash, StringComparison.Ordinal))
+            if (!FixedTimeHexEquals.Equals(existing.CodeHash, codeHash))
             {
                 int failed = existing.FailedAttemptCount + 1;
                 DateTimeOffset? invalidatedUtc = failed >= maxFailedAttempts ? nowUtc : null;

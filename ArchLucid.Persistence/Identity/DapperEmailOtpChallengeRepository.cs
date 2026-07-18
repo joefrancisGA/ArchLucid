@@ -234,7 +234,7 @@ public sealed class DapperEmailOtpChallengeRepository(ISqlConnectionFactory conn
             return new EmailOtpChallengeCompletionOutcome { Result = EmailOtpChallengeCompletionResult.Expired };
         }
 
-        if (!string.Equals(record.CodeHash, codeHash, StringComparison.Ordinal))
+        if (!FixedTimeHexEquals.Equals(record.CodeHash, codeHash))
         {
             int failed = record.FailedAttemptCount + 1;
             DateTime? invalidatedUtc = failed >= maxFailedAttempts ? nowUtc.UtcDateTime : null;

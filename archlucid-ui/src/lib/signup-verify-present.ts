@@ -14,7 +14,8 @@ export type SignupVerifyViewPhase =
   | "delivery_failed"
   | "resend_success"
   | "resend_cooldown"
-  | "resend_failed";
+  | "resend_failed"
+  | "rate_limited";
 
 export type SignupVerifyViewModel = {
   readonly phase: SignupVerifyViewPhase;
@@ -254,6 +255,26 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
     };
   }
 
+  if (input.trialStatus?.kind === "throttled") {
+    return {
+      phase: "rate_limited",
+      heading: SIGNUP_VERIFY_PAGE_COPY.rateLimitedHeading,
+      body: SIGNUP_VERIFY_PAGE_COPY.rateLimitedBody,
+      helperText: SIGNUP_VERIFY_PAGE_COPY.deliveryHint,
+      maskedEmail: displayEmail,
+      primaryLabel: SIGNUP_VERIFY_PAGE_COPY.primaryPending,
+      primaryDisabled: true,
+      showResend: true,
+      resendDisabled: true,
+      resendLabel: SIGNUP_VERIFY_PAGE_COPY.primaryResend,
+      showDifferentEmail: true,
+      showReturnSignup: true,
+      showSignIn: true,
+      statusMessage: interpolate(SIGNUP_VERIFY_PAGE_COPY.resendCooldown, displayEmail, 45),
+      autoContinue: false,
+    };
+  }
+
   if (input.stillPendingAfterCheck) {
     return {
       phase: "still_pending",
@@ -297,9 +318,7 @@ export function buildSignupVerifyViewModel(input: BuildSignupVerifyViewModelInpu
     showDifferentEmail: true,
     showReturnSignup: true,
     showSignIn: false,
-    statusMessage: input.trialStatus?.kind === "throttled"
-      ? interpolate(SIGNUP_VERIFY_PAGE_COPY.resendCooldown, displayEmail, 45)
-      : null,
+    statusMessage: null,
     autoContinue: false,
   };
 }

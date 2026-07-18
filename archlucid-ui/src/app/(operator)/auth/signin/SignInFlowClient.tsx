@@ -28,6 +28,7 @@ import {
   mapEmailOtpFailureToCustomerMessage,
   SIGN_IN_PAGE_COPY,
 } from "@/lib/auth/sign-in-page-copy";
+import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer-safe-auth-messages";
 import { resolveSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { assertOidcSignInConfig } from "@/lib/oidc/config";
@@ -316,83 +317,99 @@ export function SignInFlowClient({ returnUrl, invitationTokenFromQuery }: SignIn
   }, [challengeId, code, codePending, safeReturnUrl]);
 
   if (fatalError) {
-    return <AuthErrorPanel message={fatalError} />;
+    return (
+      <AuthFlowShell>
+        <AuthErrorPanel message={fatalError} />
+      </AuthFlowShell>
+    );
   }
 
   if (!hasAnySignInMethod) {
-    return <AuthErrorPanel message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE} />;
+    return (
+      <AuthFlowShell>
+        <AuthErrorPanel message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE} />
+      </AuthFlowShell>
+    );
   }
 
   if (step === "options") {
     return (
-      <SignInMethodPicker
-        options={methodOptions}
-        onWorkSchool={beginWorkSchool}
-        onEmailCode={() => {
-          setStep("email");
-          setEmailError(null);
-          setEmailStatus(null);
-        }}
-        onSupplemental={beginSupplemental}
-      />
+      <AuthFlowShell>
+        <SignInMethodPicker
+          options={methodOptions}
+          onWorkSchool={beginWorkSchool}
+          onEmailCode={() => {
+            setStep("email");
+            setEmailError(null);
+            setEmailStatus(null);
+          }}
+          onSupplemental={beginSupplemental}
+        />
+      </AuthFlowShell>
     );
   }
 
   if (step === "email") {
     return (
-      <SignInEmailStep
-        email={email}
-        pending={emailPending}
-        errorMessage={emailError}
-        statusMessage={emailStatus}
-        onEmailChange={setEmail}
-        onSubmit={handleEmailSubmit}
-        onBack={resetEmailOtpFlow}
-        onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
-      />
+      <AuthFlowShell>
+        <SignInEmailStep
+          email={email}
+          pending={emailPending}
+          errorMessage={emailError}
+          statusMessage={emailStatus}
+          onEmailChange={setEmail}
+          onSubmit={handleEmailSubmit}
+          onBack={resetEmailOtpFlow}
+          onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
+        />
+      </AuthFlowShell>
     );
   }
 
   if (step === "sso") {
     return (
-      <SignInSsoRequiredStep
-        message={ssoMessage}
-        onContinueOrganizationSignIn={beginWorkSchool}
-        onUseAnotherEmail={() => {
-          clearEmailOtpChallengeSession();
-          setStep("email");
-          setEmailError(null);
-          setEmailStatus(null);
-        }}
-      />
+      <AuthFlowShell>
+        <SignInSsoRequiredStep
+          message={ssoMessage}
+          onContinueOrganizationSignIn={beginWorkSchool}
+          onUseAnotherEmail={() => {
+            clearEmailOtpChallengeSession();
+            setStep("email");
+            setEmailError(null);
+            setEmailStatus(null);
+          }}
+        />
+      </AuthFlowShell>
     );
   }
 
   return (
-    <SignInCodeStep
-      maskedEmail={maskedEmail}
-      code={code}
-      pending={codePending}
-      resendPending={resendPending}
-      resendSecondsRemaining={resendSecondsRemaining}
-      errorMessage={codeError}
-      statusMessage={codeStatus}
-      onCodeChange={setCode}
-      onSubmit={() => {
-        void handleCodeSubmit();
-      }}
-      onResend={() => {
-        void sendChallenge(email);
-      }}
-      onDifferentEmail={() => {
-        clearEmailOtpChallengeSession();
-        setCode("");
-        setCodeError(null);
-        setCodeStatus(null);
-        setBotChallengeToken(null);
-        setStep("email");
-      }}
-      onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
-    />
+    <AuthFlowShell>
+      <SignInCodeStep
+        maskedEmail={maskedEmail}
+        code={code}
+        pending={codePending}
+        resendPending={resendPending}
+        resendSecondsRemaining={resendSecondsRemaining}
+        errorMessage={codeError}
+        statusMessage={codeStatus}
+        onCodeChange={setCode}
+        onSubmit={() => {
+          void handleCodeSubmit();
+        }}
+        onResend={() => {
+          void sendChallenge(email);
+        }}
+        onDifferentEmail={() => {
+          clearEmailOtpChallengeSession();
+          setCode("");
+          setCodeError(null);
+          setCodeStatus(null);
+          setBotChallengeToken(null);
+          setStep("email");
+        }}
+        onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
+      />
+    </AuthFlowShell>
   );
 }

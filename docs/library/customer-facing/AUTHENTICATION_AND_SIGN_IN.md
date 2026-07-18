@@ -6,7 +6,7 @@ ArchLucid supports passwordless sign-in. You do not create or manage an ArchLuci
 
 You can sign in with:
 
-- **Work or school account** — Microsoft, Google, or your organization's single sign-on (SSO) when it is configured.
+- **Work or school account** — Microsoft (and Google when your ArchLucid environment has Google sign-in enabled), or your organization's single sign-on (SSO) when it is configured.
 - **Email one-time code** — enter any email address that can receive mail; ArchLucid sends a short code to complete sign-in.
 
 When both options are available, choose the method that fits your organization. If your email domain requires organizational SSO, ArchLucid directs you to your identity provider.

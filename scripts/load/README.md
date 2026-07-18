@@ -35,6 +35,25 @@ k6 run scripts/load/hotpaths.js
 VUS=10 DURATION=5m k6 run scripts/load/hotpaths.js
 ```
 
+## Email OTP abuse flood (Evidence E1)
+
+Staging-only identity drills (not production):
+
+| Script | Purpose |
+|--------|---------|
+| `email-otp-challenge-flood.js` | Anonymous OTP challenge flood + body leak checks |
+| `email-otp-challenge-stub.js` | Alias for runbooks |
+| `self-service-trial-farm-stub.js` | Registration farm (requires `PublicSelfService` temporarily) |
+
+Orchestrator (unit flood proof + optional k6):
+
+```powershell
+.\scripts\ci\run_email_otp_abuse_drill.ps1 -SkipK6 -WriteEvidenceStub
+.\scripts\ci\run_email_otp_abuse_drill.ps1 -BaseUrl 'https://YOUR-STAGING-API' -ExpectBotChallenge -WriteEvidenceStub
+```
+
+See `docs/runbooks/EMAIL_OTP_ABUSE_DRILL.md`.
+
 ## CI
 
 The workflow `.github/workflows/load-test.yml` runs on **manual** `workflow_dispatch` against Compose `full-stack` with fixed runner resources (see workflow). It uploads a summary snippet to the job log; copy p50/p95/p99 into `docs/LOAD_TEST_BASELINE.md` after each formal baseline run.

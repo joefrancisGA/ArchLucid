@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Core.Identity;
+
 namespace ArchLucid.Application.Identity;
 
 public static class EmailOtpCodeGenerator
@@ -36,6 +38,10 @@ public static class EmailOtpCodeHasher
 
         return Convert.ToHexString(bytes);
     }
+
+    /// <summary>Constant-time compare for stored OTP code hashes (hex SHA-256).</summary>
+    public static bool FixedTimeEqualsHex(string? leftHex, string? rightHex) =>
+        FixedTimeHexEquals.Equals(leftHex, rightHex);
 }
 
 public static class EmailOtpRequestMetadataHasher
