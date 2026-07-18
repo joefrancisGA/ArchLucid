@@ -534,6 +534,12 @@ Each prompt is scoped to one bounded issue, preserves behavior, is independently
 
 **Closure:** Added `src/lib/reactflow-import-policy.test.ts` (4 tests): reactflow imports confined to `GraphViewer`, `FindingEvidenceGraph`, and type-only `finding-evidence-graph-highlight` / `graph-mapper`; `GraphViewer` dynamic via `GraphInteractiveCanvas` + `ArchitectureGraphViewer`; `FindingEvidenceGraph` dynamic via `FindingEvidenceGraphLazy`; hot-path route modules remain reactflow-free. Vitest pass.
 
+### Prompt 5b — Add a `mermaid` import-policy test (TB-570-style) (**TB-863**) — **Done 2026-07-17**
+
+> In `archlucid-ui/src/lib/`, add a new Vitest test modeled on `recharts-import-policy.test.ts` and `reactflow-import-policy.test.ts`, scoped to `mermaid`: assert that `import("mermaid")` appears only in its currently-known consumer module(s) (search `import\(["']mermaid["']\)` across `src/`), that there are no static `from "mermaid"` imports, that the architecture-diagram path reaches mermaid through the existing deferred `ArchitectureCreatedWorkspace` chunk, and that help markdown renders mermaid only via `MermaidDiagram`. Do not change any component's import strategy — test-only drift guard. Run `npm run test` to confirm.
+
+**Closure:** Added `src/lib/mermaid-import-policy.test.ts` (5 tests): dynamic `import("mermaid")` confined to `ArchitectureDiagramViewer` and `MermaidDiagram`; no static `from "mermaid"` imports; architecture path deferred via `RunDetailArchitectureCreatedWorkspaceDeferred`; help path via `MarketingAccessibilityMarkdownFragment` → `MermaidDiagram`; hot-path route modules remain mermaid-free. Vitest pass.
+
 ### Prompt 6 — Measure `/reviews/[runId]` bundle composition (investigation only) (**TB-697**)
 
 > In `archlucid-ui/`, run `npm run build:analyze` (sets `ANALYZE=1` and runs the standard build) and capture the resulting bundle-analyzer HTML report for the `/reviews/[runId]` route. Cross-reference the largest modules in that route's client chunk against `performance/first-load-js-baseline.v1.json`'s recorded 2,150.9 KB figure. Produce a short note listing (a) the top 10 largest modules by size in that route's chunk, (b) which of them are already behind `dynamic()` elsewhere in the app but apparently not on this route, and (c) which appear to have no existing dynamic-import precedent. Do not modify any component's loading strategy in this prompt — it produces a findings list for a future, separately-scoped prompt per candidate.
