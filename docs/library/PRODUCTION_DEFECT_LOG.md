@@ -1,8 +1,8 @@
-> **Scope:** Owner/operator-reported production defect intake — investigation-first triage register. Distinct from `TECH_BACKLOG.md`, which holds items whose scope and fix approach are already decided. A defect only becomes a `TB-###` backlog item once investigation confirms it is genuinely unfixed on `master` and not already fixed on some other branch.
+> **Scope:** Contributor — owner/operator-reported production defect intake — investigation-first triage register. Distinct from `TECH_BACKLOG.md`, which holds items whose scope and fix approach are already decided. A defect only becomes a `TB-###` backlog item once investigation confirms it is genuinely unfixed on `master` and not already fixed on some other branch.
 
 # Production defect log
 
-**Updated:** 2026-07-15 (**PD-002** escalated to **TB-867** — ServiceNow ITSM settings/health wrong SQL catalog).
+**Updated:** 2026-07-17 (**PD-003** Fixed on `RC11`/`RC12` — DefaultTenant seed for hosted ApiKey + TenantSettings tenant-plane SQL). Prior: 2026-07-15 (**PD-002** escalated to **TB-867** — ServiceNow ITSM settings/health wrong SQL catalog).
 
 ## How this differs from the technical backlog
 
@@ -31,12 +31,24 @@ Every `PD-###` entry resolves to exactly one disposition:
 | --- | --- | --- | --- | --- |
 | PD-001 | 2026-07-15 | Escalated to TB-866 — Done | Home “Learn the architecture workflow” title not a link | Escalated to TB-866 |
 | PD-002 | 2026-07-15 | Escalated to TB-867 — Done | Database error when opening ServiceNow menu item | Escalated to TB-867 |
+| PD-003 | 2026-07-17 | Fixed on branch `RC11`/`RC12` | Database Query Failed on draft create (DefaultTenant FK + TenantSettings plane) | Fixed on branch `RC11`/`RC12`, not merged |
 
 ---
 
 ## Per-defect detail
 
 <!-- /al-defect appends one "## PD-###" section below this line per report. Do not reorder existing sections. -->
+
+## PD-003 — Database Query Failed on draft create (DefaultTenant FK + TenantSettings plane)
+
+- **Reported:** 2026-07-17
+- **Target branch:** `RC11` (deployed hosted API)
+- **Reporter context:** correlation id `bc7a2252-6679-4774-80ed-1dd561544bef`; env hosted `archlucid-api` revision `r29542895350a1` @ `806b3a001f`
+- **Description:** Database rejected the query due to a programming error while using the deployed RC11 build
+- **Screenshot:** none provided
+- **Status:** Fixed on branch `RC11`/`RC12`, not merged
+- **Investigation:** App Insights: `POST /v1/architecture/draft` → 500; SQL **547** `FK_DraftRequests_Tenants` in `ArchLucidTenantDev` for ApiKey DefaultTenant `11111111-…` (tenant-plane `dbo.Tenants` row missing). Concurrent SQL **208** `Invalid object name 'dbo.TenantSettings'` — repository used primary-catalog `IBackgroundWorkerSqlConnectionFactory` while migration **173** is tenant-plane. Host bootstrap seeded DefaultTenant only when `IsDevelopment()`, but Container App binds ApiKey DefaultTenant under non-Development environment.
+- **Disposition evidence:** `ArchLucidPersistenceStartup` also seeds when ApiKey TenantId is DefaultTenant; `SqlTenantSettingsRepository` switched to scoped `ISqlConnectionFactory`; contract test + `COMMON_ERRORS.md` §7d/§7e.
 
 ## PD-002 — Database error when opening ServiceNow menu item
 

@@ -86,7 +86,14 @@ public sealed class AuditPathClassificationArchitectureTests
         "AuthorityCommittedPipelineFinalizer",
         "SqlTrialFunnelCommitHook",
         "HostedAwsExtractorRunService",
-        "HostedGcpExtractorRunService"
+        "HostedGcpExtractorRunService",
+        "AuthenticationIdentityLinkingService",
+        "EmailOtpAuthService",
+        "PlatformAuthRecoveryService",
+        "PlatformRecoveryNotificationService",
+        "PlatformIdentityService",
+        "PostAuthBootstrapService",
+        "UserAccountRecoveryService"
     ];
 
     private static string FindRepoRoot()

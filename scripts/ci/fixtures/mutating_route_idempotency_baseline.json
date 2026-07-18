@@ -1,5 +1,5 @@
 {
-  "discoveredRouteCount": 202,
+  "discoveredRouteCount": 214,
   "formatVersion": "1.0",
   "routes": {
     "DELETE /scim/v2/Users/{id}": "naturally-idempotent",
@@ -94,6 +94,16 @@
     "POST /v1/auth/trial/local/register": "operator-documented-safe-retry",
     "POST /v1/auth/trial/local/token": "operator-documented-safe-retry",
     "POST /v1/auth/trial/local/verify-email": "operator-documented-safe-retry",
+    "POST /v1/auth/bootstrap/access-request": "unclassified",
+    "POST /v1/auth/bootstrap/invitations/accept": "unclassified",
+    "POST /v1/auth/bootstrap/workspaces": "unclassified",
+    "POST /v1/auth/bootstrap/workspaces/select": "unclassified",
+    "POST /v1/auth/email-otp/challenge": "unclassified",
+    "POST /v1/auth/email-otp/verify": "unclassified",
+    "POST /v1/auth/routing/evaluate": "unclassified",
+    "POST /v1/auth/sign-in-methods/email-otp/challenge": "unclassified",
+    "POST /v1/auth/sign-in-methods/email-otp/verify": "unclassified",
+    "POST /v1/auth/sign-in-methods/proposals/{proposalId}/confirm": "unclassified",
     "POST /v1/authority/replay": "operator-documented-safe-retry",
     "POST /v1/authority/runs/{runId}/disposition": "explicit-idempotency-key",
     "POST /v1/azure-extractor/connections": "operator-documented-safe-retry",
@@ -159,6 +169,7 @@
     "POST /v1/internal/architecture/runs/{runId}/replay": "operator-documented-safe-retry",
     "POST /v1/internal/architecture/runs/{runId}/seed-fake-results": "operator-documented-safe-retry",
     "POST /v1/internal/authority/replay": "operator-documented-safe-retry",
+    "POST /v1/internal/identity/recovery/grants": "unclassified",
     "POST /v1/learning/planning/materialize": "operator-documented-safe-retry",
     "POST /v1/marketing/early-access": "operator-documented-safe-retry",
     "POST /v1/marketing/pricing/quote-request": "operator-documented-safe-retry",
@@ -187,6 +198,7 @@
     "POST /v1/requests": "explicit-idempotency-key",
     "POST /v1/runs/{runId}/manifest/finalize": "explicit-idempotency-key",
     "POST /v1/runs/{runId}/submit": "explicit-idempotency-key",
+    "POST /v1/support/problem-reports": "unclassified",
     "POST /v1/tenant/billing/checkout": "operator-documented-safe-retry",
     "POST /v1/tenant/billing/portal": "operator-documented-safe-retry",
     "POST /v1/tenant/billing/marketplace/webhook-test": "inbound-webhook-pipeline",
@@ -214,5 +226,5 @@
     "PUT /v1/tenant/core-pilot-checklist": "naturally-idempotent",
     "PUT /v1/tenant/cost-settings": "naturally-idempotent"
   },
-  "unclassifiedRouteCount": 0
+  "unclassifiedRouteCount": 12
 }

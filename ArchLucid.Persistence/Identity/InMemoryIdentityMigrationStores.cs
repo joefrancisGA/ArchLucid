@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Identity;
 
 public sealed class InMemoryIdentityMigrationReviewRepository : IIdentityMigrationReviewRepository
 {
-    private readonly ConcurrentDictionary<(string LegacySourceType, Guid LegacySourceId), IdentityMigrationReviewItemRecord> _byLegacy =
+    private readonly ConcurrentDictionary<(string LegacySourceType, Guid LegacySourceId, IdentityMigrationReviewReason ReasonCode), IdentityMigrationReviewItemRecord> _byLegacy =
         new();
 
     public Task UpsertAsync(
@@ -22,7 +22,8 @@ public sealed class InMemoryIdentityMigrationReviewRepository : IIdentityMigrati
         ArgumentException.ThrowIfNullOrWhiteSpace(legacySourceType);
         ArgumentException.ThrowIfNullOrWhiteSpace(reasonDetail);
 
-        (string LegacySourceType, Guid LegacySourceId) key = (legacySourceType, legacySourceId);
+        (string LegacySourceType, Guid LegacySourceId, IdentityMigrationReviewReason ReasonCode) key =
+            (legacySourceType, legacySourceId, reasonCode);
 
         IdentityMigrationReviewItemRecord row = new()
         {

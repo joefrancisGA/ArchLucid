@@ -1,4 +1,4 @@
-> **Scope:** V1 private-beta contract for the in-product **Report Problem** action — not a shipped dialog/API (see **TB-784**–**TB-792**).
+> **Scope:** Contributor-reference — V1 private-beta contract for the in-product **Report Problem** action — not a shipped dialog/API (see **TB-784**–**TB-792**).
 
 # Report Problem — V1 scope contract
 

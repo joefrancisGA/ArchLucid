@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-07-15T15:50:00.000Z",
+  "updatedUtc": "2026-07-17T13:35:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/welcome": {
@@ -10,7 +10,7 @@
       "firstLoadJsKb": 1669.1
     },
     "/reviews/[runId]": {
-      "firstLoadJsKb": 2211.1
+      "firstLoadJsKb": 2255.2
     },
     "/governance": {
       "firstLoadJsKb": 1417

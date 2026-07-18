@@ -6,6 +6,7 @@ using ArchLucid.Application.Audit;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
 
 using Asp.Versioning;
@@ -19,7 +20,7 @@ namespace ArchLucid.Api.Controllers.Auth;
 
 /// <summary>Post-authentication workspace bootstrap (invitations, workspace selection, first workspace creation).</summary>
 [ApiController]
-[Authorize]
+[Authorize(Policy = ArchLucidPolicies.AuthenticatedUserOnly)]
 [AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/auth/bootstrap")]

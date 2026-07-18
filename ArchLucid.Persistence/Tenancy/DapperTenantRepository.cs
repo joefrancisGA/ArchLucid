@@ -79,6 +79,19 @@ public sealed class DapperTenantRepository(
         if (fromCatalog is not null)
             return fromCatalog;
 
+        await using SqlConnection tenantPlaneConnection =
+            await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        TenantRecord? fromTenantPlane =
+            await QueryTenantByNormalizedOrganizationNameAsync(tenantPlaneConnection, normalizedName, ct)
+                .ConfigureAwait(false);
+
+        if (fromTenantPlane is not null)
+            return fromTenantPlane;
+
+        if (TargetsSameCatalogAsSystem(tenantPlaneConnection.ConnectionString))
+            return null;
+
         return await QueryTenantDirectoryByNormalizedOrganizationNameAsync(normalizedName, ct).ConfigureAwait(false);
     }
 

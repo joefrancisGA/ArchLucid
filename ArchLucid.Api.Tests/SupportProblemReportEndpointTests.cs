@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 
 using ArchLucid.Contracts.Support;
 using ArchLucid.Core.Scoping;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -10,6 +11,10 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Api.Tests;
 
+/// <summary>
+///     Support problem report HTTP tests. Raw <see cref="Microsoft.Data.SqlClient.SqlConnection" /> probes require
+///     <see cref="GreenfieldSqlApiFactory" /> (Sql + DbUp); <see cref="ArchLucidApiFactory" /> keeps InMemory storage.
+/// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class SupportProblemReportEndpointTests
@@ -63,9 +68,10 @@ public sealed class SupportProblemReportEndpointTests
     [SkippableFact]
     public async Task Post_with_attach_support_bundle_returns_accepted_and_persists_blob_path()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         SubmitSupportProblemReportRequest request = BuildValidRequest();
         request.AttachSupportBundle = true;
@@ -89,9 +95,10 @@ public sealed class SupportProblemReportEndpointTests
     [SkippableFact]
     public async Task Post_with_operator_role_returns_accepted_reference()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         using HttpResponseMessage response = await client.PostAsJsonAsync(EndpointPath, BuildValidRequest());
 
@@ -116,9 +123,10 @@ public sealed class SupportProblemReportEndpointTests
     [SkippableFact]
     public async Task Post_row_is_not_visible_under_other_tenant_scope()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         using HttpResponseMessage response = await client.PostAsJsonAsync(EndpointPath, BuildValidRequest());
 
@@ -241,7 +249,7 @@ public sealed class SupportProblemReportEndpointTests
         string connectionString,
         Guid tenantId,
         Guid workspaceId,
-        Guid projectId)
+        Guid defaultProjectId)
     {
         await using SqlConnection connection = new(connectionString);
         await connection.OpenAsync();
@@ -249,27 +257,20 @@ public sealed class SupportProblemReportEndpointTests
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText =
             """
-            IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @TenantId)
-            BEGIN
-                INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, CreatedUtc)
-                VALUES (@TenantId, N'Tenant B', N'tenant-b', N'Standard', SYSUTCDATETIME());
-            END;
-
-            IF NOT EXISTS (SELECT 1 FROM dbo.Workspaces WHERE Id = @WorkspaceId)
-            BEGIN
-                INSERT INTO dbo.Workspaces (Id, TenantId, Name, Slug, CreatedUtc)
-                VALUES (@WorkspaceId, @TenantId, N'Workspace B', N'workspace-b', SYSUTCDATETIME());
-            END;
-
-            IF NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = @ProjectId)
-            BEGIN
-                INSERT INTO dbo.Projects (Id, WorkspaceId, Name, Slug, CreatedUtc)
-                VALUES (@ProjectId, @WorkspaceId, N'Project B', N'project-b', SYSUTCDATETIME());
-            END;
+            IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @Tid)
+                INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
+                VALUES (@Tid, N'Tenant isolation B', N'tenant-iso-b', N'Standard', NULL);
+            IF NOT EXISTS (SELECT 1 FROM dbo.TenantWorkspaces WHERE Id = @Wid)
+                INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
+                VALUES (@Wid, @Tid, N'Workspace B', @Pid);
+            IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
+               AND NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = @Pid)
+                INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
+                VALUES (@Pid, @Tid, @Wid, N'default', SYSUTCDATETIME(), 0);
             """;
-        cmd.Parameters.AddWithValue("@TenantId", tenantId);
-        cmd.Parameters.AddWithValue("@WorkspaceId", workspaceId);
-        cmd.Parameters.AddWithValue("@ProjectId", projectId);
+        cmd.Parameters.AddWithValue("@Tid", tenantId);
+        cmd.Parameters.AddWithValue("@Wid", workspaceId);
+        cmd.Parameters.AddWithValue("@Pid", defaultProjectId);
         _ = await cmd.ExecuteNonQueryAsync();
     }
 

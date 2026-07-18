@@ -123,6 +123,28 @@ See **[MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)**.
 
 ---
 
+## 7d. **Database Query Failed** — draft create FK to missing DefaultTenant (tenant catalog)
+
+**Symptom:** UI toast **Database Query Failed: The database rejected the query due to a programming error** on **Start review** / create architecture draft. Correlation ID on **`POST /v1/architecture/draft`**. App Insights: SQL **547** `FK_DraftRequests_Tenants` in the tenant catalog (e.g. **`ArchLucidTenantDev`**).
+
+**Cause:** ApiKey (or client) is bound to well-known **`ScopeIds.DefaultTenant`** (`11111111-…`), but that row was never inserted into the **tenant-plane** `dbo.Tenants`. `DevelopmentDefaultScopeTenantBootstrap` historically ran only when `ASPNETCORE_ENVIRONMENT=Development`, while hosted Container Apps often run as Production with `Authentication:ApiKey:TenantId` still set to DefaultTenant.
+
+**Resolution:** Redeploy API that seeds DefaultTenant whenever ApiKey TenantId is DefaultTenant (or run the same INSERT as `DevelopmentDefaultScopeTenantBootstrap.TryEnsure` against the tenant catalog). Confirm `SELECT Id FROM dbo.Tenants WHERE Id = '11111111-1111-1111-1111-111111111111'` succeeds in the tenant DB, then retry draft create.
+
+**Prevention:** Keep ApiKey demo-scope seeding tied to the ApiKey tenant claim, not only `IsDevelopment()`.
+
+---
+
+## 7e. **Database Query Failed** — `dbo.TenantSettings` on wrong SQL catalog
+
+**Symptom:** SQL **208** `Invalid object name 'dbo.TenantSettings'` in App Insights while product traffic hits tenant catalogs.
+
+**Cause:** `SqlTenantSettingsRepository` queried the primary/system catalog via `IBackgroundWorkerSqlConnectionFactory` while migration **173** creates `dbo.TenantSettings` on the **tenant** plane.
+
+**Resolution:** Use scoped `ISqlConnectionFactory` (same pattern as **TB-867** / §7c). Redeploy API. Contract: `SqlTenantSettingsRepositoryConnectionFactoryContractTests`.
+
+---
+
 ## 8. **429 Too Many Requests**
 
 **Symptom:** HTTP **429**, rate-limit problem details extensions.

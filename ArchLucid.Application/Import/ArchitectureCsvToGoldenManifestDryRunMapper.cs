@@ -100,6 +100,9 @@ internal static class ArchitectureCsvToGoldenManifestDryRunMapper
     {
         string t = typeToken.ToUpperInvariant();
 
+        if (t.Contains("API", StringComparison.Ordinal))
+            return ServiceType.Api;
+
         if (t.Contains("UI", StringComparison.Ordinal) || t.Contains("WEB", StringComparison.Ordinal))
             return ServiceType.Ui;
 
@@ -119,9 +122,6 @@ internal static class ArchitectureCsvToGoldenManifestDryRunMapper
             || t.Contains("LLM", StringComparison.Ordinal)
             || t.Contains("MODEL", StringComparison.Ordinal))
             return ServiceType.AiService;
-
-        if (t.Contains("API", StringComparison.Ordinal))
-            return ServiceType.Api;
 
         string h = hintUpper.ToUpperInvariant();
 

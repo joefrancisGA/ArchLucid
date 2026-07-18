@@ -21,7 +21,7 @@ public sealed class RegistrationControllerTests(GreenfieldSqlApiFactory fixture)
     [SkippableFact]
     public async Task Register_creates_tenant_then_returns_conflict_for_same_organization()
     {
-        using HttpClient client = fixture.CreateClient();
+        using HttpClient client = await fixture.CreateBoundedClientAsync();
         string organizationName = "Reg Org " + Guid.NewGuid().ToString("N");
 
         using HttpResponseMessage created = await client.PostAsync(
@@ -40,7 +40,7 @@ public sealed class RegistrationControllerTests(GreenfieldSqlApiFactory fixture)
     [SkippableFact]
     public async Task Register_then_trial_status_returns_active_with_sample_run()
     {
-        using HttpClient client = fixture.CreateClient();
+        using HttpClient client = await fixture.CreateBoundedClientAsync();
         string organizationName = "Trial Org " + Guid.NewGuid().ToString("N");
 
         using HttpResponseMessage created = await client.PostAsync(

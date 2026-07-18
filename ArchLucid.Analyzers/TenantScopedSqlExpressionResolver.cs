@@ -48,7 +48,7 @@ internal static class TenantScopedSqlExpressionResolver
     {
         switch (expression)
         {
-            case LiteralExpressionSyntax { Token.RawKind: (int)SyntaxKind.StringLiteralExpression } literal:
+            case LiteralExpressionSyntax literal when literal.IsKind(SyntaxKind.StringLiteralExpression):
                 return new ResolutionResult(literal.Token.ValueText, true, false);
 
             case IdentifierNameSyntax identifier:
