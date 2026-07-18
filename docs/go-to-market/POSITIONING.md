@@ -7,13 +7,28 @@
 
 **Audience:** Anyone who needs to explain what ArchLucid is and why it matters — in a sentence, a paragraph, or a two-minute conversation.
 
-**Last reviewed:** 2026-05-18 (service-led GTM companion lines)
+**Last reviewed:** 2026-07-18 — evidence-package-first alignment (**TB-746**); engineering canonical copy in §0–§1; **owner external-publish sign-off** still required before treating §1 as frozen for paid media.
 
 **Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../library/V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
-**Relationship to the sponsor brief:** [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) is the **dominant outward-facing buyer narrative**. This page supports **short explanations and proof-backed pillars** for conversations and datasheets; it must **not contradict** the brief. If wording here drifts broader than the brief, **tighten here** or promote a deliberate product change into the brief first, then realign.
+**Relationship to the sponsor brief:** [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) is the **dominant outward-facing buyer narrative**. This page supports **short explanations and proof-backed pillars** for conversations and datasheets; it must **not contradict** the brief. The brief uses **architecture proof package**; this page standardizes the shorter **architecture package** noun (same governed artifact). If wording here drifts broader than the brief, **tighten here** or promote a deliberate product change into the brief first, then realign.
 
 **Platform:** First-party and reference deployments are **Azure-native**; see [ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md).
+
+---
+
+## 0. Evidence-package-first vocabulary (TB-738 / TB-746)
+
+**Written rule (owner decision 2026-07-10; engineering alignment 2026-07-18):**
+
+| Rule | Guidance |
+|------|----------|
+| **One noun** | **Architecture package** — the governed unit buyers receive: findings, confidence limits, signed manifest, exports. Reviewed and created packages share the same pipeline outputs. |
+| **Two verbs** | **Create** and **review** — symmetric **workflows**, not symmetric **headline** positioning. |
+| **Verbs never in the hero** | Marketing heroes, demo openers, and homepage cards lead with **package outcomes** (evidence-backed, defensible, exportable), not "create architecture," generation speed, or "beats ChatGPT" framing. |
+| **Trust ladder** | **Review-led** first (sample, intake, evidence-backed review), then a **creation bridge** on the same outputs ([TB-739](GTM_BACKLOG.md) home copy, [TB-742](../library/TECH_BACKLOG.md) created sample, [TB-745](DEMO_VIDEO_SCRIPT.md) demo scripts). |
+
+Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/src/lib/buyer-surface-vocabulary.ts). Brand voice: [`BRAND_SYSTEM.md`](../brand/BRAND_SYSTEM.md) §1.
 
 ---
 
@@ -21,14 +36,14 @@
 
 **One-sentence tagline:** ***Defensible architecture, on demand.***
 
-> For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review** — complete with recommended actions, confidence ratings, explicit limits where the system does not conclude, and an exportable executive summary. Unlike **manual architecture review** which is slow, inconsistent, and undocumented, or **ad-hoc AI tools** which produce prose without accountability, ArchLucid delivers a **proof-oriented package**: every risk traced to evidence, every recommendation actionable, every decision auditable — obvious without a founder narrating it.
+> For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into **governed architecture packages** — evidence-linked findings, stated confidence limits, explicit non-conclusions where proof is missing, and exportable sponsor summaries backed by a signed manifest and audit chain. Unlike **manual architecture review**, which is slow, inconsistent, and undocumented, or **ad-hoc AI tools**, which produce prose without accountability, ArchLucid delivers a **proof-oriented package**: every risk traced to evidence, every recommendation actionable, every decision auditable — obvious from a **finished package** without a founder narrating generation.
 
 **Category:** Architecture Proof Engine — sits between traditional Enterprise Architecture Management (which catalogs but does not analyze) and ad-hoc AI assistance (which analyzes but lacks governance and traceability). **Lead promise:** *Defensible architecture, on demand.*
 
 **GTM companion lines (founder-led / consulting-enabled motion):**
 
-- **Pain-led one-liner:** *ArchLucid turns architecture review from scattered opinion into evidence-backed decisions.*
-- **Founder-led service line (outreach / LinkedIn):** *I use ArchLucid to deliver evidence-backed AI and cloud architecture reviews for teams that need defensible decisions, not just diagrams.*
+- **Pain-led one-liner:** *ArchLucid turns architecture evidence into governed architecture packages your sponsors can defend — review-led first, creation on the same pipeline.*
+- **Founder-led service line (outreach / LinkedIn):** *I use ArchLucid to deliver evidence-backed architecture packages for teams that need defensible decisions, not just diagrams.*
 
 Use these where the buyer is evaluating **a review and report**, not self-serve platform signup. Category tagline and sponsor brief remain authoritative for **product** framing. Named service SKUs and bands: [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md). Execution tasks: [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
 
@@ -166,11 +181,11 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 
 | Do | Don't |
 |----|-------|
-| Lead with the **buyer outcome**: "architecture risk review in minutes, findings your CTO can act on" | Lead with implementation: "multi-agent pipeline" or "10 finding engines" |
-| Use buyer vocabulary: **risk, finding, recommended action, evidence, confidence, readiness** | Use internal vocabulary as first-impression words: "manifest", "run" (CLI/API noun only), "commit", "coordinator" |
+| Lead with the **buyer outcome**: governed **architecture packages** with findings your CTO can act on | Lead with implementation: "multi-agent pipeline" or "10 finding engines" |
+| Use buyer vocabulary: **architecture package**, risk, finding, recommended action, evidence, confidence, readiness | Use internal vocabulary as first-impression words: "manifest", "run" (CLI/API noun only), "commit", "coordinator" |
 | Say "**Architecture Proof Engine**" when explaining the **category** | Say "AI-powered" as the headline — every tool says this now |
 | Emphasize **evidence linkage**: every finding cites what it used | Claim "fully autonomous architecture design" — agents are orchestrated, not autonomous |
-| Lead with **architecture review** — AI is the engine, not the promise | Over-promise on AI accuracy — frame findings as decision support, not legal attestation |
+| Lead with **review-led trust ladder** — finished packages and evidence-backed review before creation headlines | Lead heroes with **create** or generation speed — symmetric workflows, not symmetric positioning |
 | Highlight the **executive summary export** — this is what gets budget approved | Position governance workflow as the first selling point (it is the second sale) |
 | Position as **complementary** to existing EA tools (LeanIX, Ardoq), not a replacement | Position as a **replacement** for existing EA tools — different category |
 | Be honest about V1 limitations (Azure-only, no import connectors yet) | Imply multi-cloud support or integrations that do not exist |

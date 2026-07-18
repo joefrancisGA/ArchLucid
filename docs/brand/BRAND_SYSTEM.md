@@ -14,7 +14,9 @@
 
 ### Positioning
 
-ArchLucid is an **Architecture Proof Engine**: buyers supply real architecture context and receive a **defensible** review package — evidence-linked findings, stated limits, and governance-ready outputs — fast enough that the value is obvious without a founder walkthrough.
+ArchLucid is an **Architecture Proof Engine**: buyers supply real architecture context and receive a **defensible architecture package** — evidence-linked findings, stated limits, and governance-ready outputs — fast enough that the value is obvious from a **finished package** without a founder walkthrough.
+
+**Evidence-package-first rule (canonical copy):** one noun (**architecture package**), two verbs (**create**, **review**); verbs never lead marketing heroes. See [POSITIONING.md](../go-to-market/POSITIONING.md) §0.
 
 Category label (UI constant): `BRAND_CATEGORY = "Architecture Proof Engine"` (`archlucid-ui/src/lib/brand-category.ts`). Legacy outbound strings remain on the seam as `BRAND_CATEGORY_LEGACY` and `BRAND_CATEGORY_LEGACY_ORIGINAL`.
 
