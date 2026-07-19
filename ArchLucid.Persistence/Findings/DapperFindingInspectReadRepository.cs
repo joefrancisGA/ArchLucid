@@ -40,6 +40,7 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                                fr.Severity,
                                fr.PayloadJson,
                                fr.ModelDeploymentName,
+                               JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias,
                                fr.PromptTemplateVersion,
                                fr.ConfidenceScore,
                                fr.EvaluationConfidenceScore,
@@ -58,6 +59,7 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                            FROM dbo.FindingRecords fr
                            INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                            INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+                           LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
                            LEFT JOIN dbo.DecisioningTraces dt
                                ON dt.DecisionTraceId = r.DecisionTraceId
                               AND dt.TenantId = r.TenantId
@@ -218,6 +220,7 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             RunId = row.RunId,
             ManifestVersion = row.CurrentManifestVersion,
             ModelDeploymentName = row.ModelDeploymentName,
+            ModelAlias = row.ModelAlias,
             PromptTemplateVersion = row.PromptTemplateVersion,
             ConfidenceScore = row.ConfidenceScore,
             EvaluationConfidenceScore = row.EvaluationConfidenceScore,
@@ -325,6 +328,12 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         }
 
         public string? ModelDeploymentName
+        {
+            get;
+            init;
+        }
+
+        public string? ModelAlias
         {
             get;
             init;

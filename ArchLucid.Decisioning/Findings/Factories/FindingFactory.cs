@@ -188,6 +188,7 @@ public static class FindingFactory
             EnforcementTier = finding.EnforcementTier,
             AgentExecutionTraceId = agentExecutionTraceId,
             ModelDeploymentName = trace?.ModelDeploymentName,
+            ModelAlias = trace?.ModelAlias,
             ModelVersion = trace?.ModelVersion,
             PromptTemplateId = trace?.PromptTemplateId,
             PromptTemplateVersion = trace?.PromptTemplateVersion,

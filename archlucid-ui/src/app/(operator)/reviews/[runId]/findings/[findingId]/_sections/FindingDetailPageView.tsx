@@ -413,6 +413,7 @@ export function FindingDetailPageView(props: Props) {
           inspectPayload !== null
             ? {
                 modelDeploymentName: inspectPayload.modelDeploymentName ?? null,
+                modelAlias: inspectPayload.modelAlias ?? null,
                 promptTemplateVersion: inspectPayload.promptTemplateVersion ?? null,
               }
             : null

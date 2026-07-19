@@ -27,6 +27,7 @@ public static class FindingInspectResponseReasoningSummaryExtensions
             RunId = source.RunId,
             ManifestVersion = source.ManifestVersion,
             ModelDeploymentName = source.ModelDeploymentName,
+            ModelAlias = source.ModelAlias,
             PromptTemplateVersion = source.PromptTemplateVersion,
             ConfidenceScore = source.ConfidenceScore,
             EvaluationConfidenceScore = source.EvaluationConfidenceScore,

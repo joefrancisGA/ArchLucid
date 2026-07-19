@@ -49,14 +49,15 @@ public sealed class SettingsControllerModelExecutionProfileTests
         SettingsController controller = new(
             Mock.Of<ITenantAgentOutputQualityGateModeService>(),
             profileService.Object,
+            Mock.Of<IAgentModelAliasRegistry>(),
             scopeProvider.Object,
             auditService.Object);
 
-        ActionResult<WorkspaceModelExecutionProfileResponse> result = await controller.PutModelExecutionProfile(
+        IActionResult result = await controller.PutModelExecutionProfile(
             new WorkspaceModelExecutionProfileUpdateRequest { Profile = "HighAssurance" },
             CancellationToken.None);
 
-        WorkspaceModelExecutionProfileResponse response = result.Result.Should().BeOfType<OkObjectResult>().Subject
+        WorkspaceModelExecutionProfileResponse response = result.Should().BeOfType<OkObjectResult>().Subject
             .Value.Should().BeOfType<WorkspaceModelExecutionProfileResponse>().Subject;
 
         response.EffectiveProfile.Should().Be(nameof(AgentModelExecutionProfile.HighAssurance));

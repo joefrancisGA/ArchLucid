@@ -9,6 +9,8 @@ export type AgentExecutionTraceRow = {
   qualityWarning?: boolean;
   qualityRejected?: boolean;
   createdUtc: string;
+  /** Governed customer-facing alias (TB-871); prefer over deployment name in UI. */
+  modelAlias?: string | null;
   /** Redacted inline fields; execute-tier UI may preview — full blobs when blob upload succeeded. */
   userPrompt?: string | null;
   rawResponse?: string | null;

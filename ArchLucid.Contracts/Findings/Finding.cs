@@ -114,6 +114,13 @@ public class Finding
         set;
     }
 
+    /// <summary>Customer-facing governed model alias when captured from the agent execution trace (TB-871).</summary>
+    public string? ModelAlias
+    {
+        get;
+        set;
+    }
+
     public string? ModelVersion
     {
         get;

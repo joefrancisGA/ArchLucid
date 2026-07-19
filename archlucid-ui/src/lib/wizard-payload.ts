@@ -75,5 +75,12 @@ export function wizardValuesToCreateRunPayload(
     payload.wizardPresetUsed = wizardPresetUsed;
   }
 
+  if (
+    values.modelExecutionProfileOverride !== "WorkspaceDefault"
+    && values.modelExecutionProfileOverride.length > 0
+  ) {
+    payload.modelExecutionProfileOverride = values.modelExecutionProfileOverride;
+  }
+
   return payload;
 }

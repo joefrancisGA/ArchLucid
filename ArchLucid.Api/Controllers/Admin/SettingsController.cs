@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Admin;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
@@ -24,6 +25,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class SettingsController(
     ITenantAgentOutputQualityGateModeService qualityGateModeService,
     IWorkspaceModelExecutionProfileService workspaceModelExecutionProfileService,
+    IAgentModelAliasRegistry agentModelAliasRegistry,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService) : ControllerBase
 {
@@ -32,6 +34,9 @@ public sealed class SettingsController(
 
     private readonly IWorkspaceModelExecutionProfileService _workspaceModelExecutionProfileService =
         workspaceModelExecutionProfileService ?? throw new ArgumentNullException(nameof(workspaceModelExecutionProfileService));
+
+    private readonly IAgentModelAliasRegistry _agentModelAliasRegistry =
+        agentModelAliasRegistry ?? throw new ArgumentNullException(nameof(agentModelAliasRegistry));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -204,6 +209,20 @@ public sealed class SettingsController(
             cancellationToken).ConfigureAwait(false);
 
         return Ok(MapModelExecutionProfile(snapshot));
+    }
+
+    /// <summary>Workspace model governance catalog: profile, alias registry, and profile→alias mappings (TB-871).</summary>
+    [HttpGet("model-governance-catalog")]
+    [ProducesResponseType(typeof(ModelGovernanceCatalogResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ModelGovernanceCatalogResponse>> GetModelGovernanceCatalog(
+        CancellationToken cancellationToken)
+    {
+        WorkspaceModelExecutionProfileSnapshot workspaceSnapshot =
+            await _workspaceModelExecutionProfileService.GetAsync(cancellationToken).ConfigureAwait(false);
+
+        ModelGovernanceCatalogBuilder builder = new(_agentModelAliasRegistry);
+
+        return Ok(builder.Build(workspaceSnapshot));
     }
 
     private static TenantAgentOutputQualityGateModeResponse Map(TenantAgentOutputQualityGateModeSnapshot snapshot) =>

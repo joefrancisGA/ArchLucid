@@ -278,6 +278,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
             <thead>
               <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
                 <th className="px-1.5 py-2">Agent</th>
+                <th className="px-1.5 py-2">Model alias</th>
                 <th className="px-1.5 py-2">Wall Δ (prior agent)</th>
                 <th className="px-1.5 py-2">Trace ID</th>
                 <th className="px-1.5 py-2">Parse OK</th>
@@ -309,6 +310,9 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 return (
                   <tr key={t.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
                     <td className="whitespace-nowrap px-1.5 py-2">{agentTypeLabel(t.agentType)}</td>
+                    <td className="whitespace-nowrap px-1.5 py-2 font-mono text-neutral-600 dark:text-neutral-400">
+                      {t.modelAlias?.trim() ? t.modelAlias : "—"}
+                    </td>
                     <td className="whitespace-nowrap px-1.5 py-2 text-neutral-600 dark:text-neutral-400">
                       {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
                     </td>

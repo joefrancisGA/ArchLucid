@@ -196,6 +196,7 @@ export function FindingInspectView({
         execution={runExecutionFootnote}
         inspectMetadata={{
           modelDeploymentName: payload.modelDeploymentName ?? null,
+          modelAlias: payload.modelAlias ?? null,
           promptTemplateVersion: payload.promptTemplateVersion ?? null,
         }}
       />

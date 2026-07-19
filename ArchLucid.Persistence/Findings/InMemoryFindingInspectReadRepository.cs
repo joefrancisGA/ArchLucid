@@ -100,6 +100,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             RunId = runId,
             ManifestVersion = detail.Run.CurrentManifestVersion,
             ModelDeploymentName = match.ModelDeploymentName,
+            ModelAlias = match.ModelAlias,
             PromptTemplateVersion = match.PromptTemplateVersion,
             ConfidenceScore = match.ConfidenceScore,
             EvaluationConfidenceScore = match.EvaluationConfidenceScore,
