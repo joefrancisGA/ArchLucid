@@ -3326,7 +3326,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [lib, components, app-operator, app-marketing, surface]
+        shard: [lib, components, app-operator-a, app-operator-b, app-marketing, surface]
     steps:
       - uses: actions/checkout@v5
 

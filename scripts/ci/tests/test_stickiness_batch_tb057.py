@@ -27,7 +27,7 @@ class TestStickinessBatchTb057(unittest.TestCase):
             / "components"
             / "governance"
             / "findings"
-            / "use-governance-findings-query.ts"
+            / "governance-findings-query-fetch.ts"
         )
         page_constants = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "architecture-risk-register-page.ts"
         csv_module = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "architecture-risk-register-csv.ts"
@@ -37,10 +37,16 @@ class TestStickinessBatchTb057(unittest.TestCase):
         client_text = client.read_text(encoding="utf-8")
         findings_query_text = findings_query.read_text(encoding="utf-8")
         page_constants_text = page_constants.read_text(encoding="utf-8")
+        i18n_text = i18n.read_text(encoding="utf-8")
         self.assertIn("ARCHITECTURE_RISK_REGISTER_PAGE_TITLE", client_text)
-        self.assertIn("Architecture risk register", page_constants_text)
+        self.assertIn(
+            "ARCHITECTURE_RISK_REGISTER_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.findings",
+            page_constants_text,
+        )
+        self.assertIn('findings: "Risk register"', i18n_text)
         self.assertIn("getArchitectureDecisionRegister", findings_query_text)
         self.assertIn("decisionRegisterRows", findings_query_text)
+        self.assertIn("fetchGovernanceFindingQueueRows", findings_query_text)
         self.assertIn("matchesRiskRegisterFilter", client_text)
         self.assertIn("waiver-expiring", page_constants_text)
 
@@ -50,9 +56,6 @@ class TestStickinessBatchTb057(unittest.TestCase):
 
         reader_text = reader.read_text(encoding="utf-8")
         self.assertIn("GoldenManifestId AS ManifestId", reader_text)
-
-        i18n_text = i18n.read_text(encoding="utf-8")
-        self.assertIn('findings: "Risk register"', i18n_text)
 
 
 if __name__ == "__main__":

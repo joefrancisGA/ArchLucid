@@ -51,6 +51,7 @@
     "dbo.RiskExceptions",
     "dbo.RunExportBlobPushOutbox",
     "dbo.Runs",
+    "dbo.SupportProblemReports",
     "dbo.TenantHealthScores"
   ],
   "tenantIdOnRow": [
@@ -62,6 +63,7 @@
     "dbo.LlmMonthlyTenantBudgetState",
     "dbo.LlmTenantWalletLedger",
     "dbo.LlmTenantWalletState",
+    "dbo.PlatformTenantAuthRecoveryGrants",
     "dbo.SentEmails",
     "dbo.TenantAiBudgetPolicy",
     "dbo.TenantAwsConnectionRecords",
@@ -72,6 +74,9 @@
     "dbo.TenantLifecycleTransitions",
     "dbo.TenantOnboardingState",
     "dbo.TenantSettings",
-    "dbo.TenantTrialSeatOccupants"
+    "dbo.TenantSignInEmailDomainRecoveryAdmins",
+    "dbo.TenantSignInEmailDomains",
+    "dbo.TenantTrialSeatOccupants",
+    "dbo.UserInvitations"
   ]
 }

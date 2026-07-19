@@ -158,14 +158,14 @@ public sealed class TenantProvisioningService(
         using (AmbientScopeContext.Push(unscoped))
         {
             TenantRecord? existing =
-                await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct).ConfigureAwait(false);
+                await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct)
+                    .ConfigureAwait(false);
 
             if (existing is not null)
                 return existing;
 
             existing =
-                await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct)
-                    .ConfigureAwait(false);
+                await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct).ConfigureAwait(false);
 
             if (existing is not null)
                 return existing;

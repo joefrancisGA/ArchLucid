@@ -507,9 +507,16 @@ public sealed class RegistrationController(
             if (existing is not null)
                 return existing;
 
-            return await _tenants
+            existing = await _tenants
                 .GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, cancellationToken)
                 .ConfigureAwait(false);
+
+            if (existing is not null)
+                return existing;
+
+            // GetBySlugAsync fans out through tenant-directory routing; last resort when catalog
+            // and normalized-name probes miss (SystemWithPerTenantCatalogs + greenfield CI catalog pinning).
+            return await _tenants.GetBySlugAsync(slug, cancellationToken).ConfigureAwait(false);
         }
     }
 
