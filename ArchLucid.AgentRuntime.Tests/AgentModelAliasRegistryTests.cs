@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime.AgentModelAliases;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Configuration;
@@ -65,6 +66,20 @@ public sealed class AgentModelAliasRegistryTests
                 AgentModelAliasIds.StandardGeneral,
                 AgentModelAliasIds.PremiumAssurance
             ]);
+    }
+
+    [Fact]
+    public void Config_registry_seeds_simulator_aliases_when_mode_is_simulator_without_azure_deployment()
+    {
+        AgentModelTierResolver tierResolver = AgentModelTierResolverTestsHelper.CreateResolver(
+            new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator" },
+            new AgentModelTierOptions());
+
+        ConfigAgentModelAliasRegistry registry = new(tierResolver);
+
+        registry.GetRequired(AgentModelAliasIds.EconomyGeneral).DeploymentName
+            .Should()
+            .Be(AgentExecutionTraceModelMetadata.SimulatorDeploymentName);
     }
 }
 

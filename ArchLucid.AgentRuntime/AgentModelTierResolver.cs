@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 
@@ -81,7 +82,28 @@ public sealed class AgentModelTierResolver(IConfiguration configuration, IOption
 
         string? baseDeploy = _configuration["AzureOpenAI:DeploymentName"]?.Trim();
 
-        return string.IsNullOrWhiteSpace(baseDeploy) ? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.") : baseDeploy;
+        if (!string.IsNullOrWhiteSpace(baseDeploy))
+            return baseDeploy;
+
+        if (UsesNonAzureAgentCompletionStack())
+            return AgentExecutionTraceModelMetadata.SimulatorDeploymentName;
+
+        throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
+    }
+
+    private bool UsesNonAzureAgentCompletionStack()
+    {
+        string? agentMode = _configuration["AgentExecution:Mode"];
+        string? completionClient = _configuration["AgentExecution:CompletionClient"]?.Trim();
+
+        if (string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.IsNullOrWhiteSpace(agentMode)
+            || string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
     }
 
     private static bool TryParseTier(string? value, out LlmModelTier tier)

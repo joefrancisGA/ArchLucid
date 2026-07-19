@@ -17,6 +17,8 @@ public partial class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+        AzureOpenAiEnvironmentConfigurationBridge.Apply(builder.Configuration);
+
         builder.AddArchLucidGracefulShutdown();
 
         ArchLucidSerilogConfiguration.Configure(builder, "ArchLucid.Worker");

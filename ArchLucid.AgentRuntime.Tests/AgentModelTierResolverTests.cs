@@ -1,4 +1,6 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.AgentModelAliases;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 
@@ -78,6 +80,46 @@ public sealed class AgentModelTierResolverTests
             new AgentModelTierOptions());
 
         resolver.ResolveNonAgentDefaultTier().Should().Be(LlmModelTier.Economy);
+    }
+
+    [Fact]
+    public void ResolveDeploymentName_uses_simulator_sentinel_when_mode_is_simulator_and_azure_deployment_missing()
+    {
+        AgentModelTierResolver resolver = CreateResolver(
+            new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator" },
+            new AgentModelTierOptions());
+
+        resolver.ResolveDeploymentName(LlmModelTier.Economy)
+            .Should()
+            .Be(AgentExecutionTraceModelMetadata.SimulatorDeploymentName);
+    }
+
+    [Fact]
+    public void ResolveDeploymentName_uses_simulator_sentinel_when_mode_is_real_echo_without_azure_deployment()
+    {
+        AgentModelTierResolver resolver = CreateResolver(
+            new Dictionary<string, string?>
+            {
+                ["AgentExecution:Mode"] = "Real",
+                ["AgentExecution:CompletionClient"] = "Echo",
+            },
+            new AgentModelTierOptions());
+
+        resolver.ResolveDeploymentName(LlmModelTier.Standard)
+            .Should()
+            .Be(AgentExecutionTraceModelMetadata.SimulatorDeploymentName);
+    }
+
+    [Fact]
+    public void ResolveDeploymentName_throws_when_mode_is_real_without_azure_deployment()
+    {
+        AgentModelTierResolver resolver = CreateResolver(
+            new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Real" },
+            new AgentModelTierOptions());
+
+        Action act = () => resolver.ResolveDeploymentName(LlmModelTier.Standard);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*AzureOpenAI:DeploymentName is missing*");
     }
 
     private static AgentModelTierResolver CreateResolver(
