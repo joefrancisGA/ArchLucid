@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime.Traces;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Agents;
 
 using FluentAssertions;
 
@@ -45,18 +46,20 @@ public sealed class AgentExecutionTraceMapperTests
     }
 
     [Fact]
-    public void Summary_from_trace_has_at_most_thirteen_cross_context_properties()
+    public void Summary_from_trace_has_at_most_fourteen_cross_context_properties()
     {
         AgentExecutionTrace trace = new()
         {
             AgentType = AgentType.Compliance,
             ParseSucceeded = false,
             QualityRejected = true,
+            ModelAlias = AgentModelAliasIds.PremiumAssurance,
         };
 
         AgentExecutionTraceSummary summary = AgentExecutionTraceSummary.FromTrace(trace);
 
-        typeof(AgentExecutionTraceSummary).GetProperties().Length.Should().BeLessOrEqualTo(13);
+        typeof(AgentExecutionTraceSummary).GetProperties().Length.Should().BeLessOrEqualTo(14);
         summary.QualityRejected.Should().BeTrue();
+        summary.ModelAlias.Should().Be(AgentModelAliasIds.PremiumAssurance);
     }
 }

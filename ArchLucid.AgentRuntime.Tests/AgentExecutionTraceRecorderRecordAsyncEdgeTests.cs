@@ -1,5 +1,7 @@
+using ArchLucid.AgentRuntime.AgentModelAliases;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -94,6 +96,42 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
         IReadOnlyList<AgentExecutionTrace> traces = await repo.GetByRunIdAsync(new ScopeContext { TenantId = Guid.Parse("10101010-1010-1010-1010-101010101010"), WorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020"), ProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030") }, runId, CancellationToken.None);
         traces.Should().ContainSingle();
         traces[0].EstimatedCostUsd.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_persists_model_alias_from_router_ambient()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        AgentExecutionTraceRecorderImpl sut = CreateSut(repo, false);
+        string runId = Guid.NewGuid().ToString("N");
+
+        AgentModelAliasInvocationAmbient.Set(AgentModelAliasIds.PremiumAssurance);
+
+        await sut.RecordAsync(
+            runId,
+            "task-alias",
+            AgentType.Topology,
+            "s",
+            "u",
+            "{}",
+            "{}",
+            true,
+            null,
+            isSimulatorExecution: true,
+            cancellationToken: CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> traces = await repo.GetByRunIdAsync(
+            new ScopeContext
+            {
+                TenantId = Guid.Parse("10101010-1010-1010-1010-101010101010"),
+                WorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020"),
+                ProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030")
+            },
+            runId,
+            CancellationToken.None);
+
+        traces.Should().ContainSingle();
+        traces[0].ModelAlias.Should().Be(AgentModelAliasIds.PremiumAssurance);
     }
 
     [SkippableFact]

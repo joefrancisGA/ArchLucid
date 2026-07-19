@@ -20,6 +20,7 @@ public static class AgentExecutionTraceMapper
             OutputTokenCount = summary.OutputTokenCount,
             EstimatedCostUsd = summary.EstimatedCostUsd,
             ModelDeploymentName = summary.ModelDeploymentName,
+            ModelAlias = summary.ModelAlias,
             ParseSucceeded = summary.ParseSucceeded,
             CreatedUtc = summary.CreatedUtc,
             QualityWarning = summary.QualityWarning,

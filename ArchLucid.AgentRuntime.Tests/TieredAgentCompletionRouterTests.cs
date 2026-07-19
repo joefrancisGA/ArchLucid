@@ -1,4 +1,6 @@
+using ArchLucid.AgentRuntime.AgentModelAliases;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Agents;
 
 using FluentAssertions;
 
@@ -31,6 +33,30 @@ public sealed class TieredAgentCompletionRouterTests
         topologyTier.Should().Be(LlmModelTier.Premium);
         topologyClient.Should().BeSameAs(premiumClient);
         askClient.Should().BeSameAs(economyClient);
+    }
+
+    [Fact]
+    public void ResolveForAgent_binds_model_alias_ambient_for_trace_recorder()
+    {
+        StubAgentCompletionClient premiumClient = new("{\"ok\":true}");
+        FixedAgentModelTierResolver resolver = new();
+        AgentModelAliasResolver aliasResolver = CreateAliasResolver(resolver);
+
+        TieredAgentCompletionRouter router = new(
+            resolver,
+            _ => premiumClient,
+            aliasResolver: aliasResolver);
+
+        router.ResolveForAgent(AgentType.Topology, null);
+
+        AgentModelAliasInvocationAmbient.TryConsume().Should().Be(AgentModelAliasIds.PremiumAssurance);
+    }
+
+    private static AgentModelAliasResolver CreateAliasResolver(IAgentModelTierResolver tierResolver)
+    {
+        ConfigAgentModelAliasRegistry registry = new(tierResolver);
+
+        return new AgentModelAliasResolver(registry);
     }
 
     internal sealed class FixedAgentModelTierResolver : IAgentModelTierResolver

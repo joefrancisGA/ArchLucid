@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.AgentRuntime.AgentModelAliases;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -149,6 +150,8 @@ public sealed class AgentExecutionTraceRecorder(
             ? AgentExecutionTraceModelMetadata.UnspecifiedModelVersion
             : modelVersion.Trim();
 
+        string? resolvedModelAlias = AgentModelAliasInvocationAmbient.TryPeek();
+
         string systemPromptContentSha256 = string.IsNullOrWhiteSpace(promptRepro?.SystemPromptContentSha256Hex)
             ? AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(systemPrompt)
             : promptRepro.SystemPromptContentSha256Hex;
@@ -197,6 +200,7 @@ public sealed class AgentExecutionTraceRecorder(
             MaxCompletionTokens = maxCompletionTokens ?? ambientMaxCompletionTokens,
             CompletionTopP = completionTopP ?? ambientTopP,
             EstimatedCostUsd = estimated,
+            ModelAlias = resolvedModelAlias,
             ModelDeploymentName = resolvedDeployment,
             ModelVersion = resolvedVersion,
             CreatedUtc = TimeProvider.System.UtcNowDateTime()

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.AgentModelAliases;
 using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
@@ -1503,6 +1504,7 @@ public static partial class ServiceCollectionExtensions
             if (useAzureOpenAi)
             {
                 IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
+                IAgentModelAliasResolver aliasResolver = sp.GetRequiredService<IAgentModelAliasResolver>();
                 string deployment = resolver.ResolveDeploymentName(LlmModelTier.Economy);
                 AzureOpenAiCompletionClientCache clientCache = sp.GetRequiredService<AzureOpenAiCompletionClientCache>();
                 IAgentCompletionDeploymentResolver deploymentResolver =
@@ -1517,14 +1519,15 @@ public static partial class ServiceCollectionExtensions
                 IAgentCompletionClient client =
                     BuildAzureOpenAiScopedCompletionChainWithoutPollyRetry(sp, azureInner, effectiveDeployment);
 
-                return new SchemaRemediationAgentCompletionClientAdapter(client);
+                return new SchemaRemediationAgentCompletionClientAdapter(client, aliasResolver);
             }
 
             IAgentTierCompletionRouter router = sp.GetRequiredService<IAgentTierCompletionRouter>();
+            IAgentModelAliasResolver passThroughAliasResolver = sp.GetRequiredService<IAgentModelAliasResolver>();
             (IAgentCompletionClient remediation, _) =
                 router.ResolveForAgent(AgentType.Topology, LlmModelTier.Economy);
 
-            return new SchemaRemediationAgentCompletionClientAdapter(remediation);
+            return new SchemaRemediationAgentCompletionClientAdapter(remediation, passThroughAliasResolver);
         });
     }
 
@@ -1575,6 +1578,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AgentModelTierOptions>(configuration.GetSection(AgentModelTierOptions.SectionPath));
         services.PostConfigure<AgentModelTierOptions>(static opts => AgentModelTierDefaults.ApplyDefaults(opts));
         services.AddSingleton<IAgentModelTierResolver, AgentModelTierResolver>();
+        services.AddSingleton<IAgentModelAliasRegistry, ConfigAgentModelAliasRegistry>();
+        services.AddSingleton<IAgentModelAliasResolver, AgentModelAliasResolver>();
     }
 
     private static void RegisterPassThroughTierCompletionRouter(IServiceCollection services)
@@ -1583,8 +1588,9 @@ public static partial class ServiceCollectionExtensions
         {
             ScopedInnerAgentCompletionClient innerHolder = sp.GetRequiredService<ScopedInnerAgentCompletionClient>();
             IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
+            IAgentModelAliasResolver aliasResolver = sp.GetRequiredService<IAgentModelAliasResolver>();
 
-            return new PassThroughAgentTierCompletionRouter(innerHolder.Inner, resolver);
+            return new PassThroughAgentTierCompletionRouter(innerHolder.Inner, resolver, aliasResolver);
         });
     }
 
@@ -1593,6 +1599,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentTierCompletionRouter>(sp =>
         {
             IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
+            IAgentModelAliasResolver aliasResolver = sp.GetRequiredService<IAgentModelAliasResolver>();
             ScopedInnerAgentCompletionClient primaryHolder = sp.GetRequiredService<ScopedInnerAgentCompletionClient>();
             AzureOpenAiCompletionClientCache clientCache = sp.GetRequiredService<AzureOpenAiCompletionClientCache>();
             CircuitBreakerGate primaryGate =
@@ -1637,7 +1644,8 @@ public static partial class ServiceCollectionExtensions
 
                     return BuildAzureOpenAiScopedCompletionChain(sp, azureInner, primaryGate, effectiveDeployment);
                 },
-                primaryHolder.Inner);
+                primaryHolder.Inner,
+                aliasResolver);
         });
     }
 

@@ -56,6 +56,12 @@ public sealed class AgentExecutionTraceSummary
         set;
     }
 
+    public string? ModelAlias
+    {
+        get;
+        set;
+    }
+
     public bool ParseSucceeded
     {
         get;
@@ -101,6 +107,7 @@ public sealed class AgentExecutionTraceSummary
             OutputTokenCount = trace.OutputTokenCount,
             EstimatedCostUsd = trace.EstimatedCostUsd,
             ModelDeploymentName = trace.ModelDeploymentName,
+            ModelAlias = trace.ModelAlias,
             ParseSucceeded = trace.ParseSucceeded,
             CreatedUtc = trace.CreatedUtc,
             QualityWarning = trace.QualityWarning,
