@@ -11,6 +11,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Marketing;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
@@ -33,6 +34,7 @@ using ArchLucid.Api.Security;
 [Route("v{version:apiVersion}/register")]
 public sealed class RegistrationController(
     ITenantProvisioningService provisioning,
+    ITenantRepository tenants,
     IAuditService audit,
     ITrialTenantBootstrapService trialBootstrap,
     ISelfServiceTrialAbusePolicy abusePolicy,
@@ -51,6 +53,9 @@ public sealed class RegistrationController(
 
     private readonly ITenantProvisioningService _provisioning =
         provisioning ?? throw new ArgumentNullException(nameof(provisioning));
+
+    private readonly ITenantRepository _tenants =
+        tenants ?? throw new ArgumentNullException(nameof(tenants));
 
     private readonly ITrialTenantBootstrapService _trialBootstrap =
         trialBootstrap ?? throw new ArgumentNullException(nameof(trialBootstrap));
@@ -237,6 +242,12 @@ public sealed class RegistrationController(
             },
             cancellationToken);
 
+        if (await TryResolveExistingOrganizationAsync(body.OrganizationName, cancellationToken).ConfigureAwait(false)
+            is not null)
+        {
+            return await RegisterOrganizationConflictAsync(body, actorEmail, cancellationToken).ConfigureAwait(false);
+        }
+
         try
         {
             TenantProvisioningResult result = await _provisioning.ProvisionAsync(
@@ -252,28 +263,7 @@ public sealed class RegistrationController(
 
             if (result.WasAlreadyProvisioned)
             {
-                ArchLucidInstrumentation.RecordTrialSignupFailure("provision", "duplicate_slug");
-                ArchLucidInstrumentation.RecordTrialRegistrationFailure("conflict");
-
-                await _audit.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.TrialRegistrationFailed,
-                        ActorUserId = actorEmail,
-                        ActorUserName =
-                            string.IsNullOrWhiteSpace(body.AdminDisplayName)
-                                ? actorEmail
-                                : body.AdminDisplayName.Trim(),
-                        TenantId = Guid.Empty,
-                        WorkspaceId = Guid.Empty,
-                        ProjectId = Guid.Empty,
-                        DataJson = JsonSerializer.Serialize(new { reason = "conflict", code = "duplicate_slug" })
-                    },
-                    cancellationToken);
-
-                return this.ConflictProblem(
-                    "An organization with this name is already registered.",
-                    ProblemTypes.Conflict);
+                return await RegisterOrganizationConflictAsync(body, actorEmail, cancellationToken).ConfigureAwait(false);
             }
 
             string actor = body.AdminEmail.Trim();
@@ -498,5 +488,57 @@ public sealed class RegistrationController(
         string s = builder.ToString();
 
         return s.Length > 256 ? s[..256] : s;
+    }
+
+    private async Task<TenantRecord?> TryResolveExistingOrganizationAsync(
+        string organizationName,
+        CancellationToken cancellationToken)
+    {
+        string trimmed = organizationName.Trim();
+        string normalizedOrganizationName = TenantOrganizationDuplicateDetector.NormalizeOrganizationName(trimmed);
+        string slug = TenantSlugNormalizer.FromName(trimmed);
+        ScopeContext unscoped = new();
+
+        using (AmbientScopeContext.Push(unscoped))
+        {
+            TenantRecord? existing =
+                await _tenants.GetBySlugFromControlPlaneCatalogAsync(slug, cancellationToken).ConfigureAwait(false);
+
+            if (existing is not null)
+                return existing;
+
+            return await _tenants
+                .GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, cancellationToken)
+                .ConfigureAwait(false);
+        }
+    }
+
+    private async Task<IActionResult> RegisterOrganizationConflictAsync(
+        TenantRegistrationRequest body,
+        string actorEmail,
+        CancellationToken cancellationToken)
+    {
+        ArchLucidInstrumentation.RecordTrialSignupFailure("provision", "duplicate_slug");
+        ArchLucidInstrumentation.RecordTrialRegistrationFailure("conflict");
+
+        await _audit.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.TrialRegistrationFailed,
+                ActorUserId = actorEmail,
+                ActorUserName =
+                    string.IsNullOrWhiteSpace(body.AdminDisplayName)
+                        ? actorEmail
+                        : body.AdminDisplayName.Trim(),
+                TenantId = Guid.Empty,
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.Empty,
+                DataJson = JsonSerializer.Serialize(new { reason = "conflict", code = "duplicate_slug" })
+            },
+            cancellationToken);
+
+        return this.ConflictProblem(
+            "An organization with this name is already registered.",
+            ProblemTypes.Conflict);
     }
 }

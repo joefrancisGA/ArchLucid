@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-SHARD_ID="${1:?shard id required (lib | components | surface)}"
+SHARD_ID="${1:?shard id required (lib | components | app-operator | app-marketing | surface)}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MANIFEST="${ROOT}/scripts/ci/ui_unit_vitest_shards.json"
 UI_DIR="${ROOT}/archlucid-ui"
@@ -38,4 +38,4 @@ fi
 
 cd "${UI_DIR}"
 echo "UI unit Vitest shard ${SHARD_ID}: ${#PATHS[@]} path glob(s)"
-npm run test -- "${PATHS[@]}"
+npm run test:vitest-single-worker -- "${PATHS[@]}"

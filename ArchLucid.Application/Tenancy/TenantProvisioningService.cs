@@ -158,18 +158,19 @@ public sealed class TenantProvisioningService(
         using (AmbientScopeContext.Push(unscoped))
         {
             TenantRecord? existing =
-                await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct);
+                await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct).ConfigureAwait(false);
 
             if (existing is not null)
                 return existing;
 
-            // Self-service registration inserts dbo.Tenants on the control-plane catalog; slug idempotency must consult that plane first.
-            existing = await _tenantRepository.GetBySlugFromControlPlaneCatalogAsync(slug, ct);
+            existing =
+                await _tenantRepository.GetByNormalizedOrganizationNameAsync(normalizedOrganizationName, ct)
+                    .ConfigureAwait(false);
 
             if (existing is not null)
                 return existing;
 
-            return await _tenantRepository.GetBySlugAsync(slug, ct);
+            return await _tenantRepository.GetBySlugAsync(slug, ct).ConfigureAwait(false);
         }
     }
 

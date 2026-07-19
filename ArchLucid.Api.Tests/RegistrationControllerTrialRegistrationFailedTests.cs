@@ -123,9 +123,17 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         abusePolicy
             .Setup(policy => policy.EvaluateAsync(It.IsAny<SelfServiceTrialAbuseEvaluationRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(SelfServiceTrialAbuseEvaluation.Allow());
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(repository => repository.GetBySlugFromControlPlaneCatalogAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+        tenants
+            .Setup(repository => repository.GetByNormalizedOrganizationNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
 
         return new RegistrationController(
             provisioning,
+            tenants.Object,
             audit,
             bootstrap,
             abusePolicy.Object,

@@ -100,6 +100,7 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
         settings["Persistence:SqlOpenResilience:BaseDelayMilliseconds"] = "500";
         settings["Demo:SeedOnStartup"] = "false";
         settings["Demo:SeedDepth"] = "quickstart";
+        settings["Auth:PublicSignup:Mode"] = "PublicSelfService";
     }
 
     /// <inheritdoc />
