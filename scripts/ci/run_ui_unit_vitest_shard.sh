@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-SHARD_ID="${1:?shard id required (lib | components | app-operator-a | app-operator-b | app-marketing | surface)}"
+SHARD_ID="${1:?shard id required (lib | components | app-operator-a | app-operator-b | app-operator-c | app-marketing | surface)}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MANIFEST="${ROOT}/scripts/ci/ui_unit_vitest_shards.json"
 UI_DIR="${ROOT}/archlucid-ui"

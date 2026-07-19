@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -150,6 +151,9 @@ public sealed class DapperPlatformTenantAuthRecoveryGrantRepository(ISqlConnecti
         return row?.ToRecord();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Platform operator revokes recovery grant by grant id within control-plane workflow.")]
     public async Task<bool> RevokeAsync(
         Guid grantId,
         string revokedByActorId,

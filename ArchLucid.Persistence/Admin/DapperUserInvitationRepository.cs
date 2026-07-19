@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Admin;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -65,6 +66,9 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
         return row?.ToRecord();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Invitation acceptance resolves pending row by invitation id before tenant scope is established.")]
     public async Task<UserInvitationRecord?> GetPendingByIdAsync(
         Guid invitationId,
         CancellationToken cancellationToken)
@@ -182,6 +186,9 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
         return affected == 1;
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Public invitation redemption resolves pending row by opaque token hash.")]
     public async Task<UserInvitationRecord?> GetPendingByTokenHashAsync(
         byte[] tokenHash,
         CancellationToken cancellationToken)
@@ -203,6 +210,9 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
         return row?.ToRecord();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Invitation token diagnostics resolve row by opaque token hash before tenant scope is established.")]
     public async Task<UserInvitationRecord?> GetByTokenHashAsync(
         byte[] tokenHash,
         CancellationToken cancellationToken)
@@ -222,6 +232,9 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
         return row?.ToRecord();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Sign-in email collision checks list pending invitations by normalized email across tenants.")]
     public async Task<IReadOnlyList<UserInvitationRecord>> ListPendingByNormalizedEmailAsync(
         string normalizedEmail,
         CancellationToken cancellationToken)
@@ -244,6 +257,9 @@ public sealed class DapperUserInvitationRepository(ISqlConnectionFactory connect
         return rows.Select(static row => row.ToRecord()).ToList();
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Invitation acceptance marks row accepted by invitation id after token redemption.")]
     public async Task<bool> MarkAcceptedAsync(
         Guid invitationId,
         DateTimeOffset acceptedUtc,
