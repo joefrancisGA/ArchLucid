@@ -1,4 +1,5 @@
 using ArchLucid.Api.Auth.Services;
+using ArchLucid.Api.Diagnostics;
 using ArchLucid.Api.Health;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Api.Middleware;
@@ -8,8 +9,10 @@ using ArchLucid.Api.Services.Billing;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application.Admin;
 using ArchLucid.Application.Analytics;
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Core.Admin;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.GcpExtractor;
 using ArchLucid.Mcp.Tools;
@@ -51,6 +54,9 @@ public static class ApiWebLayerServiceCollectionExtensions
         }
 
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
+        services.AddSingleton<IHostBuildInfoAccessor, ApiHostBuildInfoAccessor>();
+        services.Configure<DeploymentStatusOptions>(configuration.GetSection(DeploymentStatusOptions.SectionPath));
+        services.AddScoped<IAdminDeploymentStatusQuery, AdminDeploymentStatusQuery>();
         services.AddSingleton<ICacheTelemetrySnapshotProvider>(static sp =>
         {
             IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>? projectionOptions =

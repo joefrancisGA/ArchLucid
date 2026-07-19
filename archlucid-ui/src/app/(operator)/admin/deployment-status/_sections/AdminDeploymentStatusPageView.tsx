@@ -1,0 +1,188 @@
+"use client";
+
+import Link from "next/link";
+
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { StatusPill } from "@/components/StatusPill";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  DEPLOYMENT_STATUS_UNKNOWN,
+  displayDeploymentField,
+  resolveOverallTone,
+} from "@/lib/admin-deployment-status";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import type { AdminDeploymentStatusPageViewModel } from "./admin-deployment-status-view-model";
+
+type Props = {
+  readonly model: AdminDeploymentStatusPageViewModel;
+};
+
+function FieldRow(props: { readonly label: string; readonly value: string; readonly testId: string }) {
+  return (
+    <div className="grid grid-cols-1 gap-1 border-b border-al-border/60 py-3 sm:grid-cols-[14rem_1fr] sm:gap-4">
+      <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{props.label}</dt>
+      <dd
+        className={cn("m-0 break-all font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+        data-testid={props.testId}
+      >
+        {displayDeploymentField(props.value)}
+      </dd>
+    </div>
+  );
+}
+
+/**
+ * Internal-only deployment identity and component agreement view.
+ */
+export function AdminDeploymentStatusPageView(props: Props) {
+  const m = props.model;
+
+  if (m.isDemo) {
+    return (
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability="Deployment status"
+        description="In a connected tenant, ArchLucid personnel compare frontend, API, and worker BUILD_IDs here."
+      />
+    );
+  }
+
+  const status = m.status;
+  const overall = displayDeploymentField(status?.overallStatus);
+  const overallTone = resolveOverallTone(overall);
+  const overallLabel = status?.overallStatusLabel ?? "Unknown — waiting for data.";
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6" data-testid="admin-deployment-status-page">
+      <header className="space-y-3">
+        <div className="space-y-1">
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Deployment status</h1>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Internal view of release identity, health, and whether production components agree on BUILD_ID.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3" data-testid="admin-deployment-status-overall">
+          <StatusPill status={overallTone} domain="health" ariaLabel={`Overall status: ${overallTone}`} />
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{overallLabel}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={m.loading}
+            onClick={() => void m.refresh()}
+            data-testid="admin-deployment-status-refresh"
+          >
+            {m.loading ? "Refreshing…" : "Refresh"}
+          </Button>
+          {m.lastRefreshedAt !== null ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Last refreshed {m.lastRefreshedAt.toLocaleString()}
+            </span>
+          ) : null}
+          <Link
+            href="/admin/health"
+            className={cn("text-al-accent underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.body)}
+          >
+            Open diagnostics dashboard
+          </Link>
+        </div>
+      </header>
+
+      {m.error !== null ? (
+        <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
+          {m.error}
+        </p>
+      ) : null}
+
+      {status === null && !m.loading && m.error === null ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          No deployment status data yet. Use Refresh.
+        </p>
+      ) : null}
+
+      {status !== null ? (
+        <>
+          <section aria-labelledby="deployment-identity-heading" className="space-y-1">
+            <h2 id="deployment-identity-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+              Release identity
+            </h2>
+            <dl className="m-0">
+              <FieldRow label="Environment" value={status.environment} testId="ds-environment" />
+              <FieldRow label="Release build ID" value={status.releaseBuildId} testId="ds-release-build-id" />
+              <FieldRow label="Source commit" value={status.sourceCommit} testId="ds-source-commit" />
+              <FieldRow label="Frontend build ID" value={status.frontendBuildId} testId="ds-frontend-build-id" />
+              <FieldRow label="API build ID" value={status.apiBuildId} testId="ds-api-build-id" />
+              <FieldRow label="Worker build ID" value={status.workerBuildId} testId="ds-worker-build-id" />
+              <FieldRow label="Deployment time (UTC)" value={status.deploymentTimeUtc} testId="ds-deployment-time" />
+              <FieldRow
+                label="Active platform revision"
+                value={status.activePlatformRevision}
+                testId="ds-active-revision"
+              />
+            </dl>
+          </section>
+
+          <section aria-labelledby="deployment-health-heading" className="space-y-1">
+            <h2 id="deployment-health-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+              Health and schema
+            </h2>
+            <dl className="m-0">
+              <FieldRow label="Health status" value={status.healthStatus} testId="ds-health-status" />
+              <FieldRow label="Readiness status" value={status.readinessStatus} testId="ds-readiness-status" />
+              <FieldRow
+                label="Database migration version"
+                value={status.databaseMigrationVersion}
+                testId="ds-migration-version"
+              />
+              <FieldRow
+                label="Latest smoke-test result"
+                value={status.latestSmokeTestResult}
+                testId="ds-smoke-result"
+              />
+              <FieldRow
+                label="Last known-good build"
+                value={status.lastKnownGoodBuildId}
+                testId="ds-last-known-good"
+              />
+            </dl>
+          </section>
+
+          <section aria-labelledby="deployment-agreement-heading" className="space-y-2">
+            <h2 id="deployment-agreement-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+              Component agreement
+            </h2>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="ds-component-agreement">
+              <span className="font-medium">{displayDeploymentField(status.componentAgreement)}</span>
+              {" — "}
+              {displayDeploymentField(status.componentAgreementDetail)}
+            </p>
+          </section>
+
+          {status.links.length > 0 ? (
+            <section aria-labelledby="deployment-links-heading" className="space-y-2">
+              <h2 id="deployment-links-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                Related links
+              </h2>
+              <ul className="m-0 list-disc space-y-1 pl-5" data-testid="ds-links">
+                {status.links.map((link) => (
+                  <li key={`${link.kind}-${link.url}`}>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-al-accent underline-offset-2 hover:underline"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </>
+      ) : null}
+    </div>
+  );
+}

@@ -7,7 +7,8 @@ export function pathnameTouchesPlatformAdminSurface(pathname: string): boolean {
     pathname.startsWith("/admin/pricing-quote-aging") ||
     pathname.startsWith("/admin/trial-funnel") ||
     pathname.startsWith("/admin/fleet-llm-cogs") ||
-    pathname.startsWith("/admin/tenant-health")
+    pathname.startsWith("/admin/tenant-health") ||
+    pathname.startsWith("/admin/deployment-status")
   ) {
     return false;
   }

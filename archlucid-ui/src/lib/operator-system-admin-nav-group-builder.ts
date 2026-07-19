@@ -8,6 +8,7 @@ import {
   Layers,
   LineChart,
   PackageCheck,
+  ServerCog,
   Settings2,
   Wallet,
 } from "lucide-react";
@@ -60,6 +61,14 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           label: "Diagnostics dashboard",
           title: "Diagnostics dashboard — readiness, circuit breakers, onboarding funnel metrics",
           icon: Gauge,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: "/admin/deployment-status",
+          label: "Deployment status",
+          title: "Deployment status — BUILD_ID agreement, health, migration version (internal)",
+          icon: ServerCog,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",
         },

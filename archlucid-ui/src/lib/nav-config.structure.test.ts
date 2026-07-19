@@ -214,6 +214,7 @@ describe("nav-config structure", () => {
       "/integrations/webhooks",
     ]);
     expect(systemAdminHrefs).toContain("/admin/rag-health");
+    expect(systemAdminHrefs).toContain("/admin/deployment-status");
     expect(systemAdminHrefs).toContain("/replay");
     expect(systemAdminHrefs).not.toContain("/health");
     expect(systemAdminHrefs).not.toContain("/advisory");
