@@ -58,7 +58,7 @@ export const RUN_DETAIL_PAGE_VIEW_SECTION_MARKERS: Readonly<Record<RunDetailFina
   findings: "<RunDetailExplanationDeferred",
   "decision-delta": "<RunDetailDecisionDeltaDeferred",
   "governance-alerts": "<RunDetailGovernanceAlerts",
-  "evidence-trust": "<RunTrustEvidenceCardSection",
+  "evidence-trust": "<RunDetailTrustEvidenceCardSectionDeferred",
   "manifest-summary": "<RunDetailManifestSummarySection",
   "export-actions": "<ExportDeliverableDialog",
   "explanation-confidence": "<RunExplanationConfidenceBanner",

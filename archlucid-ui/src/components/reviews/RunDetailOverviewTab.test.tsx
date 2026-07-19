@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { RunDetailOverviewTab } from "@/components/reviews/RunDetailOverviewTab";
 import type { RunDetailWorkspaceRecommendedAction } from "@/lib/run-detail-workspace-derive";
@@ -15,19 +15,30 @@ const action: RunDetailWorkspaceRecommendedAction = {
 };
 
 describe("RunDetailOverviewTab", () => {
-  it("does not render shortcut cards and uses specific action labels", () => {
+  it("renders recommended actions and overview link cards", () => {
     render(
       <RunDetailOverviewTab
+        runId="run-abc"
+        architectureTitle={null}
+        architectureText={null}
+        evidenceCount={2}
+        hasSubmittedArchitecture={false}
+        userAssertions={null}
         recommendedActions={[action]}
+        blockingCount={0}
+        governanceDecisionLabel="Not started"
+        findingCount={3}
+        criticalCount={1}
+        highCount={0}
+        hasManifest={false}
+        onNavigateTab={vi.fn()}
         proofStatusSlot={null}
-        bottomLineSlot={<div data-testid="bottom-line">Bottom line</div>}
       />,
     );
 
     expect(screen.getByTestId("run-detail-overview-tab")).toBeInTheDocument();
-    expect(screen.queryByText("Open")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Review findings" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Findings" })).not.toBeInTheDocument();
-    expect(screen.getByTestId("bottom-line")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Findings" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Open" }).length).toBeGreaterThan(0);
   });
 });

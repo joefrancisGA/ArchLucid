@@ -10,7 +10,11 @@ export function readClientDeploymentFingerprint(): ClientDeploymentFingerprint {
   return {
     frontendCommitSha: normalizeFingerprintValue(process.env.NEXT_PUBLIC_BUILD_COMMIT_SHA),
     buildTimestamp: normalizeFingerprintValue(process.env.NEXT_PUBLIC_BUILD_TIMESTAMP),
-    environment: normalizeFingerprintValue(process.env.NEXT_PUBLIC_DEPLOY_ENV ?? process.env.NODE_ENV),
+    environment: normalizeFingerprintValue(
+      process.env.NEXT_PUBLIC_DEPLOY_ENV?.trim()
+        ? process.env.NEXT_PUBLIC_DEPLOY_ENV
+        : process.env.NODE_ENV,
+    ),
     apiUpstreamHost: normalizeFingerprintValue(process.env.NEXT_PUBLIC_API_UPSTREAM_HOST),
   };
 }

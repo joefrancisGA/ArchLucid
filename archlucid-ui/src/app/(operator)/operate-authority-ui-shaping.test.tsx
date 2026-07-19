@@ -329,7 +329,9 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
         expect(screen.getByTestId("policy-packs-author-tab")).toBeInTheDocument();
       });
 
-      expect(screen.getByTestId("policy-rule-authoring-wizard")).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId("policy-rule-authoring-wizard")).toBeInTheDocument();
+      });
     },
     15_000,
   );

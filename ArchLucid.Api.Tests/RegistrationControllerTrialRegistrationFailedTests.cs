@@ -129,7 +129,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
             audit,
             bootstrap,
             abusePolicy.Object,
-            Options.Create(new PublicSignupOptions { Mode = PublicSignupMode.InviteOnly }),
+            Options.Create(new PublicSignupOptions { Mode = PublicSignupMode.PublicSelfService }),
             TimeProvider.System);
     }
 }

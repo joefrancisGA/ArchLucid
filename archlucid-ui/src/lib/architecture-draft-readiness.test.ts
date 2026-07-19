@@ -8,7 +8,7 @@ import {
 describe("architecture-draft-readiness", () => {
   it("permits incomplete draft saves while blocking review start", () => {
     const incomplete = {
-      freeTextIntent: "Short",
+      freeTextIntent: "",
       businessOutcome: "",
       systemName: "",
     };

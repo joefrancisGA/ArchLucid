@@ -203,7 +203,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | 4XX | `/403` | 0.02% | 0 | 0 | 2 | Auth | None |
 | AXX | `/accessibility` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
-| ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADS | `/advisory?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | ADX | `/advisory?tab=schedules` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
@@ -229,12 +228,14 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEA | `/help/authentication-sign-in` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEZ | `/help/azure-boards` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HAZ | `/help/azure-permissions` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| ECA | `/help/caiq-sig-response` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEC | `/help/cloud-connections/aws` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HGC | `/help/cloud-connections/gcp` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | CO | `/help/comparison-replay` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HER | `/help/creating-runs` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HED | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -247,8 +248,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEP | `/help/prior-manifest-retrieval` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HRE | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HEO | `/help/soc2-self-assessment` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HS | `/help/specialty-walkthroughs` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HES | `/help/starting-reviews` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HEU | `/help/subprocessors` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | INA | `/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | INC | `/integrations/cloud-connections/aws` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | INZ | `/integrations/cloud-connections/azure` | 0.02% | 0 | 0 | 2 | Integrations | None |

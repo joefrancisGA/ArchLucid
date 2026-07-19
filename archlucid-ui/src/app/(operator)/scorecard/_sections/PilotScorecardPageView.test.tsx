@@ -68,7 +68,7 @@ describe("PilotScorecardPageView", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     expect(screen.getByRole("heading", { name: "Architecture scorecard" })).toBeInTheDocument();
-    expect(screen.getByText(/Track architecture package throughput, evidence-backed decisions/i)).toBeInTheDocument();
+    expect(screen.getByText(/Track architecture review throughput, evidence-backed decisions/i)).toBeInTheDocument();
     expect(screen.queryByText(/ROI_MODEL/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/roiEstimate/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/SOURCE:/i)).not.toBeInTheDocument();

@@ -10,7 +10,7 @@ describe("NewReviewSampleEscapeLink", () => {
 
     expect(
       screen.getByTestId("new-review-sample-escape"),
-    ).toHaveTextContent("Start with an example: Skip setup and open a completed sample package.");
+    ).toHaveTextContent("Start with an example: Skip setup and open a completed sample review.");
     expect(screen.getByText("Start with an example:").tagName).toBe("STRONG");
   });
 
@@ -23,7 +23,7 @@ describe("NewReviewSampleEscapeLink", () => {
   it("keeps the completed sample package portion as a clickable link to the sample review", () => {
     render(<NewReviewSampleEscapeLink />);
 
-    const link = screen.getByRole("link", { name: "Skip setup and open a completed sample package" });
+    const link = screen.getByRole("link", { name: "Skip setup and open a completed sample review" });
 
     expect(link).toHaveAttribute("href", `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
     expect(link.className).toMatch(/underline/);
