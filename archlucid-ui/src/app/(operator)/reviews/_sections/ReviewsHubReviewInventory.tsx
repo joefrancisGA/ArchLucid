@@ -15,6 +15,8 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { architectureDraftPath } from "@/lib/architecture-routes";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
@@ -30,6 +32,9 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
+  REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY,
+  REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL,
+  REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
   REVIEWS_HUB_RECENT_SECTION_TITLE,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
@@ -130,7 +135,9 @@ function StatusBadge(props: { readonly label: string; readonly attention?: boole
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>("all");
+  const draftEntries = useArchitectureDraftRegistryEntries();
   const rows = useMemo(() => props.runs.map(toReviewsHubReviewRowDisplay), [props.runs]);
+  const resumeDraft = draftEntries[0] ?? null;
 
   const filteredRuns = useMemo(() => {
     return props.runs.filter((run) => matchesSearch(run, searchQuery) && matchesFilter(run, activeFilter));
@@ -144,16 +151,24 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
         <div
           className="mt-3 rounded-md border border-dashed border-neutral-300 bg-neutral-50/60 px-4 py-5 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="reviews-hub-recent-empty"
+          data-has-architecture-drafts={resumeDraft !== null ? "true" : "false"}
           role="status"
         >
-          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEWS_HUB_RECENT_EMPTY_TITLE}</p>
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {resumeDraft !== null ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
+          </p>
           <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {REVIEWS_HUB_RECENT_EMPTY_BODY}
+            {resumeDraft !== null ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY : REVIEWS_HUB_RECENT_EMPTY_BODY}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button variant="primary" size="sm" asChild>
-              <Link href="/reviews/new" data-testid="reviews-hub-recent-empty-start-review">
-                {REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL}
+              <Link
+                href={resumeDraft !== null ? architectureDraftPath(resumeDraft.architectureId) : "/reviews/new"}
+                data-testid="reviews-hub-recent-empty-start-review"
+              >
+                {resumeDraft !== null
+                  ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL
+                  : REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL}
               </Link>
             </Button>
             <Button variant="outline" size="sm" asChild>

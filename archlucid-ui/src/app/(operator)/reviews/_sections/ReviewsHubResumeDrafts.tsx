@@ -1,14 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { trackArchitectureDraftResumeClick } from "@/lib/architecture-draft-resume-telemetry";
-import {
-  listArchitectureDraftRegistryEntries,
-  type ArchitectureDraftRegistryEntry,
-} from "@/lib/architecture-draft-registry";
 import { architectureDraftPath, ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -38,11 +34,7 @@ function formatDraftUpdatedLabel(updatedUtc: string): string {
 
 /** Surfaces saved architecture drafts on the reviews hub when at least one exists. */
 export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
-  const [entries, setEntries] = useState<readonly ArchitectureDraftRegistryEntry[]>([]);
-
-  useEffect(() => {
-    setEntries(listArchitectureDraftRegistryEntries());
-  }, []);
+  const entries = useArchitectureDraftRegistryEntries();
 
   if (entries.length === 0) {
     return null;
