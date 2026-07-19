@@ -1,5 +1,8 @@
 import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture-draft-status";
-import { architectureDraftDisplayName } from "@/lib/architecture-draft-status";
+import {
+  architectureDraftDisplayName,
+  customerFacingArchitectureDraftTitle,
+} from "@/lib/architecture-draft-status";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture-draft-handoff-gate";
 import type { DraftRequestResponse } from "@/types/draft-intake";
 
@@ -58,7 +61,11 @@ function writeSnapshot(snapshot: ArchitectureDraftRegistrySnapshot): void {
 export function listArchitectureDraftRegistryEntries(): ArchitectureDraftRegistryEntry[] {
   return readSnapshot()
     .entries.slice()
-    .sort((left, right) => right.lastUpdatedUtc.localeCompare(left.lastUpdatedUtc));
+    .sort((left, right) => right.lastUpdatedUtc.localeCompare(left.lastUpdatedUtc))
+    .map((entry) => ({
+      ...entry,
+      displayName: customerFacingArchitectureDraftTitle(entry.displayName),
+    }));
 }
 
 export function upsertArchitectureDraftRegistryEntry(
