@@ -61,6 +61,7 @@ def test_ui_unit_vitest_shards_manifest_has_expected_ids() -> None:
         "app-operator-b",
         "app-operator-c",
         "app-operator-d",
+        "app-operator-e",
         "app-marketing",
         "surface",
     }
