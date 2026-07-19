@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { downloadHelpTopicPdf } from "@/lib/help-topic-pdf-download";
-import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-path";
+import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-href";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpTopicPdfDownloadButtonProps = {
