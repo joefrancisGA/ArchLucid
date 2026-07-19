@@ -48,6 +48,7 @@ public partial class Program
         // Advanced/SaaS JSON load before environment variables so deployment and CI env overrides still win.
         builder.Configuration.AddEnvironmentVariables();
 
+        AzureOpenAiEnvironmentConfigurationBridge.Apply(builder.Configuration);
         ArchitectureRunCreationConfigurationBridge.Apply(builder.Configuration);
 
         // DAST / defense in depth: omit Kestrel "Server" version token (ZAP 10036); TLS identity lives at the ingress.
