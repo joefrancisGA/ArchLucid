@@ -83,8 +83,9 @@ ENV NEXT_PUBLIC_DEPLOY_ENV=${NEXT_PUBLIC_DEPLOY_ENV}
 ENV NEXT_PUBLIC_API_UPSTREAM_HOST=${NEXT_PUBLIC_API_UPSTREAM_HOST}
 ENV NEXT_TELEMETRY_DISABLED=1
 # `next build` typechecks `import "@archlucid/api-types"` — that workspace package's `dist/` is not in git; build it first.
+# Docker smoke skips `npm run build:docs-pdf`; ensure runtime COPY target exists (empty dir until full PDF build is wired in).
 RUN apk add --no-cache python3 \
-    && mkdir -p public \
+    && mkdir -p public .build/docs-pdf-customer \
     && python3 /pricing-source/scripts/ci/generate_pricing_json.py --repo-root /pricing-source \
     && npm run build:api-types \
     && npx next build
