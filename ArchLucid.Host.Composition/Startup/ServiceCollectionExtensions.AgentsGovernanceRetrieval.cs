@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.AgentModelAliases;
+using ArchLucid.AgentRuntime.Batch;
 using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
@@ -251,6 +252,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(LlmMonthlyTenantDollarBudgetOptions.SectionName));
         services.AddScoped<LlmMonthlyTenantDollarBudgetTracker>();
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
+        RegisterLlmBatchServices(services, configuration);
         services.Configure<RetrievalTelemetryOptions>(configuration.GetSection(RetrievalTelemetryOptions.SectionName));
         services.AddSingleton<IPostConfigureOptions<RetrievalTelemetryOptions>,
             RetrievalTelemetryProductionWarningPostConfigure>();
@@ -1357,7 +1359,75 @@ public static partial class ServiceCollectionExtensions
             maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
             gateName: gate.GateName);
 
-        return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, breakerLogger);
+        return new BatchRoutingAgentCompletionClient(
+            new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, breakerLogger),
+            sp.GetRequiredService<IBatchAgentCompletionClient>(),
+            sp.GetRequiredService<IOptionsMonitor<LlmBatchOptions>>(),
+            sp.GetRequiredService<ILlmBatchRoutingContext>(),
+            sp.GetRequiredService<ILogger<BatchRoutingAgentCompletionClient>>(),
+            static options => options.RouteOfflineFaithfulnessJudge);
+    }
+
+    private static void RegisterLlmBatchServices(IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<LlmBatchOptions>(configuration.GetSection(LlmBatchOptions.SectionPath));
+        services.PostConfigure<LlmBatchOptions>(static options =>
+        {
+            options.PollIntervalSeconds = Math.Clamp(options.PollIntervalSeconds, 5, 300);
+            options.MaxWaitMinutes = Math.Clamp(options.MaxWaitMinutes, 1, 1_440);
+            options.EstimatedDiscountRatio = Math.Clamp(options.EstimatedDiscountRatio, 0.0, 1.0);
+        });
+        services.AddSingleton<ILlmBatchRoutingContext>(_ => LlmBatchRoutingContext.Instance);
+        services.AddHttpClient(
+            AzureOpenAiBatchHttpClients.BatchHttpClientName,
+            static (sp, client) =>
+            {
+                IConfiguration config = sp.GetRequiredService<IConfiguration>();
+                string? apiKey = config["AzureOpenAI:ApiKey"];
+
+                if (!string.IsNullOrWhiteSpace(apiKey))
+                    client.DefaultRequestHeaders.Add("api-key", apiKey);
+
+                client.Timeout = TimeSpan.FromHours(3);
+            });
+        services.AddSingleton<IBatchAgentCompletionClient>(static sp =>
+        {
+            IConfiguration config = sp.GetRequiredService<IConfiguration>();
+            LlmBatchOptions batchOptions = config.GetSection(LlmBatchOptions.SectionPath).Get<LlmBatchOptions>()
+                                           ?? new LlmBatchOptions();
+
+            if (!batchOptions.Enabled)
+                return DisabledBatchAgentCompletionClient.Instance;
+
+            string endpoint = config["AzureOpenAI:Endpoint"]?.Trim()
+                              ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is missing.");
+            string deploymentName = config["AzureOpenAI:DeploymentName"]?.Trim()
+                                    ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
+            string authenticationMode = config["AzureOpenAI:AuthenticationMode"]?.Trim() ?? "ApiKey";
+            string? apiKey = config["AzureOpenAI:ApiKey"];
+
+            if (string.Equals(authenticationMode, "ManagedIdentity", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "ArchLucid:LlmBatch requires ApiKey authentication today; ManagedIdentity batch transport is not implemented.");
+            }
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
+
+            IAzureOpenAiBatchTransport transport = new AzureOpenAiBatchHttpTransport(
+                sp.GetRequiredService<IHttpClientFactory>(),
+                endpoint,
+                sp.GetRequiredService<ILogger<AzureOpenAiBatchHttpTransport>>());
+
+            return new AzureOpenAiBatchCompletionClient(
+                transport,
+                deploymentName,
+                sp.GetRequiredService<IOptionsMonitor<LlmBatchOptions>>(),
+                sp.GetRequiredService<ILlmCostEstimator>(),
+                TimeProvider.System,
+                sp.GetRequiredService<ILogger<AzureOpenAiBatchCompletionClient>>());
+        });
     }
 
     private static IAgentCompletionClient BuildAzureOpenAiScopedCompletionChain(

@@ -83,6 +83,17 @@ jobs:
           fi
           echo "trend_dir=${OUT_DIR}" >> "${GITHUB_OUTPUT}"
 
+      - name: Append LLM batch metadata (TB-685)
+        if: steps.eligibility.outputs.enabled == 'true'
+        env:
+          ARCHLUCID_LLM_BATCH_ENABLED: ${{ vars.ARCHLUCID_LLM_BATCH_ENABLED }}
+        run: |
+          set -euo pipefail
+          ENABLED="${ARCHLUCID_LLM_BATCH_ENABLED:-false}"
+          python3 scripts/ci/append_llm_batch_trend_metadata.py \
+            --trend-json "${{ steps.eval.outputs.trend_dir }}/trend.json" \
+            --enabled "${ENABLED}"
+
       - name: Consecutive-night regression warn
         if: steps.eligibility.outputs.enabled == 'true'
         run: |
