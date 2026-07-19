@@ -15,7 +15,24 @@ export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
 
 /** `/architectures/new` bootstrap page — drafting-first entry. */
 export const ARCHITECTURE_CREATION_BOOTSTRAP_LEAD =
-  "Build a clear architecture brief before you attach evidence or start a review.";
+  "Start a new architecture or continue one of your saved drafts.";
+
+/** Empty-state guidance when the operator has no saved drafts yet. */
+export const ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE =
+  "Describe the system, goals, and constraints to begin your first architecture.";
+
+/** Concise create≠review boundary — not a warning banner. */
+export const ARCHITECTURE_CREATION_REVIEW_BOUNDARY =
+  "Creating or saving an architecture does not start a review.";
+
+/** Restrained autosave reassurance — only show where draft autosave is real. */
+export const ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE = "Architecture drafts are saved automatically.";
+
+/** Section label when a single recent draft is offered for resume. */
+export const ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE = "Continue a draft";
+
+/** Section label when several recent drafts are previewed. */
+export const ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE = "Recent drafts";
 
 /** Optional alternatives framing on the create path (not required to save). */
 export const ARCHITECTURE_DRAFT_ALTERNATIVES_HINT =

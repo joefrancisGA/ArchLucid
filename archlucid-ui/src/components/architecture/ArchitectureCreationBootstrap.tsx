@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { initializeArchitectureCreation } from "@/lib/architecture-creation-init";
 import { clearArchitectureCreationDraftId } from "@/lib/architecture-creation-session";
 import { trackArchitectureDraftResumeClick } from "@/lib/architecture-draft-resume-telemetry";
@@ -13,15 +14,32 @@ import {
   type ArchitectureDraftRegistryEntry,
 } from "@/lib/architecture-draft-registry";
 import {
+  ARCHITECTURE_DRAFT_STATUS_LABELS,
+  type ArchitectureDraftCustomerStatus,
+} from "@/lib/architecture-draft-status";
+import {
   architectureDraftPath,
   ARCHITECTURES_LIST_PATH,
 } from "@/lib/architecture-routes";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import {
+  CONTINUE_DRAFT_LABEL,
+  START_NEW_ARCHITECTURE_LABEL,
+  VIEW_ALL_DRAFTS_LABEL,
+} from "@/lib/architecture-workflow-labels";
+import {
+  ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE,
+  ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
+  ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
+  ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE,
+  ARCHITECTURE_CREATION_REVIEW_BOUNDARY,
+} from "@/lib/create-vs-review-intake-copy";
 import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-type BootstrapMode = "loading" | "resume-choice" | "creating";
+type BootstrapMode = "loading" | "ready" | "creating";
+
+const RECENT_DRAFTS_PREVIEW_LIMIT = 3;
 
 function formatDraftUpdatedLabel(updatedUtc: string): string {
   const parsed = Date.parse(updatedUtc);
@@ -37,10 +55,60 @@ function formatDraftUpdatedLabel(updatedUtc: string): string {
   });
 }
 
-/** Idempotent draft bootstrap — resumes existing drafts when present, otherwise creates a new draft. */
+function statusTagKind(status: ArchitectureDraftCustomerStatus): "ready" | "in-progress" | "needs-attention" {
+  if (status === "ready-for-review") {
+    return "ready";
+  }
+
+  if (status === "archived") {
+    return "needs-attention";
+  }
+
+  return "in-progress";
+}
+
+function DraftResumeCard(props: {
+  readonly entry: ArchitectureDraftRegistryEntry;
+  readonly primary?: boolean;
+}): React.JSX.Element {
+  const { entry, primary = false } = props;
+
+  return (
+    <li
+      className="rounded-lg border border-al-border-subtle bg-al-surface-raised p-4"
+      data-testid={`architecture-creation-resume-${entry.architectureId}`}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 space-y-1">
+          <p className="m-0 break-words font-medium text-al-text-primary">{entry.displayName}</p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+            Updated {formatDraftUpdatedLabel(entry.lastUpdatedUtc)}
+          </p>
+          <StatusTag
+            kind={statusTagKind(entry.customerStatus)}
+            label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
+          />
+        </div>
+        <Button type="button" variant={primary ? "primary" : "outline"} size="sm" asChild>
+          <Link
+            href={architectureDraftPath(entry.architectureId)}
+            data-testid={`architecture-creation-continue-${entry.architectureId}`}
+            onClick={() => {
+              trackArchitectureDraftResumeClick("architectures-new", entry.architectureId);
+            }}
+          >
+            {CONTINUE_DRAFT_LABEL}
+          </Link>
+        </Button>
+      </div>
+    </li>
+  );
+}
+
+/** Stable architecture-creation entry — resume drafts or start a new one without starting a review. */
 export function ArchitectureCreationBootstrap(): React.JSX.Element {
   const router = useRouter();
-  const startedRef = useRef(false);
+  const createInFlightRef = useRef(false);
   const [mode, setMode] = useState<BootstrapMode>("loading");
   const [draftEntries, setDraftEntries] = useState<readonly ArchitectureDraftRegistryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -48,49 +116,25 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
   useEffect(() => {
     const entries = listArchitectureDraftRegistryEntries();
     setDraftEntries(entries);
-
-    if (entries.length > 0) {
-      setMode("resume-choice");
-
-      return;
-    }
-
-    if (startedRef.current) {
-      return;
-    }
-
-    startedRef.current = true;
-    setMode("creating");
-
-    void initializeArchitectureCreation()
-      .then((result) => {
-        if (result.draftId === null) {
-          setError("Could not start a new architecture draft. Try again.");
-
-          return;
-        }
-
-        router.replace(architectureDraftPath(result.draftId));
-      })
-      .catch(() => {
-        setError("Could not start a new architecture draft. Try again.");
-      });
-  }, [router]);
+    setMode("ready");
+  }, []);
 
   const startNewDraft = () => {
+    if (createInFlightRef.current || mode === "creating") {
+      return;
+    }
+
+    createInFlightRef.current = true;
     setError(null);
     setMode("creating");
-    startedRef.current = true;
     clearArchitectureCreationDraftId();
 
     void initializeArchitectureCreation()
       .then((result) => {
         if (result.draftId === null) {
+          createInFlightRef.current = false;
           setError("Could not start a new architecture draft. Try again.");
-
-          if (draftEntries.length > 0) {
-            setMode("resume-choice");
-          }
+          setMode("ready");
 
           return;
         }
@@ -98,71 +142,108 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
         router.replace(architectureDraftPath(result.draftId));
       })
       .catch(() => {
+        createInFlightRef.current = false;
         setError("Could not start a new architecture draft. Try again.");
-
-        if (draftEntries.length > 0) {
-          setMode("resume-choice");
-        }
+        setMode("ready");
       });
   };
 
-  if (mode === "resume-choice" && draftEntries.length > 0) {
+  if (mode === "loading") {
     return (
-      <div className="space-y-4" data-testid="architecture-creation-bootstrap-resume-choice">
-        <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
-          You have saved architecture drafts. Resume one or start a new draft.
-        </p>
-        {error !== null ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-            {error}
-          </p>
-        ) : null}
-        <ul className="m-0 list-none space-y-2 p-0">
-          {draftEntries.map((entry) => (
-            <li key={entry.architectureId} data-testid={`architecture-creation-resume-${entry.architectureId}`}>
-              <Link
-                href={architectureDraftPath(entry.architectureId)}
-                className={cn(OPERATOR_LINK.nav, "inline-flex flex-wrap items-baseline gap-x-2")}
-                onClick={() => {
-                  trackArchitectureDraftResumeClick("architectures-new", entry.architectureId);
-                }}
-              >
-                <span className="font-medium text-al-text-primary">{entry.displayName}</span>
-                <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-                  Updated {formatDraftUpdatedLabel(entry.lastUpdatedUtc)}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="primary" size="sm" onClick={startNewDraft} data-testid="architecture-creation-start-new">
-            {CREATE_ARCHITECTURE_LABEL}
-          </Button>
-          <Button type="button" variant="outline" size="sm" asChild>
-            <Link href={ARCHITECTURES_LIST_PATH}>View all drafts</Link>
-          </Button>
-        </div>
+      <div
+        className="max-w-2xl space-y-3"
+        data-testid="architecture-creation-bootstrap-loading"
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <div className="h-4 w-2/3 animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
+        <div className="h-24 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />
+        <span className="sr-only">Loading architecture drafts</span>
       </div>
     );
   }
 
-  if (error !== null) {
+  if (mode === "creating") {
     return (
-      <div className="space-y-3" data-testid="architecture-creation-bootstrap-error">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-          {error}
-        </p>
-        <Button type="button" variant="outline" size="sm" onClick={startNewDraft}>
-          Retry
+      <div
+        className="max-w-2xl space-y-3"
+        data-testid="architecture-creation-bootstrap-creating"
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CREATE_ARCHITECTURE_STARTING_LABEL}</p>
+        <Button type="button" variant="primary" size="sm" disabled aria-busy="true">
+          {CREATE_ARCHITECTURE_STARTING_LABEL}
         </Button>
       </div>
     );
   }
 
+  const previewEntries = draftEntries.slice(0, RECENT_DRAFTS_PREVIEW_LIMIT);
+  const hasDrafts = previewEntries.length > 0;
+  const sectionTitle =
+    previewEntries.length === 1
+      ? ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE
+      : ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE;
+
   return (
-    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-creation-bootstrap-loading">
-      {CREATE_ARCHITECTURE_STARTING_LABEL}
-    </p>
+    <div className="max-w-2xl space-y-4" data-testid="architecture-creation-bootstrap-ready">
+      {error !== null ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="alert" data-testid="architecture-creation-bootstrap-error">
+          {error}
+        </p>
+      ) : null}
+
+      {hasDrafts ? (
+        <section aria-labelledby="architecture-creation-drafts-heading">
+          <h3
+            id="architecture-creation-drafts-heading"
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+          >
+            {sectionTitle}
+          </h3>
+          <ul className="m-0 mt-3 list-none space-y-3 p-0" data-testid="architecture-creation-bootstrap-resume-choice">
+            {previewEntries.map((entry, index) => (
+              <DraftResumeCard key={entry.architectureId} entry={entry} primary={index === 0} />
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-creation-bootstrap-empty">
+          {ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE}
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant={hasDrafts ? "outline" : "primary"}
+          size="sm"
+          onClick={startNewDraft}
+          data-testid="architecture-creation-start-new"
+        >
+          {START_NEW_ARCHITECTURE_LABEL}
+        </Button>
+        <Button type="button" variant="outline" size="sm" asChild>
+          <Link href={ARCHITECTURES_LIST_PATH} data-testid="architecture-creation-view-all-drafts">
+            {VIEW_ALL_DRAFTS_LABEL}
+          </Link>
+        </Button>
+        {error !== null ? (
+          <Button type="button" variant="outline" size="sm" onClick={startNewDraft} data-testid="architecture-creation-retry">
+            Retry
+          </Button>
+        ) : null}
+      </div>
+
+      <div className="space-y-1">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+          {ARCHITECTURE_CREATION_REVIEW_BOUNDARY}
+        </p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+          {ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE}
+        </p>
+      </div>
+    </div>
   );
 }

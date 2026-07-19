@@ -22,7 +22,10 @@ export default function NewArchitecturePage(): React.JSX.Element {
         headingLevel="h2"
         className="mt-6"
         description={
-          <p className={cn("m-0 mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-creation-bootstrap-lead">
+          <p
+            className={cn("m-0 mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-creation-bootstrap-lead"
+          >
             {ARCHITECTURE_CREATION_BOOTSTRAP_LEAD}
           </p>
         }
