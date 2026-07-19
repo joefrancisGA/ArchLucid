@@ -23,8 +23,8 @@ vi.mock("@/lib/api/architecture-runs", () => ({
 
 vi.mock("@/hooks/use-architecture-draft-autosave", () => ({
   useArchitectureDraftAutosave: () => ({
-    saveState: "saved",
-    lastSavedUtc: "2026-01-02T00:00:00.000Z",
+    saveState: "idle",
+    lastSavedUtc: null,
     conflictMessage: null,
     saveDraft,
     reloadDraft,

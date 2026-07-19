@@ -13,7 +13,8 @@ import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture-workflow-intent";
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
-export type ArchitectureDraftSaveState = "saved" | "saving" | "unsaved" | "error" | "offline";
+/** `idle` = loaded / pristine — do not show "Saved" until a user-driven persist succeeds. */
+export type ArchitectureDraftSaveState = "idle" | "saved" | "saving" | "unsaved" | "error" | "offline";
 
 const AUTOSAVE_DEBOUNCE_MS = 1500;
 
@@ -47,7 +48,7 @@ export function useArchitectureDraftAutosave(
   args: UseArchitectureDraftAutosaveArgs,
 ): UseArchitectureDraftAutosaveResult {
   const enabled = args.enabled !== false;
-  const [saveState, setSaveState] = useState<ArchitectureDraftSaveState>("saved");
+  const [saveState, setSaveState] = useState<ArchitectureDraftSaveState>("idle");
   const [lastSavedUtc, setLastSavedUtc] = useState<string | null>(null);
   const [conflictMessage, setConflictMessage] = useState<string | null>(null);
   const persistedFieldsRef = useRef<ArchitectureDraftFieldState>(args.fields);
@@ -156,9 +157,10 @@ export function useArchitectureDraftAutosave(
       businessOutcome: draft.document.businessOutcome ?? "",
       systemName: draft.document.systemName ?? "",
     };
-    setLastSavedUtc(draft.updatedUtc);
+    setLastSavedUtc(null);
     setConflictMessage(null);
-    setSaveState("saved");
+    // Fresh load / conflict refresh — baseline is synced; wait for a user save before "Saved".
+    setSaveState("idle");
     args.onDraftLoaded?.(draft);
   }, [args]);
 

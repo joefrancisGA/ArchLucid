@@ -19,12 +19,14 @@ import { HelpTopicAuthorityGate } from "../_sections/HelpTopicAuthorityGate";
 import { HelpTopicMarkdownClient } from "../_sections/HelpTopicMarkdownClient";
 import { HelpTopicNotFoundView } from "../_sections/HelpTopicNotFoundView";
 import { HelpTroubleshootingGuideView } from "../_sections/HelpTroubleshootingGuideView";
+import { isTypedHelpGuideSlug } from "@/lib/help-typed-guide-slugs";
 import { principalCanAccessHelpTopic } from "@/lib/product-documentation-access";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   getProductDocumentationEntry,
   HELP_TOPIC_SLUG_ALIASES,
   listProductDocumentationEntries,
+  type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
 
@@ -77,71 +79,84 @@ export async function generateStaticParams(): Promise<Array<{ topic: string[] }>
   return [...registryParams, ...aliasParams];
 }
 
-function renderHelpTopicView(
-  loaded: NonNullable<ReturnType<typeof tryLoadProductDocumentation>>,
+function renderTypedHelpGuideView(
+  entry: ProductDocumentationEntry,
   searchParams?: Record<string, string | string[] | undefined>,
-): React.ReactElement {
-  if (loaded.entry.slug === "core-pilot") {
-    return <HelpCorePilotGuideView entry={loaded.entry} />;
+): React.ReactElement | null {
+  if (entry.slug === "core-pilot") {
+    return <HelpCorePilotGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "getting-started") {
-    return <HelpGettingStartedGuideView entry={loaded.entry} />;
+  if (entry.slug === "getting-started") {
+    return <HelpGettingStartedGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "how-it-works") {
-    return <HelpHowArchLucidWorksGuideView entry={loaded.entry} />;
+  if (entry.slug === "how-it-works") {
+    return <HelpHowArchLucidWorksGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "troubleshooting") {
-    return <HelpTroubleshootingGuideView entry={loaded.entry} />;
+  if (entry.slug === "troubleshooting") {
+    return <HelpTroubleshootingGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "alerts") {
-    return <HelpAlertsGuideView entry={loaded.entry} />;
+  if (entry.slug === "alerts") {
+    return <HelpAlertsGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "billing-and-plans") {
-    return <HelpBillingAndPlansGuideView entry={loaded.entry} />;
+  if (entry.slug === "billing-and-plans") {
+    return <HelpBillingAndPlansGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "findings") {
-    return <HelpFindingsGuideView entry={loaded.entry} />;
+  if (entry.slug === "findings") {
+    return <HelpFindingsGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "governance-approval") {
-    return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;
+  if (entry.slug === "governance-approval") {
+    return <HelpGovernanceApprovalGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "glossary") {
-    return <HelpGlossaryPageView entry={loaded.entry} />;
+  if (entry.slug === "glossary") {
+    return <HelpGlossaryPageView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "users-and-roles") {
-    return <HelpUsersAndRolesGuideView entry={loaded.entry} />;
+  if (entry.slug === "users-and-roles") {
+    return <HelpUsersAndRolesGuideView entry={entry} />;
   }
 
-  if (loaded.entry.slug === "cloud-connections-azure") {
+  if (entry.slug === "cloud-connections-azure") {
     return (
       <HelpConnectAzureSecurelyGuideView
-        entry={loaded.entry}
+        entry={entry}
         returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
       />
     );
   }
 
-  if (loaded.entry.slug === "azure-permissions") {
+  if (entry.slug === "azure-permissions") {
     return (
       <HelpAzurePermissionsGuideView
-        entry={loaded.entry}
+        entry={entry}
         subscriptionId={readSearchParam(searchParams, "subscriptionId")}
         returnHref={resolveAzurePermissionsReturnHref(readSearchParam(searchParams, "returnTo"))}
       />
     );
   }
 
-  if (loaded.entry.slug === "specialty-walkthroughs") {
-    return <HelpSpecialtyWalkthroughTemplatesView entry={loaded.entry} />;
+  if (entry.slug === "specialty-walkthroughs") {
+    return <HelpSpecialtyWalkthroughTemplatesView entry={entry} />;
+  }
+
+  return null;
+}
+
+function renderHelpTopicView(
+  loaded: NonNullable<ReturnType<typeof tryLoadProductDocumentation>>,
+  searchParams?: Record<string, string | string[] | undefined>,
+): React.ReactElement {
+  const typed = renderTypedHelpGuideView(loaded.entry, searchParams);
+
+  if (typed !== null) {
+    return typed;
   }
 
   return <HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />;
@@ -203,6 +218,15 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
         <HelpTopicMarkdownClient entry={entry} />
       </HelpTopicAuthorityGate>
     );
+  }
+
+  // Typed guides ship as React views; do not 404 when Docker omitted their source markdown.
+  if (isTypedHelpGuideSlug(slug)) {
+    const typed = renderTypedHelpGuideView(entry, resolvedSearchParams);
+
+    if (typed !== null) {
+      return typed;
+    }
   }
 
   const loaded = tryLoadProductDocumentation(slug);
