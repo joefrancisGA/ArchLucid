@@ -1441,6 +1441,12 @@
               "integer"
             ]
           },
+          "modelAlias": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "modelDeploymentName": {
             "type": [
               "null",
@@ -1615,6 +1621,12 @@
             "type": [
               "null",
               "integer"
+            ]
+          },
+          "modelAlias": {
+            "type": [
+              "null",
+              "string"
             ]
           },
           "modelDeploymentName": {

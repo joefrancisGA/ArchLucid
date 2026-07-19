@@ -113068,6 +113068,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("maxCompletionTokens")]
         public int? MaxCompletionTokens { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("modelAlias")]
+        public string? ModelAlias { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("modelDeploymentName")]
         public string? ModelDeploymentName { get; set; } = default!;
 
@@ -113213,6 +113216,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("inputTokenCount")]
         public int? InputTokenCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("modelAlias")]
+        public string? ModelAlias { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("modelDeploymentName")]
         public string? ModelDeploymentName { get; set; } = default!;
