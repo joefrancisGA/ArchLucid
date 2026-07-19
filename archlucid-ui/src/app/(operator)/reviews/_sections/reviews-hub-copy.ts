@@ -17,7 +17,7 @@ export const REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL = "Open risks";
 export const REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL = "Awaiting approval";
 
 export const REVIEWS_HUB_SUMMARY_EMPTY_HINT =
-  "Metrics populate after you start or finalize architecture reviews.";
+  "These counts cover started and finalized reviews — not architecture drafts.";
 
 export const REVIEWS_HUB_PRIMARY_START_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
@@ -54,6 +54,14 @@ export const REVIEWS_HUB_RECENT_EMPTY_BODY =
 export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
 export const REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL = "Explore the sample review";
+
+/** Empty "Your reviews" copy when architecture drafts exist but no review runs yet. */
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "Turn your draft into a review";
+
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY =
+  "You already have a saved architecture draft. Finish the draft, then start a review to gather evidence and record decisions.";
+
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL = "Continue editing draft";
 
 export const REVIEWS_HUB_INCLUDES_TITLE = "What each review contains";
 

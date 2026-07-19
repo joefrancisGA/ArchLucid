@@ -5,6 +5,8 @@ import {
   REVIEWS_HUB_PAGE_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
+  REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
+  REVIEWS_HUB_SUMMARY_EMPTY_HINT,
 } from "./reviews-hub-copy";
 
 const BANNED_PACKAGE_PHRASES = [
@@ -19,6 +21,8 @@ describe("reviews-hub-copy", () => {
     expect(REVIEWS_HUB_PAGE_SUBTITLE).toBe("Create, refine, evaluate, and approve architecture reviews.");
     expect(REVIEWS_HUB_RECENT_EMPTY_TITLE).toBe("Start your first architecture review");
     expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("describe or import an architecture");
+    expect(REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE).toBe("Turn your draft into a review");
+    expect(REVIEWS_HUB_SUMMARY_EMPTY_HINT.toLowerCase()).toContain("not architecture drafts");
   });
 
   it("avoids retired package terminology in hub copy", () => {
@@ -27,6 +31,8 @@ describe("reviews-hub-copy", () => {
       REVIEWS_HUB_PAGE_SUBTITLE,
       REVIEWS_HUB_RECENT_EMPTY_TITLE,
       REVIEWS_HUB_RECENT_EMPTY_BODY,
+      REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
+      REVIEWS_HUB_SUMMARY_EMPTY_HINT,
     ]
       .join(" ")
       .toLowerCase();
