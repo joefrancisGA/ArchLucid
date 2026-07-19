@@ -14,6 +14,7 @@ import {
   createAdminUserInvite,
   fetchAuthMeViaProxy,
   listPendingInvitations,
+  validateInvitationToken,
   LIVE_E2E_DEFAULT_PROJECT_ID,
   LIVE_E2E_DEFAULT_TENANT_ID,
   LIVE_E2E_DEFAULT_WORKSPACE_ID,
@@ -62,6 +63,12 @@ test.describe("live-api-private-beta-access", () => {
     const invite = await createAdminUserInvite(request, inviteEmail);
 
     expect(invite.email).toBe(inviteEmail);
+
+    const validation = await validateInvitationToken(request, invite.invitationToken);
+
+    expect(validation.status).toBe("Valid");
+    expect(validation.appRole).toBe("Reader");
+    expect(validation.maskedInvitedEmail?.length ?? 0).toBeGreaterThan(0);
 
     const invitations = await listPendingInvitations(request);
     const pendingMatch = invitations.some(

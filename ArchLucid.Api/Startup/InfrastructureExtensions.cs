@@ -164,6 +164,26 @@ internal static class InfrastructureExtensions
                         });
                 });
 
+            int authRoutingPermitLimit = configuration.GetValue("RateLimiting:AuthRouting:PermitLimit", 10);
+            int authRoutingWindowMinutes = configuration.GetValue("RateLimiting:AuthRouting:WindowMinutes", 15);
+            int authRoutingQueueLimit = configuration.GetValue("RateLimiting:AuthRouting:QueueLimit", 0);
+
+            options.AddPolicy(
+                "auth-routing",
+                httpContext =>
+                {
+                    string ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        $"auth-routing:{ip}",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = authRoutingPermitLimit,
+                            Window = TimeSpan.FromMinutes(authRoutingWindowMinutes),
+                            QueueLimit = authRoutingQueueLimit
+                        });
+                });
+
             int bootstrapWorkspacePermitLimit = configuration.GetValue("RateLimiting:BootstrapWorkspace:PermitLimit", 5);
             int bootstrapWorkspaceWindowMinutes = configuration.GetValue("RateLimiting:BootstrapWorkspace:WindowMinutes", 60);
 

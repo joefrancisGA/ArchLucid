@@ -271,6 +271,9 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | RateLimiting | `RateLimiting:Registration:WindowMinutes` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Registration throttling window. |
 | RateLimiting | `RateLimiting:EmailOtp:PermitLimit` | appsettings, env | 10 | Optional (not mode-gated) | Api, Combined | HTTP rate limit for email OTP endpoints per IP. |
 | RateLimiting | `RateLimiting:EmailOtp:WindowMinutes` | appsettings, env | 15 | Optional (not mode-gated) | Api, Combined | HTTP rate limit window for email OTP endpoints. |
+| RateLimiting | `RateLimiting:AuthRouting:PermitLimit` | appsettings, env | 10 | Optional (not mode-gated) | Api, Combined | HTTP rate limit for anonymous invitation validate (`auth-routing` policy) per IP. |
+| RateLimiting | `RateLimiting:AuthRouting:WindowMinutes` | appsettings, env | 15 | Optional (not mode-gated) | Api, Combined | HTTP rate limit window for invitation validate. |
+| RateLimiting | `RateLimiting:AuthRouting:QueueLimit` | appsettings, env | 0 | Optional (not mode-gated) | Api, Combined | Queued validate requests after permit exhaustion (usually 0). |
 | RateLimiting | `RateLimiting:FixedWindow:PermitLimit` | appsettings, env | 60 | Optional (not mode-gated) | Api, Combined | Default fixed window permit cap. |
 | RateLimiting | `RateLimiting:FixedWindow:WindowMinutes` | appsettings, env | 1 | Optional (not mode-gated) | Api, Combined | Fixed window length in minutes. |
 | RateLimiting | `RateLimiting:EvidenceBulkUpload:PermitLimit` | appsettings, env | 20 | Optional (not mode-gated) | Api, Combined | `POST …/evidence/bulk` per-tenant/per-window cap (policy `evidenceBulkUpload`; role multipliers apply). |
