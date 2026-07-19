@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import {
   loadCurrentPrincipal,
@@ -21,7 +30,11 @@ export type OperatorNavAuthorityContextValue = {
   currentPrincipal: CurrentPrincipal;
   /** Monotonic 1=Read, 2=Execute, 3=Admin — use with `@/lib/nav-authority` helpers. */
   callerAuthorityRank: number;
-  /** True while the first in-flight `/api/auth/me` attempt has not settled for this refresh cycle. */
+  /**
+   * True only while the **first** `/api/auth/me` attempt has not settled.
+   * Background focus refreshes must not flip this — `OperatorRoleGate` unmounts page content
+   * when this is true, which looked like a full-page "refresh" on every window focus.
+   */
   isAuthorityLoading: boolean;
 };
 
@@ -35,6 +48,10 @@ const DEFAULT_RANK_FULL_ACCESS = AUTHORITY_RANK.AdminAuthority;
  * Intentionally does **not** refetch on client-side route changes — principal rarely changes per navigation;
  * repeating `/me` on every `pathname` update was a major latency source (proxy + token refresh + API).
  *
+ * Focus refreshes are **stale-while-revalidate**: keep the last principal painted and update when `/me`
+ * returns. Do not set `isAuthorityLoading` again after the first settlement — that flag drives
+ * `OperatorRoleGate` deferral and must not blank operator pages on tab focus.
+ *
  * **UI shaping only — API authoritative:** rank and principal drive **nav** (`nav-shell-visibility.ts`) and **soft**
  * affordances (`useNavCallerAuthorityRank` consumers); they do not replace **ArchLucid.Api** policies. Packaging map:
  * **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*).
@@ -47,22 +64,41 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
   const [callerAuthorityRank, setCallerAuthorityRank] = useState(AUTHORITY_RANK.ReadAuthority);
   const [currentPrincipal, setCurrentPrincipal] = useState<CurrentPrincipal>(shellBootstrapReadPrincipal);
   const [isAuthorityLoading, setIsAuthorityLoading] = useState(true);
+  const hasSettledAuthorityRef = useRef(false);
+  const inFlightRefreshRef = useRef<Promise<void> | null>(null);
 
   const refreshCallerAuthority = useCallback(async (): Promise<void> => {
-    setIsAuthorityLoading(true);
+    if (inFlightRefreshRef.current !== null) {
+      await inFlightRefreshRef.current;
 
-    try {
-      const principal = await loadCurrentPrincipal();
-
-      setCallerAuthorityRank(principal.authorityRank);
-      setCurrentPrincipal(principal);
-      publishOperatorShellPrincipalSnapshot(principal);
-    } catch {
-      setCallerAuthorityRank(AUTHORITY_RANK.ReadAuthority);
-      setCurrentPrincipal(shellBootstrapReadPrincipal);
-    } finally {
-      setIsAuthorityLoading(false);
+      return;
     }
+
+    // Only the first resolution may blank the shell; later refreshes update in place.
+    if (!hasSettledAuthorityRef.current) {
+      setIsAuthorityLoading(true);
+    }
+
+    const refreshPromise = (async (): Promise<void> => {
+      try {
+        const principal = await loadCurrentPrincipal();
+
+        setCallerAuthorityRank(principal.authorityRank);
+        setCurrentPrincipal(principal);
+        publishOperatorShellPrincipalSnapshot(principal);
+        hasSettledAuthorityRef.current = true;
+      } catch {
+        setCallerAuthorityRank(AUTHORITY_RANK.ReadAuthority);
+        setCurrentPrincipal(shellBootstrapReadPrincipal);
+        hasSettledAuthorityRef.current = true;
+      } finally {
+        setIsAuthorityLoading(false);
+        inFlightRefreshRef.current = null;
+      }
+    })();
+
+    inFlightRefreshRef.current = refreshPromise;
+    await refreshPromise;
   }, []);
 
   useEffect(() => {
@@ -108,8 +144,9 @@ export function useOperatorNavAuthority(): OperatorNavAuthorityContextValue {
 }
 
 /**
- * Rank used for **filtering** nav links: while JWT `/me` is in flight for a signed-in session, stay conservative (Read)
- * so Operator-only destinations do not flash for Reader before claims resolve.
+ * Rank used for **filtering** nav links: while the **initial** JWT `/me` is in flight for a signed-in session,
+ * stay conservative (Read) so Operator-only destinations do not flash for Reader before claims resolve.
+ * After the first settlement, background focus refreshes keep the last known rank until `/me` returns.
  *
  * @see `OperatorNavAuthorityProvider.test.tsx` — refetch + `/me` failure regressions.
  */

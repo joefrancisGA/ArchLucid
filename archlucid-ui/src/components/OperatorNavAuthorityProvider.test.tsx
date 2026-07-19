@@ -1,7 +1,10 @@
 /**
- * `useNavCallerAuthorityRank` is the conservative rank fed into nav filtering and Enterprise mutation hooks while JWT
- * `/me` is in flight. A regression here causes Execute-tier destinations or write affordances to flash before claims
- * resolve (see `OperatorNavAuthorityProvider` implementation comments).
+ * `useNavCallerAuthorityRank` is the conservative rank fed into nav filtering and Enterprise mutation hooks while the
+ * **initial** JWT `/me` is in flight. A regression here causes Execute-tier destinations or write affordances to flash
+ * before claims resolve (see `OperatorNavAuthorityProvider` implementation comments).
+ *
+ * Focus-driven refreshes must stay stale-while-revalidate: keep the last rank and never flip `isAuthorityLoading`
+ * again — that flag blanks page content via `OperatorRoleGate`.
  */
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -32,12 +35,19 @@ vi.mock("@/lib/current-principal", async (importOriginal) => {
 import {
   OperatorNavAuthorityProvider,
   useNavCallerAuthorityRank,
+  useOperatorNavAuthority,
 } from "@/components/OperatorNavAuthorityProvider";
 
 function RankProbe() {
   const rank = useNavCallerAuthorityRank();
 
   return <span data-testid="nav-caller-rank">{rank}</span>;
+}
+
+function AuthorityLoadingProbe() {
+  const { isAuthorityLoading } = useOperatorNavAuthority();
+
+  return <span data-testid="authority-loading">{isAuthorityLoading ? "yes" : "no"}</span>;
 }
 
 describe("OperatorNavAuthorityProvider", () => {
@@ -57,15 +67,17 @@ describe("OperatorNavAuthorityProvider", () => {
     });
   });
 
-  it("useNavCallerAuthorityRank stays Read during JWT /me refetch after rank had reached Execute", async () => {
+  it("keeps Execute rank and does not re-enter loading during focus-driven /me refresh", async () => {
     render(
       <OperatorNavAuthorityProvider>
         <RankProbe />
+        <AuthorityLoadingProbe />
       </OperatorNavAuthorityProvider>,
     );
 
     await waitFor(() => {
       expect(screen.getByTestId("nav-caller-rank")).toHaveTextContent(String(AUTHORITY_RANK.ExecuteAuthority));
+      expect(screen.getByTestId("authority-loading")).toHaveTextContent("no");
     });
 
     loadCurrentPrincipalMock.mockImplementation(async () => {
@@ -79,8 +91,11 @@ describe("OperatorNavAuthorityProvider", () => {
     window.dispatchEvent(new Event("focus"));
 
     await waitFor(() => {
-      expect(screen.getByTestId("nav-caller-rank")).toHaveTextContent(String(AUTHORITY_RANK.ReadAuthority));
+      expect(fetchCount).toBeGreaterThanOrEqual(2);
     });
+
+    expect(screen.getByTestId("nav-caller-rank")).toHaveTextContent(String(AUTHORITY_RANK.ExecuteAuthority));
+    expect(screen.getByTestId("authority-loading")).toHaveTextContent("no");
   });
 
   it("resolves to Execute rank after /me returns Operator", async () => {
@@ -111,5 +126,27 @@ describe("OperatorNavAuthorityProvider", () => {
     await waitFor(() => {
       expect(screen.getByTestId("nav-caller-rank")).toHaveTextContent(String(AUTHORITY_RANK.ReadAuthority));
     });
+  });
+
+  it("uses conservative Read rank while the initial JWT /me is still in flight", async () => {
+    loadCurrentPrincipalMock.mockImplementation(
+      () =>
+        new Promise<CurrentPrincipal>(() => {
+          /* hang: initial /me never settles */
+        }),
+    );
+
+    render(
+      <OperatorNavAuthorityProvider>
+        <RankProbe />
+        <AuthorityLoadingProbe />
+      </OperatorNavAuthorityProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("authority-loading")).toHaveTextContent("yes");
+    });
+
+    expect(screen.getByTestId("nav-caller-rank")).toHaveTextContent(String(AUTHORITY_RANK.ReadAuthority));
   });
 });
