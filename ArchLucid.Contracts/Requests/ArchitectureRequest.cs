@@ -193,4 +193,14 @@ public sealed class ArchitectureRequest
         get;
         set;
     }
+
+    /// <summary>
+    ///     Optional per-review governed execution profile override (<c>Economy</c>, <c>Balanced</c>, <c>HighAssurance</c>);
+    ///     resolved server-side at run create (TB-870). Invalid values fail closed to the workspace default.
+    /// </summary>
+    public string? ModelExecutionProfileOverride
+    {
+        get;
+        set;
+    }
 }

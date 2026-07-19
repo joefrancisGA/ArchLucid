@@ -4,6 +4,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Requests;
 
 namespace ArchLucid.Application.Runs.Coordination;
@@ -64,7 +65,8 @@ public static class RunStarterTaskFactory
         string runId,
         EvidenceBundle evidenceBundle,
         ArchitectureRequest request,
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries,
+        AgentModelExecutionProfile executionProfile = AgentModelExecutionProfile.Balanced)
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(evidenceBundle);
@@ -72,9 +74,16 @@ public static class RunStarterTaskFactory
         ArgumentNullException.ThrowIfNull(ledgerEntries);
         return
         [
-            CreateTopologyTask(runId, evidenceBundle, request, ledgerEntries), CreateCostTask(runId, evidenceBundle, request),
-            CreateComplianceTask(runId, evidenceBundle, request), CreateCriticTask(runId, evidenceBundle, request)
+            CreateTopologyTask(runId, evidenceBundle, request, ledgerEntries, executionProfile),
+            CreateCostTask(runId, evidenceBundle, request, executionProfile),
+            CreateComplianceTask(runId, evidenceBundle, request, executionProfile),
+            CreateCriticTask(runId, evidenceBundle, request, executionProfile)
         ];
+    }
+
+    private static LlmModelTier ResolveModelTier(AgentType agentType, AgentModelExecutionProfile executionProfile)
+    {
+        return AgentModelExecutionProfileTierPolicy.ResolveTier(executionProfile, agentType);
     }
 
     private static List<string> BuildPolicyRefs(ArchitectureRequest request)
@@ -103,7 +112,8 @@ public static class RunStarterTaskFactory
         string runId,
         EvidenceBundle evidenceBundle,
         ArchitectureRequest request,
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries,
+        AgentModelExecutionProfile executionProfile)
     {
         return new AgentTask
         {
@@ -117,11 +127,15 @@ public static class RunStarterTaskFactory
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [AgentTypeKeys.Topology],
             AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest],
-            ModelTierOverride = LlmModelTier.Economy
+            ModelTierOverride = ResolveModelTier(AgentType.Topology, executionProfile)
         };
     }
 
-    private static AgentTask CreateCostTask(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
+    private static AgentTask CreateCostTask(
+        string runId,
+        EvidenceBundle evidenceBundle,
+        ArchitectureRequest request,
+        AgentModelExecutionProfile executionProfile)
     {
         return new AgentTask
         {
@@ -135,7 +149,7 @@ public static class RunStarterTaskFactory
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [AgentTypeKeys.Cost],
             AllowedSources = BuildCostAllowedSources(evidenceBundle),
-            ModelTierOverride = LlmModelTier.Economy
+            ModelTierOverride = ResolveModelTier(AgentType.Cost, executionProfile)
         };
     }
 
@@ -150,7 +164,11 @@ public static class RunStarterTaskFactory
         return sources;
     }
 
-    private static AgentTask CreateComplianceTask(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
+    private static AgentTask CreateComplianceTask(
+        string runId,
+        EvidenceBundle evidenceBundle,
+        ArchitectureRequest request,
+        AgentModelExecutionProfile executionProfile)
     {
         return new AgentTask
         {
@@ -164,11 +182,15 @@ public static class RunStarterTaskFactory
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [AgentTypeKeys.Compliance],
             AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest],
-            ModelTierOverride = LlmModelTier.Premium
+            ModelTierOverride = ResolveModelTier(AgentType.Compliance, executionProfile)
         };
     }
 
-    private static AgentTask CreateCriticTask(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
+    private static AgentTask CreateCriticTask(
+        string runId,
+        EvidenceBundle evidenceBundle,
+        ArchitectureRequest request,
+        AgentModelExecutionProfile executionProfile)
     {
         return new AgentTask
         {
@@ -182,7 +204,7 @@ public static class RunStarterTaskFactory
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [AgentTypeKeys.Critic],
             AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest],
-            ModelTierOverride = LlmModelTier.Premium
+            ModelTierOverride = ResolveModelTier(AgentType.Critic, executionProfile)
         };
     }
 

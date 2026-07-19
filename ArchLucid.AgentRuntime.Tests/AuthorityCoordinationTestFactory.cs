@@ -1,11 +1,15 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -38,6 +42,11 @@ internal static class AuthorityCoordinationTestFactory
                 new InfrastructureDeclarationsPayloadNormalizer([]),
                 TimeProvider.System),
             new RunStateTransitionService(),
+            new ModelExecutionProfileResolver(
+                new WorkspaceModelExecutionProfileService(
+                    scopeContextProvider,
+                    new InMemoryTenantSettingsRepository())),
+            Mock.Of<IAuditService>(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
     }
 }

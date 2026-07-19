@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
@@ -22,11 +23,15 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Route("v{version:apiVersion}/admin/settings")]
 public sealed class SettingsController(
     ITenantAgentOutputQualityGateModeService qualityGateModeService,
+    IWorkspaceModelExecutionProfileService workspaceModelExecutionProfileService,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService) : ControllerBase
 {
     private readonly ITenantAgentOutputQualityGateModeService _qualityGateModeService =
         qualityGateModeService ?? throw new ArgumentNullException(nameof(qualityGateModeService));
+
+    private readonly IWorkspaceModelExecutionProfileService _workspaceModelExecutionProfileService =
+        workspaceModelExecutionProfileService ?? throw new ArgumentNullException(nameof(workspaceModelExecutionProfileService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -113,11 +118,108 @@ public sealed class SettingsController(
         return Ok(Map(snapshot));
     }
 
+    /// <summary>Effective workspace default model execution profile for the active tenant.</summary>
+    [HttpGet("model-execution-profile")]
+    [ProducesResponseType(typeof(WorkspaceModelExecutionProfileResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<WorkspaceModelExecutionProfileResponse>> GetModelExecutionProfile(
+        CancellationToken cancellationToken)
+    {
+        WorkspaceModelExecutionProfileSnapshot snapshot =
+            await _workspaceModelExecutionProfileService.GetAsync(cancellationToken).ConfigureAwait(false);
+
+        return Ok(MapModelExecutionProfile(snapshot));
+    }
+
+    /// <summary>Persist tenant override for the workspace default model execution profile.</summary>
+    [HttpPut("model-execution-profile")]
+    [ProducesResponseType(typeof(WorkspaceModelExecutionProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PutModelExecutionProfile(
+        [FromBody] WorkspaceModelExecutionProfileUpdateRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!AgentModelExecutionProfileParser.TryParse(request.Profile, out AgentModelExecutionProfile profile))
+        {
+            return this.BadRequestProblem(
+                "Profile must be Economy, Balanced, or HighAssurance.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        WorkspaceModelExecutionProfileSnapshot before =
+            await _workspaceModelExecutionProfileService.GetAsync(cancellationToken).ConfigureAwait(false);
+
+        WorkspaceModelExecutionProfileSnapshot snapshot =
+            await _workspaceModelExecutionProfileService.SetAsync(profile, cancellationToken).ConfigureAwait(false);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actor = User.Identity?.Name ?? "admin";
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.WorkspaceModelExecutionProfileUpdated,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        beforeProfile = AgentModelExecutionProfileParser.Format(before.EffectiveProfile),
+                        afterProfile = AgentModelExecutionProfileParser.Format(snapshot.EffectiveProfile)
+                    })
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        return Ok(MapModelExecutionProfile(snapshot));
+    }
+
+    /// <summary>Remove tenant override so the workspace default profile applies.</summary>
+    [HttpDelete("model-execution-profile")]
+    [ProducesResponseType(typeof(WorkspaceModelExecutionProfileResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<WorkspaceModelExecutionProfileResponse>> DeleteModelExecutionProfile(
+        CancellationToken cancellationToken)
+    {
+        WorkspaceModelExecutionProfileSnapshot snapshot =
+            await _workspaceModelExecutionProfileService.ClearOverrideAsync(cancellationToken).ConfigureAwait(false);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actor = User.Identity?.Name ?? "admin";
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.WorkspaceModelExecutionProfileOverrideCleared,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new { effectiveProfile = AgentModelExecutionProfileParser.Format(snapshot.EffectiveProfile) })
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        return Ok(MapModelExecutionProfile(snapshot));
+    }
+
     private static TenantAgentOutputQualityGateModeResponse Map(TenantAgentOutputQualityGateModeSnapshot snapshot) =>
         new()
         {
             EffectiveMode = snapshot.EffectiveMode.ToString(),
             Source = snapshot.Source.ToString(),
             HostDefaultMode = snapshot.HostDefaultMode.ToString()
+        };
+
+    private static WorkspaceModelExecutionProfileResponse MapModelExecutionProfile(
+        WorkspaceModelExecutionProfileSnapshot snapshot) =>
+        new()
+        {
+            EffectiveProfile = AgentModelExecutionProfileParser.Format(snapshot.EffectiveProfile),
+            Source = snapshot.Source.ToString(),
+            WorkspaceDefaultProfile = AgentModelExecutionProfileParser.Format(AgentModelExecutionProfile.Balanced)
         };
 }
