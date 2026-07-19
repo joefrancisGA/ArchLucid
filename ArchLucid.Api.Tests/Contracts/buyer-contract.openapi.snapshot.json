@@ -465,6 +465,86 @@
         },
         "type": "object"
       },
+      "AdminDeploymentStatusLink": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminDeploymentStatusResponse": {
+        "properties": {
+          "activePlatformRevision": {
+            "type": "string"
+          },
+          "apiBuildId": {
+            "type": "string"
+          },
+          "componentAgreement": {
+            "type": "string"
+          },
+          "componentAgreementDetail": {
+            "type": "string"
+          },
+          "databaseMigrationVersion": {
+            "type": "string"
+          },
+          "deploymentTimeUtc": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          },
+          "frontendBuildId": {
+            "type": "string"
+          },
+          "generatedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "healthStatus": {
+            "type": "string"
+          },
+          "lastKnownGoodBuildId": {
+            "type": "string"
+          },
+          "latestSmokeTestResult": {
+            "type": "string"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/AdminDeploymentStatusLink"
+            },
+            "type": "array"
+          },
+          "overallStatus": {
+            "type": "string"
+          },
+          "overallStatusLabel": {
+            "type": "string"
+          },
+          "readinessStatus": {
+            "type": "string"
+          },
+          "releaseBuildId": {
+            "type": "string"
+          },
+          "sourceCommit": {
+            "type": "string"
+          },
+          "workerBuildId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AdminFleetLlmCogsDashboardResponse": {
         "properties": {
           "budgetWarningTenantCount": {
@@ -31906,6 +31986,9 @@
     },
     {
       "name": "AdminCustomerSuccess"
+    },
+    {
+      "name": "AdminDeploymentStatus"
     },
     {
       "name": "AdminFleetLlmCogs"
