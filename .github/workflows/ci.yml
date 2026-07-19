@@ -3318,15 +3318,20 @@ jobs:
           cache: false
 
   ui-unit:
-    name: "Operator UI: unit (Vitest)"
+    name: "Operator UI: unit (Vitest) — ${{ matrix.shard }}"
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [lib, components, surface]
     steps:
       - uses: actions/checkout@v5
 
       - name: Assert unique Next.js App Router paths (route-group collision guard)
+        if: matrix.shard == 'lib'
         run: python3 scripts/ci/assert_archlucid_ui_app_router_unique_paths.py
 
       - name: Setup Node.js
@@ -3339,16 +3344,18 @@ jobs:
       - name: Install & run unit tests
         working-directory: archlucid-ui
         env:
-          NODE_OPTIONS: --max-old-space-size=12288
+          NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npm ci
-          npm run test:vitest-single-worker
+          bash ../scripts/ci/run_ui_unit_vitest_shard.sh ${{ matrix.shard }}
 
       - name: Generate npm SBOM (CycloneDX)
+        if: matrix.shard == 'lib'
         working-directory: archlucid-ui
         run: npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
 
       - uses: actions/upload-artifact@v7
+        if: matrix.shard == 'lib'
         with:
           name: sbom-npm
           path: archlucid-ui/sbom-npm.json

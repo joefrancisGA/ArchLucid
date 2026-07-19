@@ -73,6 +73,8 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 [EvidenceBulkUploadOptions.MaxFilesKey] = "200",
                 ["Demo:Enabled"] = "false",
                 ["Demo:SeedOnStartup"] = "false",
+                // Registration integration tests assert POST /v1/register; InviteOnly returns 404.
+                ["Auth:PublicSignup:Mode"] = "PublicSelfService",
                 // Integration hosts boot many times per shard; disable OTLP/console export and API purge loops that can
                 // block WebApplicationFactory teardown on overloaded CI SQL (75 min blame-hang inactivity).
                 ["Observability:ConsoleExporter:Enabled"] = "false",

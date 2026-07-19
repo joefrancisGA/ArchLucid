@@ -1,0 +1,29 @@
+{
+  "shards": [
+    {
+      "id": "lib",
+      "label": "lib (1/3)",
+      "paths": ["src/lib"]
+    },
+    {
+      "id": "components",
+      "label": "components (2/3)",
+      "paths": ["src/components"]
+    },
+    {
+      "id": "surface",
+      "label": "surface (3/3)",
+      "paths": [
+        "src/app",
+        "src/accessibility",
+        "src/hooks",
+        "src/integration",
+        "src/marketing",
+        "src/review-workflow",
+        "src/data",
+        "scripts",
+        "src/next.config.*.test.ts"
+      ]
+    }
+  ]
+}
