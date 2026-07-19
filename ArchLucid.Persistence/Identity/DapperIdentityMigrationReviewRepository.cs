@@ -30,9 +30,10 @@ public sealed class DapperIdentityMigrationReviewRepository(ISqlConnectionFactor
 
         const string sql = """
                            MERGE dbo.IdentityMigrationReviewItems AS target
-                           USING (SELECT @LegacySourceType AS LegacySourceType, @LegacySourceId AS LegacySourceId) AS source
+                           USING (SELECT @LegacySourceType AS LegacySourceType, @LegacySourceId AS LegacySourceId, @ReasonCode AS ReasonCode) AS source
                                ON target.LegacySourceType = source.LegacySourceType
                               AND target.LegacySourceId = source.LegacySourceId
+                              AND target.ReasonCode = source.ReasonCode
                            WHEN MATCHED THEN
                                UPDATE SET TenantId = @TenantId,
                                           ReasonCode = @ReasonCode,

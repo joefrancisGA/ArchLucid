@@ -667,7 +667,7 @@
       "route_template": "v{version:apiVersion}/auth/bootstrap",
       "normalized_prefix": "/v1/auth/bootstrap",
       "commercial_tier": "none",
-      "class_policy": "Authorize",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },

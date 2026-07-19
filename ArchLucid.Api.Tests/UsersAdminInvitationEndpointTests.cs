@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Scoping;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -11,6 +12,10 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Api.Tests;
 
+/// <summary>
+///     Admin invitation HTTP tests. Raw <see cref="Microsoft.Data.SqlClient.SqlConnection" /> helpers require
+///     <see cref="GreenfieldSqlApiFactory" /> (Sql + DbUp); <see cref="ArchLucidApiFactory" /> keeps InMemory storage.
+/// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class UsersAdminInvitationEndpointTests
@@ -209,9 +214,10 @@ public sealed class UsersAdminInvitationEndpointTests
     [SkippableFact]
     public async Task GetInvitations_WithExpiredPendingInvite_ReturnsExpiredStatus()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         string email = $"expired-{Guid.NewGuid():N}@example.com";
 
@@ -234,9 +240,10 @@ public sealed class UsersAdminInvitationEndpointTests
     [SkippableFact]
     public async Task PostInvite_ToExistingDirectoryUser_Returns409()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         string email = $"existing-{Guid.NewGuid():N}@example.com";
 
@@ -252,9 +259,10 @@ public sealed class UsersAdminInvitationEndpointTests
     [SkippableFact]
     public async Task GetInvitations_FromOtherTenant_DoesNotIncludeForeignInvite()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         string email = $"tenant-a-{Guid.NewGuid():N}@example.com";
 
@@ -281,9 +289,10 @@ public sealed class UsersAdminInvitationEndpointTests
     [SkippableFact]
     public async Task DeleteInvitation_FromOtherTenant_Returns404()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await HealthReadyProbe.EnsureReadyAsync(client);
 
         string email = $"cross-revoke-{Guid.NewGuid():N}@example.com";
 

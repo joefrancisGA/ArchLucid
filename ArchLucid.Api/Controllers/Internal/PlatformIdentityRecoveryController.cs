@@ -78,7 +78,7 @@ public sealed class PlatformIdentityRecoveryController(
 
         if (!revoked)
         {
-            return NotFound();
+            return this.NotFoundProblem("Recovery grant was not found.", ProblemTypes.ResourceNotFound);
         }
 
         return NoContent();
@@ -92,7 +92,9 @@ public sealed class PlatformIdentityRecoveryController(
         PlatformAuthRecoveryGrantView? grant =
             await _recoveryService.GetGrantAsync(grantId, cancellationToken).ConfigureAwait(false);
 
-        return grant is null ? NotFound() : Ok(grant);
+        return grant is null
+            ? this.NotFoundProblem("Recovery grant was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(grant);
     }
 }
 

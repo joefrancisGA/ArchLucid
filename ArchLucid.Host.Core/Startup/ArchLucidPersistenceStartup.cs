@@ -1,6 +1,7 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation.Rules;
 using ArchLucid.Persistence.Connections;
@@ -212,7 +213,15 @@ public static class ArchLucidPersistenceStartup
                         ? topology.DevelopmentTenantConnectionString
                         : ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
 
-                if (app.Environment.IsDevelopment() && !string.IsNullOrWhiteSpace(catalogConnectionString))
+                // Hosted Container Apps often use ASPNETCORE_ENVIRONMENT=Production while still binding the
+                // well-known ApiKey demo scope (11111111-… / 22222222-… / 33333333-…). Seed that scope whenever
+                // the ApiKey tenant claim is DefaultTenant — not only when Environment.IsDevelopment().
+                bool apiKeyUsesDefaultTenant =
+                    Guid.TryParse(app.Configuration["Authentication:ApiKey:TenantId"], out Guid apiKeyTenantId)
+                    && apiKeyTenantId == ScopeIds.DefaultTenant;
+
+                if (!string.IsNullOrWhiteSpace(catalogConnectionString)
+                    && (app.Environment.IsDevelopment() || apiKeyUsesDefaultTenant))
                     DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);
 
                 TryValidateAuditImmutabilityIfRequired(app, archLucidOptions);

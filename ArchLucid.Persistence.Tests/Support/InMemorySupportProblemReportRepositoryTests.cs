@@ -1,4 +1,5 @@
 using ArchLucid.Core.Support;
+using ArchLucid.Persistence.Support;
 
 using FluentAssertions;
 

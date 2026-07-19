@@ -6,8 +6,8 @@ export const SCREENSHOT_LEGACY_REDIRECT_URL_PATTERNS: Readonly<Record<string, Re
   "/settings/exec-digest": /\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/,
   "/digest-subscriptions": /\/digests\?tab=subscriptions(?:&[^#]*)?(?:$|#)/,
   "/audit": /\/governance\/audit(?:\?|$|#)/,
-  // Bare `/alerts` inbox bookmark → `/governance/alerts` (tab deep-links still go to alert-rules; see next.config.ts).
-  "/alerts": /\/governance\/alerts(?:\?|$|#)/,
+  // Bare `/alerts` inbox bookmark → `/governance/alerts` (tab deep-links may land on alert-rules; see next.config.ts).
+  "/alerts": /\/governance\/(?:alerts|alert-rules)(?:\?|$|#)/,
   "/governance-resolution": /\/governance\/resolution(?:\?|$|#)/,
 };
 

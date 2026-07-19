@@ -14,7 +14,10 @@ vi.mock("@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics"
 }));
 
 import { HelpTroubleshootingGuideView } from "@/app/(operator)/help/_sections/HelpTroubleshootingGuideView";
-import { TROUBLESHOOTING_HELP_SUBTITLE } from "@/lib/troubleshooting-help-guide-content";
+import {
+  TROUBLESHOOTING_HELP_SUBTITLE,
+  TROUBLESHOOTING_PRIMARY_ACTIONS,
+} from "@/lib/troubleshooting-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 const BANNED_BUYER_COPY = [
@@ -49,10 +52,9 @@ describe("HelpTroubleshootingGuideView", () => {
     const startHere = screen.getByTestId("troubleshooting-start-here-card");
     expect(within(startHere).getByRole("link", { name: "Open System health" })).toHaveAttribute("href", "/health");
     expect(within(startHere).getByRole("button", { name: "Download support bundle" })).toBeInTheDocument();
-    expect(within(startHere).getByRole("link", { name: "Contact support" })).toHaveAttribute(
-      "href",
-      "mailto:support@archlucid.net",
-    );
+    expect(
+      within(startHere).getByRole("link", { name: TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.label }),
+    ).toHaveAttribute("href", TROUBLESHOOTING_PRIMARY_ACTIONS.contactSupport.href);
 
     expect(screen.getByTestId("troubleshooting-decision-tree")).toBeInTheDocument();
     expect(screen.getByText(/Can you sign in\?/i)).toBeInTheDocument();

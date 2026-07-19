@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:304 -->
+<!-- audit-core-const-count:349 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -257,6 +257,31 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | LLM prepaid wallet settings updated | `WalletController` (`PUT /v1/billing/wallet`) | `LlmWalletSettingsUpdated` | Tenant/Workspace/Project from ambient scope | `{ autoReplenishEnabled, monthlyCapUsd, hasPaymentMethod }` — Stripe customer/payment-method ids are **not** logged. |
 | LLM prompt truncated (context length guard) | `ContextLengthGuardAgentCompletionClient` | `LlmContextTruncated` | Tenant/Workspace/Project from ambient scope | `{ estimatedTokens, thresholdTokens, maxContextTokens }` — fire-and-forget when estimated prompt tokens exceed the configured threshold before completion. |
 | LLM evidence summarized (context length guard) | `ContextLengthGuardAgentCompletionClient` | `LlmEvidenceSummarized` | Tenant/Workspace/Project from ambient scope | `{ estimatedTokensBefore, estimatedTokensAfter, thresholdTokens, maxContextTokens }` — fire-and-forget when `AgentExecution:EvidenceSummarization:Enabled` and estimated prompt tokens exceed threshold before hard truncation. |
+| Platform identity — email OTP challenge | `EmailOtpAuthController` (`POST /v1/auth/email-otp/challenge`) | `EmailOtpCodeRequested` | Empty tenant scope before identity exists | `{ normalizedEmailHash }` — no OTP material |
+| Platform identity — email OTP verify | `EmailOtpAuthController` (`POST /v1/auth/email-otp/verify`) | `EmailOtpVerificationSucceeded`, `EmailOtpVerificationFailed` | Tenant/user when resolved | challenge outcome summary — no OTP material |
+| Platform identity — sign-in routing evaluate | `AuthSignInRoutingController` (`POST /v1/auth/routing/evaluate`) | `AuthSignInRoutingEvaluated` | Empty tenant scope before session | `{ normalizedEmailDomain, routingOutcome }` |
+| Platform identity — sign-in method email link challenge | `AuthenticationSignInMethodsController` (`POST /v1/auth/sign-in-methods/email-otp/challenge`) | `AuthenticationIdentityLinkChallengeRequested` | Authenticated user scope | link challenge metadata — no OTP material |
+| Platform identity — sign-in method email link verify | `AuthenticationSignInMethodsController` (`POST /v1/auth/sign-in-methods/email-otp/verify`) | `AuthenticationIdentityLinkConfirmed`, `AuthenticationIdentityLinkFailed` | Authenticated user scope | proposal / identity ids only |
+| Platform identity — confirm sign-in method link proposal | `AuthenticationSignInMethodsController` (`POST /v1/auth/sign-in-methods/proposals/{proposalId}/confirm`) | `AuthenticationIdentityLinkConfirmed` | Authenticated user scope | `{ proposalId, identityId }` |
+| Platform identity — cancel sign-in method link proposal | `AuthenticationSignInMethodsController` (`DELETE /v1/auth/sign-in-methods/proposals/{proposalId}`) | `AuthenticationIdentityLinkCancelled` | Authenticated user scope | `{ proposalId }` |
+| Platform identity — remove sign-in method | `AuthenticationSignInMethodsController` (`DELETE /v1/auth/sign-in-methods/{identityId}`) | `AuthenticationIdentityRemovalRequested` | Authenticated user scope | `{ identityId }` |
+| Post-auth bootstrap — create workspace | `PostAuthBootstrapController` (`POST /v1/auth/bootstrap/workspaces`) | `PostAuthWorkspaceCreated`, `PostAuthInitialOwnerAssigned` | Tenant + workspace when created | workspace id / slug summary |
+| Post-auth bootstrap — select workspace | `PostAuthBootstrapController` (`POST /v1/auth/bootstrap/workspaces/select`) | `PostAuthWorkspaceCreated` | Tenant + workspace | `{ workspaceId }` |
+| Post-auth bootstrap — accept invitation | `PostAuthBootstrapController` (`POST /v1/auth/bootstrap/invitations/accept`) | `AdminUserInvitationAccepted` | Tenant from invitation | `{ invitationId, tenantId }` |
+| Post-auth bootstrap — access request | `PostAuthBootstrapController` (`POST /v1/auth/bootstrap/access-request`) | `PostAuthAccessRequestInitiated` | Authenticated user scope | `{ organizationName }` |
+| Tenant auth domain — propose | `TenantAuthDomainAdminController` (`POST /v1/admin/identity/domains`) | `AuthDomainProposed` | Tenant from ambient scope | `{ normalizedDomain }` |
+| Tenant auth domain — start verification | `TenantAuthDomainAdminController` (`POST /v1/admin/identity/domains/{normalizedDomain}/verification/start`) | `AuthDomainVerificationStarted` | Tenant from ambient scope | `{ normalizedDomain }` |
+| Tenant auth domain — check verification | `TenantAuthDomainAdminController` (`POST /v1/admin/identity/domains/{normalizedDomain}/verification/check`) | `AuthDomainVerificationChecked` | Tenant from ambient scope | `{ normalizedDomain, status }` |
+| Tenant auth domain — test routing | `TenantAuthDomainAdminController` (`POST /v1/admin/identity/domains/{normalizedDomain}/routing/test`) | `AuthSignInRoutingEvaluated` | Tenant from ambient scope | dry-run routing summary |
+| Tenant auth domain — mark routing tested | `TenantAuthDomainAdminController` (`POST /v1/admin/identity/domains/{normalizedDomain}/routing/mark-tested`) | `AuthSignInRoutingEvaluated` | Tenant from ambient scope | `{ normalizedDomain }` |
+| Tenant auth domain — set enforcement mode | `TenantAuthDomainAdminController` (`PUT /v1/admin/identity/domains/{normalizedDomain}/enforcement`) | `AuthDomainEnforcementModeChanged` | Tenant from ambient scope | `{ normalizedDomain, mode }` |
+| Tenant auth domain — enable enforcement | `TenantAuthDomainAdminController` (`POST /v1/admin/identity/domains/{normalizedDomain}/enforcement/enable`) | `AuthDomainEnforcementEnabled` | Tenant from ambient scope | `{ normalizedDomain }` |
+| Tenant auth domain — add recovery admin | `TenantAuthDomainAdminController` (`POST /v1/admin/identity/domains/{normalizedDomain}/recovery-admins`) | `AuthDomainRecoveryAdminAdded` | Tenant from ambient scope | recovery admin email hash only |
+| Tenant auth domain — remove recovery admin | `TenantAuthDomainAdminController` (`DELETE /v1/admin/identity/domains/{normalizedDomain}/recovery-admins/{normalizedRecoveryAdminEmail}`) | `AuthDomainRecoveryAdminRemoved`, `AuthDomainLastRecoveryPathRemoved` | Tenant from ambient scope | `{ normalizedDomain }` |
+| Tenant auth domain — remove domain | `TenantAuthDomainAdminController` (`DELETE /v1/admin/identity/domains/{normalizedDomain}`) | `AuthDomainRemoved` | Tenant from ambient scope | `{ normalizedDomain }` |
+| Admin user invitation revoke | `UsersAdminController` (`DELETE /v1/admin/users/invitations/{invitationId}`) | `AdminUserInvitationRevoked` | Tenant from ambient scope | `{ invitationId }` |
+| Platform tenant auth recovery grant | `PlatformIdentityRecoveryController` (`POST /v1/internal/identity/recovery/grants`) | `PlatformTenantAuthRecoveryGranted` | Target tenant | `{ grantId, normalizedDomain, expiresUtc }` |
+| Platform tenant auth recovery revoke | `PlatformIdentityRecoveryController` (`DELETE /v1/internal/identity/recovery/grants/{grantId}`) | `PlatformTenantAuthRecoveryRevoked` | Target tenant when known | `{ grantId }` |
 | SCIM bearer token minted (Enterprise) | `ScimTokensAdminController` (`POST /v1/admin/scim/tokens`) | `ScimTokenIssued` | Tenant from ambient scope | `{ tokenId, publicLookupKey }` — plaintext token returned once in response body only. |
 | SCIM bearer token revoked | `ScimTokensAdminController` (`DELETE /v1/admin/scim/tokens/{id}`) | `ScimTokenRevoked` | Tenant from ambient scope | `{ tokenId }` |
 | SCIM user provisioned | `ScimUserService` (`POST /scim/v2/Users`) | `ScimUserProvisioned` | Tenant from `IScopeContextProvider` | SCIM user id / externalId summary (JSON) |
@@ -392,6 +417,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArtifactDownloaded` | `ArtifactDownloaded` | `ArtifactExportController` |
 | `BundleDownloaded` | `BundleDownloaded` | `ArtifactExportController` |
 | `SupportBundleDownloaded` | `SupportBundleDownloaded` | `SupportBundleController` (`POST /v1/admin/support-bundle`) |
+| `SupportProblemReportSubmitted` | `SupportProblemReportSubmitted` | `SupportProblemReportsController` (`POST /v1/support/problem-reports`) |
 | `SyntheticOperatorDemoPackMarker` | `SyntheticOperatorDemoPack.Marker` | `SyntheticOperatorDemoPackWriter` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `SyntheticOperatorDemoPackInvoked` | `SyntheticOperatorDemoPack.Invoked` | `SyntheticOperatorDemoPackController` (`POST /v1/diagnostics/synthetic-operator-demo-pack`) |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
@@ -545,6 +571,50 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AgentOutputLlmFaithfulnessWarned` | `AgentOutput.LlmFaithfulnessWarned` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness warn floor) |
 | `AgentOutputLlmFaithfulnessRejected` | `AgentOutput.LlmFaithfulnessRejected` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness reject floor) |
 | `AdminApiKeyRotationMaterialIssued` | `Admin.ApiKeyRotationMaterialIssued` | `AdminApiKeySettingsController` (`POST …/admin/settings/api-keys/rotate`) |
+| `AdminUserInvitationAccepted` | `Admin.UserInvitationAccepted` | `PostAuthBootstrapService`, `EmailOtpAuthService`, `PostAuthBootstrapController` |
+| `AdminUserInvitationCreated` | `Admin.UserInvitationCreated` | `UsersAdminController` (`POST /v1/admin/users/invite`) |
+| `AdminUserInvitationRevoked` | `Admin.UserInvitationRevoked` | `UsersAdminController` |
+| `AuthDomainEnforcementEnabled` | `Identity.AuthDomainEnforcementEnabled` | `TenantAuthDomainAdminController` |
+| `AuthDomainEnforcementModeChanged` | `Identity.AuthDomainEnforcementModeChanged` | `TenantAuthDomainAdminController` |
+| `AuthDomainLastRecoveryPathRemoved` | `Identity.AuthDomainLastRecoveryPathRemoved` | `TenantAuthDomainAdminController` |
+| `AuthDomainProposed` | `Identity.AuthDomainProposed` | `TenantAuthDomainAdminController` |
+| `AuthDomainRecoveryAdminAdded` | `Identity.AuthDomainRecoveryAdminAdded` | `TenantAuthDomainAdminController` |
+| `AuthDomainRecoveryAdminAuthenticationVerified` | `Identity.AuthDomainRecoveryAdminAuthenticationVerified` | `EmailOtpAuthService` (recovery-admin OTP verification) |
+| `AuthDomainRecoveryAdminRemoved` | `Identity.AuthDomainRecoveryAdminRemoved` | `TenantAuthDomainAdminController` |
+| `AuthDomainRecoveryBypassUsed` | `Identity.AuthDomainRecoveryBypassUsed` | `EmailOtpAuthService` |
+| `AuthDomainRemoved` | `Identity.AuthDomainRemoved` | `TenantAuthDomainAdminController` |
+| `AuthDomainVerificationChecked` | `Identity.AuthDomainVerificationChecked` | `TenantAuthDomainAdminController` |
+| `AuthDomainVerificationStarted` | `Identity.AuthDomainVerificationStarted` | `TenantAuthDomainAdminController` |
+| `AuthSignInRoutingEvaluated` | `Identity.AuthSignInRoutingEvaluated` | `AuthSignInRoutingController`, `TenantAuthDomainAdminController` |
+| `AuthenticationIdentityAttached` | `Identity.AuthenticationIdentityAttached` | `PlatformIdentityService` |
+| `AuthenticationIdentityCreated` | `Identity.AuthenticationIdentityCreated` | `PlatformIdentityService` |
+| `AuthenticationIdentityDisabled` | `Identity.AuthenticationIdentityDisabled` | `PlatformIdentityService` |
+| `AuthenticationIdentityLinkCancelled` | `Identity.AuthenticationIdentityLinkCancelled` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `AuthenticationIdentityLinkChallengeRequested` | `Identity.AuthenticationIdentityLinkChallengeRequested` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `AuthenticationIdentityLinkConfirmed` | `Identity.AuthenticationIdentityLinkConfirmed` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `AuthenticationIdentityLinkFailed` | `Identity.AuthenticationIdentityLinkFailed` | `AuthenticationIdentityLinkingService` |
+| `AuthenticationIdentityLinkProposed` | `Identity.AuthenticationIdentityLinkProposed` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `AuthenticationIdentityRemovalRequested` | `Identity.AuthenticationIdentityRemovalRequested` | `AuthenticationIdentityLinkingService`, `AuthenticationSignInMethodsController` |
+| `EmailOtpCodeRequested` | `Identity.EmailOtpCodeRequested` | `EmailOtpAuthService`, `EmailOtpAuthController` |
+| `EmailOtpCodeSent` | `Identity.EmailOtpCodeSent` | `EmailOtpAuthService` |
+| `EmailOtpRateLimitTriggered` | `Identity.EmailOtpRateLimitTriggered` | `EmailOtpAuthService` |
+| `EmailOtpSsoRedirectRequired` | `Identity.EmailOtpSsoRedirectRequired` | `EmailOtpAuthService` |
+| `EmailOtpSuspiciousBehaviorDetected` | `Identity.EmailOtpSuspiciousBehaviorDetected` | `EmailOtpAuthService` |
+| `EmailOtpVerificationFailed` | `Identity.EmailOtpVerificationFailed` | `EmailOtpAuthService` |
+| `EmailOtpVerificationSucceeded` | `Identity.EmailOtpVerificationSucceeded` | `EmailOtpAuthService` |
+| `PlatformTenantAuthRecoveryGranted` | `Identity.PlatformTenantAuthRecoveryGranted` | `PlatformAuthRecoveryService` |
+| `PlatformTenantAuthRecoveryRevoked` | `Identity.PlatformTenantAuthRecoveryRevoked` | `PlatformAuthRecoveryService` |
+| `PlatformTenantAuthRecoveryTenantNotified` | `Identity.PlatformTenantAuthRecoveryTenantNotified` | `PlatformRecoveryNotificationService` |
+| `PlatformTenantAuthRecoveryUnauthorizedAttempt` | `Identity.PlatformTenantAuthRecoveryUnauthorizedAttempt` | `PlatformIdentityRecoveryController` (unauthorized grant attempt) |
+| `PlatformUserCreated` | `Identity.PlatformUserCreated` | `PlatformIdentityService` |
+| `PostAuthAccessRequestInitiated` | `Identity.PostAuthAccessRequestInitiated` | `PostAuthBootstrapController` |
+| `PostAuthExistingOrganizationDetected` | `Identity.PostAuthExistingOrganizationDetected` | `PostAuthBootstrapService` |
+| `PostAuthInitialOwnerAssigned` | `Identity.PostAuthInitialOwnerAssigned` | `PostAuthBootstrapService` |
+| `PostAuthWorkspaceCreated` | `Identity.PostAuthWorkspaceCreated` | `PostAuthBootstrapService`, `PostAuthBootstrapController` |
+| `PostAuthWorkspaceCreationDenied` | `Identity.PostAuthWorkspaceCreationDenied` | `PostAuthBootstrapService` |
+| `UserAccountPrimaryEmailChangeRequested` | `Identity.UserAccountPrimaryEmailChangeRequested` | `UserAccountRecoveryService` |
+| `UserAccountPrimaryEmailChanged` | `Identity.UserAccountPrimaryEmailChanged` | `UserAccountRecoveryService` |
+| `UserInvitationValidated` | `Identity.UserInvitationValidated` | `UserInvitationPublicController` |
 | `ApiKeyRotated` | `Security.ApiKeyRotated` | `AdminApiKeySettingsController` (`POST …/admin/apikeys/{keyId}/rotate`) |
 | `TenantReviewBoardCoverLogoUploaded` | `Tenant.ReviewBoardCoverLogoUploaded` | `AdminController` (`POST /v1/admin/tenant/logo`) |
 | `TenantTeamsIncomingWebhookConnectionUpserted` | `TenantTeamsIncomingWebhookConnectionUpserted` | `TeamsIncomingWebhookConnectionsController` |

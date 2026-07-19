@@ -35,7 +35,10 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
 
             SqlConnectionString = builder.ConnectionString;
             SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
-            _sqlCatalogEnvironment = new IntegrationTestSqlCatalogEnvironment(SqlConnectionString);
+            _sqlCatalogEnvironment = new IntegrationTestSqlCatalogEnvironment(
+                SqlConnectionString,
+                pinSystemCatalogToSameDatabase: true,
+                pinSingleCatalogTopology: true);
         }
         catch (Exception ex)
         {
@@ -75,6 +78,10 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
     {
         settings["ArchLucid:StorageProvider"] = "Sql";
         settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
+        // Pin control-plane + tenant-plane to the same ephemeral catalog so /v1/register duplicate gates
+        // cannot split inserts and lookups across different SQL catalogs when env/config layers SqlTopology.
+        settings["ArchLucid:SqlTopology:Mode"] = "SingleCatalog";
+        settings["ConnectionStrings:ArchLucidSystem"] = SqlConnectionString;
         settings["ArchLucidAuth:Mode"] = "DevelopmentBypass";
         settings["Authentication:ApiKey:DevelopmentBypassAll"] = "true";
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";

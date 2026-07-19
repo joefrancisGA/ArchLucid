@@ -8,12 +8,18 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tenancy;
 
+/// <summary>
+///     Tenant-catalog key/value settings (<c>dbo.TenantSettings</c>, migration 173). Must use
+///     <see cref="ISqlConnectionFactory"/> (scoped tenant routing), not
+///     <see cref="IBackgroundWorkerSqlConnectionFactory"/> (primary/system catalog) — otherwise
+///     <c>SystemWithPerTenantCatalogs</c> hosts return SQL 208 / “Database Query Failed”.
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL integration; covered via API integration tests.")]
 public sealed class SqlTenantSettingsRepository(
-    IBackgroundWorkerSqlConnectionFactory connectionFactory,
+    ISqlConnectionFactory connectionFactory,
     SqlResilientOperationExecutor sqlOperations) : ITenantSettingsRepository
 {
-    private readonly IBackgroundWorkerSqlConnectionFactory _connectionFactory =
+    private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     private readonly SqlResilientOperationExecutor _sqlOperations =

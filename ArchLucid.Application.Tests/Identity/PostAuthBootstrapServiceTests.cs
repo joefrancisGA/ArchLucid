@@ -16,6 +16,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Identity;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class PostAuthBootstrapServiceTests
 {
     [Fact]

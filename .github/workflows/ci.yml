@@ -3339,7 +3339,7 @@ jobs:
       - name: Install & run unit tests
         working-directory: archlucid-ui
         env:
-          NODE_OPTIONS: --max-old-space-size=8192
+          NODE_OPTIONS: --max-old-space-size=12288
         run: |
           npm ci
           npm run test:vitest-single-worker

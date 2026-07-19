@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
@@ -14,6 +15,7 @@ namespace ArchLucid.Api.Controllers.Auth;
 /// <summary>Anonymous invitation validation before sign-in (minimal disclosure).</summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/auth/invitations")]
 public sealed class UserInvitationPublicController(

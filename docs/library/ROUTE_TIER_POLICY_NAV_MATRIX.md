@@ -138,7 +138,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Auth/AuthSignInRoutingController.cs` | `/v1/auth/routing` | none | AllowAnonymous |  |  |
 | `Auth/AuthenticationSignInMethodsController.cs` | `/v1/auth/sign-in-methods` | none | AuthenticatedUserOnly |  |  |
 | `Auth/EmailOtpAuthController.cs` | `/v1/auth/email-otp` | none | AllowAnonymous |  |  |
-| `Auth/PostAuthBootstrapController.cs` | `/v1/auth/bootstrap` | none | Authorize |  |  |
+| `Auth/PostAuthBootstrapController.cs` | `/v1/auth/bootstrap` | none | AuthenticatedUserOnly |  |  |
 | `Auth/TrialLocalIdentityAuthController.cs` | `/v1/auth/trial/local` | none | AllowAnonymous |  | trial_local_identity_auth |
 | `Auth/UserInvitationPublicController.cs` | `/v1/auth/invitations` | none | AllowAnonymous |  |  |
 | `Authority/AnalysisReportsController.cs` | `/v1/architecture` | standard | ExecuteAuthority |  |  |
