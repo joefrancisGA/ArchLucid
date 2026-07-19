@@ -82,7 +82,7 @@ const LINE_SAFELIST_PATTERNS = [
   /manifestComparison/i,
   /goldenManifest/i,
   /GoldenManifest/i,
-  /\/manifests\//i,
+  /\/(?:manifests|signed-records)\//i,
   /\/manifest["'`]/i,
   /manifest-summary/i,
   /manifest-detail/i,

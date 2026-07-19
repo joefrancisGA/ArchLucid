@@ -6,7 +6,7 @@ export function normalizeTelemetryRoute(pathname: string): string {
   let normalized = pathOnly.replace(UUID_PATTERN, "[id]");
 
   normalized = normalized.replace(/\/reviews\/[^/]+/i, "/reviews/[runId]");
-  normalized = normalized.replace(/\/manifests\/[^/]+/i, "/manifests/[manifestId]");
+  normalized = normalized.replace(/\/(?:manifests|signed-records)\/[^/]+/i, "/signed-records/[manifestId]");
   normalized = normalized.replace(/\/signed-records\/[^/]+/i, "/signed-records/[recordId]");
 
   if (normalized.length === 0) {

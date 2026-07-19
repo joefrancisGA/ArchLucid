@@ -196,14 +196,11 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      // Canonical signed-records aliases reuse existing manifests App Router tree (TB-399).
-      { source: "/signed-records", destination: "/manifests" },
-      { source: "/signed-records/:path*", destination: "/manifests/:path*" },
-      // Friendly demo URL while reusing manifest detail implementation (`SHOWCASE_STATIC_DEMO_*`).
+      // Friendly demo URL while reusing signed-record detail implementation (`SHOWCASE_STATIC_DEMO_*`).
       // Must precede the generic run-scoped signed-record rewrite below.
       {
         source: "/reviews/claims-intake-modernization/signed-record",
-        destination: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+        destination: "/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },

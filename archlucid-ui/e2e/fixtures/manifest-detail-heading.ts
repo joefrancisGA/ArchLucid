@@ -1,5 +1,5 @@
 /**
- * Matches manifest detail {@code <h1>} variants from {@code manifests/[manifestId]/page.tsx}:
+ * Matches manifest detail {@code <h1>} variants from {@code signed-records/[manifestId]/page.tsx}:
  * operator shell, buyer-polished default, buyer showcase curated headline, and legacy showcase wording.
  */
 export const MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN =
