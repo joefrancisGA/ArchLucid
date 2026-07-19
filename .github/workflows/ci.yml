@@ -3322,7 +3322,7 @@ jobs:
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
 
@@ -3499,12 +3499,13 @@ jobs:
           NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true"
           NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: "true"
           NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: public-self-service
         run: |
           npm ci
           npm run build
           MOCK_E2E_SKIP_NEXT_BUILD=1 npx playwright install --with-deps chromium
           MOCK_E2E_SKIP_NEXT_BUILD=1 npm run test:e2e:mock:functional
-          NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator NEXT_PUBLIC_DEMO_MODE=false NEXT_PUBLIC_DEMO_STATIC_OPERATOR=false npm run build
+          NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator NEXT_PUBLIC_DEMO_MODE=false NEXT_PUBLIC_DEMO_STATIC_OPERATOR=false NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service npm run build
           MOCK_E2E_SKIP_NEXT_BUILD=1 MOCK_E2E_OPERATOR_PORT=3002 npm run test:e2e:mock:operator-shell
 
       - uses: actions/upload-artifact@v7

@@ -6,14 +6,13 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
   architect: [
     "1 user · 1 workspace",
     "Monthly AI credit allowance (hard cap)",
-    "Committed architecture packages (create or review)",
+    "Architecture creation and reviews",
     "Evidence graph, evidence Q&A, and review findings",
     "Basic exports and sample workspace",
   ],
   team: [
     "5 users · 1 workspace included",
     "Larger monthly AI allowance than Architect",
-    "Included architecture packages each month",
     "Basic governance for review findings",
     "Signed review records and comparison reviews",
     "Self-service start — no procurement call required",
@@ -22,7 +21,6 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
     "15 users · multiple workspaces",
     "Policy packs, audit exports, and review comparison",
     "Scorecards and guided trial onboarding",
-    "Higher included architecture package allowance",
     "Expanded AI allowance with clear overage options",
     "Governed architecture review practice packaging",
   ],

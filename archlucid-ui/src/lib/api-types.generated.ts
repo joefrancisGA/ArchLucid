@@ -78682,12 +78682,14 @@ export interface components {
             code?: string;
         };
         EmailOtpChallengeRequest: {
+            botChallengeToken?: null | string;
             email?: null | string;
             invitationToken?: null | string;
         };
         EmailOtpChallengeResponse: {
             /** Format: uuid */
             challengeId?: null | string;
+            emailDeliverySucceeded?: null | boolean;
             message?: string;
             ssoMessage?: null | string;
             ssoRequired?: boolean;

@@ -91,7 +91,7 @@ export function formatIncludedArchitecturePackagesPerMonth(pkg: PricingPackage):
     return null;
   }
 
-  return `${pkg.includedReviewsPerMonth} architecture packages / month`;
+  return `${pkg.includedReviewsPerMonth} architecture reviews / month`;
 }
 
 /** Primary plan summary lines for in-app billing cards — mirrors public pricing, not legacy SKUs. */
