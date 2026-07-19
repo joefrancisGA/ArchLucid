@@ -117,3 +117,14 @@ flowchart TB
 
 - [OPERATOR_SHELL_TUTORIAL.md](./OPERATOR_SHELL_TUTORIAL.md) — Next.js / shell orientation.
 - Repo onboarding: [ONBOARDING_HAPPY_PATH.md](../../docs/onboarding/ONBOARDING_HAPPY_PATH.md) — getting oriented in the wider codebase.
+
+## Local development only
+
+These shortcuts are active only when `NODE_ENV=development` (for example `npm run dev`). They are not registered in production bundles.
+
+| Combo | Action |
+|-------|--------|
+| **Alt+Shift+D** | Cycle shell density override (`buyer-polished` → `full-operator` → build default) and reload |
+| **Ctrl+Shift+H** | Hide or show the home-page **Dev testing quick switch** panel (persists in `localStorage`) |
+
+The quick-switch panel also exposes shell-density and dev-role override buttons on the workspace overview (`/`). **Internal Operations** appears in the sidebar when the full-operator shell is active (`NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator` in `archlucid-ui/.env.development`, or choose **Full operator** in the quick-switch panel).

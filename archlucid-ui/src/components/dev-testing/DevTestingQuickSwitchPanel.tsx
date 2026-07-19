@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { DevTestingQuickJumpLinks } from "@/components/dev-testing/DevTestingQuickJumpLinks";
 import { useDevTestingQuickJumpSnapshot } from "@/components/dev-testing/use-dev-testing-quick-jump-snapshot";
@@ -12,7 +12,10 @@ import {
   isBuyerPolishedOperatorShellEnv,
 } from "@/lib/demo-ui-env";
 import {
-  cycleDevShellExperienceOverride,
+  DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT,
+  useDevQuickSwitchPanelVisibility,
+} from "@/lib/dev-quick-switch-panel-visibility";
+import {
   isDevTestingOverridesEnabled,
   persistDevRoleOverride,
   persistDevShellExperienceOverride,
@@ -83,6 +86,7 @@ type DevTestingQuickSwitchPanelProps = {
 export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProps): React.JSX.Element | null {
   const { recentRunIds: liveRecentRunIds } = useOperatorHomeWorkspaceActivity();
   const runIds = liveRecentRunIds.length > 0 ? liveRecentRunIds : (props.runIds ?? []);
+  const { hidden: panelHidden } = useDevQuickSwitchPanelVisibility();
   const [mounted, setMounted] = useState(false);
   const [shellOverride, setShellOverride] = useState<DevShellExperienceOverride | null>(null);
   const [roleOverride, setRoleOverride] = useState<DevRoleOverride | null>(null);
@@ -93,43 +97,6 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
     setRoleOverride(readDevRoleOverrideFromDocument());
     setMounted(true);
   }, []);
-
-  const handleCycleShell = useCallback(() => {
-    cycleDevShellExperienceOverride();
-    reloadAfterDevTestingOverrideChange();
-  }, []);
-
-  useEffect(() => {
-    if (!isDevTestingOverridesEnabled()) {
-      return;
-    }
-
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (!event.altKey || !event.shiftKey || event.key.toLowerCase() !== "d") {
-        return;
-      }
-
-      const target = event.target;
-
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        (target instanceof HTMLElement && target.isContentEditable)
-      ) {
-        return;
-      }
-
-      event.preventDefault();
-      handleCycleShell();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [handleCycleShell]);
 
   const effectiveShellLabel = useMemo(() => {
     if (shellOverride === "full-operator") {
@@ -144,6 +111,10 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
   }, [shellOverride]);
 
   if (!isDevTestingOverridesEnabled() || !mounted) {
+    return null;
+  }
+
+  if (panelHidden) {
     return null;
   }
 
@@ -173,7 +144,11 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
             <kbd className="rounded border border-neutral-300 bg-white px-1 py-0.5 font-mono text-[11px] dark:border-neutral-600 dark:bg-neutral-800">
               Alt+Shift+D
             </kbd>{" "}
-            to cycle shell modes.
+            to cycle shell modes or{" "}
+            <kbd className="rounded border border-neutral-300 bg-white px-1 py-0.5 font-mono text-[11px] dark:border-neutral-600 dark:bg-neutral-800">
+              {DEV_QUICK_SWITCH_PANEL_TOGGLE_SHORTCUT}
+            </kbd>{" "}
+            to hide this panel.
           </p>
         </div>
 

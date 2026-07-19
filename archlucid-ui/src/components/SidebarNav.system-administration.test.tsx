@@ -10,8 +10,10 @@ import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progress
 
 import { SidebarNav } from "./SidebarNav";
 
-const { mockPathname } = vi.hoisted(() => ({
+const { mockPathname, buyerPolishedShellMock, fullOperatorShellMock } = vi.hoisted(() => ({
   mockPathname: vi.fn((): string => "/"),
+  buyerPolishedShellMock: { value: false },
+  fullOperatorShellMock: { value: true },
 }));
 
 vi.mock("@/hooks/use-governance-mode", async () => {
@@ -53,7 +55,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
   return {
     ...actual,
-    isBuyerPolishedOperatorShellEnv: () => false,
+    isBuyerPolishedOperatorShellEnv: () => buyerPolishedShellMock.value,
+    isOperatorExperienceFullShellEnv: () => fullOperatorShellMock.value,
   };
 });
 
@@ -84,6 +87,8 @@ vi.mock("next/link", () => ({
 describe("SidebarNav — Internal Operations section", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/");
+    buyerPolishedShellMock.value = false;
+    fullOperatorShellMock.value = true;
     localStorage.clear();
     writeOperateNavUnlockPhase(2);
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
@@ -107,6 +112,28 @@ describe("SidebarNav — Internal Operations section", () => {
 
   it("does not render Internal Operations when the feature flag is disabled", async () => {
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "false");
+
+    render(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
+    });
+  });
+
+  it("renders Internal Operations in buyer-polished shell when full-operator experience is enabled", async () => {
+    buyerPolishedShellMock.value = true;
+    fullOperatorShellMock.value = true;
+
+    render(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toBeInTheDocument();
+    });
+  });
+
+  it("hides Internal Operations in buyer-polished shell without full-operator experience", async () => {
+    buyerPolishedShellMock.value = true;
+    fullOperatorShellMock.value = false;
 
     render(<SidebarNav />);
 
