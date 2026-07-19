@@ -81,7 +81,7 @@ class TestCdDeploymentLineage(unittest.TestCase):
             root = Path(tmp)
             workflow_dir = root / ".github" / "workflows"
             workflow_dir.mkdir(parents=True)
-            stub = "\n".join(
+            shared = "\n".join(
                 [
                     "Require immutable digests before deploy",
                     "Pre-deploy registry manifest check",
@@ -89,13 +89,16 @@ class TestCdDeploymentLineage(unittest.TestCase):
                     "Deployment lineage summary",
                     "API_IMAGE_DIGEST",
                     "needs.build-push-images.outputs",
+                    "Capture last-known-good release identity",
+                    "cd_plan_rollback.py",
                     'API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api@${API_IMAGE_DIGEST}"',
                     "exit 0",
                 ]
             )
-            (workflow_dir / "cd.yml").write_text(stub, encoding="utf-8")
+            cd_stub = shared + "\nrollback_build_id\nRoll back to last-known-good after failed smoke\n"
+            (workflow_dir / "cd.yml").write_text(cd_stub, encoding="utf-8")
             (workflow_dir / "cd-staging-on-merge.yml").write_text(
-                stub.replace("needs.build-push-images.outputs", "steps.build_push_api.outputs.digest"),
+                shared.replace("needs.build-push-images.outputs", "steps.build_push_api.outputs.digest"),
                 encoding="utf-8",
             )
 

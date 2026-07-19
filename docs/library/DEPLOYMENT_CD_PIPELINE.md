@@ -177,14 +177,14 @@ Configure per **environment** (`dev` / `staging` / `production`) or organization
 | `NUGET_API_KEY` | NuGet job | Production manual CD only. |
 | `CD_NOTIFY_WEBHOOK_URL` | Notify | Optional Slack-style webhook. |
 
-**Repository variables:** `IMAGE_TAG` (override default tag), `SMOKE_SYNTHETIC_PATH` (recommended **`/api/auth/me`** for authenticated warm-path smoke; default effective **`/version`** when unset), `CD_ROLLBACK_ON_SMOKE_FAILURE` (`true` to auto-deactivate revisions on validation failure), `CD_POST_DEPLOY_MAX_ATTEMPTS` (recommended repo var **6**; `cd.yml` bash fallback **6** when unset; local `cd-post-deploy-verify.sh` defaults **1** unless env is exported), `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` (recommended **10**; same `cd.yml` fallback), `CD_CANARY_ENABLED` (`true` for staging/production cold-start canary), `CD_CANARY_INITIAL_PERCENT` (recommended **10**), `CD_CANARY_BAKE_MINUTES` (recommended **3**).
+**Repository variables:** `IMAGE_TAG` (override default tag), `SMOKE_SYNTHETIC_PATH` (recommended **`/api/auth/me`** for authenticated warm-path smoke; default effective **`/version`** when unset), `CD_ROLLBACK_ON_SMOKE_FAILURE` (`true` to auto-restore last-known-good revisions on validation failure — required for staging/production), `CD_POST_DEPLOY_MAX_ATTEMPTS` (recommended repo var **6**; `cd.yml` bash fallback **6** when unset; local `cd-post-deploy-verify.sh` defaults **1** unless env is exported), `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` (recommended **10**; same `cd.yml` fallback), `CD_CANARY_ENABLED` (`true` for staging/production cold-start canary), `CD_CANARY_INITIAL_PERCENT` (recommended **10**), `CD_CANARY_BAKE_MINUTES` (recommended **3**).
 
 **Manual dispatch:** `run_terraform_apply` defaults to **false** so routine releases only refresh images and Container App revisions; set **true** when infra tfvars (e.g. image pins) must move with the same run.
 
 ## Operational considerations
 
 - **Environment protection**: Use `required_reviewers` on `staging` and `production` so `terraform-apply` and image deploy jobs respect your change-management process. **`dev`** is usually ungated for engineer velocity; add reviewers if your org requires it.
-- **Failure behavior**: If `terraform-plan` fails, downstream deploy jobs do not run. If **post-deploy validation** fails, set `CD_ROLLBACK_ON_SMOKE_FAILURE` to let the workflow deactivate bad **API and worker** revisions automatically; read the job log for HTTP codes, readiness JSON, and body excerpts.
+- **Failure behavior**: If `terraform-plan` fails, downstream deploy jobs do not run. If **post-deploy validation** fails and `CD_ROLLBACK_ON_SMOKE_FAILURE=true`, the workflow restores **last-known-good** API/worker/UI revisions (schema gate may block); the run still fails. Read the job log / `cd-rollback-*` artifact for BUILD_ID, schema, and verify results.
 - **Terraform vs CLI**: **CD owns runtime Container App image tags.** `cd.yml` rolls API, worker, and UI via `az containerapp update`; `infra/terraform-container-apps` seeds warm-start pins in tfvars but each `azurerm_container_app` uses `lifecycle { ignore_changes = [template[0].container[0].image] }` (TB-657) so a later `terraform apply` does **not** revert CD rollouts. Update tfvars when you want Terraform to change the *seed* pin for net-new environments; routine releases do not require a matching apply.
 - **Migrations**: Schema still travels with the **API** process (DbUp / bootstrap on startup). Deploy API before relying on worker-only features that need new schema, or run a one-off migration job per your runbook.
 
@@ -240,7 +240,9 @@ All of the following:
 5. Last-known-good artifact is usable (API revision + digest/BUILD_ID).
 6. Schema gate passes: no **destructive** forward migrations between LKG BUILD_ID and failed BUILD_ID (DROP TABLE/COLUMN, destructive ALTER, `sp_rename`, etc.).
 
-Then CD restores ingress traffic to LKG revisions (API + worker + UI when configured), deactivates the failed revisions, re-checks `/health/live`, `/health/ready`, and `/version` BUILD_ID, and uploads `cd-rollback-*` artifacts. **The workflow remains failed** because smoke failed — rollback success does not greenwash the deploy.
+Then CD restores ingress traffic to LKG revisions (API + worker + UI when configured), deactivates the failed revisions, re-checks `/health/live`, `/health/ready`, API `/version` BUILD_ID, and (when UI is configured) UI public-shell BUILD_ID meta, and uploads `cd-rollback-*` artifacts. **The workflow remains failed** because smoke failed — rollback success does not greenwash the deploy.
+
+**Canary:** Smoke failure during canary bake follows this same auto-rollback path (no separate canary-only rollback).
 
 ### When automatic rollback is skipped or blocked (human intervention)
 
@@ -250,6 +252,7 @@ Then CD restores ingress traffic to LKG revisions (API + worker + UI when config
 | Smoke URL missing | Skip (refuses blind rollback) |
 | No distinct new revision / missing LKG | Skip |
 | Destructive migrations after LKG | **Block** with schema error — do **not** auto-roll app; follow migration restore guidance |
+| Schema gate cannot resolve LKG/failed git SHAs (shallow clone) | **Block** fail-closed — deepen fetch / human intervention; gate is never silently skipped |
 | Post-rollback BUILD_ID/health verify fails | Rollback job fails; operator investigates |
 
 ### Manual rollback
@@ -268,6 +271,6 @@ Keep **`CD_ROLLBACK_ON_SMOKE_FAILURE=true`** on staging/production Environments 
 ## Related workflows
 
 - **CI** (`.github/workflows/ci.yml`): validation, tests, Docker smoke caches.
-- **CD staging on merge** (`.github/workflows/cd-staging-on-merge.yml`): optional automatic staging deploy after green CI on `main`/`master` when `AUTO_DEPLOY_STAGING_MERGE=true`; same Container App + worker update pattern as manual CD.
+- **CD staging on merge** (`.github/workflows/cd-staging-on-merge.yml`): optional automatic staging deploy after green CI on `main`/`master` when `AUTO_DEPLOY_STAGING_MERGE=true`; same digest-pinned Container App update + LKG capture + schema-gated auto-rollback as `cd.yml` (manual `rollback_build_id` remains on `cd.yml` only).
 
 **When something breaks after deploy:** [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) (health failures, deploy-only failures, version identification, manual rollback).

@@ -16,6 +16,7 @@ WORKFLOW_RELATIVE_PATHS = (
     ".github/workflows/cd-staging-on-merge.yml",
 )
 
+# Shared by cd.yml and cd-staging-on-merge.yml
 LINEAGE_MARKERS = (
     "Require immutable digests before deploy",
     "Pre-deploy registry manifest check",
@@ -23,6 +24,14 @@ LINEAGE_MARKERS = (
     "Deployment lineage summary",
     "API_IMAGE_DIGEST",
     "needs.build-push-images.outputs",
+    "Capture last-known-good release identity",
+    "cd_plan_rollback.py",
+)
+
+# Manual rollback path exists only on workflow_dispatch CD
+CD_YML_ONLY_MARKERS = (
+    "rollback_build_id",
+    "Roll back to last-known-good after failed smoke",
 )
 
 
@@ -162,6 +171,11 @@ def assert_workflows_declare_deployment_lineage(repo: Path | None = None) -> lis
                     continue
 
                 errors.append(f"{relative}: missing lineage marker {marker!r}")
+
+        if relative.endswith("cd.yml"):
+            for marker in CD_YML_ONLY_MARKERS:
+                if marker not in text:
+                    errors.append(f"{relative}: missing CD-only marker {marker!r}")
 
         if "sha256:" not in text and "API_IMAGE_DIGEST" in text:
             # digests come from action outputs; workflows should still require sha256 shape in scripts
