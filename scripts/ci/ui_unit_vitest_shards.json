@@ -2,17 +2,17 @@
   "shards": [
     {
       "id": "lib",
-      "label": "lib (1/7)",
+      "label": "lib (1/8)",
       "paths": ["src/lib"]
     },
     {
       "id": "components",
-      "label": "components (2/7)",
+      "label": "components (2/8)",
       "paths": ["src/components"]
     },
     {
       "id": "app-operator-a",
-      "label": "app-operator-a (3/7)",
+      "label": "app-operator-a (3/8)",
       "paths": [
         "src/app/(operator)/reviews",
         "src/app/(operator)/governance",
@@ -25,7 +25,7 @@
     },
     {
       "id": "app-operator-b",
-      "label": "app-operator-b (4/7)",
+      "label": "app-operator-b (4/8)",
       "paths": [
         "src/app/(operator)/ask",
         "src/app/(operator)/demo",
@@ -44,18 +44,14 @@
         "src/app/(operator)/search",
         "src/app/(operator)/value-report",
         "src/app/(operator)/why-archlucid",
-        "src/app/(operator)/_sections",
-        "src/app/(operator)/authority-shaped-layout-regression.test.tsx",
         "src/app/(operator)/onboarding-redirects.test.ts",
-        "src/app/(operator)/operate-authority-ui-shaping.test.tsx",
-        "src/app/(operator)/operator-client-pages-render-gate.test.tsx",
         "src/app/(operator)/page.test.tsx",
         "src/app/(operator)/search-ask-pages-render.test.tsx"
       ]
     },
     {
       "id": "app-operator-c",
-      "label": "app-operator-c (5/7)",
+      "label": "app-operator-c (5/8)",
       "paths": [
         "src/app/(operator)/compare",
         "src/app/(operator)/dashboard",
@@ -63,13 +59,23 @@
       ]
     },
     {
+      "id": "app-operator-d",
+      "label": "app-operator-d (6/8)",
+      "paths": [
+        "src/app/(operator)/_sections",
+        "src/app/(operator)/authority-shaped-layout-regression.test.tsx",
+        "src/app/(operator)/operate-authority-ui-shaping.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate.test.tsx"
+      ]
+    },
+    {
       "id": "app-marketing",
-      "label": "app-marketing (6/7)",
+      "label": "app-marketing (7/8)",
       "paths": ["src/app/(marketing)"]
     },
     {
       "id": "surface",
-      "label": "surface (7/7)",
+      "label": "surface (8/8)",
       "paths": [
         "src/accessibility",
         "src/hooks",
