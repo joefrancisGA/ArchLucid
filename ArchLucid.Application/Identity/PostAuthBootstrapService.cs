@@ -48,6 +48,7 @@ public sealed class PostAuthBootstrapService(
     ITrialTenantBootstrapService trialBootstrap,
     IEmailOtpSignInDomainPolicyService domainPolicy,
     ISelfServiceTrialAbusePolicy trialAbusePolicy,
+    IWorkspacePackagingLimitEvaluator workspacePackagingLimitEvaluator,
     IAuditService auditService,
     TimeProvider timeProvider) : IPostAuthBootstrapService
 {
@@ -67,6 +68,9 @@ public sealed class PostAuthBootstrapService(
 
     private readonly ISelfServiceTrialAbusePolicy _trialAbusePolicy =
         trialAbusePolicy ?? throw new ArgumentNullException(nameof(trialAbusePolicy));
+
+    private readonly IWorkspacePackagingLimitEvaluator _workspacePackagingLimitEvaluator =
+        workspacePackagingLimitEvaluator ?? throw new ArgumentNullException(nameof(workspacePackagingLimitEvaluator));
 
     private readonly IUserInvitationRepository _invitations =
         invitations ?? throw new ArgumentNullException(nameof(invitations));
@@ -266,9 +270,20 @@ public sealed class PostAuthBootstrapService(
         IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
             await ListActiveMembershipsAsync(platformUserId, cancellationToken).ConfigureAwait(false);
 
-        if (activeMemberships.Count > 0)
+        WorkspacePackagingLimitEvaluation packagingLimit =
+            _workspacePackagingLimitEvaluator.EvaluateSelfServeOrganizationCreate(activeMemberships.Count);
+
+        if (!packagingLimit.Allowed)
         {
-            return DenyCreate("You already belong to a workspace. Select it to continue.");
+            await AuditDeniedAsync(
+                    platformUserId,
+                    displayEmail,
+                    packagingLimit.DenyReasonCode ?? "workspace_packaging_limit",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            return DenyCreate(
+                packagingLimit.CustomerMessage ?? WorkspacePackagingLimitEvaluator.SelfServeLimitCustomerMessage);
         }
 
         if (await HasActiveOwnedTrialAsync(platformUserId, cancellationToken).ConfigureAwait(false))
