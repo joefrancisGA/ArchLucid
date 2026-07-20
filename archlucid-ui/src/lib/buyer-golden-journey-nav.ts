@@ -98,14 +98,17 @@ export function resolveBuyerGoldenJourneyNav(
   let stepIdx: number | null = null;
 
   const signedRecordFriendly = /^\/reviews\/([^/]+)\/signed-record\b/.exec(path);
+  // Live SQL golden manifests use seeded GUIDs under `/signed-records/{id}` (not only the static showcase id).
+  const signedRecordCanonical = /^\/signed-records\/([^/]+)$/.exec(path);
 
-  if (signedRecordFriendly !== null && isBuyerGoldenSpineRunId(signedRecordFriendly[1])) {
+  if (signedRecordFriendly !== null && isBuyerGoldenSpineRunId(signedRecordFriendly[1] ?? "")) {
     stepIdx = 1;
   } else if (
     path === manifestBase
     || path.startsWith(`${manifestBase}/`)
     || path === manifestRecord
     || path === manifestArchitecturePath
+    || (signedRecordCanonical !== null && (signedRecordCanonical[1] ?? "").trim().length > 0)
   ) {
     stepIdx = 1;
   } else if (path === execBase) {
