@@ -135,7 +135,7 @@ if (-not [string]::IsNullOrWhiteSpace($ProofPacketDirectory) -and (Test-Path -Li
 }
 
 Write-Host "[Claim-language lint (buyer-facing docs sample)]" -ForegroundColor Yellow
-python scripts/ci/check_proof_summary_promise_language.py docs/go-to-market/WHAT_NOT_TO_PROMISE.md docs/go-to-market/TRUST_CENTER.md 2>&1 | Out-Null
+python scripts/ci/check_proof_summary_promise_language.py docs/go-to-market/WHAT_NOT_TO_PROMISE.md docs/go-to-market/trust-center.md 2>&1 | Out-Null
 $code = $LASTEXITCODE
 if ($code -eq 0) { Add-Row "Claim-language lint (sample buyer docs)" "Passed" "exit 0" $code }
 else { Add-Row "Claim-language lint (sample buyer docs)" "Failed" "exit $code" $code }

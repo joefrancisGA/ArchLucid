@@ -1,4 +1,4 @@
-> **ARCHIVED 2026-04-22 — Superseded by** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](../../../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). Historical six-prompt pack preserved for traceability.
+﻿> **ARCHIVED 2026-04-22 — Superseded by** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](../../../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). Historical six-prompt pack preserved for traceability.
 
 > **Scope:** Paste-ready Cursor prompts for the **six best improvements** identified in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) § 8.
 
@@ -225,7 +225,7 @@ You are preparing the external-evidence stack for trust-tier procurement. Read t
 - docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md
 - docs/security/COMPLIANCE_MATRIX.md
 - docs/go-to-market/SOC2_ROADMAP.md
-- docs/go-to-market/TRUST_CENTER.md
+- docs/go-to-market/trust-center.md
 - SECURITY.md
 - docs/security/RLS_RISK_ACCEPTANCE.md
 
@@ -250,7 +250,7 @@ OWNER gate.
      "Met" row.
    - Add a CI guard scripts/ci/check_soc2_gap_evidence_links.py that asserts every
      "Met" row links to a real file in the repo (no broken evidence pointers).
-   - Update docs/go-to-market/TRUST_CENTER.md with a one-paragraph status block: "SOC 2
+   - Update docs/go-to-market/trust-center.md with a one-paragraph status block: "SOC 2
      Type I readiness gap report on file; available under NDA via security@archlucid.dev."
 
 (C) PGP key scaffolding for security@archlucid.dev (without owning the private key).
@@ -388,7 +388,7 @@ Part A -- WCAG 2.2 AA enforcement:
       contact (security@archlucid.dev or a new accessibility@ alias).
    4. Add a `?` keyboard-shortcut help overlay in the operator shell that lists
       every keyboard shortcut and links to the conformance statement.
-   5. Update docs/go-to-market/TRUST_CENTER.md with a one-paragraph
+   5. Update docs/go-to-market/trust-center.md with a one-paragraph
       "Accessibility -- WCAG 2.2 AA with documented exceptions" block.
 
 Part B -- Golden LLM cohort drift detector:
@@ -829,7 +829,7 @@ template grounded in real shipped controls. Read first:
 - docs/go-to-market/SUBPROCESSORS.md
 - docs/go-to-market/DPA_TEMPLATE.md
 - docs/go-to-market/TENANT_ISOLATION.md
-- docs/go-to-market/TRUST_CENTER.md
+- docs/go-to-market/trust-center.md
 - docs/go-to-market/SLA_SUMMARY.md
 - docs/go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md
 - docs/AUDIT_COVERAGE_MATRIX.md
@@ -873,7 +873,7 @@ OWNER GATES -- stop and surface to docs/PENDING_QUESTIONS.md if any:
   - Liability-cap default (typical: 12 months of fees).
 
 Tests: CI guard unit tests; markdown-link checker over the new bundle.
-Update docs/go-to-market/TRUST_CENTER.md to link the bundle (NDA-gated by default).
+Update docs/go-to-market/trust-center.md to link the bundle (NDA-gated by default).
 Update docs/CHANGELOG.md and the cursor-prompts execution log.
 ```
 

@@ -1,4 +1,4 @@
-> **Scope:** Facilitator drill for controlled-pilot procurement conversations — practice responses before live buyer calls. Not a substitute for legal review.
+﻿> **Scope:** Facilitator drill for controlled-pilot procurement conversations — practice responses before live buyer calls. Not a substitute for legal review.
 
 # Controlled pilot procurement objection drill
 
@@ -14,7 +14,7 @@ Rehearse the **top procurement objections** for V1 without over-claiming deferre
 
 1. Open the playbook and this drill side by side.
 2. Assign roles: **Responder** (you) and **Procurement reviewer** (colleague or scripted self-review).
-3. Keep [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) and [`TRUST_CENTER.md`](TRUST_CENTER.md) open for evidence links only — do not invent new claims.
+3. Keep [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) and [`trust-center.md`](trust-center.md) open for evidence links only — do not invent new claims.
 
 ## Drill rounds (minimum four)
 

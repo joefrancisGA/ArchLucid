@@ -1,4 +1,4 @@
-> Archived 2026-04-23 — superseded by [docs/START_HERE.md](../START_HERE.md) and the current assessment pair under ``docs/``. Kept for audit trail.
+﻿> Archived 2026-04-23 — superseded by [docs/START_HERE.md](../START_HERE.md) and the current assessment pair under ``docs/``. Kept for audit trail.
 
 > **Scope:** Cursor prompts — Weighted quality assessment Improvements 3–6 - full detail, tables, and links in the sections below.
 
@@ -9,7 +9,7 @@
 
 **Last developed:** 2026-04-17.
 
-Canonical assessment: [`QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`](archive/quality/2026-04-23-doc-depth-reorg/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md) § *Six Best Improvements*.
+Canonical assessment: [`QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md) § *Six Best Improvements*.
 
 Improvement 3 detail lives in [`CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md`](archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md) (rename, single `.sln`, legacy sunset, archive superseded quality docs). This file adds **Improvements 4–6**, a **verification bundle** for Improvement 3, and **forward-looking** prompts where the original batch is already largely implemented.
 

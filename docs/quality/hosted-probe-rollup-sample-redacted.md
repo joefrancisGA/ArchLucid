@@ -25,7 +25,7 @@
 - **Not** production SLA evidence — staging scheduled curl probes only.
 - **Not** multi-region or active/active guarantee.
 - **Not** user-traffic SLO — health endpoints only.
-- Pair buyer questions with [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) and [`HOSTED_AVAILABILITY_ROLLUP.md`](../runbooks/HOSTED_AVAILABILITY_ROLLUP.md).
+- Pair buyer questions with [`trust-center.md`](../go-to-market/trust-center.md) and [`HOSTED_AVAILABILITY_ROLLUP.md`](../runbooks/HOSTED_AVAILABILITY_ROLLUP.md).
 
 ---
 

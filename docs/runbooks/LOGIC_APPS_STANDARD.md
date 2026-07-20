@@ -14,7 +14,7 @@ Operate optional **Logic App (Standard)** hosts that consume ArchLucid **Service
 
 ## When this applies
 
-- You enabled any combination of **`enable_logic_apps`**, **`enable_governance_approval_logic_app`**, **`enable_marketplace_fulfillment_logic_app`**, **`enable_trial_lifecycle_logic_app`**, **`enable_incident_chatops_logic_app`**, and **`enable_promotion_customer_notify_logic_app`** in `infra/terraform-logicapps/`, and deployed workflows for governance, trial email, Marketplace fulfillment, incident ChatOps, or prod promotion customer notices (see `docs/CURSOR_PROMPTS_LOGIC_APPS.md`).
+- You enabled any combination of **`enable_logic_apps`**, **`enable_governance_approval_logic_app`**, **`enable_marketplace_fulfillment_logic_app`**, **`enable_trial_lifecycle_logic_app`**, **`enable_incident_chatops_logic_app`**, and **`enable_promotion_customer_notify_logic_app`** in `infra/terraform-logicapps/`, and deployed workflows for governance, trial email, Marketplace fulfillment, incident ChatOps, or prod promotion customer notices (see `docs/runbooks/LOGIC_APPS_STANDARD.md`).
 - **Governance approval routing:** enable **`enable_logic_app_governance_approval_subscription`** in `infra/terraform-servicebus/` so a dedicated topic subscription receives only `com.archlucid.governance.approval.submitted` (user property **`event_type`**, matching `AzureServiceBusIntegrationEventPublisher`). After deploying the governance Logic App, set **`governance_logic_app_managed_identity_principal_id`** in Service Bus Terraform to the output **`governance_logic_app_principal_id`** from `terraform-logicapps`, then re-apply Service Bus for **Data Receiver** on the namespace.
 - **Marketplace fulfillment hand-off:** enable **`enable_logic_app_marketplace_fulfillment_subscription`** in `infra/terraform-servicebus/` and set **`marketplace_fulfillment_logic_app_managed_identity_principal_id`** to **`marketplace_fulfillment_logic_app_principal_id`** from `terraform-logicapps` after deploying **`enable_marketplace_fulfillment_logic_app`** (same two-step apply as governance). Trigger on output **`logic_app_marketplace_fulfillment_subscription_name`**.
 - **Trial lifecycle email:** **`enable_logic_app_trial_lifecycle_email_subscription`** + **`trial_lifecycle_logic_app_managed_identity_principal_id`** ← **`trial_lifecycle_logic_app_principal_id`** after **`enable_trial_lifecycle_logic_app`**. Trigger on **`logic_app_trial_lifecycle_email_subscription_name`**.
@@ -44,5 +44,5 @@ Operate optional **Logic App (Standard)** hosts that consume ArchLucid **Service
 
 - `infra/terraform-logicapps/README.md`
 - `docs/architecture/adrs/0019-logic-apps-standard-edge-orchestration.md`
-- `docs/CURSOR_PROMPTS_LOGIC_APPS.md`
+- `docs/runbooks/LOGIC_APPS_STANDARD.md`
 - `docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md` — fired/resolved payloads, Service Bus user properties, callback routes

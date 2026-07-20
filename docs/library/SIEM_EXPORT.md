@@ -207,7 +207,7 @@ ArchLucidAudit_CL
 | Doc | Use |
 |-----|-----|
 | [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) | Full integration catalog |
-| [../go-to-market/TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) | Trust index |
+| [../go-to-market/trust-center.md](../go-to-market/trust-center.md) | Trust index |
 | [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) | Typed audit events, coverage detail |
 | [SECURITY.md](SECURITY.md) | Audit, PII, retention |
 | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) | CloudEvents on digests/alerts + **integration** event SIEM patterns |

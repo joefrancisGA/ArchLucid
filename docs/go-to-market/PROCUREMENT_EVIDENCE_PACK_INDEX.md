@@ -1,4 +1,4 @@
-> **Scope:** Index of reviewer-facing procurement and assurance artifacts — navigation only; not legal advice.
+﻿> **Scope:** Index of reviewer-facing procurement and assurance artifacts — navigation only; not legal advice.
 >
 > **Canonical buyer evidence table:** **[`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md)** — CI-validated columns (evidence type, freshness, paths, buyer-safe claims). **Fast skim:** [`PROCUREMENT_FAST_LANE.md`](PROCUREMENT_FAST_LANE.md) (subset of the same source paths).
 
@@ -17,7 +17,7 @@
 | Security overview | [docs/library/SECURITY.md](../library/SECURITY.md) | Threat surface, scanning, auth modes |
 | STRIDE summary | [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | Boundary threat model |
 | Multi-tenant RLS | [docs/security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) | SQL `SESSION_CONTEXT` posture |
-| Trust Center (public) | [TRUST_CENTER.md](TRUST_CENTER.md) | Buyer-facing index |
+| Trust Center (public) | [trust-center.md](trust-center.md) | Buyer-facing index |
 | CAIQ-lite (owner self-assessment draft) | [docs/security/CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md) | Pre-audit CAIQ-aligned responses |
 | SIG Core questionnaire (draft fields) | [docs/security/SIG_CORE_2026.md](../security/SIG_CORE_2026.md) | Procurement questionnaire supplement |
 | SOC 2 roadmap (timing placeholder) | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | **Not an auditor opinion** |

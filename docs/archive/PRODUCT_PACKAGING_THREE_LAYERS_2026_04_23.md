@@ -1,4 +1,4 @@
-> **SUPERSEDED (2026-04-23).** Snapshot of the **three-layer** buyer narrative and **four UI shaping surfaces** model. **Canonical doc:** [`docs/library/PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md) (**Pilot** + **Operate**; **Visibility** + **Capability**). Do not update this archive except to fix broken anchors.
+﻿> **SUPERSEDED (2026-04-23).** Snapshot of the **three-layer** buyer narrative and **four UI shaping surfaces** model. **Canonical doc:** [`docs/library/PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md) (**Pilot** + **Operate**; **Visibility** + **Capability**). Do not update this archive except to fix broken anchors.
 
 > **Scope:** ArchLucid — Product Packaging Reference - full detail, tables, and links in the sections below.
 
@@ -257,7 +257,7 @@ Available immediately but requiring extended/advanced sidebar disclosure and typ
 | Alert tuning (threshold and noise) | `PUT /v1/alert-tuning` | Alert tuning (`/alert-tuning`) | — |
 | Entra ID / JWT bearer RBAC | `ArchLucidAuth:Mode=JwtBearer` | OIDC sign-in + role claims | IdP app registration |
 | Private endpoint Terraform modules | `infra/modules/front-door` | — | Azure networking |
-| DPA template, subprocessors, SOC 2 roadmap | — | — | [go-to-market/TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) |
+| DPA template, subprocessors, SOC 2 roadmap | — | — | [go-to-market/trust-center.md](../go-to-market/trust-center.md) |
 | Customer-managed key (CMK) for SQL TDE | `infra/modules/sql-tde-cmk` | — | Azure Key Vault |
 | Trial enforcement (seat and run limits) | `GET /v1/tenant/trial-status` | Trial banner in operator shell; sponsor banner may read **`firstCommitUtc`** for “Day N since first commit” | `ArchLucid:Trial:*` |
 | Billing checkout | `POST /v1/tenant/billing/checkout` | Trial banner — Convert to paid | Stripe bridge |

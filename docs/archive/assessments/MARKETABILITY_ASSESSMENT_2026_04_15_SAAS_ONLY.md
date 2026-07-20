@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid Marketability Assessment — SaaS-Only Posture (2026-04-15, post-Imp 1–6) - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid Marketability Assessment — SaaS-Only Posture (2026-04-15, post-Imp 1–6) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -11,7 +11,7 @@
 
 **Prior SaaS-only assessments:**
 - Post-Trust Center (Imp 1 only): `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md` (37/100, 37.6%)
-- Pre-Trust Center: `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` (34/100, 34.8%)
+- Pre-Trust Center: `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` (34/100, 34.8%)
 
 **Companion assessment (mixed / optional self-host framing):** `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` (58/100, 42.3%).
 
@@ -167,7 +167,7 @@ The product's **technical quality** (68.5%) and **documentation completeness** n
 | Doc | Use |
 |-----|-----|
 | `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` | Primary assessment (mixed model, 42.3%) |
-| `docs/go-to-market/TRUST_CENTER.md` | Trust index (Imp 1) |
+| `docs/go-to-market/trust-center.md` | Trust index (Imp 1) |
 | `docs/go-to-market/PRICING_PHILOSOPHY.md` | Pricing strategy (Imp 3) |
 | `docs/go-to-market/INTEGRATION_CATALOG.md` | Integration catalog (Imp 5) |
 | `docs/go-to-market/IDEAL_CUSTOMER_PROFILE.md` | ICP (Imp 6) |
@@ -175,4 +175,4 @@ The product's **technical quality** (68.5%) and **documentation completeness** n
 | `docs/CURSOR_PROMPTS_SAAS_IMPROVEMENTS_2_TO_6.md` | Prompts used for Imp 2–6 |
 | `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | Technical quality (68.5%) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md` | Prior (post-Imp 1, 37.6%) |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` | Original (34.8%) |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` | Original (34.8%) |

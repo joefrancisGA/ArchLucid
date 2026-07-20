@@ -1,4 +1,4 @@
-# ArchLucid Assessment — Weighted Readiness 69.82%
+﻿# ArchLucid Assessment — Weighted Readiness 69.82%
 
 **Date:** 2026-05-10  
 **Method:** Independent first-principles assessment from repository materials  
@@ -977,7 +977,7 @@ WHAT TO DO:
 FILES TO MODIFY:
 - `docs/security/VPAT_2_5_WCAG_2_1_AA.md`
 - `docs/security/VPAT_EVIDENCE_MAP.md` (if gaps are found)
-- `docs/go-to-market/TRUST_CENTER.md` (ensure link exists)
+- `docs/go-to-market/trust-center.md` (ensure link exists)
 
 CONSTRAINTS:
 - Do NOT claim "Supports" for any criterion without CI evidence

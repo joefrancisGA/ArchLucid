@@ -78,7 +78,7 @@ export default function ComplianceJourneyPage() {
         , or open the{" "}
         <Link
           className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-          href={resolveInAppDocHref("docs/go-to-market/TRUST_CENTER.md")}
+          href={resolveInAppDocHref("docs/go-to-market/trust-center.md")}
         >
           Trust Center pack
         </Link>{" "}

@@ -1,4 +1,4 @@
-> **Scope:** Buyer-facing explanation of ArchLucid AI output limits — not legal advice or formal verification.
+﻿> **Scope:** Buyer-facing explanation of ArchLucid AI output limits — not legal advice or formal verification.
 
 # AI output is decision support
 
@@ -41,7 +41,7 @@ These labels describe **product evidence posture**, not legal, compliance, or au
 
 - Formal verification of AI recommendations
 - Guaranteed correctness in all enterprise contexts
-- SOC 2 CPA attestation or completed third-party penetration testing (see [`TRUST_CENTER.md`](TRUST_CENTER.md))
+- SOC 2 CPA attestation or completed third-party penetration testing (see [`trust-center.md`](trust-center.md))
 
 ## Deeper technical evidence
 

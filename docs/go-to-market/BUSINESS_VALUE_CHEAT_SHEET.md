@@ -1,4 +1,4 @@
-> **Scope:** Sales and marketing — quick **technical feature → business outcome → economic impact** mapping for conversations and decks; illustrative impact language only, **not** contractual ROI, audit-hour guarantees, pricing, or security attestations — verify specifics with **`PRODUCT_DATASHEET.md`** and procurement docs before buyer commitments.
+﻿> **Scope:** Sales and marketing — quick **technical feature → business outcome → economic impact** mapping for conversations and decks; illustrative impact language only, **not** contractual ROI, audit-hour guarantees, pricing, or security attestations — verify specifics with **`PRODUCT_DATASHEET.md`** and procurement docs before buyer commitments.
 
 # Business value cheat sheet
 
@@ -25,4 +25,4 @@ Use this table to translate ArchLucid capabilities into buyer language. **Econom
 ## How to use in the field
 
 - Pair a row’s **Technical Feature** with a live demo path (**`DEMO_QUICKSTART.md`**) when possible.
-- For security and isolation claims in RFPs, point to **`TENANT_ISOLATION.md`**, **`TRUST_CENTER.md`**, and **`PROCUREMENT_PACK_INDEX.md`** rather than relying on this sheet alone.
+- For security and isolation claims in RFPs, point to **`TENANT_ISOLATION.md`**, **`trust-center.md`**, and **`PROCUREMENT_PACK_INDEX.md`** rather than relying on this sheet alone.

@@ -38,7 +38,7 @@ Formula: `sum(score * weight) / sum(weight) = 9837 / 11900 = 82.66%`. Weighted i
 
 **Batch A AI readiness slice applied (2026-05-28):** completed improvement 1 with consolidated PASS/WARN/HOLD `ai-readiness-gate` artifacts in the first-pilot proof pipeline, Pester disposition tests, and evidence-bundle documentation.
 
-Deferred Scope Uncertainty: none. The current deferred-scope material was located in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`.
+Deferred Scope Uncertainty: none. The current deferred-scope material was located in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`.
 
 ## 2. Executive Summary
 
@@ -1112,7 +1112,7 @@ Cursor prompt:
 Create or generate a security reviewer one-pager from existing trust materials.
 
 Scope:
-- Use `docs/go-to-market/TRUST_CENTER.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/SOC2_ROADMAP.md`, and security docs as sources.
+- Use `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/SOC2_ROADMAP.md`, and security docs as sources.
 - Summarize current controls, current evidence, explicitly deferred assurances, and what ArchLucid will never ask customers to grant.
 - Add it to procurement pack generation or link it from procurement pack docs.
 

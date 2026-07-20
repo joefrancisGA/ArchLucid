@@ -1,4 +1,4 @@
-# ArchLucid Assessment – Weighted Readiness 78.07%
+﻿# ArchLucid Assessment – Weighted Readiness 78.07%
 
 ## Executive Summary
 
@@ -878,7 +878,7 @@ Scope:
   - docs/go-to-market/PROCUREMENT_PACK_INDEX.md
   - docs/go-to-market/PROCUREMENT_FAST_LANE.md
   - docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md
-  - docs/go-to-market/TRUST_CENTER.md
+  - docs/go-to-market/trust-center.md
   - docs/go-to-market/DPA_TEMPLATE.md
   - docs/go-to-market/ORDER_FORM_TEMPLATE.md
 - Add a dry-run validator invoked by procurement pack build or as a separate script.

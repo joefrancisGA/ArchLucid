@@ -1,4 +1,4 @@
-> **Scope:** Independent first-principles weighted readiness assessment for the current ArchLucid V1 solution using the user-provided quality model; not a roadmap commitment, sales forecast, or substitute for customer diligence.
+﻿> **Scope:** Independent first-principles weighted readiness assessment for the current ArchLucid V1 solution using the user-provided quality model; not a roadmap commitment, sales forecast, or substitute for customer diligence.
 
 # ArchLucid Assessment – Weighted Readiness 76.76%
 
@@ -706,7 +706,7 @@ Constraints:
 Harden the procurement evidence pack so every included artifact is classified as Evidence, Template, Self-assessment, NDA-only, or Deferred, and buyer-facing output cannot accidentally imply third-party attestation.
 
 Scope:
-- Review docs/go-to-market/PROCUREMENT_EVIDENCE_PACK_INDEX.md, docs/go-to-market/TRUST_CENTER.md, docs/security/SOC2_SELF_ASSESSMENT_2026.md, docs/go-to-market/DPA_TEMPLATE.md, docs/go-to-market/MSA_TEMPLATE.md, scripts/build_procurement_pack.py, and scripts/procurement_pack_canonical.json.
+- Review docs/go-to-market/PROCUREMENT_EVIDENCE_PACK_INDEX.md, docs/go-to-market/trust-center.md, docs/security/SOC2_SELF_ASSESSMENT_2026.md, docs/go-to-market/DPA_TEMPLATE.md, docs/go-to-market/MSA_TEMPLATE.md, scripts/build_procurement_pack.py, and scripts/procurement_pack_canonical.json.
 - Add a classification field to the procurement pack manifest or generated README.
 - Ensure SOC2 and pen-test materials are labeled accurately as self-assessment, awarded/in-flight, template, or deferred as applicable.
 - Add a script-level or workflow-level guard that fails **release/procurement** procurement-pack builds (not default merge CI) if unapproved placeholder language appears in buyer-facing packaged artifacts — see `docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md` § *Placeholder strictness*.

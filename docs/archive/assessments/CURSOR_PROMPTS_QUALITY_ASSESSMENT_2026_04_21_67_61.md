@@ -1,4 +1,4 @@
-> **ARCHIVED 2026-04-22 — Superseded by** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). Historical prompts preserved for traceability.
+﻿> **ARCHIVED 2026-04-22 — Superseded by** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). Historical prompts preserved for traceability.
 
 > **Scope:** Cursor prompts for the eight largest weighted improvements from [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md). Each prompt is self-contained and assumes the assistant is starting from a clean session with no memory of the assessment.
 
@@ -62,7 +62,7 @@ Read first:
 - docs/security/pen-test-summaries/2026-Q2-SOW.md
 - docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md
 - docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md
-- docs/go-to-market/TRUST_CENTER.md
+- docs/go-to-market/trust-center.md
 - docs/PENDING_QUESTIONS.md (items 2 and 10)
 - archlucid-ui/public/.well-known/  (check whether pgp-key.txt already exists)
 - ArchLucid.Api/Controllers/  (find the security-trust publications endpoint

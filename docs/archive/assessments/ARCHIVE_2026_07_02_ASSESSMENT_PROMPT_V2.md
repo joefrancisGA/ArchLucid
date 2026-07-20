@@ -1,4 +1,4 @@
-> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2). Use this prompt for clean-slate weighted readiness passes. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-06-24.
+﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2). Use this prompt for clean-slate weighted readiness passes. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-06-24.
 
 # ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
@@ -57,7 +57,7 @@ The following are **already implemented**. Assess whether they *materially chang
 
 **AI substrate:** real mode uses **platform-provisioned Azure OpenAI** (hosted SaaS); **simulator mode** gives deterministic execution/CI; orchestration (`AuthorityRunOrchestrator`) lives in `ArchLucid.Application` (the prior "orchestrator-in-Persistence" issue is **remediated** — do not re-flag); retrieval ships (`ArchLucid.Retrieval`, `AskService`, ADR 0004 outbox); RAG quality is scoped backlog (TB-021), not a missing surface.
 
-Source of truth: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`.
+Source of truth: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
 **Already-shipped ledger (do not re-propose).** The lists above are illustrative, not exhaustive — they drift as work ships. Before proposing any §17 improvement, consult the **"Done" / "Shipped" entries in `docs/assessments/LATEST_GPT55.md §17`** to confirm the capability does not already exist, and do not recommend recreating shipped work. Use that ledger **only** to avoid duplicate proposals — not as a source of scores or prior conclusions (the clean-slate rule below still governs scoring).
 
@@ -85,7 +85,7 @@ Read in this order (per `docs/library/ASSESSMENT_INPUTS.md`) before grepping bro
 1. `docs/library/REPO_DIGEST.md` — surface skim
 2. `docs/library/V1_SCOPE.md` — in-contract V1 / V1.1 boundaries
 3. `docs/library/V1_DEFERRED.md` — explicit deferrals
-4. `docs/go-to-market/TRUST_CENTER.md` — trust / buyer commitments
+4. `docs/go-to-market/trust-center.md` — trust / buyer commitments
 5. `docs/security/SOC2_SELF_ASSESSMENT_2026.md` + `docs/go-to-market/SOC2_ROADMAP.md` — SOC posture (CPA gap is `(B)` only)
 6. `docs/library/ARCHITECTURE_COMPONENTS.md`, `docs/library/SYSTEM_MAP.md`
 7. `docs/library/API_CONTRACTS.md` — HTTP/OpenAPI contract of record

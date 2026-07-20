@@ -1,4 +1,4 @@
-> **Scope:** Fresh first-principles independent weighted quality assessment of ArchLucid as it stands in this repository on **2026-04-23**, **after** the sixth-pass owner Q&A on 2026-04-23 (see [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)**). Weighted overall score: **73.20%**. Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md).
+﻿> **Scope:** Fresh first-principles independent weighted quality assessment of ArchLucid as it stands in this repository on **2026-04-23**, **after** the sixth-pass owner Q&A on 2026-04-23 (see [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)**). Weighted overall score: **73.20%**. Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md).
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -408,4 +408,4 @@ See [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) for the canonical list. The n
 | [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) | Canonical pending-questions list with all 17 sixth-pass resolutions |
 | [`library/V1_SCOPE.md`](library/V1_SCOPE.md) | V1 contract — pen-test publication and PGP key drop now in §3 *Out of scope for V1* |
 | [`library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c | New "Security and assurance — V1.1 candidates" section |
-| [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) | Prior week's pass (68.60% → re-scored 71.71% on 2026-04-23) |
+| [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) | Prior week's pass (68.60% → re-scored 71.71% on 2026-04-23) |

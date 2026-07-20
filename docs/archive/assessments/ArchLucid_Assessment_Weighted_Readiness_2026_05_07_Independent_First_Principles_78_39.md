@@ -1,4 +1,4 @@
-# ArchLucid Assessment – Weighted Readiness 78.39%
+﻿# ArchLucid Assessment – Weighted Readiness 78.39%
 
 ## Executive Summary
 
@@ -26,7 +26,7 @@ The engineering base is strong: modular .NET projects, Dapper/SQL persistence, D
 
 ## Deferred Scope Uncertainty
 
-No deferred-scope uncertainty found. I located the current scope and deferral materials in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/PENDING_QUESTIONS.md`, and `docs/go-to-market/TRUST_CENTER.md`. The assessment treats explicitly deferred V1.1/V2 items as out of headline scoring scope.
+No deferred-scope uncertainty found. I located the current scope and deferral materials in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/PENDING_QUESTIONS.md`, and `docs/go-to-market/trust-center.md`. The assessment treats explicitly deferred V1.1/V2 items as out of headline scoring scope.
 
 ## Scoring Method
 
@@ -1114,7 +1114,7 @@ Create a labeled 30-day availability rollup artifact for ArchLucid hosted probes
 
 Start by inspecting:
 - docs/runbooks/HOSTED_AVAILABILITY_ROLLUP.md
-- docs/go-to-market/TRUST_CENTER.md
+- docs/go-to-market/trust-center.md
 - docs/library/API_SLOS.md
 - docs/library/SLA_TARGETS.md
 - .github/workflows/hosted-saas-probe.yml

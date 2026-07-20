@@ -1,4 +1,4 @@
-> **Scope:** Independent first-principles quality assessment of ArchLucid — weighted readiness score, prioritized weaknesses, monetization/enterprise/engineering blockers, and improvement prompts for Cursor.
+﻿> **Scope:** Independent first-principles quality assessment of ArchLucid — weighted readiness score, prioritized weaknesses, monetization/enterprise/engineering blockers, and improvement prompts for Cursor.
 
 # ArchLucid Assessment – Weighted Readiness 68.20%
 
@@ -551,14 +551,14 @@ Context:
 - `docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md` exists
 - `docs/security/pen-test-summaries/` directory exists
 - `docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md` may exist
-- Trust center at `docs/go-to-market/TRUST_CENTER.md` references pen test status
+- Trust center at `docs/go-to-market/trust-center.md` references pen test status
 - The pen test covers: API, operator UI, hosted SaaS data plane
 
 Tasks:
 1. Create `docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md` using the redacted summary template structure with sections for: scope, methodology, tools used, finding categories (critical/high/medium/low/info), remediation status, and overall posture assessment.
 2. Add a findings tracker table at the top with columns: ID, Category, Severity, Status (Open/Remediated/Accepted), Date Found, Date Resolved.
 3. Pre-populate the methodology section with standard owner pen test tools: OWASP ZAP (already in CI), Schemathesis (already in CI), manual STRIDE-guided testing, SQL injection probes, RBAC boundary testing, RLS bypass attempts.
-4. Update `docs/go-to-market/TRUST_CENTER.md` "Recent assurance activity" table: change the Aeronova row to reflect owner-conducted pen test with accurate scope and status.
+4. Update `docs/go-to-market/trust-center.md` "Recent assurance activity" table: change the Aeronova row to reflect owner-conducted pen test with accurate scope and status.
 5. Add a "Pen Test Findings Remediation" section to the summary that links to relevant commits/PRs when findings are fixed.
 6. Ensure the redacted summary does NOT include: specific exploit code, internal IP addresses, credential material, or customer-identifiable data.
 

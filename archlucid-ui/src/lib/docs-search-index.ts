@@ -65,7 +65,7 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
     category: "Security",
     title: "Trust center",
     description: "Buyer index for assurance, subprocessors, and policies.",
-    relativeDocsPath: "docs/go-to-market/TRUST_CENTER.md",
+    relativeDocsPath: "docs/go-to-market/trust-center.md",
   },
   {
     category: "Governance",

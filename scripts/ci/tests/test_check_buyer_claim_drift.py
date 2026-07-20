@@ -70,7 +70,7 @@ class TestBuyerClaimDrift(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("Safe default text.\n", encoding="utf-8")
 
-            bad = root / "docs/go-to-market/TRUST_CENTER.md"
+            bad = root / "docs/go-to-market/trust-center.md"
             bad.write_text("SOC 2 Type II report is available.\n", encoding="utf-8")
 
             violations = G.buyer_claim_drift_violations(root)
@@ -86,7 +86,7 @@ class TestBuyerClaimDrift(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("Safe default text.\n", encoding="utf-8")
 
-            bad = root / "docs/go-to-market/TRUST_CENTER.md"
+            bad = root / "docs/go-to-market/trust-center.md"
             bad.write_text("ArchLucid is SOC 2 certified.\n", encoding="utf-8")
 
             violations = G.buyer_claim_drift_violations(root)
@@ -150,7 +150,7 @@ class TestBuyerClaimDrift(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("Safe default text.\n", encoding="utf-8")
 
-            bad = root / "docs/go-to-market/TRUST_CENTER.md"
+            bad = root / "docs/go-to-market/trust-center.md"
             bad.write_text("Status: Marketplace Published for enterprise buyers.\n", encoding="utf-8")
 
             violations = G.buyer_claim_drift_violations(root)

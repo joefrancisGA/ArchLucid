@@ -1,4 +1,4 @@
-> **Scope:** Ten paste-ready Cursor prompts for the V1-actionable improvements in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md). Each prompt is self-contained — it assumes the assistant starts from a clean session with no memory of the assessment.
+﻿> **Scope:** Ten paste-ready Cursor prompts for the V1-actionable improvements in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md). Each prompt is self-contained — it assumes the assistant starts from a clean session with no memory of the assessment.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -40,7 +40,7 @@ Read first:
 - docs/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor-facing voice reference)
 - archlucid-ui/src/app/(marketing)/get-started/  (existing route stub if any)
 - templates/briefs/  (folder slugs are the picker labels — list them; do NOT rename)
-- docs/archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md  §0.1  (SaaS-framing addendum — read carefully)
+- docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md  §0.1  (SaaS-framing addendum — read carefully)
 
 Do this:
 1. Create docs/BUYER_FIRST_30_MINUTES.md (≤ 80 lines). Audience banner
@@ -259,7 +259,7 @@ Do this:
    appeared. Keep the legacy string in a single hidden meta tag so
    SEO redirects work for ~30 days.
 4. Schedule the rebrand workstream in docs/CHANGELOG.md AND in a new
-   docs/architecture/REBRAND_WORKSTREAM_2026_04_23.md tracker:
+   docs/archive/assessments/REBRAND_WORKSTREAM_2026_04_23.md tracker:
      - PR-1 (this PR): seam + /why
      - PR-2: /pricing + /get-started
      - PR-3: docs/EXECUTIVE_SPONSOR_BRIEF.md + docs/go-to-market/COMPETITIVE_LANDSCAPE.md

@@ -1,4 +1,4 @@
-> **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -67,7 +67,7 @@ Processing continues for the **subscription term** and until deletion or return 
 
 6.1 **Confidentiality:** Personnel authorized to process Personal Data are bound by confidentiality obligations.
 
-6.2 **Security:** Processor implements appropriate technical and organizational measures, including those described in [TRUST_CENTER.md](TRUST_CENTER.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md), and [SECURITY.md](../library/contributor-reference/SECURITY.md).
+6.2 **Security:** Processor implements appropriate technical and organizational measures, including those described in [trust-center.md](trust-center.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md), and [SECURITY.md](../library/contributor-reference/SECURITY.md).
 
 6.3 **Sub-processors:** Processor may engage Sub-processors listed in [SUBPROCESSORS.md](SUBPROCESSORS.md). Processor will impose data protection terms on Sub-processors. Controller may object to a **new** Sub-processor in accordance with the notification commitment in [SUBPROCESSORS.md](SUBPROCESSORS.md).
 
@@ -143,4 +143,4 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 | Doc | Use |
 |-----|-----|
 | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Current subprocessor list |
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |

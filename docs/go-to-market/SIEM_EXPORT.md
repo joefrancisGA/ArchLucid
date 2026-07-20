@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Audit log export for SIEM integration (buyer summary); full payload examples and KQL live in the library SIEM guide linked below.
+﻿> **Scope:** ArchLucid — Audit log export for SIEM integration (buyer summary); full payload examples and KQL live in the library SIEM guide linked below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -85,7 +85,7 @@ Each audit event includes:
 | Doc | Use |
 |-----|-----|
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Full integration catalog |
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [../library/SIEM_EXPORT.md](../library/SIEM_EXPORT.md) | **Splunk HEC + Sentinel JSON examples**, `dataJson` / API field names |
 | [../library/AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) | 81 typed events, coverage detail |
 | [../library/SECURITY.md](../library/SECURITY.md) | Audit, PII, retention |

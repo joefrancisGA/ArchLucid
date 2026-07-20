@@ -44,7 +44,7 @@ Catalog rows (SOC 2 CPA, third-party pen test, reference customer, live marketpl
 
 **PASS** when `blocking_violation_count` is **0**. Stale **Last reviewed** markers and static deferred realism notes may still appear under **DEFERRED_SCOPE** — they do **not** flip disposition to HOLD.
 
-**HOLD** when a true V1 blocker exists (for example `missing required deal-ready doc: docs/go-to-market/TRUST_CENTER.md`).
+**HOLD** when a true V1 blocker exists (for example `missing required deal-ready doc: docs/go-to-market/trust-center.md`).
 
 ---
 

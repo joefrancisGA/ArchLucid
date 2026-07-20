@@ -26,7 +26,7 @@ The architecture is modular and disciplined: many projects, contract tests, Dapp
 
 ### Deferred Scope Uncertainty
 
-No deferred-scope uncertainty was found. The repository contains explicit scope and deferral materials in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, and `Assessment-Scope-V1_1.mdc`. Deferred items were treated as out of scope for `(A)` scoring.
+No deferred-scope uncertainty was found. The repository contains explicit scope and deferral materials in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, and `Assessment-Scope-V1_1.mdc`. Deferred items were treated as out of scope for `(A)` scoring.
 
 ## 2. Weighted Quality Assessment
 
@@ -747,7 +747,7 @@ Constraints:
 Create a procurement deal-ready one-pager generated or assembled from existing procurement pack evidence.
 
 Scope:
-- Use scripts/build_procurement_pack.py, docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md, docs/go-to-market/TRUST_CENTER.md, and docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md.
+- Use scripts/build_procurement_pack.py, docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md, docs/go-to-market/trust-center.md, and docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md.
 - Add docs/go-to-market/PROCUREMENT_DEAL_READY_ONE_PAGER.md or update the existing procurement deal-ready doc if present.
 - Include: what is available now, what is self-assessment, what is deferred, what requires legal review, and how to request the full pack.
 - Include explicit `(B)` labels for SOC 2 CPA and third-party pen-test friction.
@@ -975,7 +975,7 @@ Constraints:
 Add a documentation freshness and canonical-entry guard for the buyer/operator path.
 
 Scope:
-- Check docs/START_HERE.md, docs/CORE_PILOT.md, docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md, docs/go-to-market/TRUST_CENTER.md, and docs/library/V1_SCOPE.md.
+- Check docs/START_HERE.md, docs/CORE_PILOT.md, docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md, docs/go-to-market/trust-center.md, and docs/library/V1_SCOPE.md.
 - Add or update a lightweight script that verifies required "Last reviewed" metadata where the repo already expects it and verifies canonical links are present.
 - Fail or warn on duplicate "canonical checklist" claims outside FIRST_PILOT_OPERATOR_PATH.
 - Document how to run the guard locally.
@@ -1228,7 +1228,7 @@ Constraints:
 Perform an accessibility procurement honesty pass.
 
 Scope:
-- Review ACCESSIBILITY.md, docs/security/VPAT_2_5_WCAG_2_1_AA.md or current VPAT drafts, public /accessibility references, and docs/go-to-market/TRUST_CENTER.md.
+- Review ACCESSIBILITY.md, docs/security/VPAT_2_5_WCAG_2_1_AA.md or current VPAT drafts, public /accessibility references, and docs/go-to-market/trust-center.md.
 - Ensure automated axe/jsx-a11y evidence, manual gaps, and procurement caveats are stated consistently.
 - Keep participant assistive-technology testing clearly out of `(A)` headline scoring unless separately promoted.
 
@@ -1417,7 +1417,7 @@ Enterprise foundations are broad: database-per-tenant posture, OIDC/SAML/API key
 The engineering system is structurally strong and heavily documented. The codebase has modular projects, OpenAPI contracts, Dapper/DbUp SQL discipline, release smoke paths, live UI tests, RAG and AI evaluation hooks, data-consistency probes, and Terraform validation. The risk is uneven enforcement: some high-value gates are warn-only or environment-dependent, coverage is uneven across important assemblies, and production evidence depends on operators configuring the right exporters, probes, and proof collectors.
 
 ### Deferred Scope Uncertainty
-None identified. The repository materials that define deferred scope were located: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`.
+None identified. The repository materials that define deferred scope were located: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`.
 
 ## 3. Weighted Quality Assessment
 
@@ -1666,7 +1666,7 @@ ArchLucid is now closer to selling itself on evidence: the product must still be
 **Expected impact:** Faster security review.  
 **Affected qualities:** Security, Compliance Readiness, Procurement Readiness, Trustworthiness.  
 **Actionable:** Fully actionable now.  
-**Cursor prompt:** Add a concise control-to-evidence map for identity/RBAC, tenant isolation, audit, secrets, LLM redaction, content safety, vulnerability scanning, incident communications, and deletion/offboarding. Link from `SECURITY_REVIEWER_ONE_PAGER.md` and `TRUST_CENTER.md`. Acceptance criteria: each row has control, evidence path, status, and deferred boundary; SOC 2 CPA and third-party pen test remain clearly not issued. Constraints: no legal commitments or unsupported certifications.  
+**Cursor prompt:** Add a concise control-to-evidence map for identity/RBAC, tenant isolation, audit, secrets, LLM redaction, content safety, vulnerability scanning, incident communications, and deletion/offboarding. Link from `SECURITY_REVIEWER_ONE_PAGER.md` and `trust-center.md`. Acceptance criteria: each row has control, evidence path, status, and deferred boundary; SOC 2 CPA and third-party pen test remain clearly not issued. Constraints: no legal commitments or unsupported certifications.  
 **Impact of running prompt:** Security (+2-3), Compliance Readiness (+3-4), Procurement Readiness (+2-3). Weighted readiness impact: **+0.1-0.3%**.
 
 ### 20. Tighten RAG Evaluation Enforcement Where Stable

@@ -1,4 +1,4 @@
-> **Scope:** Buyer — evidence-linked differentiation against generic AI architecture review tools.
+﻿> **Scope:** Buyer — evidence-linked differentiation against generic AI architecture review tools.
 
 # Evidence-linked differentiation packet
 
@@ -21,7 +21,7 @@ ArchLucid differentiates on **governed, provenance-backed architecture review** 
 
 - Sponsor packet: `archlucid sponsor-packet <runId>`
 - Release bundle: `scripts/Emit-ReleaseReadinessEvidence.ps1`
-- Trust center: [`TRUST_CENTER.md`](TRUST_CENTER.md)
+- Trust center: [`trust-center.md`](trust-center.md)
 - Claim readiness: [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md)
 
 ## What we do not claim

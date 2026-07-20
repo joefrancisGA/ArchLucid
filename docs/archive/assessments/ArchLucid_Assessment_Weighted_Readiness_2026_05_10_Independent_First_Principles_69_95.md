@@ -1,4 +1,4 @@
-# ArchLucid Assessment – Weighted Readiness 70.13%
+﻿# ArchLucid Assessment – Weighted Readiness 70.13%
 
 **Date:** 2026-05-10
 **Method:** Independent first-principles assessment from repository materials **and** documented owner-declared posture where it corrects factual gaps versus the repo snapshot (below: **Azure OpenAI / real-mode**). Scores reflect **breadth of evidence and product maturity**, not absence of infra you have already provisioned.
@@ -1593,7 +1593,7 @@ Constraints:
 
 ## Deferred Scope Uncertainty
 
-All deferred items referenced in this assessment (MCP/V1.1, SOC 2 CPA/post-V1.1, third-party pen test/V2, commerce un-hold/V1.1, design partner/V1.1, PGP key/V1.1, Redis elevation/V2, Container Apps Jobs + DTF/V2, **custom agent-handler customer documentation/V2**, **hosted trial `V1`→`V1.1` migration guidance/V1.1**) were located in `V1_SCOPE.md` §3, `V1_DEFERRED.md` §6a-6i, and `TRUST_CENTER.md`. No deferred item was scored as violating a **`V1` in-contract** obligation when **`V1_SCOPE`** / **`V1_DEFERRED`** place it at **`V1.1`** or **`V2`**. No scope uncertainty exists for the items referenced.
+All deferred items referenced in this assessment (MCP/V1.1, SOC 2 CPA/post-V1.1, third-party pen test/V2, commerce un-hold/V1.1, design partner/V1.1, PGP key/V1.1, Redis elevation/V2, Container Apps Jobs + DTF/V2, **custom agent-handler customer documentation/V2**, **hosted trial `V1`→`V1.1` migration guidance/V1.1**) were located in `V1_SCOPE.md` §3, `V1_DEFERRED.md` §6a-6i, and `trust-center.md`. No deferred item was scored as violating a **`V1` in-contract** obligation when **`V1_SCOPE`** / **`V1_DEFERRED`** place it at **`V1.1`** or **`V2`**. No scope uncertainty exists for the items referenced.
 
 ---
 

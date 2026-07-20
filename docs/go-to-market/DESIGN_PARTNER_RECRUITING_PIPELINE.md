@@ -1,4 +1,4 @@
-> **Scope:** Repeatable design-partner and pilot recruiting pipeline (TB-161). Owner review before outbound use.
+﻿> **Scope:** Repeatable design-partner and pilot recruiting pipeline (TB-161). Owner review before outbound use.
 
 # Design partner and pilot recruiting pipeline
 
@@ -45,7 +45,7 @@
 ## 4. Intake checklist (before proof claims)
 
 - [ ] Starter proof pack selected and labeled demo vs buyer scope
-- [ ] Data boundary and retention acknowledged ([`TRUST_CENTER.md`](TRUST_CENTER.md))
+- [ ] Data boundary and retention acknowledged ([`trust-center.md`](trust-center.md))
 - [ ] Proof capture permission recorded (internal reference id)
 - [ ] Public reference expectations routed to V1.1 checklist if logo/case study requested
 - [ ] Expected outcomes mapped to [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md)

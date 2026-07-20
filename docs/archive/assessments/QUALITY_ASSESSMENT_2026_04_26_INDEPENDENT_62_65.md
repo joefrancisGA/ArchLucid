@@ -1,4 +1,4 @@
-> **Scope:** Independent weighted readiness review (commercial, enterprise, engineering); records scores and first-principles evidence. Not a product spec, contract, or customer-facing claim.
+﻿> **Scope:** Independent weighted readiness review (commercial, enterprise, engineering); records scores and first-principles evidence. Not a product spec, contract, or customer-facing claim.
 
 # ArchLucid Assessment – Weighted Readiness 62.65%
 
@@ -654,7 +654,7 @@ Scope:
    - Show a clearly-marked "This section is under legal review" banner for the blocked sections
    - Add a "Contact privacy@archlucid.net for questions" footer (or security@ per existing convention)
 
-3. Update `docs/go-to-market/TRUST_CENTER.md` to link to the privacy notice page.
+3. Update `docs/go-to-market/trust-center.md` to link to the privacy notice page.
 
 Constraints:
 - Do NOT fabricate legal language or make legal claims

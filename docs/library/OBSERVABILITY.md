@@ -338,7 +338,7 @@ When **`infra/terraform-logicapps/`** hosts are enabled, send **platform + workf
 
 If you prefer the Portal for a one-off host, you can still add **Diagnostic settings** manually; keep destinations on **private** analytics paths consistent with org policy.
 
-**Correlations:** Logic App run IDs with Service Bus **message** `messageId` / body **`approvalRequestId`** for governance approvals (`com.archlucid.governance.approval.submitted` on the dedicated subscription from `infra/terraform-servicebus` when `enable_logic_app_governance_approval_subscription` is true), and with body **`providerDedupeKey`** / **`subscriptionId`** for Marketplace fulfillment (`com.archlucid.billing.marketplace.webhook.received.v1` when `enable_logic_app_marketplace_fulfillment_subscription` is true). See [runbooks/LOGIC_APPS_STANDARD.md](../runbooks/LOGIC_APPS_STANDARD.md) and [CURSOR_PROMPTS_LOGIC_APPS.md](../archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_LOGIC_APPS.md).
+**Correlations:** Logic App run IDs with Service Bus **message** `messageId` / body **`approvalRequestId`** for governance approvals (`com.archlucid.governance.approval.submitted` on the dedicated subscription from `infra/terraform-servicebus` when `enable_logic_app_governance_approval_subscription` is true), and with body **`providerDedupeKey`** / **`subscriptionId`** for Marketplace fulfillment (`com.archlucid.billing.marketplace.webhook.received.v1` when `enable_logic_app_marketplace_fulfillment_subscription` is true). See [runbooks/LOGIC_APPS_STANDARD.md](../runbooks/LOGIC_APPS_STANDARD.md).
 
 ---
 

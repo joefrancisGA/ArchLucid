@@ -1,4 +1,4 @@
-> **Scope:** Product quality snapshot — independent weighted-readiness assessment for leadership and planning; not the V1 scope contract (`V1_SCOPE.md`), not CI gates, and not a procurement attestation. Canonical copy also at repo root `ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_33.md`.
+﻿> **Scope:** Product quality snapshot — independent weighted-readiness assessment for leadership and planning; not the V1 scope contract (`V1_SCOPE.md`), not CI gates, and not a procurement attestation. Canonical copy also at repo root `ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_33.md`.
 
 # ArchLucid Assessment – Weighted Readiness 78.33%
 
@@ -245,7 +245,7 @@ Constraints:
 Create a lightweight stale-claim drift check for buyer-facing docs.
 
 Scope:
-- Target README.md, docs/START_HERE.md, docs/CORE_PILOT.md, docs/EXECUTIVE_SPONSOR_BRIEF.md, docs/go-to-market/TRUST_CENTER.md, docs/library/V1_SCOPE.md, and docs/library/V1_DEFERRED.md.
+- Target README.md, docs/START_HERE.md, docs/CORE_PILOT.md, docs/EXECUTIVE_SPONSOR_BRIEF.md, docs/go-to-market/trust-center.md, docs/library/V1_SCOPE.md, and docs/library/V1_DEFERRED.md.
 - Add a script that scans for configured high-risk phrases and validates they align with canonical scope phrases.
 - Include rules for auth default wording, SOC 2 status, design partner status, third-party pen-test status, live commerce status, MCP status, and first-pilot required path.
 - Add a small config file for phrase rules.

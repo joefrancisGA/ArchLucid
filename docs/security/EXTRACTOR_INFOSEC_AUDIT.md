@@ -54,4 +54,4 @@ Record the SHA-256 in your change-management ticket. Re-compute after any script
 
 ## Upload path
 
-Upload the ZIP via `POST /v1/azure-extractor/upload` (ExecuteAuthority). Trust stance: `docs/go-to-market/TRUST_CENTER.md`.
+Upload the ZIP via `POST /v1/azure-extractor/upload` (ExecuteAuthority). Trust stance: `docs/go-to-market/trust-center.md`.

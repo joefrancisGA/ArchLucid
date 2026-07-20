@@ -1,4 +1,4 @@
-> **Scope:** Eight paste-ready Cursor prompts for the largest-impact improvements in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md). Each prompt is self-contained — it assumes the assistant starts from a clean session with no memory of the assessment.
+﻿> **Scope:** Eight paste-ready Cursor prompts for the largest-impact improvements in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md). Each prompt is self-contained — it assumes the assistant starts from a clean session with no memory of the assessment.
 
 > **Spine doc:** [`START_HERE.md`](../../../START_HERE.md).
 
@@ -488,7 +488,7 @@ Read first:
 - docs/security/pen-test-summaries/2026-Q2-SOW.md
 - docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md
 - docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md
-- docs/go-to-market/TRUST_CENTER.md
+- docs/go-to-market/trust-center.md
 - docs/PENDING_QUESTIONS.md  (items 2, 10, 20, 21)
 - archlucid-ui/public/.well-known/  (security.txt exists; pgp-key.txt does not)
 - ArchLucid.Api/Controllers/  (find /v1/admin/security-trust/publications)

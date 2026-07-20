@@ -1,4 +1,4 @@
-> **Scope:** One-screen buyer orientation — Pilot vs Operate, first proof, and deferred scope. Not an operator checklist.
+﻿> **Scope:** One-screen buyer orientation — Pilot vs Operate, first proof, and deferred scope. Not an operator checklist.
 
 # Buyer orientation (one screen)
 
@@ -41,7 +41,7 @@ Collect with [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PI
 | Live checkout / marketplace | **Deferred** — sales-led quote and order form |
 | AI output | **Decision support** — see [`AI_OUTPUT_DECISION_SUPPORT.md`](AI_OUTPUT_DECISION_SUPPORT.md) |
 | Audit trail | Example reviewer path — [`SECURITY_AUDIT_WALKTHROUGH.md`](SECURITY_AUDIT_WALKTHROUGH.md) |
-| Trust index | [`TRUST_CENTER.md`](TRUST_CENTER.md) |
+| Trust index | [`trust-center.md`](trust-center.md) |
 
 ## Explicitly deferred (not V1 requirements)
 

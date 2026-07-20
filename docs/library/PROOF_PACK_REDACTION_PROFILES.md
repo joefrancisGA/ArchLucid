@@ -13,7 +13,7 @@
 
 **Constraints.**
 
-- Do not treat this file as a **procurement pack** manifest; procurement uses **`scripts/build_procurement_pack.py`** and **[TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md)**.
+- Do not treat this file as a **procurement pack** manifest; procurement uses **`scripts/build_procurement_pack.py`** and **[trust-center.md](../go-to-market/trust-center.md)**.
 - Historical SQL migrations and RLS object naming are unchanged by this document.
 
 ---
@@ -104,4 +104,4 @@ Exceptions noted: <none | see appendix>
 - **[SECURITY.md](SECURITY.md)** — PII-sized exports and retention posture.
 - **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** — support bundle contents and review-before-send.
 - **[pen-test-summaries/README.md](../security/pen-test-summaries/README.md)** — parallel discipline for redacted **security** summaries (internal URLs, tenant ids in repro).
-- **[TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md)** — procurement pack / assurance artifacts (different artifact class).
+- **[trust-center.md](../go-to-market/trust-center.md)** — procurement pack / assurance artifacts (different artifact class).

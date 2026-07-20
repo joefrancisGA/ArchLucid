@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — SOC 2 readiness roadmap - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — SOC 2 readiness roadmap - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -65,7 +65,7 @@ Dates are **placeholders** until leadership and an auditor confirm.
 
 ## 4. What customers can request today
 
-- **Security architecture:** [TRUST_CENTER.md](TRUST_CENTER.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md)
+- **Security architecture:** [trust-center.md](trust-center.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md)
 - **Subprocessors:** [SUBPROCESSORS.md](SUBPROCESSORS.md)
 - **DPA:** [DPA_TEMPLATE.md](DPA_TEMPLATE.md) (legal review required)
 - **Incident process:** [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md)
@@ -79,5 +79,5 @@ Dates are **placeholders** until leadership and an auditor confirm.
 
 | Doc | Use |
 |-----|-----|
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident customer comms |

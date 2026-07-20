@@ -37,7 +37,7 @@ internal static class ProofPacketSourceLabelsBuilder
         sb.AppendLine("- Read limitations.md for PilotStrict, demo tenant, and deferred procurement items");
         sb.AppendLine("- Do not forward when buyer-safe gate reports NotSendable without explicit caveat");
         sb.AppendLine();
-        sb.AppendLine("Canonical trust narrative: docs/go-to-market/TRUST_CENTER.md (hosted /trust when deployed).");
+        sb.AppendLine("Canonical trust narrative: docs/go-to-market/trust-center.md (hosted /trust when deployed).");
 
         return sb.ToString();
     }

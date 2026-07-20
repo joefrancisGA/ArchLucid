@@ -1,4 +1,4 @@
-# ArchLucid Assessment — Weighted Readiness 70.28%
+﻿# ArchLucid Assessment — Weighted Readiness 70.28%
 
 **Date:** 2026-05-10
 **Methodology:** Independent first-principles assessment from repository materials only. No prior assessments referenced. Deferred V1.1/V2 items excluded from scoring per scope contract.
@@ -875,7 +875,7 @@ Do not change:
 
 **Affected qualities:** Procurement Readiness, Accessibility, Compliance Readiness
 
-**Status:** COMPLETED (2026-05-10) — **`docs/security/VPAT_2_4_WCAG_2_1_DRAFT.md`** (VPAT® 2.4 Rev–style ACR draft; WCAG 2.1 Levels A/AA; Doc-Scope-Header; Trust Center link in **`docs/go-to-market/TRUST_CENTER.md`** *Compliance and certifications* table). No code or test file changes per acceptance constraints.
+**Status:** COMPLETED (2026-05-10) — **`docs/security/VPAT_2_4_WCAG_2_1_DRAFT.md`** (VPAT® 2.4 Rev–style ACR draft; WCAG 2.1 Levels A/AA; Doc-Scope-Header; Trust Center link in **`docs/go-to-market/trust-center.md`** *Compliance and certifications* table). No code or test file changes per acceptance constraints.
 
 **Cursor prompt:**
 ```
@@ -894,7 +894,7 @@ Create a VPAT 2.4 Rev (WCAG 2.1 edition) draft document for ArchLucid at `docs/s
    - If a known gap exists based on common SPA patterns (e.g., focus management on route transitions), mark it as "Partially Supports" with an honest remark.
 4. Add the standard VPAT disclaimer: "This document is provided for informational purposes and reflects the current state of automated accessibility testing. Manual evaluation of criteria marked 'Not Evaluated' is recommended."
 5. Add a scope header per the Doc-Scope-Header rule.
-6. Add a link to this document from `docs/go-to-market/TRUST_CENTER.md` in the compliance/assurance table.
+6. Add a link to this document from `docs/go-to-market/trust-center.md` in the compliance/assurance table.
 
 Constraints:
 - Be honest — do not claim "Supports" for criteria that require manual testing.

@@ -1,4 +1,4 @@
-> **Scope:** For leadership and architecture readers: independent weighted quality/readiness assessment dated 2026-04-28; not a product spec, commit checklist, or substitute for formal audit.
+﻿> **Scope:** For leadership and architecture readers: independent weighted quality/readiness assessment dated 2026-04-28; not a product spec, commit checklist, or substitute for formal audit.
 
 # ArchLucid Assessment – Weighted Readiness 80.56%
 
@@ -292,7 +292,7 @@ Author a DSAR processing document clarifying how PII is handled within the appen
 2. Identify and document the SQL tables containing PII (e.g., users, tenant registration, ActorEmail in audit events).
 3. Document the manual extraction process for a Data Subject Access Request.
 4. Explicitly define the platform's legal/architectural stance on the erasure conflict: state that append-only audit events cannot be deleted without breaking integrity, detailing the retention mitigation strategy.
-5. Link this document from `docs/go-to-market/TRUST_CENTER.md`.
+5. Link this document from `docs/go-to-market/trust-center.md`.
 
 Constraints:
 - Do not write legal opinions; document the mechanical reality of the platform.

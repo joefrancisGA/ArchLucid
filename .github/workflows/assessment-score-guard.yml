@@ -25,4 +25,4 @@ jobs:
         run: python3 -m pytest scripts/ci/tests/test_check_assessment_score_consistency.py -q
 
       - name: Check tracked assessment score consistency
-        run: python3 scripts/ci/check_assessment_score_consistency.py --file docs/assessments/latest_20260618.md
+        run: python3 scripts/ci/check_assessment_score_consistency.py --file docs/assessments/LATEST_GPT55.md

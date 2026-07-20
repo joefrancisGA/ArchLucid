@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid Marketability Quality Assessment — 2026-04-18 (post-trial enforcement, pricing.json, marketing pages, CMK/TDE) - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid Marketability Quality Assessment — 2026-04-18 (post-trial enforcement, pricing.json, marketing pages, CMK/TDE) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -779,7 +779,7 @@ ACCEPTANCE
 |-----|-----|
 | [docs/MARKETABILITY_ASSESSMENT_2026_04_15.md](MARKETABILITY_ASSESSMENT_2026_04_15.md) | Prior baseline (mixed model, 42.3%) |
 | [docs/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md](MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md) | SaaS-only companion view (46.1%) |
-| [docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](../archive/quality/2026-04-23-doc-depth-reorg/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md) | Technical quality (orthogonal, 68.5%) |
+| [docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](../archive/assessments/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md) | Technical quality (orthogonal, 68.5%) |
 | [docs/go-to-market/POSITIONING.md](../go-to-market/POSITIONING.md) | Positioning + pitches + category |
 | [docs/go-to-market/PRICING_PHILOSOPHY.md](../go-to-market/PRICING_PHILOSOPHY.md) | Pricing single source of truth |
 | [docs/go-to-market/IDEAL_CUSTOMER_PROFILE.md](../go-to-market/IDEAL_CUSTOMER_PROFILE.md) | ICP scoring rubric |
@@ -788,4 +788,4 @@ ACCEPTANCE
 | [docs/go-to-market/ORDER_FORM_TEMPLATE.md](../go-to-market/ORDER_FORM_TEMPLATE.md) | Procurement-ready order form |
 | [docs/go-to-market/TRIAL_AND_SIGNUP.md](../go-to-market/TRIAL_AND_SIGNUP.md) | Trial flow design (now partly live in code) |
 | [docs/security/TRIAL_LIMITS.md](../security/TRIAL_LIMITS.md) | Trial enforcement contract (402 + problem+json) |
-| [docs/go-to-market/TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) | Buyer trust index |
+| [docs/go-to-market/trust-center.md](../go-to-market/trust-center.md) | Buyer trust index |

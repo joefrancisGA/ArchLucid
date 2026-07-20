@@ -1,4 +1,4 @@
-> **Scope:** Independent procurement-readiness-only quality assessment for ArchLucid V1, with weighted scoring, blunt gap analysis, and implementation-ready Cursor prompts; excludes intentionally deferred V1.1/V2 scope from score penalties.
+﻿> **Scope:** Independent procurement-readiness-only quality assessment for ArchLucid V1, with weighted scoring, blunt gap analysis, and implementation-ready Cursor prompts; excludes intentionally deferred V1.1/V2 scope from score penalties.
 
 # Procurement Readiness Quality Assessment — 64.98% Weighted
 
@@ -45,7 +45,7 @@ Assess the **procurement readiness solution quality only** on a 1-100 scale, wit
 **Concrete evidence**
 
 - `docs/go-to-market/SOC2_STATUS_PROCUREMENT.md`
-- `docs/go-to-market/TRUST_CENTER.md`
+- `docs/go-to-market/trust-center.md`
 - `docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md`
 - `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md`
 
@@ -116,7 +116,7 @@ Assess the **procurement readiness solution quality only** on a 1-100 scale, wit
 **Concrete evidence**
 
 - `docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md`
-- `docs/go-to-market/TRUST_CENTER.md`
+- `docs/go-to-market/trust-center.md`
 - `docs/go-to-market/PROCUREMENT_FAQ.md`
 
 **Tradeoff**
@@ -188,7 +188,7 @@ Assess the **procurement readiness solution quality only** on a 1-100 scale, wit
 Create a new canonical assurance status source of truth at docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md and refactor all procurement-facing docs to reference it.
 
 Scope:
-- Update TRUST_CENTER.md, CURRENT_ASSURANCE_POSTURE.md, PROCUREMENT_FAQ.md, PROCUREMENT_RESPONSE_ACCELERATOR.md, and SOC2_STATUS_PROCUREMENT.md.
+- Update trust-center.md, CURRENT_ASSURANCE_POSTURE.md, PROCUREMENT_FAQ.md, PROCUREMENT_RESPONSE_ACCELERATOR.md, and SOC2_STATUS_PROCUREMENT.md.
 - Normalize wording for SOC2 and pen-test posture so there is no contradiction across docs.
 - Preserve current V1 deferred boundaries from docs/library/V1_DEFERRED.md (do not re-open scope).
 - Add a concise status table with "Current", "Deferred window", "Evidence link", and "Allowed buyer wording".
@@ -265,7 +265,7 @@ Add a CI doc consistency check that validates high-risk procurement claims acros
 Scope:
 - Create scripts/ci/check_procurement_claim_coherence.py.
 - Check consistency for SOC2 status wording, pen-test posture wording, and attestation disclaimers across:
-  - TRUST_CENTER.md
+  - trust-center.md
   - CURRENT_ASSURANCE_POSTURE.md
   - PROCUREMENT_FAQ.md
   - SOC2_STATUS_PROCUREMENT.md
@@ -291,12 +291,12 @@ Implement evidence freshness controls for procurement docs.
 
 Scope:
 - Add a CI check ensuring key procurement docs include and maintain a recent "Last reviewed" date.
-- Target docs: TRUST_CENTER.md, SUBPROCESSORS.md, SLA_SUMMARY.md, INCIDENT_COMMUNICATIONS_POLICY.md, CURRENT_ASSURANCE_POSTURE.md.
+- Target docs: trust-center.md, SUBPROCESSORS.md, SLA_SUMMARY.md, INCIDENT_COMMUNICATIONS_POLICY.md, CURRENT_ASSURANCE_POSTURE.md.
 - Add a central docs/go-to-market/REVIEW_CADENCE.md mapping owner role, review frequency, and escalation for stale docs.
 
 Acceptance criteria:
 - CI warns when last-reviewed dates exceed threshold (e.g., 45 days).
-- REVIEW_CADENCE.md exists and links from TRUST_CENTER.md.
+- REVIEW_CADENCE.md exists and links from trust-center.md.
 ```
 
 ---

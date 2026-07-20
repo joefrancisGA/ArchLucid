@@ -1,4 +1,4 @@
-# ArchLucid Assessment – Weighted Readiness 78.33%
+﻿# ArchLucid Assessment – Weighted Readiness 78.33%
 
 Independent, first-principles assessment from repository materials only (2026-05-07). Deferred V1.1/V2 scope per `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` was not used to reduce headline readiness. No prior assessment scores were referenced. Library copy with doc scope header: [`docs/library/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_07_INDEPENDENT_FIRST_PRINCIPLES_78_33.md`](docs/library/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_07_INDEPENDENT_FIRST_PRINCIPLES_78_33.md).
 
@@ -243,7 +243,7 @@ Constraints:
 Create a lightweight stale-claim drift check for buyer-facing docs.
 
 Scope:
-- Target README.md, docs/START_HERE.md, docs/CORE_PILOT.md, docs/EXECUTIVE_SPONSOR_BRIEF.md, docs/go-to-market/TRUST_CENTER.md, docs/library/V1_SCOPE.md, and docs/library/V1_DEFERRED.md.
+- Target README.md, docs/START_HERE.md, docs/CORE_PILOT.md, docs/EXECUTIVE_SPONSOR_BRIEF.md, docs/go-to-market/trust-center.md, docs/library/V1_SCOPE.md, and docs/library/V1_DEFERRED.md.
 - Add a script that scans for configured high-risk phrases and validates they align with canonical scope phrases.
 - Include rules for auth default wording, SOC 2 status, design partner status, third-party pen-test status, live commerce status, MCP status, and first-pilot required path.
 - Add a small config file for phrase rules.

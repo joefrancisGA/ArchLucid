@@ -1,4 +1,4 @@
-> **Scope:** Independent first-principles quality/readiness assessment (weighted overall **82.40%**) — archival reference for product/enterprise/engineering posture; **not** a substitute for [`V1_SCOPE.md`](V1_SCOPE.md), release gates, or environment-specific assurance.
+﻿> **Scope:** Independent first-principles quality/readiness assessment (weighted overall **82.40%**) — archival reference for product/enterprise/engineering posture; **not** a substitute for [`V1_SCOPE.md`](V1_SCOPE.md), release gates, or environment-specific assurance.
 
 > **Naming:** Saves as [`QUALITY_ASSESSMENT_<date>_INDEPENDENT_<pct>.md`](.) alongside other archived passes in `docs/library/`.
 
@@ -97,7 +97,7 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 
 ### Detailed entries (same urgency order)
 
-1. **Marketability** — Score **85**, Weight **8**, deficiency **120**. Buyer surfaces exist; outbound proof (live pricing trajectory, Marketplace posture) remains partially owner-gated — see [`CURRENT_ASSURANCE_POSTURE.md`](../go-to-market/CURRENT_ASSURANCE_POSTURE.md), [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md). Tradeoff: safe staging vs revenue capture. **Improve:** un-hold live commerce when owner criteria met. **Fixability:** blocked on owner input (**DEFERRED**).
+1. **Marketability** — Score **85**, Weight **8**, deficiency **120**. Buyer surfaces exist; outbound proof (live pricing trajectory, Marketplace posture) remains partially owner-gated — see [`CURRENT_ASSURANCE_POSTURE.md`](../go-to-market/CURRENT_ASSURANCE_POSTURE.md), [`trust-center.md`](../go-to-market/trust-center.md). Tradeoff: safe staging vs revenue capture. **Improve:** un-hold live commerce when owner criteria met. **Fixability:** blocked on owner input (**DEFERRED**).
 
 2. **Proof-of-ROI Readiness** — **80**, **5**, **100**. Models and pilot docs are strong ([`PILOT_ROI_MODEL.md`](PILOT_ROI_MODEL.md)); granular per-tenant funnel telemetry stays policy-gated — [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 40. Tradeoff: privacy vs instrumentation. **Improve:** approve retention + emission policy then enable flag. **Fixability:** owner input (**DEFERRED**).
 

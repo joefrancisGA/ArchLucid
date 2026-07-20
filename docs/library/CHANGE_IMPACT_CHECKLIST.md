@@ -13,7 +13,7 @@ Start with the row that matches your change. Check the follow-through items that
 | Commercial tier | Update `[RequiresCommercialTenantTier]` usage, route-tier-policy-nav registry, [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md), and [`COMMERCIAL_TIER_CODE_ALIGNMENT.md`](COMMERCIAL_TIER_CODE_ALIGNMENT.md). |
 | Audit event | Update event constants, emitters, tests, [`AUDIT_EVENT_MODEL.md`](AUDIT_EVENT_MODEL.md), and [`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md). |
 | Retrieval or agent behavior | Update agent/runtime tests, quality gates, forensic UI/docs, [`AGENT_OUTPUT_EVALUATION.md`](AGENT_OUTPUT_EVALUATION.md), and [`AGENT_TRACE_FORENSICS.md`](AGENT_TRACE_FORENSICS.md). |
-| Pricing, trust, or procurement copy | Update the canonical source first, then dependent summaries. Use [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md), [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md), and procurement pack guards. |
+| Pricing, trust, or procurement copy | Update the canonical source first, then dependent summaries. Use [`trust-center.md`](../go-to-market/trust-center.md), [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md), and procurement pack guards. |
 | V1 scope boundary | Update [`V1_SCOPE.md`](V1_SCOPE.md) first. If the work is deferred, update [`V1_DEFERRED.md`](V1_DEFERRED.md); if it changes buyer integration commitments, update [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md). |
 
 Always consider whether the change also needs tests, docs, runbook updates, observability, security review, accessibility evidence, generated artifacts, and changelog notes. Keep REST route names, DTO names, and database entity names stable unless the breaking-change path is explicit.

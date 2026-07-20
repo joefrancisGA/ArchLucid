@@ -11,7 +11,7 @@
 - `docs/library/REPO_DIGEST.md`
 - `docs/library/V1_SCOPE.md`
 - `docs/library/V1_DEFERRED.md`
-- `docs/go-to-market/TRUST_CENTER.md`
+- `docs/go-to-market/trust-center.md`
 - `docs/security/SOC2_SELF_ASSESSMENT_2026.md` + `docs/go-to-market/SOC2_ROADMAP.md`
 - `docs/library/ARCHITECTURE_COMPONENTS.md`, `docs/library/SYSTEM_MAP.md`
 - `docs/library/API_CONTRACTS.md`

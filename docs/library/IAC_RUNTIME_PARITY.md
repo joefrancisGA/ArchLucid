@@ -32,6 +32,6 @@ Separate roots remain useful as temporary validation surfaces or reusable module
 
 ## Trust center cross-link
 
-Buyer-facing posture: [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) â€” interim self-assessment; CPA SOC 2 and third-party pen test are V1.1 backlog (TB-135, TB-136).
+Buyer-facing posture: [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md) â€” interim self-assessment; CPA SOC 2 and third-party pen test are V1.1 backlog (TB-135, TB-136).
 
 | Azure Monitor Workspace | Prometheus rule scopes | infra/terraform-monitoring | When enable_prometheus_slo_rule_group | **Done TB-098** (2026-06-01) |

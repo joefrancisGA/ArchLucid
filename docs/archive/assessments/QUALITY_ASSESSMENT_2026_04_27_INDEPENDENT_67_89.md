@@ -1,4 +1,4 @@
-> **Scope:** Independent first-principles quality assessment — weighted readiness 67.89%.
+﻿> **Scope:** Independent first-principles quality assessment — weighted readiness 67.89%.
 
 # ArchLucid Assessment — Weighted Readiness 67.89%
 
@@ -915,7 +915,7 @@ Gaps: No actual cost data from production. Token cost estimates are configurable
 > 1. Read `dist/procurement-pack/README.md` to understand the current structure and any placeholder content.
 > 2. Read `docs/security/SOC2_SELF_ASSESSMENT_2026.md` — extract the control summary table and gap register into a "Current Assurance Posture" section.
 > 3. Read `docs/security/SYSTEM_THREAT_MODEL.md` — extract the STRIDE summary for the procurement pack.
-> 4. Read `docs/go-to-market/TRUST_CENTER.md` — extract the "Recent assurance activity" table.
+> 4. Read `docs/go-to-market/trust-center.md` — extract the "Recent assurance activity" table.
 > 5. Read `docs/security/CAIQ_LITE_2026.md` and `docs/security/SIG_CORE_2026.md` — note their existence as pre-filled questionnaire artifacts.
 > 6. Read `.github/workflows/ci.yml` — extract the security-related CI jobs (gitleaks, CodeQL, ZAP, Schemathesis, Trivy) into a "Continuous Security Testing" summary.
 > 7. Update the procurement pack README.md or create a `CURRENT_ASSURANCE_POSTURE.md` in the procurement pack that includes:
@@ -1006,7 +1006,7 @@ Gaps: No actual cost data from production. Token cost estimates are configurable
 >
 > **Steps:**
 > 1. Read `docs/go-to-market/DPA_TEMPLATE.md` to understand existing data processing commitments.
-> 2. Read `docs/go-to-market/TRUST_CENTER.md` for privacy-related claims.
+> 2. Read `docs/go-to-market/trust-center.md` for privacy-related claims.
 > 3. Read `docs/library/CUSTOMER_TRUST_AND_ACCESS.md` for data access patterns.
 > 4. Read `ArchLucid.Persistence/Scripts/ArchLucid.sql` (or key migration files) to understand what personal data is stored (user IDs, email addresses, actor fields in audit events, tenant registration data).
 > 5. Grep the codebase for `email`, `userId`, `ActorUserId`, `ActorEmail` to identify PII storage locations.
@@ -1019,7 +1019,7 @@ Gaps: No actual cost data from production. Token cost estimates are configurable
 >    - Data portability: export formats available (JSON, CSV from audit)
 >    - Retention: link to AUDIT_RETENTION_POLICY.md
 >    - Contact: security@archlucid.net
-> 7. Link the new document from `docs/go-to-market/TRUST_CENTER.md` in the privacy section.
+> 7. Link the new document from `docs/go-to-market/trust-center.md` in the privacy section.
 > 8. Link from `dist/procurement-pack/README.md` if it exists.
 >
 > **Acceptance criteria:**

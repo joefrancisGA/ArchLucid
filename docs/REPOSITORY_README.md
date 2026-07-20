@@ -1,4 +1,4 @@
-> **Scope:** Full repository overview, install spine, product layers, API and CLI semantics, and buyer-vs-engineering boundaries; GitHub landing is the stub README at repo root.
+﻿> **Scope:** Full repository overview, install spine, product layers, API and CLI semantics, and buyer-vs-engineering boundaries; GitHub landing is the stub README at repo root.
 >
 # ArchLucid
 
@@ -180,7 +180,7 @@ Hosted SaaS customers do not provision databases; the vendor-operated planes per
 
 ### Optional: Contoso trusted-baseline demo (Corrected 50R)
 
-For a deterministic **baseline vs hardened** story (runs, manifests, governance approvals, environment activations; export history row optional), see **[docs/demo-quickstart.md](library/demo-quickstart.md)** and the honesty boundary in **[docs/TRUSTED_BASELINE.md](library/TRUSTED_BASELINE.md)**. Summary: set `ArchLucid:StorageProvider` to `Sql`, configure `Demo:Enabled` / `Demo:SeedOnStartup` (Development only for automatic startup seed), or call **`POST /v1.0/demo/seed`** when `Demo:Enabled` is true. Startup logs label schema bootstrap, DbUp, and demo seed in order.
+For a deterministic **baseline vs hardened** story (runs, manifests, governance approvals, environment activations; export history row optional), see **[docs/demo-quickstart.md](archive/onboarding/demo-quickstart.md)** and the honesty boundary in **[docs/TRUSTED_BASELINE.md](library/TRUSTED_BASELINE.md)**. Summary: set `ArchLucid:StorageProvider` to `Sql`, configure `Demo:Enabled` / `Demo:SeedOnStartup` (Development only for automatic startup seed), or call **`POST /v1.0/demo/seed`** when `Demo:Enabled` is true. Startup logs label schema bootstrap, DbUp, and demo seed in order.
 
 ## Secrets (development — engineering workstations)
 

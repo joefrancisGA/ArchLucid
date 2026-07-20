@@ -1,4 +1,4 @@
-> **Scope:** Owner security self-assessment — procurement pack excerpt (no customer names).
+﻿> **Scope:** Owner security self-assessment — procurement pack excerpt (no customer names).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -19,4 +19,4 @@ This document is the **buyer-shareable excerpt** for procurement bundles. It sum
 
 ## Full draft under NDA
 
-Detailed tables, environment-specific links, and sign-off names live in the repository draft linked above. Procurement teams requiring **assessor-grade** evidence should request the **separate** pen-test and SOC 2 roadmap items referenced from [`TRUST_CENTER.md`](TRUST_CENTER.md).
+Detailed tables, environment-specific links, and sign-off names live in the repository draft linked above. Procurement teams requiring **assessor-grade** evidence should request the **separate** pen-test and SOC 2 roadmap items referenced from [`trust-center.md`](trust-center.md).

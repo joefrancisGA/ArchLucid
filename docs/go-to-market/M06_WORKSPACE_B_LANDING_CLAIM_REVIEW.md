@@ -92,7 +92,7 @@ None of the partial/mismatch rows block outreach once narrated honestly; the the
 | Work unit | Status | Notes |
 |-----------|--------|-------|
 | **Agent mechanical review** (this document) | **Done** 2026-07-03 | Claim extraction + reconciliation against seed/fixture sources |
-| **Owner download + visual review** of live export (DOCX/PDF from operator UI) | **Waived** 2026-07-19 | Optional; recommended once before first live demos start (~10 min from `/reviews/61c60d76-…`) — not required for M-07/M-09 unblock |
+| **Owner download + visual review** of live export (DOCX/PDF from operator UI) | **Waived** 2026-07-19 → tracked as **G-REAL-09** | ~10-min check from `/reviews/61c60d76-…` before first live demo (M-19) / video recording (M-16); full step-by-step in `GTM_BACKLOG.md` **G-REAL-09** — not required for M-07/M-09 unblock |
 | **Owner sign-off** | **Done** 2026-07-19 | Landing claims accepted as sufficiently aligned for outreach; §4 follow-ups routed to M-09 (C8 routing fix) and M-111 (C4 demo-script footnote) |
 
 ---

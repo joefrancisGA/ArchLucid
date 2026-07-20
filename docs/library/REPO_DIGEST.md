@@ -77,7 +77,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 
 - [`V1_SCOPE.md`](V1_SCOPE.md) — in-contract V1 / V1.1 engineering.
 - [`V1_DEFERRED.md`](V1_DEFERRED.md) — deferrals and non-gates for assessments.
-- [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md).
+- [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md).
 
 ## Weighted readiness assessments (canonical vs archive)
 

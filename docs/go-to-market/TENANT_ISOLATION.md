@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Tenant isolation (buyer overview) - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — Tenant isolation (buyer overview) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -68,7 +68,7 @@ Durable **append-only** audit events and correlation IDs support forensic review
 
 ## 5. What we do not claim here {#what-we-do-not-claim-here}
 
-Hosted **trial** tenants and **commercial** pilots use ArchLucid's **single supported multitenant data-plane model**: **`SystemWithPerTenantCatalogs`** (**database-per-tenant** routing via **`TenantDatabaseBindings`** — one product catalog per tenant organization). `SingleCatalog` may exist only for narrow **developer/CI convenience** and is **not** the hosted SaaS posture; deep detail: **[`../library/TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md)**, **[`TRUST_CENTER.md`](TRUST_CENTER.md)** (*Data isolation*).
+Hosted **trial** tenants and **commercial** pilots use ArchLucid's **single supported multitenant data-plane model**: **`SystemWithPerTenantCatalogs`** (**database-per-tenant** routing via **`TenantDatabaseBindings`** — one product catalog per tenant organization). `SingleCatalog` may exist only for narrow **developer/CI convenience** and is **not** the hosted SaaS posture; deep detail: **[`../library/TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md)**, **[`trust-center.md`](trust-center.md)** (*Data isolation*).
 
 Unless separately contracted and documented:
 
@@ -111,5 +111,5 @@ CI validates references with `--dry-run`.
 
 | Doc | Use |
 |-----|-----|
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Where data is processed (Azure) |

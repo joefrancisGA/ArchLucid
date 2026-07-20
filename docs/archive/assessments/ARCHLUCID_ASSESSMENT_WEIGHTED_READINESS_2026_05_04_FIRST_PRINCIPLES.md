@@ -1,4 +1,4 @@
-> **Scope:** Independent first-principles weighted readiness assessment (2026-05-04) — scores, weights, composite %, ordered findings, and improvement prompts; not an implementation contract and not prior-assessment continuation.
+﻿> **Scope:** Independent first-principles weighted readiness assessment (2026-05-04) — scores, weights, composite %, ordered findings, and improvement prompts; not an implementation contract and not prior-assessment continuation.
 
 # ArchLucid Assessment – Weighted Readiness 70.21%
 
@@ -26,7 +26,7 @@ The **Pilot → Operate** story is coherent ([`PRODUCT_PACKAGING.md`](PRODUCT_PA
 
 ### Enterprise picture
 
-**Auditability, policy/governance, and traceability** are above median versus typical early-stage vendors ([`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md), [`V1_SCOPE.md`](V1_SCOPE.md) §2.9–2.12). **Trust** is honest: SOC 2 is **self-assessed + roadmap**, not CPA-attested ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md))—**procurement friction** remains predictable for strict RFP shops **without** treating that as a V1 headline deduction per deferral rules. **RLS** is real on many authority tables but **explicitly incomplete** on legacy/coordinator child tables ([`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md) §9), which matters for **security reviewer psychology** even when application-layer scoping is correct.
+**Auditability, policy/governance, and traceability** are above median versus typical early-stage vendors ([`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md), [`V1_SCOPE.md`](V1_SCOPE.md) §2.9–2.12). **Trust** is honest: SOC 2 is **self-assessed + roadmap**, not CPA-attested ([`trust-center.md`](../go-to-market/trust-center.md))—**procurement friction** remains predictable for strict RFP shops **without** treating that as a V1 headline deduction per deferral rules. **RLS** is real on many authority tables but **explicitly incomplete** on legacy/coordinator child tables ([`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md) §9), which matters for **security reviewer psychology** even when application-layer scoping is correct.
 
 ### Engineering picture
 
@@ -132,7 +132,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Decision Velocity — Score **68** · Weight **2** · Deficiency **64** · Impact **1.33**
 
-- **Justification:** Procurement pack CLI + indices accelerate diligence ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)); quote-request path exists ([`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md)).
+- **Justification:** Procurement pack CLI + indices accelerate diligence ([`trust-center.md`](../go-to-market/trust-center.md)); quote-request path exists ([`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md)).
 - **Tradeoffs:** Automating legal/procurement beyond templates creates liability.
 - **Improvements:** Pre-fill **CAIQ/SIG** hotter paths from actual CI artifacts; shorten “first answer pack” to **10 pages max** executive summary.
 - **Fix horizon:** **V1**.
@@ -188,7 +188,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Compliance Readiness — Score **74** · Weight **2** · Deficiency **52** · Impact **1.45**
 
-- **Justification:** CAIQ/SIG templates, DPA template, DSAR process indexed ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)).
+- **Justification:** CAIQ/SIG templates, DPA template, DSAR process indexed ([`trust-center.md`](../go-to-market/trust-center.md)).
 - **Tradeoffs:** Template ≠ executed agreement; customers still run legal review.
 - **Improvements:** Add **data map** pointers from Trust Center to **PII retention** docs for Ask/conversations.
 - **Fix horizon:** **V1** docs.
@@ -258,7 +258,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Accessibility — Score **68** · Weight **1** · Deficiency **32** · Impact **0.67**
 
-- **Justification:** Trust Center row + live axe routes in CI ([`TEST_STRUCTURE.md`](TEST_STRUCTURE.md), [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)).
+- **Justification:** Trust Center row + live axe routes in CI ([`TEST_STRUCTURE.md`](TEST_STRUCTURE.md), [`trust-center.md`](../go-to-market/trust-center.md)).
 - **Tradeoffs:** Full WCAG on every advanced admin page is expensive.
 - **Improvements:** Expand **axe** coverage to top 5 revenue routes (trial signup, pricing, operator home).
 - **Fix horizon:** **V1** test expansion.
@@ -307,7 +307,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Availability — Score **74** · Weight **1** · Deficiency **26** · Impact **0.73**
 
-- **Justification:** Targets and probe philosophy documented ([`API_SLOS.md`](API_SLOS.md)); staging chaos on calendar ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)).
+- **Justification:** Targets and probe philosophy documented ([`API_SLOS.md`](API_SLOS.md)); staging chaos on calendar ([`trust-center.md`](../go-to-market/trust-center.md)).
 - **Tradeoffs:** Production chaos remains explicitly gated—limits learning.
 - **Improvements:** Game-day reports linked from status communications policy for buyer confidence.
 - **Fix horizon:** **V1** ops narrative.
@@ -349,7 +349,7 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ### Azure Ecosystem Fit — Score **82** · Weight **1** · Deficiency **18** · Impact **0.80**
 
-- **Justification:** Entra, AOAI, Service Bus optional, Key Vault references ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md), [`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)).
+- **Justification:** Entra, AOAI, Service Bus optional, Key Vault references ([`trust-center.md`](../go-to-market/trust-center.md), [`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)).
 - **Tradeoffs:** Tight coupling to Azure can stall non-Azure prospects—acceptable given stated strategy.
 - **Improvements:** Document **BYO model** boundaries without implying unsupported deployments.
 - **Fix horizon:** **V1** docs.
@@ -398,9 +398,9 @@ For each quality: **Score** | **Weight** | **Weighted deficiency signal** | **We
 
 ## 6. Top 5 Enterprise Adoption Blockers
 
-1. **CPA SOC 2 report + ISO** not claimed — procurement “checkbox” friction **remains** ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)); headline scoring per repo rules: **informational**, not V1 defect.
+1. **CPA SOC 2 report + ISO** not claimed — procurement “checkbox” friction **remains** ([`trust-center.md`](../go-to-market/trust-center.md)); headline scoring per repo rules: **informational**, not V1 defect.
 2. **Pen-test posture** — owner-conducted V1, third-party **V2** ([`V1_DEFERRED.md`](V1_DEFERRED.md) §6c); strict CISO shops may stall.
-3. **Data residency / AI data handling** — subprocessors + AOAI paths require **legal review** ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md), [`SUBPROCESSORS.md`](../go-to-market/SUBPROCESSORS.md)).
+3. **Data residency / AI data handling** — subprocessors + AOAI paths require **legal review** ([`trust-center.md`](../go-to-market/trust-center.md), [`SUBPROCESSORS.md`](../go-to-market/SUBPROCESSORS.md)).
 4. **RLS incompleteness narrative** — security teams may demand **DB-layer completeness** before trusting shared infrastructure ([`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md)).
 5. **ITSM embedding** — first-party ServiceNow/Jira **V1.1**; Teams/webhooks help Microsoft-centric buyers but **not all** ([`V1_DEFERRED.md`](V1_DEFERRED.md) §6–6a).
 
@@ -609,7 +609,7 @@ Acceptance criteria:
 
 ### 7) Expand accessibility CI routes (pricing + get-started + operator home)
 
-- **Why it matters:** Enterprise buyers increasingly file **VPAT / WCAG** questions early ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)).
+- **Why it matters:** Enterprise buyers increasingly file **VPAT / WCAG** questions early ([`trust-center.md`](../go-to-market/trust-center.md)).
 - **Expected impact:** Accessibility (+10–15), Procurement Readiness (+2–4). **Weighted readiness impact: +0.10–0.18%** (approx.).
 - **Actionable:** Yes.
 

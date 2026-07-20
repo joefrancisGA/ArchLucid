@@ -336,7 +336,7 @@ Cursor prompt:
 ```text
 Strengthen procurement deal-ready output as the single buyer-safe index of V1-ready, blocking, deferred, owner-required, and informational-only items.
 
-Start from docs/runbooks/PROCUREMENT_DEAL_READY.md, scripts/build_procurement_pack.py, ArchLucid.Cli procurement/proof commands, docs/go-to-market/TRUST_CENTER.md, docs/security/SOC2_SELF_ASSESSMENT_2026.md, and docs/library/V1_DEFERRED.md.
+Start from docs/runbooks/PROCUREMENT_DEAL_READY.md, scripts/build_procurement_pack.py, ArchLucid.Cli procurement/proof commands, docs/go-to-market/trust-center.md, docs/security/SOC2_SELF_ASSESSMENT_2026.md, and docs/library/V1_DEFERRED.md.
 
 Scope:
 - Ensure each row has one disposition: V1_READY, BLOCKING, DEFERRED_SCOPE, OWNER_REQUIRED, or INFORMATIONAL_B_ONLY.

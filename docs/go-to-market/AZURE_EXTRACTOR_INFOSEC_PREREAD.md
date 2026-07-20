@@ -1,10 +1,10 @@
-> **Scope:** Buyer-facing security pre-read for InfoSec / cloud platform reviewers evaluating the Tier 1 Azure extractor script before a pilot. Not legal attestation.
+﻿> **Scope:** Buyer-facing security pre-read for InfoSec / cloud platform reviewers evaluating the Tier 1 Azure extractor script before a pilot. Not legal attestation.
 
 # Azure extractor — InfoSec pre-read
 
 **Audience:** Customer security, cloud platform, and procurement reviewers who must approve running `Get-ArchLucidAzurePackage.ps1` or uploading its ZIP output to ArchLucid.
 
-**Status:** V1 GA — aligns with [V1_SCOPE.md](../library/V1_SCOPE.md) §2.16 and [TRUST_CENTER.md](TRUST_CENTER.md) Azure connectivity posture.
+**Status:** V1 GA — aligns with [V1_SCOPE.md](../library/V1_SCOPE.md) §2.16 and [trust-center.md](trust-center.md) Azure connectivity posture.
 
 **Related:** [AZURE_EXTRACTOR.md](../library/AZURE_EXTRACTOR.md) · [AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md) · [FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase B · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)
 
@@ -63,7 +63,7 @@ Scope the run to the **smallest** subscription or resource group that represents
 
 ### Roles ArchLucid will never request
 
-Per [TRUST_CENTER.md](TRUST_CENTER.md) and [V1_SCOPE.md](../library/V1_SCOPE.md) §2.16:
+Per [trust-center.md](trust-center.md) and [V1_SCOPE.md](../library/V1_SCOPE.md) §2.16:
 
 - **`Global Reader`** (Entra directory role)
 - **`Owner`**, **`Contributor`**, **`User Access Administrator`**
@@ -78,7 +78,7 @@ ArchLucid Terraform emit is **advisory-only** — the product never runs **`terr
 
 After upload:
 
-- Package stored in tenant-scoped SQL/blob per deployment ([TRUST_CENTER.md](TRUST_CENTER.md) data residency table).
+- Package stored in tenant-scoped SQL/blob per deployment ([trust-center.md](trust-center.md) data residency table).
 - Durable audit events include **`AzureExtractorPackage.Uploaded`**, **`AzureExtractorPackage.IngestSucceeded`**, and rejection events when schema validation fails — see [AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md).
 - Unsupported **`schemaVersion`** values are **rejected** (no silent parsing).
 
@@ -132,7 +132,7 @@ Tier 1: **No standing access** from upload alone. Tier 2: only if you separately
 Upload uses HTTPS to the ArchLucid API endpoint in your deployment region.
 
 **Does ArchLucid train models on our ZIP?**  
-Hosted Azure OpenAI inference does not use customer content for foundation-model training per Microsoft DPA posture documented in [TRUST_CENTER.md](TRUST_CENTER.md). Treat ZIP as confidential tenant data regardless.
+Hosted Azure OpenAI inference does not use customer content for foundation-model training per Microsoft DPA posture documented in [trust-center.md](trust-center.md). Treat ZIP as confidential tenant data regardless.
 
 **What if PowerShell execution policy blocks the script?**  
 See [EXTRACTOR_EXECUTION_POLICY_BYPASS.md](../runbooks/EXTRACTOR_EXECUTION_POLICY_BYPASS.md) — customer-controlled remediation, not ArchLucid remote execution.
@@ -141,4 +141,4 @@ See [EXTRACTOR_EXECUTION_POLICY_BYPASS.md](../runbooks/EXTRACTOR_EXECUTION_POLIC
 
 ## Change control
 
-When extractor schema, RBAC posture, or trust-center rows change, update this pre-read and [TRUST_CENTER.md](TRUST_CENTER.md) § Azure connectivity in the same change.
+When extractor schema, RBAC posture, or trust-center rows change, update this pre-read and [trust-center.md](trust-center.md) § Azure connectivity in the same change.

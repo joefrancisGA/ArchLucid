@@ -21,12 +21,12 @@
     {
       "phrase": "soc 2 certified",
       "reason": "ArchLucid publishes self-assessed SOC posture — CPA attestation is deferred (TB-135).",
-      "suggestedSafeWording": "Say self-assessed SOC readiness or roadmap to CPA attestation per TRUST_CENTER.md."
+      "suggestedSafeWording": "Say self-assessed SOC readiness or roadmap to CPA attestation per trust-center.md."
     },
     {
       "phrase": "soc2 certified",
       "reason": "ArchLucid publishes self-assessed SOC posture — CPA attestation is deferred (TB-135).",
-      "suggestedSafeWording": "Say self-assessed SOC readiness or roadmap to CPA attestation per TRUST_CENTER.md."
+      "suggestedSafeWording": "Say self-assessed SOC readiness or roadmap to CPA attestation per trust-center.md."
     },
     {
       "phrase": "third-party tested",
