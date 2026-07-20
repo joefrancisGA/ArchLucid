@@ -3047,10 +3047,10 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 **Headings:** Golden change path — extend ArchLucid safely
 
 #### `library/GOLDEN_PATH.md`
-**Scope:** **Scope:** Golden path (redirect) - full detail, tables, and links in the sections below.
-**Title:** Golden path (redirect)
-**Summary:** Environment sequencing for **zero → local → Azure** now lives in the **canonical persona docs** (2026-04-17 consolidation). - **Developer** (local toolchain + API + SQL): [onboarding/day-one-developer.md](../onboarding/day-one-developer.md) - **SRE / Platform** (health, Terraform validate, deploy order): [onboarding/day-one-sre.md](../onboarding/day-one-sre.md) - **Security** (identity, RLS, trust boundaries): [onboarding/day-one-security.md](../onboarding/day-one-security.md) - **Operator commands** (health, curl, CLI): [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) **Prior phased checklists / diagrams:** [archive/ONBOARDING_GOLDEN_PATH_2026_04_17.md](../archive/ONBOARDING_GOLDEN_PATH_202
-**Headings:** Golden path (redirect)
+**Scope:** Contributor-reference — Golden path (zero → prod-like dev → Azure) - full detail, tables, and links in the sections below.
+**Title:** Golden path — zero → prod-like dev → Azure
+**Summary:** Merged (2026-07-20) from the retired `archive/ONBOARDING_GOLDEN_PATH_2026_04_17.md` — restoring the four-phase maturity sequencing (Zero → Local MVP → Prod-like local → Azure) with a step table and "done when" gate per phase, plus the role-based entry table (Developer / SRE / Security / Operator) and the advanced/rarely-used-paths appendix (Front Door/WAF, SQL failover IaC, RLS, managed identity, Ask/RAG threat model, mutation testing). Dead relative links from the archive (`BUILD.md`, `TROUBLESHOOTING.md`, `CONTRIBUTOR_ONBOARDING.md`) were corrected to their current canonical locations.
+**Headings:** Golden path — zero → prod-like dev → Azure; Pick your lane (role-based entry); One diagram (maturity path); Phase 0 — Zero (toolchain and clone); Phase 1 — Local minimum viable; Phase 2 — Prod-like local; Phase 3 — Azure; Advanced and rarely used paths (appendix); Related indexes
 
 #### `library/GOVERNANCE.md`
 **Scope:** **Scope:** Governance workflow - full detail, tables, and links in the sections below.

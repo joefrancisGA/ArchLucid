@@ -19,7 +19,6 @@ Do **not** edit archived change-set bodies. If a decision changes, write a new A
 | [QUALITY_ASSESSMENT_2026_04.md](QUALITY_ASSESSMENT_2026_04.md) | Historical quality snapshot — April 2026 |
 | [QUALITY_ASSESSMENT_2026_04_14.md](QUALITY_ASSESSMENT_2026_04_14.md) | Historical quality snapshot — 2026-04-14 |
 | [ONBOARDING_START_HERE_2026_04_17.md](ONBOARDING_START_HERE_2026_04_17.md) | Superseded long-form **START_HERE** (pre–onboarding consolidation) |
-| [ONBOARDING_GOLDEN_PATH_2026_04_17.md](ONBOARDING_GOLDEN_PATH_2026_04_17.md) | Superseded **GOLDEN_PATH** (environment sequencing) |
 | [PILOT_GUIDE_CHANGE_SET_56R.md](PILOT_GUIDE_CHANGE_SET_56R.md) | **56R** local-dev pilot guide (superseded by `library/customer-facing/PILOT_GUIDE.md`) |
 
 For a summarised, navigable view of all releases use **[docs/CHANGELOG.md](../CHANGELOG.md)**.
