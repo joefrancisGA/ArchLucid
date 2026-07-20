@@ -1,4 +1,5 @@
 import { typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { normalizeEvidenceRefSnippet } from "@/lib/finding-evidence-ref-snippet";
 import {
@@ -69,7 +70,7 @@ export function findingInspectEvidenceCitationLabel(row: FindingInspectEvidence)
 }
 
 export function findingInspectHref(runId: string, findingId: string): string {
-  return `/reviews/${encodeURIComponent(runId.trim())}/findings/${encodeURIComponent(findingId.trim())}/inspect`;
+  return getFindingEvidenceTraceHref(runId, findingId);
 }
 
 export function resolvePolicyRuleIdFromInspect(payload: FindingInspectPayload): string | null {

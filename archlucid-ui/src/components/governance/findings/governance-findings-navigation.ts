@@ -1,13 +1,14 @@
 import type { KeyboardEvent } from "react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
 export function governanceFindingInspectHref(runId: string, findingId: string): string {
-  return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`;
+  return getFindingEvidenceTraceHref(runId, findingId);
 }
 
 export function governanceFindingManifestRecordHref(runId: string, manifestId: string): string {

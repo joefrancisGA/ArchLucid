@@ -1,4 +1,4 @@
-/** Clipboard targets for pasted work items (Markdown / wiki / ServiceNow plain text / JSON seam). */
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 export type WorkItemClipboardFormat =
   | "markdown"
   | "jiraWiki"
@@ -100,13 +100,13 @@ function traceRowWorkItemLinks(input: TraceRowWorkItemInput): {
   const origin = input.siteOrigin.replace(/\/$/, "");
   const runPath = `/reviews/${encodeURIComponent(input.runId)}`;
   const findingPath = `${runPath}/findings/${encodeURIComponent(input.findingId)}`;
-  const inspectPath = `${findingPath}/inspect`;
+  const tracePath = getFindingEvidenceTraceHref(input.runId, input.findingId);
 
   return {
     origin,
     runUrl: `${origin}${runPath}`,
     findingUrl: `${origin}${findingPath}`,
-    inspectUrl: `${origin}${inspectPath}`,
+    inspectUrl: `${origin}${tracePath}`,
   };
 }
 
@@ -215,7 +215,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const runPath = `/reviews/${encodeURIComponent(input.runId)}`;
   const base = `${origin}${runPath}`;
   const explainUrl = `${base}/findings/${encodeURIComponent(input.findingId)}`;
-  const inspectUrl = `${explainUrl}/inspect`;
+  const inspectUrl = `${origin}${getFindingEvidenceTraceHref(input.runId, input.findingId)}`;
   const heading = findingHeading(input.categoryLabel, input.title);
 
   const whatFlagged = na(input.description);

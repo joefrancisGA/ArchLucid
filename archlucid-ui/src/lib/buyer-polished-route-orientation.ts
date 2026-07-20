@@ -40,7 +40,7 @@ export function buyerPolishedRouteOrientation(
 } | null {
   const path = (pathname.split("?")[0] ?? "").trim().replace(/\/$/, "");
 
-  const inspectRiskFinding = /^\/reviews\/[^/]+\/findings\/[^/]+\/inspect\b/.exec(path);
+  const inspectRiskFinding = /^\/reviews\/[^/]+\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
 
   if (inspectRiskFinding !== null) {
     return {

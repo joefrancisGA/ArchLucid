@@ -1,4 +1,5 @@
 import { signedRecordArtifactPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import type { ArchitectureLinkageNode } from "@/types/architecture-provenance";
 
 const GUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -33,7 +34,7 @@ function nodeHref(
       return signedRecordDetailPath(node.referenceId);
 
     case "Finding":
-      return `/reviews/${encodeRunPath(runId)}/findings/${encodeURIComponent(node.referenceId)}/inspect`;
+      return getFindingEvidenceTraceHref(runId, node.referenceId);
 
     case "PolicyPack":
       return `/governance/policy-packs/${encodeURIComponent(node.referenceId)}`;
@@ -98,7 +99,7 @@ export function provenanceReferenceHref(
       return signedRecordDetailPath(ref);
     }
 
-    return `/reviews/${encodeRunPath(runId)}/findings/${encodeURIComponent(ref)}/inspect`;
+    return getFindingEvidenceTraceHref(runId, ref);
   }
 
   return null;

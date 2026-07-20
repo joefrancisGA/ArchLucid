@@ -62,7 +62,7 @@ describe("buildRetrievalHitActionLink", () => {
     );
 
     expect(link).toEqual({
-      href: `/reviews/${SAMPLE_RUN_ID}/findings/phi-minimization-risk/inspect`,
+      href: `/reviews/${SAMPLE_RUN_ID}/findings/phi-minimization-risk/evidence-trace`,
       label: "Open finding",
     });
   });

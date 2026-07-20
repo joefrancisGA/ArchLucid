@@ -32,7 +32,7 @@ describe("provenanceReferenceHref", () => {
 
   it("links finding node references to inspect route", () => {
     expect(provenanceReferenceHref("claims-intake-modernization", "finding-guid-1", nodes)).toBe(
-      "/reviews/claims-intake-modernization/findings/finding-guid-1/inspect",
+      "/reviews/claims-intake-modernization/findings/finding-guid-1/evidence-trace",
     );
   });
 

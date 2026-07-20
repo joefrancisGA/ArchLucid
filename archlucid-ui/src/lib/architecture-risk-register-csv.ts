@@ -1,3 +1,5 @@
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+
 export type ArchitectureRiskRegisterCsvRow = {
   recordKind: "finding" | "decision";
   runId: string;
@@ -78,7 +80,7 @@ function inspectPath(runId: string, findingId: string): string {
     return findingId;
   }
 
-  return `/reviews/${runId}/findings/${findingId}/inspect`;
+  return getFindingEvidenceTraceHref(runId, findingId);
 }
 
 export function downloadArchitectureRiskRegisterCsv(

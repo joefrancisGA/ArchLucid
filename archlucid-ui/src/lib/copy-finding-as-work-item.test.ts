@@ -40,7 +40,7 @@ describe("buildInspectFindingWorkItemBody", () => {
 
     expect(text).toContain("Short description: Compliance — Exposed egress (f1)");
     expect(text).toContain("Steps to resolve:");
-    expect(text).toContain("ArchLucid inspector link: https://demo.example.org/reviews/r1/findings/f1/inspect");
+    expect(text).toContain("ArchLucid inspector link: https://demo.example.org/reviews/r1/findings/f1/evidence-trace");
     expect(text).toContain("Finding ID: f1");
     expect(text).toContain("Run ID: r1");
     expect(text).toContain("Add firewall rules.");
@@ -116,6 +116,6 @@ describe("buildTraceRowWorkItemBody", () => {
 
     expect(parsed.schema).toBe("archlucid.work-item.v1");
     expect(parsed.findingId).toBe("find-z");
-    expect(parsed.links.inspect).toContain("/findings/find-z/inspect");
+    expect(parsed.links.inspect).toContain("/findings/find-z/evidence-trace");
   });
 });

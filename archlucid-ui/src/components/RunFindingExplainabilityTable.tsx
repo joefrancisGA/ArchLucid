@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
@@ -290,7 +291,7 @@ export function RunFindingExplainabilityTable({
                     </Button>
                     <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
                       <Link
-                        href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}/inspect`}
+                        href={getFindingEvidenceTraceHref(runId, row.findingId)}
                       >
                         Why?
                       </Link>

@@ -12,7 +12,7 @@ export function buyerGoldenPathSecondaryRouteHint(pathname: string): string | nu
     return "Viewing supporting detail — evidence-backed questions for this review.";
   }
 
-  if (path.includes("/inspect")) {
+  if (path.includes("/evidence-trace") || path.includes("/inspect")) {
     return "Viewing technical evidence trail — return to the finding summary when finished.";
   }
 

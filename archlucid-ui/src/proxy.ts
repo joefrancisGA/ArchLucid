@@ -2,13 +2,24 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { demoRunAliasRedirectDestinationPath } from "@/lib/demo-run-alias-path-redirect";
+import { findingEvidenceTraceLegacyRedirectPath } from "@/lib/finding-evidence-navigation";
 
 /**
  * Next.js proxy (formerly "middleware"): demo run id aliases (bookmark slugs → canonical showcase id) MUST
- * preserve pathname tails (`/findings/.../inspect`, `/provenance`, …). Matching logic also lives alongside
+ * preserve pathname tails (`/findings/.../evidence-trace`, `/provenance`, …). Matching logic also lives alongside
  * {@link canonicalizeDemoRunId}.
  */
 export function proxy(request: NextRequest) {
+  const legacyEvidenceTrace = findingEvidenceTraceLegacyRedirectPath(request.nextUrl.pathname);
+
+  if (legacyEvidenceTrace !== null) {
+    const u = request.nextUrl.clone();
+
+    u.pathname = legacyEvidenceTrace;
+
+    return NextResponse.redirect(u, 308);
+  }
+
   const nextPath = demoRunAliasRedirectDestinationPath(request.nextUrl.pathname);
 
   if (nextPath !== null) {

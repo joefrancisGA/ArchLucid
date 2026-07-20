@@ -269,7 +269,25 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("buyer-polished: showcase review uses stable buyer review title and inspect trail label", () => {
+  it("buyer-polished: showcase review uses stable buyer review title and evidence trace label", () => {
+    expect(
+      getBreadcrumbs(
+        "/reviews/claims-intake-modernization/findings/phi-minimization-risk/evidence-trace",
+        { buyerPolishedShell: true },
+      ),
+    ).toEqual([
+      { label: "Reviews", href: "/reviews" },
+      { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
+      { label: "Findings", href: "/reviews/claims-intake-modernization/findings" },
+      {
+        label: "PHI minimization finding (High)",
+        href: "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+      },
+      { label: "Evidence trace" },
+    ]);
+  });
+
+  it("buyer-polished: legacy inspect segment still labels as Evidence trace", () => {
     expect(
       getBreadcrumbs(
         "/reviews/claims-intake-modernization/findings/phi-minimization-risk/inspect",

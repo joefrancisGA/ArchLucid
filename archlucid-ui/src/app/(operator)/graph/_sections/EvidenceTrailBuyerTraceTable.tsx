@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import Link from "next/link";
 
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
@@ -89,7 +90,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
                 {truncateForList(titleFull, 120)}
               </div>
               <Button type="button" variant="ghost" size="sm" className={cn("mt-1 h-7 px-2", OPERATOR_TYPOGRAPHY.helper)} asChild>
-                <Link href={`/reviews/${encodeURIComponent(runTrim)}/findings/${encodeURIComponent(row.findingId)}/inspect`}>
+                <Link href={getFindingEvidenceTraceHref(runTrim, row.findingId)}>
                   Open finding
                 </Link>
               </Button>

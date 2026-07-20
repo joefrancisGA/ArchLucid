@@ -1,3 +1,4 @@
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import type { GraphNodeVm } from "@/types/graph";
 
@@ -43,5 +44,5 @@ export function graphFindingDetailHref(runId: string, findingId: string): string
 }
 
 export function graphFindingInspectHref(runId: string, findingId: string): string {
-  return `${graphFindingDetailHref(runId, findingId)}/inspect`;
+  return getFindingEvidenceTraceHref(runId, findingId);
 }

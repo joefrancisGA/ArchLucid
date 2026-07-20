@@ -20,7 +20,7 @@ describe("buildArchitectureRiskRegisterCsv", () => {
         lastReviewedUtc: "2026-05-01T12:00:00Z",
         waiverExpiresAtUtc: "2026-07-01T12:00:00Z",
         revisitDueUtc: "2026-06-15T12:00:00Z",
-        evidenceHref: "/reviews/run-1/findings/f-1/inspect",
+        evidenceHref: "/reviews/run-1/findings/f-1/evidence-trace",
       },
     ]);
 
@@ -43,7 +43,7 @@ describe("buildArchitectureRiskRegisterCsv", () => {
         ownerUserId: "owner-1",
         agingDays: 12,
         isStale: true,
-        evidenceHref: "/reviews/run-1/findings/f-1/inspect",
+        evidenceHref: "/reviews/run-1/findings/f-1/evidence-trace",
       },
       {
         recordKind: "decision",

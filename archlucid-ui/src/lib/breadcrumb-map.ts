@@ -491,7 +491,7 @@ function labelForSegment(
     return BUYER_TERMINOLOGY.governanceDashboard;
   }
 
-  if (buyer && segment === "inspect") {
+  if (buyer && (segment === "inspect" || segment === "evidence-trace")) {
     return "Evidence trace";
   }
 

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import { GeneratedByModelAliasDisclosure } from "@/components/GeneratedByModelAliasDisclosure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
@@ -18,7 +19,7 @@ export type OperatorEvidenceLimitsInspectMetaProps = {
 
 export type OperatorEvidenceLimitsFooterProps = {
   readonly runId: string;
-  /** Finding detail: adds `/findings/{id}/inspect` alongside provenance. */
+  /** Finding detail: adds `/findings/{id}/evidence-trace` alongside provenance. */
   readonly findingIdForInspectLink?: string | null;
   /** Link to aggregate explanation section on run detail (`#run-explanation`). */
   readonly showArchitectureReviewSummaryLink?: boolean;
@@ -50,7 +51,7 @@ export function OperatorEvidenceLimitsFooter({
   const inspectFindingId = trimmedOrEmpty(findingIdForInspectLink);
   const inspectHref =
     inspectFindingId.length > 0
-      ? `${runBase}/findings/${encodeURIComponent(inspectFindingId)}/inspect`
+      ? getFindingEvidenceTraceHref(safeRunId, inspectFindingId)
       : null;
 
   const showFallbackDisclaimer = execution?.realModeFellBackToSimulator === true;

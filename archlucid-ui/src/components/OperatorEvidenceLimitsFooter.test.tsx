@@ -55,7 +55,7 @@ describe("OperatorEvidenceLimitsFooter", () => {
 
     const inspect = screen.getByRole("link", { name: /technical inspection trail/i });
 
-    expect(inspect).toHaveAttribute("href", "/reviews/run-z/findings/fid-9/inspect");
+    expect(inspect).toHaveAttribute("href", "/reviews/run-z/findings/fid-9/evidence-trace");
   });
 
   it("shows fallback disclaimer only when API flag realModeFellBackToSimulator is true", () => {
@@ -160,7 +160,7 @@ describe("OperatorEvidenceLimitsFooter — buyer-polished operator shell", () =>
     expect(screen.getByRole("link", { name: /findings and assessment section on the review/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /technical inspection trail/i })).toHaveAttribute(
       "href",
-      "/reviews/demo-run/findings/f-1/inspect",
+      "/reviews/demo-run/findings/f-1/evidence-trace",
     );
   });
 });

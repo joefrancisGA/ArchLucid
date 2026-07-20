@@ -30,6 +30,7 @@ import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
@@ -95,7 +96,7 @@ export function FindingDetailPageView(props: Props) {
   const policyTraceExcerpt =
     inspectPayload !== null ? resolvePolicyTraceExcerptFromInspect(inspectPayload) : null;
 
-  const inspectHref = `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`;
+  const inspectHref = getFindingEvidenceTraceHref(runId, decodedFindingId);
   const decisionSummary =
     inspectPayload !== null ? deriveFindingDecisionSummary(inspectPayload, decodedFindingId) : null;
   const evidenceBasisSummary = summarizeEvidenceBasis(inspectPayload);
@@ -118,7 +119,7 @@ export function FindingDetailPageView(props: Props) {
     <div className="w-full max-w-[1440px] space-y-4 p-4">
       <nav className={cn("flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link
-          href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
+          href={getFindingEvidenceTraceHref(runId, decodedFindingId)}
           className={OPERATOR_LINK.nav}
         >
           {buyerPolishedShell ? "Open evidence trace" : "Technical inspection trail"}

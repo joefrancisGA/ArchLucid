@@ -1,0 +1,62 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+import { metadataForFindingEvidenceTraceRoute } from "@/lib/finding-route-metadata";
+import {
+  loadFindingInspectForRoute,
+  shouldTreatFindingInspectFailureAsNotFound,
+} from "@/lib/load-finding-inspect-for-route";
+import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
+import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
+
+import { FindingInspectView } from "../FindingInspectView";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ runId: string; findingId: string }>;
+}): Promise<Metadata> {
+  const { runId, findingId } = await params;
+
+  return metadataForFindingEvidenceTraceRoute(runId, findingId);
+}
+
+/**
+ * Canonical evidence trace: persisted payload, rule linkage, evidence citations, and audit correlation.
+ * ReadAuthority only; governance mutations live in the governance action region below the trace.
+ */
+export default async function FindingEvidenceTracePage({
+  params,
+}: {
+  params: Promise<{ runId: string; findingId: string }>;
+}) {
+  const { runId, findingId } = await params;
+
+  if (isInvalidGuidOrSlugRouteToken(runId)) {
+    notFound();
+  }
+
+  if (isInvalidDynamicRouteToken(findingId)) {
+    notFound();
+  }
+
+  const decodedFindingId = decodeURIComponent(findingId);
+
+  const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRoute(runId, decodedFindingId);
+
+  if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(failure)) {
+    notFound();
+  }
+
+  const runExecutionFootnote = await tryLoadRunExecutionFootnote(runId);
+
+  return (
+    <FindingInspectView
+      runId={runId}
+      decodedFindingId={decodedFindingId}
+      payload={payload}
+      failure={failure}
+      runExecutionFootnote={runExecutionFootnote}
+    />
+  );
+}

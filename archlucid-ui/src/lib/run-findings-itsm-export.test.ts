@@ -35,7 +35,7 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
     expect(document.workItems[0]?.schema).toBe("archlucid.work-item.v1");
     expect(document.workItems[0]?.findingId).toBe("f1");
     expect(document.workItems[0]?.severity).toBe("High");
-    expect(document.workItems[0]?.links.inspect).toContain("/findings/f1/inspect");
+    expect(document.workItems[0]?.links.inspect).toContain("/findings/f1/evidence-trace");
   });
 });
 

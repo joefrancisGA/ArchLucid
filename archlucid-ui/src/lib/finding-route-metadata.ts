@@ -28,21 +28,27 @@ export async function metadataForFindingDetailRoute(runId: string, findingIdEnco
   return { title: `${heading} · Finding` };
 }
 
-/** Inspect / traceability route — distinct title suffix from finding detail. */
-export async function metadataForFindingInspectRoute(runId: string, findingIdEncoded: string): Promise<Metadata> {
+/** Evidence trace route — canonical page title for browser chrome. */
+export async function metadataForFindingEvidenceTraceRoute(
+  runId: string,
+  findingIdEncoded: string,
+): Promise<Metadata> {
   const findingId = decodeURIComponent(findingIdEncoded);
 
   if (isInvalidGuidOrSlugRouteToken(runId) || isInvalidDynamicRouteToken(findingId)) {
-    return { title: "Finding traceability" };
+    return { title: "Evidence Trace" };
   }
 
-  const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRoute(runId, findingId);
+  const { failure, invalidRouteAlignment } = await loadFindingInspectForRoute(runId, findingId);
 
-  if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(failure) || payload === null) {
-    return { title: "Finding traceability" };
+  if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(failure)) {
+    return { title: "Evidence Trace" };
   }
 
-  const heading = findingDetailHeadingTitle(payload);
+  return { title: "Evidence Trace" };
+}
 
-  return { title: `${heading} · Evidence trace` };
+/** @deprecated Use {@link metadataForFindingEvidenceTraceRoute}. */
+export async function metadataForFindingInspectRoute(runId: string, findingIdEncoded: string): Promise<Metadata> {
+  return metadataForFindingEvidenceTraceRoute(runId, findingIdEncoded);
 }

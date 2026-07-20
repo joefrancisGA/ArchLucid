@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
@@ -15,6 +15,15 @@ import {
   findingInspectPageEyebrow,
 } from "@/lib/finding-display-from-inspect";
 import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
+import {
+  EVIDENCE_TRACE_PAGE_SUBTITLE,
+  EVIDENCE_TRACE_PAGE_TITLE,
+} from "@/lib/finding-evidence-navigation";
+import {
+  GOVERNANCE_ACTION_REGION_LEAD,
+  GOVERNANCE_ACTION_REGION_TITLE,
+} from "@/lib/finding-governance-action-copy";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -29,8 +38,7 @@ import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGoverna
 import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
 
 /** Compares authority run ids from URL vs API (hyphenated vs `N` GUID, case). */
-export function sameAuthorityRunId(a: string, b: string): boolean
-{
+export function sameAuthorityRunId(a: string, b: string): boolean {
   const norm = (s: string) => s.replace(/-/g, "").toLowerCase();
 
   return norm(String(a)) === norm(String(b));
@@ -45,7 +53,7 @@ export type FindingInspectViewProps = {
 };
 
 /**
- * Sync inspector UI (payload / rule / evidence / audit). The RSC page loads data and passes props;
+ * Evidence trace UI (payload / rule / evidence / audit). The RSC page loads data and passes props;
  * Vitest targets this module so mocks do not fight Next async server entrypoints.
  */
 export function FindingInspectView({
@@ -58,13 +66,28 @@ export function FindingInspectView({
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (failure || !payload) {
+    if (buyerPolishedShell && failure) {
+      return (
+        <div className="w-full max-w-[1440px] space-y-4 p-6">
+          <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>{EVIDENCE_TRACE_PAGE_TITLE}</h1>
+          <FindingOptionalArtifactUnavailable
+            heading="Evidence trace temporarily unavailable"
+            body="ArchLucid could not load the evidence trace for this finding right now."
+            tryNext="Return to the finding summary or open the review findings list."
+            buyerPolishedShell
+            failure={failure}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="w-full max-w-[1440px] space-y-4 p-6">
         <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Technical inspection</h1>
-        <OperatorApiProblem
-          problem={failure?.problem ?? null}
-          fallbackMessage={failure?.message ?? "Finding inspector unavailable."}
-          correlationId={failure?.correlationId ?? null}
+        <FindingOptionalArtifactUnavailable
+          heading="Evidence trace unavailable"
+          body={failure?.message ?? "Finding inspector unavailable."}
+          failure={failure}
         />
       </div>
     );
@@ -85,10 +108,10 @@ export function FindingInspectView({
               )}
         </p>
         <Link
-          href={`/reviews/${encodeURIComponent(payload.runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
+          href={getFindingEvidenceTraceHref(payload.runId, decodedFindingId)}
           className={OPERATOR_LINK.nav}
         >
-          Open the correct inspector
+          Open the correct evidence trace
         </Link>
       </div>
     );
@@ -103,92 +126,94 @@ export function FindingInspectView({
           <span className="font-mono">{decodedFindingId}</span>.
         </p>
         <Link
-          href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(payload.findingId)}/inspect`}
+          href={getFindingEvidenceTraceHref(runId, payload.findingId)}
           className={OPERATOR_LINK.nav}
         >
-          Open the inspector for finding {payload.findingId}
+          Open the evidence trace for finding {payload.findingId}
         </Link>
       </div>
     );
   }
 
   const findingTitle = findingDetailHeadingTitle(payload);
-  const inspectHeroTitle = buyerPolishedShell ? "Evidence trace" : `${findingTitle} — evidence & trace`;
+  const inspectHeroTitle = buyerPolishedShell ? EVIDENCE_TRACE_PAGE_TITLE : `${findingTitle} — evidence & trace`;
   const policyCitationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
   const policyTraceExcerpt = resolvePolicyTraceExcerptFromInspect(payload);
 
   return (
-    <div className="w-full max-w-[1440px] space-y-4 p-4">
-      {buyerPolishedShell ? (
-        <div className={cn("flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.helper)}>
-          <span className={cn("rounded-sm bg-neutral-200 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
-            Appendix
-          </span>
-          <span>
-            Supporting evidence trace — source evidence, trace path, and audit metadata linked to this finding within the
-            review.
-          </span>
-        </div>
-      ) : null}
-
-      <header
-        className={
-          buyerPolishedShell
-            ? "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 border-2 p-5"
-            : "space-y-3"
-        }
+    <div className="w-full max-w-[1440px] space-y-6 p-4">
+      <section
+        className="space-y-4"
+        aria-labelledby="evidence-trace-region-heading"
+        data-testid="finding-evidence-trace-region"
       >
-        <p className={cn("m-0 text-violet-900 dark:text-violet-200", OPERATOR_NAV_GROUP_LABEL)}>
-          {findingInspectPageEyebrow(payload)}
-        </p>
-        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>{inspectHeroTitle}</h1>
-        <p className={cn("m-0 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          {findingDetailLeadSentence(payload)}
-        </p>
-        <ul className={cn("m-0 list-disc space-y-1.5 py-1 pl-5 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          <li>
-            <strong className="font-medium text-neutral-900 dark:text-neutral-100">Source evidence:</strong> citations,
-            snapshots, and structured payload fields persisted with this finding.
-          </li>
-          <li>
-            <strong className="font-medium text-neutral-900 dark:text-neutral-100">Trace path:</strong> decision rule →
-            finding record → review record version; correlated events appear in the audit trail.
-          </li>
-          <li>
-            <strong className="font-medium text-neutral-900 dark:text-neutral-100">Audit metadata:</strong> model and
-            template versions (when present) support reproducibility — open the reference section below for full detail.
-          </li>
-        </ul>
-        {!buyerPolishedShell ? (
-          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            Finding <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{decodedFindingId}</span> — review record{" "}
-            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? "—"}</span>
+        <header
+          className={
+            buyerPolishedShell
+              ? "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 border-2 p-5"
+              : "space-y-3"
+          }
+        >
+          <p className={cn("m-0 text-violet-900 dark:text-violet-200", OPERATOR_NAV_GROUP_LABEL)}>
+            {findingInspectPageEyebrow(payload)}
           </p>
+          <h1 id="evidence-trace-region-heading" className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
+            {inspectHeroTitle}
+          </h1>
+          {buyerPolishedShell ? (
+            <p className={cn("m-0 max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {EVIDENCE_TRACE_PAGE_SUBTITLE}
+            </p>
+          ) : null}
+          <p className={cn("m-0 max-w-3xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {findingDetailLeadSentence(payload)}
+          </p>
+          {!buyerPolishedShell ? (
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Finding <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{decodedFindingId}</span> — review record{" "}
+              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? "—"}</span>
+            </p>
+          ) : null}
+        </header>
+
+        {policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
+          <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />
         ) : null}
-      </header>
 
-      {policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
-        <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />
-      ) : null}
+        <FindingInspectFindingBody
+          runId={runId}
+          decodedFindingId={decodedFindingId}
+          payload={payload}
+          variant="inspect"
+        />
+      </section>
 
-      <FindingInspectFindingBody
-        runId={runId}
-        decodedFindingId={decodedFindingId}
-        payload={payload}
-        variant="inspect"
-      />
+      <section
+        className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/60 p-5 dark:border-neutral-800 dark:bg-neutral-900/30"
+        aria-labelledby="governance-action-region-heading"
+        data-testid="finding-governance-action-region"
+      >
+        <div className="space-y-1">
+          <h2 id="governance-action-region-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
+            {GOVERNANCE_ACTION_REGION_TITLE}
+          </h2>
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            {GOVERNANCE_ACTION_REGION_LEAD}
+          </p>
+        </div>
 
-      <FindingInspectGovernanceStickinessPanel
-        findingId={decodedFindingId}
-        runId={runId}
-        initialAssignedToUserId={payload.assignedToUserId}
-        initialRemediationDueUtc={payload.remediationDueUtc}
-      />
+        <FindingInspectGovernanceStickinessPanel
+          findingId={decodedFindingId}
+          runId={runId}
+          initialAssignedToUserId={payload.assignedToUserId}
+          initialRemediationDueUtc={payload.remediationDueUtc}
+        />
 
-      <FindingInspectItsmWorkflowPanel
-        findingId={decodedFindingId}
-        humanReviewStatusLabel={formatFindingHumanReviewStatusLabel(payload.humanReviewStatus)}
-      />
+        <FindingInspectItsmWorkflowPanel
+          findingId={decodedFindingId}
+          humanReviewStatusLabel={formatFindingHumanReviewStatusLabel(payload.humanReviewStatus)}
+        />
+      </section>
 
       <OperatorEvidenceLimitsFooter
         runId={runId}

@@ -23,7 +23,7 @@ export function FindingInspectItsmWorkflowPanel({
   }
 
   return (
-    <Card className="border-teal-200 dark:border-teal-900">
+    <Card className="border-neutral-200 dark:border-neutral-800">
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
           {nativeCreateEnabled ? "Sync to Jira or ServiceNow" : "External ticket linkage"}

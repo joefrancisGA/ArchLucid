@@ -27,7 +27,7 @@ describe("resolveGovernanceQueueRiskExceptionAction", () => {
     const action = resolveGovernanceQueueRiskExceptionAction(baseFindingRow);
 
     expect(action.label).toBe("Create exception");
-    expect(action.href).toBe("/reviews/run-1/findings/finding-1/inspect");
+    expect(action.href).toBe("/reviews/run-1/findings/finding-1/evidence-trace");
   });
 
   it("routes view-exception to the risk-exception register when a waiver expiry is present", () => {

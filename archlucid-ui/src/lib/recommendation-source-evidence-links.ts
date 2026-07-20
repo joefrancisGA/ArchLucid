@@ -1,3 +1,4 @@
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import {
   reviewSignedRecordPath,
   signedRecordDetailPath,
@@ -30,7 +31,7 @@ export function buildRecommendationEvidenceLinkViews(
 
     if (link.kind === "finding") {
       return {
-        href: `/reviews/${encodeURIComponent(trimmedRunId)}/findings/${encodeURIComponent(trimmedId)}/inspect`,
+        href: getFindingEvidenceTraceHref(trimmedRunId, trimmedId),
         label: `Finding ${trimmedId}`,
       };
     }

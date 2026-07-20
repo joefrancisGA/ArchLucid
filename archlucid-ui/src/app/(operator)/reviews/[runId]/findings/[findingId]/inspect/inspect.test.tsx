@@ -16,6 +16,14 @@ vi.mock("@/components/OperatorEvidenceLimitsFooter", () => ({
   OperatorEvidenceLimitsFooter: () => <div data-testid="operator-evidence-limits-footer-stub" />,
 }));
 
+vi.mock("../FindingInspectGovernanceStickinessPanel", () => ({
+  FindingInspectGovernanceStickinessPanel: () => <div data-testid="governance-stickiness-stub" />,
+}));
+
+vi.mock("../FindingInspectItsmWorkflowPanel", () => ({
+  FindingInspectItsmWorkflowPanel: () => <div data-testid="itsm-workflow-stub" />,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
   return {
@@ -58,7 +66,36 @@ describe("FindingInspectView", () => {
     expect(view.getByRole("heading", { name: "Recommended action" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Audit record" })).toBeTruthy();
     expect(view.getAllByText("rule-a").length).toBeGreaterThan(0);
-    expect(view.getAllByText("node-x").length).toBeGreaterThan(0);
+    expect(view.getByTestId("finding-evidence-trace-region")).toBeTruthy();
+    expect(view.getByTestId("finding-governance-action-region")).toBeTruthy();
+  });
+
+  it("separates evidence trace and governance action regions", () => {
+    const { container } = render(
+      <FindingInspectView
+        runId="6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501"
+        decodedFindingId="f-1"
+        failure={null}
+        payload={{
+          findingId: "f-1",
+          typedPayload: { severity: "High" },
+          decisionRuleId: "rule-a",
+          decisionRuleName: "Rule A",
+          evidence: [{ artifactId: null, lineRange: "12-20", excerpt: "node-x" }],
+          recommendedActions: ["Tighten ingress controls for the cited subgraph."],
+          reasoningSummary: "Synthetic summary.",
+          auditRowId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
+          manifestVersion: "v1",
+        }}
+      />,
+    );
+
+    const view = within(container);
+
+    expect(view.getByTestId("finding-evidence-trace-region")).toBeTruthy();
+    expect(view.getByTestId("finding-governance-action-region")).toBeTruthy();
+    expect(view.getByRole("heading", { name: "Take governance action" })).toBeTruthy();
   });
 
   it("has no serious axe violations when reasoning summary is present", async () => {

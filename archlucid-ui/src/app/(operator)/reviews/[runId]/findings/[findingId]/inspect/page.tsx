@@ -1,62 +1,19 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
-import {
-  loadFindingInspectForRoute,
-  shouldTreatFindingInspectFailureAsNotFound,
-} from "@/lib/load-finding-inspect-for-route";
-import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
+import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 
-import { FindingInspectView } from "../FindingInspectView";
-import { metadataForFindingInspectRoute } from "@/lib/finding-route-metadata";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ runId: string; findingId: string }>;
-}): Promise<Metadata> {
-  const { runId, findingId } = await params;
-
-  return metadataForFindingInspectRoute(runId, findingId);
-}
+export { generateMetadata } from "../evidence-trace/page";
 
 /**
- * First-class technical inspection: persisted payload, rule linkage, evidence citations, and audit correlation.
- * ReadAuthority only; no writes. `useOperateCapability` applies when future write affordances are added.
+ * Legacy inspect URL — permanently redirects to the canonical evidence-trace route.
+ * Rendering is not duplicated; see {@link ../evidence-trace/page.tsx}.
  */
-export default async function FindingInspectPage({
+export default async function FindingInspectLegacyRedirectPage({
   params,
 }: {
   params: Promise<{ runId: string; findingId: string }>;
 }) {
   const { runId, findingId } = await params;
 
-  if (isInvalidGuidOrSlugRouteToken(runId)) {
-    notFound();
-  }
-
-  if (isInvalidDynamicRouteToken(findingId)) {
-    notFound();
-  }
-
-  const decodedFindingId = decodeURIComponent(findingId);
-
-  const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRoute(runId, decodedFindingId);
-
-  if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(failure)) {
-    notFound();
-  }
-
-  const runExecutionFootnote = await tryLoadRunExecutionFootnote(runId);
-
-  return (
-    <FindingInspectView
-      runId={runId}
-      decodedFindingId={decodedFindingId}
-      payload={payload}
-      failure={failure}
-      runExecutionFootnote={runExecutionFootnote}
-    />
-  );
+  permanentRedirect(getFindingEvidenceTraceHref(runId, findingId));
 }
