@@ -218,7 +218,7 @@ Also creates **`artifacts/release/PACKAGE-HANDOFF.txt`**, **`metadata.json`**, *
 
 | Doc | Use |
 |-----|-----|
-| [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](../../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md) | Archived pilot narrative (first run, logs, issue template) |
+| [archive/PILOT_GUIDE_CHANGE_SET_56R.md](../../archive/PILOT_GUIDE_CHANGE_SET_56R.md) | Archived **56R** local-dev pilot guide (first run, logs, issue template) |
 | [PRODUCT_LEARNING.md](../PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export (58R) |
 | [TROUBLESHOOTING.md](../../TROUBLESHOOTING.md) | Common failures |
 | [operator-shell.md](../operator-shell.md) | UI workflow detail |

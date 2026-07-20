@@ -3041,10 +3041,10 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 **Headings:** ArchLucid glossary; Architecture run (run); Artifact bundle; Authority run orchestrator; Comparison replay; Context snapshot; Decision trace; Effective governance
 
 #### `library/GOLDEN_CHANGE_PATH.md`
-**Scope:** **Scope:** Golden change path (redirect) - full detail, tables, and links in the sections below.
-**Title:** Golden change path (redirect)
-**Summary:** Use the **developer Day-1 doc** for clone → build → test → small PR flow, and **[BUILD.md](BUILD.md)** for solution layout and formatting. **Canonical:** [onboarding/day-one-developer.md](../onboarding/day-one-developer.md) **Prior golden-change narrative:** [archive/ONBOARDING_GOLDEN_CHANGE_PATH_2026_04_17.md](../archive/ONBOARDING_GOLDEN_CHANGE_PATH_2026_04_17.md)
-**Headings:** Golden change path (redirect)
+**Scope:** **Scope:** Contributor-reference — Golden change path (extend ArchLucid safely) - full detail, tables, and links in the sections below.
+**Title:** Golden change path — extend ArchLucid safely
+**Summary:** Merged (2026-07-20) from the retired `archive/ONBOARDING_GOLDEN_CHANGE_PATH_2026_04_17.md` redirect target back into this canonical path — restoring the full minimum-file-touch-list checklist (HTTP endpoint, SQL-backed repository, durable audit event, agent/LLM path) that `CODE_MAP.md` and `templates/archlucid-api-endpoint/README.md` already expect to find here. Points new contributors to [onboarding/day-one-developer.md](../onboarding/day-one-developer.md) first for the week-one loop, then back here for the change-type checklists.
+**Headings:** Golden change path — extend ArchLucid safely
 
 #### `library/GOLDEN_PATH.md`
 **Scope:** **Scope:** Golden path (redirect) - full detail, tables, and links in the sections below.
@@ -4641,10 +4641,9 @@ Archive content is valuable but should be treated as historical evidence, not ca
 - `NAVIGATOR.md`: 1 files
 - `NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`: 1 files
 - `ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md`: 1 files
-- `ONBOARDING_GOLDEN_CHANGE_PATH_2026_04_17.md`: 1 files
 - `ONBOARDING_GOLDEN_PATH_2026_04_17.md`: 1 files
 - `ONBOARDING_HAPPY_PATH_2026_04_17.md`: 1 files
-- `ONBOARDING_PILOT_GUIDE_2026_04_17.md`: 1 files
+- `PILOT_GUIDE_CHANGE_SET_56R.md`: 1 files
 - `ONBOARDING_START_HERE_2026_04_17.md`: 1 files
 - `PENDING_QUESTIONS_RESOLVED_HISTORY.md`: 1 files
 - `PRODUCT_PACKAGING_THREE_LAYERS_2026_04_23.md`: 1 files
