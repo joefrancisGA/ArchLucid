@@ -291,7 +291,8 @@ kbd {
 
 /* ── Print stylesheet ────────────────────────────────────────────────
    Hides operator chrome so document views (value report, explanation,
-   provenance, finding audit) produce clean, printable output.
+   provenance, finding audit) and `/help/{topic}` buyer docs (TB-721)
+   produce clean, printable output.
    Pairs with print:hidden on shell elements and print:max-w-none
    in DocumentLayout.                                                */
 
@@ -324,8 +325,16 @@ kbd {
   }
 
   .privacy-policy-no-print,
-  [data-testid="marketing-analytics-consent-banner"] {
+  [data-testid="marketing-analytics-consent-banner"],
+  [data-testid="help-topic-export-actions"],
+  [data-testid="help-topic-toc"],
+  [data-testid="help-topic-toc-mobile"],
+  [data-testid="help-tabs-shell-tablist"] {
     display: none !important;
+  }
+
+  [data-testid="help-topic-content"] {
+    max-width: 100% !important;
   }
 
   .privacy-policy-page {

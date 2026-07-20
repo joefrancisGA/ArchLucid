@@ -12,6 +12,9 @@
 # ARCHLUCID_BUILD_COMMIT_SHA. Friendly `latest-staging` is an additional tag only.
 # Container Apps deploy uses `registry/repo@sha256:<digest>` when build-push exports a digest, plus `CD_DEPLOY_RUN` and
 # a unique `--revision-suffix`, so ACA creates a new revision and ingress can pin to that revision (not a stale `show`).
+# Rollback (parity with cd.yml): capture last-known-good before update; on smoke failure with
+# CD_ROLLBACK_ON_SMOKE_FAILURE=true, plan via cd_plan_rollback.py (schema gate), restore LKG traffic,
+# verify API+/UI BUILD_ID, upload report. Workflow stays failed when smoke failed.
 name: CD staging on merge
 
 on:
@@ -49,6 +52,8 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+          # Full history so schema gate can resolve LKG BUILD_ID vs failed BUILD_ID.
+          fetch-depth: 0
 
       - uses: azure/login@v2
         with:
@@ -292,6 +297,99 @@ jobs:
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
+      - name: Record UI revision before update
+        id: ui_rev_before
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_UI_NAME:-}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --query "properties.latestRevisionName" -o tsv)
+          echo "revision=$REV" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Capture last-known-good release identity
+        id: capture_lkg
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+          API_REV: ${{ steps.api_rev_before.outputs.revision }}
+          WORKER_REV: ${{ steps.worker_rev_before.outputs.revision }}
+          UI_REV: ${{ steps.ui_rev_before.outputs.revision }}
+          API_SKIP: ${{ steps.api_rev_before.outputs.skip }}
+          WORKER_SKIP: ${{ steps.worker_rev_before.outputs.skip }}
+          UI_SKIP: ${{ steps.ui_rev_before.outputs.skip }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_NAME="cd-last-known-good-staging-${{ github.run_id }}"
+          OUT="artifacts/${ARTIFACT_NAME}.json"
+          mkdir -p artifacts
+          echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+
+          read_rev_image() {
+            local app="$1" rev="$2"
+            if [ -z "$app" ] || [ -z "$rev" ]; then echo ""; return; fi
+            az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$app" --revision "$rev" \
+              --query "properties.template.containers[0].image" -o tsv 2>/dev/null || true
+          }
+          read_rev_env() {
+            local app="$1" rev="$2"
+            if [ -z "$app" ] || [ -z "$rev" ]; then echo "[]"; return; fi
+            az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$app" --revision "$rev" \
+              --query "properties.template.containers[0].env" -o json 2>/dev/null || echo "[]"
+          }
+
+          API_ARGS=()
+          if [ "${API_SKIP:-}" != "true" ] && [ -n "${API_REV:-}" ]; then
+            API_ARGS+=(
+              --api-app "$CONTAINER_APP_API_NAME"
+              --api-revision "$API_REV"
+              --api-image "$(read_rev_image "$CONTAINER_APP_API_NAME" "$API_REV")"
+              --api-env-json "$(read_rev_env "$CONTAINER_APP_API_NAME" "$API_REV")"
+            )
+          fi
+          WORKER_ARGS=()
+          if [ "${WORKER_SKIP:-}" != "true" ] && [ -n "${WORKER_REV:-}" ]; then
+            WORKER_ARGS+=(
+              --worker-app "$CONTAINER_APP_WORKER_NAME"
+              --worker-revision "$WORKER_REV"
+              --worker-image "$(read_rev_image "$CONTAINER_APP_WORKER_NAME" "$WORKER_REV")"
+              --worker-env-json "$(read_rev_env "$CONTAINER_APP_WORKER_NAME" "$WORKER_REV")"
+            )
+          fi
+          UI_ARGS=()
+          if [ "${UI_SKIP:-}" != "true" ] && [ -n "${UI_REV:-}" ]; then
+            UI_ARGS+=(
+              --ui-app "$CONTAINER_APP_UI_NAME"
+              --ui-revision "$UI_REV"
+              --ui-image "$(read_rev_image "$CONTAINER_APP_UI_NAME" "$UI_REV")"
+              --ui-env-json "$(read_rev_env "$CONTAINER_APP_UI_NAME" "$UI_REV")"
+            )
+          fi
+
+          python3 scripts/ci/cd_capture_last_known_good.py \
+            --environment staging \
+            --json-out "$OUT" \
+            "${API_ARGS[@]}" \
+            "${WORKER_ARGS[@]}" \
+            "${UI_ARGS[@]}"
+          echo "lkg_path=${OUT}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload last-known-good artifact
+        if: steps.lineage_gate.outputs.deploy_ran == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.capture_lkg.outputs.artifact_name }}
+          path: artifacts/cd-last-known-good-*.json
+          if-no-files-found: warn
+
       - name: Update Container Apps
         id: containerapp_update
         if: steps.lineage_gate.outputs.deploy_ran == 'true'
@@ -526,34 +624,139 @@ jobs:
           path: artifacts/deployment-evidence-staging-${{ github.run_id }}.md
           if-no-files-found: ignore
 
-      - name: Roll back API and worker on failed smoke
-        if: ${{ failure() && (steps.smoke_api.outcome == 'failure' || steps.smoke_product.outcome == 'failure') && steps.lineage_gate.outputs.deploy_ran == 'true' }}
+      - name: Plan and execute auto-rollback to last-known-good
+        if: ${{ failure() && (steps.smoke_api.outcome == 'failure' || steps.smoke_product.outcome == 'failure' || steps.smoke_build_id.outcome == 'failure') && steps.lineage_gate.outputs.deploy_ran == 'true' }}
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
           CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+          FAILED_BUILD_ID: ${{ env.BUILD_ID }}
+          FAILED_API_REV: ${{ steps.containerapp_update.outputs.a_latest }}
+          FAILED_WORKER_REV: ${{ steps.containerapp_update.outputs.w_latest }}
+          FAILED_UI_REV: ${{ steps.containerapp_update.outputs.u_latest }}
+          LKG_API_REV: ${{ steps.api_rev_before.outputs.revision }}
+          LKG_WORKER_REV: ${{ steps.worker_rev_before.outputs.revision }}
+          LKG_UI_REV: ${{ steps.ui_rev_before.outputs.revision }}
+          LKG_PATH: ${{ steps.capture_lkg.outputs.lkg_path }}
         run: |
-          if [ "${{ vars.CD_ROLLBACK_ON_SMOKE_FAILURE }}" != "true" ]; then
+          set -euo pipefail
+          mkdir -p artifacts/cd-rollback
+          LKG_JSON="${LKG_PATH:-}"
+          if [ -z "$LKG_JSON" ] || [ ! -f "$LKG_JSON" ]; then
+            LKG_JSON=$(find artifacts -name 'cd-last-known-good-*.json' -type f 2>/dev/null | head -1 || true)
+          fi
+          PLAN_FLAGS=()
+          if [ "${{ vars.CD_ROLLBACK_ON_SMOKE_FAILURE }}" = "true" ]; then PLAN_FLAGS+=(--flag-enabled); fi
+          if [ -n "${SMOKE_TEST_BASE_URL:-}" ]; then PLAN_FLAGS+=(--smoke-url-configured); fi
+          if [ -n "${FAILED_API_REV:-}" ] && [ -n "${LKG_API_REV:-}" ] && [ "$FAILED_API_REV" != "$LKG_API_REV" ]; then
+            PLAN_FLAGS+=(--distinct-failed-revision)
+          fi
+          LKG_ARGS=()
+          if [ -n "${LKG_JSON:-}" ] && [ -f "$LKG_JSON" ]; then
+            LKG_ARGS+=(--lkg-json "$LKG_JSON")
+          fi
+
+          set +e
+          python3 scripts/ci/cd_plan_rollback.py \
+            --mode auto \
+            --environment staging \
+            --failed-build-id "${FAILED_BUILD_ID:-}" \
+            "${LKG_ARGS[@]}" \
+            "${PLAN_FLAGS[@]}" \
+            --json-out artifacts/cd-rollback/report.json \
+            --markdown-out artifacts/cd-rollback/report.md \
+            --plan-out artifacts/cd-rollback/plan.json
+          PLAN_RC=$?
+          set -e
+          if [ "$PLAN_RC" -eq 3 ]; then
+            echo "::error::Schema-incompatible deploy — automatic app rollback blocked. Human intervention required (see MIGRATION_ROLLBACK.md)."
+            cat artifacts/cd-rollback/report.md >> "$GITHUB_STEP_SUMMARY" || true
+            exit 1
+          fi
+          if [ "$PLAN_RC" -ne 0 ]; then
+            echo "::error::cd_plan_rollback.py failed with exit ${PLAN_RC}"
+            exit "$PLAN_RC"
+          fi
+
+          APPROVED=$(jq -r '.approved // false' artifacts/cd-rollback/plan.json)
+          TARGET_BUILD=$(jq -r '.targetBuildId // empty' artifacts/cd-rollback/plan.json)
+          if [ "$APPROVED" != "true" ]; then
+            echo "Auto-rollback not executed: $(jq -r '.reason // empty' artifacts/cd-rollback/plan.json)"
+            cat artifacts/cd-rollback/report.md >> "$GITHUB_STEP_SUMMARY" || true
             exit 0
           fi
-          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            exit 0
+
+          restore_rev() {
+            local app="$1" good="$2" bad="$3"
+            if [ -z "$app" ] || [ -z "$good" ]; then return 0; fi
+            echo "Restoring traffic on ${app} to revision ${good}"
+            az containerapp ingress traffic set -g "$AZURE_RESOURCE_GROUP" -n "$app" --revision-weight "${good}=100" \
+              || echo "Traffic set soft-failed for ${app}; continuing with deactivate of failed revision."
+            if [ -n "$bad" ] && [ "$bad" != "$good" ]; then
+              echo "Deactivating failed revision ${bad} on ${app}"
+              az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$app" --revision "$bad" || true
+            fi
+          }
+
+          GOOD_API=$(jq -r '.targetApiRevision // empty' artifacts/cd-rollback/plan.json)
+          GOOD_WORKER=$(jq -r '.targetWorkerRevision // empty' artifacts/cd-rollback/plan.json)
+          GOOD_UI=$(jq -r '.targetUiRevision // empty' artifacts/cd-rollback/plan.json)
+          if [ -z "$GOOD_API" ]; then GOOD_API="${LKG_API_REV:-}"; fi
+          if [ -z "$GOOD_WORKER" ]; then GOOD_WORKER="${LKG_WORKER_REV:-}"; fi
+          if [ -z "$GOOD_UI" ]; then GOOD_UI="${LKG_UI_REV:-}"; fi
+
+          restore_rev "$CONTAINER_APP_API_NAME" "$GOOD_API" "${FAILED_API_REV:-}"
+          if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
+            restore_rev "$CONTAINER_APP_WORKER_NAME" "$GOOD_WORKER" "${FAILED_WORKER_REV:-}"
           fi
-          if [ "${{ steps.api_rev_before.outputs.skip }}" != "true" ]; then
-            BEFORE="${{ steps.api_rev_before.outputs.revision }}"
-            AFTER=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
-            if [ -n "$AFTER" ] && [ "$AFTER" != "$BEFORE" ]; then
-              az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$AFTER"
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            restore_rev "$CONTAINER_APP_UI_NAME" "$GOOD_UI" "${FAILED_UI_REV:-}"
+          fi
+
+          sleep 20
+          UI_BASE=""
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            UI_FQDN=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" \
+              --query "properties.configuration.ingress.fqdn" -o tsv 2>/dev/null || true)
+            if [ -n "${UI_FQDN:-}" ]; then
+              UI_BASE="https://${UI_FQDN}"
             fi
           fi
-          if [ "${{ steps.worker_rev_before.outputs.skip }}" != "true" ] && [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
-            WBF="${{ steps.worker_rev_before.outputs.revision }}"
-            WAF=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
-            if [ -n "$WAF" ] && [ "$WAF" != "$WBF" ]; then
-              az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --revision "$WAF"
-            fi
+          VERIFY="failure"
+          VERIFY_ARGS=(--api-base-url "${SMOKE_TEST_BASE_URL}" --expected-build-id "${TARGET_BUILD}")
+          if [ -n "${UI_BASE}" ]; then
+            VERIFY_ARGS+=(--ui-base-url "${UI_BASE}")
           fi
+          if python3 scripts/ci/cd_verify_rollback_runtime.py "${VERIFY_ARGS[@]}"; then
+            VERIFY="success"
+          else
+            echo "::error::Post-rollback BUILD_ID verification failed."
+            VERIFY="failure"
+          fi
+
+          python3 scripts/ci/cd_finalize_rollback_report.py \
+            --environment staging \
+            --mode auto \
+            --failed-build-id "${FAILED_BUILD_ID}" \
+            --plan-json artifacts/cd-rollback/plan.json \
+            --prior-report-json artifacts/cd-rollback/report.json \
+            --verification-result "$VERIFY" \
+            --json-out artifacts/cd-rollback/report.json \
+            --markdown-out artifacts/cd-rollback/report.md
+          cat artifacts/cd-rollback/report.md >> "$GITHUB_STEP_SUMMARY"
+          if [ "$VERIFY" = "failure" ]; then
+            exit 1
+          fi
+
+      - name: Upload rollback report
+        if: always() && steps.lineage_gate.outputs.deploy_ran == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cd-rollback-staging-${{ github.run_id }}
+          path: artifacts/cd-rollback/
+          if-no-files-found: ignore
 
       - name: Deployment lineage summary
         if: always()

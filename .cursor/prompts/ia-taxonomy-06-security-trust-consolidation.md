@@ -32,7 +32,7 @@ commission new attestation or third-party testing.
   `operator-security-trust-content.ts`) — tenant isolation model, DPA/CAIQ links, for an
   authenticated procurement reviewer or tenant admin.
 - **Duplicate trust-center markdown** (four files, one canonical needed):
-  `docs/trust-center.md`, `docs/go-to-market/trust-center.md`, `docs/go-to-market/TRUST_CENTER.md`,
+  `docs/trust-center.md`, `docs/go-to-market/trust-center.md`, `docs/go-to-market/trust-center.md`,
   `docs/security/trust-center.md`. Diff all four before deciding which is authoritative — do not
   assume the newest-modified one is correct without checking content drift.
 - Assurance packet material already exists and is largely buyer-safe by design:
@@ -47,7 +47,7 @@ commission new attestation or third-party testing.
 
 ### 1. De-duplicate trust-center markdown
 
-- Diff `docs/trust-center.md`, `docs/go-to-market/trust-center.md`, `docs/go-to-market/TRUST_CENTER.md`,
+- Diff `docs/trust-center.md`, `docs/go-to-market/trust-center.md`, `docs/go-to-market/trust-center.md`,
   `docs/security/trust-center.md`. Pick one canonical file (default assumption, verify: the one
   `readTrustCenterMarkdown` actually reads for `/trust` today — check that function's import path
   first) and turn the other three into short pointer files (a one-line "see X" redirect notice) or

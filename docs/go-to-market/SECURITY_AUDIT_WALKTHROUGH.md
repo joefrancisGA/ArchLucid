@@ -1,4 +1,4 @@
-> **Scope:** Security-reviewer walkthrough for one architecture review — uses existing routes and exports only.
+﻿> **Scope:** Security-reviewer walkthrough for one architecture review — uses existing routes and exports only.
 
 # Security audit walkthrough (one review)
 
@@ -28,6 +28,6 @@ Assume review id `runId` and tenant scope already established.
 
 ## Related
 
-- [`TRUST_CENTER.md`](TRUST_CENTER.md)
+- [`trust-center.md`](trust-center.md)
 - [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md)
 - [`AI_OUTPUT_DECISION_SUPPORT.md`](AI_OUTPUT_DECISION_SUPPORT.md)

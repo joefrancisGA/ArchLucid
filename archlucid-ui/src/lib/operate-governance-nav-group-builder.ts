@@ -118,7 +118,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/governance/alert-rules",
           label: OPERATOR_NAV_LINK_LABELS.alertRules,
-          title: "Configure alert rules, routing, and simulation",
+          title: "Configure alert conditions and notification delivery",
           icon: SlidersHorizontal,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",

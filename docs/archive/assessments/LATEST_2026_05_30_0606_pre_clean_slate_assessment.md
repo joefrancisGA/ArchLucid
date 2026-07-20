@@ -634,7 +634,7 @@ Acceptance criteria:
 Reconcile assurance wording across current trust and deferral documents.
 
 Files to inspect:
-- docs/go-to-market/TRUST_CENTER.md
+- docs/go-to-market/trust-center.md
 - docs/library/V1_DEFERRED.md
 - docs/PENDING_QUESTIONS.md
 - docs/go-to-market/SOC2_ROADMAP.md
@@ -923,7 +923,7 @@ Files to inspect:
 - scripts/ci/**
 - docs/library/V1_DEFERRED.md
 - docs/library/V1_SCOPE.md
-- docs/go-to-market/TRUST_CENTER.md
+- docs/go-to-market/trust-center.md
 - docs/go-to-market/AI_EVIDENCE_APPENDIX.md
 - docs/go-to-market/WHAT_NOT_TO_PROMISE.md
 

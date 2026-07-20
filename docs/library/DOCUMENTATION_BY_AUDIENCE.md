@@ -21,7 +21,7 @@ Use this table when you need a **starting doc**, not a folder tour:
 
 | Audience | Intent | Start here |
 | --- | --- | --- |
-| **Buyer / pilot / sponsor** | Time-to-value, trust, procurement | [`docs/START_HERE.md`](../START_HERE.md), [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) |
+| **Buyer / pilot / sponsor** | Time-to-value, trust, procurement | [`docs/START_HERE.md`](../START_HERE.md), [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md) |
 | **Operator / tenant admin** | Day-2 configuration, runbooks, **internal** shell/diagnostics docs — **not** customer-facing UI voice | [`docs/library/OPERATOR_QUICKSTART.md`](OPERATOR_QUICKSTART.md), [`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md), [`docs/OPERATIONS_ADMIN.md`](OPERATIONS_ADMIN.md)) |
 | **Contributor / platform engineer** | Repo layout, invariants, CI, migrations | [`.cursor/rules/Architecture-Invariants.mdc`](ARCHITECTURE_INVARIANTS.md), [`docs/library/TECH_BACKLOG.md`](TECH_BACKLOG.md), [`docs/library/CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) |
 

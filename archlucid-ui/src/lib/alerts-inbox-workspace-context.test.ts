@@ -8,6 +8,7 @@ import {
   ALERTS_EMPTY_HEALTHY_TITLE,
   ALERTS_EMPTY_NO_REVIEWS_TITLE,
   ALERTS_EMPTY_NO_RULES_TITLE,
+  ALERTS_ACTION_CONFIGURE_ALERT_RULES,
 } from "@/lib/alerts-page-copy";
 
 const ALL = "__all__";
@@ -48,7 +49,7 @@ describe("buildAlertsInboxEmptyStateProps", () => {
   it("maps no_rules to configure alert rules CTA", () => {
     const props = buildAlertsInboxEmptyStateProps("no_rules", true);
     expect(props.title).toBe(ALERTS_EMPTY_NO_RULES_TITLE);
-    expect(props.actions?.[0]?.label).toBe("Configure alert rules");
+    expect(props.actions?.[0]?.label).toBe(ALERTS_ACTION_CONFIGURE_ALERT_RULES);
     expect(props.actions?.[0]?.href).toBe("/governance/alert-rules");
     expect(props.actions?.[1]?.label).toBe("Open governance setup guide");
   });

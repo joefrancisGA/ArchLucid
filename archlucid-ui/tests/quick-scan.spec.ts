@@ -2,6 +2,19 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Quick Scan (mocked API)", () => {
   test("fills required fields and shows at least one finding card", async ({ page }) => {
+    await page.route("**/api/proxy/v1/architecture/quick-scan/status", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          enabled: true,
+          capacityAvailable: true,
+          requireSignIn: false,
+          sampleResultAvailable: true,
+        }),
+      });
+    });
+
     await page.route("**/api/proxy/v1/architecture/quick-scan", async (route) => {
       if (route.request().method() !== "POST") {
         await route.continue();
@@ -14,8 +27,13 @@ test.describe("Quick Scan (mocked API)", () => {
         contentType: "application/json",
         body: JSON.stringify({
           scanId: "scan-mock-playwright-001",
+          systemName: "Playwright fixture system",
+          primaryEnvironment: "Azure",
           summary: "Mock quick scan: reviewed networking and data boundaries for the described system.",
           completedUtc: new Date().toISOString(),
+          positiveObservations: ["Clear separation between public API and internal workers."],
+          recommendedNextSteps: ["Start a full review with evidence attachments."],
+          demonstrationDisclaimer: "Demonstration only.",
           findings: [
             {
               title: "Segment internal data paths",
@@ -31,9 +49,9 @@ test.describe("Quick Scan (mocked API)", () => {
 
     await expect(page.getByRole("heading", { name: /^Quick scan$/i })).toBeVisible();
 
-    await page.getByLabel(/^System name$/i).fill("Playwright fixture system");
-    await page.getByLabel(/^Cloud provider$/i).fill("Azure");
-    await page.getByLabel(/^Description$/i).fill("Three-tier web application with internal APIs and blob storage.");
+    await page.getByLabel(/System name/i).fill("Playwright fixture system");
+    await page.getByLabel(/Primary environment/i).selectOption("Azure");
+    await page.getByLabel(/Describe the system/i).fill("Three-tier web application with internal APIs and blob storage.");
 
     await page.getByTestId("quick-scan-submit").click();
 

@@ -89,11 +89,11 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 ### Decisions and onboarding
 - **Glossary** — `../GLOSSARY.md`
 - **ADRs** — [`adrs/README.md`](adrs/README.md)
-- **Onboarding narrative vs. platform mission (2026-06-15)** — [`PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md) — evidence-first first-run realignment; **TB-337–344**
-- **UX implementation leakage audit (2026-06-15)** — [`PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md`](PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md) — product narrative, AI budget, ops chrome, and V1 correction priorities
-- **Pilot UX backlog (2026-06-15)** — [`PILOT_UX_BACKLOG_2026_06_15.md`](PILOT_UX_BACKLOG_2026_06_15.md) — P0/P1/P2 items, top-5 changes, and stop-doing list for EA private pilot readiness
+- **Onboarding narrative vs. platform mission (2026-06-15)** — [`PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](../archive/assessments/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md) — evidence-first first-run realignment; **TB-337–344** (archived)
+- **UX implementation leakage audit (2026-06-15)** — [`PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md`](../archive/assessments/PRODUCT_UX_IMPLEMENTATION_LEAKAGE_AUDIT_2026_06_15.md) — product narrative, AI budget, ops chrome, and V1 correction priorities (archived)
+- **Pilot UX backlog (2026-06-15)** — [`PILOT_UX_BACKLOG_2026_06_15.md`](../archive/assessments/PILOT_UX_BACKLOG_2026_06_15.md) — P0/P1/P2 items absorbed into **TECH_BACKLOG** (archived)
 - **Overview page first-use IA audit (2026-07-05)** — [`OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md`](OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md) — decision memo on streamlining the Overview page's overlapping "first review" / onboarding elements to one dominant path; recommended IA, naming cleanup, and phased implementation plan
-- **Overview page first-use IA implementation prompts (2026-07-05)** — [`OVERVIEW_PAGE_FIRST_USE_IA_IMPLEMENTATION_PROMPTS_2026_07_05.md`](OVERVIEW_PAGE_FIRST_USE_IA_IMPLEMENTATION_PROMPTS_2026_07_05.md) — seven ordered, copy-paste Composer prompts executing the audit above; not yet run
+- **Overview page first-use IA implementation prompts (2026-07-05)** — [`OVERVIEW_PAGE_FIRST_USE_IA_IMPLEMENTATION_PROMPTS_2026_07_05.md`](../archive/assessments/OVERVIEW_PAGE_FIRST_USE_IA_IMPLEMENTATION_PROMPTS_2026_07_05.md) — completed / archived one-shot prompts
 
 ### API and contracts
 - **HTTP contracts** — `../library/API_CONTRACTS.md`

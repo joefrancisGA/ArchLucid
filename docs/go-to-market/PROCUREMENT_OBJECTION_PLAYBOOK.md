@@ -1,4 +1,4 @@
-> **Scope:** High-frequency procurement objection responses with approved short/long answers, evidence links, and escalation triggers; designed to reduce deal-cycle friction while avoiding over-claims.
+﻿> **Scope:** High-frequency procurement objection responses with approved short/long answers, evidence links, and escalation triggers; designed to reduce deal-cycle friction while avoiding over-claims.
 
 # Procurement Objection Playbook
 
@@ -30,7 +30,7 @@
 
 - **Short answer:** V1 uses owner-conducted penetration-style testing; third-party engagement is planned, not yet scheduled.
 - **Long answer:** We provide owner-conducted testing evidence and external-engagement templates. We do not claim an external assessor report today.
-- **Evidence:** [TRUST_CENTER.md](TRUST_CENTER.md), [../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md), [../library/V1_DEFERRED.md](../library/V1_DEFERRED.md)
+- **Evidence:** [trust-center.md](trust-center.md), [../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md), [../library/V1_DEFERRED.md](../library/V1_DEFERRED.md)
 - **Escalate when:** Buyer demands NDA package from an external assessor.
 
 ### 3) "Your DPA has placeholders. Is it executable?"
@@ -58,7 +58,7 @@
 
 - **Short answer:** Key procurement docs are on a cadence and checked in CI for staleness.
 - **Long answer:** Review ownership and frequency are documented; CI warns on stale dates for key buyer-facing documents.
-- **Evidence:** [REVIEW_CADENCE.md](REVIEW_CADENCE.md), [TRUST_CENTER.md](TRUST_CENTER.md)
+- **Evidence:** [REVIEW_CADENCE.md](REVIEW_CADENCE.md), [trust-center.md](trust-center.md)
 - **Escalate when:** Buyer requests named individual owners rather than role ownership.
 
 ### 7) "Can we trust that docs are consistent?"
@@ -79,7 +79,7 @@
 
 - **Short answer:** Yes. Security mailbox remains the hard fallback when operational channels are degraded.
 - **Long answer:** Service channels are primary; `security@archlucid.net` is fallback for incident and security communications.
-- **Evidence:** [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md), [TRUST_CENTER.md](TRUST_CENTER.md)
+- **Evidence:** [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md), [trust-center.md](trust-center.md)
 - **Escalate when:** Buyer requires named 24x7 phone escalation.
 
 ### 10) "Is optional cross-tenant processing mandatory?"

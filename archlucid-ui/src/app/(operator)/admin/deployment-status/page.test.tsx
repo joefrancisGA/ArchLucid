@@ -1,0 +1,122 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+const hoistedLoad = vi.hoisted(() => ({ demo: false }));
+
+vi.mock("./_sections/load-admin-deployment-status-page-data", () => ({
+  loadAdminDeploymentStatusPageData: () => Promise.resolve(hoistedLoad),
+}));
+
+vi.mock("@/lib/deployment-fingerprint", () => ({
+  readClientDeploymentFingerprint: () => ({
+    frontendCommitSha: "frontendsha",
+    buildTimestamp: "2026-07-17T00:00:00Z",
+    environment: "test",
+    apiUpstreamHost: "api.test",
+  }),
+}));
+
+import AdminDeploymentStatusPage from "./page";
+
+function jsonResponse(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
+}
+
+describe("AdminDeploymentStatusPage", () => {
+  it("renders identity fields and match agreement from the admin API", async () => {
+    const fetchMock = vi.fn(async (url: string | URL) => {
+      const s = String(url);
+      expect(s).toContain("/api/proxy/v1/admin/deployment-status");
+      expect(s).toContain("frontendBuildId=frontendsha");
+
+      return jsonResponse({
+        environment: "Production",
+        releaseBuildId: "frontendsha",
+        sourceCommit: "frontendsha",
+        frontendBuildId: "frontendsha",
+        apiBuildId: "frontendsha",
+        workerBuildId: "frontendsha",
+        deploymentTimeUtc: "2026-07-17T12:00:00Z",
+        activePlatformRevision: "api--rev1",
+        healthStatus: "Healthy",
+        readinessStatus: "Healthy",
+        databaseMigrationVersion: "284_SelfServiceTrialAbuse.sql",
+        latestSmokeTestResult: "Unknown",
+        lastKnownGoodBuildId: "Unknown",
+        componentAgreement: "Match",
+        componentAgreementDetail: "Frontend, API, and worker BUILD_IDs match.",
+        overallStatus: "Healthy",
+        overallStatusLabel: "Healthy — components agree and readiness is Healthy.",
+        links: [],
+        generatedAtUtc: "2026-07-17T12:01:00Z",
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const page = await AdminDeploymentStatusPage();
+    render(page);
+
+    expect(await screen.findByTestId("admin-deployment-status-page")).toBeInTheDocument();
+    expect(screen.getByTestId("ds-api-build-id").textContent).toContain("frontendsha");
+    expect(screen.getByTestId("ds-component-agreement").textContent).toMatch(/Match/i);
+    expect(screen.getByTestId("admin-deployment-status-overall").textContent).toMatch(/Healthy/i);
+
+    fireEvent.click(screen.getByTestId("admin-deployment-status-refresh"));
+    await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2));
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows Failed label when components disagree", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        jsonResponse({
+          environment: "Production",
+          releaseBuildId: "aaa",
+          sourceCommit: "aaa",
+          frontendBuildId: "bbb",
+          apiBuildId: "aaa",
+          workerBuildId: "Unknown",
+          deploymentTimeUtc: "Unknown",
+          activePlatformRevision: "Unknown",
+          healthStatus: "Healthy",
+          readinessStatus: "Healthy",
+          databaseMigrationVersion: "Unknown",
+          latestSmokeTestResult: "Unknown",
+          lastKnownGoodBuildId: "Unknown",
+          componentAgreement: "Mismatch",
+          componentAgreementDetail: "Component BUILD_IDs disagree.",
+          overallStatus: "Failed",
+          overallStatusLabel: "Failed — Component BUILD_IDs disagree.",
+          links: [],
+          generatedAtUtc: "2026-07-17T12:01:00Z",
+        }),
+      ),
+    );
+
+    const page = await AdminDeploymentStatusPage();
+    render(page);
+
+    const overall = await screen.findByTestId("admin-deployment-status-overall");
+    expect(overall.textContent).toMatch(/Failed/i);
+    expect(screen.getByTestId("ds-component-agreement").textContent).toMatch(/Mismatch/i);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("surfaces authorization failure instead of inventing status data", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("forbidden", { status: 403 })),
+    );
+
+    const page = await AdminDeploymentStatusPage();
+    render(page);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/administrator access/i);
+    expect(screen.queryByTestId("ds-api-build-id")).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+});

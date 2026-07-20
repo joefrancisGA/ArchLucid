@@ -1,17 +1,20 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -47,6 +50,11 @@ public sealed class ArchitectureQuickScanControllerAuditTests
             .Setup(q => q.ScanAsync(It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(scanResult);
 
+        Mock<IQuickScanGuard> guard = new();
+        guard.Setup(g => g.TryBeginScan(It.IsAny<QuickScanGuardContext>())).Returns(QuickScanGuardDecision.Permit());
+        guard.Setup(g => g.GetStatus(It.IsAny<QuickScanGuardContext>())).Returns(new QuickScanStatusResponse { Enabled = true, CapacityAvailable = true });
+
+        Mock<IQuickScanTelemetry> telemetry = new();
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("auditor-user");
 
@@ -62,12 +70,23 @@ public sealed class ArchitectureQuickScanControllerAuditTests
                 });
 
         Mock<IAuditService> audit = new();
+        Mock<ILlmCostEstimator> costEstimator = new();
+        costEstimator
+            .Setup(c => c.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
+            .Returns(0.001m);
+
+        IOptionsMonitor<QuickScanOptions> options = new TestOptionsMonitor(new QuickScanOptions { Enabled = true });
 
         ArchitectureQuickScanController sut = new(
             quickScan.Object,
+            guard.Object,
+            telemetry.Object,
+            options,
             actor.Object,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            costEstimator.Object,
+            TimeProvider.System);
 
         DefaultHttpContext http = new()
         {
@@ -79,7 +98,7 @@ public sealed class ArchitectureQuickScanControllerAuditTests
         ArchitectureQuickScanRequest payload = new()
         {
             SystemName = "PaymentApi",
-            CloudProvider = "azure",
+            PrimaryEnvironment = "Azure",
             Description = "short-desc"
         };
 
@@ -96,12 +115,21 @@ public sealed class ArchitectureQuickScanControllerAuditTests
                     && e.CorrelationId == "corr-quick-scan"
                     && !string.IsNullOrWhiteSpace(e.DataJson)
                     && e.DataJson.Contains("\"systemName\":\"PaymentApi\"", StringComparison.Ordinal)
-                    && e.DataJson.Contains("\"cloudProvider\":\"azure\"", StringComparison.Ordinal)
+                    && e.DataJson.Contains("\"primaryEnvironment\":\"Azure\"", StringComparison.Ordinal)
                     && e.DataJson.Contains("\"descriptionLength\":10", StringComparison.Ordinal)
                     && e.DataJson.Contains("\"scanId\":\"scan-audit-1\"", StringComparison.Ordinal)
                     && e.DataJson.Contains("\"findingCount\":1", StringComparison.Ordinal)
                     && e.DataJson.Contains("\"summaryLength\":12", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    private sealed class TestOptionsMonitor(QuickScanOptions value) : IOptionsMonitor<QuickScanOptions>
+    {
+        public QuickScanOptions CurrentValue => value;
+
+        public QuickScanOptions Get(string? name) => value;
+
+        public IDisposable? OnChange(Action<QuickScanOptions, string?> listener) => null;
     }
 }

@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Subprocessors - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — Subprocessors - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -48,6 +48,6 @@ Until a single public **primary production region** is published for the ArchLuc
 
 | Doc | Use |
 |-----|-----|
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | DPA template (subprocessors schedule) |
 | [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | Product boundary and data flows |

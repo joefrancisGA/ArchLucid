@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
@@ -299,8 +298,7 @@ export function AlertSimulationContent() {
 
   return (
     <div className="max-w-[1100px]">
-      <LayerHeader pageKey="alert-simulation" />
-      <h2 className="mt-0">Alert rule simulation</h2>
+      <h2 className="mt-0">Simulate alerts</h2>
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {alertSimulationPageLead}
       </p>

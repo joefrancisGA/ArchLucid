@@ -6,6 +6,9 @@ export const DEV_SHELL_EXPERIENCE_COOKIE = "archlucid_dev_shell_experience_v1";
 /** Browser cookie — overrides dev-bypass / mock `/me` role in local development only. */
 export const DEV_ROLE_OVERRIDE_COOKIE = "archlucid_dev_role_override_v1";
 
+/** Browser localStorage — hides the dev testing quick-switch panel without disabling other dev overrides. */
+export const DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY = "archlucid_dev_quick_switch_panel_hidden_v1";
+
 /** Matches upstream `ArchLucidAuthOptions.TestActorRoleHeader`. */
 export const DEV_TEST_ACTOR_ROLE_HEADER = "X-ArchLucid-Test-Actor-Role";
 
@@ -147,6 +150,42 @@ export function reloadAfterDevTestingOverrideChange(): void {
   }
 
   window.location.reload();
+}
+
+export function readDevQuickSwitchPanelHiddenFromDocument(): boolean {
+  if (!isDevTestingOverridesEnabled() || typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function persistDevQuickSwitchPanelHidden(hidden: boolean): void {
+  if (!isDevTestingOverridesEnabled() || typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (hidden) {
+      window.localStorage.setItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY, "1");
+    } else {
+      window.localStorage.removeItem(DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY);
+    }
+  } catch {
+    // Ignore quota / private-mode failures — panel stays visible for this session.
+  }
+}
+
+export function toggleDevQuickSwitchPanelHidden(): boolean {
+  const nextHidden = !readDevQuickSwitchPanelHiddenFromDocument();
+
+  persistDevQuickSwitchPanelHidden(nextHidden);
+
+  return nextHidden;
 }
 
 export function cycleDevShellExperienceOverride(): DevShellExperienceOverride | null {

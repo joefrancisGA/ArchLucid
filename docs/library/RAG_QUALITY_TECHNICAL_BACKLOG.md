@@ -382,8 +382,8 @@
 |----|-------|------|-------|
 | **RAG-V1.1-001** | Reference-architecture exemplar retrieval | M | Index `templates/reference-architectures/**`, `templates/starter-proof-packs/**`; search by request fingerprint; **style prior only** — never in manifest hash |
 | **RAG-V1.1-002** | MCP read-only retrieval tools (3 of 7) | M | `policy-pack-search`, `prior-decision-search`, `price-row-lookup` per [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) §5.1 |
-| **RAG-V1.1-003** | Pilot-feedback retrieval for planning materialize | S–M | `POST /v1/learning/planning/materialize` — citable themes from ranked opportunities ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md)) |
-| **RAG-V1.1-004** | Cross-tenant pattern library UI (ADR 0031) | L | Nightly k-anon aggregates — **not** embedding-RAG; coordinated with PatternInsights API |
+| **RAG-V1.1-003** | Pilot-feedback retrieval for planning materialize | S–M | `POST /v1/learning/planning/materialize` — citable themes from ranked opportunities ([`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md)); **TB-879** (promoted V1 2026-07-19) |
+| **RAG-V1.1-004** | Cross-tenant pattern library UI (ADR 0031) | L | Nightly k-anon aggregates — **not** embedding-RAG; coordinated with PatternInsights API; **TB-880** (promoted V1 2026-07-19) |
 
 ---
 
@@ -394,7 +394,7 @@
 | ID | Title | Notes |
 |----|-------|-------|
 | **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Pulled forward to V1. Requires stable schema (ADR 0036). |
-| **RAG-V2-002** | Single-pass query expansion (HyDE, query rewrite, semantic rerank) | Pulled forward to V1. One LLM completion per transform + managed semantic rerank — not iterative multi-hop retrieval (**TB-598 closed 2026-07-04**). |
+| **RAG-V2-002** | Single-pass query expansion (HyDE, query rewrite, semantic rerank) | Pulled forward to V1. One LLM completion per transform + managed semantic rerank — not iterative multi-hop retrieval (**TB-598 closed 2026-07-04**). **Iterative retrieve-critique-retry remainder:** **TB-878** (promoted V1 2026-07-19). |
 | **RAG-V2-003** | Online fine-tuning on accepted manifests | Pulled forward to V1. Requires explicit DPA + owner ADR. |
 
 ### Reranking — V1 decision (2026-05-26)

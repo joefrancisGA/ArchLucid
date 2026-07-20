@@ -1,4 +1,4 @@
-> **Scope:** Buyer-facing — security reviewer summary of documented posture; not certification or formal attestation.
+﻿> **Scope:** Buyer-facing — security reviewer summary of documented posture; not certification or formal attestation.
 
 # Security reviewer one-pager (generated)
 
@@ -34,7 +34,7 @@
 
 ## Source documents
 
-- `docs/go-to-market/TRUST_CENTER.md` (Trust center narrative) — present
+- `docs/go-to-market/trust-center.md` (Trust center narrative) — present
 - `docs/security/SOC2_SELF_ASSESSMENT_2026.md` (SOC 2 self-assessment (not CPA attestation)) — present
 - `docs/go-to-market/SOC2_ROADMAP.md` (SOC 2 roadmap (deferred CPA program)) — present
 - `docs/library/V1_DEFERRED.md` (Explicit V1 deferrals) — present

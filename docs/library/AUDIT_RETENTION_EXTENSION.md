@@ -6,7 +6,7 @@
 
 **Audience:** Security reviewers, auditors, procurement, and platform operators answering “how do we get **7-year** (or other extended) audit retention?”
 
-**Related:** [`AUDIT_RETENTION_POLICY.md`](AUDIT_RETENTION_POLICY.md) · [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) · [`PROCUREMENT_FAQ.md`](../go-to-market/PROCUREMENT_FAQ.md) · [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)
+**Related:** [`AUDIT_RETENTION_POLICY.md`](AUDIT_RETENTION_POLICY.md) · [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) · [`PROCUREMENT_FAQ.md`](../go-to-market/PROCUREMENT_FAQ.md) · [`trust-center.md`](../go-to-market/trust-center.md)
 
 ---
 
@@ -76,6 +76,6 @@ Estimates depend on tenant activity (runs/month, governance events, integration 
 
 ## Cross-links
 
-- Trust posture summary: [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)
+- Trust posture summary: [`trust-center.md`](../go-to-market/trust-center.md)
 - Procurement answers: [`PROCUREMENT_FAQ.md`](../go-to-market/PROCUREMENT_FAQ.md) (audit retention row)
 - Hosted Enterprise onboarding: [`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`](HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md)

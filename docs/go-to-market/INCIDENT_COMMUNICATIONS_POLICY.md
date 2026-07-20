@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Incident communications policy - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — Incident communications policy - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -44,7 +44,7 @@ Targets are **goals**; actual events may require adjustment (e.g., unknown root 
 | **SEV-3** | Next business day or in scheduled report | As needed | Optional summary |
 | **SEV-4** | Monthly operations / release notes | — | — |
 
-**Channels:** public status page URL is published in [TRUST_CENTER.md](TRUST_CENTER.md) once live; until then, use `security@archlucid.net` for incident notices and procurement follow-up. In-app banners remain SEV-1/2 communication channel when available.
+**Channels:** public status page URL is published in [trust-center.md](trust-center.md) once live; until then, use `security@archlucid.net` for incident notices and procurement follow-up. In-app banners remain SEV-1/2 communication channel when available.
 
 ---
 
@@ -85,6 +85,6 @@ Blameless review covers: **timeline**, **customer impact**, **root cause**, **re
 
 | Doc | Use |
 |-----|-----|
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [../API_SLOS.md](../library/API_SLOS.md) | HTTP SLOs (e.g. **99.9%** availability, tiered latency) |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Breach notification clause |

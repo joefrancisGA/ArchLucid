@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Integration catalog — buyer-facing narrative, roadmap table, and links. Per-connector **status, direction, auth, secrets, code entry points, tests, and smoke** live in [`../library/CONNECTOR_READINESS_MATRIX.md`](../library/CONNECTOR_READINESS_MATRIX.md).
+﻿> **Scope:** ArchLucid — Integration catalog — buyer-facing narrative, roadmap table, and links. Per-connector **status, direction, auth, secrets, code entry points, tests, and smoke** live in [`../library/CONNECTOR_READINESS_MATRIX.md`](../library/CONNECTOR_READINESS_MATRIX.md).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -44,7 +44,7 @@ Use this table for **first-pilot and procurement “day one”** integrations. D
 | CI/CD manifest delta on pull requests | GitHub Actions + Azure DevOps pipeline task | [`integrations/CICD_INTEGRATION.md`](../integrations/CICD_INTEGRATION.md) · ADO PR decoration (server-side) [`AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md`](../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md) |
 | Identity provisioning | SCIM | [`integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md) |
 | Automation / scripts | REST OpenAPI + .NET client + API keys | [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`SECURITY.md`](../library/contributor-reference/SECURITY.md) |
-| Procurement / trust artifacts | Procurement ZIP build script | `scripts/build_procurement_pack.ps1` · [`TRUST_CENTER.md`](TRUST_CENTER.md) |
+| Procurement / trust artifacts | Procurement ZIP build script | `scripts/build_procurement_pack.ps1` · [`trust-center.md`](trust-center.md) |
 | Custom agent logic (advanced, in-repo) | Register `IAgentHandler` in host | [`CUSTOM_AGENT_HANDLER_GUIDE.md`](../library/CUSTOM_AGENT_HANDLER_GUIDE.md) |
 | Custom agent logic (isolated service) | HTTPS webhook `AgentResult` contract | [`CUSTOM_AGENT_HANDLERS.md`](../library/CUSTOM_AGENT_HANDLERS.md) |
 | Push finding → Jira / ServiceNow incident | First-party Jira / ServiceNow connectors (V1 GA) | `POST /v1/integrations/itsm/outbound/issues` — §1 *V1 GA* below; native create enabled by default via `Integrations:Itsm:NativeEnabled` (opt out with `false`) |
@@ -68,7 +68,7 @@ Also:
 
 | Item | Note |
 |------|------|
-| **Procurement ZIP** | Reproducible `dist/procurement-pack.zip` via `scripts/build_procurement_pack.sh` / `.ps1`. See [TRUST_CENTER.md](TRUST_CENTER.md). |
+| **Procurement ZIP** | Reproducible `dist/procurement-pack.zip` via `scripts/build_procurement_pack.sh` / `.ps1`. See [trust-center.md](trust-center.md). |
 | **AsyncAPI** | Async contract for webhook and Service Bus consumers (see matrix + [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)). |
 
 ### V1 GA — integration seams (native create gated by config)
@@ -180,7 +180,7 @@ Contact your **ArchLucid account team** or the address on your **order form** wi
 | [../library/walkthroughs/README.md](../library/walkthroughs/README.md) | Accelerator pack index (Azure SaaS, AI governance, healthcare) |
 | [../library/CUSTOM_AGENT_HANDLER_GUIDE.md](../library/CUSTOM_AGENT_HANDLER_GUIDE.md) | In-repo handler extension (not required for Pilot) |
 | [../library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md) | Shipped vs planned; auth/secrets; code + tests + smoke |
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [POSITIONING.md](POSITIONING.md) | Product positioning |
 | [../API_CONTRACTS.md](../library/API_CONTRACTS.md) | API surface detail |
 | [SIEM_EXPORT.md](SIEM_EXPORT.md) | Audit export for SIEM |

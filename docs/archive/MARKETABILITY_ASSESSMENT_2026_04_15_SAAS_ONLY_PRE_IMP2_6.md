@@ -1,10 +1,10 @@
-# ArchLucid Marketability Assessment — SaaS-Only Posture (2026-04-15, post-Trust Center)
+﻿# ArchLucid Marketability Assessment — SaaS-Only Posture (2026-04-15, post-Trust Center)
 
 **Assumption:** ArchLucid is **SaaS-only** — no self-hosted or on-premises deployment path. Buyers evaluate you as a **vendor-operated service**, not software they run in their own cloud or data center.
 
 **Overall Marketability Score (unweighted average): 37 / 100** | Weighted: **37.6%** (4,479 / 11,900)
 
-**Prior SaaS-only assessment (pre-Trust Center):** `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` (34/100 headline, 34.8% weighted).
+**Prior SaaS-only assessment (pre-Trust Center):** `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` (34/100 headline, 34.8% weighted).
 
 **Companion assessment (mixed / optional self-host framing):** `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` (58/100 headline, 42.3% weighted under that framing).
 
@@ -16,7 +16,7 @@
 
 **SaaS Improvement 1 (Trust Center spine)** delivered six documents into `docs/go-to-market/`:
 
-- `TRUST_CENTER.md` — Buyer-facing security index with compliance table, security-at-a-glance, contact.
+- `trust-center.md` — Buyer-facing security index with compliance table, security-at-a-glance, contact.
 - `SUBPROCESSORS.md` — Microsoft Azure services, Entra ID, Azure OpenAI; 30-day change notification; data residency statement.
 - `DPA_TEMPLATE.md` — GDPR-style Data Processing Agreement template (requires legal review).
 - `INCIDENT_COMMUNICATIONS_POLICY.md` — SEV-1–4 classification, customer comms timelines, breach notification addendum.
@@ -155,10 +155,10 @@ See `docs/CURSOR_PROMPTS_SAAS_IMPROVEMENTS_2_TO_6.md` for executable Cursor prom
 | Mixed / self-host friendly | SaaS-only replacement | Trust center support |
 |----------------------------|------------------------|----------------------|
 | "Deploy in your Azure subscription" | "Hosted by ArchLucid; your data isolated per tenant" | `TENANT_ISOLATION.md` |
-| "You control the network boundary" | "We use private connectivity and encryption; here is our architecture" | `TRUST_CENTER.md` security overview |
+| "You control the network boundary" | "We use private connectivity and encryption; here is our architecture" | `trust-center.md` security overview |
 | "Bring your own keys" (if not offered) | Roadmap honesty + current key management story | `TENANT_ISOLATION.md` §5 |
 | "Air-gapped option" | Not available — position export, offline artifacts, or partners | — |
-| "Install guide" | "Get started in 10 minutes" + trust links | `TRUST_CENTER.md` |
+| "Install guide" | "Get started in 10 minutes" + trust links | `trust-center.md` |
 | "Who are your subprocessors?" | "Here is the list and our 30-day notification commitment" | `SUBPROCESSORS.md` |
 | "Do you have a DPA?" | "Template available; legal review required" | `DPA_TEMPLATE.md` |
 | "Where is your SOC 2?" | "In progress — here is the roadmap and current controls" | `SOC2_ROADMAP.md` |
@@ -178,12 +178,12 @@ The largest remaining gaps are **structural** rather than documentary: commercia
 | Doc | Use |
 |-----|-----|
 | `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` | Primary assessment with optional self-host framing |
-| `docs/go-to-market/TRUST_CENTER.md` | Trust index (Improvement 1 deliverable) |
+| `docs/go-to-market/trust-center.md` | Trust index (Improvement 1 deliverable) |
 | `docs/go-to-market/COMPETITIVE_LANDSCAPE.md` | Competitive context |
 | `docs/go-to-market/POSITIONING.md` | Positioning |
 | `docs/go-to-market/ROI_MODEL.md` | ROI (M3) |
 | `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md` | Pilot metrics (M3) |
 | `docs/go-to-market/DEMO_QUICKSTART.md` | Docker demo (M4) |
 | `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | Technical quality |
-| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` | Prior SaaS-only assessment (34.8%) |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` | Prior SaaS-only assessment (34.8%) |
 | `docs/CURSOR_PROMPTS_SAAS_IMPROVEMENTS_2_TO_6.md` | Executable Cursor prompts for remaining improvements |

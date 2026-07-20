@@ -1,4 +1,4 @@
-> **Scope:** ADR 0018 — Background workloads: Azure Container Apps Jobs (not Functions) - full detail, tables, and links in the sections below.
+﻿> **Scope:** ADR 0018 — Background workloads: Azure Container Apps Jobs (not Functions) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -44,7 +44,6 @@ ArchLucid runs long-lived background loops in `ArchLucid.Worker` via `IHostedSer
 ## References
 
 - `docs/runbooks/CONTAINER_APPS_JOBS.md`
-- `docs/CURSOR_PROMPTS_BACKGROUND_TO_CONTAINER_JOBS.md`
 - `ArchLucid.Host.Core/Jobs/`
 - `ArchLucid.Jobs.Cli/Program.cs`
 - `infra/terraform-container-apps/jobs.tf`

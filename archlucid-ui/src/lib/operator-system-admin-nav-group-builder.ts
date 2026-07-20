@@ -8,7 +8,9 @@ import {
   Layers,
   LineChart,
   PackageCheck,
+  ServerCog,
   Settings2,
+  Sparkles,
   Wallet,
 } from "lucide-react";
 
@@ -64,6 +66,14 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "AdminAuthority",
         },
         {
+          href: "/admin/deployment-status",
+          label: "Deployment status",
+          title: "Deployment status — BUILD_ID agreement, health, migration version (internal)",
+          icon: ServerCog,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
           href: "/admin/rag-health",
           label: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth,
           title: `${OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth} — per-corpus index freshness and embedding dimension`,
@@ -103,6 +113,14 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           icon: PackageCheck,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/internal-operations/recommendation-learning",
+          label: OPERATOR_NAV_LINK_LABELS.recommendationTuning,
+          title: "Recommendation learning — inspect eligibility, preview rebuilds, and profile history",
+          icon: Sparkles,
+          tier: "advanced",
+          requiredAuthority: "ReadAuthority",
         },
       ];
 

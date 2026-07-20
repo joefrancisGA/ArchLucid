@@ -81,6 +81,13 @@ public sealed class FindingInspectResponse
         init;
     }
 
+    /// <summary>Customer-facing model alias from the governed registry (TB-871); never a raw deployment name in buyer UI.</summary>
+    public string? ModelAlias
+    {
+        get;
+        init;
+    }
+
     /// <summary>Prompt template semantic version from the agent catalog when captured.</summary>
     public string? PromptTemplateVersion
     {

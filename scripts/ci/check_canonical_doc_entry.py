@@ -78,7 +78,7 @@ def main() -> int:
         root / "docs" / "START_HERE.md",
         root / "docs" / "CORE_PILOT.md",
         operator_path,
-        root / "docs" / "go-to-market" / "TRUST_CENTER.md",
+        root / "docs" / "go-to-market" / "trust-center.md",
         root / "docs" / "library" / "V1_SCOPE.md",
     ]
 

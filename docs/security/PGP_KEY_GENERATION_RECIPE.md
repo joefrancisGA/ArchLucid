@@ -152,7 +152,7 @@ You must see **`-----BEGIN PGP PUBLIC KEY BLOCK-----`** at the top and **`-----E
 
 3. **After merge**, confirm the marketing host serves **`/.well-known/pgp-key.txt`** over **HTTPS** (same path as source).
 
-4. **Short fingerprint for humans:** copy only the **last sixteen hexadecimal characters** of the primary fingerprint (OpenPGP refers to this as the **64‑bit key identifier**). Add that substring to [SECURITY.md](../library/SECURITY.md) under the PGP section and to [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) Contact bullets with whatever label your house style uses for the short form (run `gpg --fingerprint` locally and transcribe **only** digits from your real key—never commit invented or sample fingerprint material to this repository).
+4. **Short fingerprint for humans:** copy only the **last sixteen hexadecimal characters** of the primary fingerprint (OpenPGP refers to this as the **64‑bit key identifier**). Add that substring to [SECURITY.md](../library/SECURITY.md) under the PGP section and to [trust-center.md](../go-to-market/trust-center.md) Contact bullets with whatever label your house style uses for the short form (run `gpg --fingerprint` locally and transcribe **only** digits from your real key—never commit invented or sample fingerprint material to this repository).
 
 5. Update the **custodian record** table at the bottom of **this** file with the full fingerprint.
 
@@ -160,7 +160,7 @@ You must see **`-----BEGIN PGP PUBLIC KEY BLOCK-----`** at the top and **`-----E
 
 - **Cadence:** if you chose **no expiration**, still review annually whether the key should be rotated (staff turnover, device loss, or policy change). If you chose **`5y`**, start successor-key work **six months** before expiry.
 
-- **Successor key:** generate a new keypair (same UID is acceptable; distinguish by fingerprint), export a **new** `pgp-key.txt` (or append multiple armored blocks—prefer **replace file** with the current canonical key unless you are intentionally publishing a transition bundle), commit, update fingerprints in `SECURITY.md` / `TRUST_CENTER.md`.
+- **Successor key:** generate a new keypair (same UID is acceptable; distinguish by fingerprint), export a **new** `pgp-key.txt` (or append multiple armored blocks—prefer **replace file** with the current canonical key unless you are intentionally publishing a transition bundle), commit, update fingerprints in `SECURITY.md` / `trust-center.md`.
 
 ## Revocation
 

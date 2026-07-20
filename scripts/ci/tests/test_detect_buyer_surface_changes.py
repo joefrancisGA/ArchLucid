@@ -30,7 +30,7 @@ DETECT = _load("detect_buyer_surface_changes", "detect_buyer_surface_changes.py"
 
 class DetectBuyerSurfaceChangesTests(unittest.TestCase):
     def test_path_matches_buyer_surface_prefix(self) -> None:
-        self.assertTrue(DETECT.path_matches_buyer_surface("docs/go-to-market/TRUST_CENTER.md"))
+        self.assertTrue(DETECT.path_matches_buyer_surface("docs/go-to-market/trust-center.md"))
         self.assertTrue(DETECT.path_matches_buyer_surface("archlucid-ui/src/app/(marketing)/pricing/page.tsx"))
         self.assertFalse(DETECT.path_matches_buyer_surface("ArchLucid.Api/Controllers/HealthController.cs"))
 

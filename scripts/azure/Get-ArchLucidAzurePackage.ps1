@@ -710,7 +710,7 @@ Schema version: $schemaVersion
 Collection UTC: $collectionTimestamp
 $readmeExtra
 Each ZIP includes `policy-compliance.json` (Policy Insights latest states, Reader-scoped) and `policy.json` (Policy definitions and assignments). When not using `-IncludeRetailPrices`, no live retail catalog JSON is written. Without `-IncludeCost`, `manifest.json` does not include `actualCostSummary`. Advisor export (`-IncludeAdvisor`) remains future work — see docs/library/V1_SCOPE.md §2.16 and docs/library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md.
-Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: docs/go-to-market/TRUST_CENTER.md.
+Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: docs/go-to-market/trust-center.md.
 "@
 
     Write-Utf8NoBom (Join-Path $staging "README.txt") $readme

@@ -2,115 +2,87 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-07-18 (**TB-697** Prompt 6 investigation closed — see `TECH_BACKLOG.md` + `reviews_run_detail_bundle_composition_tb697.md`). Prior: 2026-07-17 (**TB-865** closed — see `TECH_BACKLOG.md`). Prior: 2026-07-17 (**TB-862** closed — see `TECH_BACKLOG.md`). Prior: 2026-07-17 (**TB-861** closed — see `TECH_BACKLOG.md`). Prior: 2026-07-17 (**TB-860** closed — see `TECH_BACKLOG.md`). Prior: 2026-07-17 (added open **TB-868** — eliminate stale frontend/CDN shell after successful CD: HTML/app-shell cache policy, Front Door cache/purge posture, cache-bypass post-deploy BUILD_ID check on a public page, cache-propagation docs; foundation already shipped: hashed `/_next/static` + immutable headers, `BUILD_ID`/`NEXT_PUBLIC_BUILD_COMMIT_SHA`, product smoke vs `/version` + UI health). Prior: 2026-07-12 (added open **TB-858–TB-865** UI dependency & supply-chain cluster — remove unused direct deps (**TB-858** App Insights React plugin, **TB-859** `ajv`/`ajv-formats`), Knip cross-check (**TB-860**), `engines.node` pin (**TB-861**), `reactflow`/`mermaid` import-policy tests (**TB-862**/**TB-863**), weekly `npm audit` CI (**TB-864**), `optimizePackageImports` drift guard (**TB-865**); source [`docs/architecture/ui_dependency_assessment.md`](../architecture/ui_dependency_assessment.md); **TB-697** refreshed). Prior: 2026-07-12 (added open **TB-847–TB-857** AI initiative readiness wedge implementation cluster — six wedge-MVP items (**TB-847**–**TB-854**, incl. **P0** credibility fixes **TB-853**), two ADR 0058 fast-follows (**TB-855**, **TB-856**), and validation-program instrumentation (**TB-857**); see `TECH_BACKLOG.md`). Prior: 2026-07-12 (added open **TB-763–TB-846** async UX & feedback audit cluster — 84 tickets: self-serve Stripe checkout P0 (**TB-763**–**TB-766**, owner override of the commerce-un-hold gate, see `V1_DEFERRED.md §6b`), governance write idempotency + advisory durable job (**TB-767**, **TB-768**), two consolidation primitives (**TB-769**, **TB-770**), and 76 individual loading/progress/confirmation fixes across Architecture, Insights, Governance, Integrations, and Administration; full regen still tracked by **TB-673**). Prior: 2026-07-12 (added open **TB-754–TB-759** cold-start free-cost cluster). **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md). **Done detail archive:** [`docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`](../archive/TECH_BACKLOG_DONE_ARCHIVE.md). **Sonnet questions:** [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md).
+> **Updated:** 2026-07-19 (added **TB-892**–**TB-902** — anonymous Quick Scan public-safety cluster; GTM **M-109**–**M-110**, **G-QA-05**; prompts `docs/architecture/quick_scan_public_safety_prompts.md`). Prior: 2026-07-19 (added **TB-887**–**TB-891** — public showcase `claims-intake-modernization` cluster; GTM **M-107**–**M-108**, **G-QA-04**). Prior: 2026-07-19 (closed tech **TB-135** / **TB-136**; GTM **G-REAL-05** / **G-ASSURANCE-02** remain open for owner execution). Prior: 2026-07-19 (added **TB-882**–**TB-886** — `LATEST_GPT55.md` §17 Tier 3 hold candidates; remain **Hold for reassessment**). Prior: 2026-07-19 (added **TB-881** — RC12 registration duplicate-organization conflict regression, release-candidate blocker, not a V1/V1.1/V2 roadmap window item). Prior: 2026-07-19 (summary-table **V2 window** — V2 rows listed last in `TECH_BACKLOG.md`; IDs unchanged). Prior: 2026-07-19 (**TB-686** promoted V2→**V1**). Prior: 2026-07-19 (**GTM purge wave 3** — **TB-135**–**TB-140**, **TB-158**–**TB-160**). Prior: 2026-07-19 (closed **TB-673**; **TB-878**–**TB-880**; GTM wave 2). Prior: 2026-07-19 (**TB-874**–**TB-877**).
+
+## Ordering convention
+
+In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### V2 window` last**. Do **not** renumber TB IDs when changing window — stable IDs preserve assessment/grep history. `/ship-next-improvement` and `/show-all-improvements` already **skip `**V2**`** in the shippable queue; the bottom placement is belt-and-suspenders for file-order scans.
 
 ## Recently closed (do not re-open)
 
 | Cluster | IDs |
 | --- | --- |
-| Persona UX audit + deploy (batch A) | **TB-642** – **TB-657** (Done detail archived 2026-07-06; **TB-655**, **TB-656** remain open) |
-| Review Package hierarchy (batch B) | **TB-617** – **TB-620** (Done detail archived 2026-07-06; **TB-621** remains open) |
-| Cross-tenant isolation test matrix | **TB-078** |
-| Architecture.Tests gap closure | **TB-030** |
-| Backfill / jobs operational hardening | **TB-085** – **TB-090** |
-| Tenancy defense-in-depth | **TB-076**, **TB-077** |
-| In-app docs | **TB-143** – **TB-148** |
-| Data consistency KPIs | **TB-149** – **TB-155** |
-| Local dev diagnostics | **TB-156** – **TB-157** |
-| Run detail operator fidelity | **TB-109** – **TB-113** (incl. **TB-110** tool forensics) |
-| Starter proof packs | **TB-170** – **TB-174** (chooser, metadata, CI validation, dry-run, golden walkthrough) |
-| Policy pack manifests | **TB-175** – **TB-176** (packManifest, CI validation, dry-run index) |
-| Commercial / audit parity | **TB-121** – **TB-128** (route parity, governance summary, freshness, audit matrix, buyer-safe audit, catalog, tests, triage one-pager) |
-| Commercial closeout | **TB-129** – **TB-134** (quote-to-proof readiness, quote aging export, closeout consistency, tier fit, offer pack, overclaim guard) |
-| Pilot acceptance automation | **TB-158** (threshold doc + `report_pilot_acceptance_thresholds.py` + first-pilot proof artifacts) |
+| TECH_BACKLOG archive hygiene | **TB-673** (Done 2026-07-19) |
+| V1.1 assurance program tracking (tech) | **TB-135**, **TB-136** (Done 2026-07-19 — tech tracking closed); owner work still open in GTM **G-REAL-05** / **G-ASSURANCE-02** |
+| GTM-only rows removed from TECH_BACKLOG | **TB-141**, **TB-142**, **TB-164**, **TB-236** (wave 1); **TB-161**–**TB-163**, **TB-640** (wave 2); **TB-135**–**TB-140**, **TB-158**–**TB-160** (wave 3) |
 
-## Open clusters (summary rows — see `TECH_BACKLOG.md` for individual entries)
+## Open clusters (summary rows — see `TECH_BACKLOG.md`)
 
 | Cluster | IDs | Summary |
 | --- | --- | --- |
-| Async UX & feedback audit | **TB-763** – **TB-846** (84 tickets, all open) | Self-serve Stripe checkout P0 (**TB-763**–**TB-766**, owner override 2026-07-12 of the commerce-un-hold gate — Azure Marketplace dropped to V2 pending buyer demand); governance-write idempotency + advisory durable job/cancel (**TB-767**, **TB-768**); `AsyncActionButton` + connection-test consolidation primitives (**TB-769**, **TB-770**); 76 individual loading/progress/confirmation fixes across Architecture & Reviews (**TB-771**–**TB-789**), Insights (**TB-790**–**TB-803**), Governance (**TB-804**–**TB-820**), Integrations (**TB-821**–**TB-832**), and Administration (**TB-833**–**TB-846**). |
-| AI initiative readiness wedge | **TB-847** – **TB-857** (11 tickets, all open) | Thin-readiness-layer wedge MVP from [`docs/architecture/ai_initiative_governance.md`](../architecture/ai_initiative_governance.md): question set (**TB-847**), deterministic conditional follow-ups (**TB-848**), disposition rollup (**TB-849**), RFI memo export (**TB-850**), provisional→issued→sealed anchoring (**TB-851**), trial value report (**TB-852**), **P0** credibility fixes (**TB-853**), landing page + demo script (**TB-854**); ADR 0058 fast-follows: bounded generative L2g tier (**TB-855**), nightly retrospective question mining (**TB-856**); 90-day validation instrumentation (**TB-857**). |
-| UI dependency & supply-chain | **TB-858**–**TB-865** (**Done** 2026-07-17) | From [`docs/architecture/ui_dependency_assessment.md`](../architecture/ui_dependency_assessment.md): cluster closed — Tier 1 removals, Knip, `engines.node`, import-policy tests, weekly `npm audit` CI, `optimizePackageImports` drift guard. |
+| Multi-cloud analysis §2.19 remainder | **TB-874** – **TB-876** (open P1) | AWS/GCP analysis-path parity |
+| Community summarization Graph-RAG | **TB-877** (open P1) | RAG-V2-001 remainder — ADR 0057 (a) |
+| Promoted RAG remainders | **TB-878** – **TB-880**, **TB-686** (open P2 **V1**) | Retry loop; pilot-feedback retrieval; pattern library; semantic chunking |
+| AI model chooser | **TB-872** open (**TB-869**–**TB-871** Done) | Customer Azure OpenAI BYO |
+| RC12 release-candidate blocker | **TB-881** (open P1, **RC12** window, not V1/V1.1/V2) | Duplicate-organization registration conflict regression — env-var race hypothesis |
+| Tier 3 hold (assessment) | **TB-882**–**TB-886** (open; **Hold for reassessment**) | Nav guard; Graph-RAG live ablation; pack attribution; compounding ledger; manifest-verify docs |
+| Public showcase (`claims-intake-modernization`) | **TB-887**–**TB-891** (open P0/P1/P2 **V1**) | Static-first SSR; disclosure copy; prod smoke; QuickNav anonymous contract; telemetry — assessment 2026-07-19 |
+| Anonymous Quick Scan public safety | **TB-892**–**TB-902** (open P0/P1 **V1**) | Config → pricing → global budgets → anonymous endpoint → concurrency → abuse → kill switch → telemetry → sample UX → adversarial → release gate; assessment **SAFE TO EXPOSE: NO** until **TB-902** |
 
-
-## Open items (auto-generated from summary table)
-
-_Regenerated 2026-07-07. 28 open rows (+ **TB-754–TB-759** appended 2026-07-12, + **TB-858–TB-865** appended 2026-07-12; **TB-868** closed 2026-07-17; **TB-858**–**TB-865** UI dependency cluster closed 2026-07-17; **TB-697** investigation closed 2026-07-18; removed stale Front Door rows that wrongly reused Done help IDs **TB-760–TB-762**; full regen still **TB-673**)._
+## Open items (V1 / V1.1 — shippable candidates)
 
 | ID | Title | Cluster |
 | --- | --- | --- |
-| TB-9 | Architecture invariant program ? doc + ADR 0035 finalize | Engineering governance ? single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule |
-| TB-141 | Near-term GTM backlog: real pilot proof packet cohort | GTM proof ? owner-selected scenarios, approved data boundaries, and buyer-safe proof packets for Azure cost / orphan / governance review and adjacent starter cohorts |
-| TB-142 | Near-term GTM backlog: market-facing demo asset production | GTM proof ? approved screenshots/video/copy and evidence-labeling rules for channel-specific demo assets |
-| TB-161 | Design partner / pilot recruiting pipeline | GTM execution ? target accounts, qualification criteria, founder-led outreach, pilot acceptance terms, and proof-capture permission path |
-| TB-162 | Support and pilot operating model | Operations ? support hours, escalation path, response targets, incident communications, owner availability, and white-glove vs self-serve pilot posture |
-| TB-163 | Transactable procurement path | Commercial conversion ? invoice/services SOW/private offer/Stripe/Marketplace decision tree, payment terms, legal/tax readiness, and claim boundaries |
-| TB-164 | V1.1 backlog: first named public reference customer | GTM proof ? customer permission, logo/case-study approval, reference-call terms, and claim update process |
-| TB-165 | Assessment score consistency guard | Documentation quality ? keep weighted tables, per-quality sections, and headline score synchronized after rescores |
-| TB-182 | `Write-AiReadinessPosture.ps1` ? automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent Readiness P1 ? every pilot delivery currently requires manual JSON fill; schema stable |
-| TB-398 | Full enterprise ITSM connector ? OAuth flows, field-mapping UI, custom workflow mapping, bidirectional status sync, tenant connector onboarding wizard | Interoperability P3 ? **V2**; explicitly out of V1/V1.1 scope unless owner promotes |
-| TB-419 | Tenant-isolation negative-test default operational artifact bundle — auto-write JSON + Markdown under `artifacts/tenant-isolation-negative-test/{runId | offline-fixture}/` when repo root resolves; `--no-write-artifacts` for stdout/API-only runs |
-| TB-420 | Citation-integrity default operational artifact bundle — auto-write JSON + Markdown under `artifacts/citation-integrity/{offline-fixture | live-api}/` when repo root resolves; `--no-write-artifacts` for stdout/API-only runs |
-| TB-421 | Buyer-proof evidence ledger default operational artifact bundle — auto-write JSON + Markdown under `artifacts/buyer-proof-evidence-ledger/{runId | proof-pack}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs |
-| TB-425 | Pilot readiness release-train bundle — `archlucid pilot readiness-bundle` orchestrates TB-418—TB-424 child bundles in-process; aggregate JSON + Markdown under `artifacts/pilot-readiness-bundle/{runId | offline-fixture}/`; PASS/FAIL/UNKNOWN/WARN rollup; `--no-write-artifacts` for stdout-only runs |
-| TB-426 | ITSM pull-forward gate default operational artifact bundle — auto-write JSON + Markdown under `artifacts/itsm-pull-forward-gate/{ledger-name | live-api}/` when repo root resolves; `--no-write-artifacts` for stdout-only runs |
-| TB-621 | Review Package detail page spacing/affordance pass and terminology-surface extension — apply `OPERATOR_TYPOGRAPHY`/spacing tokens per `.cursor/rules/UI-Enterprise-Design-Standard.mdc`; residual badge/link/button affordance sweep; extend `review-terminology-surfaces.ts`; see `## TB-621` below | Adoption friction P3 — **V1**; depends on **TB-617**, **TB-618**, **TB-620**; found during a principal-architect Review Package detail page hierarchy audit 2026-07-05 |
-| TB-635 | `ArchLucid.Api` Cobertura triage inventory — classify every below-95% class in `docs/COVERAGE_GAP_ANALYSIS.md` § ArchLucid.Api into pure-DTO / integration-covered (measurement gap) / small-logic unit-test / genuinely untested; cross-reference `ArchLucid.Api.Tests` by class and `Category` trait; publish inventory before exclusions or new tests; see `## TB-635` below | Testability P2 — **V1**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 |
-| TB-636 | Batch `[ExcludeFromCodeCoverage]` for `ArchLucid.Api` pure request/response DTOs — apply `docs/library/coverage-exclusions.md` Category 2 to auto-property-only types confirmed by **TB-635**; update exclusion table; do **not** exclude controllers, services, or field mappers with logic; see `## TB-636` below | Testability P3 — **V1**; depends on **TB-635**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 |
-| TB-637 | Unit tests for `ArchLucid.Api` small logic surfaces — `[Theory]`/mapper tests for auth issuer patterns, payload/response mappers, and validators triaged in **TB-635** (e.g. `ExternalIdIssuerPatterns`, `ConsultingDocxJobPayloadMapper`, `EvolutionCandidateChangeSetResponseMapper`); use non-Integration `ArchLucid.Api.Tests` so Coverlet on `coverage.runsettings` shards collects them; see `## TB-637` below | Testability P2 — **V1**; depends on **TB-635**; found during CI #2516 `ArchLucid.Api` coverage analysis 2026-07-05 |
-| TB-655 | Terraform root consolidation — collapse 15+ roots into `foundation` / `platform` / `app` modules with state-migration plan; retire conflicting `apply-saas.ps1` vs `provision-landing-zone.ps1` orderings; see `## TB-655` below | Deployability P2 — **V1**; depends on **TB-654** schema; found during setup/deployment complexity review 2026-07-05 |
-| TB-659 | Onboarding doc consolidation — one canonical setup path per persona (dev, platform operator, enterprise tenant); archive superseded runbooks with redirect notes under `docs/archive/`; see `## TB-659` below | Maintainability P3 — **V1**; extends **FIRST_30_MINUTES.md** discipline; found during setup/deployment complexity review 2026-07-05 |
-| TB-655 | Terraform root consolidation — collapse 15+ roots into `foundation` / `platform` / `app` modules with state-migration plan; retire conflicting `apply-saas.ps1` vs `provision-landing-zone.ps1` orderings; see `## TB-655` below | Deployability P2 — **V1**; depends on **TB-654** schema; found during setup/deployment complexity review 2026-07-05 |
-| TB-673 | TECH_BACKLOG done-item archive hygiene — move closed `## TB-xxx` bodies to `docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md`; regenerate `TECH_BACKLOG_OPEN.md`; batched script + link stubs in main file; see `## TB-673` below | Maintainability P2 — **V1**; found during backlog readability review 2026-07-06 |
-| TB-674 | Rename Getting started → First review guide — page title, nav label, tooltip, home continue-setup CTA, and aligned help cross-refs; see `## TB-674` below | Adoption friction P2 — **V1**; supersedes interim **TB-434** label; found during First review guide redundancy audit 2026-07-06 |
-| TB-675 | Derive Core Pilot checklist completion from tenant/review lifecycle state — replace manual localStorage checkboxes; single highlighted next action; see `## TB-675` below | Adoption friction P1 — **V1**; found during First review guide redundancy audit 2026-07-06 |
-| TB-676 | Remove duplicate cloud inventory evidence step from Finish setup wizard — keep only Core Pilot walkthrough step 4; see `## TB-676` below | Adoption friction P3 — **V1**; found during First review guide redundancy audit 2026-07-06 |
-| TB-677 | Customer-safe platform health link on onboarding workspace setup — **Done** (2026-07-06) | Adoption friction P1 — **V1** |
-| TB-678 | Role-gate onboarding workspace setup block on `principalAdmin` — non-admins see admin-delegation one-liner only; see `## TB-678` below | Adoption friction P2 — **V1**; found during First review guide redundancy audit 2026-07-06 |
+| TB-874 | Terraform AWS/GCP → CanonicalObject classification + illustrative cost/service labels | Multi-cloud P1 **V1** |
+| TB-875 | Cloud-aware agent context for Aws/Gcp target reviews | Multi-cloud P1 **V1**; after **TB-874** |
+| TB-876 | Customer-controlled Tier 1 AWS/GCP inventory ZIP | Multi-cloud P1 **V1** |
+| TB-877 | Community summarization Graph-RAG (RAG-V2-001 remainder) | AI/Agent P1 **V1** |
+| TB-878 | Iterative retrieve-critique-retry loop (RAG-V2-002 remainder) | AI/Agent P2 **V1** |
+| TB-879 | Pilot-feedback retrieval for planning materialize (RAG-V1.1-003) | Stickiness P2 **V1** |
+| TB-880 | Cross-tenant pattern library UI (RAG-V1.1-004) | Explainability P2 **V1** |
+| TB-686 | Semantic retrieval chunking | Cutting-edge AI P2 **V1**; gated on TB-595 |
+| TB-655 | Terraform root consolidation | Deployability P2 **V1** |
+| TB-872 | Customer-provided Azure OpenAI connection (first BYO path) | AI model chooser P2 **V1.1** |
+| TB-881 | RC12 registration duplicate-organization conflict regression | Correctness P1 **RC12** release-candidate blocker |
+| TB-887 | Public showcase static-first SSR for `claims-intake-modernization` | Commercial P0 **V1** — blocks public exposure when API-connected |
+| TB-888 | Public showcase illustrative-sample disclosure copy | Trustworthiness P0 **V1** — ship with **TB-887** |
+| TB-889 | Production showcase availability gate | Reliability P1 **V1** — pairs with GTM **G-QA-04** |
+| TB-890 | Showcase QuickNav anonymous read contract | Adoption friction P1 **V1** |
+| TB-891 | Showcase render-mode telemetry | Traceability P2 **V1** |
+| TB-892 | Quick Scan safety configuration (`QuickScanSafetyOptions`) | Cost safety P0 **V1** — Prompt 2 |
+| TB-893 | Quick Scan pricing catalog + pre-exec cost estimate | Cost safety P0 **V1** — after **TB-892** |
+| TB-894 | Atomic global hourly/daily Quick Scan budget reservations | Cost safety P0 **V1** — release-blocking |
+| TB-895 | Anonymous marketing Quick Scan endpoint + per-request bounds | Cost safety P0 **V1** — after **TB-892**–**TB-894** |
+| TB-896 | Distributed Quick Scan concurrency + bounded queue | Cost safety P0 **V1** — after **TB-894**/**TB-895** |
+| TB-897 | Layered Quick Scan identity rate limits + duplicate abuse | Abuse P1 **V1** — not a spend substitute |
+| TB-898 | Quick Scan emergency kill switch + fail-closed boot | Cost safety P0 **V1** |
+| TB-899 | Quick Scan cost telemetry, dashboards, reconciliation, alerts | Operability P1 **V1** |
+| TB-900 | Quick Scan sample fallback + public capacity UX | Marketability P0 **V1** — pairs **M-109** |
+| TB-901 | Quick Scan adversarial cost/abuse test suite | Cost safety P0 **V1** — after core controls |
+| TB-902 | Quick Scan public release gate assessment (GREEN/YELLOW/RED) | Release gate P0 **V1** — assessment-only; **M-110**, **G-QA-05** |
 
-## Curated slices (manual — spot-check against table above)
+## Hold for reassessment (not Cursor-shippable until owner promotes / G-REAL-06)
 
-### First review guide / onboarding hub (2026-07-06 audit)
-
-| ID | Title | Priority |
+| ID | Title | Notes |
 | --- | --- | --- |
-| TB-675 | Derive Core Pilot checklist from tenant state — **Done** (2026-07-06) | P1 |
-| TB-677 | Customer-safe platform health link — **Done** (2026-07-06) | P1 |
-| TB-674 | Rename Getting started → First review guide | P2 |
-| TB-678 | Role-gate workspace setup on `principalAdmin` | P2 |
-| TB-679 | Trial/optional-setup copy drift — **Done** (2026-07-07) | P2 |
-| TB-676 | Dedupe cloud inventory from Finish setup wizard | P3 |
+| TB-882 | Automated nav-authority/label-consistency guard | P2 **V1**; Tier 3 hold |
+| TB-883 | RAG-V2 live-model Graph-RAG ablation signal | P2 **V1**; Tier 3 hold |
+| TB-884 | Policy-pack attribution signal | P2 **V1**; Tier 3 hold |
+| TB-885 | Policy-pack compounding-evidence ledger | P2 **V1**; Tier 3 hold |
+| TB-886 | Surface tamper-evident manifest-verify in buyer-facing material | P3 **V1** (docs); cheapest early pilot-packet candidate |
 
-### Real-mode / eval (owner or credentialed CI)
+## V2 window (not Cursor-shippable unless owner promotes — listed last)
 
-**Nightly loop:** **TB-683** (Done 2026-07-08) — `golden-cohort-expanded-nightly.yml` scores committed `*.real.json` exemplars when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true`; trend artifacts under `artifacts/real-mode-eval-nightly/`.
+| ID | Title | Notes |
+| --- | --- | --- |
+| TB-398 | Full enterprise ITSM connector | P3 **V2** |
+| TB-687 | Prompt A/B iteration harness | P2 **V2** |
+| TB-688 | Per-tier model-generation refresh cadence | P2 **V2** |
+| TB-690 | Fine-tuning activation gate | P2 **V2** |
+| TB-873 | Generic OpenAI-compatible endpoint adapter | P3 **V2**; after **TB-872**; ADR 0060 D4 gates |
 
-| ID | Title |
-| --- | --- |
-| TB-683 | ~~Nightly real-mode eval loop~~ — **Done** (engineering automation; see `real-mode-eval-nightly.yml`) |
-| TB-140 | Real-mode eval corpus (all `simulator` today) |
-| TB-139 | Token usage in gate metrics (partial) |
-| TB-137 | Quad-agent live pipeline (owner re-run evidence) |
-
-### Architecture / provenance / determinism stragglers
-
-| ID | Title |
-| --- | --- |
-| TB-011 | Invariant Wave B remainder (persisted gate read path, dual-replica budget CI harness) |
-| TB-012 | Invariant Wave C |
-| TB-034 – TB-038, TB-040, TB-044 – TB-056 | Provenance / determinism / explainability gaps |
+## Curated slices
 
 ### GTM / owner-blocked
 
-**TB-141**, **TB-142**, **TB-135/136** (V1.1), **G-REAL-01–04**.
-
-### Sonnet architecture / design questions (SAQ)
-
-Register: [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md). **TB-313** **Done** (register + mirror authority + ADR 0048–0050).
-
-| ID | Title | SAQ |
-| --- | --- | --- |
-| TB-317 | Workspace/project IDOR V1 pilot posture | SAQ-006 |
-| TB-318 | Sonnet SAQ review cadence before RC signoff | (process) |
-
-Open SAQs without TB yet: **SAQ-007** (claim stage evidence, P0), **SAQ-008** (simulator/live divergence, P0), **SAQ-010** (P0 invariant enforcement), **SAQ-011** (claim-surface consistency, P0), **SAQ-012** (operator misconfiguration, P2). **Resolved:** SAQ-005 (cross-catalog 2PC — TB-316 Done).
+Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 cross-walk there / prior OPEN notes).

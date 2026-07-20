@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
 import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -176,6 +177,30 @@ export function WizardStepAdvanced() {
       </p>
 
       <AdvancedOptionsAccordion className="mt-4">
+        <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
+          <WizardFieldHint
+            label="Model execution profile"
+            hint="Optional per-review override. Defaults to the workspace profile configured under Settings → AI and model governance."
+          />
+          <Controller
+            name="modelExecutionProfileOverride"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger id="wizard-model-execution-profile" data-testid="wizard-model-execution-profile">
+                  <SelectValue placeholder="Workspace default" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="WorkspaceDefault">{modelExecutionProfileLabel("WorkspaceDefault")}</SelectItem>
+                  <SelectItem value="Economy">{modelExecutionProfileLabel("Economy")}</SelectItem>
+                  <SelectItem value="Balanced">{modelExecutionProfileLabel("Balanced")}</SelectItem>
+                  <SelectItem value="HighAssurance">{modelExecutionProfileLabel("HighAssurance")}</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+
         <CollapsibleSection title="Policy references (Custom Policy Overrides)" count={policyReferences.length}>
           <AdvancedChipList
             fieldName="policyReferences"

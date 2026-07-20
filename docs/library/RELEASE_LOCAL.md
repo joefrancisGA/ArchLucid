@@ -86,7 +86,7 @@ Defaults for URLs are in `ArchLucid.Api/Properties/launchSettings.json` when dev
 
 **Health:** `GET /health/live`, `GET /health/ready`, `GET /health` (see [REPOSITORY_README.md](../REPOSITORY_README.md)).
 
-**Configuration:** [REPOSITORY_README.md](../REPOSITORY_README.md) (secrets, auth modes), [demo-quickstart.md](demo-quickstart.md) for optional demo seed.
+**Configuration:** [REPOSITORY_README.md](../REPOSITORY_README.md) (secrets, auth modes), [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) for optional demo seed.
 
 ---
 

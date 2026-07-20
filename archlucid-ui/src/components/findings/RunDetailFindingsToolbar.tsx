@@ -36,6 +36,7 @@ export type RunDetailFindingsToolbarProps = {
   readonly onSearchQueryChange: (value: string) => void;
   readonly sort: RunDetailFindingsSortKind;
   readonly onSortChange: (sort: RunDetailFindingsSortKind) => void;
+  readonly exportSlot?: React.ReactNode;
 };
 
 const FILTER_OPTIONS: readonly { id: RunDetailFindingsFilterKind; label: string }[] = [
@@ -315,6 +316,14 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
           </select>
         </div>
       </div>
+      {props.exportSlot !== null && props.exportSlot !== undefined ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+          <span className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Export
+          </span>
+          {props.exportSlot}
+        </div>
+      ) : null}
     </div>
   );
 }

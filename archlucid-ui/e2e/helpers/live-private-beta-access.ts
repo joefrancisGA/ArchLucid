@@ -160,6 +160,13 @@ export async function fetchAuthMeViaProxy(page: Page): Promise<LiveAuthMeProxyBo
 export type LiveAdminInviteResult = {
   id: string;
   email: string;
+  invitationToken: string;
+};
+
+export type LiveInvitationValidationResult = {
+  status: string;
+  maskedInvitedEmail?: string | null;
+  appRole?: string | null;
 };
 
 export async function createAdminUserInvite(
@@ -177,13 +184,45 @@ export async function createAdminUserInvite(
     throw new Error(`POST /v1/admin/users/invite failed ${res.status()}: ${body.slice(0, 400)}`);
   }
 
-  const created = (await res.json()) as { id?: string; email?: string };
+  const created = (await res.json()) as {
+    id?: string;
+    email?: string;
+    invitationToken?: string;
+  };
 
-  if (!created.id || !created.email) {
-    throw new Error("Invite response missing id or email.");
+  if (!created.id || !created.email || !created.invitationToken) {
+    throw new Error("Invite response missing id, email, or invitationToken.");
   }
 
-  return { id: created.id, email: created.email };
+  return { id: created.id, email: created.email, invitationToken: created.invitationToken };
+}
+
+/** Anonymous validate before sign-in; uses live API base (not browser proxy). */
+export async function validateInvitationToken(
+  request: APIRequestContext,
+  invitationToken: string,
+): Promise<LiveInvitationValidationResult> {
+  const url = new URL(`${liveApiBase}/v1/auth/invitations/validate`);
+
+  url.searchParams.set("token", invitationToken);
+
+  const res = await request.get(url.toString(), {
+    headers: { Accept: "application/json" },
+  });
+
+  if (!res.ok()) {
+    const body = await res.text();
+
+    throw new Error(`GET /v1/auth/invitations/validate failed ${res.status()}: ${body.slice(0, 400)}`);
+  }
+
+  const body = (await res.json()) as LiveInvitationValidationResult;
+
+  if (!body.status) {
+    throw new Error("Invitation validate response missing status.");
+  }
+
+  return body;
 }
 
 export async function listPendingInvitations(request: APIRequestContext): Promise<unknown[]> {

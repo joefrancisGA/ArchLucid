@@ -1,4 +1,4 @@
-> **Scope:** One-page procurement deal-ready index — honest about self-assessment vs deferred attestations.
+﻿> **Scope:** One-page procurement deal-ready index — honest about self-assessment vs deferred attestations.
 
 # Procurement deal-ready one-pager
 
@@ -44,7 +44,7 @@
 
 | Artifact | What it proves | Link |
 | --- | --- | --- |
-| Trust Center narrative | Security, privacy, subprocessors, data handling posture | [`TRUST_CENTER.md`](TRUST_CENTER.md) |
+| Trust Center narrative | Security, privacy, subprocessors, data handling posture | [`trust-center.md`](trust-center.md) |
 | CAIQ / SIG responses | Standard questionnaire answers (self-attested) | Procurement pack build |
 | DPA template | Contractual data-processing terms (legal review required) | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) |
 | Subprocessor list | Third-party processors | Trust Center + pack |

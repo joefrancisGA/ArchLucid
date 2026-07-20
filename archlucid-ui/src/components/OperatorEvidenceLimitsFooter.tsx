@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
+import { GeneratedByModelAliasDisclosure } from "@/components/GeneratedByModelAliasDisclosure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type OperatorEvidenceLimitsExecutionProps = {
@@ -11,6 +12,7 @@ export type OperatorEvidenceLimitsExecutionProps = {
 
 export type OperatorEvidenceLimitsInspectMetaProps = {
   readonly modelDeploymentName?: string | null;
+  readonly modelAlias?: string | null;
   readonly promptTemplateVersion?: string | null;
 };
 
@@ -55,8 +57,11 @@ export function OperatorEvidenceLimitsFooter({
   const deploymentSnapshot = trimmedOrEmpty(execution?.pilotAoaiDeploymentSnapshot);
 
   const modelName = trimmedOrEmpty(inspectMetadata?.modelDeploymentName);
+  const modelAlias = trimmedOrEmpty(inspectMetadata?.modelAlias);
   const promptVersion = trimmedOrEmpty(inspectMetadata?.promptTemplateVersion);
-  const showInspectMetaLine = modelName.length > 0 || promptVersion.length > 0;
+  const showInspectMetaLine =
+    !buyerPolishedShell && (modelName.length > 0 || promptVersion.length > 0);
+
   /** Buyer walkthrough shell: disclaimers cite internal APIs; static demo context is surfaced elsewhere (e.g. banner). */
   const showTechnicalExecutionDisclosures = !buyerPolishedShell;
 
@@ -124,6 +129,8 @@ export function OperatorEvidenceLimitsFooter({
         ) : null}
       </ul>
 
+      <GeneratedByModelAliasDisclosure modelAlias={modelAlias.length > 0 ? modelAlias : null} className="mt-3" />
+
       {showFallbackDisclaimer && showTechnicalExecutionDisclosures ? (
         <p
           className={cn("m-0 mt-3 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
@@ -143,7 +150,7 @@ export function OperatorEvidenceLimitsFooter({
         </p>
       ) : null}
 
-      {showInspectMetaLine && showTechnicalExecutionDisclosures ? (
+      {showInspectMetaLine ? (
         <p
           className={cn("m-0 mt-3 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="operator-evidence-limits-inspect-metadata"

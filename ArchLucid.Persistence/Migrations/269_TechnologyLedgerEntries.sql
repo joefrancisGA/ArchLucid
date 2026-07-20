@@ -2,7 +2,7 @@
   269: Technology Ledger — canonical per-run technology facts (additive; unwired).
 
   See docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md
-  and docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_IMPLEMENTATION_PROMPTS_2026_07_07.md (Prompt 1).
+  and docs/architecture/ARCHITECTURE_GENERATION_TECHNOLOGY_CONSISTENCY_ASSESSMENT_2026_07_07.md.
 
   RLS: not applied — run-child scope enforced in repository queries via ScopeContext, matching AgentExecutionTraces.
 */

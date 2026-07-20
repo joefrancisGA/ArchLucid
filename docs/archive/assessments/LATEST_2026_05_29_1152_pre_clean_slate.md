@@ -4,7 +4,7 @@ This score is the **`(A)` headline readiness per `Assessment-Scope-V1_1.mdc`**, 
 
 **Scoring formula:** total weight = 119. Weighted readiness = `sum(score * weight) / 119`. Weighted deficiency signal = `(100 - score) * weight`.
 
-**Deferred scope uncertainty:** none identified. The relevant boundary documents were located: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`.
+**Deferred scope uncertainty:** none identified. The relevant boundary documents were located: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`.
 
 ## 2. Executive Summary
 
@@ -393,7 +393,7 @@ Constraints:
 Add a procurement-pack sendability report.
 
 Scope:
-- Review scripts/build_procurement_pack.py, docs/go-to-market/TRUST_CENTER.md, docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md, and procurement pack manifest/redaction behavior.
+- Review scripts/build_procurement_pack.py, docs/go-to-market/trust-center.md, docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md, and procurement pack manifest/redaction behavior.
 - Add a markdown summary emitted with the pack that states: included files, omitted/redacted items, last-reviewed freshness status, formal assurance caveats, and buyer-safe sending instructions.
 - State that any buyer-specific cover letter requires owner approval by you before it leaves the repo boundary.
 - Treat buyer-specific placeholders as strict blockers in strict mode: unresolved customer names, legal entity placeholders, buyer contact placeholders, signed-date placeholders, `TODO`, `TBD`, `FIXME`, `REPLACE_ME`, `example.com`, fake domains, and bracketed fill-ins such as `[Customer]` in files marked sendable.
@@ -528,7 +528,7 @@ Constraints:
 Create a practical V1 capacity envelope document and link it from packaging/procurement docs.
 
 Scope:
-- Review docs/library/CAPACITY_AND_COST_PLAYBOOK.md, docs/library/CONFIGURATION_REFERENCE.md, docs/go-to-market/TRUST_CENTER.md, and relevant release smoke / SLO docs.
+- Review docs/library/CAPACITY_AND_COST_PLAYBOOK.md, docs/library/CONFIGURATION_REFERENCE.md, docs/go-to-market/trust-center.md, and relevant release smoke / SLO docs.
 - Add a concise table for first-pilot and early-production assumptions: expected tenants, reviews per month, concurrent operators, LLM budget bands, SQL/worker expectations, cache assumptions, and known triggers to scale.
 - Treat **East US** as the canonical initial hosted SaaS region assumption unless a later owner decision changes it.
 - Use this conservative initial hosted SaaS envelope unless later evidence supersedes it: up to 5 active pilot tenants, up to 25 committed reviews per tenant per month, up to 10 concurrent operators total, one API replica plus one worker replica as the starting point, SQL-backed storage, optional memory cache for single-replica pilots, and LLM budget defaults from the current configuration reference.
@@ -691,7 +691,7 @@ Constraints:
 Create a one-screen buyer orientation artifact.
 
 Scope:
-- Use docs/START_HERE.md, docs/CORE_PILOT.md, docs/library/PRODUCT_PACKAGING.md, docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md, and docs/go-to-market/TRUST_CENTER.md.
+- Use docs/START_HERE.md, docs/CORE_PILOT.md, docs/library/PRODUCT_PACKAGING.md, docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md, and docs/go-to-market/trust-center.md.
 - Add a concise buyer-facing "What to do first / what proof you get / what to defer" page or section.
 - Include the two layers: Pilot and Operate.
 - Include the first-pilot output set and trust/procurement links.
@@ -725,7 +725,7 @@ Constraints:
 Create a security-reviewer audit walkthrough.
 
 Scope:
-- Review docs/library/AUDIT_COVERAGE_MATRIX.md, docs/go-to-market/TRUST_CENTER.md, docs/library/API_CONTRACTS.md audit routes, and SIEM export docs.
+- Review docs/library/AUDIT_COVERAGE_MATRIX.md, docs/go-to-market/trust-center.md, docs/library/API_CONTRACTS.md audit routes, and SIEM export docs.
 - Add a short walkthrough showing how a reviewer traces one architecture review from run/review id to manifest, audit rows, correlation id, artifact, and export.
 - Include limitations and retention notes.
 

@@ -1,4 +1,4 @@
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots. This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+﻿> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots. This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -41,12 +41,12 @@
 | Authentication | Shipped — Azure Entra ID OIDC/SAML; app-level JWT validation | [`../library/SECURITY.md`](../library/SECURITY.md) |
 | Tenant isolation | Shipped — row-level tenant filtering on all data queries | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md) |
 | Audit trail | Shipped — structured audit events, append-only audit log | [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) |
-| Encryption at rest | Shipped — Azure SQL TDE, Azure Blob encryption enabled | [`TRUST_CENTER.md`](TRUST_CENTER.md) |
-| Encryption in transit | Shipped — TLS 1.2+ enforced on all API endpoints | [`TRUST_CENTER.md`](TRUST_CENTER.md) |
-| Secrets management | Shipped — Azure Key Vault for connection strings and API keys | [`TRUST_CENTER.md`](TRUST_CENTER.md) |
+| Encryption at rest | Shipped — Azure SQL TDE, Azure Blob encryption enabled | [`trust-center.md`](trust-center.md) |
+| Encryption in transit | Shipped — TLS 1.2+ enforced on all API endpoints | [`trust-center.md`](trust-center.md) |
+| Secrets management | Shipped — Azure Key Vault for connection strings and API keys | [`trust-center.md`](trust-center.md) |
 | RBAC / least-privilege | Shipped — role-based access controls; governance approval separation | [`../library/SECURITY.md`](../library/SECURITY.md) |
 | Pre-commit governance gate | Shipped — policy-pack enforcement before manifest commit | [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) |
-| Data retention posture | Draft — configurable retention policy; formal retention schedule owner review required | [`TRUST_CENTER.md`](TRUST_CENTER.md) |
+| Data retention posture | Draft — configurable retention policy; formal retention schedule owner review required | [`trust-center.md`](trust-center.md) |
 | Vulnerability management | Owner-conducted — tooling in place; formal program cadence owner-defined | [`PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md) |
 | Incident response plan | Draft — incident communications policy documented; formal IR plan is owner-drafted | [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md) |
 
@@ -66,7 +66,7 @@
 | Sub-processor list | **Available** | [`SUBPROCESSORS.md`](SUBPROCESSORS.md) |
 | Owner-conducted security assessment | **Available (redacted)** | [`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`](OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md) |
 | SOC 2 self-assessment | **Self-assessed** | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) |
-| Trust Center | **Published** | [`TRUST_CENTER.md`](TRUST_CENTER.md) |
+| Trust Center | **Published** | [`trust-center.md`](trust-center.md) |
 
 ---
 
@@ -96,7 +96,7 @@ A: In Azure SQL and Azure Blob Storage within the designated Azure region. Data 
 ### 5.3 Data handling and retention
 
 **Q: How long is customer data retained?**
-A: Retention posture is documented and configurable. A formal data-retention schedule is a draft artifact pending owner review. See [`TRUST_CENTER.md`](TRUST_CENTER.md).
+A: Retention posture is documented and configurable. A formal data-retention schedule is a draft artifact pending owner review. See [`trust-center.md`](trust-center.md).
 
 **Q: Does ArchLucid use customer data to train AI models?**
 A: No. Customer architecture evidence and run outputs are not used to train Azure OpenAI models or any third-party model.
@@ -157,7 +157,7 @@ Run before each new buyer send:
 
 | Document | Purpose |
 | --- | --- |
-| [`TRUST_CENTER.md`](TRUST_CENTER.md) | Master trust and assurance index |
+| [`trust-center.md`](trust-center.md) | Master trust and assurance index |
 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment narrative |
 | [`SOC2_ROADMAP.md`](SOC2_ROADMAP.md) | SOC 2 CPA roadmap (V1.1) |
 | [`PROCUREMENT_EVIDENCE_PACKET.md`](PROCUREMENT_EVIDENCE_PACKET.md) | Evidence packet index for procurement reviewers |

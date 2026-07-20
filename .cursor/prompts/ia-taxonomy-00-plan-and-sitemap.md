@@ -139,7 +139,7 @@ standalone route — leave as-is unless phase 05 finds a reason to split it out.
 | Compliance journey | `/compliance-journey` | Public |
 | Privacy policy | `/privacy` | Public |
 | Signed-in procurement/tenant-isolation hub | `/settings/security-trust` → `workspace/security-trust/page.tsx` | Authenticated |
-| Trust Center narrative (source markdown, **4 duplicate copies**) | `docs/trust-center.md`, `docs/go-to-market/trust-center.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/security/trust-center.md` | — |
+| Trust Center narrative (source markdown, **4 duplicate copies**) | `docs/trust-center.md`, `docs/go-to-market/trust-center.md`, `docs/go-to-market/trust-center.md`, `docs/security/trust-center.md` | — |
 | Tenant isolation | `docs/go-to-market/TENANT_ISOLATION.md`, `docs/security/TENANT_TABLE_ISOLATION_CLASSIFICATION.md`, `docs/security/MULTI_TENANT_RLS.md` | — |
 | Subprocessors | `docs/go-to-market/SUBPROCESSORS.md` (in-app slug `subprocessors`) | — |
 | AI provider handling / data handling | `docs/library/customer-facing/HOW_IT_WORKS.md`, `docs/go-to-market/AI_READINESS_POSTURE.md` | — |

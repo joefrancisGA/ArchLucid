@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid positioning - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid positioning - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -205,7 +205,7 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships (grounding for all claims) |
 | [../GLOSSARY.md](../library/GLOSSARY.md) | Domain terminology for consistent messaging |
 | [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md) | Full marketability quality assessment |
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust center — security overview, DPA template, subprocessors, incident comms, SOC 2 roadmap |
+| [trust-center.md](trust-center.md) | Trust center — security overview, DPA template, subprocessors, incident comms, SOC 2 roadmap |
 | [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) | ICP definition, scoring matrix, disqualifiers |
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Available and planned integrations |
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates (3 fictional narratives) |

@@ -34,7 +34,7 @@ class ClaimPattern:
 DOCS_TO_SCAN: tuple[Path, ...] = (
     Path("docs/go-to-market/PRICING_PHILOSOPHY.md"),
     Path("docs/go-to-market/PRODUCT_DATASHEET.md"),
-    Path("docs/go-to-market/TRUST_CENTER.md"),
+    Path("docs/go-to-market/trust-center.md"),
     Path("docs/go-to-market/SOC2_ROADMAP.md"),
     Path("docs/go-to-market/INTEGRATION_CATALOG.md"),
     Path("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md"),

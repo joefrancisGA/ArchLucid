@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Advisory.Learning;
+using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
 
@@ -14,7 +16,8 @@ namespace ArchLucid.Application.Advisory;
 public sealed class RecommendationLearningService(
     IRecommendationRepository recommendationRepository,
     IRecommendationLearningAnalyzer analyzer,
-    IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
+    IRecommendationLearningProfileRepository profileRepository,
+    RecommendationLearningBuildGate buildGate) : IRecommendationLearningService
 {
     /// <summary>
     ///     Maximum number of historical recommendation rows loaded per profile rebuild.
@@ -25,9 +28,24 @@ public sealed class RecommendationLearningService(
     /// <inheritdoc/>
     public async Task<RecommendationLearningProfile> RebuildProfileAsync(Guid tenantId, Guid workspaceId, Guid projectId, CancellationToken ct)
     {
+        await using IAsyncDisposable gate = await buildGate.AcquireAsync(tenantId, workspaceId, projectId, ct).ConfigureAwait(false);
+
         IReadOnlyList<RecommendationRecord> items =
             await recommendationRepository.ListByScopeAsync(tenantId, workspaceId, projectId, null, ProfileRebuildBatchCap, ct);
-        RecommendationLearningProfile profile = analyzer.BuildProfile(tenantId, workspaceId, projectId, items);
+        (IReadOnlyList<RecommendationRecord> eligible, _) =
+            RecommendationLearningOperationalSupport.PartitionOutcomes(items, ProfileRebuildBatchCap);
+
+        int eligibleCount = eligible.Count;
+
+        if (eligibleCount < RecommendationLearningAlgorithmVersions.MinimumEligibleOutcomes)
+        {
+            throw new InvalidOperationException(
+                RecommendationLearningOperationalSupport.ResolveBlockingReason(
+                    eligibleCount,
+                    RecommendationLearningAlgorithmVersions.MinimumEligibleOutcomes));
+        }
+
+        RecommendationLearningProfile profile = analyzer.BuildProfile(tenantId, workspaceId, projectId, eligible.ToList());
         await profileRepository.SaveAsync(profile, ct);
         return profile;
     }

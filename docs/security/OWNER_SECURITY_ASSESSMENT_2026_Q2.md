@@ -13,7 +13,7 @@
 
 **Scope in / out:** ArchLucid API surface (ASP.NET Core), operator UI (Next.js), SQL Server persistence layer, Docker container images, Terraform IaC modules, CI pipeline security gates.
 
-**Related templates:** [`PEN_TEST_SOW_TEMPLATE.md`](PEN_TEST_SOW_TEMPLATE.md) (borrow structure for scope), [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) (buyer index)
+**Related templates:** [`PEN_TEST_SOW_TEMPLATE.md`](PEN_TEST_SOW_TEMPLATE.md) (borrow structure for scope), [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md) (buyer index)
 
 **Last reviewed (UTC):** 2026-04-28
 
@@ -57,5 +57,5 @@ A **future** third-party penetration test ( **`V2`** vendor programme, [`V1_DEFE
 
 - This assessment is **owner-conducted** — it has **not** been independently validated by an external auditor or assessor firm.
 - It does **not** substitute for SOC 2 Type II, ISO 27001 certification, or a completed third-party penetration test report.
-- A redacted **third-party** penetration test summary publication is **V2-scheduled** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c (owner 2026-05-01) and buyer messaging in [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md). **V1** quality assessments must not penalize the product for lacking it.
+- A redacted **third-party** penetration test summary publication is **V2-scheduled** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c (owner 2026-05-01) and buyer messaging in [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md). **V1** quality assessments must not penalize the product for lacking it.
 

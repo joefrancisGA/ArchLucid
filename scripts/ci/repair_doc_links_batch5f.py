@@ -76,7 +76,7 @@ def go_to_market_replacements() -> list[tuple[str, str]]:
         ("](TECH_BACKLOG.md)", "](../library/TECH_BACKLOG.md)"),
         ("](GUIDED_PILOT.md)", "](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)"),
         ("](../scripts/", "](../../scripts/"),
-        ("](../../archive/agent-prompts/", "](../archive/agent-prompts/"),
+        ("](../docs/archive/assessments/", "](docs/archive/assessments/"),
         ("](../library/CONCEPT_VOCABULARY.md", "](../../library/CONCEPT_VOCABULARY.md"),
     ]
 
@@ -141,7 +141,7 @@ def go_to_market_archive_replacements() -> list[tuple[str, str]]:
         ),
         (
             "](../library/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md",
-            "](../archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md",
+            "](../archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md",
         ),
         (
             "](../library/DECISION_VELOCITY_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_1.29.md",
@@ -246,7 +246,7 @@ def rules_for_file(path: Path) -> list[tuple[str, str]]:
     if rel == "archlucid-ui/docs/KEYBOARD_SHORTCUTS.md":
         rules.append((
             "../../docs/library/ONBOARDING_HAPPY_PATH.md",
-            "../../docs/onboarding/ONBOARDING_HAPPY_PATH.md",
+            "../../docs/library/FIRST_RUN_WALKTHROUGH.md",
         ))
 
     if rel == "archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md":

@@ -16,4 +16,7 @@ public static class TenantSettingKeys
 
     /// <summary>Workspace-owner-selected completed review opened from the operator home explore path.</summary>
     public const string FeaturedCompletedSampleRunId = "Homepage.FeaturedCompletedSampleRunId";
+
+    /// <summary>Workspace default governed model execution profile (<c>Economy</c>, <c>Balanced</c>, <c>HighAssurance</c>).</summary>
+    public const string DefaultModelExecutionProfile = "ModelGovernance.DefaultExecutionProfile";
 }

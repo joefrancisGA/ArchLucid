@@ -25,7 +25,7 @@
    - `GET {base}/health/ready` — which check is **Unhealthy** / **Degraded**? (SQL, blob, schema, etc.)
    - `GET {base}/version` — which **commit** / **informationalVersion** is actually running?
 
-**If automated rollback is on:** set repository variable **`CD_ROLLBACK_ON_SMOKE_FAILURE`** to **`true`** *before* the next deploy so a failed validation deactivates the new **API** and **worker** revisions (see §4 and CD workflow comments).
+**If automated rollback is on:** set repository variable **`CD_ROLLBACK_ON_SMOKE_FAILURE`** to **`true`** *before* the next deploy so a failed validation restores traffic to the captured **last-known-good** API/worker/UI revisions (digest/BUILD_ID identity), verifies runtime BUILD_ID, and uploads a rollback report (see §4 and [DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md) § Application rollback).
 
 **If you must fix forward:** resolve the failing dependency (connection string, Key Vault, network, RLS, storage). Redeploy the same or a fixed image tag after config is correct.
 
@@ -70,35 +70,35 @@ Repeat for the **worker** app if present (same **`archlucid-api:<tag>`** image, 
 
 ---
 
-## 4. Manual rollback (no automated revision deactivation)
+## 4. Manual rollback (BUILD_ID / digest-pinned)
 
-**Goal:** Traffic should use a **previous healthy revision** (Container Apps **Single** revision mode: deactivate the bad **latest** revision so the platform routes to the prior one).
+**Goal:** Restore a known-good **immutable BUILD_ID** (git SHA) for API (+ worker + UI when configured), not merely “deactivate latest.”
 
-**Prerequisites:** Azure CLI logged in; **`AZURE_RESOURCE_GROUP`**; app names (**`CONTAINER_APP_API_NAME`**, and **`CONTAINER_APP_WORKER_NAME`** if you roll the worker with the API).
+**Prerequisites:** Azure CLI / GitHub OIDC; ACR still holds `archlucid-api:<BUILD_ID>` (and `archlucid-ui:<BUILD_ID>` when UI is deployed); **`AZURE_RESOURCE_GROUP`** and Container App names.
 
-**Option A — GitHub (preferred if configured)**  
-Run workflow **CD** → **workflow_dispatch** → **action = rollback**, pick **staging** or **production**. This uses the repo’s OIDC setup and deactivates the current latest API revision (see `.github/workflows/cd.yml` **manual-rollback** job). If you also updated the **worker**, deactivate its latest revision the same way via CLI (Option B) so API and worker stay on matching bits.
+**Option A — GitHub (preferred)**  
+Run workflow **CD** → **workflow_dispatch** → **action = rollback** → set required input **`rollback_build_id`** to the immutable git SHA / BUILD_ID → pick **staging** or **production**. The **manual-rollback** job:
 
-**Option B — Azure CLI**
+1. Resolves ACR digests for that BUILD_ID (fails if missing).
+2. Runs the schema gate (blocks when destructive migrations landed after the target — see [MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md)).
+3. Digest-pins Container Apps updates and verifies API `/version` (+ UI public-shell BUILD_ID when UI is configured).
+4. Uploads a `cd-manual-rollback-*` report artifact.
+
+**Option B — Azure CLI (emergency)**  
+Prefer Option A. If you must use CLI, pin by **digest** for a known BUILD_ID (never mutable `latest*`), set `ARCHLUCID_BUILD_COMMIT_SHA`, then re-check **`GET /version`**, **`GET /health/ready`**, and UI public-shell meta when applicable.
 
 ```bash
-# API: list revisions, confirm names
-az containerapp revision list -g "$RG" -n "$API_APP" -o table
-
-# Deactivate the broken *latest* revision (replace REVISION_NAME)
-az containerapp revision deactivate -g "$RG" -n "$API_APP" --revision "$REVISION_NAME"
-
-# Worker (same image family as API — roll back if you rolled forward together)
-az containerapp revision list -g "$RG" -n "$WORKER_APP" -o table
-az containerapp revision deactivate -g "$RG" -n "$WORKER_APP" --revision "$WORKER_REVISION_NAME"
+# Resolve digest for BUILD_ID, then update (example shape — use your ACR name)
+az acr manifest show-metadata --registry "$ACR" --name "archlucid-api:${BUILD_ID}" --query digest -o tsv
+az containerapp update -g "$RG" -n "$API_APP" --image "${ACR_LOGIN}/archlucid-api@sha256:…" \
+  --set-env-vars "ARCHLUCID_BUILD_COMMIT_SHA=${BUILD_ID}"
 ```
-
-Then **`GET /version`** and **`GET /health/ready`** again.
 
 **Caveats**
 
-- **Schema:** If the bad deploy ran **forward-only migrations**, rolling the container back does not undo SQL. See [runbooks/MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md); you may need a **forward fix** instead of only deactivating a revision.
-- **UI-only regressions:** Roll back **`archlucid-ui`** tag the same way (`az containerapp update --image` to a known-good tag, or revision management if you use multiple UI revisions).
+- **Schema:** App rollback does **not** undo DbUp. Destructive migrations after LKG **block** automated/manual app rollback until operators follow [MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md).
+- **Auto-rollback** (smoke failure + `CD_ROLLBACK_ON_SMOKE_FAILURE=true`) restores the pre-deploy LKG revisions; the workflow still fails because smoke failed.
+- **Canary:** Smoke failure during canary bake uses the same auto-rollback decision path (restore LKG / schema gate / report).
 
 ---
 

@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 SOURCE_FILES: tuple[tuple[str, str], ...] = (
-    ("docs/go-to-market/TRUST_CENTER.md", "Trust center narrative"),
+    ("docs/go-to-market/trust-center.md", "Trust center narrative"),
     ("docs/security/SOC2_SELF_ASSESSMENT_2026.md", "SOC 2 self-assessment (not CPA attestation)"),
     ("docs/go-to-market/SOC2_ROADMAP.md", "SOC 2 roadmap (deferred CPA program)"),
     ("docs/library/V1_DEFERRED.md", "Explicit V1 deferrals"),

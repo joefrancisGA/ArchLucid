@@ -9,7 +9,7 @@ import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-vis
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
@@ -103,8 +103,11 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     // flag — it is an employee-only surface, so tier-based progressive disclosure does not apply.
     // Always pass true for both showExtended and showAdvanced so every link is visible to anyone
     // who can see the section.
+    const hideInternalOperationsNav =
+      buyerPolishedShell && !isOperatorExperienceFullShellEnv();
+
     const systemAdminNavRows: NavGroupWithVisibleLinks[] =
-      omitAdminClusters || !isShowSystemAdministrationNavEnabled() || buyerPolishedShell
+      omitAdminClusters || !isShowSystemAdministrationNavEnabled() || hideInternalOperationsNav
         ? []
         : listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,

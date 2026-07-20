@@ -1,188 +1,340 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, type ReactElement } from "react";
 
 import { findingSeverityLabel } from "@/lib/finding-severity-label";
+import { QUICK_SCAN_RECEIVE_ITEMS } from "@/lib/quick-scan/quick-scan-constants";
+import { QUICK_SCAN_EXAMPLE_FORM } from "@/lib/quick-scan/quick-scan-example";
+import { QUICK_SCAN_SAMPLE_RESULT } from "@/lib/quick-scan/quick-scan-sample-result";
+import type { QuickScanResponse, QuickScanStatusResponse } from "@/lib/quick-scan/quick-scan-types";
+import {
+  buildQuickScanRequestBody,
+  quickScanIncompleteReason,
+  validateQuickScanForm,
+  type QuickScanFormValues,
+} from "@/lib/quick-scan/quick-scan-validation";
 
-type QuickScanFinding = Readonly<{
-  title: string;
-  description: string;
-  severity?: number;
-}>;
+import { QuickScanForm } from "./QuickScanForm";
 
-type QuickScanResponse = Readonly<{
-  scanId: string;
-  summary: string;
-  completedUtc?: string;
-  findings?: QuickScanFinding[];
-}>;
+const SESSION_STORAGE_KEY = "al_quick_scan_session";
+
+function ensureSessionId(): string {
+  if (typeof window === "undefined") {
+    return "server";
+  }
+
+  const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
+
+  if (existing && existing.trim().length > 0) {
+    return existing;
+  }
+
+  const created = crypto.randomUUID();
+  window.localStorage.setItem(SESSION_STORAGE_KEY, created);
+
+  return created;
+}
+
+function environmentLabel(value: string): string {
+  const labels: Record<string, string> = {
+    Azure: "Azure",
+    AWS: "AWS",
+    GoogleCloud: "Google Cloud",
+    Multicloud: "Multicloud",
+    HybridCloud: "Hybrid cloud",
+    OnPremises: "On-premises",
+    ProviderNeutral: "Provider-neutral",
+    Other: "Other",
+    NotSure: "Not sure",
+  };
+
+  return labels[value] ?? value;
+}
 
 /**
- * No-sign-in quick scan: POST /v1/architecture/quick-scan via same-origin proxy (server attaches upstream auth).
- * Marketing shell avoids `apiPostJson` so anonymous visitors are not blocked on OIDC readiness.
+ * No-sign-in Quick Scan: POST /v1/architecture/quick-scan via same-origin proxy (server attaches upstream auth).
  */
 export function QuickScanClient(): ReactElement {
-  const [systemName, setSystemName] = useState("");
-  const [cloudProvider, setCloudProvider] = useState("");
-  const [description, setDescription] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const statusRegionId = useId();
+  const [formValues, setFormValues] = useState<QuickScanFormValues>({
+    systemName: "",
+    primaryEnvironment: "",
+    primaryEnvironmentOther: "",
+    description: "",
+    architectureConcerns: [],
+  });
   const [submitting, setSubmitting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [capacityMessage, setCapacityMessage] = useState<string | null>(null);
   const [result, setResult] = useState<QuickScanResponse | null>(null);
+  const [status, setStatus] = useState<QuickScanStatusResponse | null>(null);
+
+  const fieldErrors = useMemo(() => validateQuickScanForm(formValues), [formValues]);
+  const incompleteReason = useMemo(() => quickScanIncompleteReason(fieldErrors), [fieldErrors]);
+  const canSubmit = incompleteReason === null && !submitting && (status?.capacityAvailable ?? true);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const response = await fetch("/api/proxy/v1/architecture/quick-scan/status", {
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const body = (await response.json()) as QuickScanStatusResponse;
+        setStatus(body);
+
+        if (!body.capacityAvailable) {
+          setCapacityMessage("Quick Scan has reached its demonstration capacity for today.");
+        }
+      } catch {
+        /* ignore — form still works with server-side enforcement */
+      }
+    })();
+  }, []);
+
+  const loadExample = useCallback(() => {
+    setFormValues({ ...QUICK_SCAN_EXAMPLE_FORM });
+    setError(null);
+    setStatusMessage("Example loaded. Review the fields, then choose Analyze architecture when ready.");
+  }, []);
+
+  const showSampleResult = useCallback(() => {
+    setResult(QUICK_SCAN_SAMPLE_RESULT);
+    setError(null);
+    setCapacityMessage(null);
+    setStatusMessage("Showing a sample Quick Scan result.");
+  }, []);
 
   const onSubmit = useCallback(async () => {
-    const sys = systemName.trim();
-    const provider = cloudProvider.trim();
-    const desc = description.trim();
+    const errors = validateQuickScanForm(formValues);
 
-    if (sys.length === 0 || provider.length === 0 || desc.length === 0) {
-      setError("System name, cloud provider, and description are required.");
-
+    if (quickScanIncompleteReason(errors) !== null) {
+      setError(quickScanIncompleteReason(errors));
       return;
     }
 
     setError(null);
-    setResult(null);
+    setCapacityMessage(null);
     setSubmitting(true);
+    setStatusMessage("Analyzing architecture…");
 
     try {
-      const res = await fetch("/api/proxy/v1/architecture/quick-scan", {
+      const sessionId = ensureSessionId();
+      const response = await fetch("/api/proxy/v1/architecture/quick-scan", {
         method: "POST",
         credentials: "include",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
+          "X-Quick-Scan-Session": sessionId,
         },
         cache: "no-store",
-        body: JSON.stringify({
-          systemName: sys,
-          cloudProvider: provider,
-          description: desc,
-        }),
+        body: JSON.stringify(buildQuickScanRequestBody(formValues)),
       });
 
-      const text = await res.text();
+      const text = await response.text();
 
-      if (!res.ok) {
-        throw new Error(text.length > 0 ? text : `Quick scan failed (HTTP ${String(res.status)})`);
+      if (response.status === 503) {
+        setCapacityMessage("Quick Scan has reached its demonstration capacity for today.");
+        throw new Error("Quick Scan is temporarily unavailable.");
+      }
+
+      if (response.status === 403) {
+        throw new Error("Additional Quick Scan attempts require sign-in.");
+      }
+
+      if (!response.ok) {
+        throw new Error(text.length > 0 ? "Quick Scan could not be completed." : `Quick Scan failed (HTTP ${String(response.status)})`);
       }
 
       const data = JSON.parse(text) as QuickScanResponse;
       setResult(data);
-    }
-    catch (e: unknown) {
-      const msg = e instanceof Error && e.message.trim().length > 0 ? e.message : "Quick scan failed.";
+      setStatusMessage("Analysis complete.");
+    } catch (submitError: unknown) {
+      const message =
+        submitError instanceof Error && submitError.message.trim().length > 0
+          ? submitError.message
+          : "Quick Scan could not be completed.";
 
-      setError(msg);
-    }
-    finally {
+      setError(message);
+      setStatusMessage(null);
+    } finally {
       setSubmitting(false);
     }
-  }, [systemName, cloudProvider, description]);
+  }, [formValues]);
 
   return (
-    <div className="mx-auto max-w-xl space-y-8 px-4 py-12">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Quick scan</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Single-pass architecture read — no sign-in. Results are ephemeral and are not saved as a workspace review.
-        </p>
-      </header>
+    <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-12">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+        <div className="min-w-0 space-y-6">
+          <header>
+            <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Quick scan</h1>
+            <p className="mt-3 max-w-2xl text-base text-neutral-700 dark:text-neutral-300">
+              Describe a system and receive a concise architecture risk and improvement summary. No account required.
+            </p>
+            <p className="mt-2 max-w-2xl text-sm text-neutral-600 dark:text-neutral-400">
+              Quick Scan is a limited demonstration and is not saved as a workspace review.
+            </p>
+          </header>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="quick-scan-system-name">
-            System name
-          </label>
-          <input
-            id="quick-scan-system-name"
-            type="text"
-            value={systemName}
-            onChange={(ev) => {
-              setSystemName(ev.target.value);
-            }}
-            autoComplete="off"
-            className="w-full rounded-md border border-neutral-300 bg-white p-3 text-sm text-neutral-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
-            placeholder="e.g. Claims intake API"
+          <QuickScanForm
+            values={formValues}
+            fieldErrors={fieldErrors}
+            disabled={submitting}
+            onChange={setFormValues}
           />
+
+          <section aria-labelledby="quick-scan-privacy-heading" className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
+            <h2 id="quick-scan-privacy-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              Privacy and data handling
+            </h2>
+            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+              Your description is sent to an AI provider to generate this demonstration and is not stored as a workspace
+              review. Temporary security logs (IP address, request metadata, and token usage) may be retained briefly for
+              abuse prevention. ArchLucid does not use Quick Scan submissions to train models. Do not submit secrets,
+              credentials, personal health information, or other regulated data.
+            </p>
+            <p className="mt-2 text-sm">
+              <Link href="/help/data-handling" className="font-medium text-sky-700 underline dark:text-sky-400">
+                Read our data handling guide
+              </Link>
+              {" · "}
+              <Link href="/help/security-trust" className="font-medium text-sky-700 underline dark:text-sky-400">
+                Security overview
+              </Link>
+            </p>
+          </section>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              disabled={!canSubmit}
+              onClick={() => {
+                void onSubmit();
+              }}
+              data-testid="quick-scan-submit"
+              className="rounded-md bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-neutral-400 dark:bg-sky-500 dark:hover:bg-sky-600"
+            >
+              {submitting ? "Analyzing architecture…" : "Analyze architecture"}
+            </button>
+            <button
+              type="button"
+              onClick={loadExample}
+              disabled={submitting}
+              data-testid="quick-scan-use-example"
+              className="rounded-md border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100 disabled:opacity-60 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
+            >
+              Use an example
+            </button>
+            {!canSubmit && incompleteReason !== null ? (
+              <p className="text-sm text-neutral-600 dark:text-neutral-400" role="status">
+                {incompleteReason}
+              </p>
+            ) : null}
+          </div>
+
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            Prefer to explore a prebuilt sample without running an AI analysis?{" "}
+            <button
+              type="button"
+              onClick={showSampleResult}
+              className="font-medium text-sky-700 underline dark:text-sky-400"
+            >
+              View the interactive sample
+            </button>
+            {" · "}
+            <Link href="/get-started" className="font-medium text-sky-700 underline dark:text-sky-400">
+              Start a guided demo
+            </Link>
+          </p>
+
+          <div id={statusRegionId} role="status" aria-live="polite" className="sr-only">
+            {statusMessage}
+          </div>
+
+          {capacityMessage !== null ? (
+            <div className="rounded-md border border-amber-500/40 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100">
+              <p>{capacityMessage}</p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <button type="button" onClick={showSampleResult} className="font-medium underline">
+                  View a sample result
+                </button>
+                <Link href="/auth/signin" className="font-medium underline">
+                  Sign in
+                </Link>
+                <Link href="/contact" className="font-medium underline">
+                  Request a demonstration
+                </Link>
+              </div>
+            </div>
+          ) : null}
+
+          {error !== null ? (
+            <p role="alert" className="rounded-md border border-rose-600/40 bg-rose-50 px-3 py-2 text-sm text-rose-900 dark:border-rose-700/50 dark:bg-rose-950/30 dark:text-rose-100">
+              {error}
+            </p>
+          ) : null}
         </div>
 
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-neutral-800 dark:text-neutral-200"
-            htmlFor="quick-scan-cloud-provider"
-          >
-            Cloud provider
-          </label>
-          <input
-            id="quick-scan-cloud-provider"
-            type="text"
-            value={cloudProvider}
-            onChange={(ev) => {
-              setCloudProvider(ev.target.value);
-            }}
-            autoComplete="off"
-            className="w-full rounded-md border border-neutral-300 bg-white p-3 text-sm text-neutral-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
-            placeholder="e.g. AWS, Azure, or GCP"
-          />
-        </div>
+        <aside className="space-y-6 lg:sticky lg:top-8 lg:self-start">
+          <section className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">What you will receive</h2>
+            <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+              {QUICK_SCAN_RECEIVE_ITEMS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+              Results are illustrative and do not replace a complete, evidence-backed ArchLucid review.
+            </p>
+          </section>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="quick-scan-description">
-            Description
-          </label>
-          <textarea
-            id="quick-scan-description"
-            value={description}
-            onChange={(ev) => {
-              setDescription(ev.target.value);
-            }}
-            rows={5}
-            className="w-full rounded-md border border-neutral-300 bg-white p-3 text-sm text-neutral-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
-            placeholder="Scope, constraints, and context for the quick scan…"
-          />
-        </div>
+          <section className="rounded-lg border border-dashed border-neutral-300 p-5 dark:border-neutral-600">
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Demonstration limits</h2>
+            <ul className="mt-3 space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <li>Single-pass analysis with a concise output cap</li>
+              <li>No workspace persistence or governance workflow</li>
+              <li>Daily demonstration capacity may apply</li>
+            </ul>
+          </section>
+        </aside>
       </div>
 
-      <button
-        type="button"
-        disabled={submitting || !systemName.trim() || !cloudProvider.trim() || !description.trim()}
-        onClick={() => {
-          void onSubmit();
-        }}
-        data-testid="quick-scan-submit"
-        className="rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-neutral-400 dark:bg-sky-500 dark:hover:bg-sky-600"
-      >
-        {submitting ? "Scanning…" : "Run quick scan"}
-      </button>
+      {result !== null ? (
+        <section className="space-y-6 border-t border-neutral-200 pt-8 dark:border-neutral-800" data-testid="quick-scan-results" aria-label="Quick scan results">
+          <header className="space-y-2">
+            <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Analysis result</h2>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              {result.systemName} · {environmentLabel(result.primaryEnvironment)}
+            </p>
+            {result.demonstrationDisclaimer ? (
+              <p className="rounded-md bg-neutral-100 px-3 py-2 text-sm text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
+                {result.demonstrationDisclaimer}
+              </p>
+            ) : null}
+          </header>
 
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">
-        Prefer the simulator-only demo that creates a run?{" "}
-        <Link href="/get-started" className="font-medium text-sky-700 underline dark:text-sky-400">
-          Open quick start
-        </Link>
-        .
-      </p>
-
-      {error !== null && (
-        <p className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-3 text-sm">
-          {error}
-        </p>
-      )}
-
-      {result !== null && (
-        <section className="space-y-4" data-testid="quick-scan-results" aria-label="Quick scan results">
           <div>
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Summary</h2>
-            <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{result.summary}</p>
-            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Scan ID: {result.scanId}</p>
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Overall summary</h3>
+            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{result.summary}</p>
           </div>
 
           <div>
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Findings</h2>
-            <ul className="mt-2 space-y-3">
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Highest-priority risks</h3>
+            <ul className="mt-3 space-y-3">
               {(result.findings ?? []).map((finding) => (
-                <li key={`${finding.title}:${finding.description}`} data-testid="quick-scan-finding-card" className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
+                <li
+                  key={`${finding.title}:${finding.description}`}
+                  data-testid="quick-scan-finding-card"
+                  className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+                >
                   <div className="font-medium text-neutral-900 dark:text-neutral-50">{finding.title}</div>
                   <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                     {findingSeverityLabel(finding.severity)}
@@ -192,8 +344,48 @@ export function QuickScanClient(): ReactElement {
               ))}
             </ul>
           </div>
+
+          {(result.positiveObservations?.length ?? 0) > 0 ? (
+            <div>
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Positive observations</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+                {result.positiveObservations?.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {(result.recommendedNextSteps?.length ?? 0) > 0 ? (
+            <div>
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Recommended next steps</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+                {result.recommendedNextSteps?.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/reviews/new"
+              className="rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-sky-500"
+            >
+              Start a full review
+            </Link>
+            <Link
+              href="/get-started"
+              className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100"
+            >
+              Create a workspace review
+            </Link>
+            <Link href="/contact" className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100">
+              Request a demo
+            </Link>
+          </div>
         </section>
-      )}
+      ) : null}
     </div>
   );
 }

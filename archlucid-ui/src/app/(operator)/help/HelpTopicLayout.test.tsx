@@ -53,4 +53,17 @@ describe("HelpTopicMarkdownView shared layout", () => {
     expect(list?.className).toContain("my-4");
     expect(list?.className).toContain("space-y-1.5");
   });
+
+  it("shows browser print export for public PDF-eligible topics", () => {
+    const entry = getProductDocumentationEntry("product-overview");
+
+    if (entry === null || entry.pdfStatus !== "public") {
+      throw new Error("Expected product-overview to be a public PDF-eligible help entry.");
+    }
+
+    render(<HelpTopicMarkdownView entry={entry} markdown={SHORT_HELP_MARKDOWN} />);
+
+    expect(screen.getByTestId("help-topic-export-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("help-topic-print-pdf")).toHaveTextContent("Print / Save as PDF");
+  });
 });

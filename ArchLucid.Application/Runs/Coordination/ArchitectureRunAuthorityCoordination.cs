@@ -1,3 +1,4 @@
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -8,6 +9,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -34,6 +36,8 @@ public sealed class ArchitectureRunAuthorityCoordination(
     TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
     TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     IRunStateTransitionService runStateTransitionService,
+    IModelExecutionProfileResolver modelExecutionProfileResolver,
+    IAuditService auditService,
     ILogger<ArchitectureRunAuthorityCoordination> logger) : IArchitectureRunAuthorityCoordination
 {
     private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
@@ -57,6 +61,12 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
+
+    private readonly IModelExecutionProfileResolver _modelExecutionProfileResolver =
+        modelExecutionProfileResolver ?? throw new ArgumentNullException(nameof(modelExecutionProfileResolver));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     /// <inheritdoc/>
     public async Task<CoordinationResult> CreateRunAsync(
@@ -106,7 +116,25 @@ public sealed class ArchitectureRunAuthorityCoordination(
             IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
                 await _technologyLedgerRepository.GetByRunIdAsync(scopeForExtractor, runId, cancellationToken);
 
-            tasks = RunStarterTaskFactory.BuildStarterTasks(runId, evidenceBundle, request, ledgerEntries);
+            ModelExecutionProfileResolution profileResolution =
+                await _modelExecutionProfileResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
+
+            tasks = RunStarterTaskFactory.BuildStarterTasks(
+                runId,
+                evidenceBundle,
+                request,
+                ledgerEntries,
+                profileResolution.EffectiveProfile);
+
+            if (!string.IsNullOrWhiteSpace(profileResolution.RequestedOverrideRaw))
+            {
+                await ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync(
+                    _auditService,
+                    _scopeContextProvider,
+                    runId,
+                    profileResolution,
+                    cancellationToken).ConfigureAwait(false);
+            }
         }
 
         run.TaskIds = [..tasks.Select(t => t.TaskId)];

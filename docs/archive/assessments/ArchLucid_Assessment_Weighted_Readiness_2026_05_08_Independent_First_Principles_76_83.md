@@ -1,4 +1,4 @@
-# ArchLucid Assessment – Weighted Readiness 76.83%
+﻿# ArchLucid Assessment – Weighted Readiness 76.83%
 
 **Date:** 2026-05-08  
 **Method:** Independent first-principles assessment from repository materials  
@@ -578,7 +578,7 @@ Acceptance criteria:
 
 **Cursor Prompt:**
 ```
-Add a new section to `docs/go-to-market/TRUST_CENTER.md` titled "## Data residency and sovereignty" positioned after the "Azure connectivity (extractor posture)" section and before "Penetration testing and security assessments".
+Add a new section to `docs/go-to-market/trust-center.md` titled "## Data residency and sovereignty" positioned after the "Azure connectivity (extractor posture)" section and before "Penetration testing and security assessments".
 
 The section must include:
 

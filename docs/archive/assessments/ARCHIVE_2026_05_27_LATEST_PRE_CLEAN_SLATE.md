@@ -27,7 +27,7 @@ The engineering base is serious: modular .NET, Dapper/SQL, DbUp, OpenAPI snapsho
 
 ## Deferred Scope Uncertainty
 
-No material uncertainty. I located the deferral sources needed for this assessment in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`. I did not deduct `(A)` readiness for items explicitly deferred there.
+No material uncertainty. I located the deferral sources needed for this assessment in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`. I did not deduct `(A)` readiness for items explicitly deferred there.
 
 ## Weighted Quality Assessment
 
@@ -541,7 +541,7 @@ The engineering base is serious: modular .NET, Dapper/SQL, OpenAPI snapshots, Db
 
 ## Deferred Scope Uncertainty
 
-I located the main deferral sources in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`. I could not create the requested archive under `docs/archive/assessments/` because that path is blocked by the file access filter in this environment.
+I located the main deferral sources in `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`. I could not create the requested archive under `docs/archive/assessments/` because that path is blocked by the file access filter in this environment.
 
 ## Weighted Quality Assessment
 

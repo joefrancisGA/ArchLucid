@@ -72,7 +72,7 @@ class TestProcurementPackValidation(unittest.TestCase):
             market.mkdir(parents=True)
 
             (
-                market / "TRUST_CENTER.md"
+                market / "trust-center.md"
             ).write_text(
                 "Our SOC 2 Type II audit report is available to prospects under NDA.\n",
                 encoding="utf-8",
@@ -81,7 +81,7 @@ class TestProcurementPackValidation(unittest.TestCase):
             violations = pp_val.forbidden_assurance_phrases(root, canonical_entries=[])
 
         self.assertTrue(any("implies a SOC 2 Type II CPA report" in v for v in violations))
-        self.assertTrue(any("TRUST_CENTER.md" in v for v in violations))
+        self.assertTrue(any("trust-center.md" in v for v in violations))
 
     def test_validate_script_exits_zero_on_repo(self) -> None:
 
@@ -125,7 +125,7 @@ class TestProcurementPackValidation(unittest.TestCase):
                     "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\n",
                 ),
                 (
-                    "docs/go-to-market/TRUST_CENTER.md",
+                    "docs/go-to-market/trust-center.md",
                     "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\n",
                 ),
                 (
@@ -205,20 +205,20 @@ class TestProcurementPackValidation(unittest.TestCase):
         passed = pp_val.format_deal_ready_disposition(ok=True, violations=[])
         held = pp_val.format_deal_ready_disposition(
             ok=False,
-            violations=["missing canonical source `docs/go-to-market/TRUST_CENTER.md`"],
+            violations=["missing canonical source `docs/go-to-market/trust-center.md`"],
         )
 
         self.assertIn("Deal-ready disposition: PASS", passed)
         self.assertIn("Deferred procurement realism", passed)
         self.assertIn("Deal-ready disposition: HOLD", held)
         self.assertIn("Blocking reasons:", held)
-        self.assertIn("TRUST_CENTER.md", held)
+        self.assertIn("trust-center.md", held)
 
     def test_split_deal_ready_violations_classifies_stale_review_as_deferred(self) -> None:
         blocking, deferred = pp_val.split_deal_ready_violations(
             [
-                "docs/go-to-market/TRUST_CENTER.md: Last reviewed is 200 days old (max 120)",
-                "missing required deal-ready doc: docs/go-to-market/TRUST_CENTER.md",
+                "docs/go-to-market/trust-center.md: Last reviewed is 200 days old (max 120)",
+                "missing required deal-ready doc: docs/go-to-market/trust-center.md",
             ]
         )
 
@@ -229,7 +229,7 @@ class TestProcurementPackValidation(unittest.TestCase):
     def test_build_deal_ready_summary_passes_when_only_deferred_violations(self) -> None:
         summary = pp_val.build_deal_ready_summary(
             ok=False,
-            violations=["docs/go-to-market/TRUST_CENTER.md: Last reviewed is 200 days old (max 120)"],
+            violations=["docs/go-to-market/trust-center.md: Last reviewed is 200 days old (max 120)"],
             strict_mode=True,
             deal_ready_mode=True,
         )
@@ -247,7 +247,7 @@ class TestProcurementPackValidation(unittest.TestCase):
 
             for name in (
                 "ASSURANCE_STATUS_CANONICAL.md",
-                "TRUST_CENTER.md",
+                "trust-center.md",
                 "SOC2_STATUS_PROCUREMENT.md",
                 "CURRENT_ASSURANCE_POSTURE.md",
                 "INCIDENT_COMMUNICATIONS_POLICY.md",
@@ -274,7 +274,7 @@ class TestProcurementPackValidation(unittest.TestCase):
     def test_missing_deal_ready_doc_classified_blocking(self) -> None:
         import procurement_scope_classification as scope_class
 
-        violation = "missing required deal-ready doc: docs/go-to-market/TRUST_CENTER.md"
+        violation = "missing required deal-ready doc: docs/go-to-market/trust-center.md"
         row = scope_class.violation_to_classification_row(violation)
 
         self.assertEqual(row["classification"], scope_class.SCOPE_BLOCKING)
@@ -299,7 +299,7 @@ class TestProcurementPackValidation(unittest.TestCase):
                 "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\n",
                 encoding="utf-8",
             )
-            (gtm / "TRUST_CENTER.md").write_text(
+            (gtm / "trust-center.md").write_text(
                 "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\n",
                 encoding="utf-8",
             )
@@ -337,7 +337,7 @@ class TestProcurementPackValidation(unittest.TestCase):
                 "> **Scope:** test\n\n**Last reviewed:** 2000-01-01\n",
                 encoding="utf-8",
             )
-            (gtm / "TRUST_CENTER.md").write_text(
+            (gtm / "trust-center.md").write_text(
                 "> **Scope:** test\n\n**Last reviewed:** 2000-01-01\n",
                 encoding="utf-8",
             )

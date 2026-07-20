@@ -3,7 +3,7 @@ import { pathMatchesRoutePrefix } from "@/lib/governance-route-paths";
 /** Canonical workspace admin AI budget and usage reporting URL (TB-408). */
 export const AI_USAGE_SETTINGS_PATH = "/settings/ai-usage";
 
-/** App Router implementation path — rewrite target for {@link AI_USAGE_SETTINGS_PATH}. */
+/** Legacy alias — permanent redirect to {@link AI_USAGE_SETTINGS_PATH} (TB-753). */
 export const AI_USAGE_COST_REPORTING_PATH = "/settings/cost-reporting";
 
 /** Legacy Internal Operations href — redirects to {@link AI_USAGE_SETTINGS_PATH}. */

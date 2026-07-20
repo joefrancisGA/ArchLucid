@@ -63,4 +63,4 @@
 ## Related
 
 - [`CAIQ_LITE_2026.md`](CAIQ_LITE_2026.md)
-- [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)
+- [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md)

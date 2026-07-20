@@ -13,7 +13,7 @@
 ## Related
 
 - [DPA_TEMPLATE.md](../go-to-market/DPA_TEMPLATE.md) — Data Processing Agreement template
-- [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) — buyer-facing trust index
+- [trust-center.md](../go-to-market/trust-center.md) — buyer-facing trust index
 - [AUDIT_RETENTION_POLICY.md](../library/AUDIT_RETENTION_POLICY.md) — audit data lifecycle
 - [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) — data access patterns
 - [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md) — row-level security and tenant isolation

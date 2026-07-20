@@ -1,4 +1,4 @@
-> **Scope:** Independent weighted product/engineering readiness assessment (2026-04-29) — scores, rationale, and improvement prompts; not an implementation contract.
+﻿> **Scope:** Independent weighted product/engineering readiness assessment (2026-04-29) — scores, rationale, and improvement prompts; not an implementation contract.
 
 # ArchLucid Assessment – Weighted Readiness 73.97%
 
@@ -211,7 +211,7 @@ Below, each quality follows the requested structure (**score / weight / weighted
 - **Weighted impact:** +2.24 pts.
 - **Why:** Strong technical trust mechanics; **third-party pen test publication deferred V1.1** per [V1_DEFERRED.md](V1_DEFERRED.md) §6c (**not** counted as V1 gap).
 - **Tradeoffs:** Higher assurance artifacts slow **release cadence**.
-- **Improvements:** Keep Trust Center rows aligned with **live** CI badges and probe workflows ([TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md)).
+- **Improvements:** Keep Trust Center rows aligned with **live** CI badges and probe workflows ([trust-center.md](../go-to-market/trust-center.md)).
 - **Fix horizon:** **v1** continuity; **external pen test → V1.1**.
 
 #### Auditability — Score **84**, Weight **2**
@@ -504,7 +504,7 @@ Below, each quality follows the requested structure (**score / weight / weighted
 ## Top 5 Enterprise Adoption Blockers
 
 1. **Independent assurance artifacts incomplete vs engineering maturity** — Roadmaps exist; CPA opinion pending ([SOC2_ROADMAP.md](../go-to-market/SOC2_ROADMAP.md)).
-2. **Procurement evidence scatter** — Strong repo artifacts; buyers still must assemble diligence packages manually without a guided portal beyond Trust Center stubs ([TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md)).
+2. **Procurement evidence scatter** — Strong repo artifacts; buyers still must assemble diligence packages manually without a guided portal beyond Trust Center stubs ([trust-center.md](../go-to-market/trust-center.md)).
 3. **Operational complexity of Azure footprint** — Terraform breadth is good; customer skill mismatch remains ([infra/README.md](../../infra/README.md)).
 4. **Residual LLM data-handling scrutiny** — Prompt trace storage + redaction must be explained repeatedly ([AGENT_TRACE_FORENSICS.md](AGENT_TRACE_FORENSICS.md) if referenced).
 5. **Baseline organizational friction** — EA processes vary; tool success depends on pilot charter discipline ([BUYER_JOURNEY.md](../go-to-market/BUYER_JOURNEY.md)).

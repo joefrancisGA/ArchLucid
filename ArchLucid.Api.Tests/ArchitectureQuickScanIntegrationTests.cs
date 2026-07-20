@@ -18,7 +18,7 @@ public sealed class ArchitectureQuickScanIntegrationTests(ArchLucidApiFactory fa
         ArchitectureQuickScanRequest payload = new()
         {
             SystemName = "orders-api",
-            CloudProvider = "Azure",
+            PrimaryEnvironment = "Azure",
             Description = "Stateful API on AKS with Service Bus and Azure SQL."
         };
 

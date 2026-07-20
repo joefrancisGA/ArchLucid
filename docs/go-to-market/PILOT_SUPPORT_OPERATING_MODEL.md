@@ -1,10 +1,10 @@
-> **Scope:** Controlled-pilot support and escalation posture (TB-162). Not a production SLA.
+﻿> **Scope:** Controlled-pilot support and escalation posture (TB-162). Not a production SLA.
 
 # Pilot support and operating model
 
 **Last reviewed:** 2026-06-01
 
-**Related:** [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md), [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`TRUST_CENTER.md`](TRUST_CENTER.md).
+**Related:** [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md), [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`trust-center.md`](trust-center.md).
 
 ---
 
@@ -37,7 +37,7 @@ These targets are **pilot-only** and do not constitute a production SLA. Contrac
 1. Operator or buyer champion opens ticket via agreed email alias.
 2. Founder / designated pilot engineer triages using [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md).
 3. S1 escalations: same-day executive sponsor sync if workaround not available.
-4. Security incidents: follow [`TRUST_CENTER.md`](TRUST_CENTER.md) notification guidance; preserve audit exports.
+4. Security incidents: follow [`trust-center.md`](trust-center.md) notification guidance; preserve audit exports.
 
 ---
 

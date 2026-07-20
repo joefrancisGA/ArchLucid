@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Operational transparency plan - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — Operational transparency plan - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -66,7 +66,7 @@ SaaS buyers — especially in enterprise and regulated environments — need con
 
 | Phase | Scope | Timeline target |
 |-------|-------|---------------------|
-| **Phase 1** | Choose provider, create page with 5 components, add URL to [TRUST_CENTER.md](TRUST_CENTER.md), [SLA_SUMMARY.md](SLA_SUMMARY.md), and [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Near-term |
+| **Phase 1** | Choose provider, create page with 5 components, add URL to [trust-center.md](trust-center.md), [SLA_SUMMARY.md](SLA_SUMMARY.md), and [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Near-term |
 | **Phase 2** | Manual incident updates aligned with comms policy; team trained on update workflow | With first production customer |
 | **Phase 3** | Automated uptime checks feeding the page; alert-to-incident webhook integration | Post Phase 2 stabilization |
 
@@ -85,6 +85,6 @@ When a dedicated status URL is published, keep these documents aligned in the sa
 
 | Doc | Use |
 |-----|-----|
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Availability targets |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident classification and comms |

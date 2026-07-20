@@ -6,7 +6,7 @@ import { QuickScanClient } from "./QuickScanClient";
 export const metadata: Metadata = {
   title: "Quick scan · ArchLucid",
   description:
-    "Run a minimal architecture quick scan with no sign-in — ephemeral system context and findings for exploration.",
+    "Describe a system and receive a concise architecture risk and improvement summary. No account required.",
   robots: { index: true, follow: true },
 };
 

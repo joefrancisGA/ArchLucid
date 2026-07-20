@@ -22,7 +22,7 @@ Enterprise foundations are broad: database-per-tenant posture, OIDC/SAML/API key
 The engineering system is structurally strong and heavily documented. The codebase has modular projects, OpenAPI contracts, Dapper/DbUp SQL discipline, release smoke paths, live UI tests, RAG and AI evaluation hooks, data-consistency probes, and Terraform validation. The risk is uneven enforcement: some high-value gates are warn-only or environment-dependent, coverage is uneven across important assemblies, and production evidence depends on operators configuring the right exporters, probes, and proof collectors.
 
 ### Deferred Scope Uncertainty
-None identified. The repository materials that define deferred scope were located: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`.
+None identified. The repository materials that define deferred scope were located: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, and `docs/go-to-market/SOC2_ROADMAP.md`.
 
 ## 3. Weighted Quality Assessment
 
@@ -271,7 +271,7 @@ ArchLucid is now closer to selling itself on evidence: the product must still be
 **Expected impact:** Faster security review.  
 **Affected qualities:** Security, Compliance Readiness, Procurement Readiness, Trustworthiness.  
 **Actionable:** Fully actionable now.  
-**Cursor prompt:** Add a concise control-to-evidence map for identity/RBAC, tenant isolation, audit, secrets, LLM redaction, content safety, vulnerability scanning, incident communications, and deletion/offboarding. Link from `SECURITY_REVIEWER_ONE_PAGER.md` and `TRUST_CENTER.md`. Acceptance criteria: each row has control, evidence path, status, and deferred boundary; SOC 2 CPA and third-party pen test remain clearly not issued. Constraints: no legal commitments or unsupported certifications.  
+**Cursor prompt:** Add a concise control-to-evidence map for identity/RBAC, tenant isolation, audit, secrets, LLM redaction, content safety, vulnerability scanning, incident communications, and deletion/offboarding. Link from `SECURITY_REVIEWER_ONE_PAGER.md` and `trust-center.md`. Acceptance criteria: each row has control, evidence path, status, and deferred boundary; SOC 2 CPA and third-party pen test remain clearly not issued. Constraints: no legal commitments or unsupported certifications.  
 **Impact of running prompt:** Security (+2-3), Compliance Readiness (+3-4), Procurement Readiness (+2-3). Weighted readiness impact: **+0.1-0.3%**.
 
 ### 20. Tighten RAG Evaluation Enforcement Where Stable

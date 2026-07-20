@@ -9,11 +9,22 @@ public sealed class ArchitectureQuickScanRequest
     [Required]
     public string SystemName { get; init; } = string.Empty;
 
-    /// <summary>Cloud or platform hint (for example Azure, AWS, GCP, Hybrid).</summary>
+    /// <summary>Controlled primary environment selection (see <see cref="QuickScanPrimaryEnvironment" />).</summary>
     [Required]
-    public string CloudProvider { get; init; } = string.Empty;
+    public string PrimaryEnvironment { get; init; } = string.Empty;
+
+    /// <summary>Optional detail when <see cref="PrimaryEnvironment" /> is <c>Other</c>.</summary>
+    public string? PrimaryEnvironmentOther { get; init; }
+
+    /// <summary>
+    ///     Legacy alias for <see cref="PrimaryEnvironment" /> — accepted for backward compatibility only.
+    /// </summary>
+    public string? CloudProvider { get; init; }
 
     /// <summary>Free-text description of scope, constraints, or context.</summary>
     [Required]
     public string Description { get; init; } = string.Empty;
+
+    /// <summary>Optional focus areas (max three validated values).</summary>
+    public List<string> ArchitectureConcerns { get; init; } = [];
 }

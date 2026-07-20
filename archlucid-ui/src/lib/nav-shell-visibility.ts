@@ -28,7 +28,7 @@ const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/settings/api-keys
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/planning",
   "/product-learning",
-  "/recommendation-learning",
+  "/internal-operations/recommendation-learning",
   "/evolution-review",
   "/replay",
   "/search",

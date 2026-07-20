@@ -1,4 +1,4 @@
-{
+﻿{
   "generatedUtc": "2026-05-29T03:58:17.734514+00:00",
   "attestationPosture": "Self-assessed controls and documented engineering evidence \u2014 not CPA SOC 2, ISO certification, or third-party pen-test attestation today.",
   "currentControlsSummary": [
@@ -22,7 +22,7 @@
   ],
   "sources": [
     {
-      "path": "docs/go-to-market/TRUST_CENTER.md",
+      "path": "docs/go-to-market/trust-center.md",
       "role": "Trust center narrative",
       "present": true
     },

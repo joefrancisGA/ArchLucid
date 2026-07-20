@@ -251,6 +251,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();
         services.AddScoped<ITenantAgentOutputQualityGateModeService, TenantAgentOutputQualityGateModeService>();
+        services.AddScoped<IWorkspaceModelExecutionProfileService, WorkspaceModelExecutionProfileService>();
+        services.AddScoped<IModelExecutionProfileResolver, ModelExecutionProfileResolver>();
         services.AddScoped<IFeaturedCompletedSampleService, FeaturedCompletedSampleService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<IRecentPilotRunDeltasService, RecentPilotRunDeltasService>();

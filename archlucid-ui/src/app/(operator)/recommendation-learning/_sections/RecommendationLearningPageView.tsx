@@ -1,86 +1,80 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { Sparkles } from "lucide-react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
+import { RecommendationLearningEnterpriseGuide } from "./RecommendationLearningEnterpriseGuide";
+import { RecommendationLearningHowItWorksCard } from "./RecommendationLearningHowItWorksCard";
+import { RecommendationLearningSummaryPanel } from "./RecommendationLearningSummaryPanel";
+import { RecommendationLearningWorkflowSteps } from "./RecommendationLearningWorkflowSteps";
 import type { RecommendationLearningPageViewModel } from "./recommendation-learning-page-view-model";
 import {
-  buildTopLearnedSignals,
-  countRecordsAnalyzed,
-  formatProfileGeneratedUtc,
-  listTunedCategories,
-  profileHasInsufficientHistory,
-} from "./recommendation-learning-display";
+  RECOMMENDATION_LEARNING_BUILD_FIRST_ACTION,
+  RECOMMENDATION_LEARNING_EMPTY_DESCRIPTION,
+  RECOMMENDATION_LEARNING_EMPTY_TITLE,
+  RECOMMENDATION_LEARNING_INSUFFICIENT_DESCRIPTION,
+  RECOMMENDATION_LEARNING_INSUFFICIENT_TITLE,
+  RECOMMENDATION_LEARNING_LEARN_MORE_ACTION,
+  RECOMMENDATION_LEARNING_MUTATION_DENIED,
+  RECOMMENDATION_LEARNING_PAGE_SUBTITLE,
+  RECOMMENDATION_LEARNING_PAGE_TITLE,
+  RECOMMENDATION_LEARNING_RECALCULATE_ACTION,
+  RECOMMENDATION_LEARNING_RECALCULATE_HELP,
+  RECOMMENDATION_LEARNING_REFRESH_ACTION,
+} from "./recommendation-learning-copy";
+import { profileHasInsufficientHistory } from "./recommendation-learning-display";
 
 type Props = {
   readonly model: RecommendationLearningPageViewModel;
 };
-
-const WHAT_THIS_AFFECTS = [
-  "Recommendation priority in advisory views",
-  "Urgency scoring",
-  "Category weighting",
-  "Inferred signal type weighting",
-] as const;
 
 export function RecommendationLearningPageView(props: Props) {
   const m = props.model;
   const hasProfile = m.profile !== null;
   const insufficientHistory = hasProfile && profileHasInsufficientHistory(m.profile);
   const hasMeaningfulProfile = hasProfile && !insufficientHistory;
-  const learnedSignals = hasMeaningfulProfile ? buildTopLearnedSignals(m.profile) : [];
-  const tunedCategories = hasMeaningfulProfile ? listTunedCategories(m.profile) : [];
+  const isBusy = m.loading || m.isRebuilding;
 
   return (
-    <div className={`max-w-4xl ${OPERATOR_LAYOUT.sectionStack}`}>
+    <div className={`max-w-5xl ${OPERATOR_LAYOUT.sectionStack}`}>
       <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Recommendation tuning</h2>
-        <p className={cn("leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Tune how ArchLucid ranks advisory recommendations based on accepted, deferred, rejected, and implemented
-          outcomes. This is an advanced admin tool for improving advisory ranking from historical outcomes.
+        <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{RECOMMENDATION_LEARNING_PAGE_TITLE}</h2>
+        <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {RECOMMENDATION_LEARNING_PAGE_SUBTITLE}
         </p>
       </div>
 
-      <Card className="border-neutral-200 dark:border-neutral-700">
-        <CardHeader className={OPERATOR_CARD.header}>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>What this affects</CardTitle>
-        </CardHeader>
-        <CardContent className={OPERATOR_CARD.content}>
-          <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {WHAT_THIS_AFFECTS.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      {hasMeaningfulProfile ? (
+        <div className="flex flex-wrap gap-3">
+          <Button type="button" onClick={() => void m.loadLatest()} disabled={isBusy}>
+            {RECOMMENDATION_LEARNING_REFRESH_ACTION}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void m.rebuild()}
+            disabled={isBusy || !m.canMutate}
+            title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+          >
+            {RECOMMENDATION_LEARNING_RECALCULATE_ACTION}
+          </Button>
+        </div>
+      ) : null}
 
-      <div className="flex flex-wrap gap-3">
-        <Button type="button" onClick={() => void m.loadLatest()} disabled={m.loading}>
-          Load current tuning profile
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => void m.rebuild()}
-          disabled={m.loading || !m.canMutate}
-          title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-        >
-          Rebuild tuning profile
-        </Button>
-      </div>
+      {!m.canMutate && hasMeaningfulProfile ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{RECOMMENDATION_LEARNING_MUTATION_DENIED}</p>
+      ) : null}
 
-      {!m.canMutate ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Elevated workspace permissions required to rebuild the tuning profile.
-        </p>
+      {hasMeaningfulProfile ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{RECOMMENDATION_LEARNING_RECALCULATE_HELP}</p>
       ) : null}
 
       {m.failure !== null ? (
@@ -93,91 +87,67 @@ export function RecommendationLearningPageView(props: Props) {
         </div>
       ) : null}
 
-      {m.loading ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-          Loading tuning profile…
+      {isBusy ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status" aria-live="polite">
+          {m.isRebuilding ? "Recalculating recommendation learning…" : "Refreshing learning summary…"}
         </p>
       ) : null}
 
-      {!m.loading && m.failure === null && !hasProfile ? (
+      {!isBusy && m.failure === null && !hasProfile ? (
         <EmptyState
           icon={Sparkles}
-          title="No tuning profile available"
-          description="A tuning profile is created after ArchLucid has enough recommendation outcome history. Load the current profile or rebuild once outcomes exist."
-          gettingStarted={{
-            heading: "How to build history",
-            steps: [
-              "Generate recommendations from completed reviews.",
-              "Mark each recommendation accepted, deferred, rejected, or implemented.",
-              "Return here to load or rebuild the tuning profile.",
-            ],
-          }}
+          title={RECOMMENDATION_LEARNING_EMPTY_TITLE}
+          description={RECOMMENDATION_LEARNING_EMPTY_DESCRIPTION}
         />
       ) : null}
 
-      {!m.loading && m.failure === null && insufficientHistory ? (
+      {!isBusy && m.failure === null && insufficientHistory ? (
         <EmptyState
           icon={Sparkles}
-          title="Not enough recommendation history yet"
-          description="ArchLucid needs completed recommendation outcomes before it can build a meaningful tuning profile."
-          gettingStarted={{
-            heading: "Next steps",
-            steps: [
-              "Generate recommendations from advisory or review workflows.",
-              "Mark them accepted, deferred, rejected, or implemented.",
-              "Rebuild the tuning profile when history is available.",
-            ],
-          }}
+          title={RECOMMENDATION_LEARNING_INSUFFICIENT_TITLE}
+          description={RECOMMENDATION_LEARNING_INSUFFICIENT_DESCRIPTION}
         />
       ) : null}
 
-      {hasMeaningfulProfile ? (
+      {!hasMeaningfulProfile ? (
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,18rem)_1fr]">
+          <RecommendationLearningWorkflowSteps />
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-3">
+              <Button
+                type="button"
+                onClick={() => void m.rebuild()}
+                disabled={isBusy || !m.canMutate}
+                title={m.canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+              >
+                {RECOMMENDATION_LEARNING_BUILD_FIRST_ACTION}
+              </Button>
+              <Button type="button" variant="outline" asChild>
+                <Link href="#how-learning-works">{RECOMMENDATION_LEARNING_LEARN_MORE_ACTION}</Link>
+              </Button>
+            </div>
+            {!m.canMutate ? (
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {RECOMMENDATION_LEARNING_MUTATION_DENIED}
+              </p>
+            ) : null}
+            {insufficientHistory ? (
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {RECOMMENDATION_LEARNING_RECALCULATE_HELP}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {hasMeaningfulProfile && m.profile !== null ? (
         <>
-          <Card className="border-neutral-200 dark:border-neutral-700">
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Current tuning profile</CardTitle>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              <dl className="m-0 grid gap-2 sm:grid-cols-2">
-                <div>
-                  <dt className={OPERATOR_NAV_GROUP_LABEL}>Last rebuilt</dt>
-                  <dd className="m-0 text-al-text-primary">{formatProfileGeneratedUtc(m.profile.generatedUtc)}</dd>
-                </div>
-                <div>
-                  <dt className={OPERATOR_NAV_GROUP_LABEL}>Records analyzed</dt>
-                  <dd className="m-0 text-al-text-primary">{countRecordsAnalyzed(m.profile).toLocaleString()}</dd>
-                </div>
-                <div>
-                  <dt className={OPERATOR_NAV_GROUP_LABEL}>Categories tuned</dt>
-                  <dd className="m-0 text-al-text-primary">
-                    {tunedCategories.length > 0 ? tunedCategories.join(", ") : "None yet"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className={OPERATOR_NAV_GROUP_LABEL}>Mode</dt>
-                  <dd className="m-0 text-al-text-primary">Advisory ranking only</dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
-
-          {learnedSignals.length > 0 ? (
-            <section aria-labelledby="recommendation-tuning-signals-heading">
-              <h3 id="recommendation-tuning-signals-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                Top learned signals
-              </h3>
-              <ul className={cn("mt-2 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {learnedSignals.map((signal) => (
-                  <li key={signal.label}>{signal.label}</li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
+          <RecommendationLearningSummaryPanel profile={m.profile} />
 
           <CollapsibleSection
-            title="Weight details"
+            title="Recommendation model weights"
             defaultOpen={false}
-            sectionTestId="recommendation-tuning-weight-details"
+            sectionTestId="recommendation-learning-weight-details"
           >
             <div className={cn("space-y-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               <div>
@@ -214,6 +184,9 @@ export function RecommendationLearningPageView(props: Props) {
           </CollapsibleSection>
         </>
       ) : null}
+
+      <RecommendationLearningHowItWorksCard />
+      <RecommendationLearningEnterpriseGuide />
     </div>
   );
 }

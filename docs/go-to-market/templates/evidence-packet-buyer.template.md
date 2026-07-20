@@ -18,7 +18,7 @@
 | `quote-to-proof-packet.md` | Value narrative | ROI figures require `roiSponsorSafe=true` and `baselineCompletenessStatus=COMPLETE` or valid override |
 | Staging capture `staging-readiness-*.md` | Live API proof | Cite **Staging** URL class; do not paste secrets |
 | `rc-go-no-go-verdict.json` | RC signoff | Use `verdict` field; strict RC HOLD blocks SEND |
-| [`TRUST_CENTER.md`](../trust-center.md) | Security posture | Self-assessment — **not** CPA SOC 2 attestation |
+| [`trust-center.md`](../trust-center.md) | Security posture | Self-assessment — **not** CPA SOC 2 attestation |
 
 ## Optional artifacts (strengthen narrative)
 

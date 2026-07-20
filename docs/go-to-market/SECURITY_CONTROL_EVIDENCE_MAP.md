@@ -1,8 +1,8 @@
-> **Scope:** Security reviewer control-to-evidence map — not legal attestation.
+﻿> **Scope:** Security reviewer control-to-evidence map — not legal attestation.
 
 # Security control evidence map (V1)
 
-Link from [`SECURITY_REVIEWER_ONE_PAGER.md`](SECURITY_REVIEWER_ONE_PAGER.md) and [`TRUST_CENTER.md`](TRUST_CENTER.md).
+Link from [`SECURITY_REVIEWER_ONE_PAGER.md`](SECURITY_REVIEWER_ONE_PAGER.md) and [`trust-center.md`](trust-center.md).
 
 | Control | Evidence path | Status (V1) | Deferred boundary |
 | --- | --- | --- | --- |
@@ -14,7 +14,7 @@ Link from [`SECURITY_REVIEWER_ONE_PAGER.md`](SECURITY_REVIEWER_ONE_PAGER.md) and
 | LLM prompt redaction | `docs/library/AGENT_OUTPUT_EVALUATION.md` | Implemented | Raw prompt retention policy owner-required |
 | Azure AI Content Safety | `CONFIGURATION_REFERENCE.md` production-like lint | Implemented when enabled | Bypass blocked in production-like profile |
 | Vulnerability scanning (CI) | `.github/workflows/ci.yml` | Implemented | Third-party pen-test summary **V2 planned** |
-| Incident communications | `docs/go-to-market/TRUST_CENTER.md` | Documented | Customer-specific IR playbooks owner-required |
+| Incident communications | `docs/go-to-market/trust-center.md` | Documented | Customer-specific IR playbooks owner-required |
 | Deletion / offboarding | DPA · subprocessor list in procurement pack | Documented | Customer data purge runbooks operator-owned |
 | Procurement pack | `scripts/build_procurement_pack.py --deal-ready` | Implemented | SOC 2 CPA **deferred (B)** |
 

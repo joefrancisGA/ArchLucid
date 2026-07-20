@@ -42,7 +42,7 @@ public sealed class TenantUsageStatusService(
                 workspacesUsed,
                 seatsUsed);
         int? seatsLimit = ResolveSeatsLimit(tenant, commercialTier);
-        int? workspacesLimit = ResolveWorkspacesLimit(commercialTier);
+        int? workspacesLimit = ResolveWorkspacesLimit(isTrial, commercialTier);
 
         return new TenantUsageStatusSnapshot(
             isTrial,
@@ -80,10 +80,13 @@ public sealed class TenantUsageStatusService(
         return null;
     }
 
-    private static int? ResolveWorkspacesLimit(string? commercialTier)
+    private static int? ResolveWorkspacesLimit(bool isTrial, string? commercialTier)
     {
+        if (isTrial)
+            return CommercialPackagingLimits.FreeOrTrialWorkspacesIncluded;
+
         if (commercialTier is null)
-            return null;
+            return CommercialPackagingLimits.FreeOrTrialWorkspacesIncluded;
 
         if (string.Equals(commercialTier, CommercialPackagingTierLabels.Enterprise, StringComparison.Ordinal))
             return null;
@@ -94,6 +97,6 @@ public sealed class TenantUsageStatusService(
         if (string.Equals(commercialTier, CommercialPackagingTierLabels.Professional, StringComparison.Ordinal))
             return CommercialPackagingLimits.ProfessionalWorkspacesIncluded;
 
-        return null;
+        return CommercialPackagingLimits.FreeOrTrialWorkspacesIncluded;
     }
 }

@@ -1,4 +1,4 @@
-> **Scope:** Support posture and pilot operating model for V1 controlled pilots. Defines what pilot buyers can expect from ArchLucid in terms of support, escalation, and incident communication. Not a formal SLA document until owner-approved and executed in a contract.
+﻿> **Scope:** Support posture and pilot operating model for V1 controlled pilots. Defines what pilot buyers can expect from ArchLucid in terms of support, escalation, and incident communication. Not a formal SLA document until owner-approved and executed in a contract.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -8,7 +8,7 @@
 
 **Last reviewed:** 2026-06-01
 
-**Related:** [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md), [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`TRUST_CENTER.md`](TRUST_CENTER.md), [`LEGAL_PROCUREMENT_TERMS_PACKET.md`](LEGAL_PROCUREMENT_TERMS_PACKET.md).
+**Related:** [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md), [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`trust-center.md`](trust-center.md), [`LEGAL_PROCUREMENT_TERMS_PACKET.md`](LEGAL_PROCUREMENT_TERMS_PACKET.md).
 
 ---
 

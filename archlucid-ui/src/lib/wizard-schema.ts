@@ -80,6 +80,7 @@ export const wizardFormSchema = z.object({
   topologyHints: z.array(z.string()),
   securityBaselineHints: z.array(z.string()),
   infrastructureDeclarations: z.array(wizardInfrastructureDeclarationSchema),
+  modelExecutionProfileOverride: z.enum(["WorkspaceDefault", "Economy", "Balanced", "HighAssurance"]),
 });
 
 export type WizardFormValues = z.infer<typeof wizardFormSchema>;
@@ -108,5 +109,6 @@ export function buildDefaultWizardValues(): WizardFormValues {
     topologyHints: [],
     securityBaselineHints: [],
     infrastructureDeclarations: [],
+    modelExecutionProfileOverride: "WorkspaceDefault",
   });
 }

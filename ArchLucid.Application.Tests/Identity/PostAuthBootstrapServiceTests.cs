@@ -364,9 +364,43 @@ public sealed class PostAuthBootstrapServiceTests
             trialBootstrap.Object,
             domainPolicy.Object,
             abusePolicy.Object,
+            new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
             audit.Object,
             TimeProvider.System);
 
         return (sut, userId, memberships, invitations);
+    }
+
+    [Fact]
+    public async Task CreateWorkspaceAsync_denies_when_workspace_packaging_limit_reached()
+    {
+        (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, _) = CreateSut();
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                Role = ArchLucidRoles.WorkspaceAdmin,
+                Status = WorkspaceMembershipStatus.Active
+            },
+            DateTimeOffset.UtcNow,
+            CancellationToken.None);
+
+        PostAuthCreateWorkspaceResult result = await sut.CreateWorkspaceAsync(
+            userId,
+            "owner@example.com",
+            "owner@example.com",
+            new PostAuthCreateWorkspaceRequest
+            {
+                WorkspaceName = "Second",
+                OrganizationName = "Second Org",
+                TermsAccepted = true
+            },
+            CancellationToken.None);
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(WorkspacePackagingLimitEvaluator.SelfServeLimitCustomerMessage, result.CustomerMessage);
     }
 }

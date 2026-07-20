@@ -1,4 +1,4 @@
-> **Scope:** How buyers and field teams obtain the ArchLucid procurement documentation ZIP.
+﻿> **Scope:** How buyers and field teams obtain the ArchLucid procurement documentation ZIP.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -98,4 +98,4 @@ This is the procurement input named in [`COMMERCIAL_CONVERSION_CHECKLIST.md`](CO
 
 ## Trust Center index
 
-For narrative context and deep links, start at [`TRUST_CENTER.md`](TRUST_CENTER.md).
+For narrative context and deep links, start at [`trust-center.md`](trust-center.md).

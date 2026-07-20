@@ -743,7 +743,7 @@ Cursor prompt:
 Align trust-center and assurance wording with the current scope rules.
 
 Scope:
-- `docs/go-to-market/TRUST_CENTER.md`
+- `docs/go-to-market/trust-center.md`
 - `docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md`
 - `docs/go-to-market/WHAT_NOT_TO_PROMISE.md`
 - `docs/library/V1_SCOPE.md`
@@ -781,7 +781,7 @@ Scope:
 - `scripts/build_procurement_pack.py`
 - `scripts/procurement_pack_canonical.json`
 - `.github/workflows/ci.yml`
-- `docs/go-to-market/TRUST_CENTER.md`
+- `docs/go-to-market/trust-center.md`
 - `docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`
 - script tests under `scripts/ci/tests/`
 
@@ -2486,7 +2486,7 @@ Constraints:
 Create a buyer-safe hosted probe rollup artifact.
 
 Scope:
-- Inspect docs/runbooks/HOSTED_AVAILABILITY_ROLLUP.md, docs/go-to-market/TRUST_CENTER.md, docs/library/API_SLOS.md, docs/library/SLA_TARGETS.md, and scripts/ops/summarize_hosted_probe_artifacts.py.
+- Inspect docs/runbooks/HOSTED_AVAILABILITY_ROLLUP.md, docs/go-to-market/trust-center.md, docs/library/API_SLOS.md, docs/library/SLA_TARGETS.md, and scripts/ops/summarize_hosted_probe_artifacts.py.
 - Ensure the rollup clearly distinguishes observed staging/hosted probe results from contractual production SLA.
 - Add or update tests for Markdown summary generation.
 
@@ -2515,7 +2515,7 @@ Constraints:
 Harden procurement pack strictness and freshness validation.
 
 Scope:
-- Inspect scripts/build_procurement_pack.py, scripts/procurement_pack_canonical.json, docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md, docs/go-to-market/TRUST_CENTER.md, and freshness/strictness CI helpers.
+- Inspect scripts/build_procurement_pack.py, scripts/procurement_pack_canonical.json, docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md, docs/go-to-market/trust-center.md, and freshness/strictness CI helpers.
 - Ensure strict mode catches buyer-unsafe stub tokens, stale Last reviewed metadata, broken canonical paths, and missing redaction report entries.
 
 Acceptance criteria:
@@ -2714,7 +2714,7 @@ Constraints:
 Add accessibility evidence freshness validation.
 
 Scope:
-- Inspect ACCESSIBILITY.md, docs/security/VPAT_2_5_WCAG_2_1_AA.md, docs/go-to-market/TRUST_CENTER.md, archlucid-ui accessibility tests, and relevant CI scripts.
+- Inspect ACCESSIBILITY.md, docs/security/VPAT_2_5_WCAG_2_1_AA.md, docs/go-to-market/trust-center.md, archlucid-ui accessibility tests, and relevant CI scripts.
 - Validate that buyer-facing accessibility docs have current reviewed dates, distinguish automated axe/jsx-a11y evidence from manual AT testing, and link to the correct public contact path.
 
 Acceptance criteria:

@@ -7,7 +7,7 @@
 Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #7 shipped):** align `V1_MAGIC_GUARDRAILS.md` with shipped retrieval (Graph-RAG/agentic code exists; guardrails apply to buyer claims). Prior: improvement #6 disposition training microcopy; improvement #5 real-mode evidence cadence; improvement #4 pilot-mode operator shell default; improvement #3 TB-021 Phase B; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
 
 **Timestamp:** 2026-06-25 (UTC, V1_MAGIC_GUARDRAILS alignment)  
-**Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, **`CONFIGURATION_REFERENCE.md`**, `DEFAULT_POLICY_PACKS_V1.md`, **`AUDIT_COVERAGE_MATRIX.md`**, **`AGENT_OUTPUT_EVALUATION.md`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), `POLICY_PACK_DELTA_DEMO_SCRIPT.md`, `DIFFERENTIATION_PROOF_PACKET.md`.
+**Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `trust-center.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, **`CONFIGURATION_REFERENCE.md`**, `DEFAULT_POLICY_PACKS_V1.md`, **`AUDIT_COVERAGE_MATRIX.md`**, **`AGENT_OUTPUT_EVALUATION.md`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), `POLICY_PACK_DELTA_DEMO_SCRIPT.md`, `DIFFERENTIATION_PROOF_PACKET.md`.
 
 **Operator-path evidence inspected:** `artifacts/first-pilot-proof/first-pilot-proof-20260625T100122Z/` (data consistency PASS, command center, go-no-go summary, evidence bundle); committed run `eb81dd4972ad429e8d4e214f9934bfc0` on Simulator @ `http://127.0.0.1:5128`.
 
@@ -187,7 +187,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 **Justification:** Merge-blocking live E2E matrix; conflict/concurrency specs; health endpoints; coordinator durable audit retry on critical paths. **Step 3 local corroboration:** create → execute → commit → evidence bundle + go-no-go artifacts for run `eb81dd4972ad429e8d4e214f9934bfc0` on healthy Simulator+SQL stack. Residual: demo validation hang, CLI client drift, proof HOLD under sponsor handoff (expected on Simulator).
 
-**Recommendations:** Keep hosted probe rollup internal-only until production baseUrl evidence exists (`TRUST_CENTER.md` staging disclaimer).
+**Recommendations:** Keep hosted probe rollup internal-only until production baseUrl evidence exists (`trust-center.md` staging disclaimer).
 
 **Classification:** V1.  
 **Outcomes:** 3.

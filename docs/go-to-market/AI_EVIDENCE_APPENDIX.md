@@ -1,4 +1,4 @@
-> **Scope:** AI evidence appendix (buyer-safe) - full detail, tables, and links in the sections below.
+﻿> **Scope:** AI evidence appendix (buyer-safe) - full detail, tables, and links in the sections below.
 
 # AI evidence appendix (buyer-safe)
 
@@ -38,4 +38,4 @@
 
 - [`../library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)
 - [`../library/RAG_QUALITY_TECHNICAL_BACKLOG.md`](../library/RAG_QUALITY_TECHNICAL_BACKLOG.md)
-- [`TRUST_CENTER.md`](TRUST_CENTER.md)
+- [`trust-center.md`](trust-center.md)

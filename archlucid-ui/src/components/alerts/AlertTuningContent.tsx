@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { recommendAlertThreshold } from "@/lib/api";
@@ -207,8 +206,7 @@ export function AlertTuningContent() {
 
   return (
     <div className="max-w-4xl">
-      <LayerHeader pageKey="alert-tuning" />
-      <h2 className="mt-0">Alert tuning</h2>
+      <h2 className="mt-0">Tune alert thresholds</h2>
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{alertTuningPageLead}</p>
       <AlertOperatorToolingRankCue />
 

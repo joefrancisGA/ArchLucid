@@ -1,4 +1,4 @@
-> **Scope:** Review cadence and role ownership for buyer-facing procurement documentation, including stale-document escalation expectations.
+﻿> **Scope:** Review cadence and role ownership for buyer-facing procurement documentation, including stale-document escalation expectations.
 
 # Procurement Documentation Review Cadence
 
@@ -12,7 +12,7 @@
 
 | Document | Owner role | Review frequency | Escalation when stale |
 |---|---|---|---|
-| `TRUST_CENTER.md` | Security lead | Every 30 days | Raise in release checklist and update before procurement pack release |
+| `trust-center.md` | Security lead | Every 30 days | Raise in release checklist and update before procurement pack release |
 | `CURRENT_ASSURANCE_POSTURE.md` | Security lead | Every 30 days | Block procurement deal-ready mode until refreshed |
 | `SLA_SUMMARY.md` | Platform lead | Every 45 days | Escalate to product + ops owner for confirmation |
 | `INCIDENT_COMMUNICATIONS_POLICY.md` | Incident manager role | Every 45 days | Escalate to on-call manager; confirm channels and timelines |

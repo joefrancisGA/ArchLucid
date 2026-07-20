@@ -22,6 +22,7 @@ export type FindingInspectPayload = {
   manifestVersion: string | null;
   /** Inspect API fields when returned (FindingInspectResponse). */
   modelDeploymentName?: string | null;
+  modelAlias?: string | null;
   promptTemplateVersion?: string | null;
   isMuted?: boolean;
   muteReason?: string | null;

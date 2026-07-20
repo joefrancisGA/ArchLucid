@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Support and professional services (buyer summary).  
+﻿> **Scope:** ArchLucid — Support and professional services (buyer summary).  
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ArchLucid — Support and professional services
@@ -9,7 +9,7 @@
 
 **Pricing source:** Subscription tiers and list prices live only in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md). This document describes **support and services posture**, not price figures.
 
-**Related:** [SLA_SUMMARY.md](SLA_SUMMARY.md) (availability targets) · [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) (contract framing) · [TRUST_CENTER.md](TRUST_CENTER.md)
+**Related:** [SLA_SUMMARY.md](SLA_SUMMARY.md) (availability targets) · [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) (contract framing) · [trust-center.md](trust-center.md)
 
 ---
 
@@ -92,7 +92,7 @@ Lower severities cover degraded performance, non-blocking defects, configuration
 
 Include **`X-Correlation-ID`** on API requests when reporting API-related issues ([CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)).
 
-**Security incidents:** `security@archlucid.net` (see [TRUST_CENTER.md](TRUST_CENTER.md)).
+**Security incidents:** `security@archlucid.net` (see [trust-center.md](trust-center.md)).
 
 ---
 

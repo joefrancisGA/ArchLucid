@@ -1,4 +1,4 @@
-> **Scope:** M-06 / G-REAL-04 deliverable — mechanical claim-vs-copy review of Workspace B sample report output against landing-page and positioning claims. **Agent review date:** 2026-07-03. **Owner final sign-off:** pending (visual confirmation of live export/DOCX optional).
+> **Scope:** M-06 / G-REAL-04 deliverable — mechanical claim-vs-copy review of Workspace B sample report output against landing-page and positioning claims. **Agent review date:** 2026-07-03. **Owner final sign-off:** **Done 2026-07-19** — landing claims accepted as sufficiently aligned for outreach; optional live DOCX visual check waived. Follow-ups routed: **C8** → M-09 remainder (use-case-card routing fix), **C4** → M-111 (demo-script footnote).
 
 # M-06 — Workspace B sample report vs landing-page claims
 
@@ -79,9 +79,9 @@
 
 | Priority | Item | Owner |
 |----------|------|-------|
-| P2 | Add homepage cross-link: **AI governance + security baseline** card → Workspace B canonical URL (`/reviews/61c60d76-…`) | Marketing / UI (M-09 remainder) |
-| P3 | Optional: generate Meridian/Alpine DOCX sample alongside Contoso samples in `docs/go-to-market/samples/` | GTM / engineering |
-| P3 | Demo script footnote: Workspace B = seed-backed storyline; live agent traces shown on Workspace A or real pilot | GTM (M-03 / demo script) |
+| P2 | Add homepage cross-link: **AI governance + security baseline** card → Workspace B canonical URL (`/reviews/61c60d76-…`); keep WAF/CAF cards pointed at policy-pack docs / Workspace A | Marketing / UI — **tracked in M-09 remainder (2026-07-19)** |
+| P3 | Optional: generate Meridian/Alpine DOCX sample alongside Contoso samples in `docs/go-to-market/samples/` | GTM / engineering — **not tracked (2026-07-19)**: superseded by **M-93** live dogfood sample |
+| P3 | Demo script footnote: Workspace B = seed-backed storyline; live agent traces shown on Workspace A or real pilot | GTM — **tracked as M-111 (2026-07-19)** |
 
 None of the partial/mismatch rows block outreach once narrated honestly; the thematic-mapping disclaimer already covers C8 certification scope.
 
@@ -92,8 +92,8 @@ None of the partial/mismatch rows block outreach once narrated honestly; the the
 | Work unit | Status | Notes |
 |-----------|--------|-------|
 | **Agent mechanical review** (this document) | **Done** 2026-07-03 | Claim extraction + reconciliation against seed/fixture sources |
-| **Owner download + visual review** of live export (DOCX/PDF from operator UI) | **Pending** | Optional confirmation that generated export sections match operator expectations — not required to unblock M-07/M-09 if this doc is accepted |
-| **Owner sign-off** | **Pending** | One-line approval that landing claims are sufficiently aligned for outreach |
+| **Owner download + visual review** of live export (DOCX/PDF from operator UI) | **Waived** 2026-07-19 → tracked as **G-REAL-09** | ~10-min check from `/reviews/61c60d76-…` before first live demo (M-19) / video recording (M-16); full step-by-step in `GTM_BACKLOG.md` **G-REAL-09** — not required for M-07/M-09 unblock |
+| **Owner sign-off** | **Done** 2026-07-19 | Landing claims accepted as sufficiently aligned for outreach; §4 follow-ups routed to M-09 (C8 routing fix) and M-111 (C4 demo-script footnote) |
 
 ---
 

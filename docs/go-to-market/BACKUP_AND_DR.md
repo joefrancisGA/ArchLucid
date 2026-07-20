@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Backup, disaster recovery, and data lifecycle - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — Backup, disaster recovery, and data lifecycle - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -103,7 +103,7 @@ On contract termination, ArchLucid deletes customer data per the timeline agreed
 
 | Doc | Use |
 |-----|-----|
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Availability and latency objectives |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data deletion on termination (§9) |
 | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Data isolation architecture |

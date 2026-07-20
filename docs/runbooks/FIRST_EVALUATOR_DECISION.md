@@ -65,7 +65,7 @@ These are **deferred** or **(B) procurement realism** — label them if a buyer 
 
 | Topic | V1 posture |
 | --- | --- |
-| SOC 2 CPA attestation | Deferred — self-assessment only ([`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)) |
+| SOC 2 CPA attestation | Deferred — self-assessment only ([`trust-center.md`](../go-to-market/trust-center.md)) |
 | Third-party penetration test | Deferred / planned |
 | Live Marketplace / Stripe self-serve | Deferred — sales-led order form |
 | First-party Jira, ServiceNow, Confluence, Slack, Teams | **V1.1** ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md)) |

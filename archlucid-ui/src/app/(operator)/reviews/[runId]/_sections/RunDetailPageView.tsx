@@ -36,7 +36,6 @@ import {
   resolveQuickDecisionFindingsForRunDetail,
 } from "@/lib/quick-decision-summary-derive";
 import {
-  countFindingsAwaitingAction,
   countFindingsBySeverity,
   deriveArchitectureSystemName,
   deriveBlockingApprovalCount,
@@ -47,6 +46,7 @@ import {
   deriveRecommendedWorkspaceActions,
   deriveReviewDisplayTitle,
   deriveReviewOwnerLabel,
+  deriveReviewStatusSummary,
   deriveReviewTemplateLabel,
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
@@ -69,7 +69,6 @@ import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActio
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
-import { RunDetailExecutiveSummary } from "@/components/reviews/RunDetailExecutiveSummary";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
@@ -286,6 +285,12 @@ export function RunDetailPageView(props: {
     runCompleted: m.resolvedDetail.run.completedUtc != null,
     evidenceCoverageComplete,
   });
+  const reviewStatusSummary = deriveReviewStatusSummary({
+    reviewOutcome: overallPosture,
+    findings: quickDecisionFindings,
+    recommendedActions,
+    blockingFindingCount: blockingApprovalCount,
+  });
   const submittedArchitectureText = deriveSubmittedArchitectureText(runSummaryForBadge, reviewDisplayTitle);
   const hasSubmittedArchitecture = submittedArchitectureText !== null;
   const architectureSummaryTitle =
@@ -294,12 +299,6 @@ export function RunDetailPageView(props: {
     (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
       ? (m.resolvedDetail.run.operatorGovernanceDecision ?? "").trim()
       : m.governanceGateLabel ?? "No governance decision recorded";
-  const evidenceCoverageLabel =
-    m.resolvedDetail.trustEvidenceCard !== null && m.resolvedDetail.trustEvidenceCard !== undefined
-      ? evidenceCoverageComplete
-        ? "Complete for this review"
-        : `${m.artifacts.length} evidence artifact${m.artifacts.length === 1 ? "" : "s"}`
-      : null;
   const executiveBottomLineContent = deriveExecutiveBottomLineContent({
     governanceDecisionLabel,
     governanceDecisionRationale: m.resolvedDetail.run.operatorGovernanceDecisionRationale,
@@ -725,23 +724,17 @@ export function RunDetailPageView(props: {
                     reviewTitle={reviewDisplayTitle}
                     systemName={systemName}
                     workspaceStatus={workspaceStatus}
-                    overallPosture={overallPosture}
-                    highestSeverity={highestSeverity}
-                    lastEvaluatedUtc={lastEvaluatedUtc}
                     reviewOwner={deriveReviewOwnerLabel(m.resolvedDetail.run)}
                     templateLabel={deriveReviewTemplateLabel(m.manifestSummaryForUi)}
                   />
 
-                  <RunDetailExecutiveSummary
-                    workspaceStatus={workspaceStatus}
-                    overallPosture={overallPosture}
-                    highestSeverity={highestSeverity}
-                    criticalCount={severityCounts.critical}
-                    highCount={severityCounts.high}
-                    awaitingActionCount={countFindingsAwaitingAction(quickDecisionFindings)}
-                    governanceDecisionLabel={governanceDecisionLabel}
-                    evidenceCoverageLabel={evidenceCoverageLabel}
-                    lastEvaluatedUtc={lastEvaluatedUtc}
+                  <RunDetailWorkspaceSummaryStrip
+                    reviewOutcome={reviewStatusSummary.reviewOutcome}
+                    highestUnresolvedSeverity={reviewStatusSummary.highestUnresolvedSeverity}
+                    openFindingsCount={reviewStatusSummary.openFindingsCount}
+                    findingsRequiringActionCount={reviewStatusSummary.findingsRequiringActionCount}
+                    primaryConcern={reviewStatusSummary.primaryConcern}
+                    nextAction={reviewStatusSummary.nextAction}
                   />
                 </>
               )}

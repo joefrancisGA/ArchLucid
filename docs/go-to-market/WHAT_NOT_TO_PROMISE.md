@@ -1,4 +1,4 @@
-> **Scope:** What not to promise (GTM guardrails) - full detail, tables, and links in the sections below.
+﻿> **Scope:** What not to promise (GTM guardrails) - full detail, tables, and links in the sections below.
 
 # What not to promise (GTM guardrails)
 
@@ -19,5 +19,5 @@
 ## Canonical deferral docs
 
 - [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §3
-- [`TRUST_CENTER.md`](TRUST_CENTER.md)
+- [`trust-center.md`](trust-center.md)
 - [`../PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)

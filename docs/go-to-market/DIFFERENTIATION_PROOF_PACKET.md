@@ -1,4 +1,4 @@
-> **Scope:** Buyer-safe differentiation proof — manual review vs generic AI vs ArchLucid V1 outputs.
+﻿> **Scope:** Buyer-safe differentiation proof — manual review vs generic AI vs ArchLucid V1 outputs.
 
 # Differentiation proof packet
 
@@ -21,7 +21,7 @@
 | Audit trail | Email / tickets | None | **`AuditEvents`** + correlation ids |
 | Procurement posture | Custom each time | None | **Trust Center** + procurement pack (self-assessment; not CPA attestation) |
 
-Evidence links: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) · [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) · [`TRUST_CENTER.md`](TRUST_CENTER.md)
+Evidence links: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) · [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) · [`trust-center.md`](trust-center.md)
 
 ---
 
@@ -86,7 +86,7 @@ Optional template hook: [`templates/evidence-packet-buyer.template.md`](template
 
 ## When ArchLucid is not a fit yet
 
-- Buyer requires **CPA-issued SOC 2 Type I/II** before any pilot — see **(B)** deferrals in [`TRUST_CENTER.md`](TRUST_CENTER.md); self-assessment and roadmap only today.
+- Buyer requires **CPA-issued SOC 2 Type I/II** before any pilot — see **(B)** deferrals in [`trust-center.md`](trust-center.md); self-assessment and roadmap only today.
 - Buyer mandates **first-party Jira/ServiceNow/Confluence/Slack/Teams** connectors as day-one — V1.1 per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md); V1 offers REST/CLI + GitHub/Azure DevOps handoff comments.
 - Buyer expects **live Marketplace transactability** or self-serve Stripe checkout — deferred; sales-led order form path only.
 - Team will not run a **committed review** — ArchLucid value is in the defensible review package, not chat-only assistance.

@@ -1,6 +1,6 @@
 > **Scope:** Owner-conducted 2026-Q2 penetration-style exercise — empty findings tracker, methodology, and Trust Center cross-links only; not third-party assessor deliverables, exploit reproductions, or attestations.
 
-> **Publication:** Owner-conducted security exercise — summary structure only. **Detailed findings and reproducible exploitation steps are intentionally omitted from the public repo**; redacted artefacts follow NDA posture in [`docs/go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md).
+> **Publication:** Owner-conducted security exercise — summary structure only. **Detailed findings and reproducible exploitation steps are intentionally omitted from the public repo**; redacted artefacts follow NDA posture in [`docs/go-to-market/trust-center.md`](../../go-to-market/trust-center.md).
 >
 > **Spine:** [`START_HERE.md`](../../START_HERE.md)
 

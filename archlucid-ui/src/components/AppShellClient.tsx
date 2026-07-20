@@ -26,6 +26,7 @@ import {
 } from "@/components/OperatorChromeModeContext";
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
 import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
+import { DevTestingShellShortcuts } from "@/components/dev-testing/DevTestingShellShortcuts";
 import { OperatorShellProviders } from "@/components/OperatorShellProviders";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { OperatorShellDeferredChrome } from "@/components/OperatorShellDeferredChrome";
@@ -400,6 +401,7 @@ function AppShellInner({ children }: AppShellClientProps) {
       <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
       <AppInsightsTelemetryInit />
       <OperatorRouteEnteredTelemetry />
+      <DevTestingShellShortcuts />
       <SessionIdleTimeoutGuard />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">

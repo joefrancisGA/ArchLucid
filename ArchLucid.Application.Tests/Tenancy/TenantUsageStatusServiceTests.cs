@@ -42,6 +42,7 @@ public sealed class TenantUsageStatusServiceTests
         snapshot!.IsTrial.Should().BeTrue();
         snapshot.CommercialTier.Should().BeNull();
         snapshot.SeatsUsed.Should().Be(3);
+        snapshot.WorkspacesLimit.Should().Be(CommercialPackagingLimits.FreeOrTrialWorkspacesIncluded);
     }
 
     [SkippableFact]

@@ -25,20 +25,20 @@ describe("RecommendationLearningPageClient", () => {
     capability.canMutate = true;
   });
 
-  it("enables Rebuild tuning profile for Execute+ callers", () => {
+  it("enables Build first learning profile for Execute+ callers", () => {
     render(<RecommendationLearningPageClient initialProfile={null} initialFailure={null} />);
 
-    expect(screen.getByRole("button", { name: "Rebuild tuning profile" })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "Build first learning profile" })).not.toBeDisabled();
   });
 
-  it("disables Rebuild tuning profile for Read-only callers", () => {
+  it("disables Build first learning profile for Read-only callers", () => {
     capability.canMutate = false;
 
     render(<RecommendationLearningPageClient initialProfile={null} initialFailure={null} />);
 
-    expect(screen.getByRole("button", { name: "Rebuild tuning profile" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Build first learning profile" })).toBeDisabled();
     expect(
-      screen.getByText("Elevated workspace permissions required to rebuild the tuning profile."),
+      screen.getByText("Elevated workspace permissions are required to recalculate recommendation learning."),
     ).toBeInTheDocument();
   });
 });

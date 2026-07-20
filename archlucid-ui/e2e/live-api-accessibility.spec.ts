@@ -77,7 +77,7 @@ const PAGES = [
   { name: "Settings exec digest", path: "/digests?tab=schedule" },
   { name: "Review feedback", path: "/product-learning" },
   { name: "Advisory scheduling", path: "/advisory-scheduling" },
-  { name: "Recommendation learning", path: "/recommendation-learning" },
+  { name: "Recommendation learning", path: "/internal-operations/recommendation-learning" },
   { name: "Evolution review", path: "/evolution-review" },
   { name: "Scorecard", path: "/scorecard" },
   { name: "Value report", path: "/value-report" },

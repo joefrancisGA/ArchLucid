@@ -18,4 +18,4 @@ This table links **control themes** from [`SOC2_SELF_ASSESSMENT_2026.md`](SOC2_S
 ## Related
 
 - [`SOC2_SELF_ASSESSMENT_2026.md`](SOC2_SELF_ASSESSMENT_2026.md)
-- [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)
+- [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md)

@@ -1,5 +1,6 @@
 /**
  * Live API: anonymous marketing showcase bundle for Contoso baseline (requires demo seed + IsPublicShowcase flag).
+ * Curated slug `claims-intake-modernization` is static-first in the UI and does not require this API route.
  */
 import { expect, test } from "@playwright/test";
 

@@ -14,7 +14,7 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/digests", label: "Digests", description: "Scheduled governance digests and notification subscriptions." },
   { prefix: "/advisory", label: "Advisory scans", description: "Scheduled advisory scans and improvement recommendations." },
   { prefix: "/product-learning", label: "Pilot feedback", description: "Feedback on review outputs and recurring improvement opportunities." },
-  { prefix: "/recommendation-learning", label: "Recommendation tuning", description: "Calibrate recommendation thresholds for your organization." },
+  { prefix: "/internal-operations/recommendation-learning", label: "Recommendation learning", description: "Inspect and rebuild recommendation-ranking profiles from historical review outcomes." },
   { prefix: "/demo/explain", label: "Demo explain", description: "Internal demo explanation surfaces for engineering audiences." },
   { prefix: "/compare", label: "Compare", description: "Side-by-side diff of two finalized reviews." },
   { prefix: "/users", label: "Users & roles", description: "Role-based access control and authority assignment." },

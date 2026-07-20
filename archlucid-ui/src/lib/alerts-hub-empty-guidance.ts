@@ -5,8 +5,8 @@ export const alertsInboxGettingStartedOperator: EmptyStateGettingStarted = {
   heading: "How alerts land here",
   steps: [
     "Finish architecture reviews so findings exist for rules to evaluate.",
-    "Open Alert rules and create at least one enabled rule (thresholds use those findings).",
-    "Optional: use Routing on the Alert rules workspace to notify email or webhooks when a rule fires.",
+    "Open Alerts and create at least one enabled condition (thresholds use those findings).",
+    "Optional: use Notifications on the Alerts workspace to notify email or webhooks when a condition fires.",
     "Pick All statuses or refresh — rows appear after evaluations run and dedupe allows them.",
   ],
 };
@@ -16,7 +16,7 @@ export const alertsInboxGettingStartedReader: EmptyStateGettingStarted = {
   heading: "How alerts land here",
   steps: [
     "Alerts appear when automated checks evaluate findings from completed reviews.",
-    "Operators configure rules and routing on the Alert rules workspace (`/governance/alert-rules`).",
+    "Operators configure conditions and notification delivery on the Alerts workspace (`/governance/alert-rules`).",
     "Try All statuses or another filter — triage actions stay API-gated at your rank.",
   ],
 };
@@ -40,20 +40,21 @@ export const alertRulesEmptyGettingStartedReader: EmptyStateGettingStarted = {
 };
 
 export const alertRoutingEmptyGettingStartedOperator: EmptyStateGettingStarted = {
-  heading: "Wire notifications",
+  heading: "Set up alert delivery",
   steps: [
-    "Subscriptions fan out alerts that passed rules — pick channel, destination, and minimum severity.",
-    "Create a subscription below, then use delivery attempts on each row to verify sends.",
-    "Pair with Rules so only meaningful signals reach operators.",
+    "Choose a notification channel and destination for this workspace.",
+    "Set minimum severity to High so High and Critical findings notify your team by default.",
+    "Optionally filter by finding category or review label, then create the destination.",
+    "Send a test notification for webhook channels or review delivery history after alerts fire.",
   ],
 };
 
 export const alertRoutingEmptyGettingStartedReader: EmptyStateGettingStarted = {
-  heading: "What routing does",
+  heading: "How notification delivery works",
   steps: [
-    "Each subscription sends firing alerts to email or a webhook based on severity.",
-    "Creating subscriptions needs Execute+ — review destinations operators configured.",
-    "Delivery attempts on each row show recent send history for troubleshooting.",
+    "Each destination sends qualifying alerts to email or a webhook when conditions are met.",
+    "Creating destinations requires Execute+ permission — inspect configured rows above.",
+    "Delivery history and test actions show whether notifications reached the destination.",
   ],
 };
 

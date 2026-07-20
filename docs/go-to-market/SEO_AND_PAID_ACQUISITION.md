@@ -1,4 +1,4 @@
-> **Scope:** Organic search optimization and disciplined web-paid acquisition for `archlucid.net` — aligns with **`IDEAL_CUSTOMER_PROFILE.md`** and **`POSITIONING.md`**. Not procurement legal advice.
+﻿> **Scope:** Organic search optimization and disciplined web-paid acquisition for `archlucid.net` — aligns with **`IDEAL_CUSTOMER_PROFILE.md`** and **`POSITIONING.md`**. Not procurement legal advice.
 
 # SEO and paid web acquisition playbook
 
@@ -20,7 +20,7 @@ Increase **qualified trial signups** (and eventual paid pilots) from people who 
 - Marketing stays in the **`archlucid-ui`** App Router **`(marketing)`** group; edge routing for apex + Front Door paths is **`docs/library/PUBLIC_MARKETING_SITE_TOPOLOGY.md`**.
 - The **commercial category headline** shipped in code as **`Architecture Proof Engine`** (**`archlucid-ui/src/lib/brand-category.ts`**) — **near-zero naive search volume** vs generic phrases; keywords must chase **pain and outcome**, not the coined category alone early on.
 - Self-serve signup is the dominant conversion path (**`docs/go-to-market/TRIAL_AND_SIGNUP.md`**). Ads and landing pages should optimize toward **successful tenant provision + first session**, not vanity engagement.
-- **Headline readiness vs procurement realism:** lack of SOC 2 Type I/II CPA attestation does **not** block V1.1 headline product work; procurement friction still requires **explicit** trust narratives — **`docs/go-to-market/TRUST_CENTER.md`**, **`docs/go-to-market/SOC2_ROADMAP.md`**, **`/compliance-journey`**, **`/trust`**, **`/security-trust`** on the apex.
+- **Headline readiness vs procurement realism:** lack of SOC 2 Type I/II CPA attestation does **not** block V1.1 headline product work; procurement friction still requires **explicit** trust narratives — **`docs/go-to-market/trust-center.md`**, **`docs/go-to-market/SOC2_ROADMAP.md`**, **`/compliance-journey`**, **`/trust`**, **`/security-trust`** on the apex.
 
 ---
 
@@ -150,7 +150,7 @@ Until **TB-019** lands, defer non-essential client pixels and rely on Front Door
 - **Pixels widen CSP** (**`archlucid-ui/next.config.ts`** `Content-Security-Policy`) — consolidate allowed hosts per vendor in one change set and document in **`docs/go-to-market/PRIVACY_POLICY.md`** when live.
 - **Avoid operator shell analytics** leakage — session replay must **not** run on authenticated `(operator)`/`(executive)` surfaces until DPIA-aligned.
 - **Cookie consent** becomes mandatory wherever cross-site trackers fire — ship consent UI **before** non-essential marketing pixels under EU-facing traffic projections.
-- **Trust honesty:** paid traffic increases scrutiny — keep **`SOC2_STATUS_PROCUREMENT.md`**, **`TRUST_CENTER.md`**, **`/compliance-journey`** synchronized with factual posture (self-assessment + roadmap ≠ CPA attestation).
+- **Trust honesty:** paid traffic increases scrutiny — keep **`SOC2_STATUS_PROCUREMENT.md`**, **`trust-center.md`**, **`/compliance-journey`** synchronized with factual posture (self-assessment + roadmap ≠ CPA attestation).
 
 ---
 
@@ -173,6 +173,6 @@ Until **TB-019** lands, defer non-essential client pixels and rely on Front Door
 | [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md) | Person-level hooks for creative variants |
 | [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md) | Honest differentiation for comparison content |
 | [`TRIAL_AND_SIGNUP.md`](TRIAL_AND_SIGNUP.md) | Funnel truths and infra cadence |
-| [`TRUST_CENTER.md`](TRUST_CENTER.md), [`SOC2_ROADMAP.md`](SOC2_ROADMAP.md), [`SOC2_STATUS_PROCUREMENT.md`](SOC2_STATUS_PROCUREMENT.md) | Trust + SOC narrative alignment |
+| [`trust-center.md`](trust-center.md), [`SOC2_ROADMAP.md`](SOC2_ROADMAP.md), [`SOC2_STATUS_PROCUREMENT.md`](SOC2_STATUS_PROCUREMENT.md) | Trust + SOC narrative alignment |
 | [`../library/PUBLIC_MARKETING_SITE_TOPOLOGY.md`](../library/PUBLIC_MARKETING_SITE_TOPOLOGY.md) | Apex topology, Front Door, DNS |
 | [`../library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) | **TB-018** warm catalogs (**signup SLA**); **TB-019** marketing attribution (**paid ROI honesty**); **TB-020** JSON-LD + gated analytics (**CSP/consent**) |

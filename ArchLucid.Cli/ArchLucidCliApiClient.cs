@@ -184,9 +184,12 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            Gen.BuildInfoResponse info = await _api.Version2Async(ct);
+            using HttpResponseMessage response = await _http.GetAsync("/version", ct).ConfigureAwait(false);
 
-            return JsonSerializer.Serialize(info, _jsonOptions);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

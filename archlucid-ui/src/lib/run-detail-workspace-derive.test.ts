@@ -5,6 +5,7 @@ import {
   deriveBlockingApprovalCount,
   deriveExecutiveBottomLineContent,
   deriveRecommendedWorkspaceActions,
+  deriveReviewStatusSummary,
   deriveRunDetailWorkspaceStatus,
   deriveSubmittedArchitectureText,
 } from "@/lib/run-detail-workspace-derive";
@@ -84,7 +85,7 @@ describe("run-detail-workspace-derive", () => {
     expect(deriveSubmittedArchitectureText(run, "My review")).toBeNull();
   });
 
-  it("builds narrative bottom-line copy from governance data", () => {
+  it("builds narrative bottom-line copy from governance rationale and blocking findings", () => {
     const content = deriveExecutiveBottomLineContent({
       governanceDecisionLabel: "Approved with monitoring",
       governanceDecisionRationale: "Controls are acceptable for PHI handling.",
@@ -95,8 +96,39 @@ describe("run-detail-workspace-derive", () => {
     });
 
     expect(content?.kind).toBe("narrative");
-    expect(content?.kind === "narrative" ? content.text : "").toContain("Approved with monitoring");
-    expect(content?.kind === "narrative" ? content.text : "").toContain("PHI handling");
+    expect(content?.kind === "narrative" ? content.text : "").toContain("Controls are acceptable");
+    expect(content?.kind === "narrative" ? content.text : "").not.toContain("Approved with monitoring");
+  });
+
+  it("omits redundant bottom-line narrative when only posture would repeat the summary strip", () => {
+    const content = deriveExecutiveBottomLineContent({
+      governanceDecisionLabel: "Approved with monitoring",
+      governanceDecisionRationale: null,
+      overallPosture: "Approved with monitoring",
+      blockingFindingCount: 0,
+      highestSeverity: "High",
+      themeSummaries: null,
+    });
+
+    expect(content).toBeNull();
+  });
+
+  it("derives review status summary from findings and recommended actions", () => {
+    const summary = deriveReviewStatusSummary({
+      reviewOutcome: "Approved with monitoring",
+      findings: [
+        finding(2, { findingId: "phi-minimization-risk", title: "PHI Minimization Risk" }),
+        finding(0, { findingId: "f-low", title: "Low item" }),
+      ],
+      recommendedActions: [],
+      blockingFindingCount: 0,
+    });
+
+    expect(summary.reviewOutcome).toBe("Approved with monitoring");
+    expect(summary.highestUnresolvedSeverity).toBe("High");
+    expect(summary.openFindingsCount).toBe(2);
+    expect(summary.primaryConcern).toBe("PHI Minimization Risk");
+    expect(summary.nextAction).toContain("Confirm evidence and remediation ownership");
   });
 
   it("falls back to key decision considerations when only theme labels exist", () => {

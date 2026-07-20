@@ -1155,6 +1155,18 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_cached_prompt_tokens_total",
             description: "Cumulative cached prompt tokens reported by Azure OpenAI prompt caching.");
 
+    /// <summary>Completed Azure OpenAI Batch API jobs (TB-685).</summary>
+    public static readonly Counter<long> LlmBatchJobsCompletedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_batch_jobs_completed_total",
+            description: "Cumulative Azure OpenAI Batch API jobs completed for offline LLM paths.");
+
+    /// <summary>Estimated USD savings from Batch API discount on offline LLM paths (TB-685).</summary>
+    public static readonly Counter<double> LlmBatchEstimatedSavingsUsdTotal =
+        AppMeter.CreateCounter<double>(
+            "archlucid_llm_batch_estimated_savings_usd_total",
+            description: "Monitoring-grade estimated USD savings from Azure OpenAI Batch API discount on offline paths.");
+
     /// <summary>Completion token distribution tagged by agent consume role and invoke kind (TB-015).</summary>
     public static readonly Histogram<long> LlmCompletionTokensDimensional =
         AppMeter.CreateHistogram<long>(
@@ -1504,6 +1516,27 @@ public static class ArchLucidInstrumentation
         AgentExecutionLlmCallAccumulator? acc = LlmCallsPerRunAccumulator.Value;
 
         acc?.AddCompletions(1);
+    }
+
+    /// <summary>Records one completed Azure OpenAI Batch API job and estimated savings (TB-685).</summary>
+    public static void RecordLlmBatchCompletionRun(
+        int requestCount,
+        int promptTokens,
+        int completionTokens,
+        double estimatedSavingsUsd)
+    {
+        if (requestCount < 1)
+            return;
+
+        TagList tags = [];
+        tags.Add("path", "offline_batch");
+
+        LlmBatchJobsCompletedTotal.Add(1, tags);
+        LlmPromptTokensTotal.Add(promptTokens, tags);
+        LlmCompletionTokensTotal.Add(completionTokens, tags);
+
+        if (estimatedSavingsUsd > 0)
+            LlmBatchEstimatedSavingsUsdTotal.Add(estimatedSavingsUsd, tags);
     }
 
     /// <summary>Records one LLM completion response cache hit (label <c>agent_type</c>).</summary>

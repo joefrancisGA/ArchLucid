@@ -1,4 +1,4 @@
-> **Scope:** Legal and procurement terms packet for founder-led paid pilots. This is a planning and conversation guide, not a substitute for executed contracts. All legal commitments require owner review and, where applicable, legal counsel sign-off.
+﻿> **Scope:** Legal and procurement terms packet for founder-led paid pilots. This is a planning and conversation guide, not a substitute for executed contracts. All legal commitments require owner review and, where applicable, legal counsel sign-off.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -38,7 +38,7 @@ This packet gives the founder or operator a single-document starting point for c
 | --- | --- | --- |
 | Retention period | Configurable; formal default schedule pending owner definition | Do not commit a specific retention period without owner-approved schedule |
 | Deletion on contract end | Intended; exact SLA is owner-review required | Do not promise a specific deletion SLA without owner approval |
-| Backup retention | Azure Blob and SQL backup retention documented in trust center | [`TRUST_CENTER.md`](TRUST_CENTER.md) |
+| Backup retention | Azure Blob and SQL backup retention documented in trust center | [`trust-center.md`](trust-center.md) |
 | Audit log retention | Append-only; retention period is owner-defined | Do not commit a minimum audit-log retention period without owner approval |
 
 > **Guardrail:** Do not promise specific retention periods, deletion timelines, or data-portability SLAs in product copy, demos, or verbal commitments without owner-approved language.
@@ -133,6 +133,6 @@ Short summary:
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial close-out checklist |
 | [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md) | Purchase path decision tree |
 | [`SUPPORT_AND_PILOT_OPERATING_MODEL.md`](SUPPORT_AND_PILOT_OPERATING_MODEL.md) | Support and SLA posture |
-| [`TRUST_CENTER.md`](TRUST_CENTER.md) | Trust and assurance index |
+| [`trust-center.md`](trust-center.md) | Trust and assurance index |
 | [`SLA_SUMMARY.md`](SLA_SUMMARY.md) | SLA summary |
 | [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) | GTM overclaim guardrails |

@@ -365,6 +365,10 @@ public static class AuditEventTypes
 
     public const string RecommendationLearningProfileRebuilt = "RecommendationLearningProfileRebuilt";
 
+    public const string RecommendationLearningPreviewRequested = "RecommendationLearningPreviewRequested";
+
+    public const string RecommendationLearningProfileRolledBack = "RecommendationLearningProfileRolledBack";
+
     /// <summary>
     ///     Pilot feedback signal captured via <c>POST /v1/product-learning/signals</c>.
     ///     Payload: <c>subjectType</c>, <c>disposition</c>, <c>patternKey</c> (when supplied).
@@ -703,6 +707,15 @@ public static class AuditEventTypes
 
     public const string TenantAgentOutputQualityGateModeOverrideCleared = "Tenant.AgentOutputQualityGateModeOverrideCleared";
 
+    /// <summary>Workspace default model execution profile changed (<c>PUT /v1/admin/settings/model-execution-profile</c>).</summary>
+    public const string WorkspaceModelExecutionProfileUpdated = "Workspace.ModelExecutionProfileUpdated";
+
+    /// <summary>Workspace model execution profile tenant override cleared (<c>DELETE /v1/admin/settings/model-execution-profile</c>).</summary>
+    public const string WorkspaceModelExecutionProfileOverrideCleared = "Workspace.ModelExecutionProfileOverrideCleared";
+
+    /// <summary>Per-review model execution profile override applied at run create (TB-870).</summary>
+    public const string RunModelExecutionProfileOverrideApplied = "Run.ModelExecutionProfileOverrideApplied";
+
     /// <summary>Phase B LLM faithfulness judge scored below warn floor on one agent trace (run continues for other traces).</summary>
     public const string AgentOutputLlmFaithfulnessWarned = "AgentOutput.LlmFaithfulnessWarned";
 
@@ -814,6 +827,11 @@ public static class AuditEventTypes
 
     /// <summary>Admin invoked JWT role-claim diagnostic (<c>POST /v1/admin/auth/diagnose-token</c>); payload excludes token material.</summary>
     public const string AuthTokenDiagnosticRequested = "Auth.TokenDiagnosticRequested";
+
+    /// <summary>
+    ///     Admin viewed internal deployment-status (<c>GET /v1/admin/deployment-status</c>); payload excludes secrets.
+    /// </summary>
+    public const string AdminDeploymentStatusViewed = "Admin.DeploymentStatusViewed";
 
     public const string ApiKeyRotated = "Security.ApiKeyRotated";
 

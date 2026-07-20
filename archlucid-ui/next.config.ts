@@ -192,23 +192,24 @@ const nextConfig: NextConfig = {
       // Marketing first-run consolidation (TB-736) — single public CTA at /get-started.
       { source: "/quick-start", destination: "/get-started", permanent: true },
       { source: "/quick-start/:path*", destination: "/get-started", permanent: true },
+      // Internal Operations — recommendation learning canonical route (temporary during migration).
+      {
+        source: "/recommendation-learning",
+        destination: "/internal-operations/recommendation-learning",
+        permanent: false,
+      },
     ];
   },
   async rewrites() {
     return [
-      // Canonical signed-records aliases reuse existing manifests App Router tree (TB-399).
-      { source: "/signed-records", destination: "/manifests" },
-      { source: "/signed-records/:path*", destination: "/manifests/:path*" },
-      // Friendly demo URL while reusing manifest detail implementation (`SHOWCASE_STATIC_DEMO_*`).
+      // Friendly demo URL while reusing signed-record detail implementation (`SHOWCASE_STATIC_DEMO_*`).
       // Must precede the generic run-scoped signed-record rewrite below.
       {
         source: "/reviews/claims-intake-modernization/signed-record",
-        destination: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+        destination: "/signed-records/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
       // Run-scoped signed record deep link lands on the review package (manifest summary section).
       { source: "/reviews/:id/signed-record", destination: "/reviews/:id" },
-      { source: "/settings/ai-usage", destination: "/settings/cost-reporting" },
-      { source: "/settings/ai-usage/:path*", destination: "/settings/cost-reporting/:path*" },
     ];
   },
 };

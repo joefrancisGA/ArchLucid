@@ -68,6 +68,15 @@ export function auditEventFriendlyTitle(eventType: string): string {
     case "SponsorPreliminaryArchitectureShared":
       return "Preliminary architecture shared with sponsor";
 
+    case "Workspace.ModelExecutionProfileUpdated":
+      return "Workspace model execution profile updated";
+
+    case "Workspace.ModelExecutionProfileOverrideCleared":
+      return "Workspace model execution profile override cleared";
+
+    case "Run.ModelExecutionProfileOverrideApplied":
+      return "Review model execution profile override applied";
+
     default:
       return humanizeUnknownAuditEventType(key);
   }

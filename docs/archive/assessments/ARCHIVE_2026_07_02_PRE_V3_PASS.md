@@ -10,7 +10,7 @@ ArchLucid Assessment - (A) Headline Readiness: **100.00%**.
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
   3. `docs/library/V1_DEFERRED.md`
-  4. `docs/go-to-market/TRUST_CENTER.md`
+  4. `docs/go-to-market/trust-center.md`
   5. `docs/security/SOC2_SELF_ASSESSMENT_2026.md`
   6. `docs/go-to-market/SOC2_ROADMAP.md`
   7. `docs/library/ARCHITECTURE_COMPONENTS.md`

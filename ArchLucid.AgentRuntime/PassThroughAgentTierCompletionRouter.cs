@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.AgentModelAliases;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime;
@@ -8,13 +9,16 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public sealed class PassThroughAgentTierCompletionRouter(
     IAgentCompletionClient inner,
-    IAgentModelTierResolver resolver) : IAgentTierCompletionRouter
+    IAgentModelTierResolver resolver,
+    IAgentModelAliasResolver? aliasResolver = null) : IAgentTierCompletionRouter
 {
     private readonly IAgentCompletionClient _inner =
         inner ?? throw new ArgumentNullException(nameof(inner));
 
     private readonly IAgentModelTierResolver _resolver =
         resolver ?? throw new ArgumentNullException(nameof(resolver));
+
+    private readonly IAgentModelAliasResolver? _aliasResolver = aliasResolver;
 
     /// <inheritdoc />
     public (IAgentCompletionClient Client, LlmModelTier ResolvedTier) ResolveForAgent(
@@ -30,6 +34,7 @@ public sealed class PassThroughAgentTierCompletionRouter(
         LlmModelTier? taskTierOverride)
     {
         LlmModelTier tier = _resolver.ResolveTierForAgentTypeName(agentTypeName, taskTierOverride);
+        AgentModelAliasRouterBinding.BindAlias(_aliasResolver, tier, agentTypeName);
 
         return (_inner, tier);
     }

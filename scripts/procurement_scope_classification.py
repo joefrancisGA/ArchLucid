@@ -90,7 +90,7 @@ PROCUREMENT_SCOPE_CATALOG: tuple[dict[str, str], ...] = (
 
 _DEAL_READY_REQUIRED_DOCS: tuple[str, ...] = (
     "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
-    "docs/go-to-market/TRUST_CENTER.md",
+    "docs/go-to-market/trust-center.md",
     "docs/go-to-market/SOC2_STATUS_PROCUREMENT.md",
     "docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md",
     "docs/go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md",

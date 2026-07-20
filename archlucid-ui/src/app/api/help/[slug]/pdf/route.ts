@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import { canDownloadHelpTopicPdf } from "@/lib/product-documentation-pdf-access";
-import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-path";
+import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-href";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { readCustomerHelpTopicPdf } from "@/lib/read-customer-help-topic-pdf";
 import { getServerResolvedScopeHeaders } from "@/lib/server-operator-scope";

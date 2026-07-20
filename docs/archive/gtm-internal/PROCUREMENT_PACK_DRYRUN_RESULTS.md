@@ -1,4 +1,4 @@
-> **Scope:** Single-pass dry-run audit of the canonical buyer procurement ZIP (synthetic enterprise questionnaire lens). **Not** CPA, SIG, or STAR registry submission — operational notes for owners only.
+﻿> **Scope:** Single-pass dry-run audit of the canonical buyer procurement ZIP (synthetic enterprise questionnaire lens). **Not** CPA, SIG, or STAR registry submission — operational notes for owners only.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -60,13 +60,13 @@
 - **`docs/go-to-market/DPA_TEMPLATE.md`** — `<<…>>` scaffold for parties, dates, signature block, and defined-term pointer.
 - **`docs/security/CAIQ_LITE_2026.md`** / **`SIG_CORE_2026.md`** — explicit **official ID mapping** + procurement dry-run notes.
 - **`docs/library/SECURITY.md`** — JWT / Serilog wording (avoid “placeholder” where buyers might read unfinished copy).
-- **`docs/go-to-market/TRUST_CENTER.md`** — packaging paragraph references HOW_TO; avoids literals that fail **`--strict`** on **Evidence** rows.
+- **`docs/go-to-market/trust-center.md`** — packaging paragraph references HOW_TO; avoids literals that fail **`--strict`** on **Evidence** rows.
 - **`docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`** — section title *Release / buyer drop — marker strictness*.
 - **`scripts/build_procurement_pack.py`** — generated in-ZIP **`README.md`** strict-line wording.
 
 ## Gaps flagged for owner review (no invented compliance)
 
 - **CAIQ / SIG workbook mapping** remains a **human step** (spreadsheet IDs + buyer-specific columns).
-- **Third-party pen test** — still **not** claimed complete; see **`PEN_TEST_SUMMARY.md`** in pack and `TRUST_CENTER.md`.
+- **Third-party pen test** — still **not** claimed complete; see **`PEN_TEST_SUMMARY.md`** in pack and `trust-center.md`.
 - **ZIP link usability** — consider a future enhancement (separate initiative) if buyers frequently work **without** a clone.
 

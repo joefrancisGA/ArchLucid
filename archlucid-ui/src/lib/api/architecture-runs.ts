@@ -77,6 +77,7 @@ export type CreateArchitectureRunRequestPayload = {
   infrastructureDeclarations?: CreateArchitectureRunInfrastructureDeclarationPayload[];
   requestSource?: "wizard" | "cli";
   wizardPresetUsed?: string;
+  modelExecutionProfileOverride?: "Economy" | "Balanced" | "HighAssurance";
 };
 
 /** Response envelope for POST /v1/architecture/request. */

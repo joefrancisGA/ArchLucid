@@ -87,7 +87,7 @@ Key score changes from baseline (76.47%). Unlisted qualities unchanged from base
 | 3 | Sponsor claim source labels | **Done** | `SponsorArtifactCrossSurfaceConsistencyTests.cs`, evidence badges, proof packet |
 | 4 | Azure AI Search tenant isolation | **Done** | `AzureSearchTenantScopeFilterBuilderTests.cs`, `AzureAiSearchProductionLikeConfigurationLintTests.cs` |
 | 5 | Proof-density rollup | **Done** | `scripts/proof-density-rollup.ps1` |
-| 6 | Trust-center deferred-scope wording | **Done** | `TRUST_CENTER.md` TB-136 alignment |
+| 6 | Trust-center deferred-scope wording | **Done** | `trust-center.md` TB-136 alignment |
 | 7 | Procurement pack strictness | **Done** | Release evidence index + existing validators |
 | 8 | First-pilot live readiness status | **Done** | `FirstPilotReadinessCockpit.tsx`, command center |
 | 9 | Run detail contract tests | **Done** | `RunDetailDtoOpenApiContractTests.cs` |

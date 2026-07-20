@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Subscription order form (template) - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — Subscription order form (template) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -274,6 +274,6 @@ A **chargeback** is a bank-initiated dispute after the card network’s rules-ba
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | **Single source of truth** for all list prices, pilot pricing, re-rate gates, and sensitivity playbook |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data processing terms |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Service level objectives |
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [ROI_MODEL.md](ROI_MODEL.md) | Value model and payback analysis for the buyer |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Success criteria for the guided pilot |

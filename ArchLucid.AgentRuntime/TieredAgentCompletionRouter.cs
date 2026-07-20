@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.AgentModelAliases;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime;
@@ -8,6 +9,7 @@ namespace ArchLucid.AgentRuntime;
 public sealed class TieredAgentCompletionRouter : IAgentTierCompletionRouter, IDisposable
 {
     private readonly IAgentModelTierResolver _resolver;
+    private readonly IAgentModelAliasResolver? _aliasResolver;
     private readonly Func<LlmModelTier, IAgentCompletionClient> _clientFactory;
     private readonly IAgentCompletionClient? _borrowedPrimaryClient;
     private readonly Dictionary<LlmModelTier, IAgentCompletionClient> _clientsByTier = new();
@@ -16,11 +18,13 @@ public sealed class TieredAgentCompletionRouter : IAgentTierCompletionRouter, ID
     public TieredAgentCompletionRouter(
         IAgentModelTierResolver resolver,
         Func<LlmModelTier, IAgentCompletionClient> clientFactory,
-        IAgentCompletionClient? borrowedPrimaryClient = null)
+        IAgentCompletionClient? borrowedPrimaryClient = null,
+        IAgentModelAliasResolver? aliasResolver = null)
     {
         _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
         _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
         _borrowedPrimaryClient = borrowedPrimaryClient;
+        _aliasResolver = aliasResolver;
     }
 
     /// <inheritdoc />
@@ -37,6 +41,7 @@ public sealed class TieredAgentCompletionRouter : IAgentTierCompletionRouter, ID
         LlmModelTier? taskTierOverride)
     {
         LlmModelTier tier = _resolver.ResolveTierForAgentTypeName(agentTypeName, taskTierOverride);
+        AgentModelAliasRouterBinding.BindAlias(_aliasResolver, tier, agentTypeName);
         IAgentCompletionClient client = ResolveClientForTier(tier);
 
         return (client, tier);

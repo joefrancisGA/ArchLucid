@@ -13,12 +13,14 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 export type FindingsItsmExportToolbarProps = {
   runId: string;
   findings: readonly QuickDecisionFinding[];
+  /** Compact toolbar row for the findings workspace header. */
+  compact?: boolean;
 };
 
 /**
  * Prominent CSV + JSON export seam for Jira/ServiceNow workflows until native connectors ship.
  */
-export function FindingsItsmExportToolbar({ runId, findings }: FindingsItsmExportToolbarProps) {
+export function FindingsItsmExportToolbar({ runId, findings, compact = false }: FindingsItsmExportToolbarProps) {
   const [exportingCsv, setExportingCsv] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
@@ -48,6 +50,48 @@ export function FindingsItsmExportToolbar({ runId, findings }: FindingsItsmExpor
 
   if (findings.length === 0) {
     return null;
+  }
+
+  if (compact) {
+    return (
+      <div
+        className="flex flex-wrap items-center justify-end gap-2"
+        data-testid="findings-itsm-export-toolbar"
+        role="group"
+        aria-label="Export findings"
+      >
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
+          disabled={exportingCsv}
+          data-testid="findings-export-csv-button"
+          onClick={() => {
+            void onExportCsv();
+          }}
+        >
+          <FileSpreadsheet className="size-3.5" aria-hidden />
+          {exportingCsv ? "Exporting…" : "Export CSV"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="findings-export-json-button"
+          onClick={onExportJson}
+        >
+          <FileJson className="size-3.5" aria-hidden />
+          Export JSON
+        </Button>
+        {exportError !== null ? (
+          <p className={cn("m-0 w-full text-right text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+            {exportError}
+          </p>
+        ) : null}
+      </div>
+    );
   }
 
   return (

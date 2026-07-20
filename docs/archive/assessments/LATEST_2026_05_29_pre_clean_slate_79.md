@@ -806,7 +806,7 @@ Engineering is modular, heavily documented, test-rich, and aligned with Azure-na
 
 ### Deferred Scope Uncertainty
 
-No material deferred-scope uncertainty was found. The relevant V1, V1.1, V1.x, V2, and `(B)` boundaries were located in `Assessment-Scope-V1_1.mdc`, `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, and related catalog/runbook material.
+No material deferred-scope uncertainty was found. The relevant V1, V1.1, V1.x, V2, and `(B)` boundaries were located in `Assessment-Scope-V1_1.mdc`, `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, and related catalog/runbook material.
 
 ## 3. Weighted Quality Assessment
 

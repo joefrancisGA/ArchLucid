@@ -1,0 +1,25 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { RunDetailWorkspaceSummaryStrip } from "./RunDetailWorkspaceChrome";
+
+describe("RunDetailWorkspaceSummaryStrip", () => {
+  it("renders compact review status summary for the first viewport", () => {
+    render(
+      <RunDetailWorkspaceSummaryStrip
+        reviewOutcome="Approved with monitoring"
+        highestUnresolvedSeverity="High"
+        openFindingsCount={1}
+        findingsRequiringActionCount={1}
+        primaryConcern="PHI Minimization Risk"
+        nextAction="Confirm evidence and remediation ownership for the open high-severity finding"
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-workspace-summary")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Review status" })).toBeInTheDocument();
+    expect(screen.getByText("Approved with monitoring")).toBeInTheDocument();
+    expect(screen.getByText("PHI Minimization Risk")).toBeInTheDocument();
+    expect(screen.getByText(/Confirm evidence and remediation ownership/)).toBeInTheDocument();
+  });
+});

@@ -3,8 +3,12 @@ import { describe, expect, it } from "vitest";
 import type { LearningProfile } from "@/types/recommendation-learning";
 
 import {
+  aggregateOutcomeTotals,
   buildTopLearnedSignals,
+  computeLearningConfidence,
+  computeCoveragePercent,
   countRecordsAnalyzed,
+  deriveLearningHealth,
   listTunedCategories,
   profileHasInsufficientHistory,
 } from "./recommendation-learning-display";
@@ -88,5 +92,16 @@ describe("recommendation-learning-display", () => {
 
     expect(signals[0]?.label).toContain("Security recommendations accepted 83%");
     expect(signals.some((signal) => signal.label.includes("Cost recommendations deferred most often"))).toBe(true);
+  });
+
+  it("aggregates outcome totals and learning metrics", () => {
+    const profile = sampleProfile();
+    const totals = aggregateOutcomeTotals(profile);
+
+    expect(totals.proposed).toBe(60);
+    expect(totals.accepted).toBe(37);
+    expect(computeLearningConfidence(profile)).toBeGreaterThan(0);
+    expect(computeCoveragePercent(profile)).toBeGreaterThan(0);
+    expect(deriveLearningHealth(profile)).toBe("healthy");
   });
 });

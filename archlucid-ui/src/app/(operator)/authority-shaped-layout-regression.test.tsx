@@ -269,7 +269,7 @@ describe("authority-shaped layout regression", () => {
     const buttons = within(card as HTMLElement).getAllByRole("button");
     const labels = buttons.map((b) => b.textContent?.trim() ?? "");
 
-    const inspectIdx = labels.findIndex((t) => t.includes("Show delivery attempts"));
+    const inspectIdx = labels.findIndex((t) => t.includes("Delivery history"));
     const toggleIdx = labels.findIndex((t) => t === "Disable" || t === "Enable");
 
     expect(inspectIdx).toBeGreaterThanOrEqual(0);

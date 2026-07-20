@@ -1,4 +1,4 @@
-> **Scope:** Independent first-principles quality assessment of ArchLucid as it stands on **2026-04-25**. Scored from the repository's current state without reference to any prior assessments, scores, or conclusions.
+﻿> **Scope:** Independent first-principles quality assessment of ArchLucid as it stands on **2026-04-25**. Scored from the repository's current state without reference to any prior assessments, scores, or conclusions.
 
 # ArchLucid Assessment – Weighted Readiness 71.35%
 
@@ -1227,7 +1227,7 @@ Context:
 - The policy packs feature supports versioned rule sets with scope assignments and effective governance resolution.
 - Currently no pre-built templates ship with the product — operators must build from scratch.
 - Policy packs are stored in SQL and managed via the API (POST /v1/governance/policy-packs).
-- The demo seed (docs/library/demo-quickstart.md) may already create a sample policy pack for Contoso.
+- The demo seed (docs/archive/onboarding/demo-quickstart.md) may already create a sample policy pack for Contoso.
 
 Tasks:
 1. Review the existing policy pack schema and API to understand the required format:

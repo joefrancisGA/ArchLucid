@@ -39,4 +39,4 @@ Upload via **`POST /v1/azure-extractor/upload`** — see [AZURE_EXTRACTOR_INGEST
 ## Related
 
 - Sample extractor output shape: [../samples/AZURE_EXTRACTOR_SAMPLE_OUTPUT.md](../samples/AZURE_EXTRACTOR_SAMPLE_OUTPUT.md)
-- Trust / RBAC posture: [../go-to-market/TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md)
+- Trust / RBAC posture: [../go-to-market/trust-center.md](../go-to-market/trust-center.md)

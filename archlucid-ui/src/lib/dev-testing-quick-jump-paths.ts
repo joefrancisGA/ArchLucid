@@ -1,3 +1,5 @@
+import { signedRecordArtifactPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
+
 /** Canonical dev quick-jump paths for operator home entity chips (local dev only). */
 
 export function devTestingPlanDetailPath(planId: string): string {
@@ -13,9 +15,9 @@ export function devTestingApprovalLineagePath(approvalRequestId: string): string
 }
 
 export function devTestingManifestDetailPath(manifestId: string): string {
-  return `/manifests/${encodeURIComponent(manifestId.trim())}`;
+  return signedRecordDetailPath(manifestId);
 }
 
 export function devTestingManifestArtifactPath(manifestId: string, artifactId: string): string {
-  return `${devTestingManifestDetailPath(manifestId)}/artifacts/${encodeURIComponent(artifactId.trim())}`;
+  return signedRecordArtifactPath(manifestId, artifactId);
 }

@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Service level objectives (buyer summary) - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — Service level objectives (buyer summary) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -108,7 +108,7 @@ When availability or latency targets are at risk, the incident communications po
 
 ## 8. Status page
 
-Public status URL is published in [TRUST_CENTER.md](TRUST_CENTER.md). Until a dedicated URL is live, incident updates are routed through [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) channels (`security@archlucid.net` fallback).
+Public status URL is published in [trust-center.md](trust-center.md). Until a dedicated URL is live, incident updates are routed through [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) channels (`security@archlucid.net` fallback).
 
 See [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) for the status page implementation plan.
 
@@ -118,7 +118,7 @@ See [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) for the status pa
 
 | Doc | Use |
 |-----|-----|
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
+| [trust-center.md](trust-center.md) | Trust index |
 | [../API_SLOS.md](../library/API_SLOS.md) | Engineering SLO detail |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident classification and comms |
 | [SUPPORT_POLICY.md](SUPPORT_POLICY.md) | Support entitlements and professional services |

@@ -1,4 +1,4 @@
-> **Scope:** Release audit log for **buyer-facing proof packets and demo scripts** — classifies each surface's dominant claim types and confirms no unsupported superlatives. Implements assessment **§17 #7 (Proof-language claim audit)**. Sponsor-generated *output* labels (first-value report, value DOCX, sponsor packet) are audited separately in [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md); this log covers the static buyer-facing **documents**. Not buyer-facing.
+﻿> **Scope:** Release audit log for **buyer-facing proof packets and demo scripts** — classifies each surface's dominant claim types and confirms no unsupported superlatives. Implements assessment **§17 #7 (Proof-language claim audit)**. Sponsor-generated *output* labels (first-value report, value DOCX, sponsor packet) are audited separately in [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md); this log covers the static buyer-facing **documents**. Not buyer-facing.
 
 # Proof-language claim audit
 
@@ -15,7 +15,7 @@ Five backing types. Each buyer-facing claim should be reducible to one of them; 
 | **extractor-backed** | Traces to uploaded Azure extractor ZIP evidence (cost/savings cite `manifest.json` `collectionTimestamp` + schema version). | `ProofPacketSourceLabelsBuilder.cs`; board-pack posture `extractor-backed` in `executive-roi-board-pack-evidence-clusters.ts`. |
 | **review-backed** | Traces to a committed review's persisted findings / golden manifest / audit rows. | Golden manifest + authority chain; `DIFFERENTIATION_PROOF_PACKET.md`. |
 | **illustrative** | Demo-derived / sample, explicitly not a customer outcome. | `illustrative` posture; demo-proof-packet labels; `ROI_BASELINE_SEND_POLICY.md` (`demo-derived`). |
-| **self-assessed** | Internally attested (e.g. SOC mapping), not third-party issued. | `SOC2_SELF_ASSESSMENT_2026.md`, `TRUST_CENTER.md`, `PROCUREMENT_PACK_INDEX.md` (`Self-attested`). |
+| **self-assessed** | Internally attested (e.g. SOC mapping), not third-party issued. | `SOC2_SELF_ASSESSMENT_2026.md`, `trust-center.md`, `PROCUREMENT_PACK_INDEX.md` (`Self-attested`). |
 | **roadmap** | Deferred V1.1/V2 capability — stated as planned, never as shipped. | `V1_DEFERRED.md`; `PROCUREMENT_PACK_INDEX.md` (`Deferred`); `WHAT_NOT_TO_PROMISE.md`. |
 
 Governance overlay (orthogonal): AI output is **governed** vs **advisory** per `ai-output-governance-label.ts`; ROI dollar headlines obey the first-value **ROI narrative claim gate** (PASS/WARN/HOLD) — see [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md) Rule 2.

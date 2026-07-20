@@ -26,7 +26,7 @@ Summarize **whether** the public health endpoints (`/health/live`, `/health/read
 ## Constraints
 
 - **Do not** publish **“99.x% availability”** to buyers from this probe alone: it is **not** production monitoring, not multi-region, and not user-traffic SLO-backed.
-- For buyer-facing language, pair with [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) posture and any **separate** production telemetry your organization approves.
+- For buyer-facing language, pair with [trust-center.md](../go-to-market/trust-center.md) posture and any **separate** production telemetry your organization approves.
 
 ## Optional automation (markdown rollup)
 
@@ -55,7 +55,7 @@ The script **does not** call GitHub or Azure APIs; it only reads local files. It
 | Store | Use |
 |-------|-----|
 | **Internal only** (default) | Release engineering notes, weekly platform check-ins, private procurement working folders. Prefer a dated filename, e.g. `hosted-probe-rollup-2026-05-01_2026-05-30-utc.md`, and keep alongside the **source** `probe-result.json` files. |
-| **Buyer / Trust Center–adjacent** | **Do not** paste staging rollup percentages into buyer-facing pages as “production availability.” If leadership approves **production** probe rollups backed by non-staging URLs and consistent methodology, cite the **method** and link to [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) + this runbook — still **not** a CPA or contract SLA claim unless the order form explicitly ties to measured minutes. |
+| **Buyer / Trust Center–adjacent** | **Do not** paste staging rollup percentages into buyer-facing pages as “production availability.” If leadership approves **production** probe rollups backed by non-staging URLs and consistent methodology, cite the **method** and link to [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md) + this runbook — still **not** a CPA or contract SLA claim unless the order form explicitly ties to measured minutes. |
 | **Version control** | Only commit rollups if the repo policy allows operational artifacts; otherwise keep in secure storage or the procurement **pack** attach area. Never commit **staging** rollup numbers as **production** evidence. |
 
 **CI / regression:** `python -m pytest scripts/ci/tests/test_summarize_hosted_probe_artifacts.py`

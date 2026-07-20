@@ -32,5 +32,5 @@
 
 ## Related
 
-- [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)
+- [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md)
 - [`PERFORMANCE.md`](PERFORMANCE.md)

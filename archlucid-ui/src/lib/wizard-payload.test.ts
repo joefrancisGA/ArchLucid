@@ -37,12 +37,21 @@ describe("wizard-payload", () => {
     expect(payload.policyReferences).toContain("pilot-mode:security-baseline-cost-only");
   });
 
-  it("omits focused pilot policy reference when disabled", () => {
-    const payload = wizardValuesToCreateRunPayload(buildDefaultWizardValues(), {
-      requestSource: "wizard",
-      focusedPilotModeEnabled: false,
+  it("omits model execution profile override when workspace default is selected", () => {
+    const payload = wizardValuesToCreateRunPayload({
+      ...buildDefaultWizardValues(),
+      modelExecutionProfileOverride: "WorkspaceDefault",
     });
 
-    expect(payload.policyReferences ?? []).not.toContain("pilot-mode:security-baseline-cost-only");
+    expect(payload.modelExecutionProfileOverride).toBeUndefined();
+  });
+
+  it("maps per-review model execution profile override when set", () => {
+    const payload = wizardValuesToCreateRunPayload({
+      ...buildDefaultWizardValues(),
+      modelExecutionProfileOverride: "HighAssurance",
+    });
+
+    expect(payload.modelExecutionProfileOverride).toBe("HighAssurance");
   });
 });

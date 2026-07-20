@@ -295,7 +295,9 @@ public sealed class PersistencePackageCoverageBatch2Tests
     public async Task DelegatingTenantSqlConnectionFactory_forwards_open_connection()
     {
         Mock<ISqlConnectionFactory> inner = new();
-        SqlConnection connection = new("Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;");
+        SqlConnection connection = new(
+            SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
+                "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;"));
         inner.Setup(i => i.CreateOpenConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(connection);
         DelegatingTenantSqlConnectionFactory sut = new(inner.Object);
 

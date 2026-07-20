@@ -44,7 +44,7 @@ Set under **Settings → Secrets and variables → Actions → Variables** (or p
 
 | Variable | Suggested value (dev) | Purpose |
 |----------|----------------------|---------|
-| `CD_ROLLBACK_ON_SMOKE_FAILURE` | `true` | Deactivate failed API/worker revisions after smoke |
+| `CD_ROLLBACK_ON_SMOKE_FAILURE` | `true` | Restore last-known-good API/worker/UI (BUILD_ID/digest) after smoke failure |
 | `CD_POST_DEPLOY_MAX_ATTEMPTS` | `6` | Retry deployment-evidence probes during cold start |
 | `CD_POST_DEPLOY_RETRY_WAIT_SECONDS` | `10` | Wait between probe attempts |
 | `CD_CANARY_ENABLED` | `true` | Split API ingress to the new revision before smoke (requires `api_revision_mode = Multiple`) |
@@ -61,7 +61,7 @@ Set under **Settings → Secrets and variables → Actions → Variables** (or p
 
 Use `-Apply` to set recommended values when vars are missing or too low. `bootstrap-github-cd-environments.ps1` sets both and re-runs this check.
 
-**Canary checklist (staging/production):** Apply Terraform with `api_revision_mode = "Multiple"` on the API Container App (`staging.tfvars.example` / `production.tfvars.example`), then confirm `CD_CANARY_ENABLED=true`, `CD_CANARY_INITIAL_PERCENT=10`, and `CD_CANARY_BAKE_MINUTES=3`. Brief dual-revision overlap during deploy is normal; smoke still gates promotion to 100% and `CD_ROLLBACK_ON_SMOKE_FAILURE` still deactivates failed revisions. Audit:
+**Canary checklist (staging/production):** Apply Terraform with `api_revision_mode = "Multiple"` on the API Container App (`staging.tfvars.example` / `production.tfvars.example`), then confirm `CD_CANARY_ENABLED=true`, `CD_CANARY_INITIAL_PERCENT=10`, and `CD_CANARY_BAKE_MINUTES=3`. Brief dual-revision overlap during deploy is normal; smoke still gates promotion to 100%. When smoke fails (including mid-bake), `CD_ROLLBACK_ON_SMOKE_FAILURE=true` restores last-known-good revisions via the same schema-gated plan as non-canary deploys. Audit:
 
 ```powershell
 .\scripts\ci\verify-cd-canary-vars.ps1

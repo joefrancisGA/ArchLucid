@@ -1,4 +1,4 @@
-> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v3). Use this prompt for clean-slate weighted readiness passes. Supersedes [`ASSESSMENT_PROMPT_V2.md`](ASSESSMENT_PROMPT_V2.md) (2026-07-03) after a v2 pass reproduced ~150 already-shipped `TECH_BACKLOG.md` entries as open §17 "Top Improvement Opportunities" and drifted the headline to a self-contradictory 100.00% via an invented cumulative "Rescore impact" ratchet. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-07-03.
+﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v3). Use this prompt for clean-slate weighted readiness passes. Supersedes [`ASSESSMENT_PROMPT_V2.md`](../archive/assessments/ASSESSMENT_PROMPT_V2.md) (archived 2026-07-20) after a v2 pass reproduced ~150 already-shipped `TECH_BACKLOG.md` entries as open §17 "Top Improvement Opportunities" and drifted the headline to a self-contradictory 100.00% via an invented cumulative "Rescore impact" ratchet. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-07-03.
 
 # ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
@@ -61,7 +61,7 @@ The following are **already implemented**. Assess whether they *materially chang
 
 **AI substrate:** real mode uses **platform-provisioned Azure OpenAI** (hosted SaaS); **simulator mode** gives deterministic execution/CI; orchestration (`AuthorityRunOrchestrator`) lives in `ArchLucid.Application` (the prior "orchestrator-in-Persistence" issue is **remediated** — do not re-flag); retrieval ships (`ArchLucid.Retrieval`, `AskService`, ADR 0004 outbox); RAG-V1 quality foundation is **closed** (**TB-021**, closeout audit 2026-07-03, all 12 `RAG-V1-000`–`RAG-V1-011` sub-items verified shipped) — residual items are **TB-603**/**TB-604**, not a missing surface.
 
-Source of truth: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/TRUST_CENTER.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`.
+Source of truth: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
 **Already-shipped ledger (do not re-propose) — verify-before-listing gate (mandatory).** Before proposing **any** §17 improvement or listing any item as open, you MUST:
 1. Grep `docs/library/TECH_BACKLOG.md` for the specific capability/component name and check whether a matching item is already marked **Done** / **Shipped** / **closed**.
@@ -95,7 +95,7 @@ Read in this order (per `docs/library/ASSESSMENT_INPUTS.md`) before grepping bro
 1. `docs/library/REPO_DIGEST.md` — surface skim
 2. `docs/library/V1_SCOPE.md` — in-contract V1 / V1.1 boundaries
 3. `docs/library/V1_DEFERRED.md` — explicit deferrals
-4. `docs/go-to-market/TRUST_CENTER.md` — trust / buyer commitments
+4. `docs/go-to-market/trust-center.md` — trust / buyer commitments
 5. `docs/security/SOC2_SELF_ASSESSMENT_2026.md` + `docs/go-to-market/SOC2_ROADMAP.md` — SOC posture (CPA gap is `(B)` only)
 6. `docs/library/ARCHITECTURE_COMPONENTS.md`, `docs/library/SYSTEM_MAP.md`
 7. `docs/library/API_CONTRACTS.md` — HTTP/OpenAPI contract of record

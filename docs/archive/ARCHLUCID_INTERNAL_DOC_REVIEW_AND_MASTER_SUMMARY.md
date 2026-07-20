@@ -1,4 +1,4 @@
-> **Scope:** Historical navigation-only synthesis from a docs inventory ZIP pass — **not authoritative** over source markdown. For routing use **[`START_HERE.md`](START_HERE.md)** and **[`library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**. For assessment workflow (rolling pass under **`docs/assessments/`**), use **[`library/ASSESSMENT_INPUTS.md`](library/ASSESSMENT_INPUTS.md)** — **do not cite this file or a single assessment filename as durable product truth.**
+﻿> **Scope:** Historical navigation-only synthesis from a docs inventory ZIP pass — **not authoritative** over source markdown. For routing use **[`START_HERE.md`](START_HERE.md)** and **[`library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**. For assessment workflow (rolling pass under **`docs/assessments/`**), use **[`library/ASSESSMENT_INPUTS.md`](library/ASSESSMENT_INPUTS.md)** — **do not cite this file or a single assessment filename as durable product truth.**
 >
 > **Status:** deprecated — superseded by the spine docs above.
 
@@ -485,7 +485,7 @@ Secondary paths such as finding detail, Ask, compare, advanced technical traceab
   -     What would make them champion ArchLucid
   -     What would make them reject ArchLucid
 
-### `go-to-market/TRUST_CENTER.md`
+### `go-to-market/trust-center.md`
 - **Scope:** ArchLucid Trust Center - full detail, tables, and links in the sections below.
 - Title: **ArchLucid Trust Center**
 - Summary: **Buyer posture table (single index):** [`docs/go-to-market/trust-center.md`](trust-center.md) — same evidence links; rendered in-product at **`/trust`**. **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service. **Last reviewed:** 2026-05-01 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository. - **Identity:** Microsoft **Entra ID** or **other OIDC issuers** (JWT bearer — **[V1_SCOPE.md](../library/V1_SCOPE.md) §
@@ -781,7 +781,7 @@ Key topics:
 - Related
 
 #### `security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`
-**Status:** Owner-conducted assessment **(not third-party audited).** When we say third-party penetration test coverage or SOC 2, read `docs/library/V1_DEFERRED.md` §6c — those artefacts are tracked for V1.1 separately. **This is not a third-party penetration test and is not a SOC 2 attestation.** It is an **internal security self-assessment** performed by the product owner / engineering team, structured for buyer transparency until a separately funded external assessor delivers a redacted summary under [`pen-test-summaries/`](pen-test-summaries/README.md). **Assessment window (planned):** `2026-04-28` — `2026-04-28` **Scope in / out:** ArchLucid API surface (ASP.NET Core), operator UI (Next.js), SQL Server persistence layer, Docker container images, Terraform IaC modules, CI pipeline security gates. **Related templates:** [`PEN_TEST_SOW_TEMPLATE.md`](PEN_TEST_SOW_TEMPLATE.md) (borrow structure for scope), [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) (buyer index) **Last reviewed (UTC):** 2026-04-28 1. **Automated gates already in CI** — OWASP ZAP (baseline /
+**Status:** Owner-conducted assessment **(not third-party audited).** When we say third-party penetration test coverage or SOC 2, read `docs/library/V1_DEFERRED.md` §6c — those artefacts are tracked for V1.1 separately. **This is not a third-party penetration test and is not a SOC 2 attestation.** It is an **internal security self-assessment** performed by the product owner / engineering team, structured for buyer transparency until a separately funded external assessor delivers a redacted summary under [`pen-test-summaries/`](pen-test-summaries/README.md). **Assessment window (planned):** `2026-04-28` — `2026-04-28` **Scope in / out:** ArchLucid API surface (ASP.NET Core), operator UI (Next.js), SQL Server persistence layer, Docker container images, Terraform IaC modules, CI pipeline security gates. **Related templates:** [`PEN_TEST_SOW_TEMPLATE.md`](PEN_TEST_SOW_TEMPLATE.md) (borrow structure for scope), [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md) (buyer index) **Last reviewed (UTC):** 2026-04-28 1. **Automated gates already in CI** — OWASP ZAP (baseline /
 
 Key topics:
 - Method
@@ -802,7 +802,7 @@ Key topics:
 - 7. Infrastructure as Code
 - 8. Contact
 
-#### `go-to-market/TRUST_CENTER.md`
+#### `go-to-market/trust-center.md`
 **Buyer posture table (single index):** [`docs/go-to-market/trust-center.md`](trust-center.md) — same evidence links; rendered in-product at **`/trust`**. **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service. **Last reviewed:** 2026-05-01 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository. - **Identity:** Microsoft **Entra ID** or **other OIDC issuers** (JWT bearer — **[V1_SCOPE.md](../library/V1_SCOPE.md) §2.12**) with **app roles** (**Admin**, **Operator**, **Reader**, **Auditor**) and optional **API keys** for automation; see [../SECURITY.md](../library/SECURITY.md) and [../CUSTOMER_TRUST_AND_ACCESS.m
 
 Key topics:
@@ -819,7 +819,7 @@ Key topics:
 - Commercial terms
 
 #### `go-to-market/SOC2_STATUS_PROCUREMENT.md`
-**Last reviewed:** 2026-05-01 **Canonical wording source:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) **Formal SOC 2 Type II attestation:** **Not yet issued** — programme deferred until funded CPA / assessor engagement (see [`TRUST_CENTER.md`](TRUST_CENTER.md) compliance table and [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) for interim self-assessment posture under internal ownership). **SOC 2 Type I engagement:** Not started; deferred until funded assessor engagement. Procurement teams should treat the self-assessment document as **non-attestation** evidence alongside this pack’s technical controls references (`MULTI_TENANT_RLS.md`, `AUDIT_COVERAGE_MATRIX.md`, `SECURITY.md`).
+**Last reviewed:** 2026-05-01 **Canonical wording source:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) **Formal SOC 2 Type II attestation:** **Not yet issued** — programme deferred until funded CPA / assessor engagement (see [`trust-center.md`](trust-center.md) compliance table and [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) for interim self-assessment posture under internal ownership). **SOC 2 Type I engagement:** Not started; deferred until funded assessor engagement. Procurement teams should treat the self-assessment document as **non-attestation** evidence alongside this pack’s technical controls references (`MULTI_TENANT_RLS.md`, `AUDIT_COVERAGE_MATRIX.md`, `SECURITY.md`).
 
 Key topics:
 
@@ -1263,7 +1263,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 **Summary:** **Purpose:** One screen to redraw **ArchLucid** as C4, know **who owns each box**, and find the **documentation index** for deeper dives.
 **Headings:** ArchLucid Architecture; 1. System context (C4); Context nodes → ownership; 2. Containers (C4); 3. C4 workspace (Structurizr DSL); 4. Documentation Index; Orientation; Operator shell (front end)
 
-#### `architecture/REBRAND_WORKSTREAM_2026_04_23.md`
+#### `archive/assessments/REBRAND_WORKSTREAM_2026_04_23.md`
 **Scope:** **Scope:** Historical tracker — first rename wave (Intelligence → Review Board). **Superseded for completion tracking** by [`REBRAND_WORKSTREAM_2026_05_07.md`](REBRAND_WORKSTREAM_2026_05_07.md) (Architecture Proof Engine + lead promise). Original charter (2026-04-23): Q6/Q7 seam workstream per [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md); keep as archive context.
 **Title:** "AI Architecture Review Board" rebrand workstream (historical)
 **Summary:** [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Q6 / Q7 (Resolved 2026-04-23, sixth pass) scheduled the rebrand from **"AI Architecture Intelligence"** to **"AI Architecture Review Board"** for V1, with the explicit stipulation that the workstream consumes **separate session(s)** and is sequenced **after the brand-neutral content seam ships** so each surface flip is a one-line change. This file is the running checklist for the seven PRs that complete the workstream. It is the working surface — the normative inputs are owner Q6 / Q7 in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md), Improvement 4 in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../archive/root-superseded-20
@@ -1660,7 +1660,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `engineering/INSTALL_ORDER.md`
 **Scope:** **Scope:** Canonical install order for **ArchLucid contributors and internal operators**. Supersedes persona-specific install steps.
 **Title:** Install order (canonical — ArchLucid contributors and internal operators)
-**Summary:** > **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform** — they sign up at **`archlucid.net`** and use the in-product operator UI. This document is the **contributor / internal-operator** install path. It exists for people building, testing, or operating ArchLucid itself, not for customers using it. See **[`START_HERE.md`](../START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1. Single answer to: **What do I install, in what order, to get a working
+**Summary:** > **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform** — they sign up at **`archlucid.net`** and use the in-product operator UI. This document is the **contributor / internal-operator** install path. It exists for people building, testing, or operating ArchLucid itself, not for customers using it. See **[`START_HERE.md`](../START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1. Single answer to: **What do I install, in what order, to get a working
 **Headings:** Install order (canonical — ArchLucid contributors and internal operators); Prerequisites (read first); Dependency graph; Ordered steps (two columns); After install (persona week-one — not install order)
 
 #### `engineering/SAAS_INFRA_VALIDATION.md`
@@ -1720,7 +1720,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `go-to-market/ASSURANCE_STATUS_CANONICAL.md`
 **Scope:** **Scope:** Canonical assurance status source for procurement-facing language; defines current status, deferred windows, allowed wording, and evidence links to prevent cross-document drift.
 **Title:** Assurance Status Canonical
-**Summary:** **Audience:** Procurement, security reviewers, and internal authors updating buyer-facing artifacts. **Last reviewed:** 2026-05-01 This document is the single source of truth for assurance status wording used by: - `TRUST_CENTER.md` - `CURRENT_ASSURANCE_POSTURE.md` - `PROCUREMENT_FAQ.md` - `PROCUREMENT_RESPONSE_ACCELERATOR.md` - `SOC2_STATUS_PROCUREMENT.md` | Assurance item | Current status | Deferred window | Allowed buyer wording | Evidence | |---|---|---|---|---| | SOC 2 Type II attestation | Not issued | Deferred (funding-gated) | "SOC 2 Type II is not currently issued. ArchLucid provides a self-assessment and evidence pack while attestation is deferred." | [SOC2_STATUS_PROCUREMENT.md](S
+**Summary:** **Audience:** Procurement, security reviewers, and internal authors updating buyer-facing artifacts. **Last reviewed:** 2026-05-01 This document is the single source of truth for assurance status wording used by: - `trust-center.md` - `CURRENT_ASSURANCE_POSTURE.md` - `PROCUREMENT_FAQ.md` - `PROCUREMENT_RESPONSE_ACCELERATOR.md` - `SOC2_STATUS_PROCUREMENT.md` | Assurance item | Current status | Deferred window | Allowed buyer wording | Evidence | |---|---|---|---|---| | SOC 2 Type II attestation | Not issued | Deferred (funding-gated) | "SOC 2 Type II is not currently issued. ArchLucid provides a self-assessment and evidence pack while attestation is deferred." | [SOC2_STATUS_PROCUREMENT.md](S
 **Headings:** Assurance Status Canonical; Canonical status table; Authoring rules
 
 #### `go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`
@@ -1768,7 +1768,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `go-to-market/COMPETITIVE_LANDSCAPE.md`
 **Scope:** **Scope:** ArchLucid competitive landscape - full detail, tables, and links in the sections below.
 **Title:** ArchLucid competitive landscape
-**Summary:** **Audience:** Product leadership, sales, and marketing teams who need to position ArchLucid against alternatives during evaluations and deal cycles. **Last reviewed:** 2026-05-07 **Grounding rule:** Every capability claimed for ArchLucid in this document is based on what the repository actually ships today per [V1_SCOPE.md](../library/V1_SCOPE.md), [ARCHITECTURE_CONTEXT.md](../library/ARCHITECTURE_CONTEXT.md), and [QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](../archive/quality/2026-04-23-doc-depth-reorg/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md). Claims are not aspirational. ArchLucid operates at the intersection of two established markets and one emerging one: | Market | Size estimate | Key
+**Summary:** **Audience:** Product leadership, sales, and marketing teams who need to position ArchLucid against alternatives during evaluations and deal cycles. **Last reviewed:** 2026-05-07 **Grounding rule:** Every capability claimed for ArchLucid in this document is based on what the repository actually ships today per [V1_SCOPE.md](../library/V1_SCOPE.md), [ARCHITECTURE_CONTEXT.md](../library/ARCHITECTURE_CONTEXT.md), and [QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](../archive/assessments/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md). Claims are not aspirational. ArchLucid operates at the intersection of two established markets and one emerging one: | Market | Size estimate | Key
 **Headings:** ArchLucid competitive landscape; 1. Market context; The category: Architecture Proof Engine; 2. Competitor matrix; 2.1 Enterprise architecture management incumbents; 2.2 Cloud-native architecture review tools; 2.3 AI-native tools and approaches; 3. ArchLucid capability summary (grounded in V1 codebase)
 
 #### `go-to-market/COMPETITIVE_POSITIONING.md`
@@ -1828,7 +1828,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `go-to-market/DEMO_QUICKSTART.md`
 **Scope:** **Scope:** ArchLucid demo quickstart (buyer-facing) - full detail, tables, and links in the sections below.
 **Title:** ArchLucid demo quickstart (buyer-facing)
-**Summary:** **Audience:** Evaluators and champions who want to see the product in minutes without installing the .NET SDK, SQL Server, or Node.js locally. **Grounding:** Same demo data as [demo-quickstart.md](../library/demo-quickstart.md) (Contoso Retail) and [V1_SCOPE.md](../library/V1_SCOPE.md). The Docker path uses **Development** environment, **simulator** agent mode (no Azure OpenAI charges), and **startup demo seed** after DbUp. - **Docker Desktop** (Windows or macOS) or **Docker Engine** (Linux) - That is all — no .NET 10 SDK, no local SQL Server, no Node.js for running the stack From the repository root: | Platform | Command | |----------|---------| | **Windows (PowerShell)** | `.\scripts\demo-
+**Summary:** **Audience:** Evaluators and champions who want to see the product in minutes without installing the .NET SDK, SQL Server, or Node.js locally. **Grounding:** Same demo data as [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) (Contoso Retail) and [V1_SCOPE.md](../library/V1_SCOPE.md). The Docker path uses **Development** environment, **simulator** agent mode (no Azure OpenAI charges), and **startup demo seed** after DbUp. - **Docker Desktop** (Windows or macOS) or **Docker Engine** (Linux) - That is all — no .NET 10 SDK, no local SQL Server, no Node.js for running the stack From the repository root: | Platform | Command | |----------|---------| | **Windows (PowerShell)** | `.\scripts\demo-
 **Headings:** ArchLucid demo quickstart (buyer-facing); Prerequisites; Start the demo (one command); Your first five minutes; What you are seeing; Cleanup; Troubleshooting; Next steps
 
 #### `go-to-market/DEMO_VIDEO_SCRIPT.md`
@@ -1942,7 +1942,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`
 **Scope:** **Scope:** Penetration test summary — procurement interim statement (no third-party test results claimed).
 **Title:** Penetration test summary — interim statement
-**Summary:** **Status:** **Pending — Q2 2026 third-party engagement** (owner-funded external assessor per [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **20**). ArchLucid does **not** represent this file as a completed penetration test. When a redacted customer-facing summary exists, it will be published under [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) and surfaced via the operator **Security & trust** workflow described in [`TRUST_CENTER.md`](TRUST_CENTER.md). **Templates available today:** [`../security/PEN_TEST_SOW_TEMPLATE.md`](../security/PEN_TEST_SOW_TEMPLATE.md), [`../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md`](../security/PEN_TEST_REDACTED_S
+**Summary:** **Status:** **Pending — Q2 2026 third-party engagement** (owner-funded external assessor per [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **20**). ArchLucid does **not** represent this file as a completed penetration test. When a redacted customer-facing summary exists, it will be published under [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) and surfaced via the operator **Security & trust** workflow described in [`trust-center.md`](trust-center.md). **Templates available today:** [`../security/PEN_TEST_SOW_TEMPLATE.md`](../security/PEN_TEST_SOW_TEMPLATE.md), [`../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md`](../security/PEN_TEST_REDACTED_S
 **Headings:** Penetration test summary — interim statement
 
 #### `go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`
@@ -2044,7 +2044,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `go-to-market/README.md`
 **Scope:** **Scope:** Buyer-facing go-to-market index — procurement, trust, positioning, and marketplace artefacts.
 **Title:** Go-to-market documentation
-**Summary:** **Start here for buyers and procurement:** narrative index [`TRUST_CENTER.md`](TRUST_CENTER.md), consolidated assurance table [`trust-center.md`](trust-center.md) (mirrored in-product at **`/trust`**), sponsor story [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), evaluation guide [`../onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md). **Evidence inventory:** [`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md) — artefact paths validated in CI (`scripts/ci/check_procurement_pack_index.py`). **Related:** [`../runbooks/README.md`](../runbooks/README.md) (operations), [`../library/DOCUMENTATION_BY_AUDIENCE.md`](../library/DOCUMENTATION_BY_AUDIENCE.md) (role rout
+**Summary:** **Start here for buyers and procurement:** narrative index [`trust-center.md`](trust-center.md), consolidated assurance table [`trust-center.md`](trust-center.md) (mirrored in-product at **`/trust`**), sponsor story [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), evaluation guide [`../onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md). **Evidence inventory:** [`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md) — artefact paths validated in CI (`scripts/ci/check_procurement_pack_index.py`). **Related:** [`../runbooks/README.md`](../runbooks/README.md) (operations), [`../library/DOCUMENTATION_BY_AUDIENCE.md`](../library/DOCUMENTATION_BY_AUDIENCE.md) (role rout
 **Headings:** Go-to-market documentation
 
 #### `go-to-market/REFERENCE_NARRATIVE_TEMPLATE.md`
@@ -2062,7 +2062,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `go-to-market/REVIEW_CADENCE.md`
 **Scope:** **Scope:** Review cadence and role ownership for buyer-facing procurement documentation, including stale-document escalation expectations.
 **Title:** Procurement Documentation Review Cadence
-**Summary:** **Audience:** Maintainers of procurement/trust documents and release managers. **Last reviewed:** 2026-05-01 | Document | Owner role | Review frequency | Escalation when stale | |---|---|---|---| | `TRUST_CENTER.md` | Security lead | Every 30 days | Raise in release checklist and update before procurement pack release | | `CURRENT_ASSURANCE_POSTURE.md` | Security lead | Every 30 days | Block procurement deal-ready mode until refreshed | | `SLA_SUMMARY.md` | Platform lead | Every 45 days | Escalate to product + ops owner for confirmation | | `INCIDENT_COMMUNICATIONS_POLICY.md` | Incident manager role | Every 45 days | Escalate to on-call manager; confirm channels and timelines | | `SUBPROCESS
+**Summary:** **Audience:** Maintainers of procurement/trust documents and release managers. **Last reviewed:** 2026-05-01 | Document | Owner role | Review frequency | Escalation when stale | |---|---|---|---| | `trust-center.md` | Security lead | Every 30 days | Raise in release checklist and update before procurement pack release | | `CURRENT_ASSURANCE_POSTURE.md` | Security lead | Every 30 days | Block procurement deal-ready mode until refreshed | | `SLA_SUMMARY.md` | Platform lead | Every 45 days | Escalate to product + ops owner for confirmation | | `INCIDENT_COMMUNICATIONS_POLICY.md` | Incident manager role | Every 45 days | Escalate to on-call manager; confirm channels and timelines | | `SUBPROCESS
 **Headings:** Procurement Documentation Review Cadence; Cadence matrix; Process; CI linkage
 
 #### `go-to-market/ROI_MODEL.md`
@@ -2116,7 +2116,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `go-to-market/SOC2_STATUS_PROCUREMENT.md`
 **Scope:** **Scope:** SOC 2 attestation — procurement-facing status (deferred).
 **Title:** SOC 2 status (procurement statement)
-**Summary:** **Last reviewed:** 2026-05-01 **Canonical wording source:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) **Formal SOC 2 Type II attestation:** **Not yet issued** — programme deferred until funded CPA / assessor engagement (see [`TRUST_CENTER.md`](TRUST_CENTER.md) compliance table and [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) for interim self-assessment posture under internal ownership). **SOC 2 Type I engagement:** Not started; deferred until funded assessor engagement. Procurement teams should treat the self-assessment document as **non-attestation** evidence alongside this pack’s technical controls references (`MULTI_TENANT_R
+**Summary:** **Last reviewed:** 2026-05-01 **Canonical wording source:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) **Formal SOC 2 Type II attestation:** **Not yet issued** — programme deferred until funded CPA / assessor engagement (see [`trust-center.md`](trust-center.md) compliance table and [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) for interim self-assessment posture under internal ownership). **SOC 2 Type I engagement:** Not started; deferred until funded assessor engagement. Procurement teams should treat the self-assessment document as **non-attestation** evidence alongside this pack’s technical controls references (`MULTI_TENANT_R
 **Headings:** SOC 2 status (procurement statement)
 
 #### `go-to-market/STEERING_DECISION_MEMO_TEMPLATE.md`
@@ -2161,7 +2161,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 **Summary:** When you choose **“I will enter our median review-cycle hours”** on the self-serve signup form, we store: - **BaselineReviewCycleHours** — a positive decimal you supply (median wall-clock hours for an architecture review cycle *before* ArchLucid). - **BaselineReviewCycleSource** (optional) — a short free-text note you supply (for example “team estimate” or “last five reviews”). When you stay on **“Use model default (modeled estimate)”**, we **do not** store tenant-specific hours at signup; the product uses the conservative default described in [`docs/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) for “before” comparisons until you commit runs. - **Delta computation only** — we compare y
 **Headings:** Trial baseline review-cycle — privacy note; What we collect; How we use it; What we do not do; Retention and access; Related
 
-#### `go-to-market/TRUST_CENTER.md`
+#### `go-to-market/trust-center.md`
 **Scope:** **Scope:** ArchLucid Trust Center - full detail, tables, and links in the sections below.
 **Title:** ArchLucid Trust Center
 **Summary:** **Buyer posture table (single index):** [`docs/go-to-market/trust-center.md`](trust-center.md) — same evidence links; rendered in-product at **`/trust`**. **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service. **Last reviewed:** 2026-05-01 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing in
@@ -3718,7 +3718,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 **Summary:** Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAVIGATOR.md`](../../NAVIGATOR.md)** lists one “best next doc” per task. **Goal:** Produce a durable **review package** (pipeline outcome, findings, committed golden manifest, exports) suitable for sponsor and engineering handoff. **Prerequisites:** Tenant access with **Read** + **Execute** authority; at least one architecture request worth of context. See [CORE_PILOT.md](../../CORE_PILOT.md) and [SECOND_RUN.md](../SECOND_RUN.md) for a follow-on run. **Steps** 1. **Request** — UI: `/runs/new` · API: `POST /v1/architecture/request` · CLI: `dotnet run --project ArchLucid.Cli -- run` (see [CLI_USAGE.md](../CLI_USAGE.md
 **Headings:** Workflow recipes by persona; 1) Solution architect: from request to committed review package; 2) Governance lead: critical finding to approval / policy gate; 3) Procurement / security reviewer: trust artefacts and run-level proof; 4) Platform engineer: manifest delta in CI and deployment evidence
 
-#### `library/demo-quickstart.md`
+#### `archive/onboarding/demo-quickstart.md`
 **Scope:** **Scope:** Demo quickstart (Corrected 50R — Contoso Retail Modernization) - full detail, tables, and links in the sections below.
 **Title:** Demo quickstart (Corrected 50R — Contoso Retail Modernization)
 **Summary:** **Buyer / evaluator (Docker only):** see **[go-to-market/DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md)** — `docker-compose.demo.yml` + `scripts/demo-start.*`. This guide gets a **fresh SQL-backed** environment to a repeatable demo state: two committed runs (baseline vs hardened), governance workflow rows, environment activations for preview/compare, and an optional sample export-history row. See **[TRUSTED_BASELINE.md](TRUSTED_BASELINE.md)** for what is baseline-trusted vs optional (export replay is not part of the minimal proof). - .NET 10 SDK - SQL Server connection string in `ConnectionStrings:ArchLucid` (LocalDB, Docker via `dotnet run --project ArchLucid.Cli -- dev up`, or you
@@ -4281,7 +4281,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `security/DSAR_PROCESS.md`
 **Scope:** **Scope:** GDPR Data Subject Access Request (DSAR) process — identifies PII storage locations and documents the manual fulfillment process.
 **Title:** GDPR Data Subject Access Request (DSAR) process
-**Summary:** **Audience:** DPOs, compliance officers, operators, and procurement teams who need to understand how ArchLucid handles GDPR data subject rights. **Status:** V1 manual process. This document covers the data map, the fulfillment steps for each right, and known limitations. **Not legal advice:** This document describes technical capabilities and operational processes. It does not constitute legal advice. Consult qualified counsel for jurisdiction-specific obligations. - [DPA_TEMPLATE.md](../go-to-market/DPA_TEMPLATE.md) — Data Processing Agreement template - [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) — buyer-facing trust index - [AUDIT_RETENTION_POLICY.md](../library/AUDIT_RETENTION_POL
+**Summary:** **Audience:** DPOs, compliance officers, operators, and procurement teams who need to understand how ArchLucid handles GDPR data subject rights. **Status:** V1 manual process. This document covers the data map, the fulfillment steps for each right, and known limitations. **Not legal advice:** This document describes technical capabilities and operational processes. It does not constitute legal advice. Consult qualified counsel for jurisdiction-specific obligations. - [DPA_TEMPLATE.md](../go-to-market/DPA_TEMPLATE.md) — Data Processing Agreement template - [trust-center.md](../go-to-market/trust-center.md) — buyer-facing trust index - [AUDIT_RETENTION_POLICY.md](../library/AUDIT_RETENTION_POL
 **Headings:** GDPR Data Subject Access Request (DSAR) process; Related; 1. Personal data map; 1.1 SQL Server tables containing PII; 1.2 Other storage locations; 2. Right of access (Article 15); 3. Right to rectification (Article 16); 4. Right to erasure (Article 17)
 
 #### `security/EVIDENCE_PACK.md`
@@ -4455,7 +4455,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 #### `security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`
 **Scope:** **Scope:** Owner-conducted 2026-Q2 penetration-style exercise — empty findings tracker, methodology, and Trust Center cross-links only; not third-party assessor deliverables, exploit reproductions, or attestations.
 **Title:** 2026-Q2 Owner-conducted penetration-style assessment
-**Summary:** > **Publication:** Owner-conducted security exercise — summary structure only. **Detailed findings and reproducible exploitation steps are intentionally omitted from the public repo**; redacted artefacts follow NDA posture in [`docs/go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md). > | ID | Category | Severity | Status | Date Found (UTC) | Date Resolved (UTC) | |----|----------|----------|--------|------------------|---------------------| | _Owner to populate — do not invent findings in automation._ | | Field | Value | |-------|-------| | Assessor | ArchLucid engineering / security liaison (internal) | | Trigger | Quarterly assurance cadence aligned with [`PENTEST_EXTERNAL_
+**Summary:** > **Publication:** Owner-conducted security exercise — summary structure only. **Detailed findings and reproducible exploitation steps are intentionally omitted from the public repo**; redacted artefacts follow NDA posture in [`docs/go-to-market/trust-center.md`](../../go-to-market/trust-center.md). > | ID | Category | Severity | Status | Date Found (UTC) | Date Resolved (UTC) | |----|----------|----------|--------|------------------|---------------------| | _Owner to populate — do not invent findings in automation._ | | Field | Value | |-------|-------| | Assessor | ArchLucid engineering / security liaison (internal) | | Trigger | Quarterly assurance cadence aligned with [`PENTEST_EXTERNAL_
 **Headings:** 2026-Q2 Owner-conducted penetration-style assessment; Findings tracker; Engagement; Scope summary; Methodology; Tools; Pen test findings remediation (links placeholder); Overall posture assessment (stub)
 
 #### `security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`
@@ -4574,7 +4574,7 @@ Archive content is valuable but should be treated as historical evidence, not ca
 | `archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_06_FIRST_PRINCIPLES_73_67.md` | 97.2 |
 | `archive/assessments/QUALITY_ASSESSMENT_2026_04_24_INDEPENDENT_68_49.md` | 94.2 |
 | `archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_10_Independent_First_Principles_69_82.md` | 93.9 |
-| `archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` | 90.8 |
+| `archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` | 90.8 |
 | `archive/assessments/QUALITY_ASSESSMENT_2026_04_30_INDEPENDENT_D_65_32.md` | 82.8 |
 | `archive/assessments/QUALITY_ASSESSMENT_2026_04_25_INDEPENDENT_62_18.md` | 82.1 |
 | `archive/assessments/QUALITY_ASSESSMENT_2026_04_25_INDEPENDENT_61_91.md` | 81.9 |
@@ -4601,7 +4601,7 @@ Archive content is valuable but should be treated as historical evidence, not ca
 | `archive/assessments/QUALITY_ASSESSMENT_2026_04_26_INDEPENDENT_62_65.md` | 61.5 |
 | `archive/assessments/ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_59.md` | 61.0 |
 | `archive/assessments/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_68_20.md` | 60.6 |
-| `archive/quality/2026-04-21-assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md` | 60.0 |
+| `archive/assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md` | 60.0 |
 | `archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_18.md` | 56.7 |
 | `archive/assessments/QUALITY_ASSESSMENT_2026_04_28_INDEPENDENT_66_63.md` | 56.1 |
 | `archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md` | 54.3 |
@@ -4610,7 +4610,7 @@ Archive content is valuable but should be treated as historical evidence, not ca
 | `archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | 52.8 |
 | `archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md` | 51.9 |
 | `archive/assessments/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_04_FIRST_PRINCIPLES.md` | 51.9 |
-| `archive/quality/2026-04-23-doc-depth-reorg/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | 51.7 |
+| `archive/assessments/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | 51.7 |
 | `archive/root-superseded-2026-05-01/USABILITY_SOLUTION_QUALITY_ASSESSMENT_2026_04_25_69_52.md` | 51.6 |
 | `archive/assessments/QUALITY_ASSESSMENT_2026_04_29_INDEPENDENT_72_55.md` | 50.5 |
 
@@ -4637,7 +4637,7 @@ Archive content is valuable but should be treated as historical evidence, not ca
 - `MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md`: 1 files
 - `MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md`: 1 files
 - `MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md`: 1 files
-- `MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md`: 1 files
+- `MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md`: 1 files
 - `NAVIGATOR.md`: 1 files
 - `NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`: 1 files
 - `ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md`: 1 files

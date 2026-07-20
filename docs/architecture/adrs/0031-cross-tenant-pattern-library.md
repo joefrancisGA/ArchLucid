@@ -1,4 +1,4 @@
-> **Scope:** ADR 0031 — Cross-tenant pattern library (anonymised industry guidance) - full detail, tables, and links in the sections below.
+﻿> **Scope:** ADR 0031 — Cross-tenant pattern library (anonymised industry guidance) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -148,4 +148,4 @@ sequenceDiagram
 - [ADR 0003 — SQL RLS and SESSION_CONTEXT](0003-sql-rls-session-context.md)
 - [ADR 0018 — Background workloads (Container Apps Jobs)](0018-background-workloads-container-apps-jobs.md)
 - [`docs/security/MULTI_TENANT_RLS.md`](../../security/MULTI_TENANT_RLS.md)
-- [`docs/go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md) (buyer-facing honesty on aggregates — update when GA)
+- [`docs/go-to-market/trust-center.md`](../../go-to-market/trust-center.md) (buyer-facing honesty on aggregates — update when GA)

@@ -67,10 +67,6 @@ import {
   formatHiddenLowConfidenceHint,
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
-import {
-  defaultWorkspaceExpandedForFinding,
-  workspaceFindingAreaLabel,
-} from "@/components/findings/RunDetailFindingsToolbar";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type QuickDecisionSummaryProps = {
@@ -195,10 +191,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     const owner = f.assignedToUserId?.trim() ?? "";
 
     const workspaceCardMode = props.workspaceCardMode === true;
-    const defaultOpen =
-      !workspaceCardMode ||
-      props.defaultExpandLowSeverity === true ||
-      defaultWorkspaceExpandedForFinding(f);
 
     const rowBody = (
       <>
@@ -313,11 +305,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           {canMutate ? (
             <FindingFeedbackThumbs runId={props.runId} findingId={f.findingId} compact />
           ) : null}
-          {workspaceCardMode ? (
-            <Button type="button" size="sm" variant="outline" className="h-8 shrink-0" asChild>
-              <Link href={href}>Open finding</Link>
-            </Button>
-          ) : null}
         </div>
         {f.traceConfidenceLabel !== null &&
         f.traceConfidenceLabel !== undefined &&
@@ -363,10 +350,87 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             className="mt-2"
           />
         ) : null}
-        <div
-          className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
-          data-testid={`finding-itsm-sync-${f.findingId}`}
-        >
+        {!workspaceCardMode ? (
+          <div
+            className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
+            data-testid={`finding-itsm-sync-${f.findingId}`}
+          >
+            {props.providerNeutralWorkItems === true && props.architectureWorkItemContext ? (
+              <FindingCreateWorkItemActions
+                runId={props.runId}
+                finding={f}
+                architectureName={props.architectureWorkItemContext.architectureName}
+                architectureOverview={props.architectureWorkItemContext.architectureOverview}
+                ownerLabel={props.architectureWorkItemContext.ownerLabel}
+                allFindings={props.findings}
+              />
+            ) : (
+              <>
+                <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
+                  Jira / ServiceNow
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <CopyGovernanceQueueWorkItemButton
+                    runId={props.runId}
+                    findingId={f.findingId}
+                    findingTitle={f.title}
+                    severityLabel={
+                      f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
+                    }
+                    recommendedAction={f.recommendation}
+                    statusLabel="Open"
+                    compact
+                  />
+                  <ItsmOutboundQuickActions findingId={f.findingId} compact />
+                </div>
+              </>
+            )}
+          </div>
+        ) : null}
+        {askFindingId === f.findingId ? (
+          <div className="mt-3">
+            <FindingAskInlinePanel findingId={f.findingId} defaultOpen />
+          </div>
+        ) : null}
+      </>
+    );
+
+    return (
+      <li
+        key={f.findingId}
+        className={cn("pl-1", subdued ? "opacity-80" : undefined)}
+        data-testid={subdued ? `quick-decision-low-confidence-${f.findingId}` : undefined}
+      >
+        {rowBody}
+      </li>
+    );
+  }
+
+  function buildWorkspaceVisibleFindings(): QuickDecisionFinding[] {
+    const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
+    const combined: QuickDecisionFinding[] = [...policyViolations];
+
+    if (showAdvisory) {
+      combined.push(...advisoryNotes);
+    }
+
+    if (showLowConfidence) {
+      combined.push(...lowConfidenceFindings);
+    }
+
+    return sortQuickDecisionFindings(combined);
+  }
+
+  function renderWorkspaceIntegrations(f: QuickDecisionFinding): ReactElement {
+    return (
+      <details
+        className="rounded-md border border-neutral-200 p-2 dark:border-neutral-800"
+        data-workspace-disclosure
+      >
+        <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          Create work item / Integrations
+        </summary>
+        <div className="mt-2" data-testid={`finding-itsm-sync-${f.findingId}`}>
           {props.providerNeutralWorkItems === true && props.architectureWorkItemContext ? (
             <FindingCreateWorkItemActions
               runId={props.runId}
@@ -377,107 +441,498 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               allFindings={props.findings}
             />
           ) : (
-            <>
-              <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
-                Jira / ServiceNow
-              </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <CopyGovernanceQueueWorkItemButton
-                  runId={props.runId}
-                  findingId={f.findingId}
-                  findingTitle={f.title}
-                  severityLabel={
-                    f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
-                  }
-                  recommendedAction={f.recommendation}
-                  statusLabel="Open"
-                  compact
-                />
-                <ItsmOutboundQuickActions findingId={f.findingId} compact />
-              </div>
-            </>
+            <div className="flex flex-wrap items-center gap-2">
+              <CopyGovernanceQueueWorkItemButton
+                runId={props.runId}
+                findingId={f.findingId}
+                findingTitle={f.title}
+                severityLabel={
+                  f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
+                }
+                recommendedAction={f.recommendation}
+                statusLabel="Open"
+                compact
+              />
+              <ItsmOutboundQuickActions findingId={f.findingId} compact />
+            </div>
           )}
+        </div>
+      </details>
+    );
+  }
+
+  function renderWorkspaceSupportingDetails(f: QuickDecisionFinding): ReactElement {
+    const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, f);
+
+    return (
+      <details
+        className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/50 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
+        data-workspace-disclosure
+        data-testid={`finding-workspace-supporting-${f.findingId}`}
+      >
+        <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          Supporting detail
+        </summary>
+        <div className="mt-3 space-y-3">
+          {citationModel.pack !== null || citationModel.policy !== null ? (
+            <FindingPolicyCitationProminentStrip
+              pack={citationModel.pack}
+              policy={citationModel.policy}
+              compact
+            />
+          ) : null}
+          <FindingPolicyEvidenceCitationLinks model={citationModel} />
+          {f.evidenceRefSnippets !== undefined && f.evidenceRefSnippets.length > 0 ? (
+            <FindingEvidenceRefSnippets snippets={f.evidenceRefSnippets} />
+          ) : null}
+          {(f.insightDensityScore !== null && f.insightDensityScore !== undefined) ||
+          (f.whyThisIsNotGeneric !== null &&
+            f.whyThisIsNotGeneric !== undefined &&
+            f.whyThisIsNotGeneric.length > 0) ? (
+            <FindingInsightDensityDisclosure
+              insightDensityScore={f.insightDensityScore ?? null}
+              whyThisIsNotGeneric={f.whyThisIsNotGeneric ?? null}
+            />
+          ) : null}
+          {renderWorkspaceIntegrations(f)}
+          {f.traceConfidenceLabel !== null &&
+          f.traceConfidenceLabel !== undefined &&
+          f.traceConfidenceLabel.trim().length > 0 ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Evaluation trace: {f.traceConfidenceLabel}
+            </p>
+          ) : null}
+        </div>
+      </details>
+    );
+  }
+
+  function renderWorkspacePrimaryFinding(f: QuickDecisionFinding): ReactElement {
+    const href = `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
+    const snippet =
+      f.recommendation.length > 0
+        ? firstRecommendationSentence(f.recommendation)
+        : "See finding detail for recommended actions.";
+    const badgeLabel = severityBadgeLabel(f.severityValue);
+    const graphFocusId = preferredGraphNodeIdForFindingDeepLink(props.runId, f.findingId);
+    const evidenceRefCount = f.evidenceRefCount ?? 0;
+    const manifestId = defaultManifestIdForShowcaseFinding(props.runId, f.findingId);
+    const manifestHref =
+      manifestId !== null ? runDetailSectionHref(props.runId, "manifest-summary") : null;
+    const graphHref =
+      evidenceRefCount > 0 || graphFocusId !== null
+        ? graphTrailHrefWithOptionalNode(props.runId, graphFocusId)
+        : null;
+    const viewEvidenceHref =
+      primaryFindingEvidenceNavigationHref(
+        manifestHref !== null
+          ? [{ kind: "manifestSection", label: "Manifest", detail: null, href: manifestHref }]
+          : graphHref !== null
+            ? [{ kind: "graphNode", label: "Graph", detail: null, href: graphHref }]
+            : [],
+      ) ?? graphHref;
+    const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
+    const owner = f.assignedToUserId?.trim() ?? "";
+
+    return (
+      <article
+        key={f.findingId}
+        className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="finding-workspace-primary-card"
+      >
+        <header className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <SeverityTag
+              severity={badgeLabel}
+              kind={severityKindFromNumericValue(f.severityValue)}
+              label={badgeLabel}
+              className="shrink-0 text-sm tabular-nums"
+            />
+            {reviewStatus !== null ? (
+              <StatusTag
+                kind={reviewStatus.statusKind}
+                label={reviewStatus.label}
+                data-testid={`finding-review-status-${f.findingId}`}
+              />
+            ) : (
+              <StatusTag kind="neutral" label="Open" />
+            )}
+            <StatusTag kind="neutral" label={findingEnforcementTierLabel(f.enforcementTier)} className="shrink-0" />
+          </div>
+          <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            {f.title}
+          </h3>
+          {snippet.length > 0 ? (
+            <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              {snippet}
+            </p>
+          ) : null}
+        </header>
+        <dl className={cn("m-0 mt-4 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Owner</dt>
+            <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200" data-testid={`finding-owner-${f.findingId}`}>
+              {owner.length > 0 ? owner : "No remediation owner assigned"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Confidence</dt>
+            <dd className="m-0 mt-0.5">
+              {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
+                <FindingConfidenceBadge level={f.confidenceLevel} />
+              ) : (
+                <span className="font-medium text-neutral-800 dark:text-neutral-200">Not scored</span>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Evidence</dt>
+            <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-800 dark:text-neutral-200">
+              {evidenceRefCount} reference{evidenceRefCount === 1 ? "" : "s"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Decision state</dt>
+            <dd className="m-0 mt-0.5 font-medium text-neutral-800 dark:text-neutral-200">
+              {reviewStatus?.label ?? "Not recorded"}
+            </dd>
+          </div>
+        </dl>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Button type="button" size="sm" variant="default" className="h-8" asChild>
+            <Link href={href}>Open finding</Link>
+          </Button>
+          {viewEvidenceHref !== null ? (
+            <FindingEvidenceLinkChip
+              href={viewEvidenceHref}
+              evidenceRefCount={evidenceRefCount}
+              className="shrink-0"
+            />
+          ) : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
+            onClick={() => {
+              setActiveReasoning(f);
+              setReasoningOpen(true);
+            }}
+          >
+            View AI reasoning
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
+            onClick={() => {
+              setAskFindingId((current) => (current === f.findingId ? null : f.findingId));
+            }}
+            aria-pressed={askFindingId === f.findingId}
+            title="Ask about this finding"
+          >
+            <MessageCircle className="mr-1 h-3.5 w-3.5" aria-hidden />
+            Ask
+          </Button>
+          {canMutate && !f.isMuted ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
+              onClick={() => {
+                setMuteTarget(f);
+                setMuteReason("");
+                setMuteError(null);
+                setMuteOpen(true);
+              }}
+            >
+              Mute
+            </Button>
+          ) : null}
         </div>
         {askFindingId === f.findingId ? (
           <div className="mt-3">
             <FindingAskInlinePanel findingId={f.findingId} defaultOpen />
           </div>
         ) : null}
-      </>
+        {renderWorkspaceSupportingDetails(f)}
+      </article>
     );
+  }
 
-    if (workspaceCardMode) {
-      return (
-        <li
-          key={f.findingId}
-          className={cn("list-none pl-0", subdued ? "opacity-80" : undefined)}
-          data-testid={subdued ? `quick-decision-low-confidence-${f.findingId}` : `finding-workspace-card-${f.findingId}`}
-        >
-          <details
-            className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
-            data-workspace-disclosure
-            open={defaultOpen}
-          >
-            <summary
-              className={cn(
-                "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
-                OPERATOR_TYPOGRAPHY.body,
-              )}
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <SeverityTag
-                  severity={badgeLabel}
-                  kind={severityKindFromNumericValue(f.severityValue)}
-                  label={badgeLabel}
-                  className="shrink-0 tabular-nums"
-                />
-                {reviewStatus !== null ? (
-                  <StatusTag
-                    kind={reviewStatus.statusKind}
-                    label={reviewStatus.label}
-                    data-testid={`finding-review-status-${f.findingId}`}
-                  />
-                ) : (
-                  <StatusTag kind="neutral" label="Open" />
-                )}
-                <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{f.title}</span>
-              </div>
-              <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                <span className="font-medium text-neutral-700 dark:text-neutral-300">Area: </span>
-                {workspaceFindingAreaLabel(f)}
-                {snippet.length > 0 ? (
-                  <>
-                    <span className="mx-1">·</span>
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Impact: </span>
-                    {snippet}
-                  </>
-                ) : null}
-              </p>
-              <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                <span className="font-medium">Owner: </span>
-                {owner.length > 0 ? owner : "No remediation owner assigned"}
-                <span className="mx-1">·</span>
-                <span className="font-medium">Evidence: </span>
-                {evidenceRefCount}
-                <span className="mx-1">·</span>
-                <span className="font-medium">Decision: </span>
-                {reviewStatus?.label ?? "Not recorded"}
-              </p>
-            </summary>
-            <div className="mt-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">{rowBody}</div>
-          </details>
-        </li>
-      );
-    }
+  function renderWorkspaceSecondaryFinding(f: QuickDecisionFinding, subdued = false): ReactElement {
+    const href = `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
+    const badgeLabel = severityBadgeLabel(f.severityValue);
+    const reviewStatus = humanReviewStatusDisplay(f.humanReviewStatus);
+    const snippet =
+      f.recommendation.length > 0
+        ? firstRecommendationSentence(f.recommendation)
+        : "See finding detail for recommended actions.";
 
     return (
       <li
         key={f.findingId}
-        className={cn("pl-1", subdued ? "opacity-80" : undefined)}
-        data-testid={subdued ? `quick-decision-low-confidence-${f.findingId}` : undefined}
+        className={cn("list-none pl-0", subdued ? "opacity-80" : undefined)}
+        data-testid={`finding-workspace-card-${f.findingId}`}
       >
-        {rowBody}
+        <details
+          className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+          data-workspace-disclosure
+        >
+          <summary
+            className={cn(
+              "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <SeverityTag
+                severity={badgeLabel}
+                kind={severityKindFromNumericValue(f.severityValue)}
+                label={badgeLabel}
+                className="shrink-0 tabular-nums"
+              />
+              {reviewStatus !== null ? (
+                <StatusTag kind={reviewStatus.statusKind} label={reviewStatus.label} />
+              ) : (
+                <StatusTag kind="neutral" label="Open" />
+              )}
+              <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{f.title}</span>
+            </div>
+          </summary>
+          <div className="mt-3 space-y-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{snippet}</p>
+            <Button type="button" size="sm" variant="outline" className="h-8" asChild>
+              <Link href={href}>Open finding</Link>
+            </Button>
+            {renderWorkspaceSupportingDetails(f)}
+          </div>
+        </details>
       </li>
+    );
+  }
+
+  function renderWorkspaceDialogs(): ReactElement {
+    return (
+      <>
+        <FindingAiReasoningDialog
+          open={reasoningOpen}
+          onOpenChange={(open) => {
+            setReasoningOpen(open);
+
+            if (!open) {
+              setActiveReasoning(null);
+            }
+          }}
+          findingId={activeReasoning?.findingId ?? null}
+          findingTitle={activeReasoning?.title ?? ""}
+          snapshot={activeReasoning?.aiReasoning ?? null}
+        />
+        <Dialog
+          open={muteOpen}
+          onOpenChange={(open) => {
+            setMuteOpen(open);
+
+            if (!open) {
+              setMuteTarget(null);
+              setMuteReason("");
+              setMuteError(null);
+              setMuteBusy(false);
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Mute finding</DialogTitle>
+              <DialogDescription>
+                Provide a short reason. Muted findings are hidden from this summary until you enable{" "}
+                <strong>Show muted findings</strong>.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="finding-mute-reason-workspace">Reason</Label>
+              <Textarea
+                id="finding-mute-reason-workspace"
+                value={muteReason}
+                onChange={(e) => {
+                  setMuteReason(e.target.value);
+                }}
+                rows={4}
+                className="resize-y"
+                disabled={muteBusy}
+              />
+              {muteError ? <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)}>{muteError}</p> : null}
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setMuteOpen(false);
+                }}
+                disabled={muteBusy}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                disabled={muteBusy || muteReason.trim().length === 0}
+                onClick={() => {
+                  if (muteTarget === null) {
+                    return;
+                  }
+
+                  void (async () => {
+                    setMuteBusy(true);
+                    setMuteError(null);
+
+                    try {
+                      await postFindingMute(props.runId, muteTarget.findingId, muteReason.trim());
+                      setMuteOpen(false);
+                      router.refresh();
+                    } catch (e) {
+                      const msg = e instanceof Error ? e.message : "Mute request failed.";
+                      setMuteError(msg);
+                    } finally {
+                      setMuteBusy(false);
+                    }
+                  })();
+                }}
+              >
+                {muteBusy ? "Saving…" : "Mute finding"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  if (props.workspaceCardMode === true) {
+    const visibleFindings = buildWorkspaceVisibleFindings();
+    const primaryFinding = visibleFindings[0] ?? null;
+    const additionalFindings = visibleFindings.slice(1);
+
+    return (
+      <>
+        <div
+          data-testid="quick-decision-summary"
+          className={cn("space-y-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+        >
+          {hasSourceFindings ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <label className={cn("flex cursor-pointer items-center gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
+                  checked={showLowConfidence}
+                  onChange={(e) => {
+                    setShowLowConfidence(e.target.checked);
+                  }}
+                  data-testid="quick-decision-show-low-confidence"
+                />
+                Show low-confidence findings
+              </label>
+              <label className={cn("flex cursor-pointer items-center gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
+                  checked={showMuted}
+                  onChange={(e) => {
+                    setShowMuted(e.target.checked);
+                  }}
+                />
+                Show muted findings
+              </label>
+              {hiddenLowConfidenceHint !== null ? (
+                <span className={OPERATOR_TYPOGRAPHY.helper} data-testid="quick-decision-low-confidence-hidden-hint">
+                  {hiddenLowConfidenceHint}.
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+          {hasSourceFindings && policyPackSummary.length > 0 ? (
+            <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
+              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+                Policy pack impact
+              </summary>
+              <div className="mt-3">
+                <ReviewDetailPolicyPackFindingsBreakdown
+                  groups={policyPackSummary}
+                  manifestRuleSetId={props.manifestRuleSetId}
+                  mappedFindingCount={policyPackImpact.mappedFindingCount}
+                  unmappedFindingCount={policyPackImpact.unmappedFindingCount}
+                />
+              </div>
+            </details>
+          ) : null}
+          {props.usingExplanationFallback === true ? (
+            <p
+              className={cn(
+                "m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+              data-testid="quick-decision-explanation-fallback-notice"
+              role="status"
+            >
+              Confidence rows are derived from the aggregate explanation trace because per-finding agent results were not
+              on this review payload. Re-run execute or refresh after commit if you need agent-result grounding.
+            </p>
+          ) : null}
+          {!hasSourceFindings ? (
+            renderEmptySummary()
+          ) : afterMuteFilter.length === 0 ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400">
+              All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.
+            </p>
+          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-low-confidence-only">
+              Low-confidence findings are hidden to reduce noise. Enable <strong>Show low-confidence findings</strong>{" "}
+              to review unverified items.
+            </p>
+          ) : primaryFinding === null ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings match the current filters.</p>
+          ) : (
+            <div className="space-y-4">
+              {renderWorkspacePrimaryFinding(primaryFinding)}
+              {advisoryNotes.length > 0 && !showAdvisory ? (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+                  <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    {advisoryNotes.length} advisory note{advisoryNotes.length === 1 ? "" : "s"} hidden by default.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowAdvisory(true);
+                    }}
+                  >
+                    Show advisory notes
+                  </Button>
+                </div>
+              ) : null}
+              {additionalFindings.length > 0 ? (
+                <section aria-labelledby="additional-findings-heading">
+                  <h3
+                    id="additional-findings-heading"
+                    className={cn("m-0 mb-2 font-semibold text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
+                  >
+                    Additional findings ({additionalFindings.length})
+                  </h3>
+                  <ul className="m-0 list-none space-y-2 p-0">
+                    {additionalFindings.map((finding) => renderWorkspaceSecondaryFinding(finding))}
+                  </ul>
+                </section>
+              ) : null}
+            </div>
+          )}
+        </div>
+        {renderWorkspaceDialogs()}
+      </>
     );
   }
 

@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid — Customer onboarding playbook - full detail, tables, and links in the sections below.
+﻿> **Scope:** ArchLucid — Customer onboarding playbook - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -123,4 +123,4 @@ After successful pilot conversion:
 | [ROI_MODEL.md](ROI_MODEL.md) | Value calculation for leadership presentation |
 | [CUSTOMER_HEALTH_SCORING.md](CUSTOMER_HEALTH_SCORING.md) | Post-onboarding health framework |
 | [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md) | Renewal process |
-| [TRUST_CENTER.md](TRUST_CENTER.md) | Security and trust artifacts for onboarding |
+| [trust-center.md](trust-center.md) | Security and trust artifacts for onboarding |

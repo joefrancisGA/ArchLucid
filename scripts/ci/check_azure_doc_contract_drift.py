@@ -17,7 +17,7 @@ _INVARIANTS: tuple[tuple[str, tuple[str, ...]], ...] = (
         ),
     ),
     (
-        "docs/go-to-market/TRUST_CENTER.md",
+        "docs/go-to-market/trust-center.md",
         (
             "database-per-tenant",
             "ADR",

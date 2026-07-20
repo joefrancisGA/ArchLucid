@@ -34,7 +34,7 @@ def main() -> int:
                 "id": "enterprise",
                 "label": "Enterprise",
                 "role": "Hosted pilot, procurement pack, and production-like proof gates.",
-                "docs": ["docs/go-to-market/TRUST_CENTER.md", "docs/runbooks/PROCUREMENT_DEAL_READY.md"],
+                "docs": ["docs/go-to-market/trust-center.md", "docs/runbooks/PROCUREMENT_DEAL_READY.md"],
             },
         ],
         "deferredCommerce": [

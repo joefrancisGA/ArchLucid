@@ -11,6 +11,12 @@ describe("auditEventFriendlyTitle", () => {
     expect(auditEventFriendlyTitle("RunStarted")).toBe("Review started");
     expect(auditEventFriendlyTitle("ManifestFinalized")).toBe("Review finalized");
     expect(auditEventFriendlyTitle("GovernanceApprovalRequested")).toBe("Governance approval requested");
+    expect(auditEventFriendlyTitle("Workspace.ModelExecutionProfileUpdated")).toBe(
+      "Workspace model execution profile updated",
+    );
+    expect(auditEventFriendlyTitle("Run.ModelExecutionProfileOverrideApplied")).toBe(
+      "Review model execution profile override applied",
+    );
     expect(auditEventFriendlyTitle("ManifestViewed")).toBe("Review viewed");
   });
 });

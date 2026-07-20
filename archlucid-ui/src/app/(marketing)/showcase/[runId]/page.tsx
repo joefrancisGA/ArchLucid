@@ -9,6 +9,10 @@ import {
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
+import {
+  hasCuratedShowcaseStaticPayload,
+  isShowcaseStaticFirstRunId,
+} from "@/lib/showcase-page-resolution";
 
 import {
   ShowcaseOutcomeCards,
@@ -247,6 +251,47 @@ function ShowcaseStaticDemoBanner(): ReactElement | null {
   );
 }
 
+function ShowcasePayloadView({
+  runId,
+  payload,
+  banner,
+}: {
+  readonly runId: string;
+  readonly payload: DemoCommitPagePreviewResponse;
+  readonly banner: "static" | "api-fallback" | null;
+}): ReactElement {
+  return (
+    <main className="mx-auto max-w-5xl px-4 py-10">
+      <ShowcaseHero runId={runId} />
+
+      <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
+
+      <ShowcaseExecutiveSummary payload={payload} />
+
+      <div className="mt-6">
+        <ShowcaseWhatThisProves
+          scenarioBullets={keyDriversFromPayload(payload)}
+          outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(payload)}
+          showOutcomeCards={false}
+        />
+      </div>
+
+      {banner === "static" ? <ShowcaseStaticDemoBanner /> : null}
+      {banner === "api-fallback" ? <ShowcaseApiUnavailableBanner /> : null}
+
+      <ShowcaseOutcomeStripAboveBody payload={payload} />
+
+      <ShowcaseQuickNav payload={payload} />
+
+      <div className="mt-6">
+        <DemoPreviewMarketingBody payload={payload} suppressStatusBanner={SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER} />
+      </div>
+
+      <ShowcaseBottomCTA />
+    </main>
+  );
+}
+
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { runId } = await props.params;
 
@@ -295,41 +340,10 @@ export default async function MarketingShowcasePage(props: PageProps) {
   const decodedRunId = decodeURIComponent(runId);
   const base = resolveShowcaseApiBase();
 
-  if (!base) {
+  if (!base || isShowcaseStaticFirstRunId(decodedRunId)) {
     const payload = getShowcaseStaticDemoPayload(decodedRunId);
 
-    return (
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <ShowcaseHero runId={runId} />
-
-        <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
-
-        <ShowcaseExecutiveSummary payload={payload} />
-
-        <div className="mt-6">
-          <ShowcaseWhatThisProves
-            scenarioBullets={keyDriversFromPayload(payload)}
-            outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(payload)}
-            showOutcomeCards={false}
-          />
-        </div>
-
-        <ShowcaseStaticDemoBanner />
-
-        <ShowcaseOutcomeStripAboveBody payload={payload} />
-
-        <ShowcaseQuickNav payload={payload} />
-
-        <div className="mt-6">
-          <DemoPreviewMarketingBody
-            payload={payload}
-            suppressStatusBanner={SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER}
-          />
-        </div>
-
-        <ShowcaseBottomCTA />
-      </main>
-    );
+    return <ShowcasePayloadView runId={runId} payload={payload} banner={base ? null : "static"} />;
   }
 
   const encoded = encodeURIComponent(runId);
@@ -337,7 +351,14 @@ export default async function MarketingShowcasePage(props: PageProps) {
   const bundle = await fetchShowcasePayload(url);
 
   switch (bundle.kind) {
-    case "not_found": {
+    case "not_found":
+    case "invalid": {
+      if (hasCuratedShowcaseStaticPayload(decodedRunId)) {
+        const fallbackPayload = getShowcaseStaticDemoPayload(decodedRunId);
+
+        return <ShowcasePayloadView runId={runId} payload={fallbackPayload} banner="api-fallback" />;
+      }
+
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
           <ShowcaseHero runId={runId} />
@@ -352,36 +373,7 @@ export default async function MarketingShowcasePage(props: PageProps) {
     }
 
     case "ok":
-      return (
-        <main className="mx-auto max-w-5xl px-4 py-10">
-          <ShowcaseHero runId={runId} />
-
-          <ShowcaseLead>{trimLeadDescription(bundle.payload.run.description)}</ShowcaseLead>
-
-          <ShowcaseExecutiveSummary payload={bundle.payload} />
-
-          <div className="mt-6">
-            <ShowcaseWhatThisProves
-              scenarioBullets={keyDriversFromPayload(bundle.payload)}
-              outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(bundle.payload)}
-              showOutcomeCards={false}
-            />
-          </div>
-
-          <ShowcaseOutcomeStripAboveBody payload={bundle.payload} />
-
-          <ShowcaseQuickNav payload={bundle.payload} />
-
-          <div className="mt-6">
-            <DemoPreviewMarketingBody
-              payload={bundle.payload}
-              suppressStatusBanner={SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER}
-            />
-          </div>
-
-          <ShowcaseBottomCTA />
-        </main>
-      );
+      return <ShowcasePayloadView runId={runId} payload={bundle.payload} banner={null} />;
 
     case "bad_json": {
       return (
@@ -399,56 +391,11 @@ export default async function MarketingShowcasePage(props: PageProps) {
       );
     }
 
-    case "invalid": {
-      return (
-        <main className="mx-auto max-w-5xl px-4 py-10">
-          <ShowcaseHero runId={runId} />
-
-          <div className="mt-6">
-            <DemoPreviewNotAvailable />
-          </div>
-
-          <ShowcaseBottomCTA />
-        </main>
-      );
-    }
-
     case "http_error":
     case "missing": {
       const fallbackPayload = getShowcaseStaticDemoPayload(decodedRunId);
 
-      return (
-        <main className="mx-auto max-w-5xl px-4 py-10">
-          <ShowcaseHero runId={runId} />
-
-          <ShowcaseLead>{trimLeadDescription(fallbackPayload.run.description)}</ShowcaseLead>
-
-          <ShowcaseExecutiveSummary payload={fallbackPayload} />
-
-          <div className="mt-6">
-            <ShowcaseWhatThisProves
-              scenarioBullets={keyDriversFromPayload(fallbackPayload)}
-              outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(fallbackPayload)}
-              showOutcomeCards={false}
-            />
-          </div>
-
-          <ShowcaseApiUnavailableBanner />
-
-          <ShowcaseOutcomeStripAboveBody payload={fallbackPayload} />
-
-          <ShowcaseQuickNav payload={fallbackPayload} />
-
-          <div className="mt-6">
-            <DemoPreviewMarketingBody
-              payload={fallbackPayload}
-              suppressStatusBanner={SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER}
-            />
-          </div>
-
-          <ShowcaseBottomCTA />
-        </main>
-      );
+      return <ShowcasePayloadView runId={runId} payload={fallbackPayload} banner="api-fallback" />;
     }
   }
 }

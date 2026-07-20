@@ -1,4 +1,4 @@
-> **Scope:** Independent quality assessment — first-principles, weighted readiness model.
+﻿> **Scope:** Independent quality assessment — first-principles, weighted readiness model.
 
 # ArchLucid Assessment – Weighted Readiness 67.28%
 
@@ -460,7 +460,7 @@ Items explicitly deferred to V1.1 or V2 are **not penalized** in scoring below.
 >
 > **Constraints:** Do not fabricate critical or high severity findings that don't exist. If uncertain about actual CI scan results, use conservative severity ratings (Info/Low) with accurate descriptions of what the scans cover.
 >
-> **What not to change:** Do not modify `TRUST_CENTER.md`, `SYSTEM_THREAT_MODEL.md`, or any other security documents. Only change the owner assessment draft.
+> **What not to change:** Do not modify `trust-center.md`, `SYSTEM_THREAT_MODEL.md`, or any other security documents. Only change the owner assessment draft.
 
 ---
 
@@ -574,7 +574,7 @@ Items explicitly deferred to V1.1 or V2 are **not penalized** in scoring below.
 >    - **Current status:** "Pre-GA — this SLA target reflects architectural capability. Contractual SLAs will be negotiated per-customer at GA."
 >    - **Monitoring:** Link to the hosted-saas-probe workflow and api-synthetic-probe workflow as evidence of monitoring investment.
 >
-> 3. Add a row to `docs/go-to-market/TRUST_CENTER.md` in the appropriate section referencing the SLA targets doc.
+> 3. Add a row to `docs/go-to-market/trust-center.md` in the appropriate section referencing the SLA targets doc.
 >
 > 4. Add a link from `docs/library/PRODUCT_PACKAGING.md` in the tier comparison table noting "99.9% availability target" for Professional and Enterprise tiers.
 >
@@ -658,7 +658,7 @@ Items explicitly deferred to V1.1 or V2 are **not penalized** in scoring below.
 
 > Add a data residency and GDPR section to the Trust Center:
 >
-> 1. Open `docs/go-to-market/TRUST_CENTER.md`.
+> 1. Open `docs/go-to-market/trust-center.md`.
 >
 > 2. Add a new section after the "Security overview at a glance" section titled `## Data residency and privacy`.
 >

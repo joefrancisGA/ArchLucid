@@ -41,7 +41,7 @@ Both pipelines were declared deliberately distinct in **[ADR 0010 — Dual manif
 
 Two independent forces are now creating pressure to revisit ADR 0010:
 
-- **Architectural integrity.** External readers of the architecture (the [Quality Assessment 2026-04-20 § Improvement 3](../../archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)) consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/archive/dual-pipeline-navigator-superseded.md`](../../archive/dual-pipeline-navigator-superseded.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
+- **Architectural integrity.** External readers of the architecture consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/archive/dual-pipeline-navigator-superseded.md`](../../archive/dual-pipeline-navigator-superseded.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
 - **Cognitive load + onboarding cost.** Day-1 developer onboarding (`docs/onboarding/day-one-developer.md`) currently sends a new contributor through both interface families even when the day-1 task only touches one. The dual-pipeline model is a real source of "I changed the wrong repository" defects in PR review history.
 
 ADR 0010 cannot be overridden by a single "while I'm in here" refactor PR. The project's ADR governance (`docs/architecture/adrs/README.md`) requires accepted ADRs to be **superseded** by a new ADR rather than rewritten or deleted.
@@ -136,4 +136,3 @@ The two regression tests below ship with this ADR's Phase 0 and pin the boundary
 - [`docs/API_CONTRACTS.md`](../../library/API_CONTRACTS.md) (deprecation policy used by Phase 2's `Sunset` header).
 - [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md) (parity report — latency, audit volume, replay parity per cadence).
 - [`docs/CHANGELOG.md`](../../CHANGELOG.md) 2026-04-20 entry (records Phase 0 shipment); 2026-04-21 entry (records Phase 1 retirement gate + Phase 2 deprecation signal).
-- [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md`](../../archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md) (rationale for the phased approach this ADR formalizes).

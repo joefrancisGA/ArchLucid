@@ -1,3 +1,5 @@
+import { labelForAlertRoutingFindingType } from "@/lib/alert-routing-finding-type-labels";
+
 /** Optional routing filters persisted in subscription `metadataJson.routingCriteria`. */
 export type AlertRoutingCriteria = {
   severities: string[];
@@ -13,6 +15,7 @@ export const EMPTY_ALERT_ROUTING_CRITERIA: AlertRoutingCriteria = {
 
 export const ALERT_ROUTING_SEVERITY_OPTIONS = ["Info", "Warning", "High", "Critical"] as const;
 
+/** Persisted finding-type values accepted by the API (labels live in `alert-routing-finding-type-labels.ts`). */
 export const ALERT_ROUTING_FINDING_TYPE_OPTIONS = [
   "Advisory",
   "Compliance",
@@ -101,11 +104,13 @@ export function formatAlertRoutingCriteriaSummary(criteria: AlertRoutingCriteria
   }
 
   if (criteria.findingTypes.length > 0) {
-    parts.push(`Types: ${criteria.findingTypes.join(", ")}`);
+    parts.push(
+      `Categories: ${criteria.findingTypes.map((entry) => labelForAlertRoutingFindingType(entry)).join(", ")}`,
+    );
   }
 
   if (criteria.tags.length > 0) {
-    parts.push(`Tags: ${criteria.tags.join(", ")}`);
+    parts.push(`Review labels: ${criteria.tags.join(", ")}`);
   }
 
   if (parts.length === 0) {

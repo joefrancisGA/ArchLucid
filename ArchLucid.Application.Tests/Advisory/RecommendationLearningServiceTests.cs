@@ -21,7 +21,7 @@ public sealed class RecommendationLearningServiceTests
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
-        RecommendationRecord[] rows = [new RecommendationRecord { RecommendationId = Guid.NewGuid() }];
+        RecommendationRecord[] rows = [new RecommendationRecord { RecommendationId = Guid.NewGuid(), Status = RecommendationStatus.Accepted }];
         RecommendationLearningProfile built = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
         Mock<IRecommendationRepository> repo = new();
@@ -29,10 +29,10 @@ public sealed class RecommendationLearningServiceTests
             .ReturnsAsync(rows);
 
         Mock<IRecommendationLearningAnalyzer> analyzer = new();
-        analyzer.Setup(a => a.BuildProfile(tenantId, workspaceId, projectId, rows)).Returns(built);
+        analyzer.Setup(a => a.BuildProfile(tenantId, workspaceId, projectId, It.IsAny<IReadOnlyList<RecommendationRecord>>())).Returns(built);
 
         Mock<IRecommendationLearningProfileRepository> profiles = new();
-        RecommendationLearningService sut = new(repo.Object, analyzer.Object, profiles.Object);
+        RecommendationLearningService sut = new(repo.Object, analyzer.Object, profiles.Object, new RecommendationLearningBuildGate());
 
         RecommendationLearningProfile result = await sut.RebuildProfileAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
@@ -55,7 +55,8 @@ public sealed class RecommendationLearningServiceTests
         RecommendationLearningService sut = new(
             Mock.Of<IRecommendationRepository>(),
             Mock.Of<IRecommendationLearningAnalyzer>(),
-            profiles.Object);
+            profiles.Object,
+            new RecommendationLearningBuildGate());
 
         RecommendationLearningProfile? result = await sut.GetLatestProfileAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 

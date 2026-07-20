@@ -1,4 +1,4 @@
-> **Scope:** Independent first-principles quality assessment of ArchLucid V1 — scored, weighted, ranked, and improvement-prompted. Not a marketing artifact.
+﻿> **Scope:** Independent first-principles quality assessment of ArchLucid V1 — scored, weighted, ranked, and improvement-prompted. Not a marketing artifact.
 
 # ArchLucid Assessment – Weighted Readiness 66.25%
 
@@ -691,21 +691,21 @@ Acceptance criteria:
 **Cursor prompt:**
 
 ```
-Target: docs/security/CAIQ_LITE_2026.md, docs/security/SIG_CORE_2026.md, docs/security/SOC2_SELF_ASSESSMENT_2026.md, docs/go-to-market/TRUST_CENTER.md, docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md
+Target: docs/security/CAIQ_LITE_2026.md, docs/security/SIG_CORE_2026.md, docs/security/SOC2_SELF_ASSESSMENT_2026.md, docs/go-to-market/trust-center.md, docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md
 
 Goal: Complete all documentation-sourceable fields in the CAIQ Lite, SIG Core, and SOC 2 self-assessment, and produce a consolidated procurement evidence pack that security reviewers can receive before an audit.
 
 Context:
 - The CAIQ Lite and SIG Core pre-fills exist but may have incomplete responses where evidence is available in the codebase.
 - The SOC 2 self-assessment exists at docs/security/SOC2_SELF_ASSESSMENT_2026.md.
-- The Trust Center is at docs/go-to-market/TRUST_CENTER.md.
+- The Trust Center is at docs/go-to-market/trust-center.md.
 - Evidence for controls is scattered across: docs/library/SECURITY.md, docs/security/SYSTEM_THREAT_MODEL.md, docs/library/AUDIT_COVERAGE_MATRIX.md, docs/security/MULTI_TENANT_RLS.md, docs/library/AUDIT_RETENTION_POLICY.md, docs/go-to-market/DPA_TEMPLATE.md, docs/go-to-market/SUBPROCESSORS.md, docs/go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md.
 
 Instructions:
 1. Read each CAIQ Lite question and for each: identify whether the codebase, Terraform, or existing docs provide evidence for a "Yes" or "Partial" response. Fill in the response and cite the evidence doc.
 2. Do the same for SIG Core.
 3. Review SOC2_SELF_ASSESSMENT_2026.md and complete any unanswered control sections where evidence exists in the codebase.
-4. Update docs/go-to-market/TRUST_CENTER.md to include a "Current evidence available" section with direct links to: self-assessment, CAIQ, SIG, DPA template, subprocessors, incident policy, STRIDE model, and the ZAP/Schemathesis CI evidence.
+4. Update docs/go-to-market/trust-center.md to include a "Current evidence available" section with direct links to: self-assessment, CAIQ, SIG, DPA template, subprocessors, incident policy, STRIDE model, and the ZAP/Schemathesis CI evidence.
 5. Create docs/go-to-market/PROCUREMENT_EVIDENCE_PACK_INDEX.md that lists all available evidence artifacts with a one-line description and status (Available / Planned / Blocked on audit).
 6. Add a prominent disclaimer on the SOC 2 self-assessment and CAIQ: "This is an owner-completed self-assessment, not an independent auditor opinion. SOC 2 Type I attestation is targeted for Q1 2027."
 
@@ -719,7 +719,7 @@ Acceptance criteria:
 - SIG_CORE_2026.md has responses for all questions where evidence exists.
 - SOC2_SELF_ASSESSMENT_2026.md has no unanswered sections for implemented controls.
 - PROCUREMENT_EVIDENCE_PACK_INDEX.md lists all available evidence artifacts.
-- TRUST_CENTER.md links to the evidence pack index.
+- trust-center.md links to the evidence pack index.
 ```
 
 ---

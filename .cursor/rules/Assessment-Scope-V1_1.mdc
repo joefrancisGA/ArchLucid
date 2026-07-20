@@ -14,7 +14,7 @@ alwaysApply: false
 
 When producing **weighted readiness**, **solution quality**, **go-to-market**, or **trust/procurement** assessments for this repo:
 
-1. **`(A)` V1.1 delivery / product readiness (headline)** — score **only** commitments that are **in scope for V1 GA and the named V1.1 release-window engineering items** documented in **`docs/library/V1_SCOPE.md`**, **`docs/library/V1_DEFERRED.md`**, and **`docs/go-to-market/TRUST_CENTER.md`**.
+1. **`(A)` V1.1 delivery / product readiness (headline)** — score **only** commitments that are **in scope for V1 GA and the named V1.1 release-window engineering items** documented in **`docs/library/V1_SCOPE.md`**, **`docs/library/V1_DEFERRED.md`**, and **`docs/go-to-market/trust-center.md`**.
 
 2. **`(B)` Enterprise procurement realism (informational)** — discuss buyer friction (SOC 2 CPA reports, rigid RFP wording, procurement timing) honestly, with **explicit links** to roadmap and trust posture. **`(B)` must use weight `0`** when recomputing or narrating **`(A)`**. Do **not** fold **`(B)`** into pillar weights or the **`(A)`** composite unless the user explicitly asks for a **second blended score**.
 
@@ -68,7 +68,7 @@ Per **`.cursor/rules/V1_1-assurance-backlog.mdc`** (owner 2026-05-29): improveme
 
 - **Not a headline delivery gate for `(A)`:** Absence of **participant user testing with assistive technologies** (e.g. scheduled research sessions with screen-reader or other AT users as primary validation) is **out of scope** for headline readiness scoring. ArchLucid’s **projected primary users and buyers** are **not** modeled as requiring or valuing that class of study as a product commitment in **`(A)`**.
 
-- **`(A)` must not be reduced** for “no AT user testing,” “no screen reader usability panel,” or similar — not under Trust, Quality, Inclusive design, or procurement-adjacent pillars unless **`V1_SCOPE.md` / `V1_DEFERRED.md` / `TRUST_CENTER.md`** explicitly names such testing as an in-window commitment.
+- **`(A)` must not be reduced** for “no AT user testing,” “no screen reader usability panel,” or similar — not under Trust, Quality, Inclusive design, or procurement-adjacent pillars unless **`V1_SCOPE.md` / `V1_DEFERRED.md` / `trust-center.md`** explicitly names such testing as an in-window commitment.
 
 - **Does not negate honest narrative:** If the assessment discusses **inclusive design**, **Section 508**, or **buyer accessibility questionnaires**, place material obligations, regulatory risk, or stretch goals under **`(B)` informational** (or a user-requested accessibility deep-dive), **without** treating missing AT user studies as a weighted defect inside **`(A)`**.
 

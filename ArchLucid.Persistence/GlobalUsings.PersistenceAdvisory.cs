@@ -20,6 +20,7 @@ global using IDigestDeliveryDispatcher = ArchLucid.Core.Persistence.Ports.IDiges
 global using IDigestSubscriptionRepository = ArchLucid.Core.Persistence.Ports.IDigestSubscriptionRepository;
 global using IRecommendationFeedbackAnalyzer = ArchLucid.Core.Persistence.Ports.IRecommendationFeedbackAnalyzer;
 global using IRecommendationLearningProfileRepository = ArchLucid.Core.Persistence.Ports.IRecommendationLearningProfileRepository;
+global using RecommendationLearningProfileRecord = ArchLucid.Core.Persistence.Ports.RecommendationLearningProfileRecord;
 global using IRecommendationRepository = ArchLucid.Core.Persistence.Ports.IRecommendationRepository;
 global using IRecommendationWorkflowService = ArchLucid.Core.Persistence.Ports.IRecommendationWorkflowService;
 global using ImprovementPlan = ArchLucid.Contracts.Advisory.Models.ImprovementPlan;

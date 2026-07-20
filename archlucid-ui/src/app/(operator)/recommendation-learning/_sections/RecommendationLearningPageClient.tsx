@@ -23,6 +23,7 @@ export function RecommendationLearningPageClient(props: RecommendationLearningPa
   const [profile, setProfile] = useState<LearningProfile | null>(props.initialProfile);
   const [loadFailure, setLoadFailure] = useState<ApiLoadFailureState | null>(props.initialFailure);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
+  const [isRebuilding, setIsRebuilding] = useState(false);
 
   useEffect(() => {
     setProfile(props.initialProfile);
@@ -48,12 +49,15 @@ export function RecommendationLearningPageClient(props: RecommendationLearningPa
     }
 
     setActionFailure(null);
+    setIsRebuilding(true);
 
     try {
       await rebuildLearningProfile();
       refreshFromServer();
     } catch (e: unknown) {
       setActionFailure(toApiLoadFailure(e));
+    } finally {
+      setIsRebuilding(false);
     }
   }, [canMutate, refreshFromServer]);
 
@@ -62,6 +66,7 @@ export function RecommendationLearningPageClient(props: RecommendationLearningPa
   const model: RecommendationLearningPageViewModel = {
     profile,
     loading: isRefreshing,
+    isRebuilding,
     failure: mergedFailure,
     loadLatest,
     rebuild,

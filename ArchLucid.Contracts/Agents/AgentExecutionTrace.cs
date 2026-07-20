@@ -229,6 +229,15 @@ public sealed class AgentExecutionTrace
     }
 
     /// <summary>
+    ///     Customer-facing model alias resolved for this call (TB-869 / ADR 0060 D2), when known.
+    /// </summary>
+    public string? ModelAlias
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     Azure OpenAI deployment name (or provider equivalent) used for the call, when known.
     ///     Persisted rows use <see cref="AgentExecutionTraceModelMetadata" /> sentinels when the provider omits values;
     ///     see <c>UnspecifiedDeploymentName</c> (Real path) and <c>SimulatorDeploymentName</c> (simulator traces).

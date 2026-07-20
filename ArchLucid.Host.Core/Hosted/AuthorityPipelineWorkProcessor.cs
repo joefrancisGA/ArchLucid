@@ -1,4 +1,5 @@
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
@@ -8,6 +9,8 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Agents;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -206,8 +209,33 @@ public sealed class AuthorityPipelineWorkProcessor(
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
             await technologyLedgerRepository.GetByRunIdAsync(materializedScope, runIdN, cancellationToken);
 
+        IModelExecutionProfileResolver profileResolver =
+            scope.ServiceProvider.GetRequiredService<IModelExecutionProfileResolver>();
+
+        ModelExecutionProfileResolution profileResolution =
+            await profileResolver.ResolveForRunCreateAsync(architectureRequest, cancellationToken).ConfigureAwait(false);
+
         List<AgentTask> starterTasks =
-            RunStarterTaskFactory.BuildStarterTasks(runIdN, evidenceBundle, architectureRequest, ledgerEntries);
+            RunStarterTaskFactory.BuildStarterTasks(
+                runIdN,
+                evidenceBundle,
+                architectureRequest,
+                ledgerEntries,
+                profileResolution.EffectiveProfile);
+
+        if (!string.IsNullOrWhiteSpace(profileResolution.RequestedOverrideRaw))
+        {
+            IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
+            IScopeContextProvider scopeContextProvider =
+                scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+
+            await ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync(
+                auditService,
+                scopeContextProvider,
+                runIdN,
+                profileResolution,
+                cancellationToken).ConfigureAwait(false);
+        }
 
         IReadOnlyList<AgentTask> existingTasks =
             await taskRepository.GetByRunIdAsync(materializedScope, runIdN, cancellationToken);
