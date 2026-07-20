@@ -13,6 +13,10 @@ type MarketingPublicHeaderProps = {
   readonly liveDemoLinked: boolean;
 };
 
+/** Literal neutrals — avoid text-al-text-primary so dark axe does not measure #171717 on #0a0a0a. */
+const MARKETING_NAV_LINK_CLASS =
+  "shrink-0 text-neutral-800 hover:text-neutral-950 dark:text-neutral-100 dark:hover:text-neutral-50";
+
 function shouldHideThemeToggleOnMarketingRoute(pathname: string): boolean {
   return (
     pathname === "/pricing" ||
@@ -34,7 +38,8 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
   const focusAuth = isSignupVerifyFocusRoute(pathname);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-neutral-200 bg-al-surface-raised/95 shadow-sm backdrop-blur print:hidden dark:border-neutral-800">
+    {/* Opaque raised surface (no /95 + blur): axe samples through translucent headers and reports base-surface contrast. */}
+    <header className="sticky top-0 z-40 border-b border-neutral-200 bg-al-surface-raised shadow-sm print:hidden dark:border-neutral-800">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>
@@ -46,16 +51,16 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
               className="-mx-1 flex min-w-0 flex-1 flex-nowrap items-center gap-0.5 overflow-x-auto px-1 sm:flex-wrap sm:gap-1 sm:overflow-visible sm:pb-0 sm:pe-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               <span className="sr-only">Product pages:</span>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
+              <Button asChild variant="ghost" size="sm" className={MARKETING_NAV_LINK_CLASS}>
                 <Link href="/welcome">Overview</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
+              <Button asChild variant="ghost" size="sm" className={MARKETING_NAV_LINK_CLASS}>
                 <Link href="/pricing">Pricing</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
+              <Button asChild variant="ghost" size="sm" className={MARKETING_NAV_LINK_CLASS}>
                 <Link href="/see-it">See it</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="shrink-0">
+              <Button asChild variant="ghost" size="sm" className={MARKETING_NAV_LINK_CLASS}>
                 <Link href="/pricing#pricing-quote-request">Request demo</Link>
               </Button>
               <span className="mx-0.5 hidden h-5 w-px shrink-0 bg-neutral-200 dark:bg-neutral-700 sm:block" aria-hidden />
