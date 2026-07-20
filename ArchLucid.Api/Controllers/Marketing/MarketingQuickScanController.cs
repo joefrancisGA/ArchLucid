@@ -107,6 +107,7 @@ public sealed class MarketingQuickScanController(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             AuditActor = actorContext.GetActor(),
+            RequiresAnonymousDistributedConcurrency = true,
         };
     }
 

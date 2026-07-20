@@ -29,4 +29,7 @@ public sealed class QuickScanExecutionRequestContext
     public required Guid ProjectId { get; init; }
 
     public required string AuditActor { get; init; }
+
+    /// <summary>When true, distributed concurrency + queue admission runs before budget reservation (TB-896).</summary>
+    public bool RequiresAnonymousDistributedConcurrency { get; init; }
 }

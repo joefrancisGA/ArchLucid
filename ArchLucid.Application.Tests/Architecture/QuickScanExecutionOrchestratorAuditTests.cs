@@ -75,6 +75,11 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             .Setup(g => g.TryReserveAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(QuickScanGlobalBudgetReservationAttemptResult.Permit(Guid.NewGuid()));
 
+        Mock<IQuickScanDistributedConcurrencyService> concurrency = new();
+        concurrency
+            .Setup(c => c.WaitForAdmissionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(QuickScanDistributedConcurrencyAdmissionResult.NoOp());
+
         IOptionsMonitor<QuickScanOptions> options = new TestOptionsMonitor(new QuickScanOptions { Enabled = true });
         IOptionsMonitor<QuickScanSafetyOptions> safetyOptions = new TestSafetyOptionsMonitor(new QuickScanSafetyOptions { Enabled = false });
 
@@ -86,6 +91,7 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             safetyOptions,
             preExecCostEstimator.Object,
             globalBudget.Object,
+            concurrency.Object,
             audit.Object,
             costEstimator.Object,
             TimeProvider.System);

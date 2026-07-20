@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.QuickScan;
 using ArchLucid.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,11 @@ internal static class QuickScanHttpResultMapper
             return controller.BadRequestProblem(
                 result.ValidationDetail ?? "Validation failed.",
                 ProblemTypes.ValidationFailed);
+        }
+
+        if (result.FailureKind == QuickScanExecutionFailureKind.ConcurrencyRejected)
+        {
+            return MapConcurrencyRejected(controller, result.ConcurrencyRejectionReason!.Value);
         }
 
         if (result.FailureKind == QuickScanExecutionFailureKind.GuardRejected)
@@ -64,5 +70,28 @@ internal static class QuickScanHttpResultMapper
 
         return controller.ServiceUnavailableProblem(
             "Quick Scan could not be completed. View the sample result or try again later.");
+    }
+
+    private static IActionResult MapConcurrencyRejected(
+        ControllerBase controller,
+        QuickScanConcurrencyRejectionReason reason)
+    {
+        string errorCode = reason switch
+        {
+            QuickScanConcurrencyRejectionReason.QueueFull => QuickScanConcurrencyErrorCodes.QueueFull,
+            QuickScanConcurrencyRejectionReason.QueueTimeout => QuickScanConcurrencyErrorCodes.QueueTimeout,
+            _ => QuickScanConcurrencyErrorCodes.Busy,
+        };
+
+        string detail = reason switch
+        {
+            QuickScanConcurrencyRejectionReason.QueueFull =>
+                "Quick Scan is at capacity. View the sample result or try again later.",
+            QuickScanConcurrencyRejectionReason.QueueTimeout =>
+                "Quick Scan timed out while waiting for capacity. View the sample result or try again later.",
+            _ => "Quick Scan is busy. View the sample result or try again in a moment.",
+        };
+
+        return controller.ServiceUnavailableProblemWithErrorCode(detail, errorCode);
     }
 }

@@ -6,13 +6,18 @@ namespace ArchLucid.Application.Architecture;
 /// <summary>Builds <see cref="QuickScanGuardContext" /> values for Quick Scan routes.</summary>
 public static class QuickScanGuardContextFactory
 {
-    public static QuickScanGuardContext Create(string clientIp, string sessionId, string description)
+    public static QuickScanGuardContext Create(
+        string clientIp,
+        string sessionId,
+        string description,
+        bool useDistributedConcurrencyLimit = false)
     {
         return new QuickScanGuardContext
         {
             ClientIp = clientIp,
             SessionId = sessionId,
             PayloadFingerprint = ComputeFingerprint(description, sessionId),
+            UseDistributedConcurrencyLimit = useDistributedConcurrencyLimit,
         };
     }
 

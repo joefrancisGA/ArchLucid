@@ -69,6 +69,12 @@ public static class ProblemErrorCodes
 
     public const string ProvenanceNodeExplanationNotSupported = "PROVENANCE_NODE_EXPLANATION_NOT_SUPPORTED";
 
+    public const string QuickScanBusy = "QUICK_SCAN_BUSY";
+
+    public const string QuickScanQueueFull = "QUICK_SCAN_QUEUE_FULL";
+
+    public const string QuickScanQueueTimeout = "QUICK_SCAN_QUEUE_TIMEOUT";
+
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {

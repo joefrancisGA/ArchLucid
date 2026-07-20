@@ -22,6 +22,14 @@ public interface IQuickScanTelemetry
     void RecordFailure(QuickScanGuardContext context, string failureCategory, TimeSpan duration);
 
     void RecordSampleView(QuickScanGuardContext context);
+
+    void RecordConcurrencyQueued(QuickScanGuardContext context);
+
+    void RecordConcurrencyLeaseAcquired(QuickScanGuardContext context, bool queued);
+
+    void RecordConcurrencyLeaseReleased(QuickScanGuardContext context);
+
+    void RecordConcurrencyRejection(QuickScanGuardContext context, QuickScanConcurrencyRejectionReason reason);
 }
 
 /// <inheritdoc cref="IQuickScanTelemetry" />
@@ -66,6 +74,24 @@ public sealed class QuickScanTelemetry(ILogger<QuickScanTelemetry> logger) : IQu
 
     public void RecordSampleView(QuickScanGuardContext context) =>
         Log("sample_view", context, new Dictionary<string, object?>());
+
+    public void RecordConcurrencyQueued(QuickScanGuardContext context) =>
+        Log("concurrency_queued", context, new Dictionary<string, object?>());
+
+    public void RecordConcurrencyLeaseAcquired(QuickScanGuardContext context, bool queued) =>
+        Log(
+            "concurrency_lease_acquired",
+            context,
+            new Dictionary<string, object?> { ["queued"] = queued });
+
+    public void RecordConcurrencyLeaseReleased(QuickScanGuardContext context) =>
+        Log("concurrency_lease_released", context, new Dictionary<string, object?>());
+
+    public void RecordConcurrencyRejection(QuickScanGuardContext context, QuickScanConcurrencyRejectionReason reason) =>
+        Log(
+            "concurrency_rejected",
+            context,
+            new Dictionary<string, object?> { ["reason"] = reason.ToString() });
 
     private void RecordInternal(string eventName, QuickScanGuardContext context, IReadOnlyDictionary<string, object?> data)
     {

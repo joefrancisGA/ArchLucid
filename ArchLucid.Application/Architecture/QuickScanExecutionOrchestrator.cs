@@ -21,6 +21,7 @@ public sealed class QuickScanExecutionOrchestrator(
     IOptionsMonitor<QuickScanSafetyOptions> quickScanSafetyOptions,
     IQuickScanCostEstimator quickScanCostEstimator,
     IQuickScanGlobalBudgetReservationService quickScanGlobalBudgetReservationService,
+    IQuickScanDistributedConcurrencyService quickScanDistributedConcurrencyService,
     IAuditService auditService,
     ILlmCostEstimator costEstimator,
     TimeProvider timeProvider) : IQuickScanExecutionOrchestrator
@@ -60,7 +61,8 @@ public sealed class QuickScanExecutionOrchestrator(
         QuickScanGuardContext guardContext = QuickScanGuardContextFactory.Create(
             context.ClientIp,
             context.SessionId,
-            validated!.Description);
+            validated!.Description,
+            useDistributedConcurrencyLimit: context.RequiresAnonymousDistributedConcurrency);
         quickScanTelemetry.RecordAttempt(guardContext);
 
         QuickScanGuardDecision decision = quickScanGuard.TryBeginScan(guardContext);
@@ -100,7 +102,27 @@ public sealed class QuickScanExecutionOrchestrator(
             }
 
             reservedCostUsd = costReservation.Reservation!.TotalReservedUsd;
+        }
 
+        await using QuickScanDistributedConcurrencyAdmissionResult concurrencyAdmission =
+            context.RequiresAnonymousDistributedConcurrency
+                ? await quickScanDistributedConcurrencyService
+                    .WaitForAdmissionAsync(context.TraceIdentifier, cancellationToken)
+                    .ConfigureAwait(false)
+                : QuickScanDistributedConcurrencyAdmissionResult.NoOp();
+
+        if (!concurrencyAdmission.Allowed)
+        {
+            quickScanTelemetry.RecordFailure(
+                guardContext,
+                $"concurrency_{concurrencyAdmission.RejectionReason}",
+                TimeSpan.Zero);
+
+            return QuickScanExecutionResult.ConcurrencyRejected(concurrencyAdmission.RejectionReason!.Value);
+        }
+
+        if (safetyOptions.Enabled)
+        {
             QuickScanGlobalBudgetReservationAttemptResult budgetReservation =
                 await quickScanGlobalBudgetReservationService.TryReserveAsync(
                     context.TraceIdentifier,

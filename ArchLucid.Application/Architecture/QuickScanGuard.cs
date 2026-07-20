@@ -88,7 +88,8 @@ public sealed class QuickScanGuard(IOptionsMonitor<QuickScanOptions> optionsMoni
                 return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.SignInRequired);
             }
 
-            if (Volatile.Read(ref _concurrentScans) >= options.MaxConcurrentScans)
+            if (!context.UseDistributedConcurrencyLimit
+                && Volatile.Read(ref _concurrentScans) >= options.MaxConcurrentScans)
                 return QuickScanGuardDecision.Reject(QuickScanGuardRejectionReason.ConcurrentScanLimit);
         }
 
@@ -104,7 +105,10 @@ public sealed class QuickScanGuard(IOptionsMonitor<QuickScanOptions> optionsMoni
         string hourKey = now.ToString("yyyyMMddHH", System.Globalization.CultureInfo.InvariantCulture);
         string dayKey = now.ToString("yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
 
-        Interlocked.Increment(ref _concurrentScans);
+        if (!context.UseDistributedConcurrencyLimit)
+        {
+            Interlocked.Increment(ref _concurrentScans);
+        }
 
         lock (_globalLock)
         {
@@ -135,7 +139,10 @@ public sealed class QuickScanGuard(IOptionsMonitor<QuickScanOptions> optionsMoni
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        Interlocked.Decrement(ref _concurrentScans);
+        if (!context.UseDistributedConcurrencyLimit)
+        {
+            Interlocked.Decrement(ref _concurrentScans);
+        }
 
         if (estimatedCostUsd <= 0m)
             return;
