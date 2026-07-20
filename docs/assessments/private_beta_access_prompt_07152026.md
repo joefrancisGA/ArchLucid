@@ -27,7 +27,7 @@ Do **not** report, score, or generate backlog items for:
 - Broad information-architecture or navigation-redesign work
 - Performance tuning, cost, scalability, or observability improvements (unless a failure directly blocks the six proofs)
 - Marketing/trial funnel pages (`/welcome`, `/try`, `/signup`, `/pricing`, etc.) except where they intercept an invited user's path into the operator shell
-- Anything already deferred: TB-135/TB-136 (V1.1 assurance backlog) and GTM rows M-90/M-44/M-91/M-92 must not resurface here in any form
+- GTM rows M-90/M-44/M-91/M-92 must not resurface here in any form
 
 If you notice a non-blocker issue while testing, put it in a single unranked appendix list ("Observed, out of scope") with one line each. No prompts, no priorities, no elaboration.
 

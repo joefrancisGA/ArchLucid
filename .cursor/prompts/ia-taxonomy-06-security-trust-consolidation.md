@@ -13,9 +13,9 @@ rules for SOC 2 CPA attestation and third-party pen-testing.
 
 ## Guardrail — read before starting
 
-`.cursor/rules/V1_1-assurance-backlog.mdc` parks SOC 2 **CPA attestation** and **third-party
-pen-test program** work on the V1.1 backlog (TB-135/TB-136) and says this must not resurface as an
-engineering batch. **Nothing in this phase should imply or schedule that work.** This phase only
+SOC 2 **CPA attestation** and **third-party pen-test program** work (**TB-135**/**TB-136**, both
+tech-tracking **Done**) is out of scope for this phase. **Nothing in this phase should imply or
+schedule that work.** This phase only
 reorganizes and de-duplicates *existing* self-assessment/owner-conducted-pen-test material
 (`docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/security/pen-test-summaries/`) — it does not
 commission new attestation or third-party testing.
@@ -102,7 +102,7 @@ commission new attestation or third-party testing.
 - CAIQ, SOC2 self-assessment, and pen-test summary material is reachable and downloadable from a
   public page without authentication.
 - No implication anywhere in this change that ArchLucid has commissioned CPA-attested SOC 2 or
-  third-party pen-testing (guardrail from `.cursor/rules/V1_1-assurance-backlog.mdc`).
+  third-party pen-testing.
 
 ## Non-goals
 
@@ -116,7 +116,6 @@ commission new attestation or third-party testing.
 
 - `.cursor/prompts/ia-taxonomy-00-plan-and-sitemap.md`
 - `.cursor/prompts/ia-taxonomy-01-foundation-doc-and-registry-metadata.md`
-- `.cursor/rules/V1_1-assurance-backlog.mdc`
 - `docs/go-to-market/trust-center.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`,
   `docs/compliance/CAIQ_LITE.md`, `docs/security/pen-test-summaries/`
 

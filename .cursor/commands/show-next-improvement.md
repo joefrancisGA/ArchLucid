@@ -14,7 +14,6 @@ This command mirrors the prioritization order in `.cursor/commands/ship-next-imp
 
 Same exclusions as `/ship-next-improvement`:
 
-- **Never** surface assessment improvements **#23** (TB-135 SOC 2 CPA) or **#25** (TB-136 third-party pen test) — V1.1 backlog per `.cursor/rules/V1_1-assurance-backlog.mdc`.
 - **Never** surface GTM assessment items **#2, #3, #5, #6** (M-90, M-44, M-91, M-92) per `.cursor/rules/GTM-V1_1-assessment-exclusions.mdc`.
 - Skip items prefixed **DEFERRED**, marked **Hold for reassessment**, **V2**, or requiring owner/customer/live-pilot action only.
 - Skip items that are docs-only market validation, outreach, or human-led cohort work unless the user explicitly asks to see them.

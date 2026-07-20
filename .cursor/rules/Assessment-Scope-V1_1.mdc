@@ -18,10 +18,6 @@ When producing **weighted readiness**, **solution quality**, **go-to-market**, o
 
 2. **`(B)` Enterprise procurement realism (informational)** — discuss buyer friction (SOC 2 CPA reports, rigid RFP wording, procurement timing) honestly, with **explicit links** to roadmap and trust posture. **`(B)` must use weight `0`** when recomputing or narrating **`(A)`**. Do **not** fold **`(B)`** into pillar weights or the **`(A)`** composite unless the user explicitly asks for a **second blended score**.
 
-## Assessment improvements #23 and #25 — V1.1 backlog only
-
-Per **`.cursor/rules/V1_1-assurance-backlog.mdc`** (owner 2026-05-29): improvement **#23** (SOC 2 CPA) and **#25** (third-party pen test) are **TB-135 / TB-136** on the **V1.1 backlog**. **Do not** re-list them as deferred assessment implementation batches or engineering prompts unless the user explicitly asks to pick up those backlog IDs.
-
 ## SOC 2 — always mention, never headline-penalize
 
 - **`(A)` must not be reduced** for absence of **SOC 2 Type I / II CPA attestation**, **issued SOC report**, or ISO 27001 certificate. Those items are **not** V1 or V1.1 headline gates per **`docs/library/V1_DEFERRED.md` §6c** and **`docs/library/V1_SCOPE.md` §3**.

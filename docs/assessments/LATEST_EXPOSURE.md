@@ -163,7 +163,7 @@ A skeptical buyer clicking around for 10–20 minutes would find a product that 
 1. **Zero completed real-mode pilots** — confidence-reducing, not trust-breaking (honestly disclosed nowhere on buyer-facing pages, which is correct — this is an internal fact, not a claim that needs qualifying).
 2. **Self-serve Team checkout is coded but off** — acceptable beta rough edge; not visible to a buyer unless they inspect network requests, but matters for the self-service gate.
 3. **No public burst-load evidence** — confidence-reducing only if a technical buyer asks directly; harmless to a first-time visitor.
-4. **SOC 2 is self-assessment, not CPA-attested** — correctly out of scope per `V1_1-assurance-backlog.mdc`; acceptable beta/self-service rough edge, disclosed honestly in the trust center per `V1_SCOPE.md`.
+4. **SOC 2 is self-assessment, not CPA-attested** — correctly out of `(A)` scope per `Assessment-Scope-V1_1.mdc`; acceptable beta/self-service rough edge, disclosed honestly in the trust center per `V1_SCOPE.md`.
 5. **AI-cost enforcement for a hypothetical anonymous self-serve trial tenant** — partially unverified (§3 gate #4); confidence-reducing if probed, harmless otherwise.
 6. **Third-party pen-test absent** — V2-scoped by owner decision, correctly out of `(A)`; acceptable rough edge for now.
 7. **"Demo limited" / "Not configured" health labels** — harmless; this is the buyer-safe pattern the prompt asked for, already shipped.
@@ -297,7 +297,7 @@ Blunt, per the prompt's instruction:
 | 5 | Founder-independent comprehension unmeasured | Two gates UNKNOWN, not FAIL, but unproven | Minor | None | Minor | Minor | Record one live 30-min walkthrough | market validation |
 | 6 | AI-cost hard-stop for a hypothetical self-serve trial tenant unverified | Could allow spend before a real ceiling is confirmed | Contributes to self-service YELLOW | None | Moderate | None | Verify/confirm existing wallet cap enforcement covers this case | engineering |
 | 7 | 8 Azure-specific policy packs still lack AWS/GCP peers by maturity (not count) | Sufficiently deep AWS/GCP buyer may notice iteration-depth gap | Minor | None | Minor | None | Track under existing multi-cloud-parity backlog cadence | engineering |
-| 8 | SOC 2 is self-assessment only | Correctly out of `(A)`; still a `(B)` procurement friction point | None (by rule) | None | Minor | None | No action — V1.1-backlog (TB-135) per standing rule | founder decision (already made) |
+| 8 | SOC 2 is self-assessment only | Correctly out of `(A)`; still a `(B)` procurement friction point | None (by rule) | None | Minor | None | No action — CPA attestation is TB-135 (tech tracking Done; owner GTM work open as G-REAL-05) | founder decision (already made) |
 | 9 | Support bundle is a technical ZIP artifact | Fine for beta, less polished for self-service scale | Minor | None | Minor | None | Add a friendlier wrapper before self-service | design |
 | 10 | No formal redaction audit of support bundle | Confidence-reducer if a security-conscious buyer asks | Minor | None | Minor | None | Document existing secret-shaped masking as a short redaction note | copy / security |
 
@@ -325,7 +325,7 @@ Blunt, per the prompt's instruction:
 
 **Founder behaviors that could delay validation:** treating "the assessment prompt was hard to run" as a reason to keep commissioning more assessments instead of running the one controlled-beta cohort that would generate real signal; continuing to harden already-buyer-safe surfaces instead of shipping the burst-load drill this file identifies as the one concrete gap.
 
-**Features that sound enterprise-important but will not move near-term adoption:** a formal third-party-audited redaction report for the support bundle; deeper AWS/GCP policy-pack iteration parity beyond count-parity; anything from the V1.1/V2 assurance backlog (TB-135/TB-136), which is correctly out of scope per standing rule.
+**Features that sound enterprise-important but will not move near-term adoption:** a formal third-party-audited redaction report for the support bundle; deeper AWS/GCP policy-pack iteration parity beyond count-parity; SOC 2 CPA attestation and third-party pen-test publication (TB-135/TB-136, both tech-tracking Done — remaining work is owner-executed GTM, not engineering).
 
 ## 20. Top Improvement Opportunities
 
@@ -355,7 +355,7 @@ _None engineering-actionable._ The one open item for this tier (M-07/M-16 screen
 |---|---|
 | Deeper AWS/GCP policy-pack maturity-parity pass (beyond count-parity) | Count-parity already closed (TB-701–719); depth-parity is a differentiation nice-to-have, not an exposure blocker. |
 | Formal third-party redaction audit of support bundle | No buyer has asked; existing secret-shaped masking is adequate for controlled beta and mention. |
-| SOC 2 CPA attestation / third-party pen-test | V1.1 backlog (TB-135/TB-136) per standing rule — must not be re-prompted here. |
+| SOC 2 CPA attestation / third-party pen-test | TB-135/TB-136 tech tracking is Done; remaining work is owner-executed GTM (G-REAL-05, G-ASSURANCE-02), not an engineering gap. |
 
 ## 21. Prompt Batching Guidance
 
