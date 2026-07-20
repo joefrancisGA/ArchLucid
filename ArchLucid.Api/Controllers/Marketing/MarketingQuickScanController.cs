@@ -1,46 +1,60 @@
+using ArchLucid.Api.Controllers;
+using ArchLucid.Api.Security;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Asp.Versioning;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Api.Controllers.Authority;
+namespace ArchLucid.Api.Controllers.Marketing;
 
-/// <summary>Authenticated architecture quick scan for signed-in workspace users (TB-895 keeps marketing anonymous path separate).</summary>
+/// <summary>Anonymous marketing Quick Scan — no privileged proxy bearer required (TB-895).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/architecture")]
+[Route("v{version:apiVersion}/marketing/quick-scan")]
 [EnableRateLimiting("fixed")]
-[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-[ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class ArchitectureQuickScanController(
+[AllowAnonymous]
+[AllowUnscopedRoute]
+public sealed class MarketingQuickScanController(
     IQuickScanGuard quickScanGuard,
     IQuickScanTelemetry quickScanTelemetry,
     IQuickScanExecutionOrchestrator quickScanExecutionOrchestrator,
-    IActorContext actorContext,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IOptionsMonitor<QuickScanSafetyOptions> quickScanSafetyOptions,
+    IScopeContextProvider scopeContextProvider,
+    IActorContext actorContext) : ControllerBase
 {
-    /// <summary>Returns capacity information for signed-in Quick Scan callers.</summary>
-    [HttpGet("quick-scan/status")]
+    /// <summary>Returns public capacity information for the Quick Scan marketing surface.</summary>
+    [HttpGet("status")]
     [ProducesResponseType(typeof(QuickScanStatusResponse), StatusCodes.Status200OK)]
     public IActionResult GetQuickScanStatus()
     {
         QuickScanGuardContext context = BuildGuardContext(string.Empty);
         QuickScanStatusResponse status = quickScanGuard.GetStatus(context);
 
+        if (!IsAnonymousExecutionAllowed())
+        {
+            return Ok(new QuickScanStatusResponse
+            {
+                Enabled = status.Enabled,
+                CapacityAvailable = false,
+                RequireSignIn = status.RequireSignIn,
+                SampleResultAvailable = status.SampleResultAvailable,
+            });
+        }
+
         return Ok(status);
     }
 
     /// <summary>Returns a static sample result that does not invoke AI.</summary>
-    [HttpGet("quick-scan/sample")]
+    [HttpGet("sample")]
     [ProducesResponseType(typeof(ArchitectureQuickScanResponse), StatusCodes.Status200OK)]
     public IActionResult GetQuickScanSample([FromQuery] string? systemName, [FromQuery] string? primaryEnvironment)
     {
@@ -50,9 +64,9 @@ public sealed class ArchitectureQuickScanController(
         return Ok(body);
     }
 
-    /// <summary>Runs a quick scan from minimal context for authenticated workspace users.</summary>
+    /// <summary>Runs an anonymous marketing quick scan with enforced per-request bounds.</summary>
     // idempotency-posture: operator-documented-safe-retry
-    [HttpPost("quick-scan")]
+    [HttpPost]
     [ProducesResponseType(typeof(ArchitectureQuickScanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
@@ -62,9 +76,24 @@ public sealed class ArchitectureQuickScanController(
         [FromBody] ArchitectureQuickScanRequest? request,
         CancellationToken cancellationToken)
     {
+        if (!IsAnonymousExecutionAllowed())
+        {
+            return QuickScanHttpResultMapper.Map(this, QuickScanExecutionResult.CapacityReached());
+        }
+
+        QuickScanExecutionResult result = await quickScanExecutionOrchestrator.ExecuteAsync(
+            request,
+            BuildExecutionContext(),
+            cancellationToken).ConfigureAwait(false);
+
+        return QuickScanHttpResultMapper.Map(this, result);
+    }
+
+    private QuickScanExecutionRequestContext BuildExecutionContext()
+    {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        QuickScanExecutionRequestContext executionContext = new()
+        return new QuickScanExecutionRequestContext
         {
             ClientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             SessionId = Request.Headers["X-Quick-Scan-Session"].FirstOrDefault()
@@ -79,13 +108,13 @@ public sealed class ArchitectureQuickScanController(
             ProjectId = scope.ProjectId,
             AuditActor = actorContext.GetActor(),
         };
+    }
 
-        QuickScanExecutionResult result = await quickScanExecutionOrchestrator.ExecuteAsync(
-            request,
-            executionContext,
-            cancellationToken).ConfigureAwait(false);
+    private bool IsAnonymousExecutionAllowed()
+    {
+        QuickScanSafetyEffectiveFeatureState effective = quickScanSafetyOptions.CurrentValue.ResolveEffectiveFeatureState();
 
-        return QuickScanHttpResultMapper.Map(this, result);
+        return effective.Enabled && effective.AnonymousExecutionEnabled;
     }
 
     private QuickScanGuardContext BuildGuardContext(string description)
@@ -96,6 +125,13 @@ public sealed class ArchitectureQuickScanController(
             ?? Request.Cookies["al_quick_scan_session"]
             ?? clientIp;
 
-        return QuickScanGuardContextFactory.Create(clientIp, sessionId, description);
+        string fingerprint = QuickScanGuardContextFactory.ComputeFingerprint(description, sessionId);
+
+        return new QuickScanGuardContext
+        {
+            ClientIp = clientIp,
+            SessionId = sessionId,
+            PayloadFingerprint = fingerprint,
+        };
     }
 }

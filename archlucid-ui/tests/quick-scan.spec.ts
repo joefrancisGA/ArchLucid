@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Quick Scan (mocked API)", () => {
   test("fills required fields and shows at least one finding card", async ({ page }) => {
-    await page.route("**/api/proxy/v1/architecture/quick-scan/status", async (route) => {
+    await page.route("**/api/proxy/v1/marketing/quick-scan/status", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -15,7 +15,7 @@ test.describe("Quick Scan (mocked API)", () => {
       });
     });
 
-    await page.route("**/api/proxy/v1/architecture/quick-scan", async (route) => {
+    await page.route("**/api/proxy/v1/marketing/quick-scan", async (route) => {
       if (route.request().method() !== "POST") {
         await route.continue();
 

@@ -53,7 +53,7 @@ function environmentLabel(value: string): string {
 }
 
 /**
- * No-sign-in Quick Scan: POST /v1/architecture/quick-scan via same-origin proxy (server attaches upstream auth).
+ * No-sign-in Quick Scan: POST /v1/marketing/quick-scan via same-origin proxy (no privileged bearer).
  */
 export function QuickScanClient(): ReactElement {
   const statusRegionId = useId();
@@ -78,7 +78,7 @@ export function QuickScanClient(): ReactElement {
   useEffect(() => {
     void (async () => {
       try {
-        const response = await fetch("/api/proxy/v1/architecture/quick-scan/status", {
+        const response = await fetch("/api/proxy/v1/marketing/quick-scan/status", {
           credentials: "include",
           cache: "no-store",
         });
@@ -127,7 +127,7 @@ export function QuickScanClient(): ReactElement {
 
     try {
       const sessionId = ensureSessionId();
-      const response = await fetch("/api/proxy/v1/architecture/quick-scan", {
+      const response = await fetch("/api/proxy/v1/marketing/quick-scan", {
         method: "POST",
         credentials: "include",
         headers: {

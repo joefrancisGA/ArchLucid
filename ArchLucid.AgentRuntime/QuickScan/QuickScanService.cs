@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -13,6 +14,7 @@ namespace ArchLucid.AgentRuntime.QuickScan;
 public sealed class QuickScanService(
     IAgentCompletionClient completionClient,
     IOptionsMonitor<QuickScanOptions> optionsMonitor,
+    IOptionsMonitor<QuickScanSafetyOptions> safetyOptionsMonitor,
     TimeProvider timeProvider) : IQuickScanService
 {
     public async Task<QuickScanResult> ScanAsync(IReadOnlyDictionary<string, string> files, CancellationToken cancellationToken = default)
@@ -23,7 +25,9 @@ public sealed class QuickScanService(
         if (completionClient is null)
             throw new ArgumentNullException(nameof(completionClient));
 
-        QuickScanOptions options = optionsMonitor.CurrentValue;
+        QuickScanOptions options = QuickScanEffectiveLimits.Merge(
+            optionsMonitor.CurrentValue,
+            safetyOptionsMonitor.CurrentValue);
         int maxTokens = Math.Max(256, options.MaxOutputTokensPerScan);
         int maxAttempts = Math.Max(1, options.MaxModelCallsPerScan + options.MaxRetryCount);
         TimeSpan timeout = TimeSpan.FromSeconds(Math.Clamp(options.MaxProcessingDurationSeconds, 5, 120));

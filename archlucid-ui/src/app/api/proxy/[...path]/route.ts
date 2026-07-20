@@ -36,19 +36,19 @@ function buildUpstreamHeaders(request: NextRequest, proxyPath?: string): Headers
   const authHeader = request.headers.get("authorization");
   const browserBearer = authHeader?.trim() ?? "";
   const serverBearerToken = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
-  const skipServerBearer =
+  const skipPrivilegedUpstreamAuth =
     proxyPath !== undefined &&
     proxyPath.length > 0 &&
     isAnonymousMarketingProxyPath(proxyPath);
   const bearerToUse =
     browserBearer.length > 0
       ? browserBearer
-      : !skipServerBearer && serverBearerToken.length > 0
+      : !skipPrivilegedUpstreamAuth && serverBearerToken.length > 0
         ? `Bearer ${serverBearerToken}`
         : "";
   const hasBearer = bearerToUse.length > 0;
 
-  if (key && !hasBearer) {
+  if (key && !hasBearer && !skipPrivilegedUpstreamAuth) {
     h.set("X-Api-Key", key);
   }
 

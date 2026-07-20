@@ -231,7 +231,6 @@ Phases 02–06 can run in parallel once 01 lands, except that 03 and 04 both tou
 - Do not remove or rename any existing public URL without a redirect (SEO + bookmarks).
 - Do not touch `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md` policy (customer help via
   `/help`, not GitHub blob URLs) — this plan works within that policy.
-- Do not add or resurface V1.1-parked assessment items (`.cursor/rules/V1_1-assurance-backlog.mdc`,
-  `.cursor/rules/GTM-V1_1-assessment-exclusions.mdc`).
+- Do not add or resurface GTM-parked assessment items (`.cursor/rules/GTM-V1_1-assessment-exclusions.mdc`).
 - No phase in this set should be treated as approved for implementation until the owner explicitly
   assigns it a `TB-` backlog number and directs work to begin.

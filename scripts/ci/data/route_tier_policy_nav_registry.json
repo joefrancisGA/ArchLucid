@@ -1392,6 +1392,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Marketing/MarketingQuickScanController.cs",
+      "class_name": "MarketingQuickScanController",
+      "route_template": "v{version:apiVersion}/marketing/quick-scan",
+      "normalized_prefix": "/v1/marketing/quick-scan",
+      "commercial_tier": "none",
+      "class_policy": "AllowAnonymous",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Marketing/MarketingShowcaseController.cs",
       "class_name": "MarketingShowcaseController",
       "route_template": "v{version:apiVersion}/marketing/showcase",
