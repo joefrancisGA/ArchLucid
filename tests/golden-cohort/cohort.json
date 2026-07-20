@@ -6,7 +6,7 @@
     {
       "id": "gc-001",
       "title": "Baseline Azure web workload (single region)",
-      "expectedCommittedManifestSha256": "7eb146300e9e422957b8dea6362551ce4e88b7c59ecba3cb4fed8426bd7bf781",
+      "expectedCommittedManifestSha256": "4a27fb683f200dd3425ad7f6603f9d52f94c60406ac24de28a982e6b9a43c714",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -17,7 +17,7 @@
     {
       "id": "gc-002",
       "title": "Multi-region active/active API with Service Bus",
-      "expectedCommittedManifestSha256": "d465af887dbcb0a6aca74ed8bef612f55999f3b16a7f429407dba714f5785c83",
+      "expectedCommittedManifestSha256": "80c6774fba6c484a1a1ce2d2ca68773ee1efa63b8d3e61b091d9985fd1586dfb",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -28,7 +28,7 @@
     {
       "id": "gc-003",
       "title": "Lift-and-shift VM fleet with ExpressRoute",
-      "expectedCommittedManifestSha256": "70d180c8fc7a06037d4075fedefaf14f45b48642892df08b1644d9c05f1fb974",
+      "expectedCommittedManifestSha256": "50a3b4afc8899588914bbf0d84e85907c08679dab4e09eb988cfbe2412583e68",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -39,7 +39,7 @@
     {
       "id": "gc-004",
       "title": "Kubernetes ingress \u002B internal-only APIs",
-      "expectedCommittedManifestSha256": "ef4bf9d84b1d497f59ccb00c8901ed7dfa43ef171ebc5ec030c67b775ada4557",
+      "expectedCommittedManifestSha256": "be58143c9c4098492ee2e27bf222de00a60d35b3a82eca156dfd39f3dc4bbd0b",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -50,7 +50,7 @@
     {
       "id": "gc-005",
       "title": "Data platform \u2014 ADLS \u002B Synapse consumption",
-      "expectedCommittedManifestSha256": "2e0bc5e0f7a9d977da3c1e584f157dbd768da4575c9f3b052c525db0eda14eb5",
+      "expectedCommittedManifestSha256": "660b32fd143206a2d2a5f82fec3ad081e22b71e77afa11c283d1d580d55721f7",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -61,7 +61,7 @@
     {
       "id": "gc-006",
       "title": "Zero-trust segmentation for line-of-business tiers",
-      "expectedCommittedManifestSha256": "6365bd3c5d30ce5fd96cc658856cb1c03d0bfabc8beba7fe66aab9d0f639241e",
+      "expectedCommittedManifestSha256": "ea72a13877e7c32c2fc49f576869001ff5283fbdba68212d2734c0544d0d5023",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -72,7 +72,7 @@
     {
       "id": "gc-007",
       "title": "Event-driven claims processing (Functions \u002B Cosmos)",
-      "expectedCommittedManifestSha256": "26a11cd819ea552fb681b98fd09016789936364cf5fd2b2da3180bb45e5a887d",
+      "expectedCommittedManifestSha256": "5885c3b8dcc175f841063cd964fb92b29372083d1bf74f8d54889db96a67f06c",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -83,7 +83,7 @@
     {
       "id": "gc-008",
       "title": "Batch analytics export to partner SFTP",
-      "expectedCommittedManifestSha256": "82d0b03c50e93ffd770bfacbe57ffa52a683c6e06b98cad78e37df5fbf25fb92",
+      "expectedCommittedManifestSha256": "e5cab3a5872a093d2f0fc3fed1afd2631910d0048ce2a4de0f4d0b394b4c38fb",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -94,7 +94,7 @@
     {
       "id": "gc-009",
       "title": "SAP adjacent integration hub (Logic Apps)",
-      "expectedCommittedManifestSha256": "63ee20ceecc14e2946813e46b59f164e651166370664624849f7df9a535c7bc3",
+      "expectedCommittedManifestSha256": "1893e0a9b5a7988649bde6978f117ef554d9d89703354682f7cb96b23c0f73f5",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -105,7 +105,7 @@
     {
       "id": "gc-010",
       "title": "PCI-scoped payment capture (tokenization boundary)",
-      "expectedCommittedManifestSha256": "1297f84281c7cc9896264a41dba424c5776950a40ecf65f6b3b1df6a5ccdbc48",
+      "expectedCommittedManifestSha256": "34eaa3fed7b01d0e5c7a3d444764c908a078f26a37394048979b5b5c901530da",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -116,7 +116,7 @@
     {
       "id": "gc-011",
       "title": "IoT telemetry hot path \u002B cold archive",
-      "expectedCommittedManifestSha256": "507e0eb0b148a2d71099d1d704cdbbcb754609fd597a294a596e8e9a3d6380f1",
+      "expectedCommittedManifestSha256": "6c32b3975bb3c8466914c7a4013b56a484982d51426c0b4e2229560ffde835e9",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -127,7 +127,7 @@
     {
       "id": "gc-012",
       "title": "Contact center omnichannel (voice \u002B chat)",
-      "expectedCommittedManifestSha256": "e26859de259af67e99b8145d9ad680249bb66d8da2861db30114c9fd4954e5a7",
+      "expectedCommittedManifestSha256": "a57e4f554d7fb0ccf5bec40f649db6d0b7bf63be958d11f31926552393de3ffc",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -138,7 +138,7 @@
     {
       "id": "gc-013",
       "title": "DR drill \u2014 regional failover for stateful services",
-      "expectedCommittedManifestSha256": "db184c8c63e81f4d8dbcf38688a866cad6b0a9a21c3f8b698c27da8c800c2317",
+      "expectedCommittedManifestSha256": "418af341fb22ee1349ba2df170ba712ee15a0330413269b90b88bdfcc855cc6d",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -149,7 +149,7 @@
     {
       "id": "gc-014",
       "title": "Secrets rotation posture (KV \u002B managed identities)",
-      "expectedCommittedManifestSha256": "17396aafc6f1d028e4b35f059e645ef3cc0573876bf30b9f6658c24ba6f06fbd",
+      "expectedCommittedManifestSha256": "e481c4cd37fa50599a31918bc8f911bc21d2f534fcf7af732e8cfdd9569d05b5",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -160,7 +160,7 @@
     {
       "id": "gc-015",
       "title": "Multi-tenant SaaS control plane isolation",
-      "expectedCommittedManifestSha256": "520061073382612c18fdf772c22f9bc81de0d266282d436b7ae74cf0babbb06a",
+      "expectedCommittedManifestSha256": "37d14d4c0c4e2d8380b7fe61b97325d3e1f75f23a305a6ff9e1347e03b97cf55",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -171,7 +171,7 @@
     {
       "id": "gc-016",
       "title": "Edge manufacturing MES integration",
-      "expectedCommittedManifestSha256": "2423f3179fb5c2cb745bf94cbdfcbf34c9614a2954ade3c6b97b5757ccfe61dc",
+      "expectedCommittedManifestSha256": "2f4149ce3d91f909eb03bef5ab31a168e1e5677181161e6988deff0e2615bac4",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -182,7 +182,7 @@
     {
       "id": "gc-017",
       "title": "Regulated health data \u2014 FHIR facade",
-      "expectedCommittedManifestSha256": "de9b70d715b2ffa9a73dd9c5775957c2ebd250319bb94c7efe2d6cc093810e78",
+      "expectedCommittedManifestSha256": "6d0b28762098599d9bf69cc82cf0e3286384e8597b20abb4649f8cd72b423880",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -193,7 +193,7 @@
     {
       "id": "gc-018",
       "title": "FinOps guardrails \u2014 budget \u002B anomaly routing",
-      "expectedCommittedManifestSha256": "15a2eb92474ec0ded89cc43506307c2438f2311530a6e0a39941cd387d5a512f",
+      "expectedCommittedManifestSha256": "abce222cefec0759171c5fc1dddeea3d483276d889c82b98db0543ab6d619fcf",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -204,7 +204,7 @@
     {
       "id": "gc-019",
       "title": "Graph-heavy recommendation service (GPU inference)",
-      "expectedCommittedManifestSha256": "5f960c755a2cd6a48922abb268349dc087c6ea0275e536227f6e739a2df6ecd1",
+      "expectedCommittedManifestSha256": "39644583e054825fa3ff650006beccdf8a2e89240ae436860253465db08d4d0f",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
@@ -215,7 +215,7 @@
     {
       "id": "gc-020",
       "title": "Legacy mainframe bridge (MQ \u002B API gateway)",
-      "expectedCommittedManifestSha256": "ca38fadb2b246cce5ff0fb7dc4a3e084555a95b89f2ce41a4ed6fee46997e421",
+      "expectedCommittedManifestSha256": "f53bc3f8a1824b7f6661479e4edb4d65cd9fc24909ead5a4f6bdc85637d97941",
       "expectedFindingCategories": [
         "Compliance",
         "Cost",
