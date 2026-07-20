@@ -10,6 +10,11 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 import {
+  SHOWCASE_CURATED_STATIC_DISCLOSURE,
+  SHOWCASE_ILLUSTRATIVE_SAMPLE_TITLE,
+  SHOWCASE_OFFLINE_ILLUSTRATIVE_DISCLOSURE,
+} from "@/lib/showcase-disclosure-copy";
+import {
   hasCuratedShowcaseStaticPayload,
   isShowcaseStaticFirstRunId,
 } from "@/lib/showcase-page-resolution";
@@ -99,7 +104,7 @@ function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
         className="mb-4 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
         data-testid="showcase-demo-single-banner"
       >
-        <strong className="font-semibold">Illustrative sample</strong>
+        <strong className="font-semibold">{SHOWCASE_ILLUSTRATIVE_SAMPLE_TITLE}</strong>
         {" — "}
         Claims Intake Modernization sample scenario.
       </div>
@@ -219,8 +224,7 @@ function ShowcaseApiUnavailableBanner(): ReactElement | null {
       role="status"
       data-testid="showcase-api-unavailable-banner"
     >
-      <span className="font-semibold">Live preview unavailable.</span> Showing curated sample results instead —{" "}
-      <span className="font-medium">sample output generated from curated demo data.</span>
+      <span className="font-semibold">{SHOWCASE_ILLUSTRATIVE_SAMPLE_TITLE}.</span> {SHOWCASE_OFFLINE_ILLUSTRATIVE_DISCLOSURE}
     </div>
   );
 }
@@ -245,8 +249,7 @@ function ShowcaseStaticDemoBanner(): ReactElement | null {
       role="status"
       data-testid="showcase-static-demo-banner"
     >
-      <span className="font-semibold">Static demo preview.</span> Viewing curated sample results —{" "}
-      <span className="font-medium">sample output generated from curated demo data.</span>
+      <span className="font-semibold">{SHOWCASE_ILLUSTRATIVE_SAMPLE_TITLE}.</span> {SHOWCASE_CURATED_STATIC_DISCLOSURE}
     </div>
   );
 }
