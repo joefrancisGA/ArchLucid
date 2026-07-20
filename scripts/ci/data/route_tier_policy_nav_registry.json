@@ -1769,7 +1769,7 @@
       "commercial_tier": "standard",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/value-report/roi"
+      "nav_operator_href": "/sponsor-report/roi-summary"
     },
     {
       "controller_file": "Tenancy/TenantPilotValueReportController.cs",
@@ -1779,7 +1779,7 @@
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/value-report/pilot"
+      "nav_operator_href": "/sponsor-report/pilot-outcomes"
     },
     {
       "controller_file": "Tenancy/TenantTrialController.cs",
@@ -1849,7 +1849,7 @@
       "commercial_tier": "standard",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": "/value-report"
+      "nav_operator_href": "/sponsor-report/executive-summary"
     },
     {
       "controller_file": "VersionController.cs",

@@ -75,13 +75,31 @@ public sealed class ArchitectureQuickScanControllerAuditTests
             .Setup(c => c.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
             .Returns(0.001m);
 
+        Mock<IQuickScanCostEstimator> preExecCostEstimator = new();
+        preExecCostEstimator
+            .Setup(c => c.TryReserveCost(It.IsAny<QuickScanRequestValidator.ValidatedQuickScanRequest>(), It.IsAny<string?>(), It.IsAny<DateTimeOffset>()))
+            .Returns(QuickScanCostEstimateResult.Permit(
+                new QuickScanReservedCostBreakdown
+                {
+                    ModelId = "gpt-4o-mini",
+                    ReservedInputTokens = 100,
+                    ReservedOutputTokens = 200,
+                    BaseUsd = 0.001m,
+                    RetryExposureUsd = 0m,
+                    FallbackExposureUsd = 0m,
+                    TotalReservedUsd = 0.001m,
+                }));
+
         IOptionsMonitor<QuickScanOptions> options = new TestOptionsMonitor(new QuickScanOptions { Enabled = true });
+        IOptionsMonitor<QuickScanSafetyOptions> safetyOptions = new TestSafetyOptionsMonitor(new QuickScanSafetyOptions { Enabled = false });
 
         ArchitectureQuickScanController sut = new(
             quickScan.Object,
             guard.Object,
             telemetry.Object,
             options,
+            safetyOptions,
+            preExecCostEstimator.Object,
             actor.Object,
             audit.Object,
             scopeProvider.Object,
@@ -131,5 +149,14 @@ public sealed class ArchitectureQuickScanControllerAuditTests
         public QuickScanOptions Get(string? name) => value;
 
         public IDisposable? OnChange(Action<QuickScanOptions, string?> listener) => null;
+    }
+
+    private sealed class TestSafetyOptionsMonitor(QuickScanSafetyOptions value) : IOptionsMonitor<QuickScanSafetyOptions>
+    {
+        public QuickScanSafetyOptions CurrentValue => value;
+
+        public QuickScanSafetyOptions Get(string? name) => value;
+
+        public IDisposable? OnChange(Action<QuickScanSafetyOptions, string?> listener) => null;
     }
 }

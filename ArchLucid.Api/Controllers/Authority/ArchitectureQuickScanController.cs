@@ -36,6 +36,8 @@ public sealed class ArchitectureQuickScanController(
     IQuickScanGuard quickScanGuard,
     IQuickScanTelemetry quickScanTelemetry,
     IOptionsMonitor<QuickScanOptions> quickScanOptions,
+    IOptionsMonitor<QuickScanSafetyOptions> quickScanSafetyOptions,
+    IQuickScanCostEstimator quickScanCostEstimator,
     IActorContext actorContext,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
@@ -121,8 +123,33 @@ public sealed class ArchitectureQuickScanController(
             };
         }
 
-        quickScanGuard.RecordScanStarted(guardContext);
         DateTimeOffset started = timeProvider.GetUtcNow();
+        decimal reservedCostUsd = 0m;
+        QuickScanSafetyOptions safetyOptions = quickScanSafetyOptions.CurrentValue;
+
+        if (safetyOptions.Enabled)
+        {
+            string? clientRequestedModelId = Request.Headers["X-Quick-Scan-Model"].FirstOrDefault();
+            QuickScanCostEstimateResult costReservation = quickScanCostEstimator.TryReserveCost(
+                validated,
+                clientRequestedModelId,
+                started);
+
+            if (!costReservation.Allowed)
+            {
+                quickScanTelemetry.RecordFailure(
+                    guardContext,
+                    $"pre_exec_cost_{costReservation.RejectionReason}",
+                    TimeSpan.Zero);
+                quickScanGuard.RecordRejection(guardContext, QuickScanGuardRejectionReason.Disabled);
+
+                return this.ServiceUnavailableProblem("Quick Scan has reached its demonstration capacity for today.");
+            }
+
+            reservedCostUsd = costReservation.Reservation!.TotalReservedUsd;
+        }
+
+        quickScanGuard.RecordScanStarted(guardContext);
 
         try
         {
@@ -134,7 +161,8 @@ public sealed class ArchitectureQuickScanController(
                 options.MaxFindingsReturned);
 
             AgentCompletionTokenUsage.TryPeek(out int? inputTokens, out int? outputTokens, out int? _);
-            decimal estimatedCost = costEstimator.EstimateUsd(inputTokens ?? 0, outputTokens ?? 0, 0, deploymentLabel: null) ?? 0m;
+            decimal estimatedCost = costEstimator.EstimateUsd(inputTokens ?? 0, outputTokens ?? 0, 0, deploymentLabel: null)
+                ?? reservedCostUsd;
             TimeSpan duration = timeProvider.GetUtcNow() - started;
 
             if (estimatedCost > options.MaxEstimatedCostUsdPerScan)

@@ -81,9 +81,9 @@
     "Planning/RetrievalController.cs": "/search",
     "Roi/RoiController.cs": "/dashboard",
     "Tenancy/CorePilotTeamChecklistController.cs": "/onboarding",
-    "Tenancy/TenantMeasuredRoiController.cs": "/value-report/roi",
-    "Tenancy/TenantPilotValueReportController.cs": "/value-report/pilot",
+    "Tenancy/TenantMeasuredRoiController.cs": "/sponsor-report/roi-summary",
+    "Tenancy/TenantPilotValueReportController.cs": "/sponsor-report/pilot-outcomes",
     "Tenancy/TenantTrialController.cs": "/settings/tenant",
-    "ValueReports/ValueReportController.cs": "/value-report"
+    "ValueReports/ValueReportController.cs": "/sponsor-report/executive-summary"
   }
 }

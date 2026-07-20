@@ -248,15 +248,15 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/TenantHomepageSettingsController.cs` | `/v1/tenant/homepage-settings` | none | Authorize |  |  |
 | `Tenancy/TenantIntegrationsOperationsController.cs` | `/v1/tenant/integrations/operations` | standard | Authorize |  |  |
 | `Tenancy/TenantLlmCostReportingController.cs` | `/v1/tenant` | none | ReadAuthority |  |  |
-| `Tenancy/TenantMeasuredRoiController.cs` | `/v1/tenant/measured-roi` | standard | Authorize | /value-report/roi |  |
-| `Tenancy/TenantPilotValueReportController.cs` | `/v1/tenant` | none | Authorize | /value-report/pilot |  |
+| `Tenancy/TenantMeasuredRoiController.cs` | `/v1/tenant/measured-roi` | standard | Authorize | /sponsor-report/roi-summary |  |
+| `Tenancy/TenantPilotValueReportController.cs` | `/v1/tenant` | none | Authorize | /sponsor-report/pilot-outcomes |  |
 | `Tenancy/TenantTrialController.cs` | `/v1/tenant` | none | Authorize | /settings/tenant |  |
 | `Tenancy/TenantUsageStatusController.cs` | `/v1/tenant` | none | Authorize |  |  |
 | `Tenancy/TenantWeeklyDigestHealthController.cs` | `/v1/tenant/operate/weekly-digest-health` | standard | Authorize |  |  |
 | `Tenancy/TenantWorkspaceBaselineArtifactsController.cs` | `/v1/tenant/workspace-baseline-artifacts` | none | Authorize |  |  |
 | `Tenancy/TenantWorkspacesController.cs` | `/v1/tenant/workspaces` | none | Authorize |  |  |
 | `User/UserPreferencesController.cs` | `/v1/user/preferences` | standard | AuthenticatedUserOnly |  |  |
-| `ValueReports/ValueReportController.cs` | `/v1/value-report` | standard | ExecuteAuthority | /value-report |  |
+| `ValueReports/ValueReportController.cs` | `/v1/value-report` | standard | ExecuteAuthority | /sponsor-report/executive-summary |  |
 | `VersionController.cs` | `/version` | none | AllowAnonymous |  | unversioned_version_probe |
 | `Webhooks/OutboundWebhookDryRunController.cs` | `/v1/webhooks` | none | ExecuteAuthority |  |  |
 | `Webhooks/WebhooksController.cs` | `/v1/webhooks/subscriptions` | standard | ReadAuthority |  |  |

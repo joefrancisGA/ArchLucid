@@ -4,10 +4,6 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
-  SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
-  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
-  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
-  SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
 
@@ -23,7 +19,7 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
       caption: "Sponsor-facing value reports and digest subscriptions.",
       links: [
         {
-          href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+          href: "/sponsor-report/executive-summary",
           label: "Executive summary",
           title: `${SPONSOR_REPORT_SECTION_LABEL} — executive summary and exports`,
           icon: FileText,
@@ -31,7 +27,7 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ExecuteAuthority",
         },
         {
-          href: SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+          href: "/sponsor-report/pilot-outcomes",
           label: OPERATOR_NAV_LINK_LABELS.pilotValueReport,
           title: "Pilot outcomes — finalized-review metrics and governance signals",
           icon: FileCheck2,
@@ -39,7 +35,7 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: SPONSOR_REPORT_ROI_SUMMARY_PATH,
+          href: "/sponsor-report/roi-summary",
           label: OPERATOR_NAV_LINK_LABELS.roiReport,
           title: "ROI summary — hours estimate from severities and governance blocks",
           icon: TrendingUp,
@@ -47,7 +43,7 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+          href: "/sponsor-report/architecture-scorecard",
           label: BUYER_TERMINOLOGY.reviewScorecard,
           title: `${BUYER_TERMINOLOGY.reviewScorecard} — value metrics and recommended actions`,
           icon: LayoutGrid,

@@ -665,6 +665,11 @@ public static partial class ServiceCollectionExtensions
             .Bind(configuration.GetSection(QuickScanSafetyOptions.SectionPath))
             .ValidateOnStart();
         services.AddSingleton<IValidateOptions<QuickScanSafetyOptions>, QuickScanSafetyOptionsValidator>();
+        services.AddOptions<QuickScanModelPricingCatalogOptions>()
+            .Bind(configuration.GetSection(QuickScanModelPricingCatalogOptions.SectionPath))
+            .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<QuickScanModelPricingCatalogOptions>, QuickScanModelPricingCatalogOptionsValidator>();
+        services.AddSingleton<IQuickScanCostEstimator, QuickScanCostEstimator>();
         services.AddSingleton<IQuickScanGuard, QuickScanGuard>();
         services.AddSingleton<IQuickScanTelemetry, QuickScanTelemetry>();
         services.AddScoped<IQuickScanService, QuickScanService>();
