@@ -56,3 +56,11 @@ Counters (no `tenant_id` label — single demo tenant):
 ## Follow-ups
 
 - **Playwright E2E** for `/demo/preview` in a seeded CI host (not implemented here); track when marketing E2E harness exists.
+
+## Marketing showcase (`/showcase/[runId]`)
+
+Curated slug **`claims-intake-modernization`** is **static-first**: the UI serves `getShowcaseStaticDemoPayload()` without blocking on `GET /v1/marketing/showcase/{runId}` when the slug is in the curated set (`showcase-page-resolution.ts`). If the marketing API returns **404** or an invalid body for a slug that has bundled static data, the page falls back to that payload instead of `DemoPreviewNotAvailable`.
+
+**Deploy posture:** set **`SHOWCASE_STATIC_ONLY=1`** (or **`NEXT_PUBLIC_SHOWCASE_STATIC_ONLY=1`**) when production intentionally serves showcase pages from bundled static JSON only — the UI skips all upstream showcase fetches (same effect as leaving `ARCHLUCID_API_BASE_URL` unset for showcase resolution). Live Contoso GUID slugs still use the marketing API when a base URL is configured and static-only is off.
+
+**E2E:** `archlucid-ui/e2e/showcase-static-first.spec.ts` asserts API **404** + static slug still renders body; `live-api-marketing-showcase.spec.ts` covers live Contoso baseline when demo seed + `IsPublicShowcase` are present.
