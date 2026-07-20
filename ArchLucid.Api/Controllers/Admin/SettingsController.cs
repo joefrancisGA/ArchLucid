@@ -77,7 +77,7 @@ public sealed class SettingsController(
             await _qualityGateModeService.SetAsync(mode, cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User.Identity?.Name ?? "admin";
+        string actor = User?.Identity?.Name ?? "admin";
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -105,7 +105,7 @@ public sealed class SettingsController(
             await _qualityGateModeService.ClearOverrideAsync(cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User.Identity?.Name ?? "admin";
+        string actor = User?.Identity?.Name ?? "admin";
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -159,7 +159,7 @@ public sealed class SettingsController(
             await _workspaceModelExecutionProfileService.SetAsync(profile, cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User.Identity?.Name ?? "admin";
+        string actor = User?.Identity?.Name ?? "admin";
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -192,7 +192,7 @@ public sealed class SettingsController(
             await _workspaceModelExecutionProfileService.ClearOverrideAsync(cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User.Identity?.Name ?? "admin";
+        string actor = User?.Identity?.Name ?? "admin";
 
         await _auditService.LogAsync(
             new AuditEvent
