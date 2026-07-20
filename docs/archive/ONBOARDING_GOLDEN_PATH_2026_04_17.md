@@ -6,7 +6,7 @@
 
 One **environment and delivery** spine for ArchLucid. Use this page when you need **where to start** and **in what order** to turn things on.
 
-- **Different question?** If you need how a **single API request** moves through the system (client → API → SQL → agents), see **[ONBOARDING_HAPPY_PATH_2026_04_17.md](ONBOARDING_HAPPY_PATH_2026_04_17.md)** (archived lifecycle), **[../onboarding/ONBOARDING_HAPPY_PATH.md](../onboarding/ONBOARDING_HAPPY_PATH.md)** (redirect), or **[../library/LIVE_E2E_HAPPY_PATH.md](../library/LIVE_E2E_HAPPY_PATH.md)** (scripted HTTP).
+- **Different question?** If you need how a **single API request** moves through the system (client → API → SQL → agents), see **[../onboarding/day-one-developer.md](../onboarding/day-one-developer.md#following-the-request-past-create-execute--commit--retrieval--ask)** (narrative) or **[../library/LIVE_E2E_HAPPY_PATH.md](../library/LIVE_E2E_HAPPY_PATH.md)** (scripted HTTP).
 
 ---
 

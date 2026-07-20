@@ -187,7 +187,7 @@ Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**
 
 | Doc | Use it for |
 |-----|------------|
-| [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md) | Scripted HTTP spine (auth → request → authority → commit). Archived narrative: **[`archive/ONBOARDING_HAPPY_PATH_2026_04_17.md`](../archive/ONBOARDING_HAPPY_PATH_2026_04_17.md)** |
+| [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md) | Scripted HTTP spine (auth → request → authority → commit). Narrative: **[`onboarding/day-one-developer.md`](../onboarding/day-one-developer.md#following-the-request-past-create-execute--commit--retrieval--ask)** |
 | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Day-1 commands, commit, manifests, exports. |
 | [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) | Flow A run lifecycle + authority span names. |
 | [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) | Request → stages → commit → artifacts (operator map). |

@@ -16,7 +16,7 @@ Give operators a **linear checklist** for creating the first **architecture revi
 
 ## Constraints
 
-- This walkthrough does not replace **[`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md)** for HTTP-level scripted parity or the archived **[`ONBOARDING_HAPPY_PATH_2026_04_17.md`](../archive/ONBOARDING_HAPPY_PATH_2026_04_17.md)** spine.
+- This walkthrough does not replace **[`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md)** for HTTP-level scripted parity or **[`onboarding/day-one-developer.md`](../onboarding/day-one-developer.md#following-the-request-past-create-execute--commit--retrieval--ask)** for the request-to-answer narrative spine.
 
 ## Steps
 
