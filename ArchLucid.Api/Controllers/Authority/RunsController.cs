@@ -96,12 +96,11 @@ public sealed partial class RunsController(
     ///     header when the key matches a prior success.
     /// </returns>
     /// <remarks>
-    ///     Canonical route: <c>POST v1/architecture/request</c>. The alias <c>POST /v1/requests</c> is <b>deprecated</b>
-    ///     (TB-305 / ADR 0042) and emits <c>Deprecation</c> headers; both bind to this single action so idempotency and audit
-    ///     keying are identical.
+    ///     Canonical route: <c>POST v1/architecture/request</c>. The deprecated <c>POST /v1/requests</c> alias (TB-305 /
+    ///     ADR 0042) was retired once the coordinator strangler migration closed pre-release (ADR 0042 closure note) — there
+    ///     is no customer traffic to protect and the canonical route is the only family the UI/CLI ever used.
     /// </remarks>
     [HttpPost("request")]
-    [HttpPost("/v{version:apiVersion}/requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
@@ -475,11 +474,10 @@ public sealed partial class RunsController(
     /// </summary>
     /// <returns><see cref="ExecuteRunResponse" /> with agent results.</returns>
     /// <remarks>
-    ///     Canonical route: <c>POST v1/architecture/run/{runId}/execute</c>. The alias <c>POST /v1/runs/{runId}/submit</c> is
-    ///     <b>deprecated</b> (TB-305 / ADR 0042) and emits <c>Deprecation</c> headers; both bind to this single action.
+    ///     Canonical route: <c>POST v1/architecture/run/{runId}/execute</c>. The deprecated <c>POST /v1/runs/{runId}/submit</c>
+    ///     alias (TB-305 / ADR 0042) was retired once the coordinator strangler migration closed pre-release.
     /// </remarks>
     [HttpPost("run/{runId}/execute")]
-    [HttpPost("/v{version:apiVersion}/runs/{runId}/submit")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -545,13 +543,12 @@ public sealed partial class RunsController(
     ///     <paramref name="runId" />.
     /// </summary>
     /// <remarks>
-    ///     Canonical route: <c>POST v1/architecture/run/{runId}/commit</c>. The alias
-    ///     <c>POST /v1/runs/{runId}/manifest/finalize</c> is <b>deprecated</b> (TB-305 / ADR 0042) and emits
-    ///     <c>Deprecation</c> headers; both bind to this single action so the commit idempotency key space is shared.
+    ///     Canonical route: <c>POST v1/architecture/run/{runId}/commit</c>. The deprecated
+    ///     <c>POST /v1/runs/{runId}/manifest/finalize</c> alias (TB-305 / ADR 0042) was retired once the coordinator
+    ///     strangler migration closed pre-release.
     /// </remarks>
     // idempotency-posture: explicit-idempotency-key
     [HttpPost("run/{runId}/commit")]
-    [HttpPost("/v{version:apiVersion}/runs/{runId}/manifest/finalize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanCommitRuns)]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]

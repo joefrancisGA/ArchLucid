@@ -10,7 +10,7 @@ public static class AuditEventTypes
     /// <summary>Durable audit when a run's golden manifest is finalized (committed) in one atomic transaction with outbox.</summary>
     public const string ManifestFinalized = "ManifestFinalized";
 
-    /// <summary>Product-facing run submission (<c>POST /v1/runs/{runId}/submit</c>, formerly execute).</summary>
+    /// <summary>Run submission (<c>POST /v1/architecture/run/{runId}/execute</c>).</summary>
     public const string RunSubmitted = "RunSubmitted";
 
     /// <summary>Operator viewed committed manifest JSON (<c>GET /v1/runs/{runId}/manifest</c>).</summary>

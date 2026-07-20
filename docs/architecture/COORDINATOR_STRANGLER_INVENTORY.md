@@ -56,16 +56,18 @@
 
 ## Remaining product / ADR follow-up
 
+**None outstanding as of 2026-07-20 (TB-919).** The one previously-open item — the deprecated `v1/runs/*` / `v1/requests` alias routes and ADR 0021 gate (iv) — is **closed**:
+
 | Item | Notes |
 |------|-------|
-| Operator **`POST /v1/architecture/*`** lifecycle | Routes **persist** through PR A3/A4; **narrowing/removal** needs a **future ADR**. Deprecation signalling is **`ApiDeprecation:*`** appsettings (**not** a coordinator-only filter — see Migrate table). |
+| Operator **`POST /v1/architecture/*`** lifecycle | Routes **persist**; this is the one canonical run-lifecycle write family. The deprecated aliases (`v1/requests`, `v1/runs/{runId}/submit`, `v1/runs/{runId}/manifest/finalize`) that TB-305/ADR 0042 kept routable were **deleted** (**TB-919**, 2026-07-20) — pre-release, no paying customer, safe to close now rather than wait for a customer-traffic trigger. `RunAliasDeprecationMiddleware` and the `archlucid_run_lifecycle_deprecated_alias_requests_total` metric were removed along with the routes. ADR 0021 gate (iv) is resolved by removing the surface it was gating, not by accumulating 14 zero-write days. |
 
 ---
 
 ## Related automation
 
 - Reference-count ceiling (non-test `.cs` hits vs baseline): `scripts/ci/assert_coordinator_reference_ceiling.py`
-- Integration tests canonical run-write guard (Improvement 3, 2026-06-23): `scripts/ci/assert_integration_tests_canonical_run_writes.py` — fails when `*Integration*Tests*.cs` files call deprecated run-lifecycle alias routes (`/v1/requests`, `/v1/runs/{runId}/submit`, `/v1/runs/{runId}/manifest/finalize`); canonical authority routes only.
+- Integration tests canonical run-write guard (Improvement 3, 2026-06-23; **retired TB-919** 2026-07-20 once the alias routes it guarded were deleted): formerly `scripts/ci/assert_integration_tests_canonical_run_writes.py`.
 - Architecture closure pins: [`CoordinatorStranglerCompletionArchitectureTests`](../../ArchLucid.Architecture.Tests/CoordinatorStranglerCompletionArchitectureTests.cs) — retired coordinator types absent, single `AuthorityDrivenArchitectureRunCommitOrchestrator`, `RegisterAuthorityDecisionEngineAndRepositories` naming.
 - Archived dual-path map: `docs/archive/dual-pipeline-navigator-superseded.md`
 - Superseded completion scaffold: `docs/architecture/adrs/0028-coordinator-strangler-completion.md` (**Superseded by** [ADR 0029](adrs/0029-coordinator-strangler-acceleration-2026-05-15.md))
@@ -80,5 +82,5 @@
 |-------------|----------|
 | Production type retirement pins | [`CoordinatorStranglerCompletionArchitectureTests`](../../ArchLucid.Architecture.Tests/CoordinatorStranglerCompletionArchitectureTests.cs) |
 | DI registration naming (TB-305 decision D) | Same + [`DualPipelineRegistrationDisciplineTests`](../../ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs) |
-| Integration test canonical write guard | [`assert_integration_tests_canonical_run_writes.py`](../../scripts/ci/assert_integration_tests_canonical_run_writes.py) |
-| HTTP alias sunset (customer traffic soak) | **Deferred** — requires future ADR; aliases remain routable with deprecation headers per ADR 0042 |
+| Integration test canonical write guard | **Retired** (**TB-919**, 2026-07-20) — vacuous once the alias routes it guarded were deleted |
+| HTTP alias sunset (customer traffic soak) | **Done** (**TB-919**, 2026-07-20) — aliases deleted pre-release; owner decision, no customer-traffic soak needed |

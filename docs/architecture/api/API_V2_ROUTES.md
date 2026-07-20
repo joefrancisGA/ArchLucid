@@ -2,7 +2,7 @@
 
 # ArchLucid Product REST API — Canonical Routes
 
-Version prefix: **`v1`** (Asp.Versioning `1.0`). New product-facing routes live **alongside** legacy `v1/architecture/…` paths until clients migrate.
+Version prefix: **`v1`** (Asp.Versioning `1.0`). This document originally proposed a product-facing `v1/requests` / `v1/runs/*` naming layer alongside `v1/architecture/*`; ADR 0042 settled the opposite direction — **`v1/architecture/*` is the one canonical family** — and the `v1/requests` / `v1/runs/{runId}/submit` / `v1/runs/{runId}/manifest/finalize` aliases were retired once the coordinator strangler migration closed pre-release (`docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md`). The write rows below are corrected to the live routes; read-only `v1/runs/*` query routes (`GET`) are unaffected and remain live on `RunQueryController`.
 
 ## Resource Taxonomy
 
@@ -21,7 +21,7 @@ Version prefix: **`v1`** (Asp.Versioning `1.0`). New product-facing routes live 
 
 | Method | Path | Notes |
 |--------|------|--------|
-| `POST` | `/v1/requests` | Same payload as legacy `POST /v1/architecture/request`. Supports `Idempotency-Key`. |
+| `POST` | `/v1/architecture/request` | Canonical create route. Supports `Idempotency-Key`. |
 
 ### Runs
 
@@ -30,14 +30,14 @@ Version prefix: **`v1`** (Asp.Versioning `1.0`). New product-facing routes live 
 | `GET` | `/v1/runs` | Paged envelope (`PagedResponse`). Query: `page`, `pageSize`, optional `status`, `fromUtc`, `toUtc`. |
 | `GET` | `/v1/runs/{runId}` | Run detail (`Guid`). Aligns with authority summary/detail projections. |
 | `GET` | `/v1/runs/{runId}/progress` | Lightweight status snapshot for polling. |
-| `POST` | `/v1/runs/{runId}/submit` | Product name for assessment execution (legacy: `…/execute`). |
+| `POST` | `/v1/architecture/run/{runId}/execute` | Canonical assessment-execution route. |
 
 ### Manifest
 
 | Method | Path | Notes |
 |--------|------|--------|
 | `GET` | `/v1/runs/{runId}/manifest` | Golden manifest body when committed. |
-| `POST` | `/v1/runs/{runId}/manifest/finalize` | Finalize/commit manifest (legacy: `…/commit`). Idempotent with server semantics + optional `Idempotency-Key`. |
+| `POST` | `/v1/architecture/run/{runId}/commit` | Canonical finalize/commit route. Idempotent with server semantics + optional `Idempotency-Key`. |
 
 ### Findings
 

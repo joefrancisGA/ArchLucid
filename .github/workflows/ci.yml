@@ -1050,11 +1050,6 @@ jobs:
           python -m unittest discover -s scripts/ci/tests -p "test_assert_coordinator_reference_ceiling.py"
           python scripts/ci/assert_coordinator_reference_ceiling.py
 
-      - name: Integration tests canonical run-write guard (ADR 0021 / 0042)
-        run: |
-          python -m unittest discover -s scripts/ci/tests -p "test_assert_integration_tests_canonical_run_writes.py"
-          python scripts/ci/assert_integration_tests_canonical_run_writes.py
-
       - name: Critical docs drift guard
         continue-on-error: true
         run: python scripts/ci/check_critical_docs_drift.py

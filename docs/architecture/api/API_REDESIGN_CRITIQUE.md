@@ -66,7 +66,7 @@ Resource-creating governance POSTs lacked mandatory idempotency keys; commit lac
 
 Implementation tracks these items via:
 
-- Product-facing routes under `v1/runs`, `v1/requests`, `v1/internal/…`, and governance idempotency requirements.
+- Product-facing routes under `v1/architecture/*` (formerly `v1/runs`, `v1/requests` aliases — deleted by TB-919), `v1/internal/…`, and governance idempotency requirements.
 - `ProblemTypes.BusinessRuleViolation` for operational failures that are not export failures.
 - Expanded audit constants (`RunSubmitted`, `ManifestViewed`, `ReviewTrailAccessed`, `ProvenanceAccessed`, `FindingsListAccessed`, `GovernanceApprovalRequested`).
 - OpenAPI-oriented `[ProducesResponseType]` additions for `422`, `429`, and `503` where applicable.

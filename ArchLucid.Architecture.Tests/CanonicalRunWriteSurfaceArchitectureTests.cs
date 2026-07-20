@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.Mvc.Routing;
 namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
-///     TB-305 / ADR 0042: the run-lifecycle write surface stays collapsed onto one canonical family. Each canonical route
-///     and its deprecated alias must bind to a single MVC action (so idempotency + audit are unified), and no new dual-write
-///     verb may appear on <see cref="RunsController" /> without an ADR-cited <see cref="RunWriteLifecycleRoutes" /> entry.
+///     TB-305 / ADR 0042: the run-lifecycle write surface stays collapsed onto one canonical family. Deprecated
+///     <c>v1/runs/*</c> / <c>v1/requests</c> aliases were retired once the coordinator strangler migration closed
+///     pre-release (<c>docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md</c>); no run-lifecycle write action on
+///     <see cref="RunsController" /> may register more than one HTTP route template without an ADR-cited
+///     <see cref="RunWriteLifecycleRoutes" /> entry.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -30,28 +32,18 @@ public sealed class CanonicalRunWriteSurfaceArchitectureTests
     }
 
     [Fact]
-    public void Canonical_and_alias_run_write_routes_share_one_action()
+    public void Canonical_run_write_routes_exist_on_one_action_each()
     {
         foreach (RunWriteLifecycleRoutes.RunWriteRoute route in RunWriteLifecycleRoutes.All)
         {
             MethodInfo? canonicalAction = FindActionByFullTemplate(route.CanonicalTemplate);
 
             canonicalAction.Should().NotBeNull($"canonical {route.Operation} route must exist on RunsController");
-
-            foreach (string alias in route.DeprecatedAliasTemplates)
-            {
-                MethodInfo? aliasAction = FindActionByFullTemplate(alias);
-
-                aliasAction.Should().NotBeNull($"alias '{alias}' must exist on RunsController");
-                aliasAction.Should().BeSameAs(
-                    canonicalAction,
-                    $"alias '{alias}' must bind to the same action as canonical '{route.CanonicalTemplate}' so idempotency and audit keying are unified");
-            }
         }
     }
 
     [Fact]
-    public void RunsController_write_actions_do_not_add_new_dual_write_surface()
+    public void RunsController_write_actions_do_not_add_dual_write_surface()
     {
         List<string> violations = [];
 
@@ -62,29 +54,12 @@ public sealed class CanonicalRunWriteSurfaceArchitectureTests
             if (templates.Count <= 1)
                 continue;
 
-            if (!MatchesRegisteredPair(templates))
-                violations.Add($"{action.Name}: [{string.Join(", ", templates)}]");
+            violations.Add($"{action.Name}: [{string.Join(", ", templates)}]");
         }
 
         violations.Should().BeEmpty(
             "a new run-lifecycle dual-write route requires an ADR plus a RunWriteLifecycleRoutes entry (TB-305 / ADR 0042); "
             + $"unregistered multi-verb write actions:{Environment.NewLine}{string.Join(Environment.NewLine, violations)}");
-    }
-
-    private static bool MatchesRegisteredPair(IReadOnlyCollection<string> templates)
-    {
-        HashSet<string> actual = new(templates.Select(Normalize), StringComparer.OrdinalIgnoreCase);
-
-        return RunWriteLifecycleRoutes.All.Any(route =>
-        {
-            HashSet<string> expected = new(StringComparer.OrdinalIgnoreCase) { Normalize(route.CanonicalTemplate) };
-
-            foreach (string alias in route.DeprecatedAliasTemplates)
-
-                expected.Add(Normalize(alias));
-
-            return expected.SetEquals(actual);
-        });
     }
 
     private static MethodInfo? FindActionByFullTemplate(string fullTemplate)
