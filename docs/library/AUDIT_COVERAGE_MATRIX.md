@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:349 -->
+<!-- audit-core-const-count:355 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -151,7 +151,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Synthetic `AuthorityRunCompleted` webhook simulation (no persistence) | `WebhookSimulationController` (`POST /v1/integrations/webhooks/simulate`) | `WebhookAuthorityRunCompletedSimulationExecuted` | — | Target authority/path and scheme only (no query string), `hasSharedSecret` flag, transport/status — **no** shared secret or response body in payload |
 | Alert-routing webhook subscription connectivity test | `WebhooksController` (`POST /v1/webhooks/subscriptions/{subscriptionId}/test`); legacy alias `WebhookConnectionsController` (`POST /v1/integrations/webhooks/{routingSubscriptionId}/test`) | `AlertRoutingWebhookPingExecuted` | — | Subscription id, transport outcome, HTTP status code — **no** destination URL or response body in payload |
 | Pre-commit governance warn | `ArchitectureRunCommitOrchestrator` | `GovernancePreCommitWarned` | RunId when parseable | `reason`, `warnings`, `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity` |
-| Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
+| Recommendation learning rebuild | `RecommendationLearningController` (`POST /v1/recommendation-learning/rebuild`) | `RecommendationLearningProfileRebuilt` | — | profile id |
+| Recommendation learning preview (no persistence) | `RecommendationLearningController` (`POST /v1/recommendation-learning/preview`) | `RecommendationLearningPreviewRequested` | — | `{ correlationId, eligibleRecordCount }` — candidate profile only; not activated |
+| Recommendation learning rollback | `RecommendationLearningController` (`POST /v1/recommendation-learning/rollback`) | `RecommendationLearningProfileRolledBack` | — | `{ sourceProfileId, reason, generatedUtc, correlationId }` |
 | MCP read-only retrieval tools (HTTP bridge until Streamable HTTP membrane; RAG-V1.1-002) | `McpRetrievalToolsController` (`POST /v1/mcp/retrieval/policy-pack-search`, `POST /v1/mcp/retrieval/prior-decision-search`, `POST /v1/mcp/retrieval/price-row-lookup`); `RetrievalTools` | — | Tenant/Workspace/Project from ambient scope | Scoped search/lookup only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Product learning pilot signal captured | `ProductLearningController` (`POST /v1/product-learning/signals`) | `ProductLearningPilotSignalRecorded` | Tenant/Workspace/Project from ambient scope | `{ subjectType, disposition, patternKey? }` — `ArtifactHint`, `CommentShort`, and `DetailJson` are **not** included to avoid logging free-form user text |
 | 59R planning drafts materialized (ranked pilot feedback) | `LearningController` (`POST /v1/learning/planning/materialize`) | `ProductLearningPlanningMaterialized` | Tenant/Workspace/Project from ambient scope | `{ sinceUtc, maxPlansToMaterialize, themesInserted, plansInserted, skippedExistingThemeKeys, signalLinksInserted }` — mirrors JSON response counters |
@@ -462,6 +464,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RecommendationDeferred` | `RecommendationDeferred` | `AdvisoryController` |
 | `RecommendationImplemented` | `RecommendationImplemented` | `AdvisoryController` |
 | `RecommendationLearningProfileRebuilt` | `RecommendationLearningProfileRebuilt` | `RecommendationLearningController` |
+| `RecommendationLearningPreviewRequested` | `RecommendationLearningPreviewRequested` | `RecommendationLearningController` |
+| `RecommendationLearningProfileRolledBack` | `RecommendationLearningProfileRolledBack` | `RecommendationLearningController` |
 | `ProductLearningPilotSignalRecorded` | `ProductLearningPilotSignalRecorded` | `ProductLearningController` (`POST /v1/product-learning/signals`) |
 | `ProductLearningPlanningMaterialized` | `ProductLearningPlanningMaterialized` | `LearningController` (`POST /v1/learning/planning/materialize`) |
 | `AdvisoryScanScheduled` | `AdvisoryScanScheduled` | `AdvisoryScanRunner`, `AdvisorySchedulingController`, `AdvisoryController` |
@@ -568,9 +572,13 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantNotificationChannelPreferencesUpdated` | `TenantNotificationChannelPreferencesUpdated` | `CustomerNotificationChannelPreferencesController` |
 | `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
+| `WorkspaceModelExecutionProfileUpdated` | `Workspace.ModelExecutionProfileUpdated` | `SettingsController` (`PUT …/admin/settings/model-execution-profile`) |
+| `WorkspaceModelExecutionProfileOverrideCleared` | `Workspace.ModelExecutionProfileOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/model-execution-profile`) |
+| `RunModelExecutionProfileOverrideApplied` | `Run.ModelExecutionProfileOverrideApplied` | `ModelExecutionProfileOverrideAuditWriter` (per-review override at run create) |
 | `AgentOutputLlmFaithfulnessWarned` | `AgentOutput.LlmFaithfulnessWarned` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness warn floor) |
 | `AgentOutputLlmFaithfulnessRejected` | `AgentOutput.LlmFaithfulnessRejected` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness reject floor) |
 | `AdminApiKeyRotationMaterialIssued` | `Admin.ApiKeyRotationMaterialIssued` | `AdminApiKeySettingsController` (`POST …/admin/settings/api-keys/rotate`) |
+| `AdminDeploymentStatusViewed` | `Admin.DeploymentStatusViewed` | `AdminDeploymentStatusController` (`GET /v1/admin/deployment-status`) |
 | `AdminUserInvitationAccepted` | `Admin.UserInvitationAccepted` | `PostAuthBootstrapService`, `EmailOtpAuthService`, `PostAuthBootstrapController` |
 | `AdminUserInvitationCreated` | `Admin.UserInvitationCreated` | `UsersAdminController` (`POST /v1/admin/users/invite`) |
 | `AdminUserInvitationRevoked` | `Admin.UserInvitationRevoked` | `UsersAdminController` |

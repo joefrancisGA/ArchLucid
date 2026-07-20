@@ -251,6 +251,7 @@ jobs:
           ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eNightlyApiKey"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: ApiKey
+          ArchLucidAuth__AllowTestActorHeaders: "true"
           Authentication__ApiKey__Enabled: "true"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           Authentication__ApiKey__AdminKey: "nightly-apikey-admin"

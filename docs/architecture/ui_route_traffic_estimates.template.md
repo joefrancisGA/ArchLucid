@@ -104,10 +104,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | GRS | `/governance/resolution` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | 15 | Help topic | None |
-| MMX | `/manifests/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
 | SAX | `/settings/alerts` | 0.15% | 0 | 0 | 15 | Settings | None |
 | STX | `/settings/tenant` | 0.15% | 0 | 0 | 15 | Settings | None |
 | AUX | `/settings/users` | 0.15% | 0 | 0 | 15 | Settings | None |
+| MMX | `/signed-records/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
 | ATX | `/admin/tenant-health` | 0.12% | 0 | 0 | 12 | Admin | None |
 | FXX | `/faq` | 0.12% | 0 | 0 | 12 | Marketing | None |
 | HHX | `/help/how-it-works` | 0.12% | 0 | 0 | 12 | Help topic | None |
@@ -129,7 +129,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ONB | `/onboarding` | 0.1% | 0 | 0 | 10 | Onboarding | None |
 | REP | `/replay` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | SEC | `/security-trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
-| SC | `/settings/cost-reporting` | 0.1% | 0 | 0 | 10 | Settings | None |
+| SC | `/settings/ai-usage` | 0.1% | 0 | 0 | 10 | Settings | None |
 | SDX | `/settings/developer` | 0.1% | 0 | 0 | 10 | Settings | None |
 | SEX | `/settings/exec-digest` | 0.1% | 0 | 0 | 10 | Settings | None |
 | TXX | `/trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
@@ -166,9 +166,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HSE | `/help/security-trust` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HUX | `/help/users-and-roles` | 0.05% | 0 | 0 | 5 | Help alias | None |
 | IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | None |
+| RXX | `/internal-operations/recommendation-learning` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | OAX | `/operate/architecture-graph` | 0.05% | 0 | 0 | 5 | Advisory | None |
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
-| RXX | `/recommendation-learning` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | TRY | `/try` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | VPX | `/value-report/pilot` | 0.05% | 0 | 0 | 5 | Marketing | None |
@@ -229,12 +229,14 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEA | `/help/authentication-sign-in` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEZ | `/help/azure-boards` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HAZ | `/help/azure-permissions` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| ECA | `/help/caiq-sig-response` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEC | `/help/cloud-connections/aws` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HGC | `/help/cloud-connections/gcp` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | CO | `/help/comparison-replay` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HER | `/help/creating-runs` | 0.02% | 0 | 0 | 2 | Help alias | None |
 | HED | `/help/data-handling` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HDA | `/help/data-handling-tenant-isolation` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HDP | `/help/dpa-template` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEV | `/help/evidence-only-review` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | EXE | `/help/executive-summary` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HEG | `/help/glossary` | 0.02% | 0 | 0 | 2 | Help topic | None |
@@ -247,18 +249,19 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEP | `/help/prior-manifest-retrieval` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HPR | `/help/product-overview` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HRE | `/help/report-a-problem` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HEO | `/help/soc2-self-assessment` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HS | `/help/specialty-walkthroughs` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | HES | `/help/starting-reviews` | 0.02% | 0 | 0 | 2 | Help topic | None |
+| HEU | `/help/subprocessors` | 0.02% | 0 | 0 | 2 | Help topic | None |
 | INA | `/integrations/azure-boards` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | INC | `/integrations/cloud-connections/aws` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | INZ | `/integrations/cloud-connections/azure` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | IGC | `/integrations/cloud-connections/gcp` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | INR | `/integrations/readiness` | 0.02% | 0 | 0 | 2 | Integrations | None |
-| MA | `/manifests` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| MAM | `/manifests/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PAP | `/patterns/[patternKey]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PRB | `/privacy` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | QUI | `/quick-start` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| REX | `/recommendation-learning` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | REA | `/reviews/[runId]?archTab=activity` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | REC | `/reviews/[runId]?archTab=clarifications` | 0.02% | 0 | 0 | 2 | Tab surface | None |
@@ -276,9 +279,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SOI | `/settings/identity-providers/oidc` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SEO | `/settings/identity-providers/role-mapping` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SSA | `/settings/identity-providers/saml` | 0.02% | 0 | 0 | 2 | Settings | None |
+| SEM | `/settings/model-governance` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SEP | `/settings/preferences` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SEK | `/settings/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SSU | `/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 
 ---
 

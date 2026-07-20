@@ -7,7 +7,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
 import {
   clearJwtBrowserSession,
@@ -91,7 +91,7 @@ test.describe("live-api-private-beta-access", () => {
     expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
 
     await page.goto("/reviews/new", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: CREATE_ARCHITECTURE_LABEL, level: 2 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 2 })).toBeVisible({
       timeout: 60_000,
     });
 

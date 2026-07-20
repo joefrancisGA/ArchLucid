@@ -31,7 +31,10 @@ type InviteFormState = {
 const EMPTY_FORM: InviteFormState = { email: "", role: "", message: "" };
 
 type Props = {
-  /** When true, show the directory-unavailable error state instead of the form. */
+  /**
+   * When true, show a non-blocking directory warning above the form.
+   * Invite send uses POST /v1/admin/users/invite and must stay available when GET /v1/admin/users is missing.
+   */
   readonly directoryUnavailable: boolean;
   readonly onRetry: () => void;
   readonly onInviteSent?: () => void;
@@ -40,28 +43,6 @@ type Props = {
 export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInviteSent }: Props) {
   const [form, setForm] = useState<InviteFormState>(EMPTY_FORM);
   const [sending, setSending] = useState(false);
-
-  if (directoryUnavailable) {
-    return (
-      <div data-testid="settings-roles-invite-directory-unavailable">
-        <OperatorEmptyState
-          title="Invitations unavailable"
-          description="ArchLucid could not load the user directory for this workspace. You can still review role permissions, but invitations cannot be sent until the directory is available."
-        />
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" size="sm" onClick={onRetry}>
-            Retry
-          </Button>
-          <Button type="button" variant="ghost" size="sm" asChild>
-            <a href="/admin/health">System health</a>
-          </Button>
-          <Button type="button" variant="ghost" size="sm" asChild>
-            <Link href="/help/troubleshooting#permissions-or-sign-in-issue">Open troubleshooting</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -106,6 +87,25 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry, onInvi
       className="space-y-4"
       onSubmit={(event) => void handleSubmit(event)}
     >
+      {directoryUnavailable ? (
+        <div data-testid="settings-roles-invite-directory-unavailable" className="space-y-3">
+          <OperatorEmptyState
+            title="User directory unavailable"
+            description="The workspace user list could not be loaded. You can still send invitations; retry the directory if you need to review existing members."
+          />
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="secondary" size="sm" onClick={onRetry}>
+              Retry directory
+            </Button>
+            <Button type="button" variant="ghost" size="sm" asChild>
+              <a href="/admin/health">System health</a>
+            </Button>
+            <Button type="button" variant="ghost" size="sm" asChild>
+              <Link href="/help/troubleshooting#permissions-or-sign-in-issue">Open troubleshooting</Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
       <div className="space-y-1">
         <Label htmlFor="invite-email">Email address</Label>
         <Input

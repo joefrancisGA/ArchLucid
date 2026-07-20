@@ -39,4 +39,17 @@ describe("PageContextualHelpButton", () => {
     expect(link).toHaveAttribute("href", "/help/integration-readiness");
     expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
   });
+
+  it("links architecture draft pages to Getting started help", () => {
+    mockUsePathname.mockReturnValue("/architectures/draft-abc");
+
+    render(<PageContextualHelpButton />);
+
+    const link = screen.getByRole("link", { name: /^getting started$/i });
+
+    expect(link).toHaveAttribute("href", "/help/getting-started");
+    expect(link).toHaveAttribute("title", "Help: Getting started");
+  });
 });
+
+

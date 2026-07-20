@@ -360,9 +360,10 @@ describe("QuickDecisionSummary", () => {
 
     render(<QuickDecisionSummary runId="run-workspace" findings={findings} workspaceCardMode />);
 
-    const primaryCard = screen.getByTestId("finding-workspace-primary-card");
+    const primaryCard = screen.getByTestId("finding-workspace-card-f-high");
 
     expect(primaryCard).toBeInTheDocument();
+    expect(primaryCard).toHaveAttribute("data-finding-workspace-primary", "true");
     expect(within(primaryCard).getByRole("heading", { name: "High title" })).toBeInTheDocument();
     expect(screen.getByText("Additional findings (1)")).toBeInTheDocument();
     expect(screen.queryByTestId("findings-itsm-export-toolbar")).not.toBeInTheDocument();
@@ -387,7 +388,7 @@ describe("QuickDecisionSummary", () => {
 
     render(<QuickDecisionSummary runId="run-workspace" findings={findings} workspaceCardMode />);
 
-    const primaryCard = screen.getByTestId("finding-workspace-primary-card");
+    const primaryCard = screen.getByTestId("finding-workspace-card-f-high");
 
     fireEvent.click(within(primaryCard).getByText("Supporting detail"));
     fireEvent.click(within(primaryCard).getByText("Create work item / Integrations"));

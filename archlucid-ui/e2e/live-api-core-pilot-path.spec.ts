@@ -59,7 +59,10 @@ test.describe("live-api-core-pilot-path", () => {
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 90_000 });
-    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000 });
+    await expectLiveReviewsHubListReady(page, {
+      timeoutMs: 90_000,
+      projectId: DEMO_WORKSPACE_A_LIVE_IDS.projectId,
+    });
 
     const main = getAppMain(page);
 

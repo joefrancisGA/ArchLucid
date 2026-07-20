@@ -270,7 +270,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
                   autoComplete="off"
                   value={expectedMonthlyReviewVolume}
                   onChange={(ev) => setExpectedMonthlyReviewVolume(ev.target.value)}
-                  placeholder="e.g. 2–5 architecture packages per month"
+                  placeholder="e.g. 2–5 architecture reviews per month"
                   className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
                 />
               </label>

@@ -10,7 +10,6 @@ import {
 } from "./reviews-hub-copy";
 
 const BANNED_PACKAGE_PHRASES = [
-  "review",
   "architecture package",
   "sample package",
 ] as const;

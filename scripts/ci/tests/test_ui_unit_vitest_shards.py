@@ -54,7 +54,17 @@ def _path_matches_glob(relative_path: str, glob_pattern: str) -> bool:
 
 def test_ui_unit_vitest_shards_manifest_has_expected_ids() -> None:
     shard_paths = _load_shard_paths()
-    assert set(shard_paths) == {"lib", "components", "surface"}
+    assert set(shard_paths) == {
+        "lib",
+        "components",
+        "app-operator-a",
+        "app-operator-b",
+        "app-operator-c",
+        "app-operator-d",
+        "app-operator-e",
+        "app-marketing",
+        "surface",
+    }
 
 
 def test_ui_unit_vitest_shards_partition_all_unit_tests() -> None:

@@ -99,6 +99,6 @@ describe("pricing-catalog-display", () => {
         summary: "Team",
         includedReviewsPerMonth: 20,
       }),
-    ).toBe("20 architecture packages / month");
+    ).toBe("20 architecture reviews / month");
   });
 });

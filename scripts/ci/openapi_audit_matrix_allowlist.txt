@@ -95,7 +95,9 @@ POST /v1/policy-packs/assignments/{assignmentId}/archive
 POST /v1/policy-packs/simulate
 POST /v1/policy-packs/{policyPackId}/assign
 POST /v1/policy-packs/{policyPackId}/publish
+POST /v1/recommendation-learning/preview
 POST /v1/recommendation-learning/rebuild
+POST /v1/recommendation-learning/rollback
 POST /v1/tenant/billing/checkout
 POST /v1/tenant/customer-success/product-feedback
 PUT /scim/v2/Groups/{id}

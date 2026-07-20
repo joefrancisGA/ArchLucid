@@ -17,6 +17,10 @@ const REDIRECT_ONLY_PATHS = [
   "/help/cloud-connections-aws",
   "/help/cloud-connections-gcp",
   "/admin/cloud-connections/aws",
+  "/manifests",
+  "/manifests/[manifestId]",
+  "/manifests/[manifestId]/artifacts/[artifactId]",
+  "/settings/cost-reporting",
 ];
 
 function readTemplateMarkdown(): string {

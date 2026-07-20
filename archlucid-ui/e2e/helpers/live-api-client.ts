@@ -107,14 +107,17 @@ const LIVE_E2E_GOVERNANCE_REVIEWER_ACTOR_IDS: Readonly<Record<string, string>> =
 };
 
 /**
- * `X-ArchLucid-Test-Actor-*` headers for DevelopmentBypass (`AllowTestActorHeaders`).
+ * `X-ArchLucid-Test-Actor-*` headers for DevelopmentBypass and ApiKey CI (`AllowTestActorHeaders`).
  * Governance approve/reject resolves the actor from auth — body `reviewedBy` alone does not change the actor.
+ * JWT lane uses a distinct Bearer token instead (see {@link resolveLivePeerReviewerGovernanceOptions}).
  */
 export function liveTestActorHeaders(
   actorName: string,
   actorId?: string | null,
 ): Record<string, string> {
-  if (resolveLiveAuthMode() !== "bypass") {
+  const mode = resolveLiveAuthMode();
+
+  if (mode !== "bypass" && mode !== "apikey") {
     return {};
   }
 
@@ -133,7 +136,7 @@ export function liveTestActorHeaders(
 
   if (resolvedId.length === 0) {
     throw new Error(
-      `liveTestActorHeaders: unknown reviewer "${name}" in bypass mode — pass actorId or add a stable mapping.`,
+      `liveTestActorHeaders: unknown reviewer "${name}" in ${mode} mode — pass actorId or add a stable mapping.`,
     );
   }
 

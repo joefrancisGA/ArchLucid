@@ -238,6 +238,18 @@ a {
   color: inherit;
 }
 
+/*
+ * Marketing header product links — hex colors (not CSS variables / Tailwind dark: merge).
+ * Prevents axe color-contrast false/true fails of #171717 on #0a0a0a in dark CI.
+ */
+a.marketing-public-nav-link {
+  color: #262626;
+}
+
+html.dark a.marketing-public-nav-link {
+  color: #f5f5f5;
+}
+
 input,
 select,
 button {

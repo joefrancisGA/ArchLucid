@@ -5,7 +5,7 @@ import {
   OPERATOR_DEMO_REVIEW_RUN_ID,
   operatorDemoReviewApiResponse,
 } from "./fixtures/operator-demo-review-run";
-import { openReviewDetailWorkspaceTab } from "./helpers/operator-journey";
+import { expandFindingWorkspaceCard, openReviewDetailWorkspaceTab } from "./helpers/operator-journey";
 
 /**
  * Reliability guard for the one-click demo review path (assessment Tier 2 #7).
@@ -39,11 +39,17 @@ test.describe("demo review one-click reliability @demo-review", () => {
     await expect(quickDecisionSummary).toBeVisible({ timeout: 60_000 });
     await quickDecisionSummary.scrollIntoViewIfNeeded();
 
-    await expect(page.getByTestId("quick-decision-policy-violations")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("finding-policy-rule-badge").first()).toBeVisible({ timeout: 30_000 });
+    // Findings workspace uses card mode (primary + additional), not the legacy Policy violations list test id.
+    const primaryCard = await expandFindingWorkspaceCard(quickDecisionSummary, "demo-finding-1");
+    await expect(primaryCard).toHaveAttribute("data-finding-workspace-primary", "true");
+    await expect(primaryCard.getByTestId("finding-policy-rule-badge").first()).toBeVisible({ timeout: 30_000 });
 
-    const findingLinks = quickDecisionSummary.locator('[data-testid^="finding-policy-rule-badge"]');
-    await expect(findingLinks).toHaveCount(6, { timeout: 30_000 });
+    await expect(quickDecisionSummary.getByTestId("finding-workspace-card-demo-finding-2")).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(quickDecisionSummary.getByTestId("finding-workspace-card-demo-finding-3")).toBeVisible({
+      timeout: 30_000,
+    });
   });
 
   test("mock API returns stable demo review payload shape", async ({ request }) => {

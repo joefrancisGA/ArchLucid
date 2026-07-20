@@ -31,13 +31,19 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("labels architecture draft inventory and detail crumbs", () => {
+  it("labels architecture inventory and create/draft crumbs under Architectures (not Drafts)", () => {
+    expect(ARCHITECTURE_DRAFTS_LIST_LABEL).toBe("Architectures");
     expect(getBreadcrumbs("/architectures")).toEqual([{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }]);
+    expect(getBreadcrumbs("/architectures/new")).toEqual([
+      { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architectures" },
+      { label: CREATE_ARCHITECTURE_LABEL },
+    ]);
     expect(getBreadcrumbs("/architectures/draft-001")).toEqual([
       { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: "/architectures" },
       { label: CREATE_ARCHITECTURE_LABEL },
     ]);
   });
+
 
   it("labels UUID review segments as Review", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";

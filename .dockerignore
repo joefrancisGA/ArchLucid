@@ -51,6 +51,9 @@ docs/
 !docs/go-to-market/PRICING_PHILOSOPHY.md
 !docs/security/
 !docs/library/
+!docs/CORE_PILOT.md
+!docs/runbooks/
+!docs/onboarding/
 !docs/trust-center.md
 
 # CI

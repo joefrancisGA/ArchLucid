@@ -11,6 +11,9 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 /** Session guard: after SaaS trial pre-seed, first visit to operator home lands on the welcome run detail. */
 const SESSION_KEY = "archlucid_trial_welcome_home_redirect_v1";
 
+/** e2e / automation: when set, home never auto-deep-links (avoids competing App Router transitions). */
+export const TRIAL_WELCOME_HOME_REDIRECT_SUPPRESS_VALUE = "__suppress__";
+
 type TrialStatusPayload = {
   trialWelcomeRunId?: string | null;
 };
@@ -53,7 +56,11 @@ export function TrialWelcomeRunDeepLink() {
 
         const already = window.sessionStorage.getItem(SESSION_KEY);
 
-        if (already === welcomeId) {
+        // Same welcome id (returning home) or explicit e2e suppress — never start a competing transition.
+        if (
+          already === welcomeId ||
+          already === TRIAL_WELCOME_HOME_REDIRECT_SUPPRESS_VALUE
+        ) {
           return;
         }
 

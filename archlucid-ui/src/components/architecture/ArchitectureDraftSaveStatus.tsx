@@ -39,16 +39,38 @@ export function ArchitectureDraftSaveStatus(props: ArchitectureDraftSaveStatusPr
       data-testid="architecture-draft-save-status"
       data-save-state={props.saveState}
     >
-      {props.saveState === "saved" ? (
+      {renderSaveStatusContent(props.saveState, lastSavedLabel)}
+    </div>
+  );
+}
+
+function renderSaveStatusContent(
+  saveState: ArchitectureDraftSaveState,
+  lastSavedLabel: string | null,
+): React.ReactNode {
+  switch (saveState) {
+    case "idle":
+      // Pristine draft (including auto-created empty drafts) — no "Saved" claim yet.
+      return null;
+    case "saved":
+      return (
         <>
           <StatusTag kind="ready" label="Saved" />
           {lastSavedLabel !== null ? <span className="text-al-text-secondary">{lastSavedLabel}</span> : null}
         </>
-      ) : null}
-      {props.saveState === "saving" ? <StatusTag kind="in-progress" label="Saving…" /> : null}
-      {props.saveState === "unsaved" ? <StatusTag kind="needs-attention" label="Unsaved changes" /> : null}
-      {props.saveState === "error" ? <StatusTag kind="blocked" label="Save failed" /> : null}
-      {props.saveState === "offline" ? <StatusTag kind="needs-attention" label="Offline" /> : null}
-    </div>
-  );
+      );
+    case "saving":
+      return <StatusTag kind="in-progress" label="Saving…" />;
+    case "unsaved":
+      return <StatusTag kind="needs-attention" label="Unsaved changes" />;
+    case "error":
+      return <StatusTag kind="blocked" label="Save failed" />;
+    case "offline":
+      return <StatusTag kind="needs-attention" label="Offline" />;
+    default: {
+      const _exhaustive: never = saveState;
+
+      return _exhaustive;
+    }
+  }
 }

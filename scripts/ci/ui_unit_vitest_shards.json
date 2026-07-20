@@ -2,25 +2,98 @@
   "shards": [
     {
       "id": "lib",
-      "label": "lib (1/3)",
+      "label": "lib (1/9)",
       "paths": ["src/lib"]
     },
     {
       "id": "components",
-      "label": "components (2/3)",
+      "label": "components (2/9)",
       "paths": ["src/components"]
     },
     {
-      "id": "surface",
-      "label": "surface (3/3)",
+      "id": "app-operator-a",
+      "label": "app-operator-a (3/9)",
       "paths": [
-        "src/app",
+        "src/app/(operator)/reviews",
+        "src/app/(operator)/governance",
+        "src/app/(operator)/architectures",
+        "src/app/(operator)/admin",
+        "src/app/(operator)/integrations",
+        "src/app/(operator)/help",
+        "src/app/(operator)/settings"
+      ]
+    },
+    {
+      "id": "app-operator-b",
+      "label": "app-operator-b (4/9)",
+      "paths": [
+        "src/app/(operator)/ask",
+        "src/app/(operator)/demo",
+        "src/app/(operator)/evolution-review",
+        "src/app/(operator)/auth",
+        "src/app/(operator)/health",
+        "src/app/(operator)/manifests",
+        "src/app/(operator)/onboarding",
+        "src/app/(operator)/operate",
+        "src/app/(operator)/patterns",
+        "src/app/(operator)/planning",
+        "src/app/(operator)/product-learning",
+        "src/app/(operator)/recommendation-learning",
+        "src/app/(operator)/replay",
+        "src/app/(operator)/scorecard",
+        "src/app/(operator)/search",
+        "src/app/(operator)/value-report",
+        "src/app/(operator)/why-archlucid",
+        "src/app/(operator)/onboarding-redirects.test.ts",
+        "src/app/(operator)/page.test.tsx",
+        "src/app/(operator)/search-ask-pages-render.test.tsx"
+      ]
+    },
+    {
+      "id": "app-operator-c",
+      "label": "app-operator-c (5/9)",
+      "paths": [
+        "src/app/(operator)/compare",
+        "src/app/(operator)/dashboard",
+        "src/app/(operator)/graph"
+      ]
+    },
+    {
+      "id": "app-operator-d",
+      "label": "app-operator-d (6/9)",
+      "paths": [
+        "src/app/(operator)/_sections/OperatorHomePageView.overview-vocabulary.test.tsx",
+        "src/app/(operator)/_sections/OperatorHomePageView.progressive-disclosure.test.ts",
+        "src/app/(operator)/authority-shaped-layout-regression.test.tsx",
+        "src/app/(operator)/operate-authority-ui-shaping.test.tsx",
+        "src/app/(operator)/operator-client-pages-render-gate.test.tsx"
+      ]
+    },
+    {
+      "id": "app-operator-e",
+      "label": "app-operator-e (7/9)",
+      "paths": [
+        "src/app/(operator)/_sections/OperatorHomePageView.test.tsx"
+      ]
+    },
+    {
+      "id": "app-marketing",
+      "label": "app-marketing (8/9)",
+      "paths": ["src/app/(marketing)"]
+    },
+    {
+      "id": "surface",
+      "label": "surface (9/9)",
+      "paths": [
         "src/accessibility",
         "src/hooks",
         "src/integration",
         "src/marketing",
         "src/review-workflow",
         "src/data",
+        "src/app/(executive)",
+        "src/app/api",
+        "src/app/not-found.test.tsx",
         "scripts",
         "src/next.config.*.test.ts"
       ]

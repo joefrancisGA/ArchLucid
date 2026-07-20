@@ -83,8 +83,9 @@ ENV NEXT_PUBLIC_DEPLOY_ENV=${NEXT_PUBLIC_DEPLOY_ENV}
 ENV NEXT_PUBLIC_API_UPSTREAM_HOST=${NEXT_PUBLIC_API_UPSTREAM_HOST}
 ENV NEXT_TELEMETRY_DISABLED=1
 # `next build` typechecks `import "@archlucid/api-types"` — that workspace package's `dist/` is not in git; build it first.
+# Docker smoke skips `npm run build:docs-pdf`; ensure runtime COPY target exists (empty dir until full PDF build is wired in).
 RUN apk add --no-cache python3 \
-    && mkdir -p public \
+    && mkdir -p public .build/docs-pdf-customer \
     && python3 /pricing-source/scripts/ci/generate_pricing_json.py --repo-root /pricing-source \
     && npm run build:api-types \
     && npx next build
@@ -121,6 +122,29 @@ COPY --from=build --chown=archlucid:archlucid /app/.next/static ./.next/static
 COPY --from=build --chown=archlucid:archlucid /app/public ./public
 COPY --from=build --chown=archlucid:archlucid /app/.build/docs-pdf-customer ./.build/docs-pdf-customer
 COPY --from=build --chown=archlucid:archlucid /app/go-to-market-samples ./go-to-market-samples
+
+# In-app `/help/{topic}` markdown (tryLoadProductDocumentation). Loader resolves `/docs/...`
+# when cwd is `/app` (join(cwd, "..", "docs", "library") → `/docs/library`).
+# Without these, registry-backed help topics 404 in Container Apps after CD.
+COPY --chown=archlucid:archlucid docs/library/customer-facing /docs/library/customer-facing
+COPY --chown=archlucid:archlucid docs/library/walkthroughs /docs/library/walkthroughs
+COPY --chown=archlucid:archlucid docs/go-to-market /docs/go-to-market
+COPY --chown=archlucid:archlucid docs/security /docs/security
+COPY --chown=archlucid:archlucid docs/runbooks /docs/runbooks
+COPY --chown=archlucid:archlucid docs/onboarding /docs/onboarding
+COPY --chown=archlucid:archlucid docs/CORE_PILOT.md /docs/CORE_PILOT.md
+COPY --chown=archlucid:archlucid docs/library/operator-shell.md /docs/library/operator-shell.md
+COPY --chown=archlucid:archlucid docs/library/FIRST_HOUR_OPERATOR_PATH.md /docs/library/FIRST_HOUR_OPERATOR_PATH.md
+COPY --chown=archlucid:archlucid docs/library/AUDIT_COVERAGE_MATRIX.md /docs/library/AUDIT_COVERAGE_MATRIX.md
+COPY --chown=archlucid:archlucid docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md /docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md
+COPY --chown=archlucid:archlucid docs/library/PILOT_ROI_MODEL.md /docs/library/PILOT_ROI_MODEL.md
+COPY --chown=archlucid:archlucid docs/library/CLI_USAGE.md /docs/library/CLI_USAGE.md
+COPY --chown=archlucid:archlucid docs/library/CONFIGURATION_REFERENCE.md /docs/library/CONFIGURATION_REFERENCE.md
+COPY --chown=archlucid:archlucid docs/library/ACCELERATOR_CHOOSER.md /docs/library/ACCELERATOR_CHOOSER.md
+COPY --chown=archlucid:archlucid docs/library/COMPARISON_REPLAY.md /docs/library/COMPARISON_REPLAY.md
+COPY --chown=archlucid:archlucid docs/library/REPEAT_REVIEW_LOOP.md /docs/library/REPEAT_REVIEW_LOOP.md
+COPY --chown=archlucid:archlucid docs/library/API_CONTRACTS.md /docs/library/API_CONTRACTS.md
+COPY --chown=archlucid:archlucid docs/library/PRODUCT_LEARNING.md /docs/library/PRODUCT_LEARNING.md
 
 USER archlucid
 

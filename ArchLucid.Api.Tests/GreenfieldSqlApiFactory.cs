@@ -100,6 +100,7 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
         settings["Persistence:SqlOpenResilience:BaseDelayMilliseconds"] = "500";
         settings["Demo:SeedOnStartup"] = "false";
         settings["Demo:SeedDepth"] = "quickstart";
+        settings["Auth:PublicSignup:Mode"] = "PublicSelfService";
     }
 
     /// <inheritdoc />
@@ -143,11 +144,25 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
     /// </summary>
     internal async Task<HttpClient> CreateBoundedClientAsync()
     {
+        // Keep process env aligned for any late configuration reloads / sibling factory dispose races.
+        RepinSqlCatalogEnvironmentVariables();
+
         await EnsureServicesStartedAsync().ConfigureAwait(false);
 
         return await IntegrationTestHostStartup.EnsureCompletedAsync(
             () => CreateClient(),
             IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Pins control-plane + topology env keys to <see cref="SqlConnectionString" /> (same keys as
+    ///     <see cref="IntegrationTestSqlCatalogEnvironment" />).
+    /// </summary>
+    private void RepinSqlCatalogEnvironmentVariables()
+    {
+        Environment.SetEnvironmentVariable("ConnectionStrings__ArchLucid", SqlConnectionString);
+        Environment.SetEnvironmentVariable("ConnectionStrings__ArchLucidSystem", SqlConnectionString);
+        Environment.SetEnvironmentVariable("ArchLucid__SqlTopology__Mode", "SingleCatalog");
     }
 
     private Task<IServiceProvider> StartServicesCoreAsync()
@@ -161,6 +176,11 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
 
         await ArchitectureRequestConcurrencyTestSupport.RunGreenfieldSqlFactoryBootstrapAsync(async cancellationToken =>
         {
+            // Other ArchLucidEnvMutation factories pin ConnectionStrings__* in their ctors (outside this gate).
+            // Re-assert this factory's catalog immediately before host build so Program's AddEnvironmentVariables()
+            // cannot freeze a sibling greenfield/PersistenceTests catalog while fixture.SqlConnectionString differs.
+            RepinSqlCatalogEnvironmentVariables();
+
             _storageProviderEnvironment.Apply();
 
             Console.Error.WriteLine(

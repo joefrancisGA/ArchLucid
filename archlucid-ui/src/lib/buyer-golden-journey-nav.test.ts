@@ -40,4 +40,11 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(resolveBuyerGoldenJourneyNav(`/governance?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
     expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
   });
+
+  it("recognizes live SQL golden manifest detail under /signed-records/{guid}", () => {
+    const liveGoldenManifestId = "495ab97d-9f1b-d4f1-761e-f5406a636db3";
+
+    expect(resolveBuyerGoldenJourneyNav(`/signed-records/${liveGoldenManifestId}`)?.currentStepIndex).toBe(1);
+    expect(resolveBuyerGoldenJourneyNav("/signed-records")).toBeNull();
+  });
 });

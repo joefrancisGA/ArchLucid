@@ -45,7 +45,7 @@
 | Theme | Response | Evidence |
 |-------|----------|----------|
 | Secure SDLC | Yes — CodeQL `security-extended`, ZAP strict, mutation testing (Persistence Stryker matrix) | `.github/workflows/` |
-| API authorization | Yes — policy-based `[Authorize(Policy=...)]`; guard tests `ApiControllerMutationPolicyGuardTests` | `ArchLucid.Api.Tests` |
+| API authorization | Yes — policy-based `[Authorize(Policy=...)]`; mutation endpoints covered by authorization guard unit tests | In-repo API test suite |
 
 ## Related
 

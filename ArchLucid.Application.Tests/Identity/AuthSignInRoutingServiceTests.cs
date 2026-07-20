@@ -310,7 +310,7 @@ public sealed class AuthSignInRoutingServiceTests
         AuthSignInRoutingEvaluation result = await sut.EvaluateAsync(
             new AuthSignInRoutingRequest
             {
-                NormalizedEmail = "personal@gmail.com",
+                NormalizedEmail = "attacker@enterprise.example",
                 InvitationToken = token
             },
             CancellationToken.None);

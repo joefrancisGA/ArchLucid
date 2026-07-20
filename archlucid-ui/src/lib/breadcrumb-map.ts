@@ -3,6 +3,7 @@ import { SPONSOR_REPORT_SECTION_LABEL } from "@/lib/sponsor-report-navigation";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import {
   ARCHITECTURES_LIST_PATH,
+  ARCHITECTURES_NEW_PATH,
   parseArchitectureDraftIdFromPath,
 } from "@/lib/architecture-routes";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
@@ -145,10 +146,11 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [{ label: ARCHITECTURE_DRAFTS_LIST_LABEL }];
   }
 
-  if (normalized.startsWith(`${ARCHITECTURES_LIST_PATH}/`)) {
+  // Create-architecture entry and draft editor — parent crumb is Architectures (nav), not "Drafts".
+  if (normalized === ARCHITECTURES_NEW_PATH || normalized.startsWith(`${ARCHITECTURES_LIST_PATH}/`)) {
     const architectureId = parseArchitectureDraftIdFromPath(normalized);
 
-    if (architectureId !== null) {
+    if (normalized === ARCHITECTURES_NEW_PATH || architectureId !== null) {
       return [
         { label: ARCHITECTURE_DRAFTS_LIST_LABEL, href: ARCHITECTURES_LIST_PATH },
         { label: CREATE_ARCHITECTURE_LABEL },

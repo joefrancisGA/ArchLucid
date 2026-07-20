@@ -86,15 +86,13 @@ export function InviteReviewerPageView(props: Props) {
         </CardContent>
       </Card>
 
-      {!directoryUnavailable ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="invite-reviewer-footer">
-          {INVITE_REVIEWER_FOOTER_LEAD}{" "}
-          <Link href={SETTINGS_ROLES_USERS_TAB_PATH} className={OPERATOR_LINK.nav}>
-            Open Users and roles
-          </Link>
-          .
-        </p>
-      ) : null}
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="invite-reviewer-footer">
+        {INVITE_REVIEWER_FOOTER_LEAD}{" "}
+        <Link href={SETTINGS_ROLES_USERS_TAB_PATH} className={OPERATOR_LINK.nav}>
+          Open Users and roles
+        </Link>
+        .
+      </p>
     </div>
   );
 }

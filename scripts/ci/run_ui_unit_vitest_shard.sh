@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-SHARD_ID="${1:?shard id required (lib | components | surface)}"
+SHARD_ID="${1:?shard id required (lib | components | app-operator-a | app-operator-b | app-operator-c | app-operator-d | app-operator-e | app-marketing | surface)}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MANIFEST="${ROOT}/scripts/ci/ui_unit_vitest_shards.json"
 UI_DIR="${ROOT}/archlucid-ui"
@@ -38,4 +38,12 @@ fi
 
 cd "${UI_DIR}"
 echo "UI unit Vitest shard ${SHARD_ID}: ${#PATHS[@]} path glob(s)"
-npm run test -- "${PATHS[@]}"
+
+# OperatorHomePageView.test.tsx alone OOMs under the default 6 GiB CI heap (app-operator-e).
+# GitHub-hosted linux runners have ~16 GiB RAM; 8 GiB still OOM'd on RC13 — use 12 GiB for this shard only.
+if [ "${SHARD_ID}" = "app-operator-e" ]; then
+  export NODE_OPTIONS="--max-old-space-size=12288"
+  echo "Raised NODE_OPTIONS=${NODE_OPTIONS} for heavy OperatorHomePageView shard"
+fi
+
+npm run test:vitest-single-worker -- "${PATHS[@]}"

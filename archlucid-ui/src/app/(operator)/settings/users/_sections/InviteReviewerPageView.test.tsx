@@ -40,11 +40,12 @@ describe("InviteReviewerPageView", () => {
     expect(screen.queryByText(/custom roles/i)).not.toBeInTheDocument();
   });
 
-  it("hides the footer when the user directory is unavailable", () => {
+  it("keeps the footer when the user directory is unavailable (invite does not need directory)", () => {
     render(<InviteReviewerPageView model={buildModel({ note: "api_unavailable" })} />);
 
-    expect(screen.queryByTestId("invite-reviewer-footer")).not.toBeInTheDocument();
+    expect(screen.getByTestId("invite-reviewer-footer")).toBeInTheDocument();
   });
+
 
   it("shows Reader role capability summary below the page lead (TB-511)", () => {
     render(<InviteReviewerPageView model={buildModel()} />);

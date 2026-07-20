@@ -34,7 +34,7 @@ describe("run-detail-architect-section-order (TB-620)", () => {
   it("places buyer findings before decision delta and below-fold pipeline sections", () => {
     const findingsIndex = pageViewSource.indexOf("<RunDetailExplanationDeferred");
     const decisionDeltaIndex = pageViewSource.indexOf("<RunDetailDecisionDeltaDeferred");
-    const trustEvidenceIndex = pageViewSource.indexOf("<RunTrustEvidenceCardSection");
+    const trustEvidenceIndex = pageViewSource.indexOf("<RunDetailTrustEvidenceCardSectionDeferred");
     const belowFoldIndex = pageViewSource.indexOf("<RunDetailBelowFoldSections");
 
     expect(findingsIndex).toBeGreaterThan(-1);
