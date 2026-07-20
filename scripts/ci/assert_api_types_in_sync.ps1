@@ -25,7 +25,13 @@ $npx = if (Get-Command npx.cmd -ErrorAction SilentlyContinue) { 'npx.cmd' } else
 & $npx --yes openapi-typescript $Snapshot -o $Target
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+# git's CRLF-normalization notice on this line-ending-sensitive file writes to stderr, which
+# PowerShell treats as a terminating error under $ErrorActionPreference = 'Stop' once captured
+# via 2>&1 — relax it for this one native call so only $LASTEXITCODE decides pass/fail.
+$previousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
 $gitDiff = git -C $Root diff --exit-code -- $Target 2>&1
+$ErrorActionPreference = $previousErrorActionPreference
 if ($LASTEXITCODE -eq 0) {
     Write-Host '✅ api-types.generated.ts is in sync with the OpenAPI snapshot.'
     exit 0

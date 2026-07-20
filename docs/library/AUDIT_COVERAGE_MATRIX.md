@@ -371,7 +371,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RunCompleted` | `RunCompleted` | `AuthorityRunOrchestrator` |
 | `ManifestGenerated` | `ManifestGenerated` | `AuthorityPipelineStagesExecutor` |
 | `ManifestFinalized` | `ManifestFinalized` | `ManifestFinalizationService` (`sp_FinalizeManifest` transactional path — see `MANIFEST_FINALIZATION_TRANSACTION.md`) |
-| `RunSubmitted` | `RunSubmitted` | `RunsController` (`POST /v1/architecture/run/{runId}/execute`, `POST /v1/runs/{runId}/submit`) |
+| `RunSubmitted` | `RunSubmitted` | `RunsController` (`POST /v1/architecture/run/{runId}/execute`) |
 | `ManifestViewed` | `ManifestViewed` | `AuthorityQueryController` (`GET …/manifest` / `GET /v1/runs/{runId}/manifest`) |
 | `ReviewTrailAccessed` | `ReviewTrailAccessed` | `AuthorityQueryController` (`GET …/pipeline-timeline`, `GET /v1/runs/{runId}/review-trail`) |
 | `ProvenanceAccessed` | `ProvenanceAccessed` | `AuthorityQueryController` (`GET …/provenance`, `GET /v1/runs/{runId}/review-trail/provenance`) |

@@ -72,7 +72,7 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 
 **Daily probe status.** **Retired 2026-05-05** with PR B — `coordinator-parity-daily.yml` removed; no nightly auto-append. Historical sample rows remain in the table above. If V1 ships and a future change restores gate (iv), reintroduce automation via a new ADR/workflow.
 
-**Closing report:** *Not available — pre-release. Reopen this subsection if a future change ever restores gate (iv) (e.g., post-V1 coordinator-style refactor) and 14 contiguous zero-write days are recorded.*
+**Closing report (2026-07-20, TB-919):** Gate (iv) is resolved without a 14-day soak — the surface it was gating (the deprecated alias routes) no longer exists. The coordinator strangler migration (ADR 0021) has no open items: the data/orchestrator layer closed 2026-04-29 (PR A4), the HTTP write surface collapsed to one canonical family 2026-06-06 (ADR 0042/TB-305), and the deprecated aliases from that collapse were deleted 2026-07-20 (TB-919). Reopen this subsection only if a future coordinator-style refactor is proposed (none currently planned) and gate (iv) needs to be satisfied against real customer traffic post-V1.
 
 ## HTTP write-surface collapse (2026-06-06, ADR 0042 / TB-305)
 
@@ -82,9 +82,9 @@ The **code-level** dual pipeline is fully retired. Beyond the data/orchestrator 
 - `POST v1/architecture/run/{runId}/result` is constrained to append-only-to-in-progress (`RunStateTransitionService.ValidateResultSubmissionAllowed`) — it cannot finalize a run or bypass the commit orchestrator.
 - `CanonicalRunWriteSurfaceArchitectureTests` fails the build if a new dual-write verb appears without an ADR-cited `RunWriteLifecycleRoutes` entry.
 
-This closes the **code-level** half of ADR 0021; only gate **(iv)** (14 contiguous zero-coordinator-write days) remains, and it stays owner/customer-traffic gated (no force-close).
+This closed the **code-level** half of ADR 0021 on 2026-06-06; the remaining gate **(iv)** item (14 contiguous zero-coordinator-write days) is now **resolved (TB-919, 2026-07-20)** — see below.
 
-**Alias-traffic soak probe (ADR 0042, pre-sunset):** `RunAliasDeprecationMiddleware` increments **`archlucid_run_lifecycle_deprecated_alias_requests_total`** (label **`operation`** = `create` | `execute` | `commit`) on every deprecated-alias hit. Before deleting alias routes, confirm **14 consecutive days** with **zero** increase on all three operations (or document explicit integrator exceptions). Query example on `/metrics`: `sum by (operation) (increase(archlucid_run_lifecycle_deprecated_alias_requests_total[1d]))`.
+**Alias-traffic soak probe — retired (TB-919, 2026-07-20).** `RunAliasDeprecationMiddleware` formerly incremented **`archlucid_run_lifecycle_deprecated_alias_requests_total`** (label **`operation`** = `create` | `execute` | `commit`) on every deprecated-alias hit, as a soak input before deleting the alias routes. Owner decision 2026-07-20: pre-release, no paying customer, no published client depends on the aliases — deleted `v1/requests`, `v1/runs/{runId}/submit`, and `v1/runs/{runId}/manifest/finalize` directly rather than waiting out a 14-day soak with no real traffic to observe. The middleware and counter were removed with the routes (`ArchLucid.Api/Middleware/RunAliasDeprecationMiddleware.cs`, `ArchLucidInstrumentation.RunLifecycleDeprecatedAliasRequestsTotal` both deleted).
 
 ## Related
 

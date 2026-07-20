@@ -29,6 +29,8 @@
 > emitted by `CoordinatorPipelineDeprecationFilter` mounted via `[CoordinatorPipelineDeprecated]` so non-coordinator routes
 > (`RunQueryController`, `ManifestsController`) stay clean. This satisfies the published [`docs/API_CONTRACTS.md`](../../library/API_CONTRACTS.md) deprecation policy
 > and starts the Phase 3 sunset clock.
+>
+> **2026-07-20 update — strangler migration fully closed, no open items remain (TB-919).** The one item still open after ADR 0030/0042 — the deprecated `v1/requests` / `v1/runs/{runId}/submit` / `v1/runs/{runId}/manifest/finalize` aliases and this ADR's Phase 3 gate **(iv)** — is resolved: owner decision 2026-07-20 deleted the aliases outright (pre-release, no paying customer, no published client depends on them) rather than waiting for a 14-day zero-write soak that pre-release traffic could never produce. See `docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md` § Remaining product / ADR follow-up (now empty) and [ADR 0042](0042-canonical-run-write-surface.md) status note.
 
 ## Context
 

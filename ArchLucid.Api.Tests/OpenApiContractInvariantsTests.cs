@@ -57,12 +57,10 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         required.Any(n => string.Equals(n?.GetValue<string>(), "structuralExecutionMode", StringComparison.Ordinal)).Should()
             .BeTrue("structuralExecutionMode must be required on ArchitectureRun in OpenAPI");
 
-        JsonNode? submitPost = paths["/v1/runs/{runId}/submit"]?["post"];
-        submitPost.Should().NotBeNull();
-        JsonObject? submitResponses = submitPost["responses"]?.AsObject();
-        submitResponses.Should().NotBeNull();
-        submitResponses.ContainsKey("409").Should().BeTrue(
-            "runs submit alias documents 409 for quality-gate rejection; regen snapshot if this fails");
+        // TB-919 (2026-07-20): the "/v1/runs/{runId}/submit" deprecated alias was deleted with the coordinator
+        // strangler migration closure; "/v1/architecture/run/{runId}/execute" above is the sole route now.
+        paths.ContainsKey("/v1/runs/{runId}/submit").Should().BeFalse(
+            "the deprecated run-lifecycle alias routes were retired by TB-919 — this path must not reappear without a new ADR");
     }
 
     [SkippableFact]

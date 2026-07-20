@@ -6,10 +6,10 @@ using FluentAssertions;
 namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
-///     ADR 0021 / ADR 0030 / TB-305 closure pins: the coordinator pipeline is retired in production code;
+///     ADR 0021 / ADR 0030 / TB-305 / TB-919 closure pins: the coordinator pipeline is retired in production code;
 ///     run-lifecycle writes flow only through the authority orchestrator and canonical <c>v1/architecture/*</c>
-///     routes. Deprecated HTTP aliases remain routable per ADR 0042 but must not reintroduce dual storage or
-///     legacy commit orchestration.
+///     routes. The deprecated HTTP aliases ADR 0042 introduced were deleted by TB-919 — this must not reintroduce
+///     dual storage, legacy commit orchestration, or a resurrected alias route.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -116,15 +116,26 @@ public sealed class CoordinatorStranglerCompletionArchitectureTests
         string text = File.ReadAllText(path);
 
         text.Should().Contain("Improvement 3");
-        text.Should().Contain("assert_integration_tests_canonical_run_writes.py");
+        text.Should().Contain("TB-919");
+        text.Should().Contain("None outstanding as of 2026-07-20");
     }
 
     [Fact]
-    public void Integration_test_canonical_run_write_guard_script_exists()
+    public void Integration_test_canonical_run_write_guard_script_is_retired()
     {
+        // TB-919 deleted the deprecated alias routes the guard protected, so the guard itself was retired
+        // (a guard against calling routes that no longer exist would be permanently vacuous).
         File.Exists(Path.Combine(RepoRoot, "scripts", "ci", "assert_integration_tests_canonical_run_writes.py"))
             .Should()
-            .BeTrue("Improvement 3 pins integration tests to canonical run-lifecycle write routes only");
+            .BeFalse("TB-919 retired the alias routes and the now-vacuous guard script together");
+    }
+
+    [Fact]
+    public void Deprecated_run_lifecycle_alias_middleware_is_retired()
+    {
+        File.Exists(Path.Combine(RepoRoot, "ArchLucid.Api", "Middleware", "RunAliasDeprecationMiddleware.cs"))
+            .Should()
+            .BeFalse("TB-919 deleted the deprecated alias routes and their deprecation-header middleware together");
     }
 
     private static bool IsArchLucidProductionSource(string path)
