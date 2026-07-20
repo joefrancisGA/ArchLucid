@@ -8,6 +8,7 @@ import { shouldShowRunDetailGovernanceCta } from "@/lib/run-detail-governance-ct
 import {
   humanReviewStatusDisplay,
   severityBadgeLabel,
+  sortQuickDecisionFindings,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -44,6 +45,15 @@ export type RunDetailWorkspaceRecommendedAction = {
   readonly ownerOrRole: string | null;
   readonly href: string;
   readonly actionLabel: string;
+};
+
+export type ReviewStatusSummary = {
+  readonly reviewOutcome: string;
+  readonly highestUnresolvedSeverity: string | null;
+  readonly openFindingsCount: number;
+  readonly findingsRequiringActionCount: number;
+  readonly primaryConcern: string | null;
+  readonly nextAction: string;
 };
 
 export type ExecutiveBottomLineContent =
@@ -433,6 +443,111 @@ export function deriveRecommendedWorkspaceActions(input: {
   return actions.slice(0, 5);
 }
 
+function isFindingResolved(finding: QuickDecisionFinding): boolean {
+  const status = humanReviewStatusDisplay(finding.humanReviewStatus);
+
+  return status?.label === "Approved" || status?.label === "Overridden";
+}
+
+export function filterUnresolvedFindings(
+  findings: readonly QuickDecisionFinding[],
+): QuickDecisionFinding[] {
+  return findings.filter((finding) => !finding.isMuted && !isFindingResolved(finding));
+}
+
+export function countOpenFindings(findings: readonly QuickDecisionFinding[]): number {
+  return filterUnresolvedFindings(findings).length;
+}
+
+export function deriveHighestUnresolvedSeverityLabel(
+  findings: readonly QuickDecisionFinding[],
+): string | null {
+  return deriveHighestFindingSeverityLabel(filterUnresolvedFindings(findings), null);
+}
+
+export function derivePrimaryConcernFinding(
+  findings: readonly QuickDecisionFinding[],
+): QuickDecisionFinding | null {
+  const unresolved = filterUnresolvedFindings(findings);
+
+  if (unresolved.length === 0) {
+    return null;
+  }
+
+  const sorted = sortQuickDecisionFindings(unresolved);
+
+  return sorted[0] ?? null;
+}
+
+export function derivePrimaryConcernLabel(findings: readonly QuickDecisionFinding[]): string | null {
+  return derivePrimaryConcernFinding(findings)?.title ?? null;
+}
+
+export function deriveReviewNextActionLabel(input: {
+  readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
+  readonly primaryConcernFinding: QuickDecisionFinding | null;
+  readonly blockingFindingCount: number;
+}): string {
+  const primary = input.primaryConcernFinding;
+
+  if (primary !== null) {
+    const status = humanReviewStatusDisplay(primary.humanReviewStatus);
+    const isUnresolved = status?.label !== "Approved" && status?.label !== "Overridden";
+
+    if (isUnresolved) {
+      const severity = severityBadgeLabel(primary.severityValue).toLowerCase();
+
+      return `Confirm evidence and remediation ownership for the open ${severity}-severity finding`;
+    }
+  }
+
+  if (primary !== null && (primary.evidenceRefCount ?? 0) === 0) {
+    return `Confirm evidence and remediation ownership for ${primary.title}`;
+  }
+
+  const evidenceAction = input.recommendedActions.find((action) => action.id === "add-evidence");
+
+  if (evidenceAction !== undefined) {
+    return `${evidenceAction.actionLabel} — ${evidenceAction.reason}`;
+  }
+
+  const blockingAction = input.recommendedActions.find((action) => action.id === "review-blocking");
+
+  if (blockingAction !== undefined) {
+    return `${blockingAction.actionLabel} — ${blockingAction.reason}`;
+  }
+
+  const first = input.recommendedActions[0];
+
+  if (first !== undefined) {
+    return `${first.actionLabel} — ${first.reason}`;
+  }
+
+  return "No immediate actions required — monitor findings and evidence coverage.";
+}
+
+export function deriveReviewStatusSummary(input: {
+  readonly reviewOutcome: string;
+  readonly findings: readonly QuickDecisionFinding[];
+  readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
+  readonly blockingFindingCount: number;
+}): ReviewStatusSummary {
+  const primaryConcernFinding = derivePrimaryConcernFinding(input.findings);
+
+  return {
+    reviewOutcome: input.reviewOutcome,
+    highestUnresolvedSeverity: deriveHighestUnresolvedSeverityLabel(input.findings),
+    openFindingsCount: countOpenFindings(input.findings),
+    findingsRequiringActionCount: countFindingsAwaitingAction(input.findings),
+    primaryConcern: derivePrimaryConcernLabel(input.findings),
+    nextAction: deriveReviewNextActionLabel({
+      recommendedActions: input.recommendedActions,
+      primaryConcernFinding,
+      blockingFindingCount: input.blockingFindingCount,
+    }),
+  };
+}
+
 export function deriveExecutiveBottomLineContent(input: {
   readonly governanceDecisionLabel: string;
   readonly governanceDecisionRationale: string | null | undefined;
@@ -441,31 +556,23 @@ export function deriveExecutiveBottomLineContent(input: {
   readonly highestSeverity: string | null;
   readonly themeSummaries: readonly string[] | null | undefined;
 }): ExecutiveBottomLineContent | null {
-  const decision = input.governanceDecisionLabel.trim();
   const rationale = (input.governanceDecisionRationale ?? "").trim();
   const themes = (input.themeSummaries ?? []).map((theme) => theme.trim()).filter((theme) => theme.length > 0);
-  const hasGovernanceNarrative =
-    decision.length > 0 &&
-    decision !== "No governance decision recorded" &&
-    (rationale.length > 0 || input.blockingFindingCount > 0 || input.overallPosture.length > 0);
+  const parts: string[] = [];
 
-  if (hasGovernanceNarrative) {
-    const parts: string[] = [decision.endsWith(".") ? decision : `${decision}.`];
+  if (rationale.length > 0) {
+    parts.push(rationale.endsWith(".") ? rationale : `${rationale}.`);
+  }
 
-    if (rationale.length > 0) {
-      parts.push(rationale.endsWith(".") ? rationale : `${rationale}.`);
-    } else if (input.overallPosture.length > 0) {
-      parts.push(`Overall posture is ${input.overallPosture.toLowerCase()}.`);
-    }
+  if (input.blockingFindingCount > 0) {
+    const severityLabel = (input.highestSeverity ?? "material").toLowerCase();
 
-    if (input.blockingFindingCount > 0) {
-      const severityLabel = (input.highestSeverity ?? "material").toLowerCase();
+    parts.push(
+      `${input.blockingFindingCount} unresolved ${severityLabel} finding${input.blockingFindingCount === 1 ? "" : "s"} still require an assigned owner and supporting evidence before unrestricted production use.`,
+    );
+  }
 
-      parts.push(
-        `${input.blockingFindingCount} unresolved ${severityLabel} finding${input.blockingFindingCount === 1 ? "" : "s"} still require an assigned owner and supporting evidence before unrestricted production use.`,
-      );
-    }
-
+  if (parts.length > 0) {
     return { kind: "narrative", text: parts.join(" ") };
   }
 

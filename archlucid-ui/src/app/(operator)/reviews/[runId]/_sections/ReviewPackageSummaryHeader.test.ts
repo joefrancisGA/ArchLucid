@@ -9,9 +9,9 @@ const pageViewSource = readFileSync(join(sectionsDir, "RunDetailPageView.tsx"), 
 const workspaceChromeSource = readFileSync(join(sectionsDir, "RunDetailWorkspaceChrome.tsx"), "utf8");
 
 describe("Run detail workspace header integration", () => {
-  it("uses workspace header and executive summary on RunDetailPageView", () => {
+  it("uses workspace header and review status summary on RunDetailPageView", () => {
     expect(pageViewSource).toContain("<RunDetailWorkspaceHeader");
-    expect(pageViewSource).toContain("<RunDetailExecutiveSummary");
+    expect(pageViewSource).toContain("<RunDetailWorkspaceSummaryStrip");
     expect(pageViewSource).not.toContain("<ReviewPackageSummaryHeader");
   });
 

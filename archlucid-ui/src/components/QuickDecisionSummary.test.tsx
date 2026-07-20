@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { describe, expect, it, vi } from "vitest";
 
@@ -329,5 +329,70 @@ describe("QuickDecisionSummary", () => {
 
     expect(screen.queryByTestId("finding-owner-f-unowned")).not.toBeInTheDocument();
     expect(screen.queryByTestId("finding-review-status-f-unowned")).not.toBeInTheDocument();
+  });
+
+  it("workspace mode elevates the primary finding and collapses integrations", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-high",
+        title: "High title",
+        recommendation: "Fix immediately. Then verify.",
+        severityValue: 2,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        evidenceRefCount: 2,
+      },
+      {
+        findingId: "f-low",
+        title: "Low title",
+        recommendation: "Later.",
+        severityValue: 0,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-workspace" findings={findings} workspaceCardMode />);
+
+    const primaryCard = screen.getByTestId("finding-workspace-primary-card");
+
+    expect(primaryCard).toBeInTheDocument();
+    expect(within(primaryCard).getByRole("heading", { name: "High title" })).toBeInTheDocument();
+    expect(screen.getByText("Additional findings (1)")).toBeInTheDocument();
+    expect(screen.queryByTestId("findings-itsm-export-toolbar")).not.toBeInTheDocument();
+    expect(within(primaryCard).getByText("Create work item / Integrations")).toBeInTheDocument();
+    expect(within(primaryCard).getByTestId("itsm-sync-jira")).not.toBeVisible();
+  });
+
+  it("workspace mode exposes integrations inside collapsed supporting detail", async () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-high",
+        title: "High title",
+        recommendation: "Fix immediately.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-workspace" findings={findings} workspaceCardMode />);
+
+    const primaryCard = screen.getByTestId("finding-workspace-primary-card");
+
+    fireEvent.click(within(primaryCard).getByText("Supporting detail"));
+    fireEvent.click(within(primaryCard).getByText("Create work item / Integrations"));
+
+    expect(within(primaryCard).getByTestId("finding-itsm-sync-f-high")).toBeInTheDocument();
+    expect(within(primaryCard).getByTestId("itsm-sync-jira")).toBeVisible();
   });
 });

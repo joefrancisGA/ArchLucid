@@ -82,8 +82,27 @@ export function RunDetailRunExplanationCollapsible(
         defaultOpen
         sectionTestId="run-detail-findings-section"
       >
-        <InsightDensityCurationBanner curation={insightDensityView.curation} />
-        <FindingsWhatIfAnalysisPanel findings={quickDecisionFindings} baselineAnnualCostUsd={baselineAnnualCostUsd} isIllustrativePricing={isIllustrativePricing} />
+        <details className="mb-4 rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
+          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+            Finding coverage and curation
+          </summary>
+          <div className="mt-3 space-y-3">
+            <InsightDensityCurationBanner curation={insightDensityView.curation} />
+            <CoverageChecklistPanel items={insightDensityView.checklistCoverage} />
+          </div>
+        </details>
+        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800" data-workspace-disclosure>
+          <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.body)}>
+            Impact analysis
+          </summary>
+          <div className="mt-3">
+            <FindingsWhatIfAnalysisPanel
+              findings={quickDecisionFindings}
+              baselineAnnualCostUsd={baselineAnnualCostUsd}
+              isIllustrativePricing={isIllustrativePricing}
+            />
+          </div>
+        </details>
         <RunDetailFindingsWorkspace
           runId={runId}
           findings={quickDecisionFindings}
@@ -96,7 +115,6 @@ export function RunDetailRunExplanationCollapsible(
           providerNeutralWorkItems={providerNeutralWorkItems}
           architectureWorkItemContext={architectureWorkItemContext}
         />
-        <CoverageChecklistPanel items={insightDensityView.checklistCoverage} className="mt-4" />
       </CollapsibleSection>
 
       <CollapsibleSection

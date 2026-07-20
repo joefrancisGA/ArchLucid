@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 
+import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import {
   RunDetailFindingsToolbar,
@@ -56,6 +57,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         onSearchQueryChange={toolbar.setSearchQuery}
         sort={toolbar.sort}
         onSortChange={toolbar.setSort}
+        exportSlot={
+          <FindingsItsmExportToolbar runId={props.runId} findings={props.findings} compact />
+        }
       />
       <QuickDecisionSummary
         runId={props.runId}

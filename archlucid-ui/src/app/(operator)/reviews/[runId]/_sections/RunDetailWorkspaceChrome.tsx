@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
@@ -14,9 +15,6 @@ export type RunDetailWorkspaceHeaderProps = {
   readonly reviewTitle: string;
   readonly systemName: string | null;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
-  readonly overallPosture: string;
-  readonly highestSeverity: string | null;
-  readonly lastEvaluatedUtc: string | null;
   readonly reviewOwner: string | null;
   readonly templateLabel: string | null;
 };
@@ -77,15 +75,33 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
 }
 
 export type RunDetailWorkspaceSummaryStripProps = {
-  readonly overallPosture: string;
-  readonly criticalCount: number;
-  readonly highCount: number;
-  readonly awaitingActionCount: number;
-  readonly governanceDecisionLabel: string;
-  readonly evidenceCoverageLabel: string | null;
+  readonly reviewOutcome: string;
+  readonly highestUnresolvedSeverity: string | null;
+  readonly openFindingsCount: number;
+  readonly findingsRequiringActionCount: number;
+  readonly primaryConcern: string | null;
+  readonly nextAction: string;
 };
 
-/** Compact first-viewport outcome summary. */
+function severityTagKind(
+  severity: string,
+): "critical" | "high" | "medium" | "low" {
+  if (severity === "Critical") {
+    return "critical";
+  }
+
+  if (severity === "High") {
+    return "high";
+  }
+
+  if (severity === "Medium") {
+    return "medium";
+  }
+
+  return "low";
+}
+
+/** Compact first-viewport review status summary near the title. */
 export function RunDetailWorkspaceSummaryStrip(
   props: RunDetailWorkspaceSummaryStripProps,
 ): React.JSX.Element {
@@ -94,48 +110,52 @@ export function RunDetailWorkspaceSummaryStrip(
       id="review-summary"
       className="scroll-mt-24 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
       data-testid="run-detail-workspace-summary"
-      aria-label="Review summary"
+      aria-label="Review status summary"
     >
       <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
-        Review summary
+        Review status
       </h2>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Overall posture</dt>
-          <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">{props.overallPosture}</dd>
+          <dt className="text-neutral-500 dark:text-neutral-400">Review outcome</dt>
+          <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">{props.reviewOutcome}</dd>
         </div>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Critical findings</dt>
-          <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.criticalCount === 0 ? "No critical findings" : props.criticalCount}
+          <dt className="text-neutral-500 dark:text-neutral-400">Highest unresolved severity</dt>
+          <dd className="m-0 mt-0.5">
+            {props.highestUnresolvedSeverity !== null ? (
+              <SeverityTag
+                severity={props.highestUnresolvedSeverity}
+                kind={severityTagKind(props.highestUnresolvedSeverity)}
+                label={props.highestUnresolvedSeverity}
+              />
+            ) : (
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100">None</span>
+            )}
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">High findings</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">Open findings</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.highCount === 0 ? "No high findings" : props.highCount}
+            {props.openFindingsCount}
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Findings awaiting action</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">Findings requiring action</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.awaitingActionCount}
+            {props.findingsRequiringActionCount}
           </dd>
         </div>
-        <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Governance decision</dt>
+        <div className="sm:col-span-2">
+          <dt className="text-neutral-500 dark:text-neutral-400">Primary concern</dt>
           <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
-            {props.governanceDecisionLabel}
+            {props.primaryConcern ?? "No unresolved findings"}
           </dd>
         </div>
-        {props.evidenceCoverageLabel !== null ? (
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Evidence coverage</dt>
-            <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
-              {props.evidenceCoverageLabel}
-            </dd>
-          </div>
-        ) : null}
+        <div className="sm:col-span-2 lg:col-span-3">
+          <dt className="text-neutral-500 dark:text-neutral-400">Next action</dt>
+          <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{props.nextAction}</dd>
+        </div>
       </dl>
     </section>
   );

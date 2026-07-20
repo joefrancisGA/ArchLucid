@@ -20,9 +20,9 @@ export function RunDetailExecutiveBottomLine(props: RunDetailExecutiveBottomLine
     return (
       <Card className="border-l-4 border-l-teal-600 dark:border-l-teal-500">
         <CardHeader className={OPERATOR_CARD.header}>
-          <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Bottom-line summary
-          </CardTitle>
+        <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {content.kind === "considerations" ? "Key decision considerations" : "Additional context"}
+        </CardTitle>
         </CardHeader>
         <CardContent className={OPERATOR_CARD.content}>
           <p className={cn("m-0 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{content.text}</p>
