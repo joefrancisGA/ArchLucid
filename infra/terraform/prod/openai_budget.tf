@@ -16,15 +16,13 @@ resource "azurerm_consumption_budget_resource_group" "openai" {
     enabled        = true
     threshold      = 90
     operator       = "GreaterThan"
-    contact_emails = length(var.openai_consumption_budget_contact_emails) > 0 ? var.openai_consumption_budget_contact_emails : null
-    contact_roles  = length(var.openai_consumption_budget_contact_emails) > 0 ? null : var.openai_consumption_budget_contact_roles
+    contact_emails = var.openai_consumption_budget_contact_emails
   }
 
   notification {
     enabled        = true
     threshold      = 100
     operator       = "GreaterThan"
-    contact_emails = length(var.openai_consumption_budget_contact_emails) > 0 ? var.openai_consumption_budget_contact_emails : null
-    contact_roles  = length(var.openai_consumption_budget_contact_emails) > 0 ? null : var.openai_consumption_budget_contact_roles
+    contact_emails = var.openai_consumption_budget_contact_emails
   }
 }
