@@ -69,8 +69,8 @@ variable "tags" {
 
 variable "enable_sql_consumption_budget" {
   type        = bool
-  description = "When true, create an azurerm_consumption_budget_resource_group scoped to SQL server/database spend in the target resource group (see sql_consumption_budget_resource_group_id or derived primary server id)."
-  default     = false
+  description = "When true and a budget scope is known (sql_consumption_budget_resource_group_id or a non-placeholder primary_sql_server_resource_id), create an azurerm_consumption_budget_resource_group scoped to SQL server/database spend. Defaults true (2026-07-20): budgets are free; notifications use contact_roles (default Owner) when contact_emails is empty. Plan fails fast if the flag is on but scope is still the placeholder server id — set sql_consumption_budget_resource_group_id or a real primary_sql_server_resource_id, or set false to opt out."
+  default     = true
 }
 
 variable "sql_consumption_budget_resource_group_id" {

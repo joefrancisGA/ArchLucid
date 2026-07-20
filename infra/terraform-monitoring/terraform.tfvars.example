@@ -1,14 +1,15 @@
-﻿# Mandatory for first plan: enable_monitoring plus resource_group_name and action group email (secrets via Key Vault in production).
-# Copy to terraform.tfvars (gitignored). Defaults keep everything off for safe validate in CI.
+﻿# enable_monitoring_stack now defaults to true (2026-07-20) — it only creates one free action group
+# on its own, but plan fails fast (checks.tf) until you set resource_group_name + alert_email_address below.
+# Copy to terraform.tfvars (gitignored); secrets via Key Vault in production.
 #
 # Log Analytics workspace daily_quota_gb is not defined here â€” it lives in terraform-container-apps
 # (variable log_analytics_daily_quota_gb). See production.tfvars.example in that stack.
 
-enable_monitoring_stack = false
-# resource_group_name     = "rg-archlucid-prod"
-# name_prefix             = "archlucid"
-# alert_email_address     = "ops@example.com"
-# alert_webhook_uri       = "https://..." # optional Teams / PagerDuty
+# enable_monitoring_stack = false  # uncomment to opt back out (e.g. a throwaway sandbox)
+resource_group_name    = "rg-archlucid-prod"
+name_prefix             = "archlucid"
+alert_email_address     = "ops@example.com"
+# alert_webhook_uri     = "https://..." # optional Teams / PagerDuty
 
 # Full resource IDs from Azure Portal or terraform-container-apps outputs (Container Apps).
 # api_container_app_resource_id    = "/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-api"

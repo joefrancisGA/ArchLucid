@@ -1,17 +1,10 @@
-check "openai_consumption_budget_requires_resource_group" {
-  assert {
-    condition     = !var.enable_openai_consumption_budget || length(trimspace(var.openai_consumption_budget_resource_group_id)) > 0
-    error_message = "With enable_openai_consumption_budget = true, set openai_consumption_budget_resource_group_id to the full ARM id of the resource group containing your Azure OpenAI account(s)."
-  }
-}
-
 check "openai_consumption_budget_contact_channel" {
   assert {
-    condition = !var.enable_openai_consumption_budget || (
+    condition = !local.openai_consumption_budget_enabled || (
       length(var.openai_consumption_budget_contact_emails) > 0 ||
       length(var.openai_consumption_budget_contact_roles) > 0
     )
-    error_message = "With enable_openai_consumption_budget = true, set openai_consumption_budget_contact_emails and/or a non-empty openai_consumption_budget_contact_roles list."
+    error_message = "With the OpenAI consumption budget enabled, set openai_consumption_budget_contact_emails and/or a non-empty openai_consumption_budget_contact_roles list."
   }
 }
 

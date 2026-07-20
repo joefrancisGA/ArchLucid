@@ -28,23 +28,21 @@ check "sql_failover_automatic_uses_grace" {
 
 check "sql_consumption_budget_requires_scope" {
   assert {
-    condition = !var.enable_sql_consumption_budget || (
-      length(trimspace(local.sql_consumption_budget_resource_group_id)) > 0 && (
-        length(trimspace(var.sql_consumption_budget_resource_group_id)) > 0 ||
-        !strcontains(var.primary_sql_server_resource_id, "placeholder-primary")
-      )
+    condition = !local.sql_consumption_budget_enabled || (
+      length(trimspace(var.sql_consumption_budget_resource_group_id)) > 0 ||
+      !strcontains(var.primary_sql_server_resource_id, "placeholder-primary")
     )
-    error_message = "With enable_sql_consumption_budget = true, set sql_consumption_budget_resource_group_id to the SQL resource group ARM id, or set primary_sql_server_resource_id to a real Microsoft.Sql/servers id (not the default placeholder) so the group id can be derived."
+    error_message = "SQL consumption budget is enabled but scope is still the placeholder primary_sql_server_resource_id. Set sql_consumption_budget_resource_group_id to the SQL resource group ARM id, set primary_sql_server_resource_id to a real Microsoft.Sql/servers id, or set enable_sql_consumption_budget = false."
   }
 }
 
 check "sql_consumption_budget_contact_channel" {
   assert {
-    condition = !var.enable_sql_consumption_budget || (
+    condition = !local.sql_consumption_budget_enabled || (
       length(var.sql_consumption_budget_contact_emails) > 0 ||
       length(var.sql_consumption_budget_contact_roles) > 0
     )
-    error_message = "With enable_sql_consumption_budget = true, set sql_consumption_budget_contact_emails and/or a non-empty sql_consumption_budget_contact_roles list so Azure Cost Management can deliver notifications."
+    error_message = "With the SQL consumption budget enabled, set sql_consumption_budget_contact_emails and/or a non-empty sql_consumption_budget_contact_roles list so Azure Cost Management can deliver notifications."
   }
 }
 

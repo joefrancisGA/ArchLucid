@@ -18,4 +18,4 @@
 # enable_front_door_waf = true
 
 # terraform-monitoring
-# enable_monitoring_stack = true
+# enable_monitoring_stack = true  # now the default (2026-07-20); still needs resource_group_name + alert_email_address set

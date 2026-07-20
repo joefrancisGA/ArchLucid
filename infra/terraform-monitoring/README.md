@@ -33,7 +33,7 @@ Set **`read_alert_secrets_from_key_vault = true`** and point **`alert_secrets_ke
 
 ## Defaults
 
-- **`enable_monitoring_stack = false`** â€” no resources; `terraform validate` in CI stays green.
+- **`enable_monitoring_stack = true`** (2026-07-20) â€” on its own this creates exactly one free `azurerm_monitor_action_group`; CPU metric alerts stay off unless you also set `container_cpu_percent_threshold > 0` and a resource ID. `checks.tf` fails `plan` fast (before any resource is created) if `alert_email_address` is empty, so CI's bare `terraform validate` (no tfvars, no `-var-file`) still stays green â€” `check` blocks are evaluated at `plan`/`apply`, not `validate`. Set `false` for a throwaway sandbox with no ops email.
 - **`enable_managed_grafana = false`** â€” avoids Grafana subscription quota/cost until you opt in.
 
 ## Wiring after `terraform-container-apps`
