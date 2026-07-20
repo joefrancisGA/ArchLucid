@@ -65,17 +65,20 @@ public sealed class RegistrationControllerTests(GreenfieldSqlApiFactory fixture)
         int totalTenants = await CountAllTenantsAsync(fixture.SqlConnectionString);
         AppendDiag(diagPath, $"after-first total dbo.Tenants rows on fixture catalog={totalTenants}");
 
+        string diSystemCatalog;
+        TenantRowProbe? rowViaDiFactory;
+
         // Compare live system factory connection string from DI (frozen at host build) vs fixture.
         using (IServiceScope probeScope = fixture.Services.CreateScope())
         {
             ArchLucid.Persistence.Connections.ISystemSqlConnectionFactory systemFactory =
                 probeScope.ServiceProvider.GetRequiredService<ArchLucid.Persistence.Connections.ISystemSqlConnectionFactory>();
+            diSystemCatalog = InitialCatalogOrMark(systemFactory.SystemConnectionString);
             AppendDiag(
                 diagPath,
-                "DI ISystemSqlConnectionFactory.SystemConnectionString catalog="
-                + InitialCatalogOrMark(systemFactory.SystemConnectionString));
+                "DI ISystemSqlConnectionFactory.SystemConnectionString catalog=" + diSystemCatalog);
 
-            TenantRowProbe? rowViaDiFactory = await ProbeTenantByIdAsync(
+            rowViaDiFactory = await ProbeTenantByIdAsync(
                 systemFactory.SystemConnectionString,
                 firstTenantId);
             AppendDiag(
@@ -113,6 +116,17 @@ public sealed class RegistrationControllerTests(GreenfieldSqlApiFactory fixture)
                     : $"Id={rowOnHostCs.Id} Name={rowOnHostCs.Name} Slug={rowOnHostCs.Slug}"));
         }
 
+        // Fail fast with catalog evidence when HTTP 201 IDs are invisible to both fixture and DI system CS.
+        rowById.Should().NotBeNull(
+            "first /v1/register returned 201 tenantId={0} but dbo.Tenants row missing on fixture catalog={1}; "
+            + "DI system catalog={2}; viaDiFactory={3}; totalTenants={4}; diag={5}",
+            firstTenantId,
+            InitialCatalogOrMark(fixture.SqlConnectionString),
+            diSystemCatalog,
+            rowViaDiFactory is null ? "NULL" : rowViaDiFactory.Id.ToString("D"),
+            totalTenants,
+            diagPath);
+
         using HttpResponseMessage duplicate = await client.PostAsync(
             "/v1/register",
             JsonContent(organizationName, "second@example.com", null));
@@ -142,9 +156,14 @@ public sealed class RegistrationControllerTests(GreenfieldSqlApiFactory fixture)
 
         duplicate.StatusCode.Should().Be(
             HttpStatusCode.Conflict,
-            "second register body: {0}; fixtureRowAfterFirst={1}; expectedSlug={2}; diag={3}",
+            "second register body: {0}; fixtureRowAfterFirst={1}; rowById={2}; viaDi={3}; "
+            + "fixtureCatalog={4}; diSystemCatalog={5}; expectedSlug={6}; diag={7}",
             duplicateBody,
             rowOnFixtureCs is null ? "NULL" : rowOnFixtureCs.Id.ToString("D"),
+            rowById is null ? "NULL" : rowById.Id.ToString("D"),
+            rowViaDiFactory is null ? "NULL" : rowViaDiFactory.Id.ToString("D"),
+            InitialCatalogOrMark(fixture.SqlConnectionString),
+            diSystemCatalog,
             expectedSlug,
             diagPath);
     }

@@ -112,12 +112,18 @@ public sealed class SelfServiceTrialAbusePolicy(
             return;
         }
 
+        // Callers should pass IdentityEmailNormalizer output; re-normalize so mixed-case slips still key Ordinal lookups.
+        if (!IdentityEmailNormalizer.TryNormalize(normalizedEmail, out string emailKey, out _))
+        {
+            return;
+        }
+
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
         await _repository.TryInsertEmailClaimAsync(
             new SelfServiceTrialEmailClaimInsert
             {
-                NormalizedEmail = normalizedEmail,
+                NormalizedEmail = emailKey,
                 PlatformUserId = platformUserId,
                 TenantId = tenantId,
                 ClaimSource = claimSource,
@@ -125,7 +131,7 @@ public sealed class SelfServiceTrialAbusePolicy(
             },
             cancellationToken).ConfigureAwait(false);
 
-        string? domain = ExtractDomain(normalizedEmail);
+        string? domain = ExtractDomain(emailKey);
 
         if (domain is not null)
         {

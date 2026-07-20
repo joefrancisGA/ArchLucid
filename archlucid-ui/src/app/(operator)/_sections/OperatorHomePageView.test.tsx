@@ -75,6 +75,19 @@ vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+// Keep the real view under test, but stub shell chrome that pulls large client graphs (CI heap OOM on app-operator-e).
+vi.mock("@/components/OperatorPageContainer", () => ({
+  OperatorPageContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="operator-page-container">{children}</div>,
+}));
+
+vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
+  OperatorHomeWorkspaceActivityProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
+  DevTestingQuickSwitchPanel: () => null,
+}));
+
 import { OperatorHomePageView } from "./OperatorHomePageView";
 import { OPERATOR_HOME_PRIMARY_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";

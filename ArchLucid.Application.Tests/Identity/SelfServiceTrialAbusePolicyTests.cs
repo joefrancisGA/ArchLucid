@@ -117,13 +117,14 @@ public sealed class SelfServiceTrialAbusePolicyTests
         SelfServiceTrialAbusePolicy sut = CreateSut(repository, PublicSignupMode.PublicSelfService);
 
         await sut.RecordSuccessfulClaimAsync(
-            "user@example.com",
+            "User@Example.COM",
             platformUserId: Guid.NewGuid(),
             tenantId: Guid.NewGuid(),
             claimSource: "trial",
             CancellationToken.None);
 
-        (await repository.HasEmailClaimAsync("USER@EXAMPLE.COM", CancellationToken.None)).Should().BeTrue();
+        // IdentityEmailNormalizer keys are lower-invariant; repository lookups are Ordinal.
+        (await repository.HasEmailClaimAsync("user@example.com", CancellationToken.None)).Should().BeTrue();
         (await repository.CountDomainClaimsSinceAsync("example.com", DateTimeOffset.UtcNow.AddDays(-1), CancellationToken.None))
             .Should()
             .Be(1);
