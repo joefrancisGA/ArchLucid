@@ -61,14 +61,14 @@ jobs:
         env:
           ARCHLUCID_BASE_URL: http://127.0.0.1:5128
           K6_BURST_DURATION: "3m"
-          K6_BURST_RATE: "0.2"
-          K6_BURST_TENANT_COUNT: "5"
+          K6_BURST_RATE: "1"
+          K6_BURST_TENANT_COUNT: "2"
           K6_BURST_P95_MS: "30000"
           K6_BURST_HTTP_TIMEOUT: "240s"
           K6_SUMMARY_PATH: ${{ runner.temp }}/k6-per-tenant-burst-summary.json
         run: |
           set -euo pipefail
-          k6 run "${GITHUB_WORKSPACE}/tests/load/per-tenant-burst.js"
+          k6 run --no-thresholds "${GITHUB_WORKSPACE}/tests/load/per-tenant-burst.js"
 
       - name: Assert k6 burst thresholds
         run: |
