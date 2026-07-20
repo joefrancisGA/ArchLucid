@@ -25,6 +25,10 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/help/cloud-connections-azure": "/help/cloud-connections/azure",
     "/help/cloud-connections-aws": "/help/cloud-connections/aws",
     "/help/cloud-connections-gcp": "/help/cloud-connections/gcp",
+    "/manifests": "/signed-records",
+    "/manifests/[manifestId]": "/signed-records/[manifestId]",
+    "/manifests/[manifestId]/artifacts/[artifactId]": "/signed-records/[manifestId]/artifacts/[artifactId]",
+    "/settings/cost-reporting": "/settings/ai-usage",
 }
 
 DEFAULT_NEW_HIT_PCT = "0.02%"

@@ -104,10 +104,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | GRS | `/governance/resolution` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | 15 | Help topic | None |
-| MMX | `/manifests/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
 | SAX | `/settings/alerts` | 0.15% | 0 | 0 | 15 | Settings | None |
 | STX | `/settings/tenant` | 0.15% | 0 | 0 | 15 | Settings | None |
 | AUX | `/settings/users` | 0.15% | 0 | 0 | 15 | Settings | None |
+| MMX | `/signed-records/[manifestId]` | 0.15% | 0 | 0 | 15 | Marketing | None |
 | ATX | `/admin/tenant-health` | 0.12% | 0 | 0 | 12 | Admin | None |
 | FXX | `/faq` | 0.12% | 0 | 0 | 12 | Marketing | None |
 | HHX | `/help/how-it-works` | 0.12% | 0 | 0 | 12 | Help topic | None |
@@ -129,7 +129,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ONB | `/onboarding` | 0.1% | 0 | 0 | 10 | Onboarding | None |
 | REP | `/replay` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | SEC | `/security-trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
-| SC | `/settings/cost-reporting` | 0.1% | 0 | 0 | 10 | Settings | None |
+| SC | `/settings/ai-usage` | 0.1% | 0 | 0 | 10 | Settings | None |
 | SDX | `/settings/developer` | 0.1% | 0 | 0 | 10 | Settings | None |
 | SEX | `/settings/exec-digest` | 0.1% | 0 | 0 | 10 | Settings | None |
 | TXX | `/trust` | 0.1% | 0 | 0 | 10 | Marketing | None |
@@ -166,9 +166,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HSE | `/help/security-trust` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HUX | `/help/users-and-roles` | 0.05% | 0 | 0 | 5 | Help alias | None |
 | IIO | `/integrations/itsm/oauth/callback` | 0.05% | 0 | 0 | 5 | Integrations | None |
+| RXX | `/internal-operations/recommendation-learning` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | OAX | `/operate/architecture-graph` | 0.05% | 0 | 0 | 5 | Advisory | None |
 | QXX | `/quick-scan` | 0.05% | 0 | 0 | 5 | Marketing | None |
-| RXX | `/recommendation-learning` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | SRH | `/showcase/[runId]` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | TRY | `/try` | 0.05% | 0 | 0 | 5 | Marketing | None |
 | VPX | `/value-report/pilot` | 0.05% | 0 | 0 | 5 | Marketing | None |
@@ -203,6 +203,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | 4XX | `/403` | 0.02% | 0 | 0 | 2 | Auth | None |
 | AXX | `/accessibility` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
+| ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADS | `/advisory?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | ADX | `/advisory?tab=schedules` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
@@ -257,11 +258,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | INZ | `/integrations/cloud-connections/azure` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | IGC | `/integrations/cloud-connections/gcp` | 0.02% | 0 | 0 | 2 | Integrations | None |
 | INR | `/integrations/readiness` | 0.02% | 0 | 0 | 2 | Integrations | None |
-| MA | `/manifests` | 0.02% | 0 | 0 | 2 | Marketing | None |
-| MAM | `/manifests/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PAP | `/patterns/[patternKey]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | PRB | `/privacy` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | QUI | `/quick-start` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| REX | `/recommendation-learning` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | REA | `/reviews/[runId]?archTab=activity` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | REC | `/reviews/[runId]?archTab=clarifications` | 0.02% | 0 | 0 | 2 | Tab surface | None |
@@ -279,9 +279,12 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SOI | `/settings/identity-providers/oidc` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SEO | `/settings/identity-providers/role-mapping` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SSA | `/settings/identity-providers/saml` | 0.02% | 0 | 0 | 2 | Settings | None |
+| SEM | `/settings/model-governance` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SEP | `/settings/preferences` | 0.02% | 0 | 0 | 2 | Settings | None |
 | SEK | `/settings/users?tab=keys` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | SSU | `/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
+| MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
 
 ---
 
