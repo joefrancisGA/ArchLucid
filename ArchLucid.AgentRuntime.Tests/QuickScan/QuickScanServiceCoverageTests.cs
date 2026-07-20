@@ -82,6 +82,7 @@ public sealed class QuickScanServiceCoverageTests
         new(
             completionClient,
             new TestOptionsMonitor(new QuickScanOptions()),
+            new TestSafetyOptionsMonitor(new QuickScanSafetyOptions { Enabled = false }),
             TimeProvider.System);
 
     private sealed class TestOptionsMonitor(QuickScanOptions value) : IOptionsMonitor<QuickScanOptions>
@@ -91,5 +92,14 @@ public sealed class QuickScanServiceCoverageTests
         public QuickScanOptions Get(string? name) => value;
 
         public IDisposable? OnChange(Action<QuickScanOptions, string?> listener) => null;
+    }
+
+    private sealed class TestSafetyOptionsMonitor(QuickScanSafetyOptions value) : IOptionsMonitor<QuickScanSafetyOptions>
+    {
+        public QuickScanSafetyOptions CurrentValue => value;
+
+        public QuickScanSafetyOptions Get(string? name) => value;
+
+        public IDisposable? OnChange(Action<QuickScanSafetyOptions, string?> listener) => null;
     }
 }
