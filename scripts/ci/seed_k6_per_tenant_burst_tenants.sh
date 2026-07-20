@@ -13,6 +13,8 @@ docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
   mcr.microsoft.com/mssql/server:2022-latest \
   -S "127.0.0.1,1433" -U sa -P "${SA_PASSWORD}" -C -d "${DB_NAME}" -b -Q "
 SET NOCOUNT ON;
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
 
 DECLARE @i INT = 1;
 WHILE @i <= 10
