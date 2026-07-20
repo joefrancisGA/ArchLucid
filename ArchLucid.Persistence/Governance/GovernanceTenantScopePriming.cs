@@ -12,6 +12,7 @@ namespace ArchLucid.Persistence.Governance;
 ///     Idempotently ensures <c>dbo.Tenants</c> contains a parent row for governance FK children
 ///     (for example <c>FK_GovernanceApprovalRequests_Tenants</c>) when scope supplies a tenant id
 ///     that was never formally provisioned (DevelopmentBypass / greenfield CI scopes).
+///     Existing provisioned rows are never updated — only missing parent rows are inserted.
 /// </summary>
 internal static class GovernanceTenantScopePriming
 {
@@ -31,11 +32,6 @@ internal static class GovernanceTenantScopePriming
         const string mergeSql = """
                                 MERGE INTO dbo.Tenants WITH (HOLDLOCK) AS t
                                 USING (SELECT @Id AS Id) AS src ON t.Id = src.Id
-                                WHEN MATCHED THEN
-                                    UPDATE SET
-                                        Name = @Name,
-                                        Slug = @Slug,
-                                        Tier = @Tier
                                 WHEN NOT MATCHED BY TARGET THEN
                                     INSERT (Id, Name, Slug, Tier, EntraTenantId)
                                     VALUES (@Id, @Name, @Slug, @Tier, NULL);
