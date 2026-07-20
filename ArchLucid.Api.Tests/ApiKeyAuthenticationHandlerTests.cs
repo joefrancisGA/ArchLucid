@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Authentication;
 using ArchLucid.Core.Authorization;
@@ -66,6 +67,53 @@ public sealed class ApiKeyAuthenticationHandlerTests
         result.Succeeded.Should().BeTrue();
         result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
         result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_allow_test_actor_headers_overrides_admin_display_name()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("e2e-peer-reviewer");
+        result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_test_actor_headers_disallowed_ignores_override_name()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        http.Request.Headers.Append(ArchLucidAuthOptions.TestActorNameHeader, "e2e-peer-reviewer");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "false"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyAdmin");
     }
 
     [SkippableFact]
@@ -307,15 +355,33 @@ public sealed class ApiKeyAuthenticationHandlerTests
         services.AddOptions();
         services.Configure<ApiKeyAuthenticationOptions>(
             configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
+        services.Configure<ArchLucidAuthOptions>(configuration.GetSection("ArchLucidAuth"));
         using ServiceProvider sp = services.BuildServiceProvider();
         IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor =
             sp.GetRequiredService<IOptionsMonitor<ApiKeyAuthenticationOptions>>();
+        IOptions<ArchLucidAuthOptions> archLucidAuth =
+            sp.GetRequiredService<IOptions<ArchLucidAuthOptions>>();
 
-        return CreateHandlerWithApiKeyMonitor(apiKeyMonitor, httpContext, environment, timeProvider);
+        return CreateHandlerWithApiKeyMonitor(apiKeyMonitor, archLucidAuth, httpContext, environment, timeProvider);
     }
 
     private static ApiKeyAuthHandlerTestDouble CreateHandlerWithApiKeyMonitor(
         IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor,
+        HttpContext httpContext,
+        IHostEnvironment environment,
+        TimeProvider? timeProvider = null)
+    {
+        return CreateHandlerWithApiKeyMonitor(
+            apiKeyMonitor,
+            Options.Create(new ArchLucidAuthOptions()),
+            httpContext,
+            environment,
+            timeProvider);
+    }
+
+    private static ApiKeyAuthHandlerTestDouble CreateHandlerWithApiKeyMonitor(
+        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor,
+        IOptions<ArchLucidAuthOptions> archLucidAuth,
         HttpContext httpContext,
         IHostEnvironment environment,
         TimeProvider? timeProvider = null)
@@ -330,6 +396,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
             NullLoggerFactory.Instance,
             UrlEncoder.Default,
             apiKeyMonitor,
+            archLucidAuth,
             environment,
             timeProvider ?? TimeProvider.System);
 
@@ -347,9 +414,10 @@ public sealed class ApiKeyAuthenticationHandlerTests
         ILoggerFactory loggerFactory,
         UrlEncoder encoder,
         IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyOptions,
+        IOptions<ArchLucidAuthOptions> authOptions,
         IHostEnvironment environment,
         TimeProvider timeProvider)
-        : ApiKeyAuthenticationHandler(options, loggerFactory, encoder, apiKeyOptions, environment, timeProvider)
+        : ApiKeyAuthenticationHandler(options, loggerFactory, encoder, apiKeyOptions, authOptions, environment, timeProvider)
     {
         public Task<AuthenticateResult> InvokeHandleAuthenticateAsync()
         {

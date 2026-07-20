@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
@@ -20,18 +21,30 @@ namespace ArchLucid.Api.Authentication;
 /// <remarks>
 ///     Key material is read from <see cref="IOptionsMonitor{ApiKeyAuthenticationOptions}" /> so configuration reload
 ///     (e.g. Key Vault rotation) can take effect without restarting the process.
+///     When <see cref="ArchLucidAuthOptions.AllowTestActorHeaders" /> is true (CI / non-production only),
+///     <c>X-ArchLucid-Test-Actor-Name</c> overrides the fixed ApiKey display name so governance
+///     segregation-of-duties E2E can approve as a peer without a second admin key.
 /// </remarks>
 public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
     IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyOptions,
+    IOptions<ArchLucidAuthOptions> authOptions,
     IHostEnvironment environment,
     TimeProvider timeProvider)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        ArchLucidAuthOptions authOpts = authOptions.Value;
+
+        if (authOpts.AllowTestActorHeaders && environment.IsProduction())
+        {
+            throw new InvalidOperationException(
+                "ArchLucidAuth:AllowTestActorHeaders must not be enabled in Production.");
+        }
+
         ApiKeyAuthenticationOptions keys = apiKeyOptions.CurrentValue;
         bool enabled = keys.Enabled;
         bool developmentBypassAll = keys.DevelopmentBypassAll;
@@ -107,11 +120,43 @@ public class ApiKeyAuthenticationHandler(
         else
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
 
+        if (authOpts.AllowTestActorHeaders)
+            claims = ApplyTestActorHeaderOverrides(claims, Request);
+
         ClaimsIdentity successIdentity = new(claims, Scheme.Name);
         ClaimsPrincipal successPrincipal = new(successIdentity);
         AuthenticationTicket successTicket = new(successPrincipal, Scheme.Name);
 
         return Task.FromResult(AuthenticateResult.Success(successTicket));
+    }
+
+    /// <summary>
+    ///     Replaces the ApiKey display-name claim when CI sends <c>X-ArchLucid-Test-Actor-Name</c>
+    ///     (governance peer approve). Segregation compares display names for non-JWT principals.
+    /// </summary>
+    private static Claim[] ApplyTestActorHeaderOverrides(Claim[] claims, HttpRequest request)
+    {
+        if (!request.Headers.TryGetValue(ArchLucidAuthOptions.TestActorNameHeader, out StringValues actorNameValues))
+            return claims;
+
+        string overrideName = actorNameValues.ToString().Trim();
+
+        if (overrideName.Length == 0)
+            return claims;
+
+        List<Claim> rewritten = [];
+
+        foreach (Claim claim in claims)
+        {
+            if (claim.Type == ClaimTypes.Name)
+                continue;
+
+            rewritten.Add(claim);
+        }
+
+        rewritten.Add(new Claim(ClaimTypes.Name, overrideName));
+
+        return rewritten.ToArray();
     }
 
     /// <summary>
