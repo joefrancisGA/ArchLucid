@@ -661,6 +661,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<ILlmCompletionProvider>());
         services.AddOptions<QuickScanOptions>()
             .Bind(configuration.GetSection(QuickScanOptions.SectionPath));
+        services.AddOptions<QuickScanSafetyOptions>()
+            .Bind(configuration.GetSection(QuickScanSafetyOptions.SectionPath))
+            .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<QuickScanSafetyOptions>, QuickScanSafetyOptionsValidator>();
         services.AddSingleton<IQuickScanGuard, QuickScanGuard>();
         services.AddSingleton<IQuickScanTelemetry, QuickScanTelemetry>();
         services.AddScoped<IQuickScanService, QuickScanService>();

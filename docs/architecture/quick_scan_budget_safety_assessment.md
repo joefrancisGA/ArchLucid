@@ -27,7 +27,7 @@ The LLM path is intentionally simple (**one completion call**, no agent run life
 
 | TB | Control area | Config shipped? | Enforcement shipped? |
 |----|--------------|-----------------|----------------------|
-| TB-892 | `QuickScanSafetyOptions` | **Not yet** | N/A until options exist |
+| TB-892 | `QuickScanSafetyOptions` | **Done** (2026-07-20) | N/A until TB-893–TB-898 wire enforcement |
 | TB-893 | Pricing + pre-exec estimate | Not yet | Not yet |
 | TB-894 | Global hourly/daily USD reservation | Not yet | **Not yet — Critical** |
 | TB-895 | Anonymous endpoint + per-request bounds | Not yet | Not yet |
