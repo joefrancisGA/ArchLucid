@@ -77,6 +77,7 @@ public sealed class RecommendationLearningController(
     }
 
     /// <summary>Recomputes a candidate profile without persisting or activating it.</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("preview")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationLearningPreviewResponse), StatusCodes.Status200OK)]
@@ -142,6 +143,7 @@ public sealed class RecommendationLearningController(
     /// </remarks>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The newly rebuilt <see cref="RecommendationLearningProfile" />.</returns>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("rebuild")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
@@ -175,6 +177,7 @@ public sealed class RecommendationLearningController(
     }
 
     /// <summary>Reactivates a prior persisted profile by appending a new row cloned from the selected version.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("rollback")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
