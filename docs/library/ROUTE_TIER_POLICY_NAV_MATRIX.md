@@ -123,7 +123,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /digests |  |
 | `Advisory/LearningController.cs` | `/v1/learning` | standard | ReadAuthority |  |  |
 | `Advisory/ProductLearningController.cs` | `/v1/product-learning` | standard | ReadAuthority | /product-learning |  |
-| `Advisory/RecommendationLearningController.cs` | `/v1/recommendation-learning` | standard | ReadAuthority | /recommendation-learning |  |
+| `Advisory/RecommendationLearningController.cs` | `/v1/recommendation-learning` | standard | ReadAuthority | /internal-operations/recommendation-learning |  |
 | `AgentExecution/AgentExecutionCostPreviewController.cs` | `/v1/agent-execution` | none | AllowAnonymous |  | anonymous_wizard_cost_preview |
 | `Alerts/AlertRoutingSubscriptionsController.cs` | `/v1/alert-routing-subscriptions` | standard | ReadAuthority | /governance/alerts |  |
 | `Alerts/AlertRulesController.cs` | `/v1/alert-rules` | standard | ReadAuthority | /governance/alerts |  |

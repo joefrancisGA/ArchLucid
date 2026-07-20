@@ -49,7 +49,7 @@
     "Advisory/AdvisoryController.cs": "/advisory",
     "Advisory/DigestSubscriptionsController.cs": "/digests",
     "Advisory/ProductLearningController.cs": "/product-learning",
-    "Advisory/RecommendationLearningController.cs": "/recommendation-learning",
+    "Advisory/RecommendationLearningController.cs": "/internal-operations/recommendation-learning",
     "Alerts/AlertRoutingSubscriptionsController.cs": "/governance/alerts",
     "Alerts/AlertRulesController.cs": "/governance/alerts",
     "Alerts/AlertSimulationController.cs": "/governance/alerts",

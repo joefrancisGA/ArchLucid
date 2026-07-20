@@ -192,6 +192,12 @@ const nextConfig: NextConfig = {
       // Marketing first-run consolidation (TB-736) — single public CTA at /get-started.
       { source: "/quick-start", destination: "/get-started", permanent: true },
       { source: "/quick-start/:path*", destination: "/get-started", permanent: true },
+      // Internal Operations — recommendation learning canonical route (temporary during migration).
+      {
+        source: "/recommendation-learning",
+        destination: "/internal-operations/recommendation-learning",
+        permanent: false,
+      },
     ];
   },
   async rewrites() {

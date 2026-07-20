@@ -179,7 +179,6 @@ describe("nav-config structure", () => {
     );
 
     expect(architectAdvancedHrefs).toEqual([
-      "/recommendation-learning",
       "/product-learning",
       "/planning",
     ]);
@@ -222,7 +221,7 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
     // Tenant-tier-gated features (RequiresCommercialTenantTier) moved out of the employee-only,
     // showSystemAdministrationNav-gated group so real customers can discover them (nav placement audit, 2026-07-05).
-    expect(systemAdminHrefs).not.toContain("/recommendation-learning");
+    expect(systemAdminHrefs).toContain("/internal-operations/recommendation-learning");
     expect(systemAdminHrefs).not.toContain("/product-learning");
     expect(systemAdminHrefs).not.toContain("/planning");
     expect(systemAdminHrefs).not.toContain("/digests");

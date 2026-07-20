@@ -519,7 +519,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/recommendation-learning"
+      "nav_operator_href": "/internal-operations/recommendation-learning"
     },
     {
       "controller_file": "AgentExecution/AgentExecutionCostPreviewController.cs",

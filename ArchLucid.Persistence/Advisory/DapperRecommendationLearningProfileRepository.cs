@@ -75,8 +75,48 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
         Guid projectId,
         CancellationToken ct)
     {
+        RecommendationLearningProfileRecord? record =
+            await GetLatestRecordAsync(tenantId, workspaceId, projectId, ct).ConfigureAwait(false);
+
+        return record?.Profile;
+    }
+
+    public async Task<RecommendationLearningProfileRecord?> GetLatestRecordAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        ProfileRow? row = await QuerySingleProfileRowAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            profileId: null,
+            take: 1,
+            ct).ConfigureAwait(false);
+
+        return row is null ? null : ToRecord(row);
+    }
+
+    public async Task<IReadOnlyList<RecommendationLearningProfileRecord>> ListHistoryAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
+        CancellationToken ct)
+    {
+        int boundedTake = Math.Clamp(take, 1, 100);
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
         const string sql = """
-            SELECT TOP (1) ProfileJson
+            SELECT TOP (@Take)
+                ProfileId,
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                GeneratedUtc,
+                ProfileJson
             FROM dbo.RecommendationLearningProfiles
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -84,33 +124,117 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
             ORDER BY GeneratedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        string? json = await connection.QueryFirstOrDefaultAsync<string>(
+        IEnumerable<ProfileRow> rows = await connection.QueryAsync<ProfileRow>(
             new CommandDefinition(
                 sql,
                 new
                 {
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    ProjectId = projectId
+                    ProjectId = projectId,
+                    Take = boundedTake,
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
+        return rows.Select(ToRecord).ToList();
+    }
 
+    public async Task<RecommendationLearningProfileRecord?> GetByProfileIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid profileId,
+        CancellationToken ct)
+    {
+        ProfileRow? row = await QuerySingleProfileRowAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            profileId,
+            take: null,
+            ct).ConfigureAwait(false);
+
+        return row is null ? null : ToRecord(row);
+    }
+
+    private async Task<ProfileRow?> QuerySingleProfileRowAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid? profileId,
+        int? take,
+        CancellationToken ct)
+    {
+        string sql = profileId.HasValue
+            ? """
+                SELECT
+                    ProfileId,
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
+                    GeneratedUtc,
+                    ProfileJson
+                FROM dbo.RecommendationLearningProfiles
+                WHERE TenantId = @TenantId
+                  AND WorkspaceId = @WorkspaceId
+                  AND ProjectId = @ProjectId
+                  AND ProfileId = @ProfileId;
+                """
+            : """
+                SELECT TOP (1)
+                    ProfileId,
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
+                    GeneratedUtc,
+                    ProfileJson
+                FROM dbo.RecommendationLearningProfiles
+                WHERE TenantId = @TenantId
+                  AND WorkspaceId = @WorkspaceId
+                  AND ProjectId = @ProjectId
+                ORDER BY GeneratedUtc DESC;
+                """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        return await connection.QuerySingleOrDefaultAsync<ProfileRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    ProfileId = profileId,
+                    Take = take,
+                },
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
+    private RecommendationLearningProfileRecord ToRecord(ProfileRow row)
+    {
         RecommendationLearningProfile? profile;
         try
         {
-            profile = JsonSerializer.Deserialize<RecommendationLearningProfile>(json, JsonOptions);
+            profile = JsonSerializer.Deserialize<RecommendationLearningProfile>(row.ProfileJson, JsonOptions);
         }
         catch (JsonException ex)
         {
             throw new InvalidOperationException(
-                $"RecommendationLearningProfile JSON for tenant={tenantId}/workspace={workspaceId}/project={projectId} is corrupt.", ex);
+                $"RecommendationLearningProfile JSON for profile={row.ProfileId} is corrupt.",
+                ex);
         }
 
-        return profile is null ? null : NormalizeDictionaryComparers(profile);
+        if (profile is null)
+        {
+            throw new InvalidOperationException($"RecommendationLearningProfile JSON for profile={row.ProfileId} was empty.");
+        }
+
+        return new RecommendationLearningProfileRecord
+        {
+            ProfileId = row.ProfileId,
+            Profile = NormalizeDictionaryComparers(profile),
+        };
     }
 
     private static RecommendationLearningProfile NormalizeDictionaryComparers(RecommendationLearningProfile profile)
@@ -119,5 +243,44 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
         profile.UrgencyWeights = new Dictionary<string, double>(profile.UrgencyWeights, StringComparer.OrdinalIgnoreCase);
         profile.SignalTypeWeights = new Dictionary<string, double>(profile.SignalTypeWeights, StringComparer.OrdinalIgnoreCase);
         return profile;
+    }
+
+    private sealed class ProfileRow
+    {
+        public Guid ProfileId
+        {
+            get;
+            set;
+        }
+
+        public Guid TenantId
+        {
+            get;
+            set;
+        }
+
+        public Guid WorkspaceId
+        {
+            get;
+            set;
+        }
+
+        public Guid ProjectId
+        {
+            get;
+            set;
+        }
+
+        public DateTime GeneratedUtc
+        {
+            get;
+            set;
+        }
+
+        public string ProfileJson
+        {
+            get;
+            set;
+        } = string.Empty;
     }
 }

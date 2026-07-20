@@ -365,6 +365,10 @@ public static class AuditEventTypes
 
     public const string RecommendationLearningProfileRebuilt = "RecommendationLearningProfileRebuilt";
 
+    public const string RecommendationLearningPreviewRequested = "RecommendationLearningPreviewRequested";
+
+    public const string RecommendationLearningProfileRolledBack = "RecommendationLearningProfileRolledBack";
+
     /// <summary>
     ///     Pilot feedback signal captured via <c>POST /v1/product-learning/signals</c>.
     ///     Payload: <c>subjectType</c>, <c>disposition</c>, <c>patternKey</c> (when supplied).

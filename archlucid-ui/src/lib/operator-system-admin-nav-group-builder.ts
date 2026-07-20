@@ -10,6 +10,7 @@ import {
   PackageCheck,
   ServerCog,
   Settings2,
+  Sparkles,
   Wallet,
 } from "lucide-react";
 
@@ -112,6 +113,14 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
           icon: PackageCheck,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/internal-operations/recommendation-learning",
+          label: OPERATOR_NAV_LINK_LABELS.recommendationTuning,
+          title: "Recommendation learning — inspect eligibility, preview rebuilds, and profile history",
+          icon: Sparkles,
+          tier: "advanced",
+          requiredAuthority: "ReadAuthority",
         },
       ];
 

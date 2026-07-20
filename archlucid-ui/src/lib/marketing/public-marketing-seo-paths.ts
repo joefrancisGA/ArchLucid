@@ -44,7 +44,7 @@ export const MARKETING_ROBOTS_DISALLOW_PREFIXES: readonly string[] = [
   "/planning/",
   "/policy-packs/",
   "/product-learning/",
-  "/recommendation-learning/",
+  "/internal-operations/recommendation-learning/",
   "/digest-subscriptions/",
   "/advisory",
   "/advisory-scheduling",

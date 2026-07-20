@@ -1,7 +1,6 @@
 import {
   Kanban,
   MessageSquareText,
-  Sparkles,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -17,18 +16,8 @@ export class OperateArchitectAdvancedNavGroupBuilder extends NavGroupBuilderBase
       id: "operate-architect-advanced",
       label: OPERATOR_NAV_GROUP_LABELS.architectPrograms,
       surface: "review-workflow",
-      caption: "Improvement themes and recommendation learning.",
+      caption: "Improvement themes and planning.",
       links: [
-        {
-          href: "/recommendation-learning",
-          label: OPERATOR_NAV_LINK_LABELS.recommendationTuning,
-          title: "Recommendation learning — historical outcomes and ranking signals",
-          icon: Sparkles,
-          tier: "advanced",
-          // Profile GET is ReadAuthority and matches this nav gate; only recalculate learning is
-          // ExecuteAuthority — gated client-side via useOperateCapability() in RecommendationLearningPageClient.
-          requiredAuthority: "ReadAuthority",
-        },
         {
           href: "/product-learning",
           label: OPERATOR_NAV_LINK_LABELS.pilotFeedback,

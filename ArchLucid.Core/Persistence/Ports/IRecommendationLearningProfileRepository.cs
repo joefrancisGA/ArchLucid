@@ -12,4 +12,24 @@ public interface IRecommendationLearningProfileRepository
         Guid workspaceId,
         Guid projectId,
         CancellationToken ct);
+
+    Task<RecommendationLearningProfileRecord?> GetLatestRecordAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct);
+
+    Task<IReadOnlyList<RecommendationLearningProfileRecord>> ListHistoryAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int take,
+        CancellationToken ct);
+
+    Task<RecommendationLearningProfileRecord?> GetByProfileIdAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid profileId,
+        CancellationToken ct);
 }

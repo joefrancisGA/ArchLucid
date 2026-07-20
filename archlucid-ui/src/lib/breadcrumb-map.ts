@@ -61,6 +61,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   search: "Search",
   advisory: "Advisory",
   "recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
+  "internal-operations": "Internal Operations",
   "product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
   planning: "Improvement planning",
   "evolution-review": "Impact preview",
@@ -120,6 +121,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
 
   if (normalized === "/dashboard") {
     return [{ label: OPERATOR_NAV_LINK_LABELS.portfolioOverview }];
+  }
+
+  if (normalized === "/internal-operations/recommendation-learning") {
+    return [
+      { label: "Internal Operations", href: "/admin/health" },
+      { label: "Recommendation Learning" },
+    ];
   }
 
   // Product path: wizard crumb only — sidebar nav covers workspace overview.

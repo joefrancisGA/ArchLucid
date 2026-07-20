@@ -12,9 +12,10 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/")).toEqual([{ label: OPERATOR_NAV_LINK_LABELS.home }]);
   });
 
-  it("maps recommendation learning breadcrumb to the nav label", () => {
-    expect(getBreadcrumbs("/recommendation-learning")).toEqual([
-      { label: "Recommendation learning" },
+  it("maps internal recommendation learning breadcrumbs", () => {
+    expect(getBreadcrumbs("/internal-operations/recommendation-learning")).toEqual([
+      { label: "Internal Operations", href: "/admin/health" },
+      { label: "Recommendation Learning" },
     ]);
   });
 

@@ -68,11 +68,32 @@ vi.mock("./planning/_sections/load-planning-page-data", () => {
   };
 });
 
-vi.mock("./recommendation-learning/_sections/load-recommendation-learning-page-data", () => ({
-  loadRecommendationLearningPageData: () =>
+vi.mock("./internal-operations/recommendation-learning/_sections/load-recommendation-learning-ops-page-data", () => ({
+  loadRecommendationLearningOpsPageData: () =>
     Promise.resolve({
       kind: "ready" as const,
+      status: {
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        environmentName: "Development",
+        scopeLabel: "Tenant / Workspace / Project",
+        profileState: "NotBuilt",
+        eligibleOutcomeCount: 0,
+        proposedOutcomeCount: 0,
+        minimumRequiredOutcomes: 1,
+        rebuildBatchCap: 5000,
+        eligibility: {
+          accepted: 0,
+          rejected: 0,
+          deferred: 0,
+          implemented: 0,
+          proposedExcluded: 0,
+          truncatedByBatchCap: 0,
+        },
+      },
       profile: null,
+      history: [],
       failure: null,
     }),
 }));
@@ -173,7 +194,7 @@ import OnboardingPage from "./onboarding/page";
 import PolicyPacksPage from "./governance/policy-packs/page";
 import PlanningPage from "./planning/page";
 import ProductLearningPage from "./product-learning/page";
-import RecommendationLearningPage from "./recommendation-learning/page";
+import RecommendationLearningOpsPage from "./internal-operations/recommendation-learning/page";
 import SearchPage from "./search/page";
 
 /**
@@ -223,10 +244,10 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Schedules" })).toBeInTheDocument();
   });
 
-  it("RecommendationLearningPage renders primary heading", async () => {
-    const page = await RecommendationLearningPage();
+  it("RecommendationLearningOpsPage renders primary heading", async () => {
+    const page = await RecommendationLearningOpsPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "AI Recommendation Learning" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Recommendation learning" })).toBeInTheDocument();
   });
 
   it("ProductLearningPage renders primary heading", async () => {
