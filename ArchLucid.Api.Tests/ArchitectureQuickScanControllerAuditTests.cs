@@ -90,6 +90,11 @@ public sealed class ArchitectureQuickScanControllerAuditTests
                     TotalReservedUsd = 0.001m,
                 }));
 
+        Mock<IQuickScanGlobalBudgetReservationService> globalBudget = new();
+        globalBudget
+            .Setup(g => g.TryReserveAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(QuickScanGlobalBudgetReservationAttemptResult.Permit(Guid.NewGuid()));
+
         IOptionsMonitor<QuickScanOptions> options = new TestOptionsMonitor(new QuickScanOptions { Enabled = true });
         IOptionsMonitor<QuickScanSafetyOptions> safetyOptions = new TestSafetyOptionsMonitor(new QuickScanSafetyOptions { Enabled = false });
 
@@ -100,6 +105,7 @@ public sealed class ArchitectureQuickScanControllerAuditTests
             options,
             safetyOptions,
             preExecCostEstimator.Object,
+            globalBudget.Object,
             actor.Object,
             audit.Object,
             scopeProvider.Object,

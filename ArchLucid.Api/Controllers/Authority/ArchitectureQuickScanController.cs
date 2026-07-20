@@ -38,6 +38,7 @@ public sealed class ArchitectureQuickScanController(
     IOptionsMonitor<QuickScanOptions> quickScanOptions,
     IOptionsMonitor<QuickScanSafetyOptions> quickScanSafetyOptions,
     IQuickScanCostEstimator quickScanCostEstimator,
+    IQuickScanGlobalBudgetReservationService quickScanGlobalBudgetReservationService,
     IActorContext actorContext,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
@@ -125,6 +126,7 @@ public sealed class ArchitectureQuickScanController(
 
         DateTimeOffset started = timeProvider.GetUtcNow();
         decimal reservedCostUsd = 0m;
+        Guid? globalBudgetReservationId = null;
         QuickScanSafetyOptions safetyOptions = quickScanSafetyOptions.CurrentValue;
 
         if (safetyOptions.Enabled)
@@ -141,12 +143,30 @@ public sealed class ArchitectureQuickScanController(
                     guardContext,
                     $"pre_exec_cost_{costReservation.RejectionReason}",
                     TimeSpan.Zero);
-                quickScanGuard.RecordRejection(guardContext, QuickScanGuardRejectionReason.Disabled);
 
                 return this.ServiceUnavailableProblem("Quick Scan has reached its demonstration capacity for today.");
             }
 
             reservedCostUsd = costReservation.Reservation!.TotalReservedUsd;
+
+            QuickScanGlobalBudgetReservationAttemptResult budgetReservation =
+                await quickScanGlobalBudgetReservationService.TryReserveAsync(
+                    HttpContext.TraceIdentifier,
+                    reservedCostUsd,
+                    started,
+                    cancellationToken).ConfigureAwait(false);
+
+            if (!budgetReservation.Allowed)
+            {
+                quickScanTelemetry.RecordFailure(
+                    guardContext,
+                    $"global_budget_{budgetReservation.RejectionReason}",
+                    TimeSpan.Zero);
+
+                return this.ServiceUnavailableProblem("Quick Scan has reached its demonstration capacity for today.");
+            }
+
+            globalBudgetReservationId = budgetReservation.ReservationId;
         }
 
         quickScanGuard.RecordScanStarted(guardContext);
@@ -167,8 +187,23 @@ public sealed class ArchitectureQuickScanController(
 
             if (estimatedCost > options.MaxEstimatedCostUsdPerScan)
             {
+                if (globalBudgetReservationId.HasValue)
+                {
+                    await quickScanGlobalBudgetReservationService
+                        .ReleaseAsync(globalBudgetReservationId.Value, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
                 quickScanTelemetry.RecordFailure(guardContext, "per_scan_cost_exceeded", duration);
+
                 return this.ServiceUnavailableProblem("Quick Scan has reached its demonstration capacity for today.");
+            }
+
+            if (globalBudgetReservationId.HasValue)
+            {
+                await quickScanGlobalBudgetReservationService
+                    .CommitAsync(globalBudgetReservationId.Value, estimatedCost, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             quickScanGuard.RecordScanCompleted(
@@ -221,6 +256,14 @@ public sealed class ArchitectureQuickScanController(
         catch (Exception)
         {
             TimeSpan duration = timeProvider.GetUtcNow() - started;
+
+            if (globalBudgetReservationId.HasValue)
+            {
+                await quickScanGlobalBudgetReservationService
+                    .ReleaseAsync(globalBudgetReservationId.Value, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
             quickScanTelemetry.RecordFailure(guardContext, "execution_failed", duration);
             quickScanGuard.RecordScanCompleted(guardContext, succeeded: false, 0m, 0, 0, duration);
 

@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Ask;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Drafts;
@@ -20,7 +21,7 @@ using ArchLucid.Core.Costing;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Http;
 using ArchLucid.Core.Llm;
-using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.QuickScan;
 using ArchLucid.Decisioning.Advisory.Analysis;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
@@ -36,6 +37,7 @@ using ArchLucid.Host.Core.Services.Drafts;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
+using ArchLucid.Persistence.Architecture;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -132,6 +134,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IPromptVariantStatsRepository, NoOpPromptVariantStatsRepository>();
             services.AddSingleton<IAgentConfidenceCalibrationSampleRepository, NoOpAgentConfidenceCalibrationSampleRepository>();
             services.AddSingleton<ITenantCuratedEvidenceRepository, NoOpTenantCuratedEvidenceRepository>();
+            services.AddSingleton<InMemoryQuickScanGlobalBudgetReservationStore>();
+            services.AddSingleton<IQuickScanGlobalBudgetReservationStore>(sp =>
+                sp.GetRequiredService<InMemoryQuickScanGlobalBudgetReservationStore>());
             return;
         }
 
@@ -141,6 +146,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
         services.AddScoped<ICommitRunIdempotencyRepository, CommitRunIdempotencyRepository>();
         services.AddScoped<IIdempotencyRecordRepository, IdempotencyRecordRepository>();
+        services.AddSingleton<IQuickScanGlobalBudgetReservationStore, DapperQuickScanGlobalBudgetReservationStore>();
         services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultEnrichmentRepository, AgentResultEnrichmentRepository>();
