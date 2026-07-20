@@ -4,12 +4,13 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), refresh: vi.fn() }),
-  usePathname: () => "/value-report",
+  usePathname: () => "/sponsor-report/executive-summary",
   useSearchParams: () => ({
     get: () => null,
     toString: () => "",
   }),
   redirect: vi.fn(),
+  permanentRedirect: vi.fn(),
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -197,7 +198,7 @@ vi.mock("@/app/(operator)/value-report/_sections/load-value-report-page-data", (
     }),
 }));
 
-import ValueReportPage from "@/app/(operator)/value-report/page";
+import SponsorReportExecutiveSummaryPage from "@/app/(operator)/sponsor-report/executive-summary/page";
 import AdvisoryPage from "@/app/(operator)/advisory/page";
 import AdvisorySchedulingPage from "@/app/(operator)/advisory-scheduling/page";
 import DigestsPage from "@/app/(operator)/digests/page";
@@ -208,9 +209,9 @@ expect.extend(toHaveNoViolations);
 
 describe("operator value + advisory pages — axe (Vitest)", () => {
   it(
-    "ValueReportPage has no serious axe violations",
+    "SponsorReportExecutiveSummaryPage has no serious axe violations",
     async () => {
-      const page = await ValueReportPage();
+      const page = await SponsorReportExecutiveSummaryPage();
       const { container } = render(page);
 
       expect(await axe(container)).toHaveNoViolations();
