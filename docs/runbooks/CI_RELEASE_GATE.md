@@ -86,5 +86,5 @@ Step-level warn (inside otherwise-strict jobs):
 ## References
 
 - `.github/workflows/ci.yml` (job classification), `.github/workflows/cd.yml`, `.github/workflows/cd-staging-on-merge.yml`
-- [`CANARY_DEPLOYMENT.md`](CANARY_DEPLOYMENT.md), [`LOAD_TEST_BASELINE.md`](../library/LOAD_TEST_BASELINE.md), [`API_SLOS.md`](../library/API_SLOS.md)
+- [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md#part-c--canary-promotion-container-apps), [`LOAD_TEST_BASELINE.md`](../library/LOAD_TEST_BASELINE.md), [`API_SLOS.md`](../library/API_SLOS.md)
 - [`TEST_EXECUTION_MODEL.md`](../library/TEST_EXECUTION_MODEL.md)

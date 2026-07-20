@@ -24,7 +24,7 @@ This is not a green-field decision — evaluate against the current state, not a
 - **Caching/CDN already in place for marketing, without a second app**: TB-567 added ISR (`revalidate = 300`) on `/welcome`, `/pricing`, `/trust`; Azure Front Door + WAF already sits in front of the whole app.
 - **Analytics is already split**: Microsoft Clarity (consent-gated) on marketing only; Azure Application Insights on the operator shell only.
 - **Help/docs is already static, in-app**, sourced from repo markdown (`(operator)/help`), not a CMS.
-- **Domain is `archlucid.net`, not `.com`.** `archlucid.com` appears only in legacy/archive docs and is explicitly flagged in `STAGING_PRE_DEPLOY_VERIFICATION.md` as something that should not appear in active source. `app.archlucid.net` appears only in test fixtures. `docs.archlucid.net` / `trust.archlucid.net` do not exist anywhere in the active repo.
+- **Domain is `archlucid.net`, not `.com`.** `archlucid.com` appears only in legacy/archive docs and is explicitly flagged in [`PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md) (staging pre-deploy domain alignment) as something that should not appear in active source. `app.archlucid.net` appears only in test fixtures. `docs.archlucid.net` / `trust.archlucid.net` do not exist anywhere in the active repo.
 - **Terraform simplification is already an open, tracked concern**: `docs/library/TECH_BACKLOG.md` **TB-655** (P2, XL) — consolidate 15+ Terraform roots. Adding a new deployment topology now (new resource type, new DNS, new pipeline) works against that already-identified simplification effort.
 
 ---

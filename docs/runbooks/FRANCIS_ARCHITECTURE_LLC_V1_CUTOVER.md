@@ -122,6 +122,6 @@ Cutover is **done** when: (a) counsel confirms customer-facing vendor entity is 
 
 - [`MARKETPLACE_PUBLISHER_IDENTITY.md`](MARKETPLACE_PUBLISHER_IDENTITY.md)
 - [`STRIPE_WEBHOOK_INCIDENT.md`](STRIPE_WEBHOOK_INCIDENT.md)
-- [`STRIPE_OPERATOR_CHECKLIST.md`](STRIPE_OPERATOR_CHECKLIST.md)
+- [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#operator-completion-checklist)
 - [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](../go-to-market/MARKETPLACE_PUBLICATION.md)
 - [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) (items **8**, **9**)

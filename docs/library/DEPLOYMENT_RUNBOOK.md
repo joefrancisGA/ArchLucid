@@ -102,6 +102,34 @@ az containerapp update -g "$RG" -n "$API_APP" --image "${ACR_LOGIN}/archlucid-ap
 
 ---
 
+## 5. Hosted environment rollback (staging + production)
+
+**When to use:** Post-deploy validation failed, canary bake surfaced errors, or operators need the fastest path to restore a known-good Container Apps revision without a full CD re-run. Full promotion checklists live in [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md); this section is the **on-call rollback** companion.
+
+### Application (Container Apps) — fastest
+
+1. Record **current** and **previous** revision names (`az containerapp revision list -g <rg> -n <app> -o table`).
+2. **Drain traffic** to the prior revision:
+   - `az containerapp ingress traffic set` (pattern in [`.github/workflows/cd-staging-on-merge.yml`](../../.github/workflows/cd-staging-on-merge.yml) and [`.github/workflows/cd.yml`](../../.github/workflows/cd.yml)), **or**
+   - `az containerapp revision activate` on the last-known-good revision and `az containerapp revision deactivate` on the bad revision.
+3. **Verify** `GET /health/ready` Healthy on the public hostname; re-run `bash scripts/ci/cd-post-deploy-verify.sh <base>`.
+
+Repeat for **worker** and **UI** Container Apps when those revisions were part of the failed deploy.
+
+### Terraform / state
+
+- **Do not** “revert state” without a matching infrastructure plan — state files live **per root** (`*.tfstate` keys). Undo by applying a known-good **plan** or `terraform apply` with rolled-back **tfvars**, in **reverse dependency order** only for destroys ([`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md) destroy guidance).
+- **DNS / Front Door:** If edge routing is misconfigured, revert custom-domain binding in `infra/terraform-edge` and re-apply before re-pointing traffic.
+
+### SQL / data plane
+
+- **Production** data plane (SQL, storage): prefer **PITR** or geo-failover per [MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md) and [DATABASE_FAILOVER.md](../runbooks/DATABASE_FAILOVER.md) — schema rollback is **not** automated by DbUp.
+- **Staging:** Forward-fix preferred; use the same PITR posture only when a migration cannot be fixed forward.
+
+**RBAC:** *Azure Container Apps Contributor* for revision operations; Terraform deployer same as apply; SQL restore **owner-only**.
+
+---
+
 ## Production-profile configuration fail-fast validation
 
 API and worker hosts evaluate **production-profile dangerous misconfiguration** before migrations. Logged startup errors include a stable **`[rule_name]`** prefix (for example **`jwt_bearer_missing_authority_and_pem`**) so operators can match CLI + metrics.
@@ -138,3 +166,4 @@ For **Azure Container Apps**, set a head-based sampling ratio so OTLP trace volu
 | Hosted SaaS scale thresholds | [SCALE_THRESHOLD_RUNBOOK.md](SCALE_THRESHOLD_RUNBOOK.md) |
 | Local / release smoke depth | [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | SQL / migration rollback | [runbooks/MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md) |
+| Hosted deploy validation (staging + production) | [runbooks/PRODUCTION_DEPLOYMENT.md](../runbooks/PRODUCTION_DEPLOYMENT.md) |

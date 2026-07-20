@@ -90,7 +90,7 @@ $env:ARCHLUCID_SMOKE_SQL = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;
 .\scripts\release-smoke.ps1 -AuthorityPipelineDtfSmoke
 ```
 
-The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary API process only (**`-SkipE2E`** is incompatible). See **`docs/runbooks/STAGING_DEPLOYMENT_VALIDATION.md`** (Authority pipeline section).
+The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask`** for the temporary API process only (**`-SkipE2E`** is incompatible). See **`docs/runbooks/PRODUCTION_DEPLOYMENT.md`** (Part A — Authority pipeline section).
 
 **Windows CMD:** connection strings contain `;` — avoid inline `set` (it breaks at the first semicolon). Prefer PowerShell above, or run **`scripts/release-smoke.cmd`** after setting the variable in PowerShell / System Properties. The **`.cmd`** wrapper invokes **`scripts/release-smoke.ps1`** with `%*`; you can pass **`-SqlConnectionString '...'`** from CMD if quoted carefully.
 

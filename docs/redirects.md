@@ -66,6 +66,20 @@ Human readers and agents should follow **canonical** paths below. This file is t
 
 ---
 
+## 2026-07-20 deployment doc consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/runbooks/STAGING_DEPLOYMENT_VALIDATION.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#part-a--staging) | Staging post-deploy validation |
+| `docs/deployment/STAGING_DEPLOYMENT_CHECKLIST.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#part-a--staging) | Staging operator checklist |
+| `docs/deployment/STAGING_PRE_DEPLOY_VERIFICATION.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#a1-pre-deploy-verification-before-terraform-apply-or-cd) | Staging pre-deploy gates |
+| `docs/runbooks/CANARY_DEPLOYMENT.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#part-c--canary-promotion-container-apps) | Canary / revision traffic split |
+| `docs/runbooks/STAGING_TRIAL_VALIDATION_CHECKLIST.md` | [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](runbooks/PRODUCTION_DEPLOYMENT.md#a5-staging-trial-funnel-validation-pre-rc-sign-off) | Staging trial funnel pre-RC checklist (phases 1–7) |
+| `docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md` | [`docs/go-to-market/STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#operator-completion-checklist) | Stripe Team tier operator strike list |
+| `docs/runbooks/STRIPE_STAGING_E2E_VERIFICATION.md` | [`docs/go-to-market/STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#staging-end-to-end-verification-stripe-test-mode) | Staging Stripe TEST verification + SQL |
+
+---
+
 ## Renamed (not deleted)
 
 | Former path | Canonical path | Notes |

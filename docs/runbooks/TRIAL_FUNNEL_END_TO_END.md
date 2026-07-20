@@ -11,6 +11,7 @@
 
 - [`docs/go-to-market/TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md) — product design of the trial.
 - [`docs/runbooks/TRIAL_END_TO_END.md`](TRIAL_END_TO_END.md) — live Playwright + harness acceptance with **real SQL** and the Noop checkout activator.
+- [`docs/runbooks/PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md#a5-staging-trial-funnel-validation-pre-rc-sign-off) — staging pre-RC manual trial funnel checklist (phases 1–7).
 - [`docs/runbooks/TRIAL_FUNNEL.md`](TRIAL_FUNNEL.md) — Prometheus + Grafana **observability** runbook.
 - [`docs/runbooks/TRIAL_LIFECYCLE.md`](TRIAL_LIFECYCLE.md) — what happens **after** day 14.
 - [`docs/security/TRIAL_AUTH.md`](../security/TRIAL_AUTH.md) and [`docs/security/TRIAL_LIMITS.md`](../security/TRIAL_LIMITS.md) — auth + write-gate boundaries.

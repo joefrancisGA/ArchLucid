@@ -27,6 +27,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 
 | Priority | Runbook | When to use |
 |----------|---------|-------------|
+| **P1** | [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md) | **Hosted staging + production** — pre-deploy gates, validation, promotion, canary traffic split. Rollback: [`DEPLOYMENT_RUNBOOK.md`](../library/DEPLOYMENT_RUNBOOK.md). |
 | **P1** | [FIRST_PILOT_OPERATOR_PATH.md](./FIRST_PILOT_OPERATOR_PATH.md) | **Single V1 pilot path** — storage/auth → evidence → create → commit → sponsor export → next action (no V1.1 connectors required). |
 | **P1** | [DATABASE_FAILOVER.md](./DATABASE_FAILOVER.md) | Azure SQL HA / geo-failover, listeners, RPO/RTO, post-failover checks. |
 | **P1** | [SECRET_AND_CERT_ROTATION.md](./SECRET_AND_CERT_ROTATION.md) | Keys, SQL passwords, JWT, webhooks, TLS. |

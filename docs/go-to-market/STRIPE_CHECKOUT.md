@@ -1,22 +1,92 @@
-> **Scope:** Stripe Checkout for Team tier — engineering hand-off.
+> **Scope:** Stripe Checkout for Team tier — engineering hand-off, operator configuration checklist, and staging verification.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-
 # Stripe Checkout — Team tier (hosted)
+
+**Last reviewed:** 2026-07-20
 
 ## Goal
 
 Provide a **low-friction conversion path** from self-serve trial to paid Team tier using **Stripe Checkout**, in parallel with Azure Marketplace SaaS.
 
-**Operator checklist (configuration + webhook + proof):** [`docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md). Independent assessments should link that file whenever commercial gaps cite Stripe.
+Independent assessments that cite missing **live Stripe**, **self-serve checkout**, or **Commercial Packaging Readiness** gaps should link **§ Operator completion checklist** below so owner work stays on the same page session-to-session.
 
-## Configuration
+## Configuration summary
 
 1. Populate Stripe secrets per `ArchLucid.Api` billing configuration (`Billing:Stripe:*` in Key Vault / environment).
 2. Create or select a Stripe **Product**/**Price** for Team with the recurring USD amount recorded in **`PRICING_PHILOSOPHY.md` § 3.2**, and bind it to **`Billing:Stripe:PriceIdTeam`**.
 3. Set `teamStripeCheckoutUrl` in `archlucid-ui/public/pricing.json` to the Stripe **Payment Link** or **Checkout Session** URL once issued.
 4. Optional: continue using **`POST /v1/tenant/billing/checkout`** (`BillingCheckoutController`) for API-driven checkout when `Billing:Provider` selects Stripe.
+
+---
+
+## Operator completion checklist
+
+**Canonical monthly amount** for interim Team Checkout: [`PRICING_PHILOSOPHY.md` § 3.2](PRICING_PHILOSOPHY.md#32-interim-stripe-team-self-serve-bundled-sku).
+
+**Stripe Dashboard — Test vs Live.** Keys (`sk_test_…` / `sk_live_…`), **Price IDs** (`price_…`), and **webhook signing secrets** (`whsec_…`) are **mode-isolated**. Staging stays on **TEST** until you consciously cut over production.
+
+Copy this checklist into tickets or strike items as you go.
+
+**Synced to assessments (2026-05-01).** Narrative updates in **`QUALITY_ASSESSMENT_*_INDEPENDENT_*`** assume you completed § **A** (Product + recurring Price + **`price_…`**) and injected **`Billing:Stripe:PriceIdTeam`** in at least one secrets store. **Re-verify each environment** — unchecked items below remain legally authoritative until you confirm.
+
+### A. Stripe account (Product Catalog)
+
+- [ ] **Team Product** created with buyer-facing **name/description**.
+- [ ] **Recurring monthly Price** in **USD** matching **§ 3.2** (bundled Team SKU — **grandfather policy** documented in `PRICING_PHILOSOPHY.md`).
+- [ ] **`price_…` id** captured (not **`prod_…`**).
+
+### B. API configuration (ArchLucid.Api)
+
+- [ ] **`Billing:Provider`** = **`Stripe`** on hosts that should charge (staging/production intent — local **Development** often stays **`Noop`**).
+- [ ] **`Billing:Stripe:SecretKey`** (`sk_test_…` or `sk_live_…`) in Key Vault / env / secrets store — never commit.
+- [ ] **`Billing:Stripe:PriceIdTeam`** = your Team **`price_…`** (`Billing__Stripe__PriceIdTeam` as env override).
+- [ ] **`Billing:Stripe:WebhookSigningSecret`** = **`whsec_…`** from the **matching** Stripe webhook endpoint (same Test/Live mode as the secret key). **Production:** `sk_live_` pairing is enforced by startup safety rules — see [`BILLING.md`](../library/BILLING.md).
+- [ ] **`Billing:Stripe:PublishableKey`** only if something in your stack needs **`pk_…`** server-side reference (many hosted-Checkout flows do not).
+
+### C. Stripe webhooks
+
+- [ ] **Endpoint URL** registered: `https://<public-api-host>/v1/billing/webhooks/stripe` (HTTPS, reachable from Stripe).
+- [ ] **Events:** subscribe at minimum to **`checkout.session.completed`** (implementation activates paid state from this today).
+- [ ] After deploy, confirm Dashboard **delivery** succeeds (HTTP **2xx**).
+
+### D. Buyer journey verification
+
+- [ ] **Staging E2E** (recommended before live): § **Staging end-to-end verification** below (command-level sequence, SQL, Stripe CLI).
+- [ ] After a real test Checkout: **`dbo.BillingWebhookEvents`**, **`dbo.BillingSubscriptions`**, and tenant trial-conversion audits per [`BILLING.md`](../library/BILLING.md).
+- [ ] Optional smoke: **`archlucid trial smoke`** / nightly trial-funnel workflows as in [`TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md).
+
+### E. Marketing UX (`pricing.json` → Team “Subscribe with Stripe”)
+
+The UI hides **Subscribe with Stripe** until `teamStripeCheckoutUrl` is non-empty **and** not a placeholder (`placeholder-replace-before-launch` / `checkout-placeholder` are rejected in `archlucid-ui/src/lib/team-stripe-checkout-url.ts`).
+
+**Do not invent URLs.** Create one hosted buyer URL in Stripe Dashboard that sells the **same** recurring **`price_…`** as **`Billing:Stripe:PriceIdTeam`** (§ B), then paste it into JSON.
+
+**Option 1 — Payment Link (simplest stable URL)**
+
+1. Stripe Dashboard → **Product catalog** → select the Team Product → **Create payment link** (or **Payment Links** in the left nav → **New**).
+2. Attach the **monthly USD Price** whose id matches **`Billing:Stripe:PriceIdTeam`**.
+3. Publish and copy the hosted link — it normally starts with **`https://buy.stripe.com/`**.
+4. Set **`teamStripeCheckoutUrl`** in **`archlucid-ui/public/pricing.json`** to that exact string (trimmed, no trailing junk).
+
+**Option 2 — Checkout deep link**
+
+If your process uses Checkout Session URLs copied from Dashboard/tests, ensure the final buyer-facing URL starts with **`https://checkout.stripe.com/`** (or redirects there). Paste that URL into **`teamStripeCheckoutUrl`**.
+
+**Verification**
+
+- [ ] **`teamStripeCheckoutUrl`** updated in **`archlucid-ui/public/pricing.json`** (still valid JSON; run `npm run test` / Vitest pricing fixtures if you touch generators).
+- [ ] **`npm run build`** (or CI) — marketing **`/pricing`** shows **Subscribe with Stripe** on the Team card.
+- [ ] Playwright: **`npx playwright test live-api-marketing-pricing-stripe-checkout.spec.ts`** (live stack) — opens Stripe host in a new tab when configured; with placeholder URL the link stays hidden (see spec comments).
+
+### F. Production cutover (owner calendar)
+
+- [ ] **`PENDING_QUESTIONS.md`** item **22** (Marketplace + Stripe live calendar) plus item **9** sub-bullets when choosing **live** keys.
+- [ ] Incident runbook bookmarked: [`STRIPE_WEBHOOK_INCIDENT.md`](../runbooks/STRIPE_WEBHOOK_INCIDENT.md).
+
+---
+
 ## Webhooks
 
 `BillingStripeWebhookController` receives Stripe events — configure the **public HTTPS** endpoint and signing secret per environment.
@@ -24,51 +94,101 @@ Provide a **low-friction conversion path** from self-serve trial to paid Team ti
 - **Route:** `POST /v1/billing/webhooks/stripe` on the API host (see [`BILLING.md`](../library/BILLING.md)).
 - **Verification:** `Stripe-Signature` header + `Billing:Stripe:WebhookSigningSecret` (`whsec_…` from the Dashboard).
 
-## Staging end-to-end — Stripe **TEST** mode (`staging.archlucid.net/signup`)
+## Staging end-to-end verification (Stripe TEST mode)
+
+**Objective:** An operator with **no code changes** can wire, exercise, and verify Stripe Test mode + ArchLucid staging: checkout session, webhook, SQL ledger, and tenant conversion.
 
 Use this path **before** live keys exist: Stripe Dashboard in **Test mode**, ArchLucid API configured with **`sk_test_…`** and a **test** webhook signing secret, and marketing signup pointing at the staging API + UI.
 
-### 1. Configure the staging API
+### Code references
 
-| Setting | Value |
-|---------|--------|
+| Item | Location |
+|------|----------|
+| Checkout API (Admin) | `ArchLucid.Api/Controllers/Billing/BillingCheckoutController.cs` — `POST` **`/v1/tenant/billing/checkout`**, policy **`AdminAuthority`**, model **`BillingCheckoutPostRequest`** |
+| Webhook | `ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs` — `POST` **`/v1/billing/webhooks/stripe`**, `AllowAnonymous`, signature inside `StripeBillingProvider` |
+| Provider logic | `ArchLucid.Persistence/Billing/Stripe/StripeBillingProvider.cs` — activation on **`checkout.session.completed`** only |
+| Billing data model | [`BILLING.md`](../library/BILLING.md) — `dbo.BillingSubscriptions`, `dbo.BillingWebhookEvents` |
+| UI pricing (optional CTA) | `archlucid-ui/src/lib/pricing-types.ts` — optional **`teamStripeCheckoutUrl`** on `public/pricing.json` |
+
+**Activation event:** `HandleWebhookAsync` calls `HandleCheckoutSessionCompletedAsync` only when `stripeEvent.Type` is **`checkout.session.completed`** (case-insensitive) and `stripeEvent.Data.Object` is a **`Session`**. Other event types may be recorded as **Processed** but do **not** activate subscriptions.
+
+**Tier mapping:** `BillingTierCode.FromCheckoutTier` maps **Team** and **Pro** to **`Standard`** in `dbo.Tenants.Tier`; **Enterprise** maps to **`Enterprise`**.
+
+### Doc vs repo notes
+
+| Topic | This doc | Actual code / repo |
+|--------|----------|-------------------|
+| Checkout method | `POST /v1/tenant/billing/checkout` | Requires **JWT** + **`AdminAuthority`**, not anonymous |
+| `pricing.json` | Set `teamStripeCheckoutUrl` when using marketing CTA | Committed **`archlucid-ui/public/pricing.json`** is packages-only; property is **optional** in TypeScript |
+| Webhook events | Subscribe to **`checkout.session.completed`** minimum | Only this type drives entitlement activation today |
+| Staging host | Examples use `staging.archlucid.net` | Substitute your real `<staging-api-host>` everywhere |
+
+### Prerequisites
+
+| # | Prerequisite | Verify |
+|---|----------------|--------|
+| 1 | **Stripe** account; **Test mode** ON | Dashboard shows “Test mode” |
+| 2 | Staging **ArchLucid API** over **HTTPS** | `curl -fsS -o /dev/null -w "%{http_code}\n" "https://<staging-api-host>/health/live"` → **200** |
+| 3 | Staging app can receive **`Billing:*`** (Key Vault / Container Apps secrets) | Portal / `az containerapp show` — settings present (redact in logs) |
+| 4 | **SQL** reachable from a secure operator path | `sqlcmd` or SSMS to staging database |
+| 5 | **Tenant admin** Bearer token for checkout API | Sign in to UI as Admin; or org token procedure |
+| 6 | Stripe **Product** + **Price** created in Dashboard (step below) | N/A |
+
+### Environment variables (staging)
+
+| Setting | Value (test) |
+|---------|----------------|
 | `Billing:Provider` | `Stripe` |
-| `Billing:Stripe:SecretKey` | `sk_test_…` (Dashboard → Developers → API keys, **Test mode**) |
-| `Billing:Stripe:WebhookSigningSecret` | Test endpoint signing secret (`whsec_…` from a **test** webhook endpoint) |
-| `ASPNETCORE_ENVIRONMENT` | `Staging` (or `Development` for disposable environments — **not** `Production` while on test keys) |
+| `Billing:Stripe:SecretKey` | `sk_test_…` |
+| `Billing:Stripe:WebhookSigningSecret` | `whsec_…` from test webhook endpoint or **`stripe listen`** |
+| `Billing:Stripe:PriceIdTeam` | `price_…` for Team test price |
+| `Billing:Stripe:PriceIdPro` | Optional `price_…` |
+| `Billing:Stripe:PriceIdEnterprise` | Optional `price_…` |
+| `ASPNETCORE_ENVIRONMENT` | `Staging` (recommended) |
 
-Production safety rules intentionally **do not** treat `sk_test_` like `sk_live_`; only **live** keys require the webhook secret pairing (`BillingProductionSafetyRules`).
+**Verify in Azure:**
 
-### 2. Register the Stripe **test** webhook
+```bash
+az containerapp show -g <resource-group> -n <api-container-app-name> --query "properties.template.containers[0].env" -o table
+```
 
-1. Stripe Dashboard → **Developers** → **Webhooks** → **Add endpoint** (ensure **Test mode** toggle is on).
-2. URL: `https://<staging-api-host>/v1/billing/webhooks/stripe` (replace with your real staging API hostname, e.g. the Container App or App Service URL behind Front Door).
-3. Select events your implementation handles (at minimum those emitted by your Checkout / subscription flow — align with `StripeBillingProvider` in repo).
-4. Copy the **Signing secret** into Key Vault / GitHub Environment secret for `Billing:Stripe:WebhookSigningSecret`.
+Illustrative Key Vault names: `billing-stripe-secret`, `billing-stripe-webhook-signing-secret` — map to `Billing:Stripe:*` per [`BILLING.md`](../library/BILLING.md).
 
-### 3. Buyer journey on staging UI
+Production safety rules **do not** treat `sk_test_` like `sk_live_`; only **live** keys require webhook secret pairing (`BillingProductionSafetyRules`).
 
-1. Open `https://staging.archlucid.net/signup` (or the current staging marketing hostname).
-2. Complete trial signup; trigger **Team** conversion using the Stripe **test** checkout / payment link surfaced from `pricing.json` or `POST /v1/tenant/billing/checkout`.
-3. Confirm in SQL (`dbo.BillingWebhookEvents`, `dbo.BillingSubscriptions`) and tenant trial-conversion audits per [`BILLING.md`](../library/BILLING.md).
+### Step-by-step
 
-### 4. curl — synthetic **test** webhook (signature **will not** verify)
+#### 1. Load configuration
 
-Stripe signs payloads with the endpoint secret; you cannot fabricate a valid `Stripe-Signature` without Stripe CLI or Dashboard “Send test webhook”. The snippets below show **transport only** — expect **400/401** from the API until a real signature is supplied.
+1. Apply **Billing** settings from the table above to the **staging** API revision.
+2. Restart or wait for the revision to become healthy.
 
-**Send a real test event (recommended):** install [Stripe CLI](https://stripe.com/docs/stripe-cli), then:
+```bash
+curl -fsS "https://<staging-api-host>/health/ready"
+```
+
+Expect top-level **Healthy** in JSON.
+
+#### 2. Register the Stripe **test** webhook
+
+1. Stripe Dashboard → **Developers** → **Webhooks** → **Add endpoint** (**Test mode**).
+2. **URL:** `https://<staging-api-host>/v1/billing/webhooks/stripe`
+3. **Events:** at minimum **`checkout.session.completed`**.
+4. Copy **Signing secret** (`whsec_…`) into `Billing:Stripe:WebhookSigningSecret`.
+
+**Stripe CLI (local/tunnel):**
 
 ```bash
 stripe listen --forward-to https://<staging-api-host>/v1/billing/webhooks/stripe
 ```
 
-Use the CLI-printed `whsec_…` as `Billing:Stripe:WebhookSigningSecret` on staging, then in another terminal:
+Use the CLI-printed `whsec_…` while forwarding, then:
 
 ```bash
 stripe trigger checkout.session.completed
 ```
 
-**Raw curl (expects verification failure):**
+**Negative curl (expect non-success without valid signature):**
 
 ```bash
 curl -sS -o /dev/null -w "%{http_code}\n" -X POST "https://<staging-api-host>/v1/billing/webhooks/stripe" \
@@ -77,17 +197,138 @@ curl -sS -o /dev/null -w "%{http_code}\n" -X POST "https://<staging-api-host>/v1
   -d '{"id":"evt_test_placeholder","type":"checkout.session.completed","data":{"object":{}}}'
 ```
 
-Replace `<staging-api-host>` with your hostname. A healthy deployment returns a **non-2xx** response for invalid signatures (fail-closed). With **Stripe CLI forwarding**, the same route returns **2xx** when Stripe signs the payload.
+A healthy deployment returns **non-2xx** for invalid signatures (fail-closed). With **Stripe CLI forwarding**, the same route returns **2xx** when Stripe signs the payload.
 
-### 5. Funnel smoke
+#### 3. Create test **Product** and **Price**
 
-From a developer machine (no Docker/SQL required for HTTP-only proof):
+1. Dashboard → **Product catalog** → **Add product** (test mode).
+2. Add a **recurring** price in **Subscription** mode (`CreateCheckoutSessionAsync` uses **`mode = subscription`**).
+3. Copy **Price ID** (`price_…`) → `Billing:Stripe:PriceIdTeam`; redeploy/restart API if needed.
+
+#### 4. (Optional) Marketing UI — `pricing.json`
+
+1. Add **`teamStripeCheckoutUrl`** to served `public/pricing.json` (Payment Link or hosted Checkout URL in test mode).
+2. Confirm `https://<staging-ui-host>/pricing.json` exposes the property when using the marketing CTA.
+
+#### 5. Admin checkout API call
+
+`BillingCheckoutController` requires **`AdminAuthority`**. Body: `targetTier` (`Team` / `Pro` / `Enterprise`), `returnUrl`, `cancelUrl`, optional `seats`, `workspaces`, `billingEmail`.
+
+**Browser:** Use **Convert to paid** in the operator UI ([`operator-shell.md`](../library/operator-shell.md)); capture **`POST /v1/tenant/billing/checkout`** in DevTools if needed.
+
+**curl** (`export JWT='<your token>'` first):
+
+```bash
+curl -sS -X POST "https://<staging-api-host>/v1/tenant/billing/checkout" \
+  -H "Authorization: Bearer ${JWT}" \
+  -H "Content-Type: application/json" \
+  -H "X-Tenant-Id: <tenant-guid>" \
+  -H "X-Workspace-Id: <workspace-guid>" \
+  -H "X-Project-Id: <project-guid>" \
+  -d "{\"targetTier\":\"Team\",\"returnUrl\":\"https://<staging-ui-host>/welcome\",\"cancelUrl\":\"https://<staging-ui-host>/pricing\",\"seats\":1,\"workspaces\":1}"
+```
+
+**Response (200):** `checkoutUrl`, `providerSessionId`, optional `expiresUtc`. Open `checkoutUrl`; pay with test card **`4242 4242 4242 4242`**.
+
+**Conflict:** `409` if tenant already has **Active** subscription (`IBillingLedger.TenantHasActiveSubscriptionAsync`).
+
+**CLI smoke (optional):**
 
 ```bash
 archlucid trial smoke --org "StripeStagingSmoke" --email "you+smoke@example.invalid" --api-base-url "https://<staging-api-host>"
 ```
 
-See also [`docs/runbooks/MARKETING_STRIPE_GA.md`](../runbooks/MARKETING_STRIPE_GA.md) and [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md).
+#### 6. Buyer journey on staging UI
+
+1. Open `https://staging.archlucid.net/signup` (or current staging hostname).
+2. Complete trial signup; trigger **Team** conversion via `pricing.json` CTA or checkout API above.
+3. After Checkout, Stripe posts **`checkout.session.completed`**; provider validates signature, idempotency-inserts `dbo.BillingWebhookEvents`, activates subscription.
+
+### Routes quick reference
+
+| Action | Method | Path | Auth |
+|--------|--------|------|------|
+| Create Checkout Session | `POST` | `/v1/tenant/billing/checkout` | **Bearer** + **AdminAuthority** + tenant scope |
+| Stripe webhook | `POST` | `/v1/billing/webhooks/stripe` | **Anonymous** — **`Stripe-Signature`** + body |
+
+### SQL verification
+
+Replace **`@TenantId`** with your test tenant `uniqueidentifier`. Use an account that can read RLS-protected `dbo.BillingSubscriptions`.
+
+**Recent webhook events:**
+
+```sql
+SELECT TOP 30
+    EventId,
+    EventType,
+    ResultStatus,
+    ReceivedUtc,
+    ProcessedUtc
+FROM dbo.BillingWebhookEvents
+WHERE Provider = N'Stripe'
+ORDER BY ReceivedUtc DESC;
+```
+
+**Expected:** row for Stripe `evt_…`, `EventType = 'checkout.session.completed'`, `ResultStatus = 'Processed'`.
+
+**Subscription for tenant:**
+
+```sql
+SELECT
+    TenantId,
+    WorkspaceId,
+    ProjectId,
+    Provider,
+    ProviderSubscriptionId,
+    Tier,
+    Status,
+    SeatsPurchased,
+    WorkspacesPurchased,
+    ActivatedUtc,
+    CreatedUtc,
+    UpdatedUtc
+FROM dbo.BillingSubscriptions
+WHERE TenantId = @TenantId;
+```
+
+**Expected:** `Status = 'Active'`, `Provider = 'Stripe'`, `ActivatedUtc` set.
+
+**Tenant tier:**
+
+```sql
+SELECT Id, Tier
+FROM dbo.Tenants
+WHERE Id = @TenantId;
+```
+
+**Expected:** **`Standard`** for Team/Pro, **`Enterprise`** for Enterprise checkout tier.
+
+**Audit stream (optional):**
+
+```sql
+SELECT TOP 20
+    OccurredUtc,
+    EventType,
+    ActorUserId,
+    DataJson
+FROM dbo.AuditEvents
+WHERE TenantId = @TenantId
+  AND EventType IN (N'BillingCheckoutInitiated', N'BillingCheckoutCompleted', N'TenantTrialConverted')
+ORDER BY OccurredUtc DESC;
+```
+
+### Funnel metrics (optional)
+
+Prometheus: **`archlucid_billing_checkouts_total`**, trial conversion series — see [`TRIAL_FUNNEL.md`](../runbooks/TRIAL_FUNNEL.md). Not required for a single E2E pass if SQL and Stripe Dashboard agree.
+
+### Rollback / resetting test state
+
+1. **Stripe (Test mode):** Cancel test subscription/customer in Dashboard — does not automatically revert ArchLucid SQL.
+2. **Repeat checkout on same tenant:** API blocks when `dbo.BillingSubscriptions.Status = 'Active'`. To re-test, clear **Active** in **staging only** via approved change process (`dbo.sp_Billing_*` per [`BILLING.md`](../library/BILLING.md)) — prefer a **new test tenant** when possible.
+3. **Idempotent webhooks:** Duplicate `EventId` hits dedupe; replays return **200** without double activation if already **Processed**.
+4. **Secrets rotation:** Update `Billing:Stripe:WebhookSigningSecret` before next event or signatures **fail** (400).
+
+See also [`MARKETING_STRIPE_GA.md`](../runbooks/MARKETING_STRIPE_GA.md) and [`TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md).
 
 ## Manual provisioning (until Marketplace GA settles)
 
@@ -95,6 +336,12 @@ If webhooks only flip entitlement bits asynchronously, document the **manual run
 
 ## Related
 
-- [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md)
-- [`TRIAL_AND_SIGNUP.md`](TRIAL_AND_SIGNUP.md)
-- [`BILLING.md`](../library/BILLING.md)
+| Doc | Use |
+|-----|-----|
+| [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) | Team bundled SKU amount and grandfather policy |
+| [`TRIAL_AND_SIGNUP.md`](TRIAL_AND_SIGNUP.md) | Trial → conversion product design |
+| [`BILLING.md`](../library/BILLING.md) | Architecture, webhook route, SQL tables |
+| [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) | `Billing:Stripe:*` keys |
+| [`STRIPE_WEBHOOK_INCIDENT.md`](../runbooks/STRIPE_WEBHOOK_INCIDENT.md) | Webhook incident triage |
+| [`PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md) | Hosted staging deployment checks |
+| [`redirects.md`](../redirects.md) | Former doc paths |
