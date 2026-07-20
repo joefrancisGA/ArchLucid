@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:349 -->
+<!-- audit-core-const-count:355 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -462,6 +462,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RecommendationDeferred` | `RecommendationDeferred` | `AdvisoryController` |
 | `RecommendationImplemented` | `RecommendationImplemented` | `AdvisoryController` |
 | `RecommendationLearningProfileRebuilt` | `RecommendationLearningProfileRebuilt` | `RecommendationLearningController` |
+| `RecommendationLearningPreviewRequested` | `RecommendationLearningPreviewRequested` | `RecommendationLearningController` |
+| `RecommendationLearningProfileRolledBack` | `RecommendationLearningProfileRolledBack` | `RecommendationLearningController` |
 | `ProductLearningPilotSignalRecorded` | `ProductLearningPilotSignalRecorded` | `ProductLearningController` (`POST /v1/product-learning/signals`) |
 | `ProductLearningPlanningMaterialized` | `ProductLearningPlanningMaterialized` | `LearningController` (`POST /v1/learning/planning/materialize`) |
 | `AdvisoryScanScheduled` | `AdvisoryScanScheduled` | `AdvisoryScanRunner`, `AdvisorySchedulingController`, `AdvisoryController` |
@@ -568,9 +570,13 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TenantNotificationChannelPreferencesUpdated` | `TenantNotificationChannelPreferencesUpdated` | `CustomerNotificationChannelPreferencesController` |
 | `TenantAgentOutputQualityGateModeUpdated` | `Tenant.AgentOutputQualityGateModeUpdated` | `SettingsController` (`PUT …/admin/settings/agent-output-quality-gate-mode`) |
 | `TenantAgentOutputQualityGateModeOverrideCleared` | `Tenant.AgentOutputQualityGateModeOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/agent-output-quality-gate-mode`) |
+| `WorkspaceModelExecutionProfileUpdated` | `Workspace.ModelExecutionProfileUpdated` | `SettingsController` (`PUT …/admin/settings/model-execution-profile`) |
+| `WorkspaceModelExecutionProfileOverrideCleared` | `Workspace.ModelExecutionProfileOverrideCleared` | `SettingsController` (`DELETE …/admin/settings/model-execution-profile`) |
+| `RunModelExecutionProfileOverrideApplied` | `Run.ModelExecutionProfileOverrideApplied` | `ModelExecutionProfileOverrideAuditWriter` (per-review override at run create) |
 | `AgentOutputLlmFaithfulnessWarned` | `AgentOutput.LlmFaithfulnessWarned` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness warn floor) |
 | `AgentOutputLlmFaithfulnessRejected` | `AgentOutput.LlmFaithfulnessRejected` | `AgentOutputEvaluationRecorder` (Phase B LLM faithfulness reject floor) |
 | `AdminApiKeyRotationMaterialIssued` | `Admin.ApiKeyRotationMaterialIssued` | `AdminApiKeySettingsController` (`POST …/admin/settings/api-keys/rotate`) |
+| `AdminDeploymentStatusViewed` | `Admin.DeploymentStatusViewed` | `AdminDeploymentStatusController` (`GET /v1/admin/deployment-status`) |
 | `AdminUserInvitationAccepted` | `Admin.UserInvitationAccepted` | `PostAuthBootstrapService`, `EmailOtpAuthService`, `PostAuthBootstrapController` |
 | `AdminUserInvitationCreated` | `Admin.UserInvitationCreated` | `UsersAdminController` (`POST /v1/admin/users/invite`) |
 | `AdminUserInvitationRevoked` | `Admin.UserInvitationRevoked` | `UsersAdminController` |
