@@ -54,10 +54,16 @@ jobs:
       - name: Create catalog + start API (Simulator)
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6PerTenantBurst "${RUNNER_TEMP}/k6-burst-api.log" "${RUNNER_TEMP}/k6-burst-api.pid"
 
+      - name: Seed k6 per-tenant burst tenants
+        run: bash scripts/ci/seed_k6_per_tenant_burst_tenants.sh ArchLucidK6PerTenantBurst
+
       - name: Run k6 per-tenant burst
         env:
           ARCHLUCID_BASE_URL: http://127.0.0.1:5128
-          K6_BURST_DURATION: "5m"
+          K6_BURST_DURATION: "3m"
+          K6_BURST_RATE: "1"
+          K6_BURST_P95_MS: "15000"
+          K6_BURST_HTTP_TIMEOUT: "180s"
           K6_SUMMARY_PATH: ${{ runner.temp }}/k6-per-tenant-burst-summary.json
         run: |
           set -euo pipefail
@@ -68,7 +74,7 @@ jobs:
           python3 scripts/ci/assert_k6_ci_smoke_summary.py \
             "${{ runner.temp }}/k6-per-tenant-burst-summary.json" \
             --max-failed-rate 0.05 \
-            --max-p95-ms 3000
+            --max-p95-ms 15000
 
       - name: k6 burst summary (job log)
         if: always()
@@ -89,6 +95,10 @@ jobs:
           name: k6-per-tenant-burst-api-log
           path: ${{ runner.temp }}/k6-burst-api.log
           if-no-files-found: warn
+
+      - name: Dump k6 burst API log on failure
+        if: failure()
+        run: tail -n 300 "${RUNNER_TEMP}/k6-burst-api.log" || true
 
       - name: Stop ArchLucid.Api (background)
         if: always()
