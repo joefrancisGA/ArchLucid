@@ -179,7 +179,38 @@ export const PAGES_DEFERRED = [
   },
 ] as const;
 
+/**
+ * PR/extended route matrix scores light appearance. Demo tenants often sync
+ * `archlucid_color_mode=dark` after hydration; pricing/signup also hide the theme toggle.
+ * Dark contrast is covered by `live-api-accessibility-focus.spec.ts`.
+ */
+async function lockLightAppearanceForRouteAxe(page: Page): Promise<void> {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.addInitScript(() => {
+    const pinLight = (): void => {
+      try {
+        window.localStorage.setItem("archlucid_color_mode", "light");
+      } catch {
+        /* ignore quota / private mode */
+      }
+
+      document.documentElement.classList.remove("dark");
+    };
+
+    pinLight();
+
+    const observer = new MutationObserver(() => {
+      if (document.documentElement.classList.contains("dark")) {
+        pinLight();
+      }
+    });
+
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  });
+}
+
 async function expectNoCriticalOrSeriousAxeViolations(page: Page, path: string) {
+  await lockLightAppearanceForRouteAxe(page);
   await page.goto(path, { waitUntil: "domcontentloaded" });
   await page.locator("main").first().waitFor({ state: "visible", timeout: 90_000 });
 
