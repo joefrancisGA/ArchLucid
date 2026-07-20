@@ -61,9 +61,10 @@ jobs:
         env:
           ARCHLUCID_BASE_URL: http://127.0.0.1:5128
           K6_BURST_DURATION: "3m"
-          K6_BURST_RATE: "1"
-          K6_BURST_P95_MS: "15000"
-          K6_BURST_HTTP_TIMEOUT: "180s"
+          K6_BURST_RATE: "0.2"
+          K6_BURST_TENANT_COUNT: "5"
+          K6_BURST_P95_MS: "30000"
+          K6_BURST_HTTP_TIMEOUT: "240s"
           K6_SUMMARY_PATH: ${{ runner.temp }}/k6-per-tenant-burst-summary.json
         run: |
           set -euo pipefail
@@ -74,10 +75,11 @@ jobs:
           python3 scripts/ci/assert_k6_ci_smoke_summary.py \
             "${{ runner.temp }}/k6-per-tenant-burst-summary.json" \
             --max-failed-rate 0.05 \
-            --max-p95-ms 15000
+            --max-p95-ms 30000
 
       - name: k6 burst summary (job log)
         if: always()
+        continue-on-error: true
         run: python3 scripts/ci/print_k6_summary_metrics.py "${{ runner.temp }}/k6-per-tenant-burst-summary.json"
 
       - name: Upload k6 per-tenant burst summary

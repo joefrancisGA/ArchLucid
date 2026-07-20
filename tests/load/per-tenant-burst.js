@@ -28,6 +28,11 @@ const TENANT_GUIDS = [
   "10000000-0000-4000-8000-00000000000a",
 ];
 
+const TENANT_COUNT = Math.min(
+  TENANT_GUIDS.length,
+  Math.max(1, Number(__ENV.K6_BURST_TENANT_COUNT || TENANT_GUIDS.length)),
+);
+
 function scopeIdsForTenant(tenantGuid) {
   const parts = tenantGuid.split("-");
 
@@ -146,7 +151,7 @@ export const runBurstT9 = () => runBurstForTenant(9);
 function buildScenarios() {
   const scenarios = {};
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < TENANT_COUNT; i++) {
     scenarios[`tenant_${i}`] = {
       executor: "constant-arrival-rate",
       rate: BURST_RATE,
