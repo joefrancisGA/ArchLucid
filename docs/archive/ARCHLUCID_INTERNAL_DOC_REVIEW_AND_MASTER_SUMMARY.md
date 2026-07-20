@@ -3760,7 +3760,7 @@ This catalog includes current non-archive Markdown documents. It is intentionall
 **Scope:** **Scope:** Day one — Developer (week one) - full detail, tables, and links in the sections below.
 **Title:** Day one — Developer (week one)
 **Summary:** **Goal:** Ship a small, safe change or run the **ArchLucid** stack locally with confidence. **Not** full domain mastery. (Repo and projects: `ArchLucid.*`.) **Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) (UI route × API × CLI × authority — use this instead of memorizing scattered onboarding-only lists). > **Install order moved.** See [INSTALL_ORDER.md](../archive/INSTALL_ORDER.md). This page now only covers Developer week-one tasks **after** install. **Ticket:** `ONBOARD-DEV-001` (copy into your work tracker) - [ ] **1. Toolchain done** — You finished the **Local dev** column in the canonical one-pager (see [../START_HERE.md](../START_HERE.md) first tabl
-**Headings:** Day one — Developer (week one); Scope (3–5 outcomes — check off by end of week one); Fast path commands; Start dependencies (SQL, Azurite, Redis); Run fast tests; Run the API; Run the UI (in a new terminal); Escalation
+**Headings:** Day one — Developer (week one); Scope (3–5 outcomes — check off by end of week one); Fast path commands; Start dependencies (SQL, Azurite, Redis); Run fast tests; Run the API; Run the UI (in a new terminal); Escalation; Mental model: `POST /v1/architecture/request`; Following the request past create — execute → commit → retrieval → ask (merged 2026-07-20 from retired `archive/ONBOARDING_HAPPY_PATH_2026_04_17.md`); Health, ops, and full regression
 
 #### `onboarding/day-one-security.md`
 **Scope:** **Scope:** Day one — Security / GRC (week one) - full detail, tables, and links in the sections below.
@@ -4642,7 +4642,6 @@ Archive content is valuable but should be treated as historical evidence, not ca
 - `NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`: 1 files
 - `ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md`: 1 files
 - `ONBOARDING_GOLDEN_PATH_2026_04_17.md`: 1 files
-- `ONBOARDING_HAPPY_PATH_2026_04_17.md`: 1 files
 - `PILOT_GUIDE_CHANGE_SET_56R.md`: 1 files
 - `ONBOARDING_START_HERE_2026_04_17.md`: 1 files
 - `PENDING_QUESTIONS_RESOLVED_HISTORY.md`: 1 files
