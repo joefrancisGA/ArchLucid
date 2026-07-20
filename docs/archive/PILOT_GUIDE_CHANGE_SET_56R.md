@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-20
+
 # Pilot guide (Change Set 56R)
 
 **Audience:** Design partners and early pilots who need to run **ArchLucid** locally or in a test environment **without** walking through internal design docs.
