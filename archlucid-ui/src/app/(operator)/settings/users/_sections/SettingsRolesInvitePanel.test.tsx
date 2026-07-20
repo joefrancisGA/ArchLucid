@@ -16,6 +16,14 @@ import { showError, showSuccess } from "@/lib/toast";
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
 
 describe("SettingsRolesInvitePanel (TB-794)", () => {
+  it("keeps the invite form when the user directory is unavailable", () => {
+    render(<SettingsRolesInvitePanel directoryUnavailable onRetry={() => undefined} />);
+
+    expect(screen.getByTestId("settings-roles-invite-form")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-invite-directory-unavailable")).toBeInTheDocument();
+    expect(screen.getByTestId("settings-roles-invite-email")).toBeInTheDocument();
+  });
+
   it("shows error toast when invite endpoint is missing", async () => {
     vi.mocked(sendAdminUserInvitation).mockResolvedValue({ ok: false, reason: "http_error" });
 

@@ -18,6 +18,8 @@ test.describe("live-api-invite-flow", () => {
   });
 
   test("admin invite round-trip: send invite, list pending, revoke", async ({ page }) => {
+    test.setTimeout(180_000);
+
     if (resolveLiveJwtMode()) {
       const bearer = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
 

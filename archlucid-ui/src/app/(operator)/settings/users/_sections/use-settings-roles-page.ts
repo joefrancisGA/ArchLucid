@@ -69,7 +69,9 @@ export function useSettingsRolesPage(loaded: SettingsRolesPageServerLoad): Setti
 
       if (!usersRes.ok) {
         setRows([]);
-        setNote("api_unavailable");
+        // Directory list is optional for invites (POST /v1/admin/users/invite). Missing list routes
+        // (404/501) must not block the invite form — treat as an empty directory.
+        setNote(usersRes.status === 404 || usersRes.status === 501 ? "empty_response" : "api_unavailable");
 
         return;
       }
