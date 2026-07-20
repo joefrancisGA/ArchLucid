@@ -1,14 +1,17 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useId, useState } from "react";
+
 import type { AlertRoutingCriteria } from "@/lib/alert-routing-criteria";
+import { ALERT_ROUTING_SEVERITY_OPTIONS } from "@/lib/alert-routing-criteria";
 import {
-  ALERT_ROUTING_FINDING_TYPE_OPTIONS,
-  ALERT_ROUTING_SEVERITY_OPTIONS,
-  formatTagsInput,
-  parseTagsInput,
-} from "@/lib/alert-routing-criteria";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+  ALERT_ROUTING_ADVANCED_FINDING_TYPES,
+  ALERT_ROUTING_COMMON_FINDING_TYPES,
+  descriptionForAlertRoutingFindingType,
+} from "@/lib/alert-routing-finding-type-labels";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ReviewLabelTokenInput } from "@/components/alerts/ReviewLabelTokenInput";
 
 export type AlertRoutingCriteriaFieldsProps = {
   criteria: AlertRoutingCriteria;
@@ -25,8 +28,58 @@ function toggleValue(list: string[], value: string): string[] {
   return [...list, value];
 }
 
+function FindingTypeCheckbox({
+  value,
+  label,
+  description,
+  selected,
+  disabled,
+  disabledTitle,
+  onToggle,
+}: {
+  value: string;
+  label: string;
+  description?: string;
+  selected: boolean;
+  disabled: boolean;
+  disabledTitle?: string;
+  onToggle: () => void;
+}) {
+  const descriptionId = description ? `${value}-description` : undefined;
+
+  return (
+    <label
+      className={cn(
+        "inline-flex min-h-9 cursor-pointer items-start gap-2 rounded border px-2 py-1.5",
+        OPERATOR_TYPOGRAPHY.badge,
+        selected
+          ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
+          : "border-neutral-300 dark:border-neutral-600",
+      )}
+      title={disabled ? disabledTitle : description}
+    >
+      <input
+        type="checkbox"
+        className="mt-0.5 h-4 w-4"
+        checked={selected}
+        disabled={disabled}
+        aria-describedby={descriptionId}
+        onChange={onToggle}
+      />
+      <span>
+        <span className="block">{label}</span>
+        {description ? (
+          <span id={descriptionId} className={cn("block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {description}
+          </span>
+        ) : null}
+      </span>
+    </label>
+  );
+}
+
 /**
- * Optional severity / finding-type / tag filters for alert routing subscriptions.
+ * Optional finding-category and review-label filters for notification destinations.
  */
 export function AlertRoutingCriteriaFields({
   criteria,
@@ -34,112 +87,160 @@ export function AlertRoutingCriteriaFields({
   disabled = false,
   disabledTitle,
 }: AlertRoutingCriteriaFieldsProps) {
+  const [showAdvancedCategories, setShowAdvancedCategories] = useState(false);
+  const [showExactSeverities, setShowExactSeverities] = useState(criteria.severities.length > 0);
+  const reviewLabelsHelperId = useId();
+
   return (
-    <fieldset className="space-y-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-700" disabled={disabled}>
-      <legend className={cn("px-1 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Routing filters (optional)</legend>
-      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Leave empty to route on minimum severity only. Finding types match the alert category. Tags match alert tags
-        (include <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">tags:phi,prod</code> in trigger
-        values or the alert category).
-      </p>
+    <div className="space-y-5">
+      {showExactSeverities ? (
+        <fieldset className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700" disabled={disabled}>
+          <legend className={cn("px-1 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            Customize exact severities
+          </legend>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            When selected, only alerts at these severities are delivered — overriding the minimum severity preview above.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ALERT_ROUTING_SEVERITY_OPTIONS.map((severity) => {
+              const selected = criteria.severities.some((entry) => entry.toLowerCase() === severity.toLowerCase());
 
-      <div>
-        <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "font-semibold text-neutral-600 dark:text-neutral-400")}>
-          Severities
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {ALERT_ROUTING_SEVERITY_OPTIONS.map((severity) => {
-            const selected = criteria.severities.some((entry) => entry.toLowerCase() === severity.toLowerCase());
-
-            return (
-              <label
-                key={severity}
-                className={cn(
-                  "inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-1",
-                  OPERATOR_TYPOGRAPHY.badge,
-                  selected
-                    ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
-                    : "border-neutral-300 dark:border-neutral-600",
-                )}
-                title={disabled ? disabledTitle : undefined}
-              >
-                <input
-                  type="checkbox"
-                  className="h-3 w-3"
-                  checked={selected}
-                  disabled={disabled}
-                  onChange={() =>
-                    onChange({
-                      ...criteria,
-                      severities: toggleValue(criteria.severities, severity),
-                    })
-                  }
-                />
-                {severity}
-              </label>
-            );
-          })}
-        </div>
-      </div>
-
-      <div>
-        <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "font-semibold text-neutral-600 dark:text-neutral-400")}>
-          Finding types / categories
-        </p>
-        <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto">
-          {ALERT_ROUTING_FINDING_TYPE_OPTIONS.map((findingType) => {
-            const selected = criteria.findingTypes.some(
-              (entry) => entry.toLowerCase() === findingType.toLowerCase(),
-            );
-
-            return (
-              <label
-                key={findingType}
-                className={cn(
-                  "inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-1",
-                  OPERATOR_TYPOGRAPHY.badge,
-                  selected
-                    ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
-                    : "border-neutral-300 dark:border-neutral-600",
-                )}
-                title={disabled ? disabledTitle : undefined}
-              >
-                <input
-                  type="checkbox"
-                  className="h-3 w-3"
-                  checked={selected}
-                  disabled={disabled}
-                  onChange={() =>
-                    onChange({
-                      ...criteria,
-                      findingTypes: toggleValue(criteria.findingTypes, findingType),
-                    })
-                  }
-                />
-                {findingType}
-              </label>
-            );
-          })}
-        </div>
-      </div>
-
-      <label className={cn("block text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Tags (comma-separated)
-        <input
-          value={formatTagsInput(criteria.tags)}
-          onChange={(e) =>
-            onChange({
-              ...criteria,
-              tags: parseTagsInput(e.target.value),
-            })
-          }
+              return (
+                <label
+                  key={severity}
+                  className={cn(
+                    "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded border px-2 py-1.5",
+                    OPERATOR_TYPOGRAPHY.badge,
+                    selected
+                      ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
+                      : "border-neutral-300 dark:border-neutral-600",
+                  )}
+                  title={disabled ? disabledTitle : undefined}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={selected}
+                    disabled={disabled}
+                    onChange={() =>
+                      onChange({
+                        ...criteria,
+                        severities: toggleValue(criteria.severities, severity),
+                      })
+                    }
+                  />
+                  {severity}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+      ) : (
+        <button
+          type="button"
+          className={cn(
+            "text-left text-[var(--al-link)] underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)]",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           disabled={disabled}
           title={disabled ? disabledTitle : undefined}
-          placeholder="phi, production, security-review"
-          className={cn("mt-1 block w-full p-2 font-mono", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="alert-routing-tags-input"
-        />
-      </label>
-    </fieldset>
+          onClick={() => setShowExactSeverities(true)}
+        >
+          Customize exact severities
+        </button>
+      )}
+
+      <fieldset className="space-y-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-700" disabled={disabled}>
+        <legend className={cn("px-1 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          Optional filters
+        </legend>
+
+        <div>
+          <p className={cn("m-0 mb-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+            Finding categories
+          </p>
+          <p className={cn("m-0 mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Leave all unchecked to include every category that meets the severity threshold.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ALERT_ROUTING_COMMON_FINDING_TYPES.map((entry) => (
+              <FindingTypeCheckbox
+                key={entry.value}
+                value={entry.value}
+                label={entry.label}
+                description={entry.description}
+                selected={criteria.findingTypes.some(
+                  (findingType) => findingType.toLowerCase() === entry.value.toLowerCase(),
+                )}
+                disabled={disabled}
+                disabledTitle={disabledTitle}
+                onToggle={() =>
+                  onChange({
+                    ...criteria,
+                    findingTypes: toggleValue(criteria.findingTypes, entry.value),
+                  })
+                }
+              />
+            ))}
+          </div>
+          {showAdvancedCategories ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {ALERT_ROUTING_ADVANCED_FINDING_TYPES.map((entry) => (
+                <FindingTypeCheckbox
+                  key={entry.value}
+                  value={entry.value}
+                  label={entry.label}
+                  description={entry.description ?? descriptionForAlertRoutingFindingType(entry.value)}
+                  selected={criteria.findingTypes.some(
+                    (findingType) => findingType.toLowerCase() === entry.value.toLowerCase(),
+                  )}
+                  disabled={disabled}
+                  disabledTitle={disabledTitle}
+                  onToggle={() =>
+                    onChange({
+                      ...criteria,
+                      findingTypes: toggleValue(criteria.findingTypes, entry.value),
+                    })
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={cn(
+                "mt-3 text-left text-[var(--al-link)] underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-focus-ring)]",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+              disabled={disabled}
+              title={disabled ? disabledTitle : undefined}
+              onClick={() => setShowAdvancedCategories(true)}
+            >
+              Show advanced categories
+            </button>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor={reviewLabelsHelperId}
+            className={cn("mb-1 block font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
+          >
+            Only notify for reviews with these labels
+          </label>
+          <p id={reviewLabelsHelperId} className={cn("m-0 mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Leave empty to include all reviews. When labels are selected, the alert is sent when a review contains any
+            selected label. Labels are matched case-insensitively. Add labels from your review metadata such as
+            Production, PHI, or Security review.
+          </p>
+          <ReviewLabelTokenInput
+            labels={criteria.tags}
+            onChange={(tags) => onChange({ ...criteria, tags })}
+            disabled={disabled}
+            describedById={reviewLabelsHelperId}
+          />
+        </div>
+      </fieldset>
+    </div>
   );
 }

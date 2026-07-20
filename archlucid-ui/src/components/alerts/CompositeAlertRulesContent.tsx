@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -131,8 +130,7 @@ export function CompositeAlertRulesContent() {
 
   return (
     <div className="max-w-4xl">
-      <LayerHeader pageKey="composite-alert-rules" />
-      <h2 className="mt-0">Composite alert rules</h2>
+      <h2 className="mt-0">Advanced alert rules</h2>
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateComposite ? compositeRulesPageLeadOperator : compositeRulesPageLeadReader}
       </p>

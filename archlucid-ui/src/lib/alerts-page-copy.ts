@@ -7,8 +7,12 @@ export const ALERTS_CONTEXT_NOTE =
 
 export const ALERTS_HOW_ALERTS_WORK_LABEL = "How alerts work";
 
-export const ALERTS_RULES_PAGE_SUBTITLE =
-  "Configure threshold rules, routing, composite conditions, and simulation tuning for governance alerts.";
+export const ALERTS_CONFIGURATION_PAGE_TITLE = "Alerts";
+
+export const ALERTS_CONFIGURATION_PAGE_SUBTITLE =
+  "Configure which review conditions generate alerts and where notifications are delivered.";
+
+export const ALERTS_RULES_PAGE_SUBTITLE = ALERTS_CONFIGURATION_PAGE_SUBTITLE;
 
 /** @deprecated Alert rules hub uses {@link ALERTS_RULES_PAGE_SUBTITLE}. */
 export const ALERT_RULES_PAGE_SUBTITLE = ALERTS_RULES_PAGE_SUBTITLE;
@@ -40,7 +44,7 @@ export const ALERTS_EMPTY_FILTERED_BODY =
 
 export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES = "Open reviews";
 export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW = "Start architecture review";
-export const ALERTS_ACTION_CONFIGURE_ALERT_RULES = "Configure alert rules";
+export const ALERTS_ACTION_CONFIGURE_ALERT_RULES = "Configure alerts";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open governance setup guide";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW = "Open governance workflow";
 

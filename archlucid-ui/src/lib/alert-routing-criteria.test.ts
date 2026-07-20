@@ -31,4 +31,14 @@ describe("alert-routing-criteria", () => {
   it("parses comma-separated tags", () => {
     expect(parseTagsInput("phi, prod\nsecurity")).toEqual(["phi", "prod", "security"]);
   });
+
+  it("formats criteria summary with readable category labels", () => {
+    expect(
+      formatAlertRoutingCriteriaSummary({
+        severities: [],
+        findingTypes: ["TopologyGap"],
+        tags: ["PHI"],
+      }),
+    ).toContain("Architecture topology gap");
+  });
 });

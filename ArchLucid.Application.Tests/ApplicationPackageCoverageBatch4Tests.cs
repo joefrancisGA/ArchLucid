@@ -133,7 +133,10 @@ public sealed class ApplicationPackageCoverageBatch4Tests
             ],
         };
 
-        ArchitectureQuickScanResponse mapped = ArchitectureQuickScanResponseMapper.Map(result, maxFindings: 2);
+        ArchitectureQuickScanResponse mapped = ArchitectureQuickScanResponseMapper.Map(
+            result,
+            new QuickScanRequestValidator.ValidatedQuickScanRequest("sys", "Azure", null, "desc", []),
+            maxFindings: 2);
 
         mapped.Findings.Should().HaveCount(2);
         mapped.Findings[0].Severity.Should().Be(FindingSeverity.Critical);

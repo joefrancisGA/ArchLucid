@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
 import { Button } from "@/components/ui/button";
@@ -96,9 +95,8 @@ export function AlertRulesContent() {
   }
 
   return (
-    <div className="max-w-3xl">
-      <LayerHeader pageKey="alert-rules" />
-      <h2 className="mt-0">Alert rules</h2>
+    <div className="max-w-4xl">
+      <h2 className="mt-0">Alert conditions</h2>
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateAlertRules ? alertRulesPageLeadOperator : alertRulesPageLeadReader}
       </p>

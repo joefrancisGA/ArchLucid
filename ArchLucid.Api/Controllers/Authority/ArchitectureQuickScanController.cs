@@ -1,12 +1,17 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
+using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -14,6 +19,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -27,73 +33,196 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class ArchitectureQuickScanController(
     IQuickScanService quickScanService,
+    IQuickScanGuard quickScanGuard,
+    IQuickScanTelemetry quickScanTelemetry,
+    IOptionsMonitor<QuickScanOptions> quickScanOptions,
     IActorContext actorContext,
     IAuditService auditService,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    ILlmCostEstimator costEstimator,
+    TimeProvider timeProvider) : ControllerBase
 {
+    /// <summary>Returns public capacity information for the Quick Scan marketing surface.</summary>
+    [HttpGet("quick-scan/status")]
+    [ProducesResponseType(typeof(QuickScanStatusResponse), StatusCodes.Status200OK)]
+    public IActionResult GetQuickScanStatus()
+    {
+        QuickScanGuardContext context = BuildGuardContext(string.Empty);
+        QuickScanStatusResponse status = quickScanGuard.GetStatus(context);
+
+        return Ok(status);
+    }
+
+    /// <summary>Returns a static sample result that does not invoke AI.</summary>
+    [HttpGet("quick-scan/sample")]
+    [ProducesResponseType(typeof(ArchitectureQuickScanResponse), StatusCodes.Status200OK)]
+    public IActionResult GetQuickScanSample([FromQuery] string? systemName, [FromQuery] string? primaryEnvironment)
+    {
+        quickScanTelemetry.RecordSampleView(BuildGuardContext(string.Empty));
+        ArchitectureQuickScanResponse body = QuickScanSampleResultProvider.Build(systemName, primaryEnvironment);
+
+        return Ok(body);
+    }
+
     /// <summary>Runs a quick scan from minimal context (simulator-friendly by default).</summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("quick-scan")]
     [ProducesResponseType(typeof(ArchitectureQuickScanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> PostQuickScanAsync(
         [FromBody] ArchitectureQuickScanRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        QuickScanOptions options = quickScanOptions.CurrentValue;
 
-        string systemName = (request.SystemName).Trim();
-        string cloud = (request.CloudProvider).Trim();
-        string description = (request.Description).Trim();
+        if (!QuickScanRequestValidator.TryValidate(request, options, out QuickScanRequestValidator.ValidatedQuickScanRequest? validated, out string? validationError))
+            return this.BadRequestProblem(validationError ?? "Validation failed.", ProblemTypes.ValidationFailed);
 
-        if (string.IsNullOrWhiteSpace(systemName))
-            return this.BadRequestProblem("systemName is required.", ProblemTypes.ValidationFailed);
+        QuickScanGuardContext guardContext = BuildGuardContext(validated!.Description);
+        quickScanTelemetry.RecordAttempt(guardContext);
 
-        if (string.IsNullOrWhiteSpace(cloud))
-            return this.BadRequestProblem("cloudProvider is required.", ProblemTypes.ValidationFailed);
+        QuickScanGuardDecision decision = quickScanGuard.TryBeginScan(guardContext);
 
-        if (string.IsNullOrWhiteSpace(description))
-            return this.BadRequestProblem("description is required.", ProblemTypes.ValidationFailed);
-
-        ArchitectureQuickScanRequest normalized = new()
+        if (!decision.Allowed)
         {
-            SystemName = systemName,
-            CloudProvider = cloud,
-            Description = description
-        };
+            quickScanTelemetry.RecordRejection(guardContext, decision.RejectionReason!.Value);
+            quickScanGuard.RecordRejection(guardContext, decision.RejectionReason.Value);
 
-        Dictionary<string, string> files = QuickScanMinimalContextBuilder.BuildFiles(normalized);
-        QuickScanResult scan = await quickScanService.ScanAsync(files, cancellationToken).ConfigureAwait(false);
-        ArchitectureQuickScanResponse body = ArchitectureQuickScanResponseMapper.Map(scan);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string auditActor = actorContext.GetActor();
-
-        await auditService.LogAsync(
-            new AuditEvent
+            return decision.RejectionReason switch
             {
-                EventType = AuditEventTypes.ArchitectureQuickScanExecuted,
-                ActorUserId = auditActor,
-                ActorUserName = auditActor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                CorrelationId = HttpContext.TraceIdentifier,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        normalized.SystemName,
-                        normalized.CloudProvider,
-                        descriptionLength = normalized.Description.Length,
-                        scan.ScanId,
-                        findingCount = scan.Findings.Count,
-                        summaryLength = scan.Summary.Length
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            cancellationToken);
+                QuickScanGuardRejectionReason.Disabled
+                    or QuickScanGuardRejectionReason.GlobalHourlySpendCeiling
+                    or QuickScanGuardRejectionReason.GlobalDailySpendCeiling
+                    or QuickScanGuardRejectionReason.ConcurrentScanLimit =>
+                    this.ServiceUnavailableProblem("Quick Scan has reached its demonstration capacity for today."),
 
-        return Ok(body);
+                QuickScanGuardRejectionReason.SignInRequired =>
+                    StatusCode(
+                        StatusCodes.Status403Forbidden,
+                        new Microsoft.AspNetCore.Mvc.ProblemDetails
+                        {
+                            Title = "Sign-in required",
+                            Detail = "Additional Quick Scan attempts require sign-in.",
+                            Type = ProblemTypes.BusinessRuleViolation,
+                            Status = StatusCodes.Status403Forbidden,
+                        }),
+
+                _ => StatusCode(
+                    StatusCodes.Status429TooManyRequests,
+                    new Microsoft.AspNetCore.Mvc.ProblemDetails
+                    {
+                        Title = "Too many requests",
+                        Detail = "Quick Scan is temporarily unavailable. Try again later or view the sample result.",
+                        Type = ProblemTypes.LlmTokenQuotaExceeded,
+                        Status = StatusCodes.Status429TooManyRequests,
+                    }),
+            };
+        }
+
+        quickScanGuard.RecordScanStarted(guardContext);
+        DateTimeOffset started = timeProvider.GetUtcNow();
+
+        try
+        {
+            Dictionary<string, string> files = QuickScanMinimalContextBuilder.BuildFiles(validated);
+            QuickScanResult scan = await quickScanService.ScanAsync(files, cancellationToken).ConfigureAwait(false);
+            ArchitectureQuickScanResponse body = ArchitectureQuickScanResponseMapper.Map(
+                scan,
+                validated,
+                options.MaxFindingsReturned);
+
+            AgentCompletionTokenUsage.TryPeek(out int? inputTokens, out int? outputTokens, out int? _);
+            decimal estimatedCost = costEstimator.EstimateUsd(inputTokens ?? 0, outputTokens ?? 0, 0, deploymentLabel: null) ?? 0m;
+            TimeSpan duration = timeProvider.GetUtcNow() - started;
+
+            if (estimatedCost > options.MaxEstimatedCostUsdPerScan)
+            {
+                quickScanTelemetry.RecordFailure(guardContext, "per_scan_cost_exceeded", duration);
+                return this.ServiceUnavailableProblem("Quick Scan has reached its demonstration capacity for today.");
+            }
+
+            quickScanGuard.RecordScanCompleted(
+                guardContext,
+                succeeded: true,
+                estimatedCost,
+                inputTokens ?? 0,
+                outputTokens ?? 0,
+                duration);
+
+            quickScanTelemetry.RecordSuccess(
+                guardContext,
+                body.ScanId,
+                estimatedCost,
+                inputTokens ?? 0,
+                outputTokens ?? 0,
+                modelLabel: "quick-scan",
+                duration);
+
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            string auditActor = actorContext.GetActor();
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureQuickScanExecuted,
+                    ActorUserId = auditActor,
+                    ActorUserName = auditActor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    CorrelationId = HttpContext.TraceIdentifier,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            validated.SystemName,
+                            validated.PrimaryEnvironment,
+                            descriptionLength = validated.Description.Length,
+                            concernCount = validated.ArchitectureConcerns.Count,
+                            scan.ScanId,
+                            findingCount = scan.Findings.Count,
+                            summaryLength = scan.Summary.Length
+                        },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                cancellationToken).ConfigureAwait(false);
+
+            return Ok(body);
+        }
+        catch (Exception)
+        {
+            TimeSpan duration = timeProvider.GetUtcNow() - started;
+            quickScanTelemetry.RecordFailure(guardContext, "execution_failed", duration);
+            quickScanGuard.RecordScanCompleted(guardContext, succeeded: false, 0m, 0, 0, duration);
+
+            return this.ServiceUnavailableProblem("Quick Scan could not be completed. View the sample result or try again later.");
+        }
+    }
+
+    private QuickScanGuardContext BuildGuardContext(string description)
+    {
+        string clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        string sessionId = Request.Headers["X-Quick-Scan-Session"].FirstOrDefault()
+            ?? Request.Headers["X-ArchLucid-Anonymous-Session"].FirstOrDefault()
+            ?? Request.Cookies["al_quick_scan_session"]
+            ?? clientIp;
+
+        string fingerprint = ComputeFingerprint(description, sessionId);
+
+        return new QuickScanGuardContext
+        {
+            ClientIp = clientIp,
+            SessionId = sessionId,
+            PayloadFingerprint = fingerprint,
+        };
+    }
+
+    private static string ComputeFingerprint(string description, string sessionId)
+    {
+        string payload = $"{sessionId}:{description.Trim().ToLowerInvariant()}";
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(payload));
+
+        return Convert.ToHexString(hash);
     }
 }

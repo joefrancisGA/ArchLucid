@@ -17,6 +17,7 @@ using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Core.AgentSimulation;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Core.Evidence;
@@ -658,6 +659,10 @@ public static partial class ServiceCollectionExtensions
         });
 
         services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<ILlmCompletionProvider>());
+        services.AddOptions<QuickScanOptions>()
+            .Bind(configuration.GetSection(QuickScanOptions.SectionPath));
+        services.AddSingleton<IQuickScanGuard, QuickScanGuard>();
+        services.AddSingleton<IQuickScanTelemetry, QuickScanTelemetry>();
         services.AddScoped<IQuickScanService, QuickScanService>();
         services.AddScoped<IRegisteredAgentHandlersInspector, RegisteredAgentHandlersInspector>();
     }

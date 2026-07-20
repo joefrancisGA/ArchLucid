@@ -36,18 +36,19 @@ describe("AlertRulesHubClient", () => {
     tabValue.current = null;
   });
 
-  it("defaults to alert rules tab with visible tablist", () => {
+  it("defaults to conditions tab with Alerts page title", () => {
     render(<AlertRulesHubClient />);
     expect(screen.getByTestId("stub-rules")).toBeInTheDocument();
-    expect(screen.getByTestId("alert-rules-hub-tab-rules")).toHaveTextContent("Alert rules");
-    expect(screen.getByRole("tab", { name: "Alert rules" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByTestId("alert-rules-page-title")).toHaveTextContent("Alerts");
+    expect(screen.getByTestId("alert-rules-hub-tab-rules")).toHaveTextContent("Conditions");
+    expect(screen.getByRole("tab", { name: /Conditions/i })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
-  it("shows routing when ?tab=routing", () => {
+  it("shows notifications when ?tab=routing", () => {
     tabValue.current = "routing";
     render(<AlertRulesHubClient />);
     expect(screen.getByTestId("stub-routing")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Routing" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: /Notifications/i })).toHaveAttribute("aria-selected", "true");
   });
 });

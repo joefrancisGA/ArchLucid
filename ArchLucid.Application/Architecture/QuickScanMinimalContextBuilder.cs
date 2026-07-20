@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Application.Architecture;
 
@@ -6,26 +7,48 @@ namespace ArchLucid.Application.Architecture;
 public static class QuickScanMinimalContextBuilder
 {
     /// <summary>Produces path → text entries consumed by the quick-scan LLM prompt.</summary>
-    public static Dictionary<string, string> BuildFiles(ArchitectureQuickScanRequest request)
+    public static Dictionary<string, string> BuildFiles(QuickScanRequestValidator.ValidatedQuickScanRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        string systemName = request.SystemName.Trim();
-        string cloud = (request.CloudProvider).Trim();
-        string description = (request.Description).Trim();
+        string environmentLabel = QuickScanPrimaryEnvironment.ToContextLabel(
+            request.PrimaryEnvironment,
+            request.PrimaryEnvironmentOther);
 
-        string cloudLine = string.IsNullOrEmpty(cloud) ? "Unspecified" : cloud;
+        string concernsLine = request.ArchitectureConcerns.Count == 0
+            ? "None specified"
+            : string.Join(", ", request.ArchitectureConcerns);
+
         string body =
             "SystemName: "
-            + systemName
-            + "\nCloudProvider: "
-            + cloudLine
+            + request.SystemName
+            + "\nPrimaryEnvironment: "
+            + environmentLabel
+            + "\nArchitectureConcerns: "
+            + concernsLine
             + "\nDescription:\n"
-            + description;
+            + request.Description;
 
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["quick-scan-context.txt"] = body
         };
+    }
+
+    /// <summary>Legacy overload for callers still passing the HTTP contract directly.</summary>
+    public static Dictionary<string, string> BuildFiles(ArchitectureQuickScanRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!QuickScanRequestValidator.TryValidate(
+                request,
+                new Core.Configuration.QuickScanOptions(),
+                out QuickScanRequestValidator.ValidatedQuickScanRequest? validated,
+                out string? _))
+        {
+            throw new ArgumentException("Quick scan request failed validation.", nameof(request));
+        }
+
+        return BuildFiles(validated!);
     }
 }

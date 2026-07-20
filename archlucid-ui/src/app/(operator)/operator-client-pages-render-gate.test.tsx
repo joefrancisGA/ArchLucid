@@ -190,27 +190,27 @@ describe("operator client pages — render gate", () => {
 
   it("Alert rules content renders primary heading", () => {
     render(<AlertRulesContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Alert rules" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Alert conditions" })).toBeInTheDocument();
   });
 
   it("Alert routing content renders primary heading", () => {
     render(<AlertRoutingContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Alert routing" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Notification delivery" })).toBeInTheDocument();
   });
 
   it("Alert simulation content renders primary heading", () => {
     render(<AlertSimulationContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Alert rule simulation" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Simulate alerts" })).toBeInTheDocument();
   });
 
   it("Alert tuning content renders primary heading", () => {
     render(<AlertTuningContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Alert tuning" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Tune alert thresholds" })).toBeInTheDocument();
   });
 
   it("Composite alert rules content renders primary heading", () => {
     render(<CompositeAlertRulesContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Composite alert rules" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Advanced alert rules" })).toBeInTheDocument();
   });
 
   it("Advisory hub Scans tab content renders primary heading", () => {
@@ -226,7 +226,7 @@ describe("operator client pages — render gate", () => {
   it("RecommendationLearningPage renders primary heading", async () => {
     const page = await RecommendationLearningPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Recommendation tuning" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "AI Recommendation Learning" })).toBeInTheDocument();
   });
 
   it("ProductLearningPage renders primary heading", async () => {

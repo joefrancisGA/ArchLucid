@@ -1,7 +1,10 @@
 using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -24,7 +27,7 @@ public sealed class QuickScanServiceCoverageTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(FakeQuickScanCompletionJson.Build("""{"context":"azure vnet hub spoke"}"""));
 
-        QuickScanService sut = new(completionClient.Object);
+        QuickScanService sut = CreateService(completionClient.Object);
         Dictionary<string, string> files = new() { ["context.txt"] = "azure vnet hub spoke" };
 
         QuickScanResult result = await sut.ScanAsync(files, CancellationToken.None);
@@ -46,7 +49,7 @@ public sealed class QuickScanServiceCoverageTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("   ");
 
-        QuickScanService sut = new(completionClient.Object);
+        QuickScanService sut = CreateService(completionClient.Object);
 
         QuickScanResult result = await sut.ScanAsync(new Dictionary<string, string>(), CancellationToken.None);
 
@@ -67,11 +70,26 @@ public sealed class QuickScanServiceCoverageTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("""{"summary":"only summary"}""");
 
-        QuickScanService sut = new(completionClient.Object);
+        QuickScanService sut = CreateService(completionClient.Object);
 
         QuickScanResult result = await sut.ScanAsync(new Dictionary<string, string>(), CancellationToken.None);
 
         result.Summary.Should().Be("only summary");
         result.Findings.Should().BeEmpty();
+    }
+
+    private static QuickScanService CreateService(IAgentCompletionClient completionClient) =>
+        new(
+            completionClient,
+            new TestOptionsMonitor(new QuickScanOptions()),
+            TimeProvider.System);
+
+    private sealed class TestOptionsMonitor(QuickScanOptions value) : IOptionsMonitor<QuickScanOptions>
+    {
+        public QuickScanOptions CurrentValue => value;
+
+        public QuickScanOptions Get(string? name) => value;
+
+        public IDisposable? OnChange(Action<QuickScanOptions, string?> listener) => null;
     }
 }

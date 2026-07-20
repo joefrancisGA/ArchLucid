@@ -3,6 +3,7 @@
  */
 
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
+import { ALERTS_HOW_ALERTS_WORK_LABEL } from "@/lib/alerts-page-copy";
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -23,14 +24,19 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/compare", topic: { slug: "comparison-replay", label: "Compare and replay" } },
   { prefix: "/replay", topic: { slug: "comparison-replay", label: "Validate review" } },
   { prefix: "/governance/findings", topic: { slug: "governance-approval", label: OPERATOR_NAV_LINK_LABELS.findings } },
+  {
+    prefix: "/governance/alert-rules",
+    topic: { slug: "alerts", label: ALERTS_HOW_ALERTS_WORK_LABEL },
+  },
   { prefix: "/governance", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/audit", topic: { slug: "audit-trail", label: "Audit trail" } },
   { prefix: "/alerts", topic: { slug: "alerts", label: "Alerts" } },
-  { prefix: "/alert-rules", topic: { slug: "alerts", label: "Alert rules" } },
+  { prefix: "/alert-rules", topic: { slug: "alerts", label: "How alerts work" } },
   { prefix: "/policy-packs", topic: { slug: "governance-approval", label: "Governance approval" } },
   { prefix: "/value-report", topic: { slug: "executive-summary", label: "Executive summary" } },
   { prefix: "/digests", topic: { slug: "how-it-works", label: "Architecture digests" } },
   { prefix: "/planning", topic: { slug: "pilot-feedback", label: "Improvement planning" } },
+  { prefix: "/recommendation-learning", topic: { slug: "how-it-works", label: "How recommendation learning works" } },
   { prefix: "/advisory", topic: { slug: "how-it-works", label: "Advisory scans" } },
   { prefix: "/integrations/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
   { prefix: "/settings/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },

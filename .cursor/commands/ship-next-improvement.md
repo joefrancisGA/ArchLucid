@@ -37,7 +37,7 @@ A row is **open** when it:
 - `P0`, `P0 —`, `P0 **`, `security-critical (P0)`, `Trustworthiness P0`, `Correctness P0`, `Data consistency P0`, `Adoption friction P0`, etc.
 - Same pattern for **P1**, **P2**, **P3**.
 
-When multiple open rows share the same priority band, pick the **first** in file order (top of backlog = higher priority per `TECH_BACKLOG.md` guidance).
+When multiple open rows share the same priority band, pick the **first** in file order (top of backlog = higher priority per `TECH_BACKLOG.md` guidance). In `TECH_BACKLOG.md`, all summary rows tagged **V2** live in the **`### V2 window`** subsection at the **bottom** of the summary table (IDs unchanged — do not renumber). File-order scans therefore park V2 last; still skip V2-tagged rows per guardrails above.
 
 Optional cross-check: `docs/library/TECH_BACKLOG_OPEN.md` (may be stale — prefer live grep on `TECH_BACKLOG.md`).
 

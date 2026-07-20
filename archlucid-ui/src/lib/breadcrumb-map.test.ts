@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
+import { ALERTS_CONFIGURATION_PAGE_TITLE } from "./alerts-page-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "./i18n";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "./showcase-static-demo";
 import { getBreadcrumbs } from "./breadcrumb-map";
@@ -11,9 +12,9 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/")).toEqual([{ label: OPERATOR_NAV_LINK_LABELS.home }]);
   });
 
-  it("maps recommendation tuning breadcrumb to the nav label", () => {
+  it("maps recommendation learning breadcrumb to the nav label", () => {
     expect(getBreadcrumbs("/recommendation-learning")).toEqual([
-      { label: "Recommendation tuning" },
+      { label: "Recommendation learning" },
     ]);
   });
 
@@ -323,6 +324,13 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/audit")).toEqual([
       { label: "Governance", href: "/governance" },
       { label: "Audit trail" },
+    ]);
+  });
+
+  it("maps alert configuration route to Governance / Alerts", () => {
+    expect(getBreadcrumbs("/governance/alert-rules")).toEqual([
+      { label: "Governance", href: "/governance" },
+      { label: ALERTS_CONFIGURATION_PAGE_TITLE },
     ]);
   });
 });

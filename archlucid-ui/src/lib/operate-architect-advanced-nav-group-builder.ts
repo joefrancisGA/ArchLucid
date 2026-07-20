@@ -17,15 +17,15 @@ export class OperateArchitectAdvancedNavGroupBuilder extends NavGroupBuilderBase
       id: "operate-architect-advanced",
       label: OPERATOR_NAV_GROUP_LABELS.architectPrograms,
       surface: "review-workflow",
-      caption: "Improvement themes and recommendation tuning.",
+      caption: "Improvement themes and recommendation learning.",
       links: [
         {
           href: "/recommendation-learning",
           label: OPERATOR_NAV_LINK_LABELS.recommendationTuning,
-          title: "Recommendation tuning — profiles and ranking signals",
+          title: "Recommendation learning — historical outcomes and ranking signals",
           icon: Sparkles,
           tier: "advanced",
-          // Profile GET is ReadAuthority and matches this nav gate; only the "Rebuild tuning profile" action is
+          // Profile GET is ReadAuthority and matches this nav gate; only recalculate learning is
           // ExecuteAuthority — gated client-side via useOperateCapability() in RecommendationLearningPageClient.
           requiredAuthority: "ReadAuthority",
         },

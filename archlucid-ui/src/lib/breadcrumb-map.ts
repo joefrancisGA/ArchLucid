@@ -6,7 +6,8 @@ import {
 } from "@/lib/architecture-routes";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
+import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { resolveNewReviewWizardBreadcrumbLabel } from "@/lib/operator-nav-labels";
@@ -67,7 +68,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   digests: "Digests",
   "digest-subscriptions": "Subscriptions",
   alerts: "Alerts",
-  "alert-rules": "Alert rules",
+  "alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
   "alert-routing": "Alert routing",
   "composite-alert-rules": "Composite rules",
   "alert-simulation": "Alert simulation",
@@ -139,6 +140,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
         { label: CREATE_ARCHITECTURE_LABEL },
       ];
     }
+  }
+
+  if (normalized === GOVERNANCE_ALERT_RULES_PATH || normalized.startsWith(`${GOVERNANCE_ALERT_RULES_PATH}/`)) {
+    return [
+      { label: "Governance", href: "/governance" },
+      { label: ALERTS_CONFIGURATION_PAGE_TITLE },
+    ];
   }
 
   const governanceRunTrail = tryBuildGovernanceRunScopedBreadcrumbs(normalized, options);

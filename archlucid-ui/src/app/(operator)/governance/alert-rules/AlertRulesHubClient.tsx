@@ -15,22 +15,41 @@ import {
   alertRulesHubTabFromSearchParam,
   type AlertRulesHubTabId,
 } from "@/lib/alerts-hub-tab";
-import { ALERT_RULES_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
+import {
+  ALERTS_CONFIGURATION_PAGE_SUBTITLE,
+  ALERTS_CONFIGURATION_PAGE_TITLE,
+} from "@/lib/alerts-page-copy";
 import { governanceAlertRulesTabHref } from "@/lib/governance-route-paths";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const TAB_PARAM = "tab";
 
-const TAB_LABEL: Record<AlertRulesHubTabId, string> = {
-  rules: "Alert rules",
-  routing: "Routing",
-  composite: "Composite",
-  simulation: "Simulation & Tuning",
+type AlertRulesHubTabConfig = {
+  label: string;
+  subtitle: string;
+};
+
+const TAB_CONFIG: Record<AlertRulesHubTabId, AlertRulesHubTabConfig> = {
+  rules: {
+    label: "Conditions",
+    subtitle: "Which review findings should raise an alert",
+  },
+  routing: {
+    label: "Notifications",
+    subtitle: "Where qualifying alerts are delivered",
+  },
+  composite: {
+    label: "Advanced rules",
+    subtitle: "Combine multiple signals before alerting",
+  },
+  simulation: {
+    label: "Test alerts",
+    subtitle: "Simulate and tune alert behavior",
+  },
 };
 
 /**
- * Alert rule configuration hub — separate from the Alerts triage inbox (Option A IA).
+ * Alert configuration hub — separate from the Alert inbox triage surface.
  */
 export function AlertRulesHubClient() {
   const router = useRouter();
@@ -52,19 +71,20 @@ export function AlertRulesHubClient() {
   return (
     <div className="px-0">
       <OperatorPageHeader
-        title={OPERATOR_NAV_LINK_LABELS.alertRules}
-        subtitle={ALERT_RULES_PAGE_SUBTITLE}
+        title={ALERTS_CONFIGURATION_PAGE_TITLE}
+        subtitle={ALERTS_CONFIGURATION_PAGE_SUBTITLE}
         titleTestId="alert-rules-page-title"
         actions={<PageContextualHelpButton />}
       />
 
       <nav
-        className="mb-4 border-b border-neutral-200 dark:border-neutral-800"
-        aria-label="Alert rules sections"
+        className="mb-6 border-b border-neutral-200 dark:border-neutral-800"
+        aria-label="Alerts configuration sections"
       >
         <div className="-mb-px flex flex-wrap gap-1" role="tablist">
           {ALERT_RULES_HUB_TAB_IDS.map((id) => {
             const selected = activeTab === id;
+            const config = TAB_CONFIG[id];
 
             return (
               <button
@@ -76,15 +96,16 @@ export function AlertRulesHubClient() {
                 data-testid={`alert-rules-hub-tab-${id}`}
                 onClick={() => onSelectTab(id)}
                 className={cn(
-                  "rounded-t-md border border-b-0 px-3 py-2",
-                  OPERATOR_TYPOGRAPHY.body,
-                  "font-medium",
+                  "rounded-t-md border border-b-0 px-4 py-2 text-left",
                   selected
-                    ? "border-neutral-200 bg-white text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
+                    ? "border-neutral-300 bg-white text-al-text-primary shadow-sm dark:border-neutral-600 dark:bg-neutral-950"
                     : "border-transparent bg-transparent text-al-text-secondary hover:bg-neutral-100 dark:hover:bg-neutral-900",
                 )}
               >
-                {TAB_LABEL[id]}
+                <span className={cn("block font-semibold", OPERATOR_TYPOGRAPHY.body)}>{config.label}</span>
+                <span className={cn("block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {config.subtitle}
+                </span>
               </button>
             );
           })}

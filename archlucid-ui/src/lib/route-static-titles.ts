@@ -2,6 +2,7 @@ import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architectur
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
+import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
@@ -18,7 +19,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
   "/reviews/new": START_REVIEW_LABEL,
   "/alerts": "Alerts",
-  "/alert-rules": "Alert rules",
+  "/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
+  "/governance/alert-rules": ALERTS_CONFIGURATION_PAGE_TITLE,
   "/compare": "Compare",
   "/graph": OPERATOR_NAV_LINK_LABELS.evidenceTrail,
   "/patterns": PATTERN_LIBRARY_PAGE_TITLE,

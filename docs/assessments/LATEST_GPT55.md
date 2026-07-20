@@ -14,12 +14,12 @@ Sourced from open `GTM_BACKLOG.md` rows (M-series / G-REAL-series), ranked by cr
 |------|----------|
 | **M-04/G-REAL-02** — Playwright smoke sign-off, Workspace A self-demo | **Done — owner 2026-07-03** |
 | **M-05/G-REAL-03** — Playwright smoke sign-off, Workspace B regulated scenario | **Done — owner 2026-07-03** |
+| **M-06/G-REAL-04** — Workspace B sample report vs landing-page claims | **Done — owner 2026-07-19** (agent review 2026-07-03; live DOCX check waived; C8 → M-09 remainder, C4 → M-111) |
 
 **Agent work complete — owner sign-off pending:**
 
 | Task | Status |
 |------|--------|
-| **M-06/G-REAL-04** — Workspace B sample report vs landing-page claims | Agent mechanical review **Done 2026-07-03** — see [`M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md`](../go-to-market/M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md). **Owner:** final sign-off (optional live DOCX visual check). |
 | **M-08** — Align `POSITIONING.md` "audit chain / signed manifest" language with the one-minute pitch and demo script | Agent copy alignment **Done 2026-07-03**. **Owner:** optional read-through before next outreach copy freeze — not a blocking gate. |
 | **M-18** — Send 20 outreach messages offering a 10-minute demo | Agent message drafting **Done 2026-07-03** — see [`M18_OUTREACH_MESSAGE_TEMPLATE.md`](../go-to-market/M18_OUTREACH_MESSAGE_TEMPLATE.md). **Owner:** personalize and send once M-09/M-16/M-17 clear. |
 
@@ -255,12 +255,12 @@ ArchLucid's governed-review infrastructure is real and durable, and the team kee
 | Title | Why it matters | Expected impact | Classification |
 |-------|----------------|-----------------|----------------|
 | ~~**Wire promoted fine-tuned deployments into agent completion routing** (TB-594 follow-up)~~ | Moved — owner overrode this hold 2026-07-05; see "Promoted to V1" table above (Cursor prompt below is now active, not held) | — | **Promoted — see "Promoted to V1" table above** |
-| **Automated nav-authority/label-consistency guard** (new candidate, not yet a TB row — full Cursor prompt below) | Seventeen instances of "sidebar label / page title / enforced authority disagree" have now been found and closed manually across four cycles (TB-606, TB-612–TB-616, TB-622–TB-624, TB-625–TB-633) with no regression guard preventing an eighteenth | Would prevent recurrence of a defect class that has grown from ~4–5 instances per cycle to a nine-row batch in the most recent cycle; low implementation cost (static analysis over existing typed nav-config + controller metadata) | V1 engineering — hold per validation-first ordering; revisit after G-REAL-06 or the next instance found |
-| **RAG-V2 live-model Graph-RAG ablation signal** (new candidate, not yet a TB row — full Cursor prompt below) | TB-595's ablation study is 100% hand-authored fixtures (`cases.json` + `ablation-attribution.v1.json`); the existing Phase B live-model faithfulness signal scores real exemplars but has no per-flag breakdown, so there is no live-model evidence that Graph-RAG's bounded multi-hop expansion helps | Would close half of the "offline fixtures, not live-model" gap named in §7 Decision-Changing Insight Density for Graph-RAG specifically (HyDE/query-rewrite and all live-buyer evidence remain open — see prompt Non-goals) | V1 engineering — hold per validation-first ordering; revisit after G-REAL-06 |
+| **Automated nav-authority/label-consistency guard** (**TB-882** — full Cursor prompt below) | Seventeen instances of "sidebar label / page title / enforced authority disagree" have now been found and closed manually across four cycles (TB-606, TB-612–TB-616, TB-622–TB-624, TB-625–TB-633) with no regression guard preventing an eighteenth | Would prevent recurrence of a defect class that has grown from ~4–5 instances per cycle to a nine-row batch in the most recent cycle; low implementation cost (static analysis over existing typed nav-config + controller metadata) | V1 engineering — hold per validation-first ordering; revisit after G-REAL-06 or the next instance found |
+| **RAG-V2 live-model Graph-RAG ablation signal** (**TB-883** — full Cursor prompt below) | TB-595's ablation study is 100% hand-authored fixtures (`cases.json` + `ablation-attribution.v1.json`); the existing Phase B live-model faithfulness signal scores real exemplars but has no per-flag breakdown, so there is no live-model evidence that Graph-RAG's bounded multi-hop expansion helps | Would close half of the "offline fixtures, not live-model" gap named in §7 Decision-Changing Insight Density for Graph-RAG specifically (HyDE/query-rewrite and all live-buyer evidence remain open — see prompt Non-goals) | V1 engineering — hold per validation-first ordering; revisit after G-REAL-06 |
 | **TB-398 full enterprise ITSM connector** | OAuth/field-mapping/bidirectional sync wizard | Large V2 scope | V2 — owner promotion required |
-| **Policy-pack attribution signal** (new candidate, not yet a TB row — full Cursor prompt below) | Differentiability/Defensibility (§7) is asserted narratively ("policy packs demonstrably change findings") with no measured artifact; committed exemplars carry no field distinguishing a policy-pack-sourced finding from a generic-reasoning one | Turns a narrative differentiability claim into a measured per-scenario percentage; complements (does not duplicate) the existing gate-outcome-flip demo in `POLICY_PACK_DELTA_DEMO_SCRIPT.md` | V1 engineering — hold per validation-first ordering; revisit after G-REAL-06 |
-| **Policy-pack compounding-evidence ledger** (new candidate, not yet a TB row — full Cursor prompt below) | `IPolicyPackChangeLogRepository` already records append-only rule-version history per pack/tenant, but nothing joins it against historical run findings to show whether a pack's newer version would have caught something an older version missed | Would give the "gets more valuable over time" moat claim in §13 an empirical basis instead of a narrative one | V1 engineering — hold per validation-first ordering; revisit after G-REAL-06 |
-| **Surface the tamper-evident manifest-verify endpoint in buyer-facing material** (new candidate, not yet a TB row — full Cursor prompt below) | `GET /v1/artifacts/runs/{runId}/export/verify` (TB-307) already recomputes the export-manifest hash against the `ManifestGenerated` audit anchor, but no demo script, pitch doc, or proof packet tells a technical evaluator they can call it themselves | Converts an already-shipped tamper-evidence capability into a buyer-verifiable differentiability claim at ~zero engineering cost (docs/demo-script only) | V1 engineering (docs) — hold per validation-first ordering; low cost enough to consider before G-REAL-06 if the owner wants it in the pilot packet |
+| **Policy-pack attribution signal** (**TB-884** — full Cursor prompt below) | Differentiability/Defensibility (§7) is asserted narratively ("policy packs demonstrably change findings") with no measured artifact; committed exemplars carry no field distinguishing a policy-pack-sourced finding from a generic-reasoning one | Turns a narrative differentiability claim into a measured per-scenario percentage; complements (does not duplicate) the existing gate-outcome-flip demo in `POLICY_PACK_DELTA_DEMO_SCRIPT.md` | V1 engineering — hold per validation-first ordering; revisit after G-REAL-06 |
+| **Policy-pack compounding-evidence ledger** (**TB-885** — full Cursor prompt below) | `IPolicyPackChangeLogRepository` already records append-only rule-version history per pack/tenant, but nothing joins it against historical run findings to show whether a pack's newer version would have caught something an older version missed | Would give the "gets more valuable over time" moat claim in §13 an empirical basis instead of a narrative one | V1 engineering — hold per validation-first ordering; revisit after G-REAL-06 |
+| **Surface the tamper-evident manifest-verify endpoint in buyer-facing material** (**TB-886** — full Cursor prompt below) | `GET /v1/artifacts/runs/{runId}/export/verify` (TB-307) already recomputes the export-manifest hash against the `ManifestGenerated` audit anchor, but no demo script, pitch doc, or proof packet tells a technical evaluator they can call it themselves | Converts an already-shipped tamper-evidence capability into a buyer-verifiable differentiability claim at ~zero engineering cost (docs/demo-script only) | V1 engineering (docs) — hold per validation-first ordering; low cost enough to consider before G-REAL-06 if the owner wants it in the pilot packet |
 
 _No Tier 1 or Tier 2 in-contract engineering gates remain open._
 
@@ -290,7 +290,7 @@ _Added 2026-07-05, post-pass, at owner request — code-verified against the sam
 >
 > **Tests to add/update:** new resolver unit tests mirroring `OnlineFineTuningOrchestrationServiceTests` / `FineTuningTestFixtures`; `AzureOpenAiCompletionClientCache` tests for opted-in, opted-out, and rollback paths; update `TECH_BACKLOG.md` TB-594's row and `V1_DEFERRED.md` §6q RAG-V2-003 remainder column to reflect closure.
 
-#### Tier 3 detail — Automated nav-authority/label-consistency guard
+#### Tier 3 detail — Automated nav-authority/label-consistency guard (**TB-882**)
 
 * **Affected qualities:** Adoption Friction, Correctness & Evidence Integrity.
 * **Evidence:** `TECH_BACKLOG.md` TB-606, TB-612–TB-616, TB-622–TB-624, TB-625–TB-633 (seventeen rows) — all closed via manual left-nav business-purpose review, all the same defect shape (nav-declared authority/label vs. actual enforced authority/page copy disagree). `archlucid-ui/src/lib/nav-authority.ts`'s own doc comment states the UI-side tests (`authority-seam-regression.test.ts`, `authority-execute-floor-regression.test.ts`, `nav-config.structure.test.ts`) check *internal* nav-config consistency only — none of them cross-check a `NavLinkItem.requiredAuthority` against the actual `[Authorize(Policy=...)]` (or authority-gate attribute) on the ASP.NET controller the link routes to, which is exactly the class of gap TB-623 found.
@@ -317,7 +317,7 @@ _Added 2026-07-05, post-pass, at owner request — code-verified against the sam
 >
 > **Tests to add/update:** new `archlucid-ui/src/lib/nav-authority-controller-parity.test.ts` (or equivalent); extend `operator-nav-labels.test.ts` coverage list; if a cross-language (TS↔C#) comparison is needed, add a small `scripts/ci/check_nav_authority_controller_parity.py` invoked from the existing UI lint/test CI job rather than a new pipeline stage.
 
-#### Tier 3 detail — RAG-V2 live-model Graph-RAG ablation signal
+#### Tier 3 detail — RAG-V2 live-model Graph-RAG ablation signal (**TB-883**)
 
 * **Affected qualities:** Decision-Changing Insight Density, AI/Agent Readiness.
 * **Evidence (verified in code this pass):** `GraphRagNeighborExpander.cs` already stamps Graph-RAG-added hits with `SourceType = "KnowledgeGraphNodeNeighbor"` — a genuine runtime attribution marker distinguishing graph-expansion hits from base-index hits (`PlatformDoc`, `Manifest`, `PolicyPackRule`, etc.). However, the committed `tests/eval-corpus/agent-results/*.real.json` exemplars that feed the existing Phase B live-model faithfulness signal (verified: `corpus-real-mode-smoke.real.json`) carry only `claims`/`findings`/`citations`/`semanticScore` — **no retrieval-hit-level data at all today** — so this is a genuine capture-schema gap, not a "just read existing data" task. By contrast, HyDE and query-rewrite (`AgenticRetrievalQueryExpander.cs`) each produce a single modified `EmbedText` used for **one** vector search — there is no separate, additively-tagged hit subset the way Graph-RAG has, so those two flags cannot be ablated from already-captured single-pass data; a genuine live ablation for them would require re-invoking live Azure OpenAI once per flag combination per scenario, which is materially more expensive and is explicitly out of scope for this item.
@@ -347,7 +347,7 @@ _Shipped 2026-07-05, at owner request. Was a Tier 3 hold candidate as of the pri
 
 **[ADR 0057](../architecture/adrs/0057-graph-rag-community-summarization-scope-decision.md)** compares three options — **(a)** implement community detection (Leiden/Louvain) plus hierarchical LLM summarization now and pull into V1; **(b)** keep deferred to V1.1/V2 as currently scoped; **(c)** run a small ablation-only spike (mirroring TB-595's methodology) before committing to full implementation — each scored against cost, the `GraphRagProductionLikeConfigurationLint` "unproven without a production vector index" risk, and expected impact on AI/Agent Readiness and Differentiability. **Recommendation: option (b), unchanged**, on the same validation-first reasoning TB-598 used for the retrieve-critique-retry loop — zero completed real-mode pilots means no buyer evidence that community-level graph depth is a purchase-relevant gap yet. `V1_DEFERRED.md` §6q and `V1_SCOPE.md` §2.20 now cross-reference the ADR. Per the ADR's own scope boundary, this closure does **not** authorize implementation — a future owner pulling option (a) or (c) forward still requires a separate, explicit scope decision (mirroring how TB-597 was decided), and this closure does not seed that follow-up TB row.
 
-#### Tier 3 detail — Policy-pack attribution signal
+#### Tier 3 detail — Policy-pack attribution signal (**TB-884**)
 
 _Added 2026-07-05, post-pass, at owner request._
 
@@ -373,7 +373,7 @@ _Added 2026-07-05, post-pass, at owner request._
 >
 > **Tests to add/update:** new unit tests for the calculator covering zero-attribution, partial-attribution, and full-attribution findings sets; if a script is added, a CI contract test mirroring the pattern used for `retrieval_ablation_profiles.py`.
 
-#### Tier 3 detail — Policy-pack compounding-evidence ledger
+#### Tier 3 detail — Policy-pack compounding-evidence ledger (**TB-885**)
 
 _Added 2026-07-05, post-pass, at owner request._
 
@@ -399,7 +399,7 @@ _Added 2026-07-05, post-pass, at owner request._
 >
 > **Tests to add/update:** new tests for the ledger-generation logic covering a pack with no version delta (empty ledger, not an error) and a pack with a rule added between versions (non-empty ledger); extend `PolicyPackChangeLogRepositoryContractTests` fixtures if a new query method is added to `IPolicyPackChangeLogRepository`.
 
-#### Tier 3 detail — Surface the tamper-evident manifest-verify endpoint in buyer-facing material
+#### Tier 3 detail — Surface the tamper-evident manifest-verify endpoint in buyer-facing material (**TB-886**)
 
 _Added 2026-07-05, post-pass, at owner request._
 
@@ -427,7 +427,7 @@ _Added 2026-07-05, post-pass, at owner request._
 
 ## 18. Prompt Batching Guidance
 
-**First batch (human-only):** G-REAL-06 pilots, M-07 screenshots, M-09 deploy, M-16 video. **Second batch (human-led):** M-19 demos, M-20 objection log. **Third batch (engineering, hold):** the nav-authority/label-consistency guard, the RAG-V2 live-model Graph-RAG ablation signal (bounded-multi-hop specifically), the policy-pack attribution signal, the policy-pack compounding-evidence ledger, and the manifest-verify docs surfacing — only after pilot signal, except the manifest-verify docs item, which is low-cost enough to fold into the G-REAL-06 pilot packet directly if the owner wants it sooner. **Promoted, no longer held (owner override 2026-07-05):** TB-594 fine-tuning completion routing, community-summarization Graph-RAG full implementation (ADR 0057 option (a)), and the iterative retrieve-critique-retry loop (RAG-V2-002 remainder) — all three move to active engineering batches ahead of pilot signal.
+**First batch (human-only):** G-REAL-06 pilots, M-07 screenshots, M-09 deploy, M-16 video. **Second batch (human-led):** M-19 demos, M-20 objection log. **Third batch (engineering, hold):** **TB-882** (nav-authority/label-consistency guard), **TB-883** (RAG-V2 live-model Graph-RAG ablation signal), **TB-884** (policy-pack attribution signal), **TB-885** (policy-pack compounding-evidence ledger), and **TB-886** (manifest-verify docs surfacing) — only after pilot signal, except **TB-886**, which is low-cost enough to fold into the G-REAL-06 pilot packet directly if the owner wants it sooner. **Promoted, no longer held (owner override 2026-07-05):** TB-594 fine-tuning completion routing, community-summarization Graph-RAG full implementation (ADR 0057 option (a)), and the iterative retrieve-critique-retry loop (RAG-V2-002 remainder) — all three move to active engineering batches ahead of pilot signal.
 
 ## 19. Model Usage Guidance
 
@@ -437,7 +437,7 @@ _Added 2026-07-05, post-pass, at owner request._
 
 * **Blocks V1 (owner):** none newly identified — in-contract engineering gates closed.
 * **Requires customer validation:** whether buyers probe retrieval depth vs governance value (G-REAL-06). This validation question is now **partially preempted** for community summarization and the retry loop — the owner chose to ship ahead of that signal rather than wait for it (2026-07-05).
-* **Requires founder decision:** whether the nav-authority/label-consistency guard is worth a dedicated TB row now or only after the next instance; whether the policy-pack attribution signal, compounding-evidence ledger, and manifest-verify docs surfacing are worth dedicated TB rows now (all three remain candidates this pass, none yet promoted) — the manifest-verify docs item in particular is low-cost enough that the owner may want it ahead of the other Tier 3 items regardless of pilot timing. (**Resolved 2026-07-05:** TB-594 fine-tuning completion routing, the community-summarization Graph-RAG scope decision — ADR 0057, option (a) — and the iterative retrieve-critique-retry loop are all now promoted to active V1 engineering, overriding their prior holds. **TB-877**–**TB-880** assigned 2026-07-19 for community summarization, retry loop, and RAG-V1.1-003/004.)
+* **Requires founder decision:** whether to **promote** any of **TB-882**–**TB-886** off Hold for reassessment into the active ship queue (TB rows assigned 2026-07-19; still held pending G-REAL-06 unless owner promotes — **TB-886** is the cheapest candidate for early pilot-packet inclusion). (**Resolved 2026-07-05:** TB-594 fine-tuning completion routing, the community-summarization Graph-RAG scope decision — ADR 0057, option (a) — and the iterative retrieve-critique-retry loop are all now promoted to active V1 engineering, overriding their prior holds. **TB-877**–**TB-880** assigned 2026-07-19 for community summarization, retry loop, and RAG-V1.1-003/004. **TB-882**–**TB-886** assigned 2026-07-19 for former "not yet a TB row" Tier 3 hold candidates.)
 
 ---
 

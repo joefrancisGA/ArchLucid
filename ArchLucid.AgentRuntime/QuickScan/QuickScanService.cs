@@ -3,11 +3,17 @@ using System.Text.Json;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Configuration;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.QuickScan;
 
 /// <inheritdoc cref="IQuickScanService" />
-public sealed class QuickScanService(IAgentCompletionClient completionClient) : IQuickScanService
+public sealed class QuickScanService(
+    IAgentCompletionClient completionClient,
+    IOptionsMonitor<QuickScanOptions> optionsMonitor,
+    TimeProvider timeProvider) : IQuickScanService
 {
     public async Task<QuickScanResult> ScanAsync(IReadOnlyDictionary<string, string> files, CancellationToken cancellationToken = default)
     {
@@ -17,12 +23,50 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
         if (completionClient is null)
             throw new ArgumentNullException(nameof(completionClient));
 
+        QuickScanOptions options = optionsMonitor.CurrentValue;
+        int maxTokens = Math.Max(256, options.MaxOutputTokensPerScan);
+        int maxAttempts = Math.Max(1, options.MaxModelCallsPerScan + options.MaxRetryCount);
+        TimeSpan timeout = TimeSpan.FromSeconds(Math.Clamp(options.MaxProcessingDurationSeconds, 5, 120));
+
         string userPrompt = JsonSerializer.Serialize(files);
-        string jsonResponse = await completionClient.CompleteJsonAsync(
-            QuickScanLlmPrompts.SystemPrompt,
-            userPrompt,
-            maxTokens: null,
-            cancellationToken: cancellationToken);
+        string? jsonResponse = null;
+        Exception? lastError = null;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            using CancellationTokenSource timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCts.CancelAfter(timeout);
+
+            try
+            {
+                jsonResponse = await completionClient.CompleteJsonAsync(
+                    QuickScanLlmPrompts.SystemPrompt,
+                    userPrompt,
+                    maxTokens: maxTokens,
+                    cancellationToken: timeoutCts.Token);
+
+                break;
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                lastError = new TimeoutException("Quick scan processing timed out.");
+            }
+            catch (Exception ex) when (attempt < maxAttempts - 1)
+            {
+                lastError = ex;
+            }
+        }
+
+        if (jsonResponse is null)
+        {
+            return new QuickScanResult
+            {
+                Summary = lastError is TimeoutException
+                    ? "Quick scan timed out before a result could be produced."
+                    : "Quick scan could not be completed.",
+                CompletedUtc = timeProvider.GetUtcNow().UtcDateTime,
+            };
+        }
 
         if (string.IsNullOrWhiteSpace(jsonResponse))
             return new QuickScanResult { Summary = "No response from LLM." };
@@ -37,6 +81,7 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
                 : string.Empty;
 
             List<ArchitectureFinding> findings = [];
+
             if (!root.TryGetProperty("findings", out JsonElement findingsElement) || findingsElement.ValueKind != JsonValueKind.Array)
                 return new QuickScanResult { Summary = summary, Findings = findings };
 
@@ -58,7 +103,7 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
                     Message = message,
                     Severity = severity,
                     FindingId = Guid.NewGuid().ToString("N"),
-                    SourceAgent = AgentType.Topology, // Using Topology as a generic source for quick scan
+                    SourceAgent = AgentType.Topology,
                     ConfidenceScore = confidenceScore,
                     ConfidenceLevel = confidenceLevel
                 });
@@ -67,7 +112,8 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
             return new QuickScanResult
             {
                 Summary = summary,
-                Findings = findings
+                Findings = findings,
+                CompletedUtc = timeProvider.GetUtcNow().UtcDateTime,
             };
         }
         catch (JsonException)
