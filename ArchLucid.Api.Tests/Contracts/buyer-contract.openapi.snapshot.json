@@ -3460,19 +3460,37 @@
       },
       "ArchitectureQuickScanRequest": {
         "properties": {
+          "architectureConcerns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "cloudProvider": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "description": {
             "type": "string"
+          },
+          "primaryEnvironment": {
+            "type": "string"
+          },
+          "primaryEnvironmentOther": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "systemName": {
             "type": "string"
           }
         },
         "required": [
-          "cloudProvider",
           "description",
+          "primaryEnvironment",
           "systemName"
         ],
         "type": "object"
@@ -3483,9 +3501,30 @@
             "format": "date-time",
             "type": "string"
           },
+          "demonstrationDisclaimer": {
+            "type": "string"
+          },
           "findings": {
             "items": {
               "$ref": "#/components/schemas/ArchitectureQuickScanFindingItem"
+            },
+            "type": "array"
+          },
+          "isSampleResult": {
+            "type": "boolean"
+          },
+          "positiveObservations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "primaryEnvironment": {
+            "type": "string"
+          },
+          "recommendedNextSteps": {
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },
@@ -3494,11 +3533,17 @@
           },
           "summary": {
             "type": "string"
+          },
+          "systemName": {
+            "type": "string"
           }
         },
         "required": [
+          "demonstrationDisclaimer",
+          "primaryEnvironment",
           "scanId",
-          "summary"
+          "summary",
+          "systemName"
         ],
         "type": "object"
       },
@@ -19494,6 +19539,23 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "QuickScanStatusResponse": {
+        "properties": {
+          "capacityAvailable": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "requireSignIn": {
+            "type": "boolean"
+          },
+          "sampleResultAvailable": {
+            "type": "boolean"
           }
         },
         "type": "object"
