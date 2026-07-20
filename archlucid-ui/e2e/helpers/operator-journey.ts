@@ -521,15 +521,19 @@ export async function expandFindingWorkspaceCard(scope: Locator, findingId: stri
 
   await expect(card).toBeVisible({ timeout: 60_000 });
 
-  const details = card.locator("details");
+  // Primary cards nest supporting-detail + integrations disclosures; secondary cards wrap the row in details.
+  const details = card.locator("details").first();
+  const detailsCount = await card.locator("details").count();
 
-  const isOpen: boolean = await details.evaluate((element) => (element as HTMLDetailsElement).open);
+  if (detailsCount > 0) {
+    const isOpen: boolean = await details.evaluate((element) => (element as HTMLDetailsElement).open);
 
-  if (!isOpen) {
-    await details.locator(":scope > summary").click();
+    if (!isOpen) {
+      await details.locator(":scope > summary").click();
+    }
+
+    await expect(details).toHaveAttribute("open");
   }
-
-  await expect(details).toHaveAttribute("open");
 
   return card;
 }

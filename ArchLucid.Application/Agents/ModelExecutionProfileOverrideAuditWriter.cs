@@ -8,6 +8,8 @@ namespace ArchLucid.Application.Agents;
 
 public static class ModelExecutionProfileOverrideAuditWriter
 {
+    /// <summary>Best-effort audit when a run-create profile override is applied (INV-003 informational).</summary>
+    [InformationalAudit]
     public static async Task TryLogOverrideAppliedAsync(
         IAuditService auditService,
         IScopeContextProvider scopeContextProvider,

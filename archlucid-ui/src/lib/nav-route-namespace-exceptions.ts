@@ -30,6 +30,12 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
     exceptionReason: "Validate review tool duplicated under Internal Ops for employee diagnostics (also in Operate analysis history).",
   },
   {
+    navGroupId: "operator-system-admin",
+    href: "/internal-operations/recommendation-learning",
+    canonicalPrefixes: ["/admin"],
+    exceptionReason: "Recommendation learning ops surface uses Internal Ops namespace; grouped under System admin for employee operators (TB-408 pending).",
+  },
+  {
     navGroupId: "operate-reports",
     href: "/digests",
     canonicalPrefixes: ["/scorecard", "/value-report"],
