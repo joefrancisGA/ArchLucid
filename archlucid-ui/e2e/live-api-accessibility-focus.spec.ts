@@ -51,8 +51,12 @@ async function preventTrialWelcomeHomeAutoRedirect(page: Page): Promise<void> {
   }, trialWelcomeHomeRedirectSessionKey);
 }
 
+function isOnReviewsRoute(page: Page): boolean {
+  return reviewsRouteUrlPattern.test(page.url());
+}
+
 async function waitForReviewsRoute(page: Page): Promise<void> {
-  await expect(page).toHaveURL(reviewsRouteUrlPattern, { timeout: 60_000 });
+  await page.waitForURL(reviewsRouteUrlPattern, { timeout: 60_000, waitUntil: "commit" });
 }
 
 /** Operator home (`/`) is stable for sidebar client navigation — auth resolved, no trial welcome redirect race. */
@@ -80,12 +84,20 @@ async function prepareOperatorHomeForClientNavigation(page: Page): Promise<void>
   await page.goto("/", { waitUntil: "load" });
   await trialStatusSettled;
   await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+  await waitForOperatorShellReady(page);
   await preventTrialWelcomeHomeAutoRedirect(page);
 
-  // If TrialWelcomeRunDeepLink won the race, land back on home so both focus + announcer tests exercise `/` → reviews.
+  // Remount with the welcome-redirect guard already set so DeepLink cannot leave an in-flight
+  // `router.replace` that swallows the subsequent sidebar Reviews client navigation.
+  await page.reload({ waitUntil: "load" });
+  await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+  await waitForOperatorShellReady(page);
+  await preventTrialWelcomeHomeAutoRedirect(page);
+
   if (new URL(page.url()).pathname !== "/") {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+    await waitForOperatorShellReady(page);
     await preventTrialWelcomeHomeAutoRedirect(page);
   }
 }
@@ -104,35 +116,54 @@ async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
   await page.getByRole("navigation", { name: pilotNavGroupAriaLabel }).waitFor({ state: "visible", timeout: 60_000 });
 }
 
-async function navigateToReviewsViaOperatorShell(page: Page): Promise<void> {
-  await waitForOperatorShellReady(page);
-  await ensureCorePilotSectionExpanded(page);
-
+async function clickReviewsNavLink(page: Page): Promise<void> {
   const sidebarNav = page.getByTestId("sidebar-nav");
 
   if ((await sidebarNav.count()) > 0) {
     const reviewsLink = sidebarNav
-      .locator(`a[href="${reviewsListNavHref}"]`)
-      .or(sidebarNav.getByRole("link", { name: OPERATOR_NAV_LINK_LABELS.reviewPackage }))
+      .getByTestId("nav-pilot-reviews-list")
+      .or(sidebarNav.locator(`a[href="${reviewsListNavHref}"]`))
+      .or(sidebarNav.getByRole("link", { name: OPERATOR_NAV_LINK_LABELS.reviewPackage, exact: true }))
       .first();
 
     await expect(reviewsLink).toBeVisible({ timeout: 60_000 });
-
-    await Promise.all([waitForReviewsRoute(page), reviewsLink.click()]);
+    await reviewsLink.scrollIntoViewIfNeeded();
+    await reviewsLink.click();
 
     return;
   }
 
   const minimalRoot = page.getByTestId("app-shell-minimal-root");
   const minimalReviewsLink = minimalRoot
-    .locator(`a[href="${reviewsListNavHref}"]`)
-    .or(minimalRoot.getByRole("link", { name: OPERATOR_NAV_LINK_LABELS.reviewPackage }))
-    .or(minimalRoot.getByRole("link", { name: "Reviews" }))
+    .getByTestId("nav-pilot-reviews-list")
+    .or(minimalRoot.locator(`a[href="${reviewsListNavHref}"]`))
+    .or(minimalRoot.getByRole("link", { name: OPERATOR_NAV_LINK_LABELS.reviewPackage, exact: true }))
+    .or(minimalRoot.getByRole("link", { name: "Reviews", exact: true }))
     .first();
 
   await expect(minimalReviewsLink).toBeVisible({ timeout: 60_000 });
+  await minimalReviewsLink.click();
+}
 
-  await Promise.all([waitForReviewsRoute(page), minimalReviewsLink.click()]);
+async function navigateToReviewsViaOperatorShell(page: Page): Promise<void> {
+  await waitForOperatorShellReady(page);
+  await ensureCorePilotSectionExpanded(page);
+
+  await Promise.all([
+    page.waitForURL(reviewsRouteUrlPattern, { timeout: 45_000, waitUntil: "commit" }).catch(() => undefined),
+    clickReviewsNavLink(page),
+  ]);
+
+  if (isOnReviewsRoute(page)) {
+    return;
+  }
+
+  // Sidebar Link click can no-op when an App Router transition was already pending; Alt+R uses the
+  // same destination via `useShortcutNavigation` without relying on the Link soft-nav path.
+  await page.locator("main").first().click({ position: { x: 8, y: 8 } }).catch(() => undefined);
+  await page.keyboard.press("Alt+r");
+
+  await waitForReviewsRoute(page);
 }
 
 /** Live API + SQL focus/announcer checks (merge-blocking via `ui-e2e-live`). */

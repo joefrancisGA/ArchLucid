@@ -10,6 +10,10 @@ export function pilotNavLinkTestId(href: string): string | undefined {
     return "nav-pilot-new-review";
   }
 
+  if (path === "/reviews") {
+    return "nav-pilot-reviews-list";
+  }
+
   if (path === "/settings/baseline") {
     return "nav-pilot-baseline-settings";
   }

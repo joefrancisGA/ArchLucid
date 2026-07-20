@@ -51,9 +51,9 @@ export function TrialWelcomeRunDeepLink() {
           return;
         }
 
-        const already = window.sessionStorage.getItem(SESSION_KEY);
-
-        if (already === welcomeId) {
+        // e2e (and a remount after the guard is written) may mark this welcome id consumed
+        // before our fetch resolves — skip so we never start a competing App Router transition.
+        if (window.sessionStorage.getItem(SESSION_KEY) === welcomeId) {
           return;
         }
 
