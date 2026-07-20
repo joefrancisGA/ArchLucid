@@ -14,4 +14,6 @@ public enum AiUsageFeature
     Comparison = 4,
 
     ReportGeneration = 5,
+
+    QuickScan = 6,
 }

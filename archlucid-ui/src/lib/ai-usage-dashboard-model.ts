@@ -189,6 +189,8 @@ export function formatAiUsageFeatureLabel(feature: string): string {
       return "Comparison";
     case "ReportGeneration":
       return "Report generation";
+    case "QuickScan":
+      return "Quick Scan";
     default:
       return feature.replace(/([a-z])([A-Z])/g, "$1 $2");
   }

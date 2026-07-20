@@ -673,6 +673,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IQuickScanGlobalBudgetReservationService, QuickScanGlobalBudgetReservationService>();
         services.AddSingleton<IQuickScanGuard, QuickScanGuard>();
         services.AddSingleton<IQuickScanTelemetry, QuickScanTelemetry>();
+        services.AddScoped<IQuickScanExecutionOrchestrator, QuickScanExecutionOrchestrator>();
         services.AddScoped<IQuickScanService, QuickScanService>();
         services.AddScoped<IRegisteredAgentHandlersInspector, RegisteredAgentHandlersInspector>();
     }
