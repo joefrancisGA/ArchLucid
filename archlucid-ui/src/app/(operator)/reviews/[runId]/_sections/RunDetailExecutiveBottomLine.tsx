@@ -21,7 +21,7 @@ export function RunDetailExecutiveBottomLine(props: RunDetailExecutiveBottomLine
       <Card className="border-l-4 border-l-teal-600 dark:border-l-teal-500">
         <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {content.kind === "considerations" ? "Key decision considerations" : "Additional context"}
+          Additional context
         </CardTitle>
         </CardHeader>
         <CardContent className={OPERATOR_CARD.content}>
