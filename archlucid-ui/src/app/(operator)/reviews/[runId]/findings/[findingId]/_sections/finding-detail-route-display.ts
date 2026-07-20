@@ -6,9 +6,58 @@ import {
   phiMinimizationControlNarrative,
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/finding-display-from-inspect";
+import {
+  BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
+  BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
+} from "@/lib/buyer-polish-copy";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer-finding-severity-display";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import type { FindingConfidenceLevel } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+
+export type FindingDecisionSummary = {
+  readonly severity: string;
+  readonly disposition: string;
+  readonly businessImpact: string;
+  readonly requiredMonitoring: string;
+  readonly evidenceConfidenceLabel: string;
+  readonly evidenceConfidenceLevel: FindingConfidenceLevel | null;
+  readonly nextReview: string;
+  readonly riskOwner: string;
+};
+
+export function deriveFindingDecisionSummary(
+  payload: FindingInspectPayload | null,
+  findingId: string,
+): FindingDecisionSummary {
+  const confidenceLevel = payload?.confidenceLevel ?? null;
+  const evidenceConfidenceLabel =
+    confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low"
+      ? `${confidenceLevel} confidence`
+      : summarizeEvidenceBasis(payload);
+
+  const riskOwner =
+    payload?.assignedToUserId?.trim() ??
+    (isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload))
+      ? BUYER_SHOWCASE_RESIDUAL_RISK_OWNER
+      : "Not assigned");
+
+  const nextReview =
+    isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload))
+      ? BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW
+      : "Schedule with governance cadence";
+
+  return {
+    severity: fallbackSeverity(payload, findingId),
+    disposition: fallbackStatus(payload, findingId),
+    businessImpact: buyerFindingDecisionImpactCopy(payload, findingId),
+    requiredMonitoring: mitigationPosture(payload, findingId),
+    evidenceConfidenceLabel,
+    evidenceConfidenceLevel: confidenceLevel,
+    nextReview,
+    riskOwner,
+  };
+}
 
 export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): string {
   if (payload === null) {

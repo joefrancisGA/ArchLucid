@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingOptionalArtifactUnavailable } from "@/components/findings/FindingOptionalArtifactUnavailable";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { DocumentLayout } from "@/components/DocumentLayout";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/finding-optional-artifact-copy";
+import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingConfidenceLevel, FindingEvidenceChain, FindingLlmAudit } from "@/types/explanation";
@@ -26,15 +28,26 @@ export type FindingExplainPanelProps = {
   findingId: string;
   /** Evaluation coarse bucket when supplied by inspect/explainability callers; omit when unknown. */
   confidenceLevel?: FindingConfidenceLevel | null;
+  buyerPolishedShell?: boolean;
+  graphEvidenceHref?: string | null;
+  linkedManifestHref?: string | null;
 };
 
 /**
  * Redacted LLM prompt/completion audit for one finding, plus thumbs feedback (Execute). Deterministic trace lives in
  * `FindingExplainabilityDialog` / `GET …/explainability`.
  */
-export function FindingExplainPanel({ runId, findingId, confidenceLevel }: FindingExplainPanelProps) {
+export function FindingExplainPanel({
+  runId,
+  findingId,
+  confidenceLevel,
+  buyerPolishedShell: buyerPolishedShellProp,
+  graphEvidenceHref,
+  linkedManifestHref,
+}: FindingExplainPanelProps) {
   const rank = useNavCallerAuthorityRank();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = buyerPolishedShellProp === true || isBuyerPolishedOperatorShellEnv();
+  const sampleReview = isShowcaseStaticDemoRunId(runId.trim());
   const [audit, setAudit] = useState<FindingLlmAudit | null>(null);
   const [evidenceChain, setEvidenceChain] = useState<FindingEvidenceChain | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -171,10 +184,25 @@ export function FindingExplainPanel({ runId, findingId, confidenceLevel }: Findi
       ) : null}
 
       {failure !== null ? (
-        <OperatorApiProblem
-          problem={failure.problem}
-          fallbackMessage={failure.message}
-          correlationId={failure.correlationId}
+        <FindingOptionalArtifactUnavailable
+          {...resolveFindingOptionalArtifactUnavailableCopy("audit-record", failure, {
+            buyerPolishedShell,
+            sampleReview,
+          })}
+          onRetry={() => {
+            void load();
+          }}
+          loading={loading}
+          recoveryLinks={[
+            ...(graphEvidenceHref !== null && graphEvidenceHref !== undefined
+              ? [{ href: graphEvidenceHref, label: "Open evidence graph" }]
+              : []),
+            ...(linkedManifestHref !== null && linkedManifestHref !== undefined
+              ? [{ href: linkedManifestHref, label: "Open signed decision" }]
+              : []),
+          ]}
+          failure={failure}
+          buyerPolishedShell={buyerPolishedShell}
         />
       ) : null}
 
@@ -252,8 +280,12 @@ export function FindingExplainPanel({ runId, findingId, confidenceLevel }: Findi
                 try {
                   await postFindingFeedback(runId, findingId.trim(), 1);
                   setFeedbackNote("Thanks — feedback recorded.");
-                } catch (e) {
-                  setFeedbackNote(toApiLoadFailure(e).message);
+                } catch {
+                  setFeedbackNote(
+                    buyerPolishedShell
+                      ? "Feedback could not be saved right now. Try again in a moment."
+                      : "Feedback could not be saved.",
+                  );
                 } finally {
                   setFeedbackBusy(false);
                 }
@@ -275,8 +307,12 @@ export function FindingExplainPanel({ runId, findingId, confidenceLevel }: Findi
                 try {
                   await postFindingFeedback(runId, findingId.trim(), -1);
                   setFeedbackNote("Thanks — feedback recorded.");
-                } catch (e) {
-                  setFeedbackNote(toApiLoadFailure(e).message);
+                } catch {
+                  setFeedbackNote(
+                    buyerPolishedShell
+                      ? "Feedback could not be saved right now. Try again in a moment."
+                      : "Feedback could not be saved.",
+                  );
                 } finally {
                   setFeedbackBusy(false);
                 }

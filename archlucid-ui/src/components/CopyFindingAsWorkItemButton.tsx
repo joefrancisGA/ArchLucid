@@ -184,6 +184,8 @@ export type CopyFindingAsWorkItemButtonProps = {
   payload: FindingInspectPayload;
   /** Larger controls for above-the-fold finding detail placement. */
   prominent?: boolean;
+  /** Compact layout for grouped action bars. */
+  compact?: boolean;
 };
 
 /**
@@ -194,6 +196,7 @@ export function CopyFindingAsWorkItemButton({
   findingId,
   payload,
   prominent = false,
+  compact = false,
 }: CopyFindingAsWorkItemButtonProps) {
   const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
   const [copied, setCopied] = useState<CopyFeedbackKind>("none");
@@ -247,6 +250,7 @@ export function CopyFindingAsWorkItemButton({
         void onCopySelectedFormat();
       }}
       prominent={prominent}
+      compact={compact}
     />
   );
 }
