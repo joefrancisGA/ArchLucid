@@ -73,8 +73,8 @@ tags = {
 # finops_environment  = "dev"
 # finops_cost_center  = "engineering"
 
-# Optional: resource-group consumption budget for Container Apps + managed environments (requires enable_container_apps = true).
-# enable_container_apps_consumption_budget     = true
+# Optional: resource-group consumption budget for Container Apps + managed environments (defaults on 2026-07-20; requires enable_container_apps = true to create).
+# enable_container_apps_consumption_budget     = false  # uncomment to opt out
 # container_apps_consumption_budget_amount     = 500
 # container_apps_consumption_budget_contact_emails = ["finops@example.com"]
 

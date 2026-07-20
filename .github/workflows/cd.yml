@@ -1130,7 +1130,7 @@ jobs:
           REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
 
-      # Canary: requires api_revision_mode = Multiple on the API Container App (Terraform). See docs/runbooks/CANARY_DEPLOYMENT.md.
+      # Canary: requires api_revision_mode = Multiple on the API Container App (Terraform). See docs/runbooks/PRODUCTION_DEPLOYMENT.md#part-c--canary-promotion-container-apps.
       - name: Canary API traffic split (optional)
         if: success()
         env:

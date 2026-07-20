@@ -67,7 +67,7 @@ Use `-Apply` to set recommended values when vars are missing or too low. `bootst
 .\scripts\ci\verify-cd-canary-vars.ps1
 ```
 
-See [`CANARY_DEPLOYMENT.md`](../runbooks/CANARY_DEPLOYMENT.md).
+See [`PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md#part-c--canary-promotion-container-apps).
 
 **Synthetic warm-path checklist (staging/production):** Set `SMOKE_SYNTHETIC_PATH=/api/auth/me` so CD runs one extra authenticated GET after `/version` (warms auth + tenant scope; must not mutate data). Requires `ARCHLUCID_API_KEY` on the deployment-evidence step. Audit:
 

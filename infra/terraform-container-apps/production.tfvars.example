@@ -39,7 +39,7 @@ tags = {
 finops_environment = "production"
 finops_cost_center = "platform"
 
-# Monthly budget: Container Apps + managed environments in this stack's resource group.
+# Monthly budget: Container Apps + managed environments in this stack's resource group (defaults on 2026-07-20).
 enable_container_apps_consumption_budget         = true
 container_apps_consumption_budget_amount         = 3500
 container_apps_consumption_budget_contact_emails = ["finops@example.com"]

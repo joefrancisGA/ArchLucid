@@ -19486,9 +19486,9 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Source:** Owner cold-start Q&A 2026-07-12 — free Azure-bill levers only.
 
-**Shipped:** `api_revision_mode = "Multiple"` in `staging.tfvars.example` and `production.tfvars.example`; `scripts/ci/verify-cd-canary-vars.ps1` (audit/`-Apply` for `CD_CANARY_ENABLED=true`, `CD_CANARY_INITIAL_PERCENT=10`, `CD_CANARY_BAKE_MINUTES=3`); bootstrap sets canary vars and re-verifies; canary checklist in [`GITHUB_CD_ENVIRONMENTS.md`](../operations/GITHUB_CD_ENVIRONMENTS.md), [`DEPLOYMENT_CD_PIPELINE.md`](DEPLOYMENT_CD_PIPELINE.md), and [`CANARY_DEPLOYMENT.md`](../runbooks/CANARY_DEPLOYMENT.md). Existing `cd.yml` split/bake/promote + smoke gate unchanged.
+**Shipped:** `api_revision_mode = "Multiple"` in `staging.tfvars.example` and `production.tfvars.example`; `scripts/ci/verify-cd-canary-vars.ps1` (audit/`-Apply` for `CD_CANARY_ENABLED=true`, `CD_CANARY_INITIAL_PERCENT=10`, `CD_CANARY_BAKE_MINUTES=3`); bootstrap sets canary vars and re-verifies; canary checklist in [`GITHUB_CD_ENVIRONMENTS.md`](../operations/GITHUB_CD_ENVIRONMENTS.md), [`DEPLOYMENT_CD_PIPELINE.md`](DEPLOYMENT_CD_PIPELINE.md), and [`PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md#part-c--canary-promotion-container-apps). Existing `cd.yml` split/bake/promote + smoke gate unchanged.
 
-**Problem:** CD can pin 100% traffic to a brand-new revision immediately. Users then hit DbUp/JIT/SQL connect latency. Canary + bake already exist in `.github/workflows/cd.yml` and [`CANARY_DEPLOYMENT.md`](../runbooks/CANARY_DEPLOYMENT.md) but default off.
+**Problem:** CD can pin 100% traffic to a brand-new revision immediately. Users then hit DbUp/JIT/SQL connect latency. Canary + bake already exist in `.github/workflows/cd.yml` and [`PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md#part-c--canary-promotion-container-apps) but default off.
 
 **Scope:**
 
@@ -19504,7 +19504,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 - Staging (then production) deploys split traffic, bake, smoke, then promote.
 - No change to `api_min_replicas` / `ui_min_replicas` / `worker_min_replicas`.
 
-**Affected files:** `infra/terraform-container-apps/*.tfvars` (or env secrets), GitHub repo vars, `docs/runbooks/CANARY_DEPLOYMENT.md`, `docs/operations/GITHUB_CD_ENVIRONMENTS.md`.
+**Affected files:** `infra/terraform-container-apps/*.tfvars` (or env secrets), GitHub repo vars, `docs/runbooks/PRODUCTION_DEPLOYMENT.md`, `docs/operations/GITHUB_CD_ENVIRONMENTS.md`.
 
 **Cross-ref:** **TB-754**, **TB-657**, **TB-759**.
 

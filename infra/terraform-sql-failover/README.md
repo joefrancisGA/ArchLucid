@@ -57,7 +57,7 @@ Override any option with **`sql_automatic_tuning_*`** variables (`On` / `Off` / 
 
 ## Optional consumption budget
 
-Set **`enable_sql_consumption_budget = true`** to create **`azurerm_consumption_budget_resource_group`** scoped to **`Microsoft.Sql/servers`** and **`Microsoft.Sql/servers/databases`** in the target resource group. Supply **`sql_consumption_budget_resource_group_id`**, or omit it and derive the group from **`primary_sql_server_resource_id`** (must not be the default placeholder when the budget is enabled). Notifications fire at **80% actual** and **100% forecasted** spend.
+**`enable_sql_consumption_budget`** defaults **true** (2026-07-20). When scope is known, Terraform creates **`azurerm_consumption_budget_resource_group`** scoped to **`Microsoft.Sql/servers`** and **`Microsoft.Sql/servers/databases`** in the target resource group. Supply **`sql_consumption_budget_resource_group_id`**, or omit it and derive the group from **`primary_sql_server_resource_id`** (must not be the default placeholder when the budget is enabled). Notifications fire at **50% / 75% / 90% actual** and **100% forecasted** spend. Set **`enable_sql_consumption_budget = false`** to opt out.
 
 ## Outputs
 

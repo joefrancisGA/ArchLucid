@@ -6,7 +6,7 @@
 # Scope: all Microsoft.CognitiveServices/accounts in the target resource group unless you
 # set openai_consumption_budget_account_resource_ids to specific account ARM ids.
 
-enable_openai_consumption_budget = true
+# enable_openai_consumption_budget defaults true (2026-07-20).
 
 openai_consumption_budget_resource_group_id = "/subscriptions/<sub-id>/resourceGroups/rg-openai-prod"
 

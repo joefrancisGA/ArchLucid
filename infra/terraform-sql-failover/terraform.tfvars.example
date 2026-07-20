@@ -25,8 +25,8 @@ enable_sql_failover_group = false
 # sql_automatic_tuning_create_index           = "On"   # default On — Azure may add NC indexes; promote to migrations if kept
 # sql_automatic_tuning_drop_index             = "On"   # default On — Azure may drop unused indexes; review Query Store
 
-# Optional: resource-group consumption budget filtered to Microsoft.Sql/servers + databases (Cost Management).
-# enable_sql_consumption_budget = true
+# Optional: resource-group consumption budget filtered to Microsoft.Sql/servers + databases (defaults on 2026-07-20).
+# enable_sql_consumption_budget = false  # uncomment to opt out
 # sql_consumption_budget_resource_group_id = "/subscriptions/.../resourceGroups/rg-sql" # or omit to derive from primary_sql_server_resource_id
 # sql_consumption_budget_amount            = 500
 # sql_consumption_budget_contact_emails    = ["finops@example.com"]

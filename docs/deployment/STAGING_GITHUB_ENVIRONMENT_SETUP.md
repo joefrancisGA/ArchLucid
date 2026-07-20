@@ -9,7 +9,7 @@
 **Cross-references:**
 - [AZURE_SUBSCRIPTIONS.md](../library/AZURE_SUBSCRIPTIONS.md) — canonical subscription map
 - [DEPLOYMENT_CD_PIPELINE.md](../library/DEPLOYMENT_CD_PIPELINE.md) — CD workflow secrets and smoke behavior
-- [STAGING_DEPLOYMENT_CHECKLIST.md](STAGING_DEPLOYMENT_CHECKLIST.md) — full deployment checklist
+- [PRODUCTION_DEPLOYMENT.md](../runbooks/PRODUCTION_DEPLOYMENT.md) — full staging + production hosted deployment runbook
 - [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md) — Terraform apply order
 
 ---
@@ -95,4 +95,4 @@ The CD pipeline uses `azure/login@v2` with OIDC (no long-lived passwords). If th
 |-----|-----|
 | [AZURE_SUBSCRIPTIONS.md](../library/AZURE_SUBSCRIPTIONS.md) | Subscription IDs and CD secret mapping |
 | [DEPLOYMENT_CD_PIPELINE.md](../library/DEPLOYMENT_CD_PIPELINE.md) | CD workflow details |
-| [STAGING_DEPLOYMENT_CHECKLIST.md](STAGING_DEPLOYMENT_CHECKLIST.md) | Full staging checklist |
+| [PRODUCTION_DEPLOYMENT.md](../runbooks/PRODUCTION_DEPLOYMENT.md) | Full staging checklist |

@@ -1,7 +1,7 @@
 variable "enable_openai_consumption_budget" {
   type        = bool
-  description = "When true, create an azurerm_consumption_budget_resource_group for Azure OpenAI / Cognitive Services spend in openai_consumption_budget_resource_group_id."
-  default     = false
+  description = "When true and openai_consumption_budget_resource_group_id is set, create an azurerm_consumption_budget_resource_group for Azure OpenAI / Cognitive Services spend. Defaults true (2026-07-20): budgets are free; no resource is created until openai_consumption_budget_resource_group_id is set; notifications use contact_roles (default Owner) when contact_emails is empty. Set false to opt out."
+  default     = true
 }
 
 variable "openai_consumption_budget_resource_group_id" {

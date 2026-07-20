@@ -86,13 +86,6 @@ check "worker_authority_prom_scale_requires_server_and_query" {
   }
 }
 
-check "container_apps_consumption_budget_requires_stack" {
-  assert {
-    condition     = !var.enable_container_apps_consumption_budget || var.enable_container_apps
-    error_message = "enable_container_apps_consumption_budget = true requires enable_container_apps = true."
-  }
-}
-
 check "container_apps_consumption_budget_contact_channel" {
   assert {
     condition = !var.enable_container_apps || !var.enable_container_apps_consumption_budget || (

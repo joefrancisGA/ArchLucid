@@ -1,7 +1,7 @@
 variable "enable_monitoring_stack" {
   type        = bool
-  description = "When true, create Azure Monitor action group and optional metric alerts. Safe default false for CI and laptops."
-  default     = false
+  description = "When true, create Azure Monitor action group and optional metric alerts. Defaults true (2026-07-20): on its own this only creates one free action group — CPU metric alerts additionally require container_cpu_percent_threshold > 0 plus a resource ID, and checks.tf fails plan fast if alert_email_address is unset. Set false to opt back out (e.g. a throwaway sandbox)."
+  default     = true
 }
 
 variable "resource_group_name" {

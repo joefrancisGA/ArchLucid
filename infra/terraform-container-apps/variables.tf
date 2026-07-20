@@ -355,8 +355,8 @@ variable "worker_authority_outbox_prom_bearer_token" {
 
 variable "enable_container_apps_consumption_budget" {
   type        = bool
-  description = "When true and enable_container_apps is true, create an azurerm_consumption_budget_resource_group filtered to Microsoft.App/containerApps and managedEnvironments in the stack resource group."
-  default     = false
+  description = "When true and enable_container_apps is true, create an azurerm_consumption_budget_resource_group filtered to Microsoft.App/containerApps and managedEnvironments in the stack resource group. Defaults true (2026-07-20): Azure Cost Management budgets are free; notifications use contact_roles (default Owner) when contact_emails is empty. No budget is created until enable_container_apps is true. Set false to opt out."
+  default     = true
 }
 
 variable "container_apps_consumption_budget_name" {
