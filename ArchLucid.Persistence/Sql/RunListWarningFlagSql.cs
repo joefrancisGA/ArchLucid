@@ -47,9 +47,17 @@ internal static class RunListWarningFlagSql
                                            AND r.ArchivedUtc IS NULL
                                          """;
 
-    /// <summary>Project slug filter prefix for per-project list shapes.</summary>
+    /// <summary>
+    ///     Project filter for per-project list shapes.
+    ///     Matches human project slug (<c>Runs.ProjectId</c>) or scope project GUID
+    ///     (<c>Runs.ScopeProjectId</c>) — demo seeds store display names in <c>ProjectId</c>
+    ///     while UI/live E2E list by the stable scope project id.
+    /// </summary>
     public const string ProjectWherePrefix = """
-                                             r.ProjectId = @ProjectSlug
+                                             (
+                                                 r.ProjectId = @ProjectSlug
+                                                 OR r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)
+                                             )
                                                AND
                                              """;
 

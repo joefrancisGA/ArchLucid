@@ -1,16 +1,22 @@
 import { expect, type Page } from "@playwright/test";
 
-import { backendApiPath } from "./route-match";
+import { backendApiPath, matchesAuthorityProjectRunsPagedGet } from "./route-match";
 import { getAppMain } from "./app-main";
 import { expectNoGenericErrorBoundary } from "./buyer-golden-path";
 import { expectAnyLocatorVisible } from "./locator-readiness";
+import { reviewsHubRecentPackagesSection } from "./reviews-hub";
 
 const liveProxyOkStatuses = [200, 201] as const;
 
-function matchesLiveProxyArchitectureRunsList(url: URL): boolean {
+function matchesLiveProxyProjectRunsList(url: URL): boolean {
   const path = backendApiPath(url);
 
-  return path === "/v1/architecture/runs";
+  if (path === null) {
+    return false;
+  }
+
+  // Reviews hub SSR uses GET /v1/authority/projects/{projectId}/runs (not /v1/architecture/runs).
+  return /^\/v1\/authority\/projects\/[^/]+\/runs$/.test(path);
 }
 
 function matchesLiveProxyAuthorityRunDetail(url: URL, runId: string): boolean {
@@ -51,19 +57,55 @@ export async function waitForLiveOperatorPageHydration(page: Page, options?: { t
   await page.waitForLoadState("networkidle", { timeout: timeoutMs });
 }
 
-/** Waits for scoped architecture run list hydration through the UI proxy. */
+async function isLiveReviewsHubListSurfaceVisible(page: Page): Promise<boolean> {
+  const main = getAppMain(page);
+
+  return (
+    (await reviewsHubRecentPackagesSection(main).isVisible().catch(() => false))
+    || (await main.getByTestId("reviews-hub-recent-empty").isVisible().catch(() => false))
+    || (await main.getByTestId("reviews-hub-packages-table").isVisible().catch(() => false))
+  );
+}
+
+/**
+ * Waits for reviews-hub list hydration. The hub loads runs via RSC (`listRunsByProjectPaged`),
+ * so browser `/api/proxy` listeners often miss the fetch — prefer the rendered inventory surface.
+ */
 export async function waitForLiveArchitectureRunsListResponse(
   page: Page,
-  options?: { timeoutMs?: number },
+  options?: { timeoutMs?: number; projectId?: string },
 ): Promise<void> {
   const timeoutMs = options?.timeoutMs ?? 60_000;
 
-  await page.waitForResponse(
-    (response) =>
-      matchesLiveProxyArchitectureRunsList(new URL(response.url()))
-      && liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]),
-    { timeout: timeoutMs },
-  );
+  if (await isLiveReviewsHubListSurfaceVisible(page)) {
+    return;
+  }
+
+  try {
+    await page.waitForResponse(
+      (response) => {
+        const url = new URL(response.url());
+        const statusOk = liveProxyOkStatuses.includes(response.status() as (typeof liveProxyOkStatuses)[number]);
+
+        if (!statusOk) {
+          return false;
+        }
+
+        if (options?.projectId !== undefined && options.projectId.trim().length > 0) {
+          return matchesAuthorityProjectRunsPagedGet(url, options.projectId);
+        }
+
+        return matchesLiveProxyProjectRunsList(url);
+      },
+      { timeout: 8_000 },
+    );
+  } catch {
+    // SSR may have hydrated before the listener attached.
+  }
+
+  await expect(async () => {
+    expect(await isLiveReviewsHubListSurfaceVisible(page)).toBe(true);
+  }).toPass({ timeout: timeoutMs });
 }
 
 /** Waits for run detail / buyer-summary hydration for a known run id. */
@@ -197,13 +239,19 @@ export async function waitForLiveManifestDetailHydration(
   }).toPass({ timeout: timeoutMs });
 }
 
-/** Reviews hub list surface: page ready, list API completed, no generic error shell. */
-export async function expectLiveReviewsHubListReady(page: Page, options?: { timeoutMs?: number }): Promise<void> {
+/** Reviews hub list surface: page ready, inventory hydrated, no generic error shell. */
+export async function expectLiveReviewsHubListReady(
+  page: Page,
+  options?: { timeoutMs?: number; projectId?: string },
+): Promise<void> {
   const timeoutMs = options?.timeoutMs ?? 90_000;
   const main = getAppMain(page);
 
   await expect(main).toBeVisible({ timeout: timeoutMs });
   await waitForLiveOperatorPageHydration(page, { timeoutMs });
-  await waitForLiveArchitectureRunsListResponse(page, { timeoutMs });
+  await waitForLiveArchitectureRunsListResponse(page, {
+    timeoutMs,
+    projectId: options?.projectId,
+  });
   await expectNoGenericErrorBoundary(page);
 }
