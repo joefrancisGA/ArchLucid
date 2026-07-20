@@ -28,7 +28,10 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
-import { TrialWelcomeRunDeepLink } from "./TrialWelcomeRunDeepLink";
+import {
+  TrialWelcomeRunDeepLink,
+  TRIAL_WELCOME_HOME_REDIRECT_SUPPRESS_VALUE,
+} from "./TrialWelcomeRunDeepLink";
 
 describe("TrialWelcomeRunDeepLink", () => {
   beforeEach(() => {
@@ -67,6 +70,31 @@ describe("TrialWelcomeRunDeepLink", () => {
   it("does not redirect when session already recorded the same welcome run id", async () => {
     const welcomeId = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff";
     window.sessionStorage.setItem("archlucid_trial_welcome_home_redirect_v1", welcomeId);
+
+    const fetchMock = vi.fn(async () => {
+      return new Response(JSON.stringify({ trialWelcomeRunId: welcomeId }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<TrialWelcomeRunDeepLink />);
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    expect(routerReplace).not.toHaveBeenCalled();
+  });
+
+  it("does not redirect when session carries the e2e suppress sentinel", async () => {
+    const welcomeId = "cccccccc-dddd-eeee-ffff-000000000000";
+    window.sessionStorage.setItem(
+      "archlucid_trial_welcome_home_redirect_v1",
+      TRIAL_WELCOME_HOME_REDIRECT_SUPPRESS_VALUE,
+    );
 
     const fetchMock = vi.fn(async () => {
       return new Response(JSON.stringify({ trialWelcomeRunId: welcomeId }), {
