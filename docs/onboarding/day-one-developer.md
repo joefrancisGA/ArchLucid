@@ -60,7 +60,7 @@ npm run dev
 
 | Blocker | Where |
 |---------|--------|
-| Build / packages | [BUILD.md](../library/BUILD.md), [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md) |
+| Build / packages | [BUILD.md](../engineering/BUILD.md), [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md) |
 | SQL / migrations | [SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md) |
 | Auth locally | [API_CONTRACTS.md](../library/API_CONTRACTS.md#security-schemes-swashbuckle) |
 

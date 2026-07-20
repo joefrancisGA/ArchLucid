@@ -229,7 +229,7 @@ Before presenting, run through [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL
 | [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which persona presents the report (Section 6) and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars to reference in the executive summary |
-| [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) | Technical setup for the pilot environment |
+| [../PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md) | Technical setup for the pilot environment |
 | [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | How pilot feedback signals are captured and analyzed |
 | [../OBSERVABILITY.md](../library/OBSERVABILITY.md) | OTel metric names referenced in this scorecard |
 | [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md) | Full marketability assessment |

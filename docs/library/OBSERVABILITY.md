@@ -139,7 +139,7 @@ Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-o
 
 Serilog log events also include OpenTelemetry correlation identifiers when a trace is active via `WithOpenTelemetryTraceId()` and `WithOpenTelemetrySpanId()` in host startup.
 
-**Grafana dashboard:** committed JSON **`infra/grafana/dashboard-archlucid-authority.json`** (dashboard uid **`archlucid-authority`**) includes Prometheus panels for **`archlucid_authority_pipeline_stage_duration_ms`**, **`archlucid_authority_pipeline_work_pending`**, **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`**, and **`archlucid_data_consistency_*_total`**, with thresholds described against the same alert bundle. Operator runbooks: **[`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md)** (remediation) and **[`docs/runbooks/GRAFANA_DASHBOARD_BINDING_GUIDE.md`](../runbooks/GRAFANA_DASHBOARD_BINDING_GUIDE.md)** (datasource UID import/provisioning).
+**Grafana dashboard:** committed JSON **`infra/grafana/dashboard-archlucid-authority.json`** (dashboard uid **`archlucid-authority`**) includes Prometheus panels for **`archlucid_authority_pipeline_stage_duration_ms`**, **`archlucid_authority_pipeline_work_pending`**, **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`**, and **`archlucid_data_consistency_*_total`**, with thresholds described against the same alert bundle. Operator remediation: see **§ Authority pipeline remediation runbook** below and **[`docs/runbooks/OBSERVABILITY_DASHBOARD_BINDING.md`](../runbooks/OBSERVABILITY_DASHBOARD_BINDING.md)** (datasource UID import/provisioning). Former paths: [`docs/redirects.md`](../redirects.md).
 
 For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**.
 
@@ -318,6 +318,126 @@ Import paths and Terraform wiring: [runbooks/SLO_PROMETHEUS_GRAFANA.md](../runbo
 
 ---
 
+## Authority pipeline remediation runbook
+
+**Merged:** 2026-07-20 from the retired `docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md` (see [`docs/redirects.md`](../redirects.md)). Turns the **`archlucid-authority`** Grafana dashboard and its Prometheus alerts into actionable steps (queue depth, SQL health, worker capacity) without changing product semantics.
+
+**Assumptions:**
+
+- Metric names match the tables above (source **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**).
+- **Prometheus** scrapes the API and worker **`/metrics`** (or OTLP fan-out) with stable label names (`stage`, `outcome`, `table`, `column`).
+- Ops can open **`GET /v1/admin/diagnostics/outboxes`** (or equivalent admin surface) for row-level outbox detail when authorized.
+
+**Constraints:**
+
+- **Do not** relax SQL RLS or tenant isolation to “clear” backlog faster.
+- **Do not** delete orphan comparison rows without following **[`docs/runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`](../runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md)** (dry-run / approval path).
+- Scale workers only after ruling out **SQL connectivity**, **deadlocks**, and **poison messages** (see **`docs/runbooks/AGENT_EXECUTION_FAILURES.md`** if agent stages fault repeatedly).
+
+**Architecture:** API + Worker processes → **`ArchLucid`** meter → Prometheus → **`infra/prometheus/archlucid-alerts.yml`** → Alertmanager / Azure Monitor → **Grafana** JSON **`infra/grafana/dashboard-archlucid-authority.json`** (uid **`archlucid-authority`**). **`archlucid_authority_pipeline_work_pending`** reflects **`dbo.AuthorityPipelineWorkOutbox`** depth; **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** reflects stuck rows; the **`archlucid_authority_pipeline_stage_duration_ms`** histogram breaks down wall time by pipeline stage.
+
+| Panel / signal | Instrument | Primary owner |
+|----------------|------------|---------------|
+| Stage duration p95 | `archlucid_authority_pipeline_stage_duration_ms` | Authority pipeline executor / stage services |
+| Outbox depth | `archlucid_authority_pipeline_work_pending` | Worker consumer + SQL outbox |
+| Oldest row age | `archlucid_authority_pipeline_work_oldest_pending_age_seconds` | Same + scheduling |
+| Orphans vs alerts | `archlucid_data_consistency_orphans_detected_total`, `archlucid_data_consistency_alerts_total` | `DataConsistencyOrphanProbeHostedService` + enforcement mode |
+
+**Data flow:**
+
+1. Runs enqueue **authority pipeline** work into **`AuthorityPipelineWorkOutbox`**.
+2. Worker(s) claim rows; stages record **histogram** durations with **`stage`** / **`outcome`**.
+3. **Gauges** (`pending`, `oldest_pending_age`) update from SQL aggregates (see `EnsureOutboxDepthObservableGaugesRegistered` in code).
+4. **Data consistency** probe increments **counters** when foreign keys to **`dbo.Runs`** are missing; **`alerts_total`** rises when enforcement mode + threshold say so.
+
+**Security model:** Admin diagnostics and **outbox inspection** require **appropriate authority** (do not share tokens in tickets). Orphan remediation may touch **tenant-scoped** rows — use approved maintenance windows and **`docs/runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`**.
+
+### Import the dashboard (Grafana UI)
+
+1. Grafana → **Dashboards** → **Import** → upload **`infra/grafana/dashboard-archlucid-authority.json`**.
+2. Assign template variable **`datasource`** to your **Prometheus** source.
+3. Confirm the first row of panels populates; if **empty**, verify scrape targets and OTLP → Prometheus **histogram** naming (`*_bucket`).
+
+**Optional (Terraform):** when **`grafana_terraform_dashboards_enabled = true`** in **`infra/terraform-monitoring`**, the same JSON is provisioned by **`grafana_dashboard.authority`** (see **`grafana_dashboards.tf`**).
+
+### Queue backlog — `ArchLucidAuthorityPipelineWorkBacklog`
+
+- **Rule:** `archlucid_authority_pipeline_work_pending > 50` for **15m** (`infra/prometheus/archlucid-alerts.yml`).
+- **Remediation order:**
+  1. **Worker health:** confirm worker Container App / job is running, not crash-looping, and draining **`AuthorityPipelineWorkOutbox`** (SQL consumer paths — not Azure Storage Queue unless durable export jobs are enabled).
+  2. **SQL tier:** check DTU/vCore saturation, blocking sessions, and failover state (**`docs/runbooks/DATABASE_FAILOVER.md`** if geo event).
+  3. **Scale capacity:** when SQL is healthy but processing lags sustained demand — raise **`worker_max_replicas`** / **`worker_min_replicas`** in **`infra/terraform-container-apps`** (**`infra/terraform-container-apps/README.md`** § Background services). When **`background_jobs_mode = "Durable"`**, enable **`worker_enable_queue_depth_scaling`** + **`worker_queue_scale_connection_string`** so KEDA **azure-queue** adds replicas as **Azure Storage Queue** backlog grows (**export/async jobs**, not SQL outbox row count). For **tenant noisy-neighbor isolation**, tune **`ArchLucid:AuthorityPipeline:Concurrency`** (per-tenant slot caps) — starting tiers below.
+  4. **Deep inspection:** use admin outbox diagnostics for **stuck** `RunId`s; correlate with **`docs/runbooks/TRACE_A_RUN.md`**.
+
+### Stale oldest row — `ArchLucidAuthorityPipelineWorkStale`
+
+- **Rule:** `archlucid_authority_pipeline_work_oldest_pending_age_seconds > 3600` for **20m**.
+- **Interpretation:** rows are **not** being processed — prefer **poison message** or **dependency outage** over simple overload.
+- **Remediation:** same as **queue backlog** above, but prioritize **root-cause** on the oldest `WorkItem` (exception logs, SQL deadlock history, external LLM outage if stage blocks).
+
+### Data consistency — `ArchLucidDataConsistencyOrphansDetected` / `ArchLucidDataConsistencyAlertsRaised`
+
+- **Rules:** non-zero **`rate`** over **1h** windows (see alert **expr** in **`archlucid-alerts.yml`**).
+- **Remediation:**
+  - **Orphans detected:** identification-only — trace **missing `dbo.Runs`** keys; follow **`docs/runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`** for comparison / golden / findings snapshots.
+  - **Alerts raised:** enforcement is **Alert** or **Quarantine** — read **`docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`** and align with **data owners** before destructive fixes.
+
+### Recommended `ArchLucid:AuthorityPipeline:Concurrency` by environment tier
+
+Bindings live under **`ArchLucid:AuthorityPipeline:Concurrency`** (`AuthorityPipelineConcurrencyOptions` in product code). **`MaxConcurrentExecutionsPerTenant`** ≤ **0** disables SQL lease enforcement (gate becomes a no-op). **`LeaseRecognitionHorizon`** defaults to **48 hours** and **`WaitPollMilliseconds`** to **75** — change these only when tuning stale-lease cleanup or poll cadence after reviewing **`SqlAuthorityPipelineTenantExecutionLeaseRepository`**.
+
+Tier names align with **[`RTO_RPO_TARGETS.md`](RTO_RPO_TARGETS.md)**. Values below are **starting recommendations** for hosted SaaS posture; validate against worker replica count, SQL SKU, and pilot concurrency.
+
+| Tier | **`MaxConcurrentExecutionsPerTenant`** | **`RejectInlineCreateWhenConcurrencyUnavailable`** | Notes |
+|------|----------------------------------------|-----------------------------------------------------|-------|
+| **Development** | **0** *(omit or explicit)* — enforcement **off** | **false** *(default)* | Matches shipped default when unset; avoids blocking parallel local runs. Set a **small positive** value only when intentionally testing the lease gate. |
+| **Staging / pre-production** | **2**–**4** | **false** *(default)* unless validating fast-fail UX | Exercises **`dbo.AuthorityPipelineTenantExecutionLease`** and queue/offload paths before production; prefer **lower** bound on shared SQL. |
+| **Production** | **4** *(initial)*; adjust **2**–**8** with capacity review | **false** by default; **true** when synchronous **`POST /v1/architecture/request`** must **429-style fail fast** instead of waiting for a slot | Caps per-tenant **heavy-stage** fan-out (graph / findings / decision / manifest). Raise slots only when the **queue backlog** section above stays healthy, SQL has headroom, and **lease table growth** below stays bounded. Pair with **`worker_min_replicas` / `worker_max_replicas`** (`infra/terraform-container-apps`) rather than unbounded concurrency alone. |
+
+**Inline vs queued:** When **`RejectInlineCreateWhenConcurrencyUnavailable`** is **true** and slots are full, **synchronous** creates fail fast with **`AuthorityTenantConcurrencyLimitExceededException`** (problem hints reference concurrency keys — see **`ProblemSupportHints`**). Work processed via the **authority pipeline work outbox** still **waits** for capacity (poll interval **`WaitPollMilliseconds`**).
+
+### Lease table growth — `dbo.AuthorityPipelineTenantExecutionLease`
+
+**Purpose:** One row per **run** currently holding a **per-tenant execution slot** for authority heavy stages. Implementation: **`SqlAuthorityPipelineTenantExecutionLeaseRepository`** / **`SqlTenantAuthorityPipelineConcurrencyGate`**.
+
+**Lifecycle (steady state):**
+
+- **Insert** when a slot is acquired (**`TryAcquireLeaseAsync`**, serializable transaction).
+- **Delete** when the pipeline releases the slot (**`ReleaseLeaseAsync`** on normal completion).
+- **Stale cleanup:** On each acquire attempt for a **tenant**, rows with **`AcquiredUtc`** older than **`UTC now − LeaseRecognitionHorizon`** are deleted for **that tenant** before counting active leases — crashed workers eventually stop counting toward capacity once leases age past the horizon **and** that tenant has another acquire attempt.
+
+**Why monitor row count:** Under healthy operation, total rows should stay **small** (order of **active concurrent pipelines** across all tenants). **Sustained growth** or **per-tenant counts persistently above `MaxConcurrentExecutionsPerTenant`** suggests stuck pipelines, crash loops without release, misconfigured horizon, or overload — correlate with **`archlucid_authority_pipeline_work_pending`**, **`AuthorityPipelineWorkOutbox`**, and **`docs/runbooks/TRACE_A_RUN.md`**.
+
+**Suggested SQL checks** (read-only; run in maintenance window or via least-privilege auditor):
+
+```sql
+-- Fleet-wide lease cardinality (alert if baseline drifts upward without tenant growth).
+SELECT COUNT_BIG(*) AS LeaseRowCount
+FROM dbo.AuthorityPipelineTenantExecutionLease;
+
+-- Noisy tenants or imbalance (compare to configured MaxConcurrentExecutionsPerTenant).
+SELECT TenantId,
+       COUNT_BIG(*) AS ActiveLeases,
+       MIN(AcquiredUtc) AS OldestAcquireUtc,
+       MAX(AcquiredUtc) AS NewestAcquireUtc
+FROM dbo.AuthorityPipelineTenantExecutionLease
+GROUP BY TenantId
+ORDER BY ActiveLeases DESC;
+
+-- Oldest holders — investigate stuck runs / missing releases first.
+SELECT TOP (50) RunId, TenantId, AcquiredUtc
+FROM dbo.AuthorityPipelineTenantExecutionLease
+ORDER BY AcquiredUtc ASC;
+```
+
+**Remediation outline:**
+
+1. Match outliers to **`RunId`** — **`GET /v1/admin/diagnostics/outboxes`** (authorized) and application logs for those runs.
+2. If workers crash mid-pipeline, restore worker health first; rely on **`LeaseRecognitionHorizon`** + subsequent acquires for cleanup — **do not** shorten the horizon drastically without understanding longest legitimate pipeline duration.
+3. If overload is legitimate, prefer **slot tuning** above and **worker/SQL scale** over disabling enforcement entirely.
+
+---
+
 ## Prometheus alerts (explainability)
 
 **`infra/prometheus/archlucid-alerts.yml`** — group **`archlucid-explainability`**:
@@ -455,5 +575,10 @@ Regression matrix: **`ArchLucid.Api.Tests/Middleware/ObservabilityCorrelationInt
 - [PERFORMANCE.md](PERFORMANCE.md) — hot-path caching (including aggregate explanation summary TTL and invalidation).
 - [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) — background jobs + authority stage hierarchy.
 - [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) — `Suite=Core` and observability-related tests.
+- [RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md) — environment tier naming used by the authority pipeline concurrency table.
+- [`docs/runbooks/TRACE_A_RUN.md`](../runbooks/TRACE_A_RUN.md) — single-run drill-down (paired with the authority pipeline remediation runbook above).
+- [`docs/runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`](../runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md) — dry-run/approval path for orphan comparison rows.
+- [`docs/runbooks/AGENT_EXECUTION_FAILURES.md`](../runbooks/AGENT_EXECUTION_FAILURES.md) — agent stage fault triage.
+- [`docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`](../data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md) — enforcement mode design detail.
 - `ArchLucid.Host.Core/Startup/ObservabilityExtensions.cs` — host wiring.
 - `ArchLucid.Host.Core/Startup/ObservabilityTraceSamplingConfigurator.cs` — trace sampling from configuration.

@@ -55,7 +55,7 @@ const CURATED_DOC_PATHS = [
   "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
   "docs/runbooks/TROUBLESHOOTING.md",
   "docs/library/CONFIGURATION_REFERENCE.md",
-  "docs/library/CORE_PILOT.md",
+  "docs/CORE_PILOT.md",
   "docs/go-to-market/PROCUREMENT_FAQ.md",
 ];
 

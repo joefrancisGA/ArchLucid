@@ -279,7 +279,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "excerpt": "When `ArchLucidAuth:Saml2:Enabled=true`, map IdP assertion attributes to ArchLucid scope and roles using the `ArchLucidAuth:Saml2:*ClaimType` keys above. Validate attribute names with your IdP administrator — URIs differ by vendor."
   },
   {
-    "docPath": "docs/library/CORE_PILOT.md",
+    "docPath": "docs/CORE_PILOT.md",
     "docTitle": "Your first architecture review (pointer)",
     "sectionSlug": "",
     "sectionHeading": "Your first architecture review (pointer) — overview",

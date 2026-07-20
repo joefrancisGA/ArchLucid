@@ -341,7 +341,7 @@ ArchLucid pays for itself in under 4 months even in the conservative scenario.
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who presents this model and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars that map to the levers above |
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships (grounding for capability claims) |
-| [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) | Technical pilot onboarding |
+| [../PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md) | Technical pilot onboarding |
 
 ---
 

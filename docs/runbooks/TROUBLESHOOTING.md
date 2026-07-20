@@ -18,7 +18,7 @@
 4. **`support-bundle --zip`** — sanitized diagnostics folder (review before sending). See [Support bundle](#support-bundle-attach-to-tickets) below.
 5. **`run-readiness-check`** or **`.\scripts\release-smoke.ps1 -SkipE2E`** (repo root; **`scripts\release-smoke.cmd`** also forwards switches) — confirm your clone builds and fast core tests pass without starting the temporary API ([RELEASE_LOCAL.md](../library/RELEASE_LOCAL.md), [RELEASE_SMOKE.md](../library/RELEASE_SMOKE.md)).
 
-If still stuck, use **[When you report an issue](../library/PILOT_GUIDE.md#when-you-report-an-issue)** in [PILOT_GUIDE.md](../library/PILOT_GUIDE.md).
+If still stuck, use **[When you report an issue](../library/customer-facing/PILOT_GUIDE.md#when-you-report-an-issue)** in [PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md).
 
 ## Orchestrator degraded health
 
@@ -55,7 +55,7 @@ The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures
 
 | Symptom | Likely cause | What to try |
 |--------|----------------|-------------|
-| API **does not start**; log mentions migration / DbUp | Bad **connection string**, DB unreachable, or migration failure | Fix **`ConnectionStrings:ArchLucid`**. Confirm SQL is up. See log lines mentioning **DbUp** or **migration**. [BUILD.md](../library/BUILD.md), [SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md) |
+| API **does not start**; log mentions migration / DbUp | Bad **connection string**, DB unreachable, or migration failure | Fix **`ConnectionStrings:ArchLucid`**. Confirm SQL is up. See log lines mentioning **DbUp** or **migration**. [BUILD.md](../engineering/BUILD.md), [SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md) |
 | **`/health/ready`** returns **503** | Database (when using Sql), schema files, rule pack, or temp directory check failed | Read JSON body for which check failed. Fix config/paths/permissions. |
 | **`401` / `403`** on API | Auth mode / role mismatch | **Development:** ensure `ArchLucidAuth` is **DevelopmentBypass** for local pilots. **JWT:** confirm token roles map to Reader/Operator/Admin. [API_CONTRACTS.md](../library/API_CONTRACTS.md#security-schemes-swashbuckle) |
 | **`429 Too Many Requests`** | Rate limiting | Wait for the window to reset or adjust `RateLimiting:*` in config (non-production). |
@@ -64,7 +64,7 @@ The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures
 | UI shows **503** JSON “Invalid upstream API configuration” | **`ARCHLUCID_API_BASE_URL`** missing or invalid in **`.env.local`** | Set server-side base URL in `archlucid-ui/.env.local`. Restart `npm run dev`. |
 | UI loads but API calls fail | Proxy or CORS | Check **browser network** tab and **Next server logs** (look for **`archlucid-ui-proxy`** JSON warnings). Confirm API URL and that API allows your UI origin under **`Cors:AllowedOrigins`**. After deploys, brief **`upstream_warmup_retry`** log lines on GET are normal — the UI proxy retries idempotent reads on transient **502/503** before surfacing **ArchLucid API unreachable** (TB-757). |
 | **`run --quick` / execute** fails with LLM or timeout errors | **Real agent** mode without valid Azure OpenAI config | For pilots, prefer **simulator** / default dev settings so no cloud keys are required. Check `AgentExecution` / related appsettings. |
-| .NET tests fail with SQL errors | No SQL Server for integration tests | Set **`ARCHLUCID_SQL_TEST`** or **`ARCHLUCID_API_TEST_SQL`** (Linux/macOS/CI), or run **fast core** only. [BUILD.md](../library/BUILD.md) |
+| .NET tests fail with SQL errors | No SQL Server for integration tests | Set **`ARCHLUCID_SQL_TEST`** or **`ARCHLUCID_API_TEST_SQL`** (Linux/macOS/CI), or run **fast core** only. [BUILD.md](../engineering/BUILD.md) |
 
 ---
 
@@ -135,4 +135,4 @@ Full CLI flags: [CLI_USAGE.md](../library/CLI_USAGE.md).
 2. Run **`support-bundle --zip`** (above) and attach the archive after redacting anything your policy still forbids.
 3. Run **`scripts\run-readiness-check.cmd`** (or **`scripts\run-readiness-check.ps1`**) to confirm build + fast core + UI unit tests on your machine.
 4. For an automated **API + CLI + artifact** check, see **[RELEASE_SMOKE.md](../library/RELEASE_SMOKE.md)** (`release-smoke` — requires SQL for the E2E block unless `-SkipE2E`).
-5. Open **[PILOT_GUIDE.md](../library/PILOT_GUIDE.md)** — first-run narrative and **[what to send when reporting an issue](../library/PILOT_GUIDE.md#when-you-report-an-issue)**.
+5. Open **[PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md)** — first-run narrative and **[what to send when reporting an issue](../library/customer-facing/PILOT_GUIDE.md#when-you-report-an-issue)**.

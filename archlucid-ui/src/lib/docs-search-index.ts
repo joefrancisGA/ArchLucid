@@ -23,13 +23,13 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
     category: "Pilot",
     title: "Operator quickstart (commands)",
     description: "Command-first operator entry for familiar automation.",
-    relativeDocsPath: "docs/library/OPERATOR_QUICKSTART.md",
+    relativeDocsPath: "docs/library/customer-facing/OPERATOR_QUICKSTART.md",
   },
   {
     category: "Pilot",
     title: "Troubleshooting",
     description: "Common API, SQL, auth, and UI failures.",
-    relativeDocsPath: "docs/TROUBLESHOOTING.md",
+    relativeDocsPath: "docs/runbooks/TROUBLESHOOTING.md",
   },
   {
     category: "Operations",

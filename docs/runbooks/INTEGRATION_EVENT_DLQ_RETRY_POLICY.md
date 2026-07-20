@@ -101,7 +101,7 @@ Validator: `IntegrationEventsOptionsValidator` (both numeric keys must be ≥ 1)
 | `archlucid_integration_event_dlq_permanent_failure_total` | Auto-retry pass skipped exhausted rows |
 | Structured logs | `IntegrationEventOutboxProcessor` — dead-letter after max attempts; DLQ hosted service — requeue counts |
 
-Grafana: **`infra/grafana/dashboard-archlucid-integrations.json`** (import binding: [`GRAFANA_DASHBOARD_BINDING_GUIDE.md`](./GRAFANA_DASHBOARD_BINDING_GUIDE.md)).
+Grafana: **`infra/grafana/dashboard-archlucid-integrations.json`** (import binding: [`OBSERVABILITY_DASHBOARD_BINDING.md`](./OBSERVABILITY_DASHBOARD_BINDING.md)).
 
 ---
 
@@ -143,6 +143,6 @@ ORDER BY DeadLetteredUtc DESC;
 | Doc | Use |
 |-----|-----|
 | [`INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) | Outbox event catalog, Service Bus consumer DLQ |
-| [`AUTHORITY_PIPELINE_OBSERVABILITY.md`](./AUTHORITY_PIPELINE_OBSERVABILITY.md) | Backlog alerts vs integration outbox |
+| [`OBSERVABILITY.md`](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) | Backlog alerts vs integration outbox |
 | [`ALERT_DELIVERY_FAILURES.md`](./ALERT_DELIVERY_FAILURES.md) | Downstream webhook delivery (separate from outbox publish) |
 | [`SLO_PROMETHEUS_GRAFANA.md`](./SLO_PROMETHEUS_GRAFANA.md) | Prometheus alert bundle |

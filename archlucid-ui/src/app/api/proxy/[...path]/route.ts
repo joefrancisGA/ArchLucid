@@ -8,6 +8,7 @@ import {
 } from "@/lib/correlation";
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
+import { isAnonymousMarketingProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
 import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "@/lib/proxy-body-read";
 import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
@@ -35,10 +36,14 @@ function buildUpstreamHeaders(request: NextRequest, proxyPath?: string): Headers
   const authHeader = request.headers.get("authorization");
   const browserBearer = authHeader?.trim() ?? "";
   const serverBearerToken = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
+  const skipServerBearer =
+    proxyPath !== undefined &&
+    proxyPath.length > 0 &&
+    isAnonymousMarketingProxyPath(proxyPath);
   const bearerToUse =
     browserBearer.length > 0
       ? browserBearer
-      : serverBearerToken.length > 0
+      : !skipServerBearer && serverBearerToken.length > 0
         ? `Bearer ${serverBearerToken}`
         : "";
   const hasBearer = bearerToUse.length > 0;
@@ -199,7 +204,7 @@ async function forwardMutatingWithBody(
         status: 502,
         detail: message,
         supportHint:
-          "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+          "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
       },
       correlationId,
     );
@@ -295,7 +300,7 @@ async function forward(
           status: 502,
           detail: message,
           supportHint:
-            "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+            "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
         },
         correlationId,
       );
@@ -353,7 +358,7 @@ async function forward(
         status: 502,
         detail: message,
         supportHint:
-          "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+          "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/runbooks/TROUBLESHOOTING.md.",
       },
       correlationId,
     );

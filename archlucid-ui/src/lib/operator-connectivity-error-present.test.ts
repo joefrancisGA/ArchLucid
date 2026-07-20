@@ -31,7 +31,7 @@ describe("resolveOperatorConnectivityTechnicalDetails", () => {
       problem: {
         title: "Upstream API unreachable",
         detail: "fetch failed",
-        supportHint: "Check ARCHLUCID_API_BASE_URL and docs/TROUBLESHOOTING.md.",
+        supportHint: "Check ARCHLUCID_API_BASE_URL and docs/runbooks/TROUBLESHOOTING.md.",
       },
       correlationId: "req-upstream-502",
     });

@@ -14,7 +14,7 @@ Operators use this runbook to decide when a **single-replica / small-fleet** pos
 | Graph projection rebuild cost | High `KnowledgeGraph:ProjectionCache` miss rate | Distributed projection cache (Redis) |
 | Per-tenant metric cardinality | OTel label explosion warnings | Enable tenant metric cardinality guard (see below) |
 | Integration event outbox depth | Oldest pending age >15m or dead-letter growth | Scale worker role; tune outbox batch; see **Outbox scaling** |
-| Authority pipeline outbox depth | `archlucid_authority_pipeline_work_pending` elevated | Dedicated worker; review poison messages — [`AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md) |
+| Authority pipeline outbox depth | `archlucid_authority_pipeline_work_pending` elevated | Dedicated worker; review poison messages — [`OBSERVABILITY.md`](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) |
 | Run-export blob push outbox depth / dead-letter | `archlucid_run_export_blob_push_outbox_pending` or `archlucid_run_export_blob_push_outbox_dead_letter` elevated | Confirm elected host runs **`RunExportBlobPushOutboxHostedService`**; triage SAS/destination policy — [`RUN_EXPORT_BLOB_PUSH_OUTBOX_OBSERVABILITY.md`](../runbooks/RUN_EXPORT_BLOB_PUSH_OUTBOX_OBSERVABILITY.md) |
 
 ## Query p95 checks (V1 — observability-driven)
@@ -35,7 +35,7 @@ Before adding replicas or Redis, confirm the bottleneck is not a missing index o
 | --- | --- | --- |
 | Retrieval indexing | `archlucid_retrieval_indexing_outbox_oldest_pending_age_seconds` | Worker separation; batch size in retrieval host options — [`PROVENANCE_INDEXING.md`](../runbooks/PROVENANCE_INDEXING.md) |
 | Integration events | Dead-letter count + publish lag | `IntegrationEvents:TransactionalOutboxEnabled`, Service Bus namespace — [`INTEGRATION_EVENTS_AND_WEBHOOKS.md`](INTEGRATION_EVENTS_AND_WEBHOOKS.md), DLQ [`INTEGRATION_EVENT_DLQ_RETRY_POLICY.md`](../runbooks/INTEGRATION_EVENT_DLQ_RETRY_POLICY.md) |
-| Authority pipeline | `archlucid_authority_pipeline_work_pending` | [`AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md) |
+| Authority pipeline | `archlucid_authority_pipeline_work_pending` | [`OBSERVABILITY.md`](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) |
 
 **Trade-off:** Larger outbox batches improve throughput but increase poison-message blast radius — keep DLQ retry policy enabled before raising batch sizes.
 

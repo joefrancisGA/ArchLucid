@@ -156,7 +156,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Troubleshooting",
     keywords: ["error", "503", "401", "health", "proxy"],
     summary: "Use health endpoints, CLI doctor, and support bundle for triage.",
-    docPath: "docs/TROUBLESHOOTING.md",
+    docPath: "docs/runbooks/TROUBLESHOOTING.md",
     routes: [],
   },
   {
@@ -180,7 +180,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Support bundle",
     keywords: ["zip", "triage", "ticket", "download"],
     summary: "Download a redacted support bundle from Help or Settings (POST /v1/admin/support-bundle), or use the CLI support-bundle command.",
-    docPath: "docs/TROUBLESHOOTING.md",
+    docPath: "docs/runbooks/TROUBLESHOOTING.md",
     routes: [],
   },
   {

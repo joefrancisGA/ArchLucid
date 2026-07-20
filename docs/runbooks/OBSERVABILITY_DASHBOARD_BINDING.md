@@ -8,8 +8,6 @@
 
 **Audience:** Platform operators provisioning observability for a new ArchLucid environment (self-hosted Grafana, Azure Managed Grafana, or Docker compose profile).
 
-**Related runbook (legacy filename):** [`GRAFANA_DASHBOARD_BINDING_GUIDE.md`](./GRAFANA_DASHBOARD_BINDING_GUIDE.md) redirects here.
-
 ---
 
 ## Prerequisites
@@ -109,7 +107,7 @@ Production-like hosts without managed Prometheus still commit the YAML as the **
 | `deploy/grafana/dashboards/dashboard-archlucid-llm-faithfulness-budget.json` | **`archlucid-llm-faithfulness-budget`** | LLM faithfulness + budget utilization |
 | `docs/support/GRAFANA_DASHBOARD_TIER_1.json` | **`archlucid-tier1-starter`** | Starter tier-1 pack |
 
-Operator runbooks paired with dashboards: [`AUTHORITY_PIPELINE_OBSERVABILITY.md`](./AUTHORITY_PIPELINE_OBSERVABILITY.md), [`SLO_PROMETHEUS_GRAFANA.md`](./SLO_PROMETHEUS_GRAFANA.md), [`INTEGRATION_EVENT_DLQ_RETRY_POLICY.md`](./INTEGRATION_EVENT_DLQ_RETRY_POLICY.md).
+Operator runbooks paired with dashboards: [`OBSERVABILITY.md`](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook), [`SLO_PROMETHEUS_GRAFANA.md`](./SLO_PROMETHEUS_GRAFANA.md), [`INTEGRATION_EVENT_DLQ_RETRY_POLICY.md`](./INTEGRATION_EVENT_DLQ_RETRY_POLICY.md).
 
 ---
 
@@ -164,6 +162,7 @@ See [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) and [`CONFIGURATION_REFERE
 |-----|-----|
 | [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) | Full metric catalog |
 | [`SLO_PROMETHEUS_GRAFANA.md`](./SLO_PROMETHEUS_GRAFANA.md) | SLO recording rules and burn alerts |
-| [`AUTHORITY_PIPELINE_OBSERVABILITY.md`](./AUTHORITY_PIPELINE_OBSERVABILITY.md) | Authority backlog remediation |
+| [`OBSERVABILITY.md`](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) | Authority backlog remediation |
 | [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) § TB-004 | Agent-output alert wiring history |
 | [`OPERATOR_ATLAS.md`](../library/OPERATOR_ATLAS.md) | Operator action map (links here for observability) |
+| [`infra/terraform-monitoring/README.md`](../../infra/terraform-monitoring/README.md) | Managed Grafana Terraform flags |

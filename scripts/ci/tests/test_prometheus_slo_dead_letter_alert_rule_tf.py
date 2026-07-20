@@ -20,7 +20,7 @@ class TestPrometheusSloDeadLetterAlertRuleTf(unittest.TestCase):
             text,
             re.escape(
                 "Integration event outbox dead-letter queue is non-zero. "
-                "See docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md."
+                "See docs/library/OBSERVABILITY.md (Authority pipeline remediation runbook)."
             ),
         )
 

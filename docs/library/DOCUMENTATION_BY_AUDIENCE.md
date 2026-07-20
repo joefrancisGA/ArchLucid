@@ -22,7 +22,7 @@ Use this table when you need a **starting doc**, not a folder tour:
 | Audience | Intent | Start here |
 | --- | --- | --- |
 | **Buyer / pilot / sponsor** | Time-to-value, trust, procurement | [`docs/START_HERE.md`](../START_HERE.md), [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/trust-center.md`](../go-to-market/trust-center.md) |
-| **Operator / tenant admin** | Day-2 configuration, runbooks, **internal** shell/diagnostics docs — **not** customer-facing UI voice | [`docs/library/OPERATOR_QUICKSTART.md`](OPERATOR_QUICKSTART.md), [`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md), [`docs/OPERATIONS_ADMIN.md`](OPERATIONS_ADMIN.md)) |
+| **Operator / tenant admin** | Day-2 configuration, runbooks, **internal** shell/diagnostics docs — **not** customer-facing UI voice | [`docs/library/customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md), [`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md), [`docs/OPERATIONS_ADMIN.md`](OPERATIONS_ADMIN.md)) |
 | **Contributor / platform engineer** | Repo layout, invariants, CI, migrations | [`.cursor/rules/Architecture-Invariants.mdc`](ARCHITECTURE_INVARIANTS.md), [`docs/library/TECH_BACKLOG.md`](TECH_BACKLOG.md), [`docs/library/CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) |
 
 When in doubt on **new** markdown, add a one-line **`Audience:`** note next to the scope header (see `.cursor/rules/Doc-Scope-Header.mdc`); CI validates scope lines.
@@ -103,5 +103,5 @@ Default **depth-first** material belongs under **`docs/library/`** or a topic su
 
 - [`docs/architecture/INFORMATION_ARCHITECTURE.md`](../architecture/INFORMATION_ARCHITECTURE.md) — five-category in-app and public-surface content taxonomy (`contentKind` on `/help` registry)
 - [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) — persona terms for customer-visible copy
-- [`docs/library/PILOT_GUIDE.md`](PILOT_GUIDE.md)
+- [`docs/library/customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md)
 - [`docs/contributor/README.md`](../engineering/CONTRIBUTOR_ON_ONE_PAGE.md)) (if present)

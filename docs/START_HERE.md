@@ -5,6 +5,8 @@
 
 Use this page to pick **one** door based on your role.
 
+**Moved or merged docs:** [`redirects.md`](redirects.md) — canonical paths when an old bookmark 404s (no redirect stub files in-tree).
+
 ## Canonical setup paths (pick one)
 
 | Persona | Start here | After that |

@@ -9,7 +9,7 @@
 
 **Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) — where Operate (governance and trust) routes live vs Core Pilot defaults.
 
-> **Install order moved.** See [INSTALL_ORDER.md](../archive/INSTALL_ORDER.md). This page now only covers Security / GRC week-one tasks **after** install.
+> **Install order moved.** See [INSTALL_ORDER.md](../engineering/INSTALL_ORDER.md). This page now only covers Security / GRC week-one tasks **after** install.
 
 **Ticket:** `ONBOARD-SEC-001` (copy into your work tracker)
 
@@ -21,7 +21,7 @@
 - [ ] **2. AuthZ model** — Map **Admin / Operator / Reader** (Entra app roles) to API policies **ReadAuthority / ExecuteAuthority / AdminAuthority** ([API_CONTRACTS.md](../library/API_CONTRACTS.md#security-schemes-swashbuckle), [appsettings.Entra.sample.json](../../ArchLucid.Api/appsettings.Entra.sample.json)).
 - [ ] **3. Data isolation** — Skim [security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md): in `SystemWithPerTenantCatalogs` (production) mode the database boundary is the primary isolation mechanism; RLS is optional and ships disabled by default.
 - [ ] **4. LLM / RAG surface** — Skim [security/ASK_RAG_THREAT_MODEL.md](../security/ASK_RAG_THREAT_MODEL.md) if Ask/RAG is enabled; note exfiltration and prompt-injection assumptions.
-- [ ] **5. Supply chain** — Confirm your org accepts the repo’s CI posture: **gitleaks**, **CodeQL**, **Trivy** (image + Terraform), vulnerable NuGet gate ([BUILD.md](../library/BUILD.md) CI section).
+- [ ] **5. Supply chain** — Confirm your org accepts the repo’s CI posture: **gitleaks**, **CodeQL**, **Trivy** (image + Terraform), vulnerable NuGet gate ([BUILD.md](../engineering/BUILD.md) CI section).
 
 ---
 

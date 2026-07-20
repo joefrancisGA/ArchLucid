@@ -32,7 +32,7 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 - **Architectural decision records** stay under [`docs/architecture/adrs/`](../architecture/adrs/) (do not treat ADRs as onboarding fiction).
 - **Historical receipts** stay under [`docs/archive/`](../archive/) — never silently rewritten.
-- **SMB / port 445** never belongs on the public internet; storage stays on private endpoints (see [`SECURITY.md`](SECURITY.md))) at repo root and [`docs/TROUBLESHOOTING.md`](../TROUBLESHOOTING.md)).
+- **SMB / port 445** never belongs on the public internet; storage stays on private endpoints (see [`SECURITY.md`](SECURITY.md))) at repo root and [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md)).
 
 ## Architecture overview (where ArchLucid sits)
 
