@@ -30,7 +30,7 @@ export function ValueReportOutcomesNav(): React.JSX.Element | null {
       <div
         className="-mb-px flex flex-wrap gap-1"
         role="tablist"
-        aria-label="Insights report sections"
+        aria-label="Sponsor report sections"
       >
         {visibleTabs.map((tab) => {
           const active = tab.match(pathname);

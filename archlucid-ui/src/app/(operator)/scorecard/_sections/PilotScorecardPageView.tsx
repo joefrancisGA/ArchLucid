@@ -296,7 +296,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               ))}
               <li>
                 ROI estimates apply a 50% review-time reduction lever once all three assumptions are saved.{" "}
-                <Link href="/value-report/roi" className={OPERATOR_LINK.inline}>
+                <Link href="/sponsor-report/roi-summary" className={OPERATOR_LINK.inline}>
                   See ROI summary
                 </Link>{" "}
                 for related value reporting.

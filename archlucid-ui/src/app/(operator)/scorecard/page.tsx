@@ -1,8 +1,8 @@
-import { PilotScorecardPageClient } from "./_sections/PilotScorecardPageClient";
-import { loadPilotScorecardPageData } from "./_sections/load-pilot-scorecard-page-data";
+import { permanentRedirect } from "next/navigation";
 
-export default async function PilotScorecardPage() {
-  const loaded = await loadPilotScorecardPageData();
+import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report-navigation";
 
-  return <PilotScorecardPageClient loaded={loaded} />;
+/** Legacy architecture scorecard URL — permanently redirects to canonical sponsor report scorecard. */
+export default function LegacyArchitectureScorecardRedirectPage(): never {
+  permanentRedirect(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH);
 }

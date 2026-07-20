@@ -49,8 +49,8 @@ const GOVERNANCE_EXTENDED_PHASE_HREFS = new Set<string>([
 /** Duplicate/near-duplicate routes hidden from primary nav (deep links still work). */
 const NAV_CONSOLIDATED_OMIT_HREFS = new Set<string>([
   "/governance/dashboard",
-  "/value-report/pilot",
-  "/value-report/roi",
+  "/sponsor-report/pilot-outcomes",
+  "/sponsor-report/roi-summary",
   "/digests",
   "/digest-subscriptions",
 ]);

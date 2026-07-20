@@ -184,7 +184,7 @@ export function SponsorExportsSection({
           description={v.sponsorExportsPilotValueDescription}
           locked={exportsLocked}
           primaryActionLabel={v.sponsorExportsPilotValueAction}
-          primaryHref="/value-report/pilot"
+          primaryHref="/sponsor-report/pilot-outcomes"
           previewActionLabel={v.sponsorExportsPreviewSampleAction}
           previewHref={v.sponsorExportsPilotValueSampleHref}
           testId="sponsor-exports-pilot-value"
@@ -194,7 +194,7 @@ export function SponsorExportsSection({
           description={v.sponsorExportsRoiDescription}
           locked={false}
           primaryActionLabel={v.sponsorExportsRoiAction}
-          primaryHref="/value-report/roi"
+          primaryHref="/sponsor-report/roi-summary"
           testId="sponsor-exports-roi-methodology"
         />
       </div>

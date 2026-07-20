@@ -143,7 +143,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   failedIntegrationMessages: "Failed integration messages",
   teamsNotifications: "Teams notifications",
   itsmConnectors: "Jira & ServiceNow",
-  valueReport: "Value report",
+  valueReport: "Executive summary",
   compareTwoReviews: "Compare two reviews",
   replayReview: "Validate review",
   askReview: "Ask review questions",

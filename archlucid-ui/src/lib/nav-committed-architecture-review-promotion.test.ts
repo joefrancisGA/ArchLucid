@@ -7,7 +7,7 @@ import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } f
 describe("committed architecture review nav promotion", () => {
   const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
   const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
-  // /value-report/pilot lives in operate-reports (moved out of operator-system-admin, nav placement audit 2026-07-05).
+  // /sponsor-report/pilot-outcomes lives in operate-reports (moved out of operator-system-admin, nav placement audit 2026-07-05).
   const reports = NAV_GROUPS.find((g) => g.id === "operate-reports");
 
   it("TB-524: keeps Getting started essential before first commit and demotes after", () => {
@@ -104,7 +104,7 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(collapsedReports.some((l) => l.href === "/value-report/pilot")).toBe(false);
+    expect(collapsedReports.some((l) => l.href === "/sponsor-report/pilot-outcomes")).toBe(false);
 
     const expandedAnalysis = filterNavLinksForOperatorShell(
       analysis!.links,
@@ -126,7 +126,7 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(expandedReports.some((l) => l.href === "/value-report/pilot")).toBe(true);
+    expect(expandedReports.some((l) => l.href === "/sponsor-report/pilot-outcomes")).toBe(true);
   });
 
   it("keeps Compare hidden in collapsed sidebar before the first committed review", () => {

@@ -404,7 +404,7 @@ export function ExecutiveScorecardClient() {
             <ul className="m-0 list-disc space-y-2 ps-5 text-sm text-neutral-700 dark:text-neutral-300">
               <li>
                 Reviews and findings come from{" "}
-                <Link href="/value-report/pilot" className="font-medium text-blue-700 underline dark:text-blue-400">
+                <Link href="/sponsor-report/pilot-outcomes" className="font-medium text-blue-700 underline dark:text-blue-400">
                   pilot value report
                 </Link>{" "}
                 (same API as operator ROI tiles).

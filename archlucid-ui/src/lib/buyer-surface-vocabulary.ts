@@ -33,7 +33,7 @@ export const BUYER_SURFACE_VOCABULARY = {
  */
 export const BUYER_TERMINOLOGY = {
   evaluationFeedback: "Review feedback",
-  evaluationValueReport: "Review value report",
+  evaluationValueReport: "Pilot outcomes",
   reviewScorecard: "Architecture scorecard",
   governanceDashboard: "Governance dashboard",
   portfolioOverview: "Executive dashboard",
@@ -176,7 +176,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   sponsorExportsPilotValueTitle: "Pilot value report",
   sponsorExportsPilotValueDescription: "Quantified outcomes and improvement themes from committed reviews.",
   sponsorExportsPilotValueAction: "Open value report",
-  sponsorExportsPilotValueSampleHref: "/value-report/pilot",
+  sponsorExportsPilotValueSampleHref: "/sponsor-report/pilot-outcomes",
   sponsorExportsRoiTitle: "ROI methodology",
   sponsorExportsRoiDescription: "How savings and ROI estimates are derived from review evidence.",
   sponsorExportsRoiAction: "View methodology",

@@ -198,9 +198,10 @@ describe("nav-config structure", () => {
       "/governance/first-30-days",
     ]);
     expect(reportsHrefs).toEqual([
-      "/value-report",
-      "/value-report/pilot",
-      "/value-report/roi",
+      "/sponsor-report/executive-summary",
+      "/sponsor-report/pilot-outcomes",
+      "/sponsor-report/roi-summary",
+      "/sponsor-report/architecture-scorecard",
       "/digests",
     ]);
     expect(integrationsHrefs).toEqual([
@@ -225,8 +226,8 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).not.toContain("/product-learning");
     expect(systemAdminHrefs).not.toContain("/planning");
     expect(systemAdminHrefs).not.toContain("/digests");
-    expect(systemAdminHrefs).not.toContain("/value-report/pilot");
-    expect(systemAdminHrefs).not.toContain("/value-report/roi");
+    expect(systemAdminHrefs).not.toContain("/sponsor-report/pilot-outcomes");
+    expect(systemAdminHrefs).not.toContain("/sponsor-report/roi-summary");
     expect(systemAdminHrefs).not.toContain("/settings/identity-providers");
     expect(systemAdminHrefs).not.toContain("/settings/identity/sso-wizard");
     expect(systemAdminHrefs).not.toContain("/settings/api-keys");

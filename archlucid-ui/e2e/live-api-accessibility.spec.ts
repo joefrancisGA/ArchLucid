@@ -81,7 +81,7 @@ const PAGES = [
   { name: "Evolution review", path: "/evolution-review" },
   { name: "Scorecard", path: "/scorecard" },
   { name: "Value report", path: "/value-report" },
-  { name: "Value report pilot", path: "/value-report/pilot" },
+  { name: "Sponsor report pilot outcomes", path: "/sponsor-report/pilot-outcomes" },
   { name: "ROI summary", path: "/value-report/roi" },
   { name: "Help", path: "/help" },
   { name: "Settings security & trust", path: "/settings/security-trust" },

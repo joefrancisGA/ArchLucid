@@ -32,7 +32,7 @@ export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException
   {
     navGroupId: "operate-reports",
     href: "/digests",
-    canonicalPrefixes: ["/scorecard", "/value-report"],
+    canonicalPrefixes: ["/scorecard", "/value-report", "/sponsor-report"],
     exceptionReason: "Digest subscriptions hub uses a top-level route; promoted from Internal Ops to Reports (governance-digest theme, nav placement audit 2026-07-05).",
   },
   {

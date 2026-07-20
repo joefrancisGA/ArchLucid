@@ -94,7 +94,7 @@ export function HelpProductGuide() {
                 executive summary
               </Link>{" "}
               or{" "}
-              <Link className={OPERATOR_LINK.inline} href="/value-report">
+              <Link className={OPERATOR_LINK.inline} href="/sponsor-report/executive-summary">
                 value report
               </Link>
               .

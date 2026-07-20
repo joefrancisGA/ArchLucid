@@ -1,8 +1,8 @@
-import { ValueReportPageClient } from "./_sections/ValueReportPageClient";
-import { loadValueReportPageData } from "./_sections/load-value-report-page-data";
+import { permanentRedirect } from "next/navigation";
 
-export default async function ValueReportPage() {
-  const loaded = await loadValueReportPageData();
+import { SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
-  return <ValueReportPageClient loaded={loaded} />;
+/** Legacy value report hub — permanently redirects to canonical sponsor report executive summary. */
+export default function LegacyValueReportRedirectPage(): never {
+  permanentRedirect(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH);
 }

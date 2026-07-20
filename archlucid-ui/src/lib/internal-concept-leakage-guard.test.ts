@@ -52,10 +52,11 @@ describe("internal concept leakage guard (IA-013)", () => {
     expect(RUNS_EMPTY.helpTopicPath).toBe("starting-reviews");
   });
 
-  it("labels value-report pilot breadcrumb segment as Review value report", () => {
-    const crumbs = getBreadcrumbs("/value-report/pilot");
+  it("labels sponsor report pilot outcomes breadcrumb segment", () => {
+    const crumbs = getBreadcrumbs("/sponsor-report/pilot-outcomes");
 
-    expect(crumbs.some((crumb) => crumb.label === BUYER_TERMINOLOGY.evaluationValueReport)).toBe(true);
+    expect(crumbs.some((crumb) => crumb.label === "Sponsor report")).toBe(true);
+    expect(crumbs.some((crumb) => crumb.label === "Pilot outcomes")).toBe(true);
     expect(crumbs.some((crumb) => crumb.label === "pilot")).toBe(false);
   });
 });

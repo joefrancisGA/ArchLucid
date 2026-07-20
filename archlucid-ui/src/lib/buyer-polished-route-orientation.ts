@@ -1,3 +1,10 @@
+import {
+  SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+  SPONSOR_REPORT_SECTION_LABEL,
+} from "@/lib/sponsor-report-navigation";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -259,28 +266,28 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path === "/value-report") {
+  if (path === "/value-report" || path === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH) {
     return {
-      label: "Value report",
+      label: SPONSOR_REPORT_SECTION_LABEL,
       line: "Generate sponsor-ready summaries of review outcomes, ROI, and governance progress.",
     };
   }
 
-  if (path.startsWith("/value-report/pilot")) {
+  if (path.startsWith("/value-report/pilot") || path.startsWith(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)) {
     return {
-      label: "Sponsor report",
+      label: SPONSOR_REPORT_SECTION_LABEL,
       line: "Pilot outcomes — metrics and governance signals from finalized reviews.",
     };
   }
 
-  if (path.startsWith("/value-report/roi")) {
+  if (path.startsWith("/value-report/roi") || path.startsWith(SPONSOR_REPORT_ROI_SUMMARY_PATH)) {
     return {
-      label: "Sponsor report",
+      label: SPONSOR_REPORT_SECTION_LABEL,
       line: "ROI summary — estimated review-time savings from finalized findings and governance blocks.",
     };
   }
 
-  if (path.startsWith("/scorecard")) {
+  if (path.startsWith("/scorecard") || path.startsWith(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)) {
     return {
       label: "Insights",
       line: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardLayerContextLine,

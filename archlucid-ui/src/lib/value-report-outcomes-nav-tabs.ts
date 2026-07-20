@@ -1,3 +1,10 @@
+import {
+  SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+  SPONSOR_REPORT_SECTION_LABEL,
+} from "@/lib/sponsor-report-navigation";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 
 export type ValueReportOutcomesTab = {
@@ -8,26 +15,61 @@ export type ValueReportOutcomesTab = {
   readonly internalOnly?: boolean;
 };
 
+function normalizeOutcomesPath(path: string): string {
+  return path.replace(/\/$/, "") || "/";
+}
+
+function matchesPilotOutcomes(path: string): boolean {
+  const normalized = normalizeOutcomesPath(path);
+
+  return (
+    normalized === SPONSOR_REPORT_PILOT_OUTCOMES_PATH ||
+    normalized.startsWith("/value-report/pilot")
+  );
+}
+
+function matchesExecutiveSummary(path: string): boolean {
+  const normalized = normalizeOutcomesPath(path);
+
+  return (
+    normalized === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH ||
+    normalized === "/sponsor-report" ||
+    normalized === "/value-report"
+  );
+}
+
+function matchesRoiSummary(path: string): boolean {
+  const normalized = normalizeOutcomesPath(path);
+
+  return normalized === SPONSOR_REPORT_ROI_SUMMARY_PATH || normalized.startsWith("/value-report/roi");
+}
+
+function matchesArchitectureScorecard(path: string): boolean {
+  const normalized = normalizeOutcomesPath(path);
+
+  return normalized === SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH || normalized.startsWith("/scorecard");
+}
+
 export const VALUE_REPORT_OUTCOMES_TABS: readonly ValueReportOutcomesTab[] = [
   {
-    href: "/value-report",
-    label: "Sponsor report",
-    match: (path: string) => path === "/value-report",
+    href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+    label: "Executive summary",
+    match: matchesExecutiveSummary,
   },
   {
-    href: "/value-report/pilot",
+    href: SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
     label: "Pilot outcomes",
-    match: (path: string) => path.startsWith("/value-report/pilot"),
+    match: matchesPilotOutcomes,
   },
   {
-    href: "/value-report/roi",
+    href: SPONSOR_REPORT_ROI_SUMMARY_PATH,
     label: "ROI summary",
-    match: (path: string) => path.startsWith("/value-report/roi"),
+    match: matchesRoiSummary,
   },
   {
-    href: "/scorecard",
+    href: SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
     label: BUYER_TERMINOLOGY.reviewScorecard,
-    match: (path: string) => path.startsWith("/scorecard"),
+    match: matchesArchitectureScorecard,
   },
 ] as const;
 
@@ -47,3 +89,6 @@ export function resolveVisibleValueReportOutcomesTabs(
 export function isValueReportOutcomesSurface(pathname: string): boolean {
   return VALUE_REPORT_OUTCOMES_TABS.some((tab) => tab.match(pathname));
 }
+
+/** Section label for breadcrumbs and exports — canonical sponsor report naming. */
+export const SPONSOR_REPORT_OUTCOMES_SECTION_LABEL = SPONSOR_REPORT_SECTION_LABEL;

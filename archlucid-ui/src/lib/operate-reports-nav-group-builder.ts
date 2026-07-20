@@ -1,8 +1,15 @@
-import { FileCheck2, FileText, Newspaper, TrendingUp } from "lucide-react";
+import { FileCheck2, FileText, LayoutGrid, Newspaper, TrendingUp } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import {
+  SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+  SPONSOR_REPORT_SECTION_LABEL,
+} from "@/lib/sponsor-report-navigation";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -16,26 +23,34 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
       caption: "Sponsor-facing value reports and digest subscriptions.",
       links: [
         {
-          href: "/value-report",
-          label: OPERATOR_NAV_LINK_LABELS.valueReport,
-          title: "Value report — sponsor DOCX from ROI_MODEL-aligned tenant metrics",
+          href: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+          label: "Executive summary",
+          title: `${SPONSOR_REPORT_SECTION_LABEL} — executive summary and exports`,
           icon: FileText,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
         },
         {
-          href: "/value-report/pilot",
+          href: SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
           label: OPERATOR_NAV_LINK_LABELS.pilotValueReport,
-          title: `${BUYER_TERMINOLOGY.evaluationValueReport} — finalized-review metrics and governance signals`,
+          title: "Pilot outcomes — finalized-review metrics and governance signals",
           icon: FileCheck2,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/value-report/roi",
+          href: SPONSOR_REPORT_ROI_SUMMARY_PATH,
           label: OPERATOR_NAV_LINK_LABELS.roiReport,
-          title: "ROI report — hours estimate from severities and pre-finalize audit blocks",
+          title: "ROI summary — hours estimate from severities and governance blocks",
           icon: TrendingUp,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+          label: BUYER_TERMINOLOGY.reviewScorecard,
+          title: `${BUYER_TERMINOLOGY.reviewScorecard} — value metrics and recommended actions`,
+          icon: LayoutGrid,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

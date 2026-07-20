@@ -22,8 +22,8 @@ export const HUB_PAGE_DRIFT_GUARD_SOURCES = [
 export const HUB_PAGE_FORBIDDEN_INTERNAL_HREF_PREFIXES = [
   "/admin/",
   "/operate/integration-events/dlq",
-  "/value-report/pilot",
-  "/value-report/roi",
+  "/sponsor-report/pilot-outcomes",
+  "/sponsor-report/roi-summary",
 ] as const;
 
 /** Embedded wizards/forms owned by settings or setup flows — hubs link out instead. */

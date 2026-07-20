@@ -1,4 +1,5 @@
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { SPONSOR_REPORT_SECTION_LABEL } from "@/lib/sponsor-report-navigation";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import {
   ARCHITECTURES_LIST_PATH,
@@ -84,8 +85,13 @@ const SEGMENT_LABELS: Record<string, string> = {
   manifests: "Signed review records",
   "signed-records": "Signed review records",
   provenance: "Evidence provenance",
-  "value-report": "Value report",
-  pilot: BUYER_TERMINOLOGY.evaluationValueReport,
+  "value-report": SPONSOR_REPORT_SECTION_LABEL,
+  "sponsor-report": SPONSOR_REPORT_SECTION_LABEL,
+  "executive-summary": "Executive summary",
+  "pilot-outcomes": "Pilot outcomes",
+  "roi-summary": "ROI summary",
+  "architecture-scorecard": "Architecture scorecard",
+  pilot: "Pilot outcomes",
   roi: "ROI summary",
   "approval-requests": "Approval requests",
   lineage: "Lineage",

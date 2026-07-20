@@ -20,7 +20,10 @@ describe("SponsorExportsSection", () => {
     expect(previewLinks).toHaveLength(2);
     expect(previewLinks[0]).toHaveAttribute("href", v.sponsorExportsScorecardSampleHref);
     expect(previewLinks[1]).toHaveAttribute("href", v.sponsorExportsPilotValueSampleHref);
-    expect(screen.getByRole("link", { name: v.sponsorExportsRoiAction })).toHaveAttribute("href", "/value-report/roi");
+    expect(screen.getByRole("link", { name: v.sponsorExportsRoiAction })).toHaveAttribute(
+      "href",
+      "/sponsor-report/roi-summary",
+    );
     expect(screen.queryByTestId("sponsor-exports-scorecard-action")).not.toBeInTheDocument();
     expect(screen.queryByTestId("sponsor-exports-pilot-value-action")).not.toBeInTheDocument();
   });
@@ -34,7 +37,7 @@ describe("SponsorExportsSection", () => {
     );
     expect(screen.getByRole("link", { name: v.sponsorExportsPilotValueAction })).toHaveAttribute(
       "href",
-      "/value-report/pilot",
+      "/sponsor-report/pilot-outcomes",
     );
     expect(screen.queryByText(v.sponsorExportsUnavailableFootnote)).not.toBeInTheDocument();
   });

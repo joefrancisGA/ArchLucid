@@ -4,7 +4,7 @@ import type { NavLinkItem } from "@/lib/nav-config";
 const COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS = new Set<string>([
   "/compare",
   "/graph",
-  "/value-report/pilot",
+  "/sponsor-report/pilot-outcomes",
 ]);
 
 /** Pilot essentials demoted to extended tier after the first committed review (TB-524). */

@@ -6,6 +6,7 @@ describe("executive-shell-handoff", () => {
   it("treats operator destinations as handoffs", () => {
     expect(isOperatorShellHandoffHref("/governance/dashboard")).toBe(true);
     expect(isOperatorShellHandoffHref("/reviews?filter=orphan-candidates")).toBe(true);
+    expect(isOperatorShellHandoffHref("/sponsor-report/pilot-outcomes")).toBe(true);
     expect(isOperatorShellHandoffHref("/value-report/pilot")).toBe(true);
   });
 

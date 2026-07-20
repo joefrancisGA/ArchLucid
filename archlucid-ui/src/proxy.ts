@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { demoRunAliasRedirectDestinationPath } from "@/lib/demo-run-alias-path-redirect";
 import { findingEvidenceTraceLegacyRedirectPath } from "@/lib/finding-evidence-navigation";
+import { sponsorReportLegacyRedirectPath } from "@/lib/sponsor-report-navigation";
 
 /**
  * Next.js proxy (formerly "middleware"): demo run id aliases (bookmark slugs → canonical showcase id) MUST
@@ -10,6 +11,16 @@ import { findingEvidenceTraceLegacyRedirectPath } from "@/lib/finding-evidence-n
  * {@link canonicalizeDemoRunId}.
  */
 export function proxy(request: NextRequest) {
+  const legacySponsorReport = sponsorReportLegacyRedirectPath(request.nextUrl.pathname);
+
+  if (legacySponsorReport !== null) {
+    const u = request.nextUrl.clone();
+
+    u.pathname = legacySponsorReport;
+
+    return NextResponse.redirect(u, 308);
+  }
+
   const legacyEvidenceTrace = findingEvidenceTraceLegacyRedirectPath(request.nextUrl.pathname);
 
   if (legacyEvidenceTrace !== null) {
@@ -41,6 +52,12 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/403",
+    "/value-report",
+    "/value-report/:path*",
+    "/scorecard",
+    "/scorecard/:path*",
+    "/sponsor-report",
+    "/sponsor-report/:path*",
     "/reviews/:path*",
     "/executive/scorecard",
     "/runs/:path*",

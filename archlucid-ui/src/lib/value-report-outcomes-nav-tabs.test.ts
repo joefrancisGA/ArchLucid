@@ -5,38 +5,36 @@ import {
   resolveVisibleValueReportOutcomesTabs,
   VALUE_REPORT_OUTCOMES_TABS,
 } from "@/lib/value-report-outcomes-nav-tabs";
+import {
+  SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
 
 describe("value-report-outcomes-nav-tabs", () => {
-  it("marks no tabs as internal-only (Pilot outcomes and ROI summary promoted to customer-facing, TB-605 superseded)", () => {
+  it("marks no tabs as internal-only", () => {
     const internalHrefs = VALUE_REPORT_OUTCOMES_TABS.filter((tab) => tab.internalOnly).map((tab) => tab.href);
 
     expect(internalHrefs).toEqual([]);
   });
 
-  it("shows every tab regardless of system-administration nav flag", () => {
+  it("uses canonical sponsor report routes and executive summary tab label", () => {
     const visible = resolveVisibleValueReportOutcomesTabs(false);
 
     expect(visible.map((tab) => tab.href)).toEqual([
-      "/value-report",
-      "/value-report/pilot",
-      "/value-report/roi",
-      "/scorecard",
+      SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+      SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+      SPONSOR_REPORT_ROI_SUMMARY_PATH,
+      SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
     ]);
+    expect(visible[0]?.label).toBe("Executive summary");
+    expect(visible[1]?.label).toBe("Pilot outcomes");
   });
 
-  it("shows all tabs when system-administration nav is enabled", () => {
-    const visible = resolveVisibleValueReportOutcomesTabs(true);
-
-    expect(visible.map((tab) => tab.href)).toEqual([
-      "/value-report",
-      "/value-report/pilot",
-      "/value-report/roi",
-      "/scorecard",
-    ]);
-  });
-
-  it("detects outcomes surfaces across sponsor, internal, and scorecard routes", () => {
-    expect(isValueReportOutcomesSurface("/value-report")).toBe(true);
+  it("detects outcomes surfaces across canonical and legacy routes", () => {
+    expect(isValueReportOutcomesSurface(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBe(true);
+    expect(isValueReportOutcomesSurface(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBe(true);
     expect(isValueReportOutcomesSurface("/value-report/pilot")).toBe(true);
     expect(isValueReportOutcomesSurface("/value-report/roi")).toBe(true);
     expect(isValueReportOutcomesSurface("/scorecard")).toBe(true);

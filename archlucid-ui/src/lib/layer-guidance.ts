@@ -183,11 +183,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "value-report-pilot": {
     layerBadge: "Sponsor report",
-    headline: "Sponsor-ready proof snapshot from finalized reviews.",
+    headline: "Pilot outcomes from finalized reviews for executive sponsors.",
     useWhen:
-      "After you finalize a review, open sponsor proof here — totals, severities, governance signals, and a Markdown handoff for the selected period.",
+      "After you finalize a review, summarize pilot outcomes here — activity, findings, governance decisions, and exportable sponsor proof for the selected period.",
     firstPilotNote:
-      "First-use path: create review → execute analysis → finalize → open sponsor proof on this page (or export from review detail).",
+      "First-use path: create review → execute analysis → finalize → open pilot outcomes on this page (or export from review detail).",
     omitReviewPackageScopeHelp: true,
   },
   "value-report-roi": {
@@ -199,10 +199,10 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     omitReviewPackageScopeHelp: true,
   },
   "value-report": {
-    layerBadge: "Value report",
+    layerBadge: "Sponsor report",
     headline: "Create a sponsor-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.",
     useWhen: "Generate sponsor and board-ready exports after you have finalized reviews in the selected period.",
-    firstPilotNote: "After Pilot proof when sponsors need a packaged value narrative.",
+    firstPilotNote: "After pilot outcomes when sponsors need a packaged value narrative.",
     enterpriseFootnote: "Standard tier required; cost estimate is hours-first from review severities.",
     omitReviewPackageScopeHelp: true,
   },

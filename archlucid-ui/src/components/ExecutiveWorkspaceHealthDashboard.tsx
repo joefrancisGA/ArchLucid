@@ -405,7 +405,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
               </span>
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-              <Link href="/value-report/roi" className={OPERATOR_LINK.nav}>
+              <Link href="/sponsor-report/roi-summary" className={OPERATOR_LINK.nav}>
                 See ROI report
               </Link>
             </p>

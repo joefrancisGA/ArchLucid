@@ -1,8 +1,8 @@
-import { PilotValueReportPageClient } from "./_sections/PilotValueReportPageClient";
-import { loadPilotValueReportPageData } from "./_sections/load-pilot-value-report-page-data";
+import { permanentRedirect } from "next/navigation";
 
-export default async function PilotValueReportPage() {
-  const loaded = await loadPilotValueReportPageData();
+import { SPONSOR_REPORT_PILOT_OUTCOMES_PATH } from "@/lib/sponsor-report-navigation";
 
-  return <PilotValueReportPageClient loaded={loaded} />;
+/** Legacy pilot value report URL — permanently redirects to canonical sponsor report pilot outcomes. */
+export default function LegacyPilotValueReportRedirectPage(): never {
+  permanentRedirect(SPONSOR_REPORT_PILOT_OUTCOMES_PATH);
 }

@@ -58,6 +58,10 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/dashboard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   "/executive/scorecard": BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
   "/digests": "Digests",
+  "/sponsor-report/executive-summary": "Executive summary",
+  "/sponsor-report/pilot-outcomes": "Pilot outcomes",
+  "/sponsor-report/roi-summary": "ROI summary",
+  "/sponsor-report/architecture-scorecard": "Architecture scorecard",
   "/value-report/roi": "ROI summary",
   "/admin/demo-readiness": "Demo readiness",
 };

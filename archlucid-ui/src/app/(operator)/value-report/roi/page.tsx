@@ -1,8 +1,8 @@
-import { RoiSummaryPageClient } from "./_sections/RoiSummaryPageClient";
-import { loadRoiSummaryPageData } from "./_sections/load-roi-summary-page-data";
+import { permanentRedirect } from "next/navigation";
 
-export default async function RoiSummaryPage() {
-  const loaded = await loadRoiSummaryPageData();
+import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
 
-  return <RoiSummaryPageClient loaded={loaded} />;
+/** Legacy ROI summary URL — permanently redirects to canonical sponsor report ROI summary. */
+export default function LegacyRoiSummaryRedirectPage(): never {
+  permanentRedirect(SPONSOR_REPORT_ROI_SUMMARY_PATH);
 }

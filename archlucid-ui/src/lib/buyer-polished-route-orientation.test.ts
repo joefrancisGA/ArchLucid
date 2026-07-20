@@ -107,11 +107,18 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(legacy).toEqual(canonical);
   });
 
-  it("orients the sponsor value report route", () => {
-    const o = buyerPolishedRouteOrientation("/value-report");
+  it("orients the sponsor report executive summary route", () => {
+    const o = buyerPolishedRouteOrientation("/sponsor-report/executive-summary");
 
-    expect(o?.label).toBe("Value report");
+    expect(o?.label).toBe("Sponsor report");
     expect(o?.line).toContain("sponsor-ready summaries");
+  });
+
+  it("orients the sponsor report pilot outcomes route", () => {
+    const o = buyerPolishedRouteOrientation("/sponsor-report/pilot-outcomes");
+
+    expect(o?.label).toBe("Sponsor report");
+    expect(o?.line).toContain("Pilot outcomes");
   });
 
   it("orients bare /governance as the workspace overview", () => {
