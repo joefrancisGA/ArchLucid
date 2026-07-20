@@ -174,7 +174,7 @@ This is the **Core Pilot** path. **Operate (analysis workloads)** (compare runs,
 
 | You are a... | Read next |
 |---|---|
-| **Operator** running a real pilot | [docs/OPERATOR_QUICKSTART.md](../library/OPERATOR_QUICKSTART.md) (commands), [docs/CORE_PILOT.md](../CORE_PILOT.md) (walkthrough), [docs/PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) (how to measure success) |
+| **Operator** running a real pilot | [docs/library/customer-facing/OPERATOR_QUICKSTART.md](../library/customer-facing/OPERATOR_QUICKSTART.md) (commands), [docs/CORE_PILOT.md](../CORE_PILOT.md) (walkthrough), [docs/PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) (how to measure success) |
 | **Developer** about to commit code | [docs/onboarding/day-one-developer.md](../onboarding/day-one-developer.md) |
 | **SRE / platform** owner | [docs/onboarding/day-one-sre.md](../onboarding/day-one-sre.md) |
 | **Security / GRC** reviewer | [docs/onboarding/day-one-security.md](../onboarding/day-one-security.md) |
@@ -193,7 +193,7 @@ This is the **Core Pilot** path. **Operate (analysis workloads)** (compare runs,
 | `commit` returns 422 | The run does not yet have one result per required agent. Wait for the simulator agents to finish (look at the run's **Tasks** tab) and retry. |
 | You want to start over | Run the **Step 10** teardown command, then re-run **Step 2**. |
 
-Deeper guides: **[docs/TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** and **[docs/engineering/CONTAINERIZATION.md](CONTAINERIZATION.md)**.
+Deeper guides: **[docs/runbooks/TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md)** and **[docs/engineering/CONTAINERIZATION.md](CONTAINERIZATION.md)**.
 
 ---
 

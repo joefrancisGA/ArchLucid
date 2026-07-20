@@ -145,9 +145,9 @@ This is a boundary-hardening step for clarity and operational accountability. It
 | [Pilot ROI model](../docs/library/PILOT_ROI_MODEL.md) | **Measurement companion:** how to judge pilot success using scorecards and practical V1 measures without turning the ROI model into a second buyer story. |
 | [Operator decision guide](../docs/library/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
 | [Commercial boundary hardening sequence](../docs/library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) | **What should harden first:** UI shaping → role-native boundaries → selective future commercialization. |
-| [Operator quickstart](../docs/library/OPERATOR_QUICKSTART.md) | **Pilots / operators:** commands, health, first run. |
+| [Operator quickstart](../docs/library/customer-facing/OPERATOR_QUICKSTART.md) | **Pilots / operators:** commands, health, first run. |
 | [Product learning (58R)](../docs/library/PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export. |
-| [Troubleshooting (56R)](../docs/TROUBLESHOOTING.md) | Common failures (health, auth, SQL, proxy). |
+| [Troubleshooting (56R)](../docs/runbooks/TROUBLESHOOTING.md) | Common failures (health, auth, SQL, proxy). |
 | [Operator shell guide (55R)](../docs/library/operator-shell.md) | **Start here for operators.** Workflow, artifacts, graph vs compare/replay, UI test commands, API expectations. |
 | [Architecture](docs/ARCHITECTURE.md) | System context, components, data flow, security, operations. |
 | [Operator Shell Tutorial](docs/OPERATOR_SHELL_TUTORIAL.md) | React/Next.js tutorial for back-end developers. |

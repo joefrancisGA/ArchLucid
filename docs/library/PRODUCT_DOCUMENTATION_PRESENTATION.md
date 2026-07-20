@@ -107,7 +107,7 @@ Implement a small **documentation registry** (code + generated manifest) that ma
 **Banned customer-facing link targets:**
 
 - Compatibility stubs whose primary content is “Moved — …” or “redirect”
-- `docs/library/PILOT_GUIDE.md` (stub → resolve to [`customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md) and/or [`CORE_PILOT.md`](../CORE_PILOT.md) content in-app)
+- `docs/library/PILOT_GUIDE.md` → resolve to [`docs/library/customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md) and/or [`CORE_PILOT.md`](../CORE_PILOT.md) content in-app)
 
 ---
 

@@ -16,7 +16,7 @@ We will send an **initial acknowledgment within 48 hours** and aim to provide a 
 
 ## Product support (pilots)
 
-For **non-security** product questions during a **pilot or evaluation** (how-to, integration behavior, suspected product defects), email **support@archlucid.net**. Include **release or `GET /version` output**, **`X-Correlation-ID`** from failing API calls, and (if policy allows) a **support bundle** reference or attachment — see [`docs/library/PILOT_GUIDE.md`](docs/library/PILOT_GUIDE.md).
+For **non-security** product questions during a **pilot or evaluation** (how-to, integration behavior, suspected product defects), email **support@archlucid.net**. Include **release or `GET /version` output**, **`X-Correlation-ID`** from failing API calls, and (if policy allows) a **support bundle** reference or attachment — see [`docs/library/customer-facing/PILOT_GUIDE.md`](docs/library/customer-facing/PILOT_GUIDE.md).
 
 **Accessibility barriers (non-security):** for WCAG / usability barriers in the product or public marketing pages, email **accessibility@archlucid.net**. This alias routes to the **same operational custodian** as **security@archlucid.net** (decision **2026-04-22** — see [`docs/security/ACCESSIBILITY_MAILBOX.md`](docs/security/ACCESSIBILITY_MAILBOX.md)); triage distinguishes accessibility follow-up from coordinated security disclosure.
 

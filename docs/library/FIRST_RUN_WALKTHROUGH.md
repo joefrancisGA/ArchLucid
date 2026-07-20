@@ -23,7 +23,7 @@ Give operators a **linear checklist** for creating the first **architecture revi
 1. **Open the shell** — Sign in per your environment (Entra, API key, or DevelopmentBypass in local dev only).
 2. **Navigate to New review** — Use **`/reviews/new`** or the primary nav entry **New review** (Core Pilot home hints link here by default).
 3. **Pick a preset or template** — Choose the closest sample if you are evaluating; customize fields only where you have real system facts.
-4. **Complete each wizard step** — Advance only when required fields validate; note inline errors reference **`correlationId`** when the proxy surfaces API failures — see **[`TROUBLESHOOTING.md`](../TROUBLESHOOTING.md)**.
+4. **Complete each wizard step** — Advance only when required fields validate; note inline errors reference **`correlationId`** when the proxy surfaces API failures — see **[`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md)**.
 5. **Submit** — The wizard calls **`POST /v1/architecture/request`**; capture the returned **run id** (review session id; API and routes still use `run`) from the success path or list.
 6. **Execute and commit** — From **review detail**, drive **Execute** then **Commit** when the pipeline reports **Ready for commit** — see **[`operator-shell.md`](operator-shell.md)**.
 7. **Verify artifacts** — Confirm manifest + artifacts appear; use **Compare**/**Replay** only after you have two committed reviews or an export need — see **[`V1_SCOPE.md`](V1_SCOPE.md)**.

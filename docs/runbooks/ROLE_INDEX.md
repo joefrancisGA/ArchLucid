@@ -51,7 +51,7 @@ Use before operators open Phase B of the operator path.
 
 | Order | When | Go to | Script / command (if any) |
 |-------|------|-------|---------------------------|
-| 1 | Greenfield or new subscription | [`FIRST_AZURE_DEPLOYMENT.md`](../library/FIRST_AZURE_DEPLOYMENT.md) or [`DEPLOYMENT.md`](../library/DEPLOYMENT.md) | Terraform roots under `infra/` per [`DEPLOYMENT_TERRAFORM.md`](../library/DEPLOYMENT_TERRAFORM.md) |
+| 1 | Greenfield or new subscription | [`FIRST_AZURE_DEPLOYMENT.md`](../library/FIRST_AZURE_DEPLOYMENT.md) or [`DEPLOYMENT.md`](../engineering/DEPLOYMENT.md) | Terraform roots under `infra/` per [`DEPLOYMENT_TERRAFORM.md`](../library/DEPLOYMENT_TERRAFORM.md) |
 | 2 | Blockers before any pilot work | [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md) | `.\scripts\Test-ArchLucidPrerequisites.ps1 -Profile ProductionLike` |
 | 3 | Production-like hosted handoff | [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md) | `archlucid config lint --profile production-like-hosted-pilot` |
 | 4 | Keys, connection strings, auth mode | [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) | — |
@@ -66,7 +66,7 @@ Use before operators open Phase B of the operator path.
 | Terraform / APIM / private endpoint issues | [`INFRASTRUCTURE_OPS.md`](INFRASTRUCTURE_OPS.md) |
 | SQL HA / failover questions | [`DATABASE_FAILOVER.md`](DATABASE_FAILOVER.md) · [`RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md) |
 | Secret or cert rotation | [`SECRET_AND_CERT_ROTATION.md`](SECRET_AND_CERT_ROTATION.md) |
-| Health ready degraded | [`BUILD.md`](../library/BUILD.md) health model · [`TROUBLESHOOTING.md`](../TROUBLESHOOTING.md) |
+| Health ready degraded | [`BUILD.md`](../engineering/BUILD.md) health model · [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) |
 
 ---
 

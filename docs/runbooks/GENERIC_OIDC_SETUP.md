@@ -6,7 +6,7 @@
 
 Use this path when **`ArchLucidAuth:Mode=JwtBearer`** and the issuer is **not** Microsoft Entra — for example **Okta**, **Auth0**, **Keycloak**, or another OIDC provider that publishes **`/.well-known/openid-configuration`** and JWKS.
 
-IdP-specific screenshots and expressions live in **[SSO — Okta](../integrations/SSO_OKTA_CONFIGURATION.md)** and **[SSO — Auth0](../integrations/SSO_AUTH0_CONFIGURATION.md)**; this runbook is the **cross-vendor** sequence and troubleshooting layer.
+IdP-specific screenshots and expressions live in **[IDP_PROVISIONING.md](../integrations/IDP_PROVISIONING.md)** (Okta and Auth0); this runbook is the **cross-vendor** sequence and troubleshooting layer.
 
 **Self-service checks (no secrets):** `GET /v1/admin/auth/configuration-diagnostics` (AdminAuthority) or `archlucid auth diagnostics` with `ARCHLUCID_API_KEY` — surfaces authority/audience, discovery reachability, SAML entity id, tenant claim-mapping hints.
 
@@ -71,11 +71,11 @@ Duplicate **`roles`** entries **or** a single claim whose value is a JSON array 
 
 **Okta**
 
-Map groups or expressions into an **`roles`** claim on the **access token**. Example pattern (groups → role strings): see **[SSO — Okta §2.3](../integrations/SSO_OKTA_CONFIGURATION.md)**.
+Map groups or expressions into an **`roles`** claim on the **access token**. Example pattern (groups → role strings): see **[IDP_PROVISIONING.md §3.3](../integrations/IDP_PROVISIONING.md#33-add-a-custom-roles-claim)**.
 
 **Auth0**
 
-Use an Action to **`api.accessToken.setCustomClaim('roles', assignedRoles)`** with role names **`Admin`**, **`Operator`**, **`Reader`**, **`Auditor`**. See **[SSO — Auth0 §2.3](../integrations/SSO_AUTH0_CONFIGURATION.md)**.
+Use an Action to **`api.accessToken.setCustomClaim('roles', assignedRoles)`** with role names **`Admin`**, **`Operator`**, **`Reader`**, **`Auditor`**. See **[IDP_PROVISIONING.md §2.3](../integrations/IDP_PROVISIONING.md#23-add-a-custom-roles-claim-via-auth0-actions)**.
 
 ### Microsoft Entra ID (OIDC / JWT bearer)
 

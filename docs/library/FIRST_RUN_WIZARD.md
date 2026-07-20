@@ -175,7 +175,7 @@ Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**
 
 | Symptom | What to check |
 |---------|----------------|
-| **Cannot create run / network error** | UI uses **`/api/proxy`** to reach the API. Verify API base URL, API key (server env), and JWT if enabled — see `archlucid-ui` docs and **`docs/TROUBLESHOOTING.md`**. |
+| **Cannot create run / network error** | UI uses **`/api/proxy`** to reach the API. Verify API base URL, API key (server env), and JWT if enabled — see `archlucid-ui` docs and **`docs/runbooks/TROUBLESHOOTING.md`**. |
 | **Run id returned but Step 7 stays all Pending** | API may be down for authority workers, or scope headers point at the wrong project. Confirm **`GET .../runs/{id}/summary`** outside the UI. |
 | **Stuck in “Created” / no snapshots** | Run lifecycle nuances: **CANONICAL_PIPELINE.md**. Check host logs for `AuthorityPipelineStagesExecutor` / stage failures. |
 | **Timeout (~2 min) with no golden manifest** | Pipeline may still be running; open **run detail** and refresh later. If permanently stuck, inspect SQL run row, worker health, and **OPERATIONS** runbooks. |

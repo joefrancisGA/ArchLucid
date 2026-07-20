@@ -2,6 +2,8 @@
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
+> **Reviewed:** 2026-07-20 — current, actively referenced, no changes needed.
+
 # Pilot evidence — buyer-safe capture template
 
 **Audience:** Pilot leads filling **Pilot A / B / …** rows in [PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md) and sponsor packs in [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) / [PROOF_OF_VALUE_SNAPSHOT.md](../library/PROOF_OF_VALUE_SNAPSHOT.md).

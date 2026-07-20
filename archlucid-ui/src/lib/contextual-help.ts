@@ -5,7 +5,7 @@ import { getDocHref } from "@/lib/help-topics";
  * Keys follow primary route segments (`/runs` is the conceptual list; the UI path is `/reviews`).
  */
 const PAGE_KEY_TO_DOC_REF: Readonly<Record<string, string>> = {
-  "/runs": "docs/library/OPERATOR_QUICKSTART.md#operator-ui",
+  "/runs": "docs/library/customer-facing/OPERATOR_QUICKSTART.md#operator-ui",
   "/runs/[id]": "docs/library/operator-shell.md#main-workflow",
   "/compare": "docs/library/COMPARISON_REPLAY.md",
   "/governance": "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",

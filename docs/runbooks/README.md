@@ -9,6 +9,8 @@
 
 Operational guides for ArchLucid operators. Each runbook is self-contained; cross-links point to deeper design docs where useful.
 
+**Former doc paths:** [`../redirects.md`](../redirects.md) — canonical map when a bookmark or link 404s after the documentation audit (no redirect stub files in-tree).
+
 **Persona entry (first pilot / release):** [`ROLE_INDEX.md`](./ROLE_INDEX.md) — maps operator, platform engineer, and release owner paths without duplicating procedures.
 
 **Availability policy:** [RTO / RPO targets by tier](../library/RTO_RPO_TARGETS.md) — development vs staging vs production (SQL geo-replication, RPO/RTO examples).
@@ -43,11 +45,11 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [DATA_CONSISTENCY_ENFORCEMENT.md](./DATA_CONSISTENCY_ENFORCEMENT.md) | Orphan probe **Warn / Alert / Quarantine** modes, Prometheus counters, quarantine (**insert-only** staging). |
 | **P2** | [DATA_ARCHIVAL_HEALTH.md](./DATA_ARCHIVAL_HEALTH.md) | `data_archival` health degraded or archival host errors. |
 | **P2** | [PROVENANCE_INDEXING.md](./PROVENANCE_INDEXING.md) | Provenance indexing lag or failures. |
-| **P2** | [AUTHORITY_PIPELINE_OBSERVABILITY.md](./AUTHORITY_PIPELINE_OBSERVABILITY.md) | Grafana / Prometheus: authority outbox backlog, stale rows, data-consistency counters vs alerts; scale and SQL triage. |
+| **P2** | [../library/OBSERVABILITY.md](../library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) | Grafana / Prometheus: authority outbox backlog, stale rows, data-consistency counters vs alerts; scale and SQL triage. |
 | **P2** | [../library/SCALE_THRESHOLD_RUNBOOK.md](../library/SCALE_THRESHOLD_RUNBOOK.md) | When to enable Redis, read replicas, worker split, outbox scaling, and query p95 triage for hosted SaaS. |
 | **P2** | [BILLING_WEBHOOK_REPLAY_GUARD.md](./BILLING_WEBHOOK_REPLAY_GUARD.md) | Stripe/Marketplace webhook replay vs signature verification, SQL ledger investigation, safe resend. |
 | **P2** | [INTEGRATION_EVENT_DLQ_RETRY_POLICY.md](./INTEGRATION_EVENT_DLQ_RETRY_POLICY.md) | Outbox dead-letter auto-retry cadence, permanent failure, manual retry/suppress. |
-| **P2** | [GRAFANA_DASHBOARD_BINDING_GUIDE.md](./GRAFANA_DASHBOARD_BINDING_GUIDE.md) | Import/provision Grafana JSON; datasource UIDs; RAG per-tenant tag cardinality. |
+| **P2** | [OBSERVABILITY_DASHBOARD_BINDING.md](./OBSERVABILITY_DASHBOARD_BINDING.md) | Import/provision Grafana JSON; datasource UIDs; RAG per-tenant tag cardinality. |
 | **P2** | [SLO_PROMETHEUS_GRAFANA.md](./SLO_PROMETHEUS_GRAFANA.md) | Metrics, SLOs, Grafana panels. |
 | **P2** | [INFRASTRUCTURE_OPS.md](./INFRASTRUCTURE_OPS.md) | Terraform stacks (APIM, Front Door, Entra, private endpoints): validate, roll out, triage. |
 | **P2** | [MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md](./MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) | Roll Marketplace `ChangePlan` / `ChangeQuantity` back to `AcknowledgedNoOp` (flip `Billing:AzureMarketplace:GaEnabled=false`); the supported escape hatch for the 2026-04-20 GA flip. |

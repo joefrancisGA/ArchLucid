@@ -32,7 +32,7 @@ The script waits up to **120 seconds** for `http://localhost:5000/health/ready`,
 
 **Ports used:** 1433 (SQL), 3000 (UI), 5000 (API), 10000–10002 (Azurite), 6379 (Redis). Free these before starting if something else is bound.
 
-**API port note:** This Docker **full-stack** profile exposes the API on **5000** (see health URL above). When you run **`ArchLucid.Api`** directly from the repo (e.g. [`OPERATOR_QUICKSTART.md`](../library/OPERATOR_QUICKSTART.md)), the default local port is often **5128** — same product, different host binding; do not assume one URL works for both without checking your `launchSettings` / compose maps.
+**API port note:** This Docker **full-stack** profile exposes the API on **5000** (see health URL above). When you run **`ArchLucid.Api`** directly from the repo (e.g. [`OPERATOR_QUICKSTART.md`](../library/customer-facing/OPERATOR_QUICKSTART.md)), the default local port is often **5128** — same product, different host binding; do not assume one URL works for both without checking your `launchSettings` / compose maps.
 
 ---
 
@@ -82,7 +82,7 @@ This runs `docker compose ... down -v` and removes named volumes (including Azur
 
 ## Next steps
 
-- **Production-style pilot:** [Pilot Guide](../library/PILOT_GUIDE.md)
+- **Production-style pilot:** [Pilot Guide](../library/customer-facing/PILOT_GUIDE.md)
 - **Business case:** [ROI_MODEL.md](ROI_MODEL.md) and [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)
 - **Developer / detailed demo seed:** [demo-quickstart.md](../archive/onboarding/demo-quickstart.md)
 - **Hosted GA workspaces (anchors + Smoke):** [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md)
@@ -93,5 +93,5 @@ This runs `docker compose ... down -v` and removes named volumes (including Azur
 
 | Doc | Use |
 |-----|-----|
-| [CONTAINERIZATION.md](../library/CONTAINERIZATION.md) | All Docker workflows including demo overlay |
+| [CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md) | All Docker workflows including demo overlay |
 | [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) | Technical demo seed and HTTP verification |

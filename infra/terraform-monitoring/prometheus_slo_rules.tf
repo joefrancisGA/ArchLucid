@@ -12,7 +12,7 @@ locals {
 
   prometheus_slo_rule_group_enabled = local.prometheus_workspace_requested
 
-  archlucid_authority_observability_runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md"
+  archlucid_authority_observability_runbook_url = "https://github.com/ArchLucid/ArchLucid/blob/main/docs/library/OBSERVABILITY.md#authority-pipeline-remediation-runbook"
 }
 
 data "azurerm_resource_group" "prometheus_slo" {
@@ -97,7 +97,7 @@ EOT
 archlucid_integration_event_outbox_dead_letter > 0
 EOT
     annotations = {
-      summary = "Integration event outbox dead-letter queue is non-zero. See docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md."
+      summary = "Integration event outbox dead-letter queue is non-zero. See docs/library/OBSERVABILITY.md (Authority pipeline remediation runbook)."
     }
 
     action {

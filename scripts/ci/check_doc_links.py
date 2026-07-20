@@ -27,7 +27,7 @@ ALLOWED_ONBOARDING_QUICKSTART_DOCS = frozenset(
     {
         "docs/go-to-market/DEMO_QUICKSTART.md",
         "docs/integrations/SCIM_PROVISIONING_QUICKSTART.md",
-        "docs/library/OPERATOR_QUICKSTART.md",
+        "docs/library/customer-facing/OPERATOR_QUICKSTART.md",
         "docs/library/customer-facing/OPERATOR_QUICKSTART.md",
         "docs/archive/onboarding/demo-quickstart.md",
     }

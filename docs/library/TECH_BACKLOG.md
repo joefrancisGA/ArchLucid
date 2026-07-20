@@ -9912,7 +9912,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - Example paths are validated against the canonical OpenAPI or existing starter-contract guard.
 - Copy does not promise V1 first-party ITSM/chat/docs connectors.
 
-**Likely files:** `docs/go-to-market/INTEGRATION_CATALOG.md`, `docs/library/OPERATOR_QUICKSTART.md`, `docs/library/API_CONTRACTS.md`, `scripts/ci/data/v1_integration_starter_contracts.v1.json`.
+**Likely files:** `docs/go-to-market/INTEGRATION_CATALOG.md`, `docs/library/customer-facing/OPERATOR_QUICKSTART.md`, `docs/library/API_CONTRACTS.md`, `scripts/ci/data/v1_integration_starter_contracts.v1.json`.
 
 **Refs:** `V1_SCOPE.md` ?2.8 / ?2.13??2.15, `API_CONTRACTS.md`.
 

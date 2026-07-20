@@ -325,7 +325,7 @@ variable "worker_authority_outbox_prom_query" {
 
 variable "worker_authority_outbox_prom_pending_scale_threshold" {
   type        = number
-  description = "KEDA prometheus rule: scale-out threshold against the query result (pending rows per effective replica target; aligned with ops guidance in docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md)."
+  description = "KEDA prometheus rule: scale-out threshold against the query result (pending rows per effective replica target; aligned with ops guidance in docs/library/OBSERVABILITY.md — Authority pipeline remediation runbook)."
   default     = 50
 
   validation {

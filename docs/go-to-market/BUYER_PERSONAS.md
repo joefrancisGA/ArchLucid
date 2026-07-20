@@ -262,6 +262,6 @@ flowchart TD
 |-----|-----|
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor-by-competitor analysis |
 | [POSITIONING.md](POSITIONING.md) | Positioning statement and elevator pitches |
-| [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) | Technical pilot onboarding |
+| [../PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md) | Technical pilot onboarding |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Security posture for enterprise buyers |
 | [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md) | Full marketability quality assessment |

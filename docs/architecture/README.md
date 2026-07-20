@@ -33,7 +33,7 @@ Rel(archlucid, sb, "AMQP", "Publish integration events (when enabled)")
 | Automation | External repos / runners | [API_CONTRACTS.md](../library/API_CONTRACTS.md) | Consumer-owned |
 | ArchLucid platform | `ArchLucid.Api`, `ArchLucid.Application`, `ArchLucid.Worker` | [ARCHITECTURE_CONTAINERS.md](../library/ARCHITECTURE_CONTAINERS.md) | `ArchLucid.Api.Tests`, release smoke |
 | SQL Server | `ArchLucid.Persistence` + migrations | [DATA_MODEL.md](../library/DATA_MODEL.md) | SQL integration suites |
-| Azure OpenAI | `ArchLucid.Api` agent execution mode | [BUILD.md](../library/BUILD.md) | Simulator-first unit tests |
+| Azure OpenAI | `ArchLucid.Api` agent execution mode | [BUILD.md](../engineering/BUILD.md) | Simulator-first unit tests |
 | Service Bus | `ArchLucid.Worker` publishers | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) | Worker + contract tests |
 
 ---
@@ -99,7 +99,7 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 - **HTTP contracts** — `../library/API_CONTRACTS.md`
 
 ### Build, CLI, and operations
-- **Build and run** — `../library/BUILD.md`
+- **Build and run** — `../engineering/BUILD.md`
 - **CLI usage** — `../library/CLI_USAGE.md`
 
 ### Contributing and process
