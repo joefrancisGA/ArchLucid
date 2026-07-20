@@ -133,7 +133,7 @@ public sealed class ArchitectureQuickScanController(
                 validated,
                 options.MaxFindingsReturned);
 
-            AgentCompletionTokenUsage.TryPeek(out int? inputTokens, out int? outputTokens, out int? _);
+            LlmCompletionTokenUsageAmbient.TryPeek(out int? inputTokens, out int? outputTokens, out int? _);
             decimal estimatedCost = costEstimator.EstimateUsd(inputTokens ?? 0, outputTokens ?? 0, 0, deploymentLabel: null) ?? 0m;
             TimeSpan duration = timeProvider.GetUtcNow() - started;
 
