@@ -21,7 +21,7 @@ public interface IQuickScanTelemetry
 
     void RecordFailure(QuickScanGuardContext context, string failureCategory, TimeSpan duration);
 
-    void RecordSampleView(QuickScanGuardContext context);
+    void RecordSampleView(QuickScanGuardContext context, string capacityState);
 
     void RecordConcurrencyQueued(QuickScanGuardContext context);
 
@@ -72,8 +72,14 @@ public sealed class QuickScanTelemetry(ILogger<QuickScanTelemetry> logger) : IQu
                 ["durationMs"] = (int)duration.TotalMilliseconds,
             });
 
-    public void RecordSampleView(QuickScanGuardContext context) =>
-        Log("sample_view", context, new Dictionary<string, object?>());
+    public void RecordSampleView(QuickScanGuardContext context, string capacityState) =>
+        Log(
+            "sample_view",
+            context,
+            new Dictionary<string, object?>
+            {
+                ["capacityState"] = string.IsNullOrWhiteSpace(capacityState) ? "unknown" : capacityState,
+            });
 
     public void RecordConcurrencyQueued(QuickScanGuardContext context) =>
         Log("concurrency_queued", context, new Dictionary<string, object?>());

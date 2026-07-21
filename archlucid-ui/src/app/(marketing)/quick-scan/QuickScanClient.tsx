@@ -4,9 +4,17 @@ import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useState, type ReactElement } from "react";
 
 import { findingSeverityLabel } from "@/lib/finding-severity-label";
+import {
+  isQuickScanAiSubmitAllowed,
+  resolveQuickScanCapacityMessage,
+  shouldOfferQuickScanSample,
+} from "@/lib/quick-scan/quick-scan-capacity-state";
 import { QUICK_SCAN_RECEIVE_ITEMS } from "@/lib/quick-scan/quick-scan-constants";
 import { QUICK_SCAN_EXAMPLE_FORM } from "@/lib/quick-scan/quick-scan-example";
-import { QUICK_SCAN_SAMPLE_RESULT } from "@/lib/quick-scan/quick-scan-sample-result";
+import {
+  trackQuickScanConversionClick,
+  trackQuickScanSampleViewed,
+} from "@/lib/quick-scan/quick-scan-telemetry";
 import type { QuickScanResponse, QuickScanStatusResponse } from "@/lib/quick-scan/quick-scan-types";
 import {
   buildQuickScanRequestBody,
@@ -73,14 +81,49 @@ export function QuickScanClient(): ReactElement {
 
   const fieldErrors = useMemo(() => validateQuickScanForm(formValues), [formValues]);
   const incompleteReason = useMemo(() => quickScanIncompleteReason(fieldErrors), [fieldErrors]);
-  const canSubmit =
-    incompleteReason === null
-    && !submitting
-    && (status?.capacityAvailable ?? true)
-    && (status?.enabled ?? true)
-    && status?.operationalMode !== "EmergencyDisabled"
-    && status?.operationalMode !== "SampleOnly"
-    && status?.operationalMode !== "Disabled";
+  const canSubmit = incompleteReason === null && !submitting && isQuickScanAiSubmitAllowed(status);
+  const aiSubmitBlocked = incompleteReason === null && !submitting && !isQuickScanAiSubmitAllowed(status);
+  const capacityState = status?.capacityState ?? "unknown";
+  const submitBlockedMessage =
+    capacityMessage ?? resolveQuickScanCapacityMessage(status) ?? "Quick Scan is not accepting new AI analyses right now.";
+
+  const loadSampleResult = useCallback(async (sourceState: string) => {
+    const response = await fetch(
+      `/api/proxy/v1/marketing/quick-scan/sample?sourceState=${encodeURIComponent(sourceState)}`,
+      {
+        credentials: "include",
+        cache: "no-store",
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Quick Scan sample could not be loaded.");
+    }
+
+    return (await response.json()) as QuickScanResponse;
+  }, []);
+
+  const showSampleResult = useCallback(
+    (sourceState: string) => {
+      void (async () => {
+        try {
+          const sample = await loadSampleResult(sourceState);
+          setResult(sample);
+          setError(null);
+          setStatusMessage("Showing a labeled sample Quick Scan result.");
+          trackQuickScanSampleViewed(sourceState);
+        } catch (sampleError: unknown) {
+          const message =
+            sampleError instanceof Error && sampleError.message.trim().length > 0
+              ? sampleError.message
+              : "Quick Scan sample could not be loaded.";
+
+          setError(message);
+        }
+      })();
+    },
+    [loadSampleResult],
+  );
 
   useEffect(() => {
     void (async () => {
@@ -97,24 +140,20 @@ export function QuickScanClient(): ReactElement {
         const body = (await response.json()) as QuickScanStatusResponse;
         setStatus(body);
 
-        if (!body.capacityAvailable || !body.enabled) {
-          setCapacityMessage(
-            body.publicMessage?.trim().length
-              ? body.publicMessage
-              : "Quick Scan has reached its demonstration capacity for today.",
-          );
-        } else if (body.operationalMode === "SampleOnly" || body.operationalMode === "EmergencyDisabled") {
-          setCapacityMessage(
-            body.publicMessage?.trim().length
-              ? body.publicMessage
-              : "Quick Scan is in sample-only mode. View the illustrative sample below.",
-          );
+        const message = resolveQuickScanCapacityMessage(body);
+
+        if (message !== null) {
+          setCapacityMessage(message);
+        }
+
+        if (body.capacityState === "SampleOnly" && body.sampleResultAvailable) {
+          showSampleResult("SampleOnly");
         }
       } catch {
         /* ignore — form still works with server-side enforcement */
       }
     })();
-  }, []);
+  }, [showSampleResult]);
 
   const loadExample = useCallback(() => {
     setFormValues({ ...QUICK_SCAN_EXAMPLE_FORM });
@@ -122,18 +161,17 @@ export function QuickScanClient(): ReactElement {
     setStatusMessage("Example loaded. Review the fields, then choose Analyze architecture when ready.");
   }, []);
 
-  const showSampleResult = useCallback(() => {
-    setResult(QUICK_SCAN_SAMPLE_RESULT);
-    setError(null);
-    setCapacityMessage(null);
-    setStatusMessage("Showing a sample Quick Scan result.");
-  }, []);
-
   const onSubmit = useCallback(async () => {
     const errors = validateQuickScanForm(formValues);
 
     if (quickScanIncompleteReason(errors) !== null) {
       setError(quickScanIncompleteReason(errors));
+      return;
+    }
+
+    if (!isQuickScanAiSubmitAllowed(status)) {
+      setCapacityMessage(resolveQuickScanCapacityMessage(status));
+      setError("Quick Scan is not accepting new AI analyses right now.");
       return;
     }
 
@@ -158,8 +196,8 @@ export function QuickScanClient(): ReactElement {
 
       const text = await response.text();
 
-      if (response.status === 503) {
-        setCapacityMessage("Quick Scan has reached its demonstration capacity for today.");
+      if (response.status === 503 || response.status === 429) {
+        setCapacityMessage(resolveQuickScanCapacityMessage(status) ?? "Quick Scan is temporarily unavailable.");
         throw new Error("Quick Scan is temporarily unavailable.");
       }
 
@@ -185,7 +223,14 @@ export function QuickScanClient(): ReactElement {
     } finally {
       setSubmitting(false);
     }
-  }, [formValues]);
+  }, [formValues, status]);
+
+  const onConversionClick = useCallback(
+    (action: "sign-in" | "demo" | "workspace") => {
+      trackQuickScanConversionClick(action, capacityState);
+    },
+    [capacityState],
+  );
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-12">
@@ -255,22 +300,37 @@ export function QuickScanClient(): ReactElement {
                 {incompleteReason}
               </p>
             ) : null}
+            {aiSubmitBlocked ? (
+              <p className="text-sm text-amber-900 dark:text-amber-100" role="status" data-testid="quick-scan-submit-blocked">
+                {submitBlockedMessage}
+              </p>
+            ) : null}
           </div>
 
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Prefer to explore a prebuilt sample without running an AI analysis?{" "}
-            <button
-              type="button"
-              onClick={showSampleResult}
-              className="font-medium text-sky-700 underline dark:text-sky-400"
-            >
-              View the interactive sample
-            </button>
-            {" · "}
-            <Link href="/get-started" className="font-medium text-sky-700 underline dark:text-sky-400">
-              Start a guided demo
-            </Link>
-          </p>
+          {shouldOfferQuickScanSample(status) ? (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              Prefer to explore a prebuilt sample without running an AI analysis?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  showSampleResult(capacityState);
+                }}
+                className="font-medium text-sky-700 underline dark:text-sky-400"
+              >
+                View the interactive sample
+              </button>
+              {" · "}
+              <Link
+                href="/get-started"
+                className="font-medium text-sky-700 underline dark:text-sky-400"
+                onClick={() => {
+                  onConversionClick("demo");
+                }}
+              >
+                Start a guided demo
+              </Link>
+            </p>
+          ) : null}
 
           <div id={statusRegionId} role="status" aria-live="polite" className="sr-only">
             {statusMessage}
@@ -279,17 +339,37 @@ export function QuickScanClient(): ReactElement {
           {capacityMessage !== null ? (
             <div className="rounded-md border border-amber-500/40 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100">
               <p>{capacityMessage}</p>
-              <div className="mt-3 flex flex-wrap gap-3">
-                <button type="button" onClick={showSampleResult} className="font-medium underline">
-                  View a sample result
-                </button>
-                <Link href="/auth/signin" className="font-medium underline">
-                  Sign in
-                </Link>
-                <Link href="/contact" className="font-medium underline">
-                  Request a demonstration
-                </Link>
-              </div>
+              {shouldOfferQuickScanSample(status) ? (
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      showSampleResult(capacityState);
+                    }}
+                    className="font-medium underline"
+                  >
+                    View a sample result
+                  </button>
+                  <Link
+                    href="/auth/signin"
+                    className="font-medium underline"
+                    onClick={() => {
+                      onConversionClick("sign-in");
+                    }}
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="font-medium underline"
+                    onClick={() => {
+                      onConversionClick("demo");
+                    }}
+                  >
+                    Request a demonstration
+                  </Link>
+                </div>
+              ) : null}
             </div>
           ) : null}
 
@@ -331,6 +411,11 @@ export function QuickScanClient(): ReactElement {
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               {result.systemName} · {environmentLabel(result.primaryEnvironment)}
             </p>
+            {result.isSampleResult ? (
+              <p className="rounded-md border border-amber-500/40 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100">
+                Illustrative sample only — this is not an analysis of your submission.
+              </p>
+            ) : null}
             {result.demonstrationDisclaimer ? (
               <p className="rounded-md bg-neutral-100 px-3 py-2 text-sm text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
                 {result.demonstrationDisclaimer}
@@ -388,16 +473,28 @@ export function QuickScanClient(): ReactElement {
             <Link
               href="/reviews/new"
               className="rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 dark:bg-sky-500"
+              onClick={() => {
+                onConversionClick("workspace");
+              }}
             >
               Start a full review
             </Link>
             <Link
               href="/get-started"
               className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100"
+              onClick={() => {
+                onConversionClick("workspace");
+              }}
             >
               Create a workspace review
             </Link>
-            <Link href="/contact" className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100">
+            <Link
+              href="/contact"
+              className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100"
+              onClick={() => {
+                onConversionClick("demo");
+              }}
+            >
               Request a demo
             </Link>
           </div>

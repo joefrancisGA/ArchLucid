@@ -16,4 +16,10 @@ public sealed class QuickScanStatusResponse
 
     /// <summary>Operator-facing public capacity message when AI is unavailable.</summary>
     public string? PublicMessage { get; init; }
+
+    /// <summary>Plain-language capacity state for marketing UX (TB-900).</summary>
+    public string? CapacityState { get; init; }
+
+    /// <summary>Visitor-facing explanation for <see cref="CapacityState" />.</summary>
+    public string? CapacityStateMessage { get; init; }
 }

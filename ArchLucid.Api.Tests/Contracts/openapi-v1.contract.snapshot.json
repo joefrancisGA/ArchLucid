@@ -19612,6 +19612,18 @@
           "capacityAvailable": {
             "type": "boolean"
           },
+          "capacityState": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "capacityStateMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "enabled": {
             "type": "boolean"
           },
@@ -57048,14 +57060,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "systemName",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "primaryEnvironment",
+            "name": "sourceState",
             "schema": {
               "type": "string"
             }
@@ -106969,14 +106974,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "systemName",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "primaryEnvironment",
+            "name": "sourceState",
             "schema": {
               "type": "string"
             }

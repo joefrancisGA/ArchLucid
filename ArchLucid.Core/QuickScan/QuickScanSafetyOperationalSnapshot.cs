@@ -24,4 +24,20 @@ public sealed class QuickScanSafetyOperationalSnapshot
             PublicMessage = message,
             StoreHealthy = false,
         };
+
+    public static QuickScanSafetyOperationalSnapshot NormalExecution(QuickScanSafetyOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        QuickScanSafetyEffectiveFeatureState effective = options.ResolveEffectiveFeatureState();
+
+        return new QuickScanSafetyOperationalSnapshot
+        {
+            Mode = QuickScanSafetyOperationalMode.Normal,
+            AnonymousExecutionAllowed = effective.Enabled && effective.AnonymousExecutionEnabled,
+            SampleResultAvailable = effective.SampleFallbackEnabled,
+            PublicMessage = string.Empty,
+            StoreHealthy = true,
+        };
+    }
 }

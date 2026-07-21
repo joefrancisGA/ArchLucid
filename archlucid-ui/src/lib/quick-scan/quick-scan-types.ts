@@ -24,4 +24,6 @@ export type QuickScanStatusResponse = Readonly<{
   sampleResultAvailable: boolean;
   operationalMode?: string;
   publicMessage?: string | null;
+  capacityState?: string;
+  capacityStateMessage?: string;
 }>;

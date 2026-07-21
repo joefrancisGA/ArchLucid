@@ -19612,6 +19612,18 @@
           "capacityAvailable": {
             "type": "boolean"
           },
+          "capacityState": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "capacityStateMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "enabled": {
             "type": "boolean"
           },
