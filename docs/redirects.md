@@ -80,6 +80,12 @@ Human readers and agents should follow **canonical** paths below. This file is t
 
 ---
 
+## 2026-07-21 commerce doc consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md` | [`docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publisher-identity--partner-center-placeholders) | Partner Center MPN / offer IDs, legal entity, landing page |
+
 ## Renamed (not deleted)
 
 | Former path | Canonical path | Notes |
