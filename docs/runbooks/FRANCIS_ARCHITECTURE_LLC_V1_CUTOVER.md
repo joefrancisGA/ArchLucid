@@ -67,7 +67,7 @@ Produce a single checklist of every surface tied to **personal** or **sole propr
 
 ### 5.5 Azure Marketplace
 
-- Execute Partner Center steps in [`MARKETPLACE_PUBLISHER_IDENTITY.md`](MARKETPLACE_PUBLISHER_IDENTITY.md): **tax profile**, **payout bank**, **legal seller identity** aligned to the LLC when Microsoft policy allows (new publisher vs profile change — follow current Partner Center guidance).
+- Execute Partner Center steps in [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publisher-identity--partner-center-placeholders): **tax profile**, **payout bank**, **legal seller identity** aligned to the LLC when Microsoft policy allows (new publisher vs profile change — follow current Partner Center guidance).
 - Keep listing **display name** **`ArchLucid`** unless marketing explicitly changes it; **legal/tax** may read **Francis Architecture, LLC** after cutover.
 
 ### 5.6 Docs and Trust Center (repo pass)
@@ -120,7 +120,7 @@ Cutover is **done** when: (a) counsel confirms customer-facing vendor entity is 
 
 ## Related
 
-- [`MARKETPLACE_PUBLISHER_IDENTITY.md`](MARKETPLACE_PUBLISHER_IDENTITY.md)
+- [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publisher-identity--partner-center-placeholders)
 - [`STRIPE_WEBHOOK_INCIDENT.md`](STRIPE_WEBHOOK_INCIDENT.md)
 - [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#operator-completion-checklist)
 - [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](../go-to-market/MARKETPLACE_PUBLICATION.md)
