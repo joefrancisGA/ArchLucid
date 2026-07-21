@@ -51,6 +51,7 @@ public class ApiKeyAuthenticationHandler(
 
         // Previously, Enabled=false authenticated every request as a synthetic admin-equivalent principal. That meant
         // any host misconfigured with ArchLucidAuth:Mode=ApiKey but keys "off" silently granted full access to anonymous callers.
+
         if (!enabled)
         {
             if (!developmentBypassAll)

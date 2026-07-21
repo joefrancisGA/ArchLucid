@@ -113,6 +113,7 @@ public sealed class SelfServiceTrialAbusePolicy(
         }
 
         // Callers should pass IdentityEmailNormalizer output; re-normalize so mixed-case slips still key Ordinal lookups.
+
         if (!IdentityEmailNormalizer.TryNormalize(normalizedEmail, out string emailKey, out _))
         {
             return;

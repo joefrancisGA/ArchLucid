@@ -112,6 +112,8 @@
     <PackageVersion Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.18.0" />
     <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.18.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
+    <!-- ITfoxtec SAML and other deps pull System.Security.Cryptography.Xml transitively (GHSA-* DoS advisories <=10.0.5). -->
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.6" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.5" />
     <PackageVersion Include="Tomlyn" Version="0.19.0" />
     <PackageVersion Include="YamlDotNet" Version="16.3.0" />
