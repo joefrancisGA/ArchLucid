@@ -120,9 +120,7 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
         List<InfrastructureDeclarationRequest> declarations,
         int resourceCount)
     {
-        bool usesAzure = declarations.Any(d =>
-            d.Content.Contains("azurerm_", StringComparison.OrdinalIgnoreCase)
-            || d.Content.Contains("azure", StringComparison.OrdinalIgnoreCase));
+        CloudProvider cloudProvider = ResolveCloudProviderFromDeclarations(declarations);
 
         return new ArchitectureRequest
         {
@@ -130,11 +128,121 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
             Description = description,
             SystemName = systemName,
             Environment = "prod",
-            CloudProvider = usesAzure ? CloudProvider.Azure : CloudProvider.None,
+            CloudProvider = cloudProvider,
             Constraints = [$"Imported {resourceCount} Terraform resources via inbound connector."],
             TopologyHints = ["Review imported Terraform topology against target non-functional requirements."],
             InfrastructureDeclarations = declarations,
         };
+    }
+
+    private static CloudProvider ResolveCloudProviderFromDeclarations(
+        IEnumerable<InfrastructureDeclarationRequest> declarations)
+    {
+        bool hasAzure = false;
+        bool hasAws = false;
+        bool hasGcp = false;
+
+        foreach (InfrastructureDeclarationRequest declaration in declarations)
+            InferCloudFamiliesFromDeclaration(declaration, ref hasAzure, ref hasAws, ref hasGcp);
+
+        if (hasAws && !hasAzure && !hasGcp)
+            return CloudProvider.Aws;
+
+        if (hasGcp && !hasAzure && !hasAws)
+            return CloudProvider.Gcp;
+
+        if (hasAzure && !hasAws && !hasGcp)
+            return CloudProvider.Azure;
+
+        return CloudProvider.None;
+    }
+
+    private static void InferCloudFamiliesFromDeclaration(
+        InfrastructureDeclarationRequest declaration,
+        ref bool hasAzure,
+        ref bool hasAws,
+        ref bool hasGcp)
+    {
+        if (string.Equals(declaration.Format, "terraform-show-json", StringComparison.OrdinalIgnoreCase))
+        {
+            InferCloudFamiliesFromTerraformShowJson(declaration.Content, ref hasAzure, ref hasAws, ref hasGcp);
+
+            return;
+        }
+
+        if (!string.Equals(declaration.Format, "simple-terraform", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        foreach (Match match in ResourceRegex.Matches(declaration.Content))
+            ApplyTerraformTypeFamily(match.Groups["type"].Value, ref hasAzure, ref hasAws, ref hasGcp);
+    }
+
+    private static void InferCloudFamiliesFromTerraformShowJson(
+        string json,
+        ref bool hasAzure,
+        ref bool hasAws,
+        ref bool hasGcp)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+
+            if (!document.RootElement.TryGetProperty("values", out JsonElement values))
+                return;
+
+            if (values.TryGetProperty("root_module", out JsonElement rootModule))
+                CollectTerraformTypeFamiliesFromModule(rootModule, ref hasAzure, ref hasAws, ref hasGcp);
+        }
+        catch (JsonException)
+        {
+            return;
+        }
+    }
+
+    private static void CollectTerraformTypeFamiliesFromModule(
+        JsonElement module,
+        ref bool hasAzure,
+        ref bool hasAws,
+        ref bool hasGcp)
+    {
+        if (module.ValueKind != JsonValueKind.Object)
+            return;
+
+        if (module.TryGetProperty("resources", out JsonElement resources) && resources.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement resource in resources.EnumerateArray())
+            {
+                if (!resource.TryGetProperty("type", out JsonElement typeElement)
+                    || typeElement.ValueKind != JsonValueKind.String)
+                    continue;
+
+                ApplyTerraformTypeFamily(typeElement.GetString() ?? string.Empty, ref hasAzure, ref hasAws, ref hasGcp);
+            }
+        }
+
+        if (!module.TryGetProperty("child_modules", out JsonElement childModules)
+            || childModules.ValueKind != JsonValueKind.Array)
+            return;
+
+        foreach (JsonElement child in childModules.EnumerateArray())
+            CollectTerraformTypeFamiliesFromModule(child, ref hasAzure, ref hasAws, ref hasGcp);
+    }
+
+    private static void ApplyTerraformTypeFamily(
+        string terraformType,
+        ref bool hasAzure,
+        ref bool hasAws,
+        ref bool hasGcp)
+    {
+        if (terraformType.StartsWith("azurerm_", StringComparison.OrdinalIgnoreCase))
+            hasAzure = true;
+        else if (terraformType.StartsWith("aws_", StringComparison.OrdinalIgnoreCase))
+            hasAws = true;
+        else if (terraformType.StartsWith("google_", StringComparison.OrdinalIgnoreCase))
+            hasGcp = true;
     }
 
     private static string ResolveSystemName(string? requested, string fallback)

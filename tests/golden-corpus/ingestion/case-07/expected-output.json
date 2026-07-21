@@ -1,0 +1,51 @@
+[
+  {
+    "name": "google_compute_network.main",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/google",
+      "terraformType": "google_compute_network",
+      "tf.name": "core-network"
+    },
+    "sourceId": "ingestion-case-07",
+    "sourceType": "InfrastructureDeclaration"
+  },
+  {
+    "name": "google_compute_instance.app",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/google",
+      "terraformType": "google_compute_instance",
+      "tf.machine_type": "e2-medium",
+      "tf.zone": "us-central1-a"
+    },
+    "sourceId": "ingestion-case-07",
+    "sourceType": "InfrastructureDeclaration"
+  },
+  {
+    "name": "google_sql_database_instance.db",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/google",
+      "terraformType": "google_sql_database_instance",
+      "tf.database_version": "POSTGRES_15"
+    },
+    "sourceId": "ingestion-case-07",
+    "sourceType": "InfrastructureDeclaration"
+  },
+  {
+    "name": "google_compute_firewall.allow_https",
+    "objectType": "SecurityBaseline",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/google",
+      "terraformType": "google_compute_firewall",
+      "tf.name": "allow-https"
+    },
+    "sourceId": "ingestion-case-07",
+    "sourceType": "InfrastructureDeclaration"
+  }
+]

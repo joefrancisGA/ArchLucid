@@ -406,6 +406,73 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_extracts_gcp_compute_topology_resource()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "gcp-state",
+            Format = "terraform-show-json",
+            DeclarationId = "gcp-1",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "google_compute_instance",
+                                "name": "app",
+                                "provider_name": "registry.terraform.io/hashicorp/google",
+                                "mode": "managed",
+                                "values": { "machine_type": "e2-medium", "zone": "us-central1-a" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].ObjectType.Should().Be("TopologyResource");
+        objects[0].Properties["terraformType"].Should().Be("google_compute_instance");
+        objects[0].Properties["providerName"].Should().Be("registry.terraform.io/hashicorp/google");
+    }
+
+    [Fact]
+    public async Task ParseAsync_maps_gcp_firewall_to_security_baseline()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "gcp-state",
+            Format = "terraform-show-json",
+            DeclarationId = "gcp-2",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "google_compute_firewall",
+                                "name": "allow_https",
+                                "provider_name": "registry.terraform.io/hashicorp/google",
+                                "values": {}
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].ObjectType.Should().Be("SecurityBaseline");
+    }
+
+    [Fact]
     public async Task ParseAsync_whitespace_content_returns_empty()
     {
         InfrastructureDeclarationReference decl = new()

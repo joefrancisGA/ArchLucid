@@ -36,4 +36,27 @@ public sealed class SimpleTerraformDeclarationParserTests
         result.Should().ContainSingle(o =>
             o.Name == "core" && o.Properties["terraformType"] == "azurerm_virtual_network");
     }
+
+    [Fact]
+    public async Task ParseAsync_ExtractsAwsAndGcpResourceBlocks()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "multi.tf",
+            Format = "simple-terraform",
+            Content = """
+                      resource "aws_vpc" "core"
+                      resource "aws_security_group" "web"
+                      resource "google_compute_firewall" "allow_https"
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().HaveCount(3);
+        result.Should().ContainSingle(o => o.Name == "core" && o.ObjectType == "TopologyResource");
+        result.Should().ContainSingle(o => o.Name == "web" && o.ObjectType == "SecurityBaseline");
+        result.Should().ContainSingle(o =>
+            o.Name == "allow_https" && o.Properties["terraformType"] == "google_compute_firewall");
+    }
 }

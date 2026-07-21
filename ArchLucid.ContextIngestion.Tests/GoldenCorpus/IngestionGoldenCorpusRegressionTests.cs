@@ -29,6 +29,8 @@ public sealed class IngestionGoldenCorpusRegressionTests
     [InlineData("case-02")]
     [InlineData("case-04")]
     [InlineData("case-05")]
+    [InlineData("case-06")]
+    [InlineData("case-07")]
     public async Task Terraform_case_matches_golden(string caseName)
     {
         IngestionGoldenCaseFile? file = await ReadCaseFileAsync(caseName);
