@@ -1,4 +1,4 @@
-> **Scope:** Operator runbook — billing webhook signature/JWT verification vs replay detection for Stripe and Azure Marketplace; investigation queries and safe replay procedures. Does not cover GA rollback (`GaEnabled`) — see [`MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](./MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md).
+> **Scope:** Operator runbook — billing webhook signature/JWT verification vs replay detection for Stripe and Azure Marketplace; investigation queries and safe replay procedures. Does not cover Marketplace GA rollback (`GaEnabled`) — see [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -131,7 +131,7 @@ WHERE TenantId = @TenantId;
 
 1. Prefer Partner Center **Resend webhook** so Microsoft re-issues a valid JWT.
 2. If `ResultStatus = 'Processed'`, resend is a no-op (**400** replay or **200** duplicate) — correct behavior.
-3. For forced re-drive after a code fix, follow the gated `ResultStatus` mutation path in [`MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](./MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) § Re-process (DB owner credentials only).
+3. For forced re-drive after a code fix, follow the gated `ResultStatus` mutation path in [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#re-process-a-webhook-gated) (DB owner credentials only).
 
 ### Test-mode events
 
@@ -157,5 +157,5 @@ Stripe test-mode events use the same dedupe keys and ledger. Use a **non-product
 |-----|-----|
 | [`docs/library/BILLING.md`](../library/BILLING.md) | Provider abstraction, checkout flow, config keys |
 | [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage) | Stripe delivery failures and secret rotation |
-| [`MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](./MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) | Marketplace GA rollback and forced re-process |
+| [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity) | Marketplace GA rollback and forced re-process |
 | [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) | Billing webhook STRIDE row |

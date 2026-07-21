@@ -106,7 +106,7 @@ The Stripe **statement descriptor prefix** is locked to **`ARCHLUCID PLATFORM`**
 
 ## Webhook incident triage
 
-Sibling provider rollback pattern: [`MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](../runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) (`Billing:AzureMarketplace:GaEnabled` — **Marketplace only**; Stripe has no GA flag).
+Sibling provider rollback pattern: [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity) (`Billing:AzureMarketplace:GaEnabled` — **Marketplace only**; Stripe has no GA flag).
 
 ### Symptom map
 

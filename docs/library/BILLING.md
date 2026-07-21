@@ -40,7 +40,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
 ## Data flow
 
 1. **Checkout:** Admin calls `POST /v1/tenant/billing/checkout` → ledger `Pending` row → provider returns hosted URL.
-2. **Webhook:** Provider posts event → insert `BillingWebhookEvents.EventId` (PK) → process → mark `Processed`, `Failed`, or `AcknowledgedNoOp`. The `AcknowledgedNoOp` terminal status is only reached when an operator has rolled back to `Billing:AzureMarketplace:GaEnabled=false` for `ChangePlan` / `ChangeQuantity` — see [`runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](../runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md). The default since 2026-04-20 is `GaEnabled=true`, in which case both webhooks reach `Processed`.
+2. **Webhook:** Provider posts event → insert `BillingWebhookEvents.EventId` (PK) → process → mark `Processed`, `Failed`, or `AcknowledgedNoOp`. The `AcknowledgedNoOp` terminal status is only reached when an operator has rolled back to `Billing:AzureMarketplace:GaEnabled=false` for `ChangePlan` / `ChangeQuantity` — see [`go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity). The default since 2026-04-20 is `GaEnabled=true`, in which case both webhooks reach `Processed`.
 3. **Manual convert:** `POST /v1/tenant/convert` runs gate → `MarkTrialConvertedAsync` (optional tier update).
 
 ## Security model
@@ -57,7 +57,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
   - `POST /v1/billing/webhooks/marketplace`
 - Key Vault secret names (illustrative): `billing-stripe-secret`, `billing-stripe-webhook-signing-secret`.
 - **Idempotency:** duplicate provider event id → **HTTP 200** without re-processing once `ResultStatus=Processed`. Replay within the 24-hour in-memory guard or duplicate processed ledger rows → **HTTP 400** — see [`runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md).
-- **Marketplace GA flag:** `Billing:AzureMarketplace:GaEnabled` — **default `true` since 2026-04-20** (Quality Assessment Improvement 4 Marketplace flip; previously `false`). When `true`, `ChangePlan` / `ChangeQuantity` return **HTTP 200**, persist `Processed`, and call `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity` to mutate `dbo.BillingSubscriptions`. The `false` branch is **preserved** as the supported rollback path: it returns **HTTP 202 Accepted**, persists `AcknowledgedNoOp`, and does **not** mutate any subscription row. Operators can flip the flag at the App Configuration / appsettings layer without redeploying — see [`runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](../runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md).
+- **Marketplace GA flag:** `Billing:AzureMarketplace:GaEnabled` — **default `true` since 2026-04-20** (Quality Assessment Improvement 4 Marketplace flip; previously `false`). When `true`, `ChangePlan` / `ChangeQuantity` return **HTTP 200**, persist `Processed`, and call `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity` to mutate `dbo.BillingSubscriptions`. The `false` branch is **preserved** as the supported rollback path: it returns **HTTP 202 Accepted**, persists `AcknowledgedNoOp`, and does **not** mutate any subscription row. Operators can flip the flag at the App Configuration / appsettings layer without redeploying — see [`go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity).
 
 ## Provider matrix
 

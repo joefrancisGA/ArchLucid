@@ -1,4 +1,4 @@
-> **Scope:** Azure Marketplace — SaaS offer (fulfillment v2) checklist, publisher identity placeholders, webhook behavior, and ArchLucid configuration.
+> **Scope:** Azure Marketplace — SaaS offer (fulfillment v2) checklist, publisher identity placeholders, webhook behavior, GA rollback, and ArchLucid configuration.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -57,7 +57,7 @@ The legal entity for Partner Center tax and payout profiles is **Joseph Francis 
    - `Billing:AzureMarketplace:OpenIdMetadataAddress` (typically `https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration` or a tenant-specific metadata URL)
    - `Billing:AzureMarketplace:ValidAudiences` includes `https://marketplaceapi.microsoft.com`
    - `Billing:AzureMarketplace:FulfillmentApiEnabled=true` in production (set `false` only in isolated tests without network).
-   - `Billing:AzureMarketplace:GaEnabled` — **default `true` since 2026-04-20** (Quality Assessment Improvement 4 Marketplace flip). `ChangePlan` / `ChangeQuantity` webhooks call `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity` and return **HTTP 200** with the row mutated. Set to `false` only as a documented rollback (no redeploy needed via App Configuration override) — see [`runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](../runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md). When `false`, the same two webhooks return **HTTP 202** with `AcknowledgedNoOp` and do **not** mutate `dbo.BillingSubscriptions`. The `false` branch is preserved precisely so operators can roll back without code changes.
+   - `Billing:AzureMarketplace:GaEnabled` — **default `true` since 2026-04-20** (Quality Assessment Improvement 4 Marketplace flip). `ChangePlan` / `ChangeQuantity` webhooks call `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity` and return **HTTP 200** with the row mutated. Set to `false` only as a documented rollback (no redeploy needed via App Configuration override) — see § **Marketplace GA rollback** below. When `false`, the same two webhooks return **HTTP 202** with `AcknowledgedNoOp` and do **not** mutate `dbo.BillingSubscriptions`. The `false` branch is preserved precisely so operators can roll back without code changes.
    - `Billing:AzureMarketplace:MarketplaceOfferId` — Partner Center **offer / product** id (`<<OFFER_ID>>` until owner fills § Publisher identity above). **Production** requires this when `GaEnabled=true` (startup guard in `BillingProductionSafetyRules`).
 5. **Managed identity**
    - Grant the API’s user-assigned or system MI permission to call Marketplace fulfillment APIs per Microsoft guidance.
@@ -84,16 +84,138 @@ curl -sS -X POST "https://<api-host>/v1/billing/webhooks/marketplace" \
   -d '{"action":"ChangePlan","subscriptionId":"<saas_subscription_id>","planId":"contoso-enterprise","purchaser":{"tenantId":"<archlucid_tenant_guid>"}}'
 ```
 
-Expect **HTTP 200** under the new default (`GaEnabled=true`) when the subscription row exists. Expect **HTTP 202** only after an explicit rollback flip — see [`runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](../runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md).
+Expect **HTTP 200** under the default (`GaEnabled=true`) when the subscription row exists. Expect **HTTP 202** only after an explicit rollback flip — see § **Marketplace GA rollback** below.
+
+## Marketplace GA rollback (`ChangePlan` / `ChangeQuantity`)
+
+**Audience:** SRE / on-call billing engineer.
+
+**When to use:** A `ChangePlan` or `ChangeQuantity` webhook from Azure Marketplace has misbehaved (mis-mapped tier, wrong seat count, unexpected mutation), and you need to **stop further mutations** while you investigate. The `false` branch is **deliberately preserved** as the supported rollback path (see [`CHANGELOG.md`](../CHANGELOG.md) 2026-04-20 Marketplace GA flip).
+
+**Related implementation:** [`BILLING.md`](../library/BILLING.md), [`architecture/adrs/0016-billing-provider-abstraction.md`](../architecture/adrs/0016-billing-provider-abstraction.md), migration **086** (`086_Billing_MarketplaceChangePlanQuantity.sql`), [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md).
+
+### First 5 minutes (copy-paste)
+
+1. **Confirm the symptom.** Prefer **`dbo.BillingWebhookEvents`** (SQL below). If your deployment emits App Insights custom events or Prometheus counters for Marketplace webhooks, use those as a secondary signal.
+
+2. **Flip `Billing:AzureMarketplace:GaEnabled` to `false`** (no redeploy required) at the App Configuration / appsettings overlay layer. The provider reloads via `IOptionsMonitor<BillingOptions>`:
+
+   - **Azure App Configuration (preferred):** set `ArchLucid:Billing:AzureMarketplace:GaEnabled` to `false` (typically &lt; 60 s via `Sentinel`/cache expiry).
+   - **Container Apps env override:** add `Billing__AzureMarketplace__GaEnabled=false` to the API revision's environment variables.
+   - **Local / non-prod:** `appsettings.Development.json` or `--Billing:AzureMarketplace:GaEnabled=false` on the CLI.
+
+3. **Verify the flip** with the example webhook curl above (or Partner Center resend). Expect **HTTP 202** with `AcknowledgedNoOp` in `dbo.BillingWebhookEvents` instead of **HTTP 200** + `Processed`.
+
+4. **Page the on-call billing engineer** for post-incident analysis, data-fix, and re-enable timing.
+
+### Architecture overview
+
+**Nodes:** Azure Marketplace → `POST /v1/billing/webhooks/marketplace` → `AzureMarketplaceBillingProvider.HandleWebhookAsync` → `MarketplaceChange{Plan,Quantity}WebhookMutationHandler` → `IBillingLedger.{ChangePlanAsync, ChangeQuantityAsync}` → `dbo.sp_Billing_ChangePlan` / `dbo.sp_Billing_ChangeQuantity` → `dbo.BillingSubscriptions`.
+
+**Edges:**
+
+- **GA path (`GaEnabled=true`, default):** webhook → handler → ledger → stored procedure → row mutated → integration envelope published when configured.
+- **Rollback path (`GaEnabled=false`):** handler returns `DeferredGaDisabled` → provider records `AcknowledgedNoOp` on `dbo.BillingWebhookEvents` → **HTTP 202** → **no** row mutation.
+
+Handlers inspect `IOptionsMonitor<BillingOptions>.CurrentValue.AzureMarketplace.GaEnabled` on every call, so the flag flip propagates without a process restart.
+
+### Component breakdown
+
+| Component | Role |
+|-----------|------|
+| `Billing:AzureMarketplace:GaEnabled` | The single switch. `true` = mutate; `false` = `AcknowledgedNoOp`. |
+| `MarketplaceChangePlanWebhookMutationHandler` | Maps `planId` → tier code; calls `IBillingLedger.ChangePlanAsync` only when GA is on. |
+| `MarketplaceChangeQuantityWebhookMutationHandler` | Reads `quantity`; calls `IBillingLedger.ChangeQuantityAsync` only when GA is on. |
+| `AzureMarketplaceBillingProvider` | Owns `AcknowledgedNoOp` vs `Processed` on `dbo.BillingWebhookEvents`. |
+| `dbo.BillingWebhookEvents` (PK `EventId`) | Idempotency log; `EventId` = `{subscriptionId}|{action}|{payloadHash}`. |
+| `dbo.sp_Billing_ChangePlan` / `dbo.sp_Billing_ChangeQuantity` | Only paths that mutate `dbo.BillingSubscriptions` (**EXECUTE AS OWNER**). |
+
+### Data flow during rollback
+
+1. Operator flips `GaEnabled=false`.
+2. Within ~60 s, `IOptionsMonitor<BillingOptions>` reflects the new value.
+3. The next `ChangePlan` / `ChangeQuantity` webhook is acknowledged with HTTP 202 and recorded as `AcknowledgedNoOp`.
+4. `Subscribe`, `Suspend`, `Reinstate`, `Unsubscribe` are **unaffected**.
+5. Operator chooses: (a) gated re-process from ledger after fix, (b) manual `sp_Billing_*` reconciliation, or (c) re-enable GA and let the next legitimate webhook overwrite.
+
+### Investigate recent webhooks (SQL)
+
+`EventId` is the dedupe key (`{subscriptionId}|{action}|{payloadHash}`). `EventType` stores the Marketplace `action` string.
+
+```sql
+SELECT TOP 50
+    EventId,
+    EventType,
+    ResultStatus,
+    ReceivedUtc,
+    ProcessedUtc
+FROM dbo.BillingWebhookEvents
+WHERE Provider = N'AzureMarketplace'
+  AND EventType IN (N'ChangePlan', N'ChangeQuantity')
+  AND ReceivedUtc >= DATEADD(hour, -2, SYSUTCDATETIME())
+ORDER BY ReceivedUtc DESC;
+```
+
+### Re-process a webhook (gated)
+
+1. Read `PayloadJson` from `dbo.BillingWebhookEvents` for the target `EventId`.
+2. POST it back to `/v1/billing/webhooks/marketplace` with a valid Marketplace JWT (Partner Center **Resend webhook** is often easier).
+3. If `ResultStatus` is already **`Processed`**, the handler returns a replay no-op — correct behavior. To **force** re-processing, update `ResultStatus` to a non-`Processed` value (e.g. `Replaying`) with **DB owner credentials** before resend.
+
+Do **not** delete rows from `dbo.BillingWebhookEvents` — audit trail is SOC 2 evidence.
+
+### Reconcile tier / seats after a mis-map
+
+**ChangePlan** (correct tier):
+
+```sql
+EXEC dbo.sp_Billing_ChangePlan
+    @TenantId = @TenantId,
+    @TierCode = N'Standard',
+    @RawBody  = N'{"manualReconciliation":true,"originalEventId":"<EventId>"}';
+```
+
+**ChangeQuantity** (correct seats):
+
+```sql
+EXEC dbo.sp_Billing_ChangeQuantity
+    @TenantId       = @TenantId,
+    @SeatsPurchased = 12,
+    @RawBody        = N'{"manualReconciliation":true,"originalEventId":"<EventId>"}';
+```
+
+### Confirm the rollback held
+
+Five minutes after the flip, re-run the SQL query above. New `ChangePlan` / `ChangeQuantity` rows should show **`AcknowledgedNoOp`**, not **`Processed`**. If **`Processed`** still appears, the flag has not reached the running revision — re-check App Configuration / Container Apps env and `az containerapp revision list`.
+
+### When to re-enable GA
+
+After the root cause is fixed, re-enable in the **reverse** order of the flip: appsettings/CLI → env override → App Configuration. Spot-check with the example webhook curl before stepping away.
+
+### Operational considerations
+
+- **No schema changes** required — configuration flip only.
+- **No data loss** — `AcknowledgedNoOp` rows retain webhook history; subscriptions are unchanged by rollback acknowledgements.
+- **Stripe is unaffected** — this flag gates Marketplace mutation handlers only.
+- **Tests:** `MarketplaceChangePlanWebhookMutationHandlerTests` and `MarketplaceChangeQuantityWebhookMutationHandlerTests` cover both `GaEnabled` branches.
+
+### First-5-minutes summary
+
+| Action | Where | Expected outcome |
+|--------|-------|------------------|
+| Set `Billing:AzureMarketplace:GaEnabled=false` | App Configuration / Container Apps env / appsettings | New config (~60s); next `ChangePlan`/`ChangeQuantity` → HTTP 202 |
+| Smoke test webhook | Example curl above | HTTP 202, `AcknowledgedNoOp` in SQL ledger |
+| Query `dbo.BillingWebhookEvents` | SSMS / sqlcmd | Recent rows show `AcknowledgedNoOp` for the two actions |
+| Page on-call billing engineer | Pager / chat | Triage and data-fix path |
 
 ## Related
 
 - [`MARKETPLACE_PUBLICATION.md`](MARKETPLACE_PUBLICATION.md) — publication checklist (GTM steps, region, owner blockers)
 - [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) — item **8** (Marketplace publication go-live)
 - [`BILLING.md`](../library/BILLING.md)
+- [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md) — signature/JWT + replay layers
 - [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) — `Billing:AzureMarketplace:*` keys
-- [`STRIPE_CHECKOUT.md`](STRIPE_CHECKOUT.md#statement-descriptor) — parallel Stripe commercial identity
+- [`STRIPE_CHECKOUT.md`](STRIPE_CHECKOUT.md#webhook-incident-triage) — parallel Stripe webhook incident triage
 - [`FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](../runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md)
 - [`architecture/adrs/0016-billing-provider-abstraction.md`](../architecture/adrs/0016-billing-provider-abstraction.md)
-- [`runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](../runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) — rollback procedure for the `GaEnabled=true` default.
 - [`redirects.md`](../redirects.md) — former doc paths
