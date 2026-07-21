@@ -86,6 +86,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 |-------------|----------------|-------|
 | `docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md` | [`docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publisher-identity--partner-center-placeholders) | Partner Center MPN / offer IDs, legal entity, landing page |
 | `docs/runbooks/STRIPE_WEBHOOK_INCIDENT.md` | [`docs/go-to-market/STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage) | Stripe webhook incident triage, statement descriptor, signing-secret rotation |
+| `docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md` | [`docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity) | Marketplace `GaEnabled` rollback, SQL reconciliation, re-enable |
 
 ## Renamed (not deleted)
 
