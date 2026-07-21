@@ -434,8 +434,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `TerraformAdvisoryExportDownloaded` | `TerraformAdvisoryExportDownloaded` | `ArtifactExportController` |
 | `ArchitectureAnalysisReportGenerated` | `ArchitectureAnalysisReportGenerated` | `AnalysisReportsController` |
 | `ArchitectureDefinitionCsvImportDryRunExecuted` | `ArchitectureDefinitionCsvImportDryRunExecuted` | `ArchitectureDefinitionImportController` (`POST /v1/architecture/import` dry-run) |
-| `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanController` (`POST /v1/architecture/quick-scan`) |
-| `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanExecuted` | `MarketingQuickScanController` (`POST /v1/marketing/quick-scan`) |
+| `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanExecuted` | `ArchitectureQuickScanController` (`POST /v1/architecture/quick-scan`), `MarketingQuickScanController` (`POST /v1/marketing/quick-scan`) |
 | `ArchitectureDocxExportGenerated` | `ArchitectureDocxExportGenerated` | `DocxExportController`, `RunExportAuditService`, `BackgroundJobWorkUnitExecutor` |
 | `ComparisonReplayPersisted` | `ComparisonReplayPersisted` | `ComparisonAuditService` |
 | `EndToEndComparisonPersisted` | `EndToEndComparisonPersisted` | `ComparisonAuditService` |
