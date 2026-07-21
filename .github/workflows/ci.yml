@@ -1666,6 +1666,14 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Run-ArchLucidAzureExtractor.Tests.ps1'
 
+      - name: Get-ArchLucidAwsPackage.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/Get-ArchLucidAwsPackage.Tests.ps1'
+
+      - name: Get-ArchLucidGcpPackage.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/tests/Get-ArchLucidGcpPackage.Tests.ps1'
+
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
     # RC2 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that

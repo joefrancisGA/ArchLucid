@@ -65,7 +65,7 @@ public sealed class InfrastructureCostSummaryNotesTests
                     RuntimePlatform.AppService,
                     "Azure App Service",
                     55m,
-                    InfrastructureCostPriceSource.Retail),
+                    InfrastructureCostPriceSource.RetailApi),
             ],
             55m,
             AnyRetailPricing: true,

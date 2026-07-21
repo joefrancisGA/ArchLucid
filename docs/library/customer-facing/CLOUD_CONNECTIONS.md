@@ -16,6 +16,8 @@ ArchLucid supports optional Tier 2 hosted polling for three cloud platforms. Pic
 
 You can also run **evidence-only** reviews from uploaded inventory ZIPs without enabling Tier 2.
 
+**Tier 1 (no ArchLucid credentials in your cloud account):** run `Get-ArchLucidAzurePackage.ps1`, `Get-ArchLucidAwsPackage.ps1`, or `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone, then upload the resulting ZIP from the new-review wizard or `POST /v1/extractor/{azure,aws,gcp}/upload`. Tier 1 is the default posture when you do not want long-lived vendor access in your AWS or GCP account.
+
 ## Connect Azure securely {#connect-azure-securely}
 
 The in-app guide at `/help/cloud-connections/azure` is the canonical setup reference for federated authentication, read-only Azure roles, setup steps, and data classification.
@@ -28,7 +30,10 @@ For role requirements, scopes, CLI templates, and verification, see **[Azure per
 
 ArchLucid can use AWS resource inventory when you connect an AWS account. The AWS connection is optional; reviews can also use briefs, diagrams, documents, and uploaded inventory ZIPs.
 
-**Evidence tier:** cloud-connected (optional hosted pull from an authorized IAM role).
+**Evidence tiers:**
+
+- **Tier 1 (default, no vendor credentials):** run `Get-ArchLucidAwsPackage.ps1` in your AWS account with read-only CLI credentials, upload the ZIP to `POST /v1/extractor/aws/upload`. ArchLucid never receives your AWS access keys.
+- **Tier 2 (optional):** cloud-connected hosted pull from an authorized IAM role (see below).
 
 ### Security model
 
@@ -70,7 +75,10 @@ Do **not** assign **AdministratorAccess**, **PowerUserAccess**, **IAMFullAccess*
 
 ArchLucid can use GCP resource inventory when you connect a GCP project. The GCP connection is optional; reviews can also use briefs, diagrams, documents, and uploaded inventory ZIPs.
 
-**Evidence tier:** cloud-connected (optional hosted pull from an authorized service account).
+**Evidence tiers:**
+
+- **Tier 1 (default, no vendor credentials):** run `Get-ArchLucidGcpPackage.ps1` in your GCP project with read-only `gcloud` credentials, upload the ZIP to `POST /v1/extractor/gcp/upload`. ArchLucid never receives your service-account JSON keys.
+- **Tier 2 (optional):** cloud-connected hosted pull from Workload Identity Federation (see below).
 
 ### Security model
 

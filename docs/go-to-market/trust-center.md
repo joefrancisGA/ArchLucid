@@ -28,11 +28,19 @@ ArchLucid is for **architecture and governance evidence** about systems you desc
 
 ---
 
-## Azure connectivity (extractor)
+## Cloud inventory connectivity (Tier 1 default)
 
-**Default (Tier 1):** You run the in-repo PowerShell collector and upload a schema-versioned ZIP — **no vendor Entra app or subscription role** is required in your tenant for that path. Details: operator runbook [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md) and technical follow-ups [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
+**Default (Tier 1):** You run the in-repo PowerShell collector in **your** cloud account and upload a schema-versioned ZIP. **No ArchLucid credentials run in your AWS or GCP account** on this path, and **no vendor Entra app or subscription role** is required in Azure for Tier 1.
 
-**What we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role — see [`AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](AZURE_EXTRACTOR_INFOSEC_PREREAD.md) for the explicit buyer-facing list.
+| Cloud | Customer-run script | Upload endpoint |
+|-------|-------------------|-----------------|
+| Azure | `Get-ArchLucidAzurePackage.ps1` | `POST /v1/azure-extractor/upload` |
+| AWS | `Get-ArchLucidAwsPackage.ps1` | `POST /v1/extractor/aws/upload` |
+| GCP | `Get-ArchLucidGcpPackage.ps1` | `POST /v1/extractor/gcp/upload` |
+
+Details: operator runbook [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md), customer guide [`CLOUD_CONNECTIONS.md`](../library/customer-facing/CLOUD_CONNECTIONS.md), and technical follow-ups [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
+
+**Azure — what we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role — see [`AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](AZURE_EXTRACTOR_INFOSEC_PREREAD.md) for the explicit buyer-facing list.
 
 ---
 
