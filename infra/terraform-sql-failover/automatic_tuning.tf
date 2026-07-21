@@ -8,7 +8,7 @@ resource "azapi_update_resource" "primary_sql_server_automatic_tuning" {
   type        = "Microsoft.Sql/servers/automaticTuning@2021-11-01"
   resource_id = "${var.primary_sql_server_resource_id}/automaticTuning/current"
 
-  body = jsonencode({
+  body = {
     properties = {
       options = {
         forceLastGoodPlan = { desiredState = var.sql_automatic_tuning_force_last_good_plan }
@@ -16,7 +16,7 @@ resource "azapi_update_resource" "primary_sql_server_automatic_tuning" {
         dropIndex         = { desiredState = var.sql_automatic_tuning_drop_index }
       }
     }
-  })
+  }
 }
 
 resource "azapi_update_resource" "partner_sql_server_automatic_tuning" {
@@ -25,7 +25,7 @@ resource "azapi_update_resource" "partner_sql_server_automatic_tuning" {
   type        = "Microsoft.Sql/servers/automaticTuning@2021-11-01"
   resource_id = "${var.partner_sql_server_resource_id}/automaticTuning/current"
 
-  body = jsonencode({
+  body = {
     properties = {
       options = {
         forceLastGoodPlan = { desiredState = var.sql_automatic_tuning_force_last_good_plan }
@@ -33,5 +33,5 @@ resource "azapi_update_resource" "partner_sql_server_automatic_tuning" {
         dropIndex         = { desiredState = var.sql_automatic_tuning_drop_index }
       }
     }
-  })
+  }
 }
