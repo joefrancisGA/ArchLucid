@@ -8,6 +8,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Architecture;
@@ -23,6 +24,7 @@ public sealed class QuickScanExecutionOrchestrator(
     IQuickScanGlobalBudgetReservationService quickScanGlobalBudgetReservationService,
     IAuditService auditService,
     ILlmCostEstimator costEstimator,
+    ILogger<QuickScanExecutionOrchestrator> logger,
     TimeProvider timeProvider) : IQuickScanExecutionOrchestrator
 {
     /// <inheritdoc />
@@ -181,29 +183,33 @@ public sealed class QuickScanExecutionOrchestrator(
                 modelLabel: "quick-scan",
                 duration);
 
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.ArchitectureQuickScanExecuted,
-                    ActorUserId = context.AuditActor,
-                    ActorUserName = context.AuditActor,
-                    TenantId = context.TenantId,
-                    WorkspaceId = context.WorkspaceId,
-                    ProjectId = context.ProjectId,
-                    CorrelationId = context.TraceIdentifier,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            validated!.SystemName,
-                            validated.PrimaryEnvironment,
-                            descriptionLength = validated.Description.Length,
-                            concernCount = validated.ArchitectureConcerns.Count,
-                            scan.ScanId,
-                            findingCount = scan.Findings.Count,
-                            summaryLength = scan.Summary.Length
-                        },
-                        AuditJsonSerializationOptions.Instance)
-                },
+            await DurableAuditLogRetry.TryLogAsync(
+                ct => auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.ArchitectureQuickScanExecuted,
+                        ActorUserId = context.AuditActor,
+                        ActorUserName = context.AuditActor,
+                        TenantId = context.TenantId,
+                        WorkspaceId = context.WorkspaceId,
+                        ProjectId = context.ProjectId,
+                        CorrelationId = context.TraceIdentifier,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                validated!.SystemName,
+                                validated.PrimaryEnvironment,
+                                descriptionLength = validated.Description.Length,
+                                concernCount = validated.ArchitectureConcerns.Count,
+                                scan.ScanId,
+                                findingCount = scan.Findings.Count,
+                                summaryLength = scan.Summary.Length
+                            },
+                            AuditJsonSerializationOptions.Instance)
+                    },
+                    ct),
+                logger,
+                $"ArchitectureQuickScanExecuted:{context.TraceIdentifier}",
                 cancellationToken).ConfigureAwait(false);
 
             return QuickScanExecutionResult.Success(body);

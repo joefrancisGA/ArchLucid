@@ -1,6 +1,4 @@
-using ArchLucid.Core.Configuration;
-
-namespace ArchLucid.Application.Architecture;
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>Merges legacy <see cref="QuickScanOptions" /> with authoritative <see cref="QuickScanSafetyOptions" /> bounds.</summary>
 public static class QuickScanEffectiveLimits

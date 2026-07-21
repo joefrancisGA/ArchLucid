@@ -8,6 +8,8 @@ using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -88,6 +90,7 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             globalBudget.Object,
             audit.Object,
             costEstimator.Object,
+            NullLogger<QuickScanExecutionOrchestrator>.Instance,
             TimeProvider.System);
 
         ArchitectureQuickScanRequest payload = new()
