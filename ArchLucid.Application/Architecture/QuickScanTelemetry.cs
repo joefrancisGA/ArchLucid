@@ -1,7 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 
 using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Application.Architecture;
 
 public interface IQuickScanTelemetry
@@ -78,7 +77,7 @@ public sealed class QuickScanTelemetry(ILogger<QuickScanTelemetry> logger) : IQu
             context,
             new Dictionary<string, object?>
             {
-                ["capacityState"] = string.IsNullOrWhiteSpace(capacityState) ? "unknown" : capacityState,
+                ["capacityState"] = NormalizeCapacityStateForTelemetry(capacityState),
             });
 
     public void RecordConcurrencyQueued(QuickScanGuardContext context) =>
@@ -117,6 +116,21 @@ public sealed class QuickScanTelemetry(ILogger<QuickScanTelemetry> logger) : IQu
 
     private void Log(string eventName, QuickScanGuardContext context, IReadOnlyDictionary<string, object?> data) =>
         RecordInternal(eventName, context, data);
+
+    private static string NormalizeCapacityStateForTelemetry(string? capacityState)
+    {
+        if (string.IsNullOrWhiteSpace(capacityState))
+        {
+            return "unknown";
+        }
+
+        if (Enum.TryParse(capacityState, ignoreCase: true, out QuickScanPublicCapacityState parsed))
+        {
+            return parsed.ToString();
+        }
+
+        return "unknown";
+    }
 
     private static string HashForLog(string value)
     {
