@@ -43,7 +43,7 @@ ArchLucid uses **two** mechanisms for SQL Server schema (by design):
 
 **Schema drift verification (TB-065):** after DbUp, `ArchLucid.Persistence.MigrateVerify` compares live catalog metadata to curated sentinel manifests (`TenantSchemaSentinelManifest`, `SystemSchemaSentinelManifest`). Failures name missing tables, columns, or indexes. Optional flags: `--skip-drift`, `--system-plane`.
 
-**Rolling deploy lint (TB-068):** `scripts/ci/check_migration_rolling_deploy_patterns.py` — see [runbooks/ROLLING_DEPLOY_MIGRATIONS.md](../runbooks/ROLLING_DEPLOY_MIGRATIONS.md).
+**Rolling deploy lint (TB-068):** `scripts/ci/check_migration_rolling_deploy_patterns.py` — see [runbooks/MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md#rolling-deploy-migrations).
 
 There is **no** remaining `001_AuthorityStore.sql` under Persistence; authority DDL lives inside `ArchLucid.sql`.
 

@@ -4,7 +4,7 @@ namespace ArchLucid.Cli.Commands;
 
 /// <summary>
 ///     Static checks mirroring the **automated** portions of
-///     <c>docs/go-to-market/MARKETPLACE_PUBLICATION.md</c> + linked billing docs. Owner-only Partner Center
+///     <c>docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md</c> + linked billing docs. Owner-only Partner Center
 ///     steps (seller verification, tax profile, payout) are not machine-verifiable here — see that checklist.
 /// </summary>
 public static class MarketplacePreflightRunner
@@ -15,7 +15,7 @@ public static class MarketplacePreflightRunner
     /// </summary>
     public const string CanonicalPackagingRow = "| **Team** | **Professional** | **Enterprise** |";
 
-    /// <summary>Copied from <c>MARKETPLACE_PUBLICATION.md</c> publication step 1.</summary>
+    /// <summary>Copied from <c>AZURE_MARKETPLACE_SAAS_OFFER.md</c> publication checklist step 1.</summary>
     public const string MarketplacePlanTierTriple = "`Team` / `Professional` / `Enterprise`";
 
     /// <summary>
@@ -48,25 +48,6 @@ public static class MarketplacePreflightRunner
                         ? "PRICING_PHILOSOPHY.md contains canonical Team | Professional | Enterprise row"
                         : "PRICING_PHILOSOPHY.md is missing the canonical packaging row (see assert_marketplace_pricing_alignment.py)."));
 
-        string? publication = TryReadUtf8(root, Path.Combine("docs", "go-to-market", "MARKETPLACE_PUBLICATION.md"));
-        steps.Add(
-            new MarketplacePreflightStepResult(
-                "marketplace_publication_doc",
-                publication is not null,
-                publication is not null
-                    ? "Found docs/go-to-market/MARKETPLACE_PUBLICATION.md"
-                    : "Missing docs/go-to-market/MARKETPLACE_PUBLICATION.md"));
-
-        if (publication is not null)
-
-            steps.Add(
-                new MarketplacePreflightStepResult(
-                    "publication_plan_tier_triple",
-                    publication.Contains(MarketplacePlanTierTriple, StringComparison.Ordinal),
-                    publication.Contains(MarketplacePlanTierTriple, StringComparison.Ordinal)
-                        ? "MARKETPLACE_PUBLICATION.md references Team / Professional / Enterprise plan mapping"
-                        : $"MARKETPLACE_PUBLICATION.md must include the tier triple: {MarketplacePlanTierTriple}"));
-
         string? azureSaaS = TryReadUtf8(root, Path.Combine("docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md"));
         steps.Add(
             new MarketplacePreflightStepResult(
@@ -78,6 +59,14 @@ public static class MarketplacePreflightRunner
 
         if (azureSaaS is not null)
         {
+            steps.Add(
+                new MarketplacePreflightStepResult(
+                    "azure_plan_tier_triple",
+                    azureSaaS.Contains(MarketplacePlanTierTriple, StringComparison.Ordinal),
+                    azureSaaS.Contains(MarketplacePlanTierTriple, StringComparison.Ordinal)
+                        ? "AZURE_MARKETPLACE_SAAS_OFFER.md references Team / Professional / Enterprise plan mapping"
+                        : $"AZURE_MARKETPLACE_SAAS_OFFER.md must include the tier triple: {MarketplacePlanTierTriple}"));
+
             bool noProSlug = !azureSaaS.Contains("`Pro`", StringComparison.Ordinal);
             steps.Add(
                 new MarketplacePreflightStepResult(

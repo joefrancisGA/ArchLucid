@@ -36,7 +36,7 @@ internal static class TemplatesListCommand
         if (string.IsNullOrWhiteSpace(resolved) || !Directory.Exists(resolved))
         {
             Console.Error.WriteLine(
-                "Could not locate the ArchLucid repository root (expected docs/go-to-market/MARKETPLACE_PUBLICATION.md marker). "
+                "Could not locate the ArchLucid repository root (expected docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md marker). "
                 + "Run from the repo clone or pass --repo-root <dir>.");
 
             return Task.FromResult(CliExitCode.OperationFailed);

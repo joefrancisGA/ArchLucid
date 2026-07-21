@@ -24,11 +24,6 @@ class TestAdoptionBatch5AB(unittest.TestCase):
         self.assertIn("SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md", text)
         self.assertIn("../runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md", text)
 
-    def test_tb_211_library_stub_points_to_runbook(self) -> None:
-        path = REPO_ROOT / "docs" / "library" / "SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("../runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md", text)
-
     def test_tb_211_runbooks_index_lists_canonical_path(self) -> None:
         path = REPO_ROOT / "docs" / "runbooks" / "README.md"
         text = path.read_text(encoding="utf-8")

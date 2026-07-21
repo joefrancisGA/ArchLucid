@@ -71,7 +71,7 @@ public sealed class ItsmPullForwardRunnerTests
             string root = Path.Combine(Path.GetTempPath(), "archlucid-itsm-gate-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
 
-            WriteFile(root, Path.Combine("docs", "go-to-market", "MARKETPLACE_PUBLICATION.md"), "# marker");
+            WriteFile(root, Path.Combine("docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md"), "# marker");
             WriteFile(root, Path.Combine("docs", "go-to-market", "CONNECTOR_PULL_FORWARD_DECISION.md"), "# decision");
             WriteFile(
                 root,

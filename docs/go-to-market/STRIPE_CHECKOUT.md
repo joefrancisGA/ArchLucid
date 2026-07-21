@@ -1,10 +1,10 @@
-> **Scope:** Stripe Checkout for Team tier — engineering hand-off, operator configuration checklist, webhook incident triage, and staging verification.
+> **Scope:** Stripe Checkout for Team tier — engineering hand-off, operator configuration checklist, marketing site + live Stripe GA, webhook incident triage, and staging verification.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Stripe Checkout — Team tier (hosted)
 
-**Last reviewed:** 2026-07-20
+**Last reviewed:** 2026-07-21
 
 ## Goal
 
@@ -386,7 +386,52 @@ Prometheus: **`archlucid_billing_checkouts_total`**, trial conversion series —
 3. **Idempotent webhooks:** Duplicate `EventId` hits dedupe; replays return **200** without double activation if already **Processed**.
 4. **Secrets rotation:** Update `Billing:Stripe:WebhookSigningSecret` before next event or signatures **fail** (400).
 
-See also [`MARKETING_STRIPE_GA.md`](../runbooks/MARKETING_STRIPE_GA.md) and [`TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md).
+See also [`TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md).
+
+---
+
+## Marketing site + Stripe GA (public go-live)
+
+Tracks **Marketability Improvement 2** — public marketing go-live and Stripe self-serve paid conversion. Assumes Azure-first deployment and private storage boundaries (no SMB port **445** exposure). Complete § **Staging end-to-end verification** in **TEST** mode before live cutover.
+
+### Objective
+
+Ship **`archlucid-ui`** marketing routes (`(marketing)/welcome`, `(marketing)/signup`, …) behind **Azure Front Door** with a custom domain, and operate **Stripe Checkout** + webhooks in **live** mode with idempotent SQL persistence ([`BILLING.md`](../library/BILLING.md), migration **078**).
+
+### Assumptions
+
+- Terraform modules under `infra/terraform-edge/` (Front Door + WAF) and application hosting (Container Apps or Static Web Apps) are provisioned for non-prod.
+- Stripe **live** keys and webhook signing secrets live in **Key Vault**, not in repo configuration.
+- CI uses **non-credential-shaped** placeholders for Stripe (see `.github/copilot-instructions.md` gitleaks guidance).
+
+### Architecture
+
+**Nodes:** Public DNS → Front Door → Static Web Apps or Container Apps (UI) | `ArchLucid.Api` (checkout + webhooks) → `dbo.BillingSubscriptions` / `dbo.BillingWebhookEvents`.
+
+**Edges:** Browser → marketing pages → signup → tenant bootstrap → operator converts via Checkout URL → Stripe → webhook → `sp_Billing_*` → trial conversion.
+
+| Area | Responsibility |
+|------|----------------|
+| `archlucid-ui` `(marketing)/*` | Signup + verification flows |
+| `infra/terraform-edge/frontdoor.tf` | TLS, WAF, routing to origin |
+| `ArchLucid.Api` `BillingCheckoutController` / `BillingStripeWebhookController` | Checkout + webhook surface |
+| `ArchLucid.Persistence.Billing.Stripe` | Signature verification + ledger writes |
+
+### Go-live sequence
+
+1. Register DNS + Front Door endpoint; attach custom domain and managed certificate.
+2. Deploy UI artifact to the origin (SWA `az staticwebapp` or ACA revision) with environment-specific API base URL.
+3. In Stripe Dashboard (**Live** mode): enable products/prices aligned with `pricing.json`; register webhook URL `https://<api-host>/v1/billing/webhooks/stripe/subscriptions` (checkout events); copy **signing secret** to Key Vault `billing-stripe-webhook-signing-secret`.
+4. Rotate any `sk_test_…` literals out of automation; use CI-safe placeholders in tests only.
+5. Publish `sitemap.xml` from the marketing app once the domain is live (Search Console).
+
+### Security and operations
+
+- **Webhooks:** trust-on-crypto only — `Stripe-Signature` verified before any tenant mutation. Production requires `Billing:Provider=Stripe` plus validated secrets (`ProductionSafetyRules.CollectBillingStripeSecret`).
+- **Front Door:** WAF enabled; rate-limit anonymous marketing routes at the edge where possible.
+- **Secrets:** Stripe secrets never logged; webhook payloads are not echoed to application logs. Runtime identity reads Key Vault via managed identity.
+- **Smoke:** `POST /v1/tenant/billing/checkout` in staging with Stripe **test** mode before flipping DNS to production.
+- **Monitor:** `dbo.BillingWebhookEvents` for `Failed` rows and Stripe Dashboard delivery retries after deploys — § **Webhook incident triage** above.
 
 ## Manual provisioning (until Marketplace GA settles)
 
@@ -403,4 +448,5 @@ If webhooks only flip entitlement bits asynchronously, document the **manual run
 | [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md) | Replay guard, SQL ledger investigation |
 | [`SECRET_AND_CERT_ROTATION.md`](../runbooks/SECRET_AND_CERT_ROTATION.md) | Broader secret rotation posture |
 | [`PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md) | Hosted staging deployment checks |
+| [`TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md) | Trial funnel validation before GA |
 | [`redirects.md`](../redirects.md) | Former doc paths |

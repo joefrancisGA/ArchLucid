@@ -1,4 +1,4 @@
-> **Scope:** Azure Marketplace — SaaS offer (fulfillment v2) checklist, publisher identity placeholders, webhook behavior, GA rollback, and ArchLucid configuration.
+> **Scope:** Azure Marketplace — SaaS offer (fulfillment v2) checklist, publication (GTM), publisher identity placeholders, webhook behavior, GA rollback, and ArchLucid configuration.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -43,6 +43,34 @@ Tier naming for publication docs is guarded by **`python scripts/ci/assert_marke
 The legal entity for Partner Center tax and payout profiles is **Joseph Francis (Sole Proprietorship)** (owner decision 2026-04-27). This name appears on tax and banking records, while the **publisher display name** on the listing card remains **`ArchLucid`**.
 
 **Planned migration:** move seller-of-record and related commercial identity to **Francis Architecture, LLC** per [`FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](../runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md). Until that runbook completes and **`CHANGELOG.md`** records execution, treat the **sole proprietorship** line above as the live Partner Center legal identity.
+
+## Publication checklist (GTM)
+
+Track **Partner Center** and repository steps so a transactable SaaS offer can go live without ad-hoc gaps. Technical webhook behavior is in § **Webhook actions** and § **Marketplace GA rollback** below; billing architecture is in [`BILLING.md`](../library/BILLING.md).
+
+### Preconditions (owner)
+
+1. **Microsoft Partner Center** account in **Commercial Marketplace** program — **seller / legal verification complete** (see § Publisher identity above).
+2. **Landing page URL** aligned with `Billing:AzureMarketplace:LandingPageUrl` (query parameters documented in § Step-by-step).
+3. **Webhook URL** reachable from Microsoft: `https://<api-host>/v1/billing/webhooks/marketplace` with Entra validation as configured.
+4. **Managed identity** (or secret) authorized for Marketplace fulfillment API audience `https://marketplaceapi.microsoft.com` when activation calls are enabled.
+
+### Publication steps
+
+1. Create **Software as a Service** offer; map plans to ArchLucid tiers (`Team` / `Professional` / `Enterprise`) per [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (single source of truth for list prices).
+2. Paste **listing copy**; include reference-customer row from [`reference-customers/README.md`](reference-customers/README.md) when a **Published** row exists.
+3. Complete **technical configuration** (landing page, webhook, tenant ID for JWT validation) — § Step-by-step below.
+4. Run **certification** / validation in Partner Center; fix findings.
+5. **Go live** — record date in [`CHANGELOG.md`](../CHANGELOG.md).
+
+### Default Azure region
+
+Production primary region is **Central US** for new Terraform stacks unless compliance requires otherwise — see [`REFERENCE_SAAS_STACK_ORDER.md`](../library/REFERENCE_SAAS_STACK_ORDER.md).
+
+### Blockers requiring human owner
+
+- **Tax profile** and **payout account** (Partner Center) until configured.
+- **Azure subscription id** for production (dedicated) — see [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md).
 
 ## Step-by-step (operator)
 
@@ -210,7 +238,6 @@ After the root cause is fixed, re-enable in the **reverse** order of the flip: a
 
 ## Related
 
-- [`MARKETPLACE_PUBLICATION.md`](MARKETPLACE_PUBLICATION.md) — publication checklist (GTM steps, region, owner blockers)
 - [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) — item **8** (Marketplace publication go-live)
 - [`BILLING.md`](../library/BILLING.md)
 - [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md) — signature/JWT + replay layers

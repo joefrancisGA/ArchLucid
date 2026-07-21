@@ -101,7 +101,7 @@ public sealed class FrontierAiBaselineRunnerTests
             string root = Path.Combine(Path.GetTempPath(), "archlucid-frontier-baseline-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
 
-            WriteFile(root, Path.Combine("docs", "go-to-market", "MARKETPLACE_PUBLICATION.md"), "# marker");
+            WriteFile(root, Path.Combine("docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md"), "# marker");
             WriteFile(root, Path.Combine("fixtures", "bakeoff", "frontier-ai-scoreboard.template.md"), "# template");
             WriteFile(root, Path.Combine("fixtures", "bakeoff", "session-template", "README.md"), "# session template");
             WriteFile(

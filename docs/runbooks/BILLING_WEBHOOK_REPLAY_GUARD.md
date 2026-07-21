@@ -4,14 +4,15 @@
 
 # Billing webhook replay guard
 
-**Last reviewed:** 2026-05-26
+**Last reviewed:** 2026-07-21
 
 **Audience:** Platform operators and support engineers investigating duplicate billing webhooks, HTTP **400** replay rejections, or subscription rows that did not update after a provider resend.
 
-ArchLucid uses **two independent layers** before mutating subscription state:
+ArchLucid applies **three layers** before mutating subscription state:
 
 1. **Cryptographic verification** — proves the caller is Stripe or Microsoft Marketplace (not a replay guard).
-2. **Replay detection + SQL idempotency** — prevents the same logical event from applying side effects twice.
+2. **In-memory replay guard** — rejects duplicate `EventId` within **24 hours** per API process.
+3. **SQL ledger idempotency** — durable dedupe via `dbo.BillingWebhookEvents` (survives restarts).
 
 ---
 
@@ -19,8 +20,11 @@ ArchLucid uses **two independent layers** before mutating subscription state:
 
 | Provider | Route | Trust mechanism | Dedupe key (`dbo.BillingWebhookEvents.EventId`) |
 |----------|-------|-----------------|--------------------------------------------------|
-| **Stripe** | `POST /v1/billing/webhooks/stripe` | `Stripe-Signature` HMAC + `Billing:Stripe:WebhookSigningSecret` (300s clock skew tolerance) | Stripe `event.id` |
+| **Stripe** (wallet) | `POST /v1/billing/webhooks/stripe` | `Stripe-Signature` HMAC + wallet or fallback signing secret (300s clock skew) | Stripe `event.id` |
+| **Stripe** (checkout / subscriptions) | `POST /v1/billing/webhooks/stripe/subscriptions` | `Stripe-Signature` HMAC + subscription or fallback signing secret (300s clock skew) | Stripe `event.id` |
 | **Azure Marketplace** | `POST /v1/billing/webhooks/marketplace` | `Authorization: Bearer` JWT via OIDC metadata (`Billing:AzureMarketplace:OpenIdMetadataAddress`) | `{subscriptionId}|{action}|{payloadHash}` |
+
+Checkout and subscription lifecycle events must register on **`/stripe/subscriptions`** — not the wallet route alone. Route matrix: [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhooks).
 
 Implementation: `StripeBillingProvider`, `AzureMarketplaceBillingProvider`, `MemoryCacheBillingWebhookReplayGuard`, `IBillingLedger`.
 
@@ -34,7 +38,7 @@ Implementation: `StripeBillingProvider`, `AzureMarketplaceBillingProvider`, `Mem
 | Stripe signature invalid / timestamp outside tolerance | **400** | Wrong secret, body mutation, or event older than **300 seconds** at verification time. |
 | Marketplace JWT validation failed | **400** | Wrong bearer, expired token, or metadata mismatch — not a duplicate-event case. |
 
-**Operator action:** Fix secrets and network path first. See [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage) and [`docs/library/BILLING.md`](../library/BILLING.md) § Security model.
+**Operator action:** Fix secrets and network path first. See [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage) and [`BILLING.md`](../library/BILLING.md) § Security model.
 
 ---
 
@@ -123,7 +127,7 @@ WHERE TenantId = @TenantId;
 ### Stripe — legitimate provider resend (recommended)
 
 1. Confirm the row is **`Failed`** or missing — not **`Processed`**.
-2. Fix root cause (metadata, signing secret, environment routing).
+2. Fix root cause (metadata, signing secret, environment routing, **correct webhook route** — checkout events on `/stripe/subscriptions`).
 3. In Stripe Dashboard → **Developers → Events** → select event → **Resend**.
 4. Expect **200** when processing succeeds; **400** replay rejected when already **`Processed`** or within 24h in-memory guard on a hot instance.
 
@@ -155,7 +159,7 @@ Stripe test-mode events use the same dedupe keys and ledger. Use a **non-product
 
 | Doc | Use |
 |-----|-----|
-| [`docs/library/BILLING.md`](../library/BILLING.md) | Provider abstraction, checkout flow, config keys |
+| [`BILLING.md`](../library/BILLING.md) | Provider abstraction, checkout flow, config keys |
 | [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage) | Stripe delivery failures and secret rotation |
 | [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#marketplace-ga-rollback-changeplan--changequantity) | Marketplace GA rollback and forced re-process |
 | [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) | Billing webhook STRIDE row |

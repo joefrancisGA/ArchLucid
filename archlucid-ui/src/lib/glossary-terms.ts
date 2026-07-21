@@ -21,8 +21,8 @@ export const GLOSSARY_TERMS = {
     docLink: "/help/glossary#term-signed-review-record",
   },
   review_package: {
-    term: "Architecture review",
-    definition: "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list. Former term: *review package*.",
+    term: "Review package",
+    definition: "A governed architecture review with signed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
   findings: {

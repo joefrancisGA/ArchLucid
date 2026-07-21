@@ -111,7 +111,7 @@ public sealed class ArchlucidStackInitOrchestratorTests
         try
         {
             Directory.CreateDirectory(Path.Combine(fakeRoot, "docs", "go-to-market"));
-            File.WriteAllText(Path.Combine(fakeRoot, "docs", "go-to-market", "MARKETPLACE_PUBLICATION.md"), "marker");
+            File.WriteAllText(Path.Combine(fakeRoot, "docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md"), "marker");
 
             StackInitOptions options = new()
             {

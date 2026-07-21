@@ -54,7 +54,7 @@ internal static class ProcurementPackCommand
         if (repoRoot is null || !Directory.Exists(repoRoot))
         {
             await Console.Error.WriteLineAsync(
-                "Could not locate repository root (expected docs/go-to-market/MARKETPLACE_PUBLICATION.md). "
+                "Could not locate repository root (expected docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md). "
                 + "Run from the repo tree.");
 
             return CliExitCode.UsageError;

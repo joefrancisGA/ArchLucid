@@ -8,7 +8,7 @@
 
 **Priority:** P1 — Adoption (enterprise workforce SSO; certificate expiry causes hard sign-in failures)
 
-**Alias:** Older links may use [`SAML_CERT_ROTATION.md`](SAML_CERT_ROTATION.md) — this file is the canonical runbook path for **`CONFIGURATION_REFERENCE.md`** and operator UI doc resolution.
+**Canonical path:** Linked from **`CONFIGURATION_REFERENCE.md`** and operator UI doc resolution. Former short alias `SAML_CERT_ROTATION.md` — see [`redirects.md`](../redirects.md).
 
 ## Summary
 

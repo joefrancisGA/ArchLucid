@@ -13,7 +13,7 @@
 | [TRIAL_AND_SIGNUP.md](../go-to-market/TRIAL_AND_SIGNUP.md) | Trial is described as “Team features”; tenants remain `TenantTier.Free` until conversion — **see §3 trial alignment** below. **Parameter drift (outside §3 table):** doc specifies **30**-day duration; `TrialTenantBootstrapService` still sets `AddDays(14)` (`ArchLucid.Application/Tenancy/TrialTenantBootstrapService.cs` line ~99) — reconcile separately from packaging gates. |
 | [BILLING.md](BILLING.md) | `IBillingProvider` / webhooks; maps paid checkout to tenant tier via SQL — **does not** implement per-feature rows from §3. |
 | [STRIPE_CHECKOUT.md](../go-to-market/STRIPE_CHECKOUT.md) | Stripe Team SKU → persistence tier via `BillingTierCode` (see code citations). |
-| [MARKETPLACE_PUBLICATION.md](../go-to-market/MARKETPLACE_PUBLICATION.md) | Plan labels must align with **Team / Professional / Enterprise**; marketplace webhooks feed the same `TenantTier` storage as Stripe when configured. |
+| [AZURE_MARKETPLACE_SAAS_OFFER.md](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publication-checklist-gtm) | Plan labels must align with **Team / Professional / Enterprise**; marketplace webhooks feed the same `TenantTier` storage as Stripe when configured. |
 
 ## §1 Persistence and checkout truth model (blocks fine-grained Team vs Professional gates)
 

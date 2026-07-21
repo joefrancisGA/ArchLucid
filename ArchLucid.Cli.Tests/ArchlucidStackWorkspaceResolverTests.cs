@@ -100,7 +100,7 @@ public sealed class ArchlucidStackWorkspaceResolverTests
         string tempRoot = Path.Combine(Path.GetTempPath(), "archlucid-stack-" + Guid.NewGuid().ToString("N"));
         string docsDir = Path.Combine(tempRoot, "docs", "go-to-market");
         Directory.CreateDirectory(docsDir);
-        File.WriteAllText(Path.Combine(docsDir, "MARKETPLACE_PUBLICATION.md"), "# test");
+        File.WriteAllText(Path.Combine(docsDir, "AZURE_MARKETPLACE_SAAS_OFFER.md"), "# test");
 
         return tempRoot;
     }
