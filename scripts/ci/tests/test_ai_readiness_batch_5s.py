@@ -11,10 +11,15 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestAiReadinessBatch5S(unittest.TestCase):
     def test_tb_179_starter_task_factory_assigns_tier_overrides(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Application" / "Runs" / "Coordination" / "RunStarterTaskFactory.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("ModelTierOverride = LlmModelTier.Economy", text)
-        self.assertIn("ModelTierOverride = LlmModelTier.Premium", text)
+        factory_path = REPO_ROOT / "ArchLucid.Application" / "Runs" / "Coordination" / "RunStarterTaskFactory.cs"
+        factory_text = factory_path.read_text(encoding="utf-8")
+        self.assertEqual(factory_text.count("ModelTierOverride = ResolveModelTier"), 4)
+        self.assertIn("AgentModelExecutionProfileTierPolicy.ResolveTier", factory_text)
+
+        policy_path = REPO_ROOT / "ArchLucid.Core" / "Agents" / "AgentModelExecutionProfileTierPolicy.cs"
+        policy_text = policy_path.read_text(encoding="utf-8")
+        self.assertIn("LlmModelTier.Economy", policy_text)
+        self.assertIn("LlmModelTier.Premium", policy_text)
 
     def test_tb_179_default_agent_type_tier_mappings_exist(self) -> None:
         path = REPO_ROOT / "ArchLucid.AgentRuntime" / "AgentModelTierDefaults.cs"
