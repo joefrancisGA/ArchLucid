@@ -1,4 +1,5 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
