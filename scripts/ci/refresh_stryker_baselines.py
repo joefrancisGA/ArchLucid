@@ -29,7 +29,6 @@ STRYKER_TARGETS: list[tuple[str, str]] = [
     ("Persistence", "stryker-config.persistence.json"),
     ("Application", "stryker-config.application.json"),
     ("AgentRuntime", "stryker-config.agentruntime.json"),
-    ("Coordinator", "stryker-config.coordinator.json"),
     ("Decisioning", "stryker-config.decisioning.json"),
     ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
     # Api added 2026-04-20 (Quality Assessment Improvement 4). Honest starting

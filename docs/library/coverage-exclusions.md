@@ -29,7 +29,7 @@ After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cob
 
 **Exclusions in `coverage.runsettings`:** Tier-5 excludes (generated **OpenAPI** client, **NSwag** output, etc.) shrink denominators for merged Cobertura; gates still apply to the merged tree. **`ArchLucid.Worker/Program.cs`** is also excluded (**composition root**; logic is covered in `Host.Composition` / `Host.Core`). See the **`coverage.runsettings`** file at repo root for the current exclude list.
 
-**Stryker:** Scheduled mutation runs use multiple **`stryker-config*.json`** files (Persistence, Application, Decisioning, Coordinator, AgentRuntime); baseline scores are asserted via **`scripts/ci/assert_stryker_score_vs_baseline.py`** against **`stryker-baselines.json`**. Narrative: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
+**Stryker:** Scheduled mutation runs use multiple **`stryker-config*.json`** files (Persistence, Application, Decisioning, AgentRuntime); baseline scores are asserted via **`scripts/ci/assert_stryker_score_vs_baseline.py`** against **`stryker-baselines.json`**. Narrative: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
 
 ## Exclusion Policy
 
