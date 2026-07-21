@@ -1777,12 +1777,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> SampleAsync(string? systemName, string? primaryEnvironment);
+        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> SampleAsync(string? sourceState);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> SampleAsync(string? systemName, string? primaryEnvironment, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> SampleAsync(string? sourceState, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -4412,12 +4412,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> Sample2Async(string? systemName, string? primaryEnvironment);
+        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> Sample2Async(string? sourceState);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> Sample2Async(string? systemName, string? primaryEnvironment, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ArchitectureQuickScanResponse> Sample2Async(string? sourceState, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -39226,15 +39226,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureQuickScanResponse> SampleAsync(string? systemName, string? primaryEnvironment)
+        public virtual System.Threading.Tasks.Task<ArchitectureQuickScanResponse> SampleAsync(string? sourceState)
         {
-            return SampleAsync(systemName, primaryEnvironment, System.Threading.CancellationToken.None);
+            return SampleAsync(sourceState, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureQuickScanResponse> SampleAsync(string? systemName, string? primaryEnvironment, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureQuickScanResponse> SampleAsync(string? sourceState, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -39250,13 +39250,9 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "v1/architecture/quick-scan/sample"
                     urlBuilder_.Append("v1/architecture/quick-scan/sample");
                     urlBuilder_.Append('?');
-                    if (systemName != null)
+                    if (sourceState != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("systemName")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(systemName, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (primaryEnvironment != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("primaryEnvironment")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(primaryEnvironment, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("sourceState")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(sourceState, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -90089,15 +90085,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureQuickScanResponse> Sample2Async(string? systemName, string? primaryEnvironment)
+        public virtual System.Threading.Tasks.Task<ArchitectureQuickScanResponse> Sample2Async(string? sourceState)
         {
-            return Sample2Async(systemName, primaryEnvironment, System.Threading.CancellationToken.None);
+            return Sample2Async(sourceState, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureQuickScanResponse> Sample2Async(string? systemName, string? primaryEnvironment, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureQuickScanResponse> Sample2Async(string? sourceState, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -90113,13 +90109,9 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "v1/marketing/quick-scan/sample"
                     urlBuilder_.Append("v1/marketing/quick-scan/sample");
                     urlBuilder_.Append('?');
-                    if (systemName != null)
+                    if (sourceState != null)
                     {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("systemName")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(systemName, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    if (primaryEnvironment != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("primaryEnvironment")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(primaryEnvironment, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                        urlBuilder_.Append(System.Uri.EscapeDataString("sourceState")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(sourceState, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
                     urlBuilder_.Length--;
 
@@ -134011,6 +134003,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("capacityAvailable")]
         public bool? CapacityAvailable { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("capacityState")]
+        public string? CapacityState { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("capacityStateMessage")]
+        public string? CapacityStateMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("enabled")]
         public bool? Enabled { get; set; } = default!;

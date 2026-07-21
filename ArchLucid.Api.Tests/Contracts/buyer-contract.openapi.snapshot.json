@@ -31456,14 +31456,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "systemName",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "primaryEnvironment",
+            "name": "sourceState",
             "schema": {
               "type": "string"
             }
