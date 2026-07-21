@@ -22,7 +22,7 @@
     <PackageReference Include="Xunit.SkippableFact" />
     <PackageReference Include="WireMock.Net" />
     <PackageReference Include="Scriban.Signed" />
-    <PackageReference Include="System.Security.Cryptography.Xml" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" />
     <PackageReference Include="Handlebars.Net.Helpers.Humanizer" />
     <PackageReference Include="Humanizer" />
     <PackageReference Include="xunit.runner.visualstudio" />
