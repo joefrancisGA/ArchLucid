@@ -57,7 +57,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
 
         for (int ascent = 0; ascent < 28 && directory is not null; ascent++)
         {
-            string marker = Path.Combine(directory.FullName, "docs", "go-to-market", "MARKETPLACE_PUBLICATION.md");
+            string marker = Path.Combine(directory.FullName, "docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md");
 
             if (File.Exists(marker))
                 return directory.FullName;
@@ -66,7 +66,7 @@ public sealed class BuyerProofPackCommandTests : IDisposable
         }
 
         throw new InvalidOperationException(
-            "Could not locate repository root from test output directory (missing docs/go-to-market/MARKETPLACE_PUBLICATION.md).");
+            "Could not locate repository root from test output directory (missing docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md).");
     }
 
     [Fact]

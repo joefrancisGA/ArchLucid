@@ -34,12 +34,8 @@ public sealed class MarketplacePreflightRunnerTests
             "no canonical row here\n");
 
         File.WriteAllText(
-            Path.Combine(temp, "docs", "go-to-market", "MARKETPLACE_PUBLICATION.md"),
-            "wrong triple `Team` / `Pro` / `Enterprise`\n");
-
-        File.WriteAllText(
             Path.Combine(temp, "docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md"),
-            "Professional tier docs must not use deprecated `Pro` slug.\n");
+            "wrong triple `Team` / `Pro` / `Enterprise`\nProfessional tier mentioned.\n");
 
         File.WriteAllText(Path.Combine(temp, "docs", "library", "BILLING.md"), "missing routes on purpose\n");
 
@@ -50,7 +46,7 @@ public sealed class MarketplacePreflightRunnerTests
             IReadOnlyList<MarketplacePreflightStepResult> steps = MarketplacePreflightRunner.Evaluate(temp);
 
             steps.Should().Contain(static s => s.Id == "pricing_canonical_packaging_row" && !s.Passed);
-            steps.Should().Contain(static s => s.Id == "publication_plan_tier_triple" && !s.Passed);
+            steps.Should().Contain(static s => s.Id == "azure_plan_tier_triple" && !s.Passed);
             steps.Should().Contain(static s => s.Id == "azure_no_pro_tier_slug" && !s.Passed);
         }
         finally

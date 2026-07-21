@@ -21,7 +21,7 @@ const SAML_SIGNING_CERT_BANNER_DISMISS_SESSION_KEY = "archlucid.dismiss.samlSign
 
 const SAML_SIGNING_CERT_EXPIRY_BANNER_DISMISS_LABEL = "Dismiss SAML signing certificate reminder";
 
-const SAML_ROTATION_RUNBOOK_URL = resolveInAppDocHref("docs/library/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md");
+const SAML_ROTATION_RUNBOOK_URL = resolveInAppDocHref("docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md");
 
 export type SamlOperationalHealthStripProps = {
   payload: AdminSamlOperationalHealthResponse | null;

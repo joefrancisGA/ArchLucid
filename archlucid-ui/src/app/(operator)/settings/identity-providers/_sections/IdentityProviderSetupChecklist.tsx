@@ -29,7 +29,7 @@ type SetupStep = {
 
 const PRODUCTION_LIKE_AUTH_DOC = "/docs/library/CONFIGURATION_REFERENCE.md";
 const OIDC_DOC = "/docs/runbooks/GENERIC_OIDC_SETUP.md";
-const SAML_DOC = "/docs/runbooks/SAML_CERT_ROTATION.md";
+const SAML_DOC = "/docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md";
 
 function statusClass(status: SetupStep["status"]): string {
   switch (status) {

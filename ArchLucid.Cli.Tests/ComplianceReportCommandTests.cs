@@ -50,7 +50,7 @@ public sealed class ComplianceReportCommandTests
 
         for (int ascent = 0; ascent < 28 && directory is not null; ascent++)
         {
-            string marker = Path.Combine(directory.FullName, "docs", "go-to-market", "MARKETPLACE_PUBLICATION.md");
+            string marker = Path.Combine(directory.FullName, "docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md");
 
             if (File.Exists(marker))
                 return directory.FullName;

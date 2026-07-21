@@ -280,10 +280,52 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   },
   {
     "docPath": "docs/CORE_PILOT.md",
-    "docTitle": "Your first architecture review (pointer)",
+    "docTitle": "Your first architecture review",
     "sectionSlug": "",
-    "sectionHeading": "Your first architecture review (pointer) — overview",
-    "excerpt": "The customer-facing first-session walkthrough is [`docs/CORE_PILOT.md`](../CORE_PILOT.md)."
+    "sectionHeading": "Your first architecture review — overview",
+    "excerpt": "Use this guide with the [Pilot guide](/help/pilot-guide) to prepare for a pilot, interpret outputs, and get support contacts."
+  },
+  {
+    "docPath": "docs/CORE_PILOT.md",
+    "docTitle": "Your first architecture review",
+    "sectionSlug": "first-review-path",
+    "sectionHeading": "First review path",
+    "excerpt": "Start with evidence, run the review, finalize the package, then share sponsor-ready outputs."
+  },
+  {
+    "docPath": "docs/CORE_PILOT.md",
+    "docTitle": "Your first architecture review",
+    "sectionSlug": "run-the-first-review",
+    "sectionHeading": "Run the first review",
+    "excerpt": "1. Start review — open Create architecture and name what you want reviewed. 2. Add evidence — attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional. 3. Run analysis — execute the assessment on review detail until ready to finalize. 4. Finalize package — commit the governed review record,…"
+  },
+  {
+    "docPath": "docs/CORE_PILOT.md",
+    "docTitle": "Your first architecture review",
+    "sectionSlug": "cloud-connectors-are-optional-for-your-first-review",
+    "sectionHeading": "Cloud connectors are optional for your first review",
+    "excerpt": "You can run an evidence-only review first, then connect Azure, AWS, or GCP later when source-system evidence is needed."
+  },
+  {
+    "docPath": "docs/CORE_PILOT.md",
+    "docTitle": "Your first architecture review",
+    "sectionSlug": "fast-path-evidence-only-review",
+    "sectionHeading": "Fast path: evidence-only review",
+    "excerpt": "Recommended when connector access has not yet been approved, or when your first session only has briefs, diagrams, IaC, screenshots, exports, or policy documents."
+  },
+  {
+    "docPath": "docs/CORE_PILOT.md",
+    "docTitle": "Your first architecture review",
+    "sectionSlug": "what-can-wait",
+    "sectionHeading": "What can wait",
+    "excerpt": "What can wait"
+  },
+  {
+    "docPath": "docs/CORE_PILOT.md",
+    "docTitle": "Your first architecture review",
+    "sectionSlug": "ready-to-begin",
+    "sectionHeading": "Ready to begin?",
+    "excerpt": "- [Start architecture review](/reviews/new) - [Open sample review](/reviews/claims-intake-modernization)"
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",

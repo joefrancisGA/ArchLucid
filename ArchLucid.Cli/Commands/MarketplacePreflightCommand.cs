@@ -48,7 +48,7 @@ internal static class MarketplacePreflightCommand
         if (root is null || !Directory.Exists(root))
         {
             Console.Error.WriteLine(
-                "Could not locate repository root (expected docs/go-to-market/MARKETPLACE_PUBLICATION.md). " +
+                "Could not locate repository root (expected docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md). " +
                 "Run from the repo tree or pass --repo <absolute-or-relative-path>.");
 
             return Task.FromResult(CliExitCode.UsageError);
@@ -84,7 +84,7 @@ internal static class MarketplacePreflightCommand
         Console.WriteLine(new string('-', 72));
         Console.WriteLine(
             allPassed
-                ? "PASS — see docs/go-to-market/MARKETPLACE_PUBLICATION.md for human checklist items."
+                ? "PASS — see docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md for human checklist items."
                 : "FAIL — fix repository/doc drift before publishing in Partner Center.");
 
         return Task.FromResult(allPassed ? CliExitCode.Success : CliExitCode.OperationFailed);

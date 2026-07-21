@@ -405,7 +405,7 @@ Layers map to [`REFERENCE_SAAS_STACK_ORDER.md`](../library/REFERENCE_SAAS_STACK_
 | B.5.2 | `archlucid doctor --api <base>` — no schema-version defects |
 | B.5.3 | **System + tenant topology:** repeat for system and pilot tenant catalogs when `SqlTopology:Mode=SystemWithPerTenantCatalogs` |
 
-Rolling-deploy migration patterns: [`ROLLING_DEPLOY_MIGRATIONS.md`](./ROLLING_DEPLOY_MIGRATIONS.md).
+Rolling-deploy migration patterns: [`MIGRATION_ROLLBACK.md`](./MIGRATION_ROLLBACK.md#rolling-deploy-migrations).
 
 ### B.6 Smoke test (production base URL)
 

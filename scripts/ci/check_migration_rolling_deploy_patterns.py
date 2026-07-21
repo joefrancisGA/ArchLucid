@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MIGRATION_PATH = re.compile(r"^ArchLucid\.Persistence/Migrations/(\d{3})_[A-Za-z0-9_]+\.sql$")
 
-# Allow-list: historical migrations documented in ROLLING_DEPLOY_MIGRATIONS.md
+# Allow-list: historical migrations documented in MIGRATION_ROLLBACK.md § Rolling deploy migrations
 ALLOWLIST = {
     "116",
     "214",
@@ -144,7 +144,7 @@ def main() -> int:
             print(f"  - {issue}", file=sys.stderr)
 
         print(
-            "See docs/runbooks/ROLLING_DEPLOY_MIGRATIONS.md and add allow-list entry only for documented historical scripts.",
+            "See docs/runbooks/MIGRATION_ROLLBACK.md#rolling-deploy-migrations and add allow-list entry only for documented historical scripts.",
             file=sys.stderr,
         )
 

@@ -11,7 +11,7 @@ internal static class ArchlucidStackWorkspaceResolver
         {
             string full = Path.GetFullPath(explicitRoot);
 
-            if (File.Exists(Path.Combine(full, "docs", "go-to-market", "MARKETPLACE_PUBLICATION.md")))
+            if (File.Exists(Path.Combine(full, "docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md")))
             {
                 repositoryRoot = full;
 

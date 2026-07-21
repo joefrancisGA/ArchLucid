@@ -17,13 +17,12 @@ import sys
 REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 PRICING_REL = os.path.normpath("docs/go-to-market/PRICING_PHILOSOPHY.md")
-MARKETPLACE_REL = os.path.normpath("docs/go-to-market/MARKETPLACE_PUBLICATION.md")
 AZURE_SAAS_REL = os.path.normpath("docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md")
 
 # Single row from PRICING_PHILOSOPHY.md §3 "Tier overview" — do not drift without updating this script + docs.
 CANONICAL_PACKAGING_ROW = "| **Team** | **Professional** | **Enterprise** |"
 
-# Publication checklist step 1 — explicit backtick tier triple (see MARKETPLACE_PUBLICATION.md).
+# Publication checklist step 1 — explicit backtick tier triple (see AZURE_MARKETPLACE_SAAS_OFFER.md).
 MARKETPLACE_PLAN_TRIPLE = "`Team` / `Professional` / `Enterprise`"
 
 
@@ -49,18 +48,16 @@ def main() -> int:
 
         return 1
 
-    marketplace_pub = _read(MARKETPLACE_REL)
+    azure_saas = _read(AZURE_SAAS_REL)
 
-    if MARKETPLACE_PLAN_TRIPLE not in marketplace_pub:
+    if MARKETPLACE_PLAN_TRIPLE not in azure_saas:
         print(
-            "assert_marketplace_pricing_alignment: MARKETPLACE_PUBLICATION.md must reference "
+            "assert_marketplace_pricing_alignment: AZURE_MARKETPLACE_SAAS_OFFER.md must reference "
             f"the tier triple exactly:\n  {MARKETPLACE_PLAN_TRIPLE}",
             file=sys.stderr,
         )
 
         return 1
-
-    azure_saas = _read(AZURE_SAAS_REL)
 
     if "`Pro`" in azure_saas:
         print(

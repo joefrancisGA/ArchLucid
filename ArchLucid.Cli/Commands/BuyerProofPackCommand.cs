@@ -87,7 +87,7 @@ internal static class BuyerProofPackCommand
         if (repoRoot is null || !Directory.Exists(repoRoot))
         {
             await Console.Error.WriteLineAsync(
-                "Could not locate repository root (docs/go-to-market/MARKETPLACE_PUBLICATION.md). Run from the repo tree or pass --repo-root.");
+                "Could not locate repository root (docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md). Run from the repo tree or pass --repo-root.");
 
             return CliExitCode.UsageError;
         }

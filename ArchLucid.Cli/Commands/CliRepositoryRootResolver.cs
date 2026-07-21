@@ -2,7 +2,7 @@ namespace ArchLucid.Cli.Commands;
 
 /// <summary>
 ///     Locates the ArchLucid git repository root from a starting directory by probing for
-///     <c>docs/go-to-market/MARKETPLACE_PUBLICATION.md</c> (stable marker for CLI commands that read repo docs).
+///     <c>docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md</c> (stable marker for CLI commands that read repo docs).
 /// </summary>
 internal static class CliRepositoryRootResolver
 {
@@ -20,7 +20,7 @@ internal static class CliRepositoryRootResolver
                 directory.FullName,
                 "docs",
                 "go-to-market",
-                "MARKETPLACE_PUBLICATION.md");
+                "AZURE_MARKETPLACE_SAAS_OFFER.md");
 
             if (File.Exists(marker))
                 return directory.FullName;
