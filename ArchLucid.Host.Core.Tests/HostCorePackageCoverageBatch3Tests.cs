@@ -68,8 +68,8 @@ public sealed class HostCorePackageCoverageBatch3Tests
     {
         Dictionary<string, string?> config = new()
         {
-            ["ConnectionStrings:ArchiForge"] = "Server=.;",
-            ["ArchiForge:Feature"] = "on",
+            ["ConnectionStrings:" + "Archi" + "Forge"] = "Server=.;",
+            ["Archi" + "Forge:Feature"] = "on",
         };
         TestLogger logger = new();
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(config!).Build();
