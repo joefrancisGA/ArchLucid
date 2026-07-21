@@ -40,10 +40,11 @@ public sealed class RegistrationDuplicateOrganizationRegressionTests
     [Fact]
     public void Registration_controller_tests_use_env_mutation_collection()
     {
-        CollectionAttribute? collection = typeof(RegistrationControllerTests)
-            .GetCustomAttribute<CollectionAttribute>();
+        CustomAttributeData? collectionData = typeof(RegistrationControllerTests)
+            .CustomAttributes
+            .FirstOrDefault(attribute => attribute.AttributeType == typeof(CollectionAttribute));
 
-        collection.Should().NotBeNull();
-        collection!.Name.Should().Be("ArchLucidEnvMutation");
+        collectionData.Should().NotBeNull();
+        collectionData!.ConstructorArguments[0].Value.Should().Be("ArchLucidEnvMutation");
     }
 }
