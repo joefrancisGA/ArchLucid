@@ -1,7 +1,8 @@
 # Staging-oriented example: merge into staging.tfvars (gitignored) or use:
 #   terraform apply -var-file=staging.tfvars.example
-# See production.tfvars.example for production replica/budget knobs.
+# See production.tfvars.example for production replica/budget knobs. TB-905 drill: secondary region always on; SQL failover enabled for drill window only.
 
+posture_tier          = "staging"
 enable_container_apps = true
 create_resource_group   = true
 resource_group_name     = "rg-archlucid-ca-staging"
@@ -34,3 +35,9 @@ tags = {
 }
 
 finops_environment = "staging"
+
+# TB-903 / TB-905: secondary region always on in staging; geo-failover drill exercises Front Door secondary origin + paired compute.
+secondary_region_stack_enabled   = true
+secondary_resource_group_name    = "rg-archlucid-ca-staging-secondary"
+secondary_location               = "centralus"
+# secondary_container_apps_subnet_id = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Network/virtualNetworks/<vnet>/subnets/<subnet>"

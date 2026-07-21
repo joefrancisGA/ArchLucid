@@ -73,7 +73,7 @@ Document **Recovery Time Objective (RTO)** and **Recovery Point Objective (RPO)*
 
 ## Operational considerations
 
-- **Drills:** Run at least annual **geo-failover** exercises for production; record actual RTO/RPO achieved vs table above.
+- **Drills:** Run at least annual **geo-failover** exercises for production; record actual RTO/RPO achieved vs table above. **V1 controlled pilots:** execute the **staging-proven path** in `docs/runbooks/TB-905_STAGING_RELIABILITY_DRILL.md` before representing production RPO/RTO externally; first measured run populates `docs/quality/game-day-log/FAILOVER_RESULTS.md`.
 - **Monitoring:** Alert on **geo-replication lag** and failed failovers; tie to SLO dashboards in `infra/grafana/dashboard-archlucid-slo.json` and `docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`.
 - **Review:** Revisit this document after major topology changes (single region → multi-region, SQL tier change).
 

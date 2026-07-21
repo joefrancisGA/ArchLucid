@@ -50,6 +50,14 @@ After each drill, append a row to **Latest run** below with:
 - `http_req_failed` rate
 - Any 5xx or unexpected LLM proxy calls on showcase paths (treat as regression)
 
+**TB-905 (staging):** after `run_launch_load_drill.sh`, run:
+
+```powershell
+.\scripts\ops\append-launch-load-drill-results.ps1 -SummaryDir artifacts/launch-load-drill/<timestamp> -Environment staging -Apply
+```
+
+See `docs/runbooks/TB-905_STAGING_RELIABILITY_DRILL.md`.
+
 ### Latest run
 
 | Date | Environment | Showcase peak VUs | Showcase p95 (ms) | Error rate | Auth peak VUs | Auth p95 (ms) | Notes |
