@@ -41,6 +41,24 @@ public sealed class GoldenCohortMultiCloudArchitectureRequestFactoryTests
         document.Items.Should().HaveCount(4);
         document.Items.Should().OnlyContain(item => !string.IsNullOrWhiteSpace(item.Id));
     }
+
+    [Fact]
+    public void BuildAwsServerlessIngestion_sets_aws_cloud_provider()
+    {
+        GoldenCohortMultiCloudArchitectureRequestFactory.BuildAwsServerlessIngestion("002")
+            .CloudProvider
+            .Should()
+            .Be(CloudProvider.Aws);
+    }
+
+    [Fact]
+    public void BuildGcpComputeLift_sets_gcp_cloud_provider()
+    {
+        GoldenCohortMultiCloudArchitectureRequestFactory.BuildGcpComputeLift("002")
+            .CloudProvider
+            .Should()
+            .Be(CloudProvider.Gcp);
+    }
 }
 
 internal static class RepoPaths

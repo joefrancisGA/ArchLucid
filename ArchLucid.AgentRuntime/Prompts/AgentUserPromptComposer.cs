@@ -45,11 +45,12 @@ public static class AgentUserPromptComposer
         string runId,
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
-        AgentTask task)
+        AgentTask task,
+        CloudProvider effectiveCloudTarget)
     {
         StringBuilder sb = new();
 
-        AgentUserPromptStaticPrefix.AppendCompliance(sb);
+        AgentUserPromptStaticPrefix.AppendCompliance(sb, effectiveCloudTarget);
         AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Compliance");
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
@@ -63,11 +64,12 @@ public static class AgentUserPromptComposer
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         AgentTask task,
+        CloudProvider effectiveCloudTarget,
         CostRetailGroundingResult grounding)
     {
         StringBuilder sb = new();
 
-        AgentUserPromptStaticPrefix.AppendCost(sb);
+        AgentUserPromptStaticPrefix.AppendCost(sb, effectiveCloudTarget);
         AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Cost");
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
@@ -86,11 +88,12 @@ public static class AgentUserPromptComposer
         string runId,
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
-        AgentTask task)
+        AgentTask task,
+        CloudProvider effectiveCloudTarget)
     {
         StringBuilder sb = new();
 
-        AgentUserPromptStaticPrefix.AppendCritic(sb);
+        AgentUserPromptStaticPrefix.AppendCritic(sb, effectiveCloudTarget);
         AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Critic");
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
 

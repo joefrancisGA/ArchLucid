@@ -39,4 +39,38 @@ public static class GoldenCohortMultiCloudArchitectureRequestFactory
             RequiredCapabilities = ["Container orchestration", "Managed SQL"],
         };
     }
+
+    public static ArchitectureRequest BuildAwsServerlessIngestion(string suffix)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(suffix);
+
+        return new ArchitectureRequest
+        {
+            RequestId = $"golden-cohort-aws-serverless-{suffix}".ToLowerInvariant(),
+            SystemName = $"GoldenCohort_AwsServerless_{suffix}",
+            Description =
+                "AWS event-driven ingestion with Lambda triggers, S3 object notifications, and SQS buffering.",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Aws,
+            Constraints = ["Golden cohort AWS serverless regression", "Least-privilege IAM"],
+            RequiredCapabilities = ["Event ingestion", "Durable object storage"],
+        };
+    }
+
+    public static ArchitectureRequest BuildGcpComputeLift(string suffix)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(suffix);
+
+        return new ArchitectureRequest
+        {
+            RequestId = $"golden-cohort-gcp-compute-{suffix}".ToLowerInvariant(),
+            SystemName = $"GoldenCohort_GcpCompute_{suffix}",
+            Description =
+                "GCP lift-and-shift workload on Compute Engine with Cloud Storage export and VPC firewall rules.",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Gcp,
+            Constraints = ["Golden cohort GCP compute regression", "No public Cloud Storage buckets"],
+            RequiredCapabilities = ["VM hosting", "Object export"],
+        };
+    }
 }

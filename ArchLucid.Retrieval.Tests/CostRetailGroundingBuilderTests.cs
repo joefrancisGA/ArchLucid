@@ -144,6 +144,32 @@ public sealed class CostRetailGroundingBuilderTests
     }
 
     [Fact]
+    public void Build_effective_cloud_neutral_skips_evidence_provider_hints()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "0123456789 evidence-only review",
+            SystemName = "sys",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            CloudProvider = "AWS",
+        };
+
+        CostRetailGroundingResult result = CostRetailGroundingBuilder.Build(
+            request,
+            evidence,
+            CreateLookups(),
+            CloudProvider.None);
+
+        result.SkippedRetailGrounding.Should().BeTrue();
+        result.GroundedProvider.Should().BeNull();
+        result.CitedRows.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Build_gcp_request_uses_billing_catalog_grounding()
     {
         ArchitectureRequest request = new()

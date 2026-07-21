@@ -28,27 +28,57 @@ public static class AgentUserPromptStaticPrefix
     }
 
     /// <summary>Compliance agent action line plus policy inference rules.</summary>
-    public static void AppendCompliance(StringBuilder sb)
+    public static void AppendCompliance(StringBuilder sb, CloudProvider cloudProvider)
     {
         sb.AppendLine("Generate a compliance AgentResult.");
         sb.AppendLine();
-        AppendComplianceImportantGuidance(sb);
+
+        CloudProviderAgentPromptComposer.AppendUserPromptCloudGuidance(sb, AgentType.Compliance, cloudProvider);
+
+        if (cloudProvider == CloudProvider.Azure)
+        {
+            AppendComplianceAzureImportantGuidance(sb);
+        }
+        else if (cloudProvider == CloudProvider.None)
+        {
+            AppendComplianceCloudNeutralImportantGuidance(sb);
+        }
     }
 
     /// <summary>Cost agent action line plus spend guidance.</summary>
-    public static void AppendCost(StringBuilder sb)
+    public static void AppendCost(StringBuilder sb, CloudProvider cloudProvider)
     {
         sb.AppendLine("Generate a cost AgentResult.");
         sb.AppendLine();
-        AppendCostImportantGuidance(sb);
+
+        CloudProviderAgentPromptComposer.AppendUserPromptCloudGuidance(sb, AgentType.Cost, cloudProvider);
+
+        if (cloudProvider == CloudProvider.Azure)
+        {
+            AppendCostAzureImportantGuidance(sb);
+        }
+        else if (cloudProvider == CloudProvider.None)
+        {
+            AppendCostCloudNeutralImportantGuidance(sb);
+        }
     }
 
     /// <summary>Critic agent action line plus finding-quality rules.</summary>
-    public static void AppendCritic(StringBuilder sb)
+    public static void AppendCritic(StringBuilder sb, CloudProvider cloudProvider)
     {
         sb.AppendLine("Generate a critic AgentResult.");
         sb.AppendLine();
-        AppendCriticImportantGuidance(sb);
+
+        CloudProviderAgentPromptComposer.AppendUserPromptCloudGuidance(sb, AgentType.Critic, cloudProvider);
+
+        if (cloudProvider == CloudProvider.Azure)
+        {
+            AppendCriticAzureImportantGuidance(sb);
+        }
+        else if (cloudProvider == CloudProvider.None)
+        {
+            AppendCriticCloudNeutralImportantGuidance(sb);
+        }
     }
 
     private static void AppendTopologyAzureImportantGuidance(StringBuilder sb)
@@ -72,7 +102,7 @@ public static class AgentUserPromptStaticPrefix
         sb.AppendLine();
     }
 
-    private static void AppendComplianceImportantGuidance(StringBuilder sb)
+    private static void AppendComplianceAzureImportantGuidance(StringBuilder sb)
     {
         sb.AppendLine("Important guidance:");
         sb.AppendLine("- Infer mandatory controls conservatively from constraints and required capabilities.");
@@ -87,7 +117,17 @@ public static class AgentUserPromptStaticPrefix
         sb.AppendLine();
     }
 
-    private static void AppendCostImportantGuidance(StringBuilder sb)
+    private static void AppendComplianceCloudNeutralImportantGuidance(StringBuilder sb)
+    {
+        sb.AppendLine("Important guidance:");
+        sb.AppendLine("- Infer mandatory controls conservatively from constraints and required capabilities.");
+        sb.AppendLine("- Avoid Azure-, AWS-, or GCP-specific control names unless ledger-corroborated.");
+        sb.AppendLine("- Prefer reusable machine-friendly findings tied to named evidence elements.");
+        sb.AppendLine("- Return JSON only.");
+        sb.AppendLine();
+    }
+
+    private static void AppendCostAzureImportantGuidance(StringBuilder sb)
     {
         sb.AppendLine("Important guidance:");
         sb.AppendLine("- Prefer managed services with predictable operational cost for MVP workloads.");
@@ -96,13 +136,35 @@ public static class AgentUserPromptStaticPrefix
         sb.AppendLine();
     }
 
-    private static void AppendCriticImportantGuidance(StringBuilder sb)
+    private static void AppendCostCloudNeutralImportantGuidance(StringBuilder sb)
+    {
+        sb.AppendLine("Important guidance:");
+        sb.AppendLine("- Prefer managed services with predictable operational cost for MVP workloads.");
+        sb.AppendLine("- Avoid hyperscaler-specific retail price catalogs unless ledger-corroborated.");
+        sb.AppendLine("- Highlight token/search spend monitoring when AI services are in scope.");
+        sb.AppendLine("- Return JSON only.");
+        sb.AppendLine();
+    }
+
+    private static void AppendCriticAzureImportantGuidance(StringBuilder sb)
     {
         sb.AppendLine("Important guidance:");
         sb.AppendLine("- Challenge prior agent claims; do not restate generic Azure well-architected checklist items.");
         sb.AppendLine("- Every High/Error/Critical finding must name a specific uploaded element and state a concrete gap or dispute.");
         sb.AppendLine("- Prefer machine-friendly UnderSpecified messages (for example ObservabilityUnderSpecified) only when tied to doc:… or azureExtractor:… evidence refs.");
         sb.AppendLine("- Do NOT emit generic checklist advice (for example Enable MFA, Use HTTPS, encrypt data at rest) unless you tie it to a named element in this architecture.");
+        sb.AppendLine("- Omit obvious findings entirely; downgrade any borderline generic item to severity Info with Low confidenceLevel.");
+        sb.AppendLine("- Return at most 8 findings; return JSON only.");
+        sb.AppendLine();
+    }
+
+    private static void AppendCriticCloudNeutralImportantGuidance(StringBuilder sb)
+    {
+        sb.AppendLine("Important guidance:");
+        sb.AppendLine("- Challenge prior agent claims; do not restate generic well-architected checklist items.");
+        sb.AppendLine("- Every High/Error/Critical finding must name a specific uploaded element and state a concrete gap or dispute.");
+        sb.AppendLine("- Prefer machine-friendly UnderSpecified messages only when tied to doc:… evidence refs.");
+        sb.AppendLine("- Do NOT emit generic checklist advice unless tied to a named element in this architecture.");
         sb.AppendLine("- Omit obvious findings entirely; downgrade any borderline generic item to severity Info with Low confidenceLevel.");
         sb.AppendLine("- Return at most 8 findings; return JSON only.");
         sb.AppendLine();

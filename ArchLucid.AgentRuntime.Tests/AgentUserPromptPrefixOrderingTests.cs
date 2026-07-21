@@ -75,7 +75,8 @@ public sealed class AgentUserPromptPrefixOrderingTests
             "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             SampleRequest(),
             SampleEvidence(),
-            task);
+            task,
+            CloudProvider.Azure);
 
         int guidanceIndex = prompt.IndexOf(AgentUserPromptComposer.ImportantGuidanceMarker, StringComparison.Ordinal);
         int runHeaderIndex = prompt.IndexOf(AgentUserPromptComposer.RunHeaderMarker, StringComparison.Ordinal);
@@ -113,6 +114,7 @@ public sealed class AgentUserPromptPrefixOrderingTests
             request,
             SampleEvidence(),
             task,
+            request.CloudProvider,
             grounding);
 
         int guidanceIndex = prompt.IndexOf(AgentUserPromptComposer.ImportantGuidanceMarker, StringComparison.Ordinal);
