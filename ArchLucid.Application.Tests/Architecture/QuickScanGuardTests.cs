@@ -88,12 +88,15 @@ public sealed class QuickScanGuardTests
         };
 
         QuickScanGuard guard = CreateGuard(options);
-        QuickScanGuardContext context = new() { ClientIp = "1.1.1.1", SessionId = "s1", PayloadFingerprint = "fp1" };
+        QuickScanGuardContext firstScan = new() { ClientIp = "1.1.1.1", SessionId = "s1", PayloadFingerprint = "fp1" };
 
-        guard.RecordScanStarted(context);
-        guard.RecordScanCompleted(context, succeeded: true, 0.02m, 100, 50, TimeSpan.FromSeconds(1));
+        guard.RecordScanStarted(firstScan);
+        guard.RecordScanCompleted(firstScan, succeeded: true, 0.02m, 100, 50, TimeSpan.FromSeconds(1));
 
-        QuickScanGuardDecision decision = guard.TryBeginScan(context);
+        // Distinct payload fingerprint isolates the global spend ceiling from the
+        // separate duplicate-payload abuse guard (checked first in TryBeginScan).
+        QuickScanGuardContext nextScan = new() { ClientIp = "1.1.1.1", SessionId = "s1", PayloadFingerprint = "fp2" };
+        QuickScanGuardDecision decision = guard.TryBeginScan(nextScan);
 
         decision.Allowed.Should().BeFalse();
         decision.RejectionReason.Should().Be(QuickScanGuardRejectionReason.GlobalDailySpendCeiling);
