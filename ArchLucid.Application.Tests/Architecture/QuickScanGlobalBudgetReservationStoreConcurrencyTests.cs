@@ -39,7 +39,7 @@ public sealed class QuickScanGlobalBudgetReservationStoreConcurrencyTests
                     maxDayUsd: 100m);
 
                 QuickScanGlobalBudgetReservationStoreResult result =
-                    await store.TryReserveAsync(request).ConfigureAwait(false);
+                    await store.TryReserveAsync(request);
 
                 if (result.Allowed)
                 {

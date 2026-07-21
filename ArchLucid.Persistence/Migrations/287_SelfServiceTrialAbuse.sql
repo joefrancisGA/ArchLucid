@@ -1,5 +1,5 @@
 /*
-  286: Self-service trial abuse tracking (email lifetime cap + domain velocity).
+  287: Self-service trial abuse tracking (email lifetime cap + domain velocity).
 */
 IF OBJECT_ID(N'dbo.PlatformSelfServiceTrialEmailClaims', N'U') IS NULL
 BEGIN
