@@ -59,11 +59,15 @@ public sealed class MarketingQuickScanEndpointTests
 
         await using OpenApiContractWebAppFactory baseFactory = new();
         await using WebApplicationFactory<Program> factory = baseFactory.WithWebHostBuilder(b =>
+        {
+            b.UseSetting("ArchLucid:QuickScan:Safety:Enabled", "true");
+            b.UseSetting("ArchLucid:QuickScan:Safety:AnonymousExecutionEnabled", "true");
             b.ConfigureTestServices(services =>
             {
                 services.RemoveAll<IQuickScanExecutionOrchestrator>();
                 services.AddSingleton(orchestrator.Object);
-            }));
+            });
+        });
 
         HttpClient client = factory.CreateClient();
 
