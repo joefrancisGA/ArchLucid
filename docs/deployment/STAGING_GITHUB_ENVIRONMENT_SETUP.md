@@ -54,7 +54,8 @@ Set at **Settings → Secrets and variables → Actions → Variables** (reposit
 | Variable name | Value | Used by |
 |---------------|-------|---------|
 | `AUTO_DEPLOY_STAGING_MERGE` | `true` | `cd-staging-on-merge.yml` — enables automatic staging deploy on push to `main` |
-| `ARCHLUCID_STAGING_BASE_URL` | `https://staging.archlucid.net` | `hosted-saas-probe.yml` — scheduled health probes |
+| `ARCHLUCID_STAGING_BASE_URL` | `https://staging.archlucid.net` | `hosted-saas-probe.yml` — scheduled API health + showcase probes |
+| `ARCHLUCID_STAGING_UI_BASE_URL` | *(optional; defaults to `ARCHLUCID_STAGING_BASE_URL`)* | `hosted-saas-probe.yml` — UI origin for `/showcase/claims-intake-modernization` when UI is on a different host |
 | `IMAGE_TAG` | *(leave empty)* | CD workflows — defaults to commit SHA when empty |
 | `ARCHLUCID_STAGING_SIGNUP_BASE_URL` | `https://signup.staging.archlucid.net` | `trial-funnel-test-mode.yml` — Playwright e2e base URL |
 

@@ -129,6 +129,19 @@ npx playwright test --grep @founder --project=chromium --headed
 
 against a config whose `baseURL` is the chosen site.
 
+**Showcase availability (`TB-889`, GTM **G-QA-04**):**
+
+```bash
+cd archlucid-ui
+# Mock-backed regression (merge-blocking `ui-playwright-mock-smoke`)
+npm run test:e2e:mock:functional -- --grep @release-smoke
+
+# Post-deploy against staging/production UI (requires reachable site)
+ACCEPTANCE_BASE_URL=https://staging.archlucid.net npx playwright test e2e/showcase-production-availability.spec.ts --grep @release-smoke
+```
+
+Scheduled hosted probe: [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml) records `showcase_ok` for `GET /showcase/claims-intake-modernization` (HTTP 200, `demo-preview-marketing-body`, no `demo-preview-not-available` shell).
+
 ### Lighthouse against the chosen site (M-99)
 
 Keep lab CI as-is ([`UI_LIGHTHOUSE_CI.md`](UI_LIGHTHOUSE_CI.md)). Additionally:
