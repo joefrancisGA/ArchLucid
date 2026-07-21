@@ -263,6 +263,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | QUI | `/quick-start` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | REX | `/recommendation-learning` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | RER | `/reviews/[runId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Core review | None |
+| ERU | `/reviews/[runId]/findings/[findingId]/evidence-trace` | 0.02% | 0 | 0 | 2 | Core review | None |
 | REA | `/reviews/[runId]?archTab=activity` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | REC | `/reviews/[runId]?archTab=clarifications` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | RED | `/reviews/[runId]?archTab=diagram` | 0.02% | 0 | 0 | 2 | Tab surface | None |
@@ -285,6 +286,10 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | SSU | `/settings/users?tab=users` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | MA | `/signed-records` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | MAM | `/signed-records/[manifestId]/artifacts/[artifactId]` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| SPA | `/sponsor-report/architecture-scorecard` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| SPE | `/sponsor-report/executive-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| SPP | `/sponsor-report/pilot-outcomes` | 0.02% | 0 | 0 | 2 | Marketing | None |
+| SPR | `/sponsor-report/roi-summary` | 0.02% | 0 | 0 | 2 | Marketing | None |
 
 ---
 
