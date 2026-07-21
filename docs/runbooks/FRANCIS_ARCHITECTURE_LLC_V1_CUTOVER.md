@@ -63,7 +63,7 @@ Produce a single checklist of every surface tied to **personal** or **sole propr
 ### 5.4 Stripe (direct billing)
 
 - Confirm with Stripe whether the path is **entity update on existing account** vs **new LLC Standard account** + key rotation.
-- Plan **controlled rotation** of `sk_live_*` / webhook signing secrets per [`STRIPE_WEBHOOK_INCIDENT.md`](STRIPE_WEBHOOK_INCIDENT.md) and Key Vault posture; **`ARCHLUCID PLATFORM`** statement descriptor can remain unless product changes branding rules.
+- Plan **controlled rotation** of `sk_live_*` / webhook signing secrets per [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#rotation-signing-secret) and Key Vault posture; **`ARCHLUCID PLATFORM`** statement descriptor can remain unless product changes branding rules.
 
 ### 5.5 Azure Marketplace
 
@@ -79,7 +79,7 @@ One bounded PR after legal confirm:
 
 ### 5.7 Operational continuity
 
-- Update runbook “owner” lines from a **named individual** to **LLC officer role** where appropriate (`STRIPE_WEBHOOK_INCIDENT.md`, marketplace runbooks).
+- Update runbook “owner” lines from a **named individual** to **LLC officer role** where appropriate (`STRIPE_CHECKOUT.md` § Webhook incident triage, marketplace runbooks).
 - Carry **general / cyber** insurance under the LLC if counsel recommends.
 
 ---
@@ -121,7 +121,7 @@ Cutover is **done** when: (a) counsel confirms customer-facing vendor entity is 
 ## Related
 
 - [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publisher-identity--partner-center-placeholders)
-- [`STRIPE_WEBHOOK_INCIDENT.md`](STRIPE_WEBHOOK_INCIDENT.md)
+- [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage)
 - [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#operator-completion-checklist)
 - [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](../go-to-market/MARKETPLACE_PUBLICATION.md)
 - [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) (items **8**, **9**)

@@ -34,7 +34,7 @@ Implementation: `StripeBillingProvider`, `AzureMarketplaceBillingProvider`, `Mem
 | Stripe signature invalid / timestamp outside tolerance | **400** | Wrong secret, body mutation, or event older than **300 seconds** at verification time. |
 | Marketplace JWT validation failed | **400** | Wrong bearer, expired token, or metadata mismatch — not a duplicate-event case. |
 
-**Operator action:** Fix secrets and network path first. See [`STRIPE_WEBHOOK_INCIDENT.md`](./STRIPE_WEBHOOK_INCIDENT.md) and [`docs/library/BILLING.md`](../library/BILLING.md) § Security model.
+**Operator action:** Fix secrets and network path first. See [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage) and [`docs/library/BILLING.md`](../library/BILLING.md) § Security model.
 
 ---
 
@@ -145,7 +145,7 @@ Stripe test-mode events use the same dedupe keys and ledger. Use a **non-product
 |----------|----------------|--------|
 | **400** immediately after successful **200** for same `event.id` | Expected replay guard or ledger duplicate | No mutation; document for provider support if their dashboard shows repeated failures. |
 | **400** `Stripe-Signature` after clean secret rotation | Possible replay attack or proxy body rewrite | Page security per [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) § Billing webhooks. |
-| **200** but subscription unchanged | Wrong environment, `GaEnabled=false` rollback path, or missing tenant metadata | [`STRIPE_WEBHOOK_INCIDENT.md`](./STRIPE_WEBHOOK_INCIDENT.md) symptom map. |
+| **200** but subscription unchanged | Wrong environment, wrong webhook route, missing session metadata, or prior **`Failed`** ledger row | [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage) symptom map. |
 
 **Do not** delete rows from `dbo.BillingWebhookEvents` — the table is part of billing audit evidence.
 
@@ -156,6 +156,6 @@ Stripe test-mode events use the same dedupe keys and ledger. Use a **non-product
 | Doc | Use |
 |-----|-----|
 | [`docs/library/BILLING.md`](../library/BILLING.md) | Provider abstraction, checkout flow, config keys |
-| [`STRIPE_WEBHOOK_INCIDENT.md`](./STRIPE_WEBHOOK_INCIDENT.md) | Stripe delivery failures and secret rotation |
+| [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage) | Stripe delivery failures and secret rotation |
 | [`MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](./MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) | Marketplace GA rollback and forced re-process |
 | [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) | Billing webhook STRIDE row |

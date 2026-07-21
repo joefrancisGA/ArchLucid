@@ -1,4 +1,4 @@
-> **Scope:** Stripe Checkout for Team tier — engineering hand-off, operator configuration checklist, and staging verification.
+> **Scope:** Stripe Checkout for Team tier — engineering hand-off, operator configuration checklist, webhook incident triage, and staging verification.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -47,7 +47,7 @@ Copy this checklist into tickets or strike items as you go.
 
 ### C. Stripe webhooks
 
-- [ ] **Endpoint URL** registered: `https://<public-api-host>/v1/billing/webhooks/stripe` (HTTPS, reachable from Stripe).
+- [ ] **Endpoint URL** registered: `https://<public-api-host>/v1/billing/webhooks/stripe/subscriptions` for checkout/subscription events (wallet route: `/v1/billing/webhooks/stripe` for `payment_intent.*`).
 - [ ] **Events:** subscribe at minimum to **`checkout.session.completed`** (implementation activates paid state from this today).
 - [ ] After deploy, confirm Dashboard **delivery** succeeds (HTTP **2xx**).
 
@@ -83,16 +83,72 @@ If your process uses Checkout Session URLs copied from Dashboard/tests, ensure t
 ### F. Production cutover (owner calendar)
 
 - [ ] **`PENDING_QUESTIONS.md`** item **22** (Marketplace + Stripe live calendar) plus item **9** sub-bullets when choosing **live** keys.
-- [ ] Incident runbook bookmarked: [`STRIPE_WEBHOOK_INCIDENT.md`](../runbooks/STRIPE_WEBHOOK_INCIDENT.md).
+- [ ] Incident triage bookmarked: § **Webhook incident triage** below (symptom map, signing-secret rotation).
 
 ---
 
 ## Webhooks
 
-`BillingStripeWebhookController` receives Stripe events — configure the **public HTTPS** endpoint and signing secret per environment.
+`BillingStripeWebhookController` receives Stripe events — configure **public HTTPS** endpoints and signing secrets per environment (see [`BILLING.md`](../library/BILLING.md)).
 
-- **Route:** `POST /v1/billing/webhooks/stripe` on the API host (see [`BILLING.md`](../library/BILLING.md)).
-- **Verification:** `Stripe-Signature` header + `Billing:Stripe:WebhookSigningSecret` (`whsec_…` from the Dashboard).
+| Route | Events (today) | Signing secret config |
+|-------|----------------|----------------------|
+| `POST /v1/billing/webhooks/stripe` | Wallet `payment_intent.*` | `Billing:Stripe:WalletWebhookSigningSecret` or fallback `Billing:Stripe:WebhookSigningSecret` |
+| `POST /v1/billing/webhooks/stripe/subscriptions` | `checkout.session.completed`, subscription lifecycle | `Billing:Stripe:SubscriptionWebhookSigningSecret` or fallback `Billing:Stripe:WebhookSigningSecret` |
+
+- **Verification:** `Stripe-Signature` header + matching `whsec_…` (300s clock skew tolerance).
+- **Rejections:** invalid signature, replay, or unhandled event type on the route → **HTTP 400** (fail-closed). Success → **HTTP 200**.
+- **Replay / idempotency:** [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md).
+
+### Statement descriptor
+
+The Stripe **statement descriptor prefix** is locked to **`ARCHLUCID PLATFORM`** (18 characters, within Stripe’s 22-character limit). Configure it as the **prefix** under Stripe Dashboard → **Settings** → **Public details** → **Statement descriptor**. ArchLucid v1 does **not** rely on a per-charge dynamic suffix; leave suffix behavior at Stripe defaults unless product explicitly adopts one later.
+
+## Webhook incident triage
+
+Sibling provider rollback pattern: [`MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](../runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) (`Billing:AzureMarketplace:GaEnabled` — **Marketplace only**; Stripe has no GA flag).
+
+### Symptom map
+
+| Symptom | First check |
+|---------|-------------|
+| Stripe dashboard shows webhook deliveries failing with HTTP **400** | Signing-secret mismatch, replay window exceeded, body mutation, or event type not handled on that route — see [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md). |
+| Stripe shows HTTP **200** but no row mutation in `dbo.BillingSubscriptions` | Wrong webhook route (checkout events must hit **`/stripe/subscriptions`**), unhandled event type, missing `tenant_id` / `workspace_id` / `project_id` metadata, prior **`Failed`** row in `dbo.BillingWebhookEvents`, or webhook delivered to wrong environment. |
+| Stripe shows HTTP **400** with replay detail | Stripe redelivered an event within the replay window or SQL ledger already has **`Processed`** — usually safe to ignore if subscription state is correct. |
+| Charge succeeded in Stripe but tenant tier did not change | Webhook delivered to stale environment, checkout registered on wallet route instead of subscriptions route, or session metadata missing **`tenant_id`**. |
+
+### Triage steps (15 minutes)
+
+1. **Confirm scope.** In the Stripe dashboard, filter webhook attempts to ArchLucid in the last hour. If failures are &lt;1% of attempts, treat as transient and watch.
+2. **Check SQL ledger.** `dbo.BillingWebhookEvents` for the Stripe `evt_…` — `ResultStatus` **`Processed`**, **`Failed`**, or absent. See [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md) for replay vs signature layers.
+3. **Check Application Insights / Log Analytics** for `BillingStripeWebhookController` / `StripeBillingProvider` traces around the delivery timestamp (problem details on **400** responses).
+4. **Confirm route registration.** Checkout and subscription lifecycle events must target **`POST /v1/billing/webhooks/stripe/subscriptions`**. Wallet top-ups use **`POST /v1/billing/webhooks/stripe`**.
+5. **Check signing-secret hygiene.** Rotation cadence = **platform billing owner (LLC officer role)**, **quarterly + on-incident**. **On-incident** triggers: any **failed webhook delivery sequence after deploy**; any **suspected secret leak**. If either trigger fires, rotate immediately per § Rotation below. Record each rotation in **`Billing:Stripe:WebhookSigningSecretRotatedUtc`** and in **`docs/CHANGELOG.md`** under `## YYYY-MM-DD — Stripe webhook secret rotated` (append-only audit). Broader rotation context: [`SECRET_AND_CERT_ROTATION.md`](../runbooks/SECRET_AND_CERT_ROTATION.md).
+
+### Rotation (signing secret)
+
+**Cadence reminder:** platform billing owner (LLC officer role), quarterly + on-incident; record `Billing:Stripe:WebhookSigningSecretRotatedUtc` + `CHANGELOG` heading on every rotation.
+
+1. In Stripe dashboard, **Roll** the endpoint signing secret. Stripe accepts both old and new for 24 hours.
+2. Update the matching secret in Key Vault (`Billing:Stripe:WebhookSigningSecret` and/or route-specific overrides) — do **not** commit.
+3. Trigger a Container Apps revision redeploy or wait for the in-process secret refresh interval (default 5 minutes).
+4. In Stripe dashboard, **Resend** any failed events from the rotation window.
+5. Update `Billing:Stripe:WebhookSigningSecretRotatedUtc` in App Configuration (or the equivalent tracked store).
+
+### Manual replay (after a fix)
+
+The endpoint is **idempotent** by Stripe's `event.id`. Resending a previously-failed event is safe:
+
+```text
+Stripe dashboard: Developers → Events → <event id> → Resend
+```
+
+If `ResultStatus` is **`Failed`**, fix the root cause before resend; investigate ledger state per [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md).
+
+### When to engage product
+
+- Repeated **`Failed`** webhook rows for **`checkout.session.completed`** with valid signatures: checkout metadata wiring or tier mapping may be wrong — only product can decide which subscriptions to backfill.
+- Any signature failures **after** a confirmed-clean rotation on the correct route: possible attempted replay attack — page security per [`docs/security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md).
 
 ## Staging end-to-end verification (Stripe TEST mode)
 
@@ -105,7 +161,8 @@ Use this path **before** live keys exist: Stripe Dashboard in **Test mode**, Arc
 | Item | Location |
 |------|----------|
 | Checkout API (Admin) | `ArchLucid.Api/Controllers/Billing/BillingCheckoutController.cs` — `POST` **`/v1/tenant/billing/checkout`**, policy **`AdminAuthority`**, model **`BillingCheckoutPostRequest`** |
-| Webhook | `ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs` — `POST` **`/v1/billing/webhooks/stripe`**, `AllowAnonymous`, signature inside `StripeBillingProvider` |
+| Webhook (subscriptions) | `ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs` — `POST` **`/v1/billing/webhooks/stripe/subscriptions`**, `AllowAnonymous`, signature inside `StripeBillingProvider` |
+| Webhook (wallet) | Same controller — `POST` **`/v1/billing/webhooks/stripe`** for `payment_intent.*` |
 | Provider logic | `ArchLucid.Persistence/Billing/Stripe/StripeBillingProvider.cs` — activation on **`checkout.session.completed`** only |
 | Billing data model | [`BILLING.md`](../library/BILLING.md) — `dbo.BillingSubscriptions`, `dbo.BillingWebhookEvents` |
 | UI pricing (optional CTA) | `archlucid-ui/src/lib/pricing-types.ts` — optional **`teamStripeCheckoutUrl`** on `public/pricing.json` |
@@ -172,14 +229,14 @@ Expect top-level **Healthy** in JSON.
 #### 2. Register the Stripe **test** webhook
 
 1. Stripe Dashboard → **Developers** → **Webhooks** → **Add endpoint** (**Test mode**).
-2. **URL:** `https://<staging-api-host>/v1/billing/webhooks/stripe`
+2. **URL:** `https://<staging-api-host>/v1/billing/webhooks/stripe/subscriptions`
 3. **Events:** at minimum **`checkout.session.completed`**.
 4. Copy **Signing secret** (`whsec_…`) into `Billing:Stripe:WebhookSigningSecret`.
 
 **Stripe CLI (local/tunnel):**
 
 ```bash
-stripe listen --forward-to https://<staging-api-host>/v1/billing/webhooks/stripe
+stripe listen --forward-to https://<staging-api-host>/v1/billing/webhooks/stripe/subscriptions
 ```
 
 Use the CLI-printed `whsec_…` while forwarding, then:
@@ -191,7 +248,7 @@ stripe trigger checkout.session.completed
 **Negative curl (expect non-success without valid signature):**
 
 ```bash
-curl -sS -o /dev/null -w "%{http_code}\n" -X POST "https://<staging-api-host>/v1/billing/webhooks/stripe" \
+curl -sS -o /dev/null -w "%{http_code}\n" -X POST "https://<staging-api-host>/v1/billing/webhooks/stripe/subscriptions" \
   -H "Content-Type: application/json" \
   -H "Stripe-Signature: t=0,v1=invalid" \
   -d '{"id":"evt_test_placeholder","type":"checkout.session.completed","data":{"object":{}}}'
@@ -249,7 +306,8 @@ archlucid trial smoke --org "StripeStagingSmoke" --email "you+smoke@example.inva
 | Action | Method | Path | Auth |
 |--------|--------|------|------|
 | Create Checkout Session | `POST` | `/v1/tenant/billing/checkout` | **Bearer** + **AdminAuthority** + tenant scope |
-| Stripe webhook | `POST` | `/v1/billing/webhooks/stripe` | **Anonymous** — **`Stripe-Signature`** + body |
+| Stripe webhook (subscriptions) | `POST` | `/v1/billing/webhooks/stripe/subscriptions` | **Anonymous** — **`Stripe-Signature`** + body |
+| Stripe webhook (wallet) | `POST` | `/v1/billing/webhooks/stripe` | **Anonymous** — **`Stripe-Signature`** + body |
 
 ### SQL verification
 
@@ -342,6 +400,7 @@ If webhooks only flip entitlement bits asynchronously, document the **manual run
 | [`TRIAL_AND_SIGNUP.md`](TRIAL_AND_SIGNUP.md) | Trial → conversion product design |
 | [`BILLING.md`](../library/BILLING.md) | Architecture, webhook route, SQL tables |
 | [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) | `Billing:Stripe:*` keys |
-| [`STRIPE_WEBHOOK_INCIDENT.md`](../runbooks/STRIPE_WEBHOOK_INCIDENT.md) | Webhook incident triage |
+| [`BILLING_WEBHOOK_REPLAY_GUARD.md`](../runbooks/BILLING_WEBHOOK_REPLAY_GUARD.md) | Replay guard, SQL ledger investigation |
+| [`SECRET_AND_CERT_ROTATION.md`](../runbooks/SECRET_AND_CERT_ROTATION.md) | Broader secret rotation posture |
 | [`PRODUCTION_DEPLOYMENT.md`](../runbooks/PRODUCTION_DEPLOYMENT.md) | Hosted staging deployment checks |
 | [`redirects.md`](../redirects.md) | Former doc paths |
