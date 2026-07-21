@@ -5,7 +5,7 @@
 
 # Test structure (Change Set 54R)
 
-Operator cheat sheet for **ArchLucid** .NET tests: **what each tier means** and **how to run it**. CI job names and full narrative: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**. SQL variables and LocalDB: **[BUILD.md](BUILD.md)**.
+Operator cheat sheet for **ArchLucid** .NET tests: **what each tier means** and **how to run it**. CI job names and full narrative: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**. SQL variables and LocalDB: **[../engineering/../engineering/BUILD.md](../engineering/BUILD.md)**.
 
 ## 54R tiers
 
@@ -57,7 +57,7 @@ dotnet test ArchLucid.sln
 
 ### Release candidate packaging (56R)
 
-**Doc:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md). **Scripts:** `scripts/build-release`, `scripts/package-release`, `scripts/run-readiness-check` (`.cmd` / `.ps1`). `run-readiness-check` runs a **Release** build, **fast core** tests with `-c Release`, then **Vitest** when Node is on `PATH`. **Pilot onboarding:** [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md). **E2E release smoke:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (`scripts/release-smoke.cmd`).
+**Doc:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md). **Scripts:** `scripts/build-release`, `scripts/package-release`, `scripts/run-readiness-check` (`.cmd` / `.ps1`). `run-readiness-check` runs a **Release** build, **fast core** tests with `-c Release`, then **Vitest** when Node is on `PATH`. **Pilot onboarding:** [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md), [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md). **E2E release smoke:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (`scripts/release-smoke.cmd`).
 
 ### SQL Server–first (Persistence Dapper)
 
@@ -78,7 +78,7 @@ dotnet test ArchLucid.Persistence.Tests --filter "Category=SqlServerContainer"
 - **`ArchLucid.Api.Tests`**: **`GreenfieldSqlApiFactory`** + **`GreenfieldSqlBootIntegrationTests`** (`Suite=Core`, `Category=Integration`). Each test creates an empty database, boots the real API with **`StorageProvider=Sql`**, asserts **`/health/ready`**, **`dbo.SchemaVersions`**, and core columns.
 - **CI**: job **`api-greenfield-boot`** in **`.github/workflows/ci.yml`** (Tier **1.5**) runs the API process against **`ArchLucidGreenfieldCi`** and asserts the DbUp journal.
 
-**Local (requires SQL per [BUILD.md](BUILD.md)):**
+**Local (requires SQL per [../engineering/../engineering/BUILD.md](../engineering/BUILD.md)):**
 
 ```bash
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~GreenfieldSqlBoot" -c Release --settings coverage.runsettings

@@ -98,5 +98,5 @@ Same as other CLI commands: set **`ARCHLUCID_API_KEY`** when your host requires 
 ## See also
 
 - [docs/CORE_PILOT.md](../CORE_PILOT.md) — where this path sits after the first demo
-- [docs/OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) — copy-paste API equivalents
+- [docs/customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) — copy-paste API equivalents
 - [docs/API_CONTRACTS.md](API_CONTRACTS.md) — full `POST /v1/architecture/request` body (`ArchitectureRequest`)

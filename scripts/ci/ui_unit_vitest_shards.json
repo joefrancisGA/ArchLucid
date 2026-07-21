@@ -39,6 +39,7 @@
         "src/app/(operator)/planning",
         "src/app/(operator)/product-learning",
         "src/app/(operator)/recommendation-learning",
+        "src/app/(operator)/internal-operations",
         "src/app/(operator)/replay",
         "src/app/(operator)/scorecard",
         "src/app/(operator)/search",

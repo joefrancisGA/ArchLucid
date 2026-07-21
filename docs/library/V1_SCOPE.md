@@ -67,7 +67,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 #### 2.4 Deployability and supportability
 
-- **Container images** and **docker compose** profiles ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
+- **Container images** and **docker compose** profiles ([../engineering/../engineering/CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md)).
 - **SQL Server** persistence via DbUp migrations; automatic on startup ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)). **`SystemWithPerTenantCatalogs`** (**database-per-tenant** with **`TenantDatabaseBindings`** and a control-plane system catalog) is the **only supported multitenant isolation model for hosted workloads**, **including self-serve trial tenants** ([TENANT_DATABASE_TOPOLOGY.md](TENANT_DATABASE_TOPOLOGY.md)). **`SingleCatalog`** remains available for narrow **developer/CI ergonomics**, not as a substitute for tenant isolation on hosted SaaS.
 - **Hosted SaaS LLM execution (real mode):** On **ArchLucid-operated** deployments, agent **real** execution uses **platform-provisioned Azure OpenAI** from environment configuration (**`AzureOpenAI:*`** / Key Vault-backed secrets — [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)). The **standard hosted and trial-tenant path** does **not** treat customer-supplied model endpoints as a prerequisite for normal operation, and **sales-engineer-assisted LLM onboarding is not a V1 gate** on that path. **Self-hosted** installs, deliberate **simulator** environments, or **bring-your-own** inference endpoints remain configuration-owned per [README.md](../REPOSITORY_README.md).
 - **Health:** `/health/live`, `/health/ready`, `/health`; `GET /version` for support attribution.
@@ -269,7 +269,7 @@ Until **V1.1** surfaces in **§2.8** (integration events) and **§3** (CloudEven
 
 The **Pilot** path is the minimum journey every pilot must complete. It maps 1:1 to the **Core Pilot checklist** on the operator UI Home page and to the four steps in [CORE_PILOT.md](../CORE_PILOT.md):
 
-1. **Configure** storage (typically **Sql**), connection string, and auth for the environment ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
+1. **Configure** storage (typically **Sql**), connection string, and auth for the environment ([customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md)).
 2. **Start** the API; confirm **live/ready** and note **version** for any ticket.
 3. **Create a review** from a structured request (`POST /v1/architecture/request`) — use the seven-step wizard in the operator UI or the CLI.
 4. **Execute** the **review** and wait until it is ready to commit (watch the pipeline timeline in the UI or poll the API).
@@ -303,7 +303,7 @@ Enable extended and advanced links in the sidebar to surface governance, audit, 
 
 Use these when the next question is governance or trust: approvals, policy enforcement, audit, compliance, or operational control.
 
-Optional: run **readiness** or **release-smoke** before a demo ([PILOT_GUIDE.md](PILOT_GUIDE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
+Optional: run **readiness** or **release-smoke** before a demo ([customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
 
 ---
 
@@ -313,12 +313,12 @@ These are **practical gates** already encoded or described in-repo—not an exha
 
 | Criterion | Evidence in repo |
 |-----------|------------------|
-| **Solution builds** in Release | CI and [BUILD.md](BUILD.md) |
+| **Solution builds** in Release | CI and [../engineering/../engineering/BUILD.md](../engineering/BUILD.md) |
 | **Core-tier tests** pass for the agreed filter (e.g. fast core / `Suite=Core` conventions) | [TEST_STRUCTURE.md](TEST_STRUCTURE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
-| **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../REPOSITORY_README.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
+| **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../REPOSITORY_README.md), [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 | **One scripted end-to-end run** produces a committed manifest and **at least one** artifact descriptor | `scripts/release-smoke.ps1` expectations ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)) |
 | **Operator UI** builds when Node is in use; Vitest/build steps as per readiness scripts | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [archlucid-ui/README.md](../../archlucid-ui/README.md) |
-| **Version and diagnostics** available for handoff (`GET /version`, CLI `doctor`, support bundle discipline) | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
+| **Version and diagnostics** available for handoff (`GET /version`, CLI `doctor`, support bundle discipline) | [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 
 **Not required** for every internal build: Playwright E2E, full integration matrix, performance benchmarks, or full Terraform apply to a live subscription—unless your program explicitly adds them as release gates.
 
@@ -333,10 +333,10 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) | Practical guide for which layer to use next and what can be ignored for now |
 | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | Actionable pre-handoff checklist (scope freeze, deploy, health, operator flow, exports, recovery) |
 | [V1_DEFERRED.md](V1_DEFERRED.md) | Doc inventory: V1.1+ candidates, audit gaps, Phase 7 rename, infra polish, maintainer backlog |
-| [PILOT_GUIDE.md](PILOT_GUIDE.md) | Pilot onboarding narrative |
+| [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) | Pilot onboarding narrative |
 | [PRODUCT_DOCUMENTATION_PRESENTATION.md](PRODUCT_DOCUMENTATION_PRESENTATION.md) | V1 rule: in-app help for product users; GitHub for engineering source only |
 | [FIRST_RUN_EVIDENCE_CHECKLIST.md](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) | Buyer-safe V1 pilot checklist (extractor ZIP through sponsor export) |
-| [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Command-oriented operator entry |
+| [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) | Command-oriented operator entry |
 | [operator-shell.md](operator-shell.md) | UI workflows and API expectations |
 | [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) | Export, comparison, replay sequences |
 | [API_CONTRACTS.md](API_CONTRACTS.md) | HTTP behavior and policy references |
@@ -347,4 +347,4 @@ These are **practical gates** already encoded or described in-repo—not an exha
 
 ---
 
-**Change control:** When V1 boundaries shift, update **this file** first, then align [PILOT_GUIDE.md](PILOT_GUIDE.md) and [README.md](../REPOSITORY_README.md) so pilots do not see conflicting messages.
+**Change control:** When V1 boundaries shift, update **this file** first, then align [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) and [README.md](../REPOSITORY_README.md) so pilots do not see conflicting messages.

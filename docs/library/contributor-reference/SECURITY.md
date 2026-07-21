@@ -24,7 +24,7 @@ This index points contributors to security-relevant behavior and gates. It is no
 | AI content safety operations | [`AI_CONTENT_SAFETY_OPERATIONS.md`](AI_CONTENT_SAFETY_OPERATIONS.md) |
 | Data retention operations | [`DATA_RETENTION_OPERATIONS.md`](DATA_RETENTION_OPERATIONS.md) |
 | Configuration reference | [`../CONFIGURATION_REFERENCE.md`](../CONFIGURATION_REFERENCE.md) |
-| Deployment | [`../../DEPLOYMENT.md`](../../DEPLOYMENT.md) |
+| Deployment | [`../../engineering/DEPLOYMENT.md`](../../engineering/DEPLOYMENT.md) |
 | Multi-tenant isolation | [`../../security/MULTI_TENANT_RLS.md`](../../security/MULTI_TENANT_RLS.md) |
 
 ## Cross-links

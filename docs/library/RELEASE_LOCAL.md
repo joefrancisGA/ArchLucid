@@ -5,9 +5,9 @@
 
 # Local release candidate packaging (Change Set 56R)
 
-Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the **ArchLucid** API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc). **Pilot narrative:** [PILOT_GUIDE.md](PILOT_GUIDE.md). **Canonical RC order:** [RC_CANONICAL_RELEASE_FLOW.md](RC_CANONICAL_RELEASE_FLOW.md).
+Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the **ArchLucid** API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc). **Pilot narrative:** [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md). **Canonical RC order:** [RC_CANONICAL_RELEASE_FLOW.md](RC_CANONICAL_RELEASE_FLOW.md).
 
-**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download), SQL Server when using `ArchLucid:StorageProvider=Sql`, and optionally **Node.js 22+** for operator UI build/tests. See [BUILD.md](BUILD.md) and [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
+**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download), SQL Server when using `ArchLucid:StorageProvider=Sql`, and optionally **Node.js 22+** for operator UI build/tests. See [../engineering/../engineering/BUILD.md](../engineering/BUILD.md) and [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
 
 ---
 
@@ -66,7 +66,7 @@ The operator UI remains developed from `archlucid-ui/` in the repo (or deploy vi
 ### Support-friendly handoff
 
 - **`metadata.json`** — paste **`informationalVersion`** and **`commitSha`** into support tickets (matches **`GET /version`** when the same bits are running).
-- After deploy, pilots should confirm **`GET /version`** or run **`dotnet run --project ArchLucid.Cli -- doctor`** and attach **`support-bundle --zip`** if something fails — see [PILOT_GUIDE.md](PILOT_GUIDE.md) and [TROUBLESHOOTING.md](../TROUBLESHOOTING.md).
+- After deploy, pilots should confirm **`GET /version`** or run **`dotnet run --project ArchLucid.Cli -- doctor`** and attach **`support-bundle --zip`** if something fails — see [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) and [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md).
 
 ---
 

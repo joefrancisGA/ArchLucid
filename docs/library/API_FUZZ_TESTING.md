@@ -93,7 +93,7 @@ docker network rm "$FUZZNET"
 
 JUnit output: **`.schemathesis-out/schemathesis-results.xml`**.
 
-**Note:** The published API image expects a real environment (e.g. SQL) for full readiness; **`/health/live`** only confirms the process is up. If your image fails to start without dependencies, use pattern **B** or point the API container at Compose-backed SQL (see [BUILD.md](BUILD.md) / [docker-compose.yml(../../docker-compose.yml)).
+**Note:** The published API image expects a real environment (e.g. SQL) for full readiness; **`/health/live`** only confirms the process is up. If your image fails to start without dependencies, use pattern **B** or point the API container at Compose-backed SQL (see [../engineering/../engineering/BUILD.md](../engineering/BUILD.md) / [docker-compose.yml(../../docker-compose.yml)).
 
 ### B — Against `docker compose` full-stack API
 

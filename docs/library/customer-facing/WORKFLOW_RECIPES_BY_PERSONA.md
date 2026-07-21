@@ -81,7 +81,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 2. **Call the compare API** — `GET /v1/compare?baseRunId=…&targetRunId=…` returns structured deltas (see integration readmes); `404` means missing manifest or scope — [API_CONTRACTS.md](../API_CONTRACTS.md), [COMPARISON_REPLAY.md](../COMPARISON_REPLAY.md).
 3. **Optional UI replay** — `/compare` for human-readable compare ([OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md)); end-to-end export family under `GET /v1/architecture/run/compare/end-to-end/...` (Standard tier).
 4. **Contract drift guard** — Canonical OpenAPI at `GET /openapi/v1.json` — [OPENAPI_CONTRACT_DRIFT.md](../OPENAPI_CONTRACT_DRIFT.md).
-5. **Post-deploy evidence** — CLI: `dotnet run --project ArchLucid.Cli -- deployment-evidence --environment <staging|production|dev> --api-base-url <url> [--out <file.md>]`; align with [DEPLOYMENT_CD_PIPELINE.md](../DEPLOYMENT_CD_PIPELINE.md), [DEPLOYMENT.md](../DEPLOYMENT.md).
+5. **Post-deploy evidence** — CLI: `dotnet run --project ArchLucid.Cli -- deployment-evidence --environment <staging|production|dev> --api-base-url <url> [--out <file.md>]`; align with [DEPLOYMENT_CD_PIPELINE.md](../DEPLOYMENT_CD_PIPELINE.md), [DEPLOYMENT.md](../../engineering/DEPLOYMENT.md).
 
 **Expected outputs:** CI summary or PR annotation with delta counts; archived Markdown probe report for the target environment.
 

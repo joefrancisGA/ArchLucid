@@ -2,7 +2,7 @@
 
 # Accelerator chooser
 
-Use this table **after** your first committed review ([Core Pilot](CORE_PILOT.md)). It maps a buyer job to an **existing** starter proof pack under `templates/starter-proof-packs/` — no new templates required.
+Use this table **after** your first committed review ([Core Pilot](../CORE_PILOT.md)). It maps a buyer job to an **existing** starter proof pack under `templates/starter-proof-packs/` — no new templates required.
 
 | Buyer job | Starter pack | Target persona | Required inputs | Expected proof outputs | Scope | When **not** to use |
 | --- | --- | --- | --- | --- | --- | --- |

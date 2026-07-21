@@ -22,7 +22,7 @@
 1. `infra/terraform-private` (network + Key Vault private endpoint when enabled)
 2. `deploy/hosted-prod-terraform` (or `infra/terraform/prod` when present) â€” API host, worker, SQL, storage, ACR/image source, Azure OpenAI, Azure AI Search, and Azure AI Content Safety for production-like profiles
 3. Focused validation roots/modules, only when intentionally validating OpenAI/Search in isolation or using a customer-provided landing-zone dependency
-4. Configure appsettings / Container Apps env per [`CONTAINERIZATION.md`](CONTAINERIZATION.md)
+4. Configure appsettings / Container Apps env per [`../engineering/../engineering/CONTAINERIZATION.md`](../engineering/CONTAINERIZATION.md)
 
 ## Composition decision
 

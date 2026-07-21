@@ -35,7 +35,7 @@ When `--profile` is omitted, `stack doctor` infers **FirstPilotMinimum**, **Stag
 ## Assumptions
 
 - You have an **Azure subscription** where you can create resource groups, and a **service principal** (or user) with rights to deploy the stacks you enable.
-- **Container images** exist in **ACR** (or another registry) at tags referenced in `terraform-container-apps` tfvars — build from CI or locally per [`CONTAINERIZATION.md`](CONTAINERIZATION.md).
+- **Container images** exist in **ACR** (or another registry) at tags referenced in `terraform-container-apps` tfvars — build from CI or locally per [`../engineering/../engineering/CONTAINERIZATION.md`](../engineering/CONTAINERIZATION.md).
 - **No remote Terraform state** exists yet — configure a backend **before** the first `terraform apply` in each root (see below).
 
 ## Constraints

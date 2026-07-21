@@ -68,7 +68,7 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 | Item | Doc source |
 |------|------------|
-| **ACR** / production image store, extending CI to **push** images | **Done — engineering side.** `.github/workflows/cd.yml` already builds/pushes both API and UI images to ACR and deploys to Container Apps (digest verification, canary support), fully gated on `ACR_LOGIN_SERVER`/`ACR_NAME`/`AZURE_RESOURCE_GROUP` GitHub secrets (owner-verified 2026-07-05: already configured). Remaining posture is purely operational (secrets/subscription), not missing code. [CONTAINERIZATION.md](CONTAINERIZATION.md) |
+| **ACR** / production image store, extending CI to **push** images | **Done — engineering side.** `.github/workflows/cd.yml` already builds/pushes both API and UI images to ACR and deploys to Container Apps (digest verification, canary support), fully gated on `ACR_LOGIN_SERVER`/`ACR_NAME`/`AZURE_RESOURCE_GROUP` GitHub secrets (owner-verified 2026-07-05: already configured). Remaining posture is purely operational (secrets/subscription), not missing code. [../engineering/../engineering/CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md) |
 | Subscription placement, naming, which Terraform roots to enable | Same doc — **organizational** follow-ups |
 
 ---

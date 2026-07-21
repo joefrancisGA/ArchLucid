@@ -95,5 +95,5 @@ Hypothesis mapping (reminder):
 - **[CORE_PILOT.md](../CORE_PILOT.md)** — operator path of record  
 - **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** — baseline §3, during-pilot §4–§4.1, demo redaction §4.1.1  
 - **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** — **Pilot A** evidence rows  
-- **[PILOT_GUIDE.md](PILOT_GUIDE.md)** — fuller pilot onboarding  
+- **[customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md)** — fuller pilot onboarding  
 - **[PILOT_SUCCESS_SCORECARD.md](../go-to-market/PILOT_SUCCESS_SCORECARD.md)** — scorecard framing  

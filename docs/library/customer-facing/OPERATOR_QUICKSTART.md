@@ -74,7 +74,7 @@ dotnet run --project ArchLucid.Cli -- doctor
 dotnet run --project ArchLucid.Cli -- support-bundle --zip
 ```
 
-Creates a timestamped folder (and zip): open **`README.txt`** first for triage order; includes bounded OpenAPI probe — see [TROUBLESHOOTING.md](../../TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
+Creates a timestamped folder (and zip): open **`README.txt`** first for triage order; includes bounded OpenAPI probe — see [TROUBLESHOOTING.md](../../runbooks/TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
 
 ---
 
@@ -220,6 +220,6 @@ Also creates **`artifacts/release/PACKAGE-HANDOFF.txt`**, **`metadata.json`**, *
 |-----|-----|
 | [archive/PILOT_GUIDE_CHANGE_SET_56R.md](../../archive/PILOT_GUIDE_CHANGE_SET_56R.md) | Archived **56R** local-dev pilot guide (first run, logs, issue template) |
 | [PRODUCT_LEARNING.md](../PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export (58R) |
-| [TROUBLESHOOTING.md](../../TROUBLESHOOTING.md) | Common failures |
+| [TROUBLESHOOTING.md](../../runbooks/TROUBLESHOOTING.md) | Common failures |
 | [operator-shell.md](../operator-shell.md) | UI workflow detail |
 | [RELEASE_LOCAL.md](../RELEASE_LOCAL.md) | RC build scripts |

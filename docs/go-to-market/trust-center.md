@@ -78,7 +78,9 @@ This page participates in CI merge gates:
 
 ArchLucid publishes internal analysis, architecture, and control-mapping documents. They are **not** substitutes for a CPA SOC 2 report or a completed external pen test.
 
-- [Row-level security (RLS) and session context](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/MULTI_TENANT_RLS.md)
+**Production tenant isolation** uses a **database-per-tenant** catalog model (`SystemWithPerTenantCatalogs`) with defense-in-depth layers (catalog routing, typed tenant scope, route binding, repository predicates, blob path prefixing) — not primary reliance on SQL RLS. See [ADR 0037 — tenant isolation without RLS](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) and [Tenant isolation defense-in-depth](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
+
+- [Row-level security (RLS) and session context](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/MULTI_TENANT_RLS.md) (historical; superseded for production posture by ADR 0037)
 - [RLS risk acceptance](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/RLS_RISK_ACCEPTANCE.md)
 - [System threat model (STRIDE)](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/SYSTEM_THREAT_MODEL.md)
 - [Ask / RAG pipeline threat notes](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/ASK_RAG_THREAT_MODEL.md)

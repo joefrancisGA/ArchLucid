@@ -14,7 +14,7 @@
 | Area | Notes |
 |------|--------|
 | **Source** | `.cs`, `.ts`, `.tsx`, Terraform, SQL **migrations** (`ArchLucid.Persistence/Migrations/`), docs under `docs/`. |
-| **OpenAPI / contract snapshots** | Checked-in snapshots used by CI and client generation (see [BUILD.md](BUILD.md)). |
+| **OpenAPI / contract snapshots** | Checked-in snapshots used by CI and client generation (see [../engineering/../engineering/BUILD.md](../engineering/BUILD.md)). |
 | **`ArchLucid.Api.Client/Generated/`** | **`ArchLucidApiClient.g.cs`** is **committed** on purpose. Regenerate with NSwag when the API contract changes; review the diff like any other source file. |
 | **Historical design logs** | `docs/archive/` is intentional history — not “noise” to delete for V1 polish. |
 
@@ -39,7 +39,7 @@ If you see **root-level** files such as `testresults.txt`, `commit2-log.txt`, or
 | Need | Doc |
 |------|-----|
 | V1 boundary and gates | [V1_SCOPE.md](V1_SCOPE.md), [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) |
-| Pilot narrative | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
+| Pilot narrative | [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 | Package an RC / `artifacts/release/` | [RELEASE_LOCAL.md](RELEASE_LOCAL.md) |
 | Change summaries | [CHANGELOG.md](../CHANGELOG.md) |
 | Operational breaking changes | [../BREAKING_CHANGES.md](../../BREAKING_CHANGES.md) |

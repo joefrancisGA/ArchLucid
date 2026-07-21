@@ -162,12 +162,12 @@ The **progress bar** is a simple **count of ready stages / 4**, not a time estim
 ## After the wizard
 
 1. **Open run detail** — `/runs/{runId}`: manifest summary, artifacts, authority context (when committed and indexed per environment).
-2. **Commit if required** — Until commit, some views stay empty; follow **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)** for API/CLI commit expectations and `409` handling.
+2. **Commit if required** — Until commit, some views stay empty; follow **[customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md)** for API/CLI commit expectations and `409` handling.
 3. **Export** — From run detail (with manifest): bundle / export ZIP links when your deployment exposes them.
 4. **Compare** — `/compare?leftRunId={runId}` (wizard success panel links this for you).
 5. **Provenance** — `/runs/{runId}/provenance` for graph/trace orientation.
 
-Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**.
+Primary operator reference: **[customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md)**.
 
 ---
 
@@ -188,7 +188,7 @@ Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**
 | Doc | Use it for |
 |-----|------------|
 | [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md) | Scripted HTTP spine (auth → request → authority → commit). Narrative: **[`onboarding/day-one-developer.md`](../onboarding/day-one-developer.md#following-the-request-past-create-execute--commit--retrieval--ask)** |
-| [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Day-1 commands, commit, manifests, exports. |
+| [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) | Day-1 commands, commit, manifests, exports. |
 | [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) | Flow A run lifecycle + authority span names. |
 | [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) | Request → stages → commit → artifacts (operator map). |
 | [API_CONTRACTS.md](API_CONTRACTS.md) | `ArchitectureRequest`, idempotency, error shapes. |

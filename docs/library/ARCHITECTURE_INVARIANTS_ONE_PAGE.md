@@ -4,7 +4,7 @@
 
 **Audience:** engineers adding features, agents, or proof artifacts.
 
-**Purpose:** Gate new work against current boundaries. This is not a full architecture doc — see [BUILD.md](BUILD.md) and [V1_SCOPE.md](V1_SCOPE.md).
+**Purpose:** Gate new work against current boundaries. This is not a full architecture doc — see [../engineering/../engineering/BUILD.md](../engineering/BUILD.md) and [V1_SCOPE.md](V1_SCOPE.md).
 
 ---
 

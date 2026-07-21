@@ -56,7 +56,7 @@ These **LLM/trace categories** are indicative, not exhaustive (**[LLM_PROMPT_RED
 | **Identifiers** | **Tenant id, workspace id, internal project names, URLs to intranet/repos/wiki, personal work emails** may appear **only** on channels the customer already treats as confidential (e.g. private Teams). |
 | **Run content** | Full finding text, manifest excerpts, and support-bundle-style dumps are **allowed** subject to customer **collaboration tool** policy — not an invitation to paste into public GPT. |
 | **LLM / traces** | Raw prompts/completions **discouraged**; prefer summaries. If shared for debugging, mark **internal-only** and retain per customer retention policy (**[SECURITY.md](SECURITY.md)** — PII-sized exports). |
-| **Support bundle** | If attaching **`support-bundle --zip`**, follow **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** — review even though literals are filtered. |
+| **Support bundle** | If attaching **`support-bundle --zip`**, follow **[TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md)** — review even though literals are filtered. |
 
 ### 3.2 `customer-approved-external`
 
@@ -102,6 +102,6 @@ Exceptions noted: <none | see appendix>
 
 - **[PROOF_OF_VALUE_SNAPSHOT.md](PROOF_OF_VALUE_SNAPSHOT.md)** — assembly workflow and sponsor one-pager template.
 - **[SECURITY.md](SECURITY.md)** — PII-sized exports and retention posture.
-- **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** — support bundle contents and review-before-send.
+- **[TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md)** — support bundle contents and review-before-send.
 - **[pen-test-summaries/README.md](../security/pen-test-summaries/README.md)** — parallel discipline for redacted **security** summaries (internal URLs, tenant ids in repro).
 - **[trust-center.md](../go-to-market/trust-center.md)** — procurement pack / assurance artifacts (different artifact class).

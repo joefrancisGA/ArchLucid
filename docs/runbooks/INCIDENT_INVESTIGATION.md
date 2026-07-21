@@ -23,7 +23,7 @@ Re-triage after 15 minutes if scope was misjudged.
 
 ## First five minutes
 
-1. **Public health** — `GET {origin}/health/live` then **`/health/ready`**. Parse `entries[]` for first **Unhealthy** / **Degraded** (see [OBSERVABILITY.md](../library/OBSERVABILITY.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md)).
+1. **Public health** — `GET {origin}/health/live` then **`/health/ready`**. Parse `entries[]` for first **Unhealthy** / **Degraded** (see [OBSERVABILITY.md](../library/OBSERVABILITY.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md)).
 2. **Build identity** — `GET {origin}/version` (correlate to the revision you rolled).
 3. **Azure Container Apps** — Portal: **Revision state**, **Replicas**, recent **Events**; confirm traffic targets healthy revision.
 4. **Application Insights** — **Failures** (last 15 min): exception type, volume, sample **`operation_Id`** / **request** correlation. Telemetry provisioned from [`application_insights.tf`](../../infra/terraform-monitoring/application_insights.tf) in the monitoring stack.
@@ -36,7 +36,7 @@ Re-triage after 15 minutes if scope was misjudged.
 ## Investigation paths
 
 - **`/health/live` OK, `/health/ready` not healthy**  
-  - Read each failing check name in JSON. **SQL** → verify connectivity string, **DbUp** migrations applied, pool exhaustion. **Disk/temp** → Container Apps ephemeral storage / mount. See [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) first-line steps.  
+  - Read each failing check name in JSON. **SQL** → verify connectivity string, **DbUp** migrations applied, pool exhaustion. **Disk/temp** → Container Apps ephemeral storage / mount. See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) first-line steps.  
   - **Circuit breakers** (OpenAI) → [OBSERVABILITY.md](../library/OBSERVABILITY.md) § health + **`AzureOpenAI` / resilience** in [RESILIENCE_CONFIGURATION.md](../library/RESILIENCE_CONFIGURATION.md).
 
 - **5xx spike, health still green**  
@@ -76,7 +76,7 @@ Re-triage after 15 minutes if scope was misjudged.
 
 | Topic | Doc |
 |-------|-----|
-| Operator triage | [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) |
+| Operator triage | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
 | Health / circuit breakers | [OBSERVABILITY.md](../library/OBSERVABILITY.md), [V1_SCOPE.md](../library/V1_SCOPE.md) (health surface) |
 | Redis | [REDIS_HEALTH.md](REDIS_HEALTH.md) |
 | SLO / burn | [SLO_PROMETHEUS_GRAFANA.md](SLO_PROMETHEUS_GRAFANA.md) |

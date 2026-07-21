@@ -34,7 +34,7 @@
 
 **Windows CMD:** `v1-rc-drill.cmd` (same parameters).
 
-The script does **not** deploy infrastructure, build the solution, or start the API. Use [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [CONTAINERIZATION.md](CONTAINERIZATION.md), or your CD pipeline for **deploy fresh**.
+The script does **not** deploy infrastructure, build the solution, or start the API. Use [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [../engineering/../engineering/CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md), or your CD pipeline for **deploy fresh**.
 
 ---
 
@@ -43,7 +43,7 @@ The script does **not** deploy infrastructure, build the solution, or start the 
 **Goal:** A clean or upgraded database and a single API instance running the **RC bits**.
 
 1. Provision or reset a database (empty is OK if migrations apply on startup).
-2. Set **`ConnectionStrings:ArchLucid`**, **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`**, and **`AgentExecution:Mode`** (typically **Simulator** for labs) per [README.md](../REPOSITORY_README.md) and [PILOT_GUIDE.md](PILOT_GUIDE.md).
+2. Set **`ConnectionStrings:ArchLucid`**, **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`**, and **`AgentExecution:Mode`** (typically **Simulator** for labs) per [README.md](../REPOSITORY_README.md) and [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md).
 3. Start **`ArchLucid.Api`** (host, container, or `dotnet run --project ArchLucid.Api`).
 4. Record **image tag / package path / commit** for the release notes.
 
@@ -82,7 +82,7 @@ You need **two committed reviews** (two **`runId`** values in the API) for compa
 
 | Step | HTTP | Notes |
 |------|------|--------|
-| 2A.1 | `POST /v1/architecture/request` | Body: structured [ArchitectureRequest](API_CONTRACTS.md) (see [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)); capture **`run.runId`** from JSON |
+| 2A.1 | `POST /v1/architecture/request` | Body: structured [ArchitectureRequest](API_CONTRACTS.md) (see [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md)); capture **`run.runId`** from JSON |
 | 2A.2 | `POST /v1/architecture/run/{runId}/execute` | Waits until agent work completes for this request/executor configuration |
 | 2A.3 | `POST /v1/architecture/run/{runId}/commit` | Produces golden manifest; **409** if wrong state ([API_CONTRACTS.md](API_CONTRACTS.md)) |
 | 2A.4 | `GET /v1/architecture/run/{runId}` | Confirm **`run.goldenManifestId`** is non-null |
@@ -91,7 +91,7 @@ You need **two committed reviews** (two **`runId`** values in the API) for compa
 
 Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or description) so compare has meaningful deltas.
 
-**CLI alternative (Development, one review):** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) **`new`** + **`run --quick`** creates one committed review quickly; still create a **second** review (HTTP or second CLI project) for compare.
+**CLI alternative (Development, one review):** [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) **`new`** + **`run --quick`** creates one committed review quickly; still create a **second** review (HTTP or second CLI project) for compare.
 
 **Pass criteria:** Both reviews show **`goldenManifestId`**; no unexpected **5xx**; commit returns **200** (a second commit on an already-committed `runId` is **200** idempotent per **`API_CONTRACTS.md`**).
 
@@ -152,7 +152,7 @@ curl -sL -o rc-run-export.zip "$BASE/v1/artifacts/runs/RUN_ID/export"
 | Step | Action | Pass criteria |
 |------|--------|----------------|
 | 7.1 | Set **`ARCHLUCID_API_URL`** to the RC API | Same base URL as drill |
-| 7.2 | `dotnet run --project ArchLucid.Cli -- support-bundle --zip` | Completes; review **`README.txt`** inside before any external share ([TROUBLESHOOTING.md](../TROUBLESHOOTING.md), [CLI_USAGE.md](CLI_USAGE.md)) |
+| 7.2 | `dotnet run --project ArchLucid.Cli -- support-bundle --zip` | Completes; review **`README.txt`** inside before any external share ([TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md), [CLI_USAGE.md](CLI_USAGE.md)) |
 
 ---
 
@@ -186,8 +186,8 @@ curl -sL -o rc-run-export.zip "$BASE/v1/artifacts/runs/RUN_ID/export"
 |-----|-----|
 | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | Checkbox release gates |
 | [V1_SCOPE.md](V1_SCOPE.md) | In/out of scope |
-| [PILOT_GUIDE.md](PILOT_GUIDE.md) | Narrative onboarding |
-| [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Copy-paste commands |
+| [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) | Narrative onboarding |
+| [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) | Copy-paste commands |
 | [RELEASE_SMOKE.md](RELEASE_SMOKE.md) | Scripted smoke scope |
 | [COMPARISON_REPLAY.md](COMPARISON_REPLAY.md) | Comparison / replay concepts |
 | [REPO_HYGIENE.md](REPO_HYGIENE.md) | What to commit vs generated |

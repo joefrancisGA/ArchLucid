@@ -39,8 +39,10 @@ _SPONSOR_OUTPUT_SURFACES: dict[str, tuple[str, ...]] = {
         "ROI narrative claim gate",
         "HOLD disposition",
     ),
-    "archlucid-ui/src/app/(marketing)/demo/preview/DemoPreviewMarketingBody.tsx": (
+    "archlucid-ui/src/lib/demo-preview-page-copy.ts": (
         "Evidence basis",
+    ),
+    "archlucid-ui/src/app/(marketing)/demo/preview/_sections/DemoPreviewHero.tsx": (
         "illustrative",
     ),
     "archlucid-ui/src/app/(marketing)/see-it/SeeItMarketingBody.tsx": (

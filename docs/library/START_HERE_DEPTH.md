@@ -79,7 +79,7 @@ Start at **[`../START_HERE.md`](../START_HERE.md)** and follow the contributor t
 
 ## Operational considerations
 
-- **Break / fix loop:** [`TROUBLESHOOTING.md`](../TROUBLESHOOTING.md).
+- **Break / fix loop:** [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md).
 - **Hosted stack order:** [`library/REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md).
 - **Change log (user-visible):** [`CHANGELOG.md`](../CHANGELOG.md) · **breaking-only:** [`../../BREAKING_CHANGES.md`](../../BREAKING_CHANGES.md).
 

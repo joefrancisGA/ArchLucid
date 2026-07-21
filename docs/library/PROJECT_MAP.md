@@ -18,7 +18,7 @@ Map **`ArchLucid.sln`** projects to **bounded contexts** and seams so engineers 
 
 - **Test projects** mirror product seams; they are not separate bounded contexts.
 - **`ArchLucid.Contracts.Abstractions`** is a thin shared surface; treat it with **Contracts** as shared kernel.
-- **`archlucid-ui`** is not in the solution file above; see **[CONTAINERIZATION.md](CONTAINERIZATION.md)** and **[archlucid-ui/README.md](../../archlucid-ui/README.md)**.
+- **`archlucid-ui`** is not in the solution file above; see **[../engineering/../engineering/CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md)** and **[archlucid-ui/README.md](../../archlucid-ui/README.md)**.
 
 ## Architecture overview
 

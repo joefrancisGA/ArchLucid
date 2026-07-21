@@ -7,7 +7,7 @@
 
 One **deterministic** end-to-end check for **pilot / commercial confidence** on **ArchLucid** (not full coverage). Implemented as **`scripts/release-smoke.ps1`** / **`scripts/release-smoke.cmd`** (run **`.\scripts\release-smoke.ps1`** or **`scripts\release-smoke.cmd`** from repo root).
 
-**For pilots:** Use **`run-readiness-check`** first (faster — no temporary API). Use **`release-smoke`** when you have **SQL** and want one scripted path that also runs **CLI `run --quick`** and checks **artifacts**. If the script fails, copy the **`--- FAILURE (triage) ---`** block (**Stage**, **Category**, **Next:**) into your report — see [PILOT_GUIDE.md](PILOT_GUIDE.md#when-you-report-an-issue).
+**For pilots:** Use **`run-readiness-check`** first (faster — no temporary API). Use **`release-smoke`** when you have **SQL** and want one scripted path that also runs **CLI `run --quick`** and checks **artifacts**. If the script fails, copy the **`--- FAILURE (triage) ---`** block (**Stage**, **Category**, **Next:**) into your report — see [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md#when-you-report-an-issue).
 
 **What it verifies**
 
@@ -217,4 +217,4 @@ Deterministic behavior is unchanged: same step order, same filters, same timeout
 - **Outbox timeout (Step 9):** ensure `ArchLucid.Api` was compiled correctly and Microsoft.Data.SqlClient.dll is present, or check background worker logs for processing/dead-lettering failure.
 - **Playwright fails:** ensure browsers are installed (**`npx playwright install`** in **`archlucid-ui`**) and port **3000** is free for the test **`webServer`**.
 
-More: [TROUBLESHOOTING.md](../TROUBLESHOOTING.md), [PILOT_GUIDE.md](PILOT_GUIDE.md).
+More: [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md), [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md).

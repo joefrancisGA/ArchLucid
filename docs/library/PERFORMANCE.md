@@ -51,7 +51,7 @@ Do **not** treat soak failures as release blockers by default (guidance in **[LO
 3. **Read + write CI smoke (mirrors merge gate `k6-ci-smoke`):** `k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json` then **`python scripts/ci/assert_k6_ci_smoke_summary.py /tmp/k6-ci-summary.json --max-failed-rate 0.02 --max-p95-ms 3000 --per-tag-ci-smoke`** (see **[LOAD_TEST_BASELINE.md](LOAD_TEST_BASELINE.md)**).
 4. **Heavier Compose / hot-path baseline (manual, non-blocking):** **`pwsh ./scripts/load/record_baseline.ps1`** or **`bash scripts/load/record_baseline.sh`** and workflow **[`.github/workflows/load-test.yml`](../../.github/workflows/load-test.yml)** — see **[LOAD_TEST_BASELINE.md](LOAD_TEST_BASELINE.md)**.
 
-Azure **hosting** order-of-operations (no capacity promise): **[DEPLOYMENT.md](DEPLOYMENT.md)**.
+Azure **hosting** order-of-operations (no capacity promise): **[../engineering/../engineering/DEPLOYMENT.md](../engineering/DEPLOYMENT.md)**.
 
 ### Simulator versus real LLM
 

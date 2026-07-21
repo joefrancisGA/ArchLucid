@@ -65,8 +65,8 @@
 - [ ] **Buyer proof packet reviewed** (recommended for pilot releases): `dotnet run --project ArchLucid.Cli -- pilot proof-packet <committed-run-id> --out artifacts/proof-packet/<run-id>` — verify `proof-summary.md` labels execution mode, `limitations.md` lists skipped gates, and `environment.json` contains no secrets.
 - [ ] *(Optional SaaS fleets)* **Reliability drill** automation understood if you consume the scheduled workflow output — [RELIABILITY_DRILL_PACKAGE.md](../runbooks/RELIABILITY_DRILL_PACKAGE.md).
 - [ ] **Package handoff** (if distributing bits): `scripts/package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
-- [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../REPOSITORY_README.md), [BUILD.md](BUILD.md)).
-- [ ] **Containers** (if used): image tags recorded; compose profile documented ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
+- [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../REPOSITORY_README.md), [../engineering/../engineering/BUILD.md](../engineering/BUILD.md)).
+- [ ] **Containers** (if used): image tags recorded; compose profile documented ([../engineering/../engineering/CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md)).
 - [ ] **Migrations:** DbUp applies cleanly on a fresh DB and on upgrade from **previous supported** schema ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).
 
 ---
@@ -75,7 +75,7 @@
 
 - [ ] **`GET /health/live`** returns success on running instances.
 - [ ] **`GET /health/ready`** reflects real dependencies (e.g. Sql when not InMemory; schema files, compliance pack, temp dir as configured) ([README.md](../REPOSITORY_README.md)).
-- [ ] **`GET /version`** (or health JSON **`version`** / **`commitSha`**) matches **`metadata.json`** / git expectation for this build ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
+- [ ] **`GET /version`** (or health JSON **`version`** / **`commitSha`**) matches **`metadata.json`** / git expectation for this build ([customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md)).
 - [ ] **`dotnet run --project ArchLucid.Cli -- doctor`** succeeds against the deployed/staged API base URL (or equivalent in packaged deployment).
 - [ ] **Correlation:** sample request with **`X-Correlation-ID`** appears in logs as expected ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - [ ] **Observability** (if production): metrics/logs dashboards or queries smoke-tested for one synthetic run ([OPERATIONS_ADMIN.md](OPERATIONS_ADMIN.md) if applicable).
@@ -86,7 +86,7 @@
 
 ## 4. Guided operator flow validation
 
-Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.md](PILOT_GUIDE.md) Option A/B):
+Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) Option A/B):
 
 - [ ] **Create architecture request (review)** — `POST /v1/architecture/request` (or CLI path) succeeds; **`runId`** captured.
 - [ ] **Execute** — `POST /v1/architecture/run/{runId}/execute` (or environment’s equivalent) completes to a committable state.
@@ -116,7 +116,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 - [ ] **User-facing** copy (UI, Swagger titles where customized, CLI operator strings) says **ArchLucid** where product-facing ([V1_SCOPE.md](V1_SCOPE.md) naming note).
 - [ ] **Legacy config keys** (`ArchLucid*`, `ARCHIFORGE_*`) documented in runbook; **bridge** behavior verified if both old and new keys appear ([README.md](../REPOSITORY_README.md), [GLOSSARY.md](GLOSSARY.md)).
 - [ ] **Integration event type strings** — canonical vs legacy aliases understood if consumers exist ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
-- [ ] **Image / container names** in deploy docs match what was actually pushed ([CONTAINERIZATION.md](CONTAINERIZATION.md), [RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
+- [ ] **Image / container names** in deploy docs match what was actually pushed ([../engineering/../engineering/CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md), [RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 
 ---
 
@@ -129,11 +129,11 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 
 ## 7. Support bundle validation
 
-- [ ] **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (against staging/prod-like API) completes without unhandled errors ([CLI_USAGE.md](CLI_USAGE.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md)).
-- [ ] **Archive reviewed** internally: no unexpected secrets; redaction policy applied before external share ([PILOT_GUIDE.md](PILOT_GUIDE.md#when-you-report-an-issue)).
+- [ ] **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (against staging/prod-like API) completes without unhandled errors ([CLI_USAGE.md](CLI_USAGE.md), [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md)).
+- [ ] **Archive reviewed** internally: no unexpected secrets; redaction policy applied before external share ([PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md#when-you-report-an-issue)).
 - [ ] **First-pilot support-bundle proof** attached: `support-bundle-status.json` is **PASS** or an explicit **MISSING/WARN** is accepted before operational handoff; **HOLD** redaction findings block external sharing.
-- [ ] **Key sections present** for triage: e.g. build/health/config summary as documented in [CHANGELOG.md](../CHANGELOG.md) / [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) (manifest, build, health, config-summary, environment, etc.).
-- [ ] **Ticket template** for pilots includes: version, correlation ID, bundle (if allowed), repro steps ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
+- [ ] **Key sections present** for triage: e.g. build/health/config summary as documented in [CHANGELOG.md](../CHANGELOG.md) / [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md) (manifest, build, health, config-summary, environment, etc.).
+- [ ] **Ticket template** for pilots includes: version, correlation ID, bundle (if allowed), repro steps ([customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md)).
 
 ---
 

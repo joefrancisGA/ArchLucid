@@ -7,7 +7,7 @@
 
 This document is the **canonical reference** for how the ArchLucid product codebase (`ArchLucid.*` assemblies) classifies and runs automated tests. It aligns local scripts, contributor docs, and CI behavior.
 
-**See also:** [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (**54R operator cheat sheet** — copy-paste commands), [BUILD.md](BUILD.md) (SQL Server setup for tests), [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md) (scheduled Schemathesis OpenAPI fuzz), [RELEASE_LOCAL.md](RELEASE_LOCAL.md) (**56R** — `build-release`, `package-release`, `run-readiness-check`), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (**56R** — `release-smoke` E2E gate).
+**See also:** [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (**54R operator cheat sheet** — copy-paste commands), [../engineering/../engineering/BUILD.md](../engineering/BUILD.md) (SQL Server setup for tests), [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md) (scheduled Schemathesis OpenAPI fuzz), [RELEASE_LOCAL.md](RELEASE_LOCAL.md) (**56R** — `build-release`, `package-release`, `run-readiness-check`), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (**56R** — `release-smoke` E2E gate).
 
 > **Canonical entry point (2026-04-20).** Every tier below can be invoked from the repo root with the consolidated driver: **`.\scripts\test.ps1 -Tier <name>`** (PowerShell) or **`.\scripts\test.cmd <name>`** (cmd trampoline). Tier names: `Core`, `FastCore`, `OpenApiContract`, `Integration`, `SqlServerIntegration`, `Full`, `UiUnit`, `UiSmoke`, `Slow`. Run **`.\scripts\test.ps1 -ListTiers`** for the full list. The legacy `test-<tier>.cmd` / `test-<tier>.ps1` scripts still exist as **shims** that delegate to the consolidated driver and are scheduled for removal **after 2026-Q3** — new docs and runbooks should call the consolidated driver directly.
 
@@ -91,7 +91,7 @@ dotnet test ArchLucid.sln --filter "Category=Integration"
 
 **Scripts:** `test-integration.cmd` / `test-integration.ps1`
 
-**Requires:** SQL Server available to **ArchLucid.Api.Tests** per [BUILD.md](BUILD.md) (local default `localhost`; CI uses the service container and per-factory databases).
+**Requires:** SQL Server available to **ArchLucid.Api.Tests** per [../engineering/../engineering/BUILD.md](../engineering/BUILD.md) (local default `localhost`; CI uses the service container and per-factory databases).
 
 ---
 
@@ -112,7 +112,7 @@ dotnet test ArchLucid.Persistence.Tests --filter "Category=SqlServerContainer"
 
 **Scripts:** `test-sqlserver-integration.cmd` / `test-sqlserver-integration.ps1`
 
-**Requires:** `ARCHLUCID_SQL_TEST` set to a full ADO.NET connection string (see [BUILD.md](BUILD.md)), or Windows LocalDB. Resolution is centralized in **`ArchLucid.TestSupport`**. If SQL is unavailable, tests **skip** via `SkippableFact` / fixture checks where implemented.
+**Requires:** `ARCHLUCID_SQL_TEST` set to a full ADO.NET connection string (see [../engineering/../engineering/BUILD.md](../engineering/BUILD.md)), or Windows LocalDB. Resolution is centralized in **`ArchLucid.TestSupport`**. If SQL is unavailable, tests **skip** via `SkippableFact` / fixture checks where implemented.
 
 This path is the **default** for “did we break Dapper + SQL DDL + migrations?” without spinning the full API host.
 
@@ -134,7 +134,7 @@ dotnet test ArchLucid.sln
 
 **Optional live AOAI invoke (same workflow):** When repository variable **`ARCHLUCID_CI_REAL_AOAI_ENABLED`** is **`true`**, CI runs job **`dotnet-azure-openai-live-post-regression`** only after **`openapi-contract-snapshot`**, **`.NET: merge coverage + gates`**, and **Simmy chaos** are green (`RealAzureOpenAIEndToEndTests`). Configure secrets **`ARCHLUCID_CI_REAL_AOAI_ENDPOINT`** and **`ARCHLUCID_CI_REAL_AOAI_KEY`**; optional repo variable **`ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT`** (tests default **`gpt-4o`** when unset). The job shares the golden-cohort **$15/month** budget probe (`tests/golden-cohort/budget.config.json`): live tests run when MTD is under the kill threshold; budget skip emits **`::warning::`** and does **not** fail the workflow. Fork pull requests skip this job. Avoid listing this job under required checks unless AOAI outages or quota exhaustion should block merges.
 
-**Local parity:** `scripts/run-full-regression-docker-sql.ps1` / `.sh` starts Compose SQL and sets `ARCHLUCID_SQL_TEST` to the dev password from `docker-compose.yml` (see [BUILD.md](BUILD.md)).
+**Local parity:** `scripts/run-full-regression-docker-sql.ps1` / `.sh` starts Compose SQL and sets `ARCHLUCID_SQL_TEST` to the dev password from `docker-compose.yml` (see [../engineering/../engineering/BUILD.md](../engineering/BUILD.md)).
 
 ---
 

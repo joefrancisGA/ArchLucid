@@ -54,7 +54,7 @@ Two **documentation planes** coexist: **outward-facing product + trust narration
 | [`docs/runbooks/`](../runbooks/), [`docs/onboarding/day-one-sre.md`](../onboarding/day-one-sre.md), many [`docs/deployment/`](../deployment/) pages | **Vendor internal / reliability / infra** | Incident, failover, Stripe GA, infra setup. |
 | [`docs/engineering/`](../engineering/) | **Contributors / platform engineers** | Install order, first commit loop, IaC ergonomics adjacent to BUILD. |
 | [`docs/security/`](../security/) (long-form) | **Security reviewers + architects** mixed | VPAT/threat-model depth — skim [`trust-center.md`](../go-to-market/trust-center.md) first when buying. |
-| [`docs/library/`](./) | **Mixed** — default to [`NAVIGATOR.md`](../archive/NAVIGATOR.md) rows | Hundreds of refs: [`BUILD.md`](BUILD.md), [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md), assessments, connectors. |
+| [`docs/library/`](./) | **Mixed** — default to [`NAVIGATOR.md`](../archive/NAVIGATOR.md) rows | Hundreds of refs: [`../engineering/../engineering/BUILD.md`](../engineering/BUILD.md), [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md), assessments, connectors. |
 
 ## Component breakdown — canonical hubs
 
@@ -68,7 +68,7 @@ Two **documentation planes** coexist: **outward-facing product + trust narration
 
 1. **`engineering/INSTALL_ORDER.md`** (see [`../engineering/INSTALL_ORDER.md`](../engineering/INSTALL_ORDER.md)) — Docker / .NET / Node order.
 2. **[`../onboarding/day-one-developer.md`](../onboarding/day-one-developer.md)** + **[`CONTRIBUTOR_CODE_MAP.md`](CONTRIBUTOR_CODE_MAP.md)** + **[`CHANGE_IMPACT_CHECKLIST.md`](CHANGE_IMPACT_CHECKLIST.md)** — where to edit safely and what follow-through to check.
-3. **[`BUILD.md`](BUILD.md)**, **[`TEST_STRUCTURE.md`](TEST_STRUCTURE.md)** — local correctness loop.
+3. **[`../engineering/../engineering/BUILD.md`](../engineering/BUILD.md)**, **[`TEST_STRUCTURE.md`](TEST_STRUCTURE.md)** — local correctness loop.
 
 Deep narrative for both columns together — **[`START_HERE_DEPTH.md`](START_HERE_DEPTH.md)**.
 

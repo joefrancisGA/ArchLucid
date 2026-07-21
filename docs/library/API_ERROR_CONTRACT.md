@@ -14,7 +14,7 @@ Give API clients a **stable, machine-readable** error shape for failures: **`app
 ## Assumptions
 
 - Clients use **`GET /openapi/v1.json`** or the checked-in contract snapshot for response schemas.
-- Operators may read **`correlationId`** from response bodies or **`X-Correlation-ID`** headers (see **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)**).
+- Operators may read **`correlationId`** from response bodies or **`X-Correlation-ID`** headers (see **[TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md)**).
 
 ## Constraints
 

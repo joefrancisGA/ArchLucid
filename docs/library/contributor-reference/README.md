@@ -12,7 +12,7 @@ Bookmark these canonical paths (**no stub yet**):
 
 | Topic | Path from `library/` |
 | --- | --- |
-| Install/build loop | [`BUILD.md`](../BUILD.md) |
+| Install/build loop | [`BUILD.md`](../../engineering/BUILD.md) |
 | Test tiers & CI filters | [`TEST_STRUCTURE.md`](../TEST_STRUCTURE.md), [`TEST_EXECUTION_MODEL.md`](../TEST_EXECUTION_MODEL.md) |
 | Where-to-patch atlas | [`CONTRIBUTOR_CODE_MAP.md`](../CONTRIBUTOR_CODE_MAP.md) |
 | Contributor quick ramp | [`day-one-developer.md`](../../onboarding/day-one-developer.md) |

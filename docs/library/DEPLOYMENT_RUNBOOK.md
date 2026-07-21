@@ -152,7 +152,7 @@ For **Azure Container Apps**, set a head-based sampling ratio so OTLP trace volu
 
 **Recommended:** add environment variable **`Observability__Tracing__SamplingRatio`** = **`0.1`** on the **API** and **worker** container apps (double underscores match nested JSON `Observability:Tracing:SamplingRatio`). Omit the variable or use **`1.0`** in non-production. Default in code and **`appsettings.json`** remains **`1.0`** so existing environments are unchanged until operators opt in.
 
-**UI (archlucid-ui):** optional build-time / runtime public env **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** — URL with **`{traceId}`** placeholder so the run detail and provenance pages can render **View trace** (see [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)). The UI proxy forwards **`X-Trace-Id`** (and **`traceparent`**) from the API response for browser-side fetches.
+**UI (archlucid-ui):** optional build-time / runtime public env **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** — URL with **`{traceId}`** placeholder so the run detail and provenance pages can render **View trace** (see [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md)). The UI proxy forwards **`X-Trace-Id`** (and **`traceparent`**) from the API response for browser-side fetches.
 
 ---
 
@@ -161,7 +161,7 @@ For **Azure Container Apps**, set a head-based sampling ratio so OTLP trace volu
 | Topic | Document |
 |--------|----------|
 | CD jobs, secrets, post-deploy script | [DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md) |
-| Umbrella deploy / rollback story | [DEPLOYMENT.md](DEPLOYMENT.md) |
+| Umbrella deploy / rollback story | [../engineering/../engineering/DEPLOYMENT.md](../engineering/DEPLOYMENT.md) |
 | Observability export readiness report | [OBSERVABILITY.md](OBSERVABILITY.md) |
 | Hosted SaaS scale thresholds | [SCALE_THRESHOLD_RUNBOOK.md](SCALE_THRESHOLD_RUNBOOK.md) |
 | Local / release smoke depth | [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |

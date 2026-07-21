@@ -171,7 +171,7 @@ This section satisfies the "every design must explicitly address security" rule.
 | **Reliability** | MCP server degrades to "API unavailable" cleanly; no stale tenant data on circuit-open. | Reuse `CircuitBreakingAgentCompletionClient`-style breaker; add `CircuitBreakerHealthCheck` rows for MCP. |
 | **Cost** | Per-MCP-session token cap; reuse `LlmTokenQuotaWindowTracker`, `LlmCompletionResponseCacheOptions`. | Per [adr/0005-llm-completion-pipeline.md](../architecture/adrs/0005-llm-completion-pipeline.md). |
 | **Observability** | OTel spans per MCP tool call; metrics `archlucid.mcp.tool.calls`, `archlucid.mcp.tool.latency`, `archlucid.mcp.tool.tokens`, `archlucid.mcp.approval_class.outcome`. | Reuse `ArchLucidInstrumentation`. |
-| **Supportability** | `archlucid doctor` and `support-bundle` extended to capture MCP session diagnostics; `/version` reports MCP SDK version. | Per [PILOT_GUIDE.md](PILOT_GUIDE.md). |
+| **Supportability** | `archlucid doctor` and `support-bundle` extended to capture MCP session diagnostics; `/version` reports MCP SDK version. | Per [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md). |
 | **Audit / compliance** | One typed audit event per tool call; `AUDIT_COVERAGE_MATRIX.md` gains a new section. | Per [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md). |
 | **Infrastructure-as-code** | New `ArchLucid.Mcp.Server` deployment lives in Terraform under `infra/`; no public ingress beyond existing private endpoints. | Per workspace IaC rule. |
 
