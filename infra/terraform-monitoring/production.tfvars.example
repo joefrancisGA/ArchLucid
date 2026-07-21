@@ -1,6 +1,7 @@
 ﻿# Production monitoring: two-tier alert routing (Improvement #46).
 # Copy to terraform.tfvars (gitignored). Store phone numbers and PagerDuty webhook in Key Vault — not here.
 
+posture_tier                    = "production"
 enable_monitoring_stack         = true
 enable_critical_action_group    = true
 read_alert_secrets_from_key_vault = true

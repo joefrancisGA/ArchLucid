@@ -41,8 +41,8 @@ variable "account_replication_type" {
 
 variable "public_network_access_enabled" {
   type        = bool
-  description = "Set false when access is only via private endpoint (see terraform-private)."
-  default     = true
+  description = "Set false when access is only via private endpoint (see terraform-private). Defaults false (TB-903/TB-904)."
+  default     = false
 }
 
 variable "network_rule_ip_allowlist" {

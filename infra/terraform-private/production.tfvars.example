@@ -1,0 +1,18 @@
+# Production-oriented private data plane example.
+#   terraform apply -var-file=production.tfvars.example
+
+posture_tier              = "production"
+enable_private_data_plane = true
+create_resource_group     = true
+resource_group_name       = "rg-archlucid-private-prod"
+location                  = "eastus2"
+
+sql_server_id      = "/subscriptions/<sub-id>/resourceGroups/rg-data-prod/providers/Microsoft.Sql/servers/archlucid-sql-prod"
+storage_account_id = "/subscriptions/<sub-id>/resourceGroups/rg-data-prod/providers/Microsoft.Storage/storageAccounts/starchlucidprod"
+key_vault_id       = "/subscriptions/<sub-id>/resourceGroups/rg-data-prod/providers/Microsoft.KeyVault/vaults/kv-archlucid-prod"
+
+tags = {
+  workload    = "archlucid"
+  layer       = "private-data"
+  environment = "production"
+}

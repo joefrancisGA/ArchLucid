@@ -9,9 +9,10 @@ Optional Terraform root for **private data-plane** connectivity: VNet, **private
 
 ## What you must do after apply
 
-1. **Disable public network access** on the SQL server and storage account (or restrict with firewall rules) so data is not still reachable publicly — Terraform here does not flip those flags by design (avoid locking you out mid-migration).
-2. Update **`ConnectionStrings:ArchLucid`** to use the **same server FQDN**; with private DNS linked to the VNet, `*.database.windows.net` resolves to the private IP inside the VNet.
-3. Integrate **compute** (App Service, Container Apps, AKS) with this VNet (**VNet integration** or subnet injection) so the API resolves private DNS.
+1. **Integrate compute** (Container Apps, AKS) with this VNet (**VNet integration** or subnet injection) so workloads resolve private DNS for `*.database.windows.net` and `*.blob.core.windows.net`.
+2. Update **`ConnectionStrings:ArchLucid`** to use the **same server FQDN**; with private DNS linked to the VNet, names resolve to private IPs inside the VNet.
+
+**TB-903:** When `enable_private_data_plane = true`, Terraform now sets **`publicNetworkAccess = Disabled`** on the SQL server, storage account, and Key Vault (when their resource IDs are set) via `azapi_update_resource` after the private endpoints are created. You no longer need a manual portal flip for those targets.
 
 ## Variables
 

@@ -17,17 +17,7 @@ resource "azurerm_cdn_frontdoor_firewall_policy" "main" {
   enabled             = true
   mode                = "Prevention"
 
-  managed_rule {
-    type    = "Microsoft_DefaultRuleSet"
-    version = var.front_door_waf_default_rule_set_version
-    action  = "Block"
-  }
-
-  managed_rule {
-    type    = "Microsoft_BotManagerRuleSet"
-    version = "1.0"
-    action  = "Block"
-  }
+  # TB-903: Standard_AzureFrontDoor supports custom rules only — managed rule sets require Premium.
 }
 
 # Endpoint: customer-facing hostname attached to the profile (what DNS CNAME targets).

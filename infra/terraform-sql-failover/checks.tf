@@ -55,9 +55,26 @@ check "sql_automatic_tuning_primary_not_placeholder" {
   }
 }
 
-check "sql_failover_required_for_production_tier" {
+check "posture_production_requires_sql_failover_group" {
   assert {
-    condition     = var.environment_tier != "production" || var.enable_sql_failover_group
-    error_message = "enable_sql_failover_group must be true when environment_tier is production. The RTO/RPO target of RPO < 5 minutes cannot be met without an active failover group."
+    condition     = !local.posture_is_production || var.enable_sql_failover_group
+    error_message = "posture_tier = production requires enable_sql_failover_group = true (RPO < 5 minutes)."
+  }
+}
+
+check "posture_staging_sql_failover_or_waiver" {
+  assert {
+    condition = !local.posture_is_staging || var.enable_sql_failover_group || contains(
+      local.posture_waiver_ids,
+      "staging-sql-failover-drill-window"
+    )
+    error_message = "posture_tier = staging requires enable_sql_failover_group = true or posture_waivers entry id = staging-sql-failover-drill-window (TB-905 drill-window model)."
+  }
+}
+
+check "posture_staging_or_production_requires_sql_consumption_budget" {
+  assert {
+    condition     = !local.posture_is_staging_or_production || var.enable_sql_consumption_budget
+    error_message = "posture_tier staging/production requires enable_sql_consumption_budget = true."
   }
 }
