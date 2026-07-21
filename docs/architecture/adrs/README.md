@@ -62,6 +62,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0057](0057-graph-rag-community-summarization-scope-decision.md) | Graph-RAG community summarization (RAG-V2-001 remainder) scope decision — options record; recommends keeping deferred pending G-REAL-06 pilot signal (**Status: Accepted** — decision-only, no feature code authorized) |
 | [0058](0058-bounded-generative-question-tier.md) | Bounded generative question tier (L2g) + retrospective question mining (**Status: Proposed**) |
 | [0059](0059-spa-bff-http-only-session-plan.md) | SPA BFF / HttpOnly session plan for GA (XSS residual H-10) (**Status: Proposed**) |
+| [0061](0061-ddos-protection-posture-v1.md) | DDoS protection posture for V1 — Front Door platform DDoS; defer Network Protection (~$2,944/mo) until revisit triggers (**Status: Accepted** 2026-07-21; TB-908) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 
