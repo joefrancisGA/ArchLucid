@@ -138,9 +138,22 @@ public sealed class QuickScanGlobalBudgetReservationStoreConcurrencyTests
             },
         });
 
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
         return new QuickScanGlobalBudgetReservationService(
             options.Object,
             store,
+            operational.Object,
             NullLogger<QuickScanGlobalBudgetReservationService>.Instance);
     }
 }

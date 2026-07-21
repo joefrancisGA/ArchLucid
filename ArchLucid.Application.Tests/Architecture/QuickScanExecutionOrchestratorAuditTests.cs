@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.QuickScan;
 
 using FluentAssertions;
 
@@ -80,6 +81,18 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             .Setup(c => c.WaitForAdmissionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(QuickScanDistributedConcurrencyAdmissionResult.NoOp());
 
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QuickScanSafetyOperationalSnapshot
+            {
+                Mode = QuickScanSafetyOperationalMode.Normal,
+                AnonymousExecutionAllowed = true,
+                SampleResultAvailable = true,
+                PublicMessage = string.Empty,
+                StoreHealthy = true,
+            });
+
         IOptionsMonitor<QuickScanOptions> options = new TestOptionsMonitor(new QuickScanOptions { Enabled = true });
         IOptionsMonitor<QuickScanSafetyOptions> safetyOptions = new TestSafetyOptionsMonitor(new QuickScanSafetyOptions { Enabled = false });
 
@@ -92,6 +105,7 @@ public sealed class QuickScanExecutionOrchestratorAuditTests
             preExecCostEstimator.Object,
             globalBudget.Object,
             concurrency.Object,
+            operational.Object,
             audit.Object,
             costEstimator.Object,
             TimeProvider.System);

@@ -158,6 +158,7 @@ public sealed class QuickScanDistributedConcurrencyService(
     IOptionsMonitor<QuickScanSafetyOptions> safetyOptions,
     IQuickScanDistributedConcurrencyStore store,
     IQuickScanTelemetry telemetry,
+    IQuickScanSafetyOperationalStateProvider operationalStateProvider,
     TimeProvider timeProvider,
     ILogger<QuickScanDistributedConcurrencyService> logger) : IQuickScanDistributedConcurrencyService
 {
@@ -171,6 +172,9 @@ public sealed class QuickScanDistributedConcurrencyService(
 
     private readonly IQuickScanTelemetry _telemetry =
         telemetry ?? throw new ArgumentNullException(nameof(telemetry));
+
+    private readonly IQuickScanSafetyOperationalStateProvider _operationalStateProvider =
+        operationalStateProvider ?? throw new ArgumentNullException(nameof(operationalStateProvider));
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -186,9 +190,14 @@ public sealed class QuickScanDistributedConcurrencyService(
         QuickScanSafetyOptions safety = _safetyOptions.CurrentValue;
         QuickScanSafetyEffectiveFeatureState effective = safety.ResolveEffectiveFeatureState();
 
-        if (!effective.Enabled || !effective.AnonymousExecutionEnabled)
+        QuickScanSafetyOperationalSnapshot operational =
+            await _operationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!effective.Enabled || !effective.AnonymousExecutionEnabled
+            || !operational.AnonymousExecutionAllowed)
         {
-            return QuickScanDistributedConcurrencyAdmissionResult.NoOp();
+            return QuickScanDistributedConcurrencyAdmissionResult.Reject(
+                QuickScanConcurrencyRejectionReason.EmergencyDisabled);
         }
 
         QuickScanSafetyConcurrencyLimits limits = safety.Concurrency;

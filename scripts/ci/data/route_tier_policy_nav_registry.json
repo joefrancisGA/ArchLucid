@@ -132,6 +132,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminQuickScanSafetyController.cs",
+      "class_name": "AdminQuickScanSafetyController",
+      "route_template": "v{version:apiVersion}/admin/quick-scan/safety",
+      "normalized_prefix": "/v1/admin/quick-scan/safety",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminRagHealthController.cs",
       "class_name": "AdminRagHealthController",
       "route_template": "v{version:apiVersion}/admin",
@@ -1389,16 +1399,6 @@
       "commercial_tier": "none",
       "class_policy": "AllowAnonymous",
       "exemption": "marketing_public_api",
-      "nav_operator_href": null
-    },
-    {
-      "controller_file": "Marketing/MarketingQuickScanController.cs",
-      "class_name": "MarketingQuickScanController",
-      "route_template": "v{version:apiVersion}/marketing/quick-scan",
-      "normalized_prefix": "/v1/marketing/quick-scan",
-      "commercial_tier": "none",
-      "class_policy": "AllowAnonymous",
-      "exemption": null,
       "nav_operator_href": null
     },
     {

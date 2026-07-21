@@ -22,4 +22,6 @@ export type QuickScanStatusResponse = Readonly<{
   capacityAvailable: boolean;
   requireSignIn: boolean;
   sampleResultAvailable: boolean;
+  operationalMode?: string;
+  publicMessage?: string | null;
 }>;

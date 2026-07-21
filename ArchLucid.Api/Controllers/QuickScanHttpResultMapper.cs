@@ -25,6 +25,16 @@ internal static class QuickScanHttpResultMapper
                 ProblemTypes.ValidationFailed);
         }
 
+        if (result.FailureKind == QuickScanExecutionFailureKind.EmergencyDisabled)
+        {
+            string detail = result.ValidationDetail
+                ?? "Quick Scan is temporarily unavailable. View the sample result or try again later.";
+
+            return controller.ServiceUnavailableProblemWithErrorCode(
+                detail,
+                QuickScanConcurrencyErrorCodes.Busy);
+        }
+
         if (result.FailureKind == QuickScanExecutionFailureKind.ConcurrencyRejected)
         {
             return MapConcurrencyRejected(controller, result.ConcurrencyRejectionReason!.Value);

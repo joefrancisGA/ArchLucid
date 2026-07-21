@@ -73,7 +73,14 @@ export function QuickScanClient(): ReactElement {
 
   const fieldErrors = useMemo(() => validateQuickScanForm(formValues), [formValues]);
   const incompleteReason = useMemo(() => quickScanIncompleteReason(fieldErrors), [fieldErrors]);
-  const canSubmit = incompleteReason === null && !submitting && (status?.capacityAvailable ?? true);
+  const canSubmit =
+    incompleteReason === null
+    && !submitting
+    && (status?.capacityAvailable ?? true)
+    && (status?.enabled ?? true)
+    && status?.operationalMode !== "EmergencyDisabled"
+    && status?.operationalMode !== "SampleOnly"
+    && status?.operationalMode !== "Disabled";
 
   useEffect(() => {
     void (async () => {
@@ -90,8 +97,18 @@ export function QuickScanClient(): ReactElement {
         const body = (await response.json()) as QuickScanStatusResponse;
         setStatus(body);
 
-        if (!body.capacityAvailable) {
-          setCapacityMessage("Quick Scan has reached its demonstration capacity for today.");
+        if (!body.capacityAvailable || !body.enabled) {
+          setCapacityMessage(
+            body.publicMessage?.trim().length
+              ? body.publicMessage
+              : "Quick Scan has reached its demonstration capacity for today.",
+          );
+        } else if (body.operationalMode === "SampleOnly" || body.operationalMode === "EmergencyDisabled") {
+          setCapacityMessage(
+            body.publicMessage?.trim().length
+              ? body.publicMessage
+              : "Quick Scan is in sample-only mode. View the illustrative sample below.",
+          );
         }
       } catch {
         /* ignore — form still works with server-side enforcement */

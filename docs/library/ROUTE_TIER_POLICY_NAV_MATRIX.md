@@ -85,6 +85,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /settings/ai-usage |  |
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
+| `Admin/AdminQuickScanSafetyController.cs` | `/v1/admin/quick-scan/safety` | none | AdminAuthority |  |  |
 | `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /settings/users |  |
 | `Admin/AdminTrialFunnelOperationalController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
@@ -211,7 +212,6 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Marketing/EnterpriseComparisonMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/MarketingEarlyAccessRequestController.cs` | `/v1/marketing/early-access` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/MarketingPricingQuoteRequestController.cs` | `/v1/marketing/pricing` | none | AllowAnonymous |  | marketing_public_api |
-| `Marketing/MarketingQuickScanController.cs` | `/v1/marketing/quick-scan` | none | AllowAnonymous |  |  |
 | `Marketing/MarketingShowcaseController.cs` | `/v1/marketing/showcase` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/SponsorBriefMarketingController.cs` | `/v1/marketing` | none | AllowAnonymous |  | marketing_public_api |
 | `Marketing/TrustCenterEvidencePackController.cs` | `/v1/marketing/trust-center` | none | AllowAnonymous |  | marketing_public_api |

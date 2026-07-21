@@ -140,6 +140,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<InMemoryQuickScanDistributedConcurrencyStore>();
             services.AddSingleton<IQuickScanDistributedConcurrencyStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanDistributedConcurrencyStore>());
+            services.AddSingleton<InMemoryQuickScanSafetyOperationalStateStore>();
+            services.AddSingleton<IQuickScanSafetyOperationalStateStore>(sp =>
+                sp.GetRequiredService<InMemoryQuickScanSafetyOperationalStateStore>());
             return;
         }
 
@@ -151,6 +154,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IIdempotencyRecordRepository, IdempotencyRecordRepository>();
         services.AddSingleton<IQuickScanGlobalBudgetReservationStore, DapperQuickScanGlobalBudgetReservationStore>();
         services.AddSingleton<IQuickScanDistributedConcurrencyStore, DapperQuickScanDistributedConcurrencyStore>();
+        services.AddSingleton<IQuickScanSafetyOperationalStateStore, DapperQuickScanSafetyOperationalStateStore>();
         services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultEnrichmentRepository, AgentResultEnrichmentRepository>();

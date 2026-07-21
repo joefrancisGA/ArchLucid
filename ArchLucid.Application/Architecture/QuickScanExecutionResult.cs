@@ -46,6 +46,9 @@ public sealed class QuickScanExecutionResult
     public static QuickScanExecutionResult CapacityReached() =>
         new(null, QuickScanExecutionFailureKind.CapacityReached, null, null, null);
 
+    public static QuickScanExecutionResult EmergencyDisabled(string message) =>
+        new(null, QuickScanExecutionFailureKind.EmergencyDisabled, null, null, message);
+
     public static QuickScanExecutionResult ExecutionFailed() =>
         new(null, QuickScanExecutionFailureKind.ExecutionFailed, null, null, null);
 }
@@ -56,6 +59,7 @@ public enum QuickScanExecutionFailureKind
     Validation,
     GuardRejected,
     ConcurrencyRejected,
+    EmergencyDisabled,
     CapacityReached,
     ExecutionFailed,
 }

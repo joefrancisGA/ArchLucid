@@ -7,4 +7,5 @@ public enum QuickScanConcurrencyRejectionReason
     QueueFull,
     QueueTimeout,
     StoreUnavailable,
+    EmergencyDisabled,
 }
