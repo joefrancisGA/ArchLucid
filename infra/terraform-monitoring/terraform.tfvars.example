@@ -55,3 +55,10 @@ tags = {
   tier     = "monitoring"
 }
 
+# TB-909 — subscription cost anomaly alert + rollup budget (optional; defaults on with monitoring stack).
+# enable_subscription_cost_management = false  # uncomment to opt out
+# subscription_cost_rollup_budget_components = { container_apps = 3500, sql = 2500, openai = 5000 }
+# subscription_rollup_budget_headroom_multiplier = 1.2
+# subscription_cost_rollup_budget_time_period_start = "2026-04-01T00:00:00Z"
+# subscription_cost_rollup_budget_contact_emails    = ["finops@example.com"]
+

@@ -4,6 +4,7 @@ Optional root for **monitoring-as-code**:
 
 - **`azurerm_monitor_action_group`** â€” email + optional HTTPS webhook (common alert schema).
 - **`azurerm_monitor_metric_alert`** â€” optional **CPU** alerts on **API** and/or **Worker** Container Apps (`CpuUsageNanoCores`, 5-minute window). Threshold is in **nano cores** (e.g. `500000000` â‰ˆ **0.5 vCPU** average). **TB-731** adds optional **UI** Container App **CPU** (`CpuPercentage`, 15m) and **replica saturation** (`Replicas`, 15m) alerts when **`ui_container_app_resource_id`** is set.
+- **TB-909** â€” optional **`azurerm_cost_anomaly_alert`** + **`azurerm_consumption_budget_subscription`** rollup when **`enable_subscription_cost_management = true`** (default). Rollup amount = **`sum(subscription_cost_rollup_budget_components) * subscription_rollup_budget_headroom_multiplier`** (default **1.2**); notifications at **50/75/90% actual** and **100% forecasted**. Not gated by **TB-903** posture tier.
 - **`azurerm_monitor_alert_prometheus_rule_group`** (optional) â€” when **`enable_prometheus_slo_rule_group = true`** and **`azure_monitor_workspace_id`** is set, provisions PromQL mirrored from **`../prometheus/archlucid-slo-rules.yml`** (HTTP **p99**, **5xx ratio**, **outbox depth**), plus **`ArchLucidIntegrationOutboxDeadLetterNonZeroTf`** (dead-letter gauge from **`archlucid-alerts.yml`**), **TB-731** signup funnel volume alerts on **`archlucid_first_tenant_funnel_events_total{event="signup"}`**, and routes fires to the same **`azurerm_monitor_action_group`** as CPU alerts. Requires metrics in the workspace matching self-hosted scrape names (OTel HTTP semconv).
 - **`azurerm_dashboard_grafana`** (optional) â€” **Azure Managed Grafana** 11.x; assign **Monitoring Reader** (or Log Analytics roles) to the instance **managed identity** so operators can build dashboards against subscription metrics.
 - **Grafana Terraform provider** (optional) â€” when **`grafana_terraform_dashboards_enabled = true`**, provisions **`../grafana/*.json`** into a folder on that Managed Grafana (requires **`grafana_url`** + **`grafana_auth`**; usually a **second apply** after the workspace exists â€” see below).
@@ -41,7 +42,8 @@ Set **`read_alert_secrets_from_key_vault = true`** and point **`alert_secrets_ke
 1. Apply **`infra/terraform-container-apps`** (or note Container App **resource IDs** from Azure Portal).
 2. Set **`api_container_app_resource_id`** / **`worker_container_app_resource_id`** and a non-zero **`container_cpu_percent_threshold`** to create CPU alerts.
 3. **TB-731:** set **`ui_container_app_resource_id`** for UI traffic-pressure alerts; tune **`ui_container_cpu_percent_threshold`** / **`ui_replica_saturation_threshold`**; enable **`enable_prometheus_slo_rule_group`** for signup-volume PromQL alerts; optionally **`enable_first_tenant_funnel_workbook = true`** for the first-tenant funnel workbook. Thresholds are documented in **`docs/library/MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md`** §6.
-4. Run `terraform plan` / `apply` in this directory.
+4. **TB-909:** set **`subscription_cost_rollup_budget_time_period_start`** and **`subscription_cost_rollup_budget_contact_emails`** (or rely on **`alert_email_address`**). Mirror per-root amounts in **`subscription_cost_rollup_budget_components`** from **`terraform-container-apps`**, **`terraform-sql-failover`**, and **`terraform-openai`** production examples.
+5. Run `terraform plan` / `apply` in this directory.
 
 ### Provisioning dashboards with Terraform (optional)
 

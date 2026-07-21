@@ -26,6 +26,13 @@ read_alert_secrets_from_key_vault = true
 # enable_prometheus_slo_rule_group = true
 # azure_monitor_workspace_id       = "/subscriptions/.../providers/Microsoft.Monitor/accounts/..."
 
+# TB-909 — subscription cost anomaly alert + rollup budget (not gated by TB-903 posture tier).
+# enable_subscription_cost_management = true  # default; set false to opt out
+# subscription_cost_rollup_budget_components mirrors per-root production.tfvars.example amounts:
+#   container_apps = 3500, sql = 2500, openai = 5000 → rollup = 11000 × 1.2 = 13200
+subscription_cost_rollup_budget_time_period_start = "2026-04-01T00:00:00Z"
+subscription_cost_rollup_budget_contact_emails    = ["finops@example.com"]
+
 tags = {
   workload = "archlucid"
   tier     = "monitoring"

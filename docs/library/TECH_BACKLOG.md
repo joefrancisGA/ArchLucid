@@ -225,7 +225,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-905 | Execute + record reliability drills — run geo-failover drill (SQL failover group only, drill-window; secondary stack already standing per **TB-903**) and launch load drill against staging; record measured RTO/RPO and throughput in `FAILOVER_RESULTS.md` / `LAUNCH_LOAD_DRILL.md`; see `## TB-905` below | Reliability P1 — **V1**; owner-promoted from V2 2026-07-20; WAF review 2026-07-20; runbooks + scripts already shipped, execution pending | M |
 | TB-906 | Redis + Cosmos managed-identity data plane — replace Key Vault connection-string secrets with Entra/MI auth where supported; document residual secret paths; see `## TB-906` below | Trustworthiness P2 — **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20; extends TB-080/TB-100 pattern | M |
 | TB-907 | Key Vault secret expiry + rotation automation — `expiration_date` on managed secrets, rotation runbook wiring or `rotation_policy` where supported, near-expiry alerting; see `## TB-907` below | Trustworthiness P2 — **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20 | M |
-| TB-909 | Cost anomaly detection + subscription rollup budget — `azurerm_cost_anomaly_alert` + one subscription-scope budget (formula-derived: sum of per-RG budgets + 20% headroom) over the per-RG budgets; deliberately not folded into TB-903's gate; see `## TB-909` below | Cost-effectiveness P2 — **V1**; owner-promoted from V2 2026-07-20; WAF Cost pillar 2026-07-20 | S |
+| TB-909 | Cost anomaly detection + subscription rollup budget — `azurerm_cost_anomaly_alert` + one subscription-scope budget (formula-derived: sum of per-RG budgets + 20% headroom) over the per-RG budgets; deliberately not folded into TB-903's gate; see `## TB-909` below | **Done** (2026-07-21) — Cost-effectiveness P2 **V1**; `infra/terraform-monitoring/subscription_cost_management.tf` | S |
 | TB-882 | Automated nav-authority/label-consistency guard — CI check that `NavLinkItem.requiredAuthority` is not looser than target controller `[Authorize]` policy; snapshot/alias test that operator page headings match `nav-config` sidebar labels; see `## TB-882` below | Correctness P2 — **V1**; **Hold for reassessment** (`LATEST_GPT55.md` §17 Tier 3); revisit after G-REAL-06 or next drift instance | M |
 | TB-883 | RAG-V2 live-model Graph-RAG ablation signal — capture optional `retrievalHits` on `*.real.json` exemplars; Phase B faithfulness script reports Graph-RAG Δ vs all-on by filtering `KnowledgeGraphNodeNeighbor`; see `## TB-883` below | AI/Agent readiness P2 — **V1**; **Hold for reassessment** (`LATEST_GPT55.md` §17 Tier 3); revisit after G-REAL-06 | M |
 | TB-884 | Policy-pack attribution signal — read-side `% of findings attributable to assigned policy-pack rules` over `RulesApplied` + pack rule sets; CI/script summary; see `## TB-884` below | Differentiability P2 — **V1**; **Hold for reassessment** (`LATEST_GPT55.md` §17 Tier 3); revisit after G-REAL-06 | M |
@@ -22543,7 +22543,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 ---
 
-## TB-909 — Cost anomaly detection + subscription rollup budget (P2)
+## TB-909 — Cost anomaly detection + subscription rollup budget (P2) — **Done** (2026-07-21)
 
 **Window:** V1 — owner-promoted from V2 2026-07-20 alongside the rest of the WAF cluster; WAF Cost Optimization pillar 2026-07-20.
 
@@ -22551,11 +22551,13 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Owner decision (2026-07-20):** This item stays **separate and optional** from **TB-903**'s hard posture-tier gate — TB-903's production budget requirement covers only the existing per-RG flags. The rollup budget amount is a **formula**, not a fixed number: sum of existing per-RG budgets + 20% headroom, computed at apply time rather than hand-maintained.
 
-**Approach:**
+**Shipped (2026-07-21):**
 
-1. Add `azurerm_cost_anomaly_alert` (subscription scope) with the ops action-group email recipients.
-2. Add one `azurerm_consumption_budget_subscription` rollup budget above the per-RG budgets — amount derived from `sum(per-RG budget amounts) * 1.2`, not a hardcoded owner-supplied number; forecasted + actual notifications matching the existing 50/75/90/100 pattern.
-3. Do **not** fold under **TB-903**'s production posture-tier gate — this stays an independently applicable improvement.
+1. **`infra/terraform-monitoring/subscription_cost_management.tf`** — `azurerm_cost_anomaly_alert` (subscription scope) + `azurerm_consumption_budget_subscription` rollup.
+2. Rollup amount = **`sum(subscription_cost_rollup_budget_components) × subscription_rollup_budget_headroom_multiplier`** (default components mirror production per-RG examples: container_apps **3500**, sql **2500**, openai **5000** → **13200** at 1.2×).
+3. Notifications at **50/75/90% actual** and **100% forecasted**; emails from **`subscription_cost_rollup_budget_contact_emails`** or **`alert_email_address`**.
+4. **`enable_subscription_cost_management`** defaults **true** when monitoring stack is on; **not** added to TB-903 posture checks.
+5. **`production.tfvars.example`** documents time period + finops contact list.
 
 **Acceptance:**
 

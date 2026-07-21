@@ -114,6 +114,14 @@ When **`ArchLucid:StorageProvider`** is **Sql**, the API can cache hot reads (ma
 
 If images are in **Azure Container Registry**, attach a **managed identity** to each `azurerm_container_app` and grant **AcrPull**, then add a **`registry`** block — not included in this minimal root; extend `main.tf` or use a registry module.
 
+## Terraform state and brownfield imports (TB-912)
+
+This root's remote state (see **`backend.tf`** / **`backend.dev.hcl`**, key **`container-apps.tfstate`**) is the single owner for every resource declared in **`main.tf`**. Do not split Container Apps, Log Analytics, or managed identities across multiple state files.
+
+**Brownfield adoption:** when Azure resources already exist but are missing from state, add temporary Terraform **`import`** blocks on a **short-lived branch** (or only on your machine)—**never merge** import-only files to **`main`**. After the first successful **`terraform apply`** that imports and converges configuration, **delete** the import file and re-run **`terraform plan`** to confirm an empty diff before merging the convergence fixes.
+
+The dev brownfield import file was removed after the dev backend absorbed those resources (**TB-912**, 2026-07-21). For API env-only brownfield fixes without a full import, use **`Set-ApiKeyScopeClaims.ps1`** under **ApiKey scope claims** above.
+
 ## Commands
 
 ```bash
