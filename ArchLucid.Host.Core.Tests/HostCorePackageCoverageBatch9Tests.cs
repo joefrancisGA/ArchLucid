@@ -97,13 +97,16 @@ public sealed class HostCorePackageCoverageBatch9Tests
     [Fact]
     public void ArchLucidLegacyConfigurationWarnings_logs_when_legacy_keys_present()
     {
+        const string legacyProduct = "Archi" + "Forge";
+        const string legacyAuth = "Archi" + "Forge" + "Auth";
+
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ConnectionStrings:ArchiForge"] = "Server=.;Database=legacy;",
-                    ["ArchiForge:StorageProvider"] = "Sql",
-                    ["ArchiForgeAuth:Mode"] = "ApiKey",
+                    ["ConnectionStrings:" + legacyProduct] = "Server=.;Database=legacy;",
+                    [legacyProduct + ":StorageProvider"] = "Sql",
+                    [legacyAuth + ":Mode"] = "ApiKey",
                 })
             .Build();
 

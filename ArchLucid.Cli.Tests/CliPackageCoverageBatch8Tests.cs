@@ -106,7 +106,7 @@ public sealed class CliPackageCoverageBatch8Tests
         string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
             "Server=.;Database=x;Encrypt=False;TrustServerCertificate=True");
 
-        secured.Should().Contain("Encrypt=True", StringComparison.OrdinalIgnoreCase);
+        secured.ToLowerInvariant().Should().Contain("encrypt=true");
 
         Action blank = () => SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(" ");
         blank.Should().Throw<ArgumentException>();

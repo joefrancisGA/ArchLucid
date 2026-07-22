@@ -4,6 +4,7 @@ using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 
@@ -163,7 +164,7 @@ public sealed class AgentRuntimePackageCoverageBatch10Tests
             RequestId = "req-1",
             SystemName = "Orders",
             Environment = "prod",
-            CloudProvider = "Azure",
+            CloudProvider = CloudProvider.Azure,
             Description = "Design a resilient order service with private endpoints.",
             Constraints = ["Use managed identity"],
             RequiredCapabilities = ["messaging"],

@@ -9,6 +9,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Host.Core.Integration;
 using ArchLucid.Host.Core.Marketing;
+using ArchLucid.Host.Core.Middleware;
 using ArchLucid.Host.Core.Services.Delivery;
 using ArchLucid.Notifications;
 using ArchLucid.Persistence.Interfaces;
