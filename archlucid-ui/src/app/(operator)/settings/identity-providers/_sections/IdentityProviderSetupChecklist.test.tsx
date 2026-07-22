@@ -118,4 +118,35 @@ describe("IdentityProviderSetupChecklist", () => {
     expect(screen.getAllByText(/certificate expiry was not returned/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText("Authentication:Saml2:SigningCertificate").length).toBeGreaterThan(0);
   });
+
+  it("shows beta readiness steps when operator base URL or local identity is missing", () => {
+    render(
+      <IdentityProviderSetupChecklist
+        configDiagnostics={{
+          authMode: "JwtBearer",
+          audienceConfigured: true,
+          issuerOrAuthorityConfigured: true,
+          openIdDiscoverySucceeded: true,
+          saml2Enabled: false,
+          spEntityIdConfigured: null,
+          samlRoleClaimSourcesConfigured: null,
+          tenantClaimMappingConfigured: null,
+          tenantIdentityProviderProtocol: null,
+          jwksConfigured: true,
+          scimProvisioningConfigured: null,
+          scimBearerTokenActive: null,
+          roleClaimNameConfigured: true,
+          operatorBaseUrlConfigured: false,
+          localTrialIdentityConfigured: false,
+          misconfigurationHints: [],
+        }}
+        configDiagnosticsNote={null}
+        samlOperationalHealth={{ saml2Enabled: false }}
+      />,
+    );
+
+    expect(screen.getByText(/Invite email base URL/i)).toBeInTheDocument();
+    expect(screen.getByText(/Invite session signing/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Action needed/i).length).toBeGreaterThan(0);
+  });
 });

@@ -181,4 +181,33 @@ public sealed class AuthConfigurationDiagnosticsComposerTests
 
         AuthConfigurationDiagnosticsComposer.HasBlockingMisconfiguration(response).Should().BeTrue();
     }
+
+    [Fact]
+    public void Compose_beta_readiness_gaps_emit_hints_and_block_jwt_bearer()
+    {
+        AdminOidcDiagnosticsResponse oidc = new()
+        {
+            AuthMode = "JwtBearer",
+            ConfiguredAuthority = "https://idp.example/",
+            ConfiguredAudience = "api://archlucid",
+            DiscoveryAttempted = true,
+            DiscoverySucceeded = true,
+            JwksUri = "https://idp.example/jwks",
+        };
+
+        AdminAuthConfigurationDiagnosticsResponse response = AuthConfigurationDiagnosticsComposer.Compose(
+            oidc,
+            new AdminSamlOperationalHealthResponse { Saml2Enabled = false },
+            new ArchLucidSamlAuthOptions(),
+            tenantIdentityProvider: null,
+            scimDiagnostics: null,
+            operatorBaseUrlConfigured: false,
+            localTrialIdentityConfigured: false);
+
+        response.OperatorBaseUrlConfigured.Should().BeFalse();
+        response.LocalTrialIdentityConfigured.Should().BeFalse();
+        response.MisconfigurationHints.Should().Contain(h => h.Contains("OperatorBaseUrl", StringComparison.Ordinal));
+        response.MisconfigurationHints.Should().Contain(h => h.Contains("LocalIdentity", StringComparison.Ordinal));
+        AuthConfigurationDiagnosticsComposer.HasBlockingMisconfiguration(response).Should().BeTrue();
+    }
 }

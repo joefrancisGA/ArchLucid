@@ -30,6 +30,7 @@ type SetupStep = {
 const PRODUCTION_LIKE_AUTH_DOC = "/docs/library/CONFIGURATION_REFERENCE.md";
 const OIDC_DOC = "/docs/runbooks/GENERIC_OIDC_SETUP.md";
 const SAML_DOC = "/docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md";
+const PRIVATE_BETA_AUTH_DOC = "/docs/library/LIVE_E2E_JWT_SETUP.md";
 
 function statusClass(status: SetupStep["status"]): string {
   switch (status) {
@@ -160,6 +161,22 @@ function buildSteps(
 ): SetupStep[] {
   return [
     authModeStep(config, showTechnicalDetails),
+    booleanStep(
+      "Invite email base URL",
+      config.operatorBaseUrlConfigured,
+      "Operator base URL is configured for invitation accept links.",
+      "Set Email:OperatorBaseUrl to your operator UI origin so invitations include a clickable accept link.",
+      showTechnicalDetails ? "Email:OperatorBaseUrl" : null,
+      PRIVATE_BETA_AUTH_DOC,
+    ),
+    booleanStep(
+      "Invite session signing",
+      config.localTrialIdentityConfigured,
+      "Local trial identity JWT signing is configured for invite accept → session.",
+      "Configure Auth:Trial:LocalIdentity (JwtIssuer, JwtAudience, JwtPrivateKeyPemPath) so invite accept can mint API sessions.",
+      showTechnicalDetails ? "Auth:Trial:LocalIdentity" : null,
+      PRIVATE_BETA_AUTH_DOC,
+    ),
     discoveryStep(config, showTechnicalDetails),
     booleanStep(
       "Scope / audience claim",

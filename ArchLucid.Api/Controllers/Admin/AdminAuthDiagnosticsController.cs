@@ -35,6 +35,8 @@ public sealed class AdminAuthDiagnosticsController(
     IOidcWellKnownDiagnosticsService oidcWellKnownDiagnosticsService,
     ISamlOperationalDiagnosticsService samlOperationalDiagnosticsService,
     IOptionsMonitor<ArchLucidSamlAuthOptions> samlAuthOptionsMonitor,
+    IOptionsMonitor<EmailNotificationOptions> emailNotificationOptionsMonitor,
+    IOptionsMonitor<TrialAuthOptions> trialAuthOptionsMonitor,
     ITenantIdentityProviderConfigurationRepository tenantIdentityProviderConfigurationRepository,
     IScimTenantTokenRepository scimTenantTokenRepository,
     IScopeContextProvider scopeContextProvider,
@@ -54,6 +56,12 @@ public sealed class AdminAuthDiagnosticsController(
 
     private readonly IOptionsMonitor<ArchLucidSamlAuthOptions> _samlAuthOptionsMonitor =
         samlAuthOptionsMonitor ?? throw new ArgumentNullException(nameof(samlAuthOptionsMonitor));
+
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailNotificationOptionsMonitor =
+        emailNotificationOptionsMonitor ?? throw new ArgumentNullException(nameof(emailNotificationOptionsMonitor));
+
+    private readonly IOptionsMonitor<TrialAuthOptions> _trialAuthOptionsMonitor =
+        trialAuthOptionsMonitor ?? throw new ArgumentNullException(nameof(trialAuthOptionsMonitor));
 
     private readonly ITenantIdentityProviderConfigurationRepository _tenantIdentityProviderConfigurationRepository =
         tenantIdentityProviderConfigurationRepository
@@ -177,12 +185,19 @@ public sealed class AdminAuthDiagnosticsController(
         AuthConfigurationScimDiagnostics? scimDiagnostics =
             await BuildScimDiagnosticsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
+        (bool operatorBaseUrlConfigured, bool localTrialIdentityConfigured) =
+            AuthBetaReadinessDiagnosticsEvaluator.Evaluate(
+                _emailNotificationOptionsMonitor.CurrentValue,
+                _trialAuthOptionsMonitor.CurrentValue);
+
         AdminAuthConfigurationDiagnosticsResponse response = AuthConfigurationDiagnosticsComposer.Compose(
             oidc,
             saml,
             _samlAuthOptionsMonitor.CurrentValue,
             tenantRow,
-            scimDiagnostics);
+            scimDiagnostics,
+            operatorBaseUrlConfigured,
+            localTrialIdentityConfigured);
 
         return Ok(response);
     }
