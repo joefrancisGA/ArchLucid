@@ -179,5 +179,5 @@ Run **≥3** sessions before UI implementation batching. Implement only bottlene
 ## Related
 
 - [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md)
-- [`FIRST_VALUE_20_MINUTES.md`](../runbooks/FIRST_VALUE_20_MINUTES.md)
+- [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed)
 - [`BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md)

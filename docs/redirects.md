@@ -97,6 +97,8 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/runbooks/ROLLING_DEPLOY_MIGRATIONS.md` | [`docs/runbooks/MIGRATION_ROLLBACK.md`](runbooks/MIGRATION_ROLLBACK.md#rolling-deploy-migrations) | Expand/contract patterns, coordinated migrations, TB-068 CI lint |
 | `docs/runbooks/SAML_CERT_ROTATION.md` | [`docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`](runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md) | Former short alias filename; canonical SAML SP signing cert rotation |
 | `docs/library/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md` | [`docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`](runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md) | Former library pointer stub; canonical runbook under `docs/runbooks/` |
+| `docs/runbooks/EMAIL_OTP_ABUSE_DRILL.md` | [`docs/runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md`](runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md#abuse-drill-evidence-e1) | Staging OTP flood drill (Evidence E1) |
+| `docs/runbooks/FIRST_VALUE_20_MINUTES.md` | [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed) | Time-boxed path to sponsor-safe artifact |
 
 ## Renamed (not deleted)
 

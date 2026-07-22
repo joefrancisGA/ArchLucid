@@ -1,4 +1,4 @@
-> **Scope:** Internal operator runbook — platform readiness, pilot proof collection, and phase-level recovery. **Customer architects:** use [Complete review workflow](/help/first-pilot-path) (`docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md`).
+> **Scope:** Internal operator runbook — platform readiness, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. **Customer architects:** use [Complete review workflow](/help/first-pilot-path) (`docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md`).
 
 # First-pilot operator path (internal runbook)
 
@@ -6,9 +6,9 @@
 
 **Persona map (operator / platform / release owner):** [`ROLE_INDEX.md`](ROLE_INDEX.md).
 
-**Last reviewed:** 2026-06-06
+**Last reviewed:** 2026-07-21
 
-**Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`FIRST_VALUE_20_MINUTES.md`](FIRST_VALUE_20_MINUTES.md). **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
+**Canonical seven-step minimum path:** [`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md) (command wrapper: `scripts/Run-CanonicalFirstPilotPath.ps1`). **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** § **First value in 20 minutes** below. **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
 
 
 ## Inputs, outputs, and stop conditions
@@ -55,6 +55,47 @@ Use this small vocabulary across cockpit rows, proof summaries, and sponsor hand
 ## Grounding rule
 
 Every step below maps to a **shipped** API, operator UI route, or CLI verb. Optional accelerators use only V1 policy packs and ingest paths — **Jira**, **ServiceNow**, **Confluence**, **Slack**, **Teams**, and broad outbound webhooks are **V1.1** and appear only under *Optional later*.
+
+
+## First value in 20 minutes (time-boxed)
+
+Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. For the full phased checklist, continue with § **Phase A** below.
+
+**Mode expectation:** Steps below work in **simulator** mode without Azure OpenAI credentials. Label outputs **Simulator** unless you configured real-mode and collected live LLM evidence.
+
+### Prerequisites (5 min)
+
+1. API reachable (`GET /health/live` returns 200).
+2. SQL persistence configured (or approved in-memory demo only — not for sponsor handoff).
+3. `archlucid.json` in working directory with `apiBaseUrl` and auth (API key or scope headers).
+4. Optional: `ARCHLUCID_API_KEY` in environment.
+
+### Path (15 min)
+
+| Step | Action | Expected output |
+| --- | --- | --- |
+| 1 | `dotnet run --project ArchLucid.Cli -- doctor` | Connection OK; auth mode summarized |
+| 2 | Create + execute + commit one review (UI **Home** checklist or CLI `archlucid run` → execute → commit) | Committed run id |
+| 3 | `dotnet run --project ArchLucid.Cli -- pilot proof-packet <runId> --out artifacts/proof-packet/<runId>` | Folder: `proof-summary.md`, `run-evidence.json`, `audit-sample.json`, `artifact-manifest.json`, `environment.json`, `limitations.md` |
+| 3 (combined) | `dotnet run --project ArchLucid.Cli -- try --sponsor-packet --out artifacts/proof` | Zero-to-proof in one command: Docker up → demo seed → sample run → commit → sponsor folder with `proof-summary.md` (default out: `artifacts/try-sponsor-packet/<runId>`) |
+| 4 | Review `proof-summary.md` **Sponsor first-page status** block | Evidence source, quality disposition, ROI basis, next action |
+| 5 | Optional sponsor ZIP: `dotnet run --project ArchLucid.Cli -- buyer-proof-pack <runId> --out artifacts/buyer-proof.zip` | Email-sized ZIP for executives |
+
+### Failure triage (stop here — do not skip)
+
+| Symptom | Next step |
+| --- | --- |
+| SQL / ready failures | [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) → health/ready |
+| Auth 401/403 | [`PRODUCTION_LIKE_AUTH_HANDOFF_CHECKLIST.md`](PRODUCTION_LIKE_AUTH_HANDOFF_CHECKLIST.md) |
+| Quality gate rejected | API `supportHint` + [`QUALITY_GATE_REJECTION.md`](QUALITY_GATE_REJECTION.md) |
+| No artifacts after commit | Re-run execute; confirm committed status before proof packet |
+| LLM budget / quota | [`../library/OPERATIONS_LLM_QUOTA.md`](../library/OPERATIONS_LLM_QUOTA.md) |
+
+### After this path
+
+- Full environment proof: `./scripts/collect-first-pilot-proof.ps1 -BaseUrl <url> -RunId <runId>`
+- Support bundle: `dotnet run --project ArchLucid.Cli -- support-bundle --run-id <runId> --zip`
+- Depth: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md)
 
 
 ## Pilot UI deployment (buyer-default shell)

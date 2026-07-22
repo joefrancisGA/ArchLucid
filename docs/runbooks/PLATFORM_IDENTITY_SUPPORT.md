@@ -12,7 +12,7 @@
 | [PLATFORM_AUTH_RECOVERY.md](PLATFORM_AUTH_RECOVERY.md) | Tenant lockout, recovery admin, platform grants |
 | [IDENTITY_LINKING_SUPPORT.md](IDENTITY_LINKING_SUPPORT.md) | Disputed link, cannot add Microsoft/Google/email method |
 | [SSO_ENFORCEMENT_AND_RECOVERY_DRILL.md](SSO_ENFORCEMENT_AND_RECOVERY_DRILL.md) | Staging drill checklist (Evidence E3) |
-| [EMAIL_OTP_ABUSE_DRILL.md](EMAIL_OTP_ABUSE_DRILL.md) | Staging OTP flood drill (Evidence E1) |
+| [EMAIL_OTP_DELIVERY_AND_ABUSE.md](EMAIL_OTP_DELIVERY_AND_ABUSE.md#abuse-drill-evidence-e1) | Staging OTP flood drill (Evidence E1) |
 | [SELF_SERVICE_TRIAL_ABUSE_DRILL.md](SELF_SERVICE_TRIAL_ABUSE_DRILL.md) | Trial farm drill (Evidence E1) |
 
 ## Dry-run sign-off (Evidence E4)
