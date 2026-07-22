@@ -4,7 +4,7 @@ Optional Terraform root for a **public edge** in front of your API or **API Mana
 
 ## What customers get
 
-- **Managed WAF** (Microsoft Default Rule Set 2.1 + Bot Manager) in **Prevention** mode.
+- **WAF policy** in **Prevention** mode with **custom rules only** on **Standard** SKU (**TB-903** — managed rule sets require Premium and are not applied here).
 - **HTTPS** at the edge with redirect; origin traffic uses the hostname you configure.
 - **Primary origin** — point `backend_hostname` at **APIM** (`*.azure-api.net`) or a direct **App Service** hostname.
 - **Optional secondary origin** — set `secondary_backend_hostname` (and optional `secondary_origin_host_header`) for a passive standby in another region; Front Door uses priority/weight (1/1000 vs 2/500) and health probes for failover.

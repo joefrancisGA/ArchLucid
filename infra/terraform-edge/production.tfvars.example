@@ -3,6 +3,7 @@
 #
 # Requires real origin hostnames (APIM, API, or UI) before apply.
 
+posture_tier          = "production"
 enable_front_door_waf = true
 create_resource_group = true
 resource_group_name   = "rg-archlucid-edge-prod"
@@ -14,10 +15,6 @@ front_door_profile_name = "archlucid-prod-fd"
 backend_hostname = "your-apim-or-api-hostname.azure-api.net"
 
 front_door_health_probe_path = "/health/ready"
-
-# Microsoft_DefaultRuleSet (DRS): production uses 2.2 where supported — OWASP CRS-baselined managed
-# rules per Azure WAF docs. If plan/apply rejects the version for your SKU, try "2.1" or check portal.
-front_door_waf_default_rule_set_version = "2.2"
 
 tags = {
   workload    = "archlucid"

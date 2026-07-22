@@ -1,6 +1,7 @@
 ﻿# Production monitoring: two-tier alert routing (Improvement #46).
 # Copy to terraform.tfvars (gitignored). Store phone numbers and PagerDuty webhook in Key Vault — not here.
 
+posture_tier                    = "production"
 enable_monitoring_stack         = true
 enable_critical_action_group    = true
 read_alert_secrets_from_key_vault = true
@@ -24,6 +25,13 @@ read_alert_secrets_from_key_vault = true
 # Container App resource IDs + CPU threshold (see terraform.tfvars.example).
 # enable_prometheus_slo_rule_group = true
 # azure_monitor_workspace_id       = "/subscriptions/.../providers/Microsoft.Monitor/accounts/..."
+
+# TB-909 — subscription cost anomaly alert + rollup budget (not gated by TB-903 posture tier).
+# enable_subscription_cost_management = true  # default; set false to opt out
+# subscription_cost_rollup_budget_components mirrors per-root production.tfvars.example amounts:
+#   container_apps = 3500, sql = 2500, openai = 5000 → rollup = 11000 × 1.2 = 13200
+subscription_cost_rollup_budget_time_period_start = "2026-04-01T00:00:00Z"
+subscription_cost_rollup_budget_contact_emails    = ["finops@example.com"]
 
 tags = {
   workload = "archlucid"

@@ -58,7 +58,7 @@ Before approving a new helper, search the repo and the change description for an
 ### Infrastructure
 
 - **All infrastructure must be representable in Terraform** (`infra/terraform-*/`). Reject PRs that introduce Azure resources via portal-only steps, ARM templates, or one-off scripts without a corresponding Terraform change.
-- **Greenfield IaC** uses `archlucid` Terraform resource labels; do not reintroduce the substring `archiforge` in `infra/**/*.tf` (run `rg "archiforge" infra --glob "*.tf"` on Terraform PRs — merge-blocking grep job retired). Brownfield state migration (if any) is documented in `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md` and `docs/library/V1_DEFERRED.md` §3.
+- **Greenfield IaC** uses `archlucid` Terraform resource labels; do not reintroduce the substring `archiforge` in `infra/**/*.tf` (run `rg "archiforge" infra --glob "*.tf"` on Terraform PRs — merge-blocking grep job retired). Pre-release: no brownfield `terraform state mv` ([`docs/library/V1_DEFERRED.md`](docs/library/V1_DEFERRED.md) §3).
 
 ### Data / DDL
 
@@ -72,7 +72,7 @@ Before approving a new helper, search the repo and the change description for an
 
 ### Allowed legacy literals (do **not** flag these)
 
-- `docs/library/V1_DEFERRED.md` §3 / `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md` (brownfield rename narrative)
+- `docs/library/V1_DEFERRED.md` §3 (rename closed; greenfield Terraform only)
 - `docs/BREAKING_CHANGES.md` rows documenting **removed** legacy spellings
 - `.gitleaks.toml` dev-password allowlist entries
 

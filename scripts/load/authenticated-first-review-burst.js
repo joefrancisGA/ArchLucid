@@ -5,32 +5,32 @@
  *
  * Usage:
  *   k6 run scripts/load/authenticated-first-review-burst.js
- *   k6 run -e ARCHIFORGE_BASE_URL=http://127.0.0.1:5128 -e K6_AUTH_PEAK_VUS=20 scripts/load/authenticated-first-review-burst.js
+ *   k6 run -e ARCHLUCID_BASE_URL=http://127.0.0.1:5128 -e K6_AUTH_PEAK_VUS=20 scripts/load/authenticated-first-review-burst.js
  *
  * Env:
- *   ARCHIFORGE_BASE_URL / ARCHIFORGE_API_KEY / scope GUIDs — same as scripts/load/k6-scenarios.js
+ *   ARCHLUCID_BASE_URL / ARCHLUCID_API_KEY / scope GUIDs — same as scripts/load/k6-scenarios.js
  *   K6_AUTH_PEAK_VUS        peak VUs (default 15)
  *   K6_AUTH_RAMP / K6_AUTH_HOLD
- *   ARCHIFORGE_LOAD_TEST_WRITES=true  → adds low-rate POST /v1/architecture/request (opt-in)
+ *   ARCHLUCID_LOAD_TEST_WRITES=true  → adds low-rate POST /v1/architecture/request (opt-in)
  */
 
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-const base = (__ENV.ARCHIFORGE_BASE_URL || __ENV.ARCHLUCID_BASE_URL || "http://127.0.0.1:5128").replace(
+const base = (__ENV.ARCHLUCID_BASE_URL || "http://127.0.0.1:5128").replace(
   /\/$/,
   "",
 );
-const apiKey = __ENV.ARCHIFORGE_API_KEY || "";
-const tenant = __ENV.ARCHIFORGE_TENANT_ID || "11111111-1111-1111-1111-111111111111";
-const workspace = __ENV.ARCHIFORGE_WORKSPACE_ID || "22222222-2222-2222-2222-222222222222";
-const project = __ENV.ARCHIFORGE_PROJECT_ID || "33333333-3333-3333-3333-333333333333";
-const runId = __ENV.ARCHIFORGE_RUN_ID || "00000000-0000-0000-0000-000000000001";
+const apiKey = __ENV.ARCHLUCID_API_KEY || "";
+const tenant = __ENV.ARCHLUCID_TENANT_ID || "11111111-1111-1111-1111-111111111111";
+const workspace = __ENV.ARCHLUCID_WORKSPACE_ID || "22222222-2222-2222-2222-222222222222";
+const project = __ENV.ARCHLUCID_PROJECT_ID || "33333333-3333-3333-3333-333333333333";
+const runId = __ENV.ARCHLUCID_RUN_ID || "00000000-0000-0000-0000-000000000001";
 
 const peakVus = Number(__ENV.K6_AUTH_PEAK_VUS || 15);
 const rampDuration = __ENV.K6_AUTH_RAMP || "1m";
 const holdDuration = __ENV.K6_AUTH_HOLD || "3m";
-const loadTestWrites = __ENV.ARCHIFORGE_LOAD_TEST_WRITES === "true";
+const loadTestWrites = __ENV.ARCHLUCID_LOAD_TEST_WRITES === "true";
 
 function headers(jsonBody) {
   const h = {

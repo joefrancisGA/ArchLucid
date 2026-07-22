@@ -6,7 +6,7 @@
 
 # Build & project hygiene
 
-> **Product naming:** Documentation refers to the product as **ArchLucid**. Phase 7 retired legacy `ArchLucid*` configuration and CLI naming; deferred brownfield rename items live in **`docs/library/V1_DEFERRED.md`** §3 and **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**.
+> **Product naming:** Documentation refers to the product as **ArchLucid**. Phase 7 application rename closed **2026-04-19**; greenfield IaC uses **`archlucid`** Terraform labels only ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §3).
 
 See also [TEST_STRUCTURE.md](../library/TEST_STRUCTURE.md) for test categories and filtering, **[TEST_EXECUTION_MODEL.md](../library/TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / Integration / SQL / Full regression scripts and CI alignment, and **[RELEASE_LOCAL.md](../library/RELEASE_LOCAL.md)** (56R) for `build-release` / `package-release` / `run-readiness-check`.
 

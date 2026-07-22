@@ -9,7 +9,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROOF_SCRIPT = REPO_ROOT / "scripts" / "collect-first-pilot-proof.ps1"
 CATALOG_SCRIPT = REPO_ROOT / "scripts" / "ci" / "check_audit_event_catalog.py"
-TRIAGE_DOC = REPO_ROOT / "docs" / "runbooks" / "SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md"
+TRIAGE_DOC = REPO_ROOT / "docs" / "runbooks" / "FIRST_PILOT_SUPPORT_TRIAGE.md"
 
 
 class CommercialAuditProofBatchTests(unittest.TestCase):

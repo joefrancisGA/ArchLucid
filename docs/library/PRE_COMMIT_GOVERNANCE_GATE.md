@@ -82,6 +82,4 @@ Problem details **`type`**: **`https://archlucid.example.org/errors#governance-p
 - **`docs/API_CONTRACTS.md`** — commit conflict vs governance block.
 - **`docs/V1_SCOPE.md`** §2.10 — optional feature flagging.
 - **`docs/AUDIT_COVERAGE_MATRIX.md`** — `GovernancePreCommitBlocked`, `GovernancePreCommitWarned`, `GovernanceApprovalSlaBreached`.
-- **`docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md`** — copy-paste GitHub Actions / Azure DevOps starters calling simulate or commit (OpenAPI v1 aligned).
-- **`docs/runbooks/CI_GOVERNANCE_GATE.md`** — full PR pipeline (create → execute → commit → PilotStrict).
-- In-app help: **`/help/pre-commit-ci-gate`**.
+- **`docs/runbooks/CI_GOVERNANCE_GATE.md`** — copy-paste GitHub Actions / Azure DevOps starters and full PR pipeline (create → execute → commit → PilotStrict); see [§ Minimal CI starters](../runbooks/CI_GOVERNANCE_GATE.md#minimal-ci-starters).

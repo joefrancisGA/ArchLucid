@@ -11,7 +11,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = REPO_ROOT / "scripts" / "ci" / "data" / "audit_event_catalog.v1.json"
-TRIAGE_DOC = "docs/runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md"
+TRIAGE_DOC = "docs/runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md"
 
 
 def load_deltas(path: Path | None) -> dict[str, object]:
@@ -57,7 +57,7 @@ def build_payload(run_id: str, deltas: dict[str, object]) -> dict[str, object]:
             "API keys",
             "customer secrets",
         ],
-        "deeperLogsGuidance": "Follow SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md for correlation-id investigation order.",
+        "deeperLogsGuidance": "Follow FIRST_PILOT_SUPPORT_TRIAGE.md#artifact-open-order for correlation-id investigation order.",
         "triageDoc": TRIAGE_DOC,
     }
 

@@ -38,13 +38,17 @@ The [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) **Known gaps** section 
 
 ---
 
-## 3. Rename, keys, and platform cleanup (Phase 7)
+## 3. Rename and platform cleanup (Phase 7) — **closed (greenfield)**
 
-Operational cleanup is **scheduled and gated**, not “unfinished V1 product.”
+**Owner decision (2026-07-22):** ArchLucid has **not shipped**; there are **no brownfield** Terraform states or customer deployments carrying historical **`archiforge`** resource addresses. Application rename (**ArchLucid** config keys, CLI, SQL DDL filename) closed **2026-04-19**; committed **`infra/**/*.tf`** uses **`archlucid`** labels only.
 
-| Item | Doc source |
-|------|------------|
-| Remove legacy **ArchLucid** config / OIDC / env bridges; **ArchLucid.sql → ArchLucid.sql**; Terraform **state mv**; repo / workspace rename | [TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md), [CHANGELOG.md](../CHANGELOG.md) (rename / Phase 7.5–8 history), [Navigation.mdc](../CHANGELOG.md) (**Product rename**). **Phase 7** requires explicit go-ahead. |
+| Item | Status |
+|------|--------|
+| Legacy **ArchiForge** config / **`ARCHIFORGE_*`** env (application) | **Removed** — startup warns if legacy keys appear ([`BREAKING_CHANGES.md`](../BREAKING_CHANGES.md) §2026-04-08) |
+| Terraform **`archiforge`** resource addresses / **`state mv`** | **Not applicable** — greenfield applies only; use [`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md) |
+| GitHub repo / Entra rename (Phase 7.6–7.7) | **Closed 2026-04-19** ([`CHANGELOG.md`](../CHANGELOG.md)) |
+
+**Operator check:** `rg "archiforge" infra --glob "*.tf"` must return **zero** matches before merging Terraform changes.
 
 ---
 

@@ -69,3 +69,18 @@ output "first_tenant_funnel_workbook_id" {
   value       = module.first_tenant_funnel_workbook.workbook_id
   description = "TB-731: Azure Monitor workbook id for first-tenant signup funnel when enable_first_tenant_funnel_workbook is true."
 }
+
+output "subscription_cost_rollup_budget_id" {
+  description = "TB-909: Resource id of the subscription rollup consumption budget when enable_subscription_cost_management is true; otherwise null."
+  value       = try(azurerm_consumption_budget_subscription.rollup[0].id, null)
+}
+
+output "subscription_cost_rollup_budget_amount" {
+  description = "TB-909: Computed monthly rollup budget amount (sum of subscription_cost_rollup_budget_components × headroom multiplier) when enabled; otherwise null."
+  value       = local.subscription_cost_management_enabled ? local.subscription_rollup_budget_amount : null
+}
+
+output "subscription_cost_anomaly_alert_id" {
+  description = "TB-909: Resource id of the subscription cost anomaly alert when enable_subscription_cost_management is true; otherwise null."
+  value       = try(azurerm_cost_anomaly_alert.subscription[0].id, null)
+}

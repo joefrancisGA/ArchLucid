@@ -2,8 +2,8 @@
 
 # Failover drill results log
 
-Append-only entries from `scripts/ops/run-failover-drill.ps1` (see `docs/runbooks/DATABASE_FAILOVER.md`).
+Append-only entries from `scripts/ops/run-failover-drill.ps1` (TB-905). Owner runbook: `docs/runbooks/TB-905_STAGING_RELIABILITY_DRILL.md`.
 
-| Drill | Environment | Observed downtime | Status |
-|-------|-------------|-------------------|--------|
-| _Pending first staging execution_ | Staging | _TBD_ | Run `./scripts/ops/run-failover-drill.ps1 -ApiBaseUrl <staging-api>` after scheduling the drill |
+| Date | Environment | RTO (observed) | RPO (est.) | Target RTO | Target RPO | Pass | Notes |
+|------|-------------|----------------|------------|------------|------------|------|-------|
+| _Pending first staging execution_ | Staging | _TBD_ | _TBD_ | < 60 min | < 5 min | — | Run `./scripts/ops/run-failover-drill.ps1` after scheduling the drill |

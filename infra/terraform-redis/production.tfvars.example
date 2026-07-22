@@ -1,4 +1,5 @@
-﻿enable_redis_cache     = true
+﻿posture_tier                    = "production"
+enable_redis_cache              = true
 create_resource_group  = true
 resource_group_name    = "rg-archlucid-redis-prod"
 location               = "centralus"

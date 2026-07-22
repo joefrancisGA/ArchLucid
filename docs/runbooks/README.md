@@ -59,7 +59,6 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P3** | [LOAD_TEST_RATE_LIMITS.md](./LOAD_TEST_RATE_LIMITS.md) | Load testing against rate-limited endpoints. |
 | **P3** | [REDIS_HEALTH.md](./REDIS_HEALTH.md) | Redis used for dev compose / cache patterns; connectivity and health checks. |
 | **P3** | [LOGIC_APPS_STANDARD.md](./LOGIC_APPS_STANDARD.md) | Optional Logic App (Standard) hosts for Service Bus integration workflows (ADR 0019). |
-| **P3** | [TERRAFORM_STATE_MV_PHASE_7_5.md](./TERRAFORM_STATE_MV_PHASE_7_5.md) | **Stub** — greenfield IaC complete; brownfield **state mv** archive: [`../archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](../archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md). First deploy: [`../FIRST_AZURE_DEPLOYMENT.md`](../library/FIRST_AZURE_DEPLOYMENT.md). |
 | **P3** | [COPILOT_CODE_REVIEW_SETUP.md](./COPILOT_CODE_REVIEW_SETUP.md) | One-time setup: enable GitHub Copilot auto-review on every PR; lives alongside `.github/copilot-instructions.md` + `CODEOWNERS`. |
 | **P3** | [PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md](./PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) | **Market validation** — five-step bakeoff: manual frontier AI, ArchLucid, blind compare, decision-delta, sponsor-safe summary. |
 

@@ -9,7 +9,7 @@
 | Script | Target | Default peak VUs | Notes |
 | --- | --- | ---: | --- |
 | `scripts/load/public-showcase-burst.js` | `/showcase/claims-intake-modernization`, `/demo/preview`, `/welcome` | 50 | Must remain static — **no live LLM** on these paths |
-| `scripts/load/authenticated-first-review-burst.js` | `GET /v1/audit/search`, `GET /v1/authority/runs/{runId}` | 15 | Simulator-friendly API; optional `ARCHIFORGE_LOAD_TEST_WRITES=true` for low-rate creates |
+| `scripts/load/authenticated-first-review-burst.js` | `GET /v1/audit/search`, `GET /v1/authority/runs/{runId}` | 15 | Simulator-friendly API; optional `ARCHLUCID_LOAD_TEST_WRITES=true` for low-rate creates |
 
 ## Local run
 
@@ -49,6 +49,14 @@ After each drill, append a row to **Latest run** below with:
 - p50 / p95 / p99 `http_req_duration`
 - `http_req_failed` rate
 - Any 5xx or unexpected LLM proxy calls on showcase paths (treat as regression)
+
+**TB-905 (staging):** after `run_launch_load_drill.sh`, run:
+
+```powershell
+.\scripts\ops\append-launch-load-drill-results.ps1 -SummaryDir artifacts/launch-load-drill/<timestamp> -Environment staging -Apply
+```
+
+See `docs/runbooks/TB-905_STAGING_RELIABILITY_DRILL.md`.
 
 ### Latest run
 

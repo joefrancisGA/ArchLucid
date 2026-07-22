@@ -4,7 +4,7 @@
 
 # Documentation redirects
 
-**Last reviewed:** 2026-07-20
+**Last reviewed:** 2026-07-22
 
 Human readers and agents should follow **canonical** paths below. This file is the only redirect surface — do not recreate thin "moved" stub files.
 
@@ -29,6 +29,13 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/integrations/SSO_AUTH0_CONFIGURATION.md` | [`docs/integrations/IDP_PROVISIONING.md`](integrations/IDP_PROVISIONING.md) | Auth0 SSO (§2) |
 | `docs/integrations/SSO_OKTA_CONFIGURATION.md` | [`docs/integrations/IDP_PROVISIONING.md`](integrations/IDP_PROVISIONING.md) | Okta SSO (§3) |
 | `docs/archive/ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md` | [`docs/onboarding/day-one-developer.md`](onboarding/day-one-developer.md) | Duplicate contributor stub — no unique content |
+| `docs/archive/FIRST_5_DOCS.md` | [`docs/START_HERE.md`](START_HERE.md) | Legacy five-doc spine bookmark stub |
+| `docs/archive/FIRST_FIVE_DOCS.md` | [`docs/START_HERE.md`](START_HERE.md) | Alternate spelling of `FIRST_5_DOCS` stub |
+| `docs/archive/READ_THIS_FIRST.md` | [`docs/READ_THIS_FIRST.md`](READ_THIS_FIRST.md) | Archive duplicate of root decision-tree stub |
+| `docs/archive/FIRST_RUN_WIZARD.md` | [`docs/library/FIRST_RUN_WIZARD.md`](library/FIRST_RUN_WIZARD.md) | Legacy wizard design-note bookmark stub |
+| `docs/archive/FIRST_RUN_WALKTHROUGH.md` | [`docs/library/FIRST_RUN_WALKTHROUGH.md`](library/FIRST_RUN_WALKTHROUGH.md) | Legacy first-run walkthrough bookmark stub |
+| `docs/archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md` | [`docs/START_HERE.md`](START_HERE.md) | Archived pre-spine reading-order table |
+| `docs/archive/NAVIGATOR.md` | [`docs/START_HERE.md`](START_HERE.md) | Legacy task-navigator bookmark stub |
 | `docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md` | [`docs/library/OBSERVABILITY.md`](library/OBSERVABILITY.md#authority-pipeline-remediation-runbook) | Authority pipeline Grafana/Prometheus remediation |
 | `docs/runbooks/GRAFANA_DASHBOARD_BINDING_GUIDE.md` | [`docs/runbooks/OBSERVABILITY_DASHBOARD_BINDING.md`](runbooks/OBSERVABILITY_DASHBOARD_BINDING.md) | Grafana import / datasource binding |
 
@@ -99,6 +106,20 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md` | [`docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`](runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md) | Former library pointer stub; canonical runbook under `docs/runbooks/` |
 | `docs/runbooks/EMAIL_OTP_ABUSE_DRILL.md` | [`docs/runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md`](runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md#abuse-drill-evidence-e1) | Staging OTP flood drill (Evidence E1) |
 | `docs/runbooks/FIRST_VALUE_20_MINUTES.md` | [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed) | Time-boxed path to sponsor-safe artifact |
+
+## 2026-07-22 runbook consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md` | [`docs/runbooks/CI_GOVERNANCE_GATE.md`](runbooks/CI_GOVERNANCE_GATE.md#minimal-ci-starters) | Minimal copy-paste simulate/commit CI starters |
+| `docs/runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md` | [`docs/runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md`](runbooks/FIRST_PILOT_SUPPORT_TRIAGE.md#artifact-open-order) | Proof-folder artifact open order + buyer-safe table |
+
+## 2026-07-22 archiforge / brownfield Terraform cleanup
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md` | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §3 | Pre-release greenfield only; brownfield `state mv` runbook removed |
+| `docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md` | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §3 | Archived copy removed with runbook |
 
 ## Renamed (not deleted)
 

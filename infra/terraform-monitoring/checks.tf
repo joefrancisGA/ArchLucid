@@ -98,3 +98,37 @@ check "ui_replica_saturation_within_max" {
     error_message = "ui_replica_saturation_threshold must be <= ui_max_replicas_expected."
   }
 }
+
+check "subscription_cost_management_requires_monitoring_stack" {
+  assert {
+    condition     = !var.enable_subscription_cost_management || var.enable_monitoring_stack
+    error_message = "enable_subscription_cost_management = true requires enable_monitoring_stack = true (uses alert_email_address for notifications)."
+  }
+}
+
+check "subscription_cost_rollup_requires_components" {
+  assert {
+    condition = !var.enable_subscription_cost_management || !var.enable_monitoring_stack || (
+      length(var.subscription_cost_rollup_budget_components) > 0 &&
+      alltrue([for amount in values(var.subscription_cost_rollup_budget_components) : amount > 0])
+    )
+    error_message = "With subscription cost management enabled, subscription_cost_rollup_budget_components must be a non-empty map of positive monthly amounts (mirror per-root production.tfvars.example budgets)."
+  }
+}
+
+check "subscription_cost_rollup_requires_time_period" {
+  assert {
+    condition     = !var.enable_subscription_cost_management || !var.enable_monitoring_stack || length(trimspace(var.subscription_cost_rollup_budget_time_period_start)) > 0
+    error_message = "With subscription cost management enabled, set subscription_cost_rollup_budget_time_period_start (e.g. 2026-04-01T00:00:00Z)."
+  }
+}
+
+check "subscription_cost_management_requires_contact_email" {
+  assert {
+    condition = !var.enable_subscription_cost_management || !var.enable_monitoring_stack || (
+      length(var.subscription_cost_rollup_budget_contact_emails) > 0 ||
+      length(trimspace(var.alert_email_address)) > 0
+    )
+    error_message = "With subscription cost management enabled, set subscription_cost_rollup_budget_contact_emails and/or alert_email_address for anomaly and budget notifications."
+  }
+}

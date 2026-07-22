@@ -7,36 +7,36 @@
  *
  * Usage:
  *   k6 run scripts/load/k6-scenarios.js
- *   k6 run --vus 10 --duration 30s -e ARCHIFORGE_API_KEY=secret scripts/load/k6-scenarios.js
+ *   k6 run --vus 10 --duration 30s -e ARCHLUCID_API_KEY=secret scripts/load/k6-scenarios.js
  *
  * Env:
- *   ARCHIFORGE_BASE_URL     (default http://127.0.0.1:5128)
- *   ARCHIFORGE_API_KEY      X-Api-Key (omit for anonymous-only local setups — may 401)
- *   ARCHIFORGE_TENANT_ID    x-tenant-id GUID
- *   ARCHIFORGE_WORKSPACE_ID x-workspace-id GUID
- *   ARCHIFORGE_PROJECT_ID   x-project-id GUID
- *   ARCHIFORGE_COMPARE_BASE_RUN_ID / ARCHIFORGE_COMPARE_TARGET_RUN_ID  (for compare scenario)
- *   ARCHIFORGE_RUN_ID       run GUID for run-detail + advisory scenarios
+ *   ARCHLUCID_BASE_URL     (default http://127.0.0.1:5128)
+ *   ARCHLUCID_API_KEY      X-Api-Key (omit for anonymous-only local setups — may 401)
+ *   ARCHLUCID_TENANT_ID    x-tenant-id GUID
+ *   ARCHLUCID_WORKSPACE_ID x-workspace-id GUID
+ *   ARCHLUCID_PROJECT_ID   x-project-id GUID
+ *   ARCHLUCID_COMPARE_BASE_RUN_ID / ARCHLUCID_COMPARE_TARGET_RUN_ID  (for compare scenario)
+ *   ARCHLUCID_RUN_ID       run GUID for run-detail + advisory scenarios
  *
  * Write path (opt-in — creates runs; use Simulator mode + non-prod data):
- *   ARCHIFORGE_LOAD_TEST_WRITES=true  → adds POST /v1/architecture/request (requires ExecuteAuthority on the key).
+ *   ARCHLUCID_LOAD_TEST_WRITES=true  → adds POST /v1/architecture/request (requires ExecuteAuthority on the key).
  *   K6_ARCH_REQUEST_VUS / K6_ARCH_REQUEST_DURATION tune the write scenario.
  */
 
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-const base = (__ENV.ARCHIFORGE_BASE_URL || "http://127.0.0.1:5128").replace(/\/$/, "");
-const apiKey = __ENV.ARCHIFORGE_API_KEY || "";
-const tenant = __ENV.ARCHIFORGE_TENANT_ID || "11111111-1111-1111-1111-111111111111";
-const workspace = __ENV.ARCHIFORGE_WORKSPACE_ID || "22222222-2222-2222-2222-222222222222";
-const project = __ENV.ARCHIFORGE_PROJECT_ID || "33333333-3333-3333-3333-333333333333";
+const base = (__ENV.ARCHLUCID_BASE_URL || "http://127.0.0.1:5128").replace(/\/$/, "");
+const apiKey = __ENV.ARCHLUCID_API_KEY || "";
+const tenant = __ENV.ARCHLUCID_TENANT_ID || "11111111-1111-1111-1111-111111111111";
+const workspace = __ENV.ARCHLUCID_WORKSPACE_ID || "22222222-2222-2222-2222-222222222222";
+const project = __ENV.ARCHLUCID_PROJECT_ID || "33333333-3333-3333-3333-333333333333";
 
-const compareBase = __ENV.ARCHIFORGE_COMPARE_BASE_RUN_ID || "00000000-0000-0000-0000-000000000001";
-const compareTarget = __ENV.ARCHIFORGE_COMPARE_TARGET_RUN_ID || "00000000-0000-0000-0000-000000000002";
-const runId = __ENV.ARCHIFORGE_RUN_ID || "00000000-0000-0000-0000-000000000001";
+const compareBase = __ENV.ARCHLUCID_COMPARE_BASE_RUN_ID || "00000000-0000-0000-0000-000000000001";
+const compareTarget = __ENV.ARCHLUCID_COMPARE_TARGET_RUN_ID || "00000000-0000-0000-0000-000000000002";
+const runId = __ENV.ARCHLUCID_RUN_ID || "00000000-0000-0000-0000-000000000001";
 
-const loadTestWrites = __ENV.ARCHIFORGE_LOAD_TEST_WRITES === "true";
+const loadTestWrites = __ENV.ARCHLUCID_LOAD_TEST_WRITES === "true";
 
 const architectureRequestScenario = loadTestWrites
   ? {
@@ -173,7 +173,7 @@ export function postArchitectureRequest() {
   const payload = JSON.stringify({
     requestId: `k6-${__VU}-${__ITER}-${Date.now()}`,
     description:
-      "Simulator-mode k6 write load: gated by ARCHIFORGE_LOAD_TEST_WRITES; POST /v1/architecture/request.",
+      "Simulator-mode k6 write load: gated by ARCHLUCID_LOAD_TEST_WRITES; POST /v1/architecture/request.",
     systemName: "K6SimulatorWrites",
     environment: "loadtest",
     cloudProvider: "Azure",

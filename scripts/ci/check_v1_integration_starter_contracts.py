@@ -17,7 +17,7 @@ from release_evidence_common import load_json, repo_root  # noqa: E402
 _FIXTURES_REL = Path("scripts/ci/data/v1_integration_starter_contracts.v1.json")
 _OPENAPI_REL = Path("ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json")
 _REQUIRED_SCHEMA = "archlucid.v1-integration-starter-contracts.v1"
-_PRE_COMMIT_STARTER_DOC = Path("docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md")
+_PRE_COMMIT_STARTER_DOC = Path("docs/runbooks/CI_GOVERNANCE_GATE.md")
 _PRE_COMMIT_GHA_STARTER = Path("scripts/ci/data/pre_commit_ci_gate_starter.github-actions.yml")
 _PRE_COMMIT_ADO_STARTER = Path("scripts/ci/data/pre_commit_ci_gate_starter.azure-pipelines-snippet.yml")
 _REQUIRED_STARTER_PATHS = (
@@ -119,13 +119,13 @@ def _validate_pre_commit_ci_gate_starter(root: Path) -> list[str]:
         starter_posix = starter_rel.as_posix()
 
         if starter_posix not in doc_text:
-            errors.append(f"PRE_COMMIT_CI_GATE_STARTER.md must link: {starter_posix}")
+            errors.append(f"CI_GOVERNANCE_GATE.md must link: {starter_posix}")
 
     if "governance-pre-commit-blocked" not in combined:
         errors.append("pre-commit CI starter must document #governance-pre-commit-blocked problem type")
 
     if "PreCommitGateResult" not in doc_text:
-        errors.append("PRE_COMMIT_CI_GATE_STARTER.md must reference PreCommitGateResult")
+        errors.append("CI_GOVERNANCE_GATE.md must reference PreCommitGateResult")
 
     for api_path in _REQUIRED_STARTER_PATHS:
         if api_path not in combined:

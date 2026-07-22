@@ -76,6 +76,17 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 - **Drills:** Geo-failover (**`docs/runbooks/GEO_FAILOVER_DRILL.md`**).
 - **Gaps to track in backlog:** Formal third-party pen test (templates in **`docs/security/PEN_TEST_*`**), residual uncovered tables per **`MULTI_TENANT_RLS.md`** §9, and continuous improvement of deny-list patterns beyond the built-in **`PromptRedactor`** rules.
 
+### 8.1 Denial-of-service (network + application)
+
+| Layer | V1 posture (recommended) | Notes |
+| --- | --- | --- |
+| **Volumetric (L3/L4)** | **Azure Front Door** platform DDoS on the public edge; **no** DDoS Network Protection plan in IaC | Decision record: **[ADR 0061](../architecture/adrs/0061-ddos-protection-posture-v1.md)** (Accepted 2026-07-21, TB-908) |
+| **HTTP / WAF** | Front Door Standard WAF **Prevention**; **custom rules only** (managed sets require Premium — TB-903) | Rate-limit custom rules are follow-on hardening |
+| **Data plane** | Private endpoints + public access disabled where Terraform applies (**TB-903** / `terraform-private`) | Reduces internet-exposed surface |
+| **Application** | API rate limits, LLM quotas/circuit breakers, webhook idempotency, queue DLQ | STRIDE table §5 — not a substitute for edge volumetrics |
+
+**Explicit non-claims:** External pen-test SOWs exclude DoS (**`PENTEST_EXTERNAL_UI_CHECKLIST.md`**). Do not state “DDoS Protection Standard enabled” in buyer copy — V1 relies on Front Door platform DDoS per ADR 0061, not Network Protection.
+
 ## Related
 
 - **`docs/SECURITY.md`**

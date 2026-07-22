@@ -68,4 +68,5 @@ Validate **RTO** and **RPO** intent from **`docs/RTO_RPO_TARGETS.md`** using a *
 
 - **`docs/RTO_RPO_TARGETS.md`**
 - **`docs/runbooks/DATABASE_FAILOVER.md`**
+- **`docs/runbooks/TB-905_STAGING_RELIABILITY_DRILL.md`** (owner execution — staging measured RTO/RPO)
 - **`docs/LOAD_TEST_BASELINE.md`** (capacity, not DR)

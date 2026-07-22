@@ -131,7 +131,7 @@ public static class CloudProviderAgentPromptComposer
                 """
                 Important guidance (AWS target):
                 - Prefer managed services with predictable operational cost for MVP workloads.
-                - Discuss AWS on-demand / Savings Plans tradeoffs; do not cite Azure Retail Prices.
+                - Discuss AWS on-demand / Savings Plans tradeoffs; cite AWS retail grounding only.
                 - Highlight token/search spend monitoring when AI services are in scope.
                 - Return JSON only.
                 """,
@@ -139,7 +139,7 @@ public static class CloudProviderAgentPromptComposer
                 """
                 Important guidance (GCP target):
                 - Prefer managed services with predictable operational cost for MVP workloads.
-                - Discuss GCE/GKE/Cloud SQL spend drivers; do not cite Azure Retail Prices.
+                - Discuss GCE/GKE/Cloud SQL spend drivers; cite GCP retail grounding only.
                 - Highlight token/search spend monitoring when AI services are in scope.
                 - Return JSON only.
                 """,

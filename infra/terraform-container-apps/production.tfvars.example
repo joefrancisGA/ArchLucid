@@ -2,6 +2,7 @@
 #   terraform apply -var-file=production.tfvars.example
 # Replace ACR image tags, storage IDs, subscription paths, and FinOps contacts before apply.
 
+posture_tier          = "production"
 enable_container_apps = true
 create_resource_group   = true
 resource_group_name     = "rg-archlucid-ca-prod"
@@ -44,3 +45,10 @@ enable_container_apps_consumption_budget         = true
 container_apps_consumption_budget_amount         = 3500
 container_apps_consumption_budget_contact_emails = ["finops@example.com"]
 container_apps_consumption_budget_time_period_start = "2026-04-01T00:00:00Z"
+
+# Paired-region passive standby for Front Door origin failover (TB-903).
+secondary_region_stack_enabled   = true
+secondary_resource_group_name    = "rg-archlucid-ca-prod-secondary"
+secondary_location               = "centralus"
+secondary_container_apps_internal_load_balancer = true
+# secondary_container_apps_subnet_id = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Network/virtualNetworks/<vnet>/subnets/<subnet>"

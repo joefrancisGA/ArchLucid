@@ -368,3 +368,71 @@ variable "worker_container_app_name" {
   description = "Worker Container App name when wire_container_app_observability_env is true."
   default     = ""
 }
+
+variable "enable_subscription_cost_management" {
+  type        = bool
+  description = "TB-909: When true with enable_monitoring_stack, create azurerm_cost_anomaly_alert and azurerm_consumption_budget_subscription rollup (sum of subscription_cost_rollup_budget_components × headroom multiplier). Deliberately not gated by TB-903 posture tier."
+  default     = true
+}
+
+variable "subscription_cost_rollup_budget_components" {
+  type        = map(number)
+  description = "TB-909: Per-root monthly budget amounts to sum for the subscription rollup. Mirror production.tfvars.example values from terraform-container-apps, terraform-sql-failover, and terraform-openai."
+  default = {
+    container_apps = 3500
+    sql            = 2500
+    openai         = 5000
+  }
+}
+
+variable "subscription_rollup_budget_headroom_multiplier" {
+  type        = number
+  description = "TB-909: Multiplier applied to the sum of subscription_cost_rollup_budget_components for the subscription rollup budget amount (default 1.2 = 20% headroom)."
+  default     = 1.2
+
+  validation {
+    condition     = var.subscription_rollup_budget_headroom_multiplier > 1.0
+    error_message = "subscription_rollup_budget_headroom_multiplier must be > 1.0."
+  }
+}
+
+variable "subscription_cost_rollup_budget_name" {
+  type        = string
+  description = "TB-909: Azure Cost Management budget resource name for the subscription rollup."
+  default     = "archlucid-subscription-rollup"
+
+  validation {
+    condition     = length(var.subscription_cost_rollup_budget_name) >= 1 && length(var.subscription_cost_rollup_budget_name) <= 63
+    error_message = "subscription_cost_rollup_budget_name must be 1-63 characters."
+  }
+}
+
+variable "subscription_cost_rollup_budget_time_period_start" {
+  type        = string
+  description = "TB-909: ISO8601 start date for the subscription rollup budget monthly period (e.g. 2026-04-01T00:00:00Z). Required when enable_subscription_cost_management is true."
+  default     = ""
+}
+
+variable "subscription_cost_rollup_budget_contact_emails" {
+  type        = list(string)
+  description = "TB-909: FinOps emails for rollup budget and cost anomaly notifications. When empty, uses alert_email_address."
+  default     = []
+}
+
+variable "subscription_cost_anomaly_alert_name" {
+  type        = string
+  description = "TB-909: Azure Cost Management scheduled action name for the subscription cost anomaly alert."
+  default     = "archlucid-daily-cost-anomaly"
+}
+
+variable "subscription_cost_anomaly_alert_display_name" {
+  type        = string
+  description = "TB-909: Display name for the subscription cost anomaly alert in Azure Portal."
+  default     = "ArchLucid daily cost anomaly"
+}
+
+variable "subscription_cost_anomaly_alert_email_subject" {
+  type        = string
+  description = "TB-909: Email subject line for cost anomaly notifications."
+  default     = "ArchLucid Azure cost anomaly detected"
+}

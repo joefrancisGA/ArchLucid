@@ -6,7 +6,7 @@
     "docs/library/API_CONTRACTS.md",
     "docs/library/CLI_USAGE.md",
     "docs/library/LIVE_E2E_HAPPY_PATH.md",
-    "docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md"
+    "docs/runbooks/CI_GOVERNANCE_GATE.md"
   ],
   "workflows": [
     {

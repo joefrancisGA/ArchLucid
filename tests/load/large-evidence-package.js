@@ -2,7 +2,8 @@
  * k6 — large evidence package (simulator-friendly architecture request payload size).
  *
  * Paced create-run profile: measures POST /v1/architecture/request latency under a large
- * ArchitectureRequest JSON body. Default arrival rate stays under Development's fixed
+ * ArchitectureRequest JSON body (validator max 50 constraints/capabilities + near-max description).
+ * Default arrival rate stays under Development's fixed
  * rate-limit window (2000/min) without raising PermitLimit.
  *
  * PowerShell (DevelopmentBypass + Simulator on :5128):
@@ -28,8 +29,13 @@ const DURATION = __ENV.K6_LARGE_EVIDENCE_DURATION || "45s";
 const SUMMARY_PATH =
   __ENV.K6_SUMMARY_PATH || "tests/load/results/large-evidence-package.json";
 
-const CONSTRAINT_COUNT = Number(__ENV.K6_LARGE_EVIDENCE_CONSTRAINTS || 120);
-const CAPABILITY_COUNT = Number(__ENV.K6_LARGE_EVIDENCE_CAPABILITIES || 80);
+// ArchitectureRequestValidator caps Constraints and RequiredCapabilities at 50 items each.
+const CONSTRAINT_COUNT = Number(__ENV.K6_LARGE_EVIDENCE_CONSTRAINTS || 50);
+const CAPABILITY_COUNT = Number(__ENV.K6_LARGE_EVIDENCE_CAPABILITIES || 50);
+
+const DESCRIPTION_PREFIX = "k6 large evidence package — ";
+const MAX_DESCRIPTION_LENGTH = 10000;
+const DESCRIPTION_REPEAT = Math.floor(MAX_DESCRIPTION_LENGTH / DESCRIPTION_PREFIX.length);
 
 const status2xx = new Counter("k6le_status_2xx");
 const status429 = new Counter("k6le_status_429");
@@ -84,7 +90,7 @@ function buildLargeRequestBody(requestId) {
 
   const body = {
     requestId: requestId || `k6-le-${__VU}-${__ITER}-${Date.now()}`,
-    description: "k6 large evidence package — ".repeat(40),
+    description: DESCRIPTION_PREFIX.repeat(DESCRIPTION_REPEAT),
     systemName: "K6LargeEvidencePackage",
     environment: "prod",
     cloudProvider: 1,

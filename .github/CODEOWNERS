@@ -51,7 +51,6 @@ ArchLucid.sql                           @joefrancisGA
 
 # V1 Deferred + Terraform brownfield (rename closure)
 /docs/library/V1_DEFERRED.md                       @joefrancisGA
-/docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md    @joefrancisGA
 /docs/runbooks/                                   @joefrancisGA
 /.cursor/rules/                         @joefrancisGA
 /.github/copilot-instructions.md        @joefrancisGA

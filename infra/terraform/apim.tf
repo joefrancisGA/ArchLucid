@@ -1,5 +1,5 @@
 # APIM Terraform resource labels use `archlucid`. The API Management **API** Azure name is `archlucid-api`.
-# Greenfield: no `terraform state mv` required (see docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md stub).
+# Greenfield IaC — see docs/library/V1_DEFERRED.md §3 (no brownfield state mv).
 
 locals {
   apim_resource_group_name = local.apim_enabled ? (

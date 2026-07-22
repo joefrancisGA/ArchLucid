@@ -32,7 +32,9 @@ resource "azurerm_storage_account" "artifacts" {
   account_kind             = "StorageV2"
   account_replication_type = var.account_replication_type
 
-  public_network_access_enabled   = var.public_network_access_enabled
+  min_tls_version               = "TLS1_2"
+  https_traffic_only_enabled    = true
+  public_network_access_enabled = var.public_network_access_enabled
   allow_nested_items_to_be_public = false
 
   blob_properties {

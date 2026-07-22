@@ -23,7 +23,7 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 ## Assumptions
 
-- **Quick lookup:** [Doc Navigator](../archive/NAVIGATOR.md) — **two tables** (**customer-facing** vs **contributor / engineering / ops**); each row links to one best-fit document.
+- **Quick lookup:** [`architecture/README.md`](../architecture/README.md) and [`CONTRIBUTOR_CODE_MAP.md`](CONTRIBUTOR_CODE_MAP.md) — task → doc routing after first review.
 - **Persona copy-paste recipes:** [customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md](customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md) — architect, governance, procurement/security, platform engineer.
 - You self-identified above. The **buyer column never installs anything**; the **contributor column** uses the spine.
 - Incomplete requirements and imperfect teams are normal — this layout keeps the **default path narrow** and pushes depth into [`docs/library/`](.) and topic folders.
@@ -70,7 +70,7 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 
 Start at **[`../START_HERE.md`](../START_HERE.md)** and follow the contributor tree.
 
-**Filename redirects:** [`FIRST_5_DOCS.md`](../archive/FIRST_5_DOCS.md))), [`FIRST_FIVE_DOCS.md`](../archive/FIRST_5_DOCS.md))), [`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md))), [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md))) are **thin stubs** pointing at [`READ_THIS_FIRST.md`](../READ_THIS_FIRST.md) so bookmarks stay stable; spine detail stays in the hub.
+**Filename redirects:** See [`redirects.md`](../redirects.md) for former stub paths (`FIRST_5_DOCS`, `FIRST_FIVE_DOCS`, `FIRST_RUN_WIZARD`, `FIRST_RUN_WALKTHROUGH`, etc.). Spine detail stays in [`START_HERE.md`](../START_HERE.md).
 
 ## Security model (read once)
 

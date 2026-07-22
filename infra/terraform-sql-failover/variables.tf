@@ -158,13 +158,30 @@ variable "sql_automatic_tuning_drop_index" {
   }
 }
 
-variable "environment_tier" {
+variable "posture_tier" {
   type        = string
-  description = "Environment tier (development, staging, production). When production, enable_sql_failover_group must be true."
-  default     = "development"
+  description = "Deployment posture tier for plan-time assertions (dev, staging, production). When production, enable_sql_failover_group must be true (no waiver)."
+  default     = "dev"
 
   validation {
-    condition     = contains(["development", "staging", "production"], var.environment_tier)
-    error_message = "environment_tier must be development, staging, or production."
+    condition     = contains(["dev", "staging", "production"], var.posture_tier)
+    error_message = "posture_tier must be dev, staging, or production."
+  }
+}
+
+variable "posture_waivers" {
+  type = list(object({
+    id     = string
+    reason = string
+  }))
+  description = "Documented posture exceptions. Use id staging-sql-failover-drill-window to allow SQL failover off in staging outside drill windows (TB-905)."
+  default     = []
+
+  validation {
+    condition = alltrue([
+      for w in var.posture_waivers :
+      length(trimspace(w.id)) > 0 && length(trimspace(w.reason)) > 0
+    ])
+    error_message = "Each posture_waivers entry must have non-empty id and reason."
   }
 }

@@ -114,7 +114,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 ## 6. Naming consistency
 
 - [ ] **User-facing** copy (UI, Swagger titles where customized, CLI operator strings) says **ArchLucid** where product-facing ([V1_SCOPE.md](V1_SCOPE.md) naming note).
-- [ ] **Legacy config keys** (`ArchLucid*`, `ARCHIFORGE_*`) documented in runbook; **bridge** behavior verified if both old and new keys appear ([README.md](../REPOSITORY_README.md), [GLOSSARY.md](GLOSSARY.md)).
+- [ ] **Legacy config keys removed** — only **`ArchLucid*`** / **`ARCHLUCID_*`** are supported; startup warns if obsolete **`ArchiForge*`** keys appear ([BREAKING_CHANGES.md](../../BREAKING_CHANGES.md)).
 - [ ] **Integration event type strings** — canonical vs legacy aliases understood if consumers exist ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 - [ ] **Image / container names** in deploy docs match what was actually pushed ([CONTAINERIZATION.md](CONTAINERIZATION.md), [RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 

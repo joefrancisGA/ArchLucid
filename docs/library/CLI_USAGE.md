@@ -250,7 +250,7 @@ dotnet run --project ArchLucid.Cli -- marketplace preflight
 From outside the repo tree, pass the repository root:
 
 ```bash
-dotnet run --project ArchLucid.Cli -- marketplace preflight --repo C:\ArchiForge\ArchiForge
+dotnet run --project ArchLucid.Cli -- marketplace preflight --repo C:\ArchLucid\ArchLucid
 ```
 
 ### Exit codes
