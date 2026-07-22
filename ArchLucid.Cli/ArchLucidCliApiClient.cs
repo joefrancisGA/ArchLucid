@@ -780,8 +780,8 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    ///     Commits a run and returns a SHA-256 fingerprint of the committed <see cref="GoldenManifest" /> using
-    ///     <see cref="ContractJson.Default" /> serialization.
+    ///     Commits a run and returns a content SHA-256 fingerprint of the committed <see cref="GoldenManifest" />
+    ///     (excludes per-run identity fields — see <see cref="GoldenManifestFingerprint.ComputeContentSha256Hex" />).
     /// </summary>
     public async Task<GoldenManifestFingerprintResult?> TryCommitAndFingerprintGoldenManifestAsync(string runId,
         CancellationToken ct = default)
@@ -805,7 +805,7 @@ public sealed class ArchLucidApiClient
                 return new GoldenManifestFingerprintResult(false, null,
                     "Manifest could not be deserialized to GoldenManifest.");
 
-            string sha = GoldenManifestFingerprint.ComputeSha256Hex(manifest);
+            string sha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest);
 
             return new GoldenManifestFingerprintResult(true, sha, null);
         }
