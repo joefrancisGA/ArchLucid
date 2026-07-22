@@ -77143,8 +77143,10 @@ export interface components {
             authMode?: string;
             issuerOrAuthorityConfigured?: boolean;
             jwksConfigured?: null | boolean;
+            localTrialIdentityConfigured?: boolean;
             misconfigurationHints?: string[];
             openIdDiscoverySucceeded?: null | boolean;
+            operatorBaseUrlConfigured?: boolean;
             roleClaimNameConfigured?: null | boolean;
             saml2Enabled?: boolean;
             samlRoleClaimSourcesConfigured?: null | boolean;

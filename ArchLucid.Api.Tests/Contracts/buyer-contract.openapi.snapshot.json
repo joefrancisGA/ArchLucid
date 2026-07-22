@@ -270,6 +270,9 @@
               "boolean"
             ]
           },
+          "localTrialIdentityConfigured": {
+            "type": "boolean"
+          },
           "misconfigurationHints": {
             "items": {
               "type": "string"
@@ -281,6 +284,9 @@
               "null",
               "boolean"
             ]
+          },
+          "operatorBaseUrlConfigured": {
+            "type": "boolean"
           },
           "roleClaimNameConfigured": {
             "type": [

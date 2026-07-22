@@ -53788,7 +53788,7 @@ namespace ArchLucid.Api.Client.Generated
                             {
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ArchLucidApiException<ProblemDetails>("Service Unavailable.", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new ArchLucidApiException<ProblemDetails>("Service Unavailable", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -114388,11 +114388,17 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("jwksConfigured")]
         public bool? JwksConfigured { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("localTrialIdentityConfigured")]
+        public bool? LocalTrialIdentityConfigured { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("misconfigurationHints")]
         public System.Collections.Generic.ICollection<string>? MisconfigurationHints { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("openIdDiscoverySucceeded")]
         public bool? OpenIdDiscoverySucceeded { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("operatorBaseUrlConfigured")]
+        public bool? OperatorBaseUrlConfigured { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("roleClaimNameConfigured")]
         public bool? RoleClaimNameConfigured { get; set; } = default!;
