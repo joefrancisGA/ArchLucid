@@ -6,7 +6,7 @@ name: "Ops: App Insights daily error report"
 on:
   workflow_dispatch:
   schedule:
-    # 07:30 America/New_York — after overnight dev CD and before the workday.
+    # 07:30 America/New_York — before the workday.
     - cron: "30 7 * * *"
       timezone: America/New_York
 
