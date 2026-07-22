@@ -25,6 +25,9 @@ export const LIVE_E2E_DEFAULT_WORKSPACE_ID = "22222222-2222-2222-2222-2222222222
 /** Matches {@link ScopeIds.DefaultProject}. */
 export const LIVE_E2E_DEFAULT_PROJECT_ID = "33333333-3333-3333-3333-333333333333";
 
+/** Deliberately mismatched tenant for TB-925 scope-binding negative probes (must not match JWT tenant_id). */
+export const LIVE_E2E_FORGED_TENANT_ID = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
 export type LivePrivateBetaScopeClaims = {
   tenantId: string;
   workspaceId: string;
@@ -239,4 +242,72 @@ export async function listPendingInvitations(request: APIRequestContext): Promis
   const body = (await res.json()) as { invitations?: unknown[] };
 
   return Array.isArray(body.invitations) ? body.invitations : [];
+}
+
+export type LiveScopeDebugBody = {
+  tenantId?: string;
+  workspaceId?: string;
+  projectId?: string;
+};
+
+/** GET /v1/scope with optional forged scope headers (TB-925 JwtBearer probe). */
+export async function fetchScopeDebug(
+  request: APIRequestContext,
+  options?: { forgedTenantId?: string | null },
+): Promise<{ status: number; body: LiveScopeDebugBody | null; rawText: string }> {
+  const forgedTenantId = options?.forgedTenantId?.trim() ?? "";
+
+  const headers: Record<string, string> = {
+    ...liveJsonHeaders(),
+  };
+
+  if (forgedTenantId.length > 0) {
+    headers["x-tenant-id"] = forgedTenantId;
+  }
+
+  const res = await request.get(`${liveApiBase}/v1/scope`, { headers });
+  const rawText = await res.text();
+
+  if (rawText.trim().length === 0) {
+    return { status: res.status(), body: null, rawText };
+  }
+
+  try {
+    return { status: res.status(), body: JSON.parse(rawText) as LiveScopeDebugBody, rawText };
+  } catch {
+    return { status: res.status(), body: null, rawText };
+  }
+}
+
+/**
+ * TB-925: JwtBearer principals with tenant_id claims must not resolve forged x-tenant-id on GET /v1/scope
+ * (403 from ScopeIdentityBindingMiddleware) and must not steer GET /v1/admin/users/invitations (403).
+ */
+export async function assertJwtScopeBindingRejectsForgedTenantHeader(
+  request: APIRequestContext,
+): Promise<void> {
+  const scopeProbe = await fetchScopeDebug(request, {
+    forgedTenantId: LIVE_E2E_FORGED_TENANT_ID,
+  });
+
+  if (scopeProbe.status !== 403) {
+    throw new Error(
+      `TB-925 scope binding: expected GET /v1/scope with forged x-tenant-id → 403, got ${scopeProbe.status}: ${scopeProbe.rawText.slice(0, 400)}`,
+    );
+  }
+
+  const invitationsRes = await request.get(`${liveApiBase}/v1/admin/users/invitations`, {
+    headers: {
+      ...liveJsonHeaders(),
+      "x-tenant-id": LIVE_E2E_FORGED_TENANT_ID,
+    },
+  });
+
+  if (invitationsRes.status() !== 403) {
+    const body = await invitationsRes.text();
+
+    throw new Error(
+      `TB-925 scope binding: expected GET /v1/admin/users/invitations with forged x-tenant-id → 403, got ${invitationsRes.status()}: ${body.slice(0, 400)}`,
+    );
+  }
 }

@@ -10,6 +10,7 @@ import { expect, test } from "@playwright/test";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 
 import {
+  assertJwtScopeBindingRejectsForgedTenantHeader,
   clearJwtBrowserSession,
   createAdminUserInvite,
   fetchAuthMeViaProxy,
@@ -48,6 +49,12 @@ test.describe("live-api-private-beta-access", () => {
 
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
+  });
+
+  test("JwtBearer rejects forged x-tenant-id on scope and invitations (TB-925)", async ({ request }) => {
+    requireLivePrivateBetaJwtEnv();
+
+    await assertJwtScopeBindingRejectsForgedTenantHeader(request);
   });
 
   test("invite → auth session → tenant scope → review → expiry recovery → deep-link round-trip", async ({
