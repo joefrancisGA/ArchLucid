@@ -44,7 +44,7 @@ The [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) **Known gaps** section 
 
 | Item | Status |
 |------|--------|
-| Legacy **ArchiForge** config / **`ARCHIFORGE_*`** env (application) | **Removed** — startup warns if legacy keys appear ([`BREAKING_CHANGES.md`](../BREAKING_CHANGES.md) §2026-04-08) |
+| Legacy **ArchiForge** config / **`ARCHIFORGE_*`** env (application) | **Removed** — startup warns if legacy keys appear ([`BREAKING_CHANGES.md`](../../BREAKING_CHANGES.md) §2026-04-08) |
 | Terraform **`archiforge`** resource addresses / **`state mv`** | **Not applicable** — greenfield applies only; use [`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md) |
 | GitHub repo / Entra rename (Phase 7.6–7.7) | **Closed 2026-04-19** ([`CHANGELOG.md`](../CHANGELOG.md)) |
 

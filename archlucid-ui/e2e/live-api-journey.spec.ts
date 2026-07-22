@@ -35,6 +35,8 @@ import {
 import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
 import {
   auditPageMainHeading,
+  clickAuditSearchAndWaitForSuccessfulResponse,
+  expandAuditBuyerFiltersIfPresent,
   expectLiveManifestDetailPageReady,
   expectLiveRunDetailPageReady,
   expandReviewDetailOutcomeCards,
@@ -329,8 +331,13 @@ test.describe("live-api-journey", () => {
 
     await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 30_000 });
 
-    await page.getByTestId("audit-review-id-input").fill(runId);
-    await page.getByRole("button", { name: /^Search$/i }).click();
+    await expandAuditBuyerFiltersIfPresent(page);
+
+    const reviewIdInput = page.getByTestId("audit-review-id-input");
+
+    await expect(reviewIdInput).toBeVisible({ timeout: 60_000 });
+    await reviewIdInput.fill(runId);
+    await clickAuditSearchAndWaitForSuccessfulResponse(page, { runId, timeoutMs: 90_000 });
 
     await expect(page.locator('[role="alert"]').filter({ hasText: /problem|error|failed/i })).toHaveCount(0, {
       timeout: 60_000,

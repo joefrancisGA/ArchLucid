@@ -43,7 +43,7 @@ Each submission stores the current tenant/workspace/project scope, optional run 
 
 ## 2. View the learning dashboard (UI)
 
-1. Run the API and [operator UI](OPERATOR_QUICKSTART.md#operator-ui) (`archlucid-ui`, `.env.local` → `ARCHLUCID_API_BASE_URL`).
+1. Run the API and [operator UI](customer-facing/OPERATOR_QUICKSTART.md#operator-ui) (`archlucid-ui`, `.env.local` → `ARCHLUCID_API_BASE_URL`).
 2. Open **http://localhost:3000** → nav **Q&A & advisory** → **Pilot feedback** (`/product-learning`).
 3. Choose **Time range** (all time, 30 days, 7 days) and **Refresh** if needed.
 

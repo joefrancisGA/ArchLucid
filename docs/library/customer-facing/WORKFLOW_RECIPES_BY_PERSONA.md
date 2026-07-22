@@ -4,7 +4,7 @@
 
 # Workflow recipes by persona
 
-Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAVIGATOR.md`](../../archive/NAVIGATOR.md)** lists one “best next doc” per task.
+Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`START_HERE.md`](../../START_HERE.md)** lists one “best next doc” per task.
 
 
 ## 1) Solution architect: from request to committed review package

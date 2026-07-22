@@ -108,17 +108,18 @@ test.describe("live-api-private-beta-access", () => {
         assumptions: [] as string[],
         priorManifestVersion: null as string | null,
       }),
+      scope,
     );
 
-    await waitForArchitectureRunListIncludesRun(request, runId, 120_000);
+    await waitForArchitectureRunListIncludesRun(request, runId, 120_000, scope);
 
     const reviewPath = `/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
-    await page.goto("/reviews", { waitUntil: "domcontentloaded" });
+    await page.goto(`/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 90_000 });
-    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000 });
+    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
     );

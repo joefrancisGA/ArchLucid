@@ -91,5 +91,5 @@ On **2026-04-23** the repository **compressed `/docs` root** so evaluators see ~
 
 ## Related (optional depth)
 
-- Historical onboarding write-ups: [`archive/ONBOARDING_START_HERE_2026_04_17.md`](../archive/ONBOARDING_START_HERE_2026_04_17.md)
+- Historical onboarding write-ups: [`../onboarding/day-one-developer.md`](../onboarding/day-one-developer.md)
 - Full archive index: [`archive/README.md`](../archive/README.md)
