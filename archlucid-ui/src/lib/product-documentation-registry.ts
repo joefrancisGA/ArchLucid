@@ -429,7 +429,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "First value in 20 minutes",
     summary: "Time-boxed runbook for a first governed review when platform wiring is already green.",
     audience: "operator",
-    sourcePaths: ["docs/runbooks/FIRST_VALUE_20_MINUTES.md"],
+    sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
   },
   {
     slug: "evaluator-workbook",

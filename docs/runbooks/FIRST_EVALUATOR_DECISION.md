@@ -38,7 +38,7 @@ This page has **three choices only**. Detailed procedures stay in linked runbook
 | **Expected artifact** | Committed manifest, review detail with execution mode label, optional `archlucid pilot proof-packet <runId>` folder |
 | **Stop when** | PilotStrict not satisfied, execution mode is Simulator/Fallback/Mixed without caveats accepted, or demo tenant — do **not** send sponsor packet |
 
-**Time box:** [`FIRST_VALUE_20_MINUTES.md`](FIRST_VALUE_20_MINUTES.md)
+**Time box:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed)
 
 **Recovery:** [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md)
 

@@ -21,7 +21,7 @@ Use this page to pick **one** door based on your role.
 
 > **V1 critical path (minimum doc set):** [`library/V1_CRITICAL_PATH_MAP.md`](library/V1_CRITICAL_PATH_MAP.md) — one-page map for buyer, operator, security reviewer, and RC signoff; excludes deferred v1.1/v2 distractions.
 
-> **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps. **Evaluators choosing a path:** [`runbooks/FIRST_EVALUATOR_DECISION.md`](runbooks/FIRST_EVALUATOR_DECISION.md) — three choices only (demo, real pilot, sponsor handoff). **Production-like preflight:** [`runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`runbooks/FIRST_VALUE_20_MINUTES.md`](runbooks/FIRST_VALUE_20_MINUTES.md). [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only.
+> **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps; time-boxed evaluators use § [First value in 20 minutes](runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed). **Evaluators choosing a path:** [`runbooks/FIRST_EVALUATOR_DECISION.md`](runbooks/FIRST_EVALUATOR_DECISION.md) — three choices only (demo, real pilot, sponsor handoff). **Production-like preflight:** [`runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only.
 
 ```text
 START_HERE.md (you are here)

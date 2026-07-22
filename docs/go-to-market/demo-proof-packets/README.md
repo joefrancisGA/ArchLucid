@@ -14,7 +14,7 @@ Use these before a buyer runs their own tenant to show **proof package shape**, 
 
 | Buyer job | Accelerator / proof shape | Prerequisites | Limitations |
 | --- | --- | --- | --- |
-| First sponsor artifact in 20 minutes | [`FIRST_VALUE_20_MINUTES.md`](../../runbooks/FIRST_VALUE_20_MINUTES.md) + `archlucid pilot proof-packet` | API + SQL + auth mode; one committed run | Simulator vs real must be labeled; see [`WHAT_NOT_TO_PROMISE.md`](../WHAT_NOT_TO_PROMISE.md) |
+| First sponsor artifact in 20 minutes | [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed) + `archlucid pilot proof-packet` | API + SQL + auth mode; one committed run | Simulator vs real must be labeled; see [`WHAT_NOT_TO_PROMISE.md`](../WHAT_NOT_TO_PROMISE.md) |
 | Azure SaaS procurement questions | [azure-saas-readiness-demo-proof.md](azure-saas-readiness-demo-proof.md) | Hosted pilot profile lint PASS/HOLD snapshot | Not a CPA SOC 2 report |
 | Responsible AI / governance review | [ai-governance-demo-proof.md](ai-governance-demo-proof.md) | Policy pack + PilotStrict posture on run | Not third-party model audit |
 | Healthcare claims (demo only) | [healthcare-claims-demo-proof.md](healthcare-claims-demo-proof.md) | Demo workspace only | **Demo-derived** — not a customer outcome |

@@ -52,7 +52,7 @@ Orchestrator (unit flood proof + optional k6):
 .\scripts\ci\run_email_otp_abuse_drill.ps1 -BaseUrl 'https://YOUR-STAGING-API' -ExpectBotChallenge -WriteEvidenceStub
 ```
 
-See `docs/runbooks/EMAIL_OTP_ABUSE_DRILL.md`.
+See `docs/runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md` § Abuse drill (Evidence E1).
 
 ## CI
 
