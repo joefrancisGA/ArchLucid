@@ -29,7 +29,7 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Category", "Unit")]
 public sealed class AgentOutputEvaluationRecorderTests
 {
-    private static AgentOutputEvaluationRecorder CreateRecorder(
+    internal static AgentOutputEvaluationRecorder CreateRecorder(
         IAgentExecutionTraceRepository traceRepository,
         ILogger<AgentOutputEvaluationRecorder> logger,
         AgentOutputQualityGateOptions? gateOptions = null,

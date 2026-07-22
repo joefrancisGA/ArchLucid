@@ -329,7 +329,7 @@ test.describe("live-api-journey", () => {
 
     await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 30_000 });
 
-    await page.getByLabel(/run id/i).fill(runId);
+    await page.getByTestId("audit-review-id-input").fill(runId);
     await page.getByRole("button", { name: /^Search$/i }).click();
 
     await expect(page.locator('[role="alert"]').filter({ hasText: /problem|error|failed/i })).toHaveCount(0, {
