@@ -4,7 +4,7 @@ Fail if buyer-facing docs under docs/ (excluding docs/archive and docs/architect
 legacy layer labels "Advanced Analysis" or "Enterprise Controls".
 
 Canonical naming: Pilot + Operate (see docs/library/PRODUCT_PACKAGING.md).
-Historical three-layer narrative: docs/archive/PRODUCT_PACKAGING_THREE_LAYERS_2026_04_23.md
+Historical three-layer narrative removed 2026-07-22 (see docs/redirects.md); canonical: docs/library/PRODUCT_PACKAGING.md
 """
 
 from __future__ import annotations

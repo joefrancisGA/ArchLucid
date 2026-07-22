@@ -9,11 +9,7 @@
 
 ## Archive (full historical backlog)
 
-The **complete** numbered backlog (§8–§342, batch checklists, and completed batch logs through 2026-04-14) is preserved verbatim in:
-
-**[`docs/archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`](../archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md)**
-
-Use that file when you need the original write-ups for items already marked done in checklists, or for copy-paste context when reviving a deferred idea. **This page** stays short so new contributors are not confronted with 2k+ lines at the front door.
+The April 2026 numbered backlog snapshot (`§8–§342`) was removed from the archive during doc cleanup (2026-07-22). For **current** deferred engineering work use **[`TECH_BACKLOG.md`](TECH_BACKLOG.md)**; for maintainer refactor priorities use the **Active items** section below. Pre-cleanup text remains in git history if you need a specific retired write-up.
 
 ## Active items (prioritized top 10)
 

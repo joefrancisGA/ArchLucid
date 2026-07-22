@@ -204,7 +204,7 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | **Locked list prices (2026)**, pilot pricing, re-rate gates, and sensitivity playbook — single source of truth for all price numbers |
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships (grounding for all claims) |
 | [../GLOSSARY.md](../library/GLOSSARY.md) | Domain terminology for consistent messaging |
-| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md) | Full marketability quality assessment |
+| [../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Full marketability quality assessment (archived series)
 | [trust-center.md](trust-center.md) | Trust center — security overview, DPA template, subprocessors, incident comms, SOC 2 roadmap |
 | [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) | ICP definition, scoring matrix, disqualifiers |
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Available and planned integrations |

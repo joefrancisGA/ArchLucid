@@ -2,7 +2,7 @@
 
 # Cloud connections
 
-Cloud connections are **optional**. You can start and finalize review packages from briefs, diagrams, documents, and uploaded evidence without connecting a cloud provider.
+Cloud connections are **optional**. You can start and finalize architecture packages from briefs, diagrams, documents, and uploaded evidence without connecting a cloud provider.
 
 When you connect a cloud provider, ArchLucid uses **read-only** inventory and cost signals to enrich findings — it does not store long-lived client secrets or access keys in your tenant configuration on the primary federated path.
 
@@ -16,6 +16,15 @@ ArchLucid supports optional Tier 2 hosted polling for three cloud platforms. Pic
 
 You can also run **evidence-only** reviews from uploaded inventory ZIPs without enabling Tier 2.
 
+**Tier 1 (no ArchLucid credentials in your cloud account):** run `Get-ArchLucidAzurePackage.ps1`, `Get-ArchLucidAwsPackage.ps1`, or `Get-ArchLucidGcpPackage.ps1` from your ArchLucid clone, then upload the resulting ZIP from the **New architecture review** wizard. Tier 1 is the default posture when you do not want long-lived vendor access in your AWS or GCP account.
+
+<details>
+<summary>Administrator details — automation upload paths</summary>
+
+Platform and integration teams can also upload a Tier 1 inventory ZIP through the documented extractor HTTP APIs (`/v1/extractor/azure|aws|gcp/upload`). Prefer the wizard for first-time and pilot use.
+
+</details>
+
 ## Connect Azure securely {#connect-azure-securely}
 
 The in-app guide at `/help/cloud-connections/azure` is the canonical setup reference for federated authentication, read-only Azure roles, setup steps, and data classification.
@@ -28,7 +37,10 @@ For role requirements, scopes, CLI templates, and verification, see **[Azure per
 
 ArchLucid can use AWS resource inventory when you connect an AWS account. The AWS connection is optional; reviews can also use briefs, diagrams, documents, and uploaded inventory ZIPs.
 
-**Evidence tier:** cloud-connected (optional hosted pull from an authorized IAM role).
+**Evidence tiers:**
+
+- **Tier 1 (default, no vendor credentials):** run `Get-ArchLucidAwsPackage.ps1` in your AWS account with read-only CLI credentials, then upload the ZIP from the **New architecture review** wizard. ArchLucid never receives your AWS access keys.
+- **Tier 2 (optional):** cloud-connected hosted pull from an authorized IAM role (see below).
 
 ### Security model
 
@@ -70,7 +82,10 @@ Do **not** assign **AdministratorAccess**, **PowerUserAccess**, **IAMFullAccess*
 
 ArchLucid can use GCP resource inventory when you connect a GCP project. The GCP connection is optional; reviews can also use briefs, diagrams, documents, and uploaded inventory ZIPs.
 
-**Evidence tier:** cloud-connected (optional hosted pull from an authorized service account).
+**Evidence tiers:**
+
+- **Tier 1 (default, no vendor credentials):** run `Get-ArchLucidGcpPackage.ps1` in your GCP project with read-only `gcloud` credentials, then upload the ZIP from the **New architecture review** wizard. ArchLucid never receives your service-account JSON keys.
+- **Tier 2 (optional):** cloud-connected hosted pull from Workload Identity Federation (see below).
 
 ### Security model
 
@@ -116,7 +131,7 @@ ArchLucid-hosted Azure cloud-connected ingestion uses **Microsoft Entra ID workl
 - The credential trusts ArchLucid's user-assigned managed identity issuer and subject.
 - ArchLucid exchanges a federated token at runtime — no shared secrets are persisted.
 
-If federation is misconfigured, validation fails fast with an API error — fix the federated credential trust chain before retrying.
+If federation is misconfigured, validation fails fast with a clear error in the product — fix the federated credential trust chain before retrying.
 
 ## Azure permissions reference {#azure-permissions}
 

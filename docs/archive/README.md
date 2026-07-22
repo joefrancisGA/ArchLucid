@@ -10,11 +10,10 @@ Do **not** edit archived change-set bodies. If a decision changes, write a new A
 
 | File | What it covers |
 |------|---------------|
-| [CHANGE_SET_55R_SUMMARY.md](CHANGE_SET_55R_SUMMARY.md) | Operator shell coherence — nav, breadcrumbs, compare, artifact review |
-| [CHANGE_SET_56R.md](CHANGE_SET_56R.md) | Release-candidate hardening — config validation, health, `/version`, pilot docs, support bundle, local scripts |
-| [CHANGE_SET_57R.md](CHANGE_SET_57R.md) | Operator-journey E2E — Playwright harness, loopback mock server, `-RunPlaywright` flag |
-| [CHANGE_SET_58R.md](CHANGE_SET_58R.md) | Product learning dashboard — pilot signals, aggregation, triage API, operator UI |
-| [CHANGE_SET_59R.md](CHANGE_SET_59R.md) | Learning-to-planning bridge — themes, plans, SQL + contract foundation |
-| [PILOT_GUIDE_CHANGE_SET_56R.md](PILOT_GUIDE_CHANGE_SET_56R.md) | **56R** local-dev pilot guide (superseded by `library/customer-facing/PILOT_GUIDE.md`) |
+| [CHANGE_SET_SERIES_55R_59R.md](CHANGE_SET_SERIES_55R_59R.md) | **Consolidated** 55R–59R prompt logs (operator shell, RC hardening, Playwright E2E, product learning, planning bridge) |
+| [MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md](MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | **Consolidated** April 2026 marketability snapshots (mixed + SaaS-only framing) |
+| [QUALITY_ASSESSMENT_SERIES_2026_04_23.md](QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | **Consolidated** 2026-04-23 quality assessment (73.20%) + Cursor prompts |
+| [USABILITY_ASSESSMENT_SERIES_2026_04_25.md](USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | **Consolidated** 2026-04-25 usability assessment (69.52%) + Cursor prompts |
+| [artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md](artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md) | **Consolidated** Phase 3 gate verification + PR A2 cohort parity receipts |
 
 For a summarised, navigable view of all releases use **[docs/CHANGELOG.md](../CHANGELOG.md)**.

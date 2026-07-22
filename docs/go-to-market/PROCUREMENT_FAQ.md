@@ -4,7 +4,7 @@
 
 **Audience:** procurement, InfoSec questionnaires, resilience reviews preparing **SOC 2** / SIG / CAIQ spreadsheets.
 
-**Evidence index:** **[trust-center.md](trust-center.md)**
+**Evidence index:** **[Security and trust](/help/security-trust)** · [trust-center.md](trust-center.md)
 
 **Canonical assurance wording:** **[ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)**
 
@@ -16,7 +16,7 @@
 
 ### 1. Do you have SOC 2 Type II?
 
-**Answer:** Today we publish a **SOC 2 self-assessment** and control mapping—SOC 2 **Type II** CPA attestation is **not currently issued** ([SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)). Type **I** followed by Type **II** is the typical SaaS roadmap once operating evidence exists alongside budget.
+**Answer:** Today we publish a **SOC 2 self-assessment** and control mapping—SOC 2 **Type II** CPA attestation is **not currently issued** ([SOC 2 self-assessment](/help/soc2-self-assessment)). Type **I** followed by Type **II** is the typical SaaS roadmap once operating evidence exists alongside budget.
 
 ---
 
@@ -28,11 +28,16 @@
 
 ### 3. Where is customer **data processed / stored**?
 
-**Answer:** **Vendor-hosted** Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). Architectural networking guidance: **[CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)** and infra modules under **`infra/`**.
+**Answer:** **Vendor-hosted** Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Architectural networking guidance: **[CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)** and infra modules under **`infra/`**.
 
-**Provisioned tenancy:** **`dbo.Tenants.DataRegion`** stores a lowercase residency key negotiated at onboarding (default **`default`** for single-home deployments). Operators map non-default regions to dedicated storage accounts via **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** (JSON object of region → HTTPS blob service URI). Canonical buyer-friendly allowlist defaults: **`eastus`**, **`westeurope`**, **`uksouth`**, **`default`**, and additional keys listed in **`ArchLucid.Core.Tenancy.TenantDataRegions.PlatformDefaultSupportedRegions`**; operators can constrain further with **`TenantProvisioning:SupportedDataRegions`**.
+<details>
+<summary>Administrator details — residency keys and blob configuration</summary>
 
-**Tenant-selected residency keys:** Operator provisioning stores a lowercase Azure-style region identifier on **`dbo.Tenants.DataRegion`**. Unless configuration narrows it, allowed keys match product defaults: **`default`** (follow the deployment’s primary **`ArtifactLargePayload`** blob URI), **`eastus`**, **`eastus2`**, **`westus2`**, **`centralus`**, **`westeurope`**, **`northeurope`**, **`uksouth`**, **`southeastasia`**, **`australiaeast`**, **`centralindia`**, and **`brazilsouth`**. Operators may replace that allowlist via **`TenantProvisioning:SupportedDataRegions`**. For any non-**`default`** key, **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** must map that key to a regional Blob service URI so large artifact payloads resolve to storage in the chosen geography—otherwise provisioning or blob access fails fast by design.
+**Provisioned tenancy:** **`dbo.Tenants.DataRegion`** stores a lowercase residency key negotiated at onboarding (default **`default`** for single-home deployments). Platform administrators map non-default regions to dedicated storage accounts via **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** (JSON object of region → HTTPS blob service URI). Canonical buyer-friendly allowlist defaults: **`eastus`**, **`westeurope`**, **`uksouth`**, **`default`**, and additional keys listed in **`ArchLucid.Core.Tenancy.TenantDataRegions.PlatformDefaultSupportedRegions`**; administrators can constrain further with **`TenantProvisioning:SupportedDataRegions`**.
+
+**Tenant-selected residency keys:** Provisioning stores a lowercase Azure-style region identifier on **`dbo.Tenants.DataRegion`**. Unless configuration narrows it, allowed keys match product defaults: **`default`** (follow the deployment’s primary **`ArtifactLargePayload`** blob URI), **`eastus`**, **`eastus2`**, **`westus2`**, **`centralus`**, **`westeurope`**, **`northeurope`**, **`uksouth`**, **`southeastasia`**, **`australiaeast`**, **`centralindia`**, and **`brazilsouth`**. Administrators may replace that allowlist via **`TenantProvisioning:SupportedDataRegions`**. For any non-**`default`** key, **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** must map that key to a regional Blob service URI so large artifact payloads resolve to storage in the chosen geography—otherwise provisioning or blob access fails fast by design.
+
+</details>
 
 ---
 
@@ -50,13 +55,13 @@
 
 ### 6. Can we execute the **Data Processing Agreement**?
 
-**Answer:** Template: **[DPA_TEMPLATE.md](DPA_TEMPLATE.md)** • Subprocessors: **[SUBPROCESSORS.md](SUBPROCESSORS.md)**
+**Answer:** Yes — start from the in-app **[DPA template](/help/dpa-template)** (negotiation template, not a countersigned agreement) and **[Subprocessors](/help/subprocessors)**.
 
 ---
 
 ### 7. What **subprocessors** apply?
 
-**Answer:** Maintain **[SUBPROCESSORS.md](SUBPROCESSORS.md)** quarterly; aligns with contractual notification windows in the **[DPA_TEMPLATE.md](DPA_TEMPLATE.md)**.
+**Answer:** See **[Subprocessors](/help/subprocessors)** (maintained quarterly); aligns with contractual notification windows in the **[DPA template](/help/dpa-template)**.
 
 ---
 
