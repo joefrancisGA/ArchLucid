@@ -1,6 +1,6 @@
 # Edge (Front Door / WAF) — Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Greenfield IaC — see docs/library/V1_DEFERRED.md §3 (no brownfield state mv).
 
 # Front Door hierarchy (resources in frontdoor.tf): Profile -> Endpoint -> Origin group -> Route. count = 0 skips all resources when disabled.
 

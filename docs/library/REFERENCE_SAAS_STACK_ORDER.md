@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-21
 
-**Note:** Greenfield IaC uses **`archlucid`** resource labels and example names; CI rejects the substring `archiforge` in any `infra/**/*.tf` file. First deploy: [FIRST_AZURE_DEPLOYMENT.md](FIRST_AZURE_DEPLOYMENT.md). Brownfield **state mv** (legacy state only): [archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md](../archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md).
+**Note:** Greenfield IaC uses **`archlucid`** resource labels and example names. Run `rg "archiforge" infra --glob "*.tf"` before merging Terraform changes (expect zero matches). First deploy: [FIRST_AZURE_DEPLOYMENT.md](FIRST_AZURE_DEPLOYMENT.md).
 
 **Default primary region (2026-04-21):** **`centralus`** for new production Terraform applies (`infra/terraform-container-apps` and related roots) unless data-residency or latency requirements dictate otherwise. Document exceptions in the environment README.
 

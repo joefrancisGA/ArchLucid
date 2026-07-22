@@ -1,6 +1,6 @@
 # Entra app registrations â€” Terraform resource labels use `archlucid` naming; first `terraform apply` creates tenant objects.
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Greenfield IaC — see docs/library/V1_DEFERRED.md §3 (no brownfield state mv).
 
 # data sources read existing Entra tenant state; Terraform does not create them.
 data "azuread_client_config" "current" {}

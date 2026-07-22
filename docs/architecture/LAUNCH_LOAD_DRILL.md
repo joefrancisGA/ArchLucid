@@ -9,7 +9,7 @@
 | Script | Target | Default peak VUs | Notes |
 | --- | --- | ---: | --- |
 | `scripts/load/public-showcase-burst.js` | `/showcase/claims-intake-modernization`, `/demo/preview`, `/welcome` | 50 | Must remain static — **no live LLM** on these paths |
-| `scripts/load/authenticated-first-review-burst.js` | `GET /v1/audit/search`, `GET /v1/authority/runs/{runId}` | 15 | Simulator-friendly API; optional `ARCHIFORGE_LOAD_TEST_WRITES=true` for low-rate creates |
+| `scripts/load/authenticated-first-review-burst.js` | `GET /v1/audit/search`, `GET /v1/authority/runs/{runId}` | 15 | Simulator-friendly API; optional `ARCHLUCID_LOAD_TEST_WRITES=true` for low-rate creates |
 
 ## Local run
 

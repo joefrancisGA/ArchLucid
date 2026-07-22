@@ -36,7 +36,7 @@ Operators and integrators who still use **legacy ArchiForge-branded** configurat
 
 - **Historical** SQL migration filenames (`001_*.sql` …) are unchanged.
 - **Deployed** RLS object names (e.g. policy **`ArchiforgeTenantScope`**, predicate **`archiforge_scope_predicate`**) remain until a dedicated database maintenance migration.
-- **Terraform** resource **addresses** may still include the historical `archiforge` token until **`terraform state mv`** (see **`docs/library/V1_DEFERRED.md`** §3 and **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**). Rename **`terraform.tfvars`** keys **`archiforge_api_backend_url`** → **`archlucid_api_backend_url`** when upgrading the `infra/terraform` root.
+- **Pre-release only:** no brownfield Terraform **`state mv`** is required. Use **`archlucid_*`** variable names in **`terraform.tfvars`** (e.g. `archlucid_api_backend_url`).
 
 ### Detection
 

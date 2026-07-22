@@ -33,11 +33,11 @@
 | Band | Open rows (unique) | Est. hands-on |
 |------|--------------------:|---------------|
 | **P0** | 14 | **~23–39 h** (includes Quick Scan safety GTM **M-109**/**M-110**/**G-QA-05**; **G-REAL-04**/**M-06** Done 2026-07-19) |
-| **P1** | 59 | **~98–148 h** (≈ half is LinkedIn long-form draft+publish; incl. **G-REAL-09** DOCX visual check) |
+| **P1** | 62 | **~100–152 h** (≈ half is LinkedIn long-form draft+publish; incl. **G-REAL-09** DOCX visual check; **G-QA-06**/**G-QA-07**/**M-112** UI perf triage) |
 | **P2** | 13 | **~18–30 h** (+ demo/outreach calendar; incl. **M-111** demo-honesty footnote) |
 | **P3** | 4 | **~6–10 h** (+ paid-engagement calendar) |
 | **V1.1 / V2** | 18 | **~40–70 h** kickoff/execution slices (+ multi-week/month external calendars) |
-| **Total unique open** | ~104 | **~183–291 h** active; calendar for cohorts/assurance/commerce dominates wall-clock |
+| **Total unique open** | ~107 | **~185–295 h** active; calendar for cohorts/assurance/commerce dominates wall-clock |
 
 ---
 
@@ -57,6 +57,8 @@
 | G-QA-03 | 15–30 min unscripted buyer-like session | P1 | **20–30 m** / session |
 | G-QA-04 | Add `/showcase/claims-intake-modernization` to controlled-beta acceptance checklist | P1 | **30–45 m** (after **TB-887**/**TB-888**) |
 | G-QA-05 | Quick Scan public-safety gate on controlled-beta checklist (**TB-902**) | P0 | **30–45 m** (after **TB-902** report) |
+| G-QA-06 | Monthly App Insights Web Vitals review (LCP/INP/CLS on review routes) | P1 | **20–30 m** / month |
+| G-QA-07 | Pre-cut UI performance triage — First Load JS CI green + bundle vs API | P1 | **15–30 m** / cut |
 | G-REAL-05 | CPA SOC 2 program kickoff | V1.1 | **8–16 h** kickoff/RFP; **months** auditor calendar |
 | G-ASSURANCE-02 | Third-party pen-test program (vendor SoW + redacted summary) | V1.1 | **4–8 h** vendor select/SoW; **weeks** test calendar |
 | G-CONTENT-01 | Enrich remaining 20 bundled policy packs (+5 rules each) | V1.1 | **20–30 h** (≈1–1.5 h/pack for this profile) |
@@ -153,7 +155,7 @@
 
 ---
 
-### Founder UI quality acceptance (M-96–M-106)
+### Founder UI quality acceptance (M-96–M-106) + UI performance triage (M-112)
 
 | ID | Title | Priority | Est. (hands-on) |
 |----|-------|----------|-----------------|
@@ -171,6 +173,7 @@
 | M-108 | Capture showcase screenshots for **M-07** / **M-16** / paid (after **TB-887**/**TB-888**) | P1 | **30–45 m** (subset of **M-07** gallery) |
 | M-109 | Quick Scan sample-result content + capacity-state copy review | P0 | **1–2 h** (pairs **TB-900**) |
 | M-110 | Owner decision — enable anonymous Quick Scan AI publicly (after **TB-902**) | P0 | **30–60 m** decision |
+| M-112 | UI performance triage playbook in founder acceptance routine (CWV → LH → bundle → SQL) | P1 | **45–90 m** |
 | M-103 | Optional scheduled / pre-release founder CI job | P2 | **2–3 h** |
 
 ---
@@ -289,6 +292,8 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | G-QA-03 | Run the 15–30 minute unscripted buyer-like session after lane-2 tools pass; promote any defect caught twice into **M-100** tagged tests | Owner | P1 | Not started | Lane 3 in founder acceptance routine; pairs with **M-102** / **M-100** |
 | G-QA-04 | Add `/showcase/claims-intake-modernization` to the controlled-beta acceptance checklist — HTTP 200, executive summary + marketing body present, no `DemoPreviewNotAvailable` shell, disclosure copy is **illustrative sample** not **live preview** | Owner | P1 | Not started | Depends on **TB-887**/**TB-888**; engineering smoke **TB-889**; assessment [`showcase_claims_intake_modernization_assessment_2026_07_19.md`](../architecture/showcase_claims_intake_modernization_assessment_2026_07_19.md); pairs with **M-101** / **M-106** |
 | G-QA-05 | Before any controlled cut that markets anonymous Quick Scan AI, confirm `.local/owner/quick_scan_public_release_gate.md` is **GREEN** or intentionally **YELLOW** (sample-only); refuse **RED** | Owner | P0 | Not started | Depends on engineering **TB-902**; assessment [`quick_scan_budget_safety_assessment.md`](../architecture/quick_scan_budget_safety_assessment.md); prompts [`quick_scan_public_safety_prompts.md`](../architecture/quick_scan_public_safety_prompts.md); pairs **M-110** |
+| G-QA-06 | Monthly review of App Insights `WebVitalsMetric` (LCP / INP / CLS) for `/reviews`, `/reviews/[runId]`, and `/governance` — note regressions; open or prioritize **TB-933**–**TB-935** when field CWV is bad, **TB-929**/**TB-930** when TTFB/network wait dominates | Owner | P1 | Not started | Instrumentation **TB-692** Done; playbook **M-112**; does not require raising Lighthouse hard gates |
+| G-QA-07 | Before each controlled cut: confirm First Load JS CI (`check:first-load-js` / `ui-static-quality`) is green, and if operators report “slow UI,” triage per **M-112** (bundle vs API/SQL) before requesting more `dynamic()` work | Owner | P1 | Not started | Fold into **G-QA-02** checklist when **M-101** ships; engineering targets **TB-933**–**TB-935** / **TB-929**/**TB-930** |
 
 ---
 
@@ -404,8 +409,8 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 **Captured 2026-07-18.** Goal: improve product quality, run existing tools against an **owner-chosen website**, and **gradually replace manual regression** with a tagged founder suite — without buying another UI-test platform and without turning Lighthouse category scores into arbitrary hard gates.
 
 **Canonical guidance:** [`../architecture/FOUNDER_UI_ACCEPTANCE_ROUTINE.md`](../architecture/FOUNDER_UI_ACCEPTANCE_ROUTINE.md)  
-**Owner cadence rows:** **G-QA-01**–**G-QA-04** (engineering-adjacent table above)  
-**Already shipped (do not rebuild):** GitHub Playwright estate (mock / live / a11y / visual / UX-audit), warn-only lab Lighthouse CI ([`../architecture/UI_LIGHTHOUSE_CI.md`](../architecture/UI_LIGHTHOUSE_CI.md)), journey specs such as `live-api-journey` / buyer golden path.
+**Owner cadence rows:** **G-QA-01**–**G-QA-07** (engineering-adjacent table above)  
+**Already shipped (do not rebuild):** GitHub Playwright estate (mock / live / a11y / visual / UX-audit), warn-only lab Lighthouse CI ([`../architecture/UI_LIGHTHOUSE_CI.md`](../architecture/UI_LIGHTHOUSE_CI.md)), journey specs such as `live-api-journey` / buyer golden path, field Web Vitals (**TB-692**), First Load JS gate (**TB-573**/**TB-691**).
 
 **North star:** `ACCEPTANCE_BASE_URL=<your site> npm run test:e2e:founder` (+ remote Lighthouse) becomes the default pre-beta click-path check; unscripted exploration shrinks to judgment-only work.
 
@@ -422,10 +427,11 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-104 | **Console + failed-network automation** — on founder routes against the chosen site, fail (or warn with artifact) on unexpected `pageerror` / failed XHR that today require manual DevTools inspection; allowlist known benign noise | Engineering | P1 | Not started | **M-96**, **M-97**; high leverage for cutting manual regression |
 | M-105 | **axe a11y on founder routes against chosen URL** — run `@axe-core/playwright` (or reuse helper) on the founder route set against `ACCEPTANCE_BASE_URL`, not only mock-backed `chromium-accessibility` | Engineering | P1 | Not started | **M-96**, **M-97**; complements existing mock a11y job — does not replace it |
 | M-106 | **First full dry-run + baseline** — after **M-96–M-99** (and preferably **M-104**), run the full pre-beta routine once against the chosen site; record wall-clock manual minutes and defects found; use as baseline to prove **M-100** is shrinking manual work each cut | Owner + Engineering | P1 | Not started | **G-QA-02**; exit: checklist executed once with logged metrics |
+| M-112 | **UI performance triage playbook** — extend [`FOUNDER_UI_ACCEPTANCE_ROUTINE.md`](../architecture/FOUNDER_UI_ACCEPTANCE_ROUTINE.md) with a short decision tree: (1) App Insights `WebVitalsMetric` LCP/INP/CLS by route → (2) remote/lab Lighthouse (**M-99** / **TB-693**) → (3) First Load JS / `build:analyze` (**TB-933**–**TB-934**) → (4) if CWV fine but waiting on network, API/SQL (**TB-929**/**TB-930**). Link from **G-QA-06**/**G-QA-07** and **M-101** checklist | Content + Engineering | P1 | Not started | Owner UI-performance discussion 2026-07-22; does not reopen Done **TB-691**–**TB-698**; complements **M-99** (lab) without new hard score gates |
 | M-107 | **Public proof-funnel IA decision** — owner documents whether `/showcase/claims-intake-modernization`, `/see-it`, or `/demo/preview` is the canonical anonymous proof path (or honest co-primary pair); align get-started healthcare vertical, SEO/paid landing targets, and welcome CTAs | Owner | P1 | Not started | Assessment §21 **SC-04**; engineering **TB-887**/**TB-888**; unblocks **M-108** and honest **M-09** proof copy |
 | M-108 | **Showcase screenshot capture** — add `/showcase/claims-intake-modernization` frames to **M-07** gallery / **M-16** B-roll after static-first + illustrative-sample copy ship | Production | P1 | Not started | Blocked on **TB-887**/**TB-888**; subset effort of **M-07** |
 
-**Suggested implementation order:** **G-QA-01** → **M-96** → **M-97** → **M-98** → **M-104** / **M-105** → **M-99** → **M-101** → **TB-887**/**TB-888** → **G-QA-04** → **M-107** → **M-108** → **M-106** (first dry-run) → ongoing **M-100** + **M-102** / **G-QA-03**; add **M-103** once the local/staging founder suite is stable.
+**Suggested implementation order:** **G-QA-01** → **M-96** → **M-97** → **M-98** → **M-104** / **M-105** → **M-99** → **M-112** (perf triage playbook) → **M-101** → **TB-887**/**TB-888** → **G-QA-04** → **M-107** → **M-108** → **M-106** (first dry-run) → ongoing **M-100** + **M-102** / **G-QA-03** + **G-QA-06** (monthly CWV) / **G-QA-07** (pre-cut); add **M-103** once the local/staging founder suite is stable. Engineering bundle cuts: **TB-933** → **TB-934** → **TB-935** (only when field CWV or First Load JS evidence says so).
 
 **Out of scope for this cluster:** replacing GitHub’s full Playwright estate; buying Applitools/Percy/etc.; Lighthouse “every page ≥ 95” hard gates; running thousands of tests on a founder laptop.
 

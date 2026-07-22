@@ -9,7 +9,7 @@
 
 Every other phase in this set is an information-architecture/UX improvement. This one is closer to
 a content-exposure gap: `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`,
-`docs/runbooks/FIRST_VALUE_20_MINUTES.md`, and `docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md` are
+`docs/runbooks/FIRST_VALUE_20_MINUTES.md`, and `docs/runbooks/CI_GOVERNANCE_GATE.md` (§ Minimal CI starters) are
 vendor-internal runbooks that are reachable at `/help/{slug}` today, gated only by an `isAdmin`
 prop passed into `listHelpCenterTopics({ showAdvanced, isAdmin })` in
 `archlucid-ui/src/lib/help-center-catalog.ts` — i.e., **client-side nav visibility**, not a

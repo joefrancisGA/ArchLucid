@@ -1,6 +1,6 @@
 # SQL failover / optional consumption budget — Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Greenfield IaC — see docs/library/V1_DEFERRED.md §3 (no brownfield state mv).
 
 locals {
   enabled = var.enable_sql_failover_group

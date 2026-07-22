@@ -21,6 +21,6 @@ See `variables.tf` and `terraform.tfvars.example`.
 ## SMB / port 445
 
 This module does **not** expose SMB. Blob access from the API should use **HTTPS** to `*.blob.core.windows.net`, which resolves privately when the private DNS zone is linked.
-## TB-101 — legacy App Service VNet integration
+## TB-101 ï¿½ legacy App Service VNet integration
 
 `linux_web_app_id` and `web_app_vnet_integration_subnet_id` are **optional**. Production-like pilots use **Azure Container Apps** (infra/terraform-container-apps). The swift connection in `app_service.tf` is created only when both variables are non-empty; leave them empty when no legacy Linux Web App exists.

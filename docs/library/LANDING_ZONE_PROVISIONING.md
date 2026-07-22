@@ -19,7 +19,7 @@ Provide a **repeatable, script-driven** path to validate and (optionally) apply 
 
 - **Do not expose SMB (port 445)** on the public internet; align with `docs/CUSTOMER_TRUST_AND_ACCESS.md`.
 - `terraform apply` without review can destroy resources — default automation uses **validate-only** mode.
-- Greenfield IaC uses **`archlucid`** naming; first subscription deploy: [`docs/FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md). Brownfield **state mv** (legacy state only): [`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](../archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md).
+- Greenfield IaC uses **`archlucid`** naming; first subscription deploy: [`docs/FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md). See [`V1_DEFERRED.md`](V1_DEFERRED.md) §3 — no brownfield **`state mv`** pre-release.
 
 ## Architecture overview
 

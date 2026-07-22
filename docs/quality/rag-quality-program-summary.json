@@ -1,6 +1,6 @@
 {
   "formatVersion": "1.0",
-  "generatedUtc": "2026-06-27T16:34:31.586844+00:00",
+  "generatedUtc": "2026-07-21T20:40:59.890748+00:00",
   "program": "deeper-rag-quality-offline",
   "enforceMode": false,
   "disposition": "PASS",
@@ -9,13 +9,13 @@
       "label": "faithfulness",
       "script": "eval_agent_faithfulness.py",
       "exitCode": 0,
-      "outputTail": "d_roi_cost=0\nfaithfulness case=roi-cost-unsupported-annualized retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=1\nfaithfulness case=deferred-scope-soc2-cpa-claim retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=deferred-scope-pen-test-claim retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=missing-evidence-ref-roi-headline retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=1\nfaithfulness case=ask-policy-pack-kv-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-platform-adr-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-prior-decision-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-azure-retail-cost-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-demo-derived-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-customer-network-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-multi-corpus-cited retrieved=2 supported=2 ratio=1.0000 missing_citations=0 wrong_corpus=1 unsupported_roi_cost=0\nfaithfulness case=ask-missing-citation-negative retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=0\nWrote C:\\ArchLucid\\ArchLucid\\docs\\quality\\faithfulness-report.md\nWrote C:\\ArchLucid\\ArchLucid\\docs\\quality\\faithfulness-summary.json\nPositive readiness support ratio: 0.9783 (floor 0.8000)\nNegative-control support ratio: 0.0385 (ceiling 0.3500)\nCombined diagnostic support ratio: 0.6389 (floor 0.8000)"
+      "outputTail": "roi-headline retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=1\nfaithfulness case=ask-policy-pack-kv-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-platform-adr-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-prior-decision-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-azure-retail-cost-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-demo-derived-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-customer-network-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-multi-corpus-cited retrieved=2 supported=2 ratio=1.0000 missing_citations=0 wrong_corpus=1 unsupported_roi_cost=0\nfaithfulness case=ask-missing-citation-negative retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=0\nablation profile=all-on positive=0.9783 combined=0.6389 hits_filtered=0\nablation profile=graph-rag-off positive=0.9783 combined=0.6528 hits_filtered=8\nablation profile=hyde-off positive=1.0000 combined=0.6528 hits_filtered=6\nablation profile=query-rewrite-off positive=0.9783 combined=0.6389 hits_filtered=6\nablation profile=all-advanced-off positive=1.0000 combined=0.6667 hits_filtered=19\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\faithfulness-ablation-summary.json\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\faithfulness-report.md\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\faithfulness-summary.json\nPositive readiness support ratio: 0.9783 (floor 0.8000)\nNegative-control support ratio: 0.0385 (ceiling 0.3500)\nCombined diagnostic support ratio: 0.6389 (floor 0.8000)"
     },
     {
       "label": "retrieval-ir",
       "script": "eval_retrieval_ir.py",
       "exitCode": 0,
-      "outputTail": "alse\nretrieval-ir case=ir-mixed-scope-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-mixed-scope-03 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ar-app-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ar-app-02 recall@5=1.0000 mrr=1.0000 ndcg@10=0.8772 ordering_sensitive=False\nretrieval-ir case=ir-ar-sql-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ar-fd-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ar-noise recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-demo-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-demo-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-cust-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-cust-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-tenant-b-pp recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-tenant-a-not-b recall@5=1.0000 mrr=0.5000 ndcg@10=0.6309 ordering_sensitive=False\nretrieval-ir case=ir-pd-lib-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ar-pp-mixed recall@5=1.0000 mrr=0.3333 ndcg@10=0.5706 ordering_sensitive=False\nretrieval-ir case=ir-pp-kv-03 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-pm-run-05 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-pd-arch-04 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nWrote C:\\ArchLucid\\ArchLucid\\docs\\quality\\retrieval-ir-report.md\nWrote C:\\ArchLucid\\ArchLucid\\docs\\quality\\retrieval-ir-summary.json\nMean recall@5: 0.9787 (floor 0.8500)\nMean MRR: 0.9220 (floor 0.7500)\nMean NDCG@10: 0.9399"
+      "outputTail": "trieval-ir case=ir-ar-noise recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-demo-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-demo-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-cust-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-cust-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-tenant-b-pp recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-tenant-a-not-b recall@5=1.0000 mrr=0.5000 ndcg@10=0.6309 ordering_sensitive=False\nretrieval-ir case=ir-pd-lib-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ar-pp-mixed recall@5=1.0000 mrr=0.3333 ndcg@10=0.5706 ordering_sensitive=False\nretrieval-ir case=ir-pp-kv-03 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-pm-run-05 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-pd-arch-04 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-ms-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-ms-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-3tier-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-dr-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-platform-scope recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-noise recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\retrieval-ir-report.md\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\retrieval-ir-summary.json\nMean recall@5: 0.9811 (floor 0.8500)\nMean MRR: 0.9308 (floor 0.7500)\nMean NDCG@10: 0.9467"
     },
     {
       "label": "floor-ratchet",
@@ -34,10 +34,10 @@
   },
   "retrievalIrSummary": {
     "formatVersion": "1.1",
-    "casesEvaluated": 47,
-    "meanRecallAt5": 0.9787234042553191,
-    "meanMrr": 0.9219858156028369,
-    "meanNdcgAt10": 0.9398918665447737,
+    "casesEvaluated": 53,
+    "meanRecallAt5": 0.9811320754716981,
+    "meanMrr": 0.9308176100628931,
+    "meanNdcgAt10": 0.9466965608981956,
     "floorRecallAt5": 0.85,
     "floorMrr": 0.75,
     "corpusBreakdown": [
@@ -89,6 +89,15 @@
       {
         "corpusKind": "PriorManifest",
         "caseCount": 13,
+        "meanRecallAt5": 1.0,
+        "meanMrr": 1.0,
+        "meanNdcgAt10": 1.0,
+        "orderingSensitiveCaseCount": 0,
+        "meanOrderingSensitiveNdcgAt10": null
+      },
+      {
+        "corpusKind": "ReferenceArchitecture",
+        "caseCount": 6,
         "meanRecallAt5": 1.0,
         "meanMrr": 1.0,
         "meanNdcgAt10": 1.0,
@@ -468,6 +477,54 @@
       {
         "id": "ir-pd-arch-04",
         "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-ms-01",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-ms-02",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-3tier-01",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-dr-01",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-platform-scope",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-noise",
+        "corpusKind": "ReferenceArchitecture",
         "recallAt5": 1.0,
         "mrr": 1.0,
         "ndcgAt10": 1.0,

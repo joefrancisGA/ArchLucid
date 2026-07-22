@@ -35,7 +35,7 @@ k6 run \
   scripts/load/public-showcase-burst.js | tee "${out_dir}/public-showcase-burst.log"
 
 k6 run \
-  -e "ARCHIFORGE_BASE_URL=${api_base}" \
+  -e "ARCHLUCID_BASE_URL=${api_base}" \
   -e "K6_AUTH_PEAK_VUS=${K6_AUTH_PEAK_VUS:-15}" \
   --summary-export="${out_dir}/authenticated-first-review-burst-summary.json" \
   scripts/load/authenticated-first-review-burst.js | tee "${out_dir}/authenticated-first-review-burst.log"

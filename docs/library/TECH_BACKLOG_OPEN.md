@@ -2,7 +2,7 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-07-19 (added **TB-892**–**TB-902** — anonymous Quick Scan public-safety cluster; GTM **M-109**–**M-110**, **G-QA-05**; prompts `docs/architecture/quick_scan_public_safety_prompts.md`). Prior: 2026-07-19 (added **TB-887**–**TB-891** — public showcase `claims-intake-modernization` cluster; GTM **M-107**–**M-108**, **G-QA-04**). Prior: 2026-07-19 (closed tech **TB-135** / **TB-136**; GTM **G-REAL-05** / **G-ASSURANCE-02** remain open for owner execution). Prior: 2026-07-19 (added **TB-882**–**TB-886** — `LATEST_GPT55.md` §17 Tier 3 hold candidates; remain **Hold for reassessment**). Prior: 2026-07-19 (added **TB-881** — RC12 registration duplicate-organization conflict regression, release-candidate blocker, not a V1/V1.1/V2 roadmap window item). Prior: 2026-07-19 (summary-table **V2 window** — V2 rows listed last in `TECH_BACKLOG.md`; IDs unchanged). Prior: 2026-07-19 (**TB-686** promoted V2→**V1**). Prior: 2026-07-19 (**GTM purge wave 3** — **TB-135**–**TB-140**, **TB-158**–**TB-160**). Prior: 2026-07-19 (closed **TB-673**; **TB-878**–**TB-880**; GTM wave 2). Prior: 2026-07-19 (**TB-874**–**TB-877**).
+> **Updated:** 2026-07-22 (added **TB-936** — Alerts `/governance/alert-rules` Conditions tab refinement P0). Prior: 2026-07-22 (added **TB-929**–**TB-932** — JSON payload-shape H2 follow-on after **TB-577**; list projection audit, run-detail lazy-load, typed scalars, V2 blob offload). Prior: 2026-07-19 (added **TB-892**–**TB-902** — anonymous Quick Scan public-safety cluster; GTM **M-109**–**M-110**, **G-QA-05**; prompts `docs/architecture/quick_scan_public_safety_prompts.md`). Prior: 2026-07-19 (added **TB-887**–**TB-891** — public showcase `claims-intake-modernization` cluster; GTM **M-107**–**M-108**, **G-QA-04**). Prior: 2026-07-19 (closed tech **TB-135** / **TB-136**; GTM **G-REAL-05** / **G-ASSURANCE-02** remain open for owner execution). Prior: 2026-07-19 (added **TB-882**–**TB-886** — `LATEST_GPT55.md` §17 Tier 3 hold candidates; remain **Hold for reassessment**). Prior: 2026-07-19 (added **TB-881** — RC12 registration duplicate-organization conflict regression, release-candidate blocker, not a V1/V1.1/V2 roadmap window item). Prior: 2026-07-19 (summary-table **V2 window** — V2 rows listed last in `TECH_BACKLOG.md`; IDs unchanged). Prior: 2026-07-19 (**TB-686** promoted V2→**V1**). Prior: 2026-07-19 (**GTM purge wave 3** — **TB-135**–**TB-140**, **TB-158**–**TB-160**). Prior: 2026-07-19 (closed **TB-673**; **TB-878**–**TB-880**; GTM wave 2). Prior: 2026-07-19 (**TB-874**–**TB-877**).
 
 ## Ordering convention
 
@@ -28,13 +28,14 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Tier 3 hold (assessment) | **TB-882**–**TB-886** (open; **Hold for reassessment**) | Nav guard; Graph-RAG live ablation; pack attribution; compounding ledger; manifest-verify docs |
 | Public showcase (`claims-intake-modernization`) | **TB-887**–**TB-891** (open P0/P1/P2 **V1**) | Static-first SSR; disclosure copy; prod smoke; QuickNav anonymous contract; telemetry — assessment 2026-07-19 |
 | Anonymous Quick Scan public safety | **TB-892**–**TB-902** (open P0/P1 **V1**) | Config → pricing → global budgets → anonymous endpoint → concurrency → abuse → kill switch → telemetry → sample UX → adversarial → release gate; assessment **SAFE TO EXPOSE: NO** until **TB-902** |
+| JSON payload-shape (H2 remainder) | **TB-929**–**TB-931** open P1/P2 **V1**; **TB-932** **V2** | List `*Json` projection audit; run-detail lazy-load; typed scalars; blob offload when measured |
+| Alerts Conditions tab UX | **TB-936** (open P0 **V1**) | `/governance/alert-rules?tab=rules` — rule builder, terminology, preview, sample guards |
 
 ## Open items (V1 / V1.1 — shippable candidates)
 
 | ID | Title | Cluster |
 | --- | --- | --- |
 | TB-874 | Terraform AWS/GCP → CanonicalObject classification + illustrative cost/service labels | Multi-cloud P1 **V1** |
-| TB-875 | Cloud-aware agent context for Aws/Gcp target reviews | Multi-cloud P1 **V1**; after **TB-874** |
 | TB-876 | Customer-controlled Tier 1 AWS/GCP inventory ZIP | Multi-cloud P1 **V1** |
 | TB-877 | Community summarization Graph-RAG (RAG-V2-001 remainder) | AI/Agent P1 **V1** |
 | TB-878 | Iterative retrieve-critique-retry loop (RAG-V2-002 remainder) | AI/Agent P2 **V1** |
@@ -60,6 +61,10 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-900 | Quick Scan sample fallback + public capacity UX | Marketability P0 **V1** — pairs **M-109** |
 | TB-901 | Quick Scan adversarial cost/abuse test suite | Cost safety P0 **V1** — after core controls |
 | TB-902 | Quick Scan public release gate assessment (GREEN/YELLOW/RED) | Release gate P0 **V1** — assessment-only; **M-110**, **G-QA-05** |
+| TB-929 | Hot-path list SQL projection audit (omit fat `*Json`) | Performance P1 **V1** — H2 after **TB-577** |
+| TB-930 | Run-detail summary + lazy-load JSON blobs | Performance P1 **V1** — pairs **TB-929** |
+| TB-931 | Typed columns for hot scalars from JSON | Performance P2 **V1** — after **TB-929** inventory |
+| TB-936 | Refine `/governance/alert-rules` Conditions tab | Adoption friction P0 **V1** — rule builder + preview + sample guards |
 
 ## Hold for reassessment (not Cursor-shippable until owner promotes / G-REAL-06)
 
@@ -80,6 +85,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-688 | Per-tier model-generation refresh cadence | P2 **V2** |
 | TB-690 | Fine-tuning activation gate | P2 **V2** |
 | TB-873 | Generic OpenAI-compatible endpoint adapter | P3 **V2**; after **TB-872**; ADR 0060 D4 gates |
+| TB-932 | Offload large JSON payloads to blob storage | P3 **V2**; after **TB-929**–**TB-931** + measured sizes |
 
 ## Curated slices
 

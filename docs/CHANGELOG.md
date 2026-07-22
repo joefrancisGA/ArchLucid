@@ -151,7 +151,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ## 2026-04-25 — Retire rename legacy CI guards (workspace dirs + Terraform `archiforge` grep)
 
-**Outcome.** Removed **`doc-markdown-links`** steps that ran **`check_no_legacy_archiforge_dirs.py`** and its unittest, and removed **`terraform-assert-no-archiforge-in-tf`** (repo-wide **`infra/**/*.tf`** `archiforge` grep). CI checkouts never recreate deleted **`ArchiForge.*`** workspace folders. **`dotnet-fast-core`** still greps **`archiforge`** in C#, TS/TSX, and narrow marketing/terraform-edge paths. Deleted **`scripts/ci/check_no_legacy_archiforge_dirs.py`** / **`test_check_no_legacy_archiforge_dirs.py`**. **`.gitignore`** still lists **`ArchiForge.*/`**. **Manual:** run **`rg "archiforge" infra --glob "*.tf"`** on Terraform changes under **`infra/`** (see **[TERRAFORM_STATE_MV_PHASE_7_5.md](../runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md)** and **[V1_DEFERRED.md](library/V1_DEFERRED.md)** §3). Checklist **2026-04-25** row.
+**Outcome.** Removed **`doc-markdown-links`** steps that ran **`check_no_legacy_archiforge_dirs.py`** and its unittest, and removed **`terraform-assert-no-archiforge-in-tf`** (repo-wide **`infra/**/*.tf`** `archiforge` grep). CI checkouts never recreate deleted **`ArchiForge.*`** workspace folders. **`dotnet-fast-core`** still greps **`archiforge`** in C#, TS/TSX, and narrow marketing/terraform-edge paths. Deleted **`scripts/ci/check_no_legacy_archiforge_dirs.py`** / **`test_check_no_legacy_archiforge_dirs.py`**. **`.gitignore`** still lists **`ArchiForge.*/`**. **Manual:** run **`rg "archiforge" infra --glob "*.tf"`** on Terraform changes under **`infra/`** (see **[V1_DEFERRED.md](library/V1_DEFERRED.md)** §3). Checklist **2026-04-25** row.
 
 ---
 
@@ -1050,7 +1050,7 @@ Added aggregate run explanation endpoint (`/v1/explain/runs/{runId}/aggregate`) 
 ## Phase 7 — ArchLucid rename (code-level)
 
 **Area:** Rename / operator breaking changes  
-**Summary:** Removed legacy **`ArchiForge*`** configuration keys, **`ARCHIFORGE_*`** / UI OIDC storage bridges, and renamed CLI manifest (`archlucid.json`), global tool command (`archlucid`), SQL DDL file (`ArchLucid.sql`), and dev Docker/compose defaults. **`com.archiforge.*` integration event type strings are no longer emitted or aliased** — only canonical **`com.archlucid.*`** types apply. See **`BREAKING_CHANGES.md`** for migration steps. Terraform resource **addresses** using the historical **`archiforge`** token remain until a planned `state mv` (checklist 7.5); the APIM backend URL **variable** is now **`archlucid_api_backend_url`**.
+**Summary:** Removed legacy **`ArchiForge*`** configuration keys, **`ARCHIFORGE_*`** / UI OIDC storage bridges, and renamed CLI manifest (`archlucid.json`), global tool command (`archlucid`), SQL DDL file (`ArchLucid.sql`), and dev Docker/compose defaults. **`com.archiforge.*` integration event type strings are no longer emitted or aliased** — only canonical **`com.archlucid.*`** types apply. See **`BREAKING_CHANGES.md`** for migration steps. Committed Terraform uses **`archlucid`** resource labels; the APIM backend URL **variable** is **`archlucid_api_backend_url`**.
 
 ---
 

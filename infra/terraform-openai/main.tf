@@ -1,6 +1,6 @@
 # Optional OpenAI consumption budget hooks — Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Greenfield IaC — see docs/library/V1_DEFERRED.md §3 (no brownfield state mv).
 
 locals {
   openai_consumption_budget_enabled = var.enable_openai_consumption_budget && length(trimspace(var.openai_consumption_budget_resource_group_id)) > 0

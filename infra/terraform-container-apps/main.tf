@@ -1,6 +1,6 @@
 # Container Apps (API / Worker / UI) Ã¢â‚¬â€ Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md Ã‚Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Greenfield IaC — see docs/library/V1_DEFERRED.md §3 (no brownfield state mv).
 
 # count = local.enabled ? 1 : 0 creates exactly one Azure resource when enabled, zero when disabled.
 # data blocks read existing Azure objects; resource blocks declare infrastructure Terraform owns in state.

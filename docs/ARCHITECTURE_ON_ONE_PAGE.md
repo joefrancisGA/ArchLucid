@@ -126,7 +126,7 @@ The governance model uses **Policy Packs** as its adaptive "brain", completely d
 
 - **Default deny** on API controllers; anonymous only where explicitly marked (`/health/*`, `/version`, and similar).
 - **Entra ID / JWT** or **API keys** per environment; **development bypass** only outside production with guardrails.
-- **Secrets** in Key Vault or CI; UI proxy accepts **`ARCHLUCID_API_KEY`** with **`ARCHIFORGE_API_KEY`** fallback.
+- **Secrets** in Key Vault or CI; UI proxy uses **`ARCHLUCID_API_KEY`**.
 - **Multi-tenant isolation: database-per-tenant catalogs (ADR 0037)**; app-layer scope predicates enforce workspace/project isolation (see [`security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md)).
 
 ## 8. Operational considerations

@@ -104,7 +104,7 @@ to surface as documentation topics or PDFs: `SSO_OKTA_CONFIGURATION.md`, `SSO_AU
 |------|------------|---------------|
 | `first-pilot-operator-runbook` | `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md` | Vendor-internal operator runbook, not customer content |
 | `first-value-20-minutes` | `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md` (§ First value in 20 minutes) | Vendor-internal |
-| `pre-commit-ci-gate` | `docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md` | Contributor-only, not even admin/customer |
+| `pre-commit-ci-gate` | `docs/runbooks/CI_GOVERNANCE_GATE.md` (§ Minimal CI starters) | Contributor-only, not even admin/customer |
 
 ## Category 4 — Marketing content (public, `(marketing)` route group)
 

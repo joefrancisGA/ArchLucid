@@ -75,7 +75,7 @@ flowchart LR
 
 - **Default deny** on API controllers; anonymous only where explicitly marked (e.g. `/health/*`, `/version`).
 - **Entra ID / JWT** or **API key** per environment; **development bypass** only in non-production with guardrails.
-- **Secrets** in Key Vault / CI secrets; UI proxy uses **`ARCHLUCID_API_KEY`** with **`ARCHIFORGE_API_KEY`** fallback.
+- **Secrets** in Key Vault / CI secrets; UI proxy uses **`ARCHLUCID_API_KEY`**.
 
 ## 8. Operational considerations
 

@@ -60,7 +60,7 @@ class V1IntegrationStarterContractsTests(unittest.TestCase):
     def test_pre_commit_ci_gate_starter_assets_exist(self) -> None:
         root = ROOT
         for relative in (
-            "docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md",
+            "docs/runbooks/CI_GOVERNANCE_GATE.md",
             "scripts/ci/data/pre_commit_ci_gate_starter.github-actions.yml",
             "scripts/ci/data/pre_commit_ci_gate_starter.azure-pipelines-snippet.yml",
         ):

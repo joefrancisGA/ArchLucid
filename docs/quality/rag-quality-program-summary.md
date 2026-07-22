@@ -9,7 +9,7 @@
 
 - Positive readiness support ratio: 0.9782608695652174
 - PolicyPack mean MRR: 0.8
-- Mean recall@5: 0.9787234042553191
+- Mean recall@5: 0.9811320754716981
 
 Offline golden fixtures plus optional committed real-mode LLM faithfulness signal — does not invoke live models unless a separate golden-cohort live job runs.
 

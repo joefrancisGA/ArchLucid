@@ -47,7 +47,7 @@ Canonical slug → kind map: `archlucid-ui/src/lib/product-documentation-content
 - `first-pilot-operator-runbook`
 - `first-value-20-minutes`
 
-`pre-commit-ci-gate` remains **repo-only** (`docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md`) — removed from the in-app registry in **TB-735**.
+`pre-commit-ci-gate` remains **repo-only** (`docs/runbooks/CI_GOVERNANCE_GATE.md#minimal-ci-starters`) — removed from the in-app registry in **TB-735**.
 
 ### Technical-documentation slugs (initial set)
 

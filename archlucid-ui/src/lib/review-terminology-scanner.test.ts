@@ -21,4 +21,13 @@ describe("review terminology scanner", () => {
 
     expect(violations).toEqual([]);
   });
+
+  it("safelists glossary catalog term labels", () => {
+    const violations = scanBuyerFacingTerminology(
+      "src/lib/example-glossary.ts",
+      `    term: "Review package",`,
+    );
+
+    expect(violations).toEqual([]);
+  });
 });
