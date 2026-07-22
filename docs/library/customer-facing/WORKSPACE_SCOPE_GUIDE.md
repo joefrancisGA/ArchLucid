@@ -12,13 +12,13 @@ ArchLucid isolates data by **tenant**, **workspace**, and **project**. The heade
 | **Workspace** | A team, program, or environment under the tenant. Reviews, findings, and exports belong to one workspace at a time. |
 | **Project** | A routing scope within the workspace. Most pilot flows use a single primary project. |
 
-When you switch workspace or project, lists and review packages refresh to match the new scope. Data from another workspace is not shown.
+When you switch workspace or project, lists and architecture packages refresh to match the new scope. Data from another workspace is not shown.
 
 ## Using the scope switcher
 
 1. Open the workspace label in the top bar (for example **Claims Intake Demo** or your workspace name).
 2. In a **connected tenant**, choose a workspace and project from the list.
-3. Confirm Overview and **Review packages** show the expected content for that scope.
+3. Confirm Overview and **Reviews** show the expected content for that scope.
 
 If switching is disabled, you are in a local demo or sandbox with a fixed sample workspace. Your real workspace is unchanged.
 
@@ -33,7 +33,7 @@ To work in your tenant scope, sign in to a connected environment. If you don't h
 | Symptom | First check |
 |---------|-------------|
 | Empty reviews list | Confirm the scope switcher shows the workspace you expect |
-| Review package not found | The link may belong to a different workspace or project |
+| Architecture package not found | The link may belong to a different workspace or project |
 | Sample badge unexpected | Confirm whether you are in a demo or sandbox environment |
 
 For step-by-step recovery, open [Troubleshooting](/help/troubleshooting).

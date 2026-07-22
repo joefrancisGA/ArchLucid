@@ -6,7 +6,7 @@
 
 ## How ArchLucid works
 
-ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed review package you can share.
+ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed architecture package you can share.
 
 1. **Evidence** — briefs, diagrams, documents, IaC, optional cloud inventory  
 2. **Analyze** — assessment engines evaluate the architecture in scope  
@@ -18,7 +18,7 @@ ArchLucid ingests architecture evidence, evaluates it against your standards, an
 
 | Term | One-line meaning |
 |------|------------------|
-| **Review package** | The complete set of findings, decisions, evidence, and exports for one architecture review. |
+| **Architecture package** | The durable record of findings, decisions, evidence, and exports for one architecture review. |
 | **Evidence** | Briefs, diagrams, documents, IaC exports, and optional cloud inventory. |
 | **Findings** | Structured issues and risks surfaced during analysis. |
 | **Decision record** | The signed outcome of the review. |
@@ -28,7 +28,7 @@ ArchLucid ingests architecture evidence, evaluates it against your standards, an
 
 ## What happens during a review?
 
-1. **Add architecture evidence** — attach inputs to a new review package.  
+1. **Add architecture evidence** — attach inputs to a new architecture package.  
 2. **Analyze the architecture** — run the assessment and monitor progress.  
 3. **Review findings** — triage issues and confirm evidence coverage.  
 4. **Record decisions** — capture approvals and accepted risks.  

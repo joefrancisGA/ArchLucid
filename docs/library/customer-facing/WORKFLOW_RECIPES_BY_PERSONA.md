@@ -1,4 +1,4 @@
-> **Scope:** Integration and engineering documentation — persona API/CLI recipes that map product surfaces to automation workflows. **Not** rendered as in-app product help (`/help`); use [Start a review](/help/evidence-intake) and [Review packages](/help/review-packages) for operator guidance.
+> **Scope:** Integration and engineering documentation — persona API/CLI recipes that map product surfaces to automation workflows. **Not** rendered as in-app product help (`/help`); use [Start a review](/help/evidence-intake) and [Architecture packages](/help/review-packages) for architect guidance.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -7,9 +7,9 @@
 Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAVIGATOR.md`](../../archive/NAVIGATOR.md)** lists one “best next doc” per task.
 
 
-## 1) Solution architect: from request to committed review package
+## 1) Solution architect: from request to committed architecture package
 
-**Goal:** Produce a durable **review package** (pipeline outcome, findings, committed golden manifest, exports) suitable for sponsor and engineering handoff.
+**Goal:** Produce a durable **architecture package** (pipeline outcome, findings, committed golden manifest, exports) suitable for sponsor and engineering handoff.
 
 **Prerequisites:** Tenant access with **Read** + **Execute** authority; at least one architecture request worth of context. See [CORE_PILOT.md](../../CORE_PILOT.md) and [SECOND_RUN.md](../SECOND_RUN.md) for a follow-on run.
 

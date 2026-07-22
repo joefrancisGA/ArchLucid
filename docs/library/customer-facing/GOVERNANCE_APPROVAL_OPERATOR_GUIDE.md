@@ -4,7 +4,7 @@
 
 Learn how architecture work moves from submission to approval, revision, or rejection.
 
-Governance approval connects a finalized architecture review package to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.
+Governance approval connects a finalized architecture package to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.
 
 ## Governance workflow {#governance-workflow}
 
@@ -25,7 +25,7 @@ Draft, Submitted, Under review, Approved, Rejected, and Superseded are explained
 
 ## Prerequisites {#prerequisites}
 
-Finalize the review package, resolve blocking findings, attach evidence, and confirm submission permission before sending an approval request.
+Finalize the architecture package, resolve blocking findings, attach evidence, and confirm submission permission before sending an approval request.
 
 ## Decision outcomes {#decision-outcomes}
 

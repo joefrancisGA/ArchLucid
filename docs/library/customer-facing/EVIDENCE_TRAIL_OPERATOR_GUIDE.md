@@ -2,7 +2,7 @@
 
 # Evidence graph
 
-Trace how evidence supports findings, decisions, approvals, and the final review package.
+Trace how evidence supports findings, decisions, approvals, and the final architecture package.
 
 In the product, this page is labeled **Evidence graph** in navigation. Help topics and deep links may use the slug **evidence-trail** — both refer to the same traceability surface.
 
@@ -15,17 +15,17 @@ An **evidence trail** is the inspectable lineage from architecture inputs throug
 - **Decisions and governance** — approvals, dispositions, and exceptions when your workflow records them.
 - **Audit records** — who acted and when, without exposing raw engineering logs.
 
-The **evidence graph** is the interactive view that shows how those pieces connect for one finalized review package.
+The **evidence graph** is the interactive view that shows how those pieces connect for one finalized architecture package.
 
 ## Open the Evidence graph {#open-the-evidence-graph}
 
-1. In the operator shell, open **Insights** and choose **Evidence graph** (route `/graph`).
+1. In the architect workspace, open **Insights** and choose **Evidence graph** (route `/graph`).
 2. Select a **finalized review** from the list, or choose **Open sample evidence graph** to explore a demo package.
 3. Select **Load evidence graph** when prompted.
 
 You can also jump from a finding:
 
-1. Open a review package and go to **Findings**.
+1. Open an architecture package and go to **Findings**.
 2. On a finding with linked evidence, choose **Explain in evidence trail** (or **View evidence trail** from related surfaces).
 3. ArchLucid opens the Evidence graph scoped to that review and finding.
 
@@ -54,18 +54,18 @@ Start with **Evidence provenance** when your question is “what file or artifac
 
 ## Trace a finding step by step {#trace-a-finding-step-by-step}
 
-1. **Start from the finding** — open the review package **Findings** tab and note the finding title and severity.
+1. **Start from the finding** — open the architecture package **Findings** tab and note the finding title and severity.
 2. **Open the evidence graph** — use **Explain in evidence trail** on the finding, or load the same review from **Insights → Evidence graph**.
 3. **Read the trace table** — confirm the finding row lists evidence links or flags an evidence gap.
 4. **Switch to graph view** — select **Evidence provenance** and follow edges from the finding to artifact nodes.
-5. **Return to the package** — use **Open review** to jump back to the review package detail when you are ready to add evidence, record a disposition, or export.
+5. **Return to the package** — use **Open review** to jump back to the architecture package detail when you are ready to add evidence, record a disposition, or export.
 
-If a finding shows an **evidence gap**, the trace table and graph still help you see what is missing — add uploads from the review package **Evidence** tab before finalize when your workflow allows.
+If a finding shows an **evidence gap**, the trace table and graph still help you see what is missing — add uploads from the architecture package **Evidence** tab before finalize when your workflow allows.
 
 ## Related guides {#related-guides}
 
 - [Review guide](/help/review-guide) — wizard field reference for each intake step.
-- [Review packages](/help/review-packages) — browse and open review packages before tracing.
+- [Architecture packages](/help/review-packages) — browse and open architecture packages before tracing.
 - [Findings](/help/findings) — interpret severity, rationale, and evidence links on a package.
 - [Start a review](/help/evidence-intake) — attach the evidence the trail will reference.
 - [Audit trail](/help/audit-trail) — immutable audit events (who did what, when) vs lineage (what supports a conclusion).

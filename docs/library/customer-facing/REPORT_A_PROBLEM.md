@@ -24,7 +24,7 @@ Email remains available when you are not on an in-product error surface.
 | Correlation id / client request id | Tie your attempt to server logs |
 | Route | Page path where you clicked Report problem |
 | Error code / title | HTTP status or failure headline when available |
-| Operator note | Optional context you provide |
+| Your note | Optional context you provide |
 
 ## What we never capture silently
 

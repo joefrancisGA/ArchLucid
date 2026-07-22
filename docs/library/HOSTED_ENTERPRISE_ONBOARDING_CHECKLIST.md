@@ -16,7 +16,7 @@ ArchLucid is delivered as hosted SaaS. Enterprise onboarding configures tenant s
 > - **[Enable governance workflow](#governance-enablement)**
 > - **[Configure audit export](#audit-export)**
 > - **[Connect Azure securely](/help/cloud-connections/azure)**
-> - **[Validate first review package](/help/pilot-guide)**
+> - **[Validate first architecture package](/help/pilot-guide)**
 > - **[Prepare procurement/trust review](/help/procurement)** · **[Security and trust](/help/security-trust)**
 
 ---
@@ -31,7 +31,7 @@ Use this checklist to track hosted SaaS enterprise onboarding. For task-specific
 - **[Enable governance workflow](#governance-enablement)**
 - **[Configure audit export](#audit-export)**
 - **[Connect Azure securely](/help/cloud-connections/azure)**
-- **[Validate first review package](/help/pilot-guide)**
+- **[Validate first architecture package](/help/pilot-guide)**
 - **[Prepare procurement/trust review](/help/procurement)** · **[Security and trust](/help/security-trust)**
 
 ---
@@ -221,7 +221,7 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 |------|-------|--------------------|
 | Review bundled baseline policy packs | Joint | Customer selects baseline packs for pilot systems |
 | Assign packs to workspace/project scope | Customer admin | Governance UI shows active packs |
-| Validate one committed review package using assigned policy packs | Joint | Findings reference expected policy rules |
+| Validate one committed architecture package using assigned policy packs | Joint | Findings reference expected policy rules |
 | Escalate custom-pack gaps to professional services if needed | ArchLucid Customer Success | Professional services scope agreed when needed |
 
 ---
@@ -233,7 +233,7 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 | Enable approval workflows | Customer admin | At least one workflow template active |
 | Enable pre-commit governance gate (if contracted) | Customer admin | Block/warn behavior matches order form |
 | Segregation-of-duties review | Customer security | Approver ≠ sole committer for production paths |
-| Complete one end-to-end approval + commit | Joint | Audit trail shows approval and finalized review package |
+| Complete one end-to-end approval + finalize | Joint | Audit trail shows approval and finalized architecture package |
 
 ---
 

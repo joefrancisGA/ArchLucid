@@ -166,8 +166,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "review-packages",
-    title: "Reviews",
-    summary: "Browse, inspect, and export governed reviews in the architect workspace.",
+    title: "Architecture packages",
+    summary: "Browse, inspect, and export governed architecture packages in the architect workspace.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"],
   },

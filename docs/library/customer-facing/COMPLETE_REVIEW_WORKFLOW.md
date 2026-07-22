@@ -10,12 +10,12 @@ Use this guide when you need the full lifecycle from starting a review through s
 
 | | What you do | What ArchLucid does | What you get |
 | --- | --- | --- | --- |
-| **Purpose** | Provide evidence and context for one architecture decision | Evaluates design, records findings, and packages a signed review record | A review package you can export and share |
+| **Purpose** | Provide evidence and context for one architecture decision | Evaluates design, records findings, and packages a signed review record | An architecture package you can export and share |
 | **Typical duration** | One working session for a first review; longer when governance sign-off is required | Runs the assessment pipeline and attaches evidence citations | Findings, decisions, and sponsor-ready exports |
 
 **Good to know:** You can start with briefs, diagrams, documents, or IaC only — cloud connectors for Azure, AWS, or GCP are optional accelerators. See [Pilot guide](/help/pilot-guide) to prepare.
 
-## Step 1: Create a review package
+## Step 1: Create an architecture package
 
 1. Open **New review** from Home or the reviews list.
 2. Name the review so sponsors recognize the system and decision being evaluated.
@@ -56,7 +56,7 @@ When governance is in scope for your workspace:
 
 **What success looks like:** Material risks have an explicit disposition or approval path before external circulation.
 
-## Step 5: Finalize the review package
+## Step 5: Finalize the architecture package
 
 1. Open **Finalize** on review detail when the assessment is complete.
 2. Confirm the signed review record and artifacts table appear.
@@ -86,7 +86,7 @@ ArchLucid uses a small set of labels on Home and review detail to show what to d
 | --- | --- | --- |
 | **In progress** | Assessment running or findings not yet finalized | Stay on review detail until ready to finalize |
 | **Ready to finalize** | Findings exist; signed record not locked yet | Finalize when disposition and evidence review are complete |
-| **Finalized** | Review package is committed | Open exports and share with stakeholders |
+| **Finalized** | Architecture package is committed | Open exports and share with stakeholders |
 | **Needs attention** | Blocking findings, stale evidence, or governance hold | Resolve blockers before sponsor send |
 
 ## Related help
@@ -94,6 +94,6 @@ ArchLucid uses a small set of labels on Home and review detail to show what to d
 - [Pilot guide](/help/pilot-guide) — prepare for a pilot and get support
 - [Your first architecture review](/help/core-pilot) — shorter first-session checklist
 - [Start a review](/help/evidence-intake) — evidence intake on the new-review wizard
-- [Review packages](/help/review-packages) — browse and inspect committed packages
-- [Governance workflow](/help/governance-approval) — approvals when enabled
+- [Architecture packages](/help/review-packages) — browse and inspect committed packages
+- [Governance approval](/help/governance-approval) — approvals when enabled
 - [Troubleshooting](/help/troubleshooting) — symptom-first fixes

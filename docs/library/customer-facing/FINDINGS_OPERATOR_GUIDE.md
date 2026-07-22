@@ -38,4 +38,4 @@ Solution architects investigate and assign remediation. Reviewers validate evide
 
 - [Review guide](/help/review-guide) — start a review and confirm review scope in the wizard.
 - [Evidence graph](/help/evidence-trail) — trace a finding back to source artifacts.
-- [Review packages](/help/review-packages) — open and export completed packages.
+- [Architecture packages](/help/review-packages) — open and export completed packages.

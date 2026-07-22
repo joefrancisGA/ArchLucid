@@ -2,7 +2,7 @@
 
 # Cloud connections
 
-Cloud connections are **optional**. You can start and finalize review packages from briefs, diagrams, documents, and uploaded evidence without connecting a cloud provider.
+Cloud connections are **optional**. You can start and finalize architecture packages from briefs, diagrams, documents, and uploaded evidence without connecting a cloud provider.
 
 When you connect a cloud provider, ArchLucid uses **read-only** inventory and cost signals to enrich findings — it does not store long-lived client secrets or access keys in your tenant configuration on the primary federated path.
 
