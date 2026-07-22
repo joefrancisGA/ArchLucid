@@ -29,9 +29,45 @@ export function isWebhookChannel(channelType: string): boolean {
   );
 }
 
+export function channelDestinationFieldLabel(channelType: string): string {
+  if (isEmailChannel(channelType)) {
+    return "Email address";
+  }
+
+  if (channelType === "TeamsWebhook") {
+    return "Microsoft Teams webhook URL";
+  }
+
+  if (channelType === "SlackWebhook") {
+    return "Slack webhook URL";
+  }
+
+  if (isWebhookChannel(channelType)) {
+    return "Webhook URL";
+  }
+
+  return "Destination";
+}
+
+export function channelDestinationPlaceholder(channelType: string): string {
+  if (isEmailChannel(channelType)) {
+    return "architecture-leads@example.com";
+  }
+
+  return "https://";
+}
+
 export function channelDestinationHelper(channelType: string): string {
   if (isEmailChannel(channelType)) {
-    return "Enter a recipient or group email address.";
+    return "Use a person or group mailbox that should receive architecture digests.";
+  }
+
+  if (channelType === "TeamsWebhook") {
+    return "Paste the incoming webhook URL from your Teams channel. Must use HTTPS.";
+  }
+
+  if (channelType === "SlackWebhook") {
+    return "Paste the incoming webhook URL from your Slack app. Must use HTTPS.";
   }
 
   if (isWebhookChannel(channelType)) {

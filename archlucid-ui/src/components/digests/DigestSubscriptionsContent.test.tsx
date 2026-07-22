@@ -17,11 +17,21 @@ vi.mock("@/lib/api", () => ({
   listSubscriptionDeliveryAttempts: vi.fn(),
 }));
 
+vi.mock("@/lib/api/tenant-customer-success", () => ({
+  fetchTenantIntegrationsOperations: vi.fn(),
+}));
+
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => false,
+  isOperatorExperienceFullShellEnv: () => true,
+}));
+
 import {
   createDigestSubscription,
   listDigestSubscriptions,
   listSubscriptionDeliveryAttempts,
 } from "@/lib/api";
+import { fetchTenantIntegrationsOperations } from "@/lib/api/tenant-customer-success";
 
 describe("DigestSubscriptionsContent", () => {
   beforeEach(() => {
@@ -29,14 +39,22 @@ describe("DigestSubscriptionsContent", () => {
     vi.mocked(listDigestSubscriptions).mockReset();
     vi.mocked(createDigestSubscription).mockReset();
     vi.mocked(listSubscriptionDeliveryAttempts).mockReset();
+    vi.mocked(fetchTenantIntegrationsOperations).mockReset();
     vi.mocked(listDigestSubscriptions).mockResolvedValue([]);
     vi.mocked(listSubscriptionDeliveryAttempts).mockResolvedValue([]);
+    vi.mocked(fetchTenantIntegrationsOperations).mockResolvedValue({
+      connectors: [],
+      integrationEventBus: {
+        isConfigured: true,
+        transportLabel: "Configured",
+      },
+    });
     vi.mocked(createDigestSubscription).mockResolvedValue({
       subscriptionId: "s-new",
       tenantId: "t",
       workspaceId: "w",
       projectId: "p",
-      name: "Architecture digest",
+      name: "Architecture digest — email",
       channelType: "Email",
       destination: "ops@example.com",
       isEnabled: true,
@@ -45,30 +63,30 @@ describe("DigestSubscriptionsContent", () => {
     });
   });
 
-  it("renders admin-safe copy, empty state, and primary create affordance", async () => {
-    render(<DigestSubscriptionsContent />);
+  it("renders customer-goal copy, readiness panel, and create affordance", async () => {
+    render(<DigestSubscriptionsContent healthSnap={null} />);
 
-    expect(await screen.findByRole("heading", { level: 2, name: "Digest subscriptions" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { level: 2, name: "Delivery destinations" })).toBeInTheDocument();
     expect(
-      screen.getByText("Choose who receives architecture digest summaries and where they are delivered."),
+      screen.getByText("Send architecture digests to email or webhook destinations your team already uses."),
     ).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(/fake email|API logs|webhook loggers/i);
+    expect(await screen.findByTestId("digest-subscriptions-readiness-panel")).toBeInTheDocument();
     expect(await screen.findByTestId("digest-subscriptions-empty")).toBeInTheDocument();
-    expect(screen.getByText("No digest subscriptions yet")).toBeInTheDocument();
-    expect(screen.getByTestId("digest-subscription-create-button")).toHaveAttribute("data-testid");
-    expect(screen.getByTestId("digest-subscriptions-refresh")).toBeInTheDocument();
+    expect(screen.getByText("No delivery destinations yet")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-subscription-create-button")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Digest type")).not.toBeInTheDocument();
     expect(screen.getByTestId("digest-subscriptions-privacy-note")).toBeInTheDocument();
   });
 
-  it("disables create until destination is valid and shows Creating… / success", async () => {
-    render(<DigestSubscriptionsContent />);
+  it("disables save until destination is valid and shows success", async () => {
+    render(<DigestSubscriptionsContent healthSnap={null} />);
 
     await screen.findByTestId("digest-subscriptions-empty");
 
     const createButton = screen.getByTestId("digest-subscription-create-button");
     expect(createButton).toBeDisabled();
 
-    fireEvent.change(screen.getByLabelText("Destination"), { target: { value: "ops@example.com" } });
+    fireEvent.change(screen.getByLabelText("Email address"), { target: { value: "ops@example.com" } });
     expect(createButton).not.toBeDisabled();
 
     fireEvent.click(createButton);
@@ -76,14 +94,46 @@ describe("DigestSubscriptionsContent", () => {
     await waitFor(() => {
       expect(createDigestSubscription).toHaveBeenCalled();
     });
-    expect(await screen.findByTestId("digest-subscription-create-success")).toHaveTextContent(
-      "Subscription created",
-    );
+    expect(await screen.findByTestId("digest-subscription-create-success")).toHaveTextContent("Subscription saved");
   });
 
-  it("shows reader-rank create label when mutation is unavailable", async () => {
+  it("rejects duplicate email destinations", async () => {
+    vi.mocked(listDigestSubscriptions).mockResolvedValue([
+      {
+        subscriptionId: "s1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Ops mailbox",
+        channelType: "Email",
+        destination: "ops@example.com",
+        isEnabled: true,
+        createdUtc: "2026-07-01T00:00:00Z",
+        metadataJson: "{}",
+      },
+    ]);
+
+    render(<DigestSubscriptionsContent healthSnap={null} />);
+
+    await screen.findByRole("table", { name: "Digest subscriptions" });
+
+    const expandButton = screen.queryByRole("button", { name: "Create subscription" });
+
+    if (expandButton !== null) {
+      fireEvent.click(expandButton);
+    }
+
+    const emailField = await screen.findByLabelText("Email address");
+    fireEvent.change(emailField, { target: { value: "ops@example.com" } });
+    fireEvent.blur(emailField);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/already has an active subscription/i);
+    expect(screen.getByTestId("digest-subscription-create-button")).toBeDisabled();
+  });
+
+  it("shows reader-rank save label when mutation is unavailable", async () => {
     mutateCapability.current = false;
-    render(<DigestSubscriptionsContent />);
+    render(<DigestSubscriptionsContent healthSnap={null} />);
 
     await waitFor(() => {
       expect(listDigestSubscriptions).toHaveBeenCalled();
@@ -122,13 +172,44 @@ describe("DigestSubscriptionsContent", () => {
       },
     ]);
 
-    render(<DigestSubscriptionsContent />);
+    render(<DigestSubscriptionsContent healthSnap={null} />);
 
     expect(await screen.findByRole("table", { name: "Digest subscriptions" })).toBeInTheDocument();
     expect(screen.getByText("Ops mailbox")).toBeInTheDocument();
     expect(screen.getByText("Active")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Send test" })).toHaveAttribute("href", "/advisory?tab=schedules");
+    expect(screen.getByRole("link", { name: "Send test digest" })).toHaveAttribute(
+      "href",
+      "/advisory?tab=schedules",
+    );
     expect(screen.getByRole("button", { name: "Delete" })).toBeDisabled();
+    expect(screen.getByTestId("digest-subscriptions-refresh")).toBeInTheDocument();
+  });
+
+  it("prefills the create form when Edit is clicked", async () => {
+    vi.mocked(listDigestSubscriptions).mockResolvedValue([
+      {
+        subscriptionId: "s1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Ops mailbox",
+        channelType: "Email",
+        destination: "ops@example.com",
+        isEnabled: false,
+        createdUtc: "2026-07-01T00:00:00Z",
+        metadataJson: '{"digestType":"architecture"}',
+      },
+    ]);
+
+    render(<DigestSubscriptionsContent healthSnap={null} />);
+
+    await screen.findByRole("button", { name: "Edit" });
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+
+    const nameField = await screen.findByLabelText("Delivery name");
+    expect(nameField).toHaveValue("Ops mailbox");
+    expect(screen.getByLabelText("Email address")).toHaveValue("ops@example.com");
+    expect(screen.getByLabelText("After saving")).not.toBeChecked();
   });
 });

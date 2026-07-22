@@ -286,8 +286,8 @@ describe("operator client pages — render gate", () => {
   });
 
   it("Digests hub Subscriptions tab content renders primary heading", () => {
-    render(<DigestSubscriptionsContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Digest subscriptions" })).toBeInTheDocument();
+    render(<DigestSubscriptionsContent healthSnap={null} />);
+    expect(screen.getByRole("heading", { level: 2, name: "Delivery destinations" })).toBeInTheDocument();
   });
 
   it("PolicyPacksPage renders primary heading", async () => {

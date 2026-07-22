@@ -448,7 +448,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Digest subscriptions: Create subscription stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<DigestSubscriptionsContent />);
+    render(<DigestSubscriptionsContent healthSnap={null} />);
 
     await waitFor(() => {
       expect(apiHoisted.listDigestSubscriptions).toHaveBeenCalled();

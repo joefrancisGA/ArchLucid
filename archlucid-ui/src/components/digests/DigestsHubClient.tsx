@@ -274,7 +274,7 @@ export function DigestsHubClient(): ReactElement {
           />
         </TabsContent>
         <TabsContent value="subscriptions" className="mt-4">
-          <DigestSubscriptionsContent />
+          <DigestSubscriptionsContent healthSnap={healthSnap} refreshToken={healthRefreshToken} />
         </TabsContent>
         <TabsContent value="schedule" className="mt-4">
           <ExecDigestScheduleContent
