@@ -34,12 +34,17 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/library/SECOND_RUN.md")).toBe("/help/repeat-review-loop");
   });
 
+  it("maps internal runbooks registered in product documentation", () => {
+    expect(tryResolveInAppDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
+      "/help/first-value-20-minutes",
+    );
+  });
+
   it("returns null from tryResolve for retired or contributor-only docs", () => {
     expect(tryResolveInAppDocHref("docs/BUILD.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/go-to-market/PRIVACY_POLICY.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/quality/game-day-log/README.md")).toBeNull();
-    expect(tryResolveInAppDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/library/PRODUCT_PACKAGING.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/library/OPERATOR_ATLAS.md")).toBe("/help/pilot-nav-profile");
   });

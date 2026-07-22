@@ -20,7 +20,11 @@ describe("getDocHref", () => {
 
   it("returns null for unmapped doc paths", () => {
     expect(getDocHref("/docs/X.md")).toBeNull();
-    expect(getDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBeNull();
+    expect(getDocHref("docs/BUILD.md")).toBeNull();
+  });
+
+  it("maps internal runbooks registered in product documentation", () => {
+    expect(getDocHref("docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe("/help/first-value-20-minutes");
   });
 
   it("returns null when docPath is empty or whitespace", () => {

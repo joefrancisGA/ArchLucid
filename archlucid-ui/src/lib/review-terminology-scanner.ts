@@ -125,6 +125,7 @@ const LINE_SAFELIST_PATTERNS = [
   /packaged demo/i,
   /Former terms?:/i,
   /deprecatedAliases/i,
+  /^\s*term:\s*"/,
   /ReviewPackage/i,
   /review-package/i,
   /packageOrigin/i,
