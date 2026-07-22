@@ -92,7 +92,7 @@ The cost-and-latency Workbook is provisioned by the Terraform module [`infra/mod
 
 ## 6. Stop-and-ask boundaries (do **not** automate these)
 
-These are explicitly listed in `docs/archive/root-superseded-2026-05-01/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` Prompt 11. They remain owner-only:
+These are explicitly listed in [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](../archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) §Cursor prompts — Prompt 11. They remain owner-only:
 
 * **Provisioning the dedicated Azure OpenAI deployment** â€” Cognitive Services account, deployment name, model SKU, region quota.
 * **Injecting the Azure OpenAI secret** into the protected GitHub Environment.

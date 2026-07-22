@@ -20,6 +20,8 @@
 
 **Status values:** `Not started` · `In progress` · `Blocked` · `Done`
 
+**Updated:** 2026-07-22 — **M-115** / **M-116** opened (buyer-safe prompt-injection posture one-pager + `WHAT_NOT_TO_PROMISE` / procurement honesty); engineering **TB-949**–**TB-952**. Prior: **M-113** / **M-114** **Done** (PA falsification script + security-reviewer isolation one-pager). Does not duplicate **G-REAL-06**/**G-REAL-07**.
+
 ---
 
 ## Effort summary chart (owner-calibrated)
@@ -33,11 +35,11 @@
 | Band | Open rows (unique) | Est. hands-on |
 |------|--------------------:|---------------|
 | **P0** | 14 | **~23–39 h** (includes Quick Scan safety GTM **M-109**/**M-110**/**G-QA-05**; **G-REAL-04**/**M-06** Done 2026-07-19) |
-| **P1** | 62 | **~100–152 h** (≈ half is LinkedIn long-form draft+publish; incl. **G-REAL-09** DOCX visual check; **G-QA-06**/**G-QA-07**/**M-112** UI perf triage) |
+| **P1** | 66 | **~104–159 h** (≈ half is LinkedIn long-form draft+publish; incl. **G-REAL-09** DOCX visual check; **G-QA-06**/**G-QA-07**/**M-112** UI perf triage; **G-SCALE-01**/**G-SCALE-02** autoscale drills; **M-115**/**M-116** prompt-injection honesty) |
 | **P2** | 13 | **~18–30 h** (+ demo/outreach calendar; incl. **M-111** demo-honesty footnote) |
 | **P3** | 4 | **~6–10 h** (+ paid-engagement calendar) |
 | **V1.1 / V2** | 18 | **~40–70 h** kickoff/execution slices (+ multi-week/month external calendars) |
-| **Total unique open** | ~107 | **~185–295 h** active; calendar for cohorts/assurance/commerce dominates wall-clock |
+| **Total unique open** | ~111 | **~189–302 h** active; calendar for cohorts/assurance/commerce dominates wall-clock |
 
 ---
 
@@ -59,6 +61,8 @@
 | G-QA-05 | Quick Scan public-safety gate on controlled-beta checklist (**TB-902**) | P0 | **30–45 m** (after **TB-902** report) |
 | G-QA-06 | Monthly App Insights Web Vitals review (LCP/INP/CLS on review routes) | P1 | **20–30 m** / month |
 | G-QA-07 | Pre-cut UI performance triage — First Load JS CI green + bundle vs API | P1 | **15–30 m** / cut |
+| G-SCALE-01 | Staging scale-rule micro-drills A/B/(C) before launch load (**TB-946**) | P1 | **1–2 h** (after **TB-915** on staging) |
+| G-SCALE-02 | Run TB-905 launch-load half; record which scale rule was hot | P1 | **1–1.5 h** (after **G-SCALE-01** pass) |
 | G-REAL-05 | CPA SOC 2 program kickoff | V1.1 | **8–16 h** kickoff/RFP; **months** auditor calendar |
 | G-ASSURANCE-02 | Third-party pen-test program (vendor SoW + redacted summary) | V1.1 | **4–8 h** vendor select/SoW; **weeks** test calendar |
 | G-CONTENT-01 | Enrich remaining 20 bundled policy packs (+5 rules each) | V1.1 | **20–30 h** (≈1–1.5 h/pack for this profile) |
@@ -174,6 +178,10 @@
 | M-109 | Quick Scan sample-result content + capacity-state copy review | P0 | **1–2 h** (pairs **TB-900**) |
 | M-110 | Owner decision — enable anonymous Quick Scan AI publicly (after **TB-902**) | P0 | **30–60 m** decision |
 | M-112 | UI performance triage playbook in founder acceptance routine (CWV → LH → bundle → SQL) | P1 | **45–90 m** |
+| M-113 | Principal architect falsification script (isolation + audit/manifest + Real/Simulator) | P1 | **Done** (authored 2026-07-22; ~45–90 m to *run* live) |
+| M-114 | Security-reviewer isolation one-pager | P1 | **Done** (authored 2026-07-22) |
+| M-115 | Buyer-safe LLM prompt-injection posture one-pager (confinement, not “filter the PDF”) | P1 | **45–90 m** |
+| M-116 | Prompt-injection honesty bullets in `WHAT_NOT_TO_PROMISE` + security procurement packet | P1 | **30–45 m** |
 | M-103 | Optional scheduled / pre-release founder CI job | P2 | **2–3 h** |
 
 ---
@@ -200,7 +208,7 @@
 | M-31 | Solo-architect self-serve SaaS pricing page + public checkout CTA | V2 | **6–12 h** when un-gated |
 | M-33 | Cross-tenant portfolio ROI analytics marketing claim | V2 | **1–2 h** copy (after product ships) |
 
-**Suggested near-term focus (highest leverage / hour for this profile):** **G-REAL-06 → G-REAL-07** (unlocks Stage 1) · **G-COMMERCE-01 → M-34 → G-COMMERCE-02** (first invoice path) · **M-07 → M-16 → M-09** (credibility assets) · **G-QA-01 → M-96–M-98** (founder acceptance loop).
+**Suggested near-term focus (highest leverage / hour for this profile):** **G-REAL-06 → G-REAL-07** (unlocks Stage 1) · run **M-113** script before next PA review (docs Done) · **M-115**/**M-116** + engineering **TB-949**–**TB-952** (prompt-injection confinement story) · **G-COMMERCE-01 → M-34 → G-COMMERCE-02** (first invoice path) · **M-07 → M-16 → M-09** (credibility assets) · **G-QA-01 → M-96–M-98** (founder acceptance loop) · **TB-915 → G-SCALE-01 → G-SCALE-02** (autoscale bake-off before launch load).
 
 ---
 
@@ -274,8 +282,8 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | ID | Task | Owner | Priority | Status | Notes |
 |----|------|-------|----------|--------|-------|
 | G-REAL-01 | Execute credentialed real-LLM evidence gate (`scripts/Invoke-RealLlmEvidenceGate.ps1`, 5–10 min unattended) | Owner | P0 | **Done** | Gate PASS 2026-06-24; artifacts committed `6f61fc47f`; `overallOutcome=PASS`, 4/4 agent paths, `executionMode=real` — unblocks **G5** for RC attach |
-| G-REAL-06 | Execute three committed real-mode pilot runs (Run 1–3) per [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md) | Owner | P0 | Not started | Stage 1 exit gate **G4**; assessment Tier 1 **#2** remainder (market-execution half); pilot stack must be PilotStrict **Real** — not a coding-agent task. Canonical owner home for historical tech-backlog **TB-141** (run half; **TB-141** removed from `TECH_BACKLOG.md` 2026-07-19) |
-| G-REAL-07 | Collect proof packets per run (`collect-first-pilot-proof.ps1 -SponsorHandoff -FailOnHold`); append [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md) | Owner | P0 | Not started | **G4**; use `-CompareBaseRunId` for Run 3; founder signoff required for Stage 0 → 1 per [`REAL_MODE_EVIDENCE_COHORT.md`](../runbooks/REAL_MODE_EVIDENCE_COHORT.md). Canonical owner home for historical tech-backlog **TB-141** (packet/archive half) |
+| G-REAL-06 | Execute three committed real-mode pilot runs (Run 1–3) per [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md) | Owner | P0 | Not started | Stage 1 exit gate **G4**; assessment Tier 1 **#2** remainder (market-execution half); pilot stack must be PilotStrict **Real** — not a coding-agent task. Canonical owner home for historical tech-backlog **TB-141** (run half; **TB-141** removed from `TECH_BACKLOG.md` 2026-07-19). Before PA tech reviews, also run [`PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`](PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md) (**M-113**) — does not replace these three runs |
+| G-REAL-07 | Collect proof packets per run (`collect-first-pilot-proof.ps1 -SponsorHandoff -FailOnHold`); append [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md) | Owner | P0 | Not started | **G4**; use `-CompareBaseRunId` for Run 3; founder signoff required for Stage 0 → 1 per [`REAL_MODE_EVIDENCE_COHORT.md`](../runbooks/REAL_MODE_EVIDENCE_COHORT.md). Canonical owner home for historical tech-backlog **TB-141** (packet/archive half). Claim-3 in **M-113** points here for Real-mode proof |
 | G-REAL-08 | Attach committed gate JSON to next RC release evidence bundle per [`RELEASE_CLAIM_GATE.md`](../quality/RELEASE_CLAIM_GATE.md) | Owner | P1 | Not started | Gate source committed; run `Emit-ReleaseReadinessEvidence.ps1` on RC cut |
 | G-REAL-09 | **Live DOCX visual check of Workspace B export (~10 min)** — the check deliberately **waived** at the G-REAL-04/M-06 sign-off (2026-07-19). **Do before the first live demo (M-19) or demo-video recording (M-16).** Steps: (1) sign in to the operator UI; (2) open the Workspace B committed run at `/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b`; (3) run the **DOCX export** (PDF optional) using the seeded whitelabel pre-fill (**Meridian Advisory Group** / **Alpine Health — AI Governance Engagement**); (4) open the generated file and visually verify: all **9 committed findings** render with severity, `PolicyRuleId` (e.g. `ai-gov-002`, `sec-base-006`) and rationale; **decision dispositions** appear (REMEDIATE / ACCEPT_RISK / WAIVE_CONDITIONAL / DEFER plus the 3 Pending rows that support the "explicit limits" claim); whitelabel firm/engagement strings render correctly; section flow matches the six-stage landing narrative (Capture → Evidence → Review → Findings → Decisions → Report); no seed placeholder text, broken formatting, or copy implying **live agent traces** (Workspace B is seed-backed — `AiGovernanceSeed` / `SecurityBaselineSeed`) | Owner | P1 | Not started | Why it exists: the M-06 agent review ([`M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md`](M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md) §2/§5) was a **static seed/fixture-vs-copy diff** — nobody has viewed the rendered DOCX; in-repo samples (`docs/go-to-market/samples/`) use **Contoso/Northwind** branding, so this is the first Meridian/Alpine visual. Context: [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md) Workspace B §Whitelabel. If defects found: cosmetic → defect log (**M-101**); claim-affecting → route through **M-09** copy or the engineering backlog before demos |
 | G-REAL-05 | CPA SOC 2 CPA program kickoff (historical **TB-135**) — organizational, not engineering | Owner | V1.1 | Not started | Owner-execution home; tech **TB-135** Done (tracking closed in `TECH_BACKLOG.md`); zero `(A)` weight per `Assessment-Scope-V1_1.mdc` |
@@ -294,6 +302,8 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | G-QA-05 | Before any controlled cut that markets anonymous Quick Scan AI, confirm `.local/owner/quick_scan_public_release_gate.md` is **GREEN** or intentionally **YELLOW** (sample-only); refuse **RED** | Owner | P0 | Not started | Depends on engineering **TB-902**; assessment [`quick_scan_budget_safety_assessment.md`](../architecture/quick_scan_budget_safety_assessment.md); prompts [`quick_scan_public_safety_prompts.md`](../architecture/quick_scan_public_safety_prompts.md); pairs **M-110** |
 | G-QA-06 | Monthly review of App Insights `WebVitalsMetric` (LCP / INP / CLS) for `/reviews`, `/reviews/[runId]`, and `/governance` — note regressions; open or prioritize **TB-933**–**TB-935** when field CWV is bad, **TB-929**/**TB-930** when TTFB/network wait dominates | Owner | P1 | Not started | Instrumentation **TB-692** Done; playbook **M-112**; does not require raising Lighthouse hard gates |
 | G-QA-07 | Before each controlled cut: confirm First Load JS CI (`check:first-load-js` / `ui-static-quality`) is green, and if operators report “slow UI,” triage per **M-112** (bundle vs API/SQL) before requesting more `dynamic()` work | Owner | P1 | Not started | Fold into **G-QA-02** checklist when **M-101** ships; engineering targets **TB-933**–**TB-935** / **TB-929**/**TB-930** |
+| G-SCALE-01 | On staging, run single-signal scale micro-drills **A** (HTTP/LLM-wait), **B** (CPU-bound), and **C** (worker backlog if queue/prom scaling enabled) per **TB-946**; record time-to-first-extra-replica and dominant rule; **do not** start the TB-905 launch-load half until A and B pass | Owner | P1 | Not started | Depends on engineering **TB-915** applied to staging + **TB-946** harness/docs; pairs **TB-947** (AOAI TPM ceiling). Autoscale discussion 2026-07-22 |
+| G-SCALE-02 | After **G-SCALE-01** pass: execute the **launch load** half of **TB-905** against staging; append `LAUNCH_LOAD_DRILL.md` with throughput **and** which scale rule was hot (HTTP vs CPU vs worker); note AOAI 429 / breaker opens if any | Owner | P1 | Not started | Closes launch-load evidence for **TB-905** (geo-failover half remains separate); runbook `TB-905_STAGING_RELIABILITY_DRILL.md` |
 
 ---
 
@@ -428,6 +438,10 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-105 | **axe a11y on founder routes against chosen URL** — run `@axe-core/playwright` (or reuse helper) on the founder route set against `ACCEPTANCE_BASE_URL`, not only mock-backed `chromium-accessibility` | Engineering | P1 | Not started | **M-96**, **M-97**; complements existing mock a11y job — does not replace it |
 | M-106 | **First full dry-run + baseline** — after **M-96–M-99** (and preferably **M-104**), run the full pre-beta routine once against the chosen site; record wall-clock manual minutes and defects found; use as baseline to prove **M-100** is shrinking manual work each cut | Owner + Engineering | P1 | Not started | **G-QA-02**; exit: checklist executed once with logged metrics |
 | M-112 | **UI performance triage playbook** — extend [`FOUNDER_UI_ACCEPTANCE_ROUTINE.md`](../architecture/FOUNDER_UI_ACCEPTANCE_ROUTINE.md) with a short decision tree: (1) App Insights `WebVitalsMetric` LCP/INP/CLS by route → (2) remote/lab Lighthouse (**M-99** / **TB-693**) → (3) First Load JS / `build:analyze` (**TB-933**–**TB-934**) → (4) if CWV fine but waiting on network, API/SQL (**TB-929**/**TB-930**). Link from **G-QA-06**/**G-QA-07** and **M-101** checklist | Content + Engineering | P1 | Not started | Owner UI-performance discussion 2026-07-22; does not reopen Done **TB-691**–**TB-698**; complements **M-99** (lab) without new hard score gates |
+| M-113 | **Principal architect falsification script** — 30–45 min live script: (1) forge isolation headers, (2) finding → evidence → export/verify, (3) Real vs Simulator mode badge. Artifact: [`PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`](PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md) | Content | P1 | **Done** | Authored **2026-07-22**; does **not** replace **G-REAL-06**/**G-REAL-07** / **M-39**; optional Claim-4 addendum after **M-115** |
+| M-114 | **Security-reviewer isolation one-pager** — buyer-safe G3 handout; complements [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md). Artifact: [`SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md`](SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md) | Content | P1 | **Done** | Authored **2026-07-22**; pairs **TB-925** (Done) |
+| M-115 | **Buyer-safe LLM prompt-injection posture one-pager** — honest claim: agents must read customer docs/repo as **DATA**; resistance = host confinement (tool allowlists, structured evidence, no exfil), Content Safety as gate not product; residual risk stated. Artifact: `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` (new) | Content | P1 | Not started | Engineering **TB-949**–**TB-952**; complements **M-114**; cite Content Safety + **TB-082** Done without overclaiming |
+| M-116 | **Prompt-injection honesty in claim guardrails** — add “do not promise” / “do promise” bullets to [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) and a short row in [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md) (no “prompt-injection proof” / no “we sanitize architecture PDFs”) | Content | P1 | Not started | Pairs **M-115**; keep Stage 0 language aligned with [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) |
 | M-107 | **Public proof-funnel IA decision** — owner documents whether `/showcase/claims-intake-modernization`, `/see-it`, or `/demo/preview` is the canonical anonymous proof path (or honest co-primary pair); align get-started healthcare vertical, SEO/paid landing targets, and welcome CTAs | Owner | P1 | Not started | Assessment §21 **SC-04**; engineering **TB-887**/**TB-888**; unblocks **M-108** and honest **M-09** proof copy |
 | M-108 | **Showcase screenshot capture** — add `/showcase/claims-intake-modernization` frames to **M-07** gallery / **M-16** B-roll after static-first + illustrative-sample copy ship | Production | P1 | Not started | Blocked on **TB-887**/**TB-888**; subset effort of **M-07** |
 

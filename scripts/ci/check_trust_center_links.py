@@ -28,6 +28,10 @@ def resolve_url_target(url: str, trust_md: Path, root: Path) -> Path | None:
     if not u or u.startswith("#") or u.startswith("mailto:"):
         return None
 
+    # In-app help routes are validated by the product documentation registry, not this file check.
+    if u.startswith("/help/") or u == "/help":
+        return None
+
     if u.startswith(GITHUB_BLOB_PREFIX):
         rel = unquote(u[len(GITHUB_BLOB_PREFIX) :].split("#", 1)[0].strip())
         return (root / rel).resolve()

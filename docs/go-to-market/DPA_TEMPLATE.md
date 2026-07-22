@@ -5,7 +5,7 @@
 
 # Data Processing Agreement (DPA) — Template (ArchLucid)
 
-**Important — not legal advice:** This document is a **working template** for negotiation with customers. It **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before execution.
+**Important — template only, not legal advice:** This document is a **working template** for negotiation. It is **not** your countersigned Data Processing Agreement and **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before execution.
 
 **Parties:** Complete legal names and registered addresses before execution (see §10A).
 

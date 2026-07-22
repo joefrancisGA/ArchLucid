@@ -121,8 +121,54 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md` | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §3 | Pre-release greenfield only; brownfield `state mv` runbook removed |
 | `docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md` | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §3 | Archived copy removed with runbook |
 
+## 2026-07-22 CHANGE_SET series consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/archive/CHANGE_SET_55R_SUMMARY.md` | [`docs/archive/CHANGE_SET_SERIES_55R_59R.md`](archive/CHANGE_SET_SERIES_55R_59R.md) | §55R |
+| `docs/archive/CHANGE_SET_56R.md` | [`docs/archive/CHANGE_SET_SERIES_55R_59R.md`](archive/CHANGE_SET_SERIES_55R_59R.md) | §56R |
+| `docs/archive/CHANGE_SET_57R.md` | [`docs/archive/CHANGE_SET_SERIES_55R_59R.md`](archive/CHANGE_SET_SERIES_55R_59R.md) | §57R |
+| `docs/archive/CHANGE_SET_58R.md` | [`docs/archive/CHANGE_SET_SERIES_55R_59R.md`](archive/CHANGE_SET_SERIES_55R_59R.md) | §58R |
+| `docs/archive/CHANGE_SET_59R.md` | [`docs/archive/CHANGE_SET_SERIES_55R_59R.md`](archive/CHANGE_SET_SERIES_55R_59R.md) | §59R |
+
+## 2026-07-22 marketability assessment consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Mixed framing — pre-M2 |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Mixed framing — post-M1+M2 |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_TRUST_CENTER.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | SaaS-only — pre-Trust Center |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_IMP2_6.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | SaaS-only — post-Trust Center |
+| `docs/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Legacy root alias (mixed framing) |
+| `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY_PRE_trust-center.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Old filename casing alias |
+| `docs/archive/IMPROVEMENTS_COMPLETE_2026_04_21.md` | [`docs/archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) | Superseded schema-validation summary; see `docs/CHANGELOG.md` for component history |
+| `docs/archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | April 2026 refactor snapshot removed; canonical engineering backlog |
+
+## 2026-07-22 assessment series consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/archive/root-superseded-2026-05-01/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md` | [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | §Weighted assessment |
+| `docs/archive/root-superseded-2026-05-01/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` | [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | §Cursor prompts |
+| `docs/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md` | [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | Legacy root path |
+| `docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` | [`docs/archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md`](archive/QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | Legacy root path |
+| `docs/archive/root-superseded-2026-05-01/USABILITY_SOLUTION_QUALITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md`](archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | §Weighted assessment |
+| `docs/archive/root-superseded-2026-05-01/CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md`](archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | §Cursor prompts |
+| `docs/USABILITY_SOLUTION_QUALITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md`](archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | Legacy root path |
+| `docs/CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md` | [`docs/archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md`](archive/USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | Legacy root path |
+
 ## Renamed (not deleted)
 
 | Former path | Canonical path | Notes |
 |-------------|----------------|-------|
-| `docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md` | [`docs/archive/PILOT_GUIDE_CHANGE_SET_56R.md`](archive/PILOT_GUIDE_CHANGE_SET_56R.md) | Renamed to match Change Set 56R semantics |
+| `docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md` | [`docs/library/customer-facing/PILOT_GUIDE.md`](library/customer-facing/PILOT_GUIDE.md) | Former 56R local-dev pilot guide |
+| `docs/archive/PILOT_GUIDE_CHANGE_SET_56R.md` | [`docs/library/customer-facing/PILOT_GUIDE.md`](library/customer-facing/PILOT_GUIDE.md) | **56R** local-dev pilot guide (canonical customer-facing guide) |
+
+## 2026-07-22 tier-2 archive consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/archive/PRODUCT_PACKAGING_THREE_LAYERS_2026_04_23.md` | [`docs/library/PRODUCT_PACKAGING.md`](library/PRODUCT_PACKAGING.md) | Three-layer buyer narrative superseded by Pilot + Operate |
+| `docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | Empty stub headings removed; summary **Done** rows retained |
+| `docs/archive/artifacts-phase3-2026-04-23/gate-verification.md` | [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md) | §Gate verification |
+| `docs/archive/artifacts-phase3-2026-04-23/pr-a2-cohort-parity.md` | [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md) | §PR A2 cohort parity |

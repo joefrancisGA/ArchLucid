@@ -168,8 +168,7 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 |----------|------|
 | [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md) | Marketing tasks |
 | [`library/NEXT_REFACTORINGS.md`](library/NEXT_REFACTORINGS.md) | Active refactors (top 5) |
-| [`archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`](archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md) | Historical refactor log |
-| [`library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | TB-* engineering deferred |
+| [`library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | TB-* engineering deferred (includes historical context) |
 | [`library/V1_DEFERRED.md`](library/V1_DEFERRED.md) | V1.1+ doc inventory |
 | [`assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | `(A)` readiness + themes |
 | [`library/AI_LEVERAGE_ROADMAP.md`](library/AI_LEVERAGE_ROADMAP.md) | 25 AI opportunities |

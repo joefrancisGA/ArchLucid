@@ -221,7 +221,7 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 |------|-------|--------------------|
 | Review bundled baseline policy packs | Joint | Customer selects baseline packs for pilot systems |
 | Assign packs to workspace/project scope | Customer admin | Governance UI shows active packs |
-| Validate one committed architecture package using assigned policy packs | Joint | Findings reference expected policy rules |
+| Validate one finalized architecture package using assigned policy packs | Joint | Findings reference expected policy rules |
 | Escalate custom-pack gaps to professional services if needed | ArchLucid Customer Success | Professional services scope agreed when needed |
 
 ---
@@ -263,7 +263,7 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Configure outbound webhooks / Service Bus | Joint | Test payload delivered on one committed review |
+| Configure outbound webhooks / Service Bus | Joint | Test payload delivered on one finalized review |
 | Document dead-letter recovery runbook | ArchLucid | Retry path and monitoring dashboard documented |
 | ITSM / Jira correlation (if contracted) | Joint | Finding ↔ ticket linkage verified on one finding |
 

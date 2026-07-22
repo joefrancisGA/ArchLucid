@@ -4,7 +4,7 @@ Data flow, tenant isolation, audit trail, and portability for architecture revie
 
 ## What ArchLucid does {#what-archlucid-does}
 
-ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **signed architecture package** with findings, decisions, and an audit record. ArchLucid does not execute code in your environment and does not require write access to your systems.
+ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **governed architecture package** with findings, decisions, a **signed review record**, and an audit trail. ArchLucid does not execute code in your environment and does not require write access to your systems.
 
 For the end-to-end product workflow, see [How ArchLucid works](/help/how-it-works).
 
@@ -44,7 +44,7 @@ Demo and evaluation workspaces use sample architecture data so evaluators can in
 
 ## Data portability
 
-Download a signed export bundle from any finalized architecture package at any time. You own the artifacts in your tenant.
+Download an export bundle from any finalized architecture package at any time. You own the artifacts in your tenant.
 
 ## Export and deletion posture
 
