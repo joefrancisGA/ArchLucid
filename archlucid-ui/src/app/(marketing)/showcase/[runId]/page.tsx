@@ -18,6 +18,7 @@ import {
   hasCuratedShowcaseStaticPayload,
   isShowcaseStaticFirstRunId,
 } from "@/lib/showcase-page-resolution";
+import { canShowcaseAnonymousVisitorOpenOperatorDeepLinks } from "@/lib/showcase-quick-nav-contract";
 
 import {
   ShowcaseOutcomeCards,
@@ -284,7 +285,10 @@ function ShowcasePayloadView({
 
       <ShowcaseOutcomeStripAboveBody payload={payload} />
 
-      <ShowcaseQuickNav payload={payload} />
+      <ShowcaseQuickNav
+        payload={payload}
+        operatorDeepLinksAvailable={canShowcaseAnonymousVisitorOpenOperatorDeepLinks(runId)}
+      />
 
       <div className="mt-6">
         <DemoPreviewMarketingBody payload={payload} suppressStatusBanner={SHOWCASE_SUPPRESS_EMBEDDED_STATUS_BANNER} />
