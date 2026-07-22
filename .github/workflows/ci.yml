@@ -4376,6 +4376,9 @@ jobs:
           ArchLucidAuth__JwtSigningPublicKeyPemPath: ${{ runner.temp }}/ci-jwt-pub.pem
           ArchLucidAuth__JwtLocalIssuer: "https://ci.archlucid.local"
           ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
+          Auth__Trial__LocalIdentity__JwtPrivateKeyPemPath: ${{ runner.temp }}/ci-jwt-priv.pem
+          Auth__Trial__LocalIdentity__JwtIssuer: "https://ci.archlucid.local"
+          Auth__Trial__LocalIdentity__JwtAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
           RateLimiting__Registration__PermitLimit: "500"
@@ -4399,6 +4402,7 @@ jobs:
           CI: true
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           set -e

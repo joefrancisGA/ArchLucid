@@ -1,9 +1,13 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Models.E2e;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Billing;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Identity;
+using ArchLucid.Core.Security;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Billing;
@@ -32,7 +36,9 @@ public sealed class E2EHarnessController(
     IWebHostEnvironment environment,
     IOptionsMonitor<E2EHarnessOptions> harnessOptions,
     ITenantRepository tenantRepository,
-    BillingWebhookTrialActivator billingWebhookTrialActivator) : ControllerBase
+    BillingWebhookTrialActivator billingWebhookTrialActivator,
+    IPlatformUserRepository platformUserRepository,
+    ILocalTrialJwtIssuer jwtIssuer) : ControllerBase
 {
     private readonly BillingWebhookTrialActivator _billingWebhookTrialActivator =
         billingWebhookTrialActivator ?? throw new ArgumentNullException(nameof(billingWebhookTrialActivator));
@@ -45,6 +51,12 @@ public sealed class E2EHarnessController(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IPlatformUserRepository _platformUserRepository =
+        platformUserRepository ?? throw new ArgumentNullException(nameof(platformUserRepository));
+
+    private readonly ILocalTrialJwtIssuer _jwtIssuer =
+        jwtIssuer ?? throw new ArgumentNullException(nameof(jwtIssuer));
 
     [HttpPost("trial/set-expires")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -113,6 +125,66 @@ public sealed class E2EHarnessController(
             cancellationToken);
 
         return NoContent();
+    }
+
+    /// <summary>
+    ///     Seeds a platform user and returns a Reader-scoped pre-auth JWT for private-beta invite-accept E2E (TB-927).
+    /// </summary>
+    [HttpPost("platform-users")]
+    [ProducesResponseType(typeof(E2eHarnessPlatformUserPostResponse), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreatePlatformUserAsync(
+        [FromBody] E2eHarnessPlatformUserPostRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (!IsHarnessAuthorized())
+        {
+            return this.NotFoundProblem(
+                "E2E harness is not available or the request is not authorized.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (body?.Email is null || string.IsNullOrWhiteSpace(body.Email))
+        {
+            return this.NotFoundProblem(
+                "Invalid or missing request body for E2E harness endpoint.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (!IdentityEmailNormalizer.TryNormalize(body.Email, out string normalizedEmail, out string displayEmail))
+        {
+            return this.NotFoundProblem(
+                "Invalid or missing request body for E2E harness endpoint.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        PlatformUserRecord user = await _platformUserRepository.InsertAsync(
+            new PlatformUserInsert
+            {
+                PrimaryEmail = displayEmail,
+                NormalizedPrimaryEmail = normalizedEmail,
+                DisplayName = displayEmail,
+                Status = PlatformUserStatus.Active,
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        (Guid tenantId, Guid workspaceId, Guid projectId) = TrialLocalJwtScopeDefaults.Resolve();
+
+        string preAuthAccessToken = _jwtIssuer.IssueAccessToken(
+            user.Id,
+            displayEmail,
+            ArchLucidRoles.Reader,
+            tenantId,
+            workspaceId,
+            projectId,
+            user.AuthVersion);
+
+        return StatusCode(
+            StatusCodes.Status201Created,
+            new E2eHarnessPlatformUserPostResponse
+            {
+                PlatformUserId = user.Id,
+                PreAuthAccessToken = preAuthAccessToken,
+            });
     }
 
     private bool IsHarnessAuthorized()

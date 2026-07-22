@@ -61,6 +61,7 @@ ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController.StripeWalletAsy
 ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController.StripeSubscriptionsAsync
 ArchLucid.Api.Controllers.E2e.E2EHarnessController.SetTrialExpiresAsync
 ArchLucid.Api.Controllers.E2e.E2EHarnessController.SimulateSubscriptionActivatedAsync
+ArchLucid.Api.Controllers.E2e.E2EHarnessController.CreatePlatformUserAsync
 ArchLucid.Api.Controllers.Evolution.EvolutionController.CreateCandidateFromPlan
 ArchLucid.Api.Controllers.Evolution.EvolutionController.ShadowEvaluate
 ArchLucid.Api.Controllers.Evolution.EvolutionController.Simulate

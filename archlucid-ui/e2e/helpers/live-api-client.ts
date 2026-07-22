@@ -448,10 +448,11 @@ export async function postArchitectureRequestRaw(
   request: APIRequestContext,
   body: unknown,
   tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/architecture/request`, {
     data: body,
-    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
+    headers: mergeTenantScope(liveJsonHeaders(null, explicitBearerToken), tenantScope),
   });
 }
 
@@ -524,9 +525,10 @@ export async function createRun(
   request: APIRequestContext,
   body: Record<string, unknown>,
   tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
-    const res = await postArchitectureRequestRaw(request, body, tenantScope);
+    const res = await postArchitectureRequestRaw(request, body, tenantScope, explicitBearerToken);
     const status = res.status();
 
     if (status === 429 && attempt < maxArchitectureMutationAttempts() - 1) {
@@ -1344,12 +1346,13 @@ export async function waitForArchitectureRunListIncludesRun(
   runId: string,
   timeoutMs = 90_000,
   tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
 ): Promise<void> {
   const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
   const normalized = normalizeRunIdForCompare(runId);
 
   while (Date.now() < deadline) {
-    const rows = await listArchitectureRuns(request, tenantScope);
+    const rows = await listArchitectureRuns(request, tenantScope, explicitBearerToken);
     const found = rows.some((row) => normalizeRunIdForCompare(String(row.runId ?? "")) === normalized);
 
     if (found) {
@@ -1368,9 +1371,10 @@ export async function waitForArchitectureRunListIncludesRun(
 export async function listArchitectureRuns(
   request: APIRequestContext,
   tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
 ): Promise<ArchitectureRunListItemJson[]> {
   const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/runs`, {
-    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+    headers: mergeTenantScope(liveJsonHeaders(null, explicitBearerToken), tenantScope),
   });
 
   await throwIfNotOk(res, "GET /v1/architecture/runs");
