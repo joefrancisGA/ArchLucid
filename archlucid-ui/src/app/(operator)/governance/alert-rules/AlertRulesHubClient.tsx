@@ -32,7 +32,7 @@ type AlertRulesHubTabConfig = {
 const TAB_CONFIG: Record<AlertRulesHubTabId, AlertRulesHubTabConfig> = {
   rules: {
     label: "Conditions",
-    subtitle: "Which review findings should raise an alert",
+    subtitle: "When completed reviews should raise an alert",
   },
   routing: {
     label: "Notifications",

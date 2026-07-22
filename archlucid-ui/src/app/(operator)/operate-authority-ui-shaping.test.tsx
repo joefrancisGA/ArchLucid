@@ -77,6 +77,7 @@ const apiHoisted = vi.hoisted(() => ({
   listPolicyPackVersions: vi.fn(),
   listAlertsPaged: vi.fn(),
   listAlertRules: vi.fn(),
+  listAlertRoutingSubscriptions: vi.fn(),
   listCompositeAlertRules: vi.fn(),
   listApprovalRequests: vi.fn(),
   listPromotions: vi.fn(),
@@ -115,6 +116,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     listPolicyPackVersions: apiHoisted.listPolicyPackVersions,
     listAlertsPaged: apiHoisted.listAlertsPaged,
     listAlertRules: apiHoisted.listAlertRules,
+    listAlertRoutingSubscriptions: apiHoisted.listAlertRoutingSubscriptions,
     listCompositeAlertRules: apiHoisted.listCompositeAlertRules,
     listApprovalRequests: apiHoisted.listApprovalRequests,
     listPromotions: apiHoisted.listPromotions,
@@ -157,7 +159,6 @@ vi.mock("./governance/policy-packs/_sections/load-policy-packs-page-data", () =>
 }));
 
 import {
-  alertToolingListRefreshButtonTitleReader,
   alertSimulationCurrentBehaviorHeadingReader,
   alertTuningCurrentTuningHeadingReader,
   alertsInboxRefreshButtonTitleReader,
@@ -240,6 +241,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     apiHoisted.listPolicyPackVersions.mockResolvedValue([]);
     apiHoisted.listAlertsPaged.mockResolvedValue({ items: [sampleAlert], totalCount: 1 });
     apiHoisted.listAlertRules.mockResolvedValue([]);
+    apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([]);
     apiHoisted.listCompositeAlertRules.mockResolvedValue([]);
     apiHoisted.listApprovalRequests.mockResolvedValue([]);
     apiHoisted.listPromotions.mockResolvedValue([]);
@@ -496,10 +498,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(screen.getByRole("button", { name: /Create rule \(Execute\+\)/ })).toBeDisabled();
     });
 
-    expect(screen.getByRole("button", { name: /^Refresh$/ })).toHaveAttribute(
-      "title",
-      alertToolingListRefreshButtonTitleReader,
-    );
+    expect(screen.getByRole("button", { name: "Refresh list" })).toBeInTheDocument();
   });
 
   it("Alert rules: Create rule enables after load when mutation capability is true", async () => {
@@ -533,10 +532,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     render(<AlertRulesContent />);
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Simulate alert rule Simulate-able rule/ })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Test rule Simulate-able rule/ })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Simulate alert rule Simulate-able rule/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Test rule Simulate-able rule/ }));
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: /Simulate: Simulate-able rule/ })).toBeInTheDocument();
