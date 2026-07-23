@@ -1,9 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-
 import { Button } from "@/components/ui/button";
+import { useSoftNavigationLoading } from "@/hooks/use-soft-navigation-loading";
 
 export type OperatorSectionRetryButtonProps = {
   /** Accessible label; defaults to “Retry loading”. */
@@ -14,8 +12,7 @@ export type OperatorSectionRetryButtonProps = {
  * Re-runs the current route’s server components (RSC refresh) after a failed section load.
  */
 export function OperatorSectionRetryButton({ label = "Retry loading" }: OperatorSectionRetryButtonProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const softNav = useSoftNavigationLoading();
 
   return (
     <Button
@@ -23,14 +20,13 @@ export function OperatorSectionRetryButton({ label = "Retry loading" }: Operator
       variant="outline"
       size="sm"
       className="mt-2"
-      disabled={isPending}
+      disabled={softNav.isNavigating}
+      aria-busy={softNav.isNavigating}
       onClick={() => {
-        startTransition(() => {
-          router.refresh();
-        });
+        softNav.navigate("", "refresh");
       }}
     >
-      {isPending ? "Retrying…" : label}
+      {softNav.isNavigating ? "Retrying…" : label}
     </Button>
   );
 }

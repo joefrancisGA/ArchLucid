@@ -304,6 +304,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
+        creationProgress.reset();
 
         return;
       }

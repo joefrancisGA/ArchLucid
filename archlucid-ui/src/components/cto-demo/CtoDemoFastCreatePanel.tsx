@@ -17,6 +17,7 @@ import {
   getCtoDemoFastCreateDestinationHref,
 } from "@/lib/cto-demo-fast-create";
 import { findQuickReviewSampleBrief, QUICK_REVIEW_DEMO_DEFAULT_BRIEF_ID } from "@/lib/quick-review-sample-briefs";
+import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function buildHealthcareLivePayload(): CreateArchitectureRunRequestPayload {
@@ -43,6 +44,7 @@ export function CtoDemoFastCreatePanel(): ReactElement {
   const [elapsedMs, setElapsedMs] = useState(0);
   const startedAtRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
+  const navTimeoutIdRef = useRef<number | null>(null);
   const livePayload = useMemo(() => buildHealthcareLivePayload(), []);
 
   const stopAnimation = useCallback(() => {
@@ -55,6 +57,11 @@ export function CtoDemoFastCreatePanel(): ReactElement {
   useEffect(() => {
     return () => {
       stopAnimation();
+
+      if (navTimeoutIdRef.current !== null) {
+        window.clearTimeout(navTimeoutIdRef.current);
+        navTimeoutIdRef.current = null;
+      }
     };
   }, [stopAnimation]);
 
@@ -80,6 +87,16 @@ export function CtoDemoFastCreatePanel(): ReactElement {
       if (nextElapsed >= CTO_DEMO_FAST_CREATE_TOTAL_MS) {
         stopAnimation();
         router.push(getCtoDemoFastCreateDestinationHref());
+
+        if (navTimeoutIdRef.current !== null) {
+          window.clearTimeout(navTimeoutIdRef.current);
+        }
+
+        // Soft-nav stall must not leave the simulator permanently "running".
+        navTimeoutIdRef.current = window.setTimeout(() => {
+          setRunning(false);
+          navTimeoutIdRef.current = null;
+        }, SOFT_NAVIGATION_TIMEOUT_MS);
 
         return;
       }

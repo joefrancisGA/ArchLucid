@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
+import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import {
   REVIEW_START_NAVIGATION_FAILED_MESSAGE,
   REVIEW_START_OPENING_LABEL,
@@ -26,7 +27,10 @@ export function useReviewIntakeNavigation() {
   const [activeStageId, setActiveStageId] = useState<ReviewStartStageId | null>(null);
   const [showStagedPanel, setShowStagedPanel] = useState(false);
   const [hasTemplate, setHasTemplate] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const timerIdsRef = useRef<number[]>([]);
+  const timeoutIdRef = useRef<number | null>(null);
+  const wasPendingRef = useRef(false);
 
   const clearTimers = useCallback(() => {
     for (const timerId of timerIdsRef.current) {
@@ -34,6 +38,11 @@ export function useReviewIntakeNavigation() {
     }
 
     timerIdsRef.current = [];
+
+    if (timeoutIdRef.current !== null) {
+      window.clearTimeout(timeoutIdRef.current);
+      timeoutIdRef.current = null;
+    }
   }, []);
 
   const reset = useCallback(() => {
@@ -42,6 +51,8 @@ export function useReviewIntakeNavigation() {
     setActiveStageId(null);
     setShowStagedPanel(false);
     setHasTemplate(false);
+    setIsNavigating(false);
+    wasPendingRef.current = false;
   }, [clearTimers]);
 
   useEffect(() => {
@@ -50,9 +61,31 @@ export function useReviewIntakeNavigation() {
     };
   }, [clearTimers]);
 
+  useEffect(() => {
+    if (isPending) {
+      wasPendingRef.current = true;
+
+      return;
+    }
+
+    // Clear stages when soft-nav settles — any stage id (staged timers can overwrite opening-review).
+    if (wasPendingRef.current && isNavigating) {
+      wasPendingRef.current = false;
+      const settleTimer = window.setTimeout(() => {
+        reset();
+      }, 400);
+
+      return () => {
+        window.clearTimeout(settleTimer);
+      };
+    }
+
+    return undefined;
+  }, [isNavigating, isPending, reset]);
+
   const navigate = useCallback(
     (input: ReviewIntakeNavigationInput) => {
-      if (isPending || activeStageId !== null) {
+      if (isPending || isNavigating) {
         return;
       }
 
@@ -61,6 +94,18 @@ export function useReviewIntakeNavigation() {
       setHasTemplate(input.hasTemplate === true);
       setActiveStageId("creating-workspace");
       setShowStagedPanel(false);
+      setIsNavigating(true);
+      wasPendingRef.current = false;
+
+      timeoutIdRef.current = window.setTimeout(() => {
+        clearTimers();
+        setActiveStageId(null);
+        setShowStagedPanel(false);
+        setHasTemplate(false);
+        setIsNavigating(false);
+        setError(REVIEW_START_NAVIGATION_FAILED_MESSAGE);
+        timeoutIdRef.current = null;
+      }, SOFT_NAVIGATION_TIMEOUT_MS);
 
       void router.prefetch(input.href);
 
@@ -100,28 +145,8 @@ export function useReviewIntakeNavigation() {
         }
       });
     },
-    [activeStageId, clearTimers, isPending, reset, router],
+    [clearTimers, isNavigating, isPending, reset, router],
   );
-
-  useEffect(() => {
-    if (isPending || activeStageId === null) {
-      return;
-    }
-
-    if (activeStageId === "opening-review" && error === null) {
-      const resetTimer = window.setTimeout(() => {
-        reset();
-      }, 400);
-
-      return () => {
-        window.clearTimeout(resetTimer);
-      };
-    }
-
-    return undefined;
-  }, [activeStageId, error, isPending, reset]);
-
-  const isNavigating = isPending || activeStageId !== null;
 
   const stages = useMemo(() => resolveReviewStartStages(hasTemplate), [hasTemplate]);
 
