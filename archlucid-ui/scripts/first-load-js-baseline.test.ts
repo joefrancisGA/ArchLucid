@@ -76,9 +76,17 @@ Route (app)                                          Revalidate  Expire
   it("fails when /reviews exceeds baseline tolerance", () => {
     const stats = readRouteBundleStats(NEXT16_STATS_FIXTURE);
     const actualRoutes = buildTrackedRouteFirstLoadJsMap(stats);
-    actualRoutes.set("/reviews", 1700);
-
     const baseline = readBaseline(join(process.cwd(), DEFAULT_BASELINE_RELATIVE_PATH));
+    const reviewsBaselineKb = baseline.routes["/reviews"]?.firstLoadJsKb;
+
+    expect(reviewsBaselineKb).toBeTypeOf("number");
+
+    // Must clear baseline + tolerance; hard-coded kB drifts when the baseline is refreshed.
+    actualRoutes.set(
+      "/reviews",
+      (reviewsBaselineKb as number) + baseline.regressionToleranceKb + 1,
+    );
+
     const result = compareFirstLoadJsBudget(actualRoutes, baseline);
 
     expect(result.ok).toBe(false);
