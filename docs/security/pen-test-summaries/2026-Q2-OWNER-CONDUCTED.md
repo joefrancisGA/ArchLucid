@@ -32,7 +32,7 @@ Explicit **out-of-scope** items remain vendor platform pen-test ownership (Azure
 
 ## Methodology
 
-1. **CI-assisted baseline** — regressions guarded by **OWASP ZAP** and **Schemathesis** in continuous integration (**see [`SECURITY.md`](../../library/SECURITY.md)**).
+1. **CI-assisted baseline** — regressions guarded by **OWASP ZAP** and **Schemathesis** in continuous integration (**see [`SECURITY.md`](../../library/contributor-reference/SECURITY.md)**).
 2. **Manual adversarial probing** guided by **`docs/security/SYSTEM_THREAT_MODEL.md` STRIDE`** themes.
 3. **SQL injection and ORM-parameter hygiene** probes on parameterized API endpoints (negative cases; no destructive bulk operations).
 4. **RBAC / policy boundary fuzzing** — attempt cross-role access with representative JWT + API-key principals.

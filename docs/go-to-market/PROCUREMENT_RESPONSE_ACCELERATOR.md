@@ -66,7 +66,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 
 | # | Prompt | Status | Evidence |
 |---|--------|--------|----------|
-|16 | What is the high-level API / platform security stance? | Self-asserted | [SECURITY.md](../library/SECURITY.md) |
+|16 | What is the high-level API / platform security stance? | Self-asserted | [SECURITY.md](../library/contributor-reference/SECURITY.md) |
 |17 | Trial / identity edge auth behaviour? | Self-asserted | [TRIAL_AUTH.md](../security/TRIAL_AUTH.md) |
 |18 | Tenant isolation narrative for buyers (logical)? | Self-asserted | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
 |19 | Detailed customer trust / connectivity discussion? | Self-asserted | [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) |

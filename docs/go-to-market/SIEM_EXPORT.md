@@ -1,4 +1,4 @@
-﻿> **Scope:** ArchLucid — Audit log export for SIEM integration (buyer summary); full payload examples and KQL live in the library SIEM guide linked below.
+> **Scope:** ArchLucid — Audit log export for SIEM integration (buyer summary); full payload examples and KQL live in the library SIEM guide linked below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -64,7 +64,7 @@ Each audit event includes:
 
 ## 4. Retention
 
-- **In ArchLucid:** Audit events are retained until archived or deleted by operator workflows. Default posture is **keep indefinitely** — see [../library/SECURITY.md](../library/SECURITY.md) (PII and retention).
+- **In ArchLucid:** Audit events are retained until archived or deleted by operator workflows. Default posture is **keep indefinitely** — see [../library/contributor-reference/SECURITY.md](../library/contributor-reference/SECURITY.md) (PII and retention).
 - **In your SIEM:** Apply your organization's log retention policy. ArchLucid events may contain tenant-scoped operational data; see [DPA_TEMPLATE.md](DPA_TEMPLATE.md) for data handling terms.
 
 ---
@@ -88,4 +88,4 @@ Each audit event includes:
 | [trust-center.md](trust-center.md) | Trust index |
 | [../library/SIEM_EXPORT.md](../library/SIEM_EXPORT.md) | **Splunk HEC + Sentinel JSON examples**, `dataJson` / API field names |
 | [../library/AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) | 81 typed events, coverage detail |
-| [../library/SECURITY.md](../library/SECURITY.md) | Audit, PII, retention |
+| [../library/contributor-reference/SECURITY.md](../library/contributor-reference/SECURITY.md) | Audit, PII, retention |

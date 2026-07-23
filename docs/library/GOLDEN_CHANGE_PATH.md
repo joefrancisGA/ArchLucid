@@ -117,7 +117,7 @@ For a fully worked example of this happy path — from HTTP through the coordina
 
 - **Default deny** on controllers; `AllowAnonymous` only for health/version/OpenAPI where already established.
 - **Production:** CORS must not be `*`; RLS session context required for `Sql` (see `ProductionSafetyRules` in the API host validation layer).
-- Optional **Entra-only** posture: `ArchLucidAuth:RequireJwtBearerInProduction=true` ([SECURITY.md](SECURITY.md)).
+- Optional **Entra-only** posture: `ArchLucidAuth:RequireJwtBearerInProduction=true` ([SECURITY.md](contributor-reference/SECURITY.md)).
 
 ---
 

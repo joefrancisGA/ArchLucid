@@ -514,7 +514,7 @@ Tasks:
 4. Map the configured `RoleClaimType` to ArchLucid role names using the existing `ArchLucidRoleClaimsTransformation` — add a configurable claim-to-role mapping in `Authentication:GenericOidc:RoleMappings` (dictionary of external claim value → ArchLucidRoles value).
 5. Add `ArchLucidConfigurationRules` validation: when mode is `GenericOidc`, require `Authority` and `ClientId` to be non-empty.
 6. Add unit tests in `ArchLucid.Api.Tests` covering: (a) startup validation fails without Authority, (b) role mapping transforms external claims correctly, (c) GenericOidc mode registers JWT validation with correct authority.
-7. Document in `docs/library/SECURITY.md` under a new "Generic OIDC" section.
+7. Document in `docs/library/contributor-reference/SECURITY.md` under a new "Generic OIDC" section.
 
 Acceptance criteria:
 - An operator can configure Okta or Auth0 as the OIDC provider with 3 config keys

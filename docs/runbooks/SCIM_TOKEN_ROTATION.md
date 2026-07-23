@@ -31,7 +31,7 @@ ArchLucid authenticates inbound SCIM requests with the dedicated **`ScimBearer`*
 | **`dbo.ScimTenantTokens`** | Persists `PublicLookupKey`, `SecretHash`, `CreatedUtc`, `RevokedUtc` per tenant. |
 | **IdP secret field** | Entra enterprise app **Secret Token** or Okta **SCIM Bearer Token** — paste the full `archlucid_scim.{public}.{secret}` value. |
 
-Security context: [`SECURITY.md`](../library/SECURITY.md) · API key rotation (automation principals): [`API_KEY_ROTATION.md`](./API_KEY_ROTATION.md).
+Security context: [`SECURITY.md`](../library/contributor-reference/SECURITY.md) · API key rotation (automation principals): [`API_KEY_ROTATION.md`](./API_KEY_ROTATION.md).
 
 ## 1. Preconditions
 

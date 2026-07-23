@@ -54,7 +54,7 @@ flowchart LR
 ## Security model
 
 - Problem **`detail`** must **not** leak secrets, connection strings, or stack traces in production.
-- Log injection: user-influenced strings in logs use **`LogSanitizer`** (see **[SECURITY.md](SECURITY.md)** § Log injection).
+- Log injection: user-influenced strings in logs use **`LogSanitizer`** (see **[SECURITY.md](contributor-reference/SECURITY.md)** § Log injection).
 
 ## Operational considerations
 

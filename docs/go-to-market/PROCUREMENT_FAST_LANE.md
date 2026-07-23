@@ -11,7 +11,7 @@ Every **Source File** cell below repeats an existing procurement-index path only
 | Starter need | Evidence type / deferral | Source File |
 |---|---|---|
 | Buyer-wide index | Self-asserted | [trust-center.md](trust-center.md) |
-| Engineering security narrative | Self-asserted | [docs/library/SECURITY.md](../library/SECURITY.md) |
+| Engineering security narrative | Self-asserted | [docs/library/contributor-reference/SECURITY.md](../library/contributor-reference/SECURITY.md) |
 | STRIDE / boundary threat model | Self-asserted | [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) |
 | Tenant isolation (database-per-tenant) | Implemented | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
 | SOC 2 procurement wording (status, not issuance) | Self-asserted | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) |

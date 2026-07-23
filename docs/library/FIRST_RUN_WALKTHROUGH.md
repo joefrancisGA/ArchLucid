@@ -12,7 +12,7 @@ Give operators a **linear checklist** for creating the first **architecture revi
 ## Assumptions
 
 - The UI is available at **`/reviews/new`** (see **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** for design intent).
-- The API is reachable with a configured auth mode — see **[`SECURITY.md`](SECURITY.md)** and **[`PILOT_GUIDE.md`](PILOT_GUIDE.md)**.
+- The API is reachable with a configured auth mode — see **[`SECURITY.md`](contributor-reference/SECURITY.md)** and **[`PILOT_GUIDE.md`](PILOT_GUIDE.md)**.
 
 ## Constraints
 

@@ -16,7 +16,7 @@ Use the **Microsoft OpenAPI** document only — **not** `/swagger/v1/swagger.jso
 
 | Step | What to do |
 |------|------------|
-| **1. Fetch** | `GET https://<api-host>/openapi/v1.json` (requires auth consistent with your environment — API keys, JWT, etc.; see [**SECURITY.md**](../../library/SECURITY.md)). |
+| **1. Fetch** | `GET https://<api-host>/openapi/v1.json` (requires auth consistent with your environment — API keys, JWT, etc.; see [**SECURITY.md**](../../library/contributor-reference/SECURITY.md)). |
 | **2. Generate** | Import into **OpenAPI Generator**, **Kiota**, **NSwag**, **openapi-typescript**, APIM, or your gateway’s OpenAPI importer. Maintainer snapshot/regen workflow: [**OPENAPI_CONTRACT_DRIFT.md**](../../library/OPENAPI_CONTRACT_DRIFT.md). |
 | **3. Smoke manually** | Repo [**`contracts/bruno/`**](../../../contracts/bruno/) holds example HTTP requests (set `baseUrl` + credentials per environment). Interactive UI (when enabled): [**API_EXPLORER.md**](../../library/API_EXPLORER.md). |
 

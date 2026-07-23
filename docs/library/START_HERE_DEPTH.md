@@ -32,7 +32,7 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 - **Architectural decision records** stay under [`docs/architecture/adrs/`](../architecture/adrs/) (do not treat ADRs as onboarding fiction).
 - **Historical receipts** stay under [`docs/archive/`](../archive/) — never silently rewritten.
-- **SMB / port 445** never belongs on the public internet; storage stays on private endpoints (see [`SECURITY.md`](SECURITY.md))) at repo root and [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md)).
+- **SMB / port 445** never belongs on the public internet; storage stays on private endpoints (see [`contributor-reference/SECURITY.md`](contributor-reference/SECURITY.md) and [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md)).
 
 ## Architecture overview (where ArchLucid sits)
 
@@ -74,7 +74,7 @@ Start at **[`../START_HERE.md`](../START_HERE.md)** and follow the contributor t
 
 ## Security model (read once)
 
-- **Authentication modes** and fail-closed defaults are summarized in **[`library/SECURITY.md`](SECURITY.md))** and repo-root **[`SECURITY.md`](SECURITY.md)))**.
+- **Authentication modes** and fail-closed defaults are summarized in **[`contributor-reference/SECURITY.md`](contributor-reference/SECURITY.md)**.
 - **Tenant isolation** deep dive: [`security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
 ## Operational considerations

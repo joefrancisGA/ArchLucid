@@ -764,7 +764,7 @@ Provide one operator command that checks whether a deployment is safe enough for
 Start by inspecting:
 - ArchLucid.Cli doctor/support-bundle commands
 - ArchLucid.Host.Core startup/configuration validation
-- docs/library/SECURITY.md
+- docs/library/contributor-reference/SECURITY.md
 - docs/library/OBSERVABILITY.md
 - docs/library/REFERENCE_SAAS_STACK_ORDER.md
 - docs/library/V1_RELEASE_CHECKLIST.md

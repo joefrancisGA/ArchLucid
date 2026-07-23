@@ -28,7 +28,7 @@
 
 **Prevention:** Keep compose **dev stacks** labelled Development; staging/prod manifests should never carry bypass switches.
 
-See **[SECURITY.md](../library/SECURITY.md)** § DevelopmentBypass production guard.
+See **[SECURITY.md](../library/contributor-reference/SECURITY.md)** § DevelopmentBypass production guard.
 
 ---
 
@@ -76,7 +76,7 @@ See **[SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md)**.
 
 **Cause:** Turning on **`ArchLucid:ContentSafety:Enabled`** without pairing Azure AI Content Safety resources.
 
-**Resolution:** Provision Content Safety endpoint + key **or** run under dev profile with guard disabled per **[SECURITY.md](../library/SECURITY.md)** matrix.
+**Resolution:** Provision Content Safety endpoint + key **or** run under dev profile with guard disabled per **[SECURITY.md](../library/contributor-reference/SECURITY.md)** matrix.
 
 ---
 

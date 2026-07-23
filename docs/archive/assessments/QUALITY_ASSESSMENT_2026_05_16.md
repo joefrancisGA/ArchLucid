@@ -429,7 +429,7 @@ Update `SqlScopedResolutionDbConnectionFactory` in `ArchLucid.Api.DataAccess` to
 - Affected qualities: Adoption Friction, Customer Self-Sufficiency.
 - Actionable: Yes
 ```markdown
-Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
+Create a new markdown file `docs/runbooks/GENERIC_OIDC_SETUP.md` that provides step-by-step instructions for configuring `ArchLucidAuth:Authority` with a non-Microsoft OIDC issuer (e.g., Okta, Auth0). Include examples of claim mapping to `ArchLucidRoles` and troubleshooting tips for common JWKS validation errors. Link this new file from `docs/library/contributor-reference/SECURITY.md` and `docs/library/CONFIGURATION_REFERENCE.md`. Acceptance criteria: Clear documentation exists for setting up generic OIDC.
 ```
 
 25. DEFERRED Implement Azure Container Apps Jobs for bursty work
@@ -560,7 +560,7 @@ REQUIRED SECTIONS (headings — professional typography per `docs/library/CONSUL
 9. Recommended next actions  
 
 WHITELABEL — V1 GA (**Marketing alignment Q5**)
-- **Cover page:** consulting **firm display name**, **client / engagement title**, optional **logo** (enforce MIME/size caps; virus-scan or strip macros per existing blob pipeline — align with **`docs/library/SECURITY.md`**).
+- **Cover page:** consulting **firm display name**, **client / engagement title**, optional **logo** (enforce MIME/size caps; virus-scan or strip macros per existing blob pipeline — align with **`docs/library/contributor-reference/SECURITY.md`**).
 - **Footer / attribution:** mandatory **“Prepared by {firm} using ArchLucid”** (product/legal-approved string); ArchLucid wordmark optional secondary line per brand guidelines.
 - **Persistence:** tenant-scoped settings table or reuse existing tenant branding blob pattern — **do not** leak logos across tenants (RLS / scoped container paths).
 - **Operator UI:** export dialog collects whitelabel fields for this export run (defaults from tenant consultant profile); PDF mirrors DOCX branding.

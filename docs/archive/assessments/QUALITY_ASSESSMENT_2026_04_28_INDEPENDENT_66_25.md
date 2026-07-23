@@ -700,7 +700,7 @@ Context:
 - The CAIQ Lite and SIG Core pre-fills exist but may have incomplete responses where evidence is available in the codebase.
 - The SOC 2 self-assessment exists at docs/security/SOC2_SELF_ASSESSMENT_2026.md.
 - The Trust Center is at docs/go-to-market/trust-center.md.
-- Evidence for controls is scattered across: docs/library/SECURITY.md, docs/security/SYSTEM_THREAT_MODEL.md, docs/library/AUDIT_COVERAGE_MATRIX.md, docs/security/MULTI_TENANT_RLS.md, docs/library/AUDIT_RETENTION_POLICY.md, docs/go-to-market/DPA_TEMPLATE.md, docs/go-to-market/SUBPROCESSORS.md, docs/go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md.
+- Evidence for controls is scattered across: docs/library/contributor-reference/SECURITY.md, docs/security/SYSTEM_THREAT_MODEL.md, docs/library/AUDIT_COVERAGE_MATRIX.md, docs/security/MULTI_TENANT_RLS.md, docs/library/AUDIT_RETENTION_POLICY.md, docs/go-to-market/DPA_TEMPLATE.md, docs/go-to-market/SUBPROCESSORS.md, docs/go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md.
 
 Instructions:
 1. Read each CAIQ Lite question and for each: identify whether the codebase, Terraform, or existing docs provide evidence for a "Yes" or "Partial" response. Fill in the response and cite the evidence doc.

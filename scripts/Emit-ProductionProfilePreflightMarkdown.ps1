@@ -255,7 +255,7 @@ function Add-ApiProductionProfileChecks {
         $Rows.Add((Add-Row "ArchLucidAuth:Mode (merged production sample)" "Failed" "DevelopmentBypass is not permitted for production profile")) | Out-Null
     }
     elseif ([string]::Equals($authMode, "ApiKey", [System.StringComparison]::OrdinalIgnoreCase)) {
-        $Rows.Add((Add-Row "ArchLucidAuth:Mode (merged production sample)" "Failed" "ApiKey is rejected for this readiness report; use JwtBearer (see docs/library/SECURITY.md)")) | Out-Null
+        $Rows.Add((Add-Row "ArchLucidAuth:Mode (merged production sample)" "Failed" "ApiKey is rejected for this readiness report; use JwtBearer (see docs/library/contributor-reference/SECURITY.md)")) | Out-Null
     }
     elseif ([string]::Equals($authMode, "JwtBearer", [System.StringComparison]::OrdinalIgnoreCase)) {
         $Rows.Add((Add-Row "ArchLucidAuth:Mode (merged production sample)" "Passed" "JwtBearer")) | Out-Null

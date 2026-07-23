@@ -33,7 +33,7 @@ ArchLucid runs automated security checks on every pull request and merge to main
 
 | Layer | Mechanism | Evidence |
 |-------|-----------|---------|
-| **Identity** | Microsoft Entra ID (OIDC / JWT) with app roles (Admin, Operator, Reader, Auditor); optional API keys for automation | [`docs/library/SECURITY.md`](../library/SECURITY.md) |
+| **Identity** | Microsoft Entra ID (OIDC / JWT) with app roles (Admin, Operator, Reader, Auditor); optional API keys for automation | [`docs/library/contributor-reference/SECURITY.md`](../library/contributor-reference/SECURITY.md) |
 | **Application** | RBAC policies (`ReadAuthority`, `ExecuteAuthority`, `AdminAuthority`); request-scoped tenant/workspace/project context | [`ArchLucid.Api/Auth/`](../../ArchLucid.Api/Auth/) |
 | **Database** | SQL Server row-level security (RLS) with `SESSION_CONTEXT` per request; tenant ID enforced on covered tables | [`docs/security/MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md) |
 | **Network** | Optional Azure Front Door + WAF; private endpoints for Azure SQL and Blob; no public SMB (port 445) | [`docs/library/CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) |

@@ -367,7 +367,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Procurement FAQ (Enterprise)",
     "sectionSlug": "4-can-we-authenticate-with-okta-ping-auth0-instead-of-microsoft-entra-id",
     "sectionHeading": "4. Can we authenticate with Okta / Ping / Auth0 instead of Microsoft Entra ID?",
-    "excerpt": "Answer: Yes — V1 GA. [V1_SCOPE.md](../library/V1_SCOPE.md) §2.12 commits `JwtBearer` against configurable OIDC issuers (metadata discovery + JWKS), including non-Microsoft IdPs; `ArchLucidAuth:Authority` / audience and role claim mapping are documented in [SECURITY.md](../library/SECURITY.md) and [CONFIGURATION_REFE…"
+    "excerpt": "Answer: Yes — V1 GA. [V1_SCOPE.md](../library/V1_SCOPE.md) §2.12 commits `JwtBearer` against configurable OIDC issuers (metadata discovery + JWKS), including non-Microsoft IdPs; `ArchLucidAuth:Authority` / audience and role claim mapping are documented in [SECURITY.md](../library/contributor-reference/SECURITY.md) and [CONFIGURATION_REFE…"
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",

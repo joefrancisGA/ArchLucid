@@ -36,7 +36,7 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | Evidence Artifact | Evidence Type | Last Reviewed UTC | Source File | Buyer-safe Claim |
 |---|---|---|---|---|
 | Trust Center (buyer index) | Self-asserted | 2026-05-01 | [trust-center.md](trust-center.md) | Central index links only to in-repo evidence; distinguishes self-assessed vs deferred third-party artefacts. |
-| Security overview | Self-asserted | 2026-05-01 | [docs/library/SECURITY.md](../library/SECURITY.md) | Describes scanning, boundaries, authentication modes documented in-repo. |
+| Security overview | Self-asserted | 2026-05-01 | [docs/library/contributor-reference/SECURITY.md](../library/contributor-reference/SECURITY.md) | Describes scanning, boundaries, authentication modes documented in-repo. |
 | System threat model (STRIDE) | Self-asserted | 2026-05-01 | [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | Internal architectural threat enumeration — not substitute for customer architecture review. |
 | Tenant isolation (database-per-tenant) | Implemented | 2026-06-06 | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) | Database-per-tenant catalogs + app-layer scope predicates per ADR 0037. SQL RLS was evaluated and not adopted. |
 | SOC 2 procurement statement | Self-asserted | 2026-04-24 | [docs/go-to-market/SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) | States Type II issuance not yet claimed; directs to roadmap and self-assessment. |

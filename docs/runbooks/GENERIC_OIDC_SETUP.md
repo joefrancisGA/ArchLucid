@@ -93,7 +93,7 @@ When **`ArchLucidAuth:Mode=JwtBearer`** with Entra as issuer:
 
 If authenticated requests return **403** while **401** is gone, decode a sample token (non-production) and confirm **`roles`** contains at least one known **`ArchLucidRoles`** value. Unmapped roles are recorded in the auth diagnostics ring buffer (see **`ArchLucidRoleClaimsTransformation`**).
 
-Full RBAC table: **[SECURITY.md](../library/SECURITY.md)** (Role-based access control).
+Full RBAC table: **[SECURITY.md](../library/contributor-reference/SECURITY.md)** (Role-based access control).
 
 ---
 
@@ -124,6 +124,6 @@ Drill parity: **`docs/library/V1_RC_DRILL.md`** and **`v1-rc-drill.ps1`** (**`-B
 
 ## Related docs
 
-- **[SECURITY.md](../library/SECURITY.md)** — modes, **`RequireJwtBearerInProduction`**, RBAC table.
+- **[SECURITY.md](../library/contributor-reference/SECURITY.md)** — modes, **`RequireJwtBearerInProduction`**, RBAC table.
 - **[CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md)** — full **`ArchLucidAuth:*`** catalog.
 - **[V1_SCOPE.md](../library/V1_SCOPE.md)** — OIDC issuer scope (section 2.12).

@@ -15,6 +15,7 @@ Bookmark these canonical paths (**no stub yet**):
 | Install/build loop | [`BUILD.md`](../BUILD.md) |
 | Test tiers & CI filters | [`TEST_STRUCTURE.md`](../TEST_STRUCTURE.md), [`TEST_EXECUTION_MODEL.md`](../TEST_EXECUTION_MODEL.md) |
 | Where-to-patch atlas | [`CONTRIBUTOR_CODE_MAP.md`](../CONTRIBUTOR_CODE_MAP.md) |
+| Security engineering index | [`contributor-reference/SECURITY.md`](SECURITY.md) |
 | Contributor quick ramp | [`day-one-developer.md`](../../onboarding/day-one-developer.md) |
 | PR follow-through by change type | [`CHANGE_IMPACT_CHECKLIST.md`](../CHANGE_IMPACT_CHECKLIST.md) |
 | Apex marketing + Front Door coexistence (`archlucid.net`) | [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](../PUBLIC_MARKETING_SITE_TOPOLOGY.md) |
