@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles weighted quality assessment — 2026-04-28 session. Audience: product leadership, investors, pilot sponsors, engineering leads. Not a prior-assessment continuation; all scores and conclusions derived fresh from current codebase and documentation.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 67.86%
 

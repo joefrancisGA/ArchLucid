@@ -1,4 +1,5 @@
 > **Scope:** Copy-paste Composer/agent prompts implementing the decision memo below. Each prompt is self-contained (restates relevant context) so it can be run in a fresh Composer session with no prior chat history. Run in order 1→7, reviewing the diff after each before starting the next.
+> **Reviewed:** 2026-07-22
 >
 > **Assessment date:** 2026-07-05
 > **Source decision memo:** [`OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md`](OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md) — read this first; it contains the full diagnosis, rationale, and acceptance criteria that these prompts implement.

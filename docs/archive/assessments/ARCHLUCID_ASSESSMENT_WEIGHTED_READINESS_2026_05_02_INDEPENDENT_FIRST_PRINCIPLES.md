@@ -1,4 +1,5 @@
 > **Scope:** For leadership and technical stakeholders evaluating ArchLucid; independent weighted readiness assessment from first principles—not a runbook, contract, or hands-on evaluation substitute.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 75.19%
 

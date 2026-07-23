@@ -1,4 +1,5 @@
-﻿> **Scope:** ArchLucid Marketability Quality Assessment — 2026-04-18 (post-trial enforcement, pricing.json, marketing pages, CMK/TDE) - full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid Marketability Quality Assessment — 2026-04-18 (post-trial enforcement, pricing.json, marketing pages, CMK/TDE) - full detail, tables, and links in the sections below.
+> **Reviewed:** 2026-07-22
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 

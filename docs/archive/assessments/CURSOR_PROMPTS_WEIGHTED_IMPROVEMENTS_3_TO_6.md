@@ -1,4 +1,6 @@
-﻿> Archived 2026-04-23 — superseded by [docs/START_HERE.md](../START_HERE.md) and the current assessment pair under ``docs/``. Kept for audit trail.
+> **Reviewed:** 2026-07-22
+
+> Archived 2026-04-23 — superseded by [docs/START_HERE.md](../START_HERE.md) and the current assessment pair under ``docs/``. Kept for audit trail.
 
 > **Scope:** Cursor prompts — Weighted quality assessment Improvements 3–6 - full detail, tables, and links in the sections below.
 

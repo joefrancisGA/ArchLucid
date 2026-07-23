@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-22
+
 # ArchLucid AI Agent / Readiness Solution Quality Assessment - 74.49%
 
 **Scope:** Independent assessment of the AI Agent / Readiness solution quality only. I did not look at any prior assessment scores while forming this one. I excluded scope explicitly deferred per `docs/library/V1_SCOPE.md` § 3 and `docs/library/V1_DEFERRED.md`: the inbound MCP membrane is V1.1; the outbound MCP client is V2; Durable Task Framework / Azure Container Apps Jobs orchestration is V2; Redis-as-default + distributed graph projection cache is V2; SOC 2 CPA report, design partner, marketplace publication, and other commercial / procurement items are not part of an AI-agent solution-quality score.

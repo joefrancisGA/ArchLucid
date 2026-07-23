@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 82.66%
+> **Reviewed:** 2026-07-22
+
+# ArchLucid Assessment – (A) Headline Readiness: 82.66%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding explicitly deferred V1.1, V1.x, V2, owner-only commercial actions, and `(B)` procurement/market-motion realism. This is a clean-slate, first-principles assessment based only on current repository materials available in this run.
 

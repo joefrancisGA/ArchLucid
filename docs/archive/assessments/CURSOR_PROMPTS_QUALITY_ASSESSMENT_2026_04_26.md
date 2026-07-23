@@ -1,4 +1,5 @@
 > **Scope:** Cursor prompts for the 8 actionable improvements from the 2026-04-26 independent quality assessment (60.18%). Each prompt is self-contained and ready to paste into a Cursor agent session.
+> **Reviewed:** 2026-07-22
 
 # Cursor Prompts — Quality Assessment 2026-04-26
 

@@ -1,4 +1,5 @@
 > **Scope:** Historical tracker — first rename wave (Intelligence → Review Board). **Superseded for completion tracking** by [`REBRAND_WORKSTREAM_2026_05_07.md`](REBRAND_WORKSTREAM_2026_05_07.md) (Architecture Proof Engine + lead promise). Original charter (2026-04-23): Q6/Q7 seam workstream per [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md); keep as archive context.
+> **Reviewed:** 2026-07-22
 
 # "AI Architecture Review Board" rebrand workstream (historical)
 

@@ -1,4 +1,5 @@
-﻿> **Scope:** Archive snapshot — owner resolutions and Tier 2 backlog closure after commit `ed476fdaa`. Not a headline rescore; see rolling pass `docs/assessments/latest_202606070201.md` (local, gitignored).
+> **Scope:** Archive snapshot — owner resolutions and Tier 2 backlog closure after commit `ed476fdaa`. Not a headline rescore; see rolling pass `docs/assessments/latest_202606070201.md` (local, gitignored).
+> **Reviewed:** 2026-07-22
 
 # Assessment backlog resolution — 2026-06-07
 

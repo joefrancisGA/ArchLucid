@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles quality assessment of ArchLucid using the weighted 46-quality model (commercial / enterprise / engineering). Audience: product owner, engineering lead, GTM. Not a substitute for customer validation or third-party audit.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 66.12%
 

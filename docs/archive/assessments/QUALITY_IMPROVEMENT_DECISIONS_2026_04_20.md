@@ -1,4 +1,5 @@
 > **Scope:** Decision log + delivery status for the six improvements identified in [`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md) § 4. Tracks which work shipped on **2026-04-20**, which is **gated on a product-owner answer**, and the answers received so far.
+> **Reviewed:** 2026-07-22
 
 # Quality-improvement decisions — 2026-04-20
 

@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles weighted readiness assessment emitted 2026-05-02 in a single session — scoring only; not an update or merge of [`ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_02.md`](ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_02.md). Excludes capability explicitly deferred to V1.1/V2 per [`V1_DEFERRED.md`](V1_DEFERRED.md). Evidence: repository materials available at authoring time (`README`, spine docs, `V1_SCOPE`, `trust-center`, `TEST_STRUCTURE`, `LIVE_E2E_HAPPY_PATH`, `OBSERVABILITY`, `API_CONTRACTS`, `PRODUCT_PACKAGING`, `infra/`, workflows).
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 74.27%
 

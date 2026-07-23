@@ -1,4 +1,6 @@
-﻿# ArchLucid Strategic Release and Market Readiness Assessment (v3)
+> **Reviewed:** 2026-07-22
+
+# ArchLucid Strategic Release and Market Readiness Assessment (v3)
 
 **Rescore (2026-07-05):** **TB-619** closed (Adoption Friction P2, general-backlog Step 4 pick — TB-617/TB-618, the P1 rows ahead of it, were blocked this pass by a concurrent uncommitted edit to their target files and remain open). `QuickDecisionSummary` — the Review Package detail page's actual per-finding rendering — now surfaces an explicit "Evidence gap" `StatusTag` when a finding has zero evidence refs/snippets/policy-rule citation (previously such a finding rendered no signal at all, silently presenting unevidenced and well-evidenced findings identically), plus owner/review-status rows and a bolded "Recommended action" label; `FindingEvidenceLinkChip` restyled from a bordered chip (read as a noninteractive badge) to genuine underlined-link styling. **Correctness & Evidence Integrity** moves 83→84 (this closes a "the UI presented unevidenced and evidenced findings identically" correctness-signal gap, the same defect class as the TB-623/624 authority-vs-nav gaps already tracked in this category, just on the evidence axis rather than the authority axis). Headline moves **72.64% → 72.76%**. TB-617/618/620/621 (the rest of the same principal-architect Review Package hierarchy-audit cluster) remain open and unblocked for a future pass.
 

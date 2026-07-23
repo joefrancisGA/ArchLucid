@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment – Weighted Readiness 70.13%
+> **Reviewed:** 2026-07-22
+
+# ArchLucid Assessment – Weighted Readiness 70.13%
 
 **Date:** 2026-05-10
 **Method:** Independent first-principles assessment from repository materials **and** documented owner-declared posture where it corrects factual gaps versus the repo snapshot (below: **Azure OpenAI / real-mode**). Scores reflect **breadth of evidence and product maturity**, not absence of infra you have already provisioned.

@@ -1,4 +1,6 @@
-﻿<!-- **Scope:** Internal clean-slate solution-quality assessment; not a public compliance attestation. -->
+> **Reviewed:** 2026-07-22
+
+<!-- **Scope:** Internal clean-slate solution-quality assessment; not a public compliance attestation. -->
 
 # ArchLucid Assessment – (A) Headline Readiness: 82.70%
 

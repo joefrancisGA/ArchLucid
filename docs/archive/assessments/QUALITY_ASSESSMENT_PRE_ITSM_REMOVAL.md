@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 75.53%
+> **Reviewed:** 2026-07-22
+
+# ArchLucid Assessment – (A) Headline Readiness: 75.53%
 
 *Note: This score explicitly represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items deferred beyond V1.1. It evaluates only in-contract V1 GA constraints and named V1.1 release-window engineering items. Multi-cloud (AWS/GCP) capabilities have been intentionally excluded from this assessment per the latest owner directives and do not penalize the current readiness posture.*
 

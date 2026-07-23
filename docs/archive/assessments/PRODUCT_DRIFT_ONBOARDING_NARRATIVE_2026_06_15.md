@@ -1,4 +1,5 @@
 > **Scope:** Product-strategy and UX-architecture assessment — whether operator first-run onboarding has drifted from the multi-source **architecture review and governance platform** mission toward an **Azure assessment tool** narrative. Audience: product, engineering, and GTM contributors; not buyer-facing.
+> **Reviewed:** 2026-07-22
 >
 > **Assessment date:** 2026-06-15  
 > **Engineering backlog:** [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) — **TB-337–344** (evidence-first onboarding realignment cluster)

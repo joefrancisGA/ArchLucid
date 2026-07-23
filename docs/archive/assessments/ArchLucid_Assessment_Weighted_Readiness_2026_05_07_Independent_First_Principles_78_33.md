@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment – Weighted Readiness 78.33%
+> **Reviewed:** 2026-07-22
+
+# ArchLucid Assessment – Weighted Readiness 78.33%
 
 Independent, first-principles assessment from repository materials only (2026-05-07). Deferred V1.1/V2 scope per `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` was not used to reduce headline readiness. No prior assessment scores were referenced. Library copy with doc scope header: [`docs/library/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_07_INDEPENDENT_FIRST_PRINCIPLES_78_33.md`](docs/library/ARCHLUCID_ASSESSMENT_WEIGHTED_READINESS_2026_05_07_INDEPENDENT_FIRST_PRINCIPLES_78_33.md).
 

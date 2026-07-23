@@ -1,4 +1,6 @@
-﻿> **ARCHIVED 2026-04-22 — Superseded by** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](../../../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). Historical six-prompt pack preserved for traceability.
+> **Reviewed:** 2026-07-22
+
+> **ARCHIVED 2026-04-22 — Superseded by** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](../../../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). Historical six-prompt pack preserved for traceability.
 
 > **Scope:** Paste-ready Cursor prompts for the **six best improvements** identified in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) § 8.
 

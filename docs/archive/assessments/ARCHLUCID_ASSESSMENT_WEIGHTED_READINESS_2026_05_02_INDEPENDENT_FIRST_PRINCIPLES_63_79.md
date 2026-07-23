@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles weighted readiness assessment of the current ArchLucid solution using the user-provided quality model (2026-05-02 persistence); treats V1.1/V2 deferrals noted in-repo as out-of-scope penalties; not a roadmap commitment or prior-assessment derivative.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 63.79%
 

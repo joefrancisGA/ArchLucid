@@ -1,4 +1,5 @@
 > **Scope:** Product-design and UX-architecture assessment — whether implementation details (platform mechanics, operational telemetry, engineering vocabulary) are leaking into the operator experience and distorting the product narrative. Audience: product, engineering, and GTM contributors; not buyer-facing.
+> **Reviewed:** 2026-07-22
 >
 > **Assessment date:** 2026-06-15  
 > **Related:** [`PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md) (Azure-first onboarding drift); [`UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md) (visual standard); [`archlucid-ui/AGENTS.md`](../../archlucid-ui/AGENTS.md) (canonical product language)

@@ -1,4 +1,5 @@
 > **Scope:** For leadership and technical evaluators: first-principles weighted readiness assessment with themes, tradeoffs, and prioritized gaps; not a build runbook, API contract, formal audit opinion, or live telemetry snapshot.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 81.15%
 

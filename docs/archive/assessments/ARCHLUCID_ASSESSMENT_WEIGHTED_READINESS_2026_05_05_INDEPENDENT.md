@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles assessment of ArchLucid V1.1 readiness based on the provided quality model and weights.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 75.54%
 

@@ -1,4 +1,5 @@
 > **Scope:** Independent quality assessment (D-series, 2026-04-30) — weighted readiness model across 46 qualities with improvement prompts; not a certification or audit.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 65.32%
 

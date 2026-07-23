@@ -1,4 +1,5 @@
-﻿> **Scope:** Independent first-principles weighted readiness assessment (2026-05-02) — scoring only; not a prior assessment update. Excludes scope explicitly deferred to V1.1/V2 per [`V1_DEFERRED.md`](V1_DEFERRED.md). Evidence: repo docs and packaging as of this date.
+> **Scope:** Independent first-principles weighted readiness assessment (2026-05-02) — scoring only; not a prior assessment update. Excludes scope explicitly deferred to V1.1/V2 per [`V1_DEFERRED.md`](V1_DEFERRED.md). Evidence: repo docs and packaging as of this date.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 76.49%
 

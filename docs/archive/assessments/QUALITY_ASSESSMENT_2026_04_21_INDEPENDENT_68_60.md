@@ -1,4 +1,5 @@
-﻿> **Scope:** Independent weighted quality assessment of ArchLucid as it stands in this repository on 2026-04-21. Weighted overall score: **68.60% as originally scored on 2026-04-21**, **re-scored 2026-04-23 to 70.53%** after the owner deferred the *first named, public reference customer* milestone to V1.1 (see **§0.2**), then **re-scored again 2026-04-23 to 71.71%** after the owner deferred the *commerce un-hold (Stripe live + Marketplace go-live)* milestone to V1.1 (see **§0.3**). Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md).
+> **Scope:** Independent weighted quality assessment of ArchLucid as it stands in this repository on 2026-04-21. Weighted overall score: **68.60% as originally scored on 2026-04-21**, **re-scored 2026-04-23 to 70.53%** after the owner deferred the *first named, public reference customer* milestone to V1.1 (see **§0.2**), then **re-scored again 2026-04-23 to 71.71%** after the owner deferred the *commerce un-hold (Stripe live + Marketplace go-live)* milestone to V1.1 (see **§0.3**). Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md).
+> **Reviewed:** 2026-07-22
 
 > **Spine doc:** [`START_HERE.md`](../../../START_HERE.md).
 

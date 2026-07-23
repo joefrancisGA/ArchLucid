@@ -1,4 +1,5 @@
-﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2).
+> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2).
+> **Reviewed:** 2026-07-22
 > **Generated:** 2026-06-26 04:00 UTC (GPT-5.5)
 
 # 1. Title & Headline

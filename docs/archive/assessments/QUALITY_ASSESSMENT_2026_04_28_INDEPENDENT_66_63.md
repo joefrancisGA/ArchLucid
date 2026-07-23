@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles quality assessment (ArchLucid V1) — weighted readiness 66.63%; not a prior assessment delta, not legal advice; deferred V1.1/V2 per `V1_DEFERRED.md` excluded from score penalties.
+> **Reviewed:** 2026-07-22
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 

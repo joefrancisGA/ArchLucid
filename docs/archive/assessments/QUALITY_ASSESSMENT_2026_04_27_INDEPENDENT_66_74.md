@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles quality assessment of ArchLucid on **2026-04-27** (assessor material). Re-scored after owner context on **archlucid.net** (live), **quote-request recipient** (`sales@archlucid.net`), and **first-pilot** timing (**~2026-05-15**). Does not reference any prior assessment scores. Items explicitly deferred in `V1_SCOPE.md` / `V1_DEFERRED.md` (V1.1+ / V2) are out of scope for readiness penalties. **Note:** the published quality weight set sums to **102**; weighted readiness = **Σ(score × weight) / 102** (not ÷ 100).
+> **Reviewed:** 2026-07-22
 > **Updated 2026-04-27 (Post-Assessment Q&A):** The owner provided inputs resolving two previously deferred improvement opportunities: Default Authentication Strategy ("require entra id configuration or a static API key") and Unify Error Responses ("403 unless the general convention these days is to use a 404").
 
 # ArchLucid Assessment – Weighted Readiness 66.74%

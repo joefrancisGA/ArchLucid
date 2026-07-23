@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles quality assessment — weighted readiness 64.57%; independent from prior assessments; snapshot as of 2026-04-30; not a roadmap or product commitment.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 64.57%
 

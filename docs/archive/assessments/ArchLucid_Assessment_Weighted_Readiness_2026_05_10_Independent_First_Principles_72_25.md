@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-22
+
 # ArchLucid Assessment – Weighted Readiness 72.25%
 
 **Method:** Independent, first-principles review of repository materials as of 2026-05-10 (source code, `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, trust center, README, solution structure).  
