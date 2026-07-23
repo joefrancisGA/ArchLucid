@@ -29,7 +29,7 @@ const TAB_LABEL: Record<AdvisoryHubTabId, string> = {
 };
 
 const SCHEDULES_TAB_READER_TITLE =
-  "View schedules and executions; creating schedules and running scans now requires Execute-level access.";
+  "View schedules and executions; creating schedules and running scans now requires a management role.";
 
 export type AdvisoryHubClientProps = {
   readonly initialTab: AdvisoryHubTabId;
