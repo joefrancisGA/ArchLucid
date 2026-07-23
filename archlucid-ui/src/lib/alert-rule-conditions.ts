@@ -83,7 +83,7 @@ export function usesIntegerThreshold(ruleType: string): boolean {
 }
 
 export function validateAlertRuleForm(input: AlertRuleFormInput): AlertRuleFormFieldErrors {
-  const errors: AlertRuleFormFieldErrors = {};
+  const errors: { name?: string; thresholdValue?: string; alertPriority?: string } = {};
   const trimmedName = input.name.trim();
 
   if (trimmedName.length === 0) {
