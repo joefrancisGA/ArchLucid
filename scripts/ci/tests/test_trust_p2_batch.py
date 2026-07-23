@@ -33,7 +33,7 @@ class TestTrustP2Batch(unittest.TestCase):
             self.assertIn("wrong_scope", text, f"{file_name} must assert wrong-scope denial")
 
     def test_coverage_gap_analysis_notes_tb301_hotspots(self) -> None:
-        path = REPO_ROOT / "docs" / "library" / "COVERAGE_GAP_ANALYSIS.md"
+        path = REPO_ROOT / "docs" / "COVERAGE_GAP_ANALYSIS.md"
         text = path.read_text(encoding="utf-8")
         self.assertIn("TB-301", text)
         for probe in (

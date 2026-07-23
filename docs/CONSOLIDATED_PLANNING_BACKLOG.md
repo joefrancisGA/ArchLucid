@@ -1,10 +1,11 @@
-﻿> **Scope:** Single owner-facing planning backlog — consolidates GTM, engineering refactor, tech backlog, assessment themes, AI roadmap, and deferred inventory. Source files remain authoritative for detail; this file records **reassessed decisions** from review sessions.
+﻿> **Reviewed:** 2026-07-23
+> **Scope:** Single owner-facing planning backlog — consolidates GTM, engineering refactor, tech backlog, assessment themes, AI roadmap, and deferred inventory. Source files remain authoritative for detail; this file records **reassessed decisions** from review sessions. Keep; do not treat as live TB/GTM replacement.
 >
 > **Spine:** [`START_HERE.md`](START_HERE.md) · **V1 contract:** [`library/V1_SCOPE.md`](library/V1_SCOPE.md) · **Deferred inventory:** [`library/V1_DEFERRED.md`](library/V1_DEFERRED.md)
 
 # Consolidated planning backlog
 
-**Last reviewed:** 2026-05-23 (RAG quality backlog)
+**Last reviewed:** 2026-07-23 (doc walkthrough — keep as decision ledger; living detail stays in `TECH_BACKLOG` / `GTM_BACKLOG`)
 
 **How to use:** Each row has a stable `CPB-*` ID. **Decision** values: `Keep` · `Promote` · `Defer` · `Cut` · `Merge` · `Blocked`. **Horizon:** `V1-now` · `V1.1` · `V2` · `GTM-only` · `Principle`.
 

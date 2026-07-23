@@ -95,7 +95,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 
 - `coverage.runsettings` at repo root.
 - [`BUILD.md`](../engineering/BUILD.md), [`TEST_EXECUTION_MODEL.md`](TEST_EXECUTION_MODEL.md).
-- Coverage product-only rules: [`coverage-exclusions.md`](coverage-exclusions.md), [`COVERAGE_GAP_ANALYSIS.md`](COVERAGE_GAP_ANALYSIS.md).
+- Coverage product-only rules: [`coverage-exclusions.md`](coverage-exclusions.md), [`COVERAGE_GAP_ANALYSIS.md`](../COVERAGE_GAP_ANALYSIS.md).
 
 ## Solution filters (**`*.slnf`**) at repo root
 

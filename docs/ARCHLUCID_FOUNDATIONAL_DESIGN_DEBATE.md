@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-23
 > **Scope:** Top-level, **living** foundational design record. This is the existential debate about *what ArchLucid is* — an architecture-review engine that must elicit intent, model trust as a spectrum, and be willing to say "no" with reasons. It is owner-and-AI co-authored and grows with increasing rigor over time.
 
 > **Status:** Living debate log. **Not** a contract; when a position here hardens enough to bind the product, promote it to an **ADR** and/or **`docs/library/V1_SCOPE.md`** and link back here. Architecture-question tracking mirror: **`docs/library/SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`** (**SAQ-013**).

@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-23
 > **Scope:** Index for markdown moved off `docs/` root on **2026-05-01** to keep the buyer/contributor spine visible; contents unchanged except relocation.
 
 # Root superseded — 2026-05-01
