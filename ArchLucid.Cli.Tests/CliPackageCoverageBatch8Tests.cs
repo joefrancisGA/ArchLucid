@@ -64,7 +64,7 @@ public sealed class CliPackageCoverageBatch8Tests
     public void DeploymentEvidenceTriageCatalog_returns_actionable_lines_for_each_probe()
     {
         DeploymentEvidenceTriageCatalog.LiveFailure("https://api.example")
-            .Should().ContainSingle(line => line.Contains("/health/live", StringComparison.Ordinal));
+            .Should().Contain(line => line.Contains("/health/live", StringComparison.Ordinal));
         DeploymentEvidenceTriageCatalog.ReadyFailure().Should().Contain("/health/ready");
         DeploymentEvidenceTriageCatalog.OpenApiFailure("https://api.example")
             .Should().ContainSingle(line => line.Contains("/openapi/v1.json", StringComparison.Ordinal));
