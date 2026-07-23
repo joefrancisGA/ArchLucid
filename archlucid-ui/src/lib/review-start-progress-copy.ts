@@ -24,6 +24,12 @@ export const REVIEW_START_NAVIGATION_FAILED_MESSAGE =
 export const CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE =
   "We could not start the architecture draft. Please try again.";
 
+export const CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE =
+  "Could not start a new architecture draft. Try again.";
+
+/** Soft-nav / draft-create can stall; recover UI instead of leaving the CTA depressed. */
+export const CREATE_ARCHITECTURE_BOOTSTRAP_TIMEOUT_MS = 45_000;
+
 export const REVIEW_START_CREATION_FAILED_MESSAGE =
   "We could not start the architecture review. Your selections have been preserved. Try again.";
 

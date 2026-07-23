@@ -10,6 +10,9 @@ import {
   CREATE_ARCHITECTURE_STARTING_LABEL,
 } from "@/lib/review-start-progress-copy";
 
+/** Soft-nav can stall without rejecting; recover the CTA instead of leaving it depressed. */
+export const CREATE_ARCHITECTURE_NAVIGATION_TIMEOUT_MS = 20_000;
+
 function preloadCreateArchitecturePageModules(): void {
   void import("@/components/architecture/ArchitectureCreationBootstrap");
   void import("@/components/architecture/ArchitectureDraftWorkspace");
@@ -20,26 +23,62 @@ export function useCreateArchitectureNavigation() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const inFlightRef = useRef(false);
+  // Own the depressed CTA in React state so timeouts always re-render (refs do not).
+  const [isNavigating, setIsNavigating] = useState(false);
+  const timeoutIdRef = useRef<number | null>(null);
+  const wasPendingRef = useRef(false);
 
-  const reset = useCallback(() => {
-    setError(null);
-    inFlightRef.current = false;
+  const clearNavigationTimeout = useCallback(() => {
+    if (timeoutIdRef.current !== null) {
+      window.clearTimeout(timeoutIdRef.current);
+      timeoutIdRef.current = null;
+    }
   }, []);
 
-  useEffect(() => {
-    if (!isPending && inFlightRef.current) {
-      inFlightRef.current = false;
-    }
-  }, [isPending]);
+  const releaseNavigation = useCallback(() => {
+    clearNavigationTimeout();
+    setIsNavigating(false);
+  }, [clearNavigationTimeout]);
 
-  const navigate = useCallback(() => {
-    if (isPending || inFlightRef.current) {
+  const reset = useCallback(() => {
+    releaseNavigation();
+    setError(null);
+  }, [releaseNavigation]);
+
+  useEffect(() => {
+    if (isPending) {
+      wasPendingRef.current = true;
+
       return;
     }
 
-    inFlightRef.current = true;
+    if (wasPendingRef.current && isNavigating) {
+      wasPendingRef.current = false;
+      releaseNavigation();
+    }
+  }, [isNavigating, isPending, releaseNavigation]);
+
+  useEffect(() => {
+    return () => {
+      clearNavigationTimeout();
+    };
+  }, [clearNavigationTimeout]);
+
+  const navigate = useCallback(() => {
+    if (isPending || isNavigating) {
+      return;
+    }
+
+    setIsNavigating(true);
     setError(null);
+    wasPendingRef.current = false;
+    clearNavigationTimeout();
+
+    timeoutIdRef.current = window.setTimeout(() => {
+      setIsNavigating(false);
+      setError(CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE);
+      timeoutIdRef.current = null;
+    }, CREATE_ARCHITECTURE_NAVIGATION_TIMEOUT_MS);
 
     void router.prefetch(ARCHITECTURES_NEW_PATH);
     preloadCreateArchitecturePageModules();
@@ -53,12 +92,12 @@ export function useCreateArchitectureNavigation() {
         setError(CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE);
       }
     });
-  }, [isPending, reset, router]);
+  }, [clearNavigationTimeout, isNavigating, isPending, reset, router]);
 
   return {
     navigate,
     reset,
-    isNavigating: isPending || inFlightRef.current,
+    isNavigating,
     loadingLabel: CREATE_ARCHITECTURE_STARTING_LABEL,
     error,
   };

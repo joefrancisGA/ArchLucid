@@ -33,7 +33,11 @@ import {
   ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE,
   ARCHITECTURE_CREATION_REVIEW_BOUNDARY,
 } from "@/lib/create-vs-review-intake-copy";
-import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
+import {
+  CREATE_ARCHITECTURE_BOOTSTRAP_TIMEOUT_MS,
+  CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE,
+  CREATE_ARCHITECTURE_STARTING_LABEL,
+} from "@/lib/review-start-progress-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -109,6 +113,7 @@ function DraftResumeCard(props: {
 export function ArchitectureCreationBootstrap(): React.JSX.Element {
   const router = useRouter();
   const createInFlightRef = useRef(false);
+  const createTimeoutIdRef = useRef<number | null>(null);
   const [mode, setMode] = useState<BootstrapMode>("loading");
   const [draftEntries, setDraftEntries] = useState<readonly ArchitectureDraftRegistryEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -118,6 +123,26 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
     setDraftEntries(entries);
     setMode("ready");
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (createTimeoutIdRef.current !== null) {
+        window.clearTimeout(createTimeoutIdRef.current);
+        createTimeoutIdRef.current = null;
+      }
+    };
+  }, []);
+
+  const failCreate = (message: string) => {
+    if (createTimeoutIdRef.current !== null) {
+      window.clearTimeout(createTimeoutIdRef.current);
+      createTimeoutIdRef.current = null;
+    }
+
+    createInFlightRef.current = false;
+    setError(message);
+    setMode("ready");
+  };
 
   const startNewDraft = () => {
     if (createInFlightRef.current || mode === "creating") {
@@ -129,22 +154,36 @@ export function ArchitectureCreationBootstrap(): React.JSX.Element {
     setMode("creating");
     clearArchitectureCreationDraftId();
 
+    createTimeoutIdRef.current = window.setTimeout(() => {
+      failCreate(CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE);
+    }, CREATE_ARCHITECTURE_BOOTSTRAP_TIMEOUT_MS);
+
     void initializeArchitectureCreation()
       .then((result) => {
+        // Timeout recovery already cleared the in-flight flag — ignore a late success.
+        if (!createInFlightRef.current) {
+          return;
+        }
+
         if (result.draftId === null) {
-          createInFlightRef.current = false;
-          setError("Could not start a new architecture draft. Try again.");
-          setMode("ready");
+          failCreate(CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE);
 
           return;
+        }
+
+        if (createTimeoutIdRef.current !== null) {
+          window.clearTimeout(createTimeoutIdRef.current);
+          createTimeoutIdRef.current = null;
         }
 
         router.replace(architectureDraftPath(result.draftId));
       })
       .catch(() => {
-        createInFlightRef.current = false;
-        setError("Could not start a new architecture draft. Try again.");
-        setMode("ready");
+        if (!createInFlightRef.current) {
+          return;
+        }
+
+        failCreate(CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE);
       });
   };
 
