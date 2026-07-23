@@ -59,7 +59,7 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
     category: "Security",
     title: "Security model",
     description: "Auth modes, RBAC, SCIM, and operational security posture.",
-    relativeDocsPath: "docs/library/SECURITY.md",
+    relativeDocsPath: "docs/library/contributor-reference/SECURITY.md",
   },
   {
     category: "Security",

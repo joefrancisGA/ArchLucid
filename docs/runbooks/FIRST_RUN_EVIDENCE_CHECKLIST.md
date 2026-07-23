@@ -10,7 +10,7 @@
 
 | Step | Action | Success signal | Deeper doc |
 |------|--------|----------------|------------|
-| 1 | Configure SQL connection string and auth mode for your environment (`ArchLucidAuth:Mode`, Entra/OIDC/SAML, or dev bypass locally only). | API starts; `GET /health/ready` returns **Healthy** (or expected degraded entries are understood). | [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md), [`SECURITY.md`](../library/SECURITY.md) |
+| 1 | Configure SQL connection string and auth mode for your environment (`ArchLucidAuth:Mode`, Entra/OIDC/SAML, or dev bypass locally only). | API starts; `GET /health/ready` returns **Healthy** (or expected degraded entries are understood). | [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md), [`SECURITY.md`](../library/contributor-reference/SECURITY.md) |
 | 2 | Start API + worker (or combined host) with correct `Hosting:Role`. | `/version` returns build identity; logs show migrations applied. | [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
 | 3 | Run **Azure extractor Tier 1** in the customer subscription (PowerShell, read-only, no ArchLucid secrets in customer tenant). | Script completes; ZIP contains `manifest.json` and cost/inventory payloads. | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) |
 | 4 | Sign in to operator UI; open **New review** (`/reviews/new`; legacy `/runs/new`). | Wizard loads; auth succeeds (no endless 401/403). | [`FIRST_RUN_WALKTHROUGH.md`](../library/FIRST_RUN_WALKTHROUGH.md) |

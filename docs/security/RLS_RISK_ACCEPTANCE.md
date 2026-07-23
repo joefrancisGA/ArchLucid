@@ -73,4 +73,4 @@ When denormalization migrations land (e.g. **046** pattern), update [MULTI_TENAN
 ## 10. Related links
 
 - [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md) (§9 covered / uncovered tables)
-- [SECURITY.md](../library/SECURITY.md)
+- [SECURITY.md](../library/contributor-reference/SECURITY.md)

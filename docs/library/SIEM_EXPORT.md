@@ -186,7 +186,7 @@ ArchLucidAudit_CL
 
 ## 5. Retention
 
-- **In ArchLucid:** Audit events are retained until archived or deleted by operator workflows. Default posture is **keep indefinitely** — see [SECURITY.md](SECURITY.md) (PII and retention).
+- **In ArchLucid:** Audit events are retained until archived or deleted by operator workflows. Default posture is **keep indefinitely** — see [SECURITY.md](contributor-reference/SECURITY.md) (PII and retention).
 - **In your SIEM:** Apply your organization's log retention policy. ArchLucid events may contain tenant-scoped operational data; see [../go-to-market/DPA_TEMPLATE.md](../go-to-market/DPA_TEMPLATE.md) for data handling terms.
 
 ---
@@ -209,5 +209,5 @@ ArchLucidAudit_CL
 | [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) | Full integration catalog |
 | [../go-to-market/trust-center.md](../go-to-market/trust-center.md) | Trust index |
 | [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) | Typed audit events, coverage detail |
-| [SECURITY.md](SECURITY.md) | Audit, PII, retention |
+| [SECURITY.md](contributor-reference/SECURITY.md) | Audit, PII, retention |
 | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) | CloudEvents on digests/alerts + **integration** event SIEM patterns |

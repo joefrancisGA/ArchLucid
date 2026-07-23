@@ -52,7 +52,7 @@ def demo_replacements() -> list[tuple[str, str]]:
         ("](operator-shell.md)", "](../library/operator-shell.md)"),
         ("](AUDIT_COVERAGE_MATRIX.md)", "](../library/AUDIT_COVERAGE_MATRIX.md)"),
         ("](V1_SCOPE.md)", "](../library/V1_SCOPE.md)"),
-        ("](SECURITY.md)", "](../library/SECURITY.md)"),
+        ("](SECURITY.md)", "](../library/contributor-reference/SECURITY.md)"),
         ("](RELEASE_SMOKE.md)", "](../library/RELEASE_SMOKE.md)"),
     ]
 
@@ -352,19 +352,19 @@ def pass2_rules_for_file(path: Path) -> list[tuple[str, str]]:
         rules.append(("](../security/", "](../../security/"))
 
     if rel.startswith("docs/library/customer-facing/"):
-        rules.append(("](SECURITY.md)", "](../SECURITY.md)"))
+        rules.append(("](SECURITY.md)", "](../contributor-reference/SECURITY.md)"))
 
     if rel.startswith("docs/go-to-market/"):
         rules.extend([
-            ("../SECURITY.md", "../library/SECURITY.md"),
+            ("../SECURITY.md", "../library/contributor-reference/SECURITY.md"),
             ("../../security/", "../security/"),
         ])
 
     if rel.startswith("docs/security/"):
-        rules.append(("../SECURITY.md", "../library/SECURITY.md"))
+        rules.append(("../SECURITY.md", "../library/contributor-reference/SECURITY.md"))
 
     if rel == "docs/PENDING_QUESTIONS.md":
-        rules.append(("](SECURITY.md)", "](../library/SECURITY.md)"))
+        rules.append(("](SECURITY.md)", "](../library/contributor-reference/SECURITY.md)"))
 
     if rel == "docs/security/ZAP_BASELINE_RULES.md":
         rules.append((

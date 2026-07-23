@@ -544,11 +544,11 @@ FILES TO UPDATE:
 TASKS:
 1. For each CAIQ Lite question domain (Access Control, Audit, Change Management, Configuration Management, Data Security, Encryption, Governance, Incident Response, Physical, Risk, Security Assessment, Supply Chain), provide:
    - A concrete answer (Yes/No/Partial) with the specific implementation evidence.
-   - A citation URL pointing to the specific section of a specific in-repo file (e.g., `[AUDIT_COVERAGE_MATRIX.md §Operations → durable audit](../library/AUDIT_COVERAGE_MATRIX.md)`, `[SECURITY.md §OWASP ZAP](../library/SECURITY.md)`, `[MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)`).
+   - A citation URL pointing to the specific section of a specific in-repo file (e.g., `[AUDIT_COVERAGE_MATRIX.md §Operations → durable audit](../library/AUDIT_COVERAGE_MATRIX.md)`, `[SECURITY.md §OWASP ZAP](../library/contributor-reference/SECURITY.md)`, `[MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)`).
    - Where a control is genuinely not in place, state "No — planned for V1.1" rather than leaving a blank.
 
 2. Key evidence sources to cite (read each file before completing):
-   - Access control: `docs/library/SECURITY.md` §RBAC, §DevelopmentBypass production guard
+   - Access control: `docs/library/contributor-reference/SECURITY.md` §RBAC, §DevelopmentBypass production guard
    - Audit: `docs/library/AUDIT_COVERAGE_MATRIX.md` (119 event constants, append-only design, DB-level DENY)
    - Encryption: `docs/security/MANAGED_IDENTITY_SQL_BLOB.md`, Azure SQL TDE, Key Vault
    - Incident response: `docs/go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md`

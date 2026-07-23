@@ -54,7 +54,7 @@ $env:ARCHLUCID_BEARER_TOKEN = '<jwt>'
 | Symptom | First doc |
 | --- | --- |
 | HOLD on go/no-go | [`FIRST_PILOT_TRIAGE_CARDS.md`](../../runbooks/FIRST_PILOT_TRIAGE_CARDS.md) |
-| Auth 401 on Staging | [`SECURITY.md`](../../library/SECURITY.md) — confirm Bearer, not DevelopmentBypass |
+| Auth 401 on Staging | [`SECURITY.md`](../../library/contributor-reference/SECURITY.md) — confirm Bearer, not DevelopmentBypass |
 | RC drill FAIL | [`V1_RC_DRILL.md`](../../library/V1_RC_DRILL.md) |
 
 ## Related

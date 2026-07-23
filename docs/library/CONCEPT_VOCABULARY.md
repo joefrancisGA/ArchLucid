@@ -18,7 +18,7 @@
 
 | # | Use this (canonical) | Don't use (rejected) | Rationale | First introduced |
 |---|----------------------|----------------------|-----------|------------------|
-| 1 | **Microsoft Entra ID** | "Azure Active Directory" or "Azure AD" | Microsoft renamed the service in 2023. Continued use of the legacy name confuses customers reading security docs and contradicts [`SECURITY.md`](SECURITY.md). Rejected forms remain valid under **`docs/archive/**`** (CI excludes that tree). | 2026-04-20 |
+| 1 | **Microsoft Entra ID** | "Azure Active Directory" or "Azure AD" | Microsoft renamed the service in 2023. Continued use of the legacy name confuses customers reading security docs and contradicts [`SECURITY.md`](contributor-reference/SECURITY.md). Rejected forms remain valid under **`docs/archive/**`** (CI excludes that tree). | 2026-04-20 |
 
 ### 1.2 Reviewer-enforced rules (not yet automated)
 

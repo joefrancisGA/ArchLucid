@@ -333,7 +333,7 @@ Tests:
 - Add tests under ArchLucid.Host.*.Tests asserting rule behaviour for combinations (Production+true+violation throws; Production+false allows; Development bypass unaffected).
 
 Documentation:
-- Update docs/library/SECURITY.md with concise operator checklist.
+- Update docs/library/contributor-reference/SECURITY.md with concise operator checklist.
 
 Verification:
  dotnet test ArchLucid.sln --filter FullyQualifiedName~AuthenticationRules

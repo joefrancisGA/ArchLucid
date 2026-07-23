@@ -228,7 +228,7 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | ArchLucidAuth | `ArchLucidAuth:DevUserId` | appsettings, env | dev-user | Optional (not mode-gated) | All (Api, Worker, Combined) | Principal id for the development loop. |
 | ArchLucidAuth | `ArchLucidAuth:DevUserName` | appsettings, env | Developer | Optional (not mode-gated) | All (Api, Worker, Combined) | Display name in dev default principal. |
 | ArchLucidAuth | `ArchLucidAuth:DevRole` | appsettings, env | Admin | Optional (not mode-gated) | All (Api, Worker, Combined) | Default role in dev (see security docs). |
-| ArchLucidAuth | `ArchLucidAuth:Saml2:Enabled` | appsettings, env | false | Optional (SAML SP) | Api, Combined | When true, registers ITfoxtec SAML 2.0 SP **in addition to** the primary mode in `ArchLucidAuth:Mode` (see **[SECURITY.md](SECURITY.md)**). |
+| ArchLucidAuth | `ArchLucidAuth:Saml2:Enabled` | appsettings, env | false | Optional (SAML SP) | Api, Combined | When true, registers ITfoxtec SAML 2.0 SP **in addition to** the primary mode in `ArchLucidAuth:Mode` (see **[SECURITY.md](contributor-reference/SECURITY.md)**). |
 | ArchLucidAuth | `ArchLucidAuth:Saml2:Issuer` | appsettings, env | empty | Required — When SAML on | Api, Combined | SP entity ID / issuer URI (maps to SAML `Issuer`). |
 | ArchLucidAuth | `ArchLucidAuth:Saml2:IdPMetadata` | appsettings, env | empty | Required — When SAML on | Api, Combined | HTTPS URL of the IdP federation metadata document. |
 | ArchLucidAuth | `ArchLucidAuth:Saml2:SigningCertificateFile` | appsettings, env, file | empty | Optional (When IdP requires SP signing) | Api, Combined | PFX path (absolute or app-relative) for signing outbound AuthnRequests. |

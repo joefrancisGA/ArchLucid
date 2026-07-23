@@ -1,4 +1,4 @@
-﻿> **Scope:** ArchLucid — SOC 2 readiness roadmap - full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid — SOC 2 readiness roadmap - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -21,12 +21,12 @@ The following are **observable** in the codebase and documentation (non-exhausti
 
 | Area | Evidence (examples) |
 |------|---------------------|
-| **Access control** | JWT / Entra roles, API keys, policy-based authorization; [SECURITY.md](../library/SECURITY.md) |
+| **Access control** | JWT / Entra roles, API keys, policy-based authorization; [SECURITY.md](../library/contributor-reference/SECURITY.md) |
 | **Network & edge** | Front Door / WAF, optional APIM, private endpoints; [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
 | **Data protection** | Database-per-tenant catalogs + parameterized data access; [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
 | **Logging & audit** | Append-only `dbo.AuditEvents`, typed event catalog (CI-tracked count in [../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md)); correlation IDs |
 | **Reliability measurement** | HTTP SLOs (e.g. **99.9%** / 30 days, tiered latency), Prometheus rules, synthetic probes; [../API_SLOS.md](../library/API_SLOS.md) |
-| **Secure SDLC** | OWASP ZAP + Schemathesis in CI; [SECURITY.md](../library/SECURITY.md) |
+| **Secure SDLC** | OWASP ZAP + Schemathesis in CI; [SECURITY.md](../library/contributor-reference/SECURITY.md) |
 | **Threat modeling** | STRIDE summary; [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) |
 | **Operational drills** | Geo-failover drill runbook; [../runbooks/GEO_FAILOVER_DRILL.md](../runbooks/GEO_FAILOVER_DRILL.md) |
 

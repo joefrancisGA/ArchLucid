@@ -243,7 +243,7 @@ Improvement 3 scaffold — penetration exercise bookkeeping (documentation only)
 Read:
 - docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md (methodology §; findings table MUST stay owner-populated).
 - docs/security/pen-test-summaries/REMEDIATION_TRACKER.md (format reference only — do NOT add fabricated findings rows).
-- docs/library/SECURITY.md (CI-assisted baseline pointers).
+- docs/library/contributor-reference/SECURITY.md (CI-assisted baseline pointers).
 - .github/workflows/security-scan.yml — ZAP-related job identifiers.
 - .github/workflows/ci.yml — Schemathesis / API fuzz jobs if referenced from SECURITY.md.
 - infra/zap/README.md — rerun instructions pattern.

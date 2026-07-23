@@ -42,7 +42,7 @@
 | --- | --- |
 | CAIQ / SIG | Procurement pack build + Trust Center |
 | Tenant isolation | `TENANT_ISOLATION_DEFENSE_IN_DEPTH.md` |
-| API auth | [`SECURITY.md`](../../library/SECURITY.md), [`API_CONTRACTS.md`](../../library/API_CONTRACTS.md) |
+| API auth | [`SECURITY.md`](../../library/contributor-reference/SECURITY.md), [`API_CONTRACTS.md`](../../library/API_CONTRACTS.md) |
 | Subprocessors | Trust Center subprocessor table |
 
 ## Related

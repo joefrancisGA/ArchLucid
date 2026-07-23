@@ -35,7 +35,7 @@
 
 - Record **1080p**, hide personal bookmarks bar, use a **dark-or-light** theme consistently.
 - Prefer **stage verbs** (“here is how a team would…”) over absolute availability claims unless **[V1_SCOPE.md](../library/V1_SCOPE.md)** backs them.
-- If a feature is behind Execute authority, narrate **RBAC** honestly — cite **[SECURITY.md](../library/SECURITY.md)**.
+- If a feature is behind Execute authority, narrate **RBAC** honestly — cite **[SECURITY.md](../library/contributor-reference/SECURITY.md)**.
 
 ---
 

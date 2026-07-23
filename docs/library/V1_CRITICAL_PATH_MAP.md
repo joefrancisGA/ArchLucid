@@ -62,7 +62,7 @@ One-page routing for **successful first pilot** and **RC signoff**. Everything n
 | 1 | [`go-to-market/trust-center.md`](../go-to-market/trust-center.md) | **Yes** |
 | 2 | [`security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) | **Yes** |
 | 3 | [`security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) | **Yes** |
-| 4 | [`library/SECURITY.md`](SECURITY.md) | **Yes** |
+| 4 | [`library/contributor-reference/SECURITY.md`](contributor-reference/SECURITY.md) | **Yes** |
 | 5 | [`security/templates/evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md) | **Yes** for packet assembly |
 
 **Deferred (B-only, not V1 blockers):** CPA SOC 2 report, published third-party pen test — labeled in Trust Center and procurement docs.

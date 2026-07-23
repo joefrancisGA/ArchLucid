@@ -34,7 +34,7 @@ public static class ContentSafetyConfigurationWarnings
 
         logger.LogWarning(
             "ArchLucid:ContentSafety:FailClosedOnSdkError is false in configuration, but Production, Staging, or ARCHLUCID_ENVIRONMENT=Production|Staging hosts always use fail-closed Azure Content Safety SDK behavior. "
-            + "The value is overridden at runtime. Remove the key or set it to true so configuration matches runtime; see docs/library/SECURITY.md.");
+            + "The value is overridden at runtime. Remove the key or set it to true so configuration matches runtime; see docs/library/contributor-reference/SECURITY.md.");
 
         ArchLucidInstrumentation.RecordStartupConfigWarning(
             ContentSafetyStartupWarningRuleNames.ProductionLikeFailClosedOnSdkSettingOverridden);

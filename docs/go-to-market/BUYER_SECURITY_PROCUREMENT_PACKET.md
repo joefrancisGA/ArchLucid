@@ -1,4 +1,4 @@
-﻿> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots. This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots. This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -38,13 +38,13 @@
 
 | Control area | Status | Evidence |
 | --- | --- | --- |
-| Authentication | Shipped — Azure Entra ID OIDC/SAML; app-level JWT validation | [`../library/SECURITY.md`](../library/SECURITY.md) |
+| Authentication | Shipped — Azure Entra ID OIDC/SAML; app-level JWT validation | [`../library/contributor-reference/SECURITY.md`](../library/contributor-reference/SECURITY.md) |
 | Tenant isolation | Shipped — row-level tenant filtering on all data queries | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md) |
 | Audit trail | Shipped — structured audit events, append-only audit log | [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) |
 | Encryption at rest | Shipped — Azure SQL TDE, Azure Blob encryption enabled | [`trust-center.md`](trust-center.md) |
 | Encryption in transit | Shipped — TLS 1.2+ enforced on all API endpoints | [`trust-center.md`](trust-center.md) |
 | Secrets management | Shipped — Azure Key Vault for connection strings and API keys | [`trust-center.md`](trust-center.md) |
-| RBAC / least-privilege | Shipped — role-based access controls; governance approval separation | [`../library/SECURITY.md`](../library/SECURITY.md) |
+| RBAC / least-privilege | Shipped — role-based access controls; governance approval separation | [`../library/contributor-reference/SECURITY.md`](../library/contributor-reference/SECURITY.md) |
 | Pre-commit governance gate | Shipped — policy-pack enforcement before manifest commit | [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) |
 | Data retention posture | Draft — configurable retention policy; formal retention schedule owner review required | [`trust-center.md`](trust-center.md) |
 | Vulnerability management | Owner-conducted — tooling in place; formal program cadence owner-defined | [`PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md) |

@@ -241,7 +241,7 @@ For each: **Justification** · **Tradeoffs** · **Improvement recommendations** 
 
 **Cursor prompt**
 ```
-Goal: Remove contradictions between README.md “API authentication” / “Running the API” sections and docs/library/SECURITY.md regarding ApiKey enabled defaults and unauthenticated dev behavior.
+Goal: Remove contradictions between README.md “API authentication” / “Running the API” sections and docs/library/contributor-reference/SECURITY.md regarding ApiKey enabled defaults and unauthenticated dev behavior.
 
 Files: README.md (primary), cross-check SECURITY.md and ArchLucid.Api/appsettings.json comments if referenced from README.
 

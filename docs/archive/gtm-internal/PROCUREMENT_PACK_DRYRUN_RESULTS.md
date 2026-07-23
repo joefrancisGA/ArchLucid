@@ -1,4 +1,4 @@
-﻿> **Reviewed:** 2026-07-22
+> **Reviewed:** 2026-07-22
 > **Scope:** Single-pass dry-run audit of the canonical buyer procurement ZIP (synthetic enterprise questionnaire lens). **Not** CPA, SIG, or STAR registry submission — operational notes for owners only.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -60,7 +60,7 @@
 - **`docs/library/API_CONTRACTS.md`** — “baseline placeholders” → “synthetic baseline fields…”.
 - **`docs/go-to-market/DPA_TEMPLATE.md`** — `<<…>>` scaffold for parties, dates, signature block, and defined-term pointer.
 - **`docs/security/CAIQ_LITE_2026.md`** / **`SIG_CORE_2026.md`** — explicit **official ID mapping** + procurement dry-run notes.
-- **`docs/library/SECURITY.md`** — JWT / Serilog wording (avoid “placeholder” where buyers might read unfinished copy).
+- **`docs/library/contributor-reference/SECURITY.md`** — JWT / Serilog wording (avoid “placeholder” where buyers might read unfinished copy).
 - **`docs/go-to-market/trust-center.md`** — packaging paragraph references HOW_TO; avoids literals that fail **`--strict`** on **Evidence** rows.
 - **`docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`** — section title *Release / buyer drop — marker strictness*.
 - **`scripts/build_procurement_pack.py`** — generated in-ZIP **`README.md`** strict-line wording.

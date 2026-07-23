@@ -1,4 +1,4 @@
-﻿> **Reviewed:** 2026-07-22
+> **Reviewed:** 2026-07-22
 > **Scope:** Archived resolved owner Q&A moved from [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) for spine line budget.
 
 # Pending questions — resolved history (archive)
@@ -375,7 +375,7 @@ Owner decision (2026-04-23, fifth pass — same day as the Jira, ServiceNow + Sl
 | Sub-decision | Decision | Affects / notes |
 |---|---|---|
 | **Auth modes (first pilot)** | **Both** in spirit: people use **JWT** (Entra / OIDC); automation uses **API keys** where the environment still allows. | With **`ArchLucidAuth:RequireJwtBearerInProduction = true`**, **Production** must use **`ArchLucidAuth:Mode = JwtBearer`** — **not** `ApiKey` at the host. Automate against prod with **client-credentials JWT** (or a non-prod host that accepts API keys). |
-| **Require JWT in production** | **Yes** — `ArchLucidAuth:RequireJwtBearerInProduction` **true** for production. | `ArchLucid.Host.Core/Startup/Validation/Rules/AuthenticationRules.cs`, `docs/library/SECURITY.md` |
+| **Require JWT in production** | **Yes** — `ArchLucidAuth:RequireJwtBearerInProduction` **true** for production. | `ArchLucid.Host.Core/Startup/Validation/Rules/AuthenticationRules.cs`, `docs/library/contributor-reference/SECURITY.md` |
 | **403 vs 404 (enumeration vs debuggability)** | **Split:** **404** when denying access to **admin**-style surfaces; **403** (clear Problem Details) for **tenant-scoped** run/manifest and main product APIs. | Align handlers and filters in a follow-up; refines 2026-04-27 row for tenant paths. |
 | **Azure spend (staging + production)** | **Target:** combined **no more than ~USD $400 / month** until there are paying customers. | FinOps; buyer-facing `ROI_MODEL.md` infrastructure bands are often higher — **your** COGS is leaner pre-customer. |
 | **Third-party pen test / “shareable” date (Q8)** | **No** third-party pen-test **report** or **customer-shareable** redacted summary **yet**. Security work in progress: **internal / founder-led** penetration testing plus in-repo and CI controls (ZAP, Schemathesis, runbooks, Trust Center). **When** a third-party firm is engaged, shareable vs NDA-only is set with that SoW. | Procurement narrative; do **not** imply independent attestation. Trust Center honest labels unchanged. |

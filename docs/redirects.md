@@ -197,5 +197,6 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/CHAMPION_48H_KIT.md` | [`docs/go-to-market/DECISION_FAST_LANE.md`](go-to-market/DECISION_FAST_LANE.md) · [`docs/CORE_PILOT.md`](CORE_PILOT.md) | Legacy champion kit filename |
 | `docs/runbooks/TENANT_SQL_TOPOLOGY_RUNBOOK.md` | [`docs/operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md`](operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md) | Runbook lives under `docs/operations/` |
 | `docs/runbooks/CORRELATION_AND_TRACING.md` | [`docs/library/BACKGROUND_JOB_CORRELATION.md`](library/BACKGROUND_JOB_CORRELATION.md) · [`docs/library/OBSERVABILITY.md`](library/OBSERVABILITY.md) | Correlation + tracing entry points |
+| `docs/library/SECURITY.md` | [`docs/library/contributor-reference/SECURITY.md`](library/contributor-reference/SECURITY.md) | Phase 3 move stub removed (TB-013) |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
