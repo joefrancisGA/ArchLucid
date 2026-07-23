@@ -21,6 +21,7 @@ Use these checks when a workspace symptom points to platform health rather than 
 
 ## Related Help topics
 
-- **Observability** — metrics and export paths when your role includes them.
-- **Projection cache and API replicas** — multi-replica and Redis footguns (advanced).
-- **Engineering troubleshooting** — CLI, logs, environment variables, and support bundles.
+- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues.
+- [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers.
+- [Engineering troubleshooting](/help/developer-troubleshooting) — CLI, logs, environment variables, and support bundles (engineering audience).
+- [CLI usage](/help/cli-usage) — `archlucid doctor` and support-bundle commands.

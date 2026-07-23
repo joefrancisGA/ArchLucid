@@ -111,7 +111,7 @@ Otherwise → **Step 5 (preview only)**.
 
 If steps 1–4 found **no** candidate:
 
-Report that `/ship-next-improvement` would fall through to **Step 6 — Fresh assessment** (clean-slate pass via `ASSESSMENT_PROMPT_V3.MD`). Do **not** run the assessment.
+Report that `/ship-next-improvement` would fall through to **Step 6 — Fresh assessment** (clean-slate pass via `ASSESSMENT_PROMPT_SERIES.md` §v3; stub `ASSESSMENT_PROMPT_V3.MD`). Do **not** run the assessment.
 
 ---
 

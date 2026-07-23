@@ -4,9 +4,9 @@
 
 ## Canonical assessment prompt
 
-The canonical clean-slate weighted readiness prompt is **[`../assessments/ASSESSMENT_PROMPT_V3.MD`](../assessments/ASSESSMENT_PROMPT_V3.MD)**. It supersedes [`ASSESSMENT_PROMPT_V2.md`](../archive/assessments/ASSESSMENT_PROMPT_V2.md) (archived 2026-07-20). For v3 passes it **supersedes** the standalone [`ASSESSMENT_QUALITY_MODEL.md`](ASSESSMENT_QUALITY_MODEL.md) below (which remains canonical only for legacy / non-v3 passes). Read this file's table for orientation evidence, then execute `ASSESSMENT_PROMPT_V3.MD`.
+The canonical clean-slate weighted readiness prompt is **[`../assessments/ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md)** §Strategic release and market readiness (v3) (path-stable stub: [`ASSESSMENT_PROMPT_V3.MD`](../assessments/ASSESSMENT_PROMPT_V3.MD)). It supersedes [`ASSESSMENT_PROMPT_V2.md`](../archive/assessments/ASSESSMENT_PROMPT_V2.md) (archived 2026-07-20). For v3 passes it **supersedes** the standalone [`ASSESSMENT_QUALITY_MODEL.md`](ASSESSMENT_QUALITY_MODEL.md) below (which remains canonical only for legacy / non-v3 passes). Read this file's table for orientation evidence, then execute the v3 section of `ASSESSMENT_PROMPT_SERIES.md`.
 
-**Broader exposure readiness** (controlled beta / public self-service gates) uses **[`../assessments/assessment_prompt_v4.md`](../assessments/assessment_prompt_v4.md)** → rolling output **[`../assessments/LATEST_EXPOSURE.md`](../assessments/LATEST_EXPOSURE.md)**.
+**Broader exposure readiness** (controlled beta / public self-service gates) uses **[`../assessments/ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md)** §Broader exposure readiness (v4) (path-stable stub: [`assessment_prompt_v4.md`](../assessments/assessment_prompt_v4.md)) → rolling output **[`../assessments/LATEST_EXPOSURE.md`](../assessments/LATEST_EXPOSURE.md)**.
 
 ## One workflow (current score vs history)
 

@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-22
 > **Scope:** Index for **`docs/archive/gtm-internal/`** — operational and research artefacts moved out of **`docs/go-to-market/`**; not buyer navigation.
 >
 > **Status:** current

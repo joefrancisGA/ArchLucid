@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-22
 > **Scope:** ArchLucid — Product-market fit validation tracker - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).

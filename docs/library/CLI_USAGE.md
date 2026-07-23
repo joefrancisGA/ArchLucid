@@ -454,7 +454,7 @@ Automation can combine exit codes with leading **`--json`** for structured stder
 
 ## REST integration starter fixtures
 
-For HTTP automation against the V1 buyer path (create → execute → commit → export → compare → ROI), use the sanitized workflow contracts validated in CI:
+For HTTP automation against the documented buyer integration path (create → execute → commit → export → compare → ROI), use the sanitized workflow contracts validated in CI:
 
 - [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json)
 - Companion narrative: [`API_CONTRACTS.md`](API_CONTRACTS.md), [`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md)

@@ -20,7 +20,7 @@
 
 **Status values:** `Not started` · `In progress` · `Blocked` · `Done`
 
-**Updated:** 2026-07-22 — **M-115** / **M-116** opened (buyer-safe prompt-injection posture one-pager + `WHAT_NOT_TO_PROMISE` / procurement honesty); engineering **TB-949**–**TB-952**. Prior: **M-113** / **M-114** **Done** (PA falsification script + security-reviewer isolation one-pager). Does not duplicate **G-REAL-06**/**G-REAL-07**.
+**Updated:** 2026-07-22 — **M-117** / **M-118** opened (Required vs informational audit claim honesty + security-reviewer audit-trail one-pager); engineering **TB-953**–**TB-956**. Prior: **M-115** / **M-116** opened (prompt-injection posture + `WHAT_NOT_TO_PROMISE`); engineering **TB-949**–**TB-952**. Prior: **M-113** / **M-114** **Done**. Does not duplicate **G-REAL-06**/**G-REAL-07**.
 
 ---
 
@@ -35,11 +35,11 @@
 | Band | Open rows (unique) | Est. hands-on |
 |------|--------------------:|---------------|
 | **P0** | 14 | **~23–39 h** (includes Quick Scan safety GTM **M-109**/**M-110**/**G-QA-05**; **G-REAL-04**/**M-06** Done 2026-07-19) |
-| **P1** | 66 | **~104–159 h** (≈ half is LinkedIn long-form draft+publish; incl. **G-REAL-09** DOCX visual check; **G-QA-06**/**G-QA-07**/**M-112** UI perf triage; **G-SCALE-01**/**G-SCALE-02** autoscale drills; **M-115**/**M-116** prompt-injection honesty) |
+| **P1** | 68 | **~106–162 h** (≈ half is LinkedIn long-form draft+publish; incl. **G-REAL-09** DOCX visual check; **G-QA-06**/**G-QA-07**/**M-112** UI perf triage; **G-SCALE-01**/**G-SCALE-02** autoscale drills; **M-115**/**M-116** prompt-injection honesty; **M-117**/**M-118** audit Required vs informational honesty) |
 | **P2** | 13 | **~18–30 h** (+ demo/outreach calendar; incl. **M-111** demo-honesty footnote) |
 | **P3** | 4 | **~6–10 h** (+ paid-engagement calendar) |
 | **V1.1 / V2** | 18 | **~40–70 h** kickoff/execution slices (+ multi-week/month external calendars) |
-| **Total unique open** | ~111 | **~189–302 h** active; calendar for cohorts/assurance/commerce dominates wall-clock |
+| **Total unique open** | ~113 | **~191–305 h** active; calendar for cohorts/assurance/commerce dominates wall-clock |
 
 ---
 
@@ -182,6 +182,8 @@
 | M-114 | Security-reviewer isolation one-pager | P1 | **Done** (authored 2026-07-22) |
 | M-115 | Buyer-safe LLM prompt-injection posture one-pager (confinement, not “filter the PDF”) | P1 | **45–90 m** |
 | M-116 | Prompt-injection honesty bullets in `WHAT_NOT_TO_PROMISE` + security procurement packet | P1 | **30–45 m** |
+| M-117 | Audit Required vs informational claim honesty (`WHAT_NOT_TO_PROMISE` / procurement) | P1 | **45–90 m** |
+| M-118 | Security-reviewer audit trail one-pager (Required fail-closed vs informational best-effort) | P1 | **45–90 m** |
 | M-103 | Optional scheduled / pre-release founder CI job | P2 | **2–3 h** |
 
 ---
@@ -208,7 +210,7 @@
 | M-31 | Solo-architect self-serve SaaS pricing page + public checkout CTA | V2 | **6–12 h** when un-gated |
 | M-33 | Cross-tenant portfolio ROI analytics marketing claim | V2 | **1–2 h** copy (after product ships) |
 
-**Suggested near-term focus (highest leverage / hour for this profile):** **G-REAL-06 → G-REAL-07** (unlocks Stage 1) · run **M-113** script before next PA review (docs Done) · **M-115**/**M-116** + engineering **TB-949**–**TB-952** (prompt-injection confinement story) · **G-COMMERCE-01 → M-34 → G-COMMERCE-02** (first invoice path) · **M-07 → M-16 → M-09** (credibility assets) · **G-QA-01 → M-96–M-98** (founder acceptance loop) · **TB-915 → G-SCALE-01 → G-SCALE-02** (autoscale bake-off before launch load).
+**Suggested near-term focus (highest leverage / hour for this profile):** **G-REAL-06 → G-REAL-07** (unlocks Stage 1) · run **M-113** script before next PA review (docs Done) · **M-115**/**M-116** + engineering **TB-949**–**TB-952** (prompt-injection confinement story) · **M-117**/**M-118** + engineering **TB-953**–**TB-956** (audit Required fail-closed story) · **G-COMMERCE-01 → M-34 → G-COMMERCE-02** (first invoice path) · **M-07 → M-16 → M-09** (credibility assets) · **G-QA-01 → M-96–M-98** (founder acceptance loop) · **TB-915 → G-SCALE-01 → G-SCALE-02** (autoscale bake-off before launch load).
 
 ---
 
@@ -442,6 +444,8 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-114 | **Security-reviewer isolation one-pager** — buyer-safe G3 handout; complements [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md). Artifact: [`SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md`](SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md) | Content | P1 | **Done** | Authored **2026-07-22**; pairs **TB-925** (Done) |
 | M-115 | **Buyer-safe LLM prompt-injection posture one-pager** — honest claim: agents must read customer docs/repo as **DATA**; resistance = host confinement (tool allowlists, structured evidence, no exfil), Content Safety as gate not product; residual risk stated. Artifact: `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` (new) | Content | P1 | Not started | Engineering **TB-949**–**TB-952**; complements **M-114**; cite Content Safety + **TB-082** Done without overclaiming |
 | M-116 | **Prompt-injection honesty in claim guardrails** — add “do not promise” / “do promise” bullets to [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) and a short row in [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md) (no “prompt-injection proof” / no “we sanitize architecture PDFs”) | Content | P1 | Not started | Pairs **M-115**; keep Stage 0 language aligned with [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) |
+| M-117 | **Audit Required vs informational claim honesty** — add “do not promise” / “do promise” bullets: Required governance/finalize/identity/export events are fail-closed durable trail; cost/projection/funnel telemetry may be best-effort. Touch [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) and a short row in [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md) (no “every audit event is transactional”) | Content | P1 | Not started | Engineering **TB-953**–**TB-956**; pairs **M-118**; keep Stage 0 language aligned with [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md); does **not** reopen **TB-001** informational posture |
+| M-118 | **Security-reviewer audit trail one-pager** — buyer-safe handout: which events are Required (fail-closed) vs informational (best-effort); how to verify a governance disposition left a durable trail; residual dual-write risk until **TB-956**. Artifact: `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` (new) | Content | P1 | Not started | Complements **M-114**; cite INV-003 + **TB-953** without claiming same-TX until **TB-956** ships |
 | M-107 | **Public proof-funnel IA decision** — owner documents whether `/showcase/claims-intake-modernization`, `/see-it`, or `/demo/preview` is the canonical anonymous proof path (or honest co-primary pair); align get-started healthcare vertical, SEO/paid landing targets, and welcome CTAs | Owner | P1 | Not started | Assessment §21 **SC-04**; engineering **TB-887**/**TB-888**; unblocks **M-108** and honest **M-09** proof copy |
 | M-108 | **Showcase screenshot capture** — add `/showcase/claims-intake-modernization` frames to **M-07** gallery / **M-16** B-roll after static-first + illustrative-sample copy ship | Production | P1 | Not started | Blocked on **TB-887**/**TB-888**; subset effort of **M-07** |
 

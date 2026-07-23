@@ -1,4 +1,5 @@
-﻿> **Scope:** Single-pass dry-run audit of the canonical buyer procurement ZIP (synthetic enterprise questionnaire lens). **Not** CPA, SIG, or STAR registry submission — operational notes for owners only.
+﻿> **Reviewed:** 2026-07-22
+> **Scope:** Single-pass dry-run audit of the canonical buyer procurement ZIP (synthetic enterprise questionnaire lens). **Not** CPA, SIG, or STAR registry submission — operational notes for owners only.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
