@@ -47,7 +47,7 @@ export const TROUBLESHOOTING_ISSUE_KIND_LABELS: Readonly<Record<TroubleshootingI
   "user-fixable": "You can try this",
   "workspace-admin": "Workspace admin",
   "archlucid-support": "Contact support",
-  "internal-operator": "Operator / support",
+  "internal-operator": "Platform / support",
 };
 
 export const TROUBLESHOOTING_START_HERE_ITEMS = [
@@ -114,10 +114,10 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     whatYouSee: "Findings on Overview or inside the review do not match expectations.",
     likelyCause: "Filters applied, stale list, or the review is still in progress.",
     tryFirst: "Open the review and confirm review status is complete.",
-    ifStillBlocked: "Compare findings with the evidence trail and review summary.",
+    ifStillBlocked: "Compare findings with the Evidence graph and review summary.",
     nextSteps: [
       { label: "Open reviews", href: "/reviews" },
-      { label: "Open evidence trail guide", href: inAppHelpHref("evidence-trail") },
+      { label: "Open Evidence graph guide", href: inAppHelpHref("evidence-trail") },
       { label: "Open findings queue", href: "/governance/findings" },
     ],
   },
@@ -140,7 +140,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     title: "Finalize blocked by governance policy",
     kind: "workspace-admin",
     whatYouSee: "Finalize returns a governance block with severity or policy pack details.",
-    likelyCause: "Findings exceed the configured pre-commit threshold for the active policy pack.",
+    likelyCause: "Findings exceed the configured finalize threshold for the active policy pack.",
     tryFirst: "Review blocking findings, remediate or accept risk per policy, then retry finalize.",
     ifStillBlocked: "Ask a workspace admin to adjust policy thresholds if the block is not appropriate.",
     nextSteps: [
@@ -271,7 +271,7 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
   },
   {
     id: "decision-finalized",
-    question: "Is the review finalized or committed?",
+    question: "Is the architecture package finalized?",
     branches: [
       { label: "No", href: "/reviews", linkLabel: "Open review detail and finalize review" },
       { label: "Yes", href: "#decision-outputs", linkLabel: "Continue to outputs check" },
@@ -281,7 +281,7 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
     id: "decision-outputs",
     question: "Are findings, evidence, or report outputs missing?",
     branches: [
-      { label: "Findings missing", href: inAppHelpHref("evidence-trail"), linkLabel: "Open evidence trail" },
+      { label: "Findings missing", href: inAppHelpHref("evidence-trail"), linkLabel: "Open Evidence graph" },
       { label: "Reports missing", href: "/value-report", linkLabel: "Open value report" },
       {
         label: "Permissions missing",

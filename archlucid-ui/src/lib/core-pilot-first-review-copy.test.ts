@@ -24,7 +24,8 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
   });
 
   it("summarizes the 90-minute playbook flow with buyer concepts", () => {
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/create architecture/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/new architecture review/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/analyze/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/finalize/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/upload zip/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/roi/i);

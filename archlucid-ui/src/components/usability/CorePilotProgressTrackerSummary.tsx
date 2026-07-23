@@ -69,14 +69,15 @@ export function CorePilotProgressTrackerSummary(props: CorePilotProgressTrackerS
           </p>
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             About {estimatedMinutes} minutes remaining
-            {canOpenInternalRunbook ? (
-              <>
-                {" · "}
-                <Link href="/help/first-value-20-minutes" className="font-medium text-teal-800 underline dark:text-teal-300">
-                  Complete one review in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
-                </Link>
-              </>
-            ) : null}
+            <>
+              {" · "}
+              <Link
+                href={canOpenInternalRunbook ? "/help/first-value-20-minutes" : "/help/core-pilot"}
+                className="font-medium text-teal-800 underline dark:text-teal-300"
+              >
+                Complete one review in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
+              </Link>
+            </>
           </p>
           {nextStep !== null ? (
             <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>

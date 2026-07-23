@@ -426,8 +426,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "first-value-20-minutes",
-    title: "First value in 20 minutes",
-    summary: "Time-boxed runbook for a first governed review when platform wiring is already green.",
+    title: "First value in 20 minutes (internal runbook)",
+    summary:
+      "Admin-only SE/ops checklist for time-boxed first value when platform wiring is already green. Customer architects should use Your first architecture review or Complete review workflow instead.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
   },
@@ -464,7 +465,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "accelerator-chooser",
     title: "Accelerator chooser",
     summary:
-      "Map buyer jobs to existing starter proof packs after Core Pilot first commit — inputs, outputs, and V1 scope labels.",
+      "Map buyer jobs to existing starter proof packs after your first finalized architecture package — inputs, outputs, and V1 scope labels.",
     audience: "operator",
     sourcePaths: ["docs/library/ACCELERATOR_CHOOSER.md"],
   },
@@ -521,15 +522,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "comparison-replay",
     title: "Compare and replay",
-    summary: "Diff two reviews, replay stored comparison logic, and verify drift between runs.",
+    summary: "Diff two architecture packages, replay a saved comparison, and verify drift without re-running a full review.",
     audience: "operator",
-    sourcePaths: ["docs/library/COMPARISON_REPLAY.md"],
+    sourcePaths: ["docs/library/customer-facing/COMPARISON_REPLAY_OPERATOR_GUIDE.md"],
   },
   {
     slug: "repeat-review-loop",
     title: "Repeat-review stickiness loop",
     summary:
-      "After the first committed review: compare, replay, governance dry-runs, and second-review proof checklist.",
+      "After the first finalized architecture package: compare, replay, governance dry-runs, and second-review proof checklist.",
     audience: "operator",
     sourcePaths: ["docs/library/REPEAT_REVIEW_LOOP.md"],
   },
@@ -537,7 +538,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "policy-pack-delta-demo",
     title: "Policy-pack delta demo",
     summary:
-      "Repeatable demo: same committed review, stricter pack enforcement, different pre-commit gate outcome — dry-run, simulation, and audit slice.",
+      "Repeatable demo: same finalized architecture package, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice.",
     audience: "operator",
     sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },

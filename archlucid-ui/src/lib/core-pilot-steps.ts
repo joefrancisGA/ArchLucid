@@ -1,4 +1,3 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 
 export type CorePilotStepBase = {
@@ -25,23 +24,23 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     shortBody:
       "Open the sample showcase review or start a new architecture request — capture system identity and constraints in the wizard.",
     detail:
-      `Use ${CREATE_ARCHITECTURE_LABEL} for guided intake, or open the curated sample review to explore a committed review before running your own.`,
+      "Use New architecture review for guided intake, or open the curated sample review to explore a finalized architecture package before running your own. Create architecture drafts separately when you want to save intent without starting a review.",
     primaryHref: "/reviews/new",
     primaryLabel: "Start or open review",
   },
   {
     title: "Execute the assessment",
-    shortBody: "Run agents until the review reaches ready-to-finalize — watch progress on review detail.",
+    shortBody: "Run the assessment until the review reaches ready-to-finalize — watch progress on review detail.",
     detail:
-      "The coordinator fills snapshots and assessment steps. If execution fails, capture the correlation id from troubleshooting before retrying.",
+      "The assessment fills topology and findings. If execution fails, capture the correlation id from troubleshooting before retrying.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Open review detail",
   },
   {
     title: "Finalize the review",
-    shortBody: "Commit when ready — this locks the signed review record, findings, and export surfaces.",
+    shortBody: "Finalize when ready — this locks the signed review record, findings, and export surfaces.",
     detail:
-      "Finalization produces the governed review. Pre-commit governance may block finalize when blocking findings remain.",
+      "Finalization produces the governed architecture package. Governance policy may block finalize when blocking findings remain.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Finalize on review detail",
   },
@@ -57,16 +56,16 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     shortBody:
       "Open the executive ROI summary on the dashboard — confirm evidence freshness and disposition-aware headline scope.",
     detail:
-      "Portfolio ROI uses latest committed review per system. Per-system rows do not sum to the headline — see the proof status strip for scope labels.",
+      "Portfolio ROI uses the latest finalized architecture package per system. Per-system rows do not sum to the headline — see the proof status strip for scope labels.",
     primaryHref: "/dashboard",
     primaryLabel: "Open ROI dashboard",
   },
   {
     title: "Export run-scoped audit CSV",
     shortBody:
-      "From a committed review, export audit events for proof-packet handoff — one click on Artifacts & exports.",
+      "From a finalized architecture package, export audit events for proof-packet handoff — one click on Artifacts & exports.",
     detail:
-      "Run-scoped audit CSV uses GET /v1/audit/export with runId filter. Auditor or Admin role required.",
+      "Review-scoped audit CSV is available from Artifacts & exports. Auditor or Admin role required.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Open Artifacts & exports",
   },
