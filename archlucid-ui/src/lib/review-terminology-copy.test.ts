@@ -24,7 +24,7 @@ describe("review terminology copy", () => {
       `open ${REVIEW_PACKAGE_LABEL.toLowerCase()} from compare`,
     );
     expect(buyerFacingReviewTerminology("Committed manifest and finding records")).toBe(
-      `committed ${REVIEW_PACKAGE_LABEL.toLowerCase()} and finding records`,
+      `finalized ${REVIEW_PACKAGE_LABEL.toLowerCase()} and finding records`,
     );
   });
 });
