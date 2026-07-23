@@ -31,7 +31,8 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md` | [`docs/onboarding/day-one-developer.md`](onboarding/day-one-developer.md) | Duplicate contributor stub — no unique content |
 | `docs/archive/FIRST_5_DOCS.md` | [`docs/START_HERE.md`](START_HERE.md) | Legacy five-doc spine bookmark stub |
 | `docs/archive/FIRST_FIVE_DOCS.md` | [`docs/START_HERE.md`](START_HERE.md) | Alternate spelling of `FIRST_5_DOCS` stub |
-| `docs/archive/READ_THIS_FIRST.md` | [`docs/READ_THIS_FIRST.md`](READ_THIS_FIRST.md) | Archive duplicate of root decision-tree stub |
+| `docs/READ_THIS_FIRST.md` | [`docs/START_HERE.md`](START_HERE.md) | Deprecated Y/N routing stub (2026-04-27) |
+| `docs/archive/READ_THIS_FIRST.md` | [`docs/START_HERE.md`](START_HERE.md) | Archive duplicate of root decision-tree stub |
 | `docs/archive/FIRST_RUN_WIZARD.md` | [`docs/library/FIRST_RUN_WIZARD.md`](library/FIRST_RUN_WIZARD.md) | Legacy wizard design-note bookmark stub |
 | `docs/archive/FIRST_RUN_WALKTHROUGH.md` | [`docs/library/FIRST_RUN_WALKTHROUGH.md`](library/FIRST_RUN_WALKTHROUGH.md) | Legacy first-run walkthrough bookmark stub |
 | `docs/archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md` | [`docs/START_HERE.md`](START_HERE.md) | Archived pre-spine reading-order table |

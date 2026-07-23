@@ -1,4 +1,6 @@
-"""Fail if docs/READ_THIS_FIRST.md links to a missing file (repo-relative).
+"""Fail if docs/START_HERE.md links to a missing file (repo-relative).
+
+Formerly checked ``docs/READ_THIS_FIRST.md`` (removed 2026-07-23; see ``docs/redirects.md``).
 
 Resolves the same relative markdown targets as ``check_doc_links.py`` (fragment
 and http targets skipped).
@@ -67,7 +69,7 @@ def main() -> int:
     parser.add_argument("--repo-root", type=Path, default=repo_root())
     args = parser.parse_args()
     root: Path = args.repo_root.resolve()
-    md_path = root / "docs" / "READ_THIS_FIRST.md"
+    md_path = root / "docs" / "START_HERE.md"
 
     if not md_path.is_file():
         print(f"Missing required file: {md_path}", file=sys.stderr)
@@ -94,7 +96,7 @@ def main() -> int:
 
         return 1
 
-    print("check_read_this_first_links: OK.")
+    print("check_read_this_first_links: OK (START_HERE.md).")
     return 0
 
 
