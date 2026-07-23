@@ -5,6 +5,7 @@ import type { RefObject } from "react";
 import { AppToaster } from "@/components/AppToaster";
 import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
+import { useOperatorShellAccessRedirects } from "@/hooks/useOperatorShellAccessRedirects";
 
 type OperatorShellDeferredChromeProps = {
   shellRootRef: RefObject<HTMLDivElement | null>;
@@ -12,6 +13,8 @@ type OperatorShellDeferredChromeProps = {
 
 /** Full-viewport neutral shell while access gates resolve — no sidebar or top bar (TB-730). */
 export function OperatorShellDeferredChrome({ shellRootRef }: OperatorShellDeferredChromeProps) {
+  useOperatorShellAccessRedirects();
+
   return (
     <>
       <div

@@ -1,12 +1,12 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 
 import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { useOperatorShellAccessRedirects } from "@/hooks/useOperatorShellAccessRedirects";
 import { operatorPrincipalLacksArchLucidAccess } from "@/lib/access-denied-context";
-import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import {
   pathnameExemptFromOperatorAccessGate,
   shouldDeferOperatorShellChrome,
@@ -24,35 +24,11 @@ type OperatorRoleGateProps = {
  */
 export function OperatorRoleGate({ children }: OperatorRoleGateProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const jwtSignedIn = isJwtAuthMode() && isLikelySignedIn();
   const lacksArchLucidAccess = operatorPrincipalLacksArchLucidAccess(currentPrincipal, { jwtSignedIn });
 
-  useEffect(() => {
-    if (pathnameExemptFromOperatorAccessGate(pathname)) {
-      return;
-    }
-
-    if (isAuthorityLoading) {
-      return;
-    }
-
-    if (isJwtAuthMode() && !isLikelySignedIn()) {
-      const returnPath =
-        typeof window !== "undefined" ? `${pathname}${window.location.search}` : pathname;
-
-      router.replace(buildAuthSignInHref({ returnPath }));
-
-      return;
-    }
-
-    if (!lacksArchLucidAccess) {
-      return;
-    }
-
-    router.replace("/403");
-  }, [currentPrincipal, isAuthorityLoading, jwtSignedIn, lacksArchLucidAccess, pathname, router]);
+  useOperatorShellAccessRedirects();
 
   if (pathnameExemptFromOperatorAccessGate(pathname)) {
     return <>{children}</>;
