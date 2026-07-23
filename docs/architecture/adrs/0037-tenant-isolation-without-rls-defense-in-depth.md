@@ -66,7 +66,7 @@ ArchLucid is multi-tenant on Azure SQL. [ADR 0003](0003-sql-rls-session-context.
 ## Expected impact
 
 - **Security posture:** Isolation is **demonstrable** as catalog routing + scoped APIs; assessors should verify bindings and connection factory behavior, not RLS policy catalogs. Residual risk shifts to **application bugs within a tenant catalog** and **platform-operator cross-tenant tools** — both covered by tests and RBAC respectively.
-- **Operations:** Provisioning and backup are **per catalog**; runbooks in [`TENANT_SQL_TOPOLOGY_RUNBOOK.md`](../../runbooks/TENANT_SQL_TOPOLOGY_RUNBOOK.md) remain authoritative.
+- **Operations:** Provisioning and backup are **per catalog**; runbooks in [`TENANT_SQL_TOPOLOGY_RUNBOOK.md`](../../operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md) remain authoritative.
 - **Cost:** No RLS predicate evaluation on every query; elastic pool standby catalogs unchanged.
 - **Engineering / CI:** Architecture reviews and agent assessments **must not** list “missing RLS” as a headline defect when this ADR applies; instead evaluate layers B–F and binding correctness. CI guard `assert_tenant_isolation_defense_in_depth.py` blocks regression of this decision in docs and pilot copy.
 

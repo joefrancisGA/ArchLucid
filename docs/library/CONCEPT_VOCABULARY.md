@@ -1,11 +1,11 @@
-> **Scope:** Contributor-reference — Writer-facing canonical-vs-rejected vocabulary for docs and copy — not the five-minute mental model (`CONCEPTS_IN_5_MINUTES.md`); not term definitions (`GLOSSARY.md`).
+> **Scope:** Contributor-reference — Writer-facing canonical-vs-rejected vocabulary for docs and copy — not the five-minute mental model (`customer-facing/CONCEPTS_IN_5_MINUTES.md`); not term definitions (`GLOSSARY.md`).
 
 # Concept vocabulary (canonical forms)
 
 **Relationship:**
 
 - **[`GLOSSARY.md`](GLOSSARY.md)** — *"What does X mean?"*
-- **[`CONCEPTS_IN_5_MINUTES.md`](CONCEPTS_IN_5_MINUTES.md)** — quick mental model for new readers
+- **[`customer-facing/CONCEPTS_IN_5_MINUTES.md`](customer-facing/CONCEPTS_IN_5_MINUTES.md)** — quick mental model for new readers
 - **This file** — *"If two phrasings exist, which is canonical in our docs?"*
 
 > **CI guard.** [`scripts/ci/check_concept_vocabulary.py`](../../scripts/ci/check_concept_vocabulary.py) enforces the rules in **§ 1.1** only. This file may quote rejected forms in rationale text and is excluded from the scan.
@@ -45,5 +45,5 @@ Promote a row to § 1.1 only after ripgrep on `docs/` (excluding `docs/archive/`
 
 - [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) — buyer-facing persona and artifact vocabulary
 - [`GLOSSARY.md`](GLOSSARY.md)
-- [`CONCEPTS_IN_5_MINUTES.md`](CONCEPTS_IN_5_MINUTES.md)
+- [`customer-facing/CONCEPTS_IN_5_MINUTES.md`](customer-facing/CONCEPTS_IN_5_MINUTES.md)
 - [`scripts/ci/check_concept_vocabulary.py`](../../scripts/ci/check_concept_vocabulary.py)
