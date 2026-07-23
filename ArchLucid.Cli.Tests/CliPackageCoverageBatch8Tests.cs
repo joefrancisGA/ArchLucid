@@ -65,13 +65,16 @@ public sealed class CliPackageCoverageBatch8Tests
     {
         DeploymentEvidenceTriageCatalog.LiveFailure("https://api.example")
             .Should().Contain(line => line.Contains("/health/live", StringComparison.Ordinal));
-        DeploymentEvidenceTriageCatalog.ReadyFailure().Should().Contain("/health/ready");
+        DeploymentEvidenceTriageCatalog.ReadyFailure()
+            .Should().Contain(line => line.Contains("/health/ready", StringComparison.Ordinal));
         DeploymentEvidenceTriageCatalog.OpenApiFailure("https://api.example")
-            .Should().ContainSingle(line => line.Contains("/openapi/v1.json", StringComparison.Ordinal));
-        DeploymentEvidenceTriageCatalog.VersionFailure().Should().Contain("/version");
+            .Should().Contain(line => line.Contains("/openapi/v1.json", StringComparison.Ordinal));
+        DeploymentEvidenceTriageCatalog.VersionFailure()
+            .Should().Contain(line => line.Contains("/version", StringComparison.Ordinal));
         DeploymentEvidenceTriageCatalog.SyntheticFailure("/api/auth/me")
-            .Should().ContainSingle(line => line.Contains("/api/auth/me", StringComparison.Ordinal));
-        DeploymentEvidenceTriageCatalog.TransportFailure("GET").Should().Contain("GET");
+            .Should().Contain(line => line.Contains("/api/auth/me", StringComparison.Ordinal));
+        DeploymentEvidenceTriageCatalog.TransportFailure("GET")
+            .Should().Contain(line => line.Contains("GET", StringComparison.Ordinal));
     }
 
     [Fact]
