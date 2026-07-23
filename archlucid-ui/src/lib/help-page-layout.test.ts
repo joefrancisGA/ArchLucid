@@ -41,4 +41,10 @@ describe("help-page-layout", () => {
     expect(HELP_PAGE_TOC.nav).toContain("overflow-y-auto");
     expect(HELP_PAGE_TOC.nav).toContain("max-h-[calc");
   });
+
+  it("defines a wider technical-reference grid and content column", () => {
+    expect(HELP_PAGE_LAYOUT.technicalReferenceGrid).toContain("18rem");
+    expect(HELP_PAGE_LAYOUT.technicalReferenceColumn).toContain("lg:max-w-[52rem]");
+    expect(HELP_PAGE_LAYOUT.technicalReferenceArticle).toContain("72rem");
+  });
 });

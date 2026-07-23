@@ -8,6 +8,7 @@ import { HelpBillingAndPlansGuideView } from "../_sections/HelpBillingAndPlansGu
 import { HelpFindingsGuideView } from "../_sections/HelpFindingsGuideView";
 import { HelpGlossaryPageView } from "../_sections/HelpGlossaryPageView";
 import { HelpUsersAndRolesGuideView } from "../_sections/HelpUsersAndRolesGuideView";
+import { HelpCliUsageTechnicalReferenceView } from "../_sections/HelpCliUsageTechnicalReferenceView";
 import { HelpGovernanceApprovalGuideView } from "../_sections/HelpGovernanceApprovalGuideView";
 import { HelpAzurePermissionsGuideView } from "../_sections/HelpAzurePermissionsGuideView";
 import { HelpConnectAzureSecurelyGuideView } from "../_sections/HelpConnectAzureSecurelyGuideView";
@@ -111,6 +112,10 @@ function renderHelpTopicView(
 
   if (loaded.entry.slug === "governance-approval") {
     return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "cli-usage") {
+    return <HelpCliUsageTechnicalReferenceView entry={loaded.entry} markdown={loaded.markdown} />;
   }
 
   if (loaded.entry.slug === "glossary") {
