@@ -1,4 +1,4 @@
-> **Scope:** Consolidated security and procurement posture for buyers ‚Äî links only to in-repo evidence; no third-party attestation claims beyond what cited files state.
+> **Scope:** Consolidated security and procurement posture for buyers ‚‚‚Ä≈°¨‚Äù links only to in-repo evidence; no third-party attestation claims beyond what cited files state.
 
 # ArchLucid Trust Center
 
@@ -16,13 +16,13 @@ This page is the **single buyer-facing index** for security questionnaires, self
 
 **Canonical artefact/status table:** [PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md) (`scripts/ci/check_procurement_pack_index.py` validates paths, **90-day** freshness on **Implemented** and **Self-asserted** canonical rows, buyer-placeholder strictness, forbidden false-assurance wording, and **Procurement artifact status map** status tokens). **Ultra-short skim (same curated paths):** [PROCUREMENT_FAST_LANE.md](PROCUREMENT_FAST_LANE.md).
 
-For spreadsheets (SIG-, CAIQ-style rows), use **[Procurement FAQ](/help/procurement)** and the in-repo **[PROCUREMENT_RESPONSE_ACCELERATOR.md](PROCUREMENT_RESPONSE_ACCELERATOR.md)** ‚Äî **50** prompts grouped like SIG themes, each row pointing **only** to existing repository evidence (**no fabricated SOC 2 Type II issuance**).
+For spreadsheets (SIG-, CAIQ-style rows), use **[Procurement FAQ](/help/procurement)** and the in-repo **[PROCUREMENT_RESPONSE_ACCELERATOR.md](PROCUREMENT_RESPONSE_ACCELERATOR.md)** ‚‚‚Ä≈°¨‚Äù **50** prompts grouped like SIG themes, each row pointing **only** to existing repository evidence (**no fabricated SOC 2 Type II issuance**).
 
 ---
 
 ## Healthcare and PHI
 
-ArchLucid is for **architecture and governance evidence** about systems you describe ‚Äî not a regulated record system for clinical care. **Do not upload PHI** into briefs, uploads, or free-text fields intended for architecture context. For **BAA**, **MSA/DPA** wording, or **contractual** posture beyond the in-repo templates ([DPA template](/help/dpa-template), [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md), [`V1_SCOPE.md`](../library/V1_SCOPE.md)), contact **`sales@archlucid.net`**. For **tenant isolation** and residency messaging aimed at procurement, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Deeper **vertical positioning** (Medicare/Medicaidñadjacent patterns, starter HIPAA *program* mapping for conversations ‚Äî not a legal attestation) lives in [`HEALTHCARE_VERTICAL_BRIEF.md`](HEALTHCARE_VERTICAL_BRIEF.md). This section states product fit and data-handling expectations only; it does **not** add new compliance-certification claims beyond what linked documents already say.
+ArchLucid is for **architecture and governance evidence** about systems you describe ‚‚‚Ä≈°¨‚Äù not a regulated record system for clinical care. **Do not upload PHI** into briefs, uploads, or free-text fields intended for architecture context. For **BAA**, **MSA/DPA** wording, or **contractual** posture beyond the in-repo templates ([DPA template](/help/dpa-template), [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md), [`V1_SCOPE.md`](../library/V1_SCOPE.md)), contact **`sales@archlucid.net`**. For **tenant isolation** and residency messaging aimed at procurement, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Deeper **vertical positioning** (Medicare/Medicaid‚Äìadjacent patterns, starter HIPAA *program* mapping for conversations ‚‚‚Ä≈°¨‚Äù not a legal attestation) lives in [`HEALTHCARE_VERTICAL_BRIEF.md`](HEALTHCARE_VERTICAL_BRIEF.md). This section states product fit and data-handling expectations only; it does **not** add new compliance-certification claims beyond what linked documents already say.
 
 ---
 
@@ -38,17 +38,17 @@ ArchLucid is for **architecture and governance evidence** about systems you desc
 
 Details: [Cloud connections](/help/cloud-connections), operator runbook [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md), and technical follow-ups [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
 
-**Azure ‚Äî what we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role ‚Äî see [`AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](AZURE_EXTRACTOR_INFOSEC_PREREAD.md) for the explicit buyer-facing list.
+**Azure ‚‚‚Ä≈°¨‚Äù what we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role ‚‚‚Ä≈°¨‚Äù see [`AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](AZURE_EXTRACTOR_INFOSEC_PREREAD.md) for the explicit buyer-facing list.
 
 ---
 
 ## Download the evidence pack
 
-Procurement teams can pull every artefact below in one ZIP ‚Äî generated on-demand from the in-repo source files (no third-party tracking, no email gate, anonymous):
+Procurement teams can pull every artefact below in one ZIP ‚‚‚Ä≈°¨‚Äù generated on-demand from the in-repo source files (no third-party tracking, no email gate, anonymous):
 
 > **[? Download evidence pack (ZIP)](https://api.archlucid.net/v1/marketing/trust-center/evidence-pack.zip)**
 
-The ZIP includes the DPA template, subprocessors register, SLA summary, `security.txt`, CAIQ Lite pre-fill, SIG Core pre-fill, owner-conducted security self-assessment (not third-party audited), 2026-Q2 pen-test SoW **template** (reserved for a planned, not yet scheduled vendor engagement), and the audit coverage matrix ‚Äî plus an auto-generated `README.md` index. The HTTP response carries an `ETag` (SHA-256 of the included files' content) and a `Cache-Control: public, max-age=3600` header; resending the same ETag in `If-None-Match` returns `304 Not Modified`. The endpoint **deliberately omits** the redacted **third-party** pen-test summary because no third-party assessor report exists yet, and the PGP key (V1.1).
+The ZIP includes the DPA template, subprocessors register, SLA summary, `security.txt`, CAIQ Lite pre-fill, SIG Core pre-fill, owner-conducted security self-assessment (not third-party audited), 2026-Q2 pen-test SoW **template** (reserved for a planned, not yet scheduled vendor engagement), and the audit coverage matrix ‚‚‚Ä≈°¨‚Äù plus an auto-generated `README.md` index. The HTTP response carries an `ETag` (SHA-256 of the included files' content) and a `Cache-Control: public, max-age=3600` header; resending the same ETag in `If-None-Match` returns `304 Not Modified`. The endpoint **deliberately omits** the redacted **third-party** pen-test summary because no third-party assessor report exists yet, and the PGP key (V1.1).
 
 ---
 
@@ -57,10 +57,10 @@ The ZIP includes the DPA template, subprocessors register, SLA summary, `securit
 | Control | Status | Evidence | Last reviewed |
 |---------|--------|----------|---------------|
 | SOC 2 Common Criteria mapping (self-assessment, not attestation) | Self-asserted | [SOC 2 self-assessment](/help/soc2-self-assessment), [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | 2026-04-24 |
-| Independent penetration test programme (third-party vendor-led) | Planned, not yet scheduled ‚Äî no vendor committed | [V1_DEFERRED.md ß6c](../library/V1_DEFERRED.md), [V1_SCOPE.md ß3](../library/V1_SCOPE.md) | 2026-05-01 |
+| Independent penetration test programme (third-party vendor-led) | Planned, not yet scheduled ‚‚‚Ä≈°¨‚Äù no vendor committed | [V1_DEFERRED.md ß6c](../library/V1_DEFERRED.md), [V1_SCOPE.md ß3](../library/V1_SCOPE.md) | 2026-05-01 |
 | 2026-Q2 owner-conducted penetration-style assessment | In progress / tracked | [2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) | 2026-05-01 |
-| Third-party pen-test SoW template (no awarded vendor) | Template only ‚Äî use when a vendor engagement is scheduled | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) | 2026-05-01 |
-| SOC 2 Type II attestation (CPA) ‚Äî procurement status | Self-asserted | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) (states **not yet issued**; interim evidence is the self-assessment above) | 2026-04-24 |
+| Third-party pen-test SoW template (no awarded vendor) | Template only ‚‚‚Ä≈°¨‚Äù use when a vendor engagement is scheduled | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) | 2026-05-01 |
+| SOC 2 Type II attestation (CPA) ‚‚‚Ä≈°¨‚Äù procurement status | Self-asserted | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) (states **not yet issued**; interim evidence is the self-assessment above) | 2026-04-24 |
 | Durable audit catalog (append-only design) | Self-asserted | [Audit trail](/help/audit-trail) | 2026-04-24 |
 | V1 scalability (single-region contract; documented levers; in-repo k6/load evidence) | Self-asserted | [BUYER_SCALABILITY_FAQ.md](../library/BUYER_SCALABILITY_FAQ.md) | 2026-04-29 |
 | Penetration test remediation tracking (process) | Self-asserted | [REMEDIATION_TRACKER.md](../security/pen-test-summaries/REMEDIATION_TRACKER.md) | 2026-04-24 |
@@ -85,7 +85,7 @@ This page participates in CI merge gates:
 ArchLucid publishes internal analysis, architecture, and control-mapping documents. They are **not** substitutes for a CPA SOC 2 report or a completed external pen test.
 
 
-**Production tenant isolation** uses a **database-per-tenant** catalog model (`SystemWithPerTenantCatalogs`) with defense-in-depth layers (catalog routing, typed tenant scope, route binding, repository predicates, blob path prefixing) ‚Äî not primary reliance on SQL RLS. See [ADR 0037 ‚Äî tenant isolation without RLS](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) and [Tenant isolation defense-in-depth](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
+**Production tenant isolation** uses a **database-per-tenant** catalog model (`SystemWithPerTenantCatalogs`) with defense-in-depth layers (catalog routing, typed tenant scope, route binding, repository predicates, blob path prefixing) ‚‚‚Ä≈°¨‚Äù not primary reliance on SQL RLS. See [ADR 0037 ‚‚‚Ä≈°¨‚Äù tenant isolation without RLS](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) and [Tenant isolation defense-in-depth](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 - [Row-level security (RLS) and session context](../security/MULTI_TENANT_RLS.md)
 - [RLS risk acceptance](../security/RLS_RISK_ACCEPTANCE.md)
 - [System threat model (STRIDE)](../security/SYSTEM_THREAT_MODEL.md)
@@ -101,7 +101,7 @@ ArchLucid publishes internal analysis, architecture, and control-mapping documen
 
 ## Planned controls
 
-Work tracked for a future release window; see linked deferral register (e.g. PGP coordinated-disclosure key). **Third-party** pen testing is planned, not yet scheduled ‚Äî see [V1_DEFERRED.md ß6c](../library/V1_DEFERRED.md).
+Work tracked for a future release window; see linked deferral register (e.g. PGP coordinated-disclosure key). **Third-party** pen testing is planned, not yet scheduled ‚‚‚Ä≈°¨‚Äù see [V1_DEFERRED.md ß6c](../library/V1_DEFERRED.md).
 
 - [Deferred assurance and packaging (V1_DEFERRED)](../library/V1_DEFERRED.md)
 
@@ -117,14 +117,14 @@ Work tracked for a future release window; see linked deferral register (e.g. PGP
 
 ## Support responsiveness
 
-In-product **Report problem** (on high-stakes error surfaces) submits through the structured intake API and returns a durable **report reference** id in the dialog, with submitter email acknowledgement when your account has a mailbox on file. ArchLucid commits to **respond by the next business day** for those structured reports ‚Äî not immediate chat and not always-on live monitoring. Email to **support@archlucid.net** remains a manual path when you are not on a failure page; it does not automatically mint a system report reference. See **[Report a problem](/help/report-a-problem)** for the full workflow.
+In-product **Report problem** (on high-stakes error surfaces) submits through the structured intake API and returns a durable **report reference** id in the dialog, with submitter email acknowledgement when your account has a mailbox on file. ArchLucid commits to **respond by the next business day** for those structured reports ‚‚‚Ä≈°¨‚Äù not immediate chat and not always-on live monitoring. Email to **support@archlucid.net** remains a manual path when you are not on a failure page; it does not automatically mint a system report reference. See **[Report a problem](/help/report-a-problem)** for the full workflow.
 
 ---
 
 ## Customer-facing artifacts
 
 - [Data Processing Agreement (template)](/help/dpa-template)
-- [GDPR Data Subject Access Request (operator process)](../security/DSAR_PROCESS.md) ‚Äî PII map, DSAR fulfillment, erasure constraints vs append-only audit.
+- [GDPR Data Subject Access Request (operator process)](../security/DSAR_PROCESS.md) ‚‚‚Ä≈°¨‚Äù PII map, DSAR fulfillment, erasure constraints vs append-only audit.
 - [Subprocessors](/help/subprocessors)
 - [CAIQ Lite / SIG Core questionnaire responses](/help/caiq-sig-response)
 
