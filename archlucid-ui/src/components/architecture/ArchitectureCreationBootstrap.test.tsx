@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ARCHITECTURE_CREATION_BOOTSTRAP_INTENT } from "@/lib/architecture-creation-bootstrap";
 import {
@@ -12,7 +12,11 @@ import {
   START_NEW_ARCHITECTURE_LABEL,
   VIEW_ALL_DRAFTS_LABEL,
 } from "@/lib/architecture-workflow-labels";
-import { CREATE_ARCHITECTURE_STARTING_LABEL } from "@/lib/review-start-progress-copy";
+import {
+  CREATE_ARCHITECTURE_BOOTSTRAP_TIMEOUT_MS,
+  CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE,
+  CREATE_ARCHITECTURE_STARTING_LABEL,
+} from "@/lib/review-start-progress-copy";
 import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture-draft-status";
 
 const listArchitectureDraftRegistryEntries = vi.fn();
@@ -60,6 +64,10 @@ beforeEach(() => {
   initializeArchitectureCreation.mockReset();
   clearArchitectureCreationDraftId.mockReset();
   replace.mockReset();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("ArchitectureCreationBootstrap", () => {
@@ -169,5 +177,27 @@ describe("ArchitectureCreationBootstrap", () => {
     });
 
     expect(replace.mock.calls[0]?.[0]).not.toMatch(/\/reviews\//);
+  });
+
+  it("recovers from a hung draft create instead of staying on Starting architecture…", async () => {
+    listArchitectureDraftRegistryEntries.mockReturnValue([]);
+    initializeArchitectureCreation.mockImplementation(() => new Promise(() => undefined));
+
+    render(<ArchitectureCreationBootstrap />);
+
+    const startButton = await screen.findByTestId("architecture-creation-start-new");
+    vi.useFakeTimers();
+    fireEvent.click(startButton);
+    expect(screen.getByTestId("architecture-creation-bootstrap-creating")).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(CREATE_ARCHITECTURE_BOOTSTRAP_TIMEOUT_MS);
+    });
+
+    expect(screen.getByTestId("architecture-creation-bootstrap-error")).toHaveTextContent(
+      CREATE_ARCHITECTURE_DRAFT_START_FAILED_MESSAGE,
+    );
+    expect(screen.getByTestId("architecture-creation-bootstrap-ready")).toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
   });
 });
