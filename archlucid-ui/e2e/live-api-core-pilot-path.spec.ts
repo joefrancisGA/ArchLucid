@@ -81,8 +81,20 @@ test.describe("live-api-core-pilot-path", () => {
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({ timeout: 60_000 });
 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
-    const deliverablesRegion = page.getByRole("region", { name: "Deliverables grouped by audience" });
-    await expect(deliverablesRegion).toBeVisible();
-    await expect(deliverablesRegion.getByRole("columnheader", { name: "Output" })).toHaveCount(2);
+    await expect(page.getByTestId("buyer-deliverables-artifact-tabs")).toBeVisible();
+
+    const executivePanel = page.getByTestId("buyer-deliverables-panel-executive");
+    const executiveRegion = executivePanel.getByRole("region", { name: "Deliverables grouped by audience" });
+
+    await expect(executiveRegion).toBeVisible();
+    await expect(executiveRegion.getByRole("columnheader", { name: "Output" })).toBeVisible();
+
+    await page.getByRole("tab", { name: "Architecture review board artifacts" }).click();
+
+    const arbPanel = page.getByTestId("buyer-deliverables-panel-arb");
+    const arbRegion = arbPanel.getByRole("region", { name: "Deliverables grouped by audience" });
+
+    await expect(arbRegion).toBeVisible();
+    await expect(arbRegion.getByRole("columnheader", { name: "Output" })).toBeVisible();
   });
 });

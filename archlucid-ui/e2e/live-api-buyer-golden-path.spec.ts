@@ -26,6 +26,7 @@ import {
 } from "./helpers/live-page-readiness";
 import {
   askPageMainHeading,
+  auditPageMainHeading,
   comparePageMainHeading,
   expectGraphPageReadySurface,
   expectLiveManifestDetailPageReady,
@@ -108,7 +109,9 @@ test.describe("live-api-buyer-golden-path", () => {
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(liveBuyerGoldenPathHrefs.auditTrail);
-    await expect(page.getByRole("heading", { level: 2, name: /Audit trail for/i })).toBeVisible({ timeout: 60_000 });
+    await waitForLiveOperatorPageHydration(page);
+    await expect(auditPageMainHeading(page)).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("audit-page-title")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("audit-buyer-metric-tiles")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByTestId("audit-timeline-event-card").first()).toBeVisible({ timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
