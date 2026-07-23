@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-23
 > **Scope:** Buyer-facing PDF export strategy for trust-center and diligence packets.
 
 # PDF documentation strategy

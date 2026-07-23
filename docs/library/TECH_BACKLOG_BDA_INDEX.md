@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-23
 > **Scope:** Contributor-reference — engineering index for buyer-demo defect remediation (**TB-273**). Canonical per-issue detail remains in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) § TB-273 (**BDA-001…150**, all 150 issues). Re-validation spot-check: **TB-275** (2026-06-04). Does not change `(A)` assessment scores per `Assessment-Scope-V1_1.mdc`.
 
 # TB-273 / BDA batch tracker

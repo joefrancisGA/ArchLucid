@@ -5,7 +5,7 @@
 
 # API controller area map
 
-**Search / links:** some docs use **[API_CONTROLLER_MAP.md](API_CONTROLLER_MAP.md)** — that file is an **alias** to this page.
+**Search / links:** former filename **`API_CONTROLLER_MAP.md`** redirects here (see [`../redirects.md`](../redirects.md)).
 
 `ArchLucid.Api/Controllers/` groups endpoints by **bounded context** using **physical area folders** and matching namespaces `ArchLucid.Api.Controllers.{Area}`.
 
