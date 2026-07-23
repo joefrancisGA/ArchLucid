@@ -100,7 +100,7 @@ Implement a small **documentation registry** (code + generated manifest) that ma
 
 - **Product topic id** (stable slug)
 - **Canonical in-app route**
-- **Source markdown path(s)** in the repo (may be multiple for merged topics)
+- **Source markdown path(s)** in the repo (may be multiple for merged topics; empty when the topic is app-rendered, e.g. glossary)
 - **Audience** (`operator`, `buyer`, `marketing`, `developer`)
 - **Redirect resolution** — if a source file is a compatibility stub, the registry must point at the **final** canonical markdown body, never the stub
 

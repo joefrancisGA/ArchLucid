@@ -21,7 +21,13 @@ import { KeyboardShortcutsTabContent, matchesShortcutQuery } from "@/components/
 import { ALERTS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
 import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
-import { getDocHref, helpTopicsForGuidesTab, helpTopicsForTroubleshootingTab, type HelpTopic } from "@/lib/help-topics";
+import {
+  getDocHref,
+  getHelpTopicHref,
+  helpTopicsForGuidesTab,
+  helpTopicsForTroubleshootingTab,
+  type HelpTopic,
+} from "@/lib/help-topics";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
@@ -71,7 +77,7 @@ function HelpGuideTopicLinkRow({ topic, href, onNavigate }: HelpGuideTopicLinkRo
     <li className="list-none">
       <Link
         href={href}
-        title={topic.docPath}
+        title={topic.docPath.length > 0 ? topic.docPath : href}
         className={cn(
           "flex w-full items-start gap-3 rounded-md border border-neutral-200/90 bg-white p-3 text-left shadow-sm transition-colors hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900/50 dark:hover:border-neutral-500 dark:hover:bg-neutral-900",
           OPERATOR_LINK.nav,
@@ -341,7 +347,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
               ) : (
                 <ul className="m-0 space-y-2 p-0">
                   {guidesFiltered.map((topic) => {
-                    const href = getDocHref(topic.docPath);
+                    const href = getHelpTopicHref(topic);
 
                     if (href === null) {
                       return (
@@ -381,7 +387,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
               ) : (
                 <ul className="m-0 space-y-2 p-0">
                   {troubleshootingFiltered.map((topic) => {
-                    const href = getDocHref(topic.docPath);
+                    const href = getHelpTopicHref(topic);
 
                     if (href === null) {
                       return (

@@ -1,14 +1,17 @@
 import { tryResolveInAppDocHref } from "./in-app-doc-href";
 
 /**
- * Static contextual help index for the operator shell. Doc paths are relative to the repository root.
+ * Static contextual help index for the architect workspace. Doc paths are relative to the repository root.
  */
 export type HelpTopic = {
   id: string;
   title: string;
   keywords: string[];
   summary: string;
-  /** Relative path under repo root (for copy/paste; web URL via getDocHref). */
+  /**
+   * Relative path under repo root (for copy/paste; web URL via getDocHref).
+   * Empty when the topic is app-rendered only — prefer `routes` that start with `/help`.
+   */
   docPath: string;
   /** App routes where this topic is most relevant (pathname prefix or exact). */
   routes: string[];
@@ -187,7 +190,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Glossary",
     keywords: ["terms", "definitions", "finding", "risk", "review", "evidence trail"],
     summary: "Customer-facing definitions for review, evidence, governance, and organization terms.",
-    docPath: "docs/library/customer-facing/CUSTOMER_GLOSSARY.md",
+    docPath: "",
     routes: ["/help/glossary"],
   },
   {
@@ -227,6 +230,23 @@ export function getDocHref(docPath: string): string | null {
   }
 
   return tryResolveInAppDocHref(relative);
+}
+
+/**
+ * Prefer an explicit `/help…` route on the topic; otherwise resolve `docPath` to an in-app help href.
+ */
+export function getHelpTopicHref(topic: HelpTopic): string | null {
+  const helpRoute = topic.routes.find((route) => {
+    const trimmed = route.trim();
+
+    return trimmed === "/help" || trimmed.startsWith("/help/");
+  });
+
+  if (helpRoute !== undefined) {
+    return helpRoute.trim();
+  }
+
+  return getDocHref(topic.docPath);
 }
 
 export function helpTopicsForGuidesTab(): HelpTopic[] {
