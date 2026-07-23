@@ -395,7 +395,7 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_integration_recipes_link_alignment.py"
 
-      - name: READ_THIS_FIRST.md â€” relative targets exist
+      - name: START_HERE.md — relative targets exist
         continue-on-error: true
         run: python scripts/ci/check_read_this_first_links.py
 

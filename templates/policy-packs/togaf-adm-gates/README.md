@@ -15,4 +15,4 @@
 2. Replace short descriptions with your organization’s mandated controls and RACI checkpoints.
 3. Publish through the Operator **Policy packs** UI or your CI pipeline that already promotes JSON policy artifacts.
 
-Cross-links: **`docs/library/GOVERNANCE.md`** (effective governance merges), **`docs/library/GLOSSARY.md`**, ADM primer in your EA practice manual.
+Cross-links: **`docs/library/contributor-reference/GOVERNANCE.md`** (effective governance merges), **`docs/library/GLOSSARY.md`**, ADM primer in your EA practice manual.
