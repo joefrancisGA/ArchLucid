@@ -1,6 +1,6 @@
 /**
  * Progressive disclosure labels (sidebar + inline help). Tier model unchanged; copy only.
- * @see `docs/library/operator-shell.md`
+ * @see `docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md`
  */
 /** Sidebar collapsed-pilot expand control — intent over feature count. */
 export const SIDEBAR_SHOW_ALL_FEATURES = {

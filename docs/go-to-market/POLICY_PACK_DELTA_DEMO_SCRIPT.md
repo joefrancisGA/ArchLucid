@@ -1,10 +1,12 @@
-> **Scope:** Repeatable sales/CS demo — same architecture review, different policy-pack enforcement, different pre-commit gate outcome. Uses shipped V1 governance dry-run and simulation endpoints only.
+> **Scope:** Repeatable sales/CS demo — same architecture review, different policy-pack enforcement, different pre-finalize gate outcome. Uses shipped V1 governance dry-run and simulation endpoints only.
+>
+> **Audience:** Sales engineers and CS (Admin / operator shell). Not a buyer self-serve help topic — buyers should use in-app [Governance approval](/help/governance-approval) and [Understanding governance alerts](/help/alerts) instead of running this script alone.
 
 # Policy-pack delta demo script
 
-**Audience:** Sales engineers, CS, and founders answering *"Why not another ChatGPT seat?"*
+**Audience:** Sales engineers, CS, and founders answering *"Why not another ChatGPT seat?"* (Admin / operator shell)
 
-**Buyer outcome:** Prospects see that **policy assignments change commit gate outcomes** on the **same committed run** — not just different finding prose.
+**Buyer outcome:** Prospects see that **policy assignments change finalize-gate outcomes** on the **same finalized architecture package** — not just different finding prose.
 
 **Grounding rule:** Dry-run and simulation output is **architecture-review governance evidence**, not certification. See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) and [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
 

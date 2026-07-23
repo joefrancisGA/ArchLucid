@@ -184,7 +184,11 @@ describe("product-documentation-registry", () => {
   });
 
   it("tags internal-runbook slugs with internal-runbook contentKind (TB-732)", () => {
-    const internalRunbookSlugs = ["first-value-20-minutes"] as const;
+    const internalRunbookSlugs = [
+      "first-value-20-minutes",
+      "first-review",
+      "policy-pack-delta-demo",
+    ] as const;
 
     for (const slug of internalRunbookSlugs) {
       expect(isInternalRunbookSlug(slug)).toBe(true);

@@ -4,7 +4,11 @@ export type ProductDocumentationContentKind =
   | "technical-documentation"
   | "internal-runbook";
 
-const INTERNAL_RUNBOOK_SLUGS = new Set<string>(["first-value-20-minutes"]);
+const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
+  "first-value-20-minutes",
+  "first-review",
+  "policy-pack-delta-demo",
+]);
 
 /** Canonical `contentKind` for every `product-documentation-registry.ts` slug. */
 export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
@@ -38,7 +42,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   findings: "product-help",
   "first-hour-operator-path": "product-help",
   "first-pilot-path": "product-help",
-  "first-review": "product-help",
+  "first-review": "internal-runbook",
   "first-value-20-minutes": "internal-runbook",
   "getting-started": "product-help",
   "governance-api-contracts": "technical-documentation",
@@ -53,7 +57,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "pilot-nav-profile": "product-help",
   "pilot-roi-model": "product-help",
   "prior-manifest-retrieval": "product-help",
-  "policy-pack-delta-demo": "product-help",
+  "policy-pack-delta-demo": "internal-runbook",
   "product-overview": "product-help",
   procurement: "product-help",
   "caiq-sig-response": "product-help",

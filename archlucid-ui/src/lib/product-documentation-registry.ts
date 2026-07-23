@@ -57,9 +57,9 @@ export function normalizeHelpTopicSlug(slug: string): string {
 const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistryInput[] = [
   {
     slug: "first-review",
-    title: "First review in 90 minutes",
+    title: "First-run evidence checklist (internal runbook)",
     summary:
-      "Printable first-run evidence checklist — demo or new request through finalize, extractor ZIP upload, ROI proof, and audit export.",
+      "Admin-only SE/ops printable checklist — Azure extractor Tier 1, finalize, ROI proof, and audit export. Customer architects should use Your first architecture review or Complete review workflow instead.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md"],
   },
@@ -67,9 +67,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "pilot-nav-profile",
     title: "Workspace navigation profile",
     summary:
-      "How the sidebar keeps the first-review path focused until your first review is committed — and how to unlock analysis and governance on demand.",
+      "How the sidebar keeps the first-review path focused until your first architecture package is finalized — and how to unlock analysis and governance on demand.",
     audience: "operator",
-    sourcePaths: ["docs/library/operator-shell.md"],
+    sourcePaths: ["docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md"],
     sectionAnchors: ["what-you-see", "main-workflow"],
   },
   {
@@ -117,7 +117,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "prior-manifest-retrieval",
     title: "Prior manifest retrieval",
     summary:
-      "How finalized reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy runs.",
+      "How finalized architecture packages become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy packages.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md"],
   },
@@ -535,9 +535,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "policy-pack-delta-demo",
-    title: "Policy-pack delta demo",
+    title: "Policy-pack delta demo (internal runbook)",
     summary:
-      "Repeatable demo: same committed review, stricter pack enforcement, different pre-commit gate outcome — dry-run, simulation, and audit slice.",
+      "Admin/SE demo script: same finalized architecture package, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.",
     audience: "operator",
     sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },

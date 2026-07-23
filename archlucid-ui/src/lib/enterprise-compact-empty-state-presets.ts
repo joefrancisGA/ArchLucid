@@ -34,7 +34,7 @@ export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStatePro
   actions: [
     {
       label: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
-      href: inAppHelpHref("first-review"),
+      href: inAppHelpHref("core-pilot"),
       variant: "outline",
     },
   ],

@@ -5,7 +5,7 @@
 
 # ArchLucid Pilot ROI Model
 
-**Audience:** executive sponsors, chief architects, architecture review leads, pilot operators, and sales engineers who need a credible way to judge whether an ArchLucid pilot created business value.
+**Audience:** executive sponsors, chief architects, architecture review leads, architects, and sales engineers who need a credible way to judge whether an ArchLucid pilot created business value.
 
 **Status:** Practical V1 pilot-evaluation guidance. This document explains **how to measure pilot success using capabilities ArchLucid supports today**. It is not a pricing model and it is not a guaranteed ROI calculator.
 
@@ -23,7 +23,7 @@ An ArchLucid pilot should answer one business question clearly:
 
 For most pilots, the goal is **not** to prove enterprise-wide transformation. The goal is to prove that a real team can:
 
-- produce a committed manifest more quickly,
+- produce a finalized architecture package more quickly,
 - produce reviewable artifacts with less manual assembly,
 - improve traceability and governance evidence,
 - and shorten the path to architecture discussion or approval.
@@ -85,7 +85,7 @@ These are the most useful V1 measures.
 
 | Metric | Why it matters | How to judge | Computed by ArchLucid? |
 |--------|----------------|--------------|------------------------|
-| **Time to committed manifest** | Measures speed from request to durable architecture output | Faster than current-state workflow, or meaningfully more predictable | **Yes — from run start to commit timestamps in the *Computed deltas* section of the first-value report (Markdown + PDF).** |
+| **Time to finalized architecture package** | Measures speed from request to durable architecture output | Faster than current-state workflow, or meaningfully more predictable | **Yes — from review start to finalize timestamps in the *Computed deltas* section of the first-value report (Markdown + PDF).** Metric keys may still say *committed manifest* in older exports. |
 | **Findings (total + by severity)** | Measures how much risk the agents surface that a human would otherwise miss | Severity mix should be defensible to a reviewer | **Yes — aggregated from run findings in the first-value report.** |
 | **LLM calls for the run** | Measures cost-shape and behavioural footprint of one run | Should fit the cost envelope agreed during pilot kickoff | **Yes — counted from the run's agent execution trace in the report.** |
 | **Audit rows for the run** | Measures how thoroughly the run is observable / forensically reviewable | Higher is generally better, with caveats below | **Yes — from the run audit trail (capped display when very large; may show as a lower bound).** |
@@ -105,12 +105,12 @@ The first-value report (Markdown and PDF) and the sponsor one-pager PDF compute 
 | Label | Meaning | External ROI claim |
 | --- | --- | --- |
 | **buyer-provided** | Tenant supplied baseline at signup or via settings | Allowed when freshness is current |
-| **measured** | Computed from committed manifests in-window | Strongest cycle-time delta narrative |
+| **measured** | Computed from finalized architecture packages in-window | Strongest cycle-time delta narrative |
 | **defaulted** | Conservative value from `PILOT_ROI_MODEL.md` options | Partial confidence — label as model default |
 | **demo-derived** | Contoso / demo tenant markers | Block external quotes; walkthrough only |
 | **not-collected** | `NoMeasurementYet` — no baseline captured | Low confidence — no sponsor-safe dollar savings |
 
-Every first-value report also includes a **Buyer-safe proof package contract**. Treat that table as the send/no-send checklist before a sponsor email: architecture review identity, support run id, time to committed manifest, findings by severity, top finding evidence-chain pointer, audit-row count or lower bound, LLM-call count, ROI evidence confidence, and demo-data warning when applicable. Do not hand-edit missing fields into the report; either rerun the check, explain the gap, or mark the proof package incomplete.
+Every first-value report also includes a **Buyer-safe proof package contract**. Treat that table as the send/no-send checklist before a sponsor email: architecture review identity, support run id, time to finalized architecture package, findings by severity, top finding evidence-chain pointer, audit-row count or lower bound, LLM-call count, ROI evidence confidence, and demo-data warning when applicable. Do not hand-edit missing fields into the report; either rerun the check, explain the gap, or mark the proof package incomplete.
 
 When the report is generated **for a canonical Contoso Retail demo run** (or any other seeded demo tenant run), every report renders the banner:
 
@@ -144,7 +144,7 @@ For V1, success usually looks like this:
 ### 5.1 Minimum success bar
 
 - A real architecture request was created and executed.
-- The run produced a committed manifest.
+- The review produced a finalized architecture package.
 - Stakeholders reviewed artifacts generated from that run.
 - The team judged the output materially easier to review or package than the current-state approach.
 
@@ -169,7 +169,7 @@ Use a simple 1–5 rating for each item.
 
 | Area | Question | Score 1–5 |
 |------|----------|-----------|
-| **Speed** | Did we get to a committed manifest faster or more predictably? | |
+| **Speed** | Did we get to a finalized architecture package faster or more predictably? | |
 | **Artifact readiness** | Did we get to a reviewable package with less manual assembly? | |
 | **Traceability** | Were decisions and evidence easier to explain? | |
 | **Change clarity** | Was it easier to understand what changed between reviews? | |
@@ -228,7 +228,7 @@ This keeps the pilot honest and makes sponsor judgment easier.
 
 The most defensible ArchLucid pilot ROI story is simple:
 
-- faster movement from request to committed manifest,
+- faster movement from request to finalized architecture package,
 - less manual effort assembling reviewable architecture outputs,
 - clearer visibility into decisions and changes,
 - and better evidence for governance or architecture review.

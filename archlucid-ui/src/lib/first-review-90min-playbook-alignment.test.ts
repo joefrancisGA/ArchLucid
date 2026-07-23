@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import {
+  BUYER_FIRST_REVIEW_HELP_HREF,
   FIRST_REVIEW_90MIN_CHECKLIST_KEYWORDS,
   FIRST_REVIEW_90MIN_HELP_HREF,
   FIRST_REVIEW_90MIN_REQUIRED_ROUTES,
@@ -10,12 +11,14 @@ import {
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("first-review 90-minute playbook alignment", () => {
-  it("registers /help/first-review against the first-run evidence checklist doc", () => {
+  it("registers /help/first-review as Admin-only against the first-run evidence checklist doc", () => {
     const entry = getProductDocumentationEntry("first-review");
 
     expect(entry).not.toBeNull();
     expect(entry?.sourcePaths[0]).toBe(FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH);
+    expect(entry?.contentKind).toBe("internal-runbook");
     expect(FIRST_REVIEW_90MIN_HELP_HREF).toBe("/help/first-review");
+    expect(BUYER_FIRST_REVIEW_HELP_HREF).toBe("/help/core-pilot");
   });
 
   it("links checklist steps to required operator routes", () => {

@@ -1,10 +1,10 @@
-> **Scope:** Compact evaluator path — references canonical runbooks; not a second checklist.
+> **Scope:** Compact evaluator path for first-time buyers and sponsors — orientation and pass/hold rules. Not a second Core Pilot checklist.
 
 # Evaluator workbook (V1)
 
-**Audience:** First-time buyers, sponsors, and field engineers evaluating ArchLucid without becoming operators.
+**Audience:** First-time buyers, sponsors, and field engineers evaluating ArchLucid in the product UI.
 
-**Canonical operator checklist:** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) — operators follow that path; evaluators use this workbook for orientation and pass/hold rules.
+**Primary in-app path:** [Your first architecture review](/help/core-pilot) · [Complete review workflow](/help/first-pilot-path). Use this workbook for session orientation and pass/hold interpretation — not as a CLI runbook.
 
 ---
 
@@ -12,45 +12,45 @@
 
 | Item | Minimum |
 | --- | --- |
-| Access | Hosted pilot URL or local API + UI |
-| Auth | Entra/OIDC bearer or API key per tenant |
-| Evidence | Tier-1 Azure extractor ZIP **or** accepted demo workspace |
-| Time | One focused session (create → execute → commit) |
+| Access | Hosted pilot URL (or local API + UI for internal eval) |
+| Auth | Work or school sign-in, email one-time code, or API key per tenant |
+| Evidence | Uploaded briefs/diagrams/IaC, Tier-1 cloud inventory ZIP, **or** sample workspace |
+| Time | One focused session (start review → analyze → finalize → exports) |
 
-Read [`go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](../go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) for Pilot vs Operate before deep configuration.
+Read the [Pilot guide](/help/pilot-guide) for Pilot vs Operate before deep configuration.
 
-**Starter proof packs:** choose a vertical with [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md) · golden walkthrough: [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md).
+**Starter proof packs:** [Accelerator chooser](/help/accelerator-chooser) · specialty templates: [Specialty review templates](/help/specialty-walkthroughs).
 
 ---
 
 ## Session flow (four steps)
 
-1. **Create** architecture review (UI or `archlucid run create`). Quick start: `https://your-pilot-url/reviews/new?preset=greenfield` pre-fills the greenfield template.
-2. **Execute** with evidence attached.
-3. **Commit** manifest (unit of truth).
-4. **Collect proof** after commit.
+1. **Start** an architecture review from **New architecture review** (`/reviews/new`). Optional: greenfield preset `?preset=greenfield`.
+2. **Add evidence** and start analysis on the review.
+3. **Finalize** the architecture package (locks the signed review record).
+4. **Collect proof** — sponsor packet, executive summary, and audit export from review detail.
 
-Narrative: [`CORE_PILOT.md`](../CORE_PILOT.md). Evidence detail: [`runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md).
+Narrative: [Your first architecture review](/help/core-pilot).
 
-### First commands (hosted pilot)
+<details>
+<summary>Administrator details — CLI and proof collectors</summary>
+
+Sales engineers and platform admins may also collect proof folders with CLI helpers after finalize:
 
 ```powershell
 $env:ARCHLUCID_API_URL = 'https://your-pilot.example'
-./scripts/collect-first-pilot-proof.ps1 -BaseUrl $env:ARCHLUCID_API_URL -RunId '<run-id-after-commit>'
+./scripts/collect-first-pilot-proof.ps1 -BaseUrl $env:ARCHLUCID_API_URL -RunId '<review-id-after-finalize>'
 ```
 
-Local demo stack — zero to sponsor proof folder in one sitting:
+Local demo stack:
 
 ```powershell
 dotnet run --project ArchLucid.Cli -- try --sponsor-packet --out artifacts/proof
-# default out: artifacts/try-sponsor-packet/<runId> → proof-summary.md
 ```
 
-Sponsor send:
+Prefer the in-app Core Pilot path for buyer-facing evaluations.
 
-```powershell
-./scripts/collect-first-pilot-proof.ps1 -BaseUrl $env:ARCHLUCID_API_URL -RunId '<run-id>' -SponsorHandoff
-```
+</details>
 
 ---
 
@@ -58,11 +58,12 @@ Sponsor send:
 
 | Artifact | Purpose |
 | --- | --- |
-| `go-no-go-summary.md` / `.json` | Machine + human disposition |
-| `first-pilot-command-center.md` | Single **NEXT ACTION** surface |
-| `first-pilot-evidence/` | Committed-run buyer-safe bundle |
-| `first-value-report.md` | Sponsor narrative (basis labels required) |
-| `commercial-next-step.json` | SEND / HOLD / deferred mapping |
+| Signed review record | Authoritative finalize snapshot on the architecture package |
+| Findings | Severity, disposition, and evidence-backed recommendations |
+| Sponsor packet / first-value report | Sponsor narrative with ROI basis labels |
+| Audit export | Scoped event CSV when your role includes audit access |
+
+Internal proof folders (command center, go/no-go JSON) are for SE/ops handoff — not required for a UI-only evaluation.
 
 ---
 
@@ -72,12 +73,12 @@ Sponsor send:
 | --- | --- | --- |
 | **PASS** | No blocking findings | Proceed; optional WARN review |
 | **PASS_WITH_WARNINGS** | Non-blocking gaps | Document WARN rows before external send |
-| **BLOCK** | Sponsor handoff unsafe | Fix remediation column; do not send |
-| **SEND** | Sponsor packet disposition | Use [`go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`](../go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md) |
-| **HOLD** | Fix listed blockers | Re-run proof with same `RunId` |
+| **BLOCK** | Sponsor handoff unsafe | Fix remediation; do not send |
+| **SEND** | Sponsor packet disposition | Ready for sponsor share |
+| **HOLD** | Fix listed blockers | Re-finalize or re-run assessment after fixes |
 | **DEFERRED_SCOPE** | V1.1/V2 buyer ask | Record requirement; do not score as V1 failure |
 
-Evidence-basis labels (**Evidence-backed**, **Estimate**, **Demo-derived**, **Low support**, **Manual review required**, **Deferred scope**) apply to sponsor surfaces — see [`library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md).
+Evidence-basis labels (**Evidence-backed**, **Estimate**, **Demo-derived**, **Low support**, **Manual review required**, **Deferred scope**) apply to sponsor surfaces.
 
 ---
 
@@ -86,22 +87,21 @@ Evidence-basis labels (**Evidence-backed**, **Estimate**, **Demo-derived**, **Lo
 Stop and escalate when:
 
 - PilotStrict signals are unresolved on a real-mode host.
-- `roiSponsorSafe` is false and projected dollars appear unlabeled.
-- `dataConsistencyStatus` is `NOT_RUN` or `HOLD` with sponsor-stop probes.
+- ROI figures appear without a clear basis label.
+- Data-consistency or sponsor-stop probes show HOLD.
 - Procurement deal-ready disposition is **HOLD** for missing V1 docs (not deferred realism).
 
-Stuck mid-pilot: [`runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](../runbooks/FIRST_PILOT_TROUBLESHOOTING.md) · [`runbooks/PILOT_RESCUE_PLAYBOOK.md`](../runbooks/PILOT_RESCUE_PLAYBOOK.md).
+Stuck mid-pilot: [Troubleshooting](/help/troubleshooting) · [Report a problem](/help/report-a-problem).
 
 ---
 
-## Optional depth (after first commit)
+## Optional depth (after first finalize)
 
-| Topic | Doc |
+| Topic | In-app help |
 | --- | --- |
-| Specialty accelerators | [`library/walkthroughs/README.md`](../library/walkthroughs/README.md) |
-| Demo proof shape (no setup) | [`go-to-market/demo-proof-packets/README.md`](../go-to-market/demo-proof-packets/README.md) |
-| Security review | [`go-to-market/SECURITY_REVIEWER_ONE_PAGER.md`](../go-to-market/SECURITY_REVIEWER_ONE_PAGER.md) |
-| Procurement pack | [`go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`](../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md) |
+| Specialty accelerators | [Specialty review templates](/help/specialty-walkthroughs) |
+| Security / trust | [Security and trust](/help/security-trust) |
+| Procurement pack | [Procurement FAQ](/help/procurement) |
 
 V1.1 connectors (Jira, ServiceNow, Slack, Teams, MCP) are **not** required for first value.
 
@@ -109,5 +109,6 @@ V1.1 connectors (Jira, ServiceNow, Slack, Teams, MCP) are **not** required for f
 
 ## Related
 
-- [`START_HERE.md`](../START_HERE.md) — role-based entry hub
-- [`onboarding/EVALUATION_GUIDE.md`](EVALUATION_GUIDE.md) — extended evaluation depth (not a second checklist)
+- [Your first architecture review](/help/core-pilot)
+- [Choose your next step](/help/path-chooser)
+- [Pilot guide](/help/pilot-guide)
