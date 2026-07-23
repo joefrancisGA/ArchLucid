@@ -171,6 +171,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
+        creationProgress.reset();
 
         return;
       }

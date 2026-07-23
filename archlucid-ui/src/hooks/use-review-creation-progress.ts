@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_OPENING_LABEL,
@@ -12,6 +13,9 @@ import {
   resolveReviewStartStages,
   type ReviewStartStageId,
 } from "@/lib/review-start-progress-stages";
+
+/** Create-run API + soft-nav can exceed pure soft-nav budget; keep CTA recoverable. */
+export const REVIEW_CREATION_PROGRESS_TIMEOUT_MS = SOFT_NAVIGATION_TIMEOUT_MS + 45_000;
 
 export type ReviewCreationProgressBeginInput = {
   readonly hasTemplate: boolean;
@@ -24,6 +28,7 @@ export function useReviewCreationProgress() {
   const [showStagedPanel, setShowStagedPanel] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const timerIdsRef = useRef<number[]>([]);
+  const activityTimeoutIdRef = useRef<number | null>(null);
 
   const clearTimers = useCallback(() => {
     for (const timerId of timerIdsRef.current) {
@@ -31,6 +36,11 @@ export function useReviewCreationProgress() {
     }
 
     timerIdsRef.current = [];
+
+    if (activityTimeoutIdRef.current !== null) {
+      window.clearTimeout(activityTimeoutIdRef.current);
+      activityTimeoutIdRef.current = null;
+    }
   }, []);
 
   const reset = useCallback(() => {
@@ -60,6 +70,16 @@ export function useReviewCreationProgress() {
       setHasTemplate(input.hasTemplate);
       setActiveStageId("creating-workspace");
       setShowStagedPanel(false);
+
+      activityTimeoutIdRef.current = window.setTimeout(() => {
+        clearTimers();
+        setIsActive(false);
+        setHasTemplate(false);
+        setActiveStageId(null);
+        setShowStagedPanel(false);
+        setError(REVIEW_START_CREATION_FAILED_MESSAGE);
+        activityTimeoutIdRef.current = null;
+      }, REVIEW_CREATION_PROGRESS_TIMEOUT_MS);
 
       timerIdsRef.current.push(
         window.setTimeout(() => {

@@ -12,6 +12,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
+import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import {
   applyArchitectureCreationDraftToFormState,
@@ -71,6 +72,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
+  const exitTimeoutIdRef = useRef<number | null>(null);
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
@@ -176,6 +178,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }
   }, [conflictMessage, saveDraft]);
 
+  useEffect(() => {
+    return () => {
+      if (exitTimeoutIdRef.current !== null) {
+        window.clearTimeout(exitTimeoutIdRef.current);
+        exitTimeoutIdRef.current = null;
+      }
+    };
+  }, []);
+
   const handleSaveAndExit = useCallback(async () => {
     setExitPending(true);
 
@@ -187,6 +198,16 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
       return;
     }
+
+    if (exitTimeoutIdRef.current !== null) {
+      window.clearTimeout(exitTimeoutIdRef.current);
+    }
+
+    // Soft-nav stall must not leave Save and exit depressed forever.
+    exitTimeoutIdRef.current = window.setTimeout(() => {
+      setExitPending(false);
+      exitTimeoutIdRef.current = null;
+    }, SOFT_NAVIGATION_TIMEOUT_MS);
 
     router.push(ARCHITECTURES_LIST_PATH);
   }, [router, saveDraft]);
