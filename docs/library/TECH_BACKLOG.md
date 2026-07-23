@@ -1939,7 +1939,7 @@ Optional later: per-connector fault isolation during parallel fetch+normalize (w
 
 ## TB-013 ? Documentation library audience reorganisation (remaining phases)
 
-**Status:** **Phase 1 shipped** ? subtrees **`docs/library/customer-facing/`** and **`docs/library/contributor-reference/`** plus README indexes; persona recipes canonical at [`customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md`](customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md); bookmark stub [`WORKFLOW_RECIPES_BY_PERSONA.md`](WORKFLOW_RECIPES_BY_PERSONA.md) under **`docs/library/`**.
+**Status:** **Phase 1 shipped** ? subtrees **`docs/library/customer-facing/`** and **`docs/library/contributor-reference/`** plus README indexes; persona recipes canonical at [`customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md`](customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md). Root bookmark stubs (FAQ, GOVERNANCE, CONCEPTS_IN_5_MINUTES, WORKFLOW_RECIPES_BY_PERSONA, SECURITY) removed 2026-07-22?2026-07-23 ? see `docs/redirects.md` ?library stub sweep`.
 
 **Objective**
 
