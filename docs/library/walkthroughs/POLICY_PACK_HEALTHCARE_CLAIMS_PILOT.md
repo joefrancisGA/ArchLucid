@@ -2,11 +2,11 @@
 
 # Healthcare claims policy pack — pilot walkthrough
 
-**Audience:** Pilot champions running the Claims Intake sample in the operator shell or against a hosted trial tenant.
+**Audience:** Pilot champions running the Claims Intake sample in the architect workspace or against a hosted trial tenant.
 
 **Grounding rule:** Every step maps to **shipped V1** API/UI surfaces. **Jira**, **Microsoft Teams**, and other first-party ITSM/chat connectors are **V1.1** — not required for this walkthrough ([`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md)).
 
-**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md). Use that page for sponsor-facing framing; use this walkthrough for operator steps.
+**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md). Use that page for sponsor-facing framing; use this walkthrough for architect steps.
 
 ---
 
@@ -26,7 +26,7 @@ Static operator/demo mode serves curated payloads from `archlucid-ui/src/lib/ope
 
 ## Prerequisites
 
-1. **Operator shell** access with **ReadAuthority** (review) and **ExecuteAuthority** (commit) for your tenant.
+1. **Architect workspace** access with authority to review and finalize for your tenant.
 2. **Standard** tier (or trial) with governance features enabled per [`V1_SCOPE.md`](../V1_SCOPE.md).
 3. For live API steps: bearer token or session auth configured (`Authorization: Bearer …` or Entra SSO).
 
@@ -36,7 +36,7 @@ Static operator/demo mode serves curated payloads from `archlucid-ui/src/lib/ope
 
 **UI**
 
-1. Sign in to the operator shell.
+1. Sign in to the architect workspace.
 2. Expand sidebar: **Show all features** → **Sidebar layout** → enable **Show governance, audit & admin controls** (advanced disclosure).
 3. Open **Governance** → **Policy packs** (or navigate directly to `/governance/policy-packs/demo-healthcare-claims-pack` in demo mode).
 4. Confirm pack label references **`healthcare-claims-v3`** and healthcare compliance themes (PHI minimization, intake boundary controls).
@@ -81,7 +81,7 @@ Authorization: Bearer {token}
 
 **UI (demo path — fastest)**
 
-1. Navigate to `/reviews/claims-intake-modernization` (or **Home** → **Review package** → select **Claims Intake Modernization**).
+1. Navigate to `/reviews/claims-intake-modernization` (or **Home** → **Reviews** → select **Claims Intake Modernization**).
 2. Confirm run status shows a committed or in-progress review with healthcare/PHI findings narrative.
 
 **UI (net-new review)**
@@ -127,15 +127,16 @@ See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md) for seve
 
 ---
 
-## Step 5 — Commit manifest (when gate passes)
+## Step 5 — Finalize architecture package (when gate passes)
 
 **UI**
 
 1. Resolve or disposition blocking findings (or confirm warn-only severities per tenant config).
-2. Select **Commit manifest** on review detail.
-3. After success, open **Review package** sections: manifest summary, artifacts, exports.
+2. Select **Finalize** on review detail.
+3. After success, open **Architecture package** sections: signed review record, artifacts, exports.
 
-**API**
+<details>
+<summary>Administrator details — HTTP path</summary>
 
 ```http
 POST /v1/architecture/run/claims-intake-modernization/commit
@@ -143,6 +144,8 @@ Authorization: Bearer {token}
 ```
 
 On block: `409` with `#governance-pre-commit-blocked` and `blockingFindingIds` extension.
+
+</details>
 
 ---
 

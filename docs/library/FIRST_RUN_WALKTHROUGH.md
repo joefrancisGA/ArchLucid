@@ -1,18 +1,18 @@
-> **Scope:** Customer-facing — First architecture review walkthrough (operator UI) - full detail, tables, and links in the sections below.
+> **Scope:** Customer-facing — First architecture review walkthrough (architect workspace).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# First architecture review walkthrough (operator UI)
+# First architecture review walkthrough
 
 ## Objective
 
-Give operators a **linear checklist** for creating the first **architecture review** using the **New review** wizard at **`/reviews/new`** (legacy **`/runs/new`** may redirect), without relying on screenshots (which go stale quickly).
+Give architects a **linear checklist** for creating the first **architecture review** using **New architecture review** at **`/reviews/new`** (legacy **`/runs/new`** may redirect), without relying on screenshots (which go stale quickly).
 
 ## Assumptions
 
 - The UI is available at **`/reviews/new`** (see **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** for design intent).
-- The API is reachable with a configured auth mode — see **[`SECURITY.md`](contributor-reference/SECURITY.md)** and **[`PILOT_GUIDE.md`](PILOT_GUIDE.md)**.
+- Sign-in works for your tenant — see **[Authentication and sign-in](/help/authentication-sign-in)** and **[Pilot guide](/help/pilot-guide)**.
 
 ## Constraints
 
@@ -20,18 +20,27 @@ Give operators a **linear checklist** for creating the first **architecture revi
 
 ## Steps
 
-1. **Open the shell** — Sign in per your environment (Entra, API key, or DevelopmentBypass in local dev only).
-2. **Navigate to New review** — Use **`/reviews/new`** or the primary nav entry **New review** (Core Pilot home hints link here by default).
+1. **Open the workspace** — Sign in with work/school account, email one-time code, or your organization's SSO.
+2. **Navigate to New architecture review** — Use **`/reviews/new`** or the primary nav entry **New architecture review**.
 3. **Pick a preset or template** — Choose the closest sample if you are evaluating; customize fields only where you have real system facts.
-4. **Complete each wizard step** — Advance only when required fields validate; note inline errors reference **`correlationId`** when the proxy surfaces API failures — see **[`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md)**.
-5. **Submit** — The wizard calls **`POST /v1/architecture/request`**; capture the returned **run id** (review session id; API and routes still use `run`) from the success path or list.
-6. **Execute and commit** — From **review detail**, drive **Execute** then **Commit** when the pipeline reports **Ready for commit** — see **[`operator-shell.md`](operator-shell.md)**.
-7. **Verify artifacts** — Confirm manifest + artifacts appear; use **Compare**/**Replay** only after you have two committed reviews or an export need — see **[`V1_SCOPE.md`](V1_SCOPE.md)**.
-8. **Attach to your workflow (optional)** — After commit, run **`collect-first-pilot-proof.ps1`** and attach artifacts to GitHub or Azure DevOps per **[`V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md)**. CI manifest-delta: **[`GITHUB_ACTION_MANIFEST_DELTA.md`](../integrations/GITHUB_ACTION_MANIFEST_DELTA.md)** · **[`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md`](../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md)**.
+4. **Complete each wizard step** — Advance only when required fields validate; note inline errors reference a correlation id when the UI surfaces API failures — see **[Troubleshooting](/help/troubleshooting)**.
+5. **Submit** — Capture the returned review id from the success path or **Reviews** list.
+6. **Execute and finalize** — From **review detail**, drive **Execute**, then **Finalize** when the pipeline reports **Ready to finalize** — see **[Workspace navigation](/help/pilot-nav-profile)**.
+7. **Verify the architecture package** — Confirm the signed review record and artifacts appear; use **Compare**/**Replay** only after you have two finalized packages or an export need — see **[Architecture packages](/help/review-packages)**.
+8. **Attach to your workflow (optional)** — After finalize, collect sponsor proof per **[Pilot guide](/help/pilot-guide)** when your team uses GitHub or Azure DevOps handoff.
+
+<details>
+<summary>Administrator details — CLI and HTTP</summary>
+
+- Create path may call **`POST /v1/architecture/request`** (API still uses `run` identifiers).
+- Proof collectors: **`collect-first-pilot-proof.ps1`** and workflow handoff docs under `docs/runbooks/`.
+- Contributor shell patterns: [`operator-shell.md`](operator-shell.md).
+
+</details>
 
 ## Related
 
+- **[Your first architecture review](/help/core-pilot)** — guided first-session checklist.
 - **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** — design and UX notes.
-- **[`PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md)** — pilot-facing scope and support boundaries.
-- **[`operator-shell.md`](operator-shell.md)** — operator shell patterns and empty states.
-- **[`V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md)** — V1 embedded workflow story (no V1.1 connectors).
+- **[Pilot guide](/help/pilot-guide)** — pilot-facing scope and support boundaries.
+- **[Workspace navigation](/help/pilot-nav-profile)** — sidebar and first-review path.

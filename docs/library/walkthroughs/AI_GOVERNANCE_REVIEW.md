@@ -25,7 +25,7 @@
 
 ## Prerequisites
 
-1. Operator shell with **ReadAuthority** / **ExecuteAuthority**.
+1. Architect workspace access with authority to execute and finalize reviews.
 2. Tenant compliance catalog includes **`ai-gov-001`** through **`ai-gov-020`** (default seed).
 3. For net-new reviews: architecture request describing ML inference, training, and data-handling boundaries.
 
@@ -35,7 +35,7 @@
 
 **UI (demo)**
 
-1. Set operator scope to Workspace B triplet (scope switcher or headers per DEMO_WORKSPACES).
+1. Set workspace scope to Workspace B triplet (scope switcher or headers per DEMO_WORKSPACES).
 2. Open `/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b`.
 3. Confirm storyline: **Alpine Patient Risk Scoring Platform** (synthetic; no real PHI).
 
@@ -123,15 +123,16 @@ See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md).
 
 ---
 
-## Step 5 — Commit manifest and governance decision
+## Step 5 — Finalize architecture package and governance decision
 
 **UI**
 
 1. Disposition blocking findings or record approval per tenant workflow.
-2. **Commit manifest** when gate passes.
+2. **Finalize** when the gate passes.
 3. Optional: **Governance dashboard** for cross-review approvals ([`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) Operate · governance).
 
-**API**
+<details>
+<summary>Administrator details — HTTP path</summary>
 
 ```http
 POST /v1/architecture/run/{runId}/commit
@@ -139,6 +140,8 @@ Authorization: Bearer {token}
 ```
 
 On block: `409` with `#governance-pre-commit-blocked`.
+
+</details>
 
 ---
 

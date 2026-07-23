@@ -64,22 +64,22 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "6-execute-stalls-review-not-ready-for-commit",
-    "sectionHeading": "6. Execute stalls / review not Ready for commit",
+    "sectionSlug": "6-execute-stalls-review-not-ready-to-finalize",
+    "sectionHeading": "6. Execute stalls / review not Ready to finalize",
     "excerpt": "→ [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "7-commit-409-governance-pre-commit-blocked",
-    "sectionHeading": "7. Commit 409 / governance pre-commit blocked",
+    "sectionSlug": "7-finalize-409-governance-pre-finalize-gate-blocked",
+    "sectionHeading": "7. Finalize 409 / governance pre-finalize gate blocked",
     "excerpt": "→ [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
-    "sectionSlug": "8-missing-artifact-bundle-after-commit",
-    "sectionHeading": "8. Missing artifact bundle after commit",
+    "sectionSlug": "8-missing-artifact-bundle-after-finalize",
+    "sectionHeading": "8. Missing artifact bundle after finalize",
     "excerpt": "→ [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4)"
   },
   {
@@ -122,7 +122,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "related-help-topics",
     "sectionHeading": "Related Help topics",
-    "excerpt": "- Observability — metrics and export paths when your role includes them. - Projection cache and API replicas — multi-replica and Redis footguns (advanced). - Engineering troubleshooting — CLI, logs, environment variables, and support bundles."
+    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues. - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers. - [Engineering troubleshooting](/help/developer-troubleshooting) — CLI, logs, environment variables, and support bun…"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
@@ -290,14 +290,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Your first architecture review",
     "sectionSlug": "first-review-path",
     "sectionHeading": "First review path",
-    "excerpt": "Start with evidence, run the review, finalize the package, then share sponsor-ready outputs."
+    "excerpt": "Start with evidence, run the review, finalize the architecture review, then share sponsor-ready outputs."
   },
   {
     "docPath": "docs/CORE_PILOT.md",
     "docTitle": "Your first architecture review",
     "sectionSlug": "run-the-first-review",
     "sectionHeading": "Run the first review",
-    "excerpt": "1. Start review — open Create architecture and name what you want reviewed. 2. Add evidence — attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional. 3. Run analysis — execute the assessment on review detail until ready to finalize. 4. Finalize package — commit the governed review record,…"
+    "excerpt": "1. Start review — open New architecture review and name what you want reviewed. Saving an architecture draft is optional and separate from starting a review. 2. Add evidence — attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional. 3. Run analysis — execute the assessment on review detail…"
   },
   {
     "docPath": "docs/CORE_PILOT.md",
@@ -346,7 +346,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Procurement FAQ (Enterprise)",
     "sectionSlug": "1-do-you-have-soc-2-type-ii",
     "sectionHeading": "1. Do you have SOC 2 Type II?",
-    "excerpt": "Answer: Today we publish a SOC 2 self-assessment and control mapping—SOC 2 Type II CPA attestation is not currently issued ([SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)). Type I followed by Type II is the typical SaaS roadmap once operating evidence exists alongside budget."
+    "excerpt": "Answer: Today we publish a SOC 2 self-assessment and control mapping—SOC 2 Type II CPA attestation is not currently issued ([SOC 2 self-assessment](/help/soc2-self-assessment)). Type I followed by Type II is the typical SaaS roadmap once operating evidence exists alongside budget."
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
@@ -360,14 +360,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Procurement FAQ (Enterprise)",
     "sectionSlug": "3-where-is-customer-data-processed-stored",
     "sectionHeading": "3. Where is customer data processed / stored?",
-    "excerpt": "Answer: Vendor-hosted Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). Architectural networking guidance: [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) and infra modules under `infra/`."
+    "excerpt": "Answer: Vendor-hosted Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Architectural networking guidance: [CUSTOMER_TRUST_AND_ACCESS.m…"
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
     "docTitle": "Procurement FAQ (Enterprise)",
     "sectionSlug": "4-can-we-authenticate-with-okta-ping-auth0-instead-of-microsoft-entra-id",
     "sectionHeading": "4. Can we authenticate with Okta / Ping / Auth0 instead of Microsoft Entra ID?",
-    "excerpt": "Answer: Yes — V1 GA. [V1_SCOPE.md](../library/V1_SCOPE.md) §2.12 commits `JwtBearer` against configurable OIDC issuers (metadata discovery + JWKS), including non-Microsoft IdPs; `ArchLucidAuth:Authority` / audience and role claim mapping are documented in [SECURITY.md](../library/contributor-reference/SECURITY.md) and [CONFIGURATION_REFE…"
+    "excerpt": "Answer: Yes — V1 GA. [V1_SCOPE.md](../library/V1_SCOPE.md) §2.12 commits `JwtBearer` against configurable OIDC issuers (metadata discovery + JWKS), including non-Microsoft IdPs; `ArchLucidAuth:Authority` / audience and role claim mapping are documented in [SECURITY.md](../library/contributor-reference/SECURITY.md) a…"
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
@@ -381,14 +381,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Procurement FAQ (Enterprise)",
     "sectionSlug": "6-can-we-execute-the-data-processing-agreement",
     "sectionHeading": "6. Can we execute the Data Processing Agreement?",
-    "excerpt": "Answer: Template: [DPA_TEMPLATE.md](DPA_TEMPLATE.md) • Subprocessors: [SUBPROCESSORS.md](SUBPROCESSORS.md)"
+    "excerpt": "Answer: Yes — start from the in-app [DPA template](/help/dpa-template) (negotiation template, not a countersigned agreement) and [Subprocessors](/help/subprocessors)."
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
     "docTitle": "Procurement FAQ (Enterprise)",
     "sectionSlug": "7-what-subprocessors-apply",
     "sectionHeading": "7. What subprocessors apply?",
-    "excerpt": "Answer: Maintain [SUBPROCESSORS.md](SUBPROCESSORS.md) quarterly; aligns with contractual notification windows in the [DPA_TEMPLATE.md](DPA_TEMPLATE.md)."
+    "excerpt": "Answer: See [Subprocessors](/help/subprocessors) (maintained quarterly); aligns with contractual notification windows in the [DPA template](/help/dpa-template)."
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",

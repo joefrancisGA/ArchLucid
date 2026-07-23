@@ -25,7 +25,7 @@ Use this path for evaluator demos; skip to **Step 5** (inspect package) when the
 
 ## Prerequisites
 
-1. Operator shell with **ReadAuthority** and **ExecuteAuthority** for your tenant.
+1. Architect workspace access with authority to execute and finalize reviews for your tenant.
 2. **Azure extractor Tier 1** script output ZIP **or** demo Product Tour review (above).
 3. Policy pack keys `saas-ctrl-001`–`008` present in tenant compliance catalog (default tenant seed).
 
@@ -108,15 +108,16 @@ Curated WAF pillar rules (12 rules): [`azure-waf-rules-v1.json`](../../samples/p
 
 ---
 
-## Step 4 — Execute, dry-run, and commit
+## Step 4 — Execute, dry-run, and finalize
 
 **UI**
 
-1. **Execute** review pipeline; wait for **Ready for commit**.
-2. Run **Pre-commit governance** dry-run against assigned packs ([`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md)).
-3. Resolve or disposition blocking findings → **Commit manifest**.
+1. **Execute** review pipeline; wait for **Ready to finalize** (API status may still say `ReadyForCommit`).
+2. Run **Pre-finalize governance** dry-run against assigned packs ([`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md)).
+3. Resolve or disposition blocking findings → **Finalize** the architecture package.
 
-**API**
+<details>
+<summary>Administrator details — HTTP paths</summary>
 
 ```http
 POST /v1/architecture/run/{runId}/execute
@@ -125,7 +126,9 @@ POST /v1/architecture/run/{runId}/commit
 Authorization: Bearer {token}
 ```
 
-> Pre-commit governance dry-run output is **architecture-review evidence** for sponsor packets — not regulatory certification.
+</details>
+
+> Governance dry-run output is **architecture-review evidence** for sponsor packets — not regulatory certification.
 
 ---
 

@@ -158,11 +158,13 @@ describe("help-markdown-presentation", () => {
 
   it("rewrites legacy manifest/run jargon during help presentation", () => {
     const source =
-      "manifest exists for that manifest; golden manifest summary; RunId=abc; run not ready; open /runs/abc.";
+      "manifest exists for that manifest; golden manifest summary; RunId=abc; run not ready for commit; open /runs/abc.";
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/runbooks/TROUBLESHOOTING.md").toLowerCase();
 
     expect(prepared).toContain("reviewid=abc");
     expect(prepared).toContain("/reviews/abc");
+    expect(prepared).toContain("architecture package");
+    expect(prepared).toContain("review not ready to finalize");
     for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {
       expect(prepared, `should not contain "${pattern}"`).not.toContain(pattern);
     }

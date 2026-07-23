@@ -70,7 +70,7 @@ Capture **`X-Correlation-ID`** (or `correlationId` in problem JSON) on every fai
 
 ---
 
-## 6. Execute stalls / review not **Ready for commit**
+## 6. Execute stalls / review not **Ready to finalize**
 
 | Step | Action |
 |------|--------|
@@ -82,7 +82,7 @@ Capture **`X-Correlation-ID`** (or `correlationId` in problem JSON) on every fai
 
 ---
 
-## 7. Commit **409** / governance pre-commit blocked
+## 7. Finalize **409** / governance pre-finalize gate blocked
 
 | Step | Action |
 |------|--------|
@@ -94,13 +94,13 @@ Capture **`X-Correlation-ID`** (or `correlationId` in problem JSON) on every fai
 
 ---
 
-## 8. Missing artifact bundle after commit
+## 8. Missing artifact bundle after finalize
 
 | Step | Action |
 |------|--------|
-| First check | Confirm commit returned 2xx; refresh review detail artifacts table |
+| First check | Confirm finalize returned 2xx; refresh review detail artifacts table |
 | Likely cause | Async synthesis lag, wrong scope, empty synthesis |
-| Escalation artifact | Commit response body + signed review record id |
+| Escalation artifact | Finalize response body + signed review record id |
 
 → [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4)
 
