@@ -51,7 +51,7 @@ flowchart TB
 - **Config:** `ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`
 - **Routing:** `ScopedRoutingSqlConnectionFactory`, `ITenantDatabaseResolver`, `TenantDatabaseBindings`
 - **Guard:** `ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike`
-- **Docs:** [`TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md), [`TENANT_SQL_TOPOLOGY_RUNBOOK.md`](../runbooks/TENANT_SQL_TOPOLOGY_RUNBOOK.md)
+- **Docs:** [`TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md), [`TENANT_SQL_TOPOLOGY_RUNBOOK.md`](../operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md)
 
 ### Layer B — Identity and typed scope
 
