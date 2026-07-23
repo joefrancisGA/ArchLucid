@@ -1,4 +1,5 @@
-﻿> **Scope:** Independent first-principles quality/readiness assessment (weighted overall **82.40%**) — archival reference for product/enterprise/engineering posture; **not** a substitute for [`V1_SCOPE.md`](V1_SCOPE.md), release gates, or environment-specific assurance.
+> **Scope:** Independent first-principles quality/readiness assessment (weighted overall **82.40%**) — archival reference for product/enterprise/engineering posture; **not** a substitute for [`V1_SCOPE.md`](V1_SCOPE.md), release gates, or environment-specific assurance.
+> **Reviewed:** 2026-07-22
 
 > **Naming:** Saves as [`QUALITY_ASSESSMENT_<date>_INDEPENDENT_<pct>.md`](.) alongside other archived passes in `docs/library/`.
 

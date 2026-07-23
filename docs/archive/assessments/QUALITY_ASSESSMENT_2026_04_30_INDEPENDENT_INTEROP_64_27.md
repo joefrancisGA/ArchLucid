@@ -1,4 +1,5 @@
 > **Scope:** Independent architectural quality assessment of the ArchLucid interoperability surface (2026-04-30). Single-dimension score only. Audience: product owner and engineering leads. Not a general quality assessment, API contract, or deployment runbook.
+> **Reviewed:** 2026-07-22
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 

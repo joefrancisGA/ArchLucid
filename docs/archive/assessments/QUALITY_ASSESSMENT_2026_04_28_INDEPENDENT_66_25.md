@@ -1,4 +1,5 @@
-﻿> **Scope:** Independent first-principles quality assessment of ArchLucid V1 — scored, weighted, ranked, and improvement-prompted. Not a marketing artifact.
+> **Scope:** Independent first-principles quality assessment of ArchLucid V1 — scored, weighted, ranked, and improvement-prompted. Not a marketing artifact.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 66.25%
 

@@ -1,4 +1,5 @@
-﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment (v2). Clean-slate weighted readiness pass. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-06-24.
+> **Scope:** Evaluator — canonical strategic release and market readiness assessment (v2). Clean-slate weighted readiness pass. Product-state grounding aligns with `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` as of 2026-06-24.
+> **Reviewed:** 2026-07-22
 
 # 1. Title & Headline
 

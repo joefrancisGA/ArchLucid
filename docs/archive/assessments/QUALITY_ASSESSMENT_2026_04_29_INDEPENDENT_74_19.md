@@ -1,4 +1,5 @@
 > **Scope:** Independent quality assessment (weighted readiness 74.19%) — first-principles scoring of ArchLucid V1 across 46 qualities in three categories; not a marketing document.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 74.19%
 

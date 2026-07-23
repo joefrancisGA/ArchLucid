@@ -1,4 +1,5 @@
 > **Scope:** Independent weighted-readiness assessment with explicit V1-deferred scoring rules (2026-04-24) — not live customer validation or pen-test attestation.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 68.49%
 

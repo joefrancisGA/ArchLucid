@@ -1,4 +1,5 @@
 > **Scope:** Independent weighted readiness review (commercial, enterprise, engineering); records scores and first-principles evidence. Not a product spec, contract, or customer-facing claim.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 82.92%
 

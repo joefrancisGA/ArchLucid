@@ -1,4 +1,5 @@
-﻿> **Scope:** For leadership and architecture readers: independent weighted quality/readiness assessment dated 2026-04-28; not a product spec, commit checklist, or substitute for formal audit.
+> **Scope:** For leadership and architecture readers: independent weighted quality/readiness assessment dated 2026-04-28; not a product spec, commit checklist, or substitute for formal audit.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 80.56%
 

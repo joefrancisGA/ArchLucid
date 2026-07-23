@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-22
+
 # ArchLucid Assessment – Weighted Readiness 79.24%
 
 ## 2. Executive Summary

@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 78.01%
+> **Reviewed:** 2026-07-22
+
+# ArchLucid Assessment – (A) Headline Readiness: 78.01%
 
 This score represents the `(A)` headline readiness score per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, or procurement-only `(B)` realism. Deferred exclusions include CPA SOC 2 attestation, third-party pen-test publication, owner-output GTM work, signed design partner, live commerce un-hold, first-party V1.1 connectors, MCP/public plugin ecosystem, multi-region active/active, and other deferrals documented in `V1_SCOPE.md`, `V1_DEFERRED.md`, and `PENDING_QUESTIONS.md`.
 

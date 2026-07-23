@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles weighted readiness assessment (2026-05-05) — scores, weights, composite %, ordered findings, and improvement prompts; not an implementation contract and not prior-assessment continuation.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 79.35%
 

@@ -1,4 +1,5 @@
-﻿> **Scope:** Product quality snapshot — independent weighted-readiness assessment for leadership and planning; not the V1 scope contract (`V1_SCOPE.md`), not CI gates, and not a procurement attestation. Canonical copy also at repo root `ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_33.md`.
+> **Scope:** Product quality snapshot — independent weighted-readiness assessment for leadership and planning; not the V1 scope contract (`V1_SCOPE.md`), not CI gates, and not a procurement attestation. Canonical copy also at repo root `ArchLucid_Assessment_Weighted_Readiness_2026_05_07_Independent_First_Principles_78_33.md`.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 78.33%
 

@@ -1,4 +1,5 @@
-﻿> **Scope:** Independent quality assessment — first-principles, weighted readiness model.
+> **Scope:** Independent quality assessment — first-principles, weighted readiness model.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 67.28%
 

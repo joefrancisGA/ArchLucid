@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles quality assessment of ArchLucid — weighted readiness scoring across 46 qualities, cross-cutting weakness analysis, and top improvement opportunities with Cursor prompts.
+> **Reviewed:** 2026-07-22
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 

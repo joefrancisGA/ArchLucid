@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles quality assessment of current ArchLucid repository state using fixed commercial, enterprise, and engineering weights; excludes explicitly deferred v1.1/v2 scope from readiness penalties.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment - Weighted Readiness 70.89%
 

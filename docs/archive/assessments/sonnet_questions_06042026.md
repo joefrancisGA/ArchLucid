@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-22
+
 # ArchLucid architecture & design — questions for Sonnet
 
 **Purpose:** High-leverage prompts for a Sonnet session focused on **architecture and design reasoning**, not implementation. Each question is grounded in findings from the 2026-06-03 buyer-demo UI audit (**TB-273 / BDA-001…150**) and pre-demo backend/platform audit (**TB-274 / BE-001…061, SEC-001…035**).

@@ -1,4 +1,5 @@
-﻿> **Scope:** Independent procurement-readiness-only quality assessment for ArchLucid V1, with weighted scoring, blunt gap analysis, and implementation-ready Cursor prompts; excludes intentionally deferred V1.1/V2 scope from score penalties.
+> **Scope:** Independent procurement-readiness-only quality assessment for ArchLucid V1, with weighted scoring, blunt gap analysis, and implementation-ready Cursor prompts; excludes intentionally deferred V1.1/V2 scope from score penalties.
+> **Reviewed:** 2026-07-22
 
 # Procurement Readiness Quality Assessment — 64.98% Weighted
 

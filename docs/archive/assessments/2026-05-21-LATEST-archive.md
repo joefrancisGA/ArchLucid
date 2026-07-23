@@ -1,4 +1,5 @@
-﻿> **Scope:** Canonical current V1 GA readiness assessment for coding agents and the owner; headline readiness per `Assessment-Scope-V1_1.mdc`—not an archived snapshot or a buyer/procurement deliverable.
+> **Scope:** Canonical current V1 GA readiness assessment for coding agents and the owner; headline readiness per `Assessment-Scope-V1_1.mdc`—not an archived snapshot or a buyer/procurement deliverable.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – (A) Headline Readiness: 80.14%
 

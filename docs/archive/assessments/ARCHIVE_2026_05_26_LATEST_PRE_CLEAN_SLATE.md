@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-22
+
 <!-- **Scope:** Engineering assessment for internal leads and reviewers tracking V1 GA readiness; not a public-facing status report or compliance attestation. -->
 
 # ArchLucid Assessment â€“ (A) Headline Readiness: 100.00%

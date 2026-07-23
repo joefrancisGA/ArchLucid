@@ -1,4 +1,5 @@
 > **Scope:** Independent V1 cognitive-load quality review (2026-04-24); deferred V1.1/V2 items excluded — not a substitute for user research or UX sign-off.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Cognitive Load Quality Assessment — 63.65%
 

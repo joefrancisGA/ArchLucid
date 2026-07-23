@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-22
+
 # ArchLucid — AI Agent / Readiness Solution Quality — **70.66%** (weighted)
 
 **Date:** 2026-05-08  

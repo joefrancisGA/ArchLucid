@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-22
+
 # ArchLucid AI Agent / Readiness solution quality — Independent assessment 2026-05-08 — Weighted: 70.24%
 
 **Scope:** AI Agent / Readiness solution quality only (`ArchLucid.AgentRuntime`, `ArchLucid.AgentSimulator`, the prompt-injection precheck under `ArchLucid.Application/Runs/Orchestration`, and the offline `tests/eval-corpus` + `tests/eval-datasets` evaluation surfaces). Independent of prior assessments. SOC 2 CPA, design partner, MCP, distributed Redis, ACA Jobs/DTF, and other items deferred to V1.1/V2 per `docs/library/V1_SCOPE.md` §3 and `docs/library/V1_DEFERRED.md` §6b–§6f are out of scope and **do not** affect the score.

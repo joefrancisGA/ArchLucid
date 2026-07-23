@@ -1,4 +1,5 @@
 > **Scope:** ArchLucid Solution Correctness Quality Assessment — 2026-04-15 - full detail, tables, and links in the sections below.
+> **Reviewed:** 2026-07-22
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 

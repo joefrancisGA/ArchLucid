@@ -1,4 +1,5 @@
 > **Scope:** Independent Decision Velocity solution-quality assessment (2026-05-02); buyer + operator decision-cycle view; excludes V1.1/V2 deferrals in [`V1_DEFERRED.md`](V1_DEFERRED.md) from **readiness penalty**; not a prior assessment update.
+> **Reviewed:** 2026-07-22
 
 # Decision Velocity — Solution Quality 66 / 100 · Weighted readiness contribution **1.29%** (weight **2**, denominator **102**)
 

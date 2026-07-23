@@ -1,4 +1,5 @@
-﻿> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
+> **Scope:** Independent, first-principles assessment of ArchLucid readiness.
+> **Reviewed:** 2026-07-22
 > **Status:** current
 > **Re-score:** 2026-05-17 — improvement **#3** (automated tenant erasure) remains **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §**6m** (`(A)` exclusion); Compliance Readiness stays **85** (prior rescoring **80→85**, unchanged here); improvements **#13–#16** deferred **V1.1**, excluded from **`(A)` V1 headline**; Workflow Embeddedness **85→90**, Testability **80→85**; headline **84.45%**.
 

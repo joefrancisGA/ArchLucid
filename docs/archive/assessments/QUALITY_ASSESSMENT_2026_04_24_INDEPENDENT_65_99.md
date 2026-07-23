@@ -1,4 +1,5 @@
 > **Scope:** Independent weighted-readiness assessment from repository evidence (2026-04-24) — not a warranty, commercial commitment, or remediation backlog.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 65.99%
 

@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles product readiness assessment using a fixed 46-quality weighted model (commercial, enterprise, engineering); scoring reflects in-repo evidence only; intentionally deferred V1.1/V2 scope per [`V1_SCOPE.md`](V1_SCOPE.md) / [`V1_DEFERRED.md`](V1_DEFERRED.md) is excluded from penalties.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 73.52%
 

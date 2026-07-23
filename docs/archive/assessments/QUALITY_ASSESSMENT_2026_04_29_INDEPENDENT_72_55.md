@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles weighted quality assessment (2026-04-29) — scores, tradeoffs, and improvement prompts grounded in repo state; **not** a prior-assessment delta, procurement attestation, or financial guarantee.
+> **Reviewed:** 2026-07-22
 
 # ArchLucid Assessment – Weighted Readiness 72.55%
 

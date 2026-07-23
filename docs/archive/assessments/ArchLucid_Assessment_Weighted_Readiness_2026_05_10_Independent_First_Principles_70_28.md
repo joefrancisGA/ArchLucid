@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment — Weighted Readiness 70.28%
+> **Reviewed:** 2026-07-22
+
+# ArchLucid Assessment — Weighted Readiness 70.28%
 
 **Date:** 2026-05-10
 **Methodology:** Independent first-principles assessment from repository materials only. No prior assessments referenced. Deferred V1.1/V2 items excluded from scoring per scope contract.
