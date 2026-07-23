@@ -19,6 +19,8 @@ using ArchLucid.Persistence.Models;
 
 using Dm = ArchLucid.Decisioning.Models;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Runs.Finalization;
 
 /// <inheritdoc cref = "IManifestFinalizationService"/>
@@ -34,7 +36,8 @@ public sealed class ManifestFinalizationService(
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IManifestFinalizationSqlRepository manifestFinalizationSqlRepository,
     IRunStateTransitionService runStateTransitionService,
-    ICommittedEffectiveGovernanceSnapshotCapturer committedEffectiveGovernanceSnapshotCapturer) : IManifestFinalizationService
+    ICommittedEffectiveGovernanceSnapshotCapturer committedEffectiveGovernanceSnapshotCapturer,
+    ILogger<ManifestFinalizationService> logger) : IManifestFinalizationService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -65,6 +68,9 @@ public sealed class ManifestFinalizationService(
 
     private readonly ICommittedEffectiveGovernanceSnapshotCapturer _committedEffectiveGovernanceSnapshotCapturer =
         committedEffectiveGovernanceSnapshotCapturer ?? throw new ArgumentNullException(nameof(committedEffectiveGovernanceSnapshotCapturer));
+
+    private readonly ILogger<ManifestFinalizationService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc/>
     public async Task<ManifestFinalizationResult> FinalizeAsync(ManifestFinalizationRequest request, CancellationToken cancellationToken = default)
@@ -260,7 +266,12 @@ public sealed class ManifestFinalizationService(
         finalized.ManifestId = persisted.ManifestId;
         finalized.CorrelationId = request.CorrelationId;
 
-        await auditService.LogAsync(finalized, cancellationToken);
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => auditService.LogAsync(finalized, ct),
+            _logger,
+            $"ManifestFinalized:{request.RunId:N}",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.ManifestFinalized);
         object outboxPayload = new
         {
             schemaVersion = 1,

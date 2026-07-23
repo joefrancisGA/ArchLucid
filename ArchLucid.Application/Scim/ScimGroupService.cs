@@ -5,11 +5,14 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Scim;
 
-public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService audit) : IScimGroupService
+public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService audit, ILogger<ScimGroupService> logger) : IScimGroupService
 {
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
+    private readonly ILogger<ScimGroupService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScimGroupRepository _groups = groups ?? throw new ArgumentNullException(nameof(groups));
 
     /// <inheritdoc/>
@@ -41,7 +44,7 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
         _ = await _groups.GetByIdAsync(tenantId, id, cancellationToken) ?? throw new ScimNotFoundException("Group not found.");
         (string displayName, string externalId) = ScimGroupResourceParser.ParseGroup(resource);
         await _groups.ReplaceAsync(tenantId, id, externalId, displayName, cancellationToken);
-        await LogAsync(tenantId, AuditEventTypes.ScimGroupMembershipChanged, $"{{\"groupId\":\"{id:D}\"}}", cancellationToken);
+        await LogRequiredAsync(tenantId, AuditEventTypes.ScimGroupMembershipChanged, $"{{\"groupId\":\"{id:D}\"}}", cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -55,7 +58,7 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
         ScimGroupMemberPatchPlanner.ApplyOrderedOperations(ops, working);
         List<Guid> ordered = working.OrderBy(static u => u).ToList();
         await _groups.SetMembersAsync(tenantId, id, ordered, cancellationToken);
-        await LogAsync(tenantId, AuditEventTypes.ScimGroupMembershipChanged, $"{{\"groupId\":\"{id:D}\",\"memberCount\":{ordered.Count}}}", cancellationToken);
+        await LogRequiredAsync(tenantId, AuditEventTypes.ScimGroupMembershipChanged, $"{{\"groupId\":\"{id:D}\",\"memberCount\":{ordered.Count}}}", cancellationToken);
     }
 
     private async Task LogAsync(Guid tenantId, string eventType, string dataJson, CancellationToken ct)
@@ -70,5 +73,25 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
             ProjectId = ScopeIds.DefaultProject,
             DataJson = dataJson
         }, ct);
+    }
+
+    private Task LogRequiredAsync(Guid tenantId, string eventType, string dataJson, CancellationToken ct)
+    {
+        AuditEvent auditEvent = new()
+        {
+            EventType = eventType,
+            ActorUserId = "scim",
+            ActorUserName = "SCIM provisioning",
+            TenantId = tenantId,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+            DataJson = dataJson
+        };
+
+        return DurableAuditLogRetry.LogOrThrowAsync(
+            token => _audit.LogAsync(auditEvent, token),
+            _logger,
+            $"{eventType}:{tenantId:N}",
+            ct);
     }
 }

@@ -14,13 +14,54 @@ public static class DurableAuditLogRetry
     ///     Runs <paramref name="writeAsync" /> up to <paramref name="maxAttempts" /> times with short backoff.
     ///     Logs and suppresses the final exception so callers keep their non-audit behavior.
     /// </summary>
-    public static async Task TryLogAsync(
+    public static Task TryLogAsync(
         Func<CancellationToken, Task> writeAsync,
         ILogger logger,
         string operationLabel,
         CancellationToken cancellationToken,
         int maxAttempts = 3,
         string? auditEventTypeForMetrics = null)
+    {
+        return ExecuteWithRetryAsync(
+            writeAsync,
+            logger,
+            operationLabel,
+            cancellationToken,
+            maxAttempts,
+            auditEventTypeForMetrics,
+            throwOnAbandon: false);
+    }
+
+    /// <summary>
+    ///     Runs <paramref name="writeAsync" /> up to <paramref name="maxAttempts" /> times with short backoff.
+    ///     Throws <see cref="DurableAuditWriteFailedException" /> when all attempts fail so the caller operation fails closed.
+    /// </summary>
+    public static Task LogOrThrowAsync(
+        Func<CancellationToken, Task> writeAsync,
+        ILogger logger,
+        string operationLabel,
+        CancellationToken cancellationToken,
+        int maxAttempts = 3,
+        string? auditEventTypeForMetrics = null)
+    {
+        return ExecuteWithRetryAsync(
+            writeAsync,
+            logger,
+            operationLabel,
+            cancellationToken,
+            maxAttempts,
+            auditEventTypeForMetrics,
+            throwOnAbandon: true);
+    }
+
+    private static async Task ExecuteWithRetryAsync(
+        Func<CancellationToken, Task> writeAsync,
+        ILogger logger,
+        string operationLabel,
+        CancellationToken cancellationToken,
+        int maxAttempts,
+        string? auditEventTypeForMetrics,
+        bool throwOnAbandon)
     {
         ArgumentNullException.ThrowIfNull(writeAsync);
         ArgumentNullException.ThrowIfNull(logger);
@@ -61,18 +102,21 @@ public static class DurableAuditLogRetry
                     await Task.Delay(TimeSpan.FromMilliseconds(50 * (1 << (attempt - 1))), cancellationToken);
             }
 
-        if (last is not null)
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
+        if (last is null)
+            return;
 
-                logger.LogWarning(
-                    last,
-                    "Durable audit abandoned after {MaxAttempts} attempts for {OperationLabel}",
-                    maxAttempts,
-                    operationLabel);
+        if (logger.IsEnabled(LogLevel.Warning))
 
-            if (!string.IsNullOrWhiteSpace(auditEventTypeForMetrics))
-                ArchLucidInstrumentation.RecordAuditWriteFailure(auditEventTypeForMetrics);
-        }
+            logger.LogWarning(
+                last,
+                "Durable audit abandoned after {MaxAttempts} attempts for {OperationLabel}",
+                maxAttempts,
+                operationLabel);
+
+        if (!string.IsNullOrWhiteSpace(auditEventTypeForMetrics))
+            ArchLucidInstrumentation.RecordAuditWriteFailure(auditEventTypeForMetrics);
+
+        if (throwOnAbandon)
+            throw new DurableAuditWriteFailedException(operationLabel, last);
     }
 }

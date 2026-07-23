@@ -19,6 +19,8 @@ using System.Data;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Runs.Finalization;
@@ -623,7 +625,8 @@ public sealed class ManifestFinalizationServiceTests
             integrationEventOutbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IManifestFinalizationSqlRepository>(),
             new RunStateTransitionService(),
-            Mock.Of<ICommittedEffectiveGovernanceSnapshotCapturer>());
+            Mock.Of<ICommittedEffectiveGovernanceSnapshotCapturer>(),
+            NullLogger<ManifestFinalizationService>.Instance);
     }
 
     private static IFindingsSnapshotRepository CreateDefaultFindingsSnapshotRepository()

@@ -6,18 +6,24 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Governance;
 
 /// <summary>Persists run-level operator governance disposition on <c>dbo.Runs</c> (TB-112).</summary>
 public sealed class RunOperatorGovernanceDispositionService(
     IRunRepository runRepository,
-    IAuditService auditService) : IRunOperatorGovernanceDispositionService
+    IAuditService auditService,
+    ILogger<RunOperatorGovernanceDispositionService> logger) : IRunOperatorGovernanceDispositionService
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ILogger<RunOperatorGovernanceDispositionService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<RunOperatorGovernanceDispositionDto> RecordAsync(
         Guid runId,
@@ -60,22 +66,26 @@ public sealed class RunOperatorGovernanceDispositionService(
         if (!updated)
             throw new KeyNotFoundException($"Run '{runId}' was not found.");
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                OccurredUtc = occurredUtc.UtcDateTime,
-                EventType = AuditEventTypes.RunOperatorGovernanceDispositionRecorded,
-                RunId = runId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        runId,
-                        decision = decisionName,
-                        rationale,
-                        actorUserId = actorUserId.Trim(),
-                        occurredUtc = occurredUtc.UtcDateTime,
-                    }),
-            },
+        AuditEvent auditEvent = new()
+        {
+            OccurredUtc = occurredUtc.UtcDateTime,
+            EventType = AuditEventTypes.RunOperatorGovernanceDispositionRecorded,
+            RunId = runId,
+            DataJson = JsonSerializer.Serialize(
+                new
+                {
+                    runId,
+                    decision = decisionName,
+                    rationale,
+                    actorUserId = actorUserId.Trim(),
+                    occurredUtc = occurredUtc.UtcDateTime,
+                }),
+        };
+
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => _auditService.LogAsync(auditEvent, ct),
+            _logger,
+            $"RunOperatorGovernanceDisposition:{runId:N}",
             cancellationToken);
 
         return new RunOperatorGovernanceDispositionDto

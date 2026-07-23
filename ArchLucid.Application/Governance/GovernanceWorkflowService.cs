@@ -594,12 +594,12 @@ public sealed class GovernanceWorkflowService(
     }
 
     /// <summary>
-    ///     Governance durable rows use bounded retries; failures are logged only so workflow state is not blocked by audit
-    ///     I/O.
+    ///     Governance disposition audit rows use bounded retries and fail closed when the durable write cannot complete.
+    ///     State may already be persisted before this runs; a failure surfaces as 500 until <c>TB-956</c> same-TX/outbox hardening.
     /// </summary>
     private async Task LogGovernanceDurableWithRetryAsync(AuditEvent auditEvent, string operationLabel, CancellationToken cancellationToken)
     {
-        await DurableAuditLogRetry.TryLogAsync(ct => auditService.LogAsync(auditEvent, ct), logger, operationLabel, cancellationToken);
+        await DurableAuditLogRetry.LogOrThrowAsync(ct => auditService.LogAsync(auditEvent, ct), logger, operationLabel, cancellationToken);
     }
 
     private Task TryPublishGovernanceApprovalSubmittedAsync(GovernanceApprovalRequest request, CancellationToken cancellationToken)

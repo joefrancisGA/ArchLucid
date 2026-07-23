@@ -55,9 +55,13 @@
 
 **Intent:** Distinguish **transactional** audit (must succeed or fail the user-visible operation) from **informational async** audit (best-effort).
 
-**Why:** TB-001 explicitly ships best-effort async audit with metrics; inventing “always fail closed” would contradict that decision without a new ADR.
+**Why:** TB-001 explicitly ships best-effort async audit with metrics for informational paths. Required governance, finalize, identity-access, and export-attestation events must not succeed without a durable audit row (**TB-953**).
 
-**Enforcement sketch:** Attribute or interface marker on operations; tests per class; document the split in runbooks.
+**Required (fail-closed):** `DurableAuditLogRetry.LogOrThrowAsync` — bounded retry, then throw `DurableAuditWriteFailedException` so the caller operation rolls back or returns error. Minimum set: governance approve/reject/submit/promote/activate/waive disposition, manifest finalize (legacy path), identity role grant / SCIM principal binding, export completion attestation.
+
+**Informational (best-effort):** `DurableAuditLogRetry.TryLogAsync` or `[InformationalAudit]` — retry then swallow; metrics on abandon per TB-001.
+
+**Enforcement sketch:** Attribute or interface marker on operations; architecture test classifies `IAuditService.LogAsync` call sites; integration tests prove fail-closed on Required paths.
 
 ---
 
