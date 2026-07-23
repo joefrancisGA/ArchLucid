@@ -1,4 +1,5 @@
-﻿> **Scope:** Stub — full prompt consolidated under [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3).
+﻿> **Reviewed:** 2026-07-23
+> **Scope:** Path-stable stub — full prompt consolidated under [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3). Keep for Cursor commands / CI path references.
 
 # Assessment prompt v3 (stub)
 

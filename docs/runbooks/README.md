@@ -5,7 +5,7 @@
 
 # Runbooks index
 
-**Last reviewed:** 2026-06-06
+**Last reviewed:** 2026-07-23
 
 Operational guides for ArchLucid operators. Each runbook is self-contained; cross-links point to deeper design docs where useful.
 

@@ -1,4 +1,5 @@
-> **Scope:** Stub — full content consolidated under [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](../../archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md#gate-verification-historical-snapshot).
+> **Reviewed:** 2026-07-23
+> **Scope:** Path-stable stub — full content consolidated under [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](../../archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md#gate-verification-historical-snapshot).
 
 # Phase 3 gate verification (stub)
 

@@ -7,7 +7,7 @@
 
 **Audience:** Security engineers and SOC teams evaluating ArchLucid's audit data for SIEM ingestion.
 
-**Last reviewed:** 2026-05-05
+**Last reviewed:** 2026-07-23
 
 **Technical detail:** Copy-paste **Splunk HEC** and **Microsoft Sentinel / Log Analytics** JSON mappings for **audit rows** (`AuditEvent`) are in **[`../library/SIEM_EXPORT.md`](../library/SIEM_EXPORT.md)** (§4).
 

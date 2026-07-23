@@ -1,4 +1,5 @@
-> **Scope:** Stub — full prompt consolidated under [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#broader-exposure-readiness-v4).
+> **Reviewed:** 2026-07-23
+> **Scope:** Path-stable stub — full prompt consolidated under [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#broader-exposure-readiness-v4). Keep for Cursor commands / CI path references.
 
 # Assessment prompt v4 (stub)
 

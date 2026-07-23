@@ -9,7 +9,7 @@
 
 **Audience:** Security engineers and SOC teams evaluating ArchLucid's audit data for SIEM ingestion.
 
-**Last reviewed:** 2026-05-05
+**Last reviewed:** 2026-07-23
 
 ---
 

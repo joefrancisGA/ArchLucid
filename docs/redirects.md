@@ -200,5 +200,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/runbooks/CORRELATION_AND_TRACING.md` | [`docs/library/BACKGROUND_JOB_CORRELATION.md`](library/BACKGROUND_JOB_CORRELATION.md) · [`docs/library/OBSERVABILITY.md`](library/OBSERVABILITY.md) | Correlation + tracing entry points |
 | `docs/library/SECURITY.md` | [`docs/library/contributor-reference/SECURITY.md`](library/contributor-reference/SECURITY.md) | Phase 3 move stub removed (TB-013) |
 | `docs/library/COVERAGE_GAP_ANALYSIS.md` | [`docs/COVERAGE_GAP_ANALYSIS.md`](COVERAGE_GAP_ANALYSIS.md) | Stale library duplicate removed; CI generator writes root path only |
+| `docs/library/API_CONTROLLER_MAP.md` | [`docs/library/CONTROLLER_AREA_MAP.md`](library/CONTROLLER_AREA_MAP.md) | Filename alias stub removed |
+| `docs/library/BILLING_WEBHOOKS.md` | [`docs/library/BILLING.md`](library/BILLING.md) | Webhook routes already documented in canonical billing doc |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
