@@ -22,10 +22,11 @@ export type AlertRuleFormInput = {
   readonly thresholdValue: number;
 };
 
+/** Mutable field-error bag — built incrementally in validateAlertRuleForm. */
 export type AlertRuleFormFieldErrors = {
-  readonly name?: string;
-  readonly thresholdValue?: string;
-  readonly alertPriority?: string;
+  name?: string;
+  thresholdValue?: string;
+  alertPriority?: string;
 };
 
 export type AlertRuleNotificationReadiness = {
@@ -83,38 +84,45 @@ export function usesIntegerThreshold(ruleType: string): boolean {
 }
 
 export function validateAlertRuleForm(input: AlertRuleFormInput): AlertRuleFormFieldErrors {
-  const errors: { name?: string; thresholdValue?: string; alertPriority?: string } = {};
   const trimmedName = input.name.trim();
-
-  if (trimmedName.length === 0) {
-    errors.name = "Enter a name for this alert rule.";
-  }
-
   const priority = input.alertPriority.trim();
-
-  if (priority.length === 0) {
-    errors.alertPriority = "Choose an alert priority.";
-  }
+  const nameError = trimmedName.length === 0 ? "Enter a name for this alert rule." : undefined;
+  const alertPriorityError = priority.length === 0 ? "Choose an alert priority." : undefined;
 
   if (input.ruleType === "RejectedSecurityRecommendation") {
-    return errors;
+    return buildAlertRuleFormFieldErrors(nameError, alertPriorityError, undefined);
   }
 
   if (!Number.isFinite(input.thresholdValue)) {
-    errors.thresholdValue = "Enter a numeric threshold.";
-    return errors;
+    return buildAlertRuleFormFieldErrors(nameError, alertPriorityError, "Enter a numeric threshold.");
   }
 
   if (usesIntegerThreshold(input.ruleType) && !Number.isInteger(input.thresholdValue)) {
-    errors.thresholdValue = "Enter a whole number for this threshold.";
-    return errors;
+    return buildAlertRuleFormFieldErrors(
+      nameError,
+      alertPriorityError,
+      "Enter a whole number for this threshold.",
+    );
   }
 
-  if (input.thresholdValue < ALERT_RULE_THRESHOLD_MIN || input.thresholdValue > ALERT_RULE_THRESHOLD_MAX) {
-    errors.thresholdValue = `Threshold must be between ${ALERT_RULE_THRESHOLD_MIN} and ${ALERT_RULE_THRESHOLD_MAX}.`;
-  }
+  const thresholdValueError =
+    input.thresholdValue < ALERT_RULE_THRESHOLD_MIN || input.thresholdValue > ALERT_RULE_THRESHOLD_MAX
+      ? `Threshold must be between ${ALERT_RULE_THRESHOLD_MIN} and ${ALERT_RULE_THRESHOLD_MAX}.`
+      : undefined;
 
-  return errors;
+  return buildAlertRuleFormFieldErrors(nameError, alertPriorityError, thresholdValueError);
+}
+
+function buildAlertRuleFormFieldErrors(
+  name: string | undefined,
+  alertPriority: string | undefined,
+  thresholdValue: string | undefined,
+): AlertRuleFormFieldErrors {
+  return {
+    ...(name !== undefined ? { name } : {}),
+    ...(alertPriority !== undefined ? { alertPriority } : {}),
+    ...(thresholdValue !== undefined ? { thresholdValue } : {}),
+  };
 }
 
 export function isAlertRuleFormValid(input: AlertRuleFormInput): boolean {
