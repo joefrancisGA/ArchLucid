@@ -22,6 +22,8 @@ Prove **self-serve trial in production shape**: anonymous `POST /v1/register`, S
 | Requirement | Notes |
 |-------------|--------|
 | **ArchLucid.Api** | Sql storage, `ArchLucidAuth:Mode=DevelopmentBypass`, `AgentExecution:Mode=Simulator`, `Billing:Provider=Noop` (typical local `appsettings.Development.json`). |
+| **Public signup** | Trial live E2E requires **`Auth:PublicSignup:Mode=PublicSelfService`** on the API (Development `appsettings.Development.json` sets this; production default remains **`InviteOnly`**). CI **`ui-e2e-live-extended`** also sets **`Auth__PublicSignup__Mode=PublicSelfService`**. Without it, `POST /v1/register` returns **404** *Registration is by invitation…*. |
+| **UI signup form** | Next build must bake **`NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service`** so `/signup` renders `SignupForm` (Work email). Invite-only builds show the access-request panel instead. CI extended live builds set this. |
 | **Prometheus scrape** | `Observability:Prometheus:Enabled=true` and `RequireScrapeAuthentication=false` for unattended `/metrics` reads (CI sets this). |
 | **Harness secret** | `ArchLucid:E2eHarness:SharedSecret` (≥ 16 chars) on the API **and** `LIVE_E2E_HARNESS_SECRET` in the Playwright environment. In **Production**, harness routes are not supported (`E2eHarnessRules` + controller returns **404** when disabled). |
 | **RLS break-glass (Sql + demo seed)** | When `SqlServer:RowLevelSecurity:ApplySessionContext` is **true**, startup demo seed calls `SqlRowLevelSecurityBypassAmbient.Enter()` and requires **`ARCHLUCID_ALLOW_RLS_BYPASS=true`** and **`ArchLucid:Persistence:AllowRlsBypass=true`** (see [SECURITY.md](../library/contributor-reference/SECURITY.md)). CI **`ui-e2e-live`** jobs set both; without them the API exits before binding **5128**, so health checks (`curl`) fail until timeout. |
@@ -44,6 +46,11 @@ Prove **self-serve trial in production shape**: anonymous `POST /v1/register`, S
    - `ArchLucid__E2eHarness__SharedSecret=%ARCHLUCID_E2E_HARNESS_SECRET%`
    - `Observability__Prometheus__Enabled=true`
    - `Observability__Prometheus__RequireScrapeAuthentication=false`
+   - `Auth__PublicSignup__Mode=PublicSelfService` (if not already set via `appsettings.Development.json`)
+
+   UI build (when not using a prebuilt InviteOnly bundle):
+
+   - `NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service`
 
 3. `dotnet run --project ArchLucid.Api`
 4. `cd archlucid-ui && npx playwright test live-api-trial-end-to-end.spec.ts`

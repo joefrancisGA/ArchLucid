@@ -58,16 +58,17 @@ test.describe("live-api-review-manifest-roundtrip", () => {
     await expect(manifestLink).toBeVisible({ timeout: 60_000 });
     await expect(manifestLink).toContainText(/Finalized/i);
 
-    await Promise.all([
-      page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
-      manifestLink.click(),
-    ]);
-
+    // Capture href before navigation — after click the outcome strip is gone from the DOM.
     const manifestHref = (await manifestLink.getAttribute("href")) ?? "";
     const manifestIdMatch = manifestHref.match(/\/(?:signed-records|manifests)\/([^/?#]+)/i);
     const manifestId = manifestIdMatch?.[1] ?? "";
 
     expect(manifestId.length).toBeGreaterThan(0);
+
+    await Promise.all([
+      page.waitForURL(/\/(?:signed-records|manifests)\/.+/i, { waitUntil: "commit" }),
+      manifestLink.click(),
+    ]);
 
     await expectLiveManifestDetailPageReady(page, manifestId, { timeoutMs: 120_000 });
 

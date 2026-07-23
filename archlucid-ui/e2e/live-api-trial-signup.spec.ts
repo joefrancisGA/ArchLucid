@@ -17,6 +17,7 @@ import {
   executeRun,
   liveApiBase,
   resolveLiveAuthMode,
+  isInviteOnlyRegistrationResponse,
   liveJsonHeaders,
   liveTenantScopeHeaders,
   searchAudit,
@@ -76,8 +77,17 @@ test.describe("live-api-trial-signup", () => {
       },
     });
 
-    expect(res.status(), await res.text()).toBe(201);
-    const body = (await res.json()) as { tenantId?: string };
+    const registerBodyText = await res.text();
+
+    if (isInviteOnlyRegistrationResponse(res.status(), registerBodyText)) {
+      throw new Error(
+        "POST /v1/register returned InviteOnly 404. Set Auth__PublicSignup__Mode=PublicSelfService on the API " +
+          "and NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service on the Next build for trial live E2E.",
+      );
+    }
+
+    expect(res.status(), registerBodyText).toBe(201);
+    const body = JSON.parse(registerBodyText) as { tenantId?: string };
 
     expect(body.tenantId).toBeTruthy();
   });
@@ -123,7 +133,17 @@ test.describe("live-api-trial-signup", () => {
     const orgName = `Trial UI Org ${suffix}`;
 
     await page.goto("/signup");
-    await page.getByLabel(/^Work email$/i).fill(adminEmail);
+
+    const workEmail = page.getByLabel(/^Work email$/i);
+
+    if ((await workEmail.count()) === 0) {
+      throw new Error(
+        "/signup is InviteOnly (no Work email field). Rebuild UI with NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service " +
+          "and run API with Auth__PublicSignup__Mode=PublicSelfService for trial live E2E.",
+      );
+    }
+
+    await workEmail.fill(adminEmail);
     await page.getByLabel(/^Full name$/i).fill("Trial UI User");
     await page.getByLabel(/^Organization name$/i).fill(orgName);
     await page.getByRole("button", { name: /Create evaluation workspace/i }).click();
@@ -251,9 +271,18 @@ test.describe("live-api-trial-signup", () => {
       },
     });
 
-    expect(first.status(), await first.text()).toBe(201);
+    const firstBodyText = await first.text();
 
-    const provisioned = (await first.json()) as {
+    if (isInviteOnlyRegistrationResponse(first.status(), firstBodyText)) {
+      throw new Error(
+        "POST /v1/register returned InviteOnly 404. Set Auth__PublicSignup__Mode=PublicSelfService on the API " +
+          "and NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service on the Next build for trial live E2E.",
+      );
+    }
+
+    expect(first.status(), firstBodyText).toBe(201);
+
+    const provisioned = JSON.parse(firstBodyText) as {
       tenantId?: string;
       defaultWorkspaceId?: string;
       defaultProjectId?: string;

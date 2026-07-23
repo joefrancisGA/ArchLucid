@@ -13,6 +13,7 @@ import {
   createRun,
   executeRun,
   getTenantTrialStatus,
+  isInviteOnlyRegistrationResponse,
   liveApiBase,
   resolveLiveAuthMode,
   liveE2eHarnessHeaders,
@@ -129,9 +130,19 @@ test.describe("live-api-trial-end-to-end", () => {
       },
     });
 
-    expect(reg.status(), await reg.text()).toBe(201);
+    const regBodyText = await reg.text();
 
-    const provisioned = (await reg.json()) as Register201;
+    if (isInviteOnlyRegistrationResponse(reg.status(), regBodyText)) {
+      throw new Error(
+        "POST /v1/register returned InviteOnly 404. Set Auth__PublicSignup__Mode=PublicSelfService on the API " +
+          "and NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service on the Next build for trial live E2E " +
+          "(see docs/runbooks/TRIAL_END_TO_END.md).",
+      );
+    }
+
+    expect(reg.status(), regBodyText).toBe(201);
+
+    const provisioned = JSON.parse(regBodyText) as Register201;
 
     expect(provisioned.tenantId.length).toBeGreaterThan(0);
     expect(provisioned.defaultWorkspaceId.length).toBeGreaterThan(0);

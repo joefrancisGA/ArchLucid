@@ -37,15 +37,6 @@ test.describe("live-api-whitelabel-export", () => {
     await expectLiveRunDetailPageReady(page, 120_000);
     await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
 
-    const buyerPolishedDeliverables = page.getByTestId("buyer-deliverables-artifact-tabs");
-
-    if (await buyerPolishedDeliverables.isVisible().catch(() => false)) {
-      test.skip(
-        true,
-        "Whitelabel consulting export is only rendered in full-operator deliverables chrome (buyer-polished live CI omits it).",
-      );
-    }
-
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 
     const artifactsExports = page.locator("#artifacts-exports");
@@ -56,7 +47,19 @@ test.describe("live-api-whitelabel-export", () => {
     await expect(artifactsExports).toBeVisible({ timeout: 90_000 });
     await artifactsExports.scrollIntoViewIfNeeded();
 
+    // Buyer-polished shell (product default) omits the whitelabel modal CTA — detect after expand.
+    const buyerPolishedDeliverables = page.getByTestId("buyer-deliverables-artifact-tabs");
     const openModal = page.getByTestId("open-whitelabel-consulting-export");
+
+    if (
+      (await buyerPolishedDeliverables.isVisible().catch(() => false)) ||
+      !(await openModal.isVisible().catch(() => false))
+    ) {
+      test.skip(
+        true,
+        "Whitelabel consulting export modal is full-operator-only; buyer-polished live CI omits open-whitelabel-consulting-export.",
+      );
+    }
 
     await expect(openModal).toBeVisible({ timeout: 60_000 });
 

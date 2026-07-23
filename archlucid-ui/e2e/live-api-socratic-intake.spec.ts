@@ -17,6 +17,7 @@ import {
 } from "./helpers/live-api-client";
 import { L0_ACTOR_ADDITIONAL_KINDS_QUESTION_KEY } from "./helpers/draft-intake-question-keys";
 import { runIdFromReviewsHref } from "./helpers/run-id-from-href";
+import { skipAllSocraticClarificationsInUi } from "./helpers/socratic-intake";
 
 const INTENT =
   "Design a multi-tenant Azure API platform with private SQL, Redis cache, and Entra ID authentication.";
@@ -57,16 +58,8 @@ test.describe("live-api-socratic-intake", () => {
     await expect(page.getByTestId("socratic-admit")).toBeEnabled({ timeout: 15_000 });
     await page.getByTestId("socratic-admit").click();
 
-    await expect(page.getByTestId("socratic-questions-done")).toBeVisible({ timeout: 60_000 });
-
-    const questionBlocks = page.getByTestId("socratic-question");
-    const questionCount = await questionBlocks.count();
-
-    for (let index = 0; index < questionCount; index++) {
-      await questionBlocks.nth(index).getByRole("button", { name: "Skip this clarification" }).click();
-    }
-
-    await expect(page.getByTestId("socratic-questions-done")).toBeEnabled({ timeout: 120_000 });
+    // One-at-a-time clarifications: poll skip until Review answers enables (do not one-shot count).
+    await skipAllSocraticClarificationsInUi(page, { timeoutMs: 120_000 });
     await page.getByTestId("socratic-questions-done").click();
     await page.getByTestId("socratic-submit").click();
 

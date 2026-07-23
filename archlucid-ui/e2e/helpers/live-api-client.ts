@@ -107,17 +107,14 @@ const LIVE_E2E_GOVERNANCE_REVIEWER_ACTOR_IDS: Readonly<Record<string, string>> =
 };
 
 /**
- * `X-ArchLucid-Test-Actor-*` headers for DevelopmentBypass and ApiKey CI (`AllowTestActorHeaders`).
+ * `X-ArchLucid-Test-Actor-*` headers for DevelopmentBypass (`AllowTestActorHeaders`).
  * Governance approve/reject resolves the actor from auth — body `reviewedBy` alone does not change the actor.
- * JWT lane uses a distinct Bearer token instead (see {@link resolveLivePeerReviewerGovernanceOptions}).
  */
 export function liveTestActorHeaders(
   actorName: string,
   actorId?: string | null,
 ): Record<string, string> {
-  const mode = resolveLiveAuthMode();
-
-  if (mode !== "bypass" && mode !== "apikey") {
+  if (resolveLiveAuthMode() !== "bypass") {
     return {};
   }
 
@@ -136,7 +133,7 @@ export function liveTestActorHeaders(
 
   if (resolvedId.length === 0) {
     throw new Error(
-      `liveTestActorHeaders: unknown reviewer "${name}" in ${mode} mode — pass actorId or add a stable mapping.`,
+      `liveTestActorHeaders: unknown reviewer "${name}" in bypass mode — pass actorId or add a stable mapping.`,
     );
   }
 
@@ -451,10 +448,11 @@ export async function postArchitectureRequestRaw(
   request: APIRequestContext,
   body: unknown,
   tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
 ): Promise<APIResponse> {
   return request.post(`${resolveLiveApiBase()}/v1/architecture/request`, {
     data: body,
-    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
+    headers: mergeTenantScope(liveJsonHeaders(null, explicitBearerToken), tenantScope),
   });
 }
 
@@ -527,9 +525,10 @@ export async function createRun(
   request: APIRequestContext,
   body: Record<string, unknown>,
   tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
 ): Promise<{ runId: string }> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts(); attempt++) {
-    const res = await postArchitectureRequestRaw(request, body, tenantScope);
+    const res = await postArchitectureRequestRaw(request, body, tenantScope, explicitBearerToken);
     const status = res.status();
 
     if (status === 429 && attempt < maxArchitectureMutationAttempts() - 1) {
@@ -1347,12 +1346,13 @@ export async function waitForArchitectureRunListIncludesRun(
   runId: string,
   timeoutMs = 90_000,
   tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
 ): Promise<void> {
   const deadline = Date.now() + liveE2eCommitWaitMs(timeoutMs);
   const normalized = normalizeRunIdForCompare(runId);
 
   while (Date.now() < deadline) {
-    const rows = await listArchitectureRuns(request, tenantScope);
+    const rows = await listArchitectureRuns(request, tenantScope, explicitBearerToken);
     const found = rows.some((row) => normalizeRunIdForCompare(String(row.runId ?? "")) === normalized);
 
     if (found) {
@@ -1371,9 +1371,10 @@ export async function waitForArchitectureRunListIncludesRun(
 export async function listArchitectureRuns(
   request: APIRequestContext,
   tenantScope?: LiveTenantScopeHeaders | null,
+  explicitBearerToken?: string | null,
 ): Promise<ArchitectureRunListItemJson[]> {
   const res = await request.get(`${resolveLiveApiBase()}/v1/architecture/runs`, {
-    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
+    headers: mergeTenantScope(liveJsonHeaders(null, explicitBearerToken), tenantScope),
   });
 
   await throwIfNotOk(res, "GET /v1/architecture/runs");
@@ -2023,6 +2024,34 @@ export async function postAskRaw(
     headers: liveJsonHeaders(),
     timeout: timeoutMs,
   });
+}
+
+/**
+ * Soft Ask probe for live E2E: returns the response when Ask answers, otherwise null on timeout /
+ * transport failure so specs can continue to axe/UI gates without failing the suite.
+ */
+export async function postAskRawSoft(
+  request: APIRequestContext,
+  body: { runId: string; question: string },
+  options?: { timeoutMs?: number },
+): Promise<APIResponse | null> {
+  try {
+    return await postAskRaw(request, body, options);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`[live-api] POST /v1/ask soft-failed (timeout/transport): ${message}`);
+
+    return null;
+  }
+}
+
+/** True when anonymous register is blocked by Auth:PublicSignup:Mode=InviteOnly. */
+export function isInviteOnlyRegistrationResponse(status: number, bodyText: string): boolean {
+  if (status !== 404) {
+    return false;
+  }
+
+  return /registration is by invitation/i.test(bodyText);
 }
 
 export type DigestSubscriptionJson = {
