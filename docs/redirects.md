@@ -4,7 +4,7 @@
 
 # Documentation redirects
 
-**Last reviewed:** 2026-07-22
+**Last reviewed:** 2026-07-23
 
 Human readers and agents should follow **canonical** paths below. This file is the only redirect surface — do not recreate thin "moved" stub files.
 
@@ -199,5 +199,6 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/runbooks/TENANT_SQL_TOPOLOGY_RUNBOOK.md` | [`docs/operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md`](operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md) | Runbook lives under `docs/operations/` |
 | `docs/runbooks/CORRELATION_AND_TRACING.md` | [`docs/library/BACKGROUND_JOB_CORRELATION.md`](library/BACKGROUND_JOB_CORRELATION.md) · [`docs/library/OBSERVABILITY.md`](library/OBSERVABILITY.md) | Correlation + tracing entry points |
 | `docs/library/SECURITY.md` | [`docs/library/contributor-reference/SECURITY.md`](library/contributor-reference/SECURITY.md) | Phase 3 move stub removed (TB-013) |
+| `docs/library/COVERAGE_GAP_ANALYSIS.md` | [`docs/COVERAGE_GAP_ANALYSIS.md`](COVERAGE_GAP_ANALYSIS.md) | Stale library duplicate removed; CI generator writes root path only |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
