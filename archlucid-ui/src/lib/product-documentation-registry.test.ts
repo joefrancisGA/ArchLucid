@@ -71,8 +71,22 @@ describe("product-documentation-registry", () => {
       const loaded = tryLoadProductDocumentation(entry.slug);
 
       expect(loaded, `missing markdown for ${entry.slug}`).not.toBeNull();
+
+      if (entry.sourcePaths.length === 0) {
+        expect(loaded!.markdown, `${entry.slug} app-rendered topics use empty markdown`).toBe("");
+        continue;
+      }
+
       expect(loaded!.markdown.trim().length).toBeGreaterThan(40);
     }
+  });
+
+  it("registers glossary as app-rendered (no markdown source)", () => {
+    const glossary = getProductDocumentationEntry("glossary");
+
+    expect(glossary?.sourcePaths).toEqual([]);
+    expect(glossary?.pdfStatus).toBeNull();
+    expect(tryLoadProductDocumentation("glossary")?.markdown).toBe("");
   });
 
   it("registers integration readiness help for contextual page guidance", () => {

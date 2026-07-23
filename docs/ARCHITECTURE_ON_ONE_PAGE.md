@@ -112,7 +112,7 @@ The governance model uses **Policy Packs** as its adaptive "brain", completely d
 | **ArchLucid.Persistence** | Dapper data access, outbox tables, integration dead-letter paths |
 | **archlucid-ui** | Operator shell; server **proxy** to API with scope + correlation headers |
 
-**Code map:** [`library/CODE_MAP.md`](library/CODE_MAP.md)
+**Code map:** [`library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md)
 
 ## 6. Data flow
 
@@ -158,4 +158,4 @@ The governance model uses **Policy Packs** as its adaptive "brain", completely d
 | UI route → API → CLI | [`library/OPERATOR_ATLAS.md`](library/OPERATOR_ATLAS.md) |
 | Bounded contexts + ADRs | [`architecture/README.md`](architecture/README.md) |
 | API contracts | [`library/API_CONTRACTS.md`](library/API_CONTRACTS.md) |
-| Structured narrative + legacy flowchart | [`library/ARCHITECTURE_ON_A_PAGE.md`](library/ARCHITECTURE_ON_A_PAGE.md) |
+| Doc map (architecture index) | [`ARCHITECTURE_INDEX.md`](ARCHITECTURE_INDEX.md) |

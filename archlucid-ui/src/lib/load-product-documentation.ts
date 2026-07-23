@@ -63,12 +63,20 @@ function prepareHelpSourceMarkdown(markdown: string): string {
 
 /**
  * Loads the primary markdown body for an in-app help topic from the monorepo (or Docker sample path when packaged).
+ * Entries with empty `sourcePaths` are app-rendered topics and succeed with empty markdown.
  */
 export function tryLoadProductDocumentation(slug: string): LoadedProductDocumentation | null {
   const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {
     return null;
+  }
+
+  if (entry.sourcePaths.length === 0) {
+    return {
+      entry,
+      markdown: "",
+    };
   }
 
   const chunks: string[] = [];

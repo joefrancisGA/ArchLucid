@@ -202,5 +202,9 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/COVERAGE_GAP_ANALYSIS.md` | [`docs/COVERAGE_GAP_ANALYSIS.md`](COVERAGE_GAP_ANALYSIS.md) | Stale library duplicate removed; CI generator writes root path only |
 | `docs/library/API_CONTROLLER_MAP.md` | [`docs/library/CONTROLLER_AREA_MAP.md`](library/CONTROLLER_AREA_MAP.md) | Filename alias stub removed |
 | `docs/library/BILLING_WEBHOOKS.md` | [`docs/library/BILLING.md`](library/BILLING.md) | Webhook routes already documented in canonical billing doc |
+| `docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md` | [`docs/CONTRIBUTOR_ON_ONE_PAGE.md`](CONTRIBUTOR_ON_ONE_PAGE.md) | Duplicate of CI-guarded root one-pager |
+| `docs/library/ARCHITECTURE_ON_A_PAGE.md` | [`docs/ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md) | Self-demoted narrative duplicate of canonical C4 poster |
+| `docs/library/CODE_MAP.md` | [`docs/library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md) | Path table folded into contributor code map |
+| `docs/library/customer-facing/CUSTOMER_GLOSSARY.md` | In-app `/help/glossary` (`archlucid-ui/src/lib/customer-glossary-manifest.ts`) | Thin stub removed — terms are app-rendered |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |

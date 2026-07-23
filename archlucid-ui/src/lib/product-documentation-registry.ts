@@ -18,7 +18,10 @@ export type ProductDocumentationEntry = {
   title: string;
   summary: string;
   audience: ProductDocumentationAudience;
-  /** Repo-relative markdown path(s); first entry is primary body. */
+  /**
+   * Repo-relative markdown path(s); first entry is primary body.
+   * Empty means the topic is app-rendered (no markdown body) — e.g. glossary from `customer-glossary-manifest.ts`.
+   */
   sourcePaths: readonly string[];
   /** When set, only these `{#anchor}` H2 sections (plus optional intro) are rendered. */
   sectionAnchors?: readonly string[];
@@ -143,8 +146,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary:
       "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/CUSTOMER_GLOSSARY.md"],
-    pdfStatus: "customer",
+    // App-rendered from `customer-glossary-manifest.ts` — not a markdown help body.
+    sourcePaths: [],
   },
   {
     slug: "evidence-only-review",

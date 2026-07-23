@@ -1,4 +1,5 @@
-> **Scope:** 1-page visual/textual decision tree for new contributors.
+> **Reviewed:** 2026-07-23
+> **Scope:** 1-page decision tree for new contributors, plus a high-signal path table (formerly `CODE_MAP.md`).
 
 # Contributor Code Map
 
@@ -51,3 +52,25 @@ Use this quick-reference to find where to make changes in the ArchLucid codebase
 **"What else must I update for this change type?"**
 - **Checklist:** [`CHANGE_IMPACT_CHECKLIST.md`](CHANGE_IMPACT_CHECKLIST.md) covers API routes/DTOs, SQL, config, operator UI, commercial tiers, audit events, retrieval/agent behavior, pricing/trust docs, and V1 scope boundaries.
 - **Generated map:** [`MAINTAINABILITY_BOUNDARY_MAP.generated.md`](MAINTAINABILITY_BOUNDARY_MAP.generated.md) (regenerate with `python scripts/ci/generate_maintainability_boundary_map.py`).
+- **Change checklist (controller → app → SQL → audit):** [`GOLDEN_CHANGE_PATH.md`](GOLDEN_CHANGE_PATH.md).
+
+## 8. High-signal paths (open first)
+
+| Concern | Path |
+|---------|------|
+| API startup | `ArchLucid.Api/Program.cs`, `ArchLucid.Api/Startup/` |
+| Auth + ArchLucid bridge | `ArchLucid.Api/Auth/`, `ArchLucid.Api/Configuration/ArchLucidAuthConfigurationBridge.cs` |
+| Config merge (storage + auth keys) | `ArchLucid.Host.Core/Configuration/ArchLucidConfigurationBridge.cs` |
+| Storage + repository registration | `ArchLucid.Host.Composition/Configuration/ArchLucidStorageServiceCollectionExtensions.cs` |
+| Feature DI slices | `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.*.cs` |
+| Outbox operational metrics | `ArchLucid.Persistence/Diagnostics/DapperOutboxOperationalMetricsReader.cs`, `ArchLucid.Host.Core/Hosted/OutboxOperationalMetricsHostedService.cs` |
+| OTel meters / gauges | `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs` |
+| SQL schema (master) | `ArchLucid.Persistence/Scripts/ArchLucid.sql` |
+| UI API proxy | `archlucid-ui/src/app/api/proxy/[...path]/route.ts` |
+| CD smoke + rollback | `.github/workflows/cd.yml`, `cd-staging-on-merge.yml` |
+| ZAP baseline (blocking) | `infra/zap/baseline-pr.tsv`, `.github/workflows/ci.yml` (`security-zap-api-baseline`), `zap-baseline-strict-scheduled.yml` |
+| Prometheus alerts | `infra/prometheus/archlucid-alerts.yml` |
+| Health wiring | `ArchLucid.Host.Core/Health` |
+| Build info | `ArchLucid.Core/Diagnostics/BuildInfoResponse.cs` |
+
+Gaps: grep and [`DI_REGISTRATION_MAP.md`](DI_REGISTRATION_MAP.md).

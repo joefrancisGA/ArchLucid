@@ -14,7 +14,7 @@
 
 ## 1. Objective
 
-Provide a **minimum file touch list** per change type so work stays inside the right **interfaces → services → data models → orchestration** boundaries (see [ARCHITECTURE_ON_A_PAGE.md](ARCHITECTURE_ON_A_PAGE.md)).
+Provide a **minimum file touch list** per change type so work stays inside the right **interfaces → services → data models → orchestration** boundaries (see [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md)).
 
 ---
 
@@ -130,7 +130,7 @@ For a fully worked example of this happy path — from HTTP through the coordina
 
 ## 9. Related docs
 
-- [CODE_MAP.md](CODE_MAP.md) — file entry points.
+- [CONTRIBUTOR_CODE_MAP.md](CONTRIBUTOR_CODE_MAP.md) — where to change code + high-signal paths.
 - [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) — coordinator vs authority (successor to the retired dual-pipeline navigator).
 - [FIRST_RUN_WIZARD.md](FIRST_RUN_WIZARD.md) — operator-first run (UI).
 - [onboarding/day-one-developer.md](../onboarding/day-one-developer.md) — week-one checklist and the create-run mental model this page's happy path (§6) is drawn from.
