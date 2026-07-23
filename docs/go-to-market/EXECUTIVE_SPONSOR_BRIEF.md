@@ -31,11 +31,11 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 ## 1. What ArchLucid is {#what-archlucid-is}
 
-ArchLucid turns buyer architecture evidence into one reviewable, defensible architecture proof package.
+ArchLucid turns buyer architecture evidence into one reviewable, defensible **architecture package**.
 
 It helps teams produce:
 
-- a committed manifest,
+- a finalized architecture package with a signed review record,
 - evidence-linked findings,
 - reviewable artifacts and sponsor-ready summaries,
 - clearer evidence for architecture and governance review,
@@ -51,7 +51,7 @@ At a practical level, ArchLucid is an AI-assisted architecture workflow system t
 
 ## 2. What problem it solves {#what-problem-it-solves}
 
-In many organizations, architecture work slows down because teams must manually assemble review packages, explain design reasoning, reconcile revisions, and prepare governance evidence.
+In many organizations, architecture work slows down because teams must manually assemble architecture packages, explain design reasoning, reconcile revisions, and prepare governance evidence.
 
 That creates four common problems:
 
@@ -86,7 +86,7 @@ Architecture decisions in ArchLucid are not just analyzed — they are governed.
 
 ### 30-second pitch
 
-"ArchLucid turns architecture evidence into a defensible review package. Upload the buyer's materials, and ArchLucid identifies the top risks across topology, cost, compliance, and design quality. Every sponsor-facing finding is tied to evidence and confidence labels, with exports a CTO or architecture review board can read."
+"ArchLucid turns architecture evidence into a defensible architecture package. Upload the buyer's materials, and ArchLucid identifies the top risks across topology, cost, compliance, and design quality. Every sponsor-facing finding is tied to evidence and confidence labels, with exports a CTO or architecture review board can read."
 
 ### 60-second pitch
 
@@ -96,7 +96,7 @@ ArchLucid solves this with evidence-linked architecture risk reviews.
 
 You upload your architecture materials. ArchLucid runs a multi-agent analysis — topology, cost, compliance, design quality — and surfaces a prioritized findings board: each risk ranked by severity, confidence-rated, evidence-cited, and accompanied by a concrete recommended action.
 
-The result: your architects get a defensible review package. Your CTO gets a clear executive summary. Your audit trail is complete. Reviews that took two weeks now take two hours."
+The result: your architects get a defensible architecture package. Your CTO gets a clear executive summary. Your audit trail is complete. Reviews that took two weeks now take two hours."
 
 ---
 
@@ -104,7 +104,7 @@ The result: your architects get a defensible review package. Your CTO gets a cle
 
 A successful Pilot should prove that a team can:
 
-- move from a structured request to a committed manifest faster,
+- move from a structured request to a finalized architecture package faster,
 - produce reviewable architecture artifacts with less manual assembly,
 - improve clarity around what changed and why,
 - and create stronger evidence for architecture or governance review.
@@ -115,7 +115,7 @@ That is the main V1 buying motion.
 
 | Manual architecture review | ArchLucid proof package |
 | --- | --- |
-| Evidence is gathered across meetings, tickets, diagrams, and spreadsheets. | Evidence, findings, manifest, exports, and sponsor summary are linked in one review package. |
+| Evidence is gathered across meetings, tickets, diagrams, and spreadsheets. | Evidence, findings, exports, and sponsor summary are linked in one architecture package. |
 | Reviewers reconstruct why a decision was made after the fact. | Findings and decisions carry explainability, provenance, and audit pointers at review time. |
 | Sponsor updates often become slideware detached from the evidence trail. | Sponsor-ready outputs stay tied to the committed review and label estimates, defaults, and customer-entered values explicitly. |
 | Follow-up reviews depend on manual comparison. | A second review can compare against the prior package and keep governance questions separate from the first-pilot proof. |
@@ -128,7 +128,7 @@ That is the main V1 buying motion.
 
 A credible pilot should show improvement in a few concrete areas:
 
-- **time to committed manifest,**
+- **time to finalized architecture package,**
 - **time to reviewable artifact package,**
 - **manual preparation effort,**
 - **decision traceability,**
@@ -143,7 +143,7 @@ For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](../library/PIL
 
 ## 7. What Operate adds
 
-After **Pilot** is proven, **Operate** is the second buyer-facing layer. It combines everything that helps teams go deeper after the first committed manifest:
+After **Pilot** is proven, **Operate** is the second buyer-facing layer. It combines everything that helps teams go deeper after the first finalized architecture package:
 
 **Analysis and investigation** — answer questions such as what changed between two architecture reviews, why the change matters, how to replay and inspect architecture decisions, and how to view provenance or architecture graph representations.
 

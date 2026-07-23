@@ -5,8 +5,8 @@ import {
   OPERATE_NAV_UNLOCK_STORAGE_KEY,
 } from "@/lib/usability/operate-nav-progressive-unlock";
 
-/** Canonical operator-shell doc for pilot nav progressive disclosure (Tier 2 #5). */
-export const PILOT_NAV_PROFILE_DOC_PATH = "docs/library/operator-shell.md";
+/** Canonical buyer-facing doc for pilot nav progressive disclosure (Tier 2 #5). */
+export const PILOT_NAV_PROFILE_DOC_PATH = "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md";
 
 /** In-app help route for the pilot nav profile. */
 export const PILOT_NAV_PROFILE_HELP_HREF = "/help/pilot-nav-profile";

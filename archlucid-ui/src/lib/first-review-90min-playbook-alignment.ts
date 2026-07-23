@@ -1,11 +1,14 @@
 /** Repo-relative path for the printable first-run evidence checklist (Tier 1 #3 alignment source). */
 export const FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH = "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md";
 
-/** In-app help route for the 90-minute first-review playbook. */
+/** Admin-only SE/ops printable checklist (`contentKind: internal-runbook`). */
 export const FIRST_REVIEW_90MIN_HELP_HREF = "/help/first-review";
 
+/** Buyer-facing guided first-review help — preferred over the SE checklist on operator home. */
+export const BUYER_FIRST_REVIEW_HELP_HREF = "/help/core-pilot";
+
 /**
- * Routes the home checklist must link to — mirrors buyer steps in
+ * Routes the home checklist must link to — mirrors buyer steps aligned with
  * {@link FIRST_RUN_EVIDENCE_CHECKLIST_DOC_PATH} (upload ZIP, ROI, audit proof).
  */
 export const FIRST_REVIEW_90MIN_REQUIRED_ROUTES = [

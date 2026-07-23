@@ -24,7 +24,7 @@ import {
   OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING,
 } from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
-import { FIRST_REVIEW_90MIN_HELP_HREF } from "@/lib/first-review-90min-playbook-alignment";
+import { BUYER_FIRST_REVIEW_HELP_HREF } from "@/lib/first-review-90min-playbook-alignment";
 import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator-co-architect-copy";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
@@ -454,13 +454,13 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 {CORE_PILOT_WORKFLOW_SUMMARY_LINE}
               </p>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Full printable checklist:{" "}
+                Guided first review:{" "}
                 <Link
-                  href={FIRST_REVIEW_90MIN_HELP_HREF}
+                  href={BUYER_FIRST_REVIEW_HELP_HREF}
                   className="font-medium text-teal-800 underline decoration-teal-300/50 underline-offset-2 dark:text-teal-300"
                   data-testid="first-review-90min-help-link"
                 >
-                  First review in 90 minutes
+                  Your first architecture review
                 </Link>
               </p>
               <details className="m-0 mt-2 rounded-md border border-neutral-200/90 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/55">

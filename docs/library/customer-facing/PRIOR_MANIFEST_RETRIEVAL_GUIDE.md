@@ -1,16 +1,16 @@
-> **Scope:** Customer-facing — how finalized architecture reviews become searchable tenant memory for Ask and cross-run retrieval.
+> **Scope:** Customer-facing — how finalized architecture packages become searchable tenant memory for Ask and later reviews.
 
 # Prior manifest retrieval
 
-When you **finalize** a review, ArchLucid automatically indexes that review's decisions, findings, and manifest text into the retrieval corpus for your workspace project. Future Ask questions and agent runs in the same project can retrieve those chunks as **prior manifest** context — no manual "index this run" step.
+When you **finalize** an architecture package, ArchLucid automatically indexes that package’s decisions, findings, and signed review record text into the retrieval corpus for your workspace project. Future Ask questions and later reviews in the same project can retrieve those chunks as **prior** context — no manual index step.
 
 ## What gets indexed on finalize
 
 Finalize triggers retrieval indexing for the current architecture package, including:
 
-- **Manifest decisions and assumptions** — topology, security, compliance, and cost sections from the signed snapshot.
+- **Decisions and assumptions** — topology, security, compliance, and cost sections from the signed review record.
 - **Findings** — severity, disposition, and evidence-backed recommendations from the finalized findings snapshot.
-- **Prior manifests (cross-run)** — up to the configured limit of **other finalized reviews** in the same tenant, workspace, and project (see limits below).
+- **Priors from other packages** — up to the configured limit of **other finalized architecture packages** in the same tenant, workspace, and project (see limits below).
 
 Draft or in-progress reviews are **not** indexed until finalize succeeds.
 
@@ -22,32 +22,35 @@ Prior chunks help Ask answer evolution and history questions when the underlying
 | --- | --- |
 | **Clear decisions recorded** | Topology and governance choices become retrievable anchors ("why did we choose private endpoints?"). |
 | **Findings with dispositions** | Accepted, waived, or remediated findings give Ask concrete prior rationale. |
-| **Complete evidence** | Reviews with attached diagrams, IaC, or connector inventory produce richer, citeable chunks. |
+| **Complete evidence** | Packages with attached diagrams, IaC, or connector inventory produce richer, citeable chunks. |
 | **Intentional finalize** | Each finalize is a deliberate "this snapshot is authoritative" signal for tenant memory. |
 
 ## When priors add noise
 
-Not every run improves Ask quality. Reduce noise by:
+Not every finalize improves Ask quality. Reduce noise by:
 
-- **Avoid finalizing throwaway experiments** — abandoned what-if runs become searchable history unless archived.
-- **Prefer the review you want cited** — duplicate near-identical finalizes crowd retrieval with redundant chunks.
-- **Archive superseded reviews** — archived golden manifests are excluded from cross-run prior selection.
-- **Stay in the right project** — priors are scoped to tenant + workspace + project; other projects do not share prior manifest chunks.
+- **Avoid finalizing throwaway experiments** — abandoned what-if reviews become searchable history unless archived.
+- **Prefer the package you want cited** — duplicate near-identical finalizes crowd retrieval with redundant chunks.
+- **Archive superseded packages** — archived signed review records are excluded from cross-package prior selection.
+- **Stay in the right project** — priors are scoped to tenant + workspace + project; other projects do not share prior chunks.
 
-## Ask and prior-manifest intent
+## Ask and prior intent
 
-Ask retrieval ranks hits from multiple corpora (policy packs, platform docs, findings, prior manifests). When your question sounds historical — for example it mentions **prior**, **previous**, **earlier**, **why did**, or **over time** — Ask boosts prior-manifest hits so evolution questions surface committed decisions first.
+Ask retrieval ranks hits from multiple corpora (policy packs, platform docs, findings, priors). When your question sounds historical — for example it mentions **prior**, **previous**, **earlier**, **why did**, or **over time** — Ask boosts prior hits so evolution questions surface finalized decisions first.
 
-Policy and compliance wording routes to policy-pack grounding instead; product how-to questions may lean on platform documentation. Prior manifests answer **your workspace's review history**, not generic best practices.
+Policy and compliance wording routes to policy-pack grounding instead; product how-to questions may lean on platform documentation. Priors answer **your workspace’s review history**, not generic best practices.
 
-## Limits and configuration
+<details>
+<summary>Administrator details — indexing limits</summary>
 
-Cross-run prior manifest attachment at index time is capped by `Retrieval:PriorManifest:MaxPriorManifestsPerIndex` (default **5**). Indexing selects the most recent finalized manifests in the same project, excluding the run being committed and any archived manifests.
+Cross-package prior attachment at index time is capped by `Retrieval:PriorManifest:MaxPriorManifestsPerIndex` (default **5**). Indexing selects the most recent finalized packages in the same project, excluding the package being finalized and any archived records.
 
-Operators do not need to tune this for day-to-day pilots. Platform teams may adjust the limit in deployment configuration when large programs need deeper history windows.
+Architects do not need to tune this for day-to-day pilots. Platform teams may adjust the limit in deployment configuration when large programs need deeper history windows.
+
+</details>
 
 ## Related topics
 
 - [Pilot guide](/help/pilot-guide) — first review workflow and outputs after finalize.
 - [Findings](/help/findings) — dispositions and evidence that strengthen prior chunks.
-- Engineering retrieval IR benchmarks for the PriorManifest corpus: `docs/quality/retrieval-ir-report.md`.
+- [Architecture packages](/help/review-packages) — browse finalized packages.

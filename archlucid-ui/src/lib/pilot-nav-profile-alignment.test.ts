@@ -24,7 +24,9 @@ function readRepoFile(relativePath: string): string {
 describe("pilot-nav-profile-alignment", () => {
   it("exports stable help href and doc path", () => {
     expect(PILOT_NAV_PROFILE_HELP_HREF).toBe("/help/pilot-nav-profile");
-    expect(PILOT_NAV_PROFILE_DOC_PATH).toBe("docs/library/operator-shell.md");
+    expect(PILOT_NAV_PROFILE_DOC_PATH).toBe(
+      "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
+    );
   });
 
   it("lists Operate group ids aligned with operate-nav-progressive-unlock", () => {

@@ -22,7 +22,6 @@ export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting"
  */
 export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "first-run",
-  "first-review",
   "pilot-nav-profile",
   "artifacts",
   "graph",
@@ -41,10 +40,10 @@ export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
 export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "first-review",
-    title: "First review in 90 minutes",
-    keywords: ["checklist", "first run", "pilot", "extractor", "audit", "roi"],
+    title: "First-run evidence checklist (internal runbook)",
+    keywords: ["checklist", "first run", "pilot", "extractor", "audit", "roi", "admin"],
     summary:
-      "Guided path from demo or new request through finalize, optional cloud inventory ZIP upload, dashboard ROI, and run-scoped audit export.",
+      "Admin-only SE/ops printable checklist — extractor ZIP, finalize, ROI proof, and audit export. Buyers should use Your first architecture review instead.",
     docPath: "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md",
     routes: ["/", "/onboarding", "/reviews/new", "/dashboard"],
   },
@@ -53,8 +52,8 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Workspace navigation profile",
     keywords: ["sidebar", "nav", "analysis", "governance", "unlock", "first review"],
     summary:
-      "The first-review path stays focused until your first review is committed; analysis and governance groups unlock on demand or automatically after finalize.",
-    docPath: "docs/library/operator-shell.md",
+      "The first-review path stays focused until your first architecture package is finalized; analysis and governance groups unlock on demand or automatically after finalize.",
+    docPath: "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
     routes: ["/", "/reviews", "/onboarding"],
   },
   {

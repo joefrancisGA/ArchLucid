@@ -70,6 +70,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "review-guide": "product",
   "first-pilot-path": "product",
   "core-pilot": "product",
+  "first-review": "internal",
   "first-value-20-minutes": "internal",
   "cli-usage": "internal",
   "developer-troubleshooting": "internal",
@@ -80,6 +81,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "pilot-feedback": "internal",
   "comparison-replay": "internal",
   "repeat-review-loop": "internal",
+  "policy-pack-delta-demo": "internal",
   "pilot-roi-model": "product",
 };
 
