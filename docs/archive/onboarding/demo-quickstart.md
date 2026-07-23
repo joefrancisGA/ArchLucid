@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-22
 > **Scope:** Contributor-reference — Demo quickstart (Corrected 50R — Contoso Retail Modernization) - full detail, tables, and links in the sections below.
 >
 > **Archived:** 2026-07-18 (**TB-659**). Entry-point confusion collapsed to [`START_HERE.md`](../../START_HERE.md) persona map; this file keeps the SQL-backed Contoso seed procedure.

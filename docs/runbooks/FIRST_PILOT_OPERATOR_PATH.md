@@ -1,8 +1,8 @@
-> **Scope:** Internal operator runbook — platform readiness, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. **Customer architects:** use [Complete review workflow](/help/first-pilot-path) (`docs/library/customer-facing/COMPLETE_REVIEW_WORKFLOW.md`).
+> **Scope:** Internal SE/ops runbook — platform readiness, pilot proof collection, phase-level recovery, and time-boxed first value in 20 minutes. **Not the default customer help path.** Customer architects: use [Your first architecture review](/help/core-pilot) or [Complete review workflow](/help/first-pilot-path).
 
 # First-pilot operator path (internal runbook)
 
-**Audience:** Buyer operators, design partners, and sales engineers guiding a first architecture review without jumping across unrelated docs.
+**Audience:** Design partners, sales engineers, and platform admins guiding a first architecture review. In-app access is **Admin-only** (`/help/first-value-20-minutes`).
 
 **Persona map (operator / platform / release owner):** [`ROLE_INDEX.md`](ROLE_INDEX.md).
 

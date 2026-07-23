@@ -184,7 +184,7 @@ If **no** implementation occurred in steps 1–4:
 
 **CREATING NEW ASSESSMENT**
 
-2. Run a **clean-slate** assessment using `docs/assessments/ASSESSMENT_PROMPT_V3.MD` (not v2 `assessment.md`).
+2. Run a **clean-slate** assessment using `docs/assessments/ASSESSMENT_PROMPT_SERIES.md` §Strategic release and market readiness (v3) (path-stable stub: `ASSESSMENT_PROMPT_V3.MD`).
 3. **Overwrite** `docs/assessments/LATEST_GPT55.md` in place (archive prior snapshot under `docs/archive/assessments/` only if the file is materially large and you need history).
 4. Apply the verify-before-listing gate from v3 — do not replay already-shipped TB rows as open §17 items.
 5. Commit and push the new assessment to **`master`**.

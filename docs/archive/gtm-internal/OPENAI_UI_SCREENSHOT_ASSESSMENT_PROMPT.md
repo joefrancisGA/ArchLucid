@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-22
 > **Scope:** External (e.g., ChatGPT) UI assessment prompt — screenshot review for commercial demo credibility only; not product architecture or API contracts.
 
 # OpenAI UI screenshot assessment prompt (ArchLucid)

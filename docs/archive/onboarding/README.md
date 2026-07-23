@@ -1,6 +1,5 @@
-# Onboarding entry-point archive
-
-**Scope:** Superseded onboarding *entry-point* docs moved here during **TB-659** so `docs/START_HERE.md` stays the single persona router.
+> **Reviewed:** 2026-07-22
+> **Scope:** Index for **`docs/archive/onboarding/`** — superseded onboarding entry points moved during **TB-659**.
 
 Operational runbook detail stays in place (`INSTALL_ORDER.md`, `DEPLOYMENT.md`, pilot runbooks). Only duplicate “start here” narratives land in this folder.
 

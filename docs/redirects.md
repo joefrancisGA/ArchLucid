@@ -172,3 +172,16 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/archive/TECH_BACKLOG_DONE_ARCHIVE.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | Empty stub headings removed; summary **Done** rows retained |
 | `docs/archive/artifacts-phase3-2026-04-23/gate-verification.md` | [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md) | §Gate verification |
 | `docs/archive/artifacts-phase3-2026-04-23/pr-a2-cohort-parity.md` | [`docs/archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md`](archive/artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md) | §PR A2 cohort parity |
+
+## 2026-07-22 assessment prompt consolidation
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/assessments/ASSESSMENT_PROMPT_V3.MD` (body) | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | §Strategic release and market readiness (v3); stub remains at former path |
+| `docs/assessments/assessment_prompt_v4.md` (body) | [`docs/assessments/ASSESSMENT_PROMPT_SERIES.md`](assessments/ASSESSMENT_PROMPT_SERIES.md) | §Broader exposure readiness (v4); stub remains at former path |
+
+## 2026-07-22 internal doc review digest
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/archive/ARCHLUCID_INTERNAL_DOC_REVIEW_AND_MASTER_SUMMARY.md` | Git history | Auto-generated inventory removed; use `docs/archive/README.md` |

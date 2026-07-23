@@ -1,4 +1,4 @@
-> **Scope:** First architecture review — shortest path from starting a new review to a finalized review package with findings, evidence, and sponsor exports.
+> **Scope:** First architecture review — shortest path from starting a new review to a finalized architecture package with findings, evidence, and sponsor exports.
 
 # Your first architecture review
 
@@ -8,7 +8,7 @@ The home page shows your next recommended action after each review step.
 
 ## First review path
 
-Start with evidence, run the review, finalize the package, then share sponsor-ready outputs.
+Start with evidence, run the review, finalize the architecture package, then share sponsor-ready outputs.
 
 - [Start architecture review](/reviews/new)
 - [Open sample review](/reviews/claims-intake-modernization)
@@ -16,10 +16,10 @@ Start with evidence, run the review, finalize the package, then share sponsor-re
 
 ## Run the first review
 
-1. **Start review** — open Create architecture and name what you want reviewed.
+1. **Start review** — open **New architecture review** and name what you want reviewed. Saving an architecture draft is optional and separate from starting a review.
 2. **Add evidence** — attach briefs, diagrams, documents, IaC, or exports. Cloud connectors are optional.
 3. **Run analysis** — execute the assessment on review detail until ready to finalize.
-4. **Finalize package** — commit the governed review record, findings, and export surfaces.
+4. **Finalize package** — finalize the architecture package to lock the signed review record, findings, and export surfaces.
 5. **Share outputs** — download sponsor exports and share proof with stakeholders.
 
 ## Cloud connectors are optional for your first review
@@ -40,7 +40,7 @@ Recommended when connector access has not yet been approved, or when your first 
 
 1. Start a review with no cloud target selected (evidence-only).
 2. Upload files or paste your architecture brief — a cloud connector is not required.
-3. Run analysis, finalize the package, and export the sponsor packet.
+3. Run analysis, finalize the architecture package, and export the sponsor packet.
 
 ## What can wait
 
@@ -58,7 +58,7 @@ Recommended when connector access has not yet been approved, or when your first 
 <details>
 <summary>What this guide covers</summary>
 
-Guided path from an empty workspace to a finalized architecture review package — evidence intake, running the assessment, finalizing findings, and sharing sponsor-ready exports.
+Guided path from an empty workspace to a finalized architecture package — evidence intake, running the assessment, finalizing findings, and sharing sponsor-ready exports.
 
 </details>
 
@@ -72,7 +72,7 @@ Connect Azure, AWS, or GCP when the review needs live inventory or configuration
 <details>
 <summary>What can wait until later</summary>
 
-Compare, replay, portfolio graph, advanced policy packs, and ITSM or chat connectors are available after your first finalized review.
+Compare, replay, portfolio graph, advanced policy packs, and ITSM or chat connectors are available after your first finalized architecture package.
 
 </details>
 

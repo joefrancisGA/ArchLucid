@@ -2,7 +2,7 @@
 
 # Understanding governance alerts
 
-Governance alerts are created when enabled rules detect findings that require attention. Alerts appear in the Alerts inbox, where authorized users can acknowledge, assign, waive, or resolve them.
+Governance alerts are created when enabled rules detect findings that require attention. An alert is a follow-up work item driven by alert rules — it is not the same as finding severity. Alerts appear in the Alerts inbox, where authorized users can acknowledge, assign, waive, or resolve them.
 
 ## How alerts work {#how-alerts-work}
 
