@@ -10,14 +10,14 @@ export type BuiltinRoleSummary = {
 export const BUILTIN_ROLE_SUMMARIES: readonly BuiltinRoleSummary[] = [
   { name: "Admin", description: "Full workspace administration" },
   { name: "Auditor", description: "Read and export audit evidence" },
-  { name: "Operator", description: "Run reviews and manage review workflows" },
+  { name: "Operator", description: "Run reviews and manage architecture-package workflows" },
   { name: "Reader", description: "Read-only review access" },
 ];
 
 export const CUSTOM_ROLE_START_FROM_OPTIONS: readonly { readonly value: BuiltinRoleName | "Empty"; readonly label: string }[] = [
   { value: "Admin", label: "Admin" },
   { value: "Auditor", label: "Auditor" },
-  { value: "Operator", label: "Operator" },
+  { value: "Operator", label: "Architect" },
   { value: "Reader", label: "Reader" },
   { value: "Empty", label: "Empty (no permissions)" },
 ];
