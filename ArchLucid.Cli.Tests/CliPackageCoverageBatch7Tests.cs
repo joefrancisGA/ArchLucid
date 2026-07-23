@@ -93,7 +93,7 @@ public sealed class CliPackageCoverageBatch7Tests
     }
 
     [Fact]
-    public void AuthTokenClaimsDiagnosticClient_reports_missing_api_key()
+    public async Task AuthTokenClaimsDiagnosticClient_reports_missing_api_key()
     {
         string? previous = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
 
@@ -101,10 +101,8 @@ public sealed class CliPackageCoverageBatch7Tests
         {
             Environment.SetEnvironmentVariable("ARCHLUCID_API_KEY", null, EnvironmentVariableTarget.Process);
 
-            AuthTokenClaimsDiagnosticOutcome outcome = AuthTokenClaimsDiagnosticClient
-                .DiagnoseAsync("https://api.example", "token")
-                .GetAwaiter()
-                .GetResult();
+            AuthTokenClaimsDiagnosticOutcome outcome = await AuthTokenClaimsDiagnosticClient
+                .DiagnoseAsync("https://api.example", "token");
 
             outcome.IsMissingApiKey.Should().BeTrue();
             outcome.ErrorDetail.Should().Contain("ARCHLUCID_API_KEY");
