@@ -4,7 +4,6 @@ using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 

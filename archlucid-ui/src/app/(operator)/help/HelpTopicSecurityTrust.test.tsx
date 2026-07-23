@@ -15,7 +15,7 @@ const SECURITY_TRUST_SOURCE = "docs/go-to-market/trust-center.md";
 const EXPECTED_TOC_LABELS = [
   "Procurement questionnaire accelerator",
   "Healthcare and PHI",
-  "Azure connectivity (extractor)",
+  "Cloud inventory connectivity (Tier 1 default)",
   "Download the evidence pack",
   "Posture summary",
   "Self-asserted controls",
