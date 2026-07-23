@@ -1,32 +1,39 @@
-> **Scope:** Contributor-reference — Product learning (pilot feedback) — operator & product owner guide (58R) - full detail, tables, and links in the sections below.
+> **Scope:** Internal Admin / product-owner guide for pilot feedback signals (58R). Not default buyer self-serve help — in-app `/help/pilot-feedback` is **Admin-only**.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Product learning (pilot feedback) — operator & product owner guide (58R)
+# Product learning (pilot feedback) — Admin & product owner guide (58R)
 
-**Audience:** Operators and product / architecture owners reviewing how ArchLucid outputs are received in a pilot.
+**Audience:** Workspace admins and product / architecture owners reviewing how ArchLucid outputs are received in a pilot.
 
-**Not the same as** **Learning** in the operator shell ([operator-shell.md](operator-shell.md)): that page is **recommendation learning** (advisory acceptance weights). **Pilot feedback** (this doc) is **cross-cutting judgment** on runs, manifests, and artifacts, stored per tenant/workspace/project.
+**Not the same as** **Learning** in the architect workspace ([Workspace navigation](/help/pilot-nav-profile)): that page is **recommendation learning** (advisory acceptance weights). **Pilot feedback** (this doc) is **cross-cutting judgment** on reviews, architecture packages, and artifacts, stored per tenant/workspace/project.
 
 ---
 
 ## 1. How data is captured
 
-- Each **signal** is a **human judgment**: trust, reject, revise, follow-up, etc., plus **subject** (what was rated), optional **pattern key**, optional short **comment**, and optional link to an **architecture run**.
-- Rows are stored in **`ProductLearningPilotSignals`** (SQL when `ArchLucid:StorageProvider` is **`Sql`**). Scope is always **tenant + workspace + project** (same headers/claims as other operator APIs: `x-tenant-id`, `x-workspace-id`, `x-project-id`, or defaults in Development).
+- Each **signal** is a **human judgment**: trust, reject, revise, follow-up, etc., plus **subject** (what was rated), optional **pattern key**, optional short **comment**, and optional link to an **architecture review**.
+- Rows are stored in **`ProductLearningPilotSignals`** (SQL when `ArchLucid:StorageProvider` is **`Sql`**). Scope is always **tenant + workspace + project**.
 - **Nothing in 58R auto-changes** prompts, rule packs, or agents from this data.
-- **Insert paths today:** operator UI feedback controls call **`POST /v1/product-learning/signals`** for findings, manifest artifacts, and sponsor/review packages. Application integration can also write through the product-learning repository. Empty dashboards mean no rows in scope or no users have submitted feedback yet.
+- **Insert paths today:** workspace feedback controls submit signals for findings, architecture-package artifacts, and sponsor packages. Empty dashboards mean no rows in scope or no users have submitted feedback yet.
+
+<details>
+<summary>Administrator details — API and storage</summary>
+
+Scope headers/claims match other workspace APIs (`x-tenant-id`, `x-workspace-id`, `x-project-id`, or Development defaults). UI controls call **`POST /v1/product-learning/signals`**. Application integration can also write through the product-learning repository.
+
+</details>
 
 **Conventions:** Do not put secrets or credentials in free-text fields.
 
 ### 1.1 In-product feedback controls
 
-The operator shell captures four dispositions:
+The architect workspace captures four dispositions:
 
 | UI label | Stored disposition | Use when |
 |----------|--------------------|----------|
-| **Trusted** | `Trusted` | The finding, artifact, or review package is usable as-is. |
+| **Trusted** | `Trusted` | The finding, artifact, or architecture package is usable as-is. |
 | **Needs revision** | `Revised` | The output is directionally useful but needs edits or clearer structure. |
 | **Rejected** | `Rejected` | The output is misleading, unusable, or not relevant. |
 | **Follow up** | `NeedsFollowUp` | The output raised a real question or action that product / architecture owners should triage. |
@@ -34,7 +41,7 @@ The operator shell captures four dispositions:
 Current pilot-facing surfaces:
 
 - Finding explainability rows and finding detail pages.
-- Manifest artifact rows on review detail.
+- Architecture package artifact rows on review detail.
 - The sponsor / pilot scorecard package banner after finalization.
 
 Each submission stores the current tenant/workspace/project scope, optional run identifiers when the run id is a GUID, subject type, artifact hint, pattern key, optional short comment, and actor display/key from the authenticated request. Comments are intentionally short and should not contain secrets, credentials, customer private data beyond the reviewed architecture context, or personal notes unrelated to product learning.
@@ -43,8 +50,8 @@ Each submission stores the current tenant/workspace/project scope, optional run 
 
 ## 2. View the learning dashboard (UI)
 
-1. Run the API and [operator UI](OPERATOR_QUICKSTART.md#operator-ui) (`archlucid-ui`, `.env.local` → `ARCHLUCID_API_BASE_URL`).
-2. Open **http://localhost:3000** → nav **Q&A & advisory** → **Pilot feedback** (`/product-learning`).
+1. Sign in to the workspace UI (local: `archlucid-ui` with `ARCHLUCID_API_BASE_URL` pointing at your API).
+2. Open **Q&A & advisory** → **Pilot feedback** (`/product-learning`).
 3. Choose **Time range** (all time, 30 days, 7 days) and **Refresh** if needed.
 
 Each full load issues **four** read requests to the API (summary, opportunities, trends, triage) with the same `since` filter so panels stay aligned.

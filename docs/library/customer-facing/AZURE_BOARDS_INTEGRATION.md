@@ -70,4 +70,14 @@ Informational findings may be skipped when severity mapping does not apply.
 - No OAuth consent flow in UI — PAT via secure reference is the supported authentication method
 - Project and work item type discovery requires a successful credential configuration
 
-For operator smoke validation, see `docs/integrations/smoke/CONNECTOR_SMOKE_AZURE_BOARDS.md`.
+## Related
+
+- [Integration readiness](/help/integration-readiness) — which connectors are optional after the first architecture package
+- [Findings](/help/findings) — how findings become remediation work
+
+<details>
+<summary>Administrator details — smoke validation</summary>
+
+For connector smoke validation, see `docs/integrations/smoke/CONNECTOR_SMOKE_AZURE_BOARDS.md`.
+
+</details>

@@ -552,15 +552,17 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "governance-api-contracts",
-    title: "Governance and API contracts",
-    summary: "Versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record.",
+    title: "Governance and API contracts (technical reference)",
+    summary:
+      "Developer/Admin technical reference — versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record. Not buyer self-serve help.",
     audience: "developer",
     sourcePaths: ["docs/library/API_CONTRACTS.md"],
   },
   {
     slug: "pilot-feedback",
-    title: "Pilot feedback",
-    summary: "Human judgments captured separately from recommendation learning.",
+    title: "Pilot feedback (internal runbook)",
+    summary:
+      "Admin/product-owner guide for human judgment signals on findings and architecture packages — separate from recommendation learning. Not default buyer help.",
     audience: "operator",
     sourcePaths: ["docs/library/PRODUCT_LEARNING.md"],
   },

@@ -188,6 +188,7 @@ describe("product-documentation-registry", () => {
       "first-value-20-minutes",
       "first-review",
       "policy-pack-delta-demo",
+      "pilot-feedback",
     ] as const;
 
     for (const slug of internalRunbookSlugs) {
