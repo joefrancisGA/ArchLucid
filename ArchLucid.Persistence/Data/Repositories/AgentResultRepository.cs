@@ -264,7 +264,7 @@ public sealed class AgentResultRepository(
         RunChildRunScopeSql.RequireScope(scope);
 
         string sql = $"""
-                      SELECT ar.ResultJson
+                      {AgentResultListSql.GetByRunIdSelectResultJson}
                       FROM AgentResults ar
                       {RunChildRunScopeSql.InnerJoinRuns("ar")}
                       WHERE ar.RunId = @RunId
@@ -337,11 +337,7 @@ public sealed class AgentResultRepository(
 
         string sql = $"""
                       SELECT
-                          ar.ResultId,
-                          ar.RunId,
-                          ar.AgentType,
-                          ar.ProposedEvidenceJson,
-                          ar.CreatedUtc,
+                          {AgentResultListSql.ListEvidenceProposalsSelectColumns},
                           CAST(0 AS BIT) AS IsPromoted
                       FROM AgentResults AS ar
                       LEFT JOIN dbo.AgentResultEnrichments AS enr ON enr.ResultId = ar.ResultId

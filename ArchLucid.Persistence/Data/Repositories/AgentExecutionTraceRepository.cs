@@ -585,6 +585,83 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         return (traces, totalCount);
     }
 
+    /// <inheritdoc />
+    public async Task<(IReadOnlyList<AgentExecutionTraceSummary> Summaries, int TotalCount)> GetPagedSummariesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        RunChildRunScopeSql.RequireScope(scope);
+
+        string sql = $"""
+                      SELECT {AgentExecutionTraceListSql.SelectSummaryColumns},
+                             COUNT(*) OVER () AS TotalCount
+                      FROM AgentExecutionTraces t
+                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      WHERE t.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY t.CreatedUtc
+                      OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
+                      """;
+
+        int clampedOffset = Math.Max(0, offset);
+        int clampedLimit = Math.Clamp(limit, 1, 500);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<TraceSummaryPageRow> rows = await connection.QueryAsync<TraceSummaryPageRow>(new CommandDefinition(
+            sql,
+            new
+            {
+                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                Offset = clampedOffset,
+                Limit = clampedLimit
+            },
+            cancellationToken: cancellationToken));
+
+        List<TraceSummaryPageRow> list = rows.ToList();
+        int totalCount = list.Count > 0 ? list[0].TotalCount : 0;
+
+        List<AgentExecutionTraceSummary> summaries = list.Select(MapSummaryRow).ToList();
+
+        return (summaries, totalCount);
+    }
+
+    /// <inheritdoc />
+    public async Task<int> CountByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        RunChildRunScopeSql.RequireScope(scope);
+
+        string sql = $"""
+                      SELECT COUNT(1)
+                      FROM AgentExecutionTraces t
+                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      WHERE t.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause};
+                      """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        return await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+            sql,
+            new
+            {
+                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+            },
+            cancellationToken: cancellationToken));
+    }
+
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(
         string taskId,
         CancellationToken cancellationToken = default)
@@ -802,5 +879,124 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             get;
             init;
         }
+    }
+
+    private sealed class TraceSummaryPageRow
+    {
+        public string TraceId
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public Guid RunId
+        {
+            get;
+            init;
+        }
+
+        public string TaskId
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public string AgentType
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public bool ParseSucceeded
+        {
+            get;
+            init;
+        }
+
+        public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? ModelDeploymentName
+        {
+            get;
+            init;
+        }
+
+        public bool? BlobUploadFailed
+        {
+            get;
+            init;
+        }
+
+        public int? InputTokenCount
+        {
+            get;
+            init;
+        }
+
+        public int? OutputTokenCount
+        {
+            get;
+            init;
+        }
+
+        public decimal? EstimatedCostUsd
+        {
+            get;
+            init;
+        }
+
+        public string? ModelAlias
+        {
+            get;
+            init;
+        }
+
+        public bool QualityWarning
+        {
+            get;
+            init;
+        }
+
+        public bool QualityRejected
+        {
+            get;
+            init;
+        }
+
+        public int TotalCount
+        {
+            get;
+            init;
+        }
+    }
+
+    private static AgentExecutionTraceSummary MapSummaryRow(TraceSummaryPageRow row)
+    {
+        if (!Enum.TryParse(row.AgentType, ignoreCase: true, out AgentType agentType))
+
+            throw new InvalidOperationException(
+                $"AgentExecutionTraces.AgentType value '{row.AgentType}' is not a known AgentType.");
+
+        return new AgentExecutionTraceSummary
+        {
+            TraceId = row.TraceId,
+            RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
+            TaskId = row.TaskId,
+            AgentType = agentType,
+            ParseSucceeded = row.ParseSucceeded,
+            CreatedUtc = row.CreatedUtc,
+            ModelDeploymentName = row.ModelDeploymentName,
+            BlobUploadFailed = row.BlobUploadFailed,
+            InputTokenCount = row.InputTokenCount,
+            OutputTokenCount = row.OutputTokenCount,
+            EstimatedCostUsd = row.EstimatedCostUsd,
+            ModelAlias = row.ModelAlias,
+            QualityWarning = row.QualityWarning,
+            QualityRejected = row.QualityRejected,
+        };
     }
 }

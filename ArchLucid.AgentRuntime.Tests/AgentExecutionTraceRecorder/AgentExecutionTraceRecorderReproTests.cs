@@ -602,6 +602,21 @@ public sealed class AgentExecutionTraceRecorderReproTests
             return _inner.GetPagedByRunIdAsync(scope, runId, offset, limit, cancellationToken);
         }
 
+        public Task<(IReadOnlyList<AgentExecutionTraceSummary> Summaries, int TotalCount)> GetPagedSummariesByRunIdAsync(
+            ScopeContext scope,
+            string runId,
+            int offset,
+            int limit,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetPagedSummariesByRunIdAsync(scope, runId, offset, limit, cancellationToken);
+        }
+
+        public Task<int> CountByRunIdAsync(ScopeContext scope, string runId, CancellationToken cancellationToken = default)
+        {
+            return _inner.CountByRunIdAsync(scope, runId, cancellationToken);
+        }
+
         public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId,
             CancellationToken cancellationToken = default)
         {
