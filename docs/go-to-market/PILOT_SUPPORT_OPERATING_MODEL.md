@@ -23,7 +23,7 @@
 
 | Severity | Example | Target first response | Target workaround |
 | --- | --- | --- | --- |
-| **S1** | Pilot blocked; no committed reviews possible | 4 business hours | 1 business day |
+| **S1** | Pilot blocked; no finalized reviews possible | 4 business hours | 1 business day |
 | **S2** | Degraded run execution or governance workflow | 1 business day | 3 business days |
 | **S3** | UX defect, non-blocking export issue | 2 business days | Next pilot patch window |
 | **S4** | Question, how-to, documentation | 2 business days | Guidance or runbook link |

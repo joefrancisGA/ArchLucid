@@ -15,7 +15,7 @@
 
 ## Hypothesis
 
-After the first committed review, ArchLucid's compare, drift, governance, and evidence trail make the **second review** faster to package and more defensible than re-prompting frontier AI on a changed packet.
+After the first finalized review, ArchLucid's compare, drift, governance, and evidence trail make the **second review** faster to package and more defensible than re-prompting frontier AI on a changed packet.
 
 ---
 

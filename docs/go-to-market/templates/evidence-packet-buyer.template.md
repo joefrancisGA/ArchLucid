@@ -44,7 +44,7 @@ Use [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) § G
 
 ## Strict claim language
 
-- **May claim:** committed review artifact exists; governance audit trail; PilotStrict signals when `aiQualityProof.disposition=PASS`; Staging live probes when attached.
+- **May claim:** finalized review artifact exists; governance audit trail; PilotStrict signals when `aiQualityProof.disposition=PASS`; Staging live probes when attached.
 - **May not claim:** production SLA, invoiced Azure savings, SOC 2 certification, or real-mode AI quality when simulator-only or `roiSponsorSafe=false`.
 - **SEND gate:** see [`ROI_BASELINE_SEND_POLICY.md`](../ROI_BASELINE_SEND_POLICY.md) — override requires `executive-owner` or `cfo-delegate` with template on file.
 

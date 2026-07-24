@@ -9,7 +9,7 @@
 
 ## 1. Business context
 
-Northstar Health Benefits is modernizing claims intake from fax, email, SFTP, and manual entry into a governed claims intake API and document-upload workflow. The first pilot covers two internal operations teams and one approved clearinghouse partner. The sponsor wants faster intake, stronger auditability, fewer duplicate handoffs, and a review package before pilot launch.
+Northstar Health Benefits is modernizing claims intake from fax, email, SFTP, and manual entry into a governed claims intake API and document-upload workflow. The first pilot covers two internal operations teams and one approved clearinghouse partner. The sponsor wants faster intake, stronger auditability, fewer duplicate handoffs, and an architecture package before pilot launch.
 
 The packet is intentionally realistic rather than polished. It includes open questions, scope deferrals, cross-boundary assumptions, and implementation notes that may or may not be acceptable depending on risk tolerance.
 

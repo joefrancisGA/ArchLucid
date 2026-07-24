@@ -43,7 +43,7 @@ Enable **`ArchLucid:Governance:PreCommitGateEnabled=true`** on the host when dem
 
 1. Open **Policy packs** (`/policy-packs`) — note **Bundled default (platform)** rows (**AI Governance / Responsible AI**, **Security Architecture Baseline**).
 2. Open **Governance resolution** (`/governance-resolution`) — confirm merged **`priorityFloor: P0`** in effective advisory defaults.
-3. Open the committed review (`/reviews/{runId}`) — note findings severities present in the snapshot.
+3. Open the finalized review (`/reviews/{runId}`) — note findings severities present in the snapshot.
 
 ### API
 
@@ -96,7 +96,7 @@ Content-Type: application/json
 
 Severity enum: `Info=0`, `Warning=1`, `Error=2`, `Critical=3` ([`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md)).
 
-### Option B3 — Pre-commit synthetic simulation (injects findings)
+### Option B3 — Pre-finalize synthetic simulation (injects findings; API: pre-commit)
 
 When the live snapshot is thin, inject synthetic severities without changing SQL findings:
 

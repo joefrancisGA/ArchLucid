@@ -6,18 +6,18 @@
 
 **Not claimed:** SOC 2 CPA attestation, third-party pen-test publication, or customer-specific legal opinions.
 
-## Example path (committed review)
+## Example path (finalized review)
 
 Assume review id `runId` and tenant scope already established.
 
 | Step | What to inspect | Surface |
 | --- | --- | --- |
-| 1 | Confirm review is **Committed** | `GET /v1/architecture/run/{runId}` or operator UI `/reviews/{runId}` |
-| 2 | Record **manifest id** and commit timestamp | Run detail · `GoldenManifest.Metadata.CreatedUtc` |
+| 1 | Confirm review is **Finalized** (API status: Committed) | `GET /v1/architecture/run/{runId}` or architect workspace `/reviews/{runId}` |
+| 2 | Record **architecture package id** and finalize timestamp | Review detail · `GoldenManifest.Metadata.CreatedUtc` |
 | 3 | Export or query **audit events** for the run window | `GET /v1/audit/events` (scoped) · CSV export · SIEM path in [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) |
 | 4 | Capture **correlation id** from a failed or successful API call | Response header `X-Correlation-ID` |
 | 5 | Open **top finding evidence chain** | First-value report evidence card · `GET` finding evidence-chain endpoints per [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
-| 6 | Verify **artifact descriptors** for the committed manifest | Review detail artifacts table · evidence bundle `artifact-manifest.json` |
+| 6 | Verify **artifact descriptors** for the finalized architecture package | Review detail artifacts table · evidence bundle `artifact-manifest.json` |
 | 7 | Attach **procurement pack** when buyer review requires policies | `python scripts/build_procurement_pack.py --strict` — see [`procurement-pack-quality.md`](../../scripts/build_procurement_pack.py) after build |
 
 ## Limitations

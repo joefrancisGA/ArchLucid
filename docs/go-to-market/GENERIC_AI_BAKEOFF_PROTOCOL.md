@@ -42,7 +42,7 @@ ArchLucid does **not** always reason better than frontier AI. This protocol docu
 
 ## Where ArchLucid wins (V1_SCOPE capabilities)
 
-- Durable manifest + committed review lifecycle
+- Durable architecture package + finalized review lifecycle
 - Audit trail and correlation IDs
 - Provenance graph and evidence-linked findings
 - Repeatable proof packet for procurement

@@ -29,7 +29,7 @@ ArchLucid targets **high availability and low latency** for the production API. 
 |------|--------|---------------------------|
 | Team | 99.9% engineering target | No credits |
 | Professional | 99.9% engineering target | No credits |
-| Enterprise | 99.9% monthly (hosted API + operator UI) | Availability-based service credits when included in executed agreement — [SUPPORT_POLICY.md](SUPPORT_POLICY.md) |
+| Enterprise | 99.9% monthly (hosted API + architect workspace) | Availability-based service credits when included in executed agreement — [SUPPORT_POLICY.md](SUPPORT_POLICY.md) |
 
 **What counts as downtime:** Periods where the API fails to meet the availability target above. **5xx rate** is the same signal: a **99.9%** target implies at most **0.1%** of requests may be **5xx** over the window for that measurement. Planned maintenance windows that are communicated in advance are **excluded** from the availability calculation.
 

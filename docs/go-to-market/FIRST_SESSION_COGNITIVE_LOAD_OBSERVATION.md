@@ -32,7 +32,7 @@
 
 **One sentence of context (only):**
 
-> "ArchLucid turns an architecture brief into a committed review with findings and an exportable sponsor packet."
+> "ArchLucid turns an architecture brief into a finalized review with findings and an exportable sponsor packet."
 
 **Do not say:** nav tour, policy packs, Operate layer, governance dashboard, connector names, ROI math.
 

@@ -7,7 +7,7 @@ Use these before a buyer runs their own tenant to show **proof package shape**, 
 | Packet | Buyer job | File |
 | --- | --- | --- |
 | Azure SaaS readiness | ISV Azure SaaS pilot posture | [azure-saas-readiness-demo-proof.md](azure-saas-readiness-demo-proof.md) |
-| AI governance | Responsible AI on a committed review | [ai-governance-demo-proof.md](ai-governance-demo-proof.md) |
+| AI governance | Responsible AI on a finalized review | [ai-governance-demo-proof.md](ai-governance-demo-proof.md) |
 | Healthcare claims (demo) | PHI-minimization policy on findings | [healthcare-claims-demo-proof.md](healthcare-claims-demo-proof.md) |
 
 ## Job → accelerator map (TB-114)

@@ -18,12 +18,12 @@ ArchLucid delivers a **time-boxed architecture review** that produces a **commit
 
 | Week | Buyer-visible outcomes |
 | --- | --- |
-| **Week 1** | Scoped architecture request, first committed review, limitations + execution mode labeled |
+| **Week 1** | Scoped architecture request, first finalized review, limitations + execution mode labeled |
 | **Week 2** | Sponsor proof packet, governance summary, quote-to-proof readiness checklist, commercial closeout next step |
 
 ## Proof outputs (from platform)
 
-- Committed review package and `pilot proof-packet` folder
+- Finalized architecture package and `pilot proof-packet` folder
 - `governance-outcome-summary`, `audit-evidence-summary`, `policy-pack-freshness`
 - `quote-to-proof-readiness` and `commercial-closeout` artifacts
 - Optional: procurement deal-ready classification when buyer procurement is in scope
