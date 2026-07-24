@@ -1,9 +1,11 @@
-> **Scope:** Contributor-reference — Pre-commit governance gate (optional) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Pre-finalize governance gate (optional; API/config: pre-commit) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Pre-commit governance gate (optional)
+# Pre-finalize governance gate (optional)
+
+Buyer-facing name: **pre-finalize**. API and config keys remain **pre-commit** (`PreCommitGateEnabled`, `PreCommitGovernanceGate`).
 
 ## Objective
 

@@ -13,7 +13,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 
 ### Flow A: Run lifecycle (request → committed manifest)
 
-**Goal:** Turn an `ArchitectureRequest` into a committed, versioned golden manifest.
+**Goal:** Turn an `ArchitectureRequest` into a finalized, versioned architecture package (API: golden manifest).
 
 **Important:** There are **two ways** the product reaches that outcome. **`POST /v1/architecture/request`** always persists the run and, on **SQL storage**, enters **`IAuthorityRunOrchestrator`** (context ingestion → knowledge graph → findings → decisioning → artifact synthesis) via **`AuthorityPipelineStagesExecutor`**. Separately, a **legacy coordinator** path still supports **in-host agent execution** (`POST …/execute`), **external** per-task submission (`POST …/result`), and a **merge commit** (`POST …/commit`) when the run is driven by **AgentTask** / **AgentResult** rows. **Choose one mental model per run** after inspecting **`GET /v1/architecture/run/{runId}`** (see decision tree below).
 
@@ -21,7 +21,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 
 1. **Create review** — `POST /v1/architecture/request` with an `ArchitectureRequest`; API persists the request and **`dbo.Runs`** row (`runId` in responses).
 2. **Pipeline stages (server-side)** — After the run row exists, **`AuthorityPipelineStagesExecutor`** runs (or is **queued** — see async flag below): context ingestion, graph, findings, decisioning, artifacts. OpenTelemetry spans: `authority.context_ingestion`, `authority.graph`, `authority.findings`, `authority.decisioning`, `authority.artifacts` (tag **`archlucid.stage.name`**). See [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) and [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md).
-3. **Transactional finalize** — **`AuthorityRunOrchestrator`** commits the unit of work with golden manifest, decision trace, and related snapshots (`FinalizeCommittedPipelineAsync`); retrieval indexing and integration-event outbox participate when configured. **Retry/timeout/resume semantics:** [ORCHESTRATOR_RETRIES.md](ORCHESTRATOR_RETRIES.md).
+3. **Transactional finalize** — **`AuthorityRunOrchestrator`** commits the unit of work with architecture package (API: golden manifest), decision trace, and related snapshots (`FinalizeCommittedPipelineAsync`); retrieval indexing and integration-event outbox participate when configured. **Retry/timeout/resume semantics:** [ORCHESTRATOR_RETRIES.md](ORCHESTRATOR_RETRIES.md).
 4. **Async / queued variant** — On **SQL** storage, when **`FeatureManagement:FeatureFlags:AsyncAuthorityPipeline`** is **unset or enabled** (default **on** per [ADR 0038](../architecture/adrs/0038-run-durability-multi-store-outbox-production-secrets.md)) and an evidence-bundle id is present, the host **enqueues** pipeline work in the **same transaction** as run create/header persist; the run can temporarily lack **`ContextSnapshotId`** until **`CompleteQueuedAuthorityPipelineAsync`** finishes. Set the flag **`false`** in **`appsettings.Advanced.json`** for local inline runs. **InMemory** storage never queues.
 5. **Fetch artifacts** — Run detail, manifests, exports, explain, bundles.
 
@@ -39,7 +39,7 @@ Use when the run is intentionally driven by **coordinator agent tasks** and **`A
 
 ```mermaid
 flowchart TD
-  A[Run exists after POST /v1/architecture/request] --> B{GET run: golden manifest / committed authority fields present?}
+  A[Run exists after POST /v1/architecture/request] --> B{GET run: architecture package / finalized authority fields present?}
   B -->|Yes| C[Authority-complete: do not drive execute/result unless you own legacy task semantics; commit may be idempotent.]
   B -->|No| D{ContextSnapshotId null and async pipeline enabled?}
   D -->|Yes| E[Defer to queued authority worker; avoid execute until contract matches.]
@@ -51,12 +51,12 @@ flowchart TD
 **Linear checklist (same logic):**
 
 1. **GET** `/v1/architecture/run/{runId}`.
-2. If the response shows **committed golden manifest** / authority-final fields → **Authority-complete**; skip **`execute`/`result`** unless you have a defined **task-level** integration for an **unfinished** legacy phase.
+2. If the response shows **finalized architecture package** (API: golden manifest) / authority-final fields → **Authority-complete**; skip **`execute`/`result`** unless you have a defined **task-level** integration for an **unfinished** legacy phase.
 3. If **no context snapshot** yet and **`AsyncAuthorityPipeline`** applies → **wait** for pipeline or queue completion.
 4. If **tasks** exist and status allows **execute**/**result** → **coordinator path** through **`commit`**.
 
 > **Anti-pattern — mixing models without understanding commit semantics**  
-> Calling **`POST …/execute`** or **`POST …/result`** to “finish” a run that **already completed the Authority pipeline** (golden manifest and decision trace already persisted with the pipeline transaction) causes **409/400 confusion** or **idempotent commit** behavior that does **not** re-run decisioning. Authority **finalize** bundles ingestion through artifacts in **one** commit; coordinator **commit** expects **four `AgentResult` types** — **different preconditions**. **Always read run state first.**
+> Calling **`POST …/execute`** or **`POST …/result`** to “finish” a run that **already completed the Authority pipeline** (architecture package / golden manifest and decision trace already persisted with the pipeline transaction) causes **409/400 confusion** or **idempotent finalize** behavior that does **not** re-run decisioning. Authority **finalize** bundles ingestion through artifacts in **one** commit; coordinator **commit** expects **four `AgentResult` types** — **different preconditions**. **Always read run state first.**
 
 ---
 
