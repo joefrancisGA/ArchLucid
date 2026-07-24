@@ -70,7 +70,7 @@ function synthesizeResultsFromFindingSummaries(
       resultId: `buyer-summary-${runId}`,
       taskId: "buyer-summary",
       runId,
-      agentType: "BuyerSummary",
+      agentType: "Compliance",
       findings,
       confidence: 0,
     },
