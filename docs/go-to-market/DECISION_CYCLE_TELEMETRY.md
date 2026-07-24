@@ -2,7 +2,7 @@
 
 # Decision-cycle telemetry
 
-**Audience:** GTM, pilot operators, release owner  
+**Audience:** GTM, pilot architects, release owner  
 **Last reviewed:** 2026-06-15
 
 ## Purpose
@@ -15,7 +15,7 @@ Track milestone timestamps from **demo complete** through **next-step decision**
 | --- | --- |
 | `demo_complete` | Curated demo or CTO walkthrough finished |
 | `pilot_start` | Tenant/environment provisioned for pilot work |
-| `first_committed_run` | First golden manifest commit captured |
+| `first_committed_run` | First architecture-package finalize captured (API: golden manifest commit; event name unchanged) |
 | `sponsor_packet_sent` | Sponsor-facing packet shared (only when SEND-eligible) |
 | `next_step_decision` | Commercial outcome recorded (`advance`, `hold`, `decline`, `unknown`) |
 
@@ -47,7 +47,7 @@ python scripts/ci/build_decision_cycle_telemetry.py `
 | Hotspot segment | Typical remediation focus |
 | --- | --- |
 | Demo → pilot start | Procurement / environment prerequisites |
-| Pilot start → first commit | First-hour operator friction (see `FIRST_HOUR_OPERATOR_PATH.md`) |
+| Pilot start → first finalize | First-hour architect friction (see `FIRST_HOUR_OPERATOR_PATH.md`) |
 | First commit → sponsor send | Proof packet / ROI baseline SEND gates |
 | Sponsor send → decision | Executive value narrative and faithfulness guardrails |
 
