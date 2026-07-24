@@ -7,6 +7,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.QuickScan;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -110,6 +111,7 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
             Operational.Object,
             Audit.Object,
             LlmCostEstimator.Object,
+            NullLogger<QuickScanExecutionOrchestrator>.Instance,
             TimeProvider.System);
 
     public static QuickScanExecutionRequestContext AnonymousContext(string sessionId = "session-adversarial") =>

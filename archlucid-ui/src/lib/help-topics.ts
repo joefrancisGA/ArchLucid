@@ -55,7 +55,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Workspace navigation profile",
     keywords: ["sidebar", "nav", "analysis", "governance", "unlock", "first review"],
     summary:
-      "The first-review path stays focused until your first architecture package is finalized; analysis and governance groups unlock on demand or automatically after finalize.",
+      "The first-review path stays focused until your first architecture review is finalized; analysis and governance groups unlock on demand or automatically after finalize.",
     docPath: "docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md",
     routes: ["/", "/reviews", "/onboarding"],
   },

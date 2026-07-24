@@ -22,7 +22,7 @@ export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
  */
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS: readonly string[] = [
   "Start from New architecture review or the sample showcase — capture goals, constraints, and what you want reviewed.",
-  "Let the assessment finish on review detail before you finalize the architecture package.",
+  "Let the assessment finish on review detail before you finalize the architecture review.",
   CLOUD_NEUTRAL_PRIMARY_COPY.corePilotFirstSessionInventoryBullet,
   "Open the dashboard ROI summary and export audit CSV from Artifacts & exports for your proof packet.",
   "Read governed findings and sponsor exports on review detail when you are ready to share internally.",

@@ -32,7 +32,7 @@ export function resolvePilotNextBestAction(
       label: "Review open findings",
       href: "/governance/findings?filter=open",
       bridgeCopy:
-        "Triage material findings from your finalized architecture packages — the fastest path from Overview to action.",
+        "Triage material findings from your finalized architecture reviews — the fastest path from Overview to action.",
     };
   }
 

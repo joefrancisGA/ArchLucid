@@ -1,4 +1,4 @@
-> **Scope:** Architect cookbook — guide for second and subsequent finalized architecture packages — V1 surfaces only.
+> **Scope:** Customer-facing — operator cookbook guide for second and subsequent finalized architecture reviews — V1 surfaces only.
 
 # Repeat-review stickiness loop
 

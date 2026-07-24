@@ -27,7 +27,8 @@ describe("help-product-language", () => {
     expect(output.toLowerCase()).not.toContain("golden manifest");
     expect(output).toContain("ReviewId=abc");
     expect(output.toLowerCase()).toContain("review not ready to finalize");
-    expect(output.toLowerCase()).toContain("architecture package");
+    expect(output.toLowerCase()).toContain("review exists");
+    expect(output.toLowerCase()).toContain("signed review record");
   });
 
   it("preserves Architecture package and does not collapse it to architecture review", () => {

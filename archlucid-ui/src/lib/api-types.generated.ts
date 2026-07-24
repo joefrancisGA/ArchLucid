@@ -10028,6 +10028,235 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/quick-scan/safety": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminQuickScanSafetySnapshotResponse"];
+                        "text/json": components["schemas"]["AdminQuickScanSafetySnapshotResponse"];
+                        "text/plain": components["schemas"]["AdminQuickScanSafetySnapshotResponse"];
+                    };
+                };
+                /** @description Bad Request (validation or malformed input). */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["AdminQuickScanSafetyUpdateRequest"];
+                    "application/json": null | components["schemas"]["AdminQuickScanSafetyUpdateRequest"];
+                    "text/json": null | components["schemas"]["AdminQuickScanSafetyUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminQuickScanSafetySnapshotResponse"];
+                        "text/json": components["schemas"]["AdminQuickScanSafetySnapshotResponse"];
+                        "text/plain": components["schemas"]["AdminQuickScanSafetySnapshotResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/rag-health": {
         parameters: {
             query?: never;
@@ -23424,8 +23653,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    systemName?: string;
-                    primaryEnvironment?: string;
+                    sourceState?: string;
                 };
                 header?: never;
                 path?: never;
@@ -34205,7 +34433,7 @@ export interface paths {
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Service Unavailable. */
+                /** @description Service Unavailable */
                 503: {
                     headers: {
                         [name: string]: unknown;
@@ -60379,8 +60607,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    systemName?: string;
-                    primaryEnvironment?: string;
+                    sourceState?: string;
                 };
                 header?: never;
                 path?: never;
@@ -77698,6 +77925,22 @@ export interface components {
             /** Format: double */
             structuralWarnBelow?: number | string;
         };
+        AdminQuickScanSafetySnapshotResponse: {
+            actorUserId: string;
+            anonymousExecutionAllowed: boolean;
+            operationalMode: string;
+            publicMessage: string;
+            reason: string;
+            sampleResultAvailable: boolean;
+            storeHealthy: boolean;
+            /** Format: date-time */
+            updatedUtc: null | string;
+        };
+        AdminQuickScanSafetyUpdateRequest: {
+            operationalMode: string;
+            publicMessage?: null | string;
+            reason: string;
+        };
         AdminRagCorpusHealthItem: {
             /** Format: int32 */
             chunkCount?: number;
@@ -78895,6 +79138,14 @@ export interface components {
             processUptimeSeconds?: number | string;
             runtimeFramework?: string;
         };
+        BuyerFindingSummaryDto: {
+            category?: string;
+            engineType?: string;
+            findingId?: string;
+            policyRuleId?: null | string;
+            severity?: components["schemas"]["FindingSeverity"];
+            title?: string;
+        };
         BuyerRunDetailRunDto: {
             /** Format: date-time */
             createdUtc?: string;
@@ -78922,6 +79173,7 @@ export interface components {
             estimatedUsdSavingsSummary?: null | components["schemas"]["RunEstimatedUsdSavingsDto"];
             executionFlavorBuyerSummary?: null | string;
             findingCoverageSummary?: null | components["schemas"]["RunFindingCoverageSummary"];
+            findingSummaries?: components["schemas"]["BuyerFindingSummaryDto"][];
             lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
             retrievalGroundingSummary?: null | components["schemas"]["RunRetrievalGroundingSummaryDto"];
             run?: components["schemas"]["BuyerRunDetailRunDto"];
@@ -83100,7 +83352,11 @@ export interface components {
         };
         QuickScanStatusResponse: {
             capacityAvailable?: boolean;
+            capacityState?: null | string;
+            capacityStateMessage?: null | string;
             enabled?: boolean;
+            operationalMode?: null | string;
+            publicMessage?: null | string;
             requireSignIn?: boolean;
             sampleResultAvailable?: boolean;
         };

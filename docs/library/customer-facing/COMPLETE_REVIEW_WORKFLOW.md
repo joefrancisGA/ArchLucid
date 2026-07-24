@@ -10,12 +10,12 @@ Use this guide when you need the full lifecycle from starting a review through s
 
 | | What you do | What ArchLucid does | What you get |
 | --- | --- | --- | --- |
-| **Purpose** | Provide evidence and context for one architecture decision | Evaluates design, records findings, and packages a signed review record | An architecture package you can export and share |
+| **Purpose** | Provide evidence and context for one architecture decision | Evaluates design, records findings, and packages a signed review record | An architecture review you can export and share |
 | **Typical duration** | One working session for a first review; longer when governance sign-off is required | Runs the assessment pipeline and attaches evidence citations | Findings, decisions, and sponsor-ready exports |
 
 **Good to know:** You can start with briefs, diagrams, documents, or IaC only — cloud connectors for Azure, AWS, or GCP are optional accelerators. See [Pilot guide](/help/pilot-guide) to prepare.
 
-## Step 1: Create an architecture package
+## Step 1: Create a review
 
 1. Open **New review** from Home or the reviews list.
 2. Name the review so sponsors recognize the system and decision being evaluated.
@@ -56,7 +56,7 @@ When governance is in scope for your workspace:
 
 **What success looks like:** Material risks have an explicit disposition or approval path before external circulation.
 
-## Step 5: Finalize the architecture package
+## Step 5: Finalize the architecture review
 
 1. Open **Finalize** on review detail when the assessment is complete.
 2. Confirm the signed review record and artifacts table appear.

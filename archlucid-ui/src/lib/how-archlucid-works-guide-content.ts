@@ -63,7 +63,7 @@ export const HOW_ARCHLUCID_WORKS_SECTIONS: readonly HowArchLucidWorksSection[] =
     id: "export-governance-artifacts",
     title: "Export reports and governance artifacts",
     description:
-      "Download sponsor-ready summaries, proof packets, and audit materials from the finalized architecture package.",
+      "Download sponsor-ready summaries, proof packets, and audit materials from the finalized architecture review.",
   },
 ] as const;
 

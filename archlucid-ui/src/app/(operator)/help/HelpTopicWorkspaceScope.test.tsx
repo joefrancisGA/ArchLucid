@@ -61,7 +61,7 @@ describe("HelpTopicMarkdownView workspace and scope guide", () => {
 
     expect(screen.getByRole("heading", { name: "When content looks wrong" })).toBeInTheDocument();
     expect(screen.getByText("Empty reviews list")).toBeInTheDocument();
-    expect(screen.getByText("architecture review not found")).toBeInTheDocument();
+    expect(screen.getByText(/architecture review not found/i)).toBeInTheDocument();
     expect(screen.getByText("Sample badge unexpected")).toBeInTheDocument();
   });
 
