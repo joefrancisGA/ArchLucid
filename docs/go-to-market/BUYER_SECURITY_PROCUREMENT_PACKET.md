@@ -12,6 +12,37 @@
 
 ---
 
+## Isolation one-pager (M-114)
+
+**Claim (G3):** Authenticated identity binds tenant/workspace scope; client-supplied scope headers cannot override that binding on production-like hosts.
+
+| Statement | Meaning |
+| --- | --- |
+| Identity wins | JWT or API-key subject resolves tenant/workspace; forged `x-tenant-id` and actor headers do not steer reads or writes |
+| Database-per-tenant default | Customer data uses a tenant-scoped database catalog where configured |
+| SingleCatalog boundary | CI, local, and controlled demo only; not the default production isolation story |
+| Fail closed | Scope-sensitive APIs deny (typically **403**) when headers disagree with identity |
+
+Reviewer check: authenticate as Tenant A on a JwtBearer or ApiKey host, submit a scope-sensitive request with a forged Tenant B header, and expect a denial rather than Tenant B payload. Ask for the latest **TB-948** isolation evidence artifact where an attachment is required. Do not treat DevBypass or test actor headers as production-safe; production-like hosts must reject them (**TB-949**).
+
+| Concern | Posture |
+| --- | --- |
+| Security | Least privilege: identity is authoritative; headers cannot expand scope |
+| Scalability | Per-tenant catalogs scale independently |
+| Reliability | Mismatches fail closed rather than serving mixed scope |
+| Cost | Middleware and catalog routing; no third-party isolation SaaS required for this V1 claim |
+
+Full technical narrative: [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md). Live review: [`PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`](PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md).
+
+## Evidence routing map
+
+| Reviewer | Start with | Decision focus |
+| --- | --- | --- |
+| CIO / executive sponsor | [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md) · [Core Pilot](../CORE_PILOT.md) · [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) | Cycle time, defensible package, proof for broader use |
+| Architecture review board | [Architecture on one page](../ARCHITECTURE_ON_ONE_PAGE.md) · [V1 Scope](../library/V1_SCOPE.md) · [Core Pilot](../CORE_PILOT.md) | Findings, decisions, evidence, governance fit |
+| Security / GRC / procurement | [Trust Center](trust-center.md) · [Procurement Pack Index](PROCUREMENT_PACK_INDEX.md) · [Procurement Response Accelerator](PROCUREMENT_RESPONSE_ACCELERATOR.md) · [DPA](DPA_TEMPLATE.md) | Current controls, evidence boundaries, deferred scope |
+| Pilot owner / sales engineer | [Core Pilot](../CORE_PILOT.md) · [Pilot Success Scorecard](PILOT_SUCCESS_SCORECARD.md) · [Second Run](../library/SECOND_RUN.md) | First-session path, baseline inputs, honest ROI |
+
 ## 1. How to use this packet
 
 1. Send this packet to the buyer's security or procurement contact.
@@ -160,7 +191,6 @@ Run before each new buyer send:
 | [`trust-center.md`](trust-center.md) | Master trust and assurance index |
 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment narrative |
 | [`SOC2_ROADMAP.md`](SOC2_ROADMAP.md) | SOC 2 CPA roadmap (V1.1) |
-| [`PROCUREMENT_EVIDENCE_PACKET.md`](PROCUREMENT_EVIDENCE_PACKET.md) | Evidence packet index for procurement reviewers |
 | [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) | CAIQ / SIG question-answer map |
 | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Data Processing Addendum template |
 | [`SUBPROCESSORS.md`](SUBPROCESSORS.md) | Sub-processor list |

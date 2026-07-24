@@ -2,11 +2,11 @@
 
 # ArchLucid — Current Assurance Posture
 
-**Date:** 2026-05-01
-**Last reviewed:** 2026-05-01
+**Date:** 2026-07-24
+**Last reviewed:** 2026-07-24
 **Classification:** Buyer-facing (include in procurement pack ZIP)
 
-This document summarizes the security, compliance, and assurance evidence that ArchLucid provides today. Every claim below links to a source artifact in the repository. Status labels follow [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) to avoid contradictory buyer wording.
+This document summarizes the security, compliance, and assurance evidence that ArchLucid provides today. Every claim below links to a source artifact in the repository. [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) is the wording source of truth; this pack artifact must not introduce different assurance wording.
 
 ---
 

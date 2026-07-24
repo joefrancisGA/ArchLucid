@@ -25,7 +25,7 @@
 - [ ] Proof packet quality ≥ Target per scorecard
 - [ ] Legal approved public language ([`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md))
 - [ ] No CPA SOC 2 or third-party pen-test claims unless TB-135/TB-136 complete
-- [ ] Claim-boundary review on [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md)
+- [ ] Claim-boundary review on [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md#appendix-gate-passhold-criteria)
 
 ---
 

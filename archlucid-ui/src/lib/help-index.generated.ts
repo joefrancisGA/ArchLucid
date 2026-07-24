@@ -13,13 +13,6 @@ export type HelpDocSearchRecord = {
 
 export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
-    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    "docTitle": "Maintainer note — troubleshooting UI",
-    "sectionSlug": "",
-    "sectionHeading": "Maintainer note — troubleshooting UI — overview",
-    "excerpt": "Buyer-facing troubleshooting is rendered by `HelpTroubleshootingGuideView` from `archlucid-ui/src/lib/troubleshooting-help-guide-content.ts`."
-  },
-  {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     "docTitle": "First-pilot troubleshooting decision tree",
     "sectionSlug": "",

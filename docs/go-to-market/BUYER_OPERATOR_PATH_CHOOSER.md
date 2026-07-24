@@ -1,4 +1,5 @@
-﻿> **Scope:** Decision aid for buyers and architects — one primary next action per branch. Not a long onboarding guide.
+﻿> **Reviewed:** 2026-07-24
+> **Scope:** Decision aid for buyers and architects — one primary next action per branch. Not a long onboarding guide.
 
 # Choose your next step
 
@@ -21,4 +22,4 @@ See [BUYER_ORIENTATION_ONE_SCREEN.md](BUYER_ORIENTATION_ONE_SCREEN.md) for the o
 
 ## Claim and proof discipline
 
-Before broadening sales claims, score proof gates **G1–G6** using [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md). Stage 0 controlled pilots do not require all gates green; Stage 1 and Stage 2 do — see [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout.
+Before broadening sales claims, score proof gates **G1–G6** using the [claim readiness status appendix](CLAIM_READINESS_STATUS.md#appendix-gate-passhold-criteria). Stage 0 controlled pilots do not require all gates green; Stage 1 and Stage 2 do — see [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout.

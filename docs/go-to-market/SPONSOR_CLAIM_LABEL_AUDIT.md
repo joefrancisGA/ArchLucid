@@ -14,7 +14,7 @@ Full-scope audit of sponsor-facing outputs per assessment Task #8. **Disposition
 | Value report (DOCX) | PASS | ROI narrative claim gate, HOLD suppresses annualized USD/ROI %, LLM cost methodology note | None — `DocxValueReportRenderer` already emits gate |
 | Demo preview (`/demo/preview`, `/see-it`) | PASS (after patch) | Demo/illustrative disclosure, evidence-basis badges on sponsor-mode summary | `ShowcaseOutcomeStrip.illustrativeSample` softens governance CTA on public demo |
 | Why-ArchLucid proof surfaces (`/why`, PDF pack) | PASS (after patch) | Citation disclaimers, illustrative category baselines, sample-not-customer on demo embed | Replaced “benchmarked” / “real finalized-manifest” wording |
-| Procurement-facing summaries | PASS | `PROCUREMENT_EVIDENCE_PACKET.md` buyer-safe rule; trust center deferred assurance | None |
+| Procurement-facing summaries | PASS | `BUYER_SECURITY_PROCUREMENT_PACKET.md` buyer-safe rule; trust center deferred assurance | None |
 | Sponsor distribution UI | PASS (after patch) | Execution-mode badge, projected-dollar blocks, ROI baseline gate on PDF/DOCX | “(estimate)” on projected savings badge; DOCX claim-gate notice |
 
 **CI guard:** `scripts/ci/check_sponsor_evidence_label_consistency.py` now enforces required label anchors on all surfaces above (plus procurement conversion docs). Run via `run_buyer_surface_strict_guards.py`.
@@ -35,7 +35,7 @@ Full-scope audit of sponsor-facing outputs per assessment Task #8. **Disposition
 | UI review detail / value report | Mode callouts, demo labels, sponsor PDF execution-mode block | Vitest `RunTrustEvidenceCardSection.test.tsx`, `EmailRunToSponsorBanner.test.tsx` |
 | Demo preview / see-it marketing | Illustrative sample, evaluation preview, evidence-basis on sponsor summary | `DemoPreviewMarketingBody`, `SeeItMarketingBody`, `check_sponsor_evidence_label_consistency.py` |
 | Why-ArchLucid pack | Citation-backed rows, illustrative baselines, sample demo embed | `why-archlucid-comparison.ts`, `WhyArchLucidPackBuilder.cs`, `check_why_archlucid_comparison_sync.py` |
-| Procurement evidence packet | Deferred assurance, no over-claim buyer-safe rule | `check_claim_evidence_consistency.py`, `PROCUREMENT_EVIDENCE_PACKET.md` |
+| Procurement evidence packet | Deferred assurance, no over-claim buyer-safe rule | `check_claim_evidence_consistency.py`, `BUYER_SECURITY_PROCUREMENT_PACKET.md` |
 | Socratic draft intake (operator) | Structural admission, LLM intake reasoning, redirect receipt, admitted draft, spawned review | Vitest `SocraticIntakeWizard.test.tsx`, `DraftIntakeClaimLabel` surfaces |
 | Proof pipeline outputs | `realModeEvidenceStatus`, sponsor disposition | `collect-first-pilot-proof.Tests.ps1` |
 

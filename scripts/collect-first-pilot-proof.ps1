@@ -1253,7 +1253,7 @@ function Write-QuoteToProofPacketMarkdown {
         $lines.Add('## After PASS proof (commercial conversion)')
         $lines.Add('')
         $lines.Add('- Follow [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../../docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md): request quote, guided pilot conversion, Professional/Enterprise evaluation, or procurement pack — **not** live Stripe checkout or marketplace publication (deferred).')
-        $lines.Add('- Map artifacts with [`QUOTE_TO_PILOT_PACK.md`](../../docs/go-to-market/QUOTE_TO_PILOT_PACK.md) when moving to a paid pilot pack.')
+        $lines.Add('- Map artifacts with [`QUOTE_TO_PROOF_PACKET.md`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#pre-pilot-quote-pack) when moving to a paid pilot pack.')
         $lines.Add('')
     }
 
@@ -1487,7 +1487,7 @@ function Add-PricingQuoteAgingFinding {
                 "| Warn count | $warnCount |",
                 "| Breach count | $breachCount |",
                 '',
-                'Recommended follow-up SLA: **7 days** from quote request (see QUOTE_TO_PROOF_READINESS_CHECKLIST.md).',
+                'Recommended follow-up SLA: **7 days** from quote request (see QUOTE_TO_PROOF_PACKET.md#readiness-checklist).',
                 ''
             )
             $mdLines | Set-Content -LiteralPath $mdPath -Encoding UTF8

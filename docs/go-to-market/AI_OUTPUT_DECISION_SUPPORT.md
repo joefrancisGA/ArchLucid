@@ -1,4 +1,5 @@
-﻿> **Scope:** Buyer-facing explanation of ArchLucid AI output limits — not legal advice or formal verification.
+﻿> **Reviewed:** 2026-07-24
+> **Scope:** Buyer-facing explanation of ArchLucid AI output limits — not legal advice or formal verification.
 
 # AI output is decision support
 

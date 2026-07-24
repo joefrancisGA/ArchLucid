@@ -27,13 +27,7 @@ describe("searchHelpDocumentation", () => {
   it("returns architect troubleshooting paths for troubleshooting queries", () => {
     const hits = searchHelpDocumentation("troubleshooting", 30);
 
-    expect(
-      hits.some(
-        (h) =>
-          h.docPath.toLowerCase().includes("first_pilot_troubleshooting") ||
-          h.docPath.toLowerCase().includes("operator_troubleshooting"),
-      ),
-    ).toBe(true);
+    expect(hits.some((h) => h.docPath.toLowerCase().includes("first_pilot_troubleshooting"))).toBe(true);
     expect(hits.some((h) => h.docPath.toLowerCase() === "docs/runbooks/troubleshooting.md")).toBe(false);
   });
 

@@ -1,8 +1,7 @@
-﻿> **Scope:** What not to promise (GTM guardrails) - full detail, tables, and links in the sections below.
+﻿> **Reviewed:** 2026-07-24
+> **Scope:** What not to promise (GTM guardrails) — separates `(A)` product readiness from `(B)` procurement realism. Use in sales, proof packets, and sponsor email.
 
 # What not to promise (GTM guardrails)
-
-> **Scope:** Separates `(A)` product readiness from `(B)` procurement realism. Use in sales, proof packets, and sponsor email.
 
 | Topic | Safe wording | Do not promise |
 | --- | --- | --- |

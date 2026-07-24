@@ -107,6 +107,20 @@ V1.1 connectors (Jira, ServiceNow, Slack, Teams, MCP) are **not** required for f
 
 ---
 
+## Depth (former EVALUATION_GUIDE)
+
+### Part 1: Your first 30 minutes
+
+Use [Get started](https://archlucid.net/get-started) or [`BUYER_FIRST_30_MINUTES.md`](../BUYER_FIRST_30_MINUTES.md) for the hosted buyer sequence. It is the canonical orientation path; this workbook retains only the evaluator interpretation below.
+
+### Core Pilot details
+
+The Core Pilot is four steps: create an architecture review, run the authority pipeline, finalize the durable architecture package, and open its artifacts. Start with the curated sample to learn the destination, then use [`SECOND_RUN.md`](../library/SECOND_RUN.md) for the lowest-friction real-input second review.
+
+Evaluate whether the request is accurately captured, findings are relevant and plausible, the package is useful, and the governance pre-finalize gate reflects your severity thresholds. For procedure and recovery, use [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) and [`FIRST_PILOT_TROUBLESHOOTING.md`](../runbooks/FIRST_PILOT_TROUBLESHOOTING.md).
+
+---
+
 ## Related
 
 - [Your first architecture review](/help/core-pilot)

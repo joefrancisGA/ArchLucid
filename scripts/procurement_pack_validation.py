@@ -197,7 +197,6 @@ def forbidden_assurance_phrases(
         Path("docs/go-to-market/PROCUREMENT_FAQ.md"),
         Path("docs/go-to-market/SOC2_STATUS_PROCUREMENT.md"),
         Path("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md"),
-        Path("docs/go-to-market/PROCUREMENT_FAST_LANE.md"),
         Path("docs/go-to-market/PROCUREMENT_PACK_INDEX.md"),
     )
 

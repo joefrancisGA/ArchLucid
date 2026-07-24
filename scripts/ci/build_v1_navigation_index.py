@@ -30,7 +30,7 @@ def main() -> int:
         },
         "narrativeOnly": [
             {"path": "docs/CORE_PILOT.md", "role": "Four-step narrative — not a second checklist."},
-            {"path": "docs/onboarding/EVALUATION_GUIDE.md", "role": "Depth reference — not a second checklist."},
+            {"path": "docs/onboarding/EVALUATOR_WORKBOOK.md", "role": "Depth reference — not a second checklist."},
         ],
         "scopeContracts": [
             {"path": "docs/library/V1_SCOPE.md", "role": "In-scope V1 product boundary."},

@@ -8,8 +8,8 @@ describe("help-doc-audience", () => {
     expect(isHelpDocPathInDefaultOperatorSearch("docs/runbooks/TROUBLESHOOTING.md")).toBe(false);
   });
 
-  it("maps operator troubleshooting paths to operator audience", () => {
-    expect(helpDocPathAudience("docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md")).toBe("operator");
+  it("maps operator help paths to operator audience", () => {
+    expect(helpDocPathAudience("docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md")).toBe("operator");
     expect(isHelpDocPathInDefaultOperatorSearch("docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md")).toBe(true);
   });
 });

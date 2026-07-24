@@ -82,7 +82,7 @@ Claim boundary: outputs are **review governance evidence**, not SOC/HIPAA/AI-Act
 Assemble the deltas into the executive proof packet and pressure-test before sending.
 
 - **Assembly + mock procurement review:** [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](EXECUTIVE_PAID_PILOT_PROOF_PACKET.md) — the six required elements (including the **one remediation ticket** via ITSM correlation) and the pre-send gates.
-- **One-page buyer evidence:** [`PROCUREMENT_EVIDENCE_PACKET.md`](PROCUREMENT_EVIDENCE_PACKET.md).
+- **One-page buyer evidence:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map).
 
 ---
 

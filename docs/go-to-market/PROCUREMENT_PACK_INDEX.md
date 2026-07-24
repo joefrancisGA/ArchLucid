@@ -5,7 +5,7 @@
 **Audience:** Security, procurement, and GRC reviewers.
 **Last reviewed:** 2026-05-26
 
-**How to cite:** Prefer **Evidence Artifact** titles and **`Source File`** links below rather than improvising statuses in questionnaires. Use **`trust-center.md`** for high-level posture; use this file for granular artifact inventory. **Five-minute skim (same paths as this table):** [`PROCUREMENT_FAST_LANE.md`](PROCUREMENT_FAST_LANE.md).
+**How to cite:** Prefer **Evidence Artifact** titles and **`Source File`** links below rather than improvising statuses in questionnaires. Use **`trust-center.md`** for high-level posture; use this file for granular artifact inventory.
 
 ## Procurement artifact status map (buyer-safe classification)
 
@@ -49,4 +49,23 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | DPA template | Self-asserted | 2026-05-01 | [docs/go-to-market/DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Template wording only until executed under customer legal review. |
 | Subprocessors register | Self-asserted | 2026-05-01 | [docs/go-to-market/SUBPROCESSORS.md](SUBPROCESSORS.md) | Lists subprocessors acknowledged in-repo; customer due diligence completes against their policy. |
 
-**Historical navigation index:** The shorter navigation-only table remains in **`PROCUREMENT_EVIDENCE_PACK_INDEX.md`** — that file intentionally defers statuses to **this** index for CI-validated freshness.
+## Fast-lane starter
+
+| Starter need | Evidence type / deferral | Source file |
+| --- | --- | --- |
+| Buyer-wide index | Self-asserted | [trust-center.md](trust-center.md) |
+| Engineering security narrative | Self-asserted | [Security overview](../library/contributor-reference/SECURITY.md) |
+| STRIDE / boundary threat model | Self-asserted | [System threat model](../security/SYSTEM_THREAT_MODEL.md) |
+| Tenant isolation (database-per-tenant) | Implemented | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
+| SOC 2 procurement wording (status, not issuance) | Self-asserted | [Assurance status canonical](ASSURANCE_STATUS_CANONICAL.md) |
+| SOC 2 self-assessment (not CPA audit) | Self-asserted | [SOC 2 self-assessment](../security/SOC2_SELF_ASSESSMENT_2026.md) |
+| SOC 2 roadmap / timing | Deferred V1.1 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) |
+| CAIQ / SIG pre-fills | Self-asserted | [CAIQ](../security/CAIQ_LITE_2026.md) · [SIG](../security/SIG_CORE_2026.md) |
+| DPA / subprocessors | Template / self-asserted | [DPA](DPA_TEMPLATE.md) · [Subprocessors](SUBPROCESSORS.md) |
+| **Route ↔ tier ↔ policy ↔ nav crosswalk** | Engineering-maintained | [ROUTE_TIER_POLICY_NAV_MATRIX.md](../library/ROUTE_TIER_POLICY_NAV_MATRIX.md) |
+
+## Additional navigation
+
+- [MSA outline](MSA_TEMPLATE.md) and [incident communications](INCIDENT_COMMUNICATIONS_POLICY.md) are available for legal and operational diligence.
+- [API SLO narrative](../library/API_SLOS.md) describes service targets; contractual commitments require an executed MSA or order form.
+- Intentionally not bundled: an independent SOC 2 report and live third-party pen-test deliverables. See [SOC2_ROADMAP.md](SOC2_ROADMAP.md) and [pen-test summaries](../security/pen-test-summaries/README.md).

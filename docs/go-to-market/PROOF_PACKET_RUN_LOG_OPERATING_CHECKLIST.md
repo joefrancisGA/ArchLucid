@@ -118,7 +118,7 @@ python scripts/ci/validate_weekly_proof_cadence.py --cadence-json artifacts/week
 | 2 | Reconcile with `weekly-proof-cadence.json` G4 row |
 | 3 | Update `CLAIM_READINESS_STATUS.md` G4 PASS/HOLD |
 | 4 | If G4 still HOLD, schedule next real pilot proof run (do not expand Stage 1 claims) |
-| 5 | Record session in claim readiness checklist format ([`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md)) |
+| 5 | Record session in the [claim readiness status appendix](CLAIM_READINESS_STATUS.md#appendix-session-record-template) format |
 
 **Strict weekly gate (optional):**
 

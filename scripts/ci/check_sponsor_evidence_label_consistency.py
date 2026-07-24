@@ -53,7 +53,7 @@ _SPONSOR_OUTPUT_SURFACES: dict[str, tuple[str, ...]] = {
         "illustrative",
         "no external citation",
     ),
-    "docs/go-to-market/PROCUREMENT_EVIDENCE_PACKET.md": (
+    "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md": (
         "does **not** claim",
         "deferred",
     ),

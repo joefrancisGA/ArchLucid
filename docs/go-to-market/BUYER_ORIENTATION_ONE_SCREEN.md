@@ -1,4 +1,5 @@
-﻿> **Scope:** One-screen buyer orientation — Pilot vs Operate, first proof, and deferred scope. Not an operator checklist.
+﻿> **Reviewed:** 2026-07-24
+> **Scope:** One-screen buyer orientation — Pilot vs Operate, first proof, and deferred scope. Not an operator checklist.
 
 # Buyer orientation (one screen)
 

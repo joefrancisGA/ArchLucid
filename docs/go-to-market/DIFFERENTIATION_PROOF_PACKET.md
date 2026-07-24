@@ -4,7 +4,7 @@
 
 **Audience:** Evaluators, executive sponsors, and sales engineers answering "why not generic AI or a consultant checklist?"
 
-**Last reviewed:** 2026-05-29
+**Last reviewed:** 2026-07-24
 
 ---
 
@@ -24,6 +24,19 @@
 Evidence links: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) · [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) · [`trust-center.md`](trust-center.md)
 
 ---
+
+## Evidence-linked comparison
+
+| Capability | ArchLucid evidence | Generic AI review narrative |
+| --- | --- | --- |
+| Committed-run provenance | `provenance-references.json` and audit IDs in the sponsor packet | Often ad hoc screenshots |
+| ROI scope labels | Server-authoritative, disposition-aware savings labels | Unlabeled estimates |
+| Claim boundary | [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) and real-mode evidence gate | Implicit or overstated |
+| Retrieval grounding | Committed-run `retrieval-grounding.json` traces | Opaque citations |
+| Release evidence | `release-evidence-bundle-manifest.json` profiles | Manual checklists |
+| Tenant isolation | Database-per-tenant catalogs, classification matrix, and architecture tests | Varies / not evidenced |
+
+Evidence links: `archlucid sponsor-packet <runId>` · `scripts/Emit-ReleaseReadinessEvidence.ps1` · [`trust-center.md`](trust-center.md) · [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md).
 
 ## Comparison matrix (evidence-linked)
 

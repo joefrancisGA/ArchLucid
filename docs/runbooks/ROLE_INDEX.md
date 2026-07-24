@@ -16,7 +16,17 @@
 | **Platform engineer** | Standing up SQL, auth, hosting, and production-like config before operators start | 1. This index → 2. [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md) → 3. [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md) → 4. [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) | [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md) + [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md) |
 | **Release owner** | Cutting a V1 build, RC, or pilot-environment signoff | 1. This index → 2. [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md) → 3. [`RELEASE_LOCAL.md`](../library/RELEASE_LOCAL.md) → 4. [`RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md) | [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md) |
 
-**Depth only (not initial path):** [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) · [`architecture/README.md`](../architecture/README.md) · [`START_HERE.md`](../START_HERE.md) (full repo hub).
+## V1 critical path (mandatory docs)
+
+| Role | Mandatory documents |
+| --- | --- |
+| Buyer / executive sponsor | [`CORE_PILOT.md`](../CORE_PILOT.md) · [`BUYER_ORIENTATION_ONE_SCREEN.md`](../go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) · [`trust-center.md`](../go-to-market/trust-center.md) for security threads · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) after finalize |
+| Operator / pilot lead | [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md) for hosted pilots · [`RC_TARGET_ENVIRONMENT_MATRIX.md`](../library/RC_TARGET_ENVIRONMENT_MATRIX.md) and [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md) for RC evidence |
+| Security reviewer | [`trust-center.md`](../go-to-market/trust-center.md) · [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) · [`SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) · [`SECURITY.md`](../library/contributor-reference/SECURITY.md) |
+| Integrator / automation | [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) · [`CLI_USAGE.md`](../library/CLI_USAGE.md) when needed |
+| Release owner | `Invoke-FirstPilotStrictPath.ps1` · `Emit-ReleaseReadinessEvidence.ps1 -StrictRc` · `rc-go-no-go-verdict.json` · [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md) |
+
+**Depth only (not initial path):** [`onboarding/EVALUATOR_WORKBOOK.md`](../onboarding/EVALUATOR_WORKBOOK.md) · [`architecture/README.md`](../architecture/README.md) · [`START_HERE.md`](../START_HERE.md) (full repo hub).
 
 ---
 

@@ -5,7 +5,7 @@
 **Audience:** founders, sales engineers, and sponsor owners after a guided Readiness Review when the buyer is ready to discuss **Evidence Pack**, **ARB Report**, or an **annual Professional / Enterprise order form**.
 
 **Canonical conversion checklist:** [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) (send/hold/defer rules).  
-**Pre-pilot quote motion:** [`QUOTE_TO_PILOT_PACK.md`](QUOTE_TO_PILOT_PACK.md) (quote → pilot start).
+**Pre-pilot quote motion:** See **Pre-pilot quote pack** below (quote → pilot start).
 
 ---
 
@@ -50,6 +50,37 @@ The proof pipeline emits a generated companion at **`quote-to-proof-packet.md`**
 python scripts/build_procurement_pack.py --dry-run --deal-ready
 python scripts/ci/assert_route_tier_policy_nav.py
 ```
+
+---
+
+## Readiness checklist
+
+Use after a committed review. Each row is PASS / WARN / HOLD / DEFERRED_SCOPE; deferred procurement items do not reduce V1 product-readiness language.
+
+| Check | PASS when | HOLD when |
+| --- | --- | --- |
+| Run committed | `run-evidence.json` shows committed manifest and status | Run is in progress or commit failed |
+| Proof disposition | `quote-to-proof-readiness.json` is `PASS` | `HOLD` or demo tenant warning |
+| ROI source basis | `roiBasisStatus: classified` for dollar claims | Missing, synthetic, or stale source |
+| Redaction manifest | `redaction-manifest.json` is `PASS` | `NOT_APPLIED`; do not send externally |
+| Execution mode | `environment.json` labels structural execution mode | Mode missing or ambiguous |
+| Limitations | `limitations.md` reviewed | Skipped gates are unknown |
+| Audit and traceability | Audit summary and sample IDs are present | No audit rows without a truncation explanation |
+
+Follow up within **7 days** of quote request. PASS schedules a 30-minute sponsor review; HOLD resolves limitations first. Do not promise CPA SOC 2, a third-party pen-test report, live Marketplace/Stripe checkout, public references, or first-party ITSM/chat connectors.
+
+## Pre-pilot quote pack
+
+**Default first offer:** **Readiness Review** — a low-commitment route to evidence.
+
+| Deliverable | Owner | Evidence |
+| --- | --- | --- |
+| Environment readiness + first committed review | Joint | [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
+| First-value / sponsor report | ArchLucid | `GET …/first-value-report` |
+| Pilot scorecard baseline + close-out | Joint | [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) |
+| Buyer-safe evidence bundle | ArchLucid | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) |
+
+Before work starts, agree the SQL/auth or hosted-staging shape, Tier 1 Azure extractor ZIP or explicit demo acceptance, named operator and sponsor, and architect-hours baseline. The conversion route remains **Readiness Review → Evidence Pack or ARB Report → annual Professional / Enterprise order form**. Pricing is canonical in [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md); use [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) after the first committed review.
 
 ---
 

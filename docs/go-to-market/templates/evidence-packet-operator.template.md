@@ -60,4 +60,4 @@ $env:ARCHLUCID_BEARER_TOKEN = '<jwt>'
 ## Related
 
 - [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
-- [`V1_CRITICAL_PATH_MAP.md`](../../library/V1_CRITICAL_PATH_MAP.md)
+- [`ROLE_INDEX.md`](../../runbooks/ROLE_INDEX.md#v1-critical-path-mandatory-docs)

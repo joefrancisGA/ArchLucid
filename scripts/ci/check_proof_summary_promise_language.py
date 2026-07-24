@@ -99,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
             root / "docs" / "go-to-market" / "WHAT_NOT_TO_PROMISE.md",
             root / "docs" / "go-to-market" / "COMMERCIAL_DECISION_PACKET.md",
             root / "docs" / "go-to-market" / "PROCUREMENT_FAQ.md",
-            root / "docs" / "go-to-market" / "QUOTE_TO_PROOF_READINESS_CHECKLIST.md",
+            root / "docs" / "go-to-market" / "QUOTE_TO_PROOF_PACKET.md",
         ]
 
     violations = scan_paths(targets)
