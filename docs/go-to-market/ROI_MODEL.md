@@ -364,7 +364,7 @@ Portfolio and sponsor-facing ROI totals (`GET /v1/roi/executive-summary`) includ
 | **Stale** | Collection timestamp exceeds the threshold — re-run Tier 1/Tier 2 extraction before board/sponsor reviews. |
 | **Missing** | No uploaded extractor packages in the current workspace scope. |
 
-Configure the stale threshold in host configuration (`ExecutiveRoi:CostEvidenceFreshness:StaleAfterDays`). Operator UI surfaces basis text and freshness warnings on the Home → Portfolio ROI summary panel.
+Configure the stale threshold in host configuration (`ExecutiveRoi:CostEvidenceFreshness:StaleAfterDays`). Architect workspace surfaces basis text and freshness warnings on the Home → Portfolio ROI summary panel.
 
 ---
 

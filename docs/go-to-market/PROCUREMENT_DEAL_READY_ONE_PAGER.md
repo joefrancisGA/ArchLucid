@@ -90,7 +90,7 @@ First-pilot proof collection writes the same classification under the proof fold
 
 ## Accessibility procurement honesty
 
-- Automated **axe-core** / **jsx-a11y** evidence exists for operator UI top routes.
+- Automated **axe-core** / **jsx-a11y** evidence exists for architect workspace top routes.
 - **VPAT** drafts mark manual gaps — do not claim full manual WCAG conformance without completed AT user testing.
 - Contact: Trust Center accessibility row · root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md)
 

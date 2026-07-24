@@ -16,7 +16,7 @@ Deliverable: first-value report + proof summary + explicit limitations + trust p
 
 | Motion | Buyer gets | Proof required |
 | --- | --- | --- |
-| SaaS subscription (team tier) | Self-serve tenant + operator UI | Committed review + proof packet; demo labeled if simulator-only |
+| SaaS subscription (team tier) | Self-serve tenant + architect workspace | Finalized review + proof packet; demo labeled if simulator-only |
 | Service-led Architecture Review | Facilitated review + export pack | Same proof packet + optional `-SponsorHandoff` rollup |
 | Annual conversion | Expanded seats + governance | ROI source classification **Strong** or explicit assumption labels |
 

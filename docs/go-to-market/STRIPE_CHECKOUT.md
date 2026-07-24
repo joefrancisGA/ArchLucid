@@ -271,7 +271,7 @@ A healthy deployment returns **non-2xx** for invalid signatures (fail-closed). W
 
 `BillingCheckoutController` requires **`AdminAuthority`**. Body: `targetTier` (`Team` / `Pro` / `Enterprise`), `returnUrl`, `cancelUrl`, optional `seats`, `workspaces`, `billingEmail`.
 
-**Browser:** Use **Convert to paid** in the operator UI ([`operator-shell.md`](../library/operator-shell.md)); capture **`POST /v1/tenant/billing/checkout`** in DevTools if needed.
+**Browser:** Use **Convert to paid** in the architect workspace ([`operator-shell.md`](../library/operator-shell.md)); capture **`POST /v1/tenant/billing/checkout`** in DevTools if needed.
 
 **curl** (`export JWT='<your token>'` first):
 

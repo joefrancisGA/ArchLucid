@@ -30,7 +30,7 @@ ArchLucid is an **AI-assisted architecture workflow** with three product layers:
 | Stage | Buyer touchpoints | Proof artifacts |
 |-------|-------------------|-----------------|
 | **Discovery** | Executive sponsor brief, pilot ROI companion, demo script | [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md), [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) |
-| **Pilot (30/60/90)** | Operator UI + CLI, API keys or Entra JWT, SQL / Container Apps deploy | Golden manifests, `Runs.OtelTraceId`, export records, audit events |
+| **Pilot (30/60/90)** | Architect workspace + CLI, API keys or Entra JWT, SQL / Container Apps deploy | Architecture packages (API: golden manifests), `Runs.OtelTraceId`, export records, audit events |
 | **Expand** | Governance approvals, integration events, Service Bus consumers | `GovernanceApprovalRequests`, AsyncAPI catalog, [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
 
 ## Data flow

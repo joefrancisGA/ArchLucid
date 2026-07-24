@@ -36,7 +36,7 @@ ArchLucid does **not** always reason better than frontier AI. This protocol docu
 ## Where manual frontier AI wins
 
 - Zero platform setup for a one-off review
-- Broad domain questions outside committed manifest scope
+- Broad domain questions outside finalized architecture package scope
 - Rapid what-if brainstorming without governance overhead
 - Custom narrative tone without export templates
 

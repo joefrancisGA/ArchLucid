@@ -17,7 +17,7 @@
 
 | Template metric row | JSON / API field |
 |---------------------|------------------|
-| Wall-clock request → committed manifest | `timeToCommittedManifestTotalSeconds` (convert to `HH:MM:SS` in the template) |
+| Wall-clock request → finalized architecture package | `timeToCommittedManifestTotalSeconds` (convert to `HH:MM:SS` in the template; metric key unchanged) |
 | Manifest committed at | `manifestCommittedUtc` |
 | Run created at | `runCreatedUtc` |
 | Findings by severity | `findingsBySeverity[]` |

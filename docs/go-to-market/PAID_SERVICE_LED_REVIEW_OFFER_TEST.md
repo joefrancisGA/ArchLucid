@@ -23,7 +23,7 @@
 - Executive summary and architecture evidence inventory aligned to the submitted packet
 - Risk register and recommended actions with evidence-basis labels
 - Final **Architecture Review Report** (DOCX/PDF; whitelabel available)
-- Committed ArchLucid review package with audit trail (tenant scoped)
+- Finalized ArchLucid architecture package with audit trail (tenant scoped)
 
 **Buyer does not get (unless separately contracted):**
 

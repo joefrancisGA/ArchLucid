@@ -28,9 +28,9 @@
 | C1 | **Defensible architecture, on demand** — prioritized, evidence-linked review with exportable report | `POSITIONING.md` §1, homepage H1 |
 | C2 | **Explicit limits** where the system does not conclude | `POSITIONING.md` §1, `WELCOME_HERO_PITCH` |
 | C3 | **Six-stage workflow** Capture → Evidence → Review → Findings → Decisions → Report | `WELCOME_WORKFLOW_STEPS` |
-| C4 | **Pillar 1 — AI-native analysis:** multi-agent pipeline (Topology, Cost, Compliance, Critic) → versioned golden manifest + structured findings | `EXECUTIVE_SPONSOR_BRIEF.md` §3, homepage pillar 1 |
+| C4 | **Pillar 1 — AI-native analysis:** multi-agent pipeline (Topology, Cost, Compliance, Critic) → versioned architecture package + structured findings | `EXECUTIVE_SPONSOR_BRIEF.md` §3, homepage pillar 1 |
 | C5 | **Pillar 2 — Auditable decision trail:** evidence chain, rules applied, decisions taken; provenance — not "AI said so" | Brief §3, homepage pillar 2 |
-| C6 | **Pillar 3 — Enterprise governance:** policy packs, approval workflow, pre-commit gate, SLA, typed audit events | Brief §3, homepage pillar 3 |
+| C6 | **Pillar 3 — Enterprise governance:** policy packs, approval workflow, pre-finalize gate, SLA, typed audit events | Brief §3, homepage pillar 3 |
 | C7 | **Use case — AI governance + security baseline** on bundled policy packs | `WELCOME_USE_CASE_CARDS[0]` |
 | C8 | **Use cases — Azure WAF** and **Azure CAF / landing zone** thematic packs (with disclaimer: not certification) | `WELCOME_USE_CASE_CARDS[1–2]`, `WELCOME_POLICY_PACK_DISCLAIMER` |
 | C9 | **Report export:** DOCX/PDF and whitelabeled packages for ARB / audit / procurement | `WELCOME_WORKFLOW_STEPS` (Report stage) |
@@ -64,7 +64,7 @@
 | **C3** Six-stage workflow | **PARTIAL** | Findings + decisions + report export stages demonstrated; Capture/Evidence/Review stages are implied by committed run + manifest graph, not spelled out as section headers in the markdown export stub |
 | **C4** Multi-agent AI-native analysis | **PARTIAL (demo honesty)** | Marketing is accurate for product capability; Workspace B demo findings are **seed-backed**, not live Topology/Cost/Compliance/Critic traces — narrate as "curated demo storyline" in sales calls |
 | **C5** Auditable decision trail | **MATCH** | PolicyRuleId + rationale + reviewed dispositions on findings; provenance surfaces exist on run detail (not re-validated in this doc pass) |
-| **C6** Enterprise governance | **PARTIAL** | Policy-pack themes drive findings; approval workflow / pre-commit gate / SLA not exercised in this single committed demo run — pillar is product-true, not fully dramatized in Workspace B export stub alone |
+| **C6** Enterprise governance | **PARTIAL** | Policy-pack themes drive findings; approval workflow / pre-finalize gate / SLA not exercised in this single finalized demo run — pillar is product-true, not fully dramatized in Workspace B export stub alone |
 | **C7** AI governance + security baseline use case | **MATCH** | Primary Workspace B storyline; finding themes and governance tags align |
 | **C8** Azure WAF + CAF/LZ use cases | **MISMATCH (scope, not product lie)** | Homepage cards promise WAF/CAF **pack themes**; Workspace B does **not** showcase WAF/CAF-specific findings — disclaimer covers certification, not demo routing. **Recommendation:** link AI governance card to Workspace B URL; keep WAF/CAF claims tied to bundled packs + Workspace A / policy-pack docs, not Workspace B |
 | **C9** DOCX/PDF export | **PARTIAL** | Product ships DOCX/PDF (`IDocxExportService`, samples in `docs/go-to-market/samples/`); Workspace B seed ships **markdown scaffold** + whitelabel pre-fill — operator must invoke export for full DOCX |
@@ -92,7 +92,7 @@ None of the partial/mismatch rows block outreach once narrated honestly; the the
 | Work unit | Status | Notes |
 |-----------|--------|-------|
 | **Agent mechanical review** (this document) | **Done** 2026-07-03 | Claim extraction + reconciliation against seed/fixture sources |
-| **Owner download + visual review** of live export (DOCX/PDF from operator UI) | **Waived** 2026-07-19 → tracked as **G-REAL-09** | ~10-min check from `/reviews/61c60d76-…` before first live demo (M-19) / video recording (M-16); full step-by-step in `GTM_BACKLOG.md` **G-REAL-09** — not required for M-07/M-09 unblock |
+| **Owner download + visual review** of live export (DOCX/PDF from architect workspace) | **Waived** 2026-07-19 → tracked as **G-REAL-09** | ~10-min check from `/reviews/61c60d76-…` before first live demo (M-19) / video recording (M-16); full step-by-step in `GTM_BACKLOG.md` **G-REAL-09** — not required for M-07/M-09 unblock |
 | **Owner sign-off** | **Done** 2026-07-19 | Landing claims accepted as sufficiently aligned for outreach; §4 follow-ups routed to M-09 (C8 routing fix) and M-111 (C4 demo-script footnote) |
 
 ---

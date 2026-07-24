@@ -87,7 +87,7 @@ ArchLucid runs automated security checks on every pull request and merge to main
 
 | Engagement | Status | Detail |
 |-----------|--------|--------|
-| Third-party pen test (external vendor) | **Deferred to V2** — no vendor awarded for V1; templates at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md) | Typical scope: API, operator UI, hosted SaaS data plane — confirm in executed SoW |
+| Third-party pen test (external vendor) | **Deferred to V2** — no vendor awarded for V1; templates at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md) | Typical scope: API, architect workspace, hosted SaaS data plane — confirm in executed SoW |
 | Owner-conducted penetration-style assessment | **Active V1 control** (owner-led) | [`docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) |
 | Owner-conducted security self-assessment | **Completed** (interim posture) | [`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) |
 

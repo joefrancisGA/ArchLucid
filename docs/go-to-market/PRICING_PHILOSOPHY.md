@@ -60,7 +60,7 @@
 | **Architecture packages / month** | 20 included; $10 / **architecture package** overage | 100 included; $8 / **architecture package** overage | Unlimited (2,000 **architecture packages**/mo fair-use soft cap) |
 | **Annual prepay** | 2 months free | 2 months free | Custom |
 | **Finding engines** | All 10 | All 10 | All 10 + custom engine support |
-| **Governance** | Basic (pre-commit gate) | Full (approval workflows, policy packs, segregation of duties) | Full + custom policy packs |
+| **Governance** | Basic (pre-finalize gate) | Full (approval workflows, policy packs, segregation of duties) | Full + custom policy packs |
 | **Comparison / drift** | Included | Included | Included |
 | **Audit trail** | 90-day retention | 1-year retention | Custom retention + export |
 | **Authentication** | Entra ID default; generic OIDC / SAML 2.0 SP when configured | Entra ID default; generic OIDC / SAML 2.0 SP when configured | Entra ID default; generic OIDC / SAML 2.0 SP when configured |

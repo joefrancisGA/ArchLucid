@@ -47,11 +47,11 @@ Use **one script per conversation** in the test cohort. Rotate A → B → C acr
 
 > "You already pay for frontier models — and your architects should keep using them for exploration. ArchLucid is not a replacement for a $20-a-month chat seat.
 >
-> ArchLucid is for when a design has to survive architecture review, audit, or procurement: a **committed manifest**, **evidence-linked findings** with explainability traces, **append-only audit events**, and optional **governance gates** before handoff. Chat transcripts do not give you that durable proof package.
+> ArchLucid is for when a design has to survive architecture review, audit, or procurement: a **finalized architecture package**, **evidence-linked findings** with explainability traces, **append-only audit events**, and optional **governance gates** before handoff. Chat transcripts do not give you that durable proof package.
 >
-> The pilot question is not 'can AI answer architecture questions?' — it is 'can we produce a **defensible review package** faster, with a trail someone can reconstruct six months later?' That is what [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) and our differentiation packet describe as shipped today."
+> The pilot question is not 'can AI answer architecture questions?' — it is 'can we produce a **defensible architecture package** faster, with a trail someone can reconstruct six months later?' That is what [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) and our differentiation packet describe as shipped today."
 
-**Evidence anchors:** golden manifest · `ExplainabilityTrace` · typed audit · pre-commit governance ([`POSITIONING.md`](POSITIONING.md) §4 table).
+**Evidence anchors:** architecture package · `ExplainabilityTrace` · typed audit · pre-finalize governance ([`POSITIONING.md`](POSITIONING.md) §4 table).
 
 ### Script B — Repeatable proof package vs ephemeral chat
 
@@ -59,7 +59,7 @@ Use **one script per conversation** in the test cohort. Rotate A → B → C acr
 >
 > Generic AI gives strong first drafts; [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md) §4.4 is explicit that ad-hoc tools win on zero setup and breadth. ArchLucid wins when you need **repeatability, drift comparison, and labeled ROI basis** — not when someone only wants a one-off brainstorm.
 >
-> Pilot success is measured on time to committed manifest and traceability — not on beating ChatGPT prose in a single session."
+> Pilot success is measured on time to finalized architecture package and traceability — not on beating ChatGPT prose in a single session."
 
 **Evidence anchors:** multi-agent pipeline · two-review compare · sponsor first-value report · ROI basis labels ([`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md)).
 
