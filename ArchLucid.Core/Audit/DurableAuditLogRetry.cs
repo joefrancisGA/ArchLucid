@@ -89,13 +89,16 @@ public static class DurableAuditLogRetry
                 last = ex;
 
                 if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    string safeOperationLabel = LogSanitizer.Sanitize(operationLabel);
 
                     logger.LogWarning(
                         ex,
                         "Durable audit attempt {Attempt}/{MaxAttempts} failed for {OperationLabel}",
                         attempt,
                         maxAttempts,
-                        operationLabel);
+                        safeOperationLabel); // codeql[cs/log-forging]: OperationLabel sanitized immediately above.
+                }
 
                 if (attempt < maxAttempts)
 
@@ -106,12 +109,15 @@ public static class DurableAuditLogRetry
             return;
 
         if (logger.IsEnabled(LogLevel.Warning))
+        {
+            string safeOperationLabel = LogSanitizer.Sanitize(operationLabel);
 
             logger.LogWarning(
                 last,
                 "Durable audit abandoned after {MaxAttempts} attempts for {OperationLabel}",
                 maxAttempts,
-                operationLabel);
+                safeOperationLabel); // codeql[cs/log-forging]: OperationLabel sanitized immediately above.
+        }
 
         if (!string.IsNullOrWhiteSpace(auditEventTypeForMetrics))
             ArchLucidInstrumentation.RecordAuditWriteFailure(auditEventTypeForMetrics);
