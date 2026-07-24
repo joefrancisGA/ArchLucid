@@ -66,6 +66,13 @@ public sealed class BuyerRunDetailRunDto
         set;
     }
 
+    /// <summary>Legacy lifecycle status string (e.g. ReadyForCommit, PartiallyCompleted) for finalize honesty (TB-937).</summary>
+    public string? LegacyRunStatus
+    {
+        get;
+        set;
+    }
+
     public bool RunDegradedExecution
     {
         get;

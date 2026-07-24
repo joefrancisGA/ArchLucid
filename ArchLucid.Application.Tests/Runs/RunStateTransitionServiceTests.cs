@@ -14,12 +14,20 @@ public sealed class RunStateTransitionServiceTests
 {
     private readonly RunStateTransitionService _sut = new();
 
-    [Theory]
-    [InlineData(ArchitectureRunStatus.ReadyForCommit)]
-    [InlineData(ArchitectureRunStatus.TasksGenerated)]
-    public void ValidateCommitAllowed_permits_ready_and_tasks_generated(ArchitectureRunStatus status)
+    [Fact]
+    public void ValidateCommitAllowed_permits_only_ready_for_commit()
     {
-        _sut.ValidateCommitAllowed(status).IsAllowed.Should().BeTrue();
+        _sut.ValidateCommitAllowed(ArchitectureRunStatus.ReadyForCommit).IsAllowed.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(ArchitectureRunStatus.TasksGenerated)]
+    [InlineData(ArchitectureRunStatus.PartiallyCompleted)]
+    [InlineData(ArchitectureRunStatus.FailedPartial)]
+    [InlineData(ArchitectureRunStatus.Failed)]
+    public void ValidateCommitAllowed_denies_incomplete_and_failed_statuses(ArchitectureRunStatus status)
+    {
+        _sut.ValidateCommitAllowed(status).IsAllowed.Should().BeFalse();
     }
 
     [Fact]
@@ -31,12 +39,13 @@ public sealed class RunStateTransitionServiceTests
         check.Message.Should().Contain("Failed");
     }
 
-    [Theory]
-    [InlineData(nameof(ArchitectureRunStatus.ReadyForCommit))]
-    [InlineData(nameof(ArchitectureRunStatus.TasksGenerated))]
-    public void ValidateCommitAllowedLegacy_permits_coordinator_and_authority_statuses(string legacyStatus)
+    [Fact]
+    public void ValidateCommitAllowedLegacy_permits_ready_for_commit_only()
     {
-        _sut.ValidateCommitAllowedLegacy(legacyStatus).IsAllowed.Should().BeTrue();
+        _sut.ValidateCommitAllowedLegacy(nameof(ArchitectureRunStatus.ReadyForCommit)).IsAllowed.Should().BeTrue();
+        _sut.ValidateCommitAllowedLegacy(nameof(ArchitectureRunStatus.TasksGenerated)).IsAllowed.Should().BeFalse();
+        _sut.ValidateCommitAllowedLegacy(nameof(ArchitectureRunStatus.PartiallyCompleted)).IsAllowed.Should().BeFalse();
+        _sut.ValidateCommitAllowedLegacy(nameof(ArchitectureRunStatus.FailedPartial)).IsAllowed.Should().BeFalse();
     }
 
     [Fact]
@@ -55,9 +64,9 @@ public sealed class RunStateTransitionServiceTests
     }
 
     [Fact]
-    public void DeriveStatusAfterResultSubmission_maps_to_ready_or_waiting()
+    public void HasCommitReadyAgentResults_requires_meaningful_non_degraded_results()
     {
-        List<AgentResult> complete =
+        List<AgentResult> emptyShell =
         [
             NewResult(AgentType.Topology),
             NewResult(AgentType.Cost),
@@ -65,8 +74,37 @@ public sealed class RunStateTransitionServiceTests
             NewResult(AgentType.Critic)
         ];
 
-        _sut.DeriveStatusAfterResultSubmission(complete).Should().Be(ArchitectureRunStatus.ReadyForCommit);
-        _sut.DeriveStatusAfterResultSubmission([complete[0]]).Should().Be(ArchitectureRunStatus.WaitingForResults);
+        _sut.HasCommitReadyAgentResults(emptyShell).Should().BeFalse();
+        _sut.HasCommitReadyAgentResults(CommitReadySet()).Should().BeTrue();
+        _sut.HasCommitReadyAgentResults(CommitReadySet().Take(3).ToList()).Should().BeFalse();
+    }
+
+    [Fact]
+    public void DeriveStatusAfterResultSubmission_maps_to_ready_or_waiting()
+    {
+        _sut.DeriveStatusAfterResultSubmission(CommitReadySet()).Should().Be(ArchitectureRunStatus.ReadyForCommit);
+        _sut.DeriveStatusAfterResultSubmission([CommitReady(AgentType.Topology)])
+            .Should()
+            .Be(ArchitectureRunStatus.WaitingForResults);
+    }
+
+    [Fact]
+    public void DeriveStatusAfterExecuteCompletion_maps_partial_when_incomplete()
+    {
+        _sut.DeriveStatusAfterExecuteCompletion(CommitReadySet()).Should().Be(ArchitectureRunStatus.ReadyForCommit);
+        _sut.DeriveStatusAfterExecuteCompletion([CommitReady(AgentType.Topology)])
+            .Should()
+            .Be(ArchitectureRunStatus.PartiallyCompleted);
+    }
+
+    [Fact]
+    public void DeriveStatusAfterExecuteFailure_maps_failed_partial_when_any_required_succeeded()
+    {
+        _sut.DeriveStatusAfterExecuteFailure([CommitReady(AgentType.Topology)])
+            .Should()
+            .Be(ArchitectureRunStatus.FailedPartial);
+        _sut.DeriveStatusAfterExecuteFailure([]).Should().Be(ArchitectureRunStatus.Failed);
+        _sut.DeriveStatusAfterExecuteFailure(null).Should().Be(ArchitectureRunStatus.Failed);
     }
 
     [Fact]
@@ -80,7 +118,9 @@ public sealed class RunStateTransitionServiceTests
     [Theory]
     [InlineData(ArchitectureRunStatus.TasksGenerated)]
     [InlineData(ArchitectureRunStatus.WaitingForResults)]
-    public void ValidateResultSubmissionAllowed_permits_only_in_progress_statuses(ArchitectureRunStatus status)
+    [InlineData(ArchitectureRunStatus.PartiallyCompleted)]
+    [InlineData(ArchitectureRunStatus.FailedPartial)]
+    public void ValidateResultSubmissionAllowed_permits_in_progress_and_partial_statuses(ArchitectureRunStatus status)
     {
         _sut.ValidateResultSubmissionAllowed(status).IsAllowed.Should().BeTrue();
     }
@@ -100,6 +140,25 @@ public sealed class RunStateTransitionServiceTests
     public void ResultSubmissionAllowedStatuses_excludes_committed()
     {
         _sut.ResultSubmissionAllowedStatuses.Should().NotContain(ArchitectureRunStatus.Committed);
+    }
+
+    private static List<AgentResult> CommitReadySet()
+    {
+        return
+        [
+            CommitReady(AgentType.Topology),
+            CommitReady(AgentType.Cost),
+            CommitReady(AgentType.Compliance),
+            CommitReady(AgentType.Critic)
+        ];
+    }
+
+    private static AgentResult CommitReady(AgentType agentType)
+    {
+        AgentResult result = NewResult(agentType);
+        result.Claims = ["ok"];
+
+        return result;
     }
 
     private static AgentResult NewResult(AgentType agentType)

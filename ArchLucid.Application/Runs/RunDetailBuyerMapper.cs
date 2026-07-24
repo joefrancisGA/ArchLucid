@@ -32,6 +32,7 @@ public static class RunDetailBuyerMapper
                 HasGraphSnapshot = run.GraphSnapshotId.HasValue,
                 HasGoldenManifest = run.GoldenManifestId.HasValue,
                 HasFindingsSnapshot = run.FindingsSnapshotId.HasValue,
+                LegacyRunStatus = run.LegacyRunStatus,
                 RunDegradedExecution = source.RunDegradedExecution,
                 DegradedExecutionAgents = source.DegradedExecutionAgents,
                 IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(run),
@@ -46,6 +47,7 @@ public static class RunDetailBuyerMapper
             TrustEvidenceCard = source.TrustEvidenceCard,
             RetrievalGroundingSummary = source.RetrievalGroundingSummary,
             LastAgentExecutionFailure = source.LastAgentExecutionFailure,
+            AgentExecutionOutcomes = source.AgentExecutionOutcomes,
             EstimatedUsdSavingsSummary = source.EstimatedUsdSavingsSummary,
             DecisionExplainability = source.DecisionExplainability,
         };

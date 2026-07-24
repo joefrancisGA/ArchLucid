@@ -196,6 +196,13 @@ type RunDetailOptionalWireExtras = {
   } | null;
   decisionExplainability?: unknown;
   engineProvenance?: import("@/lib/review-engine-provenance-display").ReviewRunEngineProvenance | null;
+  /** TB-937: required-agent outcome matrix (OpenAPI may lag until regen). */
+  agentExecutionOutcomes?: readonly {
+    readonly agentType?: string | null;
+    readonly outcome?: string | null;
+    readonly taskId?: string | null;
+    readonly degradationReasonCode?: string | null;
+  }[] | null;
 };
 
 export type RunRetrievalGroundingSummary = {
@@ -244,6 +251,7 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
       projectId: string;
       scopeProjectId?: string;
       createdUtc: string;
+      legacyRunStatus?: string | null;
       hasGovernanceWarnings?: boolean;
       lastFailureReason?: string | null;
       retryCount?: number;

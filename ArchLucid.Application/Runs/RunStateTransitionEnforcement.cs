@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Runs;
 
@@ -26,6 +27,32 @@ public static class RunStateTransitionEnforcement
 
         if (!check.IsAllowed)
             throw new ConflictException($"Run '{runId:D}' {check.Message}");
+    }
+
+    /// <summary>Blocks commit when required agents are missing, degraded, or empty (TB-937).</summary>
+    public static void EnsureCommitReadyAgentResults(
+        IRunStateTransitionService transitions,
+        string runId,
+        IReadOnlyList<AgentResult> results)
+    {
+        ArgumentNullException.ThrowIfNull(transitions);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentNullException.ThrowIfNull(results);
+
+        if (transitions.HasCommitReadyAgentResults(results))
+            return;
+
+        IReadOnlyList<AgentExecutionOutcome> outcomes = RequiredAgentExecutionOutcomes.Project(results);
+        string incomplete = string.Join(
+            ", ",
+            outcomes
+                .Where(o => o.Outcome != AgentExecutionOutcomeKind.Succeeded)
+                .Select(o => $"{o.AgentType}:{o.Outcome}"));
+
+        throw new ConflictException(
+            FormatCommitMessage(
+                runId,
+                $"cannot be committed until all required agents succeed. Incomplete: {incomplete}."));
     }
 
     private static string FormatCommitMessage(string runId, string? message)

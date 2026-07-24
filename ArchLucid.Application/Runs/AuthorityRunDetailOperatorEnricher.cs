@@ -97,6 +97,7 @@ public sealed class AuthorityRunDetailOperatorEnricher(
             return;
 
         detail.Results = architectureDetail.Results;
+        detail.AgentExecutionOutcomes = RequiredAgentExecutionOutcomes.Project(architectureDetail.Results);
 
         await AppendRetrievalGroundingSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
         await AppendDecisionExplainabilityAsync(detail, cancellationToken).ConfigureAwait(false);
@@ -151,6 +152,8 @@ public sealed class AuthorityRunDetailOperatorEnricher(
             buyerResults.Add(coverageFindingCarrier);
 
         detail.Results = buyerResults;
+        // Markers omit ResultJson; presence vs Missing is enough for buyer finalize honesty (TB-937 / TB-930).
+        detail.AgentExecutionOutcomes = RequiredAgentExecutionOutcomes.ProjectPresenceMarkers(agentTypeMarkers);
 
         await AppendRetrievalGroundingSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
         await AppendDecisionExplainabilityAsync(detail, cancellationToken).ConfigureAwait(false);

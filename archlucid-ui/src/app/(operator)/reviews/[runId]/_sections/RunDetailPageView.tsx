@@ -47,6 +47,7 @@ import {
   deriveSubmittedArchitectureText,
 } from "@/lib/run-detail-workspace-derive";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { resolvePartialRunCommitBlockedReason } from "@/lib/run-detail-partial-run-commit-block";
 
 import { resolveReviewPackagePrimaryAction } from "./resolve-review-package-primary-action";
 import { ReviewPackagePrimaryAction } from "./ReviewPackagePrimaryAction";
@@ -146,7 +147,7 @@ export function RunDetailPageView(props: {
         }
       : null;
   const findingCoverageSummary = m.resolvedDetail.findingCoverageSummary ?? null;
-  const commitBlockedReason =
+  const findingCoverageCommitBlockedReason =
     findingCoverageSummary?.hasCommitBlockingFailures === true
       ? m.buyerPolishedArtifactTable === true
         ? "Some checks must finish before this review can be finalized."
@@ -156,6 +157,13 @@ export function RunDetailPageView(props: {
               : "one or more required finding engines"
           }.`
       : null;
+  const commitBlockedReason =
+    findingCoverageCommitBlockedReason ??
+    resolvePartialRunCommitBlockedReason({
+      legacyRunStatus: m.resolvedDetail.run.legacyRunStatus ?? null,
+      agentExecutionOutcomes: m.resolvedDetail.agentExecutionOutcomes ?? null,
+      findingCoverageAlreadyBlocking: false,
+    });
 
   const governanceAlertsEl = (
     <GovernanceModePresentationGate>
@@ -543,6 +551,7 @@ export function RunDetailPageView(props: {
                 <RunDetailOperatorTechnicalForensicsPanelDeferred
                   agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
                   results={m.resolvedDetail.results}
+                  agentExecutionOutcomes={m.resolvedDetail.agentExecutionOutcomes}
                   retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
                   run={m.resolvedDetail.run}
                   runDetailTraceId={m.runDetailTraceId}
@@ -931,6 +940,7 @@ export function RunDetailPageView(props: {
             <RunDetailOperatorTechnicalForensicsPanelDeferred
               agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
               results={m.resolvedDetail.results}
+              agentExecutionOutcomes={m.resolvedDetail.agentExecutionOutcomes}
               retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
               run={m.resolvedDetail.run}
               runDetailTraceId={m.runDetailTraceId}

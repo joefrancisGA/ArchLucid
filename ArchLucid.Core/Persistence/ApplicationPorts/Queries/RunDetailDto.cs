@@ -129,6 +129,13 @@ public class RunDetailDto
         set;
     }
 
+    /// <summary>Required-agent outcome matrix for partial-run honesty (TB-937).</summary>
+    public IReadOnlyList<AgentExecutionOutcome> AgentExecutionOutcomes
+    {
+        get;
+        set;
+    } = [];
+
     /// <summary>Summed LLM token usage and USD estimate from persisted execution traces.</summary>
     public RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate
     {

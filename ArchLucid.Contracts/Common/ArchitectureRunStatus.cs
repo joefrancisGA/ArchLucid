@@ -28,5 +28,16 @@ public enum ArchitectureRunStatus
     ///     Execute phase persisted agent outputs, but the post-execute quality gate blocked completion for this workspace;
     ///     results may exist as an advisory draft. Re-run or adjust quality settings.
     /// </summary>
-    ExecutionCompletedQualityRejected = 8
+    ExecutionCompletedQualityRejected = 8,
+
+    /// <summary>
+    ///     Execute finished without a hard orchestrator failure, but one or more required agents are missing,
+    ///     degraded, or empty. Commit/finalize is blocked until the set is complete (TB-937).
+    /// </summary>
+    PartiallyCompleted = 9,
+
+    /// <summary>
+    ///     Execute failed after at least one required agent succeeded. Partial outputs may exist; commit is blocked (TB-937).
+    /// </summary>
+    FailedPartial = 10
 }

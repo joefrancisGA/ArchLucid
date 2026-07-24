@@ -355,7 +355,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 AgentExecutionFailureSummary partialFailure =
                     AgentExecutionFailureSummaryFactory.FromException(partial.BudgetCause);
 
-                await TryMarkRunExecuteFailedAsync(runId, partialFailure, cancellationToken);
+                await TryMarkRunExecuteFailedAsync(runId, partialFailure, partial.CompletedResults, cancellationToken);
 
                 await baselineMutationAudit.RecordAsync(
                     AuditEventTypes.Baseline.Architecture.RunFailed,
@@ -403,7 +403,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 cancellationToken);
 
             await TryPersistEngineProvenanceAsync(runId, evidence, cancellationToken);
-            await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
+            await TryApplyExecuteCompletionLegacyStatusAsync(runId, results, cancellationToken);
             await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, actor, runId, $"ResultCount={results.Count}",
                 cancellationToken);
 
@@ -537,7 +537,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             logger.LogInformation(
                 "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)",
                 LogSanitizer.Sanitize(runId), run.Status, existingResults.Count);
-        await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, existingResults, cancellationToken);
+        await TryApplyExecuteCompletionLegacyStatusAsync(runId, existingResults, cancellationToken);
         return new ExecuteRunResult { RunId = runId, Results = existingResults.ToList() };
     }
 
@@ -569,32 +569,43 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
     }
 
-    private async Task TryPromoteRunLegacyStatusIfAllResultsPresentAsync(string runId, IReadOnlyList<AgentResult> results, CancellationToken cancellationToken)
+    /// <summary>
+    ///     TB-937: after execute, promote to ReadyForCommit only when all required agents are commit-ready;
+    ///     otherwise persist PartiallyCompleted so TasksGenerated cannot be finalized.
+    /// </summary>
+    private async Task TryApplyExecuteCompletionLegacyStatusAsync(
+        string runId,
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken)
     {
-        if (!_runStateTransitionService.HasAllRequiredAgentResults(results))
-            return;
-
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return;
+
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
         if (header is null)
         {
             if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning("Execute: cannot promote run {RunId} — dbo.Runs header missing.", LogSanitizer.Sanitize(runId));
+                logger.LogWarning("Execute: cannot update run {RunId} status — dbo.Runs header missing.", LogSanitizer.Sanitize(runId));
             return;
         }
 
         string previousLegacyRunStatus = header.LegacyRunStatus ?? "";
 
-        if (!_runStateTransitionService.ShouldPromoteLegacyStatusToReadyForCommit(previousLegacyRunStatus))
+        if (string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return;
-        header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
+
+        ArchitectureRunStatus derived = _runStateTransitionService.DeriveStatusAfterExecuteCompletion(results);
+
+        if (derived is ArchitectureRunStatus.ReadyForCommit
+            && !_runStateTransitionService.ShouldPromoteLegacyStatusToReadyForCommit(previousLegacyRunStatus))
+            return;
+
+        header.LegacyRunStatus = derived.ToString();
 
         // TB-310: request-time authority pipeline may have sealed anchors; StructuralExecutionMode is immutable then.
-
-        if (header.GoldenManifestId is null)
+        if (derived is ArchitectureRunStatus.ReadyForCommit && header.GoldenManifestId is null)
         {
             header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
                 _agentExecutionOptions.Value,
@@ -602,6 +613,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
 
         await runRepository.UpdateAsync(header, cancellationToken);
+
+        if (derived is not ArchitectureRunStatus.ReadyForCommit)
+            return;
+
         string actor = actorContext.GetActor();
         AuditEvent legacyReadyForCommitPromoted = new()
         {
@@ -757,7 +772,17 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 
-    private async Task TryMarkRunExecuteFailedAsync(string runId, AgentExecutionFailureSummary summary, CancellationToken cancellationToken)
+    private Task TryMarkRunExecuteFailedAsync(
+        string runId,
+        AgentExecutionFailureSummary summary,
+        CancellationToken cancellationToken) =>
+        TryMarkRunExecuteFailedAsync(runId, summary, completedResults: null, cancellationToken);
+
+    private async Task TryMarkRunExecuteFailedAsync(
+        string runId,
+        AgentExecutionFailureSummary summary,
+        IReadOnlyList<AgentResult>? completedResults,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(summary);
 
@@ -773,12 +798,17 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return;
 
-        header.LegacyRunStatus = nameof(ArchitectureRunStatus.Failed);
+        ArchitectureRunStatus failedStatus = _runStateTransitionService.DeriveStatusAfterExecuteFailure(completedResults);
+        header.LegacyRunStatus = failedStatus.ToString();
         header.CompletedUtc = TimeProvider.System.UtcNowDateTime();
         header.LastFailureReason = AgentExecutionFailureSummaryJson.Serialize(summary);
         await runRepository.UpdateAsync(header, cancellationToken);
-        
-        logger.LogError("Run execution failed for RunId={RunId}. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
+
+        logger.LogError(
+            "Run execution failed for RunId={RunId}. Status={Status}. CorrelationId={CorrelationId}",
+            LogSanitizer.Sanitize(runId),
+            failedStatus,
+            System.Diagnostics.Activity.Current?.Id ?? "unknown");
     }
 
     private async Task TrySeedTechnologyLedgerFromTopologyAsync(

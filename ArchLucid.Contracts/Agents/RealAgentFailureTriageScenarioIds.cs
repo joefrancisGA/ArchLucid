@@ -20,6 +20,9 @@ public static class RealAgentFailureTriageScenarioIds
 
     public const string FallbackToSimulator = "fallbackToSimulator";
 
+    /// <summary>Required agents incomplete or FailedPartial — commit blocked (TB-937).</summary>
+    public const string PartialRequiredAgentsIncomplete = "partialRequiredAgentsIncomplete";
+
     /// <summary>All scenarios required for assessment #23 acceptance (order-stable for docs/CI).</summary>
     public static IReadOnlyList<string> AllRequired { get; } =
     [
@@ -30,5 +33,6 @@ public static class RealAgentFailureTriageScenarioIds
         Timeout,
         BudgetCutoff,
         FallbackToSimulator,
+        PartialRequiredAgentsIncomplete,
     ];
 }

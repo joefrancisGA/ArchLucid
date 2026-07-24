@@ -138,6 +138,24 @@ public static class RealAgentFailureTriageCatalog
                 "docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md",
             ],
         },
+        new RealAgentFailureTriageEntry
+        {
+            ScenarioId = RealAgentFailureTriageScenarioIds.PartialRequiredAgentsIncomplete,
+            Title = "Partial run — required agents incomplete (commit blocked)",
+            FailureClasses = [],
+            OperatorNextSteps =
+            [
+                "Confirm LegacyRunStatus is PartiallyCompleted or FailedPartial (not ReadyForCommit).",
+                "Inspect AgentExecutionOutcomes on run detail / buyer-summary for Missing, Failed, or Degraded required agents.",
+                "Re-execute the run (full execute today; selective re-execute is TB-938) until all required agents succeed.",
+                "Do not finalize or treat the review as buyer-ready while required agents are incomplete.",
+            ],
+            RelatedDocPaths =
+            [
+                "docs/runbooks/AGENT_EXECUTION_FAILURES.md",
+                "docs/library/LLM_RETRY_AND_CIRCUIT_BREAKER.md",
+            ],
+        },
     ];
 
     public static RealAgentFailureTriageEntry? TryGet(string scenarioId)

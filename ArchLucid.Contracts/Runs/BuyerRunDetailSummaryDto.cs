@@ -76,6 +76,13 @@ public sealed class BuyerRunDetailSummaryDto
         set;
     }
 
+    /// <summary>Required-agent outcome matrix for partial-run honesty on buyer summary (TB-937).</summary>
+    public IReadOnlyList<AgentExecutionOutcome> AgentExecutionOutcomes
+    {
+        get;
+        set;
+    } = [];
+
     public RunEstimatedUsdSavingsDto? EstimatedUsdSavingsSummary
     {
         get;

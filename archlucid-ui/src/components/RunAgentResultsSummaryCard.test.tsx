@@ -29,7 +29,31 @@ describe("RunAgentResultsSummaryCard", () => {
     expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("2 evidence refs");
   });
 
-  it("returns null when results are empty", () => {
+  it("prefers outcome matrix when agentExecutionOutcomes are present (TB-937)", () => {
+    render(
+      <RunAgentResultsSummaryCard
+        results={[
+          {
+            resultId: "result-1",
+            taskId: "task-1",
+            runId: "run-1",
+            agentType: "Topology",
+            claims: ["Claim A"],
+          },
+        ]}
+        agentExecutionOutcomes={[
+          { agentType: "Topology", outcome: "Succeeded" },
+          { agentType: "Cost", outcome: "Missing" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("run-agent-execution-outcomes")).toBeInTheDocument();
+    expect(screen.getByTestId("run-agent-outcome-row-Cost")).toHaveTextContent("Missing");
+    expect(screen.queryByTestId("run-agent-result-row-result-1")).not.toBeInTheDocument();
+  });
+
+  it("returns null when results and outcomes are empty", () => {
     const { container } = render(<RunAgentResultsSummaryCard results={[]} />);
 
     expect(container.firstChild).toBeNull();

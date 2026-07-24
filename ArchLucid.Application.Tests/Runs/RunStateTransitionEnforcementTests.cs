@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Runs;
@@ -58,5 +59,61 @@ public sealed class RunStateTransitionEnforcementTests
         act.Should()
             .Throw<ConflictException>()
             .WithMessage($"*'{runId:D}'*is not ready for commit*");
+    }
+
+    [Fact]
+    public void EnsureCommitReadyAgentResults_throws_when_required_agents_incomplete()
+    {
+        RunStateTransitionService transitions = new();
+
+        Action act = () => RunStateTransitionEnforcement.EnsureCommitReadyAgentResults(
+            transitions,
+            "run-partial",
+            [
+                new AgentResult
+                {
+                    ResultId = Guid.NewGuid().ToString("N"),
+                    RunId = "run-partial",
+                    TaskId = "topology",
+                    AgentType = AgentType.Topology,
+                    Claims = ["ok"],
+                },
+            ]);
+
+        act.Should()
+            .Throw<ConflictException>()
+            .WithMessage("*run-partial*Incomplete*Cost:Missing*");
+    }
+
+    [Fact]
+    public void EnsureCommitReadyAgentResults_allows_full_commit_ready_set()
+    {
+        RunStateTransitionService transitions = new();
+        List<AgentResult> results =
+        [
+            CommitReady(AgentType.Topology),
+            CommitReady(AgentType.Cost),
+            CommitReady(AgentType.Compliance),
+            CommitReady(AgentType.Critic),
+        ];
+
+        Action act = () => RunStateTransitionEnforcement.EnsureCommitReadyAgentResults(
+            transitions,
+            "run-ok",
+            results);
+
+        act.Should().NotThrow();
+    }
+
+    private static AgentResult CommitReady(AgentType agentType)
+    {
+        return new AgentResult
+        {
+            ResultId = Guid.NewGuid().ToString("N"),
+            RunId = "run-ok",
+            TaskId = agentType.ToString(),
+            AgentType = agentType,
+            Claims = ["ok"],
+        };
     }
 }

@@ -335,6 +335,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         try
         {
             RunStateTransitionEnforcement.EnsureCommitAllowed(_runStateTransitionService, run, runId);
+            IReadOnlyList<AgentResult> commitGateResults =
+                await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            RunStateTransitionEnforcement.EnsureCommitReadyAgentResults(
+                _runStateTransitionService,
+                runId,
+                commitGateResults);
         }
         catch (ConflictException ex)
         {

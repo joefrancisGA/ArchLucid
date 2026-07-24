@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Core.Runs;
@@ -21,9 +20,19 @@ public interface IRunStateTransitionService
 
     RunStateTransitionCheck ValidateResultSubmissionAllowed(ArchitectureRunStatus status);
 
+    /// <summary>True when each required agent type has exactly one persisted row (may still be degraded/empty).</summary>
     bool HasAllRequiredAgentResults(IReadOnlyList<AgentResult> results);
 
+    /// <summary>True when each required agent has a commit-ready (non-degraded, meaningful) result (TB-937).</summary>
+    bool HasCommitReadyAgentResults(IReadOnlyList<AgentResult> results);
+
     ArchitectureRunStatus DeriveStatusAfterResultSubmission(IReadOnlyList<AgentResult> results);
+
+    /// <summary>Status after an execute attempt completes without a hard orchestrator failure (TB-937).</summary>
+    ArchitectureRunStatus DeriveStatusAfterExecuteCompletion(IReadOnlyList<AgentResult> results);
+
+    /// <summary>Failed vs FailedPartial when execute hard-fails with optional partial outputs (TB-937).</summary>
+    ArchitectureRunStatus DeriveStatusAfterExecuteFailure(IReadOnlyList<AgentResult>? completedResults);
 
     bool IsExecuteIdempotentTerminalStatus(ArchitectureRunStatus status);
 

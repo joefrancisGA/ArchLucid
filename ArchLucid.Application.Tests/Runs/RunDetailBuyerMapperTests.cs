@@ -27,6 +27,7 @@ public sealed class RunDetailBuyerMapperTests
                 CreatedUtc = DateTime.UtcNow,
                 GoldenManifestId = Guid.Parse("11111111-2222-3333-4444-555555555555"),
                 GraphSnapshotId = Guid.Parse("22222222-3333-4444-5555-666666666666"),
+                LegacyRunStatus = "PartiallyCompleted",
             },
             ExecutionFlavorBuyerSummary = "Simulator",
             TrustEvidenceCard = new Contracts.Trust.RunTrustEvidenceCard
@@ -53,6 +54,19 @@ public sealed class RunDetailBuyerMapperTests
                 ],
             },
             Results = [new Contracts.Agents.AgentResult()],
+            AgentExecutionOutcomes =
+            [
+                new Contracts.Agents.AgentExecutionOutcome
+                {
+                    AgentType = Contracts.Common.AgentType.Topology,
+                    Outcome = Contracts.Agents.AgentExecutionOutcomeKind.Succeeded,
+                },
+                new Contracts.Agents.AgentExecutionOutcome
+                {
+                    AgentType = Contracts.Common.AgentType.Cost,
+                    Outcome = Contracts.Agents.AgentExecutionOutcomeKind.Missing,
+                },
+            ],
         };
 
         BuyerRunDetailSummaryDto mapped = RunDetailBuyerMapper.Map(source);
@@ -60,6 +74,8 @@ public sealed class RunDetailBuyerMapperTests
         mapped.Run.RunId.Should().Be(runId);
         mapped.Run.ProjectId.Should().Be("default");
         mapped.Run.ScopeProjectId.Should().Be(scopeProjectId);
+        mapped.Run.LegacyRunStatus.Should().Be("PartiallyCompleted");
+        mapped.AgentExecutionOutcomes.Should().HaveCount(2);
         mapped.ExecutionFlavorBuyerSummary.Should().Be("Simulator");
         mapped.TrustEvidenceCard.Should().NotBeNull();
         mapped.Run.HasGraphSnapshot.Should().BeTrue();

@@ -61,6 +61,7 @@ Use `LastFailureReason` JSON (`failureClass`, optional `triageScenarioId`) on fa
 | `timeout` | `timeout` | Network egress, Polly timeout, regional AOAI latency |
 | `budgetCutoff` | `costBudget` or `quota` | Run cost cap vs tenant token quota; LLM budget command center |
 | `fallbackToSimulator` | (run flag) | `Runs.RealModeFellBackToSimulator=true`; not buyer-safe live-model evidence |
+| `partialRequiredAgentsIncomplete` | (run status) | `PartiallyCompleted` / `FailedPartial`; required agents Missing/Failed/Degraded; commit blocked |
 
 **missingCredentials:** Confirm `AgentExecution:Mode`, run `archlucid config lint --profile production-like-hosted-pilot`, verify `AzureOpenAI:*` and `/health/ready`.
 
@@ -75,6 +76,8 @@ Use `LastFailureReason` JSON (`failureClass`, optional `triageScenarioId`) on fa
 **budgetCutoff:** Distinguish per-run `costBudget` from tenant `quota`; adjust caps deliberately.
 
 **fallbackToSimulator:** See step 2a above; use `--strict-real` in CI; mark proof artifacts HOLD when fallback occurred.
+
+**partialRequiredAgentsIncomplete:** Run detail / buyer-summary expose `AgentExecutionOutcomes` and `LegacyRunStatus` of `PartiallyCompleted` or `FailedPartial`. Finalize and commit stay blocked until every required agent (Topology, Cost, Compliance, Critic) is Succeeded. Re-execute the run; selective re-execute is tracked separately (**TB-938**). Polly retries a single completion call — they do not invent a complete required-agent set.
 
 See also [`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) and [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](GOLDEN_COHORT_REAL_LLM_GATE.md).
 

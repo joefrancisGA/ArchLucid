@@ -17,9 +17,17 @@ import type {
   RunSummary,
 } from "@/types/authority";
 
+type AgentExecutionOutcomeWire = {
+  readonly agentType?: string | null;
+  readonly outcome?: string | null;
+  readonly taskId?: string | null;
+  readonly degradationReasonCode?: string | null;
+};
+
 type RunDetailOperatorTechnicalForensicsPanelProps = {
   readonly agentExecutionLlmCostEstimate: RunAgentExecutionLlmCostEstimate | null | undefined;
   readonly results: readonly RunDetailAgentResult[] | null | undefined;
+  readonly agentExecutionOutcomes?: readonly AgentExecutionOutcomeWire[] | null;
   readonly retrievalGroundingSummary: RunRetrievalGroundingSummary | null | undefined;
   readonly run: RunSummary;
   readonly runDetailTraceId: string | null;
@@ -34,6 +42,7 @@ export function RunDetailOperatorTechnicalForensicsPanel(
       <RunDetailEstimatedLlmCostCardDeferred estimate={props.agentExecutionLlmCostEstimate} />
       <RunDetailAgentResultsSummaryCardDeferred
         results={props.results}
+        agentExecutionOutcomes={props.agentExecutionOutcomes}
         retrievalGroundingSummary={props.retrievalGroundingSummary}
       />
       <RunDetailReviewAgentExecutionLogSectionDeferred results={props.results} />
