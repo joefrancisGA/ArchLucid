@@ -112,7 +112,7 @@
 >
 > If you can only hand your ARB the summary, you have not done the review. You have done the preparation for a conversation about the review.
 >
-> What is the ratio of diagram to decision record in your current review packages?
+> What is the ratio of diagram to decision record in your current architecture packages?
 
 **Format note:** Contrast setup → four-bullet gap analysis → reframe → closing ratio question. 230–260 words.
 
@@ -138,7 +138,7 @@
 >
 > None of those are technically hard. They are architecturally hard — because you have to agree on the format before you can enforce the policy.
 >
-> The teams making progress here are starting with the output format, not the policy catalogue. Define what a defensible review package looks like. Then reverse-engineer the process to produce it consistently.
+> The teams making progress here are starting with the output format, not the policy catalogue. Define what a defensible architecture package looks like. Then reverse-engineer the process to produce it consistently.
 >
 > Where does your governance break down — at policy, at review, or at the implementation layer?
 
@@ -154,7 +154,7 @@
 
 **Excerpt for link post:**
 
-> "The diagram shows the architecture. The review package is supposed to prove it. These are not the same thing — and confusing them is the root cause of most architecture governance failures I have seen."
+> "The diagram shows the architecture. The architecture package is supposed to prove it. These are not the same thing — and confusing them is the root cause of most architecture governance failures I have seen."
 
 ---
 
@@ -228,11 +228,11 @@ This process has three structural problems:
 
 ---
 
-**What a defensible review package actually contains**
+**What a defensible architecture package actually contains**
 
 I have been thinking about this problem from first principles: what does the output of a review need to contain so that someone — an ARB member, an auditor, a successor architect — can understand the decision six months later without talking to the original reviewer?
 
-A defensible review package contains five things:
+A defensible architecture package contains five things:
 
 **1. A versioned manifest.** A structured, machine-readable record of the architecture under review: components, relationships, constraints, and the request it was produced against. Not a diagram — a structured artifact that can be compared to a future version to show what changed and why.
 
@@ -270,7 +270,7 @@ If you are running architecture reviews today, the simplest diagnostic is this: 
 
 If the answer is no, you are not running reviews. You are running approval ceremonies.
 
-The path forward is not to add more meetings or more reviewers. It is to change the output format. Define what a defensible review package looks like. Build the process backward from that output. Then evaluate what tooling actually produces it versus what tooling produces well-formatted opinions.
+The path forward is not to add more meetings or more reviewers. It is to change the output format. Define what a defensible architecture package looks like. Build the process backward from that output. Then evaluate what tooling actually produces it versus what tooling produces well-formatted opinions.
 
 The diagram is the starting point. The evidence is the argument. A review without evidence is just a conversation you had once and cannot replay.
 
@@ -286,7 +286,7 @@ The diagram is the starting point. The evidence is the argument. A review withou
 
 ### Post to accompany the article
 
-> "I published a piece on why architecture diagrams are not architecture evidence — and what a defensible review package actually needs to contain.
+> "I published a piece on why architecture diagrams are not architecture evidence — and what a defensible architecture package actually needs to contain.
 >
 > The short version: most teams produce an executive summary and skip the four things that make it defensible.
 >

@@ -52,11 +52,11 @@
 
 ---
 
-### Scene 3 (2:15–3:15) — Manifest and export
+### Scene 3 (2:15–3:15) — Architecture package and export
 
-**Route:** Review detail → manifest summary and artifacts
+**Route:** Review detail → architecture package summary and artifacts
 
-> "When the operator accepts the package, commit produces a golden manifest: a signed, versioned snapshot of findings, decisions, and artifacts on an append-only audit chain. This is what you hand to your architecture review board — not a chat export.
+> "When the architect accepts the package, Finalize produces an architecture package (API: golden manifest): a signed, versioned snapshot of findings, decisions, and artifacts on an append-only audit chain. This is what you hand to your architecture review board — not a chat export.
 >
 > Artifacts download as Markdown, DOCX, or ZIP. Consulting engagements can whitelabel the DOCX deliverable."
 
@@ -99,7 +99,7 @@
 | "How does the AI know our architecture?" | "It doesn't infer it — you describe the request and attach your evidence. The agents analyze what you provide, not what they imagine." |
 | "What if a finding is wrong?" | "You annotate it, attach counter-evidence, and record the decision. The trace stays in the audit log." |
 | "Is this replacing our architects?" | "No. It removes the manual assembly burden so your senior architects spend time on judgment, not preparation." |
-| "What's the governance piece?" | "Policy packs define what rules apply. Pre-commit gates and approval workflows enforce segregation of duties." |
+| "What's the governance piece?" | "Policy packs define what rules apply. Pre-finalize gates and approval workflows enforce segregation of duties." |
 | "Can we self-host?" | "Yes — Azure-native, Terraform'd infrastructure. For evaluation I can run this as a service so you don't set up first." |
 
 ---
@@ -134,12 +134,12 @@
 
 ## Storyboard (timing)
 
-| Time | Scene | Operator UI route(s) | VO (voiceover, ~300 words total) | Visual |
-|------|--------|----------------------|-----------------------------------|--------|
-| 0:00–0:15 | Opening | Marketing or operator home | "Enterprise architecture review is still slow, inconsistent, and hard to prove. ArchLucid turns governed intake into auditable architecture packages you can diff and replay." | Split: messy wiki slide vs clean manifest table (static slide ok). |
-| 0:15–0:35 | Finished package | `/reviews/claims-intake-modernization` | "Start from a completed package: status, findings, and manifest linkage already on screen — not a blank wizard." | Review detail summary; pipeline complete. |
+| Time | Scene | Architect workspace route(s) | VO (voiceover, ~300 words total) | Visual |
+|------|--------|------------------------------|-----------------------------------|--------|
+| 0:00–0:15 | Opening | Marketing or architect home | "Enterprise architecture review is still slow, inconsistent, and hard to prove. ArchLucid turns governed intake into auditable architecture packages you can diff and replay." | Split: messy wiki slide vs clean architecture package table (static slide ok). |
+| 0:15–0:35 | Finished package | `/reviews/claims-intake-modernization` | "Start from a completed package: status, findings, and architecture package linkage already on screen — not a blank wizard." | Review detail summary; pipeline complete. |
 | 0:35–0:55 | Findings + explainability | Finding panel or finding detail | "Findings carry structured traces — what was checked, which rules applied, and where confidence stops." | Expand explainability fields; optional evidence-gap tag. |
-| 0:55–1:15 | Manifest + export | Review detail → manifest + artifacts | "Commit produces a signed golden manifest and downloadable artifacts — the sponsor-ready package." | Manifest summary + one download row. |
+| 0:55–1:15 | Package + export | Review detail → architecture package + artifacts | "Finalize produces a signed architecture package (API: golden manifest) and downloadable artifacts — the sponsor-ready package." | Package summary + one download row. |
 | 1:15–1:30 | Creation bridge | `/reviews/northwind-copilot-rag-platform` | "Creation follows the same pipeline; here is a Created sample in one click." | **Created** badge; brief. |
 | 1:30–1:45 | Compare (optional) | `/compare` | "Compare two packages for structured deltas when designs iterate." | Reviewed vs created or baseline vs hardened. |
 | 1:45–1:55 | Governance (if enabled) | `/governance` | "Policy packs and approvals enforce segregation of duties when enabled." | Brief queue screen. |

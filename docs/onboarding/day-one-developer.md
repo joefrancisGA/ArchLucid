@@ -138,7 +138,7 @@ The mental model above stops at **create**. The rest of the request's life follo
 
 ```mermaid
 flowchart LR
-  Client[Client / Operator UI]
+  Client[Client / Architect workspace]
   API[API host /v1<br/>ArchLucid.Api]
   SQL[(Azure SQL)]
   Agents[Agent execution]
@@ -154,14 +154,14 @@ flowchart LR
 ```
 
 1. **Authenticate** — API key (`X-Api-Key`) or JWT (Entra), per environment. Scope: `x-tenant-id`, `x-workspace-id`, `x-project-id` (or claims).
-2. **Create run** — covered in the mental model above. For the **operator shell** guided flow (presets → review → pipeline tracking), see [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md).
+2. **Create run** — covered in the mental model above. For the **architect workspace** guided flow (presets → review → pipeline tracking), see [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md).
 3. **Execute authority** — Pipeline stages ingest context, graph, findings, decisioning, artifacts (see traces: `ArchLucid.AuthorityRun` in logs/telemetry).
 4. **Agents** — `AgentExecution:Mode` `Simulator` (deterministic) or `Real` (Azure OpenAI). Token usage and optional per-tenant metrics: [`OPERATIONS_LLM_QUOTA.md`](../library/OPERATIONS_LLM_QUOTA.md).
 5. **Commit** — `POST /v1/architecture/run/{runId}/commit` when the run is ready; handle `409` for invalid state.
 6. **Retrieval** — After commit, indexing work is processed asynchronously; query `GET /v1/retrieval/search` when enabled.
 7. **Ask (optional)** — Threaded Q&A uses the same scope and LLM stack; see Ask controller routes under `/v1/ask`.
 
-**Operator shell tip:** Press **Shift+?** while focus is outside text inputs to open the keyboard shortcuts overlay (global Alt shortcuts, Alerts shortcuts, Escape to close). Full reference: [`archlucid-ui/docs/KEYBOARD_SHORTCUTS.md`](../../archlucid-ui/docs/KEYBOARD_SHORTCUTS.md).
+**Architect workspace tip:** Press **Shift+?** while focus is outside text inputs to open the keyboard shortcuts overlay (global Alt shortcuts, Alerts shortcuts, Escape to close). Full reference: [`archlucid-ui/docs/KEYBOARD_SHORTCUTS.md`](../../archlucid-ui/docs/KEYBOARD_SHORTCUTS.md).
 
 ### Health, ops, and full regression
 
