@@ -33,6 +33,16 @@ last_status=""
 last_body=""
 last_label=""
 
+# Optional auth for ApiKey / JwtBearer nightlies (DevelopmentBypass needs none).
+auth_curl_args=()
+if [ -n "${LIVE_API_KEY:-}" ]; then
+  auth_curl_args+=(-H "X-Api-Key: ${LIVE_API_KEY}")
+elif [ -n "${LIVE_JWT_TOKEN:-}" ]; then
+  auth_curl_args+=(-H "Authorization: Bearer ${LIVE_JWT_TOKEN}")
+elif [ -n "${ARCHLUCID_PROXY_BEARER_TOKEN:-}" ]; then
+  auth_curl_args+=(-H "Authorization: Bearer ${ARCHLUCID_PROXY_BEARER_TOKEN}")
+fi
+
 probe_pilot_run_deltas() {
   local label="$1"
   local run_id="$2"
@@ -47,7 +57,8 @@ probe_pilot_run_deltas() {
       -H "Accept: application/json" \
       -H "x-tenant-id: ${TENANT_ID}" \
       -H "x-workspace-id: ${workspace_id}" \
-      -H "x-project-id: ${project_id}" || true
+      -H "x-project-id: ${project_id}" \
+      "${auth_curl_args[@]}" || true
   )"
   last_body="$(head -c 500 "${body_file}" 2>/dev/null || true)"
   rm -f "${body_file}"
@@ -67,7 +78,8 @@ probe_authority_run_detail() {
       -H "Accept: application/json" \
       -H "x-tenant-id: ${TENANT_ID}" \
       -H "x-workspace-id: ${workspace_id}" \
-      -H "x-project-id: ${project_id}" || true
+      -H "x-project-id: ${project_id}" \
+      "${auth_curl_args[@]}" || true
   )"
   last_body="$(head -c 500 "${body_file}" 2>/dev/null || true)"
   rm -f "${body_file}"

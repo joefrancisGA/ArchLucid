@@ -214,6 +214,17 @@ async function expectNoCriticalOrSeriousAxeViolations(page: Page, path: string) 
   await page.goto(path, { waitUntil: "domcontentloaded" });
   await page.locator("main").first().waitFor({ state: "visible", timeout: 90_000 });
 
+  // Demo tenants can re-apply dark after hydration; re-pin light before the axe snapshot.
+  await page.evaluate(() => {
+    try {
+      window.localStorage.setItem("archlucid_color_mode", "light");
+    } catch {
+      /* ignore */
+    }
+
+    document.documentElement.classList.remove("dark");
+  });
+
   const results = await runAxe(page, { disableRules: axeLiveE2eDisableRuleIdsNow() });
   const critical = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
 

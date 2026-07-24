@@ -10,6 +10,8 @@ export type ReviewLabelTokenInputProps = {
   onChange: (labels: string[]) => void;
   disabled?: boolean;
   describedById?: string;
+  /** Stable input id so a parent `<label htmlFor>` can associate (axe label rules). */
+  inputId?: string;
 };
 
 function commitToken(raw: string, labels: string[], onChange: (labels: string[]) => void): void {
@@ -34,8 +36,10 @@ export function ReviewLabelTokenInput({
   onChange,
   disabled = false,
   describedById,
+  inputId: inputIdProp,
 }: ReviewLabelTokenInputProps) {
-  const inputId = useId();
+  const generatedInputId = useId();
+  const inputId = inputIdProp ?? generatedInputId;
   const [draft, setDraft] = useState("");
 
   function onDraftKeyDown(event: KeyboardEvent<HTMLInputElement>) {

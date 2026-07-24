@@ -158,7 +158,7 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
       <form onSubmit={(event) => void onSubmit(event)} className="mt-3 grid gap-4">
         <div className="grid gap-1.5">
           <Label htmlFor="advisory-schedule-name">
-            Schedule name <span className="font-normal text-neutral-500">(optional)</span>
+            Schedule name <span className="font-normal text-neutral-500 dark:text-neutral-400">(optional)</span>
           </Label>
           <Input
             id="advisory-schedule-name"

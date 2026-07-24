@@ -104,7 +104,7 @@ export function QuickScanForm({ values, fieldErrors, disabled = false, onChange 
       {values.primaryEnvironment === "Other" ? (
         <div className="space-y-2">
           <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="quick-scan-environment-other">
-            Other environment <span className="text-neutral-500">(optional)</span>
+            Other environment <span className="text-neutral-500 dark:text-neutral-400">(optional)</span>
           </label>
           <input
             id="quick-scan-environment-other"

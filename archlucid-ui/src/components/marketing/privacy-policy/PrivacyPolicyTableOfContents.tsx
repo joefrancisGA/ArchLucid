@@ -147,6 +147,7 @@ export function PrivacyPolicyTableOfContents(props: PrivacyPolicyTableOfContents
   return (
     <nav
       aria-label="On this page (desktop)"
+      tabIndex={0}
       className={cn(PRIVACY_POLICY_TOC.nav, "hidden xl:block")}
       data-testid="privacy-policy-toc"
     >

@@ -173,7 +173,7 @@ export function AlertRulesContent() {
       <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {ALERT_RULES_CONDITIONS_PAGE_LEAD}
       </p>
-      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {ALERT_RULES_CONDITIONS_FINDINGS_HELPER}
       </p>
 

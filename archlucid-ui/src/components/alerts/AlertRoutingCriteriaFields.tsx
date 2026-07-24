@@ -90,6 +90,7 @@ export function AlertRoutingCriteriaFields({
   const [showAdvancedCategories, setShowAdvancedCategories] = useState(false);
   const [showExactSeverities, setShowExactSeverities] = useState(criteria.severities.length > 0);
   const reviewLabelsHelperId = useId();
+  const reviewLabelsInputId = useId();
 
   return (
     <div className="space-y-5">
@@ -223,7 +224,7 @@ export function AlertRoutingCriteriaFields({
 
         <div>
           <label
-            htmlFor={reviewLabelsHelperId}
+            htmlFor={reviewLabelsInputId}
             className={cn("mb-1 block font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
           >
             Only notify for reviews with these labels
@@ -238,6 +239,7 @@ export function AlertRoutingCriteriaFields({
             onChange={(tags) => onChange({ ...criteria, tags })}
             disabled={disabled}
             describedById={reviewLabelsHelperId}
+            inputId={reviewLabelsInputId}
           />
         </div>
       </fieldset>

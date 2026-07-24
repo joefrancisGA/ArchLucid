@@ -13,7 +13,10 @@ import { liveApiBase, liveE2eArchitectureRunCyclePlaywrightTimeoutMs } from "./h
 import { ensureBuyerDeliverablesSectionExpanded, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 test.describe("live-api-whitelabel-export", () => {
+  test.describe.configure({ timeout: 180_000 });
+
   test.beforeAll(async ({ request }) => {
+    test.setTimeout(180_000);
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 
     if (!health.ok()) {

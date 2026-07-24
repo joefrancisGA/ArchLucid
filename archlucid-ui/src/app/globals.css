@@ -66,7 +66,8 @@ html {
   --al-accent-link-hover: #99f6e4;
   --al-text-primary: #f5f5f5;
   --al-text-secondary: #a3a3a3;
-  --al-text-placeholder: #737373;
+  /* Keep ≥4.5:1 on --al-surface-base (#0a0a0a); #737373 fails WCAG AA at body size. */
+  --al-text-placeholder: #a3a3a3;
   --al-text-disabled: #525252;
   --al-status-ready-bg: #052e16;
   --al-status-ready-fg: #a7f3d0;

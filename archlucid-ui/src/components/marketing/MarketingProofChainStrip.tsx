@@ -32,7 +32,7 @@ export function MarketingProofChainStrip(): ReactElement {
               {`${index + 1}. ${step}`}
             </span>
             {index < PROOF_CHAIN_STEPS.length - 1 ? (
-              <span className={cn("font-medium text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)} aria-hidden>
+              <span className={cn("font-medium text-neutral-400 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} aria-hidden>
                 →
               </span>
             ) : null}

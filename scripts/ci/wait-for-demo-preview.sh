@@ -27,6 +27,17 @@ last_seed_code=""
 last_preview_code=""
 last_preview_body=""
 
+# Optional auth for ApiKey / JwtBearer nightlies (DevelopmentBypass needs none).
+# Env: LIVE_API_KEY or LIVE_JWT_TOKEN / ARCHLUCID_PROXY_BEARER_TOKEN
+auth_curl_args=()
+if [ -n "${LIVE_API_KEY:-}" ]; then
+  auth_curl_args+=(-H "X-Api-Key: ${LIVE_API_KEY}")
+elif [ -n "${LIVE_JWT_TOKEN:-}" ]; then
+  auth_curl_args+=(-H "Authorization: Bearer ${LIVE_JWT_TOKEN}")
+elif [ -n "${ARCHLUCID_PROXY_BEARER_TOKEN:-}" ]; then
+  auth_curl_args+=(-H "Authorization: Bearer ${ARCHLUCID_PROXY_BEARER_TOKEN}")
+fi
+
 post_demo_seed() {
   local body_file
   body_file="$(mktemp)"
@@ -35,6 +46,7 @@ post_demo_seed() {
       -X POST "${API_URL}/v1/demo/seed" \
       -H "Accept: application/json" \
       -H "Content-Type: application/json" \
+      "${auth_curl_args[@]}" \
       -d '{}' || true
   )"
   if [ "${last_seed_code}" != "204" ] && [ "${last_seed_code}" != "200" ]; then
@@ -49,7 +61,8 @@ probe_demo_preview() {
   last_preview_code="$(
     curl -sS -o "${body_file}" -w "%{http_code}" \
       "${API_URL}/v1/demo/preview" \
-      -H "Accept: application/json" || true
+      -H "Accept: application/json" \
+      "${auth_curl_args[@]}" || true
   )"
   last_preview_body="$(head -c 500 "${body_file}" 2>/dev/null || true)"
   rm -f "${body_file}"

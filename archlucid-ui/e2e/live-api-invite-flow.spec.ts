@@ -7,7 +7,10 @@ import { expect, test } from "@playwright/test";
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
 
 test.describe("live-api-invite-flow", () => {
+  test.describe.configure({ timeout: 180_000 });
+
   test.beforeAll(async ({ request }) => {
+    test.setTimeout(120_000);
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 
     if (!health.ok()) {

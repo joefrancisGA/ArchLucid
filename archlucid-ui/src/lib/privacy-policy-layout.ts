@@ -77,7 +77,8 @@ export const PRIVACY_POLICY_PROSE = {
   paragraph: cn("my-4 max-w-prose leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
   bulletList: cn("my-4 max-w-prose list-disc space-y-2 pl-6 leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
   orderedList: cn("my-4 max-w-prose list-decimal space-y-2 pl-6 leading-7", MARKETING_TYPOGRAPHY.body, "text-[1.0625rem]"),
-  tableWrap: "my-6 -mx-1 overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
+  tableWrap:
+    "my-6 -mx-1 overflow-x-auto rounded-md border border-neutral-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-800",
   table: cn("w-full min-w-[36rem] border-collapse text-left", MARKETING_TYPOGRAPHY.body),
   tableHeadCell:
     "border-b border-neutral-200 bg-neutral-100 px-4 py-3 font-semibold text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900",

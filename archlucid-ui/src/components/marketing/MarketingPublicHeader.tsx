@@ -58,6 +58,7 @@ export function MarketingPublicHeader(props: MarketingPublicHeaderProps): React.
           {focusAuth ? null : (
             <nav
               aria-label="Marketing"
+              tabIndex={0}
               className="-mx-1 flex min-w-0 flex-1 flex-nowrap items-center gap-0.5 overflow-x-auto px-1 sm:flex-wrap sm:gap-1 sm:overflow-visible sm:pb-0 sm:pe-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               <span className="sr-only">Product pages:</span>

@@ -462,7 +462,17 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       const dataStart = isTableDivider(bodyRows[1] ?? "") ? 2 : 1;
 
       blocks.push(
-        <div key={`tbl-${key}`} className={isPrivacy ? PRIVACY_POLICY_PROSE.tableWrap : isHelp ? HELP_PAGE_LAYOUT.tableWrap : "my-4 overflow-x-auto"}>
+        <div
+          key={`tbl-${key}`}
+          className={isPrivacy ? PRIVACY_POLICY_PROSE.tableWrap : isHelp ? HELP_PAGE_LAYOUT.tableWrap : "my-4 overflow-x-auto"}
+          {...(isPrivacy
+            ? {
+                tabIndex: 0 as const,
+                role: "region" as const,
+                "aria-label": "Scrollable comparison table",
+              }
+            : {})}
+        >
           <table
             className={
               isPrivacy
