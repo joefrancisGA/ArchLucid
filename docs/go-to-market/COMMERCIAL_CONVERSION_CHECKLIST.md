@@ -6,14 +6,14 @@
 
 ## Conversion rule
 
-Do not ask for annual conversion from a vague demo. Ask after the buyer can point to one defensible architecture review package built from their evidence or an explicitly accepted demo workspace.
+Do not ask for annual conversion from a vague demo. Ask after the buyer can point to one defensible architecture package built from their evidence or an explicitly accepted demo workspace.
 
 ## 1. Inputs confirmed before sponsor send
 
 | Input | Required evidence | Owner |
 | --- | --- | --- |
 | Buyer evidence source | Tier 1 Azure extractor ZIP, uploaded evidence, or explicit demo-workspace acceptance | Buyer + ArchLucid |
-| Committed review | `runId`, manifest id, and committed timestamp in the first-pilot evidence bundle | ArchLucid |
+| Finalized review | `runId`, architecture package id, and finalize timestamp in the first-pilot evidence bundle | ArchLucid |
 | ROI baseline | Review-cycle hours, architect prep hours, and evidence assembly effort, or `not collected` labels | Buyer |
 | Quality posture | PilotStrict sponsor-evidence disposition or documented quality-gate caveat | ArchLucid |
 | Proof package | `go-no-go-summary.md`, `first-value-report.md`, `pilot-observability-summary.md`, and sponsor proof ZIP | ArchLucid |

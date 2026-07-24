@@ -59,7 +59,7 @@ Use after a committed review. Each row is PASS / WARN / HOLD / DEFERRED_SCOPE; d
 
 | Check | PASS when | HOLD when |
 | --- | --- | --- |
-| Run committed | `run-evidence.json` shows committed manifest and status | Run is in progress or commit failed |
+| Run finalized | `run-evidence.json` shows finalized architecture package and status | Run is in progress or finalize/`commit` failed |
 | Proof disposition | `quote-to-proof-readiness.json` is `PASS` | `HOLD` or demo tenant warning |
 | ROI source basis | `roiBasisStatus: classified` for dollar claims | Missing, synthetic, or stale source |
 | Redaction manifest | `redaction-manifest.json` is `PASS` | `NOT_APPLIED`; do not send externally |

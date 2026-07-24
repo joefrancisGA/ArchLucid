@@ -54,8 +54,8 @@ Adjust entry if you prefer the home dashboard at `http://localhost:3000/` — st
 
 ## What you are seeing
 
-- **Architecture Proof Engine** — A multi-agent pipeline produces structured findings and a versioned golden manifest on **architecture packages** (reviewed or created); in simulator mode, agents run without calling cloud LLMs.
-- **Governance and audit** — Policy packs, optional pre-commit gates, and durable audit patterns match [POSITIONING.md](POSITIONING.md) and [PRODUCT_DATASHEET.md](PRODUCT_DATASHEET.md).
+- **Architecture Proof Engine** — A multi-agent pipeline produces structured findings and a versioned architecture package (reviewed or created); in simulator mode, agents run without calling cloud LLMs.
+- **Governance and audit** — Policy packs, optional pre-finalize gates, and durable audit patterns match [POSITIONING.md](POSITIONING.md) and [PRODUCT_DATASHEET.md](PRODUCT_DATASHEET.md).
 - **Explainability** — Findings carry traces suitable for review and audit narratives.
 
 For full capability claims, use [V1_SCOPE.md](../library/V1_SCOPE.md) and the [Product datasheet](PRODUCT_DATASHEET.md).

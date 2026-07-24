@@ -23,5 +23,5 @@ The in-app glossary at `/help/glossary` is the customer-facing reference. Contri
 | **Audit trail** | The persisted, replayable ledger of authenticated actions across **reviews**, merges, approvals, retention, notifications, exports, and integrations — narrower than informal logging; wider than SIEM payloads alone. Audit trail retention norms are posture-specific. |
 | **Tenant** | The top-level customer boundary for data isolation. In typical SaaS posture, one tenant is one customer organization unless the contract defines otherwise. |
 | **Workspace** | A collaboration boundary under a tenant (team, program, or environment). |
-| **Policy pack** | A versioned bundle of rules, thresholds, and governance mappings applied to **reviews** (compliance, finding treatment, pre-commit gates). Packs are assigned, published, and audited — not informal one-off prose. |
+| **Policy pack** | A versioned bundle of rules, thresholds, and governance mappings applied to **reviews** (compliance, finding treatment, pre-finalize gates). Packs are assigned, published, and audited — not informal one-off prose. |
 | **Deliverable** | An exportable artifact aimed at a specific audience (executive summary, architecture board packet, security appendix, diligence bundle). Distinct from a raw **finding** row: deliverables are packaged outputs. |

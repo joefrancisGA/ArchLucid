@@ -159,7 +159,7 @@ For **Workspace A**, align headers (or JWT claims interpreted the same way) to:
 | `x-workspace-id` | `2b2571e1-1884-62a2-1e8b-15a2a70a0342` |
 | `x-project-id` | `9beb918c-83d4-1385-0486-21f341806c5c` |
 
-Local operators can pick **Product Tour — Architecture Review** in the Scope Switcher (`archlucid-ui`); integrations should set the triple explicitly.
+Local architects can pick **Product Tour — Architecture Review** in the Scope Switcher (`archlucid-ui`); integrations should set the triple explicitly.
 
 Unit coverage: **`DemoTourWorkspaceIdsParityTests`** must match **`DemoWorkspaceStableIds`** literals so marketing anchors never drift silently.
 

@@ -46,7 +46,7 @@ Copy into your wiki; **remove** rows you do not need.
 
 | Area | Target (qualitative or numeric) |
 |------|----------------------------------|
-| Speed — time to committed manifest | |
+| Speed — time to finalized architecture package | |
 | Artifact readiness | |
 | Traceability / evidence | |
 | Stakeholder confidence | |

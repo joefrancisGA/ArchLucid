@@ -18,7 +18,7 @@
 | **"Agreement"** | This MSA together with all Order Forms, DPA, SLA, and policies incorporated by reference. |
 | **"Customer"** | The legal entity identified in the Order Form. |
 | **"Vendor"** | [ArchLucid vendor legal entity]. |
-| **"Services"** | The ArchLucid cloud platform, including API, operator UI, agent pipeline, and related hosted functionality, as described in the applicable Order Form. |
+| **"Services"** | The ArchLucid cloud platform, including API, architect workspace, agent pipeline, and related hosted functionality, as described in the applicable Order Form. |
 | **"Order Form"** | A mutually executed document referencing this MSA that specifies tier, seats, workspaces, term, and fees. See [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md). |
 | **"Customer Data"** | Any data, content, or materials submitted by Customer or its Authorized Users to the Services, including architecture briefs, run outputs, manifests, findings, and configuration. |
 | **"Authorized Users"** | Individuals whom Customer permits to access the Services under Customer's account, identified by named architect seats in the Order Form. |

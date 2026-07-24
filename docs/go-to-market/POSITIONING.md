@@ -58,13 +58,13 @@ Use these where the buyer is evaluating **a review and report**, not self-serve 
 **Differentiator language — "audit chain / signed manifest":** These are the two terms to use verbatim with skeptical buyers (sponsors, auditors, procurement) when a prospect asks "what stops this from being just AI output." They are shorthand for two shipped, distinct proof points and should not be blended into one claim:
 
 - **Audit chain** — the evidence → finding → decision → manifest linkage: `ExplainabilityTrace` (what was examined, which rules applied, what was concluded) plus the append-only `dbo.AuditEvents` trail (78 typed events, `DENY UPDATE/DELETE`). This is the **replayable reasoning and decision trail**, not a cryptographic ledger claim.
-- **Signed manifest** — the committed **golden manifest** is content-hash-anchored (`ManifestHash` via `IManifestHashService`), versioned, and immutable once committed. "Signed" here means **hash-verified and tamper-evident at the manifest level**, not a PKI/digital-signature certificate — do not imply the latter to a security-diligence buyer.
+- **Signed architecture package** — the finalized **architecture package** (API: golden manifest) is content-hash-anchored (`ManifestHash` via `IManifestHashService`), versioned, and immutable once finalized. "Signed" here means **hash-verified and tamper-evident at the package/manifest level**, not a PKI/digital-signature certificate — do not imply the latter to a security-diligence buyer.
 
 Use both terms together ("a signed manifest backed by a full audit chain") when the buyer's objection is "how do I know this wasn't just made up" — see [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) for the comparison table and [`M-08` in `GTM_BACKLOG.md`](GTM_BACKLOG.md) for the copy-alignment task this section satisfies.
 
 **Live deep link in the staging funnel:**
 
-The unauthenticated proof route **`/demo/explain`** (operator shell) renders the **provenance graph and the citations-bound aggregate explanation side-by-side**, sourced from the seeded Contoso Retail Modernization **review**. When **`Demo:Enabled`** is false, hosts return **`404`** for this route (demo surfaces do not leak to production). Sponsors and pilot evaluators can hit the staging URL directly:
+The unauthenticated proof route **`/demo/explain`** (architect workspace / marketing surface) renders the **provenance graph and the citations-bound aggregate explanation side-by-side**, sourced from the seeded Contoso Retail Modernization **review**. When **`Demo:Enabled`** is false, hosts return **`404`** for this route (demo surfaces do not leak to production). Sponsors and pilot evaluators can hit the staging URL directly:
 
 - Staging deep link: `https://staging.archlucid.example.com/demo/explain` (replace host with the active staging deployment)
 - Backing API: **`GET /v1/demo/explain`** — same demo-tenant scope as other anonymous demo reads; response includes **`IsDemoData=true`** and a **demo tenant — replace before publishing** banner so screenshots are not quoted as production telemetry
@@ -75,12 +75,12 @@ The unauthenticated proof route **`/demo/explain`** (operator shell) renders the
 *See the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#3-core-value-pillars) for details on Enterprise governance.*
 
 **Proof points:**
-- Pre-commit governance gate with configurable severity thresholds and warning-only mode
+- Pre-finalize governance gate with configurable severity thresholds and warning-only mode
 - Approval workflow with segregation of duties (self-approval blocked, ordinal case-insensitive)
 - Approval SLA tracking with `SlaDeadlineUtc` and webhook escalation on breach
 - 78 typed audit event constants with CI guard, append-only enforcement (`DENY UPDATE/DELETE`)
 - Policy packs with versioning, scope assignments, effective governance resolution
-- Compliance drift trend tracking with operator UI chart
+- Compliance drift trend tracking with architect workspace chart
 
 ---
 
@@ -94,7 +94,7 @@ The unauthenticated proof route **`/demo/explain`** (operator shell) renders the
 
 These are factual claims grounded in what the repository ships today.
 
-> **See it live, not on a slide:** the operator shell ships a built-in proof page at **`/why-archlucid`** (Core Pilot tier, no extra authority required). It calls `GET /v1/pilots/why-archlucid-snapshot`, `GET /v1/pilots/runs/{runId}/first-value-report`, and `GET /v1/explain/runs/{runId}/aggregate` against the seeded **Contoso Retail Modernization** demo tenant and renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the **review** explanation + citations. Every claim in the table below should reconcile against what shows on that page after `pilot up` (or `POST /v1/demo/seed`).
+> **See it live, not on a slide:** the architect workspace ships a built-in proof page at **`/why-archlucid`** (Core Pilot tier, no extra authority required). It calls `GET /v1/pilots/why-archlucid-snapshot`, `GET /v1/pilots/runs/{runId}/first-value-report`, and `GET /v1/explain/runs/{runId}/aggregate` against the seeded **Contoso Retail Modernization** demo tenant and renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the **review** explanation + citations. Every claim in the table below should reconcile against what shows on that page after `pilot up` (or `POST /v1/demo/seed`).
 
 > **Anonymous buyer self-qualification:** the public marketing site page **`/why`** links to **`GET /v1/marketing/why-archlucid-pack.pdf`** (via Next.js `/api/proxy/...`), which returns a single PDF sourced only from the same cached anonymous demo bundle as `GET /v1/demo/preview` — deterministic, no tenant data, and **404** (not 403) when `Demo:Enabled` is false. The PDF repeats the incumbent comparison with every competitive cell tied to `docs/go-to-market/COMPETITIVE_LANDSCAPE.md` §2.1.
 
@@ -105,16 +105,16 @@ These are factual claims grounded in what the repository ships today.
 | Explainability trace on every finding | `ExplainabilityTrace`: `GraphNodeIdsExamined`, `RulesApplied`, `DecisionsTaken`, `AlternativePathsConsidered`, `Notes` |
 | 78 typed audit event constants | `dbo.AuditEvents`, CI guard on count, append-only enforcement |
 | Governance workflow with segregation of duties | `GovernanceApprovalRequests`, self-approval blocked with `GovernanceSelfApprovalException` |
-| Pre-commit governance gate | `PreCommitGovernanceGate` with `BlockCommitMinimumSeverity` and warning-only mode |
+| Pre-finalize governance gate | `PreCommitGovernanceGate` with `BlockCommitMinimumSeverity` and warning-only mode (API still says pre-commit) |
 | Approval SLA with escalation | `ApprovalSlaMonitor`, `SlaDeadlineUtc`, HMAC-signed webhook notifications |
 | Provenance graph | `ProvenanceBuilder`, `ProvenanceNode`, `ProvenanceEdge`, `ProvenanceCompletenessAnalyzer` |
-| Signed, hash-verified golden manifest | `IManifestHashService`, `ManifestHash` computed and persisted on commit ([`SqlGoldenManifestRepository`](../../ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.cs)); immutable once committed |
+| Signed, hash-verified architecture package | `IManifestHashService`, `ManifestHash` computed and persisted on finalize/`commit` ([`SqlGoldenManifestRepository`](../../ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.cs)); immutable once finalized |
 | Two-**review** comparison with drift detection | Structured golden-manifest deltas, comparison replay with verify mode (422 on drift) |
 | Multi-vendor LLM with fallback | `ILlmProvider`, `LlmProviderDescriptor`, `FallbackAgentCompletionClient` |
 | 30+ custom OTel metrics | `ArchLucidInstrumentation`, histograms/counters/gauges |
 | Grafana dashboards committed in repo | Authority, SLO, LLM usage, container apps, **review** lifecycle dashboards |
 | Policy packs with effective governance | `PolicyPackContentDocument`, scope assignments, `IEffectiveGovernanceResolver` |
-| Compliance drift trend | `ComplianceDriftTrendService`, `ComplianceDriftChart` in operator UI |
+| Compliance drift trend | `ComplianceDriftTrendService`, `ComplianceDriftChart` in architect workspace |
 | DOCX export with embedded diagrams | Consulting-grade report via `IDocxExportService`, Mermaid → PNG rendering |
 | CLI for automation | `archlucid new`, `run`, `status`, `commit`, `artifacts`, `doctor`, `support-bundle`, `trace` |
 | Enterprise auth (Entra ID + RBAC) | JwtBearer, API key, Admin/Operator/Reader/Auditor roles, `AuthSafetyGuard` |
@@ -189,7 +189,7 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | Highlight the **executive summary export** — this is what gets budget approved | Position governance workflow as the first selling point (it is the second sale) |
 | Position as **complementary** to existing EA tools (LeanIX, Ardoq), not a replacement | Position as a **replacement** for existing EA tools — different category |
 | Be honest about V1 limitations (Azure-only, no import connectors yet) | Imply multi-cloud support or integrations that do not exist |
-| Reference the **audit chain / signed manifest** for skeptical buyers: "every finding traces to evidence, and the committed manifest is hash-verified" | Lead with "AI" alone — every tool claims AI now; do not call the manifest "cryptographically signed" or imply a PKI certificate |
+| Reference the **audit chain / signed architecture package** for skeptical buyers: "every finding traces to evidence, and the finalized package is hash-verified" | Lead with "AI" alone — every tool claims AI now; do not call the package "cryptographically signed" or imply a PKI certificate |
 | Frame **architecture evidence and review governance** (decisions, risks, traceability) | Headline as **standalone "AI governance platform"** — crowded category; we complement GRC, not replace it |
 | Describe default packs as **inputs to architecture review** (mapping / findings) | Imply **certification** or full EU AI Act / ISO 42001 program coverage from starter packs |
 

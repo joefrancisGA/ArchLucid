@@ -66,7 +66,7 @@ This narrative answers: *"Has anyone paid without a bespoke pilot?"* Keep claims
 
 Concrete details:
 
-- Time from signup to **first committed manifest** (cite `<<MINUTES_OR_HOURS>>` from audit / metrics).
+- Time from signup to **first finalized architecture package** (cite `<<MINUTES_OR_HOURS>>` from audit / metrics).
 - Whether they used **Docker pilot** vs **hosted SaaS trial** (pick one primary story).
 - Integrations actually wired (`<<INTEGRATIONS>>`).
 
@@ -76,7 +76,7 @@ Concrete details:
 
 | Metric | Before (trial baseline) | After (paid) | Source |
 |--------|-------------------------|--------------|--------|
-| Time to first committed manifest | `<<BEFORE_TTFV>>` | `<<AFTER_TTFV>>` | `<<TTFV_SOURCE>>` |
+| Time to first finalized architecture package | `<<BEFORE_TTFV>>` | `<<AFTER_TTFV>>` | `<<TTFV_SOURCE>>` |
 | Hours per architecture review cycle | `<<BEFORE_HOURS>>` | `<<AFTER_HOURS>>` | `<<HOURS_SOURCE>>` |
 
 Anchor metrics to [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md) definitions where possible.

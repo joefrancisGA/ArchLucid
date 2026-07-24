@@ -6,7 +6,7 @@ Work through the questions in order.
 
 ## Decision tree
 
-**Q1.** Does your team produce architecture review packages for stakeholders?
+**Q1.** Does your team produce architecture packages for stakeholders?
 
 - **No** → ArchLucid may not be a fit today. See [go-to-market/NOT_A_FIT.md](NOT_A_FIT.md).
 - **Yes** → Continue.

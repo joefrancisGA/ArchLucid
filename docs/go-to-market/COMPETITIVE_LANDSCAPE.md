@@ -82,7 +82,7 @@ ArchLucid operates at the intersection of two established markets and one emergi
 | **Policy packs** | Versioned policy documents with scope assignments. Effective governance resolution (tenant → workspace → project precedence). Coverage engines. Applicability engines. |
 | **Enterprise security** | Entra ID JWT, API key, RBAC (Admin/Operator/Reader/Auditor). **Database-per-tenant** catalog isolation per ADR 0037 (SQL RLS is not the production boundary). Private endpoints for SQL and blob. WAF via Front Door. STRIDE threat model. OWASP ZAP and Schemathesis in CI. |
 | **Export and reporting** | Markdown, DOCX (consulting-grade with embedded diagrams), ZIP bundles. Replay from persisted export records. |
-| **Knowledge graph** | Typed nodes and edges from context snapshots. Edge inference. Multiple visualization modes in operator UI. |
+| **Knowledge graph** | Typed nodes and edges from context snapshots. Edge inference. Multiple visualization modes in architect workspace. |
 | **Observability** | 30+ custom OTel metrics. 8 activity sources. Grafana dashboards committed in repo. Business KPI narratives use **reviews** as the product term; OTel counter names may still use `runs` / `runId`-aligned label names where wired to persistence — verify names in host instrumentation before correlating dashboards. |
 
 ---
@@ -108,7 +108,7 @@ ArchLucid operates at the intersection of two established markets and one emergi
 | ArchLucid does better | AWS WAT does better |
 |-----------------------|---------------------|
 | **Depth of analysis:** AI agents analyze topology, cost, compliance, and produce structured findings with traces. WAT is a questionnaire with pillar-based scoring. | **Zero friction:** Free, built into the AWS Console, no deployment required. ArchLucid requires infrastructure setup. |
-| **Governance and audit:** Full governance workflow, pre-commit gates, durable audit. WAT has milestone tracking only. | **AWS-native integration:** Direct access to AWS resources, cost data, and service catalog. ArchLucid is Azure-native and cannot analyze AWS architectures in V1. |
+| **Governance and audit:** Full governance workflow, pre-finalize gates, durable audit. WAT has milestone tracking only. | **AWS-native integration:** Direct access to AWS resources, cost data, and service catalog. ArchLucid is Azure-native and cannot analyze AWS architectures in V1. |
 
 ### 4.4 ArchLucid vs. ChatGPT / Copilot (ad-hoc)
 
