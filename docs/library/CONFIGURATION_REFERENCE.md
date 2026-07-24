@@ -250,7 +250,7 @@ For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](..
 | Auth | `Auth:Trial:LocalIdentity:JwtIssuer` | appsettings, env | empty | Optional (When local IdP) | All (Api, Worker, Combined) | Local JWT issuer string. |
 | Auth | `Auth:Trial:LocalIdentity:JwtAudience` | appsettings, env | empty | Optional (When local IdP) | All (Api, Worker, Combined) | Local JWT audience. |
 | Auth | `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes` | appsettings, env | 60 | Optional (not mode-gated) | All (Api, Worker, Combined) | Access token TTL for local auth. |
-| Auth | `Auth:PublicSignup:Mode` | appsettings, env | `InviteOnly` | Required — public signup posture | Api, Combined | `InviteOnly` (default) returns 404 on `POST /v1/register` and blocks self-service workspace create without invitation; `PublicSelfService` enables open signup. UI mirror: `NEXT_PUBLIC_PUBLIC_SIGNUP_MODE`. |
+| Auth | `Auth:PublicSignup:Mode` | appsettings, env | `InviteOnly` | Required — public signup posture | Api, Combined | `InviteOnly` (base/production default) returns 404 on `POST /v1/register` and blocks self-service workspace create without invitation; `PublicSelfService` enables open signup. **`appsettings.Development.json`** sets `PublicSelfService` for local + live E2E trial DX. UI mirror: `NEXT_PUBLIC_PUBLIC_SIGNUP_MODE`. |
 | Auth | `Auth:SelfServiceAbuse:Enabled` | appsettings, env | true | Optional (When public signup) | Api, Combined | Enables anti-farm evaluation on registration and post-auth workspace create. |
 | Auth | `Auth:SelfServiceAbuse:MaxTrialsPerEmailLifetime` | appsettings, env | 1 | Optional (When public signup) | Api, Combined | Maximum self-service trial claims per normalized email (invitation bypasses). |
 | Auth | `Auth:SelfServiceAbuse:MaxTrialsPerDomainPerWindow` | appsettings, env | 5 | Optional (When public signup) | Api, Combined | Maximum distinct trials per email domain per rolling window. |
@@ -416,5 +416,5 @@ When **`ArchLucidAuth:Saml2:Enabled=true`**, map IdP assertion attributes to Arc
 - **`IdPMetadata`** URL blocked from the API egress network → SAML login fails at metadata load.
 - SP signing certificate expired → see **`GET /v1/admin/auth/saml-operational-health`** and **[SAML SP certificate rotation runbook](../runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md)** (`archlucid saml test-config` for offline validation).
 
-Operator UI: **Settings → Identity providers** surfaces OIDC discovery and SAML operational health (Admin session).
+Architect workspace: **Settings → Identity providers** surfaces OIDC discovery and SAML operational health (Admin session).
 

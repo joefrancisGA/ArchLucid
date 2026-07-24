@@ -111,11 +111,11 @@ All routes require **ReadAuthority** and use versioned paths under **`/v1/explai
 |--------|------|----------|--------|
 | `GET` | **`/v1/explain/runs/{runId}/explain`** | **`ExplanationResult`** | Stakeholder narrative + `structured` envelope, optional provenance and top-level `confidence`. **404** if run/manifest missing in scope. |
 | `GET` | **`/v1/explain/runs/{runId}/aggregate`** | **`RunExplanationSummary`** | Same nested **`explanation`** as above, plus **`themeSummaries`**, **`overallAssessment`**, **`riskPosture`**, and manifest/findings **counts**. **404** if run/manifest missing in scope. |
-| `GET` | **`/v1/explain/compare/explain`** | **`ComparisonExplanationResult`** | Query: **`baseRunId`**, **`targetRunId`**. **404** if either run lacks a golden manifest in scope. |
+| `GET` | **`/v1/explain/compare/explain`** | **`ComparisonExplanationResult`** | Query: **`baseRunId`**, **`targetRunId`**. **404** if either run lacks a finalized architecture package (committed manifest) in scope. |
 
 **Legacy per-node provenance explanation URL (compatibility only):** **`GET /v1/architecture/runs/{runId}/provenance/{nodeId}/explanation`** (and alias **`GET /v1/architecture/run/{runId}/provenance/{nodeId}/explanation`**) are **omitted from** **`GET /openapi/v1.json`** because there is no supported per-node explanation contract. **ReadAuthority** and tenant/run scope still apply (**404** when the run is missing). **501** returns RFC 9457 **Problem+JSON** with stable `type` **`https://archlucid.example.org/errors#provenance-node-explanation-not-supported`** (see **`API_ERROR_CONTRACT.md`**), **`errorCode`** **`PROVENANCE_NODE_EXPLANATION_NOT_SUPPORTED`**, **`title`**/**`detail`**, and extension keys **`aggregateExplanationPathTemplate`** (`/v1/explain/runs/{runId}/aggregate`) and **`granularExplanationPathTemplate`** (`/v1/explain/runs/{runId}/explain`). New clients should call **`GET /v1/explain/runs/{runId}/aggregate`** (and the same Standard-tier / licensing rules as other `/v1/explain` routes) instead of the legacy path.
 
-Schema and posture rules: **`docs/EXPLANATION_SCHEMA.md`**. Operator UI: run detail **Explanation** section calls **`getRunExplanationSummary`** (`archlucid-ui`).
+Schema and posture rules: **`docs/EXPLANATION_SCHEMA.md`**. Architect workspace: run detail **Explanation** section calls **`getRunExplanationSummary`** (`archlucid-ui`).
 
 ## Learning / planning (59R) (`/v1/learning`)
 
@@ -147,9 +147,9 @@ Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and 
 | `GET` | **`/v1/pilots/runs/{runId}/first-value-report`** | **`text/markdown`** | One-page Markdown summary (run metadata, findings counts, decision trace excerpt, synthetic baseline fields where metrics are not yet populated). **404** when the run id is unknown. |
 | `GET` | **`/v1/pilots/runs/{runId}/pilot-run-deltas`** | **`PilotRunDeltasResponse` (JSON)** | Proof-of-ROI numbers aligned with the first-value report (`timeToCommittedManifestTotalSeconds`, findings-by-severity, audit row count, **LLM call count** (workload / transparency signal, not invoice truth), `isDemoTenant`, optional evidence-chain pointers). **404** when the run id is unknown. |
 | `GET` | **`/v1/pilots/runs/recent-deltas`** | **`RecentPilotRunDeltasResponse` (JSON)** | Aggregated proof-of-ROI rows for the **most recent committed runs** in scope (newest first). Query **`count`** (optional, default **5**, clamped **[1, 25]**). Each item may include **`llmCallCount`** / **`llmCallCountResolved`**; response includes **`medianLlmCallCount`** over attested rows. **ReadAuthority**. |
-| `POST` | **`/v1/pilots/runs/{runId}/first-value-report.pdf`** | **`application/pdf`** | One-shot **sponsor-shareable PDF projection** of the same first-value-report Markdown body — same auth (`ReadAuthority`), same content (single source of truth), no Standard-tier gate. Backs the post-commit "Email this run to your sponsor" CTA on the operator-shell `/runs/[runId]` page. **404** when the run id is unknown. |
+| `POST` | **`/v1/pilots/runs/{runId}/first-value-report.pdf`** | **`application/pdf`** | One-shot **sponsor-shareable PDF projection** of the same first-value-report Markdown body — same auth (`ReadAuthority`), same content (single source of truth), no Standard-tier gate. Backs the post-finalize "Email this run to your sponsor" CTA on the architect workspace `/runs/[runId]` page. **404** when the run id is unknown. |
 
-CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the operator-shell page renders it whenever the run has a golden manifest.
+CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the architect workspace page renders it whenever the run has a finalized architecture package.
 
 **Admin reference bundle (ZIP):** `GET /v1/admin/reference-evidence?includeDemo=false` — **AdminAuthority**; tenant from ambient scope only (TB-279). Legacy alias `GET /v1/admin/tenants/{tenantId}/reference-evidence` remains one release with route↔scope binding. Returns **`application/zip`** (`pilot-run-deltas.json`, first-value Markdown/PDF when build succeeds, sponsor one-pager when Standard-tier path succeeds, `README.txt`) scoped to the tenant’s latest committed non-demo run unless `includeDemo=true`. **404** when no suitable run exists. CLI: `archlucid reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]` (calls scope-only route; `--tenant` names output only).
 
@@ -159,13 +159,13 @@ CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evi
 
 **Executive summary (reports):** `GET /v1/reports/executive-summary` — **ReadAuthority**; canonical ambient-scope contract (TB-280). Legacy `GET api/authority/executive-summary/{tenantId}` removed.
 
-**Admin marketing pricing quote aging:** `GET /v1/admin/marketing/pricing-quote-aging` — **AdminAuthority**. Returns **`MarketingPricingQuoteAgingResponse`** — open rows from **`dbo.MarketingPricingQuoteRequestsAging`** with **`warnCount`** / **`breachCount`** aggregates for operator triage (Improvement #6). Operator UI: **`/admin/pricing-quote-aging`**. Runbook: **`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`**.
+**Admin marketing pricing quote aging:** `GET /v1/admin/marketing/pricing-quote-aging` — **AdminAuthority**. Returns **`MarketingPricingQuoteAgingResponse`** — open rows from **`dbo.MarketingPricingQuoteRequestsAging`** with **`warnCount`** / **`breachCount`** aggregates for Admin triage (Improvement #6). Architect workspace: **`/admin/pricing-quote-aging`**. Runbook: **`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`**.
 
 ## Tenant self-service (`/v1/tenant`)
 
 | Method | Path | Response | Notes |
 |--------|------|----------|-------|
-| `GET` | **`/v1/tenant/trial-status`** | **`TenantTrialStatusResponse`** | **ReadAuthority**. Trial window metadata plus optional baseline review-cycle fields. **`firstCommitUtc`** (`DateTimeOffset?`, JSON camelCase): UTC of the tenant’s **first committed golden manifest** when known (`dbo.Tenants.TrialFirstManifestCommittedUtc`, set on first authority commit for **all** tiers). Present on both the **Status = "None"** (non-trial / blank `TrialStatus`) and active-trial branches when the column is set — drives the sponsor banner day badge in the operator UI. |
+| `GET` | **`/v1/tenant/trial-status`** | **`TenantTrialStatusResponse`** | **ReadAuthority**. Trial window metadata plus optional baseline review-cycle fields. **`firstCommitUtc`** (`DateTimeOffset?`, JSON camelCase): UTC of the tenant’s **first finalized architecture package** when known (`dbo.Tenants.TrialFirstManifestCommittedUtc`, set on first authority commit for **all** tiers). Present on both the **Status = "None"** (non-trial / blank `TrialStatus`) and active-trial branches when the column is set — drives the sponsor banner day badge in the architect workspace. |
 | `GET` | **`/v1/tenant/usage-status`** | **`TenantUsageStatusResponse`** | **ReadAuthority**. Paid-tenant seat/workspace headroom for Team→Professional expansion nudges (Improvement #5): **`commercialTier`** (`Team` \| `Professional` \| `Enterprise`), **`isTrial`**, usage vs packaging caps. Active trials return **`isTrial: true`** so the UI defers to **`TrialUsageUpgradeNudge`**. |
 
 Optional operator telemetry (same policy: **ReadAuthority**): **`POST /v1/diagnostics/sponsor-banner-first-commit-badge`** with body **`{ "daysSinceFirstCommitBucket": "0" \| "1-3" \| "4-7" \| "8-30" \| "30+" }`** — increments **`archlucid.ui.sponsor_banner.first_commit_badge_rendered`** with **`tenant_id`** from ambient scope (see **`docs/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`**).
@@ -181,7 +181,7 @@ Several list endpoints support **two response shapes** so existing clients keep 
 | **`GET /v1/alerts`** with **`take`** only (no **`page`**) | JSON **array** of **`AlertRecord`** | **`take`** clamped **1–500** (default **100**). |
 | Same path with **`page`** set | **`PagedResponse&lt;AlertRecord&gt;`** | Same pagination rules as other **`page`**/**`pageSize`** endpoints. |
 
-The operator UI **Runs** page uses **`page`** + **`pageSize`** (legacy **`take`** in the query string is still read as **`pageSize`** when **`pageSize`** is omitted). **Alerts** uses **`page`** + **`pageSize`** from the client.
+The architect workspace **Runs** page uses **`page`** + **`pageSize`** (legacy **`take`** in the query string is still read as **`pageSize`** when **`pageSize`** is omitted). **Alerts** uses **`page`** + **`pageSize`** from the client.
 
 ## Bulk operator endpoints (partial success)
 
@@ -208,8 +208,8 @@ See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/arch
 ## Correlation ID
 
 - Optional request header **`X-Correlation-ID`**: if present, the API echoes it on the response and uses it for logging/tracing context; if absent, a value is generated (e.g. from the ASP.NET Core trace identifier).
-- **`application/problem+json`:** error bodies include **`correlationId`** (same value as **`X-Correlation-ID`**) so operators can triage from saved JSON when headers are missing. The global exception handler still includes legacy **`traceId`** for the same identifier.
-- **Operator UI proxy** (`/api/proxy/*`): proxy-generated errors (bad upstream URL, 413, 502, 429) include **`correlationId`** in the JSON body and **`X-Correlation-ID`** on the response; one-line **`archlucid-ui-proxy`** server logs may repeat **`correlationId`** for log correlation.
+- **`application/problem+json`:** error bodies include **`correlationId`** (same value as **`X-Correlation-ID`**) so architects can triage from saved JSON when headers are missing. The global exception handler still includes legacy **`traceId`** for the same identifier.
+- **Architect workspace proxy** (`/api/proxy/*`): proxy-generated errors (bad upstream URL, 413, 502, 429) include **`correlationId`** in the JSON body and **`X-Correlation-ID`** on the response; one-line **`archlucid-ui-proxy`** server logs may repeat **`correlationId`** for log correlation.
 - **Audit rows:** **`IAuditService`** (API host) stamps **`AuditEvent.CorrelationId`** from the **`correlation.id`** tag on the current or ancestor **`Activity`** (same value the middleware sets on the request activity), then falls back to **`HttpContext.TraceIdentifier`**, then the innermost activity id. Background advisory scans use a synthetic id of the form **`advisory-schedule:{scheduleId}`** on the advisory activity so digest/alert audits remain joinable in logs.
 
 ## Problem details (`application/problem+json`) — extensions
@@ -241,7 +241,7 @@ When the tenant is on an **Active** trial that has **expired**, or **run** / **s
 }
 ```
 
-**Reads** under **ReadAuthority** (e.g. explain, GET run detail) are **not** blocked by this rule so operators can still inspect existing work. **Conversion** uses **`POST /v1/tenant/convert`** (annotated to skip the trial write gate). See **`docs/security/TRIAL_LIMITS.md`** and **ADR [0014](../architecture/adrs/0014-trial-enforcement-boundary.md)**.
+**Reads** under **ReadAuthority** (e.g. explain, GET run detail) are **not** blocked by this rule so architects can still inspect existing work. **Conversion** uses **`POST /v1/tenant/convert`** (annotated to skip the trial write gate). See **`docs/security/TRIAL_LIMITS.md`** and **ADR [0014](../architecture/adrs/0014-trial-enforcement-boundary.md)**.
 
 ## Comparison replay — verify mode
 
@@ -278,7 +278,7 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 ## Commit run — success, idempotency, and conflicts
 
-`POST /v1/architecture/run/{runId}/commit` returns **200 OK** with the golden manifest when the run is **already committed** and the stored manifest can be loaded (**idempotent retry** safe for clients).
+`POST /v1/architecture/run/{runId}/commit` returns **200 OK** with the architecture package (manifest payload) when the run is **already finalized/committed** and the stored package can be loaded (**idempotent retry** safe for clients).
 
 `GET /v1/architecture/run/{runId}/traceability-bundle.zip` returns a **size-capped** ZIP (`run-summary.json`, `audit-events.json`, `decision-traces.json`, `README.txt`) for audit hand-off; **413 Payload Too Large** when the cap is exceeded.
 
@@ -394,7 +394,7 @@ Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-
 **Current behavior (v1):**
 
 - **`POST .../architecture/request`** (create run) may use an **`Idempotency-Key`** header per API semantics; **`POST .../architecture/run/{runId}/commit`** does **not** accept that header.
-- **Commit** is **idempotent** when the run is **already committed**: a repeat **`POST …/commit`** returns **200 OK** with the same golden manifest (safe retries after timeouts).
+- **Finalize (`commit`)** is **idempotent** when the run is **already finalized/committed**: a repeat **`POST …/commit`** returns **200 OK** with the same architecture package (safe retries after timeouts).
 - **Create** and the **first** successful commit still perform durable writes; clients that retry ambiguous **create** failures should **GET** run detail/list before issuing a second create for the same logical operation.
 
 **Recommended client pattern:**

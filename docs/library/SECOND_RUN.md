@@ -5,9 +5,9 @@
 
 # Second review with your own data (`SECOND_RUN`)
 
-**Audience:** Pilot operators who already completed a first **review** via **`archlucid try`** (or the operator UI demo) and want a **real** `POST /v1/architecture/request` from their own vocabulary in under five minutes.
+**Audience:** Pilot architects who already completed a first **review** via **`archlucid try`** (or the architect workspace demo) and want a **real** `POST /v1/architecture/request` from their own vocabulary in under five minutes.
 
-**Goal:** One small file (TOML **or** JSON) → CLI (**`archlucid second-run`**) creates the review session → executes → polls → commits → prints the **first-value report URL**.
+**Goal:** One small file (TOML **or** JSON) → CLI (**`archlucid second-run`**) creates the review session → executes → polls → finalizes (`commit`) → prints the **first-value report URL**.
 
 **Naming:** Product language is **review**; the CLI command remains **`second-run`**, and API paths still use **`run`** / **`runId`** (see below).
 
@@ -25,7 +25,7 @@ archlucid second-run SECOND_RUN.toml
 5. On success you get:
    - `RunId` in the log line
    - **`First-value report URL`** — `GET /v1/pilots/runs/{runId}/first-value-report` (Markdown)
-   - **`Operator UI`** link to `/runs/{runId}`
+   - **Architect workspace** link to `/runs/{runId}`
    - `first-value-{runId}.md` saved in the current directory (unless `--no-open` is used)
 
 **Flags (same ergonomics as `try`):** `--api-base-url`, `--ui-base-url`, `--no-open`, `--commit-deadline <seconds>`.

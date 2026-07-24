@@ -77,7 +77,7 @@ ArchLucid is designed to reduce those problems.
 
 ### Pillar 1: AI-native architecture analysis
 
-ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a **multi-agent pipeline** — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a **versioned golden manifest** with structured findings, not a chat conversation that disappears.
+ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a **multi-agent pipeline** — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a **versioned architecture package** with structured findings, not a chat conversation that disappears.
 
 ### Pillar 2: Auditable decision trail
 
@@ -85,7 +85,7 @@ Every architecture recommendation ArchLucid produces comes with a complete chain
 
 ### Pillar 3: Enterprise governance
 
-Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** act as the adaptive "brain" of this governance model. By decoupling the core evaluation engine from domain-specific knowledge, they future-proof the system against rapid technology shifts; new compliance frameworks or cloud standards are simply injected as JSON/YAML rules. Curated packs are drafted with an **LLM generator → critic model → human SME** pipeline (see **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**) so content velocity stays high without sacrificing review rigor. Approval workflows enforce segregation of duties. Pre-commit gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
+Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** act as the adaptive "brain" of this governance model. By decoupling the core evaluation engine from domain-specific knowledge, they future-proof the system against rapid technology shifts; new compliance frameworks or cloud standards are simply injected as JSON/YAML rules. Curated packs are drafted with an **LLM generator → critic model → human SME** pipeline (see **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**) so content velocity stays high without sacrificing review rigor. Approval workflows enforce segregation of duties. Pre-finalize gates block architecture packages when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
 
 ---
 

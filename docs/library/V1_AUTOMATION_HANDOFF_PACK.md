@@ -1,4 +1,4 @@
-> **Scope:** V1 buyer/operator automation handoff — REST, CLI, OpenAPI, exports, and SCIM only. First-party ITSM/chat/docs connectors are **V1.1**.
+> **Scope:** V1 buyer/architect automation handoff — REST, CLI, OpenAPI, exports, and SCIM only. First-party ITSM/chat/docs connectors are **V1.1**.
 
 # V1 automation handoff pack
 
@@ -14,11 +14,11 @@
 
 ## End-to-end workflow (V1 surfaces)
 
-| Phase | Operator UI | REST (OpenAPI) | CLI |
+| Phase | Architect workspace | REST (OpenAPI) | CLI |
 | --- | --- | --- | --- |
 | Create review | `/reviews/new` | `POST /v1/architecture/request` | `archlucid architecture request` or `archlucid run create` |
 | Execute / observe | Review detail | `POST /v1/architecture/run/{runId}/execute` then poll `GET /v1/architecture/run/{runId}` | `archlucid architecture execute <runId>` |
-| Commit / finalize | Review detail → Commit | `POST /v1/architecture/run/{runId}/commit` | `archlucid architecture commit <runId>` |
+| Finalize | Review detail → **Finalize** (API/CLI `commit`) | `POST /v1/architecture/run/{runId}/commit` | `archlucid architecture commit <runId>` |
 | Export artifacts | Review detail → Export | `GET /v1/artifacts/runs/{runId}/export` | `archlucid artifacts export <runId>` |
 | Compare runs | Compare workspace | `GET /v1/authority/compare/runs?leftRunId=…&rightRunId=…` | Compare via REST (CLI wrapper optional) |
 | ROI summary | Value report / executive dashboard | `GET /v1/architecture/run/{runId}/roi` · optional `GET /v1/analytics/roi` | ROI via REST |
@@ -31,7 +31,7 @@ Canonical API surface: [`API_CONTRACTS.md`](API_CONTRACTS.md) · OpenAPI: `GET /
 
 | Mode | When to use | Header |
 | --- | --- | --- |
-| **Entra ID / OIDC bearer** | Operator sessions, human-driven automation | `Authorization: Bearer <access_token>` |
+| **Entra ID / OIDC bearer** | Architect sessions, human-driven automation | `Authorization: Bearer <access_token>` |
 | **API key** | Unattended CI and scripts | `X-ArchLucid-Api-Key: <key>` (see [`SECURITY.md`](contributor-reference/SECURITY.md)) |
 
 Capture **`X-Correlation-ID`** on every failure for support handoff.
@@ -88,7 +88,7 @@ curl -sS "$BASE/v1/architecture/run/$RUN_ID" \
 
 ---
 
-## Step 3 — Commit / finalize
+## Step 3 — Finalize (API `commit`)
 
 ```bash
 curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/commit" \
@@ -96,11 +96,11 @@ curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/commit" \
   -H "X-Correlation-ID: pilot-commit-001"
 ```
 
-Success: `CurrentManifestVersion` populated; artifacts retrievable on run detail.
+Success: architecture package / `CurrentManifestVersion` populated; artifacts retrievable on run detail.
 
 ---
 
-## Step 4 — Export committed artifacts
+## Step 4 — Export finalized artifacts
 
 ```bash
 curl -sS -o review-export.zip \

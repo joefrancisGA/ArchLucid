@@ -113,13 +113,13 @@ Canonical product/requirements spec for the shipped **planning bridge** on **`/p
 
 #### Objective
 
-Give operators with **ExecuteAuthority** a **first-class, honest** path inside the operator shell to turn **Pilot feedback** triage into **59R planning themes and plans** without dropping to raw API calls, while preserving **determinism**, **idempotency**, and **no auto-mutation** of prompts, agents, or governance (**§4.1**, **§1**).
+Give architects with **ExecuteAuthority** a **first-class, honest** path inside the architect workspace to turn **Pilot feedback** triage into **59R planning themes and plans** without dropping to raw API calls, while preserving **determinism**, **idempotency**, and **no auto-mutation** of prompts, agents, or governance (**§4.1**, **§1**).
 
 #### Assumptions
 
 - **`POST /v1/learning/planning/materialize`** and **`ProductLearningPlanningMaterializeResult`** remain the **only** persistence path for V1 GA (no second “shadow” writer).
 - The **Pilot feedback** dashboard already loads **summary, opportunities, trends, triage** with a shared **`since`** filter (**§2**).
-- **`/planning`** remains a **read-only** aggregation view; the bridge **initiates** materialization from **`/product-learning`**, then routes the operator to **`/planning`** to inspect results (**`archlucid-ui`** `PlanningPageView` today).
+- **`/planning`** remains a **read-only** aggregation view; the bridge **initiates** materialization from **`/product-learning`**, then routes the architect to **`/planning`** to inspect results (**`archlucid-ui`** `PlanningPageView` today).
 
 #### Constraints
 
