@@ -57,4 +57,4 @@ flowchart TB
 ## Related
 
 - **`docs/CANONICAL_PIPELINE.md`** — operator-facing run pipeline overview (engineering deep map: `docs/archive/dual-pipeline-navigator-superseded.md`).
-- **`docs/ARCHITECTURE_INDEX.md`** — reading order.
+- **`docs/architecture/README.md`** — architecture index + reading order.

@@ -74,7 +74,7 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 
 ## 4. Documentation Index
 
-*(This replaces the former `ARCHITECTURE_INDEX.md`)*
+*(Former thin hub `ARCHITECTURE_INDEX.md` redirects here — see [`../redirects.md`](../redirects.md).)*
 
 ### Orientation
 - **V1 scope contract** — `../library/V1_SCOPE.md`

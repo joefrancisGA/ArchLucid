@@ -57,7 +57,7 @@ START_HERE.md (you are here)
 │   ├─ library/CONTRIBUTOR_CODE_MAP.md         (1-page decision tree for where to change code)
 │   ├─ library/CHANGE_IMPACT_CHECKLIST.md      (PR follow-through by change type)
 │   ├─ library/CHANGE_IMPACT_SUMMARY_TEMPLATE.md (short buyer/operator delta template)
-│   ├─ library/OPENAPI_CLIENT_DRIFT_OPERATOR_NOTE.md (integrator + contributor contract hygiene)
+│   ├─ library/OPENAPI_CONTRACT_DRIFT.md       (OpenAPI snapshot + client regenerate hygiene)
 │   ├─ library/CUSTOM_AGENT_HANDLER_GUIDE.md   (register custom agent handlers in Host.Composition)
 │   └─ library/GLOSSARY.md                     (canonical product / governance vocabulary)
 │

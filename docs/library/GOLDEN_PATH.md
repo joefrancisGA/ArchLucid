@@ -145,6 +145,6 @@ Use these when a **specific feature** demands them — not part of the golden pa
 
 ## Related indexes
 
-- **All architecture entry points:** [`ARCHITECTURE_INDEX.md`](../ARCHITECTURE_INDEX.md)
+- **All architecture entry points:** [`architecture/README.md`](../architecture/README.md)
 - **Runbooks (incident-shaped):** [`runbooks/README.md`](../runbooks/README.md)
 - **ADRs (why we chose X):** [`architecture/adrs/README.md`](../architecture/adrs/README.md)

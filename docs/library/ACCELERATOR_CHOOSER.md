@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-23
 > **Scope:** Buyer-job → starter proof pack map for evaluators after Core Pilot first finalize. Not a certification catalog.
 
 # Accelerator chooser

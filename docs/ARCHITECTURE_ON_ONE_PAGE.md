@@ -158,4 +158,4 @@ The governance model uses **Policy Packs** as its adaptive "brain", completely d
 | UI route → API → CLI | [`library/OPERATOR_ATLAS.md`](library/OPERATOR_ATLAS.md) |
 | Bounded contexts + ADRs | [`architecture/README.md`](architecture/README.md) |
 | API contracts | [`library/API_CONTRACTS.md`](library/API_CONTRACTS.md) |
-| Doc map (architecture index) | [`ARCHITECTURE_INDEX.md`](ARCHITECTURE_INDEX.md) |
+| Doc map (architecture index) | [`architecture/README.md`](architecture/README.md) |

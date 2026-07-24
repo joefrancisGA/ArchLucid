@@ -21,7 +21,7 @@ _One paragraph — outcome, not file list._
 - [ ] None
 - [ ] Re-run preflight / smoke
 - [ ] Update tenant config
-- [ ] Regenerate OpenAPI client (see [`OPENAPI_CLIENT_DRIFT_OPERATOR_NOTE.md`](OPENAPI_CLIENT_DRIFT_OPERATOR_NOTE.md))
+- [ ] Regenerate OpenAPI client (see [`OPENAPI_CONTRACT_DRIFT.md`](OPENAPI_CONTRACT_DRIFT.md))
 
 ## Compatibility
 

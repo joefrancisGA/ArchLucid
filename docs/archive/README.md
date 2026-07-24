@@ -1,3 +1,6 @@
+> **Reviewed:** 2026-07-23
+> **Scope:** Index for historical design-session logs and consolidated archive series — not maintained against the current codebase.
+
 # docs/archive — historical design-session logs
 
 This folder contains **historical implementation records** and superseded notes. Files here are **not maintained** for accuracy against the current codebase (class names, tables, and flows may be outdated). They are kept for archaeological reference.
@@ -15,6 +18,7 @@ Do **not** edit archived change-set bodies. If a decision changes, write a new A
 | [QUALITY_ASSESSMENT_SERIES_2026_04_23.md](QUALITY_ASSESSMENT_SERIES_2026_04_23.md) | **Consolidated** 2026-04-23 quality assessment (73.20%) + Cursor prompts |
 | [USABILITY_ASSESSMENT_SERIES_2026_04_25.md](USABILITY_ASSESSMENT_SERIES_2026_04_25.md) | **Consolidated** 2026-04-25 usability assessment (69.52%) + Cursor prompts |
 | [artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md](artifacts-phase3-2026-04-23/PHASE3_EVIDENCE_SERIES_2026_04_23.md) | **Consolidated** Phase 3 gate verification + PR A2 cohort parity receipts |
-| [assessments/README.md](assessments/README.md) | **Index** — ~150 historical weighted passes and prompt packs (**Reviewed:** 2026-07-22); live scores: [`LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) / [`LATEST_EXPOSURE.md`](../assessments/LATEST_EXPOSURE.md) |
+
+**Live assessments** (not under this folder): [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) · [`../assessments/LATEST_EXPOSURE.md`](../assessments/LATEST_EXPOSURE.md). Historical weighted passes live in the consolidated series rows above (former `archive/assessments/` tree removed).
 
 For a summarised, navigable view of all releases use **[docs/CHANGELOG.md](../CHANGELOG.md)**.

@@ -13,9 +13,11 @@ Prevent accidental HTTP surface changes: the generated OpenAPI document for **v1
 
 1. Change the v1 route/DTO in `ArchLucid.Api` / contracts layer.
 2. Regenerate snapshot: `.\scripts\ci\update_openapi_contract_snapshot.ps1` (or let CI **Refresh OpenAPI v1 snapshot** commit it).
-3. Regenerate .NET client: `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj`.
-4. Regenerate UI types: `cd archlucid-ui; npm run generate:api-types`.
-5. Commit baseline + generated clients + doc updates together; verify `assert_api_types_in_sync` if wired in CI.
+3. Run OpenAPI contract tests: `dotnet test ArchLucid.Api.Tests --filter FullyQualifiedName~OpenApiContract`.
+4. Regenerate .NET client: `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj`.
+5. Regenerate UI types: `cd archlucid-ui; npm run generate:api-types`.
+6. Add a row to [`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md) for new mutating routes.
+7. Commit baseline + generated clients + doc updates together; verify `assert_api_types_in_sync` if wired in CI.
 
 ## 2. Assumptions
 
@@ -120,8 +122,16 @@ When a **v2** OpenAPI document is introduced:
 2. Register the document in startup and ensure `GET /openapi/v2.json` (or your chosen path) is stable.
 3. Document the regenerate command in this file and in `TEST_EXECUTION_MODEL.md`.
 
-## 10. Related documentation
+## 10. Integrator note
 
-- `docs/library/API_CONTRACTS.md` — canonical **`/openapi/v1.json`** posture and **Changing the HTTP contract (PR checklist)**.
-- `docs/TEST_EXECUTION_MODEL.md` — Core suite and CI mapping.
-- `docs/NEXT_REFACTORINGS.md` — Historical backlog context.
+- Pin client generation to the **`info.version`** field from `/openapi/v1.json`.
+- Explorer Swagger (if enabled) is a convenience view — integrators and CI treat **`/openapi/v1.json`** as authoritative.
+- Do not assume Swashbuckle document ordering matches snapshot ordering.
+- Breaking changes are announced in [`BREAKING_CHANGES.md`](../archive/BREAKING_CHANGES.md).
+
+## 11. Related documentation
+
+- [`API_CONTRACTS.md`](API_CONTRACTS.md) — canonical **`/openapi/v1.json`** posture and **Changing the HTTP contract (PR checklist)**.
+- [`CHANGE_IMPACT_SUMMARY_TEMPLATE.md`](CHANGE_IMPACT_SUMMARY_TEMPLATE.md) — short buyer/operator delta template.
+- [`TEST_EXECUTION_MODEL.md`](TEST_EXECUTION_MODEL.md) — Core suite and CI mapping.
+- [`NEXT_REFACTORINGS.md`](NEXT_REFACTORINGS.md) — Historical backlog context.
