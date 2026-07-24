@@ -31,7 +31,7 @@ public sealed class QuickScanDistributedConcurrencyStoreConcurrencyTests
                     maxConcurrent: maxConcurrent,
                     maxQueued: 0);
 
-                QuickScanConcurrencyAdmitResult result = await store.TryAdmitAsync(request).ConfigureAwait(false);
+                QuickScanConcurrencyAdmitResult result = await store.TryAdmitAsync(request);
 
                 if (result.Outcome == QuickScanConcurrencyAdmitOutcome.DirectLease)
                 {
