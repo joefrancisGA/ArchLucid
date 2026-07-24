@@ -4,14 +4,17 @@ import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
 
 import {
+  computeExecDigestNextSendInstant,
   formatExecDigestCadenceLabel,
+  formatExecDigestConfiguredCadenceSentence,
+  formatExecDigestNextOccurrenceLabel,
   parseExecDigestRecipientEmails,
   type ExecDigestScheduleFormState,
 } from "./exec-digest-schedule-form";
 import { formatDigestInstant } from "./digest-setup-gap-actions";
 import { formatIanaTimeZoneOptionLabel } from "./iana-time-zone-select";
 
-export type ExecDigestStatusKind = "off" | "active" | "paused" | "setup-required";
+export type ExecDigestStatusKind = "off" | "active" | "paused" | "setup-incomplete";
 
 export type ExecDigestStatusPresentation = {
   readonly kind: ExecDigestStatusKind;
@@ -19,6 +22,12 @@ export type ExecDigestStatusPresentation = {
   readonly statusTagKind: EnterpriseStatusKind;
   readonly summary: string;
 };
+
+export type ExecDigestDeliveryReadinessOverall =
+  | "ready"
+  | "setup-incomplete"
+  | "paused"
+  | "delivery-issue";
 
 export type ExecDigestDeliveryReadinessItem = {
   readonly id: string;
@@ -29,25 +38,40 @@ export type ExecDigestDeliveryReadinessItem = {
   readonly actionHref?: string;
 };
 
+export type ExecDigestDeliveryReadinessModel = {
+  readonly overall: ExecDigestDeliveryReadinessOverall;
+  readonly overallLabel: string;
+  readonly overallStatusTagKind: EnterpriseStatusKind;
+  readonly nextAction: string | null;
+  readonly items: readonly ExecDigestDeliveryReadinessItem[];
+};
+
 export type ExecDigestSavedScheduleSummary = {
   readonly statusLabel: string;
-  readonly cadence: string;
+  readonly configuredCadence: string;
+  readonly deliveryStatus: string;
   readonly timeZone: string;
   readonly nextScheduledSend: string;
   readonly directRecipientCount: number;
-  readonly subscriptionRecipientCount: number;
-  readonly lastSuccessfulDelivery: string;
-  readonly lastFailedDelivery: string;
+  readonly subscriptionDestinationCount: number;
+  readonly lastScheduleUpdate: string;
+  readonly recipientSummary: string;
 };
 
 const GROUP_MAILBOX_PATTERN = /@.*\.(onmicrosoft|google|groups)\./i;
 
 export function formatExecDigestNextSendLabel(form: ExecDigestScheduleFormState): string {
   if (!form.emailEnabled) {
-    return "Not scheduled";
+    return "Not scheduled while delivery is paused";
   }
 
-  return `${formatExecDigestCadenceLabel(form)} (${formatIanaTimeZoneOptionLabel(form.ianaTimeZoneId)})`;
+  const next = computeExecDigestNextSendInstant(form);
+
+  if (next === null) {
+    return `${formatExecDigestCadenceLabel(form)} (${formatIanaTimeZoneOptionLabel(form.ianaTimeZoneId)})`;
+  }
+
+  return formatExecDigestNextOccurrenceLabel(next, form.ianaTimeZoneId);
 }
 
 export function findDuplicateExecDigestRecipientEmails(input: string): readonly string[] {
@@ -88,24 +112,24 @@ export function resolveExecDigestStatus(
         kind: "paused",
         label: "Paused",
         statusTagKind: "draft",
-        summary: "No scheduled emails will be sent.",
+        summary: "Delivery is paused. The configured schedule is retained but no executive digest emails will be sent.",
       };
     }
 
     return {
       kind: "off",
-      label: "Off",
-      statusTagKind: "draft",
-      summary: "No scheduled emails will be sent.",
+      label: "Setup incomplete",
+      statusTagKind: "needs-attention",
+      summary: "Add recipients and enable scheduled delivery when you are ready to send the weekly executive digest.",
     };
   }
 
-  if (recipientCount === 0 || (!saved.isConfigured && unsavedChanges)) {
+  if (recipientCount === 0) {
     return {
-      kind: "setup-required",
-      label: "Setup required",
+      kind: "setup-incomplete",
+      label: "Setup incomplete",
       statusTagKind: "needs-attention",
-      summary: "Add at least one recipient and save to activate delivery.",
+      summary: "Add at least one direct recipient before enabling scheduled delivery.",
     };
   }
 
@@ -113,31 +137,53 @@ export function resolveExecDigestStatus(
     kind: "active",
     label: "Active",
     statusTagKind: "ready",
-    summary: "Scheduled emails will be sent to configured executive recipients.",
+    summary: "Scheduled executive digest emails will be sent to the direct recipients configured here.",
   };
+}
+
+export function buildExecDigestRecipientSummary(
+  directCount: number,
+  subscriptionDestinationCount: number,
+): string {
+  const directPart = `${directCount} direct recipient${directCount === 1 ? "" : "s"}`;
+  const subscriptionPart = `${subscriptionDestinationCount} subscription destination${
+    subscriptionDestinationCount === 1 ? "" : "s"
+  }`;
+
+  return `${directCount + subscriptionDestinationCount} delivery targets: ${directPart} and ${subscriptionPart}. Direct recipients receive the executive digest; subscription destinations receive architecture digests from advisory scans.`;
 }
 
 export function buildExecDigestSavedScheduleSummary(
   saved: ExecDigestPreferencesResponse,
   health: WeeklyDigestHealthDto | null,
 ): ExecDigestSavedScheduleSummary {
-  const form = {
+  const form: ExecDigestScheduleFormState = {
     emailEnabled: saved.emailEnabled,
     recipients: saved.recipientEmails.join("; "),
     ianaTimeZoneId: saved.ianaTimeZoneId,
     dayOfWeek: saved.dayOfWeek,
     hourOfDay: saved.hourOfDay,
   };
+  const subscriptionDestinationCount = health?.enabledDigestSubscriptionCount ?? 0;
+  const deliveryStatus = saved.emailEnabled
+    ? "Active"
+    : saved.isConfigured
+      ? "Paused"
+      : "Setup incomplete";
 
   return {
-    statusLabel: saved.emailEnabled ? "Active" : saved.isConfigured ? "Paused" : "Off",
-    cadence: saved.emailEnabled ? formatExecDigestCadenceLabel(form) : "—",
+    statusLabel: deliveryStatus,
+    configuredCadence: formatExecDigestConfiguredCadenceSentence(form),
+    deliveryStatus,
     timeZone: formatIanaTimeZoneOptionLabel(saved.ianaTimeZoneId),
-    nextScheduledSend: saved.emailEnabled ? formatExecDigestNextSendLabel(form) : "Not scheduled",
+    nextScheduledSend: formatExecDigestNextSendLabel(form),
     directRecipientCount: saved.recipientEmails.length,
-    subscriptionRecipientCount: health?.enabledDigestSubscriptionCount ?? 0,
-    lastSuccessfulDelivery: formatDigestInstant(health?.latestDigestSubscriptionDeliveryUtc),
-    lastFailedDelivery: "—",
+    subscriptionDestinationCount,
+    lastScheduleUpdate: formatDigestInstant(saved.updatedUtc),
+    recipientSummary: buildExecDigestRecipientSummary(
+      saved.recipientEmails.length,
+      subscriptionDestinationCount,
+    ),
   };
 }
 
@@ -146,7 +192,7 @@ export function buildExecDigestDeliveryReadiness(
   form: ExecDigestScheduleFormState,
   health: WeeklyDigestHealthDto | null,
   unsavedChanges: boolean,
-): readonly ExecDigestDeliveryReadinessItem[] {
+): ExecDigestDeliveryReadinessModel {
   const status = resolveExecDigestStatus(saved, form, unsavedChanges);
   const recipientInput: string = unsavedChanges ? form.recipients : saved.recipientEmails.join("; ");
   const recipientCount: number = parseExecDigestRecipientEmails(recipientInput).length;
@@ -154,48 +200,140 @@ export function buildExecDigestDeliveryReadiness(
     health === null
       ? true
       : !health.setupGaps.some((gap) => /outbound email|email channel|integration/i.test(gap));
+  const scheduleValid =
+    form.dayOfWeek >= 0 &&
+    form.dayOfWeek <= 6 &&
+    form.hourOfDay >= 0 &&
+    form.hourOfDay <= 23 &&
+    form.ianaTimeZoneId.trim().length > 0;
 
   const items: ExecDigestDeliveryReadinessItem[] = [
     {
-      id: "digest-status",
-      label: "Digest status",
-      value: status.label,
-      blocking: status.kind === "setup-required",
+      id: "delivery-enabled",
+      label: "Scheduled delivery",
+      value:
+        status.kind === "active"
+          ? "Enabled"
+          : status.kind === "paused"
+            ? "Paused"
+            : "Not enabled",
+      blocking: status.kind === "setup-incomplete" || status.kind === "off",
     },
     {
       id: "recipient-readiness",
-      label: "Recipient readiness",
+      label: "Direct recipients",
       value:
         recipientCount === 0
-          ? "None"
-          : `${recipientCount} direct recipient${recipientCount === 1 ? "" : "s"}`,
-      blocking: status.kind !== "off" && recipientCount === 0,
+          ? "None configured"
+          : `${recipientCount} recipient${recipientCount === 1 ? "" : "s"}`,
+      blocking: recipientCount === 0 && (form.emailEnabled || status.kind === "active"),
       actionLabel: recipientCount === 0 ? "Add recipients" : undefined,
     },
     {
+      id: "schedule-valid",
+      label: "Schedule",
+      value: scheduleValid
+        ? formatExecDigestConfiguredCadenceSentence(form)
+        : "Incomplete",
+      blocking: !scheduleValid,
+    },
+    {
       id: "outbound-email",
-      label: "Outbound email readiness",
-      value: outboundReady ? "Ready" : "Unavailable",
+      label: "Email delivery",
+      value: outboundReady ? "Available" : "Unavailable",
       blocking: !outboundReady,
-      actionLabel: outboundReady ? undefined : "Check integration readiness",
+      actionLabel: outboundReady ? undefined : "Check delivery setup",
       actionHref: outboundReady ? undefined : INTEGRATIONS_READINESS_PATH,
     },
     {
       id: "next-send",
-      label: "Next scheduled send",
+      label: "Next send",
       value: formatExecDigestNextSendLabel(form),
       blocking: false,
     },
   ];
 
-  return items.filter((item) => item.blocking || item.id === "next-send" || item.id === "digest-status");
+  const hasDeliveryIssue = items.some((item) => item.id === "outbound-email" && item.blocking);
+  const hasSetupGap =
+    status.kind === "setup-incomplete" ||
+    status.kind === "off" ||
+    items.some((item) => item.blocking && item.id !== "outbound-email");
+
+  let overall: ExecDigestDeliveryReadinessOverall;
+  let overallLabel: string;
+  let overallStatusTagKind: EnterpriseStatusKind;
+  let nextAction: string | null = null;
+
+  if (hasDeliveryIssue) {
+    overall = "delivery-issue";
+    overallLabel = "Delivery issue";
+    overallStatusTagKind = "blocked";
+    nextAction = "Check email delivery setup before enabling scheduled delivery.";
+  }
+  else if (status.kind === "paused") {
+    overall = "paused";
+    overallLabel = "Paused";
+    overallStatusTagKind = "draft";
+    nextAction =
+      recipientCount === 0
+        ? "Add at least one recipient before enabling scheduled delivery."
+        : "Enable scheduled delivery when you are ready to send.";
+  }
+  else if (hasSetupGap) {
+    overall = "setup-incomplete";
+    overallLabel = "Setup incomplete";
+    overallStatusTagKind = "needs-attention";
+    nextAction =
+      recipientCount === 0
+        ? "Add at least one recipient before enabling scheduled delivery."
+        : "Enable scheduled delivery after reviewing the cadence and recipients.";
+  }
+  else {
+    overall = "ready";
+    overallLabel = "Ready";
+    overallStatusTagKind = "ready";
+    nextAction = null;
+  }
+
+  return {
+    overall,
+    overallLabel,
+    overallStatusTagKind,
+    nextAction,
+    items,
+  };
 }
 
+/** Hub relationship copy — accurate to separate executive vs architecture digest pipelines. */
+export const EXEC_DIGEST_PRODUCT_INTRO =
+  "An executive digest is a weekly rollup of architecture and review activity for sponsor recipients you configure here. Architecture digests generated from advisory scans are delivered separately to destinations on the Subscriptions tab." as const;
+
 export const EXEC_DIGEST_DIRECT_RECIPIENTS_HELPER =
-  "Direct recipients receive the executive rollup email configured on this page. Architecture digest subscriptions on the Subscriptions tab are separate." as const;
+  "Direct recipients receive this executive digest email. They do not need to be workspace users. Enter one address per line, or separate addresses with commas or semicolons. Duplicate addresses are rejected before save." as const;
+
+export const EXEC_DIGEST_SUBSCRIPTIONS_HELPER =
+  "Subscription destinations receive architecture digests after advisory scans run. They use a different schedule and content than the executive digest on this page." as const;
 
 export const EXEC_DIGEST_PREVIEW_HELPER =
-  "Preview opens the latest generated digest and does not reflect unsaved schedule changes." as const;
+  "Preview opens the latest architecture digest in Browse. It is not an executive-digest compose preview and does not use unsaved schedule changes." as const;
+
+export const EXEC_DIGEST_PREVIEW_UNAVAILABLE =
+  "A preview will be available after the first architecture digest is generated." as const;
 
 export const EXEC_DIGEST_TEST_GENERATION_HELPER =
-  "Generates a new architecture digest from an advisory scan and delivers it to subscription recipients. This may consume AI budget and does not change the executive schedule saved here." as const;
+  "This opens advisory scan schedules so you can generate an architecture digest for subscription destinations. It may consume AI budget, does not email executive recipients on this page, and does not change the executive schedule saved here." as const;
+
+export const EXEC_DIGEST_SAMPLE_BLOCKED =
+  "Scheduling is unavailable in the sample workspace. Start an evaluation or sign in to configure executive digest delivery for your organization." as const;
+
+export const EXEC_DIGEST_READ_ONLY =
+  "You can review the executive digest schedule. Changing recipients, cadence, or delivery requires a role that can manage digests." as const;
+
+export const DIGESTS_SCHEDULE_TAB_RESPONSIBILITY =
+  "Configure when the executive digest is generated and sent to direct recipients." as const;
+
+export const DIGESTS_BROWSE_TAB_RESPONSIBILITY =
+  "Read generated architecture digests." as const;
+
+export const DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY =
+  "Manage who receives architecture digest delivery." as const;

@@ -24,6 +24,11 @@ import {
   DIGESTS_PAGE_SUBTITLE,
   DIGESTS_SCHEDULE_PREVIEW_LABEL,
 } from "@/lib/digests-browse-copy";
+import {
+  DIGESTS_BROWSE_TAB_RESPONSIBILITY,
+  DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
+  DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY,
+} from "@/lib/exec-digest-schedule-page-model";
 import { DIGESTS_HUB_TAB_IDS, digestsHubTabFromSearchParam, type DigestsHubTabId } from "@/lib/digests-hub-tab";
 import {
   digestsListRefreshButtonTitleOperator,
@@ -44,10 +49,16 @@ const TAB_LABEL: Record<DigestsHubTabId, string> = {
   schedule: "Schedule",
 };
 
+const TAB_RESPONSIBILITY: Record<DigestsHubTabId, string> = {
+  browse: DIGESTS_BROWSE_TAB_RESPONSIBILITY,
+  subscriptions: DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY,
+  schedule: DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
+};
+
 const SUBSCRIPTIONS_TAB_READER_TITLE =
-  "List is readable at Read rank; creating or changing subscriptions requires operator (Execute) access.";
+  "List is readable at Read rank; creating or changing subscriptions requires a role that can manage digests.";
 const SCHEDULE_TAB_READER_TITLE =
-  "Preferences are readable; saving changes requires operator (Execute) access.";
+  "Schedule is readable; saving or enabling delivery requires a role that can manage digests.";
 
 const DIGEST_PRIVACY_NOTE =
   "Digest emails include summaries and links back to ArchLucid. Sensitive evidence content is not included unless explicitly configured.";
@@ -245,12 +256,13 @@ export function DigestsHubClient(): ReactElement {
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">
         <TabsList aria-label="Digest hub sections" data-testid="digests-hub-tablist">
           {DIGESTS_HUB_TAB_IDS.map((id) => {
-            const tabTitle: string | undefined =
+            const readerTitle: string | undefined =
               !canMutate && id === "subscriptions"
                 ? SUBSCRIPTIONS_TAB_READER_TITLE
                 : !canMutate && id === "schedule"
                   ? SCHEDULE_TAB_READER_TITLE
                   : undefined;
+            const tabTitle: string = readerTitle ?? TAB_RESPONSIBILITY[id];
 
             return (
               <TabsTrigger

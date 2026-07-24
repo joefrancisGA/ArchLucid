@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildExecDigestDeliveryReadiness,
+  buildExecDigestRecipientSummary,
   buildExecDigestSavedScheduleSummary,
   resolveExecDigestStatus,
 } from "@/lib/exec-digest-schedule-page-model";
@@ -37,7 +38,7 @@ const baseHealth: WeeklyDigestHealthDto = {
 };
 
 describe("exec-digest-schedule-page-model", () => {
-  it("resolves off, active, paused, and setup-required states", () => {
+  it("resolves off, active, paused, and setup-incomplete states", () => {
     const form = {
       emailEnabled: false,
       recipients: "",
@@ -54,20 +55,30 @@ describe("exec-digest-schedule-page-model", () => {
       "active",
     );
     expect(resolveExecDigestStatus(basePrefs, { ...form, emailEnabled: true, recipients: "" }, true).kind).toBe(
-      "setup-required",
+      "setup-incomplete",
     );
   });
 
-  it("builds saved schedule summary with direct and subscription recipient counts", () => {
-    const summary = buildExecDigestSavedScheduleSummary(basePrefs, baseHealth);
+  it("builds saved schedule summary with configured cadence while paused", () => {
+    const summary = buildExecDigestSavedScheduleSummary(
+      { ...basePrefs, emailEnabled: false },
+      baseHealth,
+    );
 
-    expect(summary.statusLabel).toBe("Active");
+    expect(summary.deliveryStatus).toBe("Paused");
+    expect(summary.configuredCadence).toMatch(/Every Monday/i);
+    expect(summary.nextScheduledSend).toMatch(/paused/i);
     expect(summary.directRecipientCount).toBe(1);
-    expect(summary.subscriptionRecipientCount).toBe(1);
-    expect(summary.nextScheduledSend).toContain("Monday");
+    expect(summary.subscriptionDestinationCount).toBe(1);
   });
 
-  it("shows only delivery-blocking readiness items for the schedule tab", () => {
+  it("summarizes direct recipients and subscription destinations separately", () => {
+    expect(buildExecDigestRecipientSummary(2, 3)).toMatch(/2 direct recipients/i);
+    expect(buildExecDigestRecipientSummary(2, 3)).toMatch(/3 subscription destinations/i);
+    expect(buildExecDigestRecipientSummary(2, 3)).toMatch(/executive digest/i);
+  });
+
+  it("builds readiness overall states including delivery issues", () => {
     const form = {
       emailEnabled: true,
       recipients: "",
@@ -76,18 +87,28 @@ describe("exec-digest-schedule-page-model", () => {
       hourOfDay: 8,
     };
 
-    const items = buildExecDigestDeliveryReadiness(
+    const incomplete = buildExecDigestDeliveryReadiness(basePrefs, form, baseHealth, true);
+    expect(incomplete.overall).toBe("setup-incomplete");
+    expect(incomplete.nextAction).toMatch(/Add at least one recipient/i);
+
+    const issue = buildExecDigestDeliveryReadiness(
       basePrefs,
-      form,
+      { ...form, recipients: "ops@example.com" },
       {
         ...baseHealth,
         setupGaps: ["Outbound email channel is not ready for production delivery."],
       },
-      true,
+      false,
     );
+    expect(issue.overall).toBe("delivery-issue");
+    expect(issue.items.some((item) => item.id === "outbound-email" && item.blocking)).toBe(true);
 
-    expect(items.some((item) => item.id === "recipient-readiness" && item.blocking)).toBe(true);
-    expect(items.some((item) => item.id === "outbound-email" && item.blocking)).toBe(true);
-    expect(items.some((item) => item.label === "No advisory scan schedule")).toBe(false);
+    const ready = buildExecDigestDeliveryReadiness(
+      basePrefs,
+      { ...form, recipients: "ops@example.com" },
+      baseHealth,
+      false,
+    );
+    expect(ready.overall).toBe("ready");
   });
 });

@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -15,39 +16,47 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import {
-  DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE,
   DIGESTS_SCHEDULE_GENERATE_TEST_LABEL,
   DIGESTS_SCHEDULE_PREVIEW_LABEL,
 } from "@/lib/digests-browse-copy";
 import {
   EXEC_DIGEST_DAY_NAMES,
   EXEC_DIGEST_HOUR_OPTIONS,
-  execDigestFormFromPreferences,
+  execDigestFormFromPreferencesWithBrowserDefault,
   execDigestUpsertFromForm,
-  formatExecDigestCadenceLabel,
+  formatExecDigestLiveScheduleSummary,
   hasUnsavedExecDigestChanges,
   isExecDigestScheduleFormValid,
+  maskExecDigestRecipientForDisplay,
   parseExecDigestRecipientEmails,
   validateExecDigestRecipientEmails,
   type ExecDigestScheduleFormState,
 } from "@/lib/exec-digest-schedule-form";
 import {
   buildExecDigestDeliveryReadiness,
+  buildExecDigestRecipientSummary,
   buildExecDigestSavedScheduleSummary,
+  DIGESTS_SCHEDULE_TAB_RESPONSIBILITY,
   EXEC_DIGEST_DIRECT_RECIPIENTS_HELPER,
   EXEC_DIGEST_PREVIEW_HELPER,
+  EXEC_DIGEST_PREVIEW_UNAVAILABLE,
+  EXEC_DIGEST_PRODUCT_INTRO,
+  EXEC_DIGEST_READ_ONLY,
+  EXEC_DIGEST_SAMPLE_BLOCKED,
+  EXEC_DIGEST_SUBSCRIPTIONS_HELPER,
   EXEC_DIGEST_TEST_GENERATION_HELPER,
   formatExecDigestNextSendLabel,
   resolveExecDigestStatus,
 } from "@/lib/exec-digest-schedule-page-model";
 import {
+  formatIanaTimeZoneOptionLabel,
   getIanaTimeZoneSelectOptions,
   normalizeIanaTimeZoneForSelect,
   toStoredIanaTimeZoneId,
 } from "@/lib/iana-time-zone-select";
-import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
-import { formatDigestInstant } from "@/lib/digest-setup-gap-actions";
 import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
@@ -72,18 +81,27 @@ function ScheduleSummaryRow(props: { readonly label: string; readonly value: str
   );
 }
 
-/** Schedule tab: executive digest email preferences with a focused scheduling workflow. */
+/** Schedule tab: executive digest delivery settings (direct recipients + weekly cadence). */
 export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps = {}): ReactElement {
   const { refreshToken = 0, healthSnap = null, onRefresh, refreshing = false } = props;
-  const canMutate: boolean = useOperateCapability();
-  const showTechnicalDetails: boolean = isShowSystemAdministrationNavEnabled();
+  const operateCapability: boolean = useOperateCapability();
+  const sampleModeBlocked =
+    isBuyerPolishedOperatorShellEnv() && !isOperatorExperienceFullShellEnv();
+  const canMutate: boolean = operateCapability && !sampleModeBlocked;
+
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [enabling, setEnabling] = useState(false);
+  const [pausing, setPausing] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [prefs, setPrefs] = useState<ExecDigestPreferencesResponse | null>(null);
   const [form, setForm] = useState<ExecDigestScheduleFormState | null>(null);
   const [recipientsTouched, setRecipientsTouched] = useState(false);
+  const [recipientDraft, setRecipientDraft] = useState("");
+  const [recipientDraftError, setRecipientDraftError] = useState<string | null>(null);
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const ianaTimeZoneOptions = useMemo(() => getIanaTimeZoneSelectOptions(), []);
 
@@ -94,9 +112,11 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
     try {
       const data = await getExecDigestPreferences();
       setPrefs(data);
-      setForm(execDigestFormFromPreferences(data));
+      setForm(execDigestFormFromPreferencesWithBrowserDefault(data));
       setRecipientsTouched(false);
-      setSaveSuccess(false);
+      setRecipientDraft("");
+      setRecipientDraftError(null);
+      setSaveSuccess(null);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -106,6 +126,12 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
 
   useEffect(() => {
     void load();
+
+    return () => {
+      if (successTimerRef.current !== null) {
+        clearTimeout(successTimerRef.current);
+      }
+    };
   }, [load, refreshToken]);
 
   const recipientValidation = useMemo(
@@ -122,65 +148,232 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
       : null;
   const savedSummary =
     prefs !== null ? buildExecDigestSavedScheduleSummary(prefs, healthSnap) : null;
-  const readinessItems =
+  const readiness =
     prefs !== null && form !== null
       ? buildExecDigestDeliveryReadiness(prefs, form, healthSnap, unsavedChanges)
-      : [];
-  const recipientCount: number =
-    form !== null ? parseExecDigestRecipientEmails(form.recipients).length : 0;
+      : null;
+  const recipientEmails: string[] =
+    form !== null ? parseExecDigestRecipientEmails(form.recipients) : [];
+  const recipientCount: number = recipientEmails.length;
+  const subscriptionDestinationCount: number = healthSnap?.enabledDigestSubscriptionCount ?? 0;
   const latestDigestId: string = healthSnap?.latestArchitectureDigestId?.trim() ?? "";
   const hasPreviewDigest: boolean = latestDigestId.length > 0;
   const previewHref: string = hasPreviewDigest
     ? `/digests?tab=browse#digest-${encodeURIComponent(latestDigestId)}`
     : "/digests";
-  const saveLabel: string =
-    form !== null && !form.emailEnabled && unsavedChanges
-      ? "Save schedule"
-      : form !== null && form.emailEnabled && (status?.kind === "off" || status?.kind === "paused") && unsavedChanges
-        ? "Enable and save schedule"
-        : "Save schedule";
-  const enableActivationSummary: string | null =
-    form !== null && form.emailEnabled && unsavedChanges
-      ? `Activating will send to ${recipientCount} recipient${recipientCount === 1 ? "" : "s"} on ${formatExecDigestCadenceLabel(form)} (${form.ianaTimeZoneId}).`
-      : null;
+  const busy: boolean = saving || enabling || pausing;
+  const liveScheduleSummary: string | null =
+    form !== null ? formatExecDigestLiveScheduleSummary(form) : null;
 
-  async function onSave(): Promise<void> {
-    if (!canMutate || form === null || !formValid || saving) {
+  function announceSuccess(message: string): void {
+    setSaveSuccess(message);
+    setStatusMessage(message);
+
+    if (successTimerRef.current !== null) {
+      clearTimeout(successTimerRef.current);
+    }
+
+    successTimerRef.current = setTimeout(() => setSaveSuccess(null), 4000);
+  }
+
+  function updateForm(patch: Partial<ExecDigestScheduleFormState>): void {
+    setForm((current) => (current === null ? current : { ...current, ...patch }));
+    setSaveSuccess(null);
+  }
+
+  function removeRecipient(email: string): void {
+    if (!canMutate || form === null) {
+      return;
+    }
+
+    const next = parseExecDigestRecipientEmails(form.recipients).filter(
+      (entry) => entry.toLowerCase() !== email.toLowerCase(),
+    );
+    updateForm({ recipients: next.join("; ") });
+    setRecipientsTouched(true);
+  }
+
+  function addRecipientFromDraft(): void {
+    if (!canMutate || form === null) {
+      return;
+    }
+
+    const draft = recipientDraft.trim();
+
+    if (draft.length === 0) {
+      return;
+    }
+
+    const additions = parseExecDigestRecipientEmails(draft);
+    const draftValidation = validateExecDigestRecipientEmails(draft);
+
+    if (draftValidation.invalidAddresses.length > 0) {
+      setRecipientDraftError(
+        `Invalid email address${draftValidation.invalidAddresses.length === 1 ? "" : "es"}: ${draftValidation.invalidAddresses.join(", ")}`,
+      );
+      setRecipientsTouched(true);
+
+      return;
+    }
+
+    if (draftValidation.duplicateAddresses.length > 0) {
+      setRecipientDraftError(`Duplicate recipient: ${draftValidation.duplicateAddresses.join(", ")}`);
+      setRecipientsTouched(true);
+
+      return;
+    }
+
+    if (draftValidation.unsupportedGroupMailboxes.length > 0) {
+      setRecipientDraftError(
+        `Unsupported group mailbox: ${draftValidation.unsupportedGroupMailboxes.join(", ")}`,
+      );
+      setRecipientsTouched(true);
+
+      return;
+    }
+
+    const existing = parseExecDigestRecipientEmails(form.recipients);
+    const existingKeys = new Set(existing.map((entry) => entry.toLowerCase()));
+    const colliding = additions.filter((entry) => existingKeys.has(entry.toLowerCase()));
+
+    if (colliding.length > 0) {
+      setRecipientDraftError(`Duplicate recipient: ${colliding.join(", ")}`);
+      setRecipientsTouched(true);
+
+      return;
+    }
+
+    updateForm({ recipients: [...existing, ...additions].join("; ") });
+    setRecipientDraft("");
+    setRecipientDraftError(null);
+    setRecipientsTouched(true);
+  }
+
+  async function persistForm(
+    nextForm: ExecDigestScheduleFormState,
+    successMessage: string,
+  ): Promise<void> {
+    if (!canMutate || !isExecDigestScheduleFormValid(nextForm) || busy) {
+      return;
+    }
+
+    setFailure(null);
+
+    try {
+      const saved = await saveExecDigestPreferences(execDigestUpsertFromForm(nextForm));
+      setPrefs(saved);
+      setForm(execDigestFormFromPreferencesWithBrowserDefault(saved));
+      setRecipientsTouched(false);
+      announceSuccess(successMessage);
+      onRefresh?.();
+    } catch (e) {
+      const loadFailure = toApiLoadFailure(e);
+      setFailure({
+        ...loadFailure,
+        message:
+          loadFailure.message.trim().length > 0
+            ? loadFailure.message
+            : "Could not save the schedule. Check recipients and try again.",
+      });
+    }
+  }
+
+  async function onSaveSchedule(): Promise<void> {
+    if (form === null) {
       return;
     }
 
     setSaving(true);
-    setSaveSuccess(false);
-    setFailure(null);
 
     try {
-      const saved = await saveExecDigestPreferences(execDigestUpsertFromForm(form));
-      setPrefs(saved);
-      setForm(execDigestFormFromPreferences(saved));
-      setRecipientsTouched(false);
-      setSaveSuccess(true);
-    } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      await persistForm(form, form.emailEnabled ? "Schedule saved. Scheduled delivery remains enabled." : "Schedule saved.");
     } finally {
       setSaving(false);
     }
   }
 
-  function updateForm(patch: Partial<ExecDigestScheduleFormState>): void {
-    setForm((current) => (current === null ? current : { ...current, ...patch }));
-    setSaveSuccess(false);
-  }
-
-  function onEnableDigest(): void {
-    if (!canMutate || form === null) {
+  async function onEnableDelivery(): Promise<void> {
+    if (form === null) {
       return;
     }
 
-    updateForm({ emailEnabled: true });
+    const nextForm: ExecDigestScheduleFormState = { ...form, emailEnabled: true };
+
+    if (!isExecDigestScheduleFormValid(nextForm)) {
+      setRecipientsTouched(true);
+      setStatusMessage("Add at least one valid recipient before enabling scheduled delivery.");
+
+      return;
+    }
+
+    setEnabling(true);
+    setForm(nextForm);
+
+    try {
+      await persistForm(nextForm, "Scheduled delivery enabled.");
+    } finally {
+      setEnabling(false);
+    }
+  }
+
+  async function onPauseDelivery(): Promise<void> {
+    if (form === null) {
+      return;
+    }
+
+    const nextForm: ExecDigestScheduleFormState = { ...form, emailEnabled: false };
+    setPausing(true);
+    setForm(nextForm);
+
+    try {
+      await persistForm(nextForm, "Scheduled delivery paused.");
+    } finally {
+      setPausing(false);
+    }
   }
 
   return (
     <div className="w-full space-y-4" data-testid="exec-digest-schedule-content">
+      <div>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Architecture digests
+        </p>
+        <h2
+          className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
+          data-testid="exec-digest-schedule-heading"
+        >
+          Schedule executive digest
+        </h2>
+        <p className={cn("m-0 mt-2 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          {EXEC_DIGEST_PRODUCT_INTRO}
+        </p>
+        <p className={cn("m-0 mt-1 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {DIGESTS_SCHEDULE_TAB_RESPONSIBILITY}
+        </p>
+      </div>
+
+      {sampleModeBlocked ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="exec-digest-sample-blocked"
+        >
+          {EXEC_DIGEST_SAMPLE_BLOCKED}{" "}
+          <Link className="text-al-link underline-offset-2 hover:underline" href="/get-started">
+            Start an evaluation
+          </Link>
+          .
+        </p>
+      ) : null}
+
+      {!canMutate && !sampleModeBlocked ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="exec-digest-read-only"
+        >
+          {EXEC_DIGEST_READ_ONLY}
+        </p>
+      ) : null}
+
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -191,12 +384,19 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
         </div>
       ) : null}
 
+      <div className="sr-only" aria-live="polite">
+        {statusMessage}
+      </div>
+
       {loading || form === null || prefs === null ? (
         <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
           Loading schedule…
         </p>
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,1fr)]">
+        <div
+          className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,1fr)]"
+          data-testid="exec-digest-schedule-layout"
+        >
           <div className="space-y-4">
             <section
               className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
@@ -205,264 +405,289 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2
+                  <h3
                     id="exec-digest-status-heading"
-                    className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+                    className={cn(
+                      "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                      OPERATOR_TYPOGRAPHY.cardTitle,
+                    )}
                   >
-                    Executive digest
-                  </h2>
-                  <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    Status
-                  </p>
+                    Delivery status
+                  </h3>
                 </div>
                 {status !== null ? (
                   <StatusTag kind={status.statusTagKind} label={status.label} data-testid="exec-digest-status-tag" />
                 ) : null}
               </div>
 
-              <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} role="status">
+              <p
+                className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+                role="status"
+              >
                 {status?.summary}
               </p>
 
-              {status?.kind === "off" ? (
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="primary"
-                    disabled={!canMutate}
-                    onClick={onEnableDigest}
-                    data-testid="exec-digest-enable-action"
-                  >
-                    Enable digest
-                  </Button>
-                </div>
-              ) : null}
-
-              {status?.kind === "active" && form.emailEnabled ? (
-                <dl className="m-0 mt-4 grid gap-3 sm:grid-cols-2" data-testid="exec-digest-active-summary">
-                  <ScheduleSummaryRow label="Next send" value={formatExecDigestNextSendLabel(form)} />
-                  <ScheduleSummaryRow label="Cadence" value={formatExecDigestCadenceLabel(form)} />
-                  <ScheduleSummaryRow label="Recipients" value={String(recipientCount)} />
-                  <ScheduleSummaryRow
-                    label="Time zone"
-                    value={form.ianaTimeZoneId}
-                  />
-                </dl>
-              ) : null}
-
-              {status?.kind === "off" || status?.kind === "paused" ? (
-                <dl className="m-0 mt-4 grid gap-2 sm:grid-cols-3" data-testid="exec-digest-inactive-summary">
-                  <ScheduleSummaryRow label="Digest status" value={status.label} />
-                  <ScheduleSummaryRow label="Recipients" value={recipientCount === 0 ? "None" : String(recipientCount)} />
-                  <ScheduleSummaryRow label="Next send" value="Not scheduled" />
-                </dl>
-              ) : null}
+              <dl className="m-0 mt-4 grid gap-3 sm:grid-cols-2" data-testid="exec-digest-status-summary">
+                <ScheduleSummaryRow
+                  label="Configured schedule"
+                  value={liveScheduleSummary ?? "—"}
+                />
+                <ScheduleSummaryRow label="Delivery status" value={status?.label ?? "—"} />
+                <ScheduleSummaryRow label="Next send" value={formatExecDigestNextSendLabel(form)} />
+                <ScheduleSummaryRow
+                  label="Recipients"
+                  value={
+                    sampleModeBlocked
+                      ? `${recipientCount} direct`
+                      : buildExecDigestRecipientSummary(recipientCount, subscriptionDestinationCount)
+                  }
+                />
+              </dl>
             </section>
 
             <section
               className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-              aria-labelledby="exec-digest-schedule-form-heading"
+              aria-labelledby="exec-digest-delivery-settings-heading"
             >
               <div>
-                <h2
-                  id="exec-digest-schedule-form-heading"
-                  className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
+                <h3
+                  id="exec-digest-delivery-settings-heading"
+                  className={cn(
+                    "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                    OPERATOR_TYPOGRAPHY.cardTitle,
+                  )}
                 >
-                  Schedule
-                </h2>
+                  Delivery settings
+                </h3>
                 <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  Cadence: {formatExecDigestCadenceLabel(form)} ({form.ianaTimeZoneId})
+                  {liveScheduleSummary}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  id="exec-digest-enabled"
-                  type="checkbox"
-                  className="h-4 w-4"
-                  checked={form.emailEnabled}
-                  disabled={!canMutate}
-                  aria-describedby="exec-digest-enabled-help"
-                  onChange={(e) => updateForm({ emailEnabled: e.target.checked })}
-                />
-                <Label htmlFor="exec-digest-enabled" className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>
-                  Send executive digest
+              <div className="space-y-1.5">
+                <Label htmlFor="exec-digest-recipient-draft" className="font-semibold">
+                  Direct recipients
                 </Label>
-              </div>
-              <p id="exec-digest-enabled-help" className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Turn on recurring outbound email delivery for executive recipients.
-              </p>
-
-              <fieldset
-                className={cn("m-0 space-y-4 border-0 p-0", !form.emailEnabled && "opacity-80")}
-                disabled={!form.emailEnabled || !canMutate}
-              >
-                <div className="space-y-1.5">
-                  <Label htmlFor="exec-digest-recipients" className="font-semibold">
-                    Recipients
-                  </Label>
+                <div className="flex flex-wrap gap-2">
                   <Input
-                    id="exec-digest-recipients"
-                    value={form.recipients}
-                    onChange={(e) => updateForm({ recipients: e.target.value })}
+                    id="exec-digest-recipient-draft"
+                    value={recipientDraft}
+                    onChange={(e) => {
+                      setRecipientDraft(e.target.value);
+                      setRecipientDraftError(null);
+                    }}
                     onBlur={() => setRecipientsTouched(true)}
-                    aria-invalid={recipientsTouched && !recipientValidation.valid}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addRecipientFromDraft();
+                      }
+                    }}
+                    placeholder="name@company.com"
+                    disabled={!canMutate}
+                    aria-invalid={
+                      Boolean(recipientDraftError) || (recipientsTouched && !recipientValidation.valid)
+                    }
                     aria-describedby="exec-digest-recipients-help exec-digest-recipients-errors"
                   />
-                  <p
-                    id="exec-digest-recipients-help"
-                    className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={!canMutate || recipientDraft.trim().length === 0}
+                    onClick={addRecipientFromDraft}
+                    data-testid="exec-digest-add-recipient"
                   >
-                    {EXEC_DIGEST_DIRECT_RECIPIENTS_HELPER}
-                  </p>
-                  <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    <Link href="/digests?tab=subscriptions" className="text-al-link underline-offset-2 hover:underline">
-                      Manage subscriptions
-                    </Link>
-                    {" "}for architecture digest delivery.
-                  </p>
-                  <div id="exec-digest-recipients-errors">
-                    {recipientsTouched && recipientValidation.invalidAddresses.length > 0 ? (
-                      <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                        Invalid email address
-                        {recipientValidation.invalidAddresses.length === 1 ? "" : "es"}:{" "}
-                        {recipientValidation.invalidAddresses.join(", ")}
-                      </p>
-                    ) : null}
-                    {recipientsTouched && recipientValidation.duplicateAddresses.length > 0 ? (
-                      <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                        Duplicate recipient: {recipientValidation.duplicateAddresses.join(", ")}
-                      </p>
-                    ) : null}
-                    {recipientsTouched && recipientValidation.unsupportedGroupMailboxes.length > 0 ? (
-                      <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                        Unsupported group mailbox: {recipientValidation.unsupportedGroupMailboxes.join(", ")}
-                      </p>
-                    ) : null}
-                  </div>
+                    Add
+                  </Button>
                 </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <Label htmlFor="exec-digest-tz" className="font-semibold">
-                      Time zone
-                    </Label>
-                    <select
-                      id="exec-digest-tz"
-                      className={SELECT_CLASS}
-                      value={normalizeIanaTimeZoneForSelect(form.ianaTimeZoneId)}
-                      onChange={(e) => updateForm({ ianaTimeZoneId: toStoredIanaTimeZoneId(e.target.value) })}
+                {recipientEmails.length > 0 ? (
+                  <ul
+                    className="m-0 flex list-none flex-wrap gap-2 p-0"
+                    data-testid="exec-digest-recipient-chips"
+                    aria-label="Configured direct recipients"
+                  >
+                    {recipientEmails.map((email) => (
+                      <li
+                        key={email}
+                        className="inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+                      >
+                        <span className={OPERATOR_TYPOGRAPHY.helper}>
+                          {sampleModeBlocked ? maskExecDigestRecipientForDisplay(email) : email}
+                        </span>
+                        {canMutate ? (
+                          <button
+                            type="button"
+                            className="text-neutral-600 underline-offset-2 hover:underline dark:text-neutral-300"
+                            onClick={() => removeRecipient(email)}
+                            aria-label={`Remove ${email}`}
+                          >
+                            Remove
+                          </button>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                <p
+                  id="exec-digest-recipients-help"
+                  className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                >
+                  {EXEC_DIGEST_DIRECT_RECIPIENTS_HELPER}
+                </p>
+                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  {EXEC_DIGEST_SUBSCRIPTIONS_HELPER}{" "}
+                  <Link
+                    href="/digests?tab=subscriptions"
+                    className="text-al-link underline-offset-2 hover:underline"
+                  >
+                    Manage delivery destinations
+                  </Link>
+                  .
+                </p>
+                <div id="exec-digest-recipients-errors">
+                  {recipientDraftError !== null ? (
+                    <p
+                      className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+                      role="alert"
+                      data-testid="exec-digest-recipient-draft-error"
                     >
-                      {ianaTimeZoneOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                      {recipientDraftError}
+                    </p>
+                  ) : null}
+                  {recipientsTouched && recipientValidation.invalidAddresses.length > 0 ? (
+                    <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                      Invalid email address
+                      {recipientValidation.invalidAddresses.length === 1 ? "" : "es"}:{" "}
+                      {recipientValidation.invalidAddresses.join(", ")}
+                    </p>
+                  ) : null}
+                  {recipientsTouched && recipientValidation.duplicateAddresses.length > 0 ? (
+                    <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                      Duplicate recipient: {recipientValidation.duplicateAddresses.join(", ")}
+                    </p>
+                  ) : null}
+                  {recipientsTouched && recipientValidation.unsupportedGroupMailboxes.length > 0 ? (
+                    <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                      Unsupported group mailbox: {recipientValidation.unsupportedGroupMailboxes.join(", ")}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="exec-digest-dow" className="font-semibold">
-                      Day of week
-                    </Label>
-                    <select
-                      id="exec-digest-dow"
-                      className={SELECT_CLASS}
-                      value={String(form.dayOfWeek)}
-                      onChange={(e) => updateForm({ dayOfWeek: Number.parseInt(e.target.value, 10) })}
-                    >
-                      {EXEC_DIGEST_DAY_NAMES.map((label, idx) => (
-                        <option key={label} value={idx}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="exec-digest-hour" className="font-semibold">
-                      Send time
-                    </Label>
-                    <select
-                      id="exec-digest-hour"
-                      className={SELECT_CLASS}
-                      value={String(form.hourOfDay)}
-                      onChange={(e) => updateForm({ hourOfDay: Number.parseInt(e.target.value, 10) })}
-                    >
-                      {EXEC_DIGEST_HOUR_OPTIONS.map((option) => (
-                        <option key={option.value} value={String(option.value)}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+              <fieldset className="m-0 grid gap-4 border-0 p-0 sm:grid-cols-2" disabled={!canMutate}>
+                <legend className={cn("mb-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  Schedule
+                </legend>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="exec-digest-tz" className="font-semibold">
+                    Time zone
+                  </Label>
+                  <select
+                    id="exec-digest-tz"
+                    className={SELECT_CLASS}
+                    value={normalizeIanaTimeZoneForSelect(form.ianaTimeZoneId)}
+                    disabled={!canMutate}
+                    onChange={(e) => updateForm({ ianaTimeZoneId: toStoredIanaTimeZoneId(e.target.value) })}
+                  >
+                    {ianaTimeZoneOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {formatIanaTimeZoneOptionLabel(option.value)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="exec-digest-dow" className="font-semibold">
+                    Day of week
+                  </Label>
+                  <select
+                    id="exec-digest-dow"
+                    className={SELECT_CLASS}
+                    value={String(form.dayOfWeek)}
+                    disabled={!canMutate}
+                    onChange={(e) => updateForm({ dayOfWeek: Number.parseInt(e.target.value, 10) })}
+                  >
+                    {EXEC_DIGEST_DAY_NAMES.map((label, idx) => (
+                      <option key={label} value={idx}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="exec-digest-hour" className="font-semibold">
+                    Send time
+                  </Label>
+                  <select
+                    id="exec-digest-hour"
+                    className={SELECT_CLASS}
+                    value={String(form.hourOfDay)}
+                    disabled={!canMutate}
+                    onChange={(e) => updateForm({ hourOfDay: Number.parseInt(e.target.value, 10) })}
+                  >
+                    {EXEC_DIGEST_HOUR_OPTIONS.map((option) => (
+                      <option key={option.value} value={String(option.value)}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </fieldset>
-
-              {enableActivationSummary !== null ? (
-                <p
-                  className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="exec-digest-activation-summary"
-                  role="status"
-                >
-                  {enableActivationSummary} Generation may consume AI budget when advisory scans run.
-                </p>
-              ) : null}
 
               <div className="flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
                 <Button
                   type="button"
                   size="sm"
                   variant="primary"
-                  disabled={!canMutate || saving || !formValid || (!unsavedChanges && prefs.isConfigured)}
-                  onClick={() => void onSave()}
+                  disabled={!canMutate || busy || !formValid || !unsavedChanges}
+                  onClick={() => void onSaveSchedule()}
                   data-testid="exec-digest-save-schedule"
                 >
-                  {saving ? "Saving…" : saveLabel}
+                  {saving ? "Saving schedule…" : "Save schedule"}
                 </Button>
-                <Button
-                  asChild={hasPreviewDigest}
-                  size="sm"
-                  variant="outline"
-                  disabled={!hasPreviewDigest}
-                  data-testid="exec-digest-preview-action"
-                  title={hasPreviewDigest ? EXEC_DIGEST_PREVIEW_HELPER : DIGESTS_BROWSE_PREVIEW_DISABLED_TITLE}
-                >
-                  {hasPreviewDigest ? (
-                    <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
-                  ) : (
-                    <span>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</span>
-                  )}
-                </Button>
-                <Button
-                  asChild
-                  size="sm"
-                  variant="outline"
-                  data-testid="exec-digest-test-action"
-                  title={EXEC_DIGEST_TEST_GENERATION_HELPER}
-                >
-                  <Link href="/advisory?tab=schedules">{DIGESTS_SCHEDULE_GENERATE_TEST_LABEL}</Link>
-                </Button>
+                {form.emailEnabled ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={!canMutate || busy}
+                    onClick={() => void onPauseDelivery()}
+                    data-testid="exec-digest-pause-delivery"
+                  >
+                    {pausing ? "Pausing…" : "Pause scheduled delivery"}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={!canMutate || busy || recipientCount === 0 || !recipientValidation.valid}
+                    onClick={() => void onEnableDelivery()}
+                    data-testid="exec-digest-enable-delivery"
+                    title={
+                      recipientCount === 0
+                        ? "Add at least one recipient before enabling scheduled delivery."
+                        : undefined
+                    }
+                  >
+                    {enabling ? "Enabling delivery…" : "Enable scheduled delivery"}
+                  </Button>
+                )}
               </div>
-
-              <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {EXEC_DIGEST_PREVIEW_HELPER}
-              </p>
 
               <div className="flex flex-wrap items-center gap-2">
                 {unsavedChanges ? (
                   <StatusTag kind="needs-attention" label="Unsaved changes" data-testid="exec-digest-unsaved-status" />
-                ) : saveSuccess ? (
+                ) : null}
+                {saveSuccess !== null ? (
                   <span
                     className={cn("text-emerald-800 dark:text-emerald-200", OPERATOR_TYPOGRAPHY.helper)}
                     data-testid="exec-digest-save-success"
                     role="status"
                   >
-                    Schedule saved
+                    {saveSuccess}
                   </span>
-                ) : prefs.isConfigured ? (
-                  <StatusTag kind="ready" label="Schedule saved" data-testid="exec-digest-saved-status" />
                 ) : null}
               </div>
             </section>
@@ -473,15 +698,41 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
               className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
               data-testid="exec-digest-delivery-readiness"
             >
-              <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Delivery readiness
-              </h2>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h3
+                  className={cn(
+                    "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                    OPERATOR_TYPOGRAPHY.cardTitle,
+                  )}
+                >
+                  Delivery readiness
+                </h3>
+                {readiness !== null ? (
+                  <StatusTag
+                    kind={readiness.overallStatusTagKind}
+                    label={readiness.overallLabel}
+                    data-testid="exec-digest-readiness-overall"
+                  />
+                ) : null}
+              </div>
+              {readiness?.nextAction !== null && readiness !== null ? (
+                <p
+                  className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="exec-digest-readiness-next-action"
+                >
+                  {readiness.nextAction}
+                </p>
+              ) : null}
               <ul className="m-0 mt-3 list-none space-y-3 p-0">
-                {readinessItems.map((item) => (
+                {readiness?.items.map((item) => (
                   <li key={item.id} className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{item.label}</p>
-                      <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{item.value}</p>
+                      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                        {item.label}
+                      </p>
+                      <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        {item.value}
+                      </p>
                     </div>
                     {item.actionHref !== undefined && item.actionLabel !== undefined ? (
                       <Button asChild size="sm" variant="outline">
@@ -495,12 +746,14 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 <Button
                   type="button"
                   size="sm"
-                  variant="ghost"
+                  variant="outline"
                   className="mt-4"
                   onClick={onRefresh}
                   disabled={refreshing}
                   data-testid="exec-digest-refresh-status"
+                  aria-label={refreshing ? "Refreshing status" : "Refresh status"}
                 >
+                  <RefreshCw className={cn("mr-1.5 size-3.5", refreshing && "animate-spin")} aria-hidden />
                   {refreshing ? "Refreshing…" : "Refresh status"}
                 </Button>
               ) : null}
@@ -511,21 +764,25 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
                 data-testid="exec-digest-saved-summary"
               >
-                <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                <h3
+                  className={cn(
+                    "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                    OPERATOR_TYPOGRAPHY.cardTitle,
+                  )}
+                >
                   Saved schedule
-                </h2>
+                </h3>
                 <dl className="m-0 mt-3 grid gap-3">
-                  <ScheduleSummaryRow label="Status" value={savedSummary.statusLabel} />
-                  <ScheduleSummaryRow label="Cadence" value={savedSummary.cadence} />
+                  <ScheduleSummaryRow label="Delivery status" value={savedSummary.deliveryStatus} />
+                  <ScheduleSummaryRow label="Configured schedule" value={savedSummary.configuredCadence} />
                   <ScheduleSummaryRow label="Time zone" value={savedSummary.timeZone} />
-                  <ScheduleSummaryRow label="Next scheduled send" value={savedSummary.nextScheduledSend} />
+                  <ScheduleSummaryRow label="Next send" value={savedSummary.nextScheduledSend} />
                   <ScheduleSummaryRow label="Direct recipients" value={String(savedSummary.directRecipientCount)} />
                   <ScheduleSummaryRow
-                    label="Subscription recipients"
-                    value={String(savedSummary.subscriptionRecipientCount)}
+                    label="Subscription destinations"
+                    value={String(savedSummary.subscriptionDestinationCount)}
                   />
-                  <ScheduleSummaryRow label="Last successful delivery" value={savedSummary.lastSuccessfulDelivery} />
-                  <ScheduleSummaryRow label="Last failed delivery" value={savedSummary.lastFailedDelivery} />
+                  <ScheduleSummaryRow label="Last schedule update" value={savedSummary.lastScheduleUpdate} />
                 </dl>
               </section>
             ) : null}
@@ -534,39 +791,67 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
               className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
               data-testid="exec-digest-latest-generated"
             >
-              <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                Latest generated digest
-              </h2>
-              <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {hasPreviewDigest
-                  ? formatDigestInstant(healthSnap?.latestArchitectureDigestGeneratedUtc)
-                  : "No architecture digest generated yet."}
-              </p>
-              <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {EXEC_DIGEST_TEST_GENERATION_HELPER}
-              </p>
-            </section>
-
-            {showTechnicalDetails ? (
-              <section
-                className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
-                data-testid="exec-digest-schedule-technical-details"
+              <h3
+                className={cn(
+                  "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+                  OPERATOR_TYPOGRAPHY.cardTitle,
+                )}
               >
-                <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                  Technical details
-                </h2>
-                <dl className={cn("m-0 mt-3 grid gap-2", OPERATOR_TYPOGRAPHY.helper)}>
-                  <div>
-                    <dt className="font-medium text-al-text-primary">Schema version</dt>
-                    <dd className="m-0 font-mono">{prefs.schemaVersion}</dd>
-                  </div>
-                  <div>
-                    <dt className="font-medium text-al-text-primary">Last saved</dt>
-                    <dd className="m-0">{new Date(prefs.updatedUtc).toLocaleString()}</dd>
-                  </div>
-                </dl>
-              </section>
-            ) : null}
+                Latest architecture digest
+              </h3>
+              {hasPreviewDigest ? (
+                <>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    Generated {formatDigestInstant(healthSnap?.latestArchitectureDigestGeneratedUtc)}
+                  </p>
+                  <Button asChild size="sm" variant="outline" className="mt-3" data-testid="exec-digest-preview-action">
+                    <Link href={previewHref}>{DIGESTS_SCHEDULE_PREVIEW_LABEL}</Link>
+                  </Button>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {EXEC_DIGEST_PREVIEW_HELPER}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                    No digest has been generated yet.
+                  </p>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {EXEC_DIGEST_PREVIEW_UNAVAILABLE}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3"
+                    disabled
+                    data-testid="exec-digest-preview-action"
+                    title={EXEC_DIGEST_PREVIEW_UNAVAILABLE}
+                  >
+                    {DIGESTS_SCHEDULE_PREVIEW_LABEL}
+                  </Button>
+                </>
+              )}
+
+              {!sampleModeBlocked ? (
+                <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+                  <Button asChild size="sm" variant="outline" data-testid="exec-digest-test-action">
+                    <Link href="/advisory?tab=schedules" title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
+                      {DIGESTS_SCHEDULE_GENERATE_TEST_LABEL}
+                    </Link>
+                  </Button>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {EXEC_DIGEST_TEST_GENERATION_HELPER}
+                  </p>
+                </div>
+              ) : (
+                <p
+                  className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="exec-digest-test-sample-blocked"
+                >
+                  Test generation and email delivery are unavailable in the sample workspace.
+                </p>
+              )}
+            </section>
           </aside>
         </div>
       )}
