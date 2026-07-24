@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import { buildDemoPreviewTimelineRows } from "@/lib/demo-preview-timeline-present";
 import {
@@ -9,7 +7,6 @@ import {
   LIVE_DEMO_KEY_TAKEAWAY_HEADING,
 } from "@/lib/live-demo-page-copy";
 import { resolveLiveDemoInspectHref } from "@/lib/live-demo-public-links";
-import { trackLiveDemoArtifactOpened } from "@/lib/live-demo-telemetry";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
@@ -17,6 +14,7 @@ import { cn } from "@/lib/utils";
 
 import { LiveDemoDeliverablesCompact } from "./LiveDemoDeliverablesCompact";
 import { LiveDemoReviewIntegritySection } from "./LiveDemoReviewIntegritySection";
+import { LiveDemoTrackedLink } from "./LiveDemoTrackedLink";
 
 type LiveDemoAuditTrailStepContentProps = {
   readonly payload: DemoCommitPagePreviewResponse;
@@ -111,9 +109,9 @@ export function LiveDemoAuditTrailStepContent(props: LiveDemoAuditTrailStepConte
 
       <div className="mt-4">
         <Button asChild variant="outline" data-testid="live-demo-inspect-audit">
-          <Link href={inspectHref} onClick={() => trackLiveDemoArtifactOpened("audit-trail")}>
+          <LiveDemoTrackedLink href={inspectHref} trackKind="artifact" trackValue="audit-trail">
             {LIVE_DEMO_INSPECT_ACTION_AUDIT}
-          </Link>
+          </LiveDemoTrackedLink>
         </Button>
       </div>
     </article>

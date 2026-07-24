@@ -1,17 +1,15 @@
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import {
   LIVE_DEMO_INSPECT_ACTION_EVIDENCE,
   LIVE_DEMO_KEY_TAKEAWAY_HEADING,
 } from "@/lib/live-demo-page-copy";
 import { resolveLiveDemoInspectHref } from "@/lib/live-demo-public-links";
-import { trackLiveDemoArtifactOpened } from "@/lib/live-demo-telemetry";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { cn } from "@/lib/utils";
 
 import { LiveDemoEvidenceChainPreview } from "./LiveDemoEvidenceChainPreview";
+import { LiveDemoTrackedLink } from "./LiveDemoTrackedLink";
 
 type LiveDemoEvidenceStepContentProps = {
   readonly payload: DemoCommitPagePreviewResponse;
@@ -63,9 +61,9 @@ export function LiveDemoEvidenceStepContent(props: LiveDemoEvidenceStepContentPr
 
       <div className="mt-4">
         <Button asChild variant="outline" data-testid="live-demo-inspect-evidence">
-          <Link href={inspectHref} onClick={() => trackLiveDemoArtifactOpened("evidence-graph")}>
+          <LiveDemoTrackedLink href={inspectHref} trackKind="artifact" trackValue="evidence-graph">
             {LIVE_DEMO_INSPECT_ACTION_EVIDENCE}
-          </Link>
+          </LiveDemoTrackedLink>
         </Button>
       </div>
     </article>

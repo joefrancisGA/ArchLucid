@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import {
   LIVE_DEMO_GOVERNANCE_APPROVAL_NOTE,
@@ -7,10 +5,11 @@ import {
   LIVE_DEMO_KEY_TAKEAWAY_HEADING,
 } from "@/lib/live-demo-page-copy";
 import { resolveLiveDemoInspectHref } from "@/lib/live-demo-public-links";
-import { trackLiveDemoArtifactOpened } from "@/lib/live-demo-telemetry";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { cn } from "@/lib/utils";
+
+import { LiveDemoTrackedLink } from "./LiveDemoTrackedLink";
 
 type LiveDemoGovernanceStepContentProps = {
   readonly payload: DemoCommitPagePreviewResponse;
@@ -80,9 +79,9 @@ export function LiveDemoGovernanceStepContent(props: LiveDemoGovernanceStepConte
 
       <div className="mt-4">
         <Button asChild variant="outline" data-testid="live-demo-inspect-governance">
-          <Link href={inspectHref} onClick={() => trackLiveDemoArtifactOpened("governance")}>
+          <LiveDemoTrackedLink href={inspectHref} trackKind="artifact" trackValue="governance">
             {LIVE_DEMO_INSPECT_ACTION_GOVERNANCE}
-          </Link>
+          </LiveDemoTrackedLink>
         </Button>
       </div>
     </article>

@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import {
   LIVE_DEMO_CTA_CLOSING,
@@ -8,9 +6,10 @@ import {
   LIVE_DEMO_CTA_SECONDARY,
 } from "@/lib/live-demo-page-copy";
 import { resolveLiveDemoInspectHref } from "@/lib/live-demo-public-links";
-import { trackLiveDemoConversionClick } from "@/lib/live-demo-telemetry";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+
+import { LiveDemoTrackedLink } from "./LiveDemoTrackedLink";
 
 type LiveDemoConversionCtaProps = {
   readonly runId: string;
@@ -43,19 +42,23 @@ export function LiveDemoConversionCta(props: LiveDemoConversionCtaProps) {
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
         <Button asChild variant="primary" data-testid="live-demo-cta-evaluation">
-          <Link href="/get-started" onClick={() => trackLiveDemoConversionClick("evaluation")}>
+          <LiveDemoTrackedLink href="/get-started" trackKind="conversion" trackValue="evaluation">
             {LIVE_DEMO_CTA_PRIMARY}
-          </Link>
+          </LiveDemoTrackedLink>
         </Button>
         <Button asChild variant="outline" data-testid="live-demo-cta-enterprise">
-          <Link href="/pricing#pricing-quote-request" onClick={() => trackLiveDemoConversionClick("enterprise-demo")}>
+          <LiveDemoTrackedLink
+            href="/pricing#pricing-quote-request"
+            trackKind="conversion"
+            trackValue="enterprise-demo"
+          >
             {LIVE_DEMO_CTA_SECONDARY}
-          </Link>
+          </LiveDemoTrackedLink>
         </Button>
         <Button asChild variant="ghost" data-testid="live-demo-cta-explore">
-          <Link href={fullReviewHref} onClick={() => trackLiveDemoConversionClick("full-review")}>
+          <LiveDemoTrackedLink href={fullReviewHref} trackKind="conversion" trackValue="full-review">
             {LIVE_DEMO_CTA_EXPLORE}
-          </Link>
+          </LiveDemoTrackedLink>
         </Button>
       </div>
     </section>

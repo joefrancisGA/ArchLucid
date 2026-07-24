@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 import { Button } from "@/components/ui/button";
 import { buildDemoPreviewConditionsText } from "@/lib/demo-preview-present";
@@ -16,12 +14,13 @@ import {
   LIVE_DEMO_KEY_TAKEAWAY_HEADING,
 } from "@/lib/live-demo-page-copy";
 import { resolveLiveDemoInspectHref } from "@/lib/live-demo-public-links";
-import { trackLiveDemoArtifactOpened } from "@/lib/live-demo-telemetry";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { cn } from "@/lib/utils";
+
+import { LiveDemoTrackedLink } from "./LiveDemoTrackedLink";
 
 type LiveDemoExecutiveStepContentProps = {
   readonly payload: DemoCommitPagePreviewResponse;
@@ -103,9 +102,9 @@ export function LiveDemoExecutiveStepContent(props: LiveDemoExecutiveStepContent
 
       <div className="mt-4">
         <Button asChild variant="outline" data-testid="live-demo-inspect-executive">
-          <Link href={inspectHref} onClick={() => trackLiveDemoArtifactOpened("executive")}>
+          <LiveDemoTrackedLink href={inspectHref} trackKind="artifact" trackValue="executive">
             {LIVE_DEMO_INSPECT_ACTION_EXECUTIVE}
-          </Link>
+          </LiveDemoTrackedLink>
         </Button>
       </div>
     </article>

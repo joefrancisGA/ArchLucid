@@ -1,17 +1,16 @@
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import {
   LIVE_DEMO_INSPECT_ACTION_SIGNED,
   LIVE_DEMO_KEY_TAKEAWAY_HEADING,
 } from "@/lib/live-demo-page-copy";
 import { resolveLiveDemoInspectHref } from "@/lib/live-demo-public-links";
-import { trackLiveDemoArtifactOpened } from "@/lib/live-demo-telemetry";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { cn } from "@/lib/utils";
+
+import { LiveDemoTrackedLink } from "./LiveDemoTrackedLink";
 
 type LiveDemoSignedRecordStepContentProps = {
   readonly payload: DemoCommitPagePreviewResponse;
@@ -110,9 +109,9 @@ export function LiveDemoSignedRecordStepContent(props: LiveDemoSignedRecordStepC
 
       <div className="mt-4">
         <Button asChild variant="outline" data-testid="live-demo-inspect-signed-record">
-          <Link href={inspectHref} onClick={() => trackLiveDemoArtifactOpened("signed-record")}>
+          <LiveDemoTrackedLink href={inspectHref} trackKind="artifact" trackValue="signed-record">
             {LIVE_DEMO_INSPECT_ACTION_SIGNED}
-          </Link>
+          </LiveDemoTrackedLink>
         </Button>
       </div>
     </article>
