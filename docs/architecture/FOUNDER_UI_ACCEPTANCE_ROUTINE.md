@@ -5,6 +5,8 @@
 **Backlog:** [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) **M-96–M-106** (and **G-QA-01–G-QA-03**)  
 **Not:** A new paid UI-test SaaS product, or merge-blocking “Lighthouse ≥ 95 everywhere” gates
 
+**Ops note (not UI lane):** Solo-operator **P0 page-path** enablement (AMW scrape + critical action-group Test) lives in [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) (**TB-957**). Founder drill cadence / pass-fail log: GTM **M-120**.
+
 ## Intent
 
 ArchLucid already runs a large Playwright estate in GitHub plus warn-only lab Lighthouse CI. That answers:

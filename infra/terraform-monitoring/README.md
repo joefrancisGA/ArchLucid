@@ -83,9 +83,15 @@ When **`enable_application_insights`**, **`enable_container_app_environment_otel
 
 P0 **`archlucid_*` PromQL** rules require those metrics in the AMW; verify scrape/export after apply with the **`azure_monitor_prometheus_query_endpoint`** output.
 
+**Solo-operator MVO (TB-957):** founder P0 checklist, honesty boundaries, and Portal Test drill — [`docs/operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../../docs/operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md). Prefer the scripted verify below over ad-hoc queries.
+
 ### Verify metrics reached AMW
 
 ```powershell
+# From repo root (preferred — TB-957):
+pwsh ./scripts/ops/verify-amw-p0-metrics.ps1
+
+# Or manual (same endpoint):
 $q = terraform output -raw azure_monitor_prometheus_query_endpoint
 $token = az account get-access-token --resource https://prometheus.monitor.azure.com --query accessToken -o tsv
 $headers = @{ Authorization = "Bearer $token" }
