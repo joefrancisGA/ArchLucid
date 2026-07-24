@@ -12,6 +12,7 @@ import {
   resolveReviewDetailTab,
   resolveReviewDetailTabFromHash,
 } from "@/lib/review-detail-workspace-tabs";
+import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import { cn } from "@/lib/utils";
 
 export type ReviewDetailTabCounts = {
@@ -84,7 +85,43 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     params.set(REVIEW_DETAIL_TAB_PARAM, tabFromHash);
     router.replace(`${pathname}?${params.toString()}#${hash}`, { scroll: false });
     setHashResolved(true);
+
+    if (hash.length > 0) {
+      scheduleScrollToReviewDetailSection(hash);
+    }
   }, [hashResolved, pathname, router, searchParams]);
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+
+    if (hash.length === 0) {
+      return;
+    }
+
+    const tabFromHash = resolveReviewDetailTabFromHash(hash);
+
+    if (tabFromHash !== null && tabFromHash !== activeTab) {
+      return;
+    }
+
+    scheduleScrollToReviewDetailSection(hash);
+  }, [activeTab, searchParams]);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash.slice(1);
+
+      if (hash.length === 0) {
+        return;
+      }
+
+      scheduleScrollToReviewDetailSection(hash);
+    };
+
+    window.addEventListener("hashchange", onHashChange);
+
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
 
   const counts = props.tabCounts ?? {};
 
