@@ -11,7 +11,7 @@
 
 ## When to use this packet
 
-Use this index **after** `./scripts/collect-first-pilot-proof.ps1` (with `-RunId` when a committed review exists) and before asking for annual conversion. Do not treat a vague demo click-through as proof — either buyer evidence or an **explicitly accepted demo workspace** must be labeled.
+Use this index **after** `./scripts/collect-first-pilot-proof.ps1` (with `-RunId` when a finalized review exists) and before asking for annual conversion. Do not treat a vague demo click-through as proof — either buyer evidence or an **explicitly accepted demo workspace** must be labeled.
 
 The proof pipeline emits a generated companion at **`quote-to-proof-packet.md`** inside the proof folder; this document is the stable buyer-safe index that row maps to.
 
@@ -55,7 +55,7 @@ python scripts/ci/assert_route_tier_policy_nav.py
 
 ## Readiness checklist
 
-Use after a committed review. Each row is PASS / WARN / HOLD / DEFERRED_SCOPE; deferred procurement items do not reduce V1 product-readiness language.
+Use after a finalized review. Each row is PASS / WARN / HOLD / DEFERRED_SCOPE; deferred procurement items do not reduce V1 product-readiness language.
 
 | Check | PASS when | HOLD when |
 | --- | --- | --- |

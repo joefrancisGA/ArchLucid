@@ -72,7 +72,7 @@ Use this matrix in sales conversations and sponsor briefings. Each row ties a bu
 
 ---
 
-## Walkthrough shape (demo or first committed review)
+## Walkthrough shape (demo or first finalized review)
 
 1. **Create** architecture review (Core Pilot four-step narrative — [`CORE_PILOT.md`](../CORE_PILOT.md)).
 2. **Execute** agents on uploaded Azure evidence or accepted demo workspace.

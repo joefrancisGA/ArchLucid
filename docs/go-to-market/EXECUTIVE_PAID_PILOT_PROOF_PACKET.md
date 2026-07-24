@@ -3,7 +3,7 @@
 # Executive paid-pilot proof packet (assembly + mock procurement review)
 
 **Audience:** Founder / pilot operator / sales engineer preparing a **paid** executive sponsor packet and rehearsing it before a real procurement call.
-**Goal:** Turn one committed review into the six-element executive proof packet the buyer's sponsor + procurement reviewers actually need, then pressure-test it in a mock procurement review **before** sending.
+**Goal:** Turn one finalized review into the six-element executive proof packet the buyer's sponsor + procurement reviewers actually need, then pressure-test it in a mock procurement review **before** sending.
 **Execution tracked as:** GTM backlog **M-37 (V1.1)**. This document is the reusable **design half** (the assembly + mock-review sequence); assembling a *real* authorized packet and running a *real* mock procurement review require a committed run and human reviewers a coding agent cannot supply.
 
 This implements assessment Improvement **#4**. It deliberately **reuses** the existing assembly CLI, send gates, evidence templates, mock-procurement drill, and paid-pilot ledger — it does not duplicate them. Every row links to the canonical owner.

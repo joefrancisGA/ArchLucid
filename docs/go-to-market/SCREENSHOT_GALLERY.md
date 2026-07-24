@@ -20,8 +20,8 @@ This document is a **capture brief**: it describes exactly what to show on scree
 ## Prerequisites
 
 - ArchLucid API running against SQL with **demo seed data** (`Demo:Enabled=true`, `Demo:SeedOnStartup=true`, or `POST /v1.0/demo/seed`). Fastest path: **`scripts/demo-start.ps1`** / **`scripts/demo-start.sh`** with **`docker-compose.demo.yml`** — see **[DEMO_QUICKSTART.md](DEMO_QUICKSTART.md)**. Save captures under **`docs/go-to-market/screenshots/`** when committing assets.
-- Operator UI (`archlucid-ui`) running at `http://localhost:3000`.
-- At least **two completed reviews** (`runId`) with committed golden manifests (use `archlucid run --quick` twice or Swagger).
+- Architect workspace (`archlucid-ui`) running at `http://localhost:3000`.
+- At least **two completed reviews** (`runId`) with finalized architecture packages / API golden manifests (use `archlucid run --quick` twice or Swagger).
 - At least **one comparison** between those two reviews (use `/compare` in the UI or API).
 - **One governance approval request** submitted and one approved (if governance is enabled).
 - Browser at **1440×900** or **1920×1080** for consistent framing. Use **light mode** for primary set, capture **dark mode** variants for each.
@@ -61,9 +61,9 @@ This document is a **capture brief**: it describes exactly what to show on scree
 |-----------|--------|
 | **Screen** | Run detail page |
 | **URL** | `/runs/{runId}` (use a completed run) |
-| **Data state** | Run is committed. Pipeline timeline shows all stages completed (Context, Graph, Findings, Manifest — all with "Ready" badges). Manifest summary visible below. Artifacts table showing at least 3 rows. |
-| **Annotation callouts** | (A) "Real-time pipeline tracking from context to manifest" on the pipeline timeline. (B) "Versioned golden manifest — the source of truth" on the manifest summary. (C) "Review or download individual artifacts" on the artifacts table. |
-| **Caption** | "Every run shows its complete pipeline journey — from context ingestion through graph build, findings generation, and manifest synthesis — with artifacts available for review and download." |
+| **Data state** | Review is finalized. Pipeline timeline shows all stages completed (Context, Graph, Findings, Architecture package — all with "Ready" badges). Architecture package summary visible below. Artifacts table showing at least 3 rows. |
+| **Annotation callouts** | (A) "Real-time pipeline tracking from context to architecture package" on the pipeline timeline. (B) "Versioned architecture package — the source of truth" on the package summary. (C) "Review or download individual artifacts" on the artifacts table. |
+| **Caption** | "Every review shows its complete pipeline journey — from context ingestion through graph build, findings generation, and architecture-package synthesis — with artifacts available for review and download." |
 | **Dark mode variant** | Yes |
 
 ---
@@ -87,9 +87,9 @@ This document is a **capture brief**: it describes exactly what to show on scree
 |-----------|--------|
 | **Screen** | Compare two reviews |
 | **URL** | `/compare?leftRunId={id1}&rightRunId={id2}` |
-| **Data state** | Two committed reviews compared. Structured manifest deltas visible with additions and changes highlighted. AI explanation section expanded (if available). |
+| **Data state** | Two finalized reviews compared. Structured architecture-package deltas visible with additions and changes highlighted. AI explanation section expanded (if available). |
 | **Annotation callouts** | (A) "Structured architecture deltas between iterations" on the delta section. (B) "Detect drift before it reaches production" as a summary callout. |
-| **Caption** | "Compare any two architecture reviews to see exactly what changed — structured manifest deltas highlight additions, removals, and modifications with full context." |
+| **Caption** | "Compare any two architecture reviews to see exactly what changed — structured architecture-package deltas highlight additions, removals, and modifications with full context." |
 | **Dark mode variant** | Yes |
 
 ---
@@ -102,7 +102,7 @@ This document is a **capture brief**: it describes exactly what to show on scree
 | **URL** | `/governance/dashboard` |
 | **Data state** | At least one pending approval request visible. Compliance drift chart showing data for the last 30 days (even if sparse). Policy pack change count visible. |
 | **Annotation callouts** | (A) "Pending approvals with SLA tracking" on the approval requests section. (B) "Compliance drift trend over time" on the drift chart. (C) "Policy pack activity at a glance" on the change count area. |
-| **Caption** | "The governance dashboard gives operators a single view of pending approvals, compliance drift trends, and policy pack activity — so nothing falls through the cracks." |
+| **Caption** | "The governance dashboard gives architects a single view of pending approvals, compliance drift trends, and policy pack activity — so nothing falls through the cracks." |
 | **Dark mode variant** | Yes |
 
 ---
@@ -140,8 +140,8 @@ This document is a **capture brief**: it describes exactly what to show on scree
 | **Screen** | New run wizard — Step 7 (Track) |
 | **URL** | `/reviews/new` (navigate to step 7 after creating a review; legacy `/runs/new` redirects) |
 | **Data state** | Pipeline tracking in progress or completed. Progress bar at 75% or 100%. Stage badges showing Context Ready, Graph Ready, Findings Ready, Manifest Ready (or the last one still Pending for the "in progress" feel). |
-| **Annotation callouts** | (A) "Live pipeline tracking — no page refresh needed" on the progress bar. (B) "Four stages from context to manifest" on the stage badges. |
-| **Caption** | "After creating a run, the wizard tracks the AI pipeline in real time — context ingestion, graph build, findings generation, and manifest synthesis — so you know exactly when your results are ready." |
+| **Annotation callouts** | (A) "Live pipeline tracking — no page refresh needed" on the progress bar. (B) "Four stages from context to architecture package" on the stage badges. |
+| **Caption** | "After creating a review, the wizard tracks the AI pipeline in real time — context ingestion, graph build, findings generation, and architecture-package synthesis — so you know exactly when your results are ready." |
 | **Dark mode variant** | Yes |
 
 ---
@@ -192,5 +192,5 @@ This document is a **capture brief**: it describes exactly what to show on scree
 | [PRODUCT_DATASHEET.md](PRODUCT_DATASHEET.md) | Product datasheet that will embed these screenshots |
 | [POSITIONING.md](POSITIONING.md) | Value pillars and proof points for caption language |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which screenshots matter most to which persona |
-| [../operator-shell.md](../library/operator-shell.md) | Operator UI workflow documentation |
+| [../operator-shell.md](../library/operator-shell.md) | Architect workspace workflow documentation (legacy path name) |
 | [FIRST_RUN_WIZARD.md](../library/FIRST_RUN_WIZARD.md) | Wizard steps and field mappings |

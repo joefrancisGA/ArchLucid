@@ -64,7 +64,7 @@ If a participant is not a fluent frontier-AI user, the dismissal test is invalid
 | --- | --- |
 | Sanitized architecture packet | One packet, used for **both** arms. Customer-redacted or Contoso-style, 8–15 pages. |
 | **Arm A — chat-style frontier-AI critique** | Same packet run through Claude/GPT/Gemini using the baseline prompt in [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) § Frontier-AI baseline prompt. Save transcript + findings list. |
-| **Arm B — governed ArchLucid package** | Committed review on the same packet: findings + **policy/compliance mapping**, evidence trail, golden manifest, audit rows, sponsor packet. Real-mode preferred; label simulator output explicitly. |
+| **Arm B — governed ArchLucid package** | Finalized review on the same packet: findings + **policy/compliance mapping**, evidence trail, architecture package (API: golden manifest), audit rows, sponsor packet. Real-mode preferred; label simulator output explicitly. |
 | Randomized arm order | See § Randomization. Decide and record **before** the session. |
 | Capture template | [`templates/principal-architect-dismissal-interview.template.json`](templates/principal-architect-dismissal-interview.template.json) |
 | Dismissal log | [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) + its JSON template (filed after the session) |
@@ -86,7 +86,7 @@ Rules:
 
 - Record `armOrder` (`A-then-B` or `B-then-A`) in the capture JSON **before** the session.
 - Present the two arms as neutral **"Approach 1"** and **"Approach 2"** — do **not** say which is ArchLucid until after the comparison questions (§ Step 4 reveal).
-- Do **not** narrate product nouns (policy packs, golden manifest, Operate layer) while presenting either arm; let the artifacts speak. Reveal vocabulary only at § Step 5.
+- Do **not** narrate product nouns (policy packs, architecture package / golden manifest, Operate layer) while presenting either arm; let the artifacts speak. Reveal vocabulary only at § Step 5.
 
 ---
 
