@@ -36,7 +36,7 @@ ArchLucid is an **AI-assisted architecture workflow** with three product layers:
 ## Data flow
 
 1. **Discovery → Pilot charter:** Pick one bounded system (one tenant/workspace), success metrics below, and a single sponsor owner.
-2. **Day 0–30 — Core Pilot:** Produce **N** committed manifests with **reviewable** artifacts; measure time **request → first manifest commit**.
+2. **Day 0–30 — Core Pilot:** Produce **N** finalized architecture packages with **reviewable** artifacts; measure time **request → first finalize**.
 3. **Day 31–60 — Advanced (optional):** Run comparisons/replays on real change sets; measure drift findings closed.
 4. **Day 61–90 — Enterprise (optional):** Route one approval workflow; measure approval **SLA adherence** vs baseline spreadsheet/email.
 5. **Expand:** Roll to second product line only after metrics hold for one release train.
@@ -54,8 +54,8 @@ Fail-closed API auth (`ArchLucidAuth`), **scope policies** (`ReadAuthority` / `E
 
 | Metric | What “good” looks like | Proof in the system |
 |--------|------------------------|---------------------|
-| **Time-to-first committed manifest** | Median **&lt; X days** for pilot team (set X in charter) | `dbo.Runs` + **`dbo.GoldenManifests`** (Authority path; legacy **`dbo.GoldenManifestVersions`** dropped migration **111**) / manifest commit timestamps vs `ArchitectureRequests.CreatedUtc` |
-| **Traceable review package** | **100%** of pilot runs have **Otel + manifest + findings** for sponsor demo | `Runs.OtelTraceId`, `GoldenManifests`, `FindingsSnapshots` ([../DATA_MODEL.md](../library/DATA_MODEL.md)) |
-| **Governance-ready evidence (if Enterprise layer)** | At least **one** approval or policy outcome **exportable** for audit | `GovernanceApprovalRequests`, `AuditEvents` / operator audit UI |
+| **Time-to-first finalized architecture package** | Median **&lt; X days** for pilot team (set X in charter) | `dbo.Runs` + **`dbo.GoldenManifests`** (Authority path; legacy **`dbo.GoldenManifestVersions`** dropped migration **111**) / finalize timestamps vs `ArchitectureRequests.CreatedUtc` |
+| **Traceable architecture package** | **100%** of pilot reviews have **Otel + package + findings** for sponsor demo | `Runs.OtelTraceId`, `GoldenManifests`, `FindingsSnapshots` ([../DATA_MODEL.md](../library/DATA_MODEL.md)) |
+| **Governance-ready evidence (if Enterprise layer)** | At least **one** approval or policy outcome **exportable** for audit | `GovernanceApprovalRequests`, `AuditEvents` / architect workspace audit UI |
 
 Canonical **buyer pitch** remains in [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) — this document aligns **field motion** to **persisted artifacts**, not a second narrative.

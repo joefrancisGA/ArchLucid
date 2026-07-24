@@ -16,8 +16,8 @@ This run-sheet **reuses** the shipped demo script, automation, deterministic fix
 
 | Half | Who | What |
 | --- | --- | --- |
-| **Mechanism (automated)** | Coding agent / CI | The A/B delta is shipped: dry-run + pre-commit simulation endpoints, the demo script, and a deterministic regression fixture (below). Provable offline with **no live env and no buyer data**. |
-| **Live demo (operator)** | Founder / SE | Run the A/B against a **committed run** on a local or staging stack and narrate the gate flip. |
+| **Mechanism (automated)** | Coding agent / CI | The A/B delta is shipped: dry-run + pre-finalize simulation endpoints, the demo script, and a deterministic regression fixture (below). Provable offline with **no live env and no buyer data**. |
+| **Live demo (architect)** | Founder / SE | Run the A/B against a **finalized review** on a local or staging stack and narrate the gate flip. |
 | **Authorized pilot + judgment (market-execution)** | Human + buyer | Run it on **authorized** evidence, capture the six deltas, and have a buyer judge that the changed decision matters. A coding agent cannot perform this. |
 
 ---
@@ -29,7 +29,7 @@ Prove the mechanism still holds before booking any live session. The determinist
 - **Canonical fixture (source of truth):** [`../../tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json`](../../tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json) — synthetic, internal demo validation only.
 - **Backend regression:** `ArchLucid.Application.Tests/Governance/PolicyAbDemoRegressionTests.cs` (mirrors the fixture in `PolicyAbDemoFixture.cs`):
   - stricter pack selects **one additional** compliance rule key;
-  - same committed findings → pre-commit gate flips **allow → block**.
+  - same finalized findings → pre-finalize gate flips **allow → block**.
 - **UI regression:** `archlucid-ui/src/lib/policy-ab-demo-fixture.test.tsx` — before/after rule-key delta renders the added key and the gate posture flips.
 
 ```powershell

@@ -75,18 +75,18 @@ Follow up within **7 days** of quote request. PASS schedules a 30-minute sponsor
 
 | Deliverable | Owner | Evidence |
 | --- | --- | --- |
-| Environment readiness + first committed review | Joint | [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
+| Environment readiness + first finalized review | Joint | [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
 | First-value / sponsor report | ArchLucid | `GET …/first-value-report` |
 | Pilot scorecard baseline + close-out | Joint | [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) |
 | Buyer-safe evidence bundle | ArchLucid | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 
-Before work starts, agree the SQL/auth or hosted-staging shape, Tier 1 Azure extractor ZIP or explicit demo acceptance, named operator and sponsor, and architect-hours baseline. The conversion route remains **Readiness Review → Evidence Pack or ARB Report → annual Professional / Enterprise order form**. Pricing is canonical in [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md); use [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) after the first committed review.
+Before work starts, agree the SQL/auth or hosted-staging shape, Tier 1 Azure extractor ZIP or explicit demo acceptance, named architect and sponsor, and architect-hours baseline. The conversion route remains **Readiness Review → Evidence Pack or ARB Report → annual Professional / Enterprise order form**. Pricing is canonical in [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md); use [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) after the first finalized review.
 
 ---
 
 ## Self-serve demo proof walkthroughs (no founder narration)
 
-Use when the buyer needs a labeled path from sample request → committed manifest → explainability without a live session:
+Use when the buyer needs a labeled path from sample request → finalized architecture package → explainability without a live session:
 
 - [`demo-proof-packets/ai-governance-demo-proof.md`](demo-proof-packets/ai-governance-demo-proof.md)
 - [`demo-proof-packets/azure-saas-readiness-demo-proof.md`](demo-proof-packets/azure-saas-readiness-demo-proof.md)
