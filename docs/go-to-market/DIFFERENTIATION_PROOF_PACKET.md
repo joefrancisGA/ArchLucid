@@ -12,9 +12,9 @@
 
 | Capability | Manual review / checklist | Generic AI assistant | ArchLucid V1 |
 | --- | --- | --- | --- |
-| Committed golden manifest | Sometimes informal | No durable manifest | **Yes** — SQL-backed manifest id + audit trail |
+| Finalized architecture package | Sometimes informal | No durable package | **Yes** — SQL-backed package/manifest id + audit trail |
 | Repeatable export package | Ad hoc slides/docs | Chat transcript | **Sponsor packet** + first-value report + proof ZIP |
-| Governance gate before commit | Process-dependent | None | **Policy packs** + dry-run + optional BlockCommitOnCritical |
+| Governance gate before finalize | Process-dependent | None | **Policy packs** + dry-run + optional BlockCommitOnCritical |
 | Evidence refs per finding | Often missing | Hallucination risk | **Evidence refs** + retrieval grounding traces |
 | Provenance / explain | Variable | Opaque | **Explainability trace** + evidence-chain view |
 | ROI basis labels | Anecdotal | Unsupported savings claims | **Buyer-provided / Defaulted / Demo-derived / Not collected** |
@@ -102,7 +102,7 @@ Optional template hook: [`templates/evidence-packet-buyer.template.md`](template
 - Buyer requires **CPA-issued SOC 2 Type I/II** before any pilot — see **(B)** deferrals in [`trust-center.md`](trust-center.md); self-assessment and roadmap only today.
 - Buyer mandates **first-party Jira/ServiceNow/Confluence/Slack/Teams** connectors as day-one — V1.1 per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md); V1 offers REST/CLI + GitHub/Azure DevOps handoff comments.
 - Buyer expects **live Marketplace transactability** or self-serve Stripe checkout — deferred; sales-led order form path only.
-- Team will not run a **committed review** — ArchLucid value is in the defensible review package, not chat-only assistance.
+- Team will not run a **finalized review** — ArchLucid value is in the defensible architecture package, not chat-only assistance.
 
 ---
 

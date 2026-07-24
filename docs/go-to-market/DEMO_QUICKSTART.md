@@ -28,7 +28,7 @@ From the repository root:
 | **macOS / Linux (Bash)** | `./scripts/demo-start.sh` (ensure executable: `chmod +x scripts/demo-start.sh`) |
 | **Manual** | `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build` |
 
-The script waits up to **120 seconds** for `http://localhost:5000/health/ready`, then opens the operator UI (where supported).
+The script waits up to **120 seconds** for `http://localhost:5000/health/ready`, then opens the architect workspace (where supported).
 
 **Ports used:** 1433 (SQL), 3000 (UI), 5000 (API), 10000–10002 (Azurite), 6379 (Redis). Free these before starting if something else is bound.
 

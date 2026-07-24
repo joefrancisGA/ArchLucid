@@ -71,7 +71,7 @@
 ## 5. Acceptance criteria
 
 1. Final **Architecture Review Report** delivered in agreed format (DOCX/PDF).
-2. Committed review package exists in ArchLucid with audit trail and export bundle.
+2. Finalized architecture package exists in ArchLucid with audit trail and export bundle.
 3. Execution mode (`Real` / `Simulator` / `Fallback` / `Mixed`) labeled on sponsor-facing artifacts.
 4. No broad claims beyond [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) and completed proof gates.
 

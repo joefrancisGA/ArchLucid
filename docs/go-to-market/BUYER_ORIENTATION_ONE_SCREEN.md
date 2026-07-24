@@ -9,7 +9,7 @@
 
 | Layer | What you get in V1 | When to use it |
 | --- | --- | --- |
-| **Pilot** | One defensible architecture review: committed manifest, findings, artifacts, sponsor exports | First value — prove the review package on your evidence or an accepted demo workspace |
+| **Pilot** | One defensible architecture review: finalized architecture package, findings, artifacts, sponsor exports | First value — prove the architecture package on your evidence or an accepted demo workspace |
 | **Operate** | Compare, replay, graph depth, governance, audit, policy packs | After first commit when you need investigation or governance workflows |
 
 ## What to do first (buyer / evaluator)

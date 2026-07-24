@@ -11,11 +11,11 @@ ArchLucid uses AI to accelerate architecture review. **AI-generated text is deci
 
 | Evidence type | Role |
 | --- | --- |
-| Committed golden manifest | Frozen review package identity and timestamps |
+| Finalized architecture package | Frozen package identity and timestamps (API: golden manifest) |
 | Findings and severity | Structured outputs tied to evidence references |
 | Execution traces and audit rows | Durable, exportable activity with correlation ids |
 | Evidence-chain pointers | Links from findings back to snapshots and manifests |
-| Governance records | Policy packs, approvals, and pre-commit gates when enabled |
+| Governance records | Policy packs, approvals, and pre-finalize gates when enabled |
 
 ## What requires human judgment
 

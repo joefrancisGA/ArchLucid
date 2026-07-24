@@ -99,7 +99,7 @@ Print or keep on second monitor. **Do not** deviate into feature tours.
 
 ### Opening script (3 min — verbatim)
 
-> "You are evaluating whether ArchLucid helps you produce a defensible architecture review package. You have 45 minutes. I'll give you a brief and one sentence of context — then I want you to work as you normally would. Ask aloud when you're stuck; I won't guide you to buttons unless you're completely blocked. The goal is sponsor-ready output, not a perfect score."
+> "You are evaluating whether ArchLucid helps you produce a defensible architecture package. You have 45 minutes. I'll give you a brief and one sentence of context — then I want you to work as you normally would. Ask aloud when you're stuck; I won't guide you to buttons unless you're completely blocked. The goal is sponsor-ready output, not a perfect score."
 
 **One sentence of context (only):**
 
@@ -141,7 +141,7 @@ Use **one primary category** per session. Secondary tags optional.
 | **D3** | Wayfinding failure | Cannot find core path without help | "Where do I even start a review?" |
 | **D4** | Export / handoff hidden | Commits but cannot find sponsor export | "I committed — now what do I send?" |
 | **D5** | Trust / label failure | Misreads simulator as live proof | "So this is production evidence?" |
-| **D6** | Vocabulary load | Product nouns block progress | "What is a golden manifest?" |
+| **D6** | Vocabulary load | Product nouns block progress | "What is an architecture package?" |
 | **D7** | Finding quality doubt | Does not trust findings enough to send | "Half of these aren't actionable." |
 | **D8** | No dismissal | Completes; no near-dismissal signal | — |
 

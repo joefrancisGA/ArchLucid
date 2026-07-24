@@ -5,7 +5,7 @@
 **Audience:** Founder / facilitator, principal-architect participant, product observer.  
 **Last reviewed:** 2026-06-16
 
-**Purpose:** Determine whether a competent principal architect reaches a **sponsor-ready review package** on first use **without feature-tour narration**. This reduces market uncertainty about Time-to-Value and voluntary usage — not design uncertainty about individual widgets.
+**Purpose:** Determine whether a competent principal architect reaches a **sponsor-ready architecture package** on first use **without feature-tour narration**. This reduces market uncertainty about Time-to-Value and voluntary usage — not design uncertainty about individual widgets.
 
 **Path under test:** [`CORE_PILOT.md`](../CORE_PILOT.md) · [`FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`](../library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md) (expert 15-min lane) · [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · [`OPERATOR_DECISION_GUIDE.md`](../library/OPERATOR_DECISION_GUIDE.md) · [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md)
 
@@ -28,7 +28,7 @@
 
 ## Moderator script (opening — 3 min)
 
-> "You are evaluating whether ArchLucid helps you produce a defensible architecture review package. You have 45 minutes. I'll give you a brief and one sentence of context — then I want you to work as you normally would. Ask aloud when you're stuck; I won't guide you to buttons unless you're completely blocked. The goal is sponsor-ready output, not a perfect score."
+> "You are evaluating whether ArchLucid helps you produce a defensible architecture package. You have 45 minutes. I'll give you a brief and one sentence of context — then I want you to work as you normally would. Ask aloud when you're stuck; I won't guide you to buttons unless you're completely blocked. The goal is sponsor-ready output, not a perfect score."
 
 **One sentence of context (only):**
 
@@ -99,7 +99,7 @@ product). It extends — does not replace — the `Button-level rescue required`
 
 | Verdict | Criteria |
 | --- | --- |
-| **Product-led** | Reached committed manifest + located export with **zero** navigation-hint / product-explanation interventions (safety-blocker fixes allowed) |
+| **Product-led** | Reached finalized architecture package + located export with **zero** navigation-hint / product-explanation interventions (safety-blocker fixes allowed) |
 | **Mixed** | Reached value but needed **1** navigation-hint or product-explanation the participant could not have worked around |
 | **Founder-led** | Needed **≥2** narration leaks, **or** could not have continued without a product-explanation at a core step |
 

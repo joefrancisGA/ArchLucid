@@ -26,7 +26,7 @@ Requires **`Demo:Enabled = true`** alongside **`Demo:AnonymousViewer:Enabled`**.
 
 ## Staging / production URLs (patterns and owner-owned hosts)
 
-Repositories **must not bake in** unpublished customer hostnames. Use this pattern everywhere; release managers paste the **`{OPERATOR_ORIGIN}`** your environment actually serves (matching operator UI HTTPS origin).
+Repositories **must not bake in** unpublished customer hostnames. Use this pattern everywhere; release managers paste the **`{OPERATOR_ORIGIN}`** your environment actually serves (matching architect workspace HTTPS origin).
 
 | Workspace | Canonical path (recommended) |
 |-----------|--------------------------------|
