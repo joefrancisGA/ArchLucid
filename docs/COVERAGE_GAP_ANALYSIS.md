@@ -1169,6 +1169,18 @@ _No classes below 95% line coverage in Cobertura for this assembly._
 - **Merged line coverage:** 60.04%
 - **Merged branch coverage:** 48.18%
 
+## TB-301 persistence scope-isolation probes (SQL integration)
+
+**TB-301** tracks tenant/workspace/project scope isolation for high-risk persistence reads. SQL integration probes (wrong-scope denial) target:
+
+- `SqlRunRepository.GetByIdAsync`
+- `DapperAuditRepository.GetFilteredAsync`
+- `SqlGoldenManifestRepository.GetByIdAsync`
+- `GovernanceApprovalRequestRepository.GetByIdAsync`
+- `SqlDecisionTraceRepository.GetByIdAsync`
+
+See `ArchLucid.Persistence.Tests/*ScopeIsolationSqlIntegrationTests.cs` for probe implementations.
+
 ## How to refresh
 
 ```powershell

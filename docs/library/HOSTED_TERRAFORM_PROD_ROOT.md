@@ -1,5 +1,5 @@
-> **Reviewed:** 2026-07-23
 > **Scope:** Contributor-reference — Hosted production Terraform root scaffold and apply order pointer.
+> **Reviewed:** 2026-07-23
 
 # Hosted production Terraform root (repo scaffold)
 
