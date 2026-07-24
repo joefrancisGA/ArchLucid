@@ -60,5 +60,5 @@ Cross-check [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) for conserv
 ## Related surfaces
 
 - Review detail sponsor handoff (`RunDetailSponsorBriefingSection`)
-- [`/value-report/pilot`](../../../archlucid-ui/src/app/(operator)/value-report/pilot/) aggregate window (uses latest committed review in sample)
+- [`/value-report/pilot`](../../../archlucid-ui/src/app/(operator)/value-report/pilot/) aggregate window (uses latest finalized review in sample)
 - First-run operator help: `/help/first-run`

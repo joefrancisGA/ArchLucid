@@ -7,4 +7,4 @@ Generated UTC: 2026-06-15T14:00:53.627936+00:00
 | Arm | Source |
 | --- | --- |
 | **A** | Principal architect + frontier AI manual baseline (`manualAi`) |
-| **B** | ArchLucid committed review export (`archlucid`) |
+| **B** | ArchLucid finalized review export (`archlucid`) |

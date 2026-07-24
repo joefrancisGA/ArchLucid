@@ -10,7 +10,7 @@
 
 ## 1. Purpose
 
-This addendum defines operational controls for **optional online fine-tuning** on **accepted golden manifests** (RAG-V2-003 / TB-594), referenced from the Data Processing Agreement when a customer enables manifest fine-tuning.
+This addendum defines operational controls for **optional online fine-tuning** on **accepted architecture packages** (API: golden manifests; RAG-V2-003 / TB-594), referenced from the Data Processing Agreement when a customer enables package/manifest fine-tuning.
 
 The feature is **optional**, **OFF by default**, and **separate** from core tenant-private processing and from the cross-tenant pattern library addendum.
 
@@ -20,9 +20,9 @@ The feature is **optional**, **OFF by default**, and **separate** from core tena
 
 ### Included (when opt-in is enabled)
 
-- Redacted architecture decision titles, categories, selected options, and rationales from committed manifests in the enabling tenant's scope.
+- Redacted architecture decision titles, categories, selected options, and rationales from finalized architecture packages in the enabling tenant's scope.
 - Redacted topology summaries (service and datastore **types** and counts; not customer hostnames).
-- Structural policy-control identifiers and severities from committed manifests.
+- Structural policy-control identifiers and severities from finalized architecture packages.
 - Export audit metadata (manifest count, content hash, consent snapshot, timestamp).
 
 ### Explicitly excluded
