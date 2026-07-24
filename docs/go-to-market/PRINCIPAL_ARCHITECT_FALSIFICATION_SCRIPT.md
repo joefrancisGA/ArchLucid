@@ -18,8 +18,8 @@
 |-------|----------------|
 | Auth mode | Staging/demo host is **JwtBearer** (or ApiKey), **not** DevelopmentBypass |
 | Scope headers | `AllowTestActorHeaders` is **false** on this host (**TB-949**) |
-| Sample run | One committed review the visitor can open (prefer Real) |
-| Artifacts ready | Links to [`SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md`](SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md), export/verify docs (**TB-886**), optional **TB-948** harness output |
+| Sample run | One finalized review the visitor can open (prefer Real) |
+| Artifacts ready | Links to [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114), export/verify docs (**TB-886**), optional **TB-948** harness output |
 
 ---
 
@@ -32,7 +32,7 @@
 | 1.1 | Authenticate as Tenant A | Session shows Tenant A |
 | 1.2 | Call a scope-sensitive API (e.g. `GET /v1/scope` or invitations list) with forged Tenant B header | **403** (or equivalent deny), not 200 with B’s data |
 | 1.3 | Optional: Ask / Search with B’s identifiers while A is authenticated | No cross-tenant hits |
-| 1.4 | Show one-pager | [`SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md`](SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md) |
+| 1.4 | Show one-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114) |
 
 **Talk track:** Database-per-tenant + identity-bound scope; SingleCatalog is CI/dev only; production-like hosts reject DevBypass / header bake.
 

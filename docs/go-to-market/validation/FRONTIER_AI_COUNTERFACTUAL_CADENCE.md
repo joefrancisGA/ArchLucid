@@ -80,7 +80,7 @@ Apply honestly — never omit losing sessions.
 | Decision-change rate below hold threshold | **Hold:** decision-advantage headline claims; run M-43/M-45 cohort before outbound |
 | Repeat-use median below hold threshold | **Hold:** voluntary-usage and 30-day retention messaging |
 | FAIL rate > PASS rate in rolling 90 days | **Revise:** executive brief to emphasize governance infrastructure, not insight supremacy |
-| ArchLucid wins on packaging/traceability (`none` loss + PASS) | **Strengthen:** decision-infrastructure positioning per [`DIFFERENTIATOR_EVIDENCE_MATRIX.md`](../DIFFERENTIATOR_EVIDENCE_MATRIX.md) — still no "smarter than GPT" language |
+| ArchLucid wins on packaging/traceability (`none` loss + PASS) | **Strengthen:** decision-infrastructure positioning per [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md#deal-cycle-heuristic-matrix) — still no "smarter than GPT" language |
 
 ### Anti-patterns (never)
 

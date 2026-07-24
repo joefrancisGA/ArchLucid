@@ -32,6 +32,12 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist) | Readiness checklist merged into quote-to-proof packet |
 | `docs/go-to-market/QUOTE_TO_PILOT_PACK.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#pre-pilot-quote-pack) | Pre-pilot quote pack merged into quote-to-proof packet |
 | `docs/go-to-market/PROCUREMENT_EVIDENCE_PACKET.md` | [`docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`](go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map) | Procurement routing folded into buyer security packet |
+| `docs/go-to-market/DIFFERENTIATOR_EVIDENCE_MATRIX.md` | [`docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md`](go-to-market/DIFFERENTIATION_PROOF_PACKET.md#deal-cycle-heuristic-matrix) | Buyer-heuristic matrix + deal-cycle steps folded into proof packet |
+| `docs/go-to-market/SECURITY_REVIEWER_ISOLATION_ONE_PAGER.md` | [`docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`](go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114) | M-114 isolation handout folded into buyer security packet |
+| `docs/go-to-market/COMPETITOR_CONTRAST.md` | [`docs/go-to-market/COMPETITIVE_POSITIONING.md`](go-to-market/COMPETITIVE_POSITIONING.md#narrative-competitor-contrasts) | Honest win/lose narratives folded into competitive positioning |
+| `docs/go-to-market/SECURITY_CONTROL_EVIDENCE_MAP.md` | [`docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md`](go-to-market/SECURITY_REVIEWER_ONE_PAGER.md#control-to-evidence-map) | Control-to-evidence table folded into security reviewer one-pager |
+| `docs/go-to-market/DESIGN_PARTNER_RECRUITING_PIPELINE.md` | [`docs/go-to-market/PILOT_RECRUITING_PIPELINE.md`](go-to-market/PILOT_RECRUITING_PIPELINE.md) | TB-161 subset twin; canonical recruiting pipeline |
+| `docs/go-to-market/PILOT_SUPPORT_OPERATING_MODEL.md` | [`docs/go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md`](go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md) | TB-162 subset twin; white-glove vs self-serve modes folded into §1 |
 
 ---
 

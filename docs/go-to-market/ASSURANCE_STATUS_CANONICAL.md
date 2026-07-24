@@ -1,4 +1,6 @@
-﻿> **Scope:** Canonical assurance status source for procurement-facing language; defines current status, deferred windows, allowed wording, and evidence links to prevent cross-document drift.
+﻿> **Reviewed:** 2026-07-24
+
+> **Scope:** Canonical assurance status source for procurement-facing language; defines current status, deferred windows, allowed wording, and evidence links to prevent cross-document drift.
 
 # Assurance Status Canonical
 

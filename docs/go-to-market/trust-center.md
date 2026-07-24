@@ -1,14 +1,18 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** Consolidated security and procurement posture for buyers — links only to in-repo evidence; no third-party attestation claims beyond what cited files state.
 
 # ArchLucid Trust Center
 
-<!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-05-01 -->
+<!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-07-24 -->
 
-**Last reviewed:** 2026-05-01
+**Last reviewed:** 2026-07-24
 
-**Last reviewed (UTC):** 2026-05-01
+**Last reviewed (UTC):** 2026-07-24
 
-This page is the **single buyer-facing index** for security questionnaires, self-assessments, and procurement artifacts. Status labels are honest about evidence type: **self-asserted** documentation, **planned but not yet scheduled** work, **engagements in flight**, or **third-party confirmed** only where a linked file states that explicitly.
+**Canonical assurance wording:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md).
+
+This page is the **single buyer-facing index** for security questionnaires, self-assessments, and procurement artifacts. Status labels are honest about evidence type: **self-asserted** documentation, **planned but not yet scheduled** work, **owner-conducted** programmes documented in-repo, or **third-party confirmed** only where a linked file states that explicitly.
 
 ---
 
@@ -56,14 +60,14 @@ The ZIP includes the DPA template, subprocessors register, SLA summary, `securit
 
 | Control | Status | Evidence | Last reviewed |
 |---------|--------|----------|---------------|
-| SOC 2 Common Criteria mapping (self-assessment, not attestation) | Self-asserted | [SOC 2 self-assessment](/help/soc2-self-assessment), [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | 2026-04-24 |
-| Independent penetration test programme (third-party vendor-led) | Planned, not yet scheduled — no vendor committed | [V1_DEFERRED.md §6c](../library/V1_DEFERRED.md), [V1_SCOPE.md §3](../library/V1_SCOPE.md) | 2026-05-01 |
-| 2026-Q2 owner-conducted penetration-style assessment | In progress / tracked | [2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) | 2026-05-01 |
-| Third-party pen-test SoW template (no awarded vendor) | Template only — use when a vendor engagement is scheduled | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) | 2026-05-01 |
-| SOC 2 Type II attestation (CPA) — procurement status | Self-asserted | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) (states **not yet issued**; interim evidence is the self-assessment above) | 2026-04-24 |
-| Durable audit catalog (append-only design) | Self-asserted | [Audit trail](/help/audit-trail) | 2026-04-24 |
-| V1 scalability (single-region contract; documented levers; in-repo k6/load evidence) | Self-asserted | [BUYER_SCALABILITY_FAQ.md](../library/BUYER_SCALABILITY_FAQ.md) | 2026-04-29 |
-| Penetration test remediation tracking (process) | Self-asserted | [REMEDIATION_TRACKER.md](../security/pen-test-summaries/REMEDIATION_TRACKER.md) | 2026-04-24 |
+| SOC 2 Common Criteria mapping (self-assessment, not attestation) | Self-asserted | [SOC 2 self-assessment](/help/soc2-self-assessment), [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | 2026-07-24 |
+| Independent penetration test programme (third-party vendor-led) | Planned, not yet scheduled — no vendor committed | [V1_DEFERRED.md §6c](../library/V1_DEFERRED.md), [PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | 2026-07-24 |
+| 2026-Q2 owner-conducted penetration-style assessment | Active V1 control | [2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) | 2026-07-24 |
+| Third-party pen-test SoW template (no awarded vendor) | Template only — use when a vendor engagement is scheduled | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) | 2026-07-24 |
+| SOC 2 Type II attestation (CPA) — procurement status | Not issued — interim self-assessment only | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | 2026-07-24 |
+| Durable audit catalog (append-only design) | Self-asserted | [Audit trail](/help/audit-trail) | 2026-07-24 |
+| V1 scalability (single-region contract; documented levers; in-repo k6/load evidence) | Self-asserted | [BUYER_SCALABILITY_FAQ.md](../library/BUYER_SCALABILITY_FAQ.md) | 2026-07-24 |
+| Penetration test remediation tracking (process) | Self-asserted | [REMEDIATION_TRACKER.md](../security/pen-test-summaries/REMEDIATION_TRACKER.md) | 2026-07-24 |
 
 ---
 

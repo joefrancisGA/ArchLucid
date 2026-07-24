@@ -1,17 +1,19 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** Procurement-facing competitive comparison — category-level contrasts only; ArchLucid claims grounded in shipped product docs (`docs/library/V1_SCOPE.md`, `docs/go-to-market/POSITIONING.md`). No competitor logos or trademarks.
 
 # Competitive comparison — procurement pack
 
 **Audience:** Security, architecture, and sourcing reviewers evaluating ArchLucid against common incumbent patterns.
 
-**Last reviewed:** 2026-05-10
+**Last reviewed:** 2026-07-24
 
 **How to use this doc**
 
 - Treat competitor descriptions as **typical patterns** for each category — implementations vary by organization.
 - **Do not** quote cells below as factual statements about a named vendor without confirming against that vendor’s own materials.
 
-**Related:** [`POSITIONING.md`](POSITIONING.md) (value proposition), [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md) (market-level matrices), [`ENTERPRISE_COMPARISON_ONE_PAGE.md`](ENTERPRISE_COMPARISON_ONE_PAGE.md) (short procurement PDF source).
+**Related:** [`POSITIONING.md`](POSITIONING.md) (value proposition), [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md) (market-level matrices), [`COMPETITIVE_POSITIONING.md`](COMPETITIVE_POSITIONING.md) (internal win/lose narratives), [`ENTERPRISE_COMPARISON_ONE_PAGE.md`](ENTERPRISE_COMPARISON_ONE_PAGE.md) (short procurement PDF source).
 
 ---
 

@@ -45,4 +45,4 @@ Copy the **`--- FAILURE (triage) ---`** block from the failing script ([PILOT_GU
 ## Related
 
 - V1 scope core path: [V1_SCOPE.md](V1_SCOPE.md) §4
-- Differentiator talking points: [../go-to-market/DIFFERENTIATOR_EVIDENCE_MATRIX.md](../go-to-market/DIFFERENTIATOR_EVIDENCE_MATRIX.md)
+- Differentiator talking points: [../go-to-market/DIFFERENTIATION_PROOF_PACKET.md](../go-to-market/DIFFERENTIATION_PROOF_PACKET.md#deal-cycle-heuristic-matrix)

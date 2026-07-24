@@ -1,4 +1,6 @@
-﻿> **Scope:** ArchLucid — Backup, disaster recovery, and data lifecycle - full detail, tables, and links in the sections below.
+﻿> **Reviewed:** 2026-07-24
+
+> **Scope:** ArchLucid — Backup, disaster recovery, and data lifecycle - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -7,7 +9,7 @@
 
 **Audience:** Security reviewers and procurement teams evaluating ArchLucid's data protection and recovery posture.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-07-24
 
 This document describes ArchLucid's backup, disaster recovery, and data lifecycle posture **honestly** — stating what is in place, what uses Azure platform defaults, and what is roadmap.
 
@@ -104,6 +106,7 @@ On contract termination, ArchLucid deletes customer data per the timeline agreed
 | Doc | Use |
 |-----|-----|
 | [trust-center.md](trust-center.md) | Trust index |
+| [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | Canonical assurance wording (do not invent stronger DR/attestation claims here) |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Availability and latency objectives |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data deletion on termination (§9) |
 | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Data isolation architecture |

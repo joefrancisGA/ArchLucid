@@ -1,4 +1,6 @@
-﻿> **Scope:** Penetration test summary — procurement interim statement (no third-party test results claimed).
+﻿> **Reviewed:** 2026-07-24
+
+> **Scope:** Penetration test summary — procurement interim statement (no third-party test results claimed).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1,4 +1,6 @@
-﻿> **Scope:** Path-stable procurement-pack alias. Not an independent assurance statement.
+﻿> **Reviewed:** 2026-07-24
+
+> **Scope:** Path-stable procurement-pack alias. Not an independent assurance statement.
 
 # SOC 2 status (procurement alias)
 
