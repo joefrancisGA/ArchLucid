@@ -119119,6 +119119,40 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class BuyerFindingSummaryDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("category")]
+        public string? Category { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("engineType")]
+        public string? EngineType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingId")]
+        public string? FindingId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("policyRuleId")]
+        public string? PolicyRuleId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("severity")]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<FindingSeverity>))]
+        public FindingSeverity? Severity { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("title")]
+        public string? Title { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class BuyerRunDetailRunDto
     {
 
@@ -119196,6 +119230,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("findingCoverageSummary")]
         public RunFindingCoverageSummary? FindingCoverageSummary { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingSummaries")]
+        public System.Collections.Generic.ICollection<BuyerFindingSummaryDto>? FindingSummaries { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastAgentExecutionFailure")]
         public AgentExecutionFailureSummary? LastAgentExecutionFailure { get; set; } = default!;

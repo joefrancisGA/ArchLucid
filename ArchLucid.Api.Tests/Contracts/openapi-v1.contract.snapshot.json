@@ -5346,6 +5346,32 @@
         },
         "type": "object"
       },
+      "BuyerFindingSummaryDto": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "policyRuleId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "severity": {
+            "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "BuyerRunDetailRunDto": {
         "properties": {
           "createdUtc": {
@@ -5463,6 +5489,12 @@
                 "$ref": "#/components/schemas/RunFindingCoverageSummary"
               }
             ]
+          },
+          "findingSummaries": {
+            "items": {
+              "$ref": "#/components/schemas/BuyerFindingSummaryDto"
+            },
+            "type": "array"
           },
           "lastAgentExecutionFailure": {
             "oneOf": [
