@@ -1,4 +1,4 @@
-> **Scope:** Sequencing map — turn the shipped policy-pack delta mechanism into one repeatable **policy-to-decision proof pilot**: same committed review, default pack vs stricter pack, recorded decision deltas, packaged buyer-safe. This is an **index/runbook only**; it restates no policy logic, gate math, or ROI claim — canonical sources own those. Dry-run/simulation output is **architecture-review governance evidence, not certification**. Running it on **authorized buyer evidence** with a human reviewer is the market-execution half (GTM backlog).
+> **Scope:** Sequencing map — turn the shipped policy-pack delta mechanism into one repeatable **policy-to-decision proof pilot**: same finalized review, default pack vs stricter pack, recorded decision deltas, packaged buyer-safe. This is an **index/runbook only**; it restates no policy logic, gate math, or ROI claim — canonical sources own those. Dry-run/simulation output is **architecture-review governance evidence, not certification**. Running it on **authorized buyer evidence** with a human reviewer is the market-execution half (GTM backlog).
 
 # Policy-to-decision proof pilot (run-sheet)
 
@@ -67,7 +67,7 @@ For the **same run id**, record (redacted — no customer-identifying content):
 | # | Delta | Source |
 | --- | --- | --- |
 | 1 | Changed **rule keys** (added/removed) | `policy-pack-compliance-rule-key-diff` view / dry-run rule selection |
-| 2 | **Finding set** change under enforcement | committed review findings + dry-run |
+| 2 | **Finding set** change under enforcement | finalized review findings + dry-run |
 | 3 | **Gate outcome** flip (`Blocked` false → true) | `GateResult.Blocked` in dry-run / pre-commit simulation |
 | 4 | **Executive summary** delta | `GET /v1/roi/executive-summary` before/after posture |
 | 5 | **Remediation owner** for the new blocking finding | one ITSM ticket correlation (see Step 3) |

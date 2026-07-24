@@ -15,7 +15,7 @@
 | Architecture practice | Central EA / platform team with recurring architecture reviews | One-off document-only engagement |
 | Azure footprint | Active Azure workloads or committed migration | AWS/GCP-only without V1.1 multi-cloud plan |
 | Sponsor | Named executive or EA lead with budget influence | No sponsor; tooling evaluation only |
-| Evidence appetite | Willing to run a committed review on buyer or agreed demo scope | Requires production write access on day one |
+| Evidence appetite | Willing to run a finalized review on buyer or agreed demo scope | Requires production write access on day one |
 | Data boundary | Accepts tenant isolation and scoped evidence upload | Requires cross-tenant analytics or public data mixing |
 
 ---
@@ -37,7 +37,7 @@
 | --- | --- | --- |
 | **Nurture** | Interest, no scoped pilot | Scheduled discovery with sponsor identified |
 | **Qualified** | Sponsor + scoped system + timeline | Signed pilot SOW or order form path per [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md) |
-| **Active pilot** | Tenant provisioned | ≥ 1 committed review; proof packet started |
+| **Active pilot** | Tenant provisioned | ≥ 1 finalized review; proof packet started |
 | **No-fit** | Disqualifier hit | Document reason; do not reuse proof claims |
 
 ---

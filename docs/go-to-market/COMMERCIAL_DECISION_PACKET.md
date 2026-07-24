@@ -8,7 +8,7 @@
 
 ## Recommended first purchase
 
-**Architecture Review Pilot (service-led or SaaS trial)** — one committed review with a sponsor-safe proof packet (`buyer-proof-pack` or `pilot proof-packet`).
+**Architecture Review Pilot (service-led or SaaS trial)** — one finalized review with a sponsor-safe proof packet (`buyer-proof-pack` or `pilot proof-packet`).
 
 Deliverable: first-value report + proof summary + explicit limitations + trust pointer.
 

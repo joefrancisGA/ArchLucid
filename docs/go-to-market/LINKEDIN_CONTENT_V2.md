@@ -36,7 +36,7 @@
 
 Every product launch checklist has a line item for screenshots. It sits between "write landing page copy" and "record demo video." It looks like a half-day task.
 
-It is not a half-day task. Not for an enterprise workflow product where the value is in the *state* of the screen — committed manifests, populated audit logs, structured deltas between two reviews — not in a empty shell with placeholder text.
+It is not a half-day task. Not for an enterprise workflow product where the value is in the *state* of the screen — finalized architecture packages, populated audit logs, structured deltas between two reviews — not in a empty shell with placeholder text.
 
 I learned this the hard way while blocking our own landing page on screenshot capture. The engineering was done. The demo workspaces were seeded. Playwright smoke passed. And I still could not ship credible visuals because I had not treated screenshot production as a workflow with prerequisites, acceptance criteria, and a repeatable brief.
 
@@ -112,7 +112,7 @@ Ten sounds manageable until you multiply by two themes and optional annotated ov
 The brief also forced us to write down what must exist *before* screenshot day:
 
 - API and UI running against **demo seed data** — empty tenants produce empty screenshots.
-- At least **two completed reviews** with committed golden manifests — comparison views need real left/right pairings.
+- At least **two completed reviews** with finalized architecture packages (API: golden manifests) — comparison views need real left/right pairings.
 - At least **one comparison** between those reviews — delta highlights need actual additions and changes.
 - At least **one governance approval** in flight or approved — dashboards with zero pending requests look abandoned.
 - Browser at **1440×900 or 1920×1080**, extensions disabled, **light mode for the primary set** with dark variants captured deliberately rather than as an afterthought.
@@ -213,7 +213,7 @@ Capture accordingly.
 
 Typography sounds like a design polish task. Pick a readable sans-serif, set a scale, ship it.
 
-That works until you are building an operator UI where a principal architect scans a findings table, a compliance officer reads an audit log, and a sponsor opens an executive summary — all in the same product, often in the same session — and every screen communicates *authority* through type hierarchy whether you planned it or not.
+That works until you are building an architect workspace where a principal architect scans a findings table, a compliance officer reads an audit log, and a sponsor opens an executive summary — all in the same product, often in the same session — and every screen communicates *authority* through type hierarchy whether you planned it or not.
 
 We learned that the hard way on ArchLucid. We did not have a font problem. We had a **text system** problem: dozens of ad-hoc Tailwind classes that each made sense in isolation and collectively made the product feel like three different apps wearing the same color palette.
 
@@ -241,7 +241,7 @@ A page title is not just "the biggest text on the page." In our product it compe
 - **Metadata lines** — timestamps, correlation hints, secondary context that must stay quieter than body copy.
 - **Executive summary numbers** — sponsor-facing counts that must not inherit the monospace hero scale from operator KPI tiles.
 
-Each role has different density requirements. A badge at 11px is intentional. A page title at `text-3xl` is a marketing landing page leaking into an operator shell. A KPI rendered in `text-sm font-semibold` looks like a mislabeled paragraph, not a metric.
+Each role has different density requirements. A badge at 11px is intentional. A page title at `text-3xl` is a marketing landing page leaking into an architect workspace. A KPI rendered in `text-sm font-semibold` looks like a mislabeled paragraph, not a metric.
 
 Before we centralized tokens, every new component made a local judgment call. Local judgment calls do not scale — especially when AI coding agents write UI as fast as you can review it.
 
@@ -273,7 +273,7 @@ That is text system complexity: not choosing Inter vs IBM Plex, but maintaining 
 
 Defining tokens is an afternoon. **Enforcing** them is a migration.
 
-Our typography audit (engineering backlog **TB-119**) touched on the order of **106 files** — operator home, run detail, governance findings, audit log, executive dashboard, marketing pages that share the operator shell. We wrote a migration script (`migrate-tb119-operator-typography.ps1`) because hand-editing `text-2xl` grep results across a monorepo is how you miss the one executive panel that still renders money in the wrong weight.
+Our typography audit (engineering backlog **TB-119**) touched on the order of **106 files** — operator home, run detail, governance findings, audit log, executive dashboard, marketing pages that share the architect workspace. We wrote a migration script (`migrate-tb119-operator-typography.ps1`) because hand-editing `text-2xl` grep results across a monorepo is how you miss the one executive panel that still renders money in the wrong weight.
 
 Acceptance was not "looks nicer." Acceptance was grep-clean:
 
@@ -289,7 +289,7 @@ If you have ever run a design-system migration, you know the emotional arc: conf
 
 Text systems also collide with **vocabulary systems** — and enterprise products need both.
 
-We standardized product language at the same time as type hierarchy: *review package* not *run*, *finding* not *alert*, *evidence trail* not *logs*. Typography carries tone. A `text-3xl` heading that says "Run detail" communicates hobby project. A compact `text-xl` page title that says "Review package" communicates instrument panel.
+We standardized product language at the same time as type hierarchy: *architecture package* not *run*, *finding* not *alert*, *evidence trail* not *logs*. Typography carries tone. A `text-3xl` heading that says "Run detail" communicates hobby project. A compact `text-xl` page title that says "Architecture package" communicates instrument panel.
 
 Carbon discipline plus precise product language is how a governance UI earns CIO and procurement attention. Sloppy type under correct words still reads as immature. Correct words under marketing-scale type reads as a landing page cosplaying as software.
 
@@ -694,7 +694,7 @@ Parallel product intuition — fixing every friction the moment you feel it — 
 
 ArchLucid's operator path is sequential on purpose.
 
-The first-run wizard walks seven steps — preset, identity, requirements, constraints, review, submission, live pipeline tracking — because admitting a review package before inputs are coherent produces garbage evidence downstream.
+The first-run wizard walks seven steps — preset, identity, requirements, constraints, review, submission, live pipeline tracking — because admitting a architecture package before inputs are coherent produces garbage evidence downstream.
 
 The pipeline itself is staged: context, graph, findings, manifest. Not because we love waterfalls. Because each stage consumes structured output from the previous one. Skipping a stage does not save time; it produces findings that cannot cite their inputs.
 
@@ -815,7 +815,7 @@ When people ask what stack ArchLucid uses, they often want a framework answer: N
 
 That is true and mostly irrelevant to how hard UI development actually was.
 
-The hard part was not choosing React. The hard part was building an **operator shell** that a principal architect, a compliance officer, and a sponsor could each trust — on the same pages — without the product looking like a weekend hackathon or a consumer SaaS landing page wearing a sidebar.
+The hard part was not choosing React. The hard part was building an **architect workspace** that a principal architect, a compliance officer, and a sponsor could each trust — on the same pages — without the product looking like a weekend hackathon or a consumer SaaS landing page wearing a sidebar.
 
 UI development, for us, meant **credibility engineering**. The backend could be correct and still lose the room in the first thirty seconds of a demo because the findings table looked like a Notion clone with teal gradients.
 
@@ -829,7 +829,7 @@ That aesthetic is fine for a dev tool side project. It is poison for a product w
 
 We ratified a different standard before V1 GA: **IBM Carbon** as the primary visual reference — not copied branding, but Carbon's discipline for dense, regulated, data-heavy workflows. **Microsoft Fluent 2** for shell and navigation polish where Azure-adjacent familiarity helps. Tailwind and shadcn remain **primitives**, not the aesthetic target.
 
-The design doc is explicit: neutral grays, restrained teal accent, compact spacing, structured tables, canonical status tags, product language that says *finding* and *review package* — not *alert* and *run*.
+The design doc is explicit: neutral grays, restrained teal accent, compact spacing, structured tables, canonical status tags, product language that says *finding* and *architecture package* — not *alert* and *run*.
 
 Writing that down was easy. Getting a monorepo to obey it was UI development.
 
@@ -910,7 +910,7 @@ That is GTM, not "design."
 
 A findings board that surfaces evidence links and confidence boundaries supports differentiation copy about defensible review. An audit log that looks append-only and filterable supports trust-center posture. An export button a principal architect cannot find in ten minutes fails commercially — no matter how good the PDF generator is.
 
-UI development was therefore sequenced with proof gates: do not claim a workflow in marketing that the operator shell cannot demonstrate without narration.
+UI development was therefore sequenced with proof gates: do not claim a workflow in marketing that the architect workspace cannot demonstrate without narration.
 
 ---
 
@@ -937,7 +937,7 @@ Build it like one.
 
 ---
 
-*I am building ArchLucid — governed architecture review with an enterprise operator shell on Next.js and authority in .NET. If you are turning a technically strong backend into a credible UI with coding agents, I am happy to share what survived contact with screenshots and first-session gates. [Connect / DM me]*
+*I am building ArchLucid — governed architecture review with an enterprise architect workspace on Next.js and authority in .NET. If you are turning a technically strong backend into a credible UI with coding agents, I am happy to share what survived contact with screenshots and first-session gates. [Connect / DM me]*
 
 ---
 
@@ -1051,7 +1051,7 @@ Honest deferral is slower. It survives diligence.
 
 **Secret 6: The product can be ahead of the market evidence**
 
-ArchLucid's repo is years of architecture invariants, policy packs, audit events, tenant isolation tests, and operator UI migration waves. The **market-execution half** — real dismissal cohorts, blind decision-delta sessions, paid pilot ledgers with buyer-safe rows — is largely still owner-run work a coding agent cannot perform for you.
+ArchLucid's repo is years of architecture invariants, policy packs, audit events, tenant isolation tests, and architect-workspace migration waves. The **market-execution half** — real dismissal cohorts, blind decision-delta sessions, paid pilot ledgers with buyer-safe rows — is largely still owner-run work a coding agent cannot perform for you.
 
 That asymmetry feels like impostor syndrome until you name it correctly:
 
@@ -1163,7 +1163,7 @@ I did not expect to write a LinkedIn article about padding.
 
 And yet here we are — **Adventures in Space!** — because whitespace nearly sabotaged an enterprise governance product from the inside, one cheerful `gap-6` at a time.
 
-Not outer space. **Layout space.** The invisible material between your findings table and your audit log, between your status tag and your section header, between "this looks like a real tool" and "this looks like a landing page that wandered into the operator shell."
+Not outer space. **Layout space.** The invisible material between your findings table and your audit log, between your status tag and your section header, between "this looks like a real tool" and "this looks like a landing page that wandered into the architect workspace."
 
 Whitespace is the quietest UI debate. It is also one of the fastest ways to fail a procurement glance.
 
@@ -1288,7 +1288,7 @@ Go forth. Trim the void. Keep the focus rings.
 
 ---
 
-*I am building ArchLucid — enterprise governance UI where spacing is part of the credibility stack. If your operator shell feels like a marketing page with a sidebar, I am happy to share our TB-118 convention. [Connect / DM me]*
+*I am building ArchLucid — enterprise governance UI where spacing is part of the credibility stack. If your architect workspace feels like a marketing page with a sidebar, I am happy to share our TB-118 convention. [Connect / DM me]*
 
 ---
 
@@ -1386,7 +1386,7 @@ ArchLucid's foundational design deliberately accepts **"good enough, not perfect
 
 That standard **must not** leak into sponsor-facing artifacts.
 
-For committed review packages, we maintain a separate bar — real-mode faithfulness rollups, unsupported-claim counts, evidence-chain completeness on top findings, PilotStrict HOLD before forward. Simulator-labeled demos can help exploration. They cannot help a procurement call if they pretend to be something else.
+For finalized architecture packages, we maintain a separate bar — real-mode faithfulness rollups, unsupported-claim counts, evidence-chain completeness on top findings, PilotStrict HOLD before forward. Simulator-labeled demos can help exploration. They cannot help a procurement call if they pretend to be something else.
 
 The dirty trick is using one "good enough" philosophy everywhere. Intent can be iterative. **Proof cannot.**
 
@@ -1523,7 +1523,7 @@ We ratified product language in the UI design standard and **`UI_GLOSSARY_V1.md`
 
 | Prefer | Avoid (on normal surfaces) |
 | --- | --- |
-| Review package | Run, job, task |
+| Architecture package | Run, job, task |
 | Finding | Issue, alert (unless it is an alert) |
 | Evidence trail | Logs, output |
 | Governance approval | Sign-off (when ambiguous) |
@@ -1576,18 +1576,18 @@ Big words without evidence are noise. Plain sentences with citations are governa
 
 **Building the glossary was cheaper than rebuilding trust**
 
-We maintain **`UI_GLOSSARY_V1.md`** as the single vocabulary table for operator shell, GTM, and demo scripts — buyer-facing term on the left, technical truth on the right.
+We maintain **`UI_GLOSSARY_V1.md`** as the single vocabulary table for architect workspace, GTM, and demo scripts — buyer-facing term on the left, technical truth on the right.
 
 That file exists because drift is automatic:
 
 - Engineering ships a button labeled *Commit*.
-- Marketing writes *Finalize review package*.
+- Marketing writes *Finalize architecture package*.
 - An agent renames a nav item *Runs dashboard*.
 - A sponsor sees three products in one app.
 
 Without a glossary, you debate taste in every PR. With one, you ask: **does this label match the column?** If not, fix the label or escalate an ADR — do not improvise.
 
-Improvement **#26** (operator UI vocabulary alignment) was completed in-repo for a reason: vocabulary is a **cross-surface invariant**, like execution-mode labels.
+Improvement **#26** (architect workspace vocabulary alignment) was completed in-repo for a reason: vocabulary is a **cross-surface invariant**, like execution-mode labels.
 
 ---
 
@@ -1645,7 +1645,7 @@ Your sponsor should not need aspirin.
 
 > "New piece: Big Words Hurt My Head — jargon as credibility tax, why we maintain a UI glossary, and plain language that stays precise (not vague).
 >
-> Short version: *finding* not *alert*, *review package* not *run*, big framework nouns behind disclosure.
+> Short version: *finding* not *alert*, *architecture package* not *run*, big framework nouns behind disclosure.
 >
 > [Link]"
 
@@ -1727,7 +1727,7 @@ ArchLucid separates **review output** from **architecture description**:
 
 Our product language deliberately says **signed decision record** on sponsor-facing surfaces — not because we dislike the ADR acronym, but because **record** implies disposition and auditability; **ADR** in many orgs implies a markdown template.
 
-That is the same insight as M-15's defensible review package — diagrams summarize; **decision records are the argument**.
+That is the same insight as M-15's defensible architecture package — diagrams summarize; **decision records are the argument**.
 
 ---
 
@@ -1753,7 +1753,7 @@ Building ArchLucid forced us to practice what we sell:
 - **Foundational design debate** for existential product questions before they harden into scope.
 - **Review commits** for customer-facing architecture under analysis — manifest, findings, decisions, audit trail.
 
-The internal ADR for database-per-tenant isolation and the customer's signed decision record on a committed review are the **same class of artifact** at different boundaries. Both answer: *what was decided, under what constraints, with what trade-offs, and what happens if we are wrong?*
+The internal ADR for database-per-tenant isolation and the customer's signed decision record on a finalized review are the **same class of artifact** at different boundaries. Both answer: *what was decided, under what constraints, with what trade-offs, and what happens if we are wrong?*
 
 Merge-blocking ADR sections (`Trade-offs`, `Constraints`, `Expected impact`) train engineers to write decisions reviewers can argue with. ArchLucid's review UI trains operators to **dispose** of findings approvers can audit.
 
@@ -1774,7 +1774,7 @@ Name the artifact: diagram version, cost worksheet, policy clause, run ID, manif
 **Invariant 3 — Supersede, do not edit.**
 When the decision changes, ADR-00N is **superseded by ADR-00M**, with a pointer to what changed in production. Immutability beats tidy wiki history.
 
-If you adopt ArchLucid (or any governed review workflow), the upgrade path is: **stop maintaining two histories**. Let the committed review package be the decision register; use ADRs for engineering policy that sits *under* the product, not *instead of* review dispositions.
+If you adopt ArchLucid (or any governed review workflow), the upgrade path is: **stop maintaining two histories**. Let the finalized architecture package be the decision register; use ADRs for engineering policy that sits *under* the product, not *instead of* review dispositions.
 
 ---
 

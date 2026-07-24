@@ -19,7 +19,7 @@ Ship **one** publishable reference backed by **measured** pilot deltas (time-to-
 
 ## 2. Assumptions
 
-- The customer has at least one **committed** golden manifest in production or pilot SQL.
+- The customer has at least one **finalized** architecture package (API: golden manifest) in production or pilot SQL.
 - You have an **API key** with `ReadAuthority` for tenant-scoped CLI export, or **AdminAuthority** for `--tenant` ZIP export.
 - **Owner-blocked:** a countersigned **reference / logo / quote** agreement exists before anything is published externally.
 
@@ -117,7 +117,7 @@ Artifacts:
 
 ## 7. Operational considerations
 
-- **404 on tenant export:** no committed run for that tenant after demo filtering — seed a real pilot run or pass `--include-demo` for internal-only rehearsal.
+- **404 on tenant export:** no finalized review for that tenant after demo filtering — seed a real pilot review or pass `--include-demo` for internal-only rehearsal.
 - **402 on sponsor PDF:** tenant below Standard — omit from pack; Markdown + first-value PDF still tell the story.
 - **Re-run evidence** after each material pilot week so the case study stays fresh.
 
