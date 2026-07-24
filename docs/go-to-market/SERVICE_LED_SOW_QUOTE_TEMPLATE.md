@@ -43,7 +43,7 @@
 2. Executive summary and **Architecture Review Report** (DOCX/PDF), whitelabel optional.
 3. Evidence inventory, decision register, risk register, recommended actions.
 4. Human architecture judgment and sign-off framing in exports (AI-assisted analysis labeled per execution mode).
-5. Buyer-safe proof disposition using [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md) gates where applicable.
+5. Buyer-safe proof disposition using the [claim readiness status appendix](CLAIM_READINESS_STATUS.md#appendix-gate-passhold-criteria) where applicable.
 
 ### Out of scope (unless addendum)
 

@@ -21,8 +21,8 @@ def test_explain_operator_model_mentions_authority_pipeline_and_integrator_table
     assert "Do **not** call execute" in text
 
 
-def test_evaluation_guide_does_not_require_coordinator_execute_after_create() -> None:
-    text = _read("docs", "onboarding", "EVALUATION_GUIDE.md")
+def test_evaluator_workbook_does_not_require_coordinator_execute_after_create() -> None:
+    text = _read("docs", "onboarding", "EVALUATOR_WORKBOOK.md")
 
     assert "authority pipeline" in text
     assert "coordinator fills context snapshots and authority steps automatically" not in text

@@ -89,6 +89,14 @@ describe("product-documentation-registry", () => {
     expect(tryLoadProductDocumentation("glossary")?.markdown).toBe("");
   });
 
+  it("registers troubleshooting as app-rendered (no markdown source)", () => {
+    const troubleshooting = getProductDocumentationEntry("troubleshooting");
+
+    expect(troubleshooting?.sourcePaths).toEqual([]);
+    expect(troubleshooting?.pdfStatus).toBeNull();
+    expect(tryLoadProductDocumentation("troubleshooting")?.markdown).toBe("");
+  });
+
   it("registers integration readiness help for contextual page guidance", () => {
     expect(getProductDocumentationEntry("integration-readiness")?.title).toBe("Integration readiness");
   });

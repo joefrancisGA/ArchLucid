@@ -2,11 +2,10 @@
   "schema": "archlucid.proof-language-audit-scope.v1",
   "comment": "Scope + tight superlative term list for the proof-language claim audit (assessment LATEST_GPT55 §17 #7). Companion guard: scripts/ci/check_proof_language_superlatives.py. Audit log: docs/go-to-market/PROOF_LANGUAGE_CLAIM_AUDIT.md. Superlative terms are flagged ONLY when a line carries no caveat/backing marker, so honest 'do not promise' rows and source-labeled estimates pass. Keep the term list tight: only unambiguous unsupported superiority claims belong here, never common words like 'enterprise-grade' or 'fastest path'.",
   "scanScope": [
-    "docs/go-to-market/PROCUREMENT_EVIDENCE_PACKET.md",
+    "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md",
     "docs/go-to-market/EXECUTIVE_PAID_PILOT_PROOF_PACKET.md",
     "docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md",
-    "docs/go-to-market/EVIDENCE_LINKED_DIFFERENTIATION_PACKET.md",
     "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
     "docs/go-to-market/FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md",
     "docs/go-to-market/POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md",

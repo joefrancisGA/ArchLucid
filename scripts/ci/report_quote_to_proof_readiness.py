@@ -99,7 +99,7 @@ def build_payload(
         "commercialDisposition": (closeout or {}).get("commercialDisposition"),
         "followUpSlaDays": 7,
         "deferredScopeReasons": deferred,
-        "checklistDoc": "docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md",
+        "checklistDoc": "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md",
         "baselineSendPolicyDoc": "docs/go-to-market/ROI_BASELINE_SEND_POLICY.md",
     }
 
@@ -124,7 +124,7 @@ def render_markdown(payload: dict[str, object]) -> str:
         f"| Next action | {payload.get('recommendedNextAction')} |",
         f"| Follow-up SLA | {payload.get('followUpSlaDays')} days |",
         "",
-        "Canonical checklist: [`QUOTE_TO_PROOF_READINESS_CHECKLIST.md`](../../docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md)",
+        "Canonical checklist: [`QUOTE_TO_PROOF_PACKET.md`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist)",
         "",
     ]
 

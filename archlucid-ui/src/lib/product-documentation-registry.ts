@@ -495,9 +495,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary:
       "Find common issues, try the first fix, and collect support details when needed.",
     audience: "operator",
-    sourcePaths: [
-      "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-    ],
+    // App-rendered from `troubleshooting-help-guide-content.ts` — not a markdown help body.
+    sourcePaths: [],
   },
   {
     slug: "admin-diagnostics",

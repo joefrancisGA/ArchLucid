@@ -3,6 +3,8 @@
 # Security reviewer one-pager (generated)
 
 > **Not a certification.** This page summarizes current documented posture vs deferred formal assurance.
+>
+> **Full buyer Q&A and evidence routing:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md).
 
 **Posture:** Self-assessed controls and documented engineering evidence — not CPA SOC 2, ISO certification, or third-party pen-test attestation today.
 

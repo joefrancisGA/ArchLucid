@@ -64,10 +64,10 @@ def main() -> int:
     if runbooks_readme.is_file() and "ROLE_INDEX.md" not in _head(runbooks_readme, 25):
         errors.append("docs/runbooks/README.md must link ROLE_INDEX.md near the top")
 
-    differentiation = root / "docs" / "go-to-market" / "EVIDENCE_LINKED_DIFFERENTIATION_PACKET.md"
+    differentiation = root / "docs" / "go-to-market" / "DIFFERENTIATION_PROOF_PACKET.md"
 
     if not differentiation.is_file():
-        errors.append("Missing docs/go-to-market/EVIDENCE_LINKED_DIFFERENTIATION_PACKET.md")
+        errors.append("Missing docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md")
 
     azdo_handoff = root / "docs" / "runbooks" / "V1_WORKFLOW_HANDOFF_AZURE_DEVOPS.md"
 

@@ -158,8 +158,8 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Troubleshooting",
     keywords: ["error", "503", "401", "health", "proxy"],
     summary: "Use health endpoints, CLI doctor, and support bundle for triage.",
-    docPath: "docs/runbooks/TROUBLESHOOTING.md",
-    routes: [],
+    docPath: "",
+    routes: ["/help/troubleshooting"],
   },
   {
     id: "auth",

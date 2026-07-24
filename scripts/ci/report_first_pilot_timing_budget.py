@@ -13,7 +13,7 @@ GUIDANCE_TARGETS: tuple[dict[str, str], ...] = (
     {
         "phaseKey": "evaluator_first_pass",
         "label": "Hosted evaluator first pass (buyer SaaS)",
-        "guidanceSource": "docs/onboarding/EVALUATION_GUIDE.md",
+        "guidanceSource": "docs/onboarding/EVALUATOR_WORKBOOK.md",
         "guidanceNote": "Roughly thirty minutes end-to-end on a normal connection (five-step buyer path).",
     },
     {

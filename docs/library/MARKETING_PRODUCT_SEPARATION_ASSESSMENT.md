@@ -3,7 +3,7 @@
 > **Audience:** engineers and AI coding agents evaluating hosting/deployment changes to `archlucid-ui`.
 > **Depends on:** [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md) (existing, still-current routing/hosting decision for the apex domain), `archlucid-ui/src/components/OperatorRoleGate.tsx` / `OperatorHomeGate.tsx` (in-app auth boundary), `infra/terraform-container-apps` (UI Container App compute).
 > **Explicitly out of scope for the recommended strategy:** any new Azure Front Door work (new origin, new route rules, new custom domain binding). Front Door stays exactly as configured today — this was an owner constraint given during this assessment, not a technical requirement.
-> **Backlog:** **TB-729 – TB-731** — merged into [`TECH_BACKLOG.md`](TECH_BACKLOG.md) (see `## TB-729` there). The former satellite file, [`MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md`](MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md), now just points here.
+> **Backlog:** **TB-729 – TB-731** — in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) (see `## TB-729` there).
 
 # Should ArchLucid separate marketing from the product app?
 
@@ -106,4 +106,4 @@ These values are provisioned in `infra/terraform-monitoring` (Azure Monitor metr
 
 - Current routing/hosting decision (unchanged by this assessment): [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md)
 - Terraform simplification already tracked: **TB-655** in [`TECH_BACKLOG.md`](TECH_BACKLOG.md)
-- Backlog for this strategy: [`MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md`](MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md)
+- Backlog for this strategy: [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-729 – TB-731**

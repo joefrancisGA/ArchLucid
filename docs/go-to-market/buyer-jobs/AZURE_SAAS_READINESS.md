@@ -6,7 +6,7 @@
 
 **Audience:** Cloud architects, platform engineers, and pilot sponsors evaluating Azure-hosted SaaS posture before production.
 
-**Full operator walkthrough:** [`../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md`](../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md)
+**Full architect walkthrough:** [`../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md`](../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md)
 
 ---
 
@@ -29,12 +29,12 @@ Platform engineering, cloud architecture, or a founder/CTO sponsor uses this acc
 
 ## Sponsor artifact example
 
-A proof package that opens with: “This Azure SaaS review links customer-run Azure inventory, policy-pack checks, findings, and a committed manifest into one architecture decision record.” Attach the review package export plus the Azure extractor ingest summary; do not attach raw secrets or customer identifiers.
+A proof package that opens with: “This Azure SaaS review links customer-run Azure inventory, policy-pack checks, findings, and a finalized architecture package into one architecture decision record.” Attach the architecture package export plus the Azure extractor ingest summary; do not attach raw secrets or customer identifiers.
 
 ## ROI and procurement proof points
 
 - Time saved versus manual Azure architecture review, labeled as customer-entered baseline, model default, or measured review runtime.
-- Evidence provenance from Azure extractor ZIP to finding to manifest.
+- Evidence provenance from Azure extractor ZIP to finding to architecture package.
 - Procurement-safe caveat: evidence is self-attested/customer-provided unless a buyer supplies separate third-party assurance.
 
 ## What not to claim
@@ -49,7 +49,7 @@ A proof package that opens with: “This Azure SaaS review links customer-run Az
 
 | Input | Notes |
 |-------|--------|
-| Operator access | **ReadAuthority** and **ExecuteAuthority** for the tenant |
+| Architect access | **ReadAuthority** and **ExecuteAuthority** for the tenant |
 | Architecture brief | System name, SaaS workload description, Azure as cloud provider |
 | Azure evidence | **Azure extractor Tier 1 ZIP** (customer-run, read-only) **or** Product Tour demo review |
 | Policy packs | Bundled **`saas-ctrl-001`–`008`** in tenant compliance catalog (default seed) |
@@ -64,7 +64,7 @@ No Jira, ServiceNow, Teams, Slack, Confluence, MCP, or outbound webhooks are req
 2. **Ingest evidence** — Upload extractor ZIP on review detail (`POST /v1/azure-extractor/upload`).
 3. **Assign policy packs** — WAF analogue + SaaS security baseline packs to project scope.
 4. **Execute** — Run the review pipeline; inspect findings tied to `saas-ctrl-*` and cost/topology evidence.
-5. **Commit** — Finalize manifest when findings and gate status are acceptable (`POST /v1/architecture/run/{runId}/commit`).
+5. **Finalize** — Lock the architecture package when findings and gate status are acceptable (`POST /v1/architecture/run/{runId}/commit`).
 6. **Export** — Download architecture package / sponsor exports from review detail.
 
 Spine reference: [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
@@ -73,7 +73,7 @@ Spine reference: [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPE
 
 ## Expected artifacts
 
-- Committed **golden manifest** with signed review record
+- Finalized **architecture package** with signed review record
 - **Findings** linked to Azure inventory evidence and policy pack rules
 - **Architecture package** exports (DOCX / ZIP) from review detail
 - Optional **executive summary** / per-run ROI with explicit basis labels (Retail, EA-adjusted, Uploaded actual)
@@ -84,20 +84,20 @@ Spine reference: [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPE
 
 - Azure subscription/resource inventory from extractor ingest (read-only, customer-controlled)
 - Policy evaluation traces for WAF and SaaS baseline themes
-- Provenance from ingest → finding → manifest (inspectable on review detail)
-- Audit-friendly commit record and export bundle
+- Provenance from ingest → finding → architecture package (inspectable on review detail)
+- Audit-friendly finalize record and export bundle
 
 ---
 
 ## Sponsor outcome
 
-A **board- or architecture-review-ready package** that ties Azure posture evidence to actionable findings and a committed manifest — without claiming third-party certification. Align narrative with [`EXECUTIVE_SPONSOR_BRIEF.md`](../EXECUTIVE_SPONSOR_BRIEF.md).
+A **board- or architecture-review-ready package** that ties Azure posture evidence to actionable findings and a finalized architecture package — without claiming third-party certification. Align narrative with [`EXECUTIVE_SPONSOR_BRIEF.md`](../EXECUTIVE_SPONSOR_BRIEF.md).
 
 ---
 
 ## How to measure success
 
-Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): committed manifest present, top findings traceable to Azure extractor or labeled demo evidence, sponsor disposition **SEND** or documented HOLD, and ROI basis labels that do not present demo-derived hours as buyer outcomes.
+Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): finalized architecture package present, top findings traceable to Azure extractor or labeled demo evidence, sponsor disposition **SEND** or documented HOLD, and ROI basis labels that do not present demo-derived hours as buyer outcomes.
 
 ---
 

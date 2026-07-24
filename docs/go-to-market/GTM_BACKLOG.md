@@ -20,7 +20,7 @@
 
 **Status values:** `Not started` · `In progress` · `Blocked` · `Done`
 
-**Updated:** 2026-07-23 — **M-133**–**M-137** opened (showcase scenario portfolio strategy: ratify Option D generic primary + healthcare secondary, no Contoso buyer naming; align `/see-it`/`/demo/preview` labels; naming hierarchy; lightweight validation; optional fictional-org trademark screen); engineering **TB-978**–**TB-982** (+ **TB-891** extended); assessment [`showcase_scenario_strategy_assessment_2026_07_23.md`](../architecture/showcase_scenario_strategy_assessment_2026_07_23.md). Prior: **M-131** / **M-132** (INV-004 LLM budget reserve/settle claim honesty + PA concurrency/crash one-pager); engineering **TB-975**–**TB-977**. Prior: **M-129** / **M-130** (quality-gate versioning); **M-127** / **M-128**; **M-119**–**M-126**; **M-117** / **M-118**; **M-115** / **M-116**; **M-113** / **M-114** **Done**. Does not duplicate **G-REAL-06**/**G-REAL-07**.
+**Updated:** 2026-07-24 — **M-144** / **M-145** opened (transactional outbox replay-safe vs consumer idempotency — claim honesty + PA one-pager); engineering **TB-992**–**TB-994**. Prior: **M-142** / **M-143** (solo-operator pages vs support-email); engineering **TB-989**–**TB-991**. Prior: **M-140** / **M-141** (finding concurrent disposition race); engineering **TB-986**–**TB-988**. Prior: **M-138** / **M-139** (Simulator-derived ROI/savings forbid on sponsor surfaces); engineering **TB-983**–**TB-985**. Prior: **M-133**–**M-137** (showcase scenario portfolio); engineering **TB-978**–**TB-982**. Prior: **M-131** / **M-132** (INV-004); **M-129** / **M-130**; **M-127** / **M-128**; **M-119**–**M-126**; **M-117** / **M-118**; **M-115** / **M-116**; **M-113** / **M-114** **Done**. Does not duplicate **G-REAL-06**/**G-REAL-07**.
 
 ---
 
@@ -35,11 +35,11 @@
 | Band | Open rows (unique) | Est. hands-on |
 |------|--------------------:|---------------|
 | **P0** | 14 | **~23–39 h** (includes Quick Scan safety GTM **M-109**/**M-110**/**G-QA-05**; **G-REAL-04**/**M-06** Done 2026-07-19) |
-| **P1** | 86 | **~118–184 h** (≈ half is LinkedIn long-form draft+publish; incl. **G-REAL-09** DOCX visual check; **G-QA-06**/**G-QA-07**/**M-112** UI perf triage; **G-SCALE-01**/**G-SCALE-02** autoscale drills; **M-115**–**M-132** PA claim-honesty / one-pager cluster; **M-133**–**M-136** showcase scenario portfolio) |
+| **P1** | 94 | **~122–195 h** (≈ half is LinkedIn long-form draft+publish; incl. **G-REAL-09** DOCX visual check; **G-QA-06**/**G-QA-07**/**M-112** UI perf triage; **G-SCALE-01**/**G-SCALE-02** autoscale drills; **M-115**–**M-132** / **M-138**–**M-145** PA claim-honesty / one-pager cluster; **M-133**–**M-136** showcase scenario portfolio) |
 | **P2** | 14 | **~19–32 h** (+ demo/outreach calendar; incl. **M-111** demo-honesty footnote; **M-137** fictional-org trademark screen) |
 | **P3** | 4 | **~6–10 h** (+ paid-engagement calendar) |
 | **V1.1 / V2** | 18 | **~40–70 h** kickoff/execution slices (+ multi-week/month external calendars) |
-| **Total unique open** | ~132 | **~205–330 h** active; calendar for cohorts/assurance/commerce dominates wall-clock |
+| **Total unique open** | ~140 | **~210–342 h** active; calendar for cohorts/assurance/commerce dominates wall-clock |
 
 ---
 
@@ -203,6 +203,14 @@
 | M-135 | Showcase naming hierarchy — scenario-first; ban Contoso/Northwind buyer-facing org names | P1 | **45–90 m** |
 | M-136 | Lightweight scenario validation — framing variants + opportunistic reactions (ride **G-REAL-06**/**G-REAL-07**) | P1 | **1–2 h** (+ existing cohort calendar) |
 | M-137 | Trademark screen for optional fictional org (Northstar / HarborPoint) — narrative copy only | P2 | **30–60 m** |
+| M-138 | Simulator-derived ROI/savings forbid claim honesty (`WHAT_NOT_TO_PROMISE` / procurement) | P1 | **30–45 m** |
+| M-139 | PA Simulator-ROI sponsor forbid one-pager | P1 | **45–90 m** |
+| M-140 | Finding concurrent disposition race claim honesty (append-only ≠ approval-request CAS) | P1 | **30–45 m** |
+| M-141 | PA finding approve/reject race one-pager | P1 | **45–90 m** |
+| M-142 | Solo-ops single-tenant miss claim honesty (fleet P0 ≠ pages before every ticket) | P1 | **30–45 m** |
+| M-143 | PA solo-operator pages vs support-email one-pager | P1 | **45–90 m** |
+| M-144 | Outbox at-least-once / no exactly-once delivery claim honesty | P1 | **30–45 m** |
+| M-145 | PA transactional outbox replay vs consumer idempotency one-pager | P1 | **45–90 m** |
 | M-103 | Optional scheduled / pre-release founder CI job | P2 | **2–3 h** |
 
 ---
@@ -286,7 +294,7 @@ Treat each as **PASS / HOLD**. A single HOLD on G1–G4 blocks Stage 1; a HOLD o
 
 ### How to use this
 
-1. Before each new motion expansion, score **G1–G6** as PASS/HOLD using [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md) or pilot review notes.
+1. Before each new motion expansion, score **G1–G6** as PASS/HOLD using the [claim readiness status appendix](CLAIM_READINESS_STATUS.md#appendix-gate-passhold-criteria) or pilot review notes.
 2. Convert HOLDs into the corresponding engineering improvement (assessment **`LATEST.md` §9**) or owner action.
 3. Use early pilots **deliberately** to manufacture G1–G4 evidence — the pilots are the proof factory, not just revenue.
 4. Do **not** advance claims ahead of the gate; pace marketing copy to the highest fully-passed stage.
@@ -486,6 +494,14 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-135 | **Showcase naming hierarchy** — adopt scenario-first terms (Showcase / scenario name / sample review / illustrative sample); ban Contoso/Northwind in buyer-facing showcase/marketing org naming; optional fictional org only in narrative copy (never routes/IDs); update `COPY_TERMINOLOGY_AUDIT.md` / demo scripts as needed | Content | P1 | Not started | Assessment §11 / §5; engineering **TB-980**/**TB-982**; pairs **M-137** if a fictional org is desired |
 | M-136 | **Lightweight scenario validation** — before **TB-981** default flip: (a) use **TB-978** scenario-tagged funnel rates; (b) 1–2 LinkedIn/landing framing variants; (c) 3–5 opportunistic architect reactions via existing conversations / **G-REAL-06**/**G-REAL-07** — **no** new formal cohort program | Owner + Content | P1 | Not started | Assessment §16; rides existing GTM V1.1 rows; engineering **TB-978** prerequisite for quantitative half |
 | M-137 | **Trademark screen for optional fictional org** — if narrative copy needs a company name, screen Northstar Group / HarborPoint (avoid Contoso, Northwind, Meridian — last already used in-repo); document go/no-go | Owner | P2 | Not started | Assessment §5 / Q5; only if **M-135** chooses to use an org name; not required for scenario-first UI |
+| M-138 | **Simulator-derived ROI/savings forbid claim honesty** — do not promise customer-realized $ from Simulator/demo/HOLD baselines; labeled estimates ≠ outcomes; external send still requires Real + sponsor-safe baselines. Touch [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) / procurement packet | Content | P1 | Not started | Engineering **TB-983**–**TB-985**; pairs **M-139**; keep Stage 0 language aligned with [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) G1/G2; complements **M-127**/**M-128** (execution mode) without duplicating |
+| M-139 | **PA Simulator-ROI sponsor forbid one-pager** — when dollars/% are forbidden vs estimate-only; demo/HOLD/unlabeled Simulator; Email-to-sponsor vs PDF asymmetry until **TB-984**. Artifact: `SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md` (new) | Content | P1 | Not started | Engineering **TB-983**–**TB-985**; cite Done **TB-239** / first-value ROI gate / `SPONSOR_CLAIM_LABEL_AUDIT` Rule 2; complements **M-113** Claim-3 |
+| M-140 | **Finding concurrent disposition race claim honesty** — do not promise that finding approve/reject is mutually exclusive first-wins like the governance approval queue; dispositions are append-only (both persist; current = latest by time) unless **TB-986** option B ships a mutex. Touch [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) / procurement / operator guide language that conflates “approve finding” with approval-request finalize | Content | P1 | Not started | Engineering **TB-986**–**TB-988**; pairs **M-141**; keep Stage 0 language aligned with [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md); does not weaken approval-request CAS claims |
+| M-141 | **PA finding approve/reject race one-pager** — conflict rule + durable outcome for racing operators on the same finding; contrast approval-request Serializable CAS (409 loser) vs finding trail last-by-time; ITSM `HumanReviewStatus` last-writer. Artifact: `FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md` (new) | Content | P1 | Not started | Engineering **TB-986**–**TB-988**; cite `FindingDispositionService` / `TryTransitionFromReviewableAsync`; complements **M-117**/**M-118** (audit) without claiming finding mutex today |
+| M-142 | **Solo-ops single-tenant miss claim honesty** — do not promise that every tenant-affecting failure pages the founder before a support ticket; fleet MVO P0s (when enabled) ≠ per-tenant stuck-run or review-path canary until **TB-958**/**TB-959**; Report Problem remains inbox-by-design. Touch [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) / procurement packet; extend **M-119** bullets with the single-tenant gap | Content | P1 | Not started | Engineering **TB-989**–**TB-991**; pairs **M-143**; complements **M-119**/**M-120** without duplicating Portal Test cadence |
+| M-143 | **PA solo-operator pages vs support-email one-pager** — which failures page (critical AG), which are ops email-only, which arrive as Report Problem / support inbox, and what remains customer-first until **TB-958**/**TB-959**. Artifact: `SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_PA_ONE_PAGER.md` (new) | Content | P1 | Not started | Engineering **TB-989**–**TB-991**; cite [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) + **TB-957** Done; does not claim production paging without **M-120** log |
+| M-144 | **Outbox at-least-once / no exactly-once delivery claim honesty** — do not promise exactly-once integration events or side effects; publish-then-crash before `MarkProcessed` re-drains; SB duplicate detection is a short window; consumers must be idempotent. Touch [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) / procurement / integration catalog language | Content | P1 | Not started | Engineering **TB-992**–**TB-994**; pairs **M-145**; complements **M-121** (LLM interrupt / spend) without conflating bus delivery with agent billing |
+| M-145 | **PA transactional outbox replay vs consumer idempotency one-pager** — crash after publish (or work) before mark; what is replay-safe vs must be idempotent; stable `MessageId`; internal SQL outboxes. Artifact: `TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md` (new) | Content | P1 | Not started | Engineering **TB-992**–**TB-994**; cite ADR 0004/0043/0044 + `IntegrationEventOutboxProcessor`; does not claim DTF exactly-once (**TB-924**) |
 
 **Suggested implementation order:** **G-QA-01** → **M-96** → **M-97** → **M-98** → **M-104** / **M-105** → **M-99** → **M-112** (perf triage playbook) → **M-101** → **G-QA-04** → **M-107** + **M-133** → **M-134** → **M-135** → **TB-978** → **M-108** → **M-136** (with **TB-979**/**TB-980**) → **TB-981** → **M-106** (first dry-run) → ongoing **M-100** + **M-102** / **G-QA-03** + **G-QA-06** (monthly CWV) / **G-QA-07** (pre-cut); add **M-103** once the local/staging founder suite is stable. Engineering bundle cuts: **TB-933** → **TB-934** → **TB-935** (only when field CWV or First Load JS evidence says so). Showcase portfolio engineering: **TB-978** → **TB-979** → **TB-980** → **TB-981** → **TB-982**.
 

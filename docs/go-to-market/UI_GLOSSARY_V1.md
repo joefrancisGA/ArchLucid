@@ -1,4 +1,4 @@
-> **Scope:** Canonical buyer-facing ↔ technical vocabulary for the operator shell, product UI, and go-to-market collateral. This document does not rename HTTP contracts, CLI verbs, or audit journal identifiers.
+> **Scope:** Canonical buyer-facing ↔ technical vocabulary for the architect workspace, product UI, and go-to-market collateral. This document does not rename HTTP contracts, CLI verbs, or audit journal identifiers.
 
 # UI Glossary V1
 
@@ -9,14 +9,14 @@
 | Buyer-facing UI | Technical / unchanged |
 |----------------|----------------------|
 | **Review** | Run, run ID, `ArchitectureRun`, API `/v1/architecture/run/...` |
-| **Architecture package** | Review package (legacy UI noun), finalized review artifact — findings, evidence trail, signed decision record, and exports for one architecture review |
-| **Finalize review** / **Finalize** (when context clear) | Commit, `POST .../commit`, golden manifest persistence |
-| **Architecture snapshot** / **Snapshot** | Manifest, golden manifest, `GoldenManifest` |
+| **Architecture package** | Review package (legacy UI noun), golden manifest / committed manifest — findings, evidence trail, signed decision record, and exports for one architecture review |
+| **Finalize review** / **Finalize** (when context clear) | Commit, `POST .../commit`, architecture package persistence |
+| **Architecture snapshot** / **Snapshot** | Point-in-time manifest slice inside a package; API type `GoldenManifest` where persisted |
 | **Evidence graph** | Knowledge graph internally; URL path `/graph` |
 
 ## Persona terms (role nouns in UI copy)
 
-Use the **Use** column for any new user-facing string that names a **person** or **role** (nav labels, headings, tooltips, empty states, help, banners, GTM). The **Review / Finalize / Snapshot** rows above still govern **workflow artifacts** — persona terms govern **who** the reader is, not what the review object is called.
+Use the **Use** column for any new user-facing string that names a **person** or **role** (nav labels, headings, tooltips, empty states, help, banners, GTM). The **Review / Finalize / Architecture package** rows above still govern **workflow artifacts** — persona terms govern **who** the reader is, not what the review object is called.
 
 **Do not use Operator as a public persona noun** outside Admin/Diagnostics internal surfaces. Code identifiers (`(operator)` route group, `runId`, `NEXT_PUBLIC_OPERATOR_EXPERIENCE`, hook names) stay unchanged.
 
@@ -26,7 +26,7 @@ Use the **Use** column for any new user-facing string that names a **person** or
 | **Executive** | **Operator** | Executive route group, sponsor reading mode, ROI/value summaries, cross-shell handoff from review detail. |
 | **Sponsor** | **Operator** | Procurement-safe exports, email-to-sponsor flows, executive briefs — when the reader is the budget holder, not the practitioner. |
 | **Admin** / **platform administrator** | **Operator**, "tenant operator" | Settings, integrations, extract upload, tenant configuration, platform-admin sidebar — authority and setup, not review execution. |
-| **Reviewer** | **Operator**, "operators pick/submit/approve/run" | Someone inspecting findings, evidence, or a review package before a gate passes. |
+| **Reviewer** | **Operator**, "operators pick/submit/approve/run" | Someone inspecting findings, evidence, or an architecture package before a gate passes. |
 | **Approver** | **Operator** | Explicit approval/disposition actions (approve, reject, waive) on governance gates. |
 | **Governance lead** | **Operator**, "operator follow-up" | Policy violations, drift alerts, escalation copy — coordination across reviewers and approvers. |
 | **Operator** (retain) | — (do not promote to marketing/home/nav) | **Internal-only:** Admin/Diagnostics routes, runbooks, env flags, contributor docs audience label, and diagnostics health signals. Not for customer-visible home, help, nav, or empty states. |

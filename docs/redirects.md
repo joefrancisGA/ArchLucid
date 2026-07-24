@@ -4,7 +4,7 @@
 
 # Documentation redirects
 
-**Last reviewed:** 2026-07-23
+**Last reviewed:** 2026-07-24
 
 Human readers and agents should follow **canonical** paths below. This file is the only redirect surface — do not recreate thin "moved" stub files.
 
@@ -16,6 +16,22 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | You are editing markdown that links to a former path | Change the link to **canonical** |
 | Terraform / CI / UI embeds a doc path by string | Prefer **canonical**; if the string is load-bearing, update the embed in the same change |
 | A former path is not listed | Add a row when you delete or merge a doc during the audit |
+
+---
+
+## 2026-07-24 documentation merge clusters
+
+| Former path | Canonical path | Notes |
+|-------------|----------------|-------|
+| `docs/go-to-market/EVIDENCE_LINKED_DIFFERENTIATION_PACKET.md` | [`docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md`](go-to-market/DIFFERENTIATION_PROOF_PACKET.md#evidence-linked-comparison) | Evidence-linked comparison folded into proof packet |
+| `docs/go-to-market/CLAIM_READINESS_CHECKLIST.md` | [`docs/go-to-market/CLAIM_READINESS_STATUS.md`](go-to-market/CLAIM_READINESS_STATUS.md#appendix-gate-passhold-criteria) | Gate criteria, session record, and stage exits are appendices |
+| `docs/go-to-market/PROCUREMENT_FAST_LANE.md` | [`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`](go-to-market/PROCUREMENT_PACK_INDEX.md#fast-lane-starter) | Fast-lane starter table merged into canonical pack index |
+| `docs/go-to-market/PROCUREMENT_EVIDENCE_PACK_INDEX.md` | [`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`](go-to-market/PROCUREMENT_PACK_INDEX.md) | Navigation-only index merged into canonical pack index |
+| `docs/onboarding/EVALUATION_GUIDE.md` | [`docs/onboarding/EVALUATOR_WORKBOOK.md`](onboarding/EVALUATOR_WORKBOOK.md) | Evaluator depth appendix |
+| `docs/library/V1_CRITICAL_PATH_MAP.md` | [`docs/runbooks/ROLE_INDEX.md`](runbooks/ROLE_INDEX.md#v1-critical-path-mandatory-docs) | Mandatory V1 paths merged into role index |
+| `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist) | Readiness checklist merged into quote-to-proof packet |
+| `docs/go-to-market/QUOTE_TO_PILOT_PACK.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#pre-pilot-quote-pack) | Pre-pilot quote pack merged into quote-to-proof packet |
+| `docs/go-to-market/PROCUREMENT_EVIDENCE_PACKET.md` | [`docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`](go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map) | Procurement routing folded into buyer security packet |
 
 ---
 
@@ -208,5 +224,10 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/customer-facing/CUSTOMER_GLOSSARY.md` | In-app `/help/glossary` (`archlucid-ui/src/lib/customer-glossary-manifest.ts`) | Thin stub removed — terms are app-rendered |
 | `docs/ARCHITECTURE_INDEX.md` | [`docs/architecture/README.md`](architecture/README.md) | Thin hub superseded by architecture README |
 | `docs/library/OPENAPI_CLIENT_DRIFT_OPERATOR_NOTE.md` | [`docs/library/OPENAPI_CONTRACT_DRIFT.md`](library/OPENAPI_CONTRACT_DRIFT.md) | Checklist folded into contract-drift doc |
+| `docs/library/customer-facing/HOW_IT_WORKS.md` | [`docs/library/customer-facing/HOW_ARCHLUCID_WORKS.md`](library/customer-facing/HOW_ARCHLUCID_WORKS.md) · [`DATA_HANDLING.md`](library/customer-facing/DATA_HANDLING.md) | Maintainer split stub removed |
+| `docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md` | In-app `/help/troubleshooting` (`troubleshooting-help-guide-content.ts`) | Thin stub removed — guide is app-rendered |
+| `docs/library/MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (TB-729–731) | Superseded satellite removed |
+| `docs/library/IA_TAXONOMY_TECHNICAL_BACKLOG.md` | [`docs/library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (TB-732–737) | Superseded satellite removed |
+| `docs/go-to-market/BULK_EVIDENCE_UPLOAD_V1.md` | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md#6k-evidence-bulk-upload--limits-and-batching) | Thin orphan; GA cap/ZIP rule lives in deferred inventory |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
