@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { GetStartedPageClient } from "@/app/(marketing)/get-started/GetStartedPageClient";
-import { GET_STARTED_PAGE_TITLE } from "@/app/(marketing)/get-started/get-started-content";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MARKETING_LAYOUT } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";

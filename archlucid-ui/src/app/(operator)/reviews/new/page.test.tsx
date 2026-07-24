@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";

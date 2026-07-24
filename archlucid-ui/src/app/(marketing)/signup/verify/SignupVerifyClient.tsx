@@ -45,7 +45,7 @@ export function SignupVerifyClient() {
   const [initialLoadFailed, setInitialLoadFailed] = useState(false);
   const [resendPending, setResendPending] = useState(false);
   const [resendOutcome, setResendOutcome] = useState<"success" | "failed" | null>(null);
-  const [cooldownTick, setCooldownTick] = useState(0);
+  const [, setCooldownTick] = useState(0);
   const autoContinueRef = useRef<number | null>(null);
 
   const resendCooldown = readSignupVerifyResendCooldown();

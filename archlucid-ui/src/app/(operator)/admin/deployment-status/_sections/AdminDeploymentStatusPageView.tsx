@@ -6,11 +6,7 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  DEPLOYMENT_STATUS_UNKNOWN,
-  displayDeploymentField,
-  resolveOverallTone,
-} from "@/lib/admin-deployment-status";
+import { displayDeploymentField, resolveOverallTone } from "@/lib/admin-deployment-status";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { AdminDeploymentStatusPageViewModel } from "./admin-deployment-status-view-model";

@@ -3,7 +3,6 @@ import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /** Buyer-polished shell left-nav label for `/reviews/new`. */
 export const BUYER_NEW_REVIEW_NAV_LABEL = START_REVIEW_LABEL;

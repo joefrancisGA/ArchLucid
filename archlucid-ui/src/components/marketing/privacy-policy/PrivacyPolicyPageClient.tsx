@@ -9,7 +9,6 @@ import { PrivacyPolicyTableOfContents } from "@/components/marketing/privacy-pol
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
 import type { PrivacyPolicyMetadata, PrivacyPolicyRelatedDocument } from "@/lib/privacy-policy-content";
 import { PRIVACY_POLICY_LAYOUT } from "@/lib/privacy-policy-layout";
-import { cn } from "@/lib/utils";
 
 const PRIVACY_FOCUSED_READING_BODY_CLASS = "privacy-focused-reading";
 const PRIVACY_CONTENT_ID = "privacy-policy-content";

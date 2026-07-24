@@ -27,7 +27,6 @@ import {
 } from "@/lib/provenance-graph-layout";
 import {
   applyProvenanceZoomAtPoint,
-  clampProvenanceZoom,
   computeFitToViewTransform,
   PROVENANCE_GRAPH_MIN_HEIGHT_PX,
   PROVENANCE_GRAPH_ZOOM_STEP,
@@ -144,10 +143,12 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
     [props.edges, visibleNodeIds],
   );
 
-  const layout = useMemo(
-    () => computeProvenanceGraphLayout(visibleNodes, visibleEdges),
-    [visibleEdges, visibleNodes, props.layoutSeed],
-  );
+  const layout = useMemo(() => {
+    // layoutSeed busts memo when the same graph is reloaded with a new seed.
+    void props.layoutSeed;
+
+    return computeProvenanceGraphLayout(visibleNodes, visibleEdges);
+  }, [visibleEdges, visibleNodes, props.layoutSeed]);
 
   const posById = useMemo(() => new Map(layout.nodes.map((node) => [node.id, node])), [layout.nodes]);
 

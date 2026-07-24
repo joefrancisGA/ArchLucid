@@ -4,7 +4,6 @@ import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { comparePageHref } from "@/lib/compare-url-query-params";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
-import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,

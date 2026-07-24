@@ -1,7 +1,4 @@
-import type {
-  AzureBoardsIntegrationHealthResponse,
-  AzureBoardsOutboundSettingsResponse,
-} from "@/lib/api/azure-boards-api";
+import type { AzureBoardsIntegrationHealthResponse } from "@/lib/api/azure-boards-api";
 import type { TenantItsmConnectorConnectionResponse } from "@/lib/api/itsm-outbound-api";
 
 export type AzureBoardsConnectionStatus =

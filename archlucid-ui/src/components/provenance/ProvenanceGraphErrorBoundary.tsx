@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Component, type ReactNode } from "react";
 
 type Props = {
   readonly children: ReactNode;
@@ -19,7 +19,7 @@ export class ProvenanceGraphErrorBoundary extends Component<Props, State> {
     return { failed: true };
   }
 
-  componentDidCatch(_error: Error, _info: ErrorInfo): void {
+  componentDidCatch(): void {
     // Intentionally avoid surfacing library diagnostics to reviewers.
   }
 

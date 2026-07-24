@@ -13,7 +13,7 @@ import {
   BILLING_HELP_NO_PERMISSION_HINT,
   BILLING_HELP_PRIMARY_ACTIONS,
 } from "@/lib/billing-help-guide-content";
-import { DESIGN_TOKENS, OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";

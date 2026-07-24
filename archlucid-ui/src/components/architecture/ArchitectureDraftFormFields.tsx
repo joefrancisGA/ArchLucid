@@ -48,7 +48,6 @@ function IntakeFieldLabel(props: {
 export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsProps): React.JSX.Element {
   const intentTrimmedLength = props.fields.freeTextIntent.trim().length;
   const outcomeTrimmedLength = props.fields.businessOutcome.trim().length;
-  const intentMeetsMinimum = intentTrimmedLength >= 10;
   const outcomeMeetsMinimum = outcomeTrimmedLength >= MIN_OUTCOME_CHARS;
 
   return (

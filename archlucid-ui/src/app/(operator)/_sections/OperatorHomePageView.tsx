@@ -56,36 +56,6 @@ function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewM
   );
 }
 
-function buildExamplesPlacement(
-  model: OperatorHomePageViewModel,
-  options: { readonly buyerPolishedShell: boolean; readonly fullOperatorShell: boolean },
-) {
-  return (
-    <OperatorHomeExamplesPlacement
-      beforeWorkspaceContext={null}
-      afterWorkspaceContext={
-        <>
-          <OperatorHomeWorkspaceContextDisclosure
-            showWorkspaceStatus={options.fullOperatorShell}
-            runsDashboard={model.runsDashboard}
-          />
-          <OperatorHomeAdvancedGuidancePanel
-            buyerPolishedShell={options.buyerPolishedShell}
-            fullOperatorShell={options.fullOperatorShell}
-            checklistVariant={options.fullOperatorShell ? "full" : "compact"}
-          />
-        </>
-      }
-    />
-  );
-}
-
-function resolveHomeQuickJumpRunIds(model: OperatorHomePageViewModel): string[] {
-  return (model.runsDashboard?.items ?? [])
-    .map((run) => run.runId?.trim() ?? "")
-    .filter((runId) => runId.length > 0);
-}
-
 function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
   const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
 

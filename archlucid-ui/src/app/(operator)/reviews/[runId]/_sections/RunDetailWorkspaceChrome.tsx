@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 export type RunDetailWorkspaceHeaderProps = {

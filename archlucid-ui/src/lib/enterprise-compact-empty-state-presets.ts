@@ -1,6 +1,4 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
-import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import {
   BUYER_START_ARCHITECTURE_REVIEW_CTA,
   OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,

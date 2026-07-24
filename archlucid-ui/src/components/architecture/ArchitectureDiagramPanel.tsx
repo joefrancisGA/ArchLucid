@@ -63,7 +63,7 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
   const [diagramModel, setDiagramModel] = useState<ArchitectureDiagramModel | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [cacheVersion, setCacheVersion] = useState(0);
+  const [, setCacheVersion] = useState(0);
   const autoStartedRef = useRef(false);
 
   const cache = readArchitectureDiagramCache(props.runId);

@@ -75,7 +75,7 @@ import {
   AZURE_BOARDS_TOKEN_REFERENCE_PLACEHOLDER,
 } from "@/lib/azure-boards-page-copy";
 import { cn } from "@/lib/utils";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { INTEGRATIONS_AZURE_BOARDS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
@@ -183,10 +183,6 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
   const nativeEnabled = itsmHealth?.nativeEnabled ?? false;
   const credentialsReady = isAzureBoardsCredentialsReady(connection, health);
-  const settingsReady =
-    (settings?.isConfigured === true && (settings.projectName?.trim().length ?? 0) > 0
-      && (settings.defaultWorkItemType?.trim().length ?? 0) > 0)
-    || ((projectName.trim().length > 0) && workItemType.trim().length > 0 && settings?.isConfigured === true);
 
   const connectionStatus = useMemo(
     () =>

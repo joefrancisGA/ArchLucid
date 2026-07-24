@@ -3,7 +3,6 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import {
   BUYER_SALES_LED_PRICING_NOTE,
   FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE,

@@ -1,4 +1,4 @@
-import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
+import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 import { ARCHITECTURES_NEW_PATH } from "@/lib/architecture-routes";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";

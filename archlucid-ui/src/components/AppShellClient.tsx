@@ -25,7 +25,6 @@ import {
   useOperatorChromeMode,
 } from "@/components/OperatorChromeModeContext";
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
-import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
 import { DevTestingShellShortcuts } from "@/components/dev-testing/DevTestingShellShortcuts";
 import { OperatorShellProviders } from "@/components/OperatorShellProviders";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
