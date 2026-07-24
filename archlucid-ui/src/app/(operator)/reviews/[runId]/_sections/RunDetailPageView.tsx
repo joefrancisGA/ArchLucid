@@ -4,18 +4,13 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
-import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { CommitBlockingFindingsBanner } from "@/components/usability/CommitBlockingFindingsBanner";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
-import { StalledReviewGuidanceCallout } from "@/components/usability/StalledReviewGuidanceCallout";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
-import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
-import { ReviewDetailPolicyPackImpactCallout } from "@/components/findings/ReviewDetailPolicyPackImpactCallout";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
-import { resolveRunDetailLastFailureSummary } from "@/components/RunDetailLastFailureCard";
+import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
@@ -66,7 +61,6 @@ import {
   RunDetailWorkspaceSummaryStrip,
 } from "./RunDetailWorkspaceChrome";
 import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActions";
-import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
@@ -76,13 +70,13 @@ import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConve
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
 import { RunDetailGovernanceCta } from "./RunDetailGovernanceCta";
 import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
-import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
-import { RunDetailOperatorTechnicalForensicsPanel } from "./RunDetailOperatorTechnicalForensicsPanel";
 import {
   RunDetailArchitectureCreateWorkItemSectionDeferred,
   RunDetailArchitectureCreatedWorkspaceDeferred,
   RunDetailArchitectureSponsorSharingPanelDeferred,
+  RunDetailCommitBlockingFindingsBannerDeferred,
   RunDetailCompareToBaselineCta,
+  RunDetailCtoDemoReviewRouteGuardDeferred,
   RunDetailExplanationConfidenceBannerDeferred,
   RunDetailExportDeliverableDialog,
   RunDetailFirstWeekRouteGuidanceDeferred,
@@ -90,10 +84,15 @@ import {
   RunDetailGovernanceAlertsDeferred,
   RunDetailHolisticCriticPanelDeferred,
   RunDetailLastFailureCardDeferred,
+  RunDetailOperatorTechnicalForensicsPanelDeferred,
+  RunDetailOutcomeCardsDeferred,
+  RunDetailPolicyPackImpactCalloutDeferred,
   RunDetailProgressTrackerDeferred,
   RunDetailSampleReviewPackageSummaryDeferred,
+  RunDetailStalledReviewGuidanceCalloutDeferred,
   RunDetailTechnologyBaselineSection,
   RunDetailTrustEvidenceCardSectionDeferred,
+  RunDetailWhatIfBranchCompareBannerDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
@@ -171,7 +170,7 @@ export function RunDetailPageView(props: {
   );
 
   const outcomeCardsEl = (
-    <RunDetailOutcomeCards
+    <RunDetailOutcomeCardsDeferred
       runId={m.resolvedDetail.run.runId}
       manifestId={m.manifestId}
       artifactCount={m.artifacts.length}
@@ -414,7 +413,7 @@ export function RunDetailPageView(props: {
           policies: (
             <div className="space-y-4">
               {reviewPolicyPackCallout !== null ? (
-                <ReviewDetailPolicyPackImpactCallout
+                <RunDetailPolicyPackImpactCalloutDeferred
                   ruleSetId={reviewPolicyPackCallout.ruleSetId}
                   ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
                   runId={m.resolvedDetail.run.runId}
@@ -513,7 +512,7 @@ export function RunDetailPageView(props: {
                     />
                   }
                 >
-                  <WhatIfBranchCompareBanner
+                  <RunDetailWhatIfBranchCompareBannerDeferred
                     currentRunId={m.resolvedDetail.run.runId}
                     hasCurrentManifest={Boolean(m.manifestId)}
                   />
@@ -541,7 +540,7 @@ export function RunDetailPageView(props: {
                 <RunDetailCompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
               ) : null}
               {!m.buyerPolishedArtifactTable ? (
-                <RunDetailOperatorTechnicalForensicsPanel
+                <RunDetailOperatorTechnicalForensicsPanelDeferred
                   agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
                   results={m.resolvedDetail.results}
                   retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}
@@ -576,8 +575,7 @@ export function RunDetailPageView(props: {
     <div
       className={`w-full ${OPERATOR_LAYOUT.sectionStack} px-1 py-2 sm:px-0 max-w-[1160px]`}
     >
-      <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
-      <RunDetailBreadcrumb headline={m.headline} />
+      <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
 
       {!showArchitectureCreatedHome ? (
         <Suspense fallback={null}>
@@ -747,12 +745,14 @@ export function RunDetailPageView(props: {
               ) : null}
 
               {!showArchitectureCreatedHome ? (
-                <ReviewPackagePrimaryAction
-                  action={reviewPackagePrimaryAction}
-                  runId={m.resolvedDetail.run.runId}
-                  hasGoldenManifest={Boolean(m.manifestId)}
-                  commitBlockedReason={commitBlockedReason}
-                />
+                <div className="lg:hidden">
+                  <ReviewPackagePrimaryAction
+                    action={reviewPackagePrimaryAction}
+                    runId={m.resolvedDetail.run.runId}
+                    hasGoldenManifest={Boolean(m.manifestId)}
+                    commitBlockedReason={commitBlockedReason}
+                  />
+                </div>
               ) : null}
 
               {!m.manifestId ? (
@@ -769,7 +769,7 @@ export function RunDetailPageView(props: {
                   );
 
                   return stalled.isStalled ? (
-                    <StalledReviewGuidanceCallout
+                    <RunDetailStalledReviewGuidanceCalloutDeferred
                       elapsedMinutes={stalled.elapsedMinutes}
                       runId={m.resolvedDetail.run.runId}
                     />
@@ -778,7 +778,7 @@ export function RunDetailPageView(props: {
               ) : null}
 
               {findingCoverageSummary?.hasCommitBlockingFailures === true && !showArchitectureCreatedHome ? (
-                <CommitBlockingFindingsBanner
+                <RunDetailCommitBlockingFindingsBannerDeferred
                   runId={m.resolvedDetail.run.runId}
                   blockingFindings={[
                     {
@@ -799,7 +799,7 @@ export function RunDetailPageView(props: {
       {showArchitectureCreatedHome ? (
         <>
           {reviewPolicyPackCallout !== null ? (
-            <ReviewDetailPolicyPackImpactCallout
+            <RunDetailPolicyPackImpactCalloutDeferred
               ruleSetId={reviewPolicyPackCallout.ruleSetId}
               ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
               runId={m.resolvedDetail.run.runId}
@@ -891,7 +891,7 @@ export function RunDetailPageView(props: {
                 />
               }
             >
-              <WhatIfBranchCompareBanner
+              <RunDetailWhatIfBranchCompareBannerDeferred
                 currentRunId={m.resolvedDetail.run.runId}
                 hasCurrentManifest={Boolean(m.manifestId)}
               />
@@ -928,7 +928,7 @@ export function RunDetailPageView(props: {
           {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
 
           {!m.buyerPolishedArtifactTable ? (
-            <RunDetailOperatorTechnicalForensicsPanel
+            <RunDetailOperatorTechnicalForensicsPanelDeferred
               agentExecutionLlmCostEstimate={m.resolvedDetail.agentExecutionLlmCostEstimate}
               results={m.resolvedDetail.results}
               retrievalGroundingSummary={m.resolvedDetail.retrievalGroundingSummary}

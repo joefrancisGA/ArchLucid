@@ -28,16 +28,26 @@ const bannedStaticImports = [
   '@/components/FirstWeekRouteGuidance"',
   '@/components/RunExplanationConfidenceBanner"',
   '@/components/reviews/RunDetailGovernanceAlerts"',
+  '@/components/RunDetailOutcomeCards"',
+  '@/components/draft-intake/WhatIfBranchCompareBanner"',
+  '@/components/usability/CommitBlockingFindingsBanner"',
+  '@/components/usability/StalledReviewGuidanceCallout"',
+  '@/components/cto-demo/CtoDemoReviewRouteGuard"',
+  '@/components/findings/ReviewDetailPolicyPackImpactCallout"',
+  '@/components/RunDetailLastFailureCard"',
+  './RunDetailOperatorTechnicalForensicsPanel"',
 ] as const;
 
-describe("run detail bundle deferred imports (TB-697)", () => {
+describe("run detail bundle deferred imports (TB-697 / TB-933)", () => {
   it("keeps heavy review-detail modules off the page view static import graph", () => {
     for (const bannedImport of bannedStaticImports) {
       expect(pageViewSource).not.toContain(bannedImport);
     }
 
-    expect(pageViewSource).toContain("RunDetailOperatorTechnicalForensicsPanel");
+    expect(pageViewSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");
+    expect(pageViewSource).toContain("RunDetailOutcomeCardsDeferred");
     expect(pageViewSource).toContain("run-detail-page-view-deferred-chunks");
+    expect(pageViewSource).toContain("@/components/resolve-run-detail-last-failure-summary");
   });
 
   it("dynamic-imports operator forensics and activity-tab chunks", () => {
@@ -46,12 +56,19 @@ describe("run detail bundle deferred imports (TB-697)", () => {
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailProgressTrackerDeferred");
+    expect(deferredChunksSource).toContain("RunDetailOutcomeCardsDeferred");
+    expect(deferredChunksSource).toContain("RunDetailWhatIfBranchCompareBannerDeferred");
+    expect(deferredChunksSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");
     expect(deferredChunksSource).toContain('import("@/components/RunEstimatedLlmCostCard")');
+    expect(deferredChunksSource).toContain('import("@/components/RunDetailOutcomeCards")');
     expect(deferredChunksSource).toContain(
       'import("@/components/architecture/ArchitectureCreateWorkItemSection")',
     );
     expect(deferredChunksSource).toContain(
       'import("@/components/architecture/ArchitectureSponsorSharingPanel")',
+    );
+    expect(deferredChunksSource).toContain(
+      'import("./RunDetailOperatorTechnicalForensicsPanel")',
     );
   });
 });

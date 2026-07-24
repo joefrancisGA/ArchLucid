@@ -1,15 +1,15 @@
-# `/reviews/[runId]` bundle composition investigation (TB-697 / Prompt 6)
+# `/reviews/[runId]` bundle composition investigation (TB-697 / TB-933)
 
 > **Scope:** Contributor investigation artifact; not buyer/operator documentation.  
-> **Date:** 2026-07-18  
-> **Method:** Cross-reference committed First Load JS baseline + static import/deferred-chunk inventory on `RunDetailPageView` (post-**TB-697** deferred-chunk work).  
-> **Blocked locally:** `npm run build` / `npm run build:analyze` did not complete in this pass — `build:docs-pdf` failed on `dotnet` PDF render, and a direct `npx next build` hit a pre-existing dirty-tree error (`@/lib/demo` missing from `load-admin-deployment-status-page-data.ts`). Regenerate analyzer HTML on a clean CI/Linux build when machine-readable module weights are needed.
+> **Date:** 2026-07-18 (TB-697); **Updated:** 2026-07-24 (**TB-933** next-wave deferrals).  
+> **Method:** Cross-reference committed First Load JS baseline + static import/deferred-chunk inventory on `RunDetailPageView` (post-**TB-697** / **TB-933** deferred-chunk work).  
+> **Blocked locally (2026-07-18):** `npm run build` / `npm run build:analyze` did not complete in that pass — prefer CI/Linux for analyzer HTML; refresh First Load JS baseline after measured cuts via `npm run write:first-load-js-baseline`.
 
 ## Executive summary
 
-`/reviews/[runId]` remains the **largest tracked operator route** at **2,211.1 kB** First Load JS (`performance/first-load-js-baseline.v1.json`, RC11 refresh 2026-07-15). The **TB-697** engineering pass (2026-07-17) already moved the heaviest forensics/architecture/progress modules behind `run-detail-page-view-deferred-chunks.tsx` with `run-detail-bundle-deferred-imports.test.ts` guards.
+`/reviews/[runId]` remains the **largest tracked operator route** (baseline **2,255.2 kB** First Load JS in `performance/first-load-js-baseline.v1.json` as of the last committed refresh). **TB-697** moved forensics/architecture/progress modules behind `run-detail-page-view-deferred-chunks.tsx`. **TB-933** (2026-07-24) deferred the next static-import cluster: details-gated `RunDetailOutcomeCards`, conditional usability/CTO banners, policy-pack callout, operator forensics panel wrapper, and `WhatIfBranchCompareBanner`; also extracted `resolveRunDetailLastFailureSummary` so the page view no longer statically imports `RunDetailLastFailureCard`.
 
-What remains is a **wide first-paint shell**: `ReviewDetailWorkspace`, overview/executive-summary chrome, governance/outcome cards, usability banners, and tab-gated architecture panels (now deferred as of 2026-07-18). None of these require replacing frameworks — further wins use the same `next/dynamic({ ssr: false })` pattern already proven on this route.
+What remains is a **wide first-paint shell**: `ReviewDetailWorkspace`, overview/executive-summary chrome, and workspace header/summary strips. Further wins still use `next/dynamic({ ssr: false })` — prefer measured `build:analyze` before deferring first-paint buyer chrome.
 
 ## Baseline cross-reference
 
@@ -21,23 +21,30 @@ What remains is a **wide first-paint shell**: `ReviewDetailWorkspace`, overview/
 
 The +60 kB assessment→baseline delta aligns with api-types/OpenAPI expansion called out in baseline `notes`, not necessarily new run-detail UI code.
 
-## Deferred inventory (already shipped — TB-697)
+## Deferred inventory (shipped — TB-697 + TB-933)
 
 These modules are **not** in the `RunDetailPageView` static import graph (enforced by `run-detail-bundle-deferred-imports.test.ts`):
 
-| Deferred export | Underlying module |
-| --- | --- |
-| `RunDetailArchitectureCreatedWorkspaceDeferred` | `ArchitectureCreatedWorkspace` |
-| `RunDetailProgressTrackerDeferred` | `RunProgressTracker` |
-| `RunDetailTrustEvidenceCardSectionDeferred` | `RunTrustEvidenceCardSection` |
-| `RunDetailEstimatedLlmCostCardDeferred` | `RunEstimatedLlmCostCard` |
-| `RunDetailAgentResultsSummaryCardDeferred` | `RunAgentResultsSummaryCard` |
-| `RunDetailReviewAgentExecutionLogSectionDeferred` | `ReviewAgentExecutionLogSection` |
-| `RunDetailRetrievalGroundingSummaryCardDeferred` | `RunRetrievalGroundingSummaryCard` |
-| `RunDetailHolisticCriticPanelDeferred` | `RunDetailHolisticCriticPanel` |
-| `RunDetailGovernanceAlertsDeferred` | `RunDetailGovernanceAlerts` |
-| `RunDetailTechnologyBaselineSection` | `TechnologyBaselineSection` |
-| … | (see `run-detail-page-view-deferred-chunks.tsx`) |
+| Deferred export | Underlying module | Wave |
+| --- | --- | --- |
+| `RunDetailArchitectureCreatedWorkspaceDeferred` | `ArchitectureCreatedWorkspace` | TB-697 |
+| `RunDetailProgressTrackerDeferred` | `RunProgressTracker` | TB-697 |
+| `RunDetailTrustEvidenceCardSectionDeferred` | `RunTrustEvidenceCardSection` | TB-697 |
+| `RunDetailEstimatedLlmCostCardDeferred` | `RunEstimatedLlmCostCard` | TB-697 |
+| `RunDetailAgentResultsSummaryCardDeferred` | `RunAgentResultsSummaryCard` | TB-697 |
+| `RunDetailReviewAgentExecutionLogSectionDeferred` | `ReviewAgentExecutionLogSection` | TB-697 |
+| `RunDetailRetrievalGroundingSummaryCardDeferred` | `RunRetrievalGroundingSummaryCard` | TB-697 |
+| `RunDetailHolisticCriticPanelDeferred` | `RunDetailHolisticCriticPanel` | TB-697 |
+| `RunDetailGovernanceAlertsDeferred` | `RunDetailGovernanceAlerts` | TB-697 |
+| `RunDetailTechnologyBaselineSection` | `TechnologyBaselineSection` | TB-697 |
+| `RunDetailOutcomeCardsDeferred` | `RunDetailOutcomeCards` | TB-933 |
+| `RunDetailWhatIfBranchCompareBannerDeferred` | `WhatIfBranchCompareBanner` | TB-933 |
+| `RunDetailCommitBlockingFindingsBannerDeferred` | `CommitBlockingFindingsBanner` | TB-933 |
+| `RunDetailStalledReviewGuidanceCalloutDeferred` | `StalledReviewGuidanceCallout` | TB-933 |
+| `RunDetailCtoDemoReviewRouteGuardDeferred` | `CtoDemoReviewRouteGuard` | TB-933 |
+| `RunDetailPolicyPackImpactCalloutDeferred` | `ReviewDetailPolicyPackImpactCallout` | TB-933 |
+| `RunDetailOperatorTechnicalForensicsPanelDeferred` | `RunDetailOperatorTechnicalForensicsPanel` | TB-933 |
+| … | (see `run-detail-page-view-deferred-chunks.tsx`) | |
 
 Below-fold route sections also dynamic-load `BeforeAfterDeltaPanel` and `RunDetailArchitectureGraphSection` (`RunDetailBelowFoldSections.tsx`).
 

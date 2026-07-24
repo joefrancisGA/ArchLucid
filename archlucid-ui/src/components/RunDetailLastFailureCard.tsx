@@ -3,24 +3,23 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { RunDetail } from "@/types/authority";
+import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 
-type LastFailureSummary = {
-  readonly agentType?: string | null;
-  readonly agentTypeKey?: string | null;
-  readonly failureClass?: string | null;
-  readonly reasonCode?: string | null;
-};
+export {
+  resolveRunDetailLastFailureSummary,
+  type RunDetailLastFailureSummary,
+} from "@/components/resolve-run-detail-last-failure-summary";
 
 /** Surfaces parsed last agent execution failure on operator run detail (assessment #5). */
 export function RunDetailLastFailureCard(props: {
-  readonly summary: LastFailureSummary | null | undefined;
+  readonly summary: RunDetailLastFailureSummary | null | undefined;
   readonly legacyRunStatus?: string | null;
 }): ReactElement | null {
   const summary = props.summary;
 
-  if (summary === null || summary === undefined)
+  if (summary === null || summary === undefined) {
     return null;
+  }
 
   const agentLabel =
     (typeof summary.agentType === "string" && summary.agentType.length > 0
@@ -75,16 +74,4 @@ export function RunDetailLastFailureCard(props: {
       </CardContent>
     </Card>
   );
-}
-
-export function resolveRunDetailLastFailureSummary(
-  detail: RunDetail,
-): LastFailureSummary | null {
-  const summary = (detail as { lastAgentExecutionFailure?: LastFailureSummary | null })
-    .lastAgentExecutionFailure;
-
-  if (summary !== null && summary !== undefined)
-    return summary;
-
-  return null;
 }
