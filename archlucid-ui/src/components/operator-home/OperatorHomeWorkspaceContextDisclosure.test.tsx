@@ -85,19 +85,30 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
     expect(screen.getByText("Reviews")).toBeInTheDocument();
     expect(screen.getByText("Open findings")).toBeInTheDocument();
     expect(screen.getByText("Governance warnings")).toBeInTheDocument();
-    expect(screen.getByText("Evidence sources")).toBeInTheDocument();
-    expect(screen.getByText("Setup readiness")).toBeInTheDocument();
-    expect(screen.getByText("2 of 4 ready")).toBeInTheDocument();
+    expect(screen.queryByText("Evidence sources")).not.toBeInTheDocument();
+    expect(screen.queryByText("Setup readiness")).not.toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY)).toBeInTheDocument();
+    const summary = screen.getByTestId("operator-home-workspace-metrics-summary");
+    const summaryHrefs = within(summary)
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href"));
+    expect(summaryHrefs).toEqual(
+      expect.arrayContaining([
+        "/reviews",
+        "/governance/findings?filter=open",
+        "/?warnings=1",
+      ]),
+    );
 
     const detailsToggle = screen.getByRole("button", { name: "View details" });
 
     expect(detailsToggle).toHaveAttribute("aria-expanded", "false");
+    expect(detailsToggle.className).toMatch(/underline/);
     expect(screen.queryByTestId("home-block-delta-panel")).not.toBeInTheDocument();
     expect(screen.queryByTestId("home-block-workspace-status")).not.toBeInTheDocument();
   });
 
-  it("expands details to reveal delta and workspace status panels", async () => {
+  it("expands details to reveal secondary metrics, delta, and workspace status panels", async () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
 
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus runsDashboard={emptyRunsDashboard} />);
@@ -105,6 +116,10 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
     fireEvent.click(screen.getByRole("button", { name: "View details" }));
 
     await waitFor(() => {
+      expect(screen.getByTestId("operator-home-workspace-metrics-secondary")).toBeInTheDocument();
+      expect(screen.getByText("Evidence sources")).toBeInTheDocument();
+      expect(screen.getByText("Setup readiness")).toBeInTheDocument();
+      expect(screen.getByText("2 of 4 ready")).toBeInTheDocument();
       expect(screen.getByTestId("home-block-delta-panel")).toBeInTheDocument();
       expect(screen.getByTestId("home-block-workspace-status")).toBeInTheDocument();
     });
@@ -121,7 +136,7 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
 
     expect(within(summary).getByText("2 (1 committed · 1 active)")).toBeInTheDocument();
     expect(within(summary).getByText("6")).toBeInTheDocument();
-    expect(within(summary).getByText("2 of 4 ready")).toBeInTheDocument();
+    expect(within(summary).queryByText("2 of 4 ready")).not.toBeInTheDocument();
     expect(screen.queryByText(OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY)).not.toBeInTheDocument();
   });
 });

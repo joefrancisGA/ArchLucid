@@ -90,7 +90,22 @@ export function SidebarNav() {
       setGroupExpanded("operate-governance", false);
       setGroupExpanded("operator-admin", false);
     }
-  }, [mounted, pathname, setGroupExpanded]);
+
+    // Buyer/demo Overview: keep Integrations + Administration collapsed unless the route is inside them.
+    if (buyerPolishedShell || resolvedDemoUi) {
+      const onIntegrationsRoute = route.startsWith("/integrations");
+      const onAdminRoute = route.startsWith("/settings") || route.startsWith("/admin") || route.startsWith("/health");
+
+      if (!onIntegrationsRoute) {
+        setGroupExpanded("operate-integrations", false);
+      }
+
+      if (!onAdminRoute) {
+        setGroupExpanded("operator-admin", false);
+        setGroupExpanded("operator-system-admin", false);
+      }
+    }
+  }, [mounted, pathname, setGroupExpanded, buyerPolishedShell, resolvedDemoUi]);
 
   useEffect(() => {
     if (!mounted) {

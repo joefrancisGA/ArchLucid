@@ -29,10 +29,10 @@ export function resolvePilotNextBestAction(
 
   if (committed) {
     return {
-      label: "View executive summary",
-      href: "/dashboard",
+      label: "Review open findings",
+      href: "/governance/findings?filter=open",
       bridgeCopy:
-        FIRST_WEEK_ROUTE_GUIDANCE["review-detail-committed"].bridgeCopy,
+        "Triage material findings from your finalized architecture packages — the fastest path from Overview to action.",
     };
   }
 

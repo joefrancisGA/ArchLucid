@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -45,12 +46,23 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
+import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator-home-metric-hrefs";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 const DEFAULT_PROJECT_ID = "default";
+
+function homeGovernanceWarningsQueryEnabled(searchParams: URLSearchParams | null): boolean {
+  if (searchParams === null) {
+    return false;
+  }
+
+  const raw = searchParams.get(OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM);
+
+  return raw === "1" || raw === "true";
+}
 
 export type RunsDashboardPanelClientProps = {
   /** Suppress the built-in section heading when a parent zone heading already labels this panel. */
@@ -63,8 +75,11 @@ export function RunsDashboardPanelClient({
   hideHeading = false,
   initialModel = null,
 }: RunsDashboardPanelClientProps = {}) {
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<RunsDashboardTabId>("all");
-  const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(false);
+  const [governanceWarningsOnly, setGovernanceWarningsOnly] = useState(() =>
+    homeGovernanceWarningsQueryEnabled(searchParams),
+  );
   const [showArchived, setShowArchived] = useState(false);
   const [restoreBusyRequestId, setRestoreBusyRequestId] = useState<string | null>(null);
   const [items, setItems] = useState<RunSummary[]>(initialModel?.items ?? []);
@@ -78,6 +93,14 @@ export function RunsDashboardPanelClient({
   const projectId = initialModel?.projectId ?? DEFAULT_PROJECT_ID;
   const pageSize = initialModel?.pageSize ?? OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
   const { reportWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
+
+  useEffect(() => {
+    // Deep-link from Workspace metrics "Governance warnings" (`/?warnings=1`).
+    if (homeGovernanceWarningsQueryEnabled(searchParams)) {
+      setGovernanceWarningsOnly(true);
+      setTab("all");
+    }
+  }, [searchParams]);
 
   const load = useCallback(async () => {
     setPhase("loading");

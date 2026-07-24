@@ -140,6 +140,84 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
         self.assertIn("Journey approximated", report.summary_markdown())
         self.assertIn("api_tenant_workspaces_read", report.summary_markdown())
 
+    def test_dev_requires_contoso_summary_when_api_key_present(self) -> None:
+        build_id = "abcdef0123456789abcdef0123456789abcdef01"
+
+        def http_get(url: str, _headers: dict[str, str], _timeout: float) -> tuple[int, str]:
+            if url.endswith("/health/live") or url.endswith("/health/ready"):
+                return 200, '{"status":"Healthy"}'
+
+            if url.endswith("/version"):
+                return 200, json.dumps({"commitSha": build_id})
+
+            if url.endswith("/openapi/v1.json"):
+                return 200, json.dumps({"info": {"title": "ArchLucid API"}})
+
+            if url.endswith("/v1/tenant/workspaces"):
+                return 200, json.dumps({"workspaces": []})
+
+            if url.endswith("/v1/pilots/why-archlucid-snapshot"):
+                return 200, json.dumps({"demoRunId": "demo", "auditRowCount": 0})
+
+            if f"/v1/authority/runs/{CONTOSO_AUTHORITY_RUN_BASELINE}/summary" in url:
+                return 404, ""
+
+            return 404, ""
+
+        report = run_product_smoke(
+            environment="dev",
+            expected_build_id=build_id,
+            api_base_url="https://api.example.com",
+            api_key="secret-key",
+            max_attempts=1,
+            retry_wait_seconds=0,
+            http_get=http_get,
+        )
+
+        self.assertFalse(report.ok)
+        contoso = [c for c in report.checks if c.name == "api_contoso_run_summary"][0]
+        self.assertTrue(contoso.required)
+        self.assertFalse(contoso.passed)
+
+    def test_staging_contoso_summary_optional_on_404(self) -> None:
+        build_id = "abcdef0123456789abcdef0123456789abcdef01"
+
+        def http_get(url: str, _headers: dict[str, str], _timeout: float) -> tuple[int, str]:
+            if url.endswith("/health/live") or url.endswith("/health/ready"):
+                return 200, '{"status":"Healthy"}'
+
+            if url.endswith("/version"):
+                return 200, json.dumps({"commitSha": build_id})
+
+            if url.endswith("/openapi/v1.json"):
+                return 200, json.dumps({"info": {"title": "ArchLucid API"}})
+
+            if url.endswith("/v1/tenant/workspaces"):
+                return 200, json.dumps({"workspaces": []})
+
+            if url.endswith("/v1/pilots/why-archlucid-snapshot"):
+                return 200, json.dumps({"demoRunId": "demo", "auditRowCount": 0})
+
+            if f"/v1/authority/runs/{CONTOSO_AUTHORITY_RUN_BASELINE}/summary" in url:
+                return 404, ""
+
+            return 404, ""
+
+        report = run_product_smoke(
+            environment="staging",
+            expected_build_id=build_id,
+            api_base_url="https://api.example.com",
+            api_key="secret-key",
+            max_attempts=1,
+            retry_wait_seconds=0,
+            http_get=http_get,
+        )
+
+        self.assertTrue(report.ok, report.summary_markdown())
+        contoso = [c for c in report.checks if c.name == "api_contoso_run_summary"][0]
+        self.assertFalse(contoso.required)
+        self.assertFalse(contoso.passed)
+
     def test_required_product_read_failure_fails_report(self) -> None:
         build_id = "abcdef0123456789abcdef0123456789abcdef01"
 

@@ -54,7 +54,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs 
 | `pilot` | *(none — heterogeneous top-level review paths)* | Portfolio overview may use CTO demo executive showcase href (registered exception). |
 | `operate-analysis` | *(none)* | `/ask`, `/compare`, `/advisory`, … |
 | `operate-governance` | `/governance` | All governance nav hrefs are under `/governance/*` (TB-405). |
-| `operate-reports` | `/scorecard`, `/value-report` | Exception: `/governance/first-30-days` |
+| `operate-reports` | `/sponsor-report`, `/value-report` | Architecture scorecard is Insights-only (`/scorecard`); digests exception in registry |
 | `operate-integrations` | `/integrations` | All Integrations nav hrefs under `/integrations/*` (TB-407). |
 | `operator-admin` | `/settings` | All Administration nav hrefs under `/settings/*` (TB-406). |
 | `operator-system-admin` | `/admin` | Settings, operate, replay, digests, and value-report variants — see exception registry |

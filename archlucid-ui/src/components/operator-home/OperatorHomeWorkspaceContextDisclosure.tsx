@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 import { useCallback, useId, useLayoutEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
@@ -15,7 +16,12 @@ import {
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import {
+  OPERATOR_CARD,
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_SURFACE_CARD_CLASS,
+} from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { OperatorHomeDeltaPanel, OperatorHomeWorkspaceStatusPanel } from "./OperatorHomeDeferredPanels";
@@ -72,6 +78,7 @@ export function OperatorHomeWorkspaceContextDisclosure(
       </OperatorHomeCardSectionTitle>
 
       <OperatorHomeWorkspaceMetricsSummary
+        variant="primary"
         runsDashboard={props.runsDashboard}
         setupReadyCount={setupReadiness.readyCount}
         setupTotalCount={setupReadiness.totalCount}
@@ -85,19 +92,33 @@ export function OperatorHomeWorkspaceContextDisclosure(
             variant="ghost"
             size="sm"
             className={cn(
-              "mt-1 h-auto px-0 py-1 text-neutral-600 hover:bg-transparent hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
-              OPERATOR_TYPE_SCALE.helper,
+              "mt-1 h-auto gap-1 px-0 py-1 hover:bg-transparent",
+              OPERATOR_LINK.optional,
             )}
             aria-expanded={showDetailsExpanded}
             aria-controls={detailsPanelId}
             data-testid="operator-home-workspace-metrics-details-toggle"
           >
-            {detailsToggleLabel}
+            <span>{detailsToggleLabel}</span>
+            <ChevronDown
+              className={cn(
+                "h-3.5 w-3.5 shrink-0 transition-transform",
+                showDetailsExpanded ? "rotate-180" : "rotate-0",
+              )}
+              aria-hidden
+            />
           </Button>
         </CollapsibleTrigger>
 
         <CollapsibleContent id={detailsPanelId} data-testid="operator-home-workspace-metrics-details">
           <div className="space-y-4 border-t border-neutral-200/80 pt-3 dark:border-neutral-800">
+            <OperatorHomeWorkspaceMetricsSummary
+              variant="secondary"
+              runsDashboard={props.runsDashboard}
+              setupReadyCount={setupReadiness.readyCount}
+              setupTotalCount={setupReadiness.totalCount}
+              setupReadinessLoading={setupReadiness.phase === "loading"}
+            />
             <OperatorHomeDeltaPanel />
             {props.showWorkspaceStatus ? <OperatorHomeWorkspaceStatusPanel /> : null}
           </div>

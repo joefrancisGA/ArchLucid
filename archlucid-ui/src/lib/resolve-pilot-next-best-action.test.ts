@@ -54,7 +54,7 @@ describe("resolvePilotNextBestAction", () => {
     expect(action.href).toBe("/reviews/run-ready#finalize-review");
   });
 
-  it("opens executive summary after the tenant has a committed review", () => {
+  it("opens open findings after the tenant has a committed review", () => {
     const action = resolvePilotNextBestAction(
       {
         ...emptyCtx,
@@ -66,7 +66,7 @@ describe("resolvePilotNextBestAction", () => {
       true,
     );
 
-    expect(action.label).toBe("View executive summary");
-    expect(action.href).toBe("/dashboard");
+    expect(action.label).toBe("Review open findings");
+    expect(action.href).toBe("/governance/findings?filter=open");
   });
 });

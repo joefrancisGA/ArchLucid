@@ -35,5 +35,9 @@ describe("OperateReportsNavGroupBuilder", () => {
     const group = new OperateReportsNavGroupBuilder().build();
 
     expect(group.links.some((link) => link.href === "/scorecard")).toBe(false);
+    expect(group.links.some((link) => link.href === "/sponsor-report/architecture-scorecard")).toBe(
+      false,
+    );
+    expect(group.links.map((link) => link.label)).not.toContain("Architecture scorecard");
   });
 });

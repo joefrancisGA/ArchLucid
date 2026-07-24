@@ -181,6 +181,18 @@ Configure per **environment** (`dev` / `staging` / `production`) or organization
 
 **Manual dispatch:** `run_terraform_apply` defaults to **false** so routine releases only refresh images and Container App revisions; set **true** when infra tfvars (e.g. image pins) must move with the same run.
 
+## Dev Contoso showcase seed (always on)
+
+Hosted **`target=dev`** (RC lab) keeps Contoso Retail baseline/hardened sample runs available after every API roll so operator deep links such as `6e8c4a10-…c501` do not 404.
+
+| Setting | `target=dev` | `staging` / `production` |
+|---------|--------------|---------------------------|
+| `ASPNETCORE_ENVIRONMENT` | **`Staging`** (not Production — `Demo:Enabled` is blocked on the Production profile) | unchanged / Production-like |
+| `Demo__Enabled` | **`true`** | **`false`** (CD config gate) |
+| `Demo__EnableShowcaseSeed` | **`true`** (startup seed on non-Development hosts) | unset / false |
+
+CD **auto-heals** those three API Container App env vars during the pre-deploy config check when `target=dev`, and re-pins them on each `az containerapp update` for the API. Seed is **idempotent** (`IDemoSeedService`). Post-deploy product smoke treats Contoso summary as **required** on `dev` only.
+
 ## Operational considerations
 
 - **Environment protection**: Use `required_reviewers` on `staging` and `production` so `terraform-apply` and image deploy jobs respect your change-management process. **`dev`** is usually ungated for engineer velocity; add reviewers if your org requires it.

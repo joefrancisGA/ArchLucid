@@ -48,6 +48,6 @@ describe("OperatorHomeExecutiveRoiStrip", () => {
     expect(await screen.findByTestId("operator-home-roi-strip")).toBeInTheDocument();
     expect(screen.getByText(/125,000/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Help: Executive ROI" })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-roi-strip-open-dashboard")).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByTestId("operator-home-roi-strip-open-scorecard")).toHaveAttribute("href", "/scorecard");
   });
 });

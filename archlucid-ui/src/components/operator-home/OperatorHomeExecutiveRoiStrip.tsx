@@ -8,10 +8,9 @@ import { useExecutiveRoiSummaryQuery } from "@/hooks/use-executive-roi-summary-q
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
-import { Button } from "@/components/ui/button";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
-  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
@@ -22,7 +21,7 @@ import {
 } from "@/lib/roi-resolution-priority";
 import { formatUsd } from "@/lib/roi-assumptions";
 
-/** Compact executive ROI strip on Overview after the first committed review. */
+/** Compact executive ROI story on Overview after the first committed review. */
 export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const summaryQuery = useExecutiveRoiSummaryQuery({ enabled: hasCommittedArchitectureReview });
@@ -82,30 +81,28 @@ export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
       className={cn(OPERATOR_SURFACE_CARD_CLASS, "p-4")}
       data-testid="operator-home-roi-strip"
     >
-      <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", OPERATOR_LAYOUT.inlineGap)}>
-        <div className="min-w-0 space-y-1">
-          <h2 id="operator-home-roi-strip-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.sectionTitle)}>
-            <span className="inline-flex items-baseline gap-1.5">
-              Executive ROI
-              <RoiDispositionTrainingTooltip />
-            </span>
-          </h2>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
-            <span className="font-medium text-al-text-primary">{savingsLabel}</span>
-            {" "}
-            estimated savings ({scopeLabel})
-          </p>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary/80")}>
-            {summary.systemCount} system{summary.systemCount === 1 ? "" : "s"} · {summary.latestRunCount} committed review
-            {summary.latestRunCount === 1 ? "" : "s"}
-          </p>
-        </div>
-        <Button asChild variant="outline" size="sm" className="h-8 shrink-0">
-          <Link href="/dashboard" data-testid="operator-home-roi-strip-open-dashboard">
-            Open full summary
-          </Link>
-        </Button>
-      </div>
+      <h2 id="operator-home-roi-strip-heading" className="sr-only">
+        Executive ROI
+      </h2>
+      <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
+        <span className="inline-flex items-baseline gap-1.5 font-medium text-al-text-primary">
+          {savingsLabel}
+          <RoiDispositionTrainingTooltip />
+        </span>
+        {" estimated savings from "}
+        {summary.latestRunCount} committed review
+        {summary.latestRunCount === 1 ? "" : "s"}
+        {" ("}
+        {scopeLabel}
+        {"). "}
+        <Link
+          href="/scorecard"
+          className={OPERATOR_LINK.optional}
+          data-testid="operator-home-roi-strip-open-scorecard"
+        >
+          See architecture scorecard
+        </Link>
+      </p>
     </section>
   );
 }

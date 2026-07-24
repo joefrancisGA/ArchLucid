@@ -8,7 +8,7 @@
 
 - **API + operator UI** in **DevelopmentBypass** (no sign-in) for the simplest evaluator path, or you may switch to **ApiKey** / **JwtBearer** for a stricter public posture.
 - **Agent execution: Simulator** — deterministic, no Azure OpenAI cost.
-- **Pre-seeded Contoso data** — on API startup, when `Demo:Enabled` and `Demo:SeedOnStartup` are `true`, `IDemoSeedService` runs after DbUp (`ArchLucid.Application/Bootstrap/DemoSeedService.cs`). It creates **two committed** Contoso Retail runs (baseline + hardened) plus governance/export fixtures, not three.
+- **Pre-seeded Contoso data** — on API startup, when `Demo:Enabled` and `Demo:SeedOnStartup` are `true` (Development), or when `Demo:Enabled` and `Demo:EnableShowcaseSeed` are `true` (hosted RC/dev CD uses **`ASPNETCORE_ENVIRONMENT=Staging`** + showcase seed), `IDemoSeedService` runs after DbUp (`ArchLucid.Application/Bootstrap/DemoSeedService.cs`). It creates **two committed** Contoso Retail runs (baseline + hardened) plus governance/export fixtures, not three. Hosted GitHub CD `target=dev` pins and asserts that showcase-seed posture on every deploy (see [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) § Dev Contoso showcase seed).
 - **On-demand reset** — there is no automatic nightly reset. Wipe the database or re-provision the environment when you need a clean state.
 - **New runs in the UI** — allowed in DevelopmentBypass; if you do not want public write traffic, use auth modes and `Demo:Enabled` / route policy appropriate for your threat model (not documented here as a product default).
 

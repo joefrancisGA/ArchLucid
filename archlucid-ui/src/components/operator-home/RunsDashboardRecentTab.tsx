@@ -31,6 +31,7 @@ import {
   formatRunHomeListInsightLine,
   formatRunHomeListUpdatedLabel,
 } from "@/lib/operator-home-run-list-insight";
+import { OPERATOR_HOME_RECENT_FEATURED_LIMIT } from "@/lib/operator-home-recent-reviews-outcome";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -96,6 +97,13 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
       return 0;
     });
   }, [props.filteredItems]);
+
+  // Overview shows a short featured set; Architecture packages owns the full inventory.
+  const featuredItems = useMemo(
+    () => sortedItems.slice(0, OPERATOR_HOME_RECENT_FEATURED_LIMIT),
+    [sortedItems],
+  );
+  const hiddenFeaturedCount = Math.max(0, sortedItems.length - featuredItems.length);
 
   return (
     <div data-testid={panelTestId}>
@@ -214,73 +222,83 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
         </section>
       ) : null}
 
-      {(props.phase === "ready" || props.phase === "error") && sortedItems.length > 0 ? (
-        <ul className="m-0 list-none space-y-2 p-0" data-testid="recent-runs-home-panel">
-          {sortedItems.map((run) => {
-            const requestId = runListPrimaryRequestId(run);
+      {(props.phase === "ready" || props.phase === "error") && featuredItems.length > 0 ? (
+        <>
+          <ul className="m-0 list-none space-y-2 p-0" data-testid="recent-runs-home-panel">
+            {featuredItems.map((run) => {
+              const requestId = runListPrimaryRequestId(run);
 
-            return (
-              <li
-                key={run.runId}
-                className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
-              >
-                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <Link
-                      href={`/reviews/${encodeURIComponent(run.runId)}`}
-                      className={cn(
-                        "min-w-0 font-semibold text-teal-900 underline decoration-teal-300/80 hover:text-teal-950 dark:text-teal-100 dark:hover:text-teal-50",
-                        OPERATOR_TYPE_SCALE.body,
-                      )}
-                    >
-                      {runListPrimaryTitle(run)}
-                    </Link>
-                    <RunListRowBadges run={run} className="text-[0.6rem]" />
-                  </div>
-                  {isShowcaseStaticDemoRunId(run.runId ?? "") ? (
-                    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
-                      Completed example review · Approved with monitoring
-                    </p>
-                  ) : null}
-                  {(() => {
-                    const insightLine = formatRunHomeListInsightLine(run);
-                    const updatedLabel = formatRunHomeListUpdatedLabel(run);
-
-                    if (insightLine === null && updatedLabel === null) {
-                      return null;
-                    }
-
-                    return (
-                      <p
-                        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
-                        data-testid={`run-home-list-insight-${run.runId}`}
+              return (
+                <li
+                  key={run.runId}
+                  className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
+                >
+                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <Link
+                        href={`/reviews/${encodeURIComponent(run.runId)}`}
+                        className={cn(
+                          "min-w-0 font-semibold text-teal-900 underline decoration-teal-300/80 hover:text-teal-950 dark:text-teal-100 dark:hover:text-teal-50",
+                          OPERATOR_TYPE_SCALE.body,
+                        )}
                       >
-                        {[insightLine, updatedLabel].filter((part) => part !== null).join(" · ")}
+                        {runListPrimaryTitle(run)}
+                      </Link>
+                      <RunListRowBadges run={run} className="text-[0.6rem]" />
+                    </div>
+                    {isShowcaseStaticDemoRunId(run.runId ?? "") ? (
+                      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
+                        Completed example review · Approved with monitoring
                       </p>
-                    );
-                  })()}
-                </div>
-                {props.showArchived && requestId !== null ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className={cn("h-7", OPERATOR_TYPOGRAPHY.button)}
-                    disabled={props.restoreBusyRequestId === requestId}
-                    data-testid={`runs-dashboard-restore-${run.runId}`}
-                    onClick={() => {
-                      props.onRestoreArchivedRequest(requestId);
-                    }}
-                  >
-                    {props.restoreBusyRequestId === requestId
-                      ? RUNS_DASHBOARD_LABELS.restoringRequest
-                      : RUNS_DASHBOARD_LABELS.restoreRequest}
-                  </Button>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
+                    ) : null}
+                    {(() => {
+                      const insightLine = formatRunHomeListInsightLine(run);
+                      const updatedLabel = formatRunHomeListUpdatedLabel(run);
+
+                      if (insightLine === null && updatedLabel === null) {
+                        return null;
+                      }
+
+                      return (
+                        <p
+                          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
+                          data-testid={`run-home-list-insight-${run.runId}`}
+                        >
+                          {[insightLine, updatedLabel].filter((part) => part !== null).join(" · ")}
+                        </p>
+                      );
+                    })()}
+                  </div>
+                  {props.showArchived && requestId !== null ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className={cn("h-7", OPERATOR_TYPOGRAPHY.button)}
+                      disabled={props.restoreBusyRequestId === requestId}
+                      data-testid={`runs-dashboard-restore-${run.runId}`}
+                      onClick={() => {
+                        props.onRestoreArchivedRequest(requestId);
+                      }}
+                    >
+                      {props.restoreBusyRequestId === requestId
+                        ? RUNS_DASHBOARD_LABELS.restoringRequest
+                        : RUNS_DASHBOARD_LABELS.restoreRequest}
+                    </Button>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+          {hiddenFeaturedCount > 0 ? (
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+              <Link href="/reviews" className="font-medium underline underline-offset-2">
+                View all architecture packages
+              </Link>
+              {` (${hiddenFeaturedCount} more on this page)`}
+            </p>
+          ) : null}
+        </>
       ) : null}
     </div>
   );

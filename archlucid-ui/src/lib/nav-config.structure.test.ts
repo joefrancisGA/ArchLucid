@@ -201,7 +201,6 @@ describe("nav-config structure", () => {
       "/sponsor-report/executive-summary",
       "/sponsor-report/pilot-outcomes",
       "/sponsor-report/roi-summary",
-      "/sponsor-report/architecture-scorecard",
       "/digests",
     ]);
     expect(integrationsHrefs).toEqual([

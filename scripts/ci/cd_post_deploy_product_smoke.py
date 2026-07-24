@@ -464,7 +464,9 @@ def run_product_smoke(
         )
     )
 
-    # Optional: Contoso demo authority run (seed may be absent).
+    # Contoso baseline: required on hosted CD target=dev (always-seeded showcase); optional elsewhere.
+    contoso_required = normalize(environment).lower() == "dev" and bool(key)
+
     def check_contoso() -> tuple[bool, str]:
         if not key:
             return False, "API key missing"
@@ -473,7 +475,11 @@ def run_product_smoke(
         code, body = get(join_url(api_base, path), auth_headers)
 
         if code == 404:
-            return False, "HTTP 404 (demo seed not present — optional)"
+            detail = "HTTP 404 (demo seed not present)"
+            if contoso_required:
+                return False, f"{detail} — required on target=dev"
+
+            return False, f"{detail} — optional"
 
         if code != 200:
             return False, redact_secrets(f"HTTP {code}", key)
@@ -483,8 +489,8 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="api_contoso_run_summary",
-            required=False,
-            attempts=min(2, attempts),
+            required=contoso_required,
+            attempts=min(2, attempts) if not contoso_required else attempts,
             wait_seconds=wait,
             operation=check_contoso,
         )

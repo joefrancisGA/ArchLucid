@@ -17,6 +17,8 @@
 #   CD_MAINTENANCE_WINDOW_OVERRIDE — optional repo var "true" for break-glass dev deploy outside 22:00-23:00 America/New_York
 #
 # Dev schedule: nightly 22:00 America/New_York (target=dev, action=deploy). Manual staging/production remain workflow_dispatch only.
+# Dev Contoso seed: target=dev pins ASPNETCORE_ENVIRONMENT=Staging + Demo__Enabled + Demo__EnableShowcaseSeed on the API
+#   (auto-heal in pre-deploy config check; Contoso summary required in product smoke). Staging/production keep Demo off.
 # Dev maintenance: deploy allowed during hour 22 ET; post-deploy validation must pass before 23:00 ET or rollback runs (when CD_ROLLBACK_ON_SMOKE_FAILURE=true).
 #   SMOKE_SYNTHETIC_PATH — optional repo var; recommended /api/auth/me (authenticated warm-path GET after /version; requires ARCHLUCID_API_KEY)
 #   CD_POST_DEPLOY_MAX_ATTEMPTS / CD_POST_DEPLOY_RETRY_WAIT_SECONDS — optional repo vars for retry loop (cold start)
@@ -863,15 +865,37 @@ jobs:
             || fail "Authentication__ApiKey__AdminKey is not set"
           is_guid "Authentication__ApiKey__TenantId" \
             || fail "Authentication__ApiKey__TenantId is not a valid GUID"
-          is_exact "Demo__Enabled" "false" \
-            || fail "Demo__Enabled must be 'false'"
-          # dev has no fixed public hostname (Container Apps FQDN or an operator-chosen custom
-          # domain, per PILOT_PROFILE.md "omit Front Door for pilots") — only staging/production
-          # are pinned to the buyer-facing apex, so only those targets assert the exact origin.
+          # Hosted RC/dev keeps Contoso showcase seed on every API revision (sample-run deep links).
+          # Staging/production must never enable Demo — buyer/pilot hosts stay seed-free.
+          # ASPNETCORE_ENVIRONMENT=Staging (not Production) so Demo:Enabled passes production-profile safety rules.
           if [ "${{ github.event.inputs.target || 'dev' }}" = "dev" ]; then
+            # Auto-heal before assert so the first CD after this policy lands is not blocked by Demo__Enabled=false.
+            if ! is_exact "Demo__Enabled" "true" \
+              || ! is_exact "Demo__EnableShowcaseSeed" "true" \
+              || ! is_exact "ASPNETCORE_ENVIRONMENT" "Staging"; then
+              echo "Healing Contoso showcase seed env on target=dev (Staging + Demo__Enabled + Demo__EnableShowcaseSeed)..."
+              az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+                --set-env-vars \
+                  "ASPNETCORE_ENVIRONMENT=Staging" \
+                  "Demo__Enabled=true" \
+                  "Demo__EnableShowcaseSeed=true" \
+                -o none
+              ENV_JSON=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+                --query "properties.template.containers[0].env" -o json 2>/dev/null || echo "[]")
+            fi
+            is_exact "Demo__Enabled" "true" \
+              || fail "Demo__Enabled must be 'true' on target=dev (Contoso showcase seed)"
+            is_exact "Demo__EnableShowcaseSeed" "true" \
+              || fail "Demo__EnableShowcaseSeed must be 'true' on target=dev"
+            is_exact "ASPNETCORE_ENVIRONMENT" "Staging" \
+              || fail "ASPNETCORE_ENVIRONMENT must be 'Staging' on target=dev (Demo:Enabled cannot run under Production)"
             is_set "Cors__AllowedOrigins__0" \
               || fail "Cors__AllowedOrigins__0 is not set"
           else
+            is_exact "Demo__Enabled" "false" \
+              || fail "Demo__Enabled must be 'false'"
+            # staging/production are pinned to the buyer-facing apex (dev uses Container Apps FQDN
+            # or an operator-chosen custom domain, per PILOT_PROFILE.md "omit Front Door for pilots").
             is_exact "Cors__AllowedOrigins__0" "https://www.archlucid.net" \
               || fail "Cors__AllowedOrigins__0 must be 'https://www.archlucid.net'"
           fi
@@ -929,9 +953,22 @@ jobs:
           REV_SFX="r${GITHUB_RUN_ID}a${GITHUB_RUN_ATTEMPT:-1}"
           echo "Deploy API image (digest): ${API_IMAGE}"
           echo "Deploy API tag (lineage): ${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
+          # target=dev: pin Contoso showcase seed env on every API roll (idempotent startup seed).
+          API_ENV_VARS=(
+            "CD_DEPLOY_RUN=$DEPLOY_STAMP"
+            "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP"
+            "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID"
+          )
+          if [ "${{ github.event.inputs.target || 'dev' }}" = "dev" ]; then
+            API_ENV_VARS+=(
+              "ASPNETCORE_ENVIRONMENT=Staging"
+              "Demo__Enabled=true"
+              "Demo__EnableShowcaseSeed=true"
+            )
+            echo "Dev Contoso seed env: ASPNETCORE_ENVIRONMENT=Staging Demo__Enabled=true Demo__EnableShowcaseSeed=true"
+          fi
           A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
-            --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
-              "ARCHLUCID_BUILD_TIMESTAMP=$BUILD_TIMESTAMP" "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" \
+            --revision-suffix "$REV_SFX" --set-env-vars "${API_ENV_VARS[@]}" \
             --query "properties.latestRevisionName" -o tsv)
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
             W_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" \

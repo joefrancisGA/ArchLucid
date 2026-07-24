@@ -7,7 +7,7 @@
 
 Operator opens the UI shell, the same-origin BFF reaches the API (`/api/proxy/health/ready`), and an authenticated read loads tenant workspaces plus the Why-ArchLucid snapshot (SQL-backed audit count) — the start of an operator session against the smoke API-key scope.
 
-**Does not prove:** review create/commit, paid AI, notifications, browser SSO login, or Contoso demo seed presence (Contoso summary is optional).
+**Does not prove:** review create/commit, paid AI, notifications, or browser SSO login. Contoso baseline seed is **required on `target=dev`** (hosted RC showcase) and optional on staging/production.
 
 ## Required vs optional
 
@@ -22,7 +22,7 @@ Operator opens the UI shell, the same-origin BFF reaches the API (`/api/proxy/he
 | `ui_process_health` | Yes when UI base URL set | `/api/health` Healthy |
 | `ui_bff_health_ready` | Yes when UI base URL set | `/api/proxy/health/ready` 200 / Healthy |
 | `ui_public_shell_build_id` | Yes when UI base URL and `BUILD_ID` set | Cache-bypass `GET /welcome` HTML meta `archlucid:build-commit` == `BUILD_ID` |
-| `api_contoso_run_summary` | Optional | Contoso baseline authority summary |
+| `api_contoso_run_summary` | **Yes on `dev`** (when API key present); optional on staging/production | Contoso baseline authority summary HTTP 200 |
 | `ui_homepage` | Optional | `/` HTTP 200 |
 | `ui_static_asset` | Optional | One `/_next/static/…` asset HTTP 200 |
 
