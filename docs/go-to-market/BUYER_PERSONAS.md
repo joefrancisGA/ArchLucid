@@ -47,9 +47,9 @@
 
 | Pain point | How ArchLucid helps | Evidence in product |
 |-----------|---------------------|---------------------|
-| **Architecture reviews are inconsistent** — different architects apply different standards, and reviews are oral conversations with no artifact trail | Multi-agent pipeline applies the same finding engines across every review. Every finding has an `ExplainabilityTrace`. Golden manifests are versioned and comparable. | 10 finding engines, `ExplainabilityTrace` (5 fields per finding), `dbo.GoldenManifests` with `ROWVERSION` |
+| **Architecture reviews are inconsistent** — different architects apply different standards, and reviews are oral conversations with no artifact trail | Multi-agent pipeline applies the same finding engines across every review. Every finding has an `ExplainabilityTrace`. Architecture packages (API: golden manifests) are versioned and comparable. | 10 finding engines, `ExplainabilityTrace` (5 fields per finding), `dbo.GoldenManifests` with `ROWVERSION` |
 | **No audit trail for architecture decisions** — auditors ask "who approved this design?" and the answer is "someone in a meeting" | 78 typed audit events with append-only SQL enforcement. Governance approval workflow with segregation of duties. Provenance graph linking evidence to decisions. | `dbo.AuditEvents`, `GovernanceApprovalRequests`, `ProvenanceBuilder` |
-| **Compliance checking is manual** — architects manually verify designs against policy, and gaps are found late (or in production) | Pre-commit governance gate blocks manifest commit when findings at or above a configurable severity exist. Policy packs with versioned compliance rules. | `PreCommitGovernanceGate`, `PolicyPackContentDocument`, `BlockCommitMinimumSeverity` |
+| **Compliance checking is manual** — architects manually verify designs against policy, and gaps are found late (or in production) | Pre-finalize governance gate blocks architecture-package finalize when findings at or above a configurable severity exist. Policy packs with versioned compliance rules. | `PreCommitGovernanceGate`, `PolicyPackContentDocument`, `BlockCommitMinimumSeverity` |
 | **Architecture drift goes undetected** — the system evolves but no one tracks how the design changes between iterations | Two-run comparison with structured deltas. Comparison replay with drift verification mode. Compliance drift trend chart. | `ComparisonRecords`, replay verify mode (422 on drift), `ComplianceDriftTrendService` |
 
 ### How they evaluate tools
@@ -61,7 +61,7 @@
 ### What would make them champion ArchLucid
 
 - The finding engines identify a real compliance gap that the manual review process missed
-- The provenance graph shows the complete decision chain from context to finding to manifest entry
+- The provenance graph shows the complete decision chain from context to finding to architecture-package entry
 - The DOCX export produces a stakeholder-ready report that replaces their manual template
 - The comparison feature shows meaningful architectural drift between two iterations
 
@@ -84,7 +84,7 @@
 ### Demo priorities (what to show first)
 
 1. Pre-loaded run with findings — focus on `ExplainabilityTrace` depth
-2. Pre-commit governance gate blocking a non-compliant commit
+2. Pre-finalize governance gate blocking a non-compliant finalize
 3. Two-run comparison showing architectural drift
 4. DOCX export with embedded diagram
 5. Provenance graph visualization
@@ -117,8 +117,8 @@
 | Pain point | How ArchLucid helps | Evidence in product |
 |-----------|---------------------|---------------------|
 | **Architecture review is a bottleneck** — every design must go through a small team of architects, creating a queue | AI agents perform the initial analysis automatically. Architects review findings rather than conducting the entire review from scratch. | `IAuthorityRunOrchestrator` pipeline: context → graph → findings → decisioning → artifacts |
-| **No architecture-as-code** — infrastructure has Terraform, code has CI/CD, but architecture decisions are in wikis and slides | Architecture requests are structured JSON. Manifests are versioned artifacts. The CLI supports automation. | `ArchitectureRequest` API, `archlucid run`, `archlucid commit`, `archlucid artifacts --save` |
-| **Compliance is reactive** — security and compliance findings surface in post-deployment audits, not during design | Pre-commit governance gate. Policy packs with compliance rules evaluated during the run pipeline. Findings by severity with configurable blocking thresholds. | `PreCommitGovernanceGate`, `FindingSeverity`, `PolicyPackAssignment.BlockCommitMinimumSeverity` |
+| **No architecture-as-code** — infrastructure has Terraform, code has CI/CD, but architecture decisions are in wikis and slides | Architecture requests are structured JSON. Architecture packages are versioned artifacts. The CLI supports automation. | `ArchitectureRequest` API, `archlucid run`, `archlucid commit` (finalize), `archlucid artifacts --save` |
+| **Compliance is reactive** — security and compliance findings surface in post-deployment audits, not during design | Pre-finalize governance gate. Policy packs with compliance rules evaluated during the review pipeline. Findings by severity with configurable blocking thresholds. | `PreCommitGovernanceGate`, `FindingSeverity`, `PolicyPackAssignment.BlockCommitMinimumSeverity` |
 | **Cannot measure architecture quality** — no metrics on review throughput, finding patterns, or decision consistency | 30+ OTel metrics including runs created, findings by severity, LLM usage per run, agent output quality scores, and explanation cache effectiveness. | `ArchLucidInstrumentation`, Grafana dashboards committed in repo |
 
 ### How they evaluate tools
@@ -146,14 +146,14 @@
 
 | Objection | Response |
 |-----------|----------|
-| "We can just use ChatGPT/Copilot for architecture advice" | ChatGPT gives you an answer. ArchLucid gives you a **governed, auditable, repeatable process** with structured findings, version-controlled manifests, and drift detection. When your auditor asks "who reviewed this design and what did they find?", ArchLucid has the answer. |
+| "We can just use ChatGPT/Copilot for architecture advice" | ChatGPT gives you an answer. ArchLucid gives you a **governed, auditable, repeatable process** with structured findings, version-controlled architecture packages, and drift detection. When your auditor asks "who reviewed this design and what did they find?", ArchLucid has the answer. |
 | "Our engineers are not .NET developers" | ArchLucid's API is REST/JSON. The CLI is a single binary. The OpenAPI spec can generate clients in any language. V1 ships a .NET client; Python and JavaScript SDKs are on the roadmap. |
 | "How do I justify the cost?" | Each architecture review that currently takes 40 hours of senior architect time can be reduced to a 2-hour review of AI-generated findings. At $150/hour fully loaded, that is $5,700 saved per review. Run 10 reviews per quarter and the tool pays for itself. |
 
 ### Demo priorities (what to show first)
 
-1. CLI `run --quick` → `artifacts` pipeline (30 seconds to a manifest)
-2. API flow: Swagger → create review → execute → commit → get manifest
+1. CLI `run --quick` → `artifacts` pipeline (30 seconds to an architecture package)
+2. API flow: Swagger → create review → execute → finalize (`commit`) → get architecture package
 3. OTel metrics in Grafana (runs, findings, agent quality)
 4. Health checks and `doctor` command (operational readiness)
 5. Compare two reviews to show drift detection
@@ -186,7 +186,7 @@
 | Pain point | How ArchLucid helps | Evidence in product |
 |-----------|---------------------|---------------------|
 | **Audit exposure** — auditors ask for evidence of architecture review and the answer is scattered emails and slides | 78 typed audit events in an append-only SQL store. Every finding traced to evidence. Governance approvals with segregation of duties. Export to JSON/CSV for auditor consumption. | `dbo.AuditEvents`, `DENY UPDATE/DELETE`, `GovernanceApprovalRequests`, audit export endpoints |
-| **Ungoverned architecture decisions** — project teams make technology choices without formal review, creating compliance risk | Policy packs with configurable enforcement. Pre-commit gate blocks manifests with critical findings. Approval workflow with SLA tracking and escalation. | `PreCommitGovernanceGate`, `ApprovalSlaMonitor`, `GovernanceApprovalSlaBreached` audit event |
+| **Ungoverned architecture decisions** — project teams make technology choices without formal review, creating compliance risk | Policy packs with configurable enforcement. Pre-finalize gate blocks architecture packages with critical findings. Approval workflow with SLA tracking and escalation. | `PreCommitGovernanceGate`, `ApprovalSlaMonitor`, `GovernanceApprovalSlaBreached` audit event |
 | **No visibility into architecture quality across the portfolio** — each team reviews differently (or not at all) | Standardized findings from consistent engines. Comparison and trend analysis across runs. Advisory scans with trace completeness metrics. | Finding engines, `ComplianceDriftTrendService`, `ExplainabilityTraceCompletenessAnalyzer` |
 | **Regulatory questionnaires take weeks** — compliance teams manually gather evidence for SOC 2, ISO 27001, and industry audits | Durable audit trail, governance workflow evidence, and findings mapped to compliance concerns. Export capabilities for evidence packages. | Audit export (JSON/CSV), DOCX consulting export, artifact bundles |
 
@@ -226,7 +226,7 @@
 
 1. Governance approval workflow with segregation of duties
 2. Audit event log with search and export
-3. Pre-commit governance gate blocking a non-compliant commit
+3. Pre-finalize governance gate blocking a non-compliant finalize
 4. CUSTOMER_TRUST_AND_ACCESS architecture diagram (security posture)
 5. DOCX export with structured evidence
 

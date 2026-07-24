@@ -69,7 +69,7 @@ An internal drill runbook exists and is exercised periodically to validate failo
 
 ArchLucid retains customer data **until archived or deleted by operator workflows**. There is no automatic purge on a fixed schedule — operators control data lifecycle through:
 
-- **Run archival:** Runs, golden manifests, and findings snapshots carry `ArchivedUtc` columns; archived data is excluded from active queries.
+- **Run archival:** Reviews, architecture packages (API: golden manifests), and findings snapshots carry `ArchivedUtc` columns; archived data is excluded from active queries.
 - **Audit events:** Append-only in SQL with export capabilities (CSV via `GET /v1/audit/export`). Retention is operator-managed.
 - **Agent traces:** Optional full-prompt persistence in blob storage; lifecycle follows blob retention configuration.
 

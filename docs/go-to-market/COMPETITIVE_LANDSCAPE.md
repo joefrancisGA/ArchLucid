@@ -76,7 +76,7 @@ ArchLucid operates at the intersection of two established markets and one emergi
 | **Multi-agent AI pipeline** | Four agent types (Topology, Cost, Compliance, Critic) orchestrated by `IAuthorityRunOrchestrator`. Multi-vendor LLM via `ILlmProvider` with fallback chain. Simulator mode for deterministic testing. |
 | **Explainability trace on every finding** | `ExplainabilityTrace` with 5 structured fields per finding. `ExplainabilityTraceCompletenessAnalyzer` with OTel metric. 10 finding engine types with documented trace coverage. Faithfulness heuristic. |
 | **Provenance graph** | `ProvenanceBuilder`, `ProvenanceNode`, `ProvenanceEdge`, graph algorithms. UI visualization with layered SVG. Decision → evidence → artifact lineage. |
-| **Governance workflow** | Approval requests, manifest promotions, environment activation. Segregation of duties (self-approval blocked). Pre-commit governance gate with configurable severity. Approval SLA with escalation webhooks. Compliance drift trending. |
+| **Governance workflow** | Approval requests, architecture-package promotions, environment activation. Segregation of duties (self-approval blocked). Pre-finalize governance gate with configurable severity. Approval SLA with escalation webhooks. Compliance drift trending. |
 | **Durable audit** | 78 typed audit event constants. SQL append-only enforcement (`DENY UPDATE/DELETE`). Paginated search, bulk export (JSON/CSV). CI guard on event count. |
 | **Comparison and drift detection** | Two-**review** comparison with structured deltas. Comparison replay (regenerate, verify, artifact modes). Drift analysis between stored and regenerated outputs. |
 | **Policy packs** | Versioned policy documents with scope assignments. Effective governance resolution (tenant → workspace → project precedence). Coverage engines. Applicability engines. |
@@ -101,7 +101,7 @@ ArchLucid operates at the intersection of two established markets and one emergi
 | ArchLucid does better | Ardoq does better |
 |-----------------------|-------------------|
 | **AI agent orchestration:** Automated topology/cost/compliance/critic analysis pipeline. Ardoq requires manual scenario modeling. | **Visual modeling UX:** Ardoq has mature, polished graph and scenario visualization. ArchLucid's UI is functional but self-described as a "thin shell." |
-| **Governance + audit depth:** Pre-commit gates, approval SLA, 78 typed audit events, segregation of duties. Ardoq has change logs but no governance workflow. | **CMDB and data source connectors:** Ardoq integrates with ServiceNow, AWS, Azure, and other inventories. ArchLucid has no inbound data connectors beyond manual input and API. |
+| **Governance + audit depth:** Pre-finalize gates, approval SLA, 78 typed audit events, segregation of duties. Ardoq has change logs but no governance workflow. | **CMDB and data source connectors:** Ardoq integrates with ServiceNow, AWS, Azure, and other inventories. ArchLucid has no inbound data connectors beyond manual input and API. |
 
 ### 4.3 ArchLucid vs. AWS Well-Architected Tool
 

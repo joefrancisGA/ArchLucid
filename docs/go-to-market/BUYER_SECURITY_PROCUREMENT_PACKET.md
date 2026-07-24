@@ -76,7 +76,7 @@ Full technical narrative: [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md). Live rev
 | Encryption in transit | Shipped — TLS 1.2+ enforced on all API endpoints | [`trust-center.md`](trust-center.md) |
 | Secrets management | Shipped — Azure Key Vault for connection strings and API keys | [`trust-center.md`](trust-center.md) |
 | RBAC / least-privilege | Shipped — role-based access controls; governance approval separation | [`../library/contributor-reference/SECURITY.md`](../library/contributor-reference/SECURITY.md) |
-| Pre-commit governance gate | Shipped — policy-pack enforcement before manifest commit | [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) |
+| Pre-finalize governance gate | Shipped — policy-pack enforcement before architecture-package finalize (API: pre-commit / manifest commit) | [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) |
 | Data retention posture | Draft — configurable retention policy; formal retention schedule owner review required | [`trust-center.md`](trust-center.md) |
 | Vulnerability management | Owner-conducted — tooling in place; formal program cadence owner-defined | [`PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md) |
 | Incident response plan | Draft — incident communications policy documented; formal IR plan is owner-drafted | [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md) |
@@ -114,12 +114,12 @@ A: ArchLucid uses Azure Entra ID via OIDC/SAML for human authentication. Machine
 A: Yes, via Azure Entra ID / SAML federation. SCIM provisioning is available in V1 for basic lifecycle management.
 
 **Q: How is access controlled within the product?**
-A: Role-based access controls govern which users can run reviews, approve manifests, access audit events, and manage governance settings. Approval and governance actions require explicit assignment.
+A: Role-based access controls govern which users can run reviews, approve architecture packages, access audit events, and manage governance settings. Approval and governance actions require explicit assignment.
 
 ### 5.2 Data isolation and tenant boundaries
 
 **Q: Is customer data isolated from other customers?**
-A: Yes. Tenant-scoped row-level filtering is applied to all data queries. Tenants cannot access each other's runs, manifests, findings, or evidence. See [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md).
+A: Yes. Tenant-scoped row-level filtering is applied to all data queries. Tenants cannot access each other's reviews, architecture packages, findings, or evidence. See [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md).
 
 **Q: Where is customer data stored?**
 A: In Azure SQL and Azure Blob Storage within the designated Azure region. Data does not leave the configured region boundary except for Azure OpenAI calls (configurable endpoint).

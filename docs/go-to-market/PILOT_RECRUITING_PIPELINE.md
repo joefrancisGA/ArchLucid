@@ -48,9 +48,9 @@ Use this profile to qualify inbound leads and prioritize outreach. All three pri
 
 | Persona | Title examples | Primary pain | Winning message |
 | --- | --- | --- | --- |
-| **Architecture lead** | Principal Architect, Head of Architecture, VP Cloud | Reviews take too long; evidence is scattered; governance is inconsistent | "Replace ad hoc documentation with a structured, defensible review package built from the evidence you already have." |
+| **Architecture lead** | Principal Architect, Head of Architecture, VP Cloud | Reviews take too long; evidence is scattered; governance is inconsistent | "Replace ad hoc documentation with a structured, defensible architecture package built from the evidence you already have." |
 | **CTO / VP Engineering** | CTO, VP Engineering, fractional CTO | Cannot scale architecture reviews without adding headcount | "Evidence-backed reviews in a fraction of the time, with an audit trail your board and auditors can read." |
-| **GRC / Compliance lead** | CISO, Compliance Manager, Risk Officer | Architecture decisions lack audit trail; governance gaps before prod deploys | "Pre-commit governance gate and structured audit event trail aligned to your policy packs." |
+| **GRC / Compliance lead** | CISO, Compliance Manager, Risk Officer | Architecture decisions lack audit trail; governance gaps before prod deploys | "Pre-finalize governance gate and structured audit event trail aligned to your policy packs." |
 | **Cloud consultant / boutique firm** | Principal Consultant, Solution Architect | Delivering architecture review reports is manual and hard to scale | "ArchLucid as your delivery infrastructure — bring your own evidence, produce a whitelabel report." |
 
 ---
