@@ -3502,6 +3502,7 @@ jobs:
           NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true"
           NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: "true"
           NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: "public-self-service"
         run: |
           npm ci
           npm run build
@@ -4032,6 +4033,7 @@ jobs:
           ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eApiKey"
           ArchLucid__StorageProvider: Sql
           ArchLucidAuth__Mode: ApiKey
+          ArchLucidAuth__AllowTestActorHeaders: "true"
           Authentication__ApiKey__Enabled: "true"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           Authentication__ApiKey__AdminKey: "e2e-admin-key-ci"

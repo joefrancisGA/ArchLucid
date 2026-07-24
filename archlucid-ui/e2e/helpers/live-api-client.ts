@@ -114,7 +114,10 @@ export function liveTestActorHeaders(
   actorName: string,
   actorId?: string | null,
 ): Record<string, string> {
-  if (resolveLiveAuthMode() !== "bypass") {
+  const authMode = resolveLiveAuthMode();
+
+  // ApiKey CI enables AllowTestActorHeaders so governance SoD specs can use one admin key + peer actor headers.
+  if (authMode !== "bypass" && authMode !== "apikey") {
     return {};
   }
 

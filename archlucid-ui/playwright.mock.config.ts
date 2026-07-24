@@ -115,6 +115,8 @@ export default defineConfig({
       NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED ?? "true",
       /** Let `capture-all-screenshots` deep-link `/product-learning`, `/recommendation-learning`, … without DemoStrictNavigationGate home redirects. */
       NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: process.env.NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES ?? "1",
+      /** Trial funnel mock specs expect public self-service signup UI (not invite-only gate). */
+      NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: process.env.NEXT_PUBLIC_PUBLIC_SIGNUP_MODE ?? "public-self-service",
     },
   },
 });

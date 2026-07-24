@@ -23,8 +23,12 @@ class TestMarketabilityBatch5CF(unittest.TestCase):
         self.assertIn("FAQPage", faq_ld_text)
 
         faq_page_text = faq_page.read_text(encoding="utf-8")
-        self.assertIn("MARKETING_FAQ_ITEMS", faq_page_text)
+        self.assertIn("MarketingFaqPageClient", faq_page_text)
         self.assertIn("application/ld+json", faq_page_text)
+
+        faq_client = REPO_ROOT / "archlucid-ui" / "src" / "components" / "marketing" / "MarketingFaqPageClient.tsx"
+        faq_client_text = faq_client.read_text(encoding="utf-8")
+        self.assertIn("MARKETING_FAQ_ITEMS", faq_client_text)
 
 
 if __name__ == "__main__":
