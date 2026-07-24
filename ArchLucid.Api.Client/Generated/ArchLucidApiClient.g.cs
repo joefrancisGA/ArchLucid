@@ -115494,6 +115494,55 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class AgentExecutionOutcome
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentType")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<AgentType>))]
+        public AgentType AgentType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("degradationReasonCode")]
+        public string? DegradationReasonCode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("outcome")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<AgentExecutionOutcomeKind>))]
+        public AgentExecutionOutcomeKind Outcome { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("taskId")]
+        public string? TaskId { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum AgentExecutionOutcomeKind
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Missing")]
+        Missing = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Succeeded")]
+        Succeeded = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Degraded")]
+        Degraded = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Failed")]
+        Failed = 3,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AgentExecutionTrace
     {
 
@@ -117857,6 +117906,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Runtime.Serialization.EnumMember(Value = @"ExecutionCompletedQualityRejected")]
         ExecutionCompletedQualityRejected = 7,
 
+        [System.Runtime.Serialization.EnumMember(Value = @"PartiallyCompleted")]
+        PartiallyCompleted = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"FailedPartial")]
+        FailedPartial = 9,
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -119183,6 +119238,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("isDeadLettered")]
         public bool? IsDeadLettered { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("legacyRunStatus")]
+        public string? LegacyRunStatus { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
         public string? ProjectId { get; set; } = default!;
 
@@ -119212,6 +119270,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("agentExecutionLlmCostEstimate")]
         public RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentExecutionOutcomes")]
+        public System.Collections.Generic.ICollection<AgentExecutionOutcome>? AgentExecutionOutcomes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionExplainability")]
         public RunDecisionExplainabilityDto? DecisionExplainability { get; set; } = default!;
@@ -136523,6 +136584,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("agentExecutionLlmCostEstimate")]
         public RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentExecutionOutcomes")]
+        public System.Collections.Generic.ICollection<AgentExecutionOutcome>? AgentExecutionOutcomes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactBundle")]
         public ArtifactBundle? ArtifactBundle { get; set; } = default!;

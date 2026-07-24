@@ -1468,6 +1468,42 @@
         },
         "type": "object"
       },
+      "AgentExecutionOutcome": {
+        "properties": {
+          "agentType": {
+            "$ref": "#/components/schemas/AgentType"
+          },
+          "degradationReasonCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AgentExecutionOutcomeKind"
+          },
+          "taskId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "agentType",
+          "outcome"
+        ],
+        "type": "object"
+      },
+      "AgentExecutionOutcomeKind": {
+        "enum": [
+          "Missing",
+          "Succeeded",
+          "Degraded",
+          "Failed"
+        ],
+        "type": "string"
+      },
       "AgentExecutionTrace": {
         "properties": {
           "agentType": {
@@ -4191,7 +4227,9 @@
           "Committed",
           "Failed",
           "Retrying",
-          "ExecutionCompletedQualityRejected"
+          "ExecutionCompletedQualityRejected",
+          "PartiallyCompleted",
+          "FailedPartial"
         ],
         "type": "string"
       },
@@ -5415,6 +5453,12 @@
           "isDeadLettered": {
             "type": "boolean"
           },
+          "legacyRunStatus": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "projectId": {
             "type": "string"
           },
@@ -5444,6 +5488,12 @@
                 "$ref": "#/components/schemas/RunAgentLlmCostEstimateDto"
               }
             ]
+          },
+          "agentExecutionOutcomes": {
+            "items": {
+              "$ref": "#/components/schemas/AgentExecutionOutcome"
+            },
+            "type": "array"
           },
           "decisionExplainability": {
             "oneOf": [
@@ -22205,6 +22255,12 @@
                 "$ref": "#/components/schemas/RunAgentLlmCostEstimateDto"
               }
             ]
+          },
+          "agentExecutionOutcomes": {
+            "items": {
+              "$ref": "#/components/schemas/AgentExecutionOutcome"
+            },
+            "type": "array"
           },
           "artifactBundle": {
             "oneOf": [
