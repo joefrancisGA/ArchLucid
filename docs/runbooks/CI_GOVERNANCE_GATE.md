@@ -10,7 +10,7 @@
 
 Block merge or release when an automated architecture review cannot **commit** a golden manifest because of the **pre-commit governance gate** (`PreCommitGateResult`, HTTP **409** `#governance-pre-commit-blocked`) or when **PilotStrict** / sponsor-send posture is **HOLD** after commit.
 
-This closes the principal-architect bypass gap: CI enforces the same governed path as the operator UI instead of relying on informal IDE chat.
+This closes the principal-architect bypass gap: CI enforces the same governed path as the architect workspace instead of relying on informal IDE chat.
 
 ## Reference assets (copy into your repo)
 

@@ -23,7 +23,7 @@
 1. Validate Terraform variables against [`infra/terraform-pilot`](../../infra/terraform-pilot) outputs table.
 2. Run `archlucid config lint --simulate-production` against staged appsettings.
 3. Run `archlucid pilot preflight --api-base-url https://<api-host>`.
-4. Capture `./scripts/collect-first-pilot-evidence.ps1` after first committed review.
+4. Capture `./scripts/collect-first-pilot-evidence.ps1` after first finalized review.
 
 ## Minimal validation checklist
 

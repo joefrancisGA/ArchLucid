@@ -99,7 +99,7 @@ exceptions
 | order by timestamp asc
 ```
 
-**Audit search (operator UI or API):** filter by correlation id or review id per [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md) step 5.
+**Audit search (architect workspace or API):** filter by correlation id or review id per [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md) step 5.
 
 ## Optional attached support bundle
 

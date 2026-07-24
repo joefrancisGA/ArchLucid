@@ -24,12 +24,12 @@
 
 ---
 
-## Pre-commit nav guard (UI)
+## Pre-finalize nav guard (UI)
 
-Before the tenant's first committed review (`hasCommittedArchitectureReview=false`), the operator shell narrows sidebar links via `nav-committed-architecture-review-gate.ts`:
+Before the tenant's first finalized review (`hasCommittedArchitectureReview=false`), the architect workspace narrows sidebar links via `nav-committed-architecture-review-gate.ts`:
 
-- **Allowed:** Home, Start review, Review packages, Evidence graph, Portfolio overview, Onboarding, Help, ROI baselines (`/settings/baseline`).
-- **Hidden:** Operate analysis/governance clusters until first commit **or** explicit **Show all features** (`data-testid=nav-advanced-unlock`).
+- **Allowed:** Home, Start review, Architecture packages, Evidence graph, Portfolio overview, Onboarding, Help, ROI baselines (`/settings/baseline`).
+- **Hidden:** Operate analysis/governance clusters until first finalize **or** explicit **Show all features** (`data-testid=nav-advanced-unlock`).
 
 Deep links to hidden routes remain valid; API authorization unchanged.
 

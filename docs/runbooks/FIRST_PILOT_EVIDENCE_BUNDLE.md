@@ -36,7 +36,7 @@ archlucid sponsor-packet <runId> --out artifacts/sponsor-packet/<runId>
 
 ## One-command proof pipeline
 
-Use this before and after the first committed review. Without `-RunId`, the pipeline produces a readiness-only go/no-go report and records the missing run id as a **WARN**, not a blocking failure. For external sponsor handoff, pass `-SponsorHandoff`; in that mode a missing `-RunId` is a **BLOCK** and the summary emits a `sponsorPacketDisposition` of `SEND`, `HOLD`, or `DEFERRED_SCOPE`.
+Use this before and after the first finalized review. Without `-RunId`, the pipeline produces a readiness-only go/no-go report and records the missing run id as a **WARN**, not a blocking failure. For external sponsor handoff, pass `-SponsorHandoff`; in that mode a missing `-RunId` is a **BLOCK** and the summary emits a `sponsorPacketDisposition` of `SEND`, `HOLD`, or `DEFERRED_SCOPE`.
 
 Optional `-DeferredBuyerRequirement` values document buyer requirements that are explicitly V1.1/V2/(B) (for example `SOC 2 CPA`, `live marketplace checkout`). When V1 proof passes but deferred buyer requirements remain, disposition is `DEFERRED_SCOPE` rather than `SEND`.
 
@@ -175,7 +175,7 @@ python scripts/ci/aggregate_pilot_dismissal_triggers.py `
 
 ## Top-severity finding challenge (review closeout)
 
-Before sponsor handoff, challenge the highest-severity finding in the review package:
+Before sponsor handoff, challenge the highest-severity finding in the architecture package:
 
 1. Copy [`top-severity-finding-challenge.template.json`](../go-to-market/templates/top-severity-finding-challenge.template.json) to `artifacts/top-severity-finding-challenge/<runId>/challenge.json` (or pass **`-TopSeverityFindingChallengePath`**).
 2. Confirm **evidence chain completeness** (or document gaps in `evidenceChainCompletenessNotes`).
