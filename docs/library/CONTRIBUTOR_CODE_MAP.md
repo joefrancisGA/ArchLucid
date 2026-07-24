@@ -1,5 +1,5 @@
+> **Scope:** Contributor-reference — 1-page decision tree for new contributors, plus a high-signal path table (formerly `CODE_MAP.md`).
 > **Reviewed:** 2026-07-23
-> **Scope:** 1-page decision tree for new contributors, plus a high-signal path table (formerly `CODE_MAP.md`).
 
 # Contributor Code Map
 
