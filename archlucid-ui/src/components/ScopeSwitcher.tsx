@@ -16,6 +16,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
 import { ScopeSwitcherTenantContextFooter } from "@/components/ScopeSwitcherTenantContextFooter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,7 +29,6 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE,
-  BUYER_SCOPE_SWITCHER_CONNECTED_INTRO,
   BUYER_SCOPE_SWITCHER_CLOSE,
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
   BUYER_SCOPE_SWITCHER_LOAD_ERROR,
@@ -50,7 +50,9 @@ import {
   formatScopeSwitcherSampleFullTitle,
   formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
+  isScopeSwitcherOptionSelected,
   isScopeSwitchingAvailable,
+  resolveScopeSwitcherOptionPrimaryLabel,
   type ScopeSwitcherWorkspaceOption,
 } from "@/lib/scope-switcher-display";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
@@ -498,28 +500,47 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         ) : null}
         {panelMode === "selector" ? (
           <>
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-              {BUYER_SCOPE_SWITCHER_CONNECTED_INTRO}
-            </p>
             {workspaces !== null && workspaces.length > 0 ? (
-              <div className="max-h-64 space-y-2 overflow-y-auto" role="list" aria-label="Workspaces and projects">
+              <div className="max-h-64 space-y-1 overflow-y-auto" role="list" aria-label="Workspaces and projects">
                 {workspaces.map((ws) => {
                   if (ws.projects.length === 0) {
                     return null;
                   }
 
+                  const projectCount = ws.projects.length;
+                  const showWorkspaceGroupHeader = projectCount > 1;
+
                   return (
-                    <div key={ws.workspaceId} className="space-y-1">
-                      <p className={cn("m-0 truncate font-semibold text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{ws.name}</p>
+                    <div key={ws.workspaceId} className="space-y-0.5" role="listitem">
+                      {showWorkspaceGroupHeader ? (
+                        <p
+                          className={cn(
+                            "m-0 truncate px-2 pt-1 font-semibold text-neutral-500 dark:text-neutral-400",
+                            OPERATOR_TYPOGRAPHY.helper,
+                          )}
+                        >
+                          {ws.name}
+                        </p>
+                      ) : null}
                       {ws.projects.map((pr) => {
+                        const selected = isScopeSwitcherOptionSelected({
+                          optionWorkspaceId: ws.workspaceId,
+                          optionProjectId: pr.projectId,
+                          activeWorkspaceId: workspaceId,
+                          activeProjectId: projectId,
+                        });
+                        const optionLabel = resolveScopeSwitcherOptionPrimaryLabel({
+                          workspaceName: ws.name,
+                          projectName: pr.name,
+                          workspaceProjectCount: projectCount,
+                        });
+
                         return (
-                          <Button
+                          <ScopeSwitcherProjectOptionButton
                             key={pr.projectId}
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            className="h-8 w-full justify-start truncate"
-                            onClick={() => {
+                            label={optionLabel}
+                            selected={selected}
+                            onSelect={() => {
                               const scopeTenantId = isNonEmptyId(tenantId) ? tenantId.trim() : DEV_SCOPE_TENANT_ID;
 
                               applyScope({
@@ -530,9 +551,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
                                 projectLabel: pr.name,
                               });
                             }}
-                          >
-                            {pr.name}
-                          </Button>
+                          />
                         );
                       })}
                     </div>

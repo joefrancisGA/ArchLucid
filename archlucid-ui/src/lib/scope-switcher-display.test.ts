@@ -9,7 +9,9 @@ import {
   formatScopeSwitcherSampleFullTitle,
   formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
+  isScopeSwitcherOptionSelected,
   isScopeSwitchingAvailable,
+  resolveScopeSwitcherOptionPrimaryLabel,
   workspaceShortNameFromLabel,
 } from "@/lib/scope-switcher-display";
 
@@ -77,5 +79,43 @@ describe("scope-switcher-display", () => {
     expect(isScopeSwitchingAvailable(single)).toBe(false);
     expect(countSelectableScopeOptions(multiple)).toBe(2);
     expect(isScopeSwitchingAvailable(multiple)).toBe(true);
+  });
+
+  it("leads single-project options with the workspace name and multi-project options with the project name", () => {
+    expect(
+      resolveScopeSwitcherOptionPrimaryLabel({
+        workspaceName: "Product Tour — Architecture Review",
+        projectName: "product-tour-architecture-context",
+        workspaceProjectCount: 1,
+      }),
+    ).toBe("Product Tour — Architecture Review");
+
+    expect(
+      resolveScopeSwitcherOptionPrimaryLabel({
+        workspaceName: "Claims Intake Workspace",
+        projectName: "Secondary project",
+        workspaceProjectCount: 2,
+      }),
+    ).toBe("Secondary project");
+  });
+
+  it("matches the active workspace and project for selected option state", () => {
+    expect(
+      isScopeSwitcherOptionSelected({
+        optionWorkspaceId: "ws-1",
+        optionProjectId: "p-1",
+        activeWorkspaceId: "ws-1",
+        activeProjectId: "p-1",
+      }),
+    ).toBe(true);
+
+    expect(
+      isScopeSwitcherOptionSelected({
+        optionWorkspaceId: "ws-1",
+        optionProjectId: "p-1",
+        activeWorkspaceId: "ws-1",
+        activeProjectId: "p-2",
+      }),
+    ).toBe(false);
   });
 });

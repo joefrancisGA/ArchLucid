@@ -49,6 +49,7 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
   BUYER_SCOPE_SWITCHER_CLOSE,
+  BUYER_SCOPE_SWITCHER_CONNECTED_INTRO,
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
 } from "@/lib/buyer-polish-copy";
 import { formatScopeSwitcherSampleFullTitle, formatScopeSwitcherTriggerAccessibleLabel } from "@/lib/scope-switcher-display";
@@ -223,7 +224,46 @@ describe("ScopeSwitcher — operator shell", () => {
     fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
 
     expect(await screen.findByRole("button", { name: "Secondary project" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Primary project" })).toHaveAttribute("aria-current", "true");
+    expect(screen.queryByText(BUYER_SCOPE_SWITCHER_CONNECTED_INTRO)).not.toBeInTheDocument();
     expect(screen.queryByTestId("operator-scope-sample-info-body")).not.toBeInTheDocument();
+  });
+
+  it("lists single-project workspaces by workspace name and omits the data-handling link", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            workspaces: [
+              {
+                workspaceId: DEV_WORKSPACE,
+                name: "Development default workspace",
+                projects: [{ projectId: DEV_PROJECT, name: "default" }],
+              },
+              {
+                workspaceId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                name: "Product Tour — Architecture Review",
+                projects: [{ projectId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", name: "product-tour-architecture-context" }],
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
+
+    render(<ScopeSwitcher />);
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+
+    const activeOption = await screen.findByRole("button", { name: "Development default workspace" });
+    expect(activeOption).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("button", { name: "Product Tour — Architecture Review" })).toBeInTheDocument();
+    expect(screen.queryByText("default")).not.toBeInTheDocument();
+    expect(screen.queryByText("product-tour-architecture-context")).not.toBeInTheDocument();
+    expect(screen.queryByText(BUYER_SCOPE_SWITCHER_CONNECTED_INTRO)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /how we handle your data/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-scope-switcher-tenant-context")).toBeInTheDocument();
   });
 });
 
@@ -267,5 +307,6 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
       BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
     );
     expect(screen.queryByText(/x-tenant-id/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /how we handle your data/i })).not.toBeInTheDocument();
   });
 });

@@ -79,3 +79,35 @@ export function isScopeSwitchingAvailable(
 ): boolean {
   return countSelectableScopeOptions(workspaces) > 1;
 }
+
+/**
+ * Primary clickable label for a workspace/project option.
+ * Single-project workspaces lead with the workspace name (operators recognize that);
+ * multi-project workspaces lead with the project name under a workspace group header.
+ */
+export function resolveScopeSwitcherOptionPrimaryLabel(args: {
+  readonly workspaceName: string;
+  readonly projectName: string;
+  readonly workspaceProjectCount: number;
+}): string {
+  const workspaceName = args.workspaceName.trim();
+  const projectName = args.projectName.trim();
+
+  if (args.workspaceProjectCount <= 1) {
+    return workspaceName.length > 0 ? workspaceName : projectName.length > 0 ? projectName : "Workspace";
+  }
+
+  return projectName.length > 0 ? projectName : "Project";
+}
+
+export function isScopeSwitcherOptionSelected(args: {
+  readonly optionWorkspaceId: string;
+  readonly optionProjectId: string;
+  readonly activeWorkspaceId: string;
+  readonly activeProjectId: string;
+}): boolean {
+  return (
+    args.optionWorkspaceId.trim() === args.activeWorkspaceId.trim() &&
+    args.optionProjectId.trim() === args.activeProjectId.trim()
+  );
+}
