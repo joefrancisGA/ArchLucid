@@ -1,10 +1,14 @@
-﻿> **Scope:** One-page procurement deal-ready index — honest about self-assessment vs deferred attestations.
+﻿> **Reviewed:** 2026-07-24
+
+> **Scope:** One-page procurement deal-ready index — honest about self-assessment vs deferred attestations.
 
 # Procurement deal-ready one-pager
 
 **Audience:** Procurement reviewers, security champions, and founders before sending the full evidence ZIP.
 
-**Last reviewed:** 2026-05-29
+**Last reviewed:** 2026-07-24
+
+**Canonical assurance wording:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md).
 
 ---
 
@@ -34,8 +38,8 @@
 
 | Item | Label |
 | --- | --- |
-| CPA-issued SOC 2 Type I/II | **DEFERRED / (B)** — V1.1 TB-135 |
-| Third-party penetration test publication | **DEFERRED / (B)** — V1.1 TB-136 |
+| CPA-issued SOC 2 Type I/II | **DEFERRED / (B)** — GTM **G-REAL-05** (tech TB-135 Done) |
+| Third-party penetration test publication | **DEFERRED / (B)** — GTM **G-ASSURANCE-02** (tech TB-136 Done) |
 | ISO 27001 certification | **DEFERRED / (B)** |
 | Named public reference customer | **DEFERRED / (B)** |
 | Live Marketplace / Stripe checkout | **DEFERRED / (B)** |
@@ -48,8 +52,7 @@
 | CAIQ / SIG responses | Standard questionnaire answers (self-attested) | Procurement pack build |
 | DPA template | Contractual data-processing terms (legal review required) | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) |
 | Subprocessor list | Third-party processors | Trust Center + pack |
-| SOC 2 roadmap + self-assessment | Readiness narrative — **not CPA attestation** | Trust Center · [`SOC2_ROADMAP.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) |
-| Tenant isolation + security architecture | Design intent and controls map | Trust Center · security architecture docs |
+| SOC 2 roadmap + self-assessment | Readiness narrative — **not CPA attestation** | Trust Center · [`SOC2_STATUS_PROCUREMENT.md`](SOC2_STATUS_PROCUREMENT.md) · [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) || Tenant isolation + security architecture | Design intent and controls map | Trust Center · security architecture docs |
 | API SLO targets | **Targets**, not contractual SLA | [`API_SLOS.md`](../library/API_SLOS.md) |
 | `--deal-ready` dry-run | Required V1 assurance **sources exist** and placeholders are buyer-safe | [`PROCUREMENT_DEAL_READY.md`](../runbooks/PROCUREMENT_DEAL_READY.md) |
 

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** ArchLucid competitive landscape - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +9,7 @@
 
 **Audience:** Product leadership, sales, and marketing teams who need to position ArchLucid against alternatives during evaluations and deal cycles.
 
-**Last reviewed:** 2026-05-18
+**Last reviewed:** 2026-07-24
 
 **Grounding rule:** Every capability claimed for ArchLucid in this document is based on what the repository actually ships today per [V1_SCOPE.md](../library/V1_SCOPE.md), [ARCHITECTURE_CONTEXT.md](../library/ARCHITECTURE_CONTEXT.md), and verifiable code artifacts (OpenAPI snapshot, merge-blocking tests, CI guards). Claims are not aspirational.
 
@@ -183,6 +185,8 @@ Buyer-repeatable claim rows (symbols only in product columns). Row order and lab
 
 | Doc | Use |
 |-----|-----|
+| [COMPETITIVE_POSITIONING.md](COMPETITIVE_POSITIONING.md) | Internal capability matrix + narrative win/lose contrasts |
+| [COMPETITIVE_COMPARISON.md](COMPETITIVE_COMPARISON.md) | Procurement-pack category comparison (no trademarks) |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Detailed buyer persona definitions |
 | [POSITIONING.md](POSITIONING.md) | Positioning statement and elevator pitches |
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships |

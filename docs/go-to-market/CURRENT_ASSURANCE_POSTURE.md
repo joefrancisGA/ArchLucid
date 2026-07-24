@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** Buyers and security reviewers: repository-linked snapshot of current assurance claims; not legal advice, CPA attestation, or customer-specific commitments.
 
 # ArchLucid — Current Assurance Posture

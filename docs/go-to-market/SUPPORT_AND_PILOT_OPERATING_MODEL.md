@@ -1,4 +1,6 @@
-﻿> **Scope:** Support posture and pilot operating model for V1 controlled pilots. Defines what pilot buyers can expect from ArchLucid in terms of support, escalation, and incident communication. Not a formal SLA document until owner-approved and executed in a contract.
+﻿> **Reviewed:** 2026-07-24
+
+> **Scope:** Support posture and pilot operating model for V1 controlled pilots. Defines what pilot buyers can expect from ArchLucid in terms of support, escalation, and incident communication. Not a formal SLA document until owner-approved and executed in a contract.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -6,7 +8,7 @@
 
 **Audience:** Pilot buyer champions, executive sponsors, architecture team leads, and operator teams evaluating or running a V1 controlled pilot.
 
-**Last reviewed:** 2026-06-01
+**Last reviewed:** 2026-07-24
 
 **Related:** [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md), [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`trust-center.md`](trust-center.md), [`LEGAL_PROCUREMENT_TERMS_PACKET.md`](LEGAL_PROCUREMENT_TERMS_PACKET.md).
 
@@ -24,6 +26,12 @@ V1 pilots operate under a **white-glove, founder-led support posture**. The foun
 **What this does not mean:**
 - It is not a 24×7 NOC.
 - It does not imply a formal enterprise SLA unless one is negotiated and executed in the contract.
+
+| Mode | When used |
+| --- | --- |
+| **White-glove pilot** | Default for first design partner; founder attends first commit review |
+| **Guided self-serve** | Buyer operators trained; founder office hours weekly |
+| **Pure self-serve** | Not claimed in V1 pilot offers — reserved for future GA motion |
 
 ---
 

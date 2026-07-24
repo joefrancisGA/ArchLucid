@@ -1,8 +1,12 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** Enterprise procurement comparison — one-page buyer-facing summary; cites approved positioning only.
 
 # ArchLucid — enterprise comparison (one page)
 
 **Audience:** procurement, IT architecture, and security reviewers comparing ArchLucid to legacy EA / GRC platforms.
+
+**Last reviewed:** 2026-07-24
 
 **Objective:** Summarize the dimensions buyers care about without uncited vendor internals. Competitor columns should paraphrase only your approved positioning matrix (`docs/go-to-market/COMPETITIVE_LANDSCAPE.md` §2.1).
 

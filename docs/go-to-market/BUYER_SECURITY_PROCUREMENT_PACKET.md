@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots. This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -6,7 +8,7 @@
 
 **Audience:** Procurement reviewers, security reviewers, GRC teams, CISOs, and enterprise buyers evaluating ArchLucid for a controlled pilot.
 
-**Last reviewed:** 2026-06-01
+**Last reviewed:** 2026-07-24
 
 **Review checklist owner:** Founder / ArchLucid operator. Re-validate before each new buyer conversation.
 
