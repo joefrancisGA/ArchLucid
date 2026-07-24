@@ -152,3 +152,65 @@ export const RunDetailGovernanceAlertsDeferred = dynamic(
     ),
   { ssr: false, loading: () => null },
 );
+
+const outcomeCardsLoading = (
+  <div
+    className="h-40 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading outcome cards"
+  />
+);
+
+/** Activity-tab / details-gated outcome cards — not needed for first paint (TB-933). */
+export const RunDetailOutcomeCardsDeferred = dynamic(
+  () => import("@/components/RunDetailOutcomeCards").then((module) => module.RunDetailOutcomeCards),
+  { ssr: false, loading: () => outcomeCardsLoading },
+);
+
+export const RunDetailWhatIfBranchCompareBannerDeferred = dynamic(
+  () =>
+    import("@/components/draft-intake/WhatIfBranchCompareBanner").then(
+      (module) => module.WhatIfBranchCompareBanner,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailCommitBlockingFindingsBannerDeferred = dynamic(
+  () =>
+    import("@/components/usability/CommitBlockingFindingsBanner").then(
+      (module) => module.CommitBlockingFindingsBanner,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailStalledReviewGuidanceCalloutDeferred = dynamic(
+  () =>
+    import("@/components/usability/StalledReviewGuidanceCallout").then(
+      (module) => module.StalledReviewGuidanceCallout,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailCtoDemoReviewRouteGuardDeferred = dynamic(
+  () =>
+    import("@/components/cto-demo/CtoDemoReviewRouteGuard").then(
+      (module) => module.CtoDemoReviewRouteGuard,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailPolicyPackImpactCalloutDeferred = dynamic(
+  () =>
+    import("@/components/findings/ReviewDetailPolicyPackImpactCallout").then(
+      (module) => module.ReviewDetailPolicyPackImpactCallout,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+export const RunDetailOperatorTechnicalForensicsPanelDeferred = dynamic(
+  () =>
+    import("./RunDetailOperatorTechnicalForensicsPanel").then(
+      (module) => module.RunDetailOperatorTechnicalForensicsPanel,
+    ),
+  { ssr: false, loading: () => null },
+);
