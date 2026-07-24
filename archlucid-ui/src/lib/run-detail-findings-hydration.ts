@@ -105,6 +105,8 @@ function synthesizeResultsFromFindingSummaries(
       agentType: "Compliance",
       findings,
       confidence: 0,
+      claims: [],
+      evidenceRefs: [],
     },
   ];
 }
