@@ -90,6 +90,43 @@ export function buildReviewDetailTabHref(
   return `${base}${normalizedHash}`;
 }
 
+/** Updates `reviewTab` in the address bar without a Next.js soft navigation. */
+export function writeReviewDetailTabToUrl(
+  tab: ReviewDetailTabId,
+  options?: { readonly hash?: string | null },
+): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const url = new URL(window.location.href);
+  url.searchParams.set(REVIEW_DETAIL_TAB_PARAM, tab);
+
+  if (options?.hash === null) {
+    url.hash = "";
+  } else if (options?.hash !== undefined) {
+    const normalized = options.hash.replace(/^#/, "").trim();
+    url.hash = normalized.length > 0 ? `#${normalized}` : "";
+  }
+
+  window.history.replaceState(null, "", url.toString());
+}
+
+/** Reads the active review tab from the current browser location. */
+export function readReviewDetailTabFromWindowLocation(): ReviewDetailTabId {
+  if (typeof window === "undefined") {
+    return REVIEW_DETAIL_DEFAULT_TAB;
+  }
+
+  const fromHash = resolveReviewDetailTabFromHash(window.location.hash.slice(1));
+
+  if (fromHash !== null) {
+    return fromHash;
+  }
+
+  return resolveReviewDetailTab(new URLSearchParams(window.location.search).get(REVIEW_DETAIL_TAB_PARAM));
+}
+
 export function readReviewDetailTabFromHref(href: string): ReviewDetailTabId | null {
   try {
     const url = new URL(href, "http://archlucid.local");

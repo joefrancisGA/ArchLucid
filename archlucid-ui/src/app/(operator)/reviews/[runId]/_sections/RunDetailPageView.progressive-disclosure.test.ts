@@ -10,6 +10,22 @@ const source = readFileSync(
 );
 
 describe("RunDetailPageView progressive disclosure", () => {
+  it("relies on shell breadcrumbs instead of a page-local breadcrumb trail", () => {
+    expect(source).not.toContain("<RunDetailBreadcrumb");
+    expect(source).not.toContain('from "./RunDetailBreadcrumb"');
+  });
+
+  it("shows the primary CTA inline only below the lg breakpoint when sticky actions are present", () => {
+    const stickyIndex = source.indexOf("<RunDetailWorkspaceStickyActions");
+    const inlinePrimaryWrapperIndex = source.indexOf('<div className="lg:hidden">', stickyIndex);
+    const primaryIndex = source.indexOf("<ReviewPackagePrimaryAction", inlinePrimaryWrapperIndex);
+
+    expect(stickyIndex).toBeGreaterThan(-1);
+    expect(inlinePrimaryWrapperIndex).toBeGreaterThan(stickyIndex);
+    expect(primaryIndex).toBeGreaterThan(inlinePrimaryWrapperIndex);
+    expect(primaryIndex - inlinePrimaryWrapperIndex).toBeLessThan(120);
+  });
+
   it("prioritizes first-screen proof status in overview tab", () => {
     const proofIndex = source.indexOf("proofStatusSlot={<RunDetailFirstScreenProofStatusClient");
     const belowFoldSource = readFileSync(

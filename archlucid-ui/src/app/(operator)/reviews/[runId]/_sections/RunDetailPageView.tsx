@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -62,7 +62,6 @@ import {
   RunDetailWorkspaceSummaryStrip,
 } from "./RunDetailWorkspaceChrome";
 import { RunDetailWorkspaceStickyActions } from "./RunDetailWorkspaceStickyActions";
-import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
@@ -608,10 +607,14 @@ export function RunDetailPageView(props: {
 
   const runDetailBody = (
     <div
-      className={`w-full ${OPERATOR_LAYOUT.sectionStack} px-1 py-2 sm:px-0 max-w-[1160px]`}
+      className={cn(
+        OPERATOR_PAGE_CONTAINER.base,
+        OPERATOR_PAGE_CONTAINER.variant.dashboard,
+        OPERATOR_LAYOUT.sectionStack,
+        "px-1 py-2 sm:px-0",
+      )}
     >
       <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
-      <RunDetailBreadcrumb headline={m.headline} />
 
       {!showArchitectureCreatedHome ? (
         <Suspense fallback={null}>
@@ -781,12 +784,14 @@ export function RunDetailPageView(props: {
               ) : null}
 
               {!showArchitectureCreatedHome ? (
-                <ReviewPackagePrimaryAction
-                  action={reviewPackagePrimaryAction}
-                  runId={m.resolvedDetail.run.runId}
-                  hasGoldenManifest={Boolean(m.manifestId)}
-                  commitBlockedReason={commitBlockedReason}
-                />
+                <div className="lg:hidden">
+                  <ReviewPackagePrimaryAction
+                    action={reviewPackagePrimaryAction}
+                    runId={m.resolvedDetail.run.runId}
+                    hasGoldenManifest={Boolean(m.manifestId)}
+                    commitBlockedReason={commitBlockedReason}
+                  />
+                </div>
               ) : null}
 
               {!m.manifestId ? (

@@ -233,17 +233,19 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 ? (
-            buyerPolishedArtifactTable ? (
-              <BuyerDeliverablesArtifactTabs manifestId={manifestId} runId={runId} artifacts={artifacts} />
-            ) : (
-              <ArtifactListTable
-                manifestId={manifestId}
-                artifacts={artifacts}
-                runId={runId}
-                sponsorMode={buyerPolishedArtifactTable}
-                audienceSections={buyerPolishedArtifactTable}
-              />
-            )
+            <div className="w-full min-w-0">
+              {buyerPolishedArtifactTable ? (
+                <BuyerDeliverablesArtifactTabs manifestId={manifestId} runId={runId} artifacts={artifacts} />
+              ) : (
+                <ArtifactListTable
+                  manifestId={manifestId}
+                  artifacts={artifacts}
+                  runId={runId}
+                  sponsorMode={buyerPolishedArtifactTable}
+                  audienceSections={buyerPolishedArtifactTable}
+                />
+              )}
+            </div>
           ) : null}
 
           <div className="mt-4 flex flex-col gap-3">

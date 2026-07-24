@@ -48,9 +48,9 @@ export function BuyerDeliverablesArtifactTabs(props: {
   const arbRows = useMemo(() => artifactsMatchingBuckets(sortedAll, DELIVERABLE_TAB_ARB_BUCKETS), [sortedAll]);
 
   return (
-    <div className="space-y-4" data-testid="buyer-deliverables-artifact-tabs">
-      <Tabs defaultValue="executive">
-        <TabsList aria-label="Deliverable groups" className="gap-2 border-0">
+    <div className="w-full min-w-0 space-y-4" data-testid="buyer-deliverables-artifact-tabs">
+      <Tabs defaultValue="executive" className="w-full">
+        <TabsList aria-label="Deliverable groups" className="h-auto w-full flex-wrap gap-2 border-0">
           <TabsTrigger value="executive" className="rounded-md border px-3 py-1.5">
             Executive and sponsor artifacts
           </TabsTrigger>
@@ -59,7 +59,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="executive" className="pt-4" data-testid="buyer-deliverables-panel-executive">
+        <TabsContent value="executive" className="w-full min-w-0 pt-4" data-testid="buyer-deliverables-panel-executive">
           {execRows.length === 0 ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               No executive or sponsor-scoped outputs are listed for this review in this view.
@@ -77,7 +77,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
           )}
         </TabsContent>
 
-        <TabsContent value="arb" className="pt-4" data-testid="buyer-deliverables-panel-arb">
+        <TabsContent value="arb" className="w-full min-w-0 pt-4" data-testid="buyer-deliverables-panel-arb">
           {arbRows.length === 0 ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               No architecture review board or audit-scoped outputs are listed for this review in this view.
