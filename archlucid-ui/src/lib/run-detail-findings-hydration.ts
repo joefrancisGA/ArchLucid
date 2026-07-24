@@ -31,6 +31,38 @@ function readFindingSummaries(detail: RunDetail): BuyerFindingSummaryWire[] {
   return raw.filter((row): row is BuyerFindingSummaryWire => row !== null && typeof row === "object");
 }
 
+type BuyerFindingSeverityWire = "Info" | "Warning" | "Error" | "Critical";
+
+function coerceBuyerFindingSeverity(raw: unknown): BuyerFindingSeverityWire | undefined {
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    const byOrdinal: Record<number, BuyerFindingSeverityWire> = {
+      0: "Info",
+      1: "Warning",
+      2: "Error",
+      3: "Critical",
+    };
+
+    return byOrdinal[Math.trunc(raw)];
+  }
+
+  if (typeof raw !== "string") {
+    return undefined;
+  }
+
+  const trimmed = raw.trim();
+
+  if (
+    trimmed === "Info"
+    || trimmed === "Warning"
+    || trimmed === "Error"
+    || trimmed === "Critical"
+  ) {
+    return trimmed;
+  }
+
+  return undefined;
+}
+
 function synthesizeResultsFromFindingSummaries(
   runId: string,
   summaries: readonly BuyerFindingSummaryWire[],
@@ -54,7 +86,7 @@ function synthesizeResultsFromFindingSummaries(
         findingId,
         message: title.length > 0 ? title : category.length > 0 ? category : findingId,
         category: category.length > 0 ? category : undefined,
-        severity: row.severity ?? undefined,
+        severity: coerceBuyerFindingSeverity(row.severity),
         policyRuleId,
         reasoningTrace: "",
       };
@@ -73,6 +105,8 @@ function synthesizeResultsFromFindingSummaries(
       agentType: "Compliance",
       findings,
       confidence: 0,
+      claims: [],
+      evidenceRefs: [],
     },
   ];
 }
