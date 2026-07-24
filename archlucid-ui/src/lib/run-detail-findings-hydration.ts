@@ -1,11 +1,9 @@
-import { getRunSummary } from "@/lib/api";
 import { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-summary-derive";
 import type { RunDetail } from "@/types/authority";
 
 /**
  * Buyer-summary (TB-283 / TB-930) omits agent `results[].findings` and fat JSON blobs.
  * Prefer `findingSummaries` for QuickDecision first paint; never call fat `getRunDetail` here.
- * Optionally fill `goldenManifestId` from the lightweight run summary endpoint.
  */
 
 type BuyerFindingSummaryWire = {
@@ -16,10 +14,6 @@ type BuyerFindingSummaryWire = {
   engineType?: string | null;
   policyRuleId?: string | null;
 };
-
-function trimmedGoldenManifestId(run: RunDetail["run"]): string {
-  return run.goldenManifestId?.trim() ?? "";
-}
 
 function readFindingSummaries(detail: RunDetail): BuyerFindingSummaryWire[] {
   const raw = (detail as Record<string, unknown>).findingSummaries;
@@ -114,46 +108,23 @@ function synthesizeResultsFromFindingSummaries(
 export async function mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
   runId: string,
   buyerSummaryDetail: RunDetail,
-  options?: { readonly scopeHeaders?: Record<string, string> },
+  _options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<RunDetail> {
   const buyerHasFindings = extractQuickDecisionFindingsFromRunDetail(buyerSummaryDetail).length > 0;
-  const buyerGoldenManifestId = trimmedGoldenManifestId(buyerSummaryDetail.run);
 
-  let resolved: RunDetail = buyerSummaryDetail;
-
-  if (!buyerHasFindings) {
-    const summaries = readFindingSummaries(buyerSummaryDetail);
-    const synthesized = synthesizeResultsFromFindingSummaries(runId, summaries);
-
-    if (synthesized.length > 0) {
-      resolved = {
-        ...buyerSummaryDetail,
-        results: synthesized,
-      };
-    }
+  if (buyerHasFindings) {
+    return buyerSummaryDetail;
   }
 
-  if (trimmedGoldenManifestId(resolved.run).length > 0) {
-    return resolved;
+  const summaries = readFindingSummaries(buyerSummaryDetail);
+  const synthesized = synthesizeResultsFromFindingSummaries(runId, summaries);
+
+  if (synthesized.length === 0) {
+    return buyerSummaryDetail;
   }
 
-  try {
-    const summary = await getRunSummary(runId, options);
-    const summaryGolden =
-      typeof summary.goldenManifestId === "string" ? summary.goldenManifestId.trim() : "";
-
-    if (summaryGolden.length === 0) {
-      return resolved;
-    }
-
-    return {
-      ...resolved,
-      run: {
-        ...resolved.run,
-        goldenManifestId: summaryGolden,
-      },
-    };
-  } catch {
-    return resolved;
-  }
+  return {
+    ...buyerSummaryDetail,
+    results: synthesized,
+  };
 }
