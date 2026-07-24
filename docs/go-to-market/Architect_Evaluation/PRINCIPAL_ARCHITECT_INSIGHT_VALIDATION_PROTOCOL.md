@@ -25,7 +25,7 @@ This is not a substitute for shipping pilot proof mechanics. It is a market-vali
 
 ## Core hypothesis
 
-ArchLucid is valuable if experienced architects conclude that it produces a repeatable review package with enough evidence, traceability, governance context, and decision impact to justify reuse in a real architecture-review process.
+ArchLucid is valuable if experienced architects conclude that it produces a repeatable architecture package with enough evidence, traceability, governance context, and decision impact to justify reuse in a real architecture-review process.
 
 ArchLucid does not need to be more conversational than raw frontier AI. It needs to be more **governed, repeatable, auditable, evidence-backed, and sponsor-ready**.
 
@@ -72,7 +72,7 @@ Use when the participant is time-constrained. Still capture:
 | Item | Source / note |
 | --- | --- |
 | Sanitized architecture packet | Customer-redacted packet or realistic Contoso-style sample, ideally 8–15 pages. |
-| ArchLucid committed review output | Real-mode preferred. Simulator output is acceptable only if clearly labeled as representative. |
+| ArchLucid finalized review output | Real-mode preferred. Simulator output is acceptable only if clearly labeled as representative. |
 | Frontier-AI manual baseline | Same packet reviewed in Claude Opus / GPT-5 / Gemini Pro using a principal-architect prompt. |
 | Scoring sheet | `PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md` or equivalent shared form. |
 | Blind comparison packet | Recommended for at least 2 of 5 sessions. Use `BLIND_INSIGHT_VALIDATION_PROTOCOL.md` where available. |
@@ -96,7 +96,7 @@ For each finding, explain the evidence from the packet and the decision or remed
 | --- | --- | --- |
 | 0–5 | Context only | Do not pitch. Explain that the goal is critique, not approval. Label simulator vs real-mode output if applicable. |
 | 5–10 | Cold packet read | Participant reads the packet and notes top 3 concerns without tools. |
-| 10–25 | ArchLucid review walkthrough | Walk through findings, evidence trail, review package, and sponsor packet. Observer stays mostly silent. |
+| 10–25 | ArchLucid review walkthrough | Walk through findings, evidence trail, architecture package, and sponsor packet. Observer stays mostly silent. |
 | 25–35 | Frontier-AI baseline comparison | Show the manual frontier-AI output or let participant compare against their own pre-session baseline. |
 | 35–45 | Scoring interview | Use the scoring questions and classification scheme below. |
 

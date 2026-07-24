@@ -148,7 +148,7 @@ Until **TB-019** lands, defer non-essential client pixels and rely on Front Door
 ## 7. Security model (privacy + CSP)
 
 - **Pixels widen CSP** (**`archlucid-ui/next.config.ts`** `Content-Security-Policy`) — consolidate allowed hosts per vendor in one change set and document in **`docs/go-to-market/PRIVACY_POLICY.md`** when live.
-- **Avoid operator shell analytics** leakage — session replay must **not** run on authenticated `(operator)`/`(executive)` surfaces until DPIA-aligned.
+- **Avoid architect workspace analytics** leakage — session replay must **not** run on authenticated `(operator)`/`(executive)` surfaces until DPIA-aligned.
 - **Cookie consent** becomes mandatory wherever cross-site trackers fire — ship consent UI **before** non-essential marketing pixels under EU-facing traffic projections.
 - **Trust honesty:** paid traffic increases scrutiny — keep **`SOC2_STATUS_PROCUREMENT.md`**, **`trust-center.md`**, **`/compliance-journey`** synchronized with factual posture (self-assessment + roadmap ≠ CPA attestation).
 

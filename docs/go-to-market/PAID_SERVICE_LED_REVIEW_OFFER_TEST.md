@@ -95,7 +95,7 @@ See [`AI_OUTPUT_DECISION_SUPPORT.md`](AI_OUTPUT_DECISION_SUPPORT.md).
 | --- | --- |
 | Signed SOW or order form | Yes |
 | Baseline capture started | [`BUYER_BASELINE_CAPTURE_CHECKLIST.md`](BUYER_BASELINE_CAPTURE_CHECKLIST.md) |
-| First committed review | Within 10 business days of kickoff |
+| First finalized review | Within 10 business days of kickoff |
 | Sponsor export reviewed | HOLD items resolved or explicitly caveated |
 | Debrief completed | 30-min retro: reuse intent + blockers recorded |
 | Payment received | Per order form terms |

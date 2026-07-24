@@ -31,7 +31,7 @@ Grounded in [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PA
 | D2 | **Export sponsor packet** (markdown/DOCX/PDF) **or** **"Email this review to your sponsor"** | Download/email succeeds; ROI basis label shows evidence source |
 | Proof status | Run detail → **Proof status** strip (**READY / WARN / HOLD**) | Operator reads send/hold disposition correctly |
 
-The participant starts on the **committed review detail** screen. They are **not** told where the export
+The participant starts on the **finalized review detail** screen. They are **not** told where the export
 lives. Use the operator status vocabulary (READY/WARN/HOLD) — do not invent parallel labels.
 
 ---

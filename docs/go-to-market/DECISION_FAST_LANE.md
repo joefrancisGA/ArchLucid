@@ -16,7 +16,7 @@ Default motion: **[`docs/CORE_PILOT.md`](../CORE_PILOT.md)** — four steps.
 |------|---------|
 | 1 | Structured architecture request submitted |
 | 2 | Pipeline completes |
-| 3 | Review package finalized (golden manifest committed) |
+| 3 | Architecture package finalized (API: golden manifest committed) |
 | 4 | Manifest + artifacts reviewed / exported |
 
 **Measurement:** [`docs/library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) (scorecard + proof-package contract).

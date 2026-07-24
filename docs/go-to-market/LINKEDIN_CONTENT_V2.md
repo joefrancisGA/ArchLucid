@@ -22,7 +22,7 @@
 
 **Excerpt for link post:**
 
-> "I thought screenshots were a afternoon task. They were a production line — demo seed data, two committed reviews, a comparison pair, governance state, light and dark mode, and a capture brief before I opened the browser."
+> "I thought screenshots were a afternoon task. They were a production line — demo seed data, two finalized reviews, a comparison pair, governance state, light and dark mode, and a capture brief before I opened the browser."
 
 ---
 
@@ -698,7 +698,7 @@ The first-run wizard walks seven steps — preset, identity, requirements, const
 
 The pipeline itself is staged: context, graph, findings, manifest. Not because we love waterfalls. Because each stage consumes structured output from the previous one. Skipping a stage does not save time; it produces findings that cannot cite their inputs.
 
-Even comparison and governance surfaces assume **completed** prior artifacts — two committed reviews, an approval in flight, an audit log with rows worth exporting.
+Even comparison and governance surfaces assume **completed** prior artifacts — two finalized reviews, an approval in flight, an audit log with rows worth exporting.
 
 The product teaches a lesson the founder keeps relearning: **sequencing is a feature**, not a personality flaw.
 

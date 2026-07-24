@@ -22,7 +22,7 @@ Each scenario has:
 Run each packet through:
 
 1. Principal architect cold read.
-2. ArchLucid review package.
+2. ArchLucid architecture package.
 3. Frontier-AI baseline.
 4. Scoring interview.
 

@@ -19,7 +19,7 @@
 3. Run or observe one **Core Pilot** review (your Azure extractor ZIP or explicit demo acceptance).
 4. Inspect the **first-value report** and proof disposition before external circulation.
 
-## What proof you get after a committed review
+## What proof you get after a finalized review
 
 | Artifact | Purpose |
 | --- | --- |

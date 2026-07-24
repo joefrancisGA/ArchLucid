@@ -22,7 +22,7 @@
 ## Artifact checklist (prepare before session)
 
 - [ ] Sanitized architecture packet (8–15 pages)
-- [ ] ArchLucid committed review output (sponsor-safe export)
+- [ ] ArchLucid finalized review output (sponsor-safe export)
 - [ ] Manual frontier-AI baseline on the same packet
 - [ ] Printed or shared scoring sheet (this document)
 - [ ] Real-mode / simulator label visible on ArchLucid materials

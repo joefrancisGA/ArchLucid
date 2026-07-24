@@ -10,7 +10,7 @@
 
 ## Question
 
-Did lack of Jira, ServiceNow, Confluence, Slack, or Teams **block a paid pilot** after ArchLucid produced a valuable review package?
+Did lack of Jira, ServiceNow, Confluence, Slack, or Teams **block a paid pilot** after ArchLucid produced a valuable architecture package?
 
 ---
 
