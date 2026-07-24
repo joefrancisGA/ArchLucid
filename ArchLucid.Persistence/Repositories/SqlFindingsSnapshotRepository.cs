@@ -185,7 +185,7 @@ public sealed class SqlFindingsSnapshotRepository(
         string sql = orderByPriority
             ? $"""
               SELECT TOP (@Limit)
-                     FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title, PriorityRank
+                     {FindingRecordListSql.SelectMetadataColumns}
               FROM dbo.FindingRecords
               WHERE FindingsSnapshotId = @FsId{scopeWhere}
                 AND (@Severity IS NULL OR Severity = @Severity)
@@ -207,7 +207,7 @@ public sealed class SqlFindingsSnapshotRepository(
               """
             : $"""
               SELECT TOP (@Limit)
-                     FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title, PriorityRank
+                     {FindingRecordListSql.SelectMetadataColumns}
               FROM dbo.FindingRecords
               WHERE FindingsSnapshotId = @FsId{scopeWhere}
                 AND (@Severity IS NULL OR Severity = @Severity)

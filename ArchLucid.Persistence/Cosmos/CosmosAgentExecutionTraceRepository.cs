@@ -201,6 +201,33 @@ public sealed class CosmosAgentExecutionTraceRepository(
     }
 
     /// <inheritdoc />
+    public async Task<(IReadOnlyList<AgentExecutionTraceSummary> Summaries, int TotalCount)> GetPagedSummariesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        (IReadOnlyList<AgentExecutionTrace> traces, int total) =
+            await GetPagedByRunIdAsync(scope, runId, offset, limit, cancellationToken);
+
+        List<AgentExecutionTraceSummary> summaries = traces.Select(AgentExecutionTraceSummary.FromTrace).ToList();
+
+        return (summaries, total);
+    }
+
+    /// <inheritdoc />
+    public async Task<int> CountByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        (_, int total) = await GetPagedByRunIdAsync(scope, runId, 0, 1, cancellationToken);
+
+        return total;
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(
         string taskId,
         CancellationToken cancellationToken = default)

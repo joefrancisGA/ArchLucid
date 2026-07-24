@@ -99,6 +99,8 @@ public interface IAgentExecutionTraceRepository
     /// <summary>
     ///     Returns a page of traces for the run ordered by <c>CreatedUtc</c> ascending,
     ///     together with the total row count for that run.
+    ///     Full <c>TraceJson</c> — use for forensics; prefer
+    ///     <see cref="GetPagedSummariesByRunIdAsync" /> for operator lists.
     /// </summary>
     /// <param name="runId">The run whose traces are requested.</param>
     /// <param name="offset">Zero-based row offset for paging.</param>
@@ -109,6 +111,24 @@ public interface IAgentExecutionTraceRepository
         string runId,
         int offset,
         int limit,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Returns a page of operator list summaries for the run without deserializing full <c>TraceJson</c> (TB-929).
+    /// </summary>
+    Task<(IReadOnlyList<AgentExecutionTraceSummary> Summaries, int TotalCount)> GetPagedSummariesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Counts traces for the run without loading <c>TraceJson</c> (TB-929 trust-card / totals).
+    /// </summary>
+    Task<int> CountByRunIdAsync(
+        ScopeContext scope,
+        string runId,
         CancellationToken cancellationToken = default);
 
     /// <summary>

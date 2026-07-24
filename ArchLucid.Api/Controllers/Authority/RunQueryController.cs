@@ -573,20 +573,17 @@ public sealed class RunQueryController(
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) =
-            await agentExecutionTraceRepository.GetPagedByRunIdAsync(
+        (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
+            await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
                 scope,
                 runId,
                 skip,
                 take,
                 cancellationToken);
 
-        List<AgentExecutionTraceSummary> summaries =
-            pagedTraces.Select(AgentExecutionTraceSummary.FromTrace).ToList();
-
         return Ok(new AgentExecutionTraceResponse
         {
-            Traces = summaries,
+            Traces = summaries.ToList(),
             TotalCount = totalCount,
             PageNumber = paging.PageNumber,
             PageSize = paging.PageSize

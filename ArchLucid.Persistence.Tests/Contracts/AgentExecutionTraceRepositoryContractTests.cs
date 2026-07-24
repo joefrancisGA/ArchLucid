@@ -171,6 +171,61 @@ public abstract class AgentExecutionTraceRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetPagedSummariesByRunIdAsync_returns_summary_slice_and_total()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-sum-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        string suffix = Guid.NewGuid().ToString("N")[..8];
+        string trace0 = "sum0-" + suffix;
+        string trace1 = "sum1-" + suffix;
+        string trace2 = "sum2-" + suffix;
+        AgentTask task0 = NewTask(runId, "task-sum0-" + suffix);
+        AgentTask task1 = NewTask(runId, "task-sum1-" + suffix);
+        AgentTask task2 = NewTask(runId, "task-sum2-" + suffix);
+
+        await PrepareRunAndTaskAsync(requestId, runId, task0, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, runId, task1, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, runId, task2, CancellationToken.None);
+
+        AgentExecutionTrace rich = NewTrace(
+            runId,
+            task1.TaskId,
+            trace1,
+            TimeProvider.System.UtcNowDateTime().AddMinutes(-2));
+        rich.InputTokenCount = 11;
+        rich.OutputTokenCount = 22;
+        rich.EstimatedCostUsd = 0.0123m;
+        rich.ModelAlias = "standard-chat";
+        rich.ModelDeploymentName = "gpt-test";
+        rich.QualityWarning = true;
+
+        await repo.CreateAsync(NewTrace(runId, task0.TaskId, trace0, TimeProvider.System.UtcNowDateTime().AddMinutes(-3)),
+            CancellationToken.None);
+        await repo.CreateAsync(rich, CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task2.TaskId, trace2, TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
+            CancellationToken.None);
+
+        ScopeContext scope = ArchitectureCommitTestSeed.AsScopeContext();
+        (IReadOnlyList<AgentExecutionTraceSummary> page, int total) =
+            await repo.GetPagedSummariesByRunIdAsync(scope, runId, 1, 1, CancellationToken.None);
+        int count = await repo.CountByRunIdAsync(scope, runId, CancellationToken.None);
+
+        total.Should().Be(3);
+        count.Should().Be(3);
+        page.Should().ContainSingle();
+        page[0].TraceId.Should().Be(trace1);
+        page[0].RunId.Should().Be(runId);
+        page[0].InputTokenCount.Should().Be(11);
+        page[0].OutputTokenCount.Should().Be(22);
+        page[0].EstimatedCostUsd.Should().Be(0.0123m);
+        page[0].ModelAlias.Should().Be("standard-chat");
+        page[0].ModelDeploymentName.Should().Be("gpt-test");
+        page[0].QualityWarning.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task GetByTaskIdAsync_filters_task()
     {
         SkipIfSqlServerUnavailable();

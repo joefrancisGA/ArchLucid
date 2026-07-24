@@ -220,7 +220,7 @@ public sealed class RunTrustEvidenceCardBuilder(
         try
         {
             ScopeContext traceScope = _scopeContextProvider.GetCurrentScope();
-            (_, int total) = await _agentExecutionTraceRepository.GetPagedByRunIdAsync(traceScope, runId, 0, 1, cancellationToken).ConfigureAwait(false);
+            int total = await _agentExecutionTraceRepository.CountByRunIdAsync(traceScope, runId, cancellationToken).ConfigureAwait(false);
             traces = new TrustEvidenceFieldSnapshot
             {
                 Title = "Agent execution trace rows",

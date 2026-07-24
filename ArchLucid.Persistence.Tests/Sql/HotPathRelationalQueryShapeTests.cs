@@ -195,4 +195,33 @@ public sealed class HotPathRelationalQueryShapeTests
         countShape.Should().Contain("WorkspaceId = @WorkspaceId");
         countShape.Should().Contain("ProjectId = @ProjectId");
     }
+
+    [SkippableFact]
+    public void Trace_list_summary_projection_omits_bare_trace_json_column()
+    {
+        const string sql = AgentExecutionTraceListSql.SelectSummaryColumns;
+
+        // Allow JSON_VALUE(t.TraceJson, …); forbid selecting the LOB as a bare column / alias.
+        sql.Should().NotMatchRegex(@"(?m)^\s*t\.TraceJson\s*$");
+        sql.Should().NotContain("AS TraceJson");
+        sql.Should().Contain("JSON_VALUE(t.TraceJson, '$.inputTokenCount')");
+        sql.Should().Contain("t.ModelDeploymentName");
+        sql.Should().Contain("t.BlobUploadFailed");
+    }
+
+    [SkippableFact]
+    public void Finding_record_list_projection_omits_payload_json()
+    {
+        FindingRecordListSql.SelectMetadataColumns.Should().NotContain("PayloadJson");
+        FindingRecordListSql.SelectMetadataColumns.Should().Contain("FindingRecordId");
+        FindingRecordListSql.SelectMetadataColumns.Should().Contain("Title");
+    }
+
+    [SkippableFact]
+    public void Agent_result_list_shapes_document_intentional_result_json_and_proposal_omit()
+    {
+        AgentResultListSql.GetByRunIdSelectResultJson.Should().Contain("ResultJson");
+        AgentResultListSql.ListEvidenceProposalsSelectColumns.Should().Contain("ProposedEvidenceJson");
+        AgentResultListSql.ListEvidenceProposalsSelectColumns.Should().NotContain("ResultJson");
+    }
 }

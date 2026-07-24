@@ -20993,7 +20993,7 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 1. Add a `product-overview` registry entry sourced from `docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md` ┬º┬º1ΓÇô4 (`sectionAnchors`).
 2. Add an `evidence-only-review` registry entry sourced from `docs/CORE_PILOT.md`'s "Fast path: evidence-only review" section.
-3. Add a `data-handling-tenant-isolation` registry entry merging `docs/library/customer-facing/HOW_IT_WORKS.md` and `docs/go-to-market/TENANT_ISOLATION.md` (multiple `sourcePaths`, matching the existing `security-trust` entry's two-source pattern).
+3. Add a `data-handling-tenant-isolation` registry entry merging `docs/library/customer-facing/HOW_ARCHLUCID_WORKS.md` / `DATA_HANDLING.md` and `docs/go-to-market/TENANT_ISOLATION.md` (multiple `sourcePaths`, matching the existing `security-trust` entry's two-source pattern).
 4. Set `pdfStatus: "public"` and `audience` per `PDF_DOCUMENTATION_STRATEGY.md` ┬º3 on all three.
 
 **Acceptance:**

@@ -312,6 +312,52 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
+    public Task<(IReadOnlyList<AgentExecutionTraceSummary> Summaries, int TotalCount)> GetPagedSummariesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<AgentExecutionTrace> ordered = _items
+                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+                .OrderBy(t => t.CreatedUtc)
+                .ToList();
+
+            int total = ordered.Count;
+            int clampedOffset = Math.Max(0, offset);
+            int clampedLimit = Math.Clamp(limit, 1, 500);
+            List<AgentExecutionTraceSummary> page = ordered
+                .Skip(clampedOffset)
+                .Take(clampedLimit)
+                .Select(AgentExecutionTraceSummary.FromTrace)
+                .ToList();
+
+            return Task.FromResult<(IReadOnlyList<AgentExecutionTraceSummary>, int)>((page, total));
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<int> CountByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            int total = _items.Count(t => string.Equals(t.RunId, runId, StringComparison.Ordinal));
+
+            return Task.FromResult(total);
+        }
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId,
         CancellationToken cancellationToken = default)
     {
