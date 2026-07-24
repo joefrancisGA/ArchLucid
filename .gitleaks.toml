@@ -19,6 +19,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "AgentRuntime PromptFieldRedactor coverage batch: synthetic JWT + PEM fixtures for redaction assertions, not real credentials"
+paths = [
+  '''(?:^|/)ArchLucid\.AgentRuntime\.Tests/AgentRuntimePackageCoverageBatch13Tests\.cs$''',
+]
+
+[[allowlists]]
 paths = [
   '''(?:^|/)tests/eval-datasets/prompt-injection/.*\.json$''',
 ]
