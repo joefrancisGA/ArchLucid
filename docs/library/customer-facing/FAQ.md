@@ -25,7 +25,7 @@ Email **security@archlucid.net**; do not file public issues for undisclosed vuln
 Production-style deployments use Azure-native storage and SQL with **row-level security**; see **[../../security/MULTI_TENANT_RLS.md](../../security/MULTI_TENANT_RLS.md)**.
 
 **Can I get a support bundle for troubleshooting?**  
-Yes — operators can generate a support bundle via CLI (see pilot guide / operator quickstart). Include **API `GET /version`**, **`X-Correlation-ID`**, and policy-safe logs when opening issues.
+Yes — architects and admins can generate a support bundle via CLI (see [Pilot guide](PILOT_GUIDE.md) / [Architect / evaluator quickstart](OPERATOR_QUICKSTART.md)). Include **API `GET /version`**, **`X-Correlation-ID`**, and policy-safe logs when opening issues.
 
 ## Integration
 
@@ -36,7 +36,7 @@ Versioned REST under **`/v1/*`** with OpenAPI; AsyncAPI where published for work
 SCIM 2.0 is **in V1 scope**; validate against your IdP and staging tenant per **[V1_SCOPE.md](../V1_SCOPE.md)**.
 
 **Can I connect ITSM in V1?**  
-Yes. First-party **Jira**, **ServiceNow**, **Microsoft Teams**, and **Slack** connectors are **V1 GA** (owner scope 2026-07-03). Configure them under **Integrations** in the operator UI — see **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)**. OAuth 2.0 upgrades (**TB-600**) tighten enterprise auth; they do not remove the V1 GA connector commitment. **CloudEvents** outbound webhooks and customer-operated **recipes** remain **V1.1** buyer-contract paths for teams that prefer a self-operated bridge.
+Yes. First-party **Jira**, **ServiceNow**, **Microsoft Teams**, and **Slack** connectors are **V1 GA** (owner scope 2026-07-03). Configure them under **Integrations** in the architect workspace — see **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)**. OAuth 2.0 upgrades (**TB-600**) tighten enterprise auth; they do not remove the V1 GA connector commitment. **CloudEvents** outbound webhooks and customer-operated **recipes** remain **V1.1** buyer-contract paths for teams that prefer a self-operated bridge.
 
 ## Pricing
 
@@ -46,10 +46,10 @@ Commercial philosophy and packaging context: **[../../go-to-market/PRICING_PHILO
 ## Product
 
 **What is an architecture review?**  
-A **review** ingests your request and context, executes agents (topology, cost, compliance, critic, etc.), and can produce/commit a golden manifest with governance controls. **API paths and CLI commands** still use **`run`** / **`runId`** for backward compatibility — see **[`CONCEPT_VOCABULARY.md`](../CONCEPT_VOCABULARY.md)** (review vs. `run` as product noun; **Reviewer-enforced rules** subsection).
+A **review** ingests your request and context, runs agents (topology, cost, compliance, critic, etc.), and can **finalize** an **architecture package** with governance controls. **API paths and CLI commands** still use **`run`** / **`runId`** and **`commit`** for backward compatibility — see **[`CONCEPT_VOCABULARY.md`](../CONCEPT_VOCABULARY.md)** (review vs. `run` as product noun; **Reviewer-enforced rules** subsection).
 
-**What is a golden manifest?**  
-A durable, versioned architecture artifact (manifest) produced after successful authority pipeline stages and optional governance approval.
+**What is an architecture package?**  
+The durable, versioned record of findings, decisions, evidence, and exports for one architecture review — produced after successful authority pipeline stages and optional governance approval. Older docs and API payloads may still say **golden manifest** or **committed manifest**.
 
 **Who is a pilot for?**  
 Organizations evaluating ArchLucid under controlled staging/production-like setups — see **[PILOT_GUIDE.md](PILOT_GUIDE.md)** and **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**.

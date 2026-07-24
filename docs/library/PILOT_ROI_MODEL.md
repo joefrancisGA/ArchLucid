@@ -77,7 +77,8 @@ Do not create a giant measurement program. For most pilots, a simple baseline is
 
 Use the Core Pilot path as the default evaluation lane:
 
-**Create review → Execute → Commit → Review artifacts**
+**Create review → Execute → Finalize → Review artifacts**  
+(API/CLI may still say **commit** / `ReadyForCommit`.)
 
 ### 4.1 Primary pilot metrics
 
@@ -174,7 +175,7 @@ Use a simple 1–5 rating for each item.
 | **Traceability** | Were decisions and evidence easier to explain? | |
 | **Change clarity** | Was it easier to understand what changed between reviews? | |
 | **Governance readiness** | Did the pilot improve review or approval readiness? | |
-| **Operator usability** | Could operators complete the Core Pilot path without excessive friction? | |
+| **Architect usability** | Could architects complete the Core Pilot path without excessive friction? | |
 | **Stakeholder confidence** | Did reviewers trust the outputs enough to use them seriously? | |
 | **Repeatability** | Would we use this again for a similar architecture request? | |
 

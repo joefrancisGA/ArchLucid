@@ -12,27 +12,27 @@
 
 ## End-to-end flow
 
-| Step | REST | CLI |
+| Step (buyer language) | REST (API still uses run/commit) | CLI |
 | --- | --- | --- |
-| Create review | `POST /v1/architecture/request` | `archlucid run` (optional `--idempotency-key`) |
+| Create architecture review | `POST /v1/architecture/request` | `archlucid run` (optional `--idempotency-key`) |
 | Execute | `POST /v1/architecture/run/{runId}/execute` | `archlucid architecture execute <runId>` |
 | Poll | `GET /v1/architecture/run/{runId}` | `archlucid status <runId>` |
-| Commit | `POST /v1/architecture/run/{runId}/commit` | `archlucid commit <runId>` |
+| Finalize architecture package | `POST /v1/architecture/run/{runId}/commit` | `archlucid commit <runId>` |
 | Export | `GET /v1/artifacts/runs/{runId}/export` | `archlucid artifacts export <runId>` |
 | Sponsor report | `GET /v1/pilots/runs/{runId}/first-value-report` | `archlucid first-value-report <runId>` |
 
 Send **`Idempotency-Key`** on `POST /v1/architecture/request` so safe replays return **`X-Idempotency-Replayed: true`** instead of creating duplicate reviews.
 
-When **`ArchLucid:Governance:PreCommitGateEnabled`** is on and a policy pack blocks on Critical findings, **`POST .../commit`** returns **409** with problem type **`#governance-pre-commit-blocked`**. Treat that as a failed pipeline gate.
+When **`ArchLucid:Governance:PreCommitGateEnabled`** is on and a policy pack blocks on Critical findings, **`POST .../commit`** (finalize) returns **409** with problem type **`#governance-pre-commit-blocked`**. Treat that as a failed pipeline gate.
 
 ---
 
-## GitHub Actions (Azure Extractor ZIP + pre-commit gate)
+## GitHub Actions (Azure Extractor ZIP + pre-finalize gate)
 
 Store secrets:
 
 - `ARCHLUCID_API_URL` — API base (no trailing slash)
-- `ARCHLUCID_API_KEY` — Operator-scoped API key (`X-ArchLucid-Api-Key`)
+- `ARCHLUCID_API_KEY` — API key with authority to create/execute/finalize reviews (`X-ArchLucid-Api-Key`)
 
 ```yaml
 name: ArchLucid architecture gate
@@ -167,17 +167,18 @@ Poll, execute, and commit using the same URLs as the GitHub Actions sample. Publ
 
 | Surface | Guidance |
 | --- | --- |
-| `POST /v1/architecture/request` | Always send `Idempotency-Key`; **do not** auto-retry on gateway timeout without checking whether the run was created |
-| `POST .../execute` | Retry only while run is still executable; expect **409** when state disallows |
-| `POST .../commit` | **Not** idempotent after success — poll run status before retry |
+| `POST /v1/architecture/request` | Always send `Idempotency-Key`; **do not** auto-retry on gateway timeout without checking whether the review was created |
+| `POST .../execute` | Retry only while the review is still executable; expect **409** when state disallows |
+| `POST .../commit` (finalize) | **Not** idempotent after success — poll review status before retry |
 | Export / report GETs | Safe to retry |
 
-Operator UI uses the same idempotency semantics; on **504/408** it surfaces: *"Request timed out. Please check the Runs dashboard before resubmitting to avoid duplicates."*
+The architect workspace uses the same idempotency semantics; on **504/408** it surfaces: *"Request timed out. Please check Reviews before resubmitting to avoid duplicates."*
 
 ---
 
 ## Related
 
+- [Integration readiness](/help/integration-readiness) — optional connectors after first architecture package
 - [`docs/integrations/CICD_INTEGRATION.md`](../../integrations/CICD_INTEGRATION.md) — PR comment pattern and severity thresholds
 - [`AZURE_EXTRACTOR.md`](../AZURE_EXTRACTOR.md) — generating the ingest ZIP
-- [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md) — 409 gate semantics
+- [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md) — 409 finalize-gate semantics
