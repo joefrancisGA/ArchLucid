@@ -25,7 +25,7 @@ Reviews depend on a small team of senior architects who apply different standard
 
 ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review you can show without narration** — complete with recommended actions, confidence ratings, limits where the model did not conclude, and an exportable executive summary.
 
-Upload your architecture materials. ArchLucid's multi-agent analysis covers topology, cost, compliance, and design quality — and surfaces a findings board where every risk is ranked by severity, traced to evidence, and accompanied by a concrete recommended action. Architects get a defensible review package. CTOs get a clear executive summary. What used to take weeks now takes minutes, with a full audit trail.
+Upload your architecture materials. ArchLucid's multi-agent analysis covers topology, cost, compliance, and design quality — and surfaces a findings board where every risk is ranked by severity, traced to evidence, and accompanied by a concrete recommended action. Architects get a defensible architecture package. CTOs get a clear executive summary. What used to take weeks now takes minutes, with a full audit trail.
 
 ---
 
@@ -35,7 +35,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 |-----------|-------------|
 | **AI Architecture Analysis** | Four specialized agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline. 10 finding engines run in parallel. Multi-vendor LLM with automatic fallback. |
 | **Explainable Decisions** | Every finding includes a structured `ExplainabilityTrace` — what was examined, what rules applied, what decisions were taken, and why. Provenance graph links evidence to decisions to artifacts. |
-| **Enterprise Governance** | Policy packs define compliance rules. Pre-commit gates block manifests when findings exceed severity thresholds. Approval workflows enforce segregation of duties. SLA tracking with escalation. |
+| **Enterprise Governance** | Policy packs define compliance rules. Pre-finalize gates block architecture packages when findings exceed severity thresholds. Approval workflows enforce segregation of duties. SLA tracking with escalation. |
 | **Architecture Drift Detection** | Compare two architecture iterations with structured deltas. Replay and verify mode detects drift between stored and regenerated outputs. Compliance drift trending over time. |
 | **Export and Reporting** | Consulting-grade DOCX reports with embedded architecture diagrams. Markdown export. ZIP artifact bundles. Comparison replay in multiple formats. Sanitized **architecture review board** DOCX/PDF samples: [`docs/go-to-market/samples/`](samples/) — see [`ARCHITECTURE_REVIEW_BOARD_EXPORT.md`](ARCHITECTURE_REVIEW_BOARD_EXPORT.md). |
 | **Durable Audit Trail** | 78 typed audit event types in an append-only SQL store. Paginated search, filtered export (JSON/CSV). CI-enforced event count guard. |
@@ -46,7 +46,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 
 ```
 ┌──────────┐     ┌──────────────┐     ┌─────────────────────────────────┐
-│ Operator │────▶│ ArchLucid    │────▶│ AI Agent Pipeline               │
+│ Architect│────▶│ ArchLucid    │────▶│ AI Agent Pipeline               │
 │ (UI/CLI/ │     │ API          │     │                                 │
 │  CI/CD)  │◀────│ (.NET 10)    │     │ Context ─▶ Graph ─▶ Findings   │
 └──────────┘     └──────┬───────┘     │ ─▶ Decisioning ─▶ Artifacts   │
@@ -59,8 +59,8 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
                  └──────────────┘     └─────────────────┘
 ```
 
-**Operator UI** — Next.js console for the **architecture review** lifecycle (reviews and legacy **runs** routes, manifests, governance, graph, audit), aligned with [CORE_PILOT.md](../CORE_PILOT.md)).
-**CLI** — `archlucid new`, **`run`** (CLI verb; creates a **review** session — APIs still use `run` / `runId`), `commit`, `artifacts`, `doctor`, `support-bundle`, `trace`.
+**Architect workspace** — Next.js console for the **architecture review** lifecycle (reviews and legacy **runs** routes, architecture packages, governance, graph, audit), aligned with [CORE_PILOT.md](../CORE_PILOT.md)).
+**CLI** — `archlucid new`, **`run`** (CLI verb; creates a **review** session — APIs still use `run` / `runId`), `commit` (finalize), `artifacts`, `doctor`, `support-bundle`, `trace`.
 
 ---
 
