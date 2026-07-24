@@ -70,8 +70,8 @@ Exact response-target hours per severity tier are finalized in the **Enterprise 
 
 Use Severity 1 only when **all** of the following apply:
 
-1. Hosted ArchLucid service is **broadly unavailable** (API + operator UI), **or**
-2. Customer is **blocked** from committed review packages / evidence needed for an **active procurement or governance deadline**, **or**
+1. Hosted ArchLucid service is **broadly unavailable** (API + architect workspace), **or**
+2. Customer is **blocked** from finalized architecture packages / evidence needed for an **active procurement or governance deadline**, **or**
 3. **Suspected tenant data exposure** or security incident.
 
 Everything else is lower severity.
@@ -100,13 +100,13 @@ Include **`X-Correlation-ID`** on API requests when reporting API-related issues
 
 ### Availability target
 
-| Tier | Hosted API + operator UI monthly target | Contractual SLA / credits |
+| Tier | Hosted API + architect workspace monthly target | Contractual SLA / credits |
 |------|----------------------------------------|---------------------------|
 | Team | **99.9%** engineering target | No credits — target only |
 | Professional | **99.9%** engineering target | No credits — target only |
 | Enterprise | **99.9%** monthly | Availability-based **service credits** in executed agreement (monthly capped, sole remedy) |
 
-**Measurement:** Successful API responses (non-5xx) over a 30-day rolling window for the hosted API; operator UI availability aligned to the same deployment. Detail: [SLA_SUMMARY.md](SLA_SUMMARY.md), [API_SLOS.md](../library/API_SLOS.md).
+**Measurement:** Successful API responses (non-5xx) over a 30-day rolling window for the hosted API; architect workspace availability aligned to the same deployment. Detail: [SLA_SUMMARY.md](SLA_SUMMARY.md), [API_SLOS.md](../library/API_SLOS.md).
 
 ### Exclusions (availability)
 
@@ -168,8 +168,8 @@ Offered when they accelerate adoption:
 
 | Service | Description |
 |---------|-------------|
-| Onboarding / first-review facilitation | Guided first committed review |
-| Evidence-intake setup | Tenant evidence paths and operator workflow |
+| Onboarding / first-review facilitation | Guided first finalized review |
+| Evidence-intake setup | Tenant evidence paths and architect workflow |
 | Custom policy pack authoring | See IP options above |
 | Custom integration support | REST/CLI/webhook alignment |
 | Architecture-review advisory | Advisory sessions on review cadence and governance |

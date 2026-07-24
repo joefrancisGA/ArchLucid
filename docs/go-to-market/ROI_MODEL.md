@@ -97,7 +97,7 @@ Review savings           = Current review cost − New review cost
 
 | Lever | How ArchLucid helps | V1 capability | Conservative estimate |
 |-------|--------------------|--------------|-----------------------|
-| **Pre-commit governance gate** | Findings at or above a configurable severity threshold block manifest commit — compliance gaps caught at design time, not in production | `PreCommitGovernanceGate`, `BlockCommitMinimumSeverity` | 50% reduction in post-deploy compliance gaps |
+| **Pre-finalize governance gate** | Findings at or above a configurable severity threshold block architecture-package finalize — compliance gaps caught at design time, not in production | `PreCommitGovernanceGate`, `BlockCommitMinimumSeverity` | 50% reduction in post-deploy compliance gaps |
 | **Policy pack enforcement** | Versioned compliance rules applied consistently across every review — no "forgot to check" scenarios | `PolicyPackContentDocument`, `IEffectiveGovernanceResolver` | 30% reduction in inconsistency incidents |
 | **Approval workflow** | Segregation of duties enforced — architecture changes require explicit approval | `GovernanceApprovalRequests`, self-approval blocked | Audit evidence generated automatically |
 
