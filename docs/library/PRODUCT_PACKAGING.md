@@ -15,13 +15,13 @@
 
 ## Hosted SaaS entry URLs
 
-**Staging:** `https://staging.archlucid.net` — pre-production Front Door + Container Apps funnel (marketing → self-service signup → Stripe checkout when configured → operator shell). **Production:** `https://archlucid.net` when custom hostnames and managed certificates are attached per [REFERENCE_SAAS_STACK_ORDER.md](REFERENCE_SAAS_STACK_ORDER.md) and `infra/apply-saas.ps1`. **Smoke:** hosted liveness `Invoke-RestMethod https://staging.archlucid.net/health/live`; full repo gate remains **`pwsh ./release-smoke.ps1`** (local API E2E; see [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
+**Staging:** `https://staging.archlucid.net` — pre-production Front Door + Container Apps funnel (marketing → self-service signup → Stripe checkout when configured → architect workspace). **Production:** `https://archlucid.net` when custom hostnames and managed certificates are attached per [REFERENCE_SAAS_STACK_ORDER.md](REFERENCE_SAAS_STACK_ORDER.md) and `infra/apply-saas.ps1`. **Smoke:** hosted liveness `Invoke-RestMethod https://staging.archlucid.net/health/live`; full repo gate remains **`pwsh ./release-smoke.ps1`** (local API E2E; see [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
 
 ---
 
 ## Hosted SaaS reliability (packaging)
 
-Buyer-facing materials for **Professional** and **Enterprise** tiers cite a **99.9% monthly availability target** for the **hosted API and operator UI** (pre-contractual target, not a guarantee until a customer-specific SLA is signed). Full definitions, exclusions, and measurement notes: **[SLA_TARGETS.md](SLA_TARGETS.md)**.
+Buyer-facing materials for **Professional** and **Enterprise** tiers cite a **99.9% monthly availability target** for the **hosted API and architect workspace** (pre-contractual target, not a guarantee until a customer-specific SLA is signed). Full definitions, exclusions, and measurement notes: **[SLA_TARGETS.md](SLA_TARGETS.md)**.
 
 ---
 
@@ -29,7 +29,7 @@ Buyer-facing materials for **Professional** and **Enterprise** tiers cite a **99
 
 1. **Explainability.** A buyer only needs to hold **Pilot** (first useful outcome) vs **Operate** (everything after proof — analysis and governance/trust in one mental bucket).
 2. **Time-to-value.** **Pilot** stays deliberately narrow so an operator can go from zero to a committed manifest in a single session without extra configuration.
-3. **Cognitive load.** The operator shell still uses **two nav groups** under **Operate** (`operate-analysis` and `operate-governance`) for progressive disclosure and contributor seams — but the **buyer story** is a single **Operate** layer; **Execute+** rank reveals write affordances without a third product name.
+3. **Cognitive load.** The architect workspace still uses **two nav groups** under **Operate** (`operate-analysis` and `operate-governance`) for progressive disclosure and contributor seams — but the **buyer story** is a single **Operate** layer; **Execute+** rank reveals write affordances without a third product name.
 
 For a pilot-success model tied to these layers, see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)**. For guidance on when to move between layers, see **[OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md)**. For the **canonical buyer narrative**, see **[EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**.
 
@@ -43,7 +43,7 @@ The layer model describes several concepts that should not be confused:
 
 Two layers explain **how to understand the product**:
 
-- **Pilot** = first useful pilot result (request → review session → commit → review package)
+- **Pilot** = first useful pilot result (request → review session → finalize → architecture package)
 - **Operate** = deeper investigation, governance, auditability, compliance, and trust — **Execute+** surfaces are revealed only when the caller’s rank satisfies **`ExecuteAuthority`** (same numeric floor as mutation soft-enable)
 
 This section names and sequences layers for buyers. **Sponsor-level narrative** (why a pilot matters, what success sounds like, what not to claim) lives in **[EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**; this document stays the **capability inventory**—what ships where—so packaging detail does not replace the brief.
@@ -60,7 +60,7 @@ This section names and sequences layers for buyers. **Sponsor-level narrative** 
 
 ### 2. UI progressive disclosure
 
-The operator shell uses **progressive disclosure** so users do not see the full product surface by default.
+The architect workspace uses **progressive disclosure** so users do not see the full product surface by default.
 
 - **Pilot** links are visible by default.
 - **Operate · analysis** (`operate-analysis`) appears after **Show more links**.
@@ -72,11 +72,11 @@ This is the default user-experience model.
 
 ### 3. Role-based restriction
 
-Some capabilities are better suited to operator/admin roles, especially in **Operate (governance and trust)**.
+Some capabilities are better suited to architect/Admin roles, especially in **Operate (governance and trust)**.
 
 That means some surfaces are shaped not just by navigation tier but also by who should reasonably use them in a real environment.
 
-**Implemented in the operator UI (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with per-link **`requiredAuthority`** on **Operate** nav groups in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` § *Role-aware shaping*). **Pilot** essentials omit `requiredAuthority` so the default path stays visible; extended Pilot links (graph, compare, replay) set Read or Execute to match API policies. Short rank-aware copy appears on key Operate pages (`OperateCapabilityHints.tsx`). This is **operational accountability** in the shell—**not** the entitlement or pricing model in §4.
+**Implemented in the architect workspace (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with per-link **`requiredAuthority`** on **Operate** nav groups in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` § *Role-aware shaping*). **Pilot** essentials omit `requiredAuthority` so the default path stays visible; extended Pilot links (graph, compare, replay) set Read or Execute to match API policies. Short rank-aware copy appears on key Operate pages (`OperateCapabilityHints.tsx`). This is **operational accountability** in the shell—**not** the entitlement or pricing model in §4.
 
 **Cognitive framing (V1):** **Operate** routes pair **LayerHeader** (`layer-guidance.ts`) with **short page leads**—often **inspect vs configure** language and first-pilot deferral—so read-heavy summaries are not visually equal to mutation forms. See `archlucid-ui/README.md` (*In-product guidance*).
 
@@ -121,7 +121,7 @@ The composed hook is **UI shaping only** — `mutationCapability === true` does 
 
 #### Contributor drift guard (operator UI — keep packaging, nav, and API aligned)
 
-**Rule:** the **API** (`ArchLucid.Api` `[Authorize(Policy = …)]` on controllers) is **authoritative** for 401/403. The operator UI only **shapes** visibility, copy, and soft-disabled controls from **`GET /api/auth/me`** so the default path stays honest.
+**Rule:** the **API** (`ArchLucid.Api` `[Authorize(Policy = …)]` on controllers) is **authoritative** for 401/403. The architect workspace only **shapes** visibility, copy, and soft-disabled controls from **`GET /api/auth/me`** so the default path stays honest.
 
 When you **add or move** an operator route, touch these in order (skip only what does not apply):
 
@@ -147,7 +147,7 @@ In V1, the layer model is still **not** the full commercial entitlement matrix (
 |----------|------------------|--------------|
 | **Commercial tier** | Whether the tenant has bought the product layer. | Sub-tier deep links return **404** to avoid capability disclosure. |
 | **Authority / role** | Whether the caller may read, execute, or administer. | Missing role returns **401/403** from the API. |
-| **Progressive disclosure** | Whether the operator shell shows the link by default. | Hidden links are a usability choice, not authorization. |
+| **Progressive disclosure** | Whether the architect workspace shows the link by default. | Hidden links are a usability choice, not authorization. |
 | **Trial limits** | Whether a trial has seats/runs left. | Trial exhaustion returns **402** with the trial-limit problem body. |
 
 Buyer-facing copy must not imply that a visible UI link grants access. Contributor changes that add Operate routes should update the tier gate, API policy, navigation row, and seam tests together.
@@ -164,7 +164,7 @@ For the future-state map, see **[FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGI
 
 > "AI-driven architecture request through committed manifest — visible, auditable, downloadable."
 
-Every pilot starts here. The operator UI presents this layer by default with no progressive disclosure required. **Home**, **onboarding**, and **run detail** copy keep **Operate (analysis workloads)** and **Operate (governance and trust)** explicitly **optional to first-pilot proof** so deeper shaping does not widen the default mental model.
+Every pilot starts here. The architect workspace presents this layer by default with no progressive disclosure required. **Home**, **onboarding**, and **review detail** copy keep **Operate (analysis workloads)** and **Operate (governance and trust)** explicitly **optional to first-pilot proof** so deeper shaping does not widen the default mental model.
 
 **Marketing proof (no operator install):** the public **`/demo/preview`** page (and **`GET /v1/demo/preview`**) shows a read-only commit-page projection of the latest committed **demo seed** run — complementing the operator-shell **`/demo/explain`** route, which focuses on provenance + citations side-by-side. See **`docs/DEMO_PREVIEW.md`**.
 
@@ -179,7 +179,7 @@ Every pilot starts here. The operator UI presents this layer by default with no 
 | Public demo commit page (read-only) | `GET /v1/demo/preview` | Marketing `/demo/preview` | — |
 | Create architecture request | `POST /v1/architecture/request` | New **review** wizard (7-step; legacy label **New run**) | `archlucid run create` |
 | Execute run (**legacy coordinator** — not required when authority pipeline already committed on SQL) | `POST /v1/architecture/run/{runId}/execute` | Pipeline timeline (auto-poll) | `archlucid run execute` — see [API_CONTRACTS.md](API_CONTRACTS.md) § authority vs coordinator |
-| Commit golden manifest | `POST /v1/architecture/run/{runId}/commit` | Commit run button on run detail | `archlucid run commit` |
+| Finalize architecture package | `POST /v1/architecture/run/{runId}/commit` | **Finalize** on review detail (API/CLI `commit`) | `archlucid run commit` |
 | List runs | `GET /v1/architecture/runs` | Runs list (`/runs`) | `archlucid runs list` |
 | Run detail and pipeline timeline | `GET /v1/authority/runs/{runId}/pipeline-timeline` | Run detail page | `archlucid run status` |
 | Manifest summary | `GET /v1/architecture/manifests/{id}` | Manifest summary tab | — |
@@ -198,7 +198,7 @@ Every pilot starts here. The operator UI presents this layer by default with no 
 | API key auth | `Authentication:ApiKey:Enabled=true` | — | — |
 | JWT bearer / Entra ID auth | `ArchLucidAuth:Mode=JwtBearer` | OIDC sign-in at `/auth/signin` | — |
 
-### Navigation (operator UI)
+### Navigation (architect workspace)
 
 Sidebar group label: **Pilot** (`pilot` — always visible — no disclosure toggle required).
 
@@ -221,7 +221,7 @@ Packaged operator sequences that map **request → evidence → policy packs →
 | Accelerator | Buyer job (outcome) | Operator walkthrough | Typical buyer question |
 |-------------|---------------------|----------------------|------------------------|
 | Azure SaaS readiness | [../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md](../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md) | [walkthroughs/AZURE_SAAS_READINESS_REVIEW.md](walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) | “Does our Azure SaaS posture hold up on WAF and security baseline themes?” |
-| AI governance | [../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md](../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md) | [walkthroughs/AI_GOVERNANCE_REVIEW.md](walkthroughs/AI_GOVERNANCE_REVIEW.md) | “Can we show Responsible AI governance on a real review package?” |
+| AI governance | [../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md](../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md) | [walkthroughs/AI_GOVERNANCE_REVIEW.md](walkthroughs/AI_GOVERNANCE_REVIEW.md) | “Can we show Responsible AI governance on a real architecture package?” |
 | Healthcare claims (demo) | [../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md](../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) | [walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md](walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) | “How does PHI-minimization policy land on findings before commit?” |
 
 **First-pilot spine (all accelerators):** [../runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Accelerator index:** [walkthroughs/README.md](walkthroughs/README.md) · **Integration boundaries:** [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md).
@@ -245,7 +245,7 @@ V1 supports **in-repo** custom agent handlers and **out-of-process** webhook han
 
 > "Understand what changed, why it changed, and what the architecture looks like."
 
-Available immediately after a first committed run. Enabled by clicking **Show more links** in the operator UI sidebar.
+Available immediately after a first finalized architecture package. Enabled by clicking **Show more links** in the architect workspace sidebar.
 
 **Not required for first-pilot success:** this slice exists to answer deeper analytical questions after **Pilot** proves value.
 
@@ -273,7 +273,7 @@ Available immediately after a first committed run. Enabled by clicking **Show mo
 | Integration events (Azure Service Bus, CloudEvents) | Outbox → Service Bus topic | — |
 | Webhooks and digest delivery | `POST /v1/webhooks/subscriptions` | — |
 
-### Navigation (operator UI)
+### Navigation (architect workspace)
 
 Sidebar group label: **Operate** — analysis (`operate-analysis`; visible after **Show more links**).
 
@@ -315,10 +315,10 @@ Available immediately but requiring extended/advanced sidebar disclosure and typ
 | Private endpoint Terraform modules | `infra/modules/front-door` | — | Azure networking |
 | DPA template, subprocessors, SOC 2 roadmap | — | — | [go-to-market/trust-center.md](../go-to-market/trust-center.md) |
 | Customer-managed key (CMK) for SQL TDE | `infra/modules/sql-tde-cmk` | — | Azure Key Vault |
-| Trial enforcement (seat and run limits) | `GET /v1/tenant/trial-status` | Trial banner in operator shell; sponsor banner may read **`firstCommitUtc`** for “Day N since first commit” | `ArchLucid:Trial:*` |
+| Trial enforcement (seat and run limits) | `GET /v1/tenant/trial-status` | Trial banner in architect workspace; sponsor banner may read **`firstCommitUtc`** for “Day N since first finalize” | `ArchLucid:Trial:*` |
 | Billing checkout | `POST /v1/tenant/billing/checkout` | Trial banner — Convert to paid | Stripe bridge |
 
-### Navigation (operator UI)
+### Navigation (architect workspace)
 
 Sidebar group label: **Operate** — governance (`operate-governance`; partially visible by default; fully surfaced after extended + advanced links).
 
@@ -338,13 +338,13 @@ Advanced-tier links: Alert rules · Alert routing · Composite rules · Alert si
 | **Show more links** | + Graph · Compare · Replay · Advisory · Recommendation learning · Pilot feedback · Policy packs · Governance resolution · Governance dashboard |
 | **Show more + Show advanced links** | + Search · Planning · Evolution candidates · Schedules · Digests · Alert rules · Routing · Composite rules · Simulation · Tuning · Governance workflow · Audit log · Value report |
 
-The operator UI also adds **lightweight in-product hints** (sidebar captions under each group, a `LayerHeader` strip on key **Operate** routes, a post-checklist nudge on Home, and an optional post-commit strip on run detail) so operators can route by layer without re-reading this doc. See [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) for the full decision matrix.
+The architect workspace also adds **lightweight in-product hints** (sidebar captions under each group, a `LayerHeader` strip on key **Operate** routes, a post-checklist nudge on Home, and an optional post-finalize strip on review detail) so architects can route by layer without re-reading this doc. See [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) for the full decision matrix.
 
 ---
 
 ## Packaging boundaries — what this document is NOT saying
 
-- This is **not a licensing or entitlement document.** Both buyer layers are available in V1 to all licensed operators.
+- This is **not a licensing or entitlement document.** Both buyer layers are available in V1 to all licensed architects.
 - This is **not a pricing document.** Pricing tiers (Team / Professional / Enterprise) are defined in `archlucid-ui/public/pricing.json` and `docs/go-to-market/POSITIONING.md`.
 - This is **not a commitment to separate binary builds.** All layers ship in the same API and UI; packaging is expressed through progressive disclosure and documentation, not feature flags or separate binaries in V1.
 

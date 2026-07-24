@@ -62,7 +62,7 @@ Two **documentation planes** coexist: **outward-facing product + trust narration
 
 1. **[`BUYER_FIRST_30_MINUTES.md`](../BUYER_FIRST_30_MINUTES.md)** — five evaluator steps without install (mirrors `/get-started` intent).
 2. **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** — sponsorship narrative + procurement-safe language.
-3. **[`CORE_PILOT.md`](../CORE_PILOT.md)** — serious pilot in the operator UI.
+3. **[`CORE_PILOT.md`](../CORE_PILOT.md)** — serious pilot in the architect workspace.
 
 ### Contributor-vendor-internal (toolchain + CI)
 

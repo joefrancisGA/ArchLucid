@@ -41,7 +41,7 @@ flowchart LR
     GW[APIM optional]
   end
   subgraph boundary[ArchLucid SaaS]
-    UI[Operator UI Next.js]
+    UI[Architect workspace Next.js]
     API[ArchLucid.Api]
     WK[ArchLucid.Worker]
   end
@@ -71,7 +71,7 @@ flowchart LR
 ```mermaid
 flowchart LR
   subgraph clients
-    UI[Operator UI]
+    UI[Architect workspace]
     CLI[CLI]
   end
   subgraph compute
@@ -142,10 +142,10 @@ The governance model uses **Policy Packs** as its adaptive "brain", completely d
 
 | Step | What happens |
 |------|----------------|
-| 1 | Operator creates an **architecture request** (UI wizard, `POST /v1/architecture/request`, or CLI `run`). |
+| 1 | Architect creates an **architecture request** (UI wizard, `POST /v1/architecture/request`, or CLI `run`). |
 | 2 | **Coordinator / authority pipeline** executes the **review**; timeline updates on **review detail** (legacy **run detail** / `/runs/` routes). |
-| 3 | Operator **commits** the manifest (`POST …/commit` or UI) — persists golden manifest and synthesized artifacts. |
-| 4 | Reviewer consumes **manifest, artifacts, exports** from **review detail**; optional sponsor package and trace replay. |
+| 3 | Architect **finalizes** the architecture package (`POST …/commit` or UI **Finalize**) — persists the signed review record and synthesized artifacts. |
+| 4 | Reviewer consumes **package, artifacts, exports** from **review detail**; optional sponsor package and trace replay. |
 
 **Pilot narrative:** [`CORE_PILOT.md`](CORE_PILOT.md)
 

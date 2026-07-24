@@ -1,17 +1,17 @@
-> **Scope:** Customer-facing — First-run wizard (operator UI) - full detail, tables, and links in the sections below.
+> **Scope:** Customer-facing — First-run wizard (architect workspace) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# First-run wizard (operator UI)
+# First-run wizard (architect workspace)
 
-**Audience:** New operators, pilot users, and first-time evaluators using **ArchLucid** through the web shell (`archlucid-ui`).
+**Audience:** New architects, pilot users, and first-time evaluators using **ArchLucid** through the web shell (`archlucid-ui`).
 
-**Route:** **`/reviews/new`** (canonical operator path; legacy **`/runs/new`** may redirect) — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
+**Route:** **`/reviews/new`** (canonical architect path; legacy **`/runs/new`** may redirect) — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
 
-**Operator checklist (no screenshots):** **[FIRST_RUN_WALKTHROUGH.md](FIRST_RUN_WALKTHROUGH.md)**
+**Architect checklist (no screenshots):** **[FIRST_RUN_WALKTHROUGH.md](FIRST_RUN_WALKTHROUGH.md)**
 
-**After first commit — workflow handoff:** **[V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md)** (attach proof to GitHub / Azure DevOps without V1.1 connectors).
+**After first finalize — workflow handoff:** **[V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md)** (attach proof to GitHub / Azure DevOps without V1.1 connectors).
 
 **Last reviewed:** 2026-06-06
 
@@ -142,7 +142,7 @@ Omitted empty sections are not sent (or sent as empty arrays only where required
 
 - **What:** Polls **`GET /v1/authority/runs/{runId}/summary`** (via the UI proxy) for up to **~2 minutes**, every **~3 seconds**.
 - **Why:** Surfaces **Context → Graph → Findings → Manifest** readiness without leaving the page.
-- **Not the full OTel story:** The server’s authority orchestration spans **context → graph → findings → decisioning → artifacts** (see **ARCHITECTURE_FLOWS.md**). The wizard’s fourth milestone is **golden manifest available** (`hasGoldenManifest`), which is what operators care about for run detail and exports.
+- **Not the full OTel story:** The server’s authority orchestration spans **context → graph → findings → decisioning → artifacts** (see **ARCHITECTURE_FLOWS.md**). The wizard’s fourth milestone is **architecture package available** (`hasGoldenManifest` in the API summary), which is what architects care about for review detail and exports.
 
 ---
 
@@ -153,7 +153,7 @@ Omitted empty sections are not sent (or sent as empty arrays only where required
 | **Context — Ready** | `hasContextSnapshot` | Usually among the first to flip; depends on ingestion load and input size. |
 | **Graph — Ready** | `hasGraphSnapshot` | Follows context once graph materialization completes. |
 | **Findings — Ready** | `hasFindingsSnapshot` | Findings generation tied to graph/context readiness. |
-| **Manifest — Ready** | `hasGoldenManifest` | End state for “can open run detail with manifest links”; may trail the others by minutes in busy environments. |
+| **Package — Ready** | `hasGoldenManifest` | End state for “can open review detail with architecture package links”; may trail the others by minutes in busy environments. |
 
 The **progress bar** is a simple **count of ready stages / 4**, not a time estimate. If nothing moves before the UI stops polling, treat it as **still running server-side** or **stuck** — see [Troubleshooting](#troubleshooting).
 
@@ -161,13 +161,13 @@ The **progress bar** is a simple **count of ready stages / 4**, not a time estim
 
 ## After the wizard
 
-1. **Open run detail** — `/runs/{runId}`: manifest summary, artifacts, authority context (when committed and indexed per environment).
-2. **Commit if required** — Until commit, some views stay empty; follow **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)** for API/CLI commit expectations and `409` handling.
-3. **Export** — From run detail (with manifest): bundle / export ZIP links when your deployment exposes them.
+1. **Open review detail** — `/runs/{runId}`: architecture package summary, artifacts, authority context (when finalized and indexed per environment).
+2. **Finalize if required** — Until finalize (`commit` in API/CLI), some views stay empty; follow **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)** for API/CLI finalize expectations and `409` handling.
+3. **Export** — From review detail (with package): bundle / export ZIP links when your deployment exposes them.
 4. **Compare** — `/compare?leftRunId={runId}` (wizard success panel links this for you).
 5. **Provenance** — `/runs/{runId}/provenance` for graph/trace orientation.
 
-Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**.
+Primary architect reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**.
 
 ---
 
@@ -178,8 +178,8 @@ Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**
 | **Cannot create run / network error** | UI uses **`/api/proxy`** to reach the API. Verify API base URL, API key (server env), and JWT if enabled — see `archlucid-ui` docs and **`docs/runbooks/TROUBLESHOOTING.md`**. |
 | **Run id returned but Step 7 stays all Pending** | API may be down for authority workers, or scope headers point at the wrong project. Confirm **`GET .../runs/{id}/summary`** outside the UI. |
 | **Stuck in “Created” / no snapshots** | Run lifecycle nuances: **CANONICAL_PIPELINE.md**. Check host logs for `AuthorityPipelineStagesExecutor` / stage failures. |
-| **Timeout (~2 min) with no golden manifest** | Pipeline may still be running; open **run detail** and refresh later. If permanently stuck, inspect SQL run row, worker health, and **OPERATIONS** runbooks. |
-| **Empty manifest after “ready”** | “Ready” in the wizard means **summary flags**; **commit** and **artifact** availability are separate steps — **OPERATOR_QUICKSTART.md**. |
+| **Timeout (~2 min) with no architecture package** | Pipeline may still be running; open **review detail** and refresh later. If permanently stuck, inspect SQL run row, worker health, and **OPERATIONS** runbooks. |
+| **Empty package after “ready”** | “Ready” in the wizard means **summary flags**; **finalize** (`commit`) and **artifact** availability are separate steps — **OPERATOR_QUICKSTART.md**. |
 
 ---
 

@@ -1,4 +1,4 @@
-> **Scope:** Operator workflow — UI routes, API seams, and progressive Pilot vs Operate disclosure; audience is contributors maintaining the operator UI, not a buyer-facing document.
+> **Scope:** Architect workspace engineering notes — UI routes, API seams, and progressive Pilot vs Operate disclosure; audience is contributors maintaining `archlucid-ui`, not a buyer-facing document.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -34,7 +34,7 @@ The workspace surfaces the three-layer model without duplicating long deployment
 - **Sidebar** — each nav group shows a one-line caption under the layer name (what that group is for).
 - **LayerHeader** — Compare, Replay, Evidence graph, Governance dashboard, Alerts, and Audit pages open with a short “what question this answers” strip and a first-review reminder where relevant.
 - **Home** — after every first-review checklist box is checked, a compact strip suggests analysis workloads next steps (still optional).
-- **Review detail** — after an architecture snapshot (golden manifest) exists, an optional strip links Compare / Replay / Evidence graph for this review.
+- **Review detail** — after an architecture package (API: golden manifest) exists, an optional strip links Compare / Replay / Evidence graph for this review.
 
 Long-form “when to expand” tables remain in the deployment decision guide; the UI carries only minimal cues.
 
@@ -119,7 +119,7 @@ Filter durable `IAuditService` rows (event type, local **from/to** window, corre
 - **Descriptor:** `GET …/artifact/{id}/descriptor` — metadata only for the review header (type, format, hash, timestamps).
 - **Preview:** The UI fetches bytes through the same-origin proxy for a truncated UTF-8 preview; **Download** uses the full file. If preview fails, metadata and download may still succeed.
 - **Bundle vs list:** If the manifest exists but there is **no bundle or zero artifacts**, the **list** returns `[]`; **bundle ZIP** returns **404** with a distinct problem type from **unknown manifest** (see API expectations below).
-- **Review detail / export / replay:** The API hydrates the synthesized **artifact bundle** for a review whenever the **run** row has a **golden manifest id**, by loading the bundle **by manifest id**. The optional `ArtifactBundleId` column on the run is not required for that path—useful when backfills or partial updates left the manifest link set but the bundle row pointer unset.
+- **Review detail / export / replay:** The API hydrates the synthesized **artifact bundle** for a review whenever the **run** row has a **finalized architecture package id** (golden manifest id), by loading the bundle **by manifest id**. The optional `ArtifactBundleId` column on the run is not required for that path—useful when backfills or partial updates left the package link set but the bundle row pointer unset.
 - **Review export ZIP** (`GET api/artifacts/runs/{runId}/export`): includes `README.txt` with **run** and manifest IDs, optional **manifest display name**, **rule set**, **manifest hash**, and a short description of each file (`manifest.json`, `decision-trace.json` when present, `artifacts/`, `package-metadata.json`).
 - **DOCX architecture package** (`GET api/docx/runs/{runId}/architecture-package`): the **Architecture diagram** section prefers a **PNG** synthesized artifact (`png` / `image/png`, base64); otherwise it tries **Mermaid→PNG** via the host’s **Mermaid CLI** (`mmdc`) when `ArchLucid:MermaidCli:Enabled` is **true** in API configuration; if rasterization is unavailable, it embeds **Mermaid source** (same text as `architecture.mmd` in the bundle); if there is no diagram artifact, it states that and points to topology/decision counts below.
 

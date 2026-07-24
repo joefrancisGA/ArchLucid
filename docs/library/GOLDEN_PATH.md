@@ -85,7 +85,7 @@ flowchart LR
 
 ## Phase 2 — Prod-like local
 
-**Goal:** Same **behaviors** you expect in Azure: SQL persistence path, stricter auth modes, automated gates, optional operator UI.
+**Goal:** Same **behaviors** you expect in Azure: SQL persistence path, stricter auth modes, automated gates, optional architect workspace UI.
 
 | Step | Action | Detail |
 |------|--------|--------|
@@ -93,7 +93,7 @@ flowchart LR
 | 2 | Exercise auth you will use in prod | **JwtBearer** or **ApiKey** — [API_CONTRACTS.md](API_CONTRACTS.md#security-schemes-swashbuckle), sample [`ArchLucid.Api/appsettings.Entra.sample.json`](../../ArchLucid.Api/appsettings.Entra.sample.json) |
 | 3 | Run integration / regression | Set `ARCHLUCID_SQL_TEST` (or API test var); scripts — [`engineering/BUILD.md`](../engineering/BUILD.md), [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) |
 | 4 | Optional release smoke | `release-smoke` with `ARCHLUCID_SMOKE_SQL` — [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
-| 5 | Optional operator UI | `archlucid-ui/` — [operator-shell.md](operator-shell.md), [`archlucid-ui/README.md`](../../archlucid-ui/README.md) |
+| 5 | Optional architect workspace | `archlucid-ui/` — [operator-shell.md](operator-shell.md), [`archlucid-ui/README.md`](../../archlucid-ui/README.md) |
 | 6 | Pilot-style checklist | [`customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md), [`customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) |
 
 **Done when:** Your team agrees "this laptop behaves like staging minus Azure networking."

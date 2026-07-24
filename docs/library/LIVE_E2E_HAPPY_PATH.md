@@ -1,9 +1,9 @@
-> **Scope:** Contributor-reference — Live E2E — operator shell vs real API + SQL (Playwright) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Live E2E — architect workspace vs real API + SQL (Playwright) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Live E2E — operator shell vs real API + SQL (Playwright)
+# Live E2E — architect workspace vs real API + SQL (Playwright)
 
 **Purpose:** Document every **`live-api-*.spec.ts`** file run in CI against a **real** `ArchLucid.Api` and **SQL Server**. Mock journeys use **`playwright.mock.config.ts`** (`npm run test:e2e`).
 
@@ -28,7 +28,9 @@
 | `archlucid-ui/e2e/live-api-compare-runs.spec.ts` | `live-api-compare-runs` | Two reviews create → execute → commit (capture two `runId` values); **`GET /v1/authority/compare/runs`**; UI **`/compare?leftRunId=…&rightRunId=…`** asserts **`#compare-structured`** + **Comparison request outcome** panel; **404** when second run id is missing. |
 | `archlucid-ui/e2e/live-api-review-manifest-roundtrip.spec.ts` | `live-api-review-manifest-roundtrip` | Canonical showcase **`/reviews/claims-intake-modernization`** — **Review outcome summary** finalized manifest link → **`/manifests/…`** → breadcrumb back to review (parity with mock `run-manifest-journey`). |
 | `archlucid-ui/e2e/live-api-alert-rules.spec.ts` | `live-api-alert-rules` | **`POST /v1/alert-rules`** + list; UI **`/alerts`** with axe (critical/serious = 0). |
-| `archlucid-ui/e2e/live-api-search-ask-graph.spec.ts` | `live-api-search-ask-graph` | Runs list by **`systemName`**; **`GET /v1/graph/runs/{guid}`**; optional **`POST /v1/ask`**; UI **`/search`** and **`/ask`** axe. |
+| `archlucid-ui/e2e/live-api-search-ask-graph.spec.ts` | `live-api-search-ask-graph` | Runs list by **`systemName`**; **`GET /v1/graph/runs/{guid}`**; optional **`POST /v1/ask`** (timeout/transport soft-fails); UI **`/search`** and **`/ask`** axe. |
+| `archlucid-ui/e2e/live-api-trial-signup.spec.ts` / `live-api-trial-end-to-end.spec.ts` | trial signup / end-to-end | Self-serve **`POST /v1/register`** — requires **`Auth:PublicSignup:Mode=PublicSelfService`** + UI **`NEXT_PUBLIC_PUBLIC_SIGNUP_MODE=public-self-service`** (see **`docs/runbooks/TRIAL_END_TO_END.md`**). |
+| `archlucid-ui/e2e/live-api-whitelabel-export.spec.ts` | `live-api-whitelabel-export` | Whitelabel consulting DOCX modal — **skips** under buyer-polished deliverables chrome (product default). |
 | `archlucid-ui/e2e/live-api-digest-webhook.spec.ts` | `live-api-digest-webhook` | **`POST/GET /v1/digest-subscriptions`**, toggle, audit **`DigestSubscriptionCreated`** / **`DigestSubscriptionToggled`**; skipped placeholder for webhook dry-run (no HTTP surface). |
 | `archlucid-ui/e2e/live-api-concurrency.spec.ts` | `live-api-concurrency` | Parallel **`commitRunRaw`** (no **5xx**; run ends **Committed**); parallel governance approve (**exactly one** **2xx**, partner **4xx**; single new **`GovernanceApprovalApproved`** audit). |
 | `archlucid-ui/e2e/live-api-archival.spec.ts` | `live-api-archival` | Skipped note: archival is **worker**-driven (no API trigger); smoke test that **two** committed runs stay visible on **`GET /v1/architecture/runs`**. |
@@ -59,7 +61,7 @@
 2. **`POST /v1/architecture/request`** — create a **review**; capture **`runId`** (API and routes still use `run`).
 3. **`POST /v1/architecture/run/{runId}/execute`** — simulator execution.
 4. **Poll `GET /v1/architecture/run/{runId}`** until **`run.status`** is **`ReadyForCommit`** (numeric **`4`**) or already committed. Each poll retries a few times on **HTTP 5xx** (short backoff) to ride out transient SQL/API blips.
-5. **`POST /v1/architecture/run/{runId}/commit`** — persist golden manifest; read **`manifest.metadata.manifestVersion`**.
+5. **`POST /v1/architecture/run/{runId}/commit`** — finalize architecture package; read **`manifest.metadata.manifestVersion`**.
 6. **`GET /v1/architecture/run/{runId}`** — read **`run.goldenManifestId`** for UI navigation.
 7. **UI:** **`/runs`** → **`/runs/{runId}`** — assert **Golden Manifest** link → **`/manifests/{goldenManifestId}`** — **Manifest** heading, **Artifacts**, table, **Download bundle (ZIP)**.
 8. **`GET /v1/artifacts/runs/{runId}/export`** — non-empty ZIP; emits **`RunExported`** audit.
@@ -85,7 +87,7 @@ sequenceDiagram
   participant T as Playwright test
   participant API as ArchLucid.Api
   participant SQL as SQL Server
-  participant UI as Next operator shell
+  participant UI as Next architect workspace
 
   T->>API: GET /health/ready
   T->>API: POST /v1/architecture/request
