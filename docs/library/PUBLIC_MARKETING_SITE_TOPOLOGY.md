@@ -1,10 +1,10 @@
-> **Scope:** Buyer — Engineers and operators designing apex-domain routing (Front Door, Next.js) for public marketing alongside API and operator UI; not a standalone CMS strategy doc or subdomain-only deployment guide.
+> **Scope:** Buyer — Engineers and operators designing apex-domain routing (Front Door, Next.js) for public marketing alongside API and architect workspace; not a standalone CMS strategy doc or subdomain-only deployment guide.
 
 # Public marketing site topology (apex `archlucid.net`)
 
 ## Objective
 
-Document how **modest marketing** pages share **the same apex domain and operational edge** as the ArchLucid API and authenticated operator UI, without a second codebase or orphaned DNS/cert sprawl until scale clearly warrants a split deployment.
+Document how **modest marketing** pages share **the same apex domain and operational edge** as the ArchLucid API and authenticated architect workspace, without a second codebase or orphaned DNS/cert sprawl until scale clearly warrants a split deployment.
 
 ## Assumptions
 
@@ -54,7 +54,7 @@ Marketing pages intentionally **avoid** **`/v1/*`** coupling; signup flows use *
 ## Security Model
 
 - **WAF** applies to the apex endpoint (**`infra/terraform-edge/frontdoor.tf`** `azurerm_cdn_frontdoor_firewall_policy` — Default Ruleset + Bot Manager, Prevention).
-- **`robots.ts`** denies crawl of **`/auth/*`**, **`/v1*`**, **`/metrics`**, and operator shells — **security-through-obscurity is weak**; real enforcement remains **authentication**, **authorization**, and **tenant scope** (`OperatorHomeGate` + API policies).
+- **`robots.ts`** denies crawl of **`/auth/*`**, **`/v1*`**, **`/metrics`**, and architect workspace routes — **security-through-obscurity is weak**; real enforcement remains **authentication**, **authorization**, and **tenant scope** (`OperatorHomeGate` + API policies).
 - **HSTS**: configured at Front Door (**`README.md`** in terraform-edge warns against duplicating blindly in **`next.config.ts`** baseline headers alone).
 
 ## Operational Considerations

@@ -120,7 +120,7 @@ Each step lists: **what happens**, **file path / HTTP endpoint**, **durable audi
 | **Tenant row updates** | `TrialStatus=Active`, `TrialStartUtc`, `TrialExpiresUtc`, `TrialRunsLimit`, `TrialSeatsLimit`, `TrialWelcomeRunId` (the seeded sample run) |
 | **Baseline capture** | When the request includes `BaselineReviewCycleHours`, `TrialSignupBaselineReviewCycleCapture` is forwarded to the bootstrap service, persisted on the tenant row, and emits `TrialBaselineReviewCycleCaptured` audit (see CHANGELOG `2026-04-21 — Trial signup captures baseline review-cycle time`) |
 | **Audit** | `TrialProvisioned` (durable email-intent signal — see [`TRIAL_END_TO_END.md`](TRIAL_END_TO_END.md) § "Email + integration events") |
-| **Failure mode** | If bootstrap throws, the `RegistrationController` still returns **201** for the tenant — the operator UI surfaces a `TrialPendingEmailVerification` state on `/signup/verify` |
+| **Failure mode** | If bootstrap throws, the `RegistrationController` still returns **201** for the tenant — the architect workspace surfaces a `TrialPendingEmailVerification` state on `/signup/verify` |
 
 ### Step 5 — Email verification (LocalIdentity mode only)
 
@@ -285,7 +285,7 @@ The trial tenant persists in the staging SQL catalog after the call. Two reset s
 
 - **Live Stripe keys (`sk_live_*`).** SEs **never** touch them. The `BillingProductionSafetyRules` boot guard refuses to start the API in Production with a live key and no webhook signing secret — we ship a CI guard (`scripts/ci/assert_billing_safety_rules_shipped.py`) that fails the merge if those checks are removed or weakened.
 - **Marketplace listing publication.** The Partner Center listing stays at **Status: Draft** for V1 (per `docs/library/V1_DEFERRED.md` § 6b). Do not ask the prospect to "click the marketplace tile" during the demo — there isn't one yet.
-- **DNS cutover.** `archlucid.net/signup` is not the demo URL — `signup.staging.archlucid.net` is. If a prospect already has a tab open on the production hostname, ask them to close it and re-open the staging hostname; the operator UI on production will refuse the trial flow because `Trial:SignupEnabled` is off there.
+- **DNS cutover.** `archlucid.net/signup` is not the demo URL — `signup.staging.archlucid.net` is. If a prospect already has a tab open on the production hostname, ask them to close it and re-open the staging hostname; the architect workspace on production will refuse the trial flow because `Trial:SignupEnabled` is off there.
 
 ### 9.1.f When the smoke says PASS but the demo still feels wrong
 
