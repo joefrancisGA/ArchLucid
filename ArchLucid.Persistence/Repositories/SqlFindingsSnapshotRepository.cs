@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -156,6 +157,103 @@ public sealed class SqlFindingsSnapshotRepository(
                 NamedQueryTelemetryNames.GetFindingsSnapshotById,
                 sw.Elapsed.TotalMilliseconds);
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<FindingsSnapshot?> GetCoverageProjectionByIdAsync(
+        ScopeContext scope,
+        Guid findingsSnapshotId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string sql = $"""
+                      SELECT
+                          {FindingsSnapshotCoverageSql.SelectHeaderColumns}
+                      FROM dbo.FindingsSnapshots
+                      WHERE FindingsSnapshotId = @FindingsSnapshotId
+                      """ + RepositoryScopePredicate.AndProjectIdTripleWhere(scope) + ";";
+
+        DynamicParameters parameters = new();
+        parameters.Add("FindingsSnapshotId", findingsSnapshotId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
+
+        await using SqlConnection connection = await _readConnectionFactory.CreateOpenConnectionAsync(ct);
+        FindingsCoverageHeaderRow? header = await connection.QuerySingleOrDefaultAsync<FindingsCoverageHeaderRow>(
+            new CommandDefinition(sql, parameters, cancellationToken: ct));
+
+        if (header is null)
+            return null;
+
+        string findingSql = $"""
+                             SELECT
+                                 {FindingsSnapshotCoverageSql.SelectFindingMetadataColumns}
+                             FROM dbo.FindingRecords
+                             WHERE FindingsSnapshotId = @FindingsSnapshotId
+                             """ + RepositoryScopePredicate.AndTripleWhere(scope) + """
+                             
+                             ORDER BY SortOrder ASC;
+                             """;
+
+        IReadOnlyList<FindingsCoverageFindingRow> findingRows =
+            (await connection.QueryAsync<FindingsCoverageFindingRow>(
+                new CommandDefinition(findingSql, parameters, cancellationToken: ct))).AsList();
+
+        List<Finding> findings;
+
+        if (findingRows.Count > 0)
+        {
+            findings = findingRows.Select(static row =>
+            {
+                FindingSeverity severity = Enum.TryParse(row.Severity, ignoreCase: true, out FindingSeverity parsed)
+                    ? parsed
+                    : FindingSeverity.Info;
+
+                return new Finding
+                {
+                    FindingId = row.FindingId,
+                    FindingType = row.FindingType,
+                    Category = row.Category,
+                    EngineType = row.EngineType,
+                    Severity = severity,
+                    Title = row.Title,
+                    Rationale = string.Empty,
+                    PolicyRuleId = string.IsNullOrWhiteSpace(row.PolicyRuleId) ? null : row.PolicyRuleId.Trim(),
+                };
+            }).ToList();
+        }
+        else
+        {
+            // Legacy JSON-only snapshots: hydrate once then drop payloads (relational dual-write preferred).
+            FindingsSnapshot? full = await GetByIdAsync(scope, findingsSnapshotId, ct);
+
+            if (full is null)
+                return null;
+
+            foreach (Finding finding in full.Findings)
+                finding.Payload = null;
+
+            return full;
+        }
+
+        List<FindingEngineFailure> engineFailures = [];
+
+        if (!string.IsNullOrWhiteSpace(header.EngineFailuresJson))
+            engineFailures = JsonEntitySerializer.Deserialize<List<FindingEngineFailure>>(header.EngineFailuresJson);
+
+        return new FindingsSnapshot
+        {
+            FindingsSnapshotId = header.FindingsSnapshotId,
+            RunId = header.RunId,
+            ContextSnapshotId = header.ContextSnapshotId,
+            GraphSnapshotId = header.GraphSnapshotId,
+            CreatedUtc = header.CreatedUtc,
+            SchemaVersion = header.SchemaVersion,
+            GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(header.GenerationStatus),
+            EngineFailures = engineFailures,
+            EvaluationConfidenceEnrichmentSkipped = header.EvaluationConfidenceEnrichmentSkipped ?? false,
+            Findings = findings,
+        };
     }
 
     /// <inheritdoc />
@@ -355,6 +453,108 @@ public sealed class SqlFindingsSnapshotRepository(
         commandText.Append(scopeSql);
         commandText.Append(';');
         return new SqlChunkedBatchCommand(commandText.ToString(), parameters);
+    }
+
+    private sealed class FindingsCoverageHeaderRow
+    {
+        public Guid FindingsSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public Guid RunId
+        {
+            get;
+            init;
+        }
+
+        public Guid ContextSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public Guid GraphSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
+
+        public int SchemaVersion
+        {
+            get;
+            init;
+        }
+
+        public string? GenerationStatus
+        {
+            get;
+            init;
+        }
+
+        public string? EngineFailuresJson
+        {
+            get;
+            init;
+        }
+
+        public bool? EvaluationConfidenceEnrichmentSkipped
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class FindingsCoverageFindingRow
+    {
+        public string FindingId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string FindingType
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Category
+        {
+            get;
+            init;
+        } = null!;
+
+        public string EngineType
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Severity
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Title
+        {
+            get;
+            init;
+        } = null!;
+
+        public string? PolicyRuleId
+        {
+            get;
+            init;
+        }
     }
 
     private sealed class FindingMetaSqlRow

@@ -1,11 +1,16 @@
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Application.Trust;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Persistence.Decisions;
@@ -22,6 +27,7 @@ namespace ArchLucid.Application.Runs;
 public sealed class AuthorityRunDetailOperatorEnricher(
     IRunDetailQueryService runDetailQueryService,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IAgentResultRepository agentResultRepository,
     ILlmCostEstimator llmCostEstimator,
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     IRetrievalGroundingTraceReader retrievalGroundingTraceReader,
@@ -35,6 +41,9 @@ public sealed class AuthorityRunDetailOperatorEnricher(
 
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IAgentResultRepository _agentResultRepository =
+        agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
     private readonly ILlmCostEstimator _llmCostEstimator =
         llmCostEstimator ?? throw new ArgumentNullException(nameof(llmCostEstimator));
@@ -99,6 +108,126 @@ public sealed class AuthorityRunDetailOperatorEnricher(
             await _trustEvidenceCardBuilder
                 .BuildAsync(architectureDetail, hostAgentExecutionMode, cancellationToken)
                 .ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task EnrichBuyerSummaryAsync(
+        RunDetailDto detail,
+        string? hostAgentExecutionMode,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(detail);
+
+        detail.EngineProvenance = ReviewRunEngineProvenanceJson.TryDeserialize(detail.Run.EngineProvenanceJson);
+
+        string runHex = detail.Run.RunId.ToString("N");
+
+        detail.LastAgentExecutionFailure =
+            AgentExecutionFailureSummaryJson.TryDeserialize(detail.Run.LastFailureReason);
+
+        detail.Run.IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(detail.Run);
+
+        await AppendLlmCostEstimateAsync(detail, runHex, cancellationToken).ConfigureAwait(false);
+
+        detail.EstimatedUsdSavingsSummary = await RunDetailEstimatedUsdSavingsBuilder
+            .TryBuildAsync(
+                detail.Run,
+                _tenantEstimatedUsdSavingsResolver,
+                _tenantCostSettingsRepository,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        ScopeContext scope = ScopeContextRunChildExtensions.FromRunRecord(detail.Run);
+        IReadOnlyList<AgentResult> agentTypeMarkers =
+            await _agentResultRepository
+                .GetAgentTypeMarkersByRunIdAsync(scope, runHex, cancellationToken)
+                .ConfigureAwait(false);
+
+        // Markers preserve RAG grounding HOLD without loading ResultJson; coverage findings feed TopFinding.
+        List<AgentResult> buyerResults = agentTypeMarkers.ToList();
+        AgentResult? coverageFindingCarrier = TryBuildCoverageFindingCarrier(runHex, detail.FindingsSnapshot);
+
+        if (coverageFindingCarrier is not null)
+            buyerResults.Add(coverageFindingCarrier);
+
+        detail.Results = buyerResults;
+
+        await AppendRetrievalGroundingSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
+        await AppendDecisionExplainabilityAsync(detail, cancellationToken).ConfigureAwait(false);
+
+        if (!detail.Run.GoldenManifestId.HasValue || detail.Run.GoldenManifestId.Value == Guid.Empty)
+            return;
+
+        ArchitectureRunDetail architectureDetail = new()
+        {
+            Run = RunRecordToArchitectureRunMapper.ToArchitectureRun(detail.Run, []),
+            Results = buyerResults,
+            Manifest = BuildTrustManifestFromAuthorityDocument(runHex, detail.Run.ProjectId, detail.GoldenManifest),
+        };
+
+        detail.TrustEvidenceCard =
+            await _trustEvidenceCardBuilder
+                .BuildAsync(architectureDetail, hostAgentExecutionMode, cancellationToken)
+                .ConfigureAwait(false);
+
+        // Buyer DTO omits Results; clear so accidental mappers cannot leak marker rows.
+        detail.Results = [];
+    }
+
+    private static AgentResult? TryBuildCoverageFindingCarrier(string runHex, FindingsSnapshot? snapshot)
+    {
+        if (snapshot?.Findings is null || snapshot.Findings.Count == 0)
+            return null;
+
+        List<ArchitectureFinding> findings = snapshot.Findings
+            .Where(static f => !string.IsNullOrWhiteSpace(f.FindingId))
+            .Select(static f => new ArchitectureFinding
+            {
+                FindingId = f.FindingId.Trim(),
+                Message = string.IsNullOrWhiteSpace(f.Title) ? f.FindingId : f.Title.Trim(),
+                Category = string.IsNullOrWhiteSpace(f.Category) ? string.Empty : f.Category.Trim(),
+                Severity = f.Severity,
+                PolicyRuleId = string.IsNullOrWhiteSpace(f.PolicyRuleId) ? null : f.PolicyRuleId.Trim(),
+            })
+            .ToList();
+
+        if (findings.Count == 0)
+            return null;
+
+        return new AgentResult
+        {
+            ResultId = $"buyer-summary-findings-{runHex}",
+            TaskId = "buyer-summary-findings",
+            RunId = runHex,
+            AgentType = AgentType.Compliance,
+            Findings = findings,
+        };
+    }
+
+    private static GoldenManifest BuildTrustManifestFromAuthorityDocument(
+        string runHex,
+        string? projectId,
+        ManifestDocument? authorityManifest)
+    {
+        GoldenManifest manifest = new()
+        {
+            RunId = runHex,
+            SystemName = projectId ?? string.Empty,
+        };
+
+        if (authorityManifest is null)
+            return manifest;
+
+        manifest.Metadata = new ManifestMetadata
+        {
+            ManifestVersion = string.IsNullOrWhiteSpace(authorityManifest.RuleSetVersion)
+                ? authorityManifest.ManifestId.ToString("D")
+                : authorityManifest.RuleSetVersion.Trim(),
+            CreatedUtc = authorityManifest.CreatedUtc,
+            ChangeDescription = string.Empty,
+        };
+
+        return manifest;
     }
 
     private async Task AppendLlmCostEstimateAsync(

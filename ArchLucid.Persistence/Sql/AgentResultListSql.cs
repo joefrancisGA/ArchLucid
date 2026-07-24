@@ -12,6 +12,13 @@ internal static class AgentResultListSql
     public const string GetByRunIdSelectResultJson = "SELECT ar.ResultJson";
 
     /// <summary>
+    ///     Buyer-summary grounding markers (TB-930) — agent types without <c>ResultJson</c>.
+    /// </summary>
+    public const string GetByRunIdSelectAgentTypeMarkers = """
+                                                           SELECT ar.ResultId, ar.TaskId, ar.RunId, ar.AgentType, ar.Confidence, ar.CreatedUtc
+                                                           """;
+
+    /// <summary>
     ///     Evidence-proposal list needs <c>ProposedEvidenceJson</c> by purpose; must omit <c>ResultJson</c>.
     /// </summary>
     public const string ListEvidenceProposalsSelectColumns = """

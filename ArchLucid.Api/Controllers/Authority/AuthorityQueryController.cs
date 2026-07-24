@@ -200,7 +200,7 @@ public sealed class AuthorityQueryController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
+        RunDetailDto? result = await queryService.GetRunDetailForBuyerSummaryAsync(scope, runId, ct);
 
         if (result is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -210,7 +210,7 @@ public sealed class AuthorityQueryController(
             _configuration["AgentExecution:Mode"]);
 
         await runDetailOperatorEnricher
-            .EnrichAsync(result, _configuration["AgentExecution:Mode"], ct)
+            .EnrichBuyerSummaryAsync(result, _configuration["AgentExecution:Mode"], ct)
             .ConfigureAwait(false);
 
         BuyerRunDetailSummaryDto buyerSummary = RunDetailBuyerMapper.Map(result);

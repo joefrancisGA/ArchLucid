@@ -97,6 +97,37 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
     }
 
     /// <inheritdoc />
+    public Task<FindingsSnapshot?> GetCoverageProjectionByIdAsync(
+        ScopeContext scope,
+        Guid findingsSnapshotId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = ct;
+
+        string? json;
+        ScopeContext? savedScope;
+        lock (_lock)
+        {
+            _store.TryGetValue(findingsSnapshotId, out json);
+            _scopeBySnapshotId.TryGetValue(findingsSnapshotId, out savedScope);
+        }
+
+        if (json is null)
+            return Task.FromResult<FindingsSnapshot?>(null);
+
+        if (savedScope is not null && !ScopeMatches(savedScope, scope))
+            return Task.FromResult<FindingsSnapshot?>(null);
+
+        FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json);
+
+        foreach (Finding finding in snapshot.Findings)
+            finding.Payload = null;
+
+        return Task.FromResult<FindingsSnapshot?>(snapshot);
+    }
+
+    /// <inheritdoc />
     public Task<FindingRecordMetadataPage> ListFindingRecordsKeysetAsync(
         ScopeContext scope,
         Guid findingsSnapshotId,

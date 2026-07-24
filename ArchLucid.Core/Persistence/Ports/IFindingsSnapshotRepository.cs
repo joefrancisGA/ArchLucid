@@ -32,6 +32,15 @@ public interface IFindingsSnapshotRepository
     Task<FindingsSnapshot?> GetByIdAsync(ScopeContext scope, Guid findingsSnapshotId, CancellationToken ct);
 
     /// <summary>
+    ///     Coverage / list-metadata projection for run-detail first paint (TB-930): engine failures + finding
+    ///     id/severity/title/engine fields without <c>PayloadJson</c> or child LOBs.
+    /// </summary>
+    Task<FindingsSnapshot?> GetCoverageProjectionByIdAsync(
+        ScopeContext scope,
+        Guid findingsSnapshotId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Stable keyset page over relational <c>dbo.FindingRecords</c> (metadata projection only — no payloads). Pass
     ///     <paramref name="cursorSortOrder" /> and <paramref name="cursorFindingRecordId" /> together after the last item on
     ///     the previous page; both <see langword="null" /> requests the first page.

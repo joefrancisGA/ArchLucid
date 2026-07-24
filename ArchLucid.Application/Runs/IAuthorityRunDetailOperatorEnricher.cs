@@ -8,4 +8,12 @@ namespace ArchLucid.Application.Runs;
 public interface IAuthorityRunDetailOperatorEnricher
 {
     Task EnrichAsync(RunDetailDto detail, string? hostAgentExecutionMode, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Buyer-summary enricher (TB-930): cost / trust / grounding without loading all agent <c>ResultJson</c>.
+    /// </summary>
+    Task EnrichBuyerSummaryAsync(
+        RunDetailDto detail,
+        string? hostAgentExecutionMode,
+        CancellationToken cancellationToken = default);
 }

@@ -115,6 +115,35 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
         return AgentResultEnrichmentMerger.Apply(list, enrichments);
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<AgentResult>> GetAgentTypeMarkersByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        _ = scope;
+
+        lock (_gate)
+        {
+            List<AgentResult> markers = _results
+                .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
+                .OrderBy(r => r.CreatedUtc)
+                .Select(static r => new AgentResult
+                {
+                    ResultId = r.ResultId,
+                    TaskId = r.TaskId,
+                    RunId = r.RunId,
+                    AgentType = r.AgentType,
+                    Confidence = r.Confidence,
+                    CreatedUtc = r.CreatedUtc,
+                })
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<AgentResult>>(markers);
+        }
+    }
+
     public async Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default)

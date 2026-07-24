@@ -14,8 +14,20 @@ export function toMockBuyerRunDetailSummary(full: RunDetail): RunDetail {
   const run = full.run;
   const goldenManifestId = run.goldenManifestId?.trim() || undefined;
 
+  const findingSummaries =
+    full.results?.flatMap((result) =>
+      (result.findings ?? []).map((finding) => ({
+        findingId: finding.findingId,
+        title: finding.message ?? finding.category ?? finding.findingId,
+        category: finding.category,
+        severity: finding.severity,
+        policyRuleId: finding.policyRuleId,
+      })),
+    ) ?? [];
+
   return {
     ...buyerSafe,
+    findingSummaries,
     run: {
       runId: run.runId,
       projectId: run.projectId,
@@ -31,5 +43,5 @@ export function toMockBuyerRunDetailSummary(full: RunDetail): RunDetail {
       degradedExecutionAgents: run.degradedExecutionAgents,
       isDeadLettered: run.isDeadLettered,
     },
-  };
+  } as RunDetail;
 }

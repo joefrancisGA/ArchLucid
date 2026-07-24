@@ -1,14 +1,80 @@
-import { getRunDetail } from "@/lib/api";
-import { coerceRunDetail } from "@/lib/operator-response-guards";
+import { getRunSummary } from "@/lib/api";
 import { extractQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-summary-derive";
 import type { RunDetail } from "@/types/authority";
 
 /**
- * Buyer-summary (TB-283) omits agent `results[].findings`. Merge only that slice from operator run detail
- * so QuickDecisionSummary and policy traceability badges still render in buyer-polished shells.
+ * Buyer-summary (TB-283 / TB-930) omits agent `results[].findings` and fat JSON blobs.
+ * Prefer `findingSummaries` for QuickDecision first paint; never call fat `getRunDetail` here.
+ * Optionally fill `goldenManifestId` from the lightweight run summary endpoint.
  */
+
+type BuyerFindingSummaryWire = {
+  findingId?: string | null;
+  title?: string | null;
+  category?: string | null;
+  severity?: string | number | null;
+  engineType?: string | null;
+  policyRuleId?: string | null;
+};
+
 function trimmedGoldenManifestId(run: RunDetail["run"]): string {
   return run.goldenManifestId?.trim() ?? "";
+}
+
+function readFindingSummaries(detail: RunDetail): BuyerFindingSummaryWire[] {
+  const raw = (detail as Record<string, unknown>).findingSummaries;
+
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.filter((row): row is BuyerFindingSummaryWire => row !== null && typeof row === "object");
+}
+
+function synthesizeResultsFromFindingSummaries(
+  runId: string,
+  summaries: readonly BuyerFindingSummaryWire[],
+): NonNullable<RunDetail["results"]> {
+  const findings = summaries
+    .map((row) => {
+      const findingId = typeof row.findingId === "string" ? row.findingId.trim() : "";
+
+      if (findingId.length === 0) {
+        return null;
+      }
+
+      const title = typeof row.title === "string" ? row.title.trim() : "";
+      const category = typeof row.category === "string" ? row.category.trim() : "";
+      const policyRuleId =
+        typeof row.policyRuleId === "string" && row.policyRuleId.trim().length > 0
+          ? row.policyRuleId.trim()
+          : undefined;
+
+      return {
+        findingId,
+        message: title.length > 0 ? title : category.length > 0 ? category : findingId,
+        category: category.length > 0 ? category : undefined,
+        severity: row.severity ?? undefined,
+        policyRuleId,
+        reasoningTrace: "",
+      };
+    })
+    .filter((row): row is NonNullable<typeof row> => row !== null);
+
+  if (findings.length === 0) {
+    return [];
+  }
+
+  return [
+    {
+      resultId: `buyer-summary-${runId}`,
+      taskId: "buyer-summary",
+      runId,
+      agentType: "BuyerSummary",
+      findings,
+      confidence: 0,
+    },
+  ];
 }
 
 export async function mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
@@ -19,48 +85,41 @@ export async function mergeRunDetailAgentResultsWhenBuyerSummaryOmitsFindings(
   const buyerHasFindings = extractQuickDecisionFindingsFromRunDetail(buyerSummaryDetail).length > 0;
   const buyerGoldenManifestId = trimmedGoldenManifestId(buyerSummaryDetail.run);
 
-  if (buyerHasFindings && buyerGoldenManifestId.length > 0) {
-    return buyerSummaryDetail;
+  let resolved: RunDetail = buyerSummaryDetail;
+
+  if (!buyerHasFindings) {
+    const summaries = readFindingSummaries(buyerSummaryDetail);
+    const synthesized = synthesizeResultsFromFindingSummaries(runId, summaries);
+
+    if (synthesized.length > 0) {
+      resolved = {
+        ...buyerSummaryDetail,
+        results: synthesized,
+      };
+    }
+  }
+
+  if (trimmedGoldenManifestId(resolved.run).length > 0) {
+    return resolved;
   }
 
   try {
-    const operatorDetailResponse = await getRunDetail(runId, options);
-    const operatorEnvelope = coerceRunDetail(operatorDetailResponse.data);
+    const summary = await getRunSummary(runId, options);
+    const summaryGolden =
+      typeof summary.goldenManifestId === "string" ? summary.goldenManifestId.trim() : "";
 
-    if (!operatorEnvelope.ok) {
-      return buyerSummaryDetail;
-    }
-
-    const operatorResults = operatorEnvelope.value.results;
-    const buyerRun = buyerSummaryDetail.run;
-    const operatorRun = operatorEnvelope.value.run;
-    const operatorGoldenManifestId = trimmedGoldenManifestId(operatorRun);
-
-    const mergedResults =
-      buyerHasFindings || !Array.isArray(operatorResults) || operatorResults.length === 0
-        ? buyerSummaryDetail.results
-        : operatorResults;
-
-    const mergedGoldenManifestId =
-      buyerGoldenManifestId.length > 0
-        ? buyerRun.goldenManifestId
-        : operatorGoldenManifestId.length > 0
-          ? operatorRun.goldenManifestId
-          : buyerRun.goldenManifestId;
-
-    if (mergedResults === buyerSummaryDetail.results && mergedGoldenManifestId === buyerRun.goldenManifestId) {
-      return buyerSummaryDetail;
+    if (summaryGolden.length === 0) {
+      return resolved;
     }
 
     return {
-      ...buyerSummaryDetail,
+      ...resolved,
       run: {
-        ...buyerRun,
-        goldenManifestId: mergedGoldenManifestId,
+        ...resolved.run,
+        goldenManifestId: summaryGolden,
       },
-      results: mergedResults,
     };
   } catch {
-    return buyerSummaryDetail;
+    return resolved;
   }
 }

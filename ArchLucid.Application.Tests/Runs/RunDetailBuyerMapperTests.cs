@@ -1,4 +1,5 @@
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -34,7 +35,23 @@ public sealed class RunDetailBuyerMapperTests
             },
             ContextSnapshot = new Contracts.Persistence.Context.ContextSnapshot(),
             GraphSnapshot = new Contracts.Persistence.Graph.GraphSnapshot(),
-            FindingsSnapshot = new Contracts.Findings.FindingsSnapshot(),
+            FindingsSnapshot = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-1",
+                        Title = "Public endpoint",
+                        Category = "Security",
+                        EngineType = "Policy",
+                        Severity = FindingSeverity.Critical,
+                        Rationale = "n/a",
+                        FindingType = "Policy",
+                        Payload = new { secret = "omit" },
+                    },
+                ],
+            },
             Results = [new Contracts.Agents.AgentResult()],
         };
 
@@ -47,6 +64,7 @@ public sealed class RunDetailBuyerMapperTests
         mapped.TrustEvidenceCard.Should().NotBeNull();
         mapped.Run.HasGraphSnapshot.Should().BeTrue();
         mapped.Run.HasGoldenManifest.Should().BeTrue();
+        mapped.FindingSummaries.Should().ContainSingle(f => f.FindingId == "f-1" && f.Title == "Public endpoint");
 
         typeof(BuyerRunDetailSummaryDto).GetProperties().Select(p => p.Name).Should().NotContain(
             nameof(RunDetailDto.ContextSnapshot),
