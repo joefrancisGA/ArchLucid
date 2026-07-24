@@ -24,7 +24,7 @@ public static class QuickScanEffectiveLimits
             MaxModelCallsPerScan = Math.Min(options.MaxModelCallsPerScan, perRequest.MaxModelCallsPerRequest),
             MaxRetryCount = Math.Min(options.MaxRetryCount, perRequest.MaxTotalRetriesPerRequest),
             MaxProcessingDurationSeconds = Math.Min(options.MaxProcessingDurationSeconds, perRequest.MaxExecutionSeconds),
-            MaxConcurrentScans = options.MaxConcurrentScans,
+            MaxConcurrentScans = Math.Min(options.MaxConcurrentScans, safety.Concurrency.MaxConcurrentAnonymousScans),
             MaxScansPerSessionPerDay = options.MaxScansPerSessionPerDay,
             MaxScansPerIpPerHour = options.MaxScansPerIpPerHour,
             MaxScansPerIpPerDay = options.MaxScansPerIpPerDay,

@@ -11,6 +11,8 @@
 
 **Scope:** This doc lists **stable** custom instrumentation names owned in **`ArchLucid.Core.Diagnostics.ArchLucidInstrumentation`**. It is not an exhaustive inventory of ASP.NET Core, HTTP client, or SQL client auto-instrumentation.
 
+**Solo-operator MVO (P0 page path):** catalog presence ≠ enabled paging. Founder enablement checklist, six critical PromQL rules, AMW scrape verify script, and Portal Test drill: [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) (**TB-957**). Owner drill cadence: GTM **M-120**.
+
 ---
 
 ## Export path configuration (OpenTelemetry)

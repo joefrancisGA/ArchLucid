@@ -64,20 +64,20 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 |--------|-------------|
 | `new <projectName>` | Create a new project: `archlucid.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. |
 | `dev up [--sql-only]` | Start dev dependencies via Docker Compose (requires `docker-compose.yml` in repo root). Default: SQL Server, Azurite, and Redis. **`--sql-only`**: SQL + init only via **`docker-compose.local.yml`** (API-only / InMemory-storage local dev). |
-| `pilot up` | Start the **full-stack + demo** Docker Compose profile (`docker-compose.yml` + `docker-compose.demo.yml`): API on **5000**, operator UI on **3000**, SQL, Azurite, Redis; waits for **`/health/ready`**. Same effective stack as `scripts/demo-start.ps1` / `demo-start.sh` — simulator agents, demo seed on API startup. Requires Docker only. |
+| `pilot up` | Start the **full-stack + demo** Docker Compose profile (`docker-compose.yml` + `docker-compose.demo.yml`): API on **5000**, architect workspace UI on **3000**, SQL, Azurite, Redis; waits for **`/health/ready`**. Same effective stack as `scripts/demo-start.ps1` / `demo-start.sh` — simulator agents, demo seed on API startup. Requires Docker only. |
 | `try [--real] [--strict-real] [--no-open] [--api-base-url <url>] [--ui-base-url <url>] [--readiness-deadline <secs>] [--commit-deadline <secs>]` | One-shot first-value loop. Composes **`pilot up`** (with optional **`docker-compose.real-aoai.yml`** when **`ARCHLUCID_REAL_AOAI=1`** and **`--real`**) → **`POST /v1/demo/seed`** → sample request → execute (with pilot real header when applicable) → poll → optional simulator fallback → **`commit`** → **`GET /v1/pilots/runs/{runId}/first-value-report`**. See **[archlucid try](#archlucid-try)** and **[`FIRST_REAL_VALUE.md`](FIRST_REAL_VALUE.md)**. |
 | `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | Pure-HTTP smoke loop for the **public trial signup funnel** against any local or staging API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → **`GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. **No Docker, no SQL on your laptop.** Honours the same global **`--json`** flag for machine-readable output. See **[archlucid trial smoke](#archlucid-trial-smoke)** and the funnel runbook **[`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md)**. |
 | `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]` | **AdminAuthority** draft of the **quarterly aggregate ROI bulletin** (mean / p50 / p90 of tenant-supplied baseline hours only) via **`GET /v1/admin/roi-bulletin-preview`**, **or** **`--synthetic`** local sample (no API; illustrative constants). Exits **`UsageError`** on sub-threshold SQL drafts. See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [`docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](../go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md). |
 | `marketplace preflight [--repo <dir>]` | **Repo-local** Azure Marketplace publication checks (doc markers, tier naming vs [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md), `appsettings` keys). Prints **PASS/FAIL** per check; exits **`OperationFailed`** if any automated check fails. Does **not** call Partner Center or hold secrets — see **[archlucid marketplace preflight](#archlucid-marketplace-preflight)** and [`docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publication-checklist-gtm). |
-| `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. Optional **`--idempotency-key <uuid>`** sends the **`Idempotency-Key`** header on **`POST /v1/architecture/request`** (200 replay returns **`X-Idempotency-Replayed: true`** — same semantics as the operator UI wizard). |
+| `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. Optional **`--idempotency-key <uuid>`** sends the **`Idempotency-Key`** header on **`POST /v1/architecture/request`** (200 replay returns **`X-Idempotency-Replayed: true`** — same semantics as the architect workspace wizard). |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (development only). Supports **`--idempotency-key`** on the create step. |
 | `status <runId>` | Show run status, tasks, and submitted results. |
 | `trace <runId>` | Look up the persisted OpenTelemetry trace ID for the run and print the trace viewer URL (or open it in the default browser when **`ARCHLUCID_TRACE_OPEN_BROWSER`** is `1` / `true`). Set **`ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`** with a **`{traceId}`** placeholder (e.g. Grafana explore) to enable links; otherwise the CLI prints the raw trace ID and setup instructions. |
 | `run-support-packet <runId>` | Emit a paste-ready **support packet**: API base, status, request id, timestamps, manifest version (if committed), submitted-results count, OpenTelemetry trace id, simulator-substitution flag, one-line **`GET /version`** JSON, next-step hint, and canonical CLI/HTTP follow-ups. Honors leading **`--json`** (machine-readable line on stdout). |
 | `submit <runId> <result.json>` | Submit an agent result for a run (JSON must match `AgentResult` schema). |
 | `seed <runId>` | Seed fake agent results for a run (development only). |
-| `commit <runId>` | Merge results and produce a versioned manifest. |
-| `artifacts <runId>` | Fetch and display the committed manifest. |
+| `commit <runId>` | **Finalize** the architecture package (API verb remains `commit`) — merge results and produce a versioned package/manifest. |
+| `artifacts <runId>` | Fetch and display the finalized architecture package (committed manifest). |
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
 | `first-value-report <runId> [--save]` | Downloads sponsor Markdown from **`GET /v1/pilots/runs/{runId}/first-value-report`** (`text/markdown`). Prints to stdout, or writes `first-value-{runId}.md` in the current directory with **`--save`**. Uses **`ARCHLUCID_API_URL`** / **`ARCHLUCID_API_KEY`** like other CLI commands. |
 | `reference-evidence --run <runId> [--out <dir>] [--include-demo]` | Writes a **reference-evidence** folder: **`pilot-run-deltas.json`** (`GET /v1/pilots/runs/{runId}/pilot-run-deltas`), **`first-value-report.md`**, **`first-value-report.pdf`**, **`sponsor-one-pager.pdf`** when endpoints succeed. Refuses Contoso demo runs unless **`--include-demo`**. Default output: **`./reference-evidence/<runId>/`**. **Alias:** `proof-pack` (same flags). |
@@ -86,7 +86,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `webhooks test` | POST a **sample CloudEvents-shaped JSON** probe to any HTTPS receiver (integration smoke). Optional `--secret` / `ARCHLUCID_WEBHOOK_TEST_SECRET` adds `X-ArchLucid-Webhook-Signature: sha256=…` over the UTF-8 body (matches outbound digest/alert webhook signing). `--payload <file.json>` replaces the embedded sample. Exit **0** on HTTP 2xx, **4** on transport/HTTP failure, **1** on usage errors. |
 | `saml test-config` | **Offline** SAML 2.0 SP configuration validation from merged `appsettings` / env (`ArchLucidAuth:Saml2`): issuer, optional signing PFX, IdP metadata HTTPS URL fetch, and certificate/metadata expiry signals. Prints **Pass/Fail/Warn/Info** per component; does **not** run a SAML login. No API required. Honors global **`--json`**. Exit **4** when any component **Fail**s. |
 | `doctor` / `check` | Readiness diagnostics: CLI build info, local `archlucid.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
-| `support-bundle` | Writes a **pilot/support** folder (and optional **`--zip`**): **`README.txt`** (triage order), **`manifest.json`** (format **1.4**, `triageReadOrder`, `redactionManifestPath`; includes **`redactionRulesApplied`**), **`redaction-manifest.json`** (redaction status, rules, covered files, omitted secret-bearing categories, and sharing caveats), **`build.json`**, **`health.json`** (**`attemptedHealthRelativePaths`** + `/health/*` probes), **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`** (storage/auth summaries; **`validate-config`** Warning/Error names — **never connection strings**), **`environment.json`**, **`workspace.json`**, **`references.json`** (**`correlationTraceGuidance`**), **`logs.json`**. Review before external upload — checklist: [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md#support-bundle-attach-to-tickets). Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, **`--zip`**. |
+| `support-bundle` | Writes a **pilot/support** folder (and optional **`--zip`**): **`README.txt`** (triage order), **`manifest.json`** (format **1.4**, `triageReadOrder`, `redactionManifestPath`; includes **`redactionRulesApplied`**), **`redaction-manifest.json`** (redaction status, rules, covered files, omitted secret-bearing categories, and sharing caveats), **`build.json`**, **`health.json`** (**`attemptedHealthRelativePaths`** + `/health/*` probes), **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`** (storage/auth summaries; **`validate-config`** Warning/Error names — **never connection strings**), **`environment.json`**, **`workspace.json`**, **`references.json`** (**`correlationTraceGuidance`**), **`logs.json`**. Review before external upload — checklist: [TROUBLESHOOTING.md](../TROUBLESHOOTING.md#support-bundle-attach-to-tickets). Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, **`--zip`**. |
 | `comparisons list` | List/search persisted comparison records (supports paging and filters). |
 | `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
 | `comparisons replay-batch <id1,id2,...>` | Replay multiple comparison records and download a ZIP of the exported artifacts. |
@@ -97,13 +97,13 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `graph export <runId> [--format mermaid\|graphml] [--decision <key>] [--out <path>]` | Fetch the provenance knowledge graph from **`GET /v1/authority/runs/{runId}/graph`** (or **`…/graph/decision/{decisionKey}`** when **`--decision`** is set) and emit **Mermaid** flowchart (default) or **GraphML** XML. GraphML uses the standard GraphML namespace and schema location for tools such as Gephi. Writes to stdout (GraphML is raw XML; Mermaid is a fenced-free diagram block) or **`--out`**. Requires **`ReadAuthority`** scope and a GUID **`runId`**. |
 | `completions bash` \| `zsh` \| `powershell` | Print a shell completion script to stdout (source from your profile). |
 
-**Before sending a support bundle:** open every generated file once; confirm **`redaction-manifest.json`** shows **`status=PASS`**; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. Full checklist: [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
+**Before sending a support bundle:** open every generated file once; confirm **`redaction-manifest.json`** shows **`status=PASS`**; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. Full checklist: [TROUBLESHOOTING.md](../TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
 
 ---
 
 ## archlucid try
 
-`archlucid try` is the **adoption-friction reducer**: a single command that takes a brand-new evaluator from "I cloned the repo" to "I have a committed manifest and a sponsor-grade Markdown report on my disk" — without making them stitch together `pilot up`, `run`, `seed`, `commit`, and `first-value-report`.
+`archlucid try` is the **adoption-friction reducer**: a single command that takes a brand-new evaluator from "I cloned the repo" to "I have a finalized architecture package and a sponsor-grade Markdown report on my disk" — without making them stitch together `pilot up`, `run`, `seed`, `commit`, and `first-value-report`.
 
 ### What it does, in order
 
@@ -111,16 +111,16 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 2. **Demo seed (best-effort).** `POST /v1/demo/seed` — gated to Development + `ExecuteAuthority`. Tolerates 400 / 403 / 404 because the demo overlay also runs the seed at API startup; this call exists for a re-runnable, idempotent guarantee.
 3. **Sample architecture request.** Submits a deterministic Azure-retail brief to `POST /v1/architecture/request` (`SystemName=ArchLucidTryDemo`).
 4. **Execute + poll.** `POST /v1/architecture/run/{runId}/execute` (best-effort kick; **`X-ArchLucid-Pilot-Try-Real-Mode: 1`** when **`ARCHLUCID_REAL_AOAI=1`** and **`--real`**), then polls `GET /v1/architecture/run/{runId}` every **2 s** until status is `ReadyForCommit` (or higher). If real execution fails and **`--strict-real`** is not set, the CLI may fall back to **`POST .../seed-fake-results?pilotTryRealModeFellBack=true`** (Development-only) and annotate the Markdown report. If the run does not progress within `--commit-deadline` seconds (default **180**, or **600** when **`--real`** without an explicit override), falls back to the same seed path so the loop can still complete.
-5. **Commit.** `POST /v1/architecture/run/{runId}/commit` — produces a versioned golden manifest.
+5. **Finalize (CLI/API `commit`).** `POST /v1/architecture/run/{runId}/commit` — produces a versioned **architecture package** (older docs may say golden manifest).
 6. **First-value report.** `GET /v1/pilots/runs/{runId}/first-value-report` (Markdown), saved to **`first-value-{runId}.md`** in the current directory.
-7. **Open artifacts.** Opens the saved Markdown in the OS default handler and the operator UI at **`{uiBaseUrl}/runs/{runId}`** (default `http://localhost:3000`). Suppress with **`--no-open`** in headless / containerized contexts.
+7. **Open artifacts.** Opens the saved Markdown in the OS default handler and the architect workspace at **`{uiBaseUrl}/runs/{runId}`** (default `http://localhost:3000`). Suppress with **`--no-open`** in headless / containerized contexts.
 
 ### Flags
 
 | Flag | Default | Purpose |
 |------|---------|---------|
 | `--api-base-url <url>` | `http://localhost:5000` | API base URL for steps 2 → 6. Demo overlay binds the API on 5000, **not** the dotnet-run default 5128. |
-| `--ui-base-url <url>` | `http://localhost:3000` | Operator-UI base URL printed and opened in step 7. |
+| `--ui-base-url <url>` | `http://localhost:3000` | Architect workspace base URL printed and opened in step 7. |
 | `--no-open` | (open) | Skip the OS `open` calls in step 7 (recommended inside containers, SSH sessions, the bundled `.devcontainer/`, and CI). |
 | `--readiness-deadline <secs>` | `120` | Pilot-stack readiness probe deadline (passed to `pilot up`). |
 | `--commit-deadline <secs>` | `180` (`600` when **`--real`**) | Maximum seconds to wait for the sample run to reach `ReadyForCommit` before falling back to `seed`. |
@@ -129,20 +129,20 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 
 ### Exit codes
 
-- **0** Success — manifest committed, report saved.
+- **0** Success — architecture package finalized (`commit` succeeded), report saved.
 - **1** Usage error — unknown flag, missing value, or `docker-compose.yml` not found from the current directory upward.
 - **3** API unavailable — `/health/ready` did not respond within `--readiness-deadline`.
 - **4** Operation failed — sample-run create failed, commit failed, or the seed-fake-results fallback failed.
 
 ### Devcontainer
 
-The repo ships a `.devcontainer/` (compose-based, .NET 10 SDK + Node 22, host docker socket bind-mounted as Docker-outside-of-Docker) that runs **`dotnet run --project ArchLucid.Cli -- try --no-open`** on `postCreateCommand`. Open the repo in VS Code Dev Containers (or GitHub Codespaces) and the first boot brings up the demo stack and lands you on a committed run.
+The repo ships a `.devcontainer/` (compose-based, .NET 10 SDK + Node 22, host docker socket bind-mounted as Docker-outside-of-Docker) that runs **`dotnet run --project ArchLucid.Cli -- try --no-open`** on `postCreateCommand`. Open the repo in VS Code Dev Containers (or GitHub Codespaces) and the first boot brings up the demo stack and lands you on a finalized architecture package.
 
 ---
 
 ## archlucid trial smoke
 
-`archlucid trial smoke` is the **funnel-validation** complement to `archlucid try`. Where `try` proves the operator-shell first-value loop works on a laptop, `trial smoke` proves the **public trial signup funnel** is healthy against a target API base URL — including a remote staging environment in **Stripe TEST mode** — without standing up Docker or SQL on the developer machine.
+`archlucid trial smoke` is the **funnel-validation** complement to `archlucid try`. Where `try` proves the architect-workspace first-value loop works on a laptop, `trial smoke` proves the **public trial signup funnel** is healthy against a target API base URL — including a remote staging environment in **Stripe TEST mode** — without standing up Docker or SQL on the developer machine.
 
 ### What it does, in order
 

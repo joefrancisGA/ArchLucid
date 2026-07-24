@@ -1,4 +1,3 @@
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 
 /**
@@ -15,17 +14,17 @@ export const OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING = "Sample review shortcut
 
 /** High-level flow; technical terms (manifest, run ID) stay in step bodies and tooltips. */
 export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
-  `${CREATE_ARCHITECTURE_LABEL} → Execute → Finalize → Upload ZIP → ROI & audit proof`;
+  "New architecture review → Analyze → Finalize → Upload ZIP → ROI & audit proof";
 
 /**
  * Four plain steps for default first-session copy (no manifest / Operate jargon). Shown in collapsed diagnostics on Home
  * and aligned with {@link CORE_PILOT_WORKFLOW_SUMMARY_LINE}.
  */
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS: readonly string[] = [
-  `Start from ${CREATE_ARCHITECTURE_LABEL} or the sample showcase — capture goals, constraints, and what you want reviewed.`,
-  "Let the assessment finish on review detail before you finalize the review.",
+  "Start from New architecture review or the sample showcase — capture goals, constraints, and what you want reviewed.",
+  "Let the assessment finish on review detail before you finalize the architecture package.",
   CLOUD_NEUTRAL_PRIMARY_COPY.corePilotFirstSessionInventoryBullet,
-  "Open the dashboard ROI summary and export run-scoped audit CSV from Artifacts & exports for your proof packet.",
+  "Open the dashboard ROI summary and export audit CSV from Artifacts & exports for your proof packet.",
   "Read governed findings and sponsor exports on review detail when you are ready to share internally.",
 ];
 

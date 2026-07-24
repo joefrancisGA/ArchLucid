@@ -1,8 +1,10 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.QuickScan;
 
 using FluentAssertions;
 
@@ -57,17 +59,24 @@ public sealed class MarketingQuickScanEndpointTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(QuickScanExecutionResult.Success(scanBody));
 
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .Setup(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(QuickScanSafetyOperationalSnapshot.NormalExecution(new QuickScanSafetyOptions
+            {
+                Enabled = true,
+                AnonymousExecutionEnabled = true,
+            }));
+
         await using OpenApiContractWebAppFactory baseFactory = new();
         await using WebApplicationFactory<Program> factory = baseFactory.WithWebHostBuilder(b =>
-        {
-            b.UseSetting("ArchLucid:QuickScan:Safety:Enabled", "true");
-            b.UseSetting("ArchLucid:QuickScan:Safety:AnonymousExecutionEnabled", "true");
             b.ConfigureTestServices(services =>
             {
                 services.RemoveAll<IQuickScanExecutionOrchestrator>();
                 services.AddSingleton(orchestrator.Object);
-            });
-        });
+                services.RemoveAll<IQuickScanSafetyOperationalStateProvider>();
+                services.AddSingleton(operational.Object);
+            }));
 
         HttpClient client = factory.CreateClient();
 

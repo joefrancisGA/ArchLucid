@@ -23,7 +23,7 @@ On **New architecture review** (`/reviews/new`), pick the path that matches how 
 | --- | --- |
 | **Quick start** | You want the fastest first review: title, optional attachments, and start analysis on one screen. |
 | **Guided intake** | You want clarifying questions and admission gates before analysis begins. |
-| **Templates and imports** | You need templates, imports, or fuller configuration for an export-ready review package. |
+| **Templates and imports** | You need templates, imports, or fuller configuration for an export-ready architecture package. |
 
 You can switch paths before you start the review. Each path uses the same evidence rules once you upload files.
 
@@ -37,17 +37,17 @@ For cloud evidence, connect the right cloud account first from **Cloud connectio
 
 ## Verify intake before finalize {#verify-intake-before-finalize}
 
-**Verifying intake** means confirming that ArchLucid received the evidence you intended before you finalize the review package:
+**Verifying intake** means confirming that ArchLucid received the evidence you intended before you finalize the architecture package:
 
 1. **Attachments listed** — every file you selected appears in the upload list with the correct names.
-2. **Analysis started** — after **Start architecture review**, open the review package and confirm findings reference your uploads.
+2. **Analysis started** — after **Start architecture review**, open the architecture package and confirm findings reference your uploads.
 3. **No blocking validation errors** — resolve upload or ZIP validation messages before you commit or finalize.
 
-If something is missing, add evidence from the review package **Evidence** tab before you finalize.
+If something is missing, add evidence from the architecture package **Evidence** tab before you finalize.
 
 ## Related guides {#related-guides}
 
 - [Review guide](/help/review-guide) — step-by-step wizard field reference.
 - [Cloud connections](/help/cloud-connections) — connect Azure, AWS, or GCP for inventory evidence.
-- [Review packages](/help/review-packages) — browse, inspect, and export completed packages.
-- [First-review guide](/help/first-hour-operator-path) — onboarding narrative for first-time operators.
+- [Architecture packages](/help/review-packages) — browse, inspect, and export completed packages.
+- [First-review guide](/help/first-hour-operator-path) — onboarding narrative for first-time architects.

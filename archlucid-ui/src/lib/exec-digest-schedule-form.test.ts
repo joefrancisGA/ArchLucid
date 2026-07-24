@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  computeExecDigestNextSendInstant,
+  formatExecDigestConfiguredCadenceSentence,
+  formatExecDigestLiveScheduleSummary,
   formatExecDigestNextSendPreview,
   formatExecDigestSendTimeLabel,
   hasUnsavedExecDigestChanges,
@@ -66,7 +69,7 @@ describe("exec-digest-schedule-form", () => {
     ).toBe(true);
   });
 
-  it("formats next send preview", () => {
+  it("formats next send preview and paused cadence language", () => {
     expect(
       formatExecDigestNextSendPreview({
         emailEnabled: false,
@@ -75,16 +78,53 @@ describe("exec-digest-schedule-form", () => {
         dayOfWeek: 1,
         hourOfDay: 8,
       }),
-    ).toBe("Not scheduled");
+    ).toBe("Not scheduled while delivery is paused");
+
     expect(
-      formatExecDigestNextSendPreview({
-        emailEnabled: true,
+      formatExecDigestConfiguredCadenceSentence({
+        emailEnabled: false,
+        recipients: "",
+        ianaTimeZoneId: "UTC",
+        dayOfWeek: 1,
+        hourOfDay: 8,
+      }),
+    ).toMatch(/Every Monday at 8:00 AM UTC/i);
+
+    expect(
+      formatExecDigestLiveScheduleSummary({
+        emailEnabled: false,
         recipients: "ops@example.com",
         ianaTimeZoneId: "UTC",
         dayOfWeek: 1,
         hourOfDay: 8,
       }),
-    ).toBe("Monday at 8:00 AM (UTC)");
+    ).toMatch(/Delivery is currently paused/i);
+
+    const activePreview = formatExecDigestNextSendPreview({
+      emailEnabled: true,
+      recipients: "ops@example.com",
+      ianaTimeZoneId: "UTC",
+      dayOfWeek: 1,
+      hourOfDay: 8,
+    });
+    expect(activePreview).toMatch(/Monday/i);
+    expect(activePreview).toMatch(/8:00/);
+  });
+
+  it("computes the next local send across a DST spring-forward week", () => {
+    // Sunday 2026-03-08 is US spring-forward; next Monday 08:00 Eastern should still resolve.
+    const from = new Date("2026-03-07T12:00:00.000Z");
+    const next = computeExecDigestNextSendInstant(
+      {
+        dayOfWeek: 1,
+        hourOfDay: 8,
+        ianaTimeZoneId: "America/New_York",
+      },
+      from,
+    );
+
+    expect(next).not.toBeNull();
+    expect(next!.toISOString()).toBe("2026-03-09T12:00:00.000Z");
   });
 
   it("rejects duplicate recipients when enabled", () => {

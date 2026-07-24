@@ -5,6 +5,8 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Analysis;
@@ -17,7 +19,7 @@ public sealed class RunExportAuditServiceTests
     {
         Mock<IRunExportRecordRepository> repo = new();
         Mock<IAuditService> audit = new();
-        RunExportAuditService sut = new(repo.Object, audit.Object);
+        RunExportAuditService sut = new(repo.Object, audit.Object, NullLogger<RunExportAuditService>.Instance);
         const string runId = "deadbeefdeadbeefdeadbeefdeadbeef";
 
         RunExportRecord row = await sut.RecordAsync(
@@ -50,7 +52,7 @@ public sealed class RunExportAuditServiceTests
     {
         Mock<IRunExportRecordRepository> repo = new();
         Mock<IAuditService> audit = new();
-        RunExportAuditService sut = new(repo.Object, audit.Object);
+        RunExportAuditService sut = new(repo.Object, audit.Object, NullLogger<RunExportAuditService>.Instance);
 
         await sut.RecordAsync(
             "a",
@@ -75,7 +77,7 @@ public sealed class RunExportAuditServiceTests
     {
         Mock<IRunExportRecordRepository> repo = new();
         Mock<IAuditService> audit = new();
-        RunExportAuditService sut = new(repo.Object, audit.Object);
+        RunExportAuditService sut = new(repo.Object, audit.Object, NullLogger<RunExportAuditService>.Instance);
         const string runId = "deadbeefdeadbeefdeadbeefdeadbeef";
 
         await sut.RecordFailureAsync(

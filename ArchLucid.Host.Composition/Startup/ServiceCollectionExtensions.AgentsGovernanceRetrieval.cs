@@ -671,6 +671,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<QuickScanModelPricingCatalogOptions>, QuickScanModelPricingCatalogOptionsValidator>();
         services.AddSingleton<IQuickScanCostEstimator, QuickScanCostEstimator>();
         services.AddSingleton<IQuickScanGlobalBudgetReservationService, QuickScanGlobalBudgetReservationService>();
+        services.AddSingleton<IQuickScanDistributedConcurrencyService, QuickScanDistributedConcurrencyService>();
+        services.AddSingleton<IQuickScanSafetyOperationalStateProvider, QuickScanSafetyOperationalStateProvider>();
+        services.AddSingleton<IQuickScanSafetyOperationalAdminService, QuickScanSafetyOperationalAdminService>();
         services.AddSingleton<IQuickScanGuard, QuickScanGuard>();
         services.AddSingleton<IQuickScanTelemetry, QuickScanTelemetry>();
         services.AddScoped<IQuickScanExecutionOrchestrator, QuickScanExecutionOrchestrator>();

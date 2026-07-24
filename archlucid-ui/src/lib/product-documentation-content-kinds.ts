@@ -8,6 +8,7 @@ const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
   "first-value-20-minutes",
   "first-review",
   "policy-pack-delta-demo",
+  "pilot-feedback",
 ]);
 
 /** Canonical `contentKind` for every `product-documentation-registry.ts` slug. */
@@ -52,7 +53,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "azure-boards": "product-help",
   "users-and-roles": "product-help",
   "path-chooser": "product-help",
-  "pilot-feedback": "product-help",
+  "pilot-feedback": "internal-runbook",
   "pilot-guide": "product-help",
   "pilot-nav-profile": "product-help",
   "pilot-roi-model": "product-help",

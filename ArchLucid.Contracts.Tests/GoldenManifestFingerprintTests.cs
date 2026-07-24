@@ -101,4 +101,98 @@ public sealed class GoldenManifestFingerprintTests
 
         fromJson.Should().Be(direct);
     }
+
+    [Fact]
+    public void ComputeContentSha256Hex_ignores_run_identity_and_timestamps()
+    {
+        GoldenManifest a = new()
+        {
+            RunId = "run-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            SystemName = "Sys",
+            Services = [],
+            Datastores = [],
+            Relationships = [],
+            Governance = new ManifestGovernance { RiskClassification = "Low" },
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = "v1.0.0",
+                ChangeDescription = "stable summary",
+                CreatedUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                DecisionTraceIds = ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+            }
+        };
+
+        GoldenManifest b = new()
+        {
+            RunId = "run-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            SystemName = "Sys",
+            Services = [],
+            Datastores = [],
+            Relationships = [],
+            Governance = new ManifestGovernance { RiskClassification = "Low" },
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = "v1.0.0",
+                ChangeDescription = "stable summary",
+                CreatedUtc = new DateTime(2026, 7, 22, 12, 0, 0, DateTimeKind.Utc),
+                DecisionTraceIds = ["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"]
+            }
+        };
+
+        string ha = GoldenManifestFingerprint.ComputeContentSha256Hex(a);
+        string hb = GoldenManifestFingerprint.ComputeContentSha256Hex(b);
+
+        ha.Should().Be(hb);
+        ha.Length.Should().Be(64);
+        GoldenManifestFingerprint.ComputeSha256Hex(a).Should().NotBe(GoldenManifestFingerprint.ComputeSha256Hex(b));
+    }
+
+    [Fact]
+    public void ComputeContentSha256Hex_changes_when_system_name_changes()
+    {
+        GoldenManifest a = BaseContentManifest("Sys-A");
+        GoldenManifest b = BaseContentManifest("Sys-B");
+
+        GoldenManifestFingerprint.ComputeContentSha256Hex(a)
+            .Should()
+            .NotBe(GoldenManifestFingerprint.ComputeContentSha256Hex(b));
+    }
+
+    [Fact]
+    public void ComputeContentSha256Hex_throws_when_manifest_null()
+    {
+        Action act = () => GoldenManifestFingerprint.ComputeContentSha256Hex(null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("manifest");
+    }
+
+    [Fact]
+    public void ComputeContentSha256HexFromManifestJson_round_trips_stable_hex()
+    {
+        GoldenManifest manifest = BaseContentManifest("Sys");
+        string json = JsonSerializer.Serialize(manifest, ContractJson.Default);
+
+        GoldenManifestFingerprint.ComputeContentSha256HexFromManifestJson(json)
+            .Should()
+            .Be(GoldenManifestFingerprint.ComputeContentSha256Hex(manifest));
+    }
+
+    private static GoldenManifest BaseContentManifest(string systemName)
+    {
+        return new GoldenManifest
+        {
+            RunId = "run-content",
+            SystemName = systemName,
+            Services = [],
+            Datastores = [],
+            Relationships = [],
+            Governance = new ManifestGovernance(),
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = "v1.0.0",
+                ChangeDescription = "summary",
+                CreatedUtc = new DateTime(2026, 4, 21, 12, 0, 0, DateTimeKind.Utc)
+            }
+        };
+    }
 }

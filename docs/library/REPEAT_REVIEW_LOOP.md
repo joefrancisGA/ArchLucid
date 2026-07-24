@@ -1,4 +1,4 @@
-> **Scope:** Customer-facing architect cookbook — guide for second and subsequent finalized architecture packages — V1 surfaces only.
+> **Scope:** Architect cookbook — guide for second and subsequent finalized architecture packages — V1 surfaces only.
 
 # Repeat-review stickiness loop
 
@@ -52,7 +52,6 @@
 - [ ] Prior decisions reused or explicitly superseded.
 - [ ] Governance dry-run completed before stricter enforce mode (when used).
 - [ ] ROI / proof labels remain sponsor-safe.
-- [ ] Stickiness proof collected with `.\scripts\collect-first-pilot-proof.ps1 -RunNumber 2` (see [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md)).
 
 ## Related help
 

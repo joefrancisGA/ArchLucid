@@ -10,12 +10,20 @@ using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Scim;
 
-public sealed class ScimUserService(IScimUserRepository users, ITenantRepository tenants, IGroupToRoleMapper roleMapper, IAuditService audit) : IScimUserService
+public sealed class ScimUserService(
+    IScimUserRepository users,
+    ITenantRepository tenants,
+    IGroupToRoleMapper roleMapper,
+    IAuditService audit,
+    ILogger<ScimUserService> logger) : IScimUserService
 {
     internal const string ManualResolvedRoleFlatPath = "manualResolvedRole";
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
+    private readonly ILogger<ScimUserService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IGroupToRoleMapper _roleMapper = roleMapper ?? throw new ArgumentNullException(nameof(roleMapper));
     private readonly ITenantRepository _tenants = tenants ?? throw new ArgumentNullException(nameof(tenants));
     private readonly IScimUserRepository _users = users ?? throw new ArgumentNullException(nameof(users));
@@ -149,7 +157,7 @@ public sealed class ScimUserService(IScimUserRepository users, ITenantRepository
             fromRole = existing.ResolvedRole ?? string.Empty,
             toRole = incomingGroupRole ?? string.Empty
         });
-        return LogAsync(tenantId, AuditEventTypes.RoleOverriddenByScim, payload, ct);
+        return LogRequiredAsync(tenantId, AuditEventTypes.RoleOverriddenByScim, payload, ct);
     }
 
     private async Task TransitionSeatAsync(Guid tenantId, bool wasActive, bool willBeActive, CancellationToken ct)
@@ -269,6 +277,26 @@ public sealed class ScimUserService(IScimUserRepository users, ITenantRepository
             ProjectId = ScopeIds.DefaultProject,
             DataJson = dataJson
         }, ct);
+    }
+
+    private Task LogRequiredAsync(Guid tenantId, string eventType, string dataJson, CancellationToken ct)
+    {
+        AuditEvent auditEvent = new()
+        {
+            EventType = eventType,
+            ActorUserId = "scim",
+            ActorUserName = "SCIM provisioning",
+            TenantId = tenantId,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject,
+            DataJson = dataJson
+        };
+
+        return DurableAuditLogRetry.LogOrThrowAsync(
+            token => _audit.LogAsync(auditEvent, token),
+            _logger,
+            $"{eventType}:{tenantId:N}",
+            ct);
     }
 
     private static string JsonEncoded(string s)

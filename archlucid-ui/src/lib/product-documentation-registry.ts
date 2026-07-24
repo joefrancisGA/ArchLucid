@@ -70,7 +70,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "pilot-nav-profile",
     title: "Workspace navigation profile",
     summary:
-      "How the sidebar keeps the first-review path focused until your first review is finalized — and how to unlock analysis and governance on demand.",
+      "How the sidebar keeps the first-review path focused until your first architecture package is finalized — and how to unlock analysis and governance on demand.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/WORKSPACE_NAVIGATION_GUIDE.md"],
     sectionAnchors: ["what-you-see", "main-workflow"],
@@ -120,7 +120,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "prior-manifest-retrieval",
     title: "Prior manifest retrieval",
     summary:
-      "How finalized reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy priors.",
+      "How finalized architecture packages become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy packages.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/PRIOR_MANIFEST_RETRIEVAL_GUIDE.md"],
   },
@@ -169,8 +169,8 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "review-packages",
-    title: "Reviews",
-    summary: "Browse, inspect, and export governed reviews in the architect workspace.",
+    title: "Architecture packages",
+    summary: "Browse, inspect, and export governed architecture packages in the architect workspace.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"],
   },
@@ -429,8 +429,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "first-value-20-minutes",
-    title: "First value in 20 minutes",
-    summary: "Time-boxed runbook for a first governed review when platform wiring is already green.",
+    title: "First value in 20 minutes (internal runbook)",
+    summary:
+      "Admin-only SE/ops checklist for time-boxed first value when platform wiring is already green. Customer architects should use Your first architecture review or Complete review workflow instead.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
   },
@@ -467,7 +468,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "accelerator-chooser",
     title: "Accelerator chooser",
     summary:
-      "Map buyer jobs to existing starter proof packs after Core Pilot first commit — inputs, outputs, and V1 scope labels.",
+      "Map buyer jobs to existing starter proof packs after your first finalized architecture package — inputs, outputs, and V1 scope labels.",
     audience: "operator",
     sourcePaths: ["docs/library/ACCELERATOR_CHOOSER.md"],
   },
@@ -524,15 +525,15 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "comparison-replay",
     title: "Compare and replay",
-    summary: "Diff two reviews, replay stored comparison logic, and verify drift between runs.",
+    summary: "Diff two architecture packages, replay a saved comparison, and verify drift without re-running a full review.",
     audience: "operator",
-    sourcePaths: ["docs/library/COMPARISON_REPLAY.md"],
+    sourcePaths: ["docs/library/customer-facing/COMPARISON_REPLAY_OPERATOR_GUIDE.md"],
   },
   {
     slug: "repeat-review-loop",
     title: "Repeat-review stickiness loop",
     summary:
-      "After the first committed review: compare, replay, governance dry-runs, and second-review proof checklist.",
+      "After the first finalized architecture package: compare, replay, governance dry-runs, and second-review proof checklist.",
     audience: "operator",
     sourcePaths: ["docs/library/REPEAT_REVIEW_LOOP.md"],
   },
@@ -540,7 +541,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "policy-pack-delta-demo",
     title: "Policy-pack delta demo (internal runbook)",
     summary:
-      "Admin/SE demo script: same finalized review, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.",
+      "Admin/SE demo script: same finalized architecture package, stricter pack enforcement, different finalize-gate outcome — dry-run, simulation, and audit slice. Not buyer self-serve help.",
     audience: "operator",
     sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },
@@ -554,15 +555,17 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "governance-api-contracts",
-    title: "Governance and API contracts",
-    summary: "Versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record.",
+    title: "Governance and API contracts (technical reference)",
+    summary:
+      "Developer/Admin technical reference — versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record. Not buyer self-serve help.",
     audience: "developer",
     sourcePaths: ["docs/library/API_CONTRACTS.md"],
   },
   {
     slug: "pilot-feedback",
-    title: "Pilot feedback",
-    summary: "Human judgments captured separately from recommendation learning.",
+    title: "Pilot feedback (internal runbook)",
+    summary:
+      "Admin/product-owner guide for human judgment signals on findings and architecture packages — separate from recommendation learning. Not default buyer help.",
     audience: "operator",
     sourcePaths: ["docs/library/PRODUCT_LEARNING.md"],
   },

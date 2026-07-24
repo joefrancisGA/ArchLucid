@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -40,6 +41,7 @@ public static class RunDetailBuyerMapper
             DegradedExecutionAgents = source.DegradedExecutionAgents,
             DegradedFindingCoverage = source.DegradedFindingCoverage,
             FindingCoverageSummary = source.FindingCoverageSummary,
+            FindingSummaries = MapFindingSummaries(source.FindingsSnapshot),
             AgentExecutionLlmCostEstimate = source.AgentExecutionLlmCostEstimate,
             TrustEvidenceCard = source.TrustEvidenceCard,
             RetrievalGroundingSummary = source.RetrievalGroundingSummary,
@@ -47,5 +49,24 @@ public static class RunDetailBuyerMapper
             EstimatedUsdSavingsSummary = source.EstimatedUsdSavingsSummary,
             DecisionExplainability = source.DecisionExplainability,
         };
+    }
+
+    private static IReadOnlyList<BuyerFindingSummaryDto> MapFindingSummaries(FindingsSnapshot? snapshot)
+    {
+        if (snapshot?.Findings is null || snapshot.Findings.Count == 0)
+            return [];
+
+        return snapshot.Findings
+            .Where(static f => !string.IsNullOrWhiteSpace(f.FindingId))
+            .Select(static f => new BuyerFindingSummaryDto
+            {
+                FindingId = f.FindingId.Trim(),
+                Title = string.IsNullOrWhiteSpace(f.Title) ? string.Empty : f.Title.Trim(),
+                Category = string.IsNullOrWhiteSpace(f.Category) ? string.Empty : f.Category.Trim(),
+                Severity = f.Severity,
+                EngineType = string.IsNullOrWhiteSpace(f.EngineType) ? string.Empty : f.EngineType.Trim(),
+                PolicyRuleId = string.IsNullOrWhiteSpace(f.PolicyRuleId) ? null : f.PolicyRuleId.Trim(),
+            })
+            .ToList();
     }
 }

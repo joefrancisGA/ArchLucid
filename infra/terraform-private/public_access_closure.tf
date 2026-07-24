@@ -7,11 +7,11 @@ resource "azapi_update_resource" "sql_public_network_access" {
   type        = "Microsoft.Sql/servers@2023-08-01-preview"
   resource_id = var.sql_server_id
 
-  body = {
+  body = jsonencode({
     properties = {
       publicNetworkAccess = "Disabled"
     }
-  }
+  })
 
   depends_on = [azurerm_private_endpoint.sql]
 }
@@ -22,11 +22,11 @@ resource "azapi_update_resource" "storage_public_network_access" {
   type        = "Microsoft.Storage/storageAccounts@2023-01-01"
   resource_id = var.storage_account_id
 
-  body = {
+  body = jsonencode({
     properties = {
       publicNetworkAccess = "Disabled"
     }
-  }
+  })
 
   depends_on = [azurerm_private_endpoint.blob]
 }
@@ -37,11 +37,11 @@ resource "azapi_update_resource" "key_vault_public_network_access" {
   type        = "Microsoft.KeyVault/vaults@2023-07-01"
   resource_id = var.key_vault_id
 
-  body = {
+  body = jsonencode({
     properties = {
       publicNetworkAccess = "Disabled"
     }
-  }
+  })
 
   depends_on = [azurerm_private_endpoint.key_vault]
 }

@@ -1,12 +1,12 @@
 export const DIGESTS_PAGE_SUBTITLE =
-  "Send scheduled architecture summaries to selected recipients." as const;
+  "Configure the weekly executive digest for direct recipients. Architecture digests for subscription destinations are managed separately." as const;
 
 export const DIGESTS_BROWSE_PAGE_SUBTITLE =
   "Send scheduled summaries of review activity, governance signals, findings, and advisory scans." as const;
 
 export const DIGESTS_SCHEDULE_PREVIEW_LABEL = "Preview latest generated digest" as const;
 
-export const DIGESTS_SCHEDULE_GENERATE_TEST_LABEL = "Generate and send test digest" as const;
+export const DIGESTS_SCHEDULE_GENERATE_TEST_LABEL = "Generate architecture digest test" as const;
 
 export const DIGESTS_BROWSE_SETUP_MESSAGE =
   "Complete schedule and recipient setup to start generating weekly digests." as const;

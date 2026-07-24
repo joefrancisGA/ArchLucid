@@ -30,7 +30,7 @@ When Phase D completes with `-RunId` and sponsor handoff flags as needed, expect
 | Go/no-go findings | `go-no-go-summary.md` · `go-no-go-summary.json` |
 | Committed-run bundle | `first-pilot-evidence/` (first-value report, observability summary, deltas) |
 | Commercial index | `quote-to-proof-packet.md` · `commercial-next-step.json` · `commercial-closeout.md` |
-| Run detail first-screen proof status | Operator UI **Run detail** → **Proof status** strip (READY/WARN/HOLD from `pilot-run-deltas`) |
+| Run detail first-screen proof status | Architect workspace **Run detail** → **Proof status** strip (READY/WARN/HOLD from `pilot-run-deltas`) |
 | Data consistency | `data-consistency-readiness/data-consistency-summary.json` |
 | Config / drift (hosted) | `config-lint-production-like-hosted-pilot.md` · `route-tier-policy-nav-parity.md` |
 
@@ -47,14 +47,55 @@ Use this small vocabulary across cockpit rows, proof summaries, and sponsor hand
 | **WARN** | Review before sponsor send or external circulation | Open the linked runbook row |
 | **HOLD** | Blocking for sponsor handoff or procurement follow-up | Resolve blockers, re-run proof |
 | **DEFERRED** | Explicitly out of V1 first-pilot scope (V1.1/V2/(B)) | Record in proof `-DeferredBuyerRequirement`; use `DEFERRED_SCOPE` disposition |
-| **NEXT ACTION** | One primary link on operator Home command center | Follow the phase card CTA only |
+| **NEXT ACTION** | One primary link on architect Home command center | Follow the phase card CTA only |
 
-**Canonical operational checklist:** this file. **Canonical narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **Post-commit evidence:** [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).
+**Canonical operational checklist:** this file. **Canonical narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **Post-finalize evidence:** [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).
 
 
 ## Grounding rule
 
-Every step below maps to a **shipped** API, operator UI route, or CLI verb. Optional accelerators use only V1 policy packs and ingest paths — **Jira**, **ServiceNow**, **Confluence**, **Slack**, **Teams**, and broad outbound webhooks are **V1.1** and appear only under *Optional later*.
+Every step below maps to a **shipped** API, architect workspace route, or CLI verb. Optional accelerators use only V1 policy packs and ingest paths — **Jira**, **ServiceNow**, **Confluence**, **Slack**, **Teams**, and broad outbound webhooks are **V1.1** and appear only under *Optional later*.
+
+
+## First value in 20 minutes (time-boxed)
+
+Shortest path from zero to a sponsor-safe artifact when platform wiring is already green. For the full phased checklist, continue with § **Phase A** below.
+
+**Mode expectation:** Steps below work in **simulator** mode without Azure OpenAI credentials. Label outputs **Simulator** unless you configured real-mode and collected live LLM evidence.
+
+### Prerequisites (5 min)
+
+1. API reachable (`GET /health/live` returns 200).
+2. SQL persistence configured (or approved in-memory demo only — not for sponsor handoff).
+3. `archlucid.json` in working directory with `apiBaseUrl` and auth (API key or scope headers).
+4. Optional: `ARCHLUCID_API_KEY` in environment.
+
+### Path (15 min)
+
+| Step | Action | Expected output |
+| --- | --- | --- |
+| 1 | `dotnet run --project ArchLucid.Cli -- doctor` | Connection OK; auth mode summarized |
+| 2 | Create + execute + finalize one review (UI **Home** checklist or CLI `archlucid run` → execute → commit) | Finalized run id (CLI/API still use `commit`) |
+| 3 | `dotnet run --project ArchLucid.Cli -- pilot proof-packet <runId> --out artifacts/proof-packet/<runId>` | Folder: `proof-summary.md`, `run-evidence.json`, `audit-sample.json`, `artifact-manifest.json`, `environment.json`, `limitations.md` |
+| 3 (combined) | `dotnet run --project ArchLucid.Cli -- try --sponsor-packet --out artifacts/proof` | Zero-to-proof in one command: Docker up → demo seed → sample run → commit → sponsor folder with `proof-summary.md` (default out: `artifacts/try-sponsor-packet/<runId>`) |
+| 4 | Review `proof-summary.md` **Sponsor first-page status** block | Evidence source, quality disposition, ROI basis, next action |
+| 5 | Optional sponsor ZIP: `dotnet run --project ArchLucid.Cli -- buyer-proof-pack <runId> --out artifacts/buyer-proof.zip` | Email-sized ZIP for executives |
+
+### Failure triage (stop here — do not skip)
+
+| Symptom | Next step |
+| --- | --- |
+| SQL / ready failures | [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) → health/ready |
+| Auth 401/403 | [`PRODUCTION_LIKE_AUTH_HANDOFF_CHECKLIST.md`](PRODUCTION_LIKE_AUTH_HANDOFF_CHECKLIST.md) |
+| Quality gate rejected | API `supportHint` + [`QUALITY_GATE_REJECTION.md`](QUALITY_GATE_REJECTION.md) |
+| No artifacts after finalize | Re-run execute; confirm finalized status before proof packet |
+| LLM budget / quota | [`../library/OPERATIONS_LLM_QUOTA.md`](../library/OPERATIONS_LLM_QUOTA.md) |
+
+### After this path
+
+- Full environment proof: `./scripts/collect-first-pilot-proof.ps1 -BaseUrl <url> -RunId <runId>`
+- Support bundle: `dotnet run --project ArchLucid.Cli -- support-bundle --run-id <runId> --zip`
+- Depth: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md)
 
 
 ## First value in 20 minutes (time-boxed)
@@ -100,7 +141,7 @@ Shortest path from zero to a sponsor-safe artifact when platform wiring is alrea
 
 ## Pilot UI deployment (buyer-default shell)
 
-Before provisioning a **pilot or staging tenant UI**, confirm the build **does not** set `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`. When that flag is unset, the operator shell uses buyer-polished labels (no AI budget pill in the header, outcome-first pipeline status copy). Local engineers keep the dense shell via `archlucid-ui/.env.development` only.
+Before provisioning a **pilot or staging tenant UI**, confirm the build **does not** set `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`. When that flag is unset, the architect workspace uses buyer-polished labels (no AI budget pill in the header, outcome-first pipeline status copy). Local engineers keep the dense shell via `archlucid-ui/.env.development` only.
 
 | Check | Pass criteria |
 | --- | --- |
@@ -120,13 +161,13 @@ Canonical reference: [`OPERATOR_UI_EXPERIENCE_MODES.md`](../library/OPERATOR_UI_
 | A0 | Run one-command pilot readiness preflight: `archlucid pilot preflight` (use `--no-api` for offline config-only check; `--include-itsm` to probe ITSM health; `--md --markdown-out report.md` for an owner-ready markdown summary; `--json` for CI). Checks: config + auth lint, execution mode, Azure AI Search endpoint, proof-packet claim-lint rules, API health, OpenAPI contract. | No **BLOCK** rows; WARN rows reviewed and understood. | CLI · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 | A0b | *(Preferred handoff)* Run the proof pipeline without `-RunId` for readiness-only go/no-go. | **`first-pilot-command-center.md`** shows phased **READY/WARN/HOLD**; missing committed review is **WARN** (not a crash). Full findings table: `go-no-go-summary.md`. | `./scripts/collect-first-pilot-proof.ps1` |
 | A2 | Start API + worker (or combined host); confirm DbUp migrations applied. | `GET /version` returns build identity; logs show catalog ready. | API · [`PILOT_GUIDE.md`](../library/customer-facing/PILOT_GUIDE.md) |
-| A3 | Sign in to operator UI (`/auth/signin` or dev bypass locally only). | Home loads; no endless 401/403 on `/api/proxy`. | UI · [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md) |
+| A3 | Sign in to architect workspace (`/auth/signin` or dev bypass locally only). | Home loads; no endless 401/403 on `/api/proxy`. | UI · [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md) |
 
 **Failure recovery (Phase A):** auth loops → [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) § auth · `archlucid auth diagnostics` (admin API key) · SQL/migration errors → [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · capture **`X-Correlation-ID`** on every failed API call.
 
 ### Ignore for first pilot
 
-Until you have one **committed** architecture review package, you do **not** need: Operate compare/replay/graph lanes, V1.1 connectors, MCP, live commerce, or reading the full V1 integration catalog. Optional policy-pack dry-run (step C4) is the only governance touch in the default path.
+Until you have one **finalized** architecture package, you do **not** need: Operate compare/replay/graph lanes, V1.1 connectors, MCP, live commerce, or reading the full V1 integration catalog. Optional policy-pack dry-run (step C4) is the only governance touch in the default path.
 
 
 ## Phase B — Evidence ingest (Azure Tier 1)
@@ -143,21 +184,21 @@ Until you have one **committed** architecture review package, you do **not** nee
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
-| C1 | **Create** architecture review — operator **New review** (`/reviews/new`; legacy `/runs/new`) or `archlucid run create`. | Review appears in **Reviews** with status progressing past **Created**. | UI · CLI · `POST /v1/architecture/request` |
+| C1 | **Create** architecture review — architect workspace **New review** (`/reviews/new`; legacy `/runs/new`) or `archlucid run create`. | Review appears in **Reviews** with status progressing past **Created**. | UI · CLI · `POST /v1/architecture/request` |
 | C2 | **Upload extractor ZIP** to the review (`POST /v1/azure-extractor/upload` or review-detail upload). | Upload 200; ingest event in timeline. | API · UI |
-| C3 | **Execute** agents on the review. | Status **Ready for commit** (or explicit failure with correlation id). | `POST /v1/architecture/run/{runId}/execute` · pipeline timeline |
-| C4 | *(Optional)* Assign a **V1 policy pack** and run pre-commit dry-run when governance is in pilot scope. | Dry-run shows blocking vs warning findings. | `POST /v1/governance/policy-packs/dry-run` · [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) |
-| C5 | **Commit** golden manifest. | Manifest id visible; artifacts table non-empty. | `POST /v1/architecture/run/{runId}/commit` · review detail **Finalize** |
+| C3 | **Execute** agents on the review. | Status **Ready to finalize** (API/CLI may still show `ReadyForCommit`; or explicit failure with correlation id). | `POST /v1/architecture/run/{runId}/execute` · pipeline timeline |
+| C4 | *(Optional)* Assign a **V1 policy pack** and run pre-finalize dry-run when governance is in pilot scope. | Dry-run shows blocking vs warning findings. | `POST /v1/governance/policy-packs/dry-run` · [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) |
+| C5 | **Finalize** architecture package. | Package / manifest id visible; artifacts table non-empty. | `POST /v1/architecture/run/{runId}/commit` · review detail **Finalize** |
 
-**Failure recovery (Phase C):** execute stalls → [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · pre-commit blocked → disposition findings per gate doc · commit 409 → governance extension `#governance-pre-commit-blocked`.
+**Failure recovery (Phase C):** execute stalls → [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · pre-finalize blocked → disposition findings per gate doc · finalize/commit 409 → governance extension `#governance-pre-commit-blocked`.
 
 
-## Phase D — Review package and sponsor export
+## Phase D — Architecture package and sponsor export
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
 | D1 | Inspect **findings**, explanation aggregate, and **artifacts** on review detail. | Sponsor-readable summary; severity badges; evidence refs present. | UI review detail · `GET /v1/architecture/run/{runId}` |
-| D1b | Follow the **Next after commit** card: one **primary** action (sponsor packet) plus optional compare, evidence chain, governance dry-run, or quote-to-proof index. | Primary CTA scrolls to sponsor deliverables; optional links stay secondary. | Review detail post-commit habit loop |
+| D1b | Follow the **Next after finalize** card: one **primary** action (sponsor packet) plus optional compare, evidence chain, governance dry-run, or quote-to-proof index. | Primary CTA scrolls to sponsor deliverables; optional links stay secondary. | Review detail post-finalize habit loop |
 | D2a | Capture **ROI baseline** labels before sponsor send (review-cycle hours, architect prep, documentation effort, evidence assembly; source: buyer-provided / defaulted / demo-derived / not collected). In the **Full Wizard** on [`/reviews/new`](../../archlucid-ui/src/app/(operator)/reviews/new/page.tsx), the optional **Baseline metrics** step persists review-cycle hours via `PUT /v1/tenant/baseline` before review submit (skip leaves scorecard defaults). | Scorecard rows populated or explicitly **not collected**; proof marks demo-derived as walkthrough-only. | [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) §2 · `go-no-go-summary.json` · `roiBasisStatus` |
 | D2 | Export **sponsor packet** (markdown/DOCX/PDF per tenant config) or **Email this review to your sponsor** when manifest exists. | Download succeeds; ROI basis labels show evidence source (not placeholder-only unless static demo). | UI exports · [`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 | D3 | Record **run id**, manifest id, and any **`X-Correlation-ID`** for support before escalating. | Ticket-ready notes. | [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) |
@@ -174,7 +215,7 @@ Until you have one **committed** architecture review package, you do **not** nee
 | Need a **Specialty** buyer-job narrative (optional — after first Core value) | Choose a Specialty template from [`library/walkthroughs/README.md`](../library/walkthroughs/README.md) (Azure SaaS, AI governance, healthcare). | Buyer-job pages under [`go-to-market/buyer-jobs/`](../go-to-market/buyer-jobs/) |
 | Stuck or regressed | Symptom index + rescue playbook. | [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) |
 
-**Specialty accelerator templates (optional, V1-only):** index [`library/walkthroughs/README.md`](../library/walkthroughs/README.md). These are **not** mandatory before first Core commit.
+**Specialty accelerator templates (optional, V1-only):** index [`library/walkthroughs/README.md`](../library/walkthroughs/README.md). These are **not** mandatory before first Core finalize.
 
 | Walkthrough | Buyer outcome |
 |-------------|----------------|

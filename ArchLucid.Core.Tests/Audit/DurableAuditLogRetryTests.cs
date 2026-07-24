@@ -5,6 +5,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Tests.Diagnostics;
 
 using FluentAssertions;
+using FluentAssertions.Specialized;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -132,6 +133,89 @@ public sealed class DurableAuditLogRetryTests
             2);
 
         capture.LongMeasures.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task LogOrThrowAsync_succeeds_on_first_attempt_without_delay()
+    {
+        int calls = 0;
+
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            _ =>
+            {
+                calls++;
+
+                return Task.CompletedTask;
+            },
+            NullLogger.Instance,
+            "test-op",
+            CancellationToken.None);
+
+        calls.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task LogOrThrowAsync_retries_then_succeeds()
+    {
+        int calls = 0;
+
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            _ =>
+            {
+                calls++;
+
+                return calls < 2 ? throw new InvalidOperationException("transient") : Task.CompletedTask;
+            },
+            NullLogger.Instance,
+            "test-op",
+            CancellationToken.None);
+
+        calls.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task LogOrThrowAsync_throws_DurableAuditWriteFailedException_after_max_attempts()
+    {
+        int calls = 0;
+
+        Func<Task> act = () => DurableAuditLogRetry.LogOrThrowAsync(
+            _ =>
+            {
+                calls++;
+
+                throw new InvalidOperationException("fail");
+            },
+            NullLogger.Instance,
+            "governance-approve",
+            CancellationToken.None,
+            2);
+
+        ExceptionAssertions<DurableAuditWriteFailedException> assertion = await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
+        assertion.Which.OperationLabel.Should().Be("governance-approve");
+        assertion.Which.InnerException.Should().BeOfType<InvalidOperationException>();
+
+        calls.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task LogOrThrowAsync_increments_audit_write_failures_total_when_abandoned_with_metric_event_type()
+    {
+        using AuditWriteFailureCapture capture = AuditWriteFailureCapture.Start();
+
+        Func<Task> act = () => DurableAuditLogRetry.LogOrThrowAsync(
+            _ => throw new InvalidOperationException("fail"),
+            NullLogger.Instance,
+            "test-op",
+            CancellationToken.None,
+            2,
+            "Governance.ApprovalApproved");
+
+        await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_audit_write_failures_total"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "event_type" && (string?)t.Value == "Governance.ApprovalApproved"));
     }
 
     private sealed class AuditWriteFailureCapture : IDisposable

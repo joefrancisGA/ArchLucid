@@ -122,6 +122,6 @@ Cutover is **done** when: (a) counsel confirms customer-facing vendor entity is 
 
 - [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publisher-identity--partner-center-placeholders)
 - [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#webhook-incident-triage)
-- [`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md#operator-completion-checklist)
+- [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md#operator-completion-checklist)
 - [`docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md#publication-checklist-gtm)
 - [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) (items **8**, **9**)

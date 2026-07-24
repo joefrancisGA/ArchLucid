@@ -4,11 +4,11 @@
 
 **Audience:** Cloud architects and platform engineers evaluating ArchLucid on **Azure-hosted SaaS** posture (reliability, security, operations) before a production pilot.
 
-**Buyer outcome:** A committed architecture review package that ties **Azure inventory evidence** to **Well-Architected–style** and **SaaS security baseline** findings, with an exportable sponsor narrative — without requiring ITSM or chat connectors.
+**Buyer outcome:** A finalized architecture package that ties **Azure inventory evidence** to **Well-Architected–style** and **SaaS security baseline** findings, with an exportable sponsor narrative — without requiring ITSM or chat connectors.
 
-**Grounding rule:** V1 only — REST, operator UI, CLI, **Azure extractor Tier 1 ZIP**, bundled policy pack templates. **Jira / ServiceNow / Teams / Slack** are **V1.1** ([`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md)).
+**Grounding rule:** V1 only — REST, architect workspace, CLI, **Azure extractor Tier 1 ZIP**, bundled policy pack templates. **Jira / ServiceNow / Teams / Slack** are **V1.1** ([`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md)).
 
-**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`AZURE_SAAS_READINESS.md`](../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md). Use that page for sponsor-facing framing; use this walkthrough for operator steps.
+**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`AZURE_SAAS_READINESS.md`](../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md). Use that page for sponsor-facing framing; use this walkthrough for architect steps.
 
 ---
 
@@ -16,16 +16,16 @@
 
 | Artifact | Id / route |
 |----------|------------|
-| Product Tour committed review | `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` — `/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
+| Product Tour finalized review | `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` — `/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` |
 | Scope triplet (Development seed) | See [`DEMO_WORKSPACES.md`](../../go-to-market/DEMO_WORKSPACES.md) Workspace A headers |
 
-Use this path for evaluator demos; skip to **Step 5** (inspect package) when the run is already committed.
+Use this path for evaluator demos; skip to **Step 5** (inspect package) when the review is already finalized.
 
 ---
 
 ## Prerequisites
 
-1. Operator shell with **ReadAuthority** and **ExecuteAuthority** for your tenant.
+1. Architect workspace access with authority to execute and finalize reviews for your tenant.
 2. **Azure extractor Tier 1** script output ZIP **or** demo Product Tour review (above).
 3. Policy pack keys `saas-ctrl-001`–`008` present in tenant compliance catalog (default tenant seed).
 
@@ -108,15 +108,16 @@ Curated WAF pillar rules (12 rules): [`azure-waf-rules-v1.json`](../../samples/p
 
 ---
 
-## Step 4 — Execute, dry-run, and commit
+## Step 4 — Execute, dry-run, and finalize
 
 **UI**
 
-1. **Execute** review pipeline; wait for **Ready for commit**.
-2. Run **Pre-commit governance** dry-run against assigned packs ([`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md)).
-3. Resolve or disposition blocking findings → **Commit manifest**.
+1. **Execute** review pipeline; wait for **Ready to finalize** (API status may still say `ReadyForCommit`).
+2. Run **Pre-finalize governance** dry-run against assigned packs ([`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md)).
+3. Resolve or disposition blocking findings → **Finalize** the architecture package.
 
-**API**
+<details>
+<summary>Administrator details — HTTP paths</summary>
 
 ```http
 POST /v1/architecture/run/{runId}/execute
@@ -125,7 +126,9 @@ POST /v1/architecture/run/{runId}/commit
 Authorization: Bearer {token}
 ```
 
-> Pre-commit governance dry-run output is **architecture-review evidence** for sponsor packets — not regulatory certification.
+</details>
+
+> Governance dry-run output is **architecture-review evidence** for sponsor packets — not regulatory certification.
 
 ---
 

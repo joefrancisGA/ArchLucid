@@ -84,7 +84,7 @@ describe("HelpUsersAndRolesGuideView", () => {
 
     const overview = screen.getByTestId("users-and-roles-role-overview-table");
     expect(within(overview).getByText("Admin")).toBeInTheDocument();
-    expect(within(overview).getByText("Operator")).toBeInTheDocument();
+    expect(within(overview).getByText("Architect")).toBeInTheDocument();
     expect(within(overview).getByText("Reader")).toBeInTheDocument();
     expect(within(overview).getByText("Auditor")).toBeInTheDocument();
 

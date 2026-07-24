@@ -110,7 +110,9 @@ describe("DigestsHubClient", () => {
 
     expect(await screen.findByTestId("digests-page-title")).toHaveTextContent("Architecture digests");
     expect(
-      screen.getByText("Send scheduled architecture summaries to selected recipients."),
+      screen.getByText(
+        "Configure the weekly executive digest for direct recipients. Architecture digests for subscription destinations are managed separately.",
+      ),
     ).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Schedule" })).toHaveAttribute("aria-selected", "true");
     expect(screen.queryByTestId("digests-primary-action")).not.toBeInTheDocument();

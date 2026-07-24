@@ -5,6 +5,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.QuickScan;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.ProblemDetails;
 
@@ -27,6 +28,7 @@ public sealed class MarketingQuickScanController(
     IQuickScanGuard quickScanGuard,
     IQuickScanTelemetry quickScanTelemetry,
     IQuickScanExecutionOrchestrator quickScanExecutionOrchestrator,
+    IQuickScanSafetyOperationalStateProvider quickScanSafetyOperationalStateProvider,
     IOptionsMonitor<QuickScanSafetyOptions> quickScanSafetyOptions,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext) : ControllerBase
@@ -34,32 +36,38 @@ public sealed class MarketingQuickScanController(
     /// <summary>Returns public capacity information for the Quick Scan marketing surface.</summary>
     [HttpGet("status")]
     [ProducesResponseType(typeof(QuickScanStatusResponse), StatusCodes.Status200OK)]
-    public IActionResult GetQuickScanStatus()
+    public async Task<IActionResult> GetQuickScanStatusAsync(CancellationToken cancellationToken)
     {
         QuickScanGuardContext context = BuildGuardContext(string.Empty);
-        QuickScanStatusResponse status = quickScanGuard.GetStatus(context);
+        QuickScanGuardDecision guardDecision = quickScanGuard.TryBeginScan(context);
+        QuickScanSafetyOperationalSnapshot operational =
+            await quickScanSafetyOperationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+        QuickScanSafetyOptions safetyOptions = quickScanSafetyOptions.CurrentValue;
+        QuickScanPublicCapacityStateResolver.Resolution capacity =
+            QuickScanPublicCapacityStateResolver.Resolve(operational, guardDecision, safetyOptions);
 
-        if (!IsAnonymousExecutionAllowed())
-        {
-            return Ok(new QuickScanStatusResponse
-            {
-                Enabled = status.Enabled,
-                CapacityAvailable = false,
-                RequireSignIn = status.RequireSignIn,
-                SampleResultAvailable = status.SampleResultAvailable,
-            });
-        }
-
-        return Ok(status);
+        return Ok(MapStatus(guardDecision, operational, capacity));
     }
 
     /// <summary>Returns a static sample result that does not invoke AI.</summary>
     [HttpGet("sample")]
     [ProducesResponseType(typeof(ArchitectureQuickScanResponse), StatusCodes.Status200OK)]
-    public IActionResult GetQuickScanSample([FromQuery] string? systemName, [FromQuery] string? primaryEnvironment)
+    public async Task<IActionResult> GetQuickScanSampleAsync(
+        [FromQuery] string? sourceState,
+        CancellationToken cancellationToken)
     {
-        quickScanTelemetry.RecordSampleView(BuildGuardContext(string.Empty));
-        ArchitectureQuickScanResponse body = QuickScanSampleResultProvider.Build(systemName, primaryEnvironment);
+        QuickScanGuardContext context = BuildGuardContext(string.Empty);
+        QuickScanSafetyOperationalSnapshot operational =
+            await quickScanSafetyOperationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+        QuickScanGuardDecision guardDecision = quickScanGuard.TryBeginScan(context);
+        QuickScanPublicCapacityStateResolver.Resolution capacity =
+            QuickScanPublicCapacityStateResolver.Resolve(
+                operational,
+                guardDecision,
+                quickScanSafetyOptions.CurrentValue);
+
+        quickScanTelemetry.RecordSampleView(context, sourceState ?? capacity.State.ToString());
+        ArchitectureQuickScanResponse body = QuickScanSampleResultProvider.Build();
 
         return Ok(body);
     }
@@ -76,9 +84,17 @@ public sealed class MarketingQuickScanController(
         [FromBody] ArchitectureQuickScanRequest? request,
         CancellationToken cancellationToken)
     {
-        if (!IsAnonymousExecutionAllowed())
+        QuickScanSafetyOperationalSnapshot operational =
+            await quickScanSafetyOperationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!operational.AnonymousExecutionAllowed)
         {
-            return QuickScanHttpResultMapper.Map(this, QuickScanExecutionResult.CapacityReached());
+            return QuickScanHttpResultMapper.Map(
+                this,
+                QuickScanExecutionResult.EmergencyDisabled(
+                    string.IsNullOrWhiteSpace(operational.PublicMessage)
+                        ? quickScanSafetyOptions.CurrentValue.EmergencyDisabledMessage
+                        : operational.PublicMessage));
         }
 
         QuickScanExecutionResult result = await quickScanExecutionOrchestrator.ExecuteAsync(
@@ -107,15 +123,25 @@ public sealed class MarketingQuickScanController(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             AuditActor = actorContext.GetActor(),
+            RequiresAnonymousDistributedConcurrency = true,
         };
     }
 
-    private bool IsAnonymousExecutionAllowed()
-    {
-        QuickScanSafetyEffectiveFeatureState effective = quickScanSafetyOptions.CurrentValue.ResolveEffectiveFeatureState();
-
-        return effective.Enabled && effective.AnonymousExecutionEnabled;
-    }
+    private static QuickScanStatusResponse MapStatus(
+        QuickScanGuardDecision guardDecision,
+        QuickScanSafetyOperationalSnapshot operational,
+        QuickScanPublicCapacityStateResolver.Resolution capacity) =>
+        new()
+        {
+            Enabled = operational.AnonymousExecutionAllowed && guardDecision.Allowed,
+            CapacityAvailable = capacity.AiExecutionAllowed,
+            RequireSignIn = guardDecision.RejectionReason == QuickScanGuardRejectionReason.SignInRequired,
+            SampleResultAvailable = capacity.SampleResultAvailable,
+            OperationalMode = operational.Mode.ToString(),
+            PublicMessage = string.IsNullOrWhiteSpace(operational.PublicMessage) ? null : operational.PublicMessage,
+            CapacityState = capacity.State.ToString(),
+            CapacityStateMessage = capacity.Message,
+        };
 
     private QuickScanGuardContext BuildGuardContext(string description)
     {
@@ -135,3 +161,4 @@ public sealed class MarketingQuickScanController(
         };
     }
 }
+

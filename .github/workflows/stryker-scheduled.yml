@@ -1,4 +1,4 @@
-# Weekly mutation testing: Persistence, Application, AgentRuntime, Coordinator, Decisioning,
+# Weekly mutation testing: Persistence, Application, AgentRuntime, Decisioning,
 # PersistenceCoordination, Api, DecisioningMerge, ApplicationGovernance, ApplicationCommitCriticalPaths —
 # see docs/library/MUTATION_TESTING_STRYKER.md (Stryker configs table).
 # Api and scoped Application configs use honest 55.0 baseline floors where mutation density is high.
@@ -26,8 +26,6 @@ jobs:
             config: stryker-config.application.json
           - label: AgentRuntime
             config: stryker-config.agentruntime.json
-          - label: Coordinator
-            config: stryker-config.coordinator.json
           - label: Decisioning
             config: stryker-config.decisioning.json
           - label: PersistenceCoordination

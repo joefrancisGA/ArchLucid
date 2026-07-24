@@ -24,20 +24,20 @@ Review scope controls which standards evaluate your design; it is not the same a
 
 ## Start the review
 
-Select **Start architecture review** when the title and evidence requirements are met. ArchLucid creates the review package and begins evaluation.
+Select **Start architecture review** when the title and evidence requirements are met. ArchLucid creates the architecture package and begins evaluation.
 
 ## Review findings and evidence
 
-After analysis completes, open the review package to triage findings, severity, and evidence links — see [Findings](/help/findings).
+After analysis completes, open the architecture package to triage findings, severity, and evidence links — see [Findings](/help/findings).
 
-## Finalize the review package
+## Finalize the architecture package
 
-When decisions are ready, finalize and export sponsor-ready outputs from the review package — see [Review packages](/help/review-packages).
+When decisions are ready, finalize and export sponsor-ready outputs from the architecture package — see [Architecture packages](/help/review-packages).
 
 ## Related guides
 
 - [Start a review](/help/evidence-intake)
-- [Review packages](/help/review-packages)
+- [Architecture packages](/help/review-packages)
 - [Evidence graph](/help/evidence-trail)
 - [Findings](/help/findings)
 - [First review guide](/help/first-hour-operator-path)

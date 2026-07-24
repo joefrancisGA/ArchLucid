@@ -206,5 +206,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/ARCHITECTURE_ON_A_PAGE.md` | [`docs/ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md) | Self-demoted narrative duplicate of canonical C4 poster |
 | `docs/library/CODE_MAP.md` | [`docs/library/CONTRIBUTOR_CODE_MAP.md`](library/CONTRIBUTOR_CODE_MAP.md) | Path table folded into contributor code map |
 | `docs/library/customer-facing/CUSTOMER_GLOSSARY.md` | In-app `/help/glossary` (`archlucid-ui/src/lib/customer-glossary-manifest.ts`) | Thin stub removed — terms are app-rendered |
+| `docs/ARCHITECTURE_INDEX.md` | [`docs/architecture/README.md`](architecture/README.md) | Thin hub superseded by architecture README |
+| `docs/library/OPENAPI_CLIENT_DRIFT_OPERATOR_NOTE.md` | [`docs/library/OPENAPI_CONTRACT_DRIFT.md`](library/OPENAPI_CONTRACT_DRIFT.md) | Checklist folded into contract-drift doc |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |
 | `docs/archive/assessments/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | [`docs/archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md`](archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Duplicate of consolidated series |

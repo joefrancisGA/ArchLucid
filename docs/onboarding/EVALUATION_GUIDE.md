@@ -1,12 +1,12 @@
-> **Scope:** Unified onboarding and evaluation guide for buyers and operators (depth and “what good looks like”). Does **not** replace the canonical first-pilot spine — use [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) and the in-product **First-pilot operating path** on operator **Home**.
+> **Scope:** Unified onboarding and evaluation guide for buyers and architects (depth and “what good looks like”). Does **not** replace the canonical first-pilot spine — use [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) and the in-product **First-pilot operating path** on architect **Home**.
 > **Hub:** [`START_HERE.md`](../START_HERE.md).
 
 # ArchLucid Evaluation Guide
 
-**Audience:** Prospective buyers, evaluators, operators, and design partners completing their first pilot.
-**Purpose:** Define the end-to-end journey from an empty tenant to a reviewed, exportable **architecture review package**.
+**Audience:** Prospective buyers, evaluators, architects, and design partners completing their first pilot.
+**Purpose:** Define the end-to-end journey from an empty tenant to a reviewed, exportable **architecture package**.
 
-> **Operators with a local or hosted install:** start at **[`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** (single canonical path). This guide adds depth; it does not replace that checklist. **Stuck mid-pilot:** [`runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](../runbooks/FIRST_PILOT_TROUBLESHOOTING.md).
+> **Architects with a local or hosted install:** start at **[`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** (single canonical path). This guide adds depth; it does not replace that checklist. **Stuck mid-pilot:** [`runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](../runbooks/FIRST_PILOT_TROUBLESHOOTING.md).
 
 ## Part 1: Your first 30 minutes (Buyer / Evaluator path)
 
@@ -22,37 +22,37 @@ Five steps. Roughly thirty minutes end-to-end on a normal connection.
 4. **Read your first finding.** Open the finalized **review** and read the first typed finding — what was flagged, why it was flagged, what evidence backs it.
 5. **Decide what to do next.** Either invite a colleague and run a second sample, or hand off to a guided pilot (Part 2 below).
 
-## Part 2: Core Pilot (Operator path)
+## Part 2: Core Pilot (Architect path)
 
-The Core Pilot path is **four steps** to produce a committed **golden manifest** and a downloadable **artifact bundle** with your own inputs.
+The Core Pilot path is **four steps** to produce a finalized **architecture package** and a downloadable **artifact bundle** with your own inputs.
 
 ```text
 1. Create architecture review
       ↓
 2. Pipeline runs  (coordinator fills steps automatically)
       ↓
-3. Finalize / commit manifest
+3. Finalize architecture package
       ↓
-4. Open review package (manifest summary and artifacts)
+4. Open architecture package (summary and artifacts)
 ```
 
 ### Zero-config sample first
-On the operator Home page, **Start with sample review** opens the curated Claims Intake sample review package. Use it to understand the destination before filling out the real-input wizard.
+On the architect Home page, **Start with sample review** opens the curated Claims Intake sample architecture package. Use it to understand the destination before filling out the real-input wizard.
 
 ### Step 1 — Create an architecture review
-**Operator UI:** Sidebar → **New review** (wizard at **`/reviews/new`**; legacy `/runs/new` redirects).
+**Architect workspace:** Sidebar → **New review** (wizard at **`/reviews/new`**; legacy `/runs/new` redirects).
 **CLI:** `archlucid run` (reads `archlucid.json` + `inputs/brief.md` — CLI verb unchanged).
 
 ### Step 2 — Execute the review
 After creation on SQL hosts, the **authority pipeline** runs server-side (ingestion → graph → findings → decisioning → artifacts). You do **not** need a separate coordinator **execute** loop unless your integration explicitly uses legacy external agent tasks — see [`library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) Flow A1 and [`library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) § authority vs coordinator. 
-**Check status:** Operator UI → **Reviews** (or **Runs** in legacy labels) → open the row → Pipeline timeline.
+**Check status:** Architect workspace → **Reviews** (or **Runs** in legacy labels) → open the row → Pipeline timeline.
 
-### Step 3 — Commit the manifest
-Commit produces the **golden manifest** and synthesizes **artifacts**. Nothing is reviewable, exportable, or comparable before this step.
-**Operator UI:** Review detail → **Commit** / **Finalize** (button label may show *Commit run* in some builds).
+### Step 3 — Finalize the architecture package
+**Finalize** produces the durable **architecture package** and synthesizes **artifacts**. Nothing is reviewable, exportable, or comparable before this step. API/CLI still use **`commit`**.
+**Architect workspace:** Review detail → **Finalize** (button label may show *Commit run* in some builds).
 
-### Step 4 — Open the review package
-**Operator UI:** Review detail (after commit) shows Manifest summary, Artifacts table, and Bundle ZIP.
+### Step 4 — Open the architecture package
+**Architect workspace:** Review detail (after finalize) shows package summary, Artifacts table, and Bundle ZIP.
 
 ### Step 5 — Same four steps with **your** inputs
 After `archlucid try`, the lowest-friction real second **review** is a **one-page** `SECOND_RUN.toml` file plus a single CLI command — see **[`SECOND_RUN.md`](../library/SECOND_RUN.md)** for the full template, limits, and auth notes.
@@ -61,5 +61,5 @@ After `archlucid try`, the lowest-friction real second **review** is a **one-pag
 At the end of the four steps, answer:
 1. Does the architecture request capture our system description accurately?
 2. Are the findings (topology, cost, compliance, quality) relevant and plausible?
-3. Is the manifest structure clear and the artifact content useful?
-4. Does the governance pre-commit gate behave correctly for our finding severity thresholds?
+3. Is the architecture package structure clear and the artifact content useful?
+4. Does the governance pre-finalize gate behave correctly for our finding severity thresholds?

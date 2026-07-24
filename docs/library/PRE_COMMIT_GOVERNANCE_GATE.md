@@ -71,8 +71,8 @@ Problem details **`type`**: **`https://archlucid.example.org/errors#governance-p
 
 | Benefit | Cost |
 |---------|------|
-| Stops non-compliant golden manifests before they land | May **block** teams until findings are resolved or policy is adjusted |
-| Configurable severity threshold avoids over-blocking | Operators must understand severity semantics in findings |
+| Stops non-compliant architecture packages before they finalize | May **block** teams until findings are resolved or policy is adjusted |
+| Configurable severity threshold avoids over-blocking | Architects must understand severity semantics in findings |
 | Warning-only mode enables phased rollout | Warnings may be ignored if not monitored |
 | Approval SLA with webhook escalation | Requires external webhook receiver for escalation routing |
 | Clear audit trail for blocks, warns, and SLA breaches | Additional audit volume |

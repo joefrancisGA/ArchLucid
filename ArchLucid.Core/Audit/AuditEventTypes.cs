@@ -252,6 +252,9 @@ public static class AuditEventTypes
     /// </summary>
     public const string ArchitectureQuickScanExecuted = "ArchitectureQuickScanExecuted";
 
+    /// <summary>Runtime Quick Scan safety override changed by an administrator (TB-898).</summary>
+    public const string QuickScanSafetyOperationalOverrideChanged = "QuickScanSafetyOperationalOverrideChanged";
+
     /// <summary>
     ///     Emitted when <c>POST /v1/architecture/import</c> CSV dry-run completes (mapped golden manifest JSON or validation
     ///     failure; no persistence).

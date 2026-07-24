@@ -109,6 +109,8 @@ public sealed class QuickScanSafetyOptionsValidator(
         AppendPositive(failures, limits.MaxConcurrentAnonymousScans, $"{Prefix}.Concurrency.MaxConcurrentAnonymousScans");
         AppendNonNegative(failures, limits.MaxQueuedAnonymousScans, $"{Prefix}.Concurrency.MaxQueuedAnonymousScans");
         AppendPositive(failures, limits.QueueWaitTimeoutSeconds, $"{Prefix}.Concurrency.QueueWaitTimeoutSeconds");
+        AppendPositive(failures, limits.LeaseDurationSeconds, $"{Prefix}.Concurrency.LeaseDurationSeconds");
+        AppendPositive(failures, limits.LeaseRenewalIntervalSeconds, $"{Prefix}.Concurrency.LeaseRenewalIntervalSeconds");
     }
 
     private static void ValidateIdentity(QuickScanSafetyIdentityLimits limits, List<string> failures)

@@ -36,6 +36,14 @@ public interface IAgentResultRepository
         IDbTransaction? transaction = null);
 
     /// <summary>
+    ///     Agent-type markers for a run without deserializing <c>ResultJson</c> (TB-930 buyer-summary grounding).
+    /// </summary>
+    Task<IReadOnlyList<AgentResult>> GetAgentTypeMarkersByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Replaces the persisted <see cref="AgentResult" /> for one run/task pair (quality-gate auto-retry path only).
     /// </summary>
     Task ReplaceForRunTaskAsync(

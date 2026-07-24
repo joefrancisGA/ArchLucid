@@ -416,5 +416,5 @@ When **`ArchLucidAuth:Saml2:Enabled=true`**, map IdP assertion attributes to Arc
 - **`IdPMetadata`** URL blocked from the API egress network → SAML login fails at metadata load.
 - SP signing certificate expired → see **`GET /v1/admin/auth/saml-operational-health`** and **[SAML SP certificate rotation runbook](../runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md)** (`archlucid saml test-config` for offline validation).
 
-Operator UI: **Settings → Identity providers** surfaces OIDC discovery and SAML operational health (Admin session).
+Architect workspace: **Settings → Identity providers** surfaces OIDC discovery and SAML operational health (Admin session).
 

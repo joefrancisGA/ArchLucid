@@ -3,7 +3,7 @@
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# CD pipeline (dev schedule + manual `workflow_dispatch`)
+# CD pipeline (manual `workflow_dispatch` only)
 
 This document describes the multi-job **CD** workflow (`.github/workflows/cd.yml`). It complements [DEPLOYMENT.md](../engineering/DEPLOYMENT.md) and [DEPLOYMENT_TERRAFORM.md](./DEPLOYMENT_TERRAFORM.md).
 
@@ -13,8 +13,7 @@ GitHub environment setup: [`docs/operations/GITHUB_CD_ENVIRONMENTS.md`](../opera
 
 | Trigger | Target | Notes |
 |---------|--------|-------|
-| **Schedule** `22:00` `America/New_York` | `dev` | Automated nightly deploy (`action=deploy`). |
-| **workflow_dispatch** | `dev` / `staging` / `production` | Manual deploy or rollback. Staging/production are not scheduled. |
+| **workflow_dispatch** | `dev` / `staging` / `production` | On-demand deploy or rollback only. There is **no** scheduled CD (schedules would always run from the default branch tip). |
 | **Dev maintenance window** | `dev` only | Deploy allowed during hour **22** ET unless repo var `CD_MAINTENANCE_WINDOW_OVERRIDE=true`. Post-deploy validation must pass before **23:00** ET or the job fails and optional rollback runs. |
 
 ## Objective

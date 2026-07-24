@@ -102,7 +102,13 @@ public sealed class CostAgentHandler(
             _retailGroundingLookups,
             effectiveCloudTarget);
         string baseUserPrompt = TechnologyLedgerUserPromptInjection.AppendLedgerContext(
-            AgentUserPromptComposer.BuildCostUserPrompt(runId, request, evidence, task, retailGrounding),
+            AgentUserPromptComposer.BuildCostUserPrompt(
+                runId,
+                request,
+                evidence,
+                task,
+                effectiveCloudTarget,
+                retailGrounding),
             ledgerEntries);
         await TryPersistRetailGroundingTraceAsync(runId, request, retailGrounding, cancellationToken);
         string lastCompletionJson = string.Empty;
@@ -186,10 +192,17 @@ public sealed class CostAgentHandler(
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         AgentTask task,
+        CloudProvider effectiveCloudTarget,
         CostRetailGroundingResult grounding,
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries) =>
         TechnologyLedgerUserPromptInjection.AppendLedgerContext(
-            AgentUserPromptComposer.BuildCostUserPrompt(runId, request, evidence, task, grounding),
+            AgentUserPromptComposer.BuildCostUserPrompt(
+                runId,
+                request,
+                evidence,
+                task,
+                effectiveCloudTarget,
+                grounding),
             ledgerEntries);
 
 

@@ -5,6 +5,8 @@
 **Backlog:** [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) **M-96–M-106** (and **G-QA-01–G-QA-03**)  
 **Not:** A new paid UI-test SaaS product, or merge-blocking “Lighthouse ≥ 95 everywhere” gates
 
+**Ops note (not UI lane):** Solo-operator **P0 page-path** enablement (AMW scrape + critical action-group Test) lives in [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) (**TB-957**). Founder drill cadence / pass-fail log: GTM **M-120**.
+
 ## Intent
 
 ArchLucid already runs a large Playwright estate in GitHub plus warn-only lab Lighthouse CI. That answers:
@@ -128,6 +130,19 @@ npx playwright test --grep @founder --project=chromium --headed
 ```
 
 against a config whose `baseURL` is the chosen site.
+
+**Showcase availability (`TB-889`, GTM **G-QA-04**):**
+
+```bash
+cd archlucid-ui
+# Mock-backed regression (merge-blocking `ui-playwright-mock-smoke`)
+npm run test:e2e:mock:functional -- --grep @release-smoke
+
+# Post-deploy against staging/production UI (requires reachable site)
+ACCEPTANCE_BASE_URL=https://staging.archlucid.net npx playwright test e2e/showcase-production-availability.spec.ts --grep @release-smoke
+```
+
+Scheduled hosted probe: [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml) records `showcase_ok` for `GET /showcase/claims-intake-modernization` (HTTP 200, `demo-preview-marketing-body`, no `demo-preview-not-available` shell).
 
 ### Lighthouse against the chosen site (M-99)
 

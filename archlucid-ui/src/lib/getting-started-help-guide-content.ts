@@ -17,7 +17,7 @@ export const GETTING_STARTED_HELP_QUICK_START_COPY =
 export const GETTING_STARTED_HELP_DIAGRAM_TITLE = "How ArchLucid works";
 
 export const GETTING_STARTED_HELP_DIAGRAM_SUMMARY =
-  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed review you can share.";
+  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed architecture package you can share.";
 
 export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
   "Evidence",
@@ -34,9 +34,9 @@ export type GettingStartedPlainLanguageTerm = {
 
 export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedPlainLanguageTerm[] = [
   {
-    term: "Review",
+    term: "Architecture package",
     definition:
-      "The complete set of findings, decisions, evidence, and exports for one architecture review.",
+      "The durable record of findings, decisions, evidence, and exports for one architecture review.",
   },
   {
     term: "Evidence",
@@ -116,7 +116,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 5,
     title: "Finalize and share outputs",
     description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
-    expectedOutputs: "Governance package, evidence trail, and exports.",
+    expectedOutputs: "Architecture package, evidence trail, and exports.",
     href: "/reviews?projectId=default",
     ctaLabel: "Open reviews",
   },

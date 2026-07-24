@@ -6,12 +6,15 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Governance;
 
 public sealed class RiskExceptionService(
     IRiskExceptionRepository repository,
     IFindingReviewTrailRepository findingReviewTrailRepository,
-    IAuditService auditService) : IRiskExceptionService
+    IAuditService auditService,
+    ILogger<RiskExceptionService> logger) : IRiskExceptionService
 {
     private readonly IRiskExceptionRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
 
@@ -19,6 +22,8 @@ public sealed class RiskExceptionService(
         findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ILogger<RiskExceptionService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<RiskExceptionRecord> CreateAsync(
         CreateRiskExceptionRequest request,
@@ -61,21 +66,21 @@ public sealed class RiskExceptionService(
 
         await _repository.CreateAsync(record, cancellationToken);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RiskExceptionCreated,
-                ActorUserId = createdByUserId.Trim(),
-                ActorUserName = createdByUserId.Trim(),
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = request.RunId,
-                DataJson = JsonSerializer.Serialize(
-                    new { record.RiskExceptionId, record.FindingId, record.ExpiresAtUtc },
-                    AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
+        AuditEvent createdAudit = new()
+        {
+            EventType = AuditEventTypes.RiskExceptionCreated,
+            ActorUserId = createdByUserId.Trim(),
+            ActorUserName = createdByUserId.Trim(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = request.RunId,
+            DataJson = JsonSerializer.Serialize(
+                new { record.RiskExceptionId, record.FindingId, record.ExpiresAtUtc },
+                AuditJsonSerializationOptions.Instance),
+        };
+
+        await LogRequiredAsync(createdAudit, $"RiskExceptionCreated:{record.RiskExceptionId:N}", cancellationToken);
 
         return record;
     }
@@ -102,16 +107,16 @@ public sealed class RiskExceptionService(
             TimeProvider.System.UtcNowDateTime(),
             cancellationToken);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RiskExceptionRevoked,
-                ActorUserId = revokedByUserId.Trim(),
-                ActorUserName = revokedByUserId.Trim(),
-                TenantId = tenantId,
-                DataJson = JsonSerializer.Serialize(new { riskExceptionId }, AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
+        AuditEvent revokedAudit = new()
+        {
+            EventType = AuditEventTypes.RiskExceptionRevoked,
+            ActorUserId = revokedByUserId.Trim(),
+            ActorUserName = revokedByUserId.Trim(),
+            TenantId = tenantId,
+            DataJson = JsonSerializer.Serialize(new { riskExceptionId }, AuditJsonSerializationOptions.Instance),
+        };
+
+        await LogRequiredAsync(revokedAudit, $"RiskExceptionRevoked:{riskExceptionId:N}", cancellationToken);
     }
 
     public async Task<IReadOnlyList<RiskExceptionRecord>> ListActiveAsync(
@@ -176,21 +181,21 @@ public sealed class RiskExceptionService(
         if (record is null)
             throw new InvalidOperationException("Risk exception was not found after renewal.");
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RiskExceptionRenewed,
-                ActorUserId = renewedByUserId.Trim(),
-                ActorUserName = renewedByUserId.Trim(),
-                TenantId = tenantId,
-                WorkspaceId = record.WorkspaceId,
-                ProjectId = record.ProjectId,
-                RunId = record.RunId,
-                DataJson = JsonSerializer.Serialize(
-                    new { riskExceptionId, record.FindingId, record.ExpiresAtUtc },
-                    AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
+        AuditEvent renewedAudit = new()
+        {
+            EventType = AuditEventTypes.RiskExceptionRenewed,
+            ActorUserId = renewedByUserId.Trim(),
+            ActorUserName = renewedByUserId.Trim(),
+            TenantId = tenantId,
+            WorkspaceId = record.WorkspaceId,
+            ProjectId = record.ProjectId,
+            RunId = record.RunId,
+            DataJson = JsonSerializer.Serialize(
+                new { riskExceptionId, record.FindingId, record.ExpiresAtUtc },
+                AuditJsonSerializationOptions.Instance),
+        };
+
+        await LogRequiredAsync(renewedAudit, $"RiskExceptionRenewed:{riskExceptionId:N}", cancellationToken);
 
         return record;
     }
@@ -228,5 +233,14 @@ public sealed class RiskExceptionService(
                         AuditJsonSerializationOptions.Instance),
                 },
                 cancellationToken);
+    }
+
+    private Task LogRequiredAsync(AuditEvent auditEvent, string operationLabel, CancellationToken cancellationToken)
+    {
+        return DurableAuditLogRetry.LogOrThrowAsync(
+            ct => _auditService.LogAsync(auditEvent, ct),
+            _logger,
+            operationLabel,
+            cancellationToken);
     }
 }

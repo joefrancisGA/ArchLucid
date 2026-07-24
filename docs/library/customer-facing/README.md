@@ -1,4 +1,4 @@
-> **Scope:** Landing index for markdown that **skew buyers, evaluators, tenant operators, and procurement** (`docs/library/customer-facing/` — Phase **1–2** of library audience split).
+> **Scope:** Landing index for markdown that **skew buyers, evaluators, tenant admins, and procurement** (`docs/library/customer-facing/` — Phase **1–2** of library audience split).
 
 # Customer-facing library docs
 
@@ -14,7 +14,7 @@ Make it obvious **which `library/` files are meant for SaaS pilots** without ask
 | Concepts in five minutes | [CONCEPTS_IN_5_MINUTES.md](CONCEPTS_IN_5_MINUTES.md) |
 | FAQ | [FAQ.md](FAQ.md) |
 | Pilot guide | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
-| Operator quickstart (commands) | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
+| Architect / evaluator command quickstart | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
 
 **Bookmark stubs:** legacy paths under [`library/`](../) forward here (Phase 1–2 pattern).
 

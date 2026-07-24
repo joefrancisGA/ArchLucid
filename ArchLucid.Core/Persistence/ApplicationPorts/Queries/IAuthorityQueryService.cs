@@ -71,6 +71,15 @@ public interface IAuthorityQueryService
         CancellationToken ct);
 
     /// <summary>
+    ///     First-paint buyer/operator summary path (TB-930): run header + finding coverage metadata without
+    ///     context/graph/artifact bodies, full findings <c>PayloadJson</c>, or golden-manifest document.
+    /// </summary>
+    Task<RunDetailDto?> GetRunDetailForBuyerSummaryAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Projects a golden manifest into a compact summary (counts and metadata) without returning the full document.
     /// </summary>
     /// <returns>Summary DTO, or <see langword="null" /> when the manifest id is unknown in <paramref name="scope" />.</returns>

@@ -70,14 +70,14 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
   },
   {
     id: "review-package",
-    label: "Finalized review",
+    label: "Architecture package",
     definition:
-      "A review whose outputs are locked for governance: signed review record, findings, evidence links, governance records, and exportable deliverables.",
+      "The durable record for one architecture review: findings, decisions, evidence links, signed review record, governance records, and exportable deliverables.",
     category: "review-process",
     relatedTermIds: ["review", "signed-review-record", "deliverable"],
     detail:
-      "Stakeholders open a finalized review after approval to export, compare, and audit outcomes.",
-    deprecatedAliases: ["Review package", "review package"],
+      "Stakeholders open an architecture package to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the signed review record and sponsor-ready exports.",
+    deprecatedAliases: ["Review package", "review package", "Finalized review"],
     visibility: "customer",
   },
   {

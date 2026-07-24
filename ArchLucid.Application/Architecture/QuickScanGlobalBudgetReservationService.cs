@@ -24,6 +24,7 @@ public interface IQuickScanGlobalBudgetReservationService
 public sealed class QuickScanGlobalBudgetReservationService(
     IOptionsMonitor<QuickScanSafetyOptions> safetyOptions,
     IQuickScanGlobalBudgetReservationStore store,
+    IQuickScanSafetyOperationalStateProvider operationalStateProvider,
     ILogger<QuickScanGlobalBudgetReservationService> logger) : IQuickScanGlobalBudgetReservationService
 {
     private readonly IOptionsMonitor<QuickScanSafetyOptions> _safetyOptions =
@@ -31,6 +32,9 @@ public sealed class QuickScanGlobalBudgetReservationService(
 
     private readonly IQuickScanGlobalBudgetReservationStore _store =
         store ?? throw new ArgumentNullException(nameof(store));
+
+    private readonly IQuickScanSafetyOperationalStateProvider _operationalStateProvider =
+        operationalStateProvider ?? throw new ArgumentNullException(nameof(operationalStateProvider));
 
     private readonly ILogger<QuickScanGlobalBudgetReservationService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -51,7 +55,10 @@ public sealed class QuickScanGlobalBudgetReservationService(
                 QuickScanGlobalBudgetReservationRejectionReason.Disabled);
         }
 
-        if (safety.EmergencyDisabled)
+        QuickScanSafetyOperationalSnapshot operational =
+            await _operationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!operational.AnonymousExecutionAllowed)
         {
             return QuickScanGlobalBudgetReservationAttemptResult.Reject(
                 QuickScanGlobalBudgetReservationRejectionReason.EmergencyDisabled);

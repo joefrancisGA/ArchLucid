@@ -25,7 +25,7 @@ Read the [Pilot guide](/help/pilot-guide) for Pilot vs Operate before deep confi
 
 ## Session flow (four steps)
 
-1. **Start** an architecture review from **New architecture review** (`/reviews/new`). Quick start: `/reviews/new?preset=greenfield` pre-fills the greenfield template.
+1. **Start** an architecture review from **New architecture review** (`/reviews/new`). Optional: greenfield preset `?preset=greenfield`.
 2. **Add evidence** and start analysis on the review.
 3. **Finalize** the architecture package (locks the signed review record).
 4. **Collect proof** — sponsor packet, executive summary, and audit export from review detail.

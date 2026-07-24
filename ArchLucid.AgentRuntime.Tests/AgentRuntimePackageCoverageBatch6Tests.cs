@@ -34,9 +34,9 @@ public sealed class AgentRuntimePackageCoverageBatch6Tests
         StringBuilder compliance = new();
         StringBuilder cost = new();
         StringBuilder critic = new();
-        AgentUserPromptStaticPrefix.AppendCompliance(compliance);
-        AgentUserPromptStaticPrefix.AppendCost(cost);
-        AgentUserPromptStaticPrefix.AppendCritic(critic);
+        AgentUserPromptStaticPrefix.AppendCompliance(compliance, CloudProvider.Azure);
+        AgentUserPromptStaticPrefix.AppendCost(cost, CloudProvider.Azure);
+        AgentUserPromptStaticPrefix.AppendCritic(critic, CloudProvider.Azure);
 
         compliance.ToString().Should().Contain("compliance AgentResult");
         cost.ToString().Should().Contain("cost AgentResult");

@@ -161,6 +161,59 @@ public sealed class InMemoryAuthorityQueryService(
     }
 
     /// <inheritdoc />
+    public async Task<RunDetailDto?> GetRunDetailForBuyerSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
+        if (run is null)
+            return null;
+
+        Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
+            ? findingsSnapshotRepository.GetCoverageProjectionByIdAsync(scope, run.FindingsSnapshotId.Value, ct)
+            : Task.FromResult<FindingsSnapshot?>(null);
+        Task<DecisionTraceDto?> traceTask = run.DecisionTraceId.HasValue
+            ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
+            : Task.FromResult<DecisionTraceDto?>(null);
+        Task<ManifestDocument?> manifestTask = run.GoldenManifestId.HasValue
+            ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
+            : Task.FromResult<ManifestDocument?>(null);
+        Task<IReadOnlyList<string>> degradedAgentsTask =
+            _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+                scope,
+                run.RunId.ToString("N"),
+                ct);
+
+        await Task.WhenAll(findingsTask, traceTask, manifestTask, degradedAgentsTask);
+
+        RunDetailDto detail = new()
+        {
+            Run = run,
+            FindingsSnapshot = await findingsTask,
+            AuthorityTrace = await traceTask,
+            GoldenManifest = await manifestTask,
+        };
+
+        RunExecutionDegradation.Apply(detail, run, await degradedAgentsTask);
+        RunFindingCoverageProjection.Apply(detail, detail.FindingsSnapshot);
+
+        if (detail.FindingsSnapshot is not null)
+        {
+            DateTimeOffset since = TimeProvider.System.UtcNowDateTime().AddYears(-2);
+            IReadOnlyList<FindingReviewEventRecord> trailEvents =
+                await _findingReviewTrailRepository.ListSinceUtcAsync(scope.TenantId, since, ct);
+            IReadOnlyList<RiskExceptionRecord> activeWaivers =
+                await _riskExceptionRepository.ListActiveForTenantAsync(scope.TenantId, scope.ProjectId, ct);
+            RunFindingDispositionCoverage? dispositionCoverage = RunFindingDispositionCoverageBuilder.Build(
+                detail.FindingsSnapshot,
+                trailEvents,
+                activeWaivers);
+
+            RunFindingCoverageProjection.ApplyDispositionCoverage(detail, dispositionCoverage);
+        }
+
+        return detail;
+    }
+
+    /// <inheritdoc />
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId,
         CancellationToken ct)
     {

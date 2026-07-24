@@ -8,9 +8,9 @@ Canonical workflow: [`.github/workflows/cd.yml`](../../.github/workflows/cd.yml)
 
 | GitHub Environment | CD `target` input | Intended use |
 |--------------------|-------------------|--------------|
-| **dev** | `dev` | Nightly 22:00 ET scheduled deploy + manual break-glass |
-| **staging** | `staging` | Manual CD only (no maintenance window enforcement) |
-| **production** | `production` | Manual CD only; optional required reviewers |
+| **dev** | `dev` | On-demand `workflow_dispatch` only (optional 22:00 ET maintenance window) |
+| **staging** | `staging` | On-demand CD only (no maintenance window enforcement) |
+| **production** | `production` | On-demand CD only; optional required reviewers |
 
 Create each under **Settings → Environments** in GitHub.
 
@@ -97,11 +97,12 @@ Mismatch **fails the job before** ACR push / Terraform apply / `az containerapp 
 
 ## Dev maintenance window (22:00–23:00 America/New_York)
 
-- **Scheduled deploy:** `cd.yml` runs at **22:00** `America/New_York` daily (`target=dev`, `action=deploy`).
-- **Manual dev deploy:** Allowed only during hour **22** ET unless `CD_MAINTENANCE_WINDOW_OVERRIDE=true`.
+CD has **no cron schedule** — only `workflow_dispatch`. When you do dispatch `target=dev`:
+
+- **Window:** Allowed only during hour **22** ET unless `CD_MAINTENANCE_WINDOW_OVERRIDE=true`.
 - **Confirmation deadline:** Post-deploy validation must pass before **23:00** ET; otherwise the workflow fails and rollback runs when `CD_ROLLBACK_ON_SMOKE_FAILURE=true`.
 
-Staging and production are **not** window-gated (manual `workflow_dispatch` only).
+Staging and production are **not** window-gated.
 
 ## Bootstrap script
 

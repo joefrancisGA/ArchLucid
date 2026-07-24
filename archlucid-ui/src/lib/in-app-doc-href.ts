@@ -8,6 +8,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/library/first_run_wizard.md": "getting-started",
   "docs/library/operator-shell.md": "pilot-nav-profile",
   "docs/library/comparison_replay.md": "comparison-replay",
+  "docs/library/customer-facing/comparison_replay_operator_guide.md": "comparison-replay",
   "docs/library/knowledge_graph.md": "evidence-trail",
   "docs/library/api_contracts.md": "governance-api-contracts",
   "docs/library/alerts.md": "alerts",

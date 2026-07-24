@@ -1,9 +1,9 @@
-> **Scope:** Contributor-reference — Live E2E — operator shell vs real API + SQL (Playwright) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Live E2E — architect workspace vs real API + SQL (Playwright) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Live E2E — operator shell vs real API + SQL (Playwright)
+# Live E2E — architect workspace vs real API + SQL (Playwright)
 
 **Purpose:** Document every **`live-api-*.spec.ts`** file run in CI against a **real** `ArchLucid.Api` and **SQL Server**. Mock journeys use **`playwright.mock.config.ts`** (`npm run test:e2e`).
 
@@ -61,7 +61,7 @@
 2. **`POST /v1/architecture/request`** — create a **review**; capture **`runId`** (API and routes still use `run`).
 3. **`POST /v1/architecture/run/{runId}/execute`** — simulator execution.
 4. **Poll `GET /v1/architecture/run/{runId}`** until **`run.status`** is **`ReadyForCommit`** (numeric **`4`**) or already committed. Each poll retries a few times on **HTTP 5xx** (short backoff) to ride out transient SQL/API blips.
-5. **`POST /v1/architecture/run/{runId}/commit`** — persist golden manifest; read **`manifest.metadata.manifestVersion`**.
+5. **`POST /v1/architecture/run/{runId}/commit`** — finalize architecture package; read **`manifest.metadata.manifestVersion`**.
 6. **`GET /v1/architecture/run/{runId}`** — read **`run.goldenManifestId`** for UI navigation.
 7. **UI:** **`/runs`** → **`/runs/{runId}`** — assert **Golden Manifest** link → **`/manifests/{goldenManifestId}`** — **Manifest** heading, **Artifacts**, table, **Download bundle (ZIP)**.
 8. **`GET /v1/artifacts/runs/{runId}/export`** — non-empty ZIP; emits **`RunExported`** audit.
@@ -87,7 +87,7 @@ sequenceDiagram
   participant T as Playwright test
   participant API as ArchLucid.Api
   participant SQL as SQL Server
-  participant UI as Next operator shell
+  participant UI as Next architect workspace
 
   T->>API: GET /health/ready
   T->>API: POST /v1/architecture/request

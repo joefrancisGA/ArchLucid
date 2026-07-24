@@ -93,7 +93,7 @@ public sealed class CriticAgentHandler(
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 
         string baseUserPrompt = TechnologyLedgerUserPromptInjection.AppendLedgerContext(
-            AgentUserPromptComposer.BuildCriticUserPrompt(runId, request, evidence, task),
+            AgentUserPromptComposer.BuildCriticUserPrompt(runId, request, evidence, task, effectiveCloudTarget),
             ledgerEntries);
 
         string lastCompletionJson = string.Empty;

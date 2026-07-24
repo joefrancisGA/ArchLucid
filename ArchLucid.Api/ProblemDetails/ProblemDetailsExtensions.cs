@@ -283,6 +283,28 @@ public static class ProblemDetailsExtensions
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
+    /// <summary>Returns 503 with an explicit <c>extensions.errorCode</c> (TB-896 Quick Scan concurrency).</summary>
+    public static IActionResult ServiceUnavailableProblemWithErrorCode(
+        this ControllerBase controller,
+        string detail,
+        string errorCode,
+        string? instance = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.DatabaseUnavailable,
+            Title = "Service Unavailable",
+            Status = StatusCodes.Status503ServiceUnavailable,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path,
+        };
+        problem.Extensions["errorCode"] = errorCode;
+        AttachAudienceSupportHint(problem, controller.HttpContext);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
     private static void AttachAudienceSupportHint(Microsoft.AspNetCore.Mvc.ProblemDetails problem, HttpContext httpContext)
     {
         ProblemSupportHints.AttachForProblemType(problem, ProblemDetailsAudienceHttpContext.Resolve(httpContext));

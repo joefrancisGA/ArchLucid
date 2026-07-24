@@ -622,30 +622,29 @@ export const advisorySchedulesListHeadingOperator = "Existing schedules";
 export const advisorySchedulesListHeadingReader = "Existing schedules (inspect)";
 
 /** Advisory schedules — create block **`h3`**. */
-export const advisorySchedulesCreateSectionHeadingOperator = "Create schedule";
+export const advisorySchedulesCreateSectionHeadingOperator = "New schedule";
 
-export const advisorySchedulesCreateSectionHeadingReader = "Create schedule (Execute+)";
+export const advisorySchedulesCreateSectionHeadingReader = "New schedule";
 
 /** Advisory schedules — **Create schedule** submit when rank cannot mutate. */
-export const advisorySchedulesCreateScheduleButtonLabelReaderRank = "Create schedule (Execute+)";
+export const advisorySchedulesCreateScheduleButtonLabelReaderRank = "Create schedule";
 
 /** Advisory schedules — **Run now** when rank cannot mutate. */
-export const advisorySchedulesRunNowButtonLabelReaderRank = "Run now (Execute+)";
+export const advisorySchedulesRunNowButtonLabelReaderRank = "Run now";
 
 /** Advisory schedules — **Load executions** (`GET`). */
-export const advisorySchedulesLoadExecutionsButtonLabelReaderRank = "Load executions (inspect)";
+export const advisorySchedulesLoadExecutionsButtonLabelReaderRank = "View history";
 
 export const advisorySchedulesLoadExecutionsButtonTitleOperator =
-  "Load recent advisory scan executions for this schedule (GET).";
+  "Show recent advisory scan runs for this schedule.";
 
 export const advisorySchedulesLoadExecutionsButtonTitleReader =
-  "Load executions (GET). Run now and create schedule need Execute+ on the API.";
+  "Show recent advisory scan runs for this schedule.";
 
 /** Advisory schedules — empty list (`components/advisory/AdvisorySchedulesContent.tsx`). */
-export const advisorySchedulesEmptyListOperatorLine = "No schedules yet.";
+export const advisorySchedulesEmptyListOperatorLine = "No advisory-scan schedules yet";
 
-export const advisorySchedulesEmptyListReaderLine =
-  "No schedules yet. Inspect when data exists; create and Run now need operator on the API.";
+export const advisorySchedulesEmptyListReaderLine = "No advisory-scan schedules yet";
 
 /** Policy packs — pack selector when lifecycle writes are soft-disabled at read rank in the shell. */
 export const policyPacksPackSelectReaderTitle =

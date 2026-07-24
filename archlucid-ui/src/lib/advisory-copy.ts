@@ -105,12 +105,51 @@ export const ADVISORY_SCANS_CARD_OWNER_LABEL = "Owner or role";
 
 export const ADVISORY_SCANS_CARD_DISPOSITION_LABEL = "Governance disposition";
 
-export const ADVISORY_SCANS_SCHEDULES_INTRO =
-  "Run advisory scans on a schedule after reviews are committed.";
+export const ADVISORY_SCANS_SCHEDULES_PAGE_HEADING = "Schedule advisory scans";
 
-export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL = "Open recurrence schedules";
+export const ADVISORY_SCANS_SCHEDULES_INTRO =
+  "Run advisory scans automatically after reviews are finalized.";
+
+export const ADVISORY_SCANS_SCHEDULES_ELIGIBILITY =
+  "Each scheduled scan uses the latest finalized reviews for the selected project to generate follow-up recommendations.";
+
+export const ADVISORY_SCANS_SCHEDULES_TIMING_NOTE =
+  "Scheduled scans may begin a few minutes after the selected time.";
+
+export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_LABEL = "Manage all recurrence schedules";
+
+export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_LINK_HELPER =
+  "Create advisory-scan schedules here. Use recurrence schedules to view and manage all recurring activity across ArchLucid.";
 
 export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_HREF = "/governance/recurrence-schedules";
+
+export const ADVISORY_SCANS_SCHEDULES_EMPTY_TITLE = "No advisory-scan schedules yet";
+
+export const ADVISORY_SCANS_SCHEDULES_EMPTY_BODY =
+  "Create a schedule to generate follow-up recommendations automatically.";
+
+export const ADVISORY_SCANS_SCHEDULES_SAMPLE_BLOCKED =
+  "Schedules cannot be created for fabricated sample data. Start an evaluation or sign in to schedule advisory scans for your organization.";
+
+export const ADVISORY_SCANS_SCHEDULES_READ_ONLY =
+  "You can review existing schedules. Creating schedules and running them now requires a role that can manage advisory scans.";
+
+export const ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT = "Current project";
+
+export const ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER =
+  "Scans the latest finalized reviews for the project selected in the workspace switcher.";
+
+export const ADVISORY_SCANS_SCHEDULES_ADVANCED_SUMMARY = "Advanced scheduling";
+
+export const ADVISORY_SCANS_SCHEDULES_ADVANCED_HELPER =
+  "For administrators who need a custom UTC schedule expression. Ordinary schedules should use Daily, Weekdays, Weekly, or Monthly above.";
+
+export const ADVISORY_SCANS_SCHEDULES_CREATE_WORKING = "Creating schedule…";
+
+export const ADVISORY_SCANS_SCHEDULES_CREATE_SUCCESS = "Schedule created.";
+
+export const ADVISORY_SCANS_SCHEDULES_CREATE_FAILURE =
+  "Could not create the schedule. Check the frequency and try again.";
 
 export const ADVISORY_SCANS_MANUAL_ID_ADMIN_SUMMARY = "Technical details (admin)";
 

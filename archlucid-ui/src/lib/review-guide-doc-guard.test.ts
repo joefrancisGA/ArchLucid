@@ -22,7 +22,7 @@ describe("review-guide-doc-guard (TB-764)", () => {
     expect(markdown).toContain("saved architecture draft");
     expect(markdown).toContain("[Start a review](/help/evidence-intake)");
     expect(markdown).toContain("[Findings](/help/findings)");
-    expect(markdown).toContain("[Review packages](/help/review-packages)");
+    expect(markdown).toContain("[Architecture packages](/help/review-packages)");
     expect(markdown).not.toContain("Plain-language vocabulary");
     expect(markdown).not.toMatch(/six.dimensional|assurance.coverage/i);
   });

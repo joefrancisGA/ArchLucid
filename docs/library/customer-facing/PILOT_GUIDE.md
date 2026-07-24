@@ -42,14 +42,14 @@ The guided workflow on **Home** walks readiness → evidence → create → exec
 
 1. **Create** an architecture review from **New review** or the sample showcase.
 2. **Execute** the assessment on review detail until findings are ready to finalize.
-3. **Finalize** the review package to lock the signed review record and exports.
+3. **Finalize** the architecture package to lock the signed review record and exports.
 4. **Open exports** — download the sponsor packet and executive summary.
 
 For step-by-step depth, open [Your first architecture review](/help/core-pilot) or the checklist on **Onboarding**.
 
 ## Review outputs
 
-After finalize, each review package includes:
+After finalize, each architecture package includes:
 
 | Output | What it gives you |
 |--------|-------------------|

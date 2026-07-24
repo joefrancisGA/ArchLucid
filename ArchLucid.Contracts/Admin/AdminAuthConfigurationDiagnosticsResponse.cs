@@ -59,4 +59,12 @@ public sealed class AdminAuthConfigurationDiagnosticsResponse
 
     /// <summary>Bounded operator hints — safe for logs and tickets (no secrets).</summary>
     public IReadOnlyList<string> MisconfigurationHints { get; init; } = [];
+
+    /// <summary>True when <c>Email:OperatorBaseUrl</c> is a non-empty absolute HTTP(S) URI for invite accept links.</summary>
+    public bool OperatorBaseUrlConfigured { get; init; }
+
+    /// <summary>
+    ///     True when <c>Auth:Trial:LocalIdentity</c> issuer, audience, and private-key PEM path are configured and the PEM file exists.
+    /// </summary>
+    public bool LocalTrialIdentityConfigured { get; init; }
 }

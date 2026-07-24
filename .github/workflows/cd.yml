@@ -16,9 +16,11 @@
 #   Product-path smoke: scripts/ci/cd_post_deploy_product_smoke.py (workspaces + why-archlucid read, UI /api/health, BFF)
 #   CD_MAINTENANCE_WINDOW_OVERRIDE — optional repo var "true" for break-glass dev deploy outside 22:00-23:00 America/New_York
 #
+#
 # Dev schedule: nightly 22:00 America/New_York (target=dev, action=deploy). Manual staging/production remain workflow_dispatch only.
 # Dev Contoso seed: target=dev pins ASPNETCORE_ENVIRONMENT=Staging + Demo__Enabled + Demo__EnableShowcaseSeed on the API
 #   (auto-heal in pre-deploy config check; Contoso summary required in product smoke). Staging/production keep Demo off.
+# Triggers: workflow_dispatch (on-demand) plus the dev schedule above. GitHub schedules always run from the default branch tip.
 # Dev maintenance: deploy allowed during hour 22 ET; post-deploy validation must pass before 23:00 ET or rollback runs (when CD_ROLLBACK_ON_SMOKE_FAILURE=true).
 #   SMOKE_SYNTHETIC_PATH — optional repo var; recommended /api/auth/me (authenticated warm-path GET after /version; requires ARCHLUCID_API_KEY)
 #   CD_POST_DEPLOY_MAX_ATTEMPTS / CD_POST_DEPLOY_RETRY_WAIT_SECONDS — optional repo vars for retry loop (cold start)
@@ -46,10 +48,6 @@
 name: CD
 
 on:
-  schedule:
-    # Dev automated CD only — 22:00 America/New_York (10 PM ET). Staging/production stay manual dispatch.
-    - cron: "0 22 * * *"
-      timezone: America/New_York
   workflow_dispatch:
     inputs:
       action:

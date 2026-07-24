@@ -18,7 +18,15 @@ export const HELP_PAGE_LAYOUT = {
     OPERATOR_LAYOUT.sectionHeadingStack,
   ),
   contentGrid: "grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_12.5rem] lg:items-start",
+  technicalReferenceGrid:
+    "grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_16.5rem] xl:grid-cols-[minmax(0,1fr)_18rem] lg:items-start",
   contentColumn: cn("min-w-0", OPERATOR_PAGE_CONTAINER.variant.reading),
+  technicalReferenceArticle: "w-full max-w-[72rem]",
+  technicalReferenceColumn: "min-w-0 w-full max-w-none lg:max-w-[52rem]",
+  technicalReferenceSkipLink: cn(
+    "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:shadow-md dark:focus:bg-neutral-950",
+    OPERATOR_TYPOGRAPHY.body,
+  ),
   proseRoot: "flex flex-col",
   sectionH2: cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-10 first:mt-0", OPERATOR_TYPOGRAPHY.sectionTitle),
   sectionH3: cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-7", OPERATOR_TYPOGRAPHY.cardTitle),
@@ -57,4 +65,16 @@ export const HELP_PAGE_TOC = {
   ),
   linkActive: "font-semibold text-teal-900 dark:text-teal-200",
   linkNested: "pl-3",
+  referenceSearchInput: cn(
+    "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-al-text-primary shadow-sm placeholder:text-al-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:border-neutral-700 dark:bg-neutral-950",
+    OPERATOR_TYPOGRAPHY.body,
+  ),
+  referenceSearchMeta: "mt-2 text-xs text-al-text-secondary",
+  referenceGroup: "rounded-md border border-transparent",
+  referenceGroupOpen: "border-neutral-200 bg-neutral-50/60 dark:border-neutral-800 dark:bg-neutral-900/30",
+  referenceGroupSummary: cn(
+    "flex list-none cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-1.5 marker:content-none [&::-webkit-details-marker]:hidden",
+    OPERATOR_TYPOGRAPHY.body,
+  ),
+  referenceGroupChildren: "m-0 list-none space-y-1 border-l border-neutral-200 py-1 pl-3 dark:border-neutral-800",
 } as const;

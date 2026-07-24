@@ -27,19 +27,19 @@ The LLM path is intentionally simple (**one completion call**, no agent run life
 
 | TB | Control area | Config shipped? | Enforcement shipped? |
 |----|--------------|-----------------|----------------------|
-| TB-892 | `QuickScanSafetyOptions` | **Done** (2026-07-20) | N/A until TB-893–TB-898 wire enforcement |
-| TB-893 | Pricing + pre-exec estimate | Not yet | Not yet |
-| TB-894 | Global hourly/daily USD reservation | Not yet | **Not yet — Critical** |
-| TB-895 | Anonymous endpoint + per-request bounds | Not yet | Not yet |
-| TB-896 | Distributed concurrency + queue | Not yet | Not yet |
-| TB-897 | Identity rate limits / CAPTCHA progression | Not yet | Not yet |
-| TB-898 | Emergency kill switch | Not yet | Not yet |
-| TB-899 | Telemetry / dashboards / alerts | Not yet | Not yet |
-| TB-900 | Sample fallback UX | Not yet | Not yet |
-| TB-901 | Adversarial suite | Not yet | Not yet |
-| TB-902 | Public release gate (GREEN/YELLOW/RED) | N/A | Assessment pending |
+| TB-892 | `QuickScanSafetyOptions` | **Done** (2026-07-20) | N/A (config gate) |
+| TB-893 | Pricing + pre-exec estimate | **Done** (2026-07-20) | **Done** |
+| TB-894 | Global hourly/daily USD reservation | **Done** (2026-07-20) | **Done** |
+| TB-895 | Anonymous endpoint + per-request bounds | **Done** (2026-07-20) | **Done** |
+| TB-896 | Distributed concurrency + queue | **Done** (2026-07-20) | **Done** |
+| TB-897 | Identity rate limits / CAPTCHA progression | Partial (config model) | **Not yet** |
+| TB-898 | Emergency kill switch | **Done** (2026-07-20) | **Done** |
+| TB-899 | Telemetry / dashboards / alerts | Not yet | **Not yet** |
+| TB-900 | Sample fallback UX | **Done** (2026-07-21) | **Done** |
+| TB-901 | Adversarial suite | N/A | **Done** (2026-07-21) |
+| TB-902 | Public release gate (GREEN/YELLOW/RED) | N/A | **Done** (2026-07-21) — **YELLOW** sample-only |
 
-Update this table as each TB closes. Do not flip the executive conclusion to YES until **TB-902** is GREEN (or deliberately YELLOW for sample-only).
+**TB-902 gate (2026-07-21):** **YELLOW — SAMPLE-ONLY PUBLIC RELEASE.** Engineering controls TB-892–TB-901 are proven in code/tests; production keeps `AnonymousExecutionEnabled: false` with `SampleFallbackEnabled: true`. Full gate artifact: `.local/owner/quick_scan_public_release_gate.md`. Do not enable anonymous AI until TB-899, TB-897, and owner M-110 ratification.
 
 ---
 

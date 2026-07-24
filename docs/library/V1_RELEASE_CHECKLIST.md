@@ -79,6 +79,7 @@
 - [ ] **`dotnet run --project ArchLucid.Cli -- doctor`** succeeds against the deployed/staged API base URL (or equivalent in packaged deployment).
 - [ ] **Correlation:** sample request with **`X-Correlation-ID`** appears in logs as expected ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - [ ] **Observability** (if production): metrics/logs dashboards or queries smoke-tested for one synthetic run ([OPERATIONS_ADMIN.md](OPERATIONS_ADMIN.md) if applicable).
+- [ ] **MVO page path verified this environment** (hosted / SaaS): AMW shows `archlucid_*` (or API `up`) via `pwsh ./scripts/ops/verify-amw-p0-metrics.ps1`; critical action-group **Test** reaches the founder for at least one P0 rule — checklist [`SOLO_OPERATOR_MVO_OBSERVABILITY.md`](../operations/SOLO_OPERATOR_MVO_OBSERVABILITY.md) (**TB-957**); log pass/fail for GTM **M-120**.
 - [ ] **Agent output quality corpus** recorded: `python scripts/ci/eval_agent_corpus.py --markdown-report artifacts/agent-output-quality.md --enforce-quality-gate` for tagged release candidates, or documented as skipped for simulator-only internal builds.
 - [ ] **Real-LLM credibility (when ship posture includes real AOAI):** complete **[`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](../runbooks/OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md)** (repo variable, gate script, `artifacts/release/real-llm-evidence-gate.json`); at least one session logged per [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) and [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) §B.7 — **not** required when the release is simulator-only end-to-end.
 
@@ -168,4 +169,4 @@ Pick **at least one** drill appropriate to your tier; record date and outcome.
 
 ---
 
-**Maintenance:** When release practice changes, update this checklist and cross-links in [V1_SCOPE.md](V1_SCOPE.md) §6 and [ARCHITECTURE_INDEX.md](../ARCHITECTURE_INDEX.md).
+**Maintenance:** When release practice changes, update this checklist and cross-links in [V1_SCOPE.md](V1_SCOPE.md) §6 and [architecture/README.md](../architecture/README.md).

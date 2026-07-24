@@ -329,6 +329,68 @@ public sealed class AgentResultRepository(
         return AgentResultEnrichmentMerger.Apply(results, enrichments);
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AgentResult>> GetAgentTypeMarkersByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        RunChildRunScopeSql.RequireScope(scope);
+
+        string sql = $"""
+                      {AgentResultListSql.GetByRunIdSelectAgentTypeMarkers}
+                      FROM AgentResults ar
+                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      WHERE ar.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY ar.CreatedUtc
+                      {SqlPagingSyntax.FirstRowsOnly(1000)};
+                      """;
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection: null, cancellationToken);
+
+        IEnumerable<AgentTypeMarkerRow> rows;
+        try
+        {
+            rows = await conn.QueryAsync<AgentTypeMarkerRow>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                    },
+                    cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+
+        List<AgentResult> markers = [];
+
+        foreach (AgentTypeMarkerRow row in rows)
+        {
+            if (!Enum.TryParse(row.AgentType, ignoreCase: true, out AgentType agentType))
+                continue;
+
+            markers.Add(new AgentResult
+            {
+                ResultId = row.ResultId,
+                TaskId = row.TaskId,
+                RunId = row.RunId,
+                AgentType = agentType,
+                Confidence = row.Confidence,
+                CreatedUtc = row.CreatedUtc,
+            });
+        }
+
+        return markers;
+    }
+
     public async Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default)
@@ -499,5 +561,44 @@ public sealed class AgentResultRepository(
 
         commandText.Append(';');
         return new SqlChunkedBatchCommand(commandText.ToString(), parameters);
+    }
+
+    private sealed class AgentTypeMarkerRow
+    {
+        public string ResultId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string TaskId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string RunId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string AgentType
+        {
+            get;
+            init;
+        } = null!;
+
+        public double Confidence
+        {
+            get;
+            init;
+        }
+
+        public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
     }
 }

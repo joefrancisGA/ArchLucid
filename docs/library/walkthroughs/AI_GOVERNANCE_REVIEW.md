@@ -2,17 +2,17 @@
 
 # AI governance review — accelerator walkthrough
 
-**Audience:** Risk, compliance, and architecture leaders who need a **Responsible AI** review package (model inventory, oversight, classification themes) without implying certification or real PHI.
+**Audience:** Risk, compliance, and architecture leaders who need a **Responsible AI** architecture package (model inventory, oversight, classification themes) without implying certification or real PHI.
 
-**Buyer outcome:** A committed review demonstrating **ai-gov-*** rule coverage, governance disposition, and sponsor-readable exports — using shipped V1 policy packs and demo or live runs.
+**Buyer outcome:** A finalized review demonstrating **ai-gov-*** rule coverage, governance disposition, and sponsor-readable exports — using shipped V1 policy packs and demo or live runs.
 
 **Grounding rule:** No **Jira**, **Teams**, or **ServiceNow** required ([`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md) V1.1). Synthetic demo storyline uses **fabricated** Meridian / Alpine names only ([`DEMO_WORKSPACES.md`](../../go-to-market/DEMO_WORKSPACES.md)).
 
-**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`AI_GOVERNANCE_REVIEW.md`](../../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md). Use that page for sponsor-facing framing; use this walkthrough for operator steps.
+**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`AI_GOVERNANCE_REVIEW.md`](../../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md). Use that page for sponsor-facing framing; use this walkthrough for architect steps.
 
 ---
 
-## Demo fast path (committed storyline)
+## Demo fast path (finalized storyline)
 
 | Artifact | Id / route |
 |----------|------------|
@@ -25,7 +25,7 @@
 
 ## Prerequisites
 
-1. Operator shell with **ReadAuthority** / **ExecuteAuthority**.
+1. Architect workspace access with authority to execute and finalize reviews.
 2. Tenant compliance catalog includes **`ai-gov-001`** through **`ai-gov-020`** (default seed).
 3. For net-new reviews: architecture request describing ML inference, training, and data-handling boundaries.
 
@@ -35,7 +35,7 @@
 
 **UI (demo)**
 
-1. Set operator scope to Workspace B triplet (scope switcher or headers per DEMO_WORKSPACES).
+1. Set workspace scope to Workspace B triplet (scope switcher or headers per DEMO_WORKSPACES).
 2. Open `/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b`.
 3. Confirm storyline: **Alpine Patient Risk Scoring Platform** (synthetic; no real PHI).
 
@@ -123,15 +123,16 @@ See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md).
 
 ---
 
-## Step 5 — Commit manifest and governance decision
+## Step 5 — Finalize architecture package and governance decision
 
 **UI**
 
 1. Disposition blocking findings or record approval per tenant workflow.
-2. **Commit manifest** when gate passes.
+2. **Finalize** when the gate passes.
 3. Optional: **Governance dashboard** for cross-review approvals ([`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) Operate · governance).
 
-**API**
+<details>
+<summary>Administrator details — HTTP path</summary>
 
 ```http
 POST /v1/architecture/run/{runId}/commit
@@ -139,6 +140,8 @@ Authorization: Bearer {token}
 ```
 
 On block: `409` with `#governance-pre-commit-blocked`.
+
+</details>
 
 ---
 

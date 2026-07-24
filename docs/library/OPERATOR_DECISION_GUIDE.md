@@ -19,7 +19,7 @@
 
 ## 1. The default rule
 
-Start with **Core Pilot** — it is the shortest path to one **architecture review package** (finalized manifest + artifacts).
+Start with **Core Pilot** — it is the shortest path to one **architecture package** (finalized signed review record + artifacts).
 
 Do **not** move into Operate (analysis workloads) or Operate (governance and trust) just because those features exist. Move only when a real question appears that the Core Pilot path does not answer well enough.
 
@@ -49,7 +49,7 @@ Use this table when you need a working configuration without reading the full [`
 
 ### Copy-paste starter blocks (illustrative)
 
-**Hosted SaaS (standard)** — set in API `appsettings` or environment; operator UI uses Entra and server-trusted scope via the proxy (do not rely on browser `localStorage` for tenant in production-like posture):
+**Hosted SaaS (standard)** — set in API `appsettings` or environment; architect workspace uses Entra and server-trusted scope via the proxy (do not rely on browser `localStorage` for tenant in production-like posture):
 
 ```json
 "Authentication": { "Mode": "JwtBearer" },
@@ -76,7 +76,7 @@ Use this table when you need a working configuration without reading the full [`
 "Retrieval": { "Provider": "InMemory" }
 ```
 
-Operator UI proxy (production-like): set `ARCHLUCID_PROXY_TRUST_SERVER_SCOPE_ONLY=true` and `ARCHLUCID_PROXY_TENANT_ID` / `ARCHLUCID_PROXY_WORKSPACE_ID` / `ARCHLUCID_PROXY_PROJECT_ID` so the Next.js proxy does not forward browser scope headers.
+Architect workspace proxy (production-like): set `ARCHLUCID_PROXY_TRUST_SERVER_SCOPE_ONLY=true` and `ARCHLUCID_PROXY_TENANT_ID` / `ARCHLUCID_PROXY_WORKSPACE_ID` / `ARCHLUCID_PROXY_PROJECT_ID` so the Next.js proxy does not forward browser scope headers.
 
 ### First-hour onboarding checklist
 
@@ -186,7 +186,7 @@ Operate (governance and trust) are valuable, but they are not required to prove 
 
 If you have not yet shown that ArchLucid improves speed, packaging effort, or evidence quality, start there first.
 
-The operator shell adds **short in-product lines** on Enterprise entry points (nav, governance dashboard, alerts, audit, and operator-heavy alert tooling) so “optional vs Core Pilot” stays visible without replacing this document. **LayerHeader** carries the layer question; page leads stay to one or two sentences that order **inspect before configure** where both exist on the same route.
+The architect workspace adds **short in-product lines** on Enterprise entry points (nav, governance dashboard, alerts, audit, and Admin-heavy alert tooling) so “optional vs Core Pilot” stays visible without replacing this document. **LayerHeader** carries the layer question; page leads stay to one or two sentences that order **inspect before configure** where both exist on the same route.
 
 ---
 

@@ -155,7 +155,7 @@ Columns:
 | `/quick-start` | Quick start guide | Open directly |
 | `/security-trust` | Public Security & trust (metadata only) | Open directly |
 | `/see-it` | “See it in 30 seconds” pitch | Open directly |
-| `/showcase/[runId]` | Public completed review showcase | T1: `/showcase/claims-intake-modernization` |
+| `/showcase/[runId]` | Public completed review showcase | T1: `/showcase/claims-intake-modernization`. QuickNav deep-links into `/reviews/*` only when demo static fallback is active; otherwise sign-in CTA (`showcase-quick-nav-contract.ts`). |
 | `/signup` | Self-service trial signup | Open directly; submit needs backend |
 | `/signup/verify` | Email verification | Layout only unless signup completed |
 | `/trust` | Trust Center | Open directly |

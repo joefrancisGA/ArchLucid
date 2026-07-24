@@ -7,12 +7,11 @@ import {
 
 /**
  * Help-only replacements — preserves technical filenames like `manifest.json` (Azure extractor).
+ * Canon: Architecture review = workflow; Architecture package = durable outputs (UI glossary).
  */
 const HELP_PRODUCT_LANGUAGE_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
-  [/\breview packages\b/gi, "reviews"],
-  [/\breview package\b/gi, ARCHITECTURE_REVIEW_LABEL.toLowerCase()],
-  [/\barchitecture packages\b/gi, `${ARCHITECTURE_REVIEW_LABEL.toLowerCase()}s`],
-  [/\barchitecture package\b/gi, ARCHITECTURE_REVIEW_LABEL.toLowerCase()],
+  [/\breview packages\b/gi, `${REVIEW_PACKAGE_LABEL.toLowerCase()}s`],
+  [/\breview package\b/gi, REVIEW_PACKAGE_LABEL.toLowerCase()],
   [/\bevidence packages\b/gi, "evidence bundles"],
   [/\bevidence package\b/gi, "evidence bundle"],
   [/\bgolden manifests\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
@@ -26,11 +25,14 @@ const HELP_PRODUCT_LANGUAGE_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string
   [/\bextractor manifest issue\b/gi, "extractor package validation issue"],
   [/\bRunId=/g, "ReviewId="],
   [/\brun id\b/gi, "review id"],
+  [/\brun not ready for commit\b/gi, "review not ready to finalize"],
   [/\brun not ready\b/gi, "review not ready"],
   [/\barchitecture run\b/gi, ARCHITECTURE_REVIEW_LABEL.toLowerCase()],
   [/\bfor this run\b/gi, "for this review"],
   [/\bthe run\b/gi, "the review"],
   [/\bmanifests when governance\b/gi, `${REVIEW_PACKAGE_LABEL.toLowerCase()}s when governance`],
+  [/\boperator shell\b/gi, "architect workspace"],
+  [/\bpilot operator\b/gi, "architect"],
 ];
 
 /** Legacy browser paths surfaced in help copy — align with TB-399 redirect posture. */
@@ -60,7 +62,6 @@ export function applyHelpTopicProductLanguage(markdown: string): string {
 export const HELP_TOPIC_BANNED_COPY_PATTERNS = [
   "review package",
   "review packages",
-  "architecture package",
   "evidence package",
   "golden manifest",
   "manifest summary",
@@ -70,4 +71,6 @@ export const HELP_TOPIC_BANNED_COPY_PATTERNS = [
   "/runs/",
   "run not ready",
   "architecture" + " run",
+  "operator shell",
+  "pilot operator",
 ] as const;

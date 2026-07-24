@@ -6,7 +6,7 @@ When you **finalize** an architecture package, ArchLucid automatically indexes t
 
 ## What gets indexed on finalize
 
-Finalize triggers retrieval indexing for the current review package, including:
+Finalize triggers retrieval indexing for the current architecture package, including:
 
 - **Decisions and assumptions** — topology, security, compliance, and cost sections from the signed review record.
 - **Findings** — severity, disposition, and evidence-backed recommendations from the finalized findings snapshot.

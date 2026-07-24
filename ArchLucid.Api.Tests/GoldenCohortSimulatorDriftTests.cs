@@ -84,7 +84,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             manifest.Should().NotBeNull();
 
-            string actualSha = GoldenManifestFingerprint.ComputeSha256Hex(manifest);
+            string actualSha = GoldenManifestFingerprint.ComputeContentSha256Hex(manifest);
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 
@@ -122,7 +122,8 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
         }
 
         string preamble =
-            "Simulator path: POST /v1/architecture/request â†’ execute â†’ commit; SHA from `GoldenManifestFingerprint`; "
+            "Simulator path: POST /v1/architecture/request → execute → commit; "
+            + "SHA from `GoldenManifestFingerprint.ComputeContentSha256Hex` (excludes RunId/CreatedUtc/DecisionTraceIds); "
             + "categories from distinct finding categories across agent results after execute.";
 
         string markdown = GoldenCohortDriftMarkdown.BuildReport(TimeProvider.System.GetUtcNow(), rows, preamble);
@@ -134,6 +135,13 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             Directory.CreateDirectory(reportRoot);
             string latestPath = Path.Combine(reportRoot, "golden-cohort-drift-latest.md");
             await File.WriteAllTextAsync(latestPath, markdown);
+
+            // Machine-readable actuals for operator re-lock after intentional content-hasher changes.
+            string actualsPath = Path.Combine(reportRoot, "golden-cohort-drift-actuals.json");
+            string actualsJson = JsonSerializer.Serialize(
+                rows.Select(static r => new { id = r.ItemId, committedManifestSha256 = r.ActualSha.ToLowerInvariant() }),
+                JsonOptions);
+            await File.WriteAllTextAsync(actualsPath, actualsJson);
         }
 
         rows.Should().OnlyContain(static r => r.ShaMatches && r.CategoryMatches, markdown);

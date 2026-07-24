@@ -3,6 +3,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
@@ -42,10 +43,18 @@ public sealed class ArchitectureQuickScanController(
     /// <summary>Returns a static sample result that does not invoke AI.</summary>
     [HttpGet("quick-scan/sample")]
     [ProducesResponseType(typeof(ArchitectureQuickScanResponse), StatusCodes.Status200OK)]
-    public IActionResult GetQuickScanSample([FromQuery] string? systemName, [FromQuery] string? primaryEnvironment)
+    public IActionResult GetQuickScanSample([FromQuery] string? sourceState)
     {
-        quickScanTelemetry.RecordSampleView(BuildGuardContext(string.Empty));
-        ArchitectureQuickScanResponse body = QuickScanSampleResultProvider.Build(systemName, primaryEnvironment);
+        QuickScanGuardContext context = BuildGuardContext(string.Empty);
+        QuickScanGuardDecision guardDecision = quickScanGuard.TryBeginScan(context);
+        QuickScanPublicCapacityStateResolver.Resolution capacity =
+            QuickScanPublicCapacityStateResolver.Resolve(
+                operational: null,
+                guardDecision,
+                safetyOptions: new QuickScanSafetyOptions());
+
+        quickScanTelemetry.RecordSampleView(context, sourceState ?? capacity.State.ToString());
+        ArchitectureQuickScanResponse body = QuickScanSampleResultProvider.Build();
 
         return Ok(body);
     }

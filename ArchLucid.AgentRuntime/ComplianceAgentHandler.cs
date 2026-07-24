@@ -104,7 +104,7 @@ public sealed class ComplianceAgentHandler(
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 
         string baseUserPrompt = TechnologyLedgerUserPromptInjection.AppendLedgerContext(
-            AgentUserPromptComposer.BuildComplianceUserPrompt(runId, request, evidence, task),
+            AgentUserPromptComposer.BuildComplianceUserPrompt(runId, request, evidence, task, effectiveCloudTarget),
             ledgerEntries);
         IReadOnlyList<RetrievalHit> policyPackHits = [];
         (baseUserPrompt, policyPackHits) = await AppendPolicyPackRetrievalAsync(

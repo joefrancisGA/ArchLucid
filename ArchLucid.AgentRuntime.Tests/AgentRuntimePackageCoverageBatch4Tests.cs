@@ -86,6 +86,7 @@ public sealed class AgentRuntimePackageCoverageBatch4Tests
             request,
             evidence,
             task,
+            CloudProvider.Azure,
             grounding,
             []);
 

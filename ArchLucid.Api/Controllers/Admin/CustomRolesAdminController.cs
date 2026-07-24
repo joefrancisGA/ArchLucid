@@ -11,6 +11,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
@@ -22,7 +23,8 @@ public sealed class CustomRolesAdminController(
     ICustomRoleService customRoleService,
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
-    IActorContext actorContext) : ControllerBase
+    IActorContext actorContext,
+    ILogger<CustomRolesAdminController> logger) : ControllerBase
 {
     private readonly ICustomRoleService _customRoleService =
         customRoleService ?? throw new ArgumentNullException(nameof(customRoleService));
@@ -35,6 +37,9 @@ public sealed class CustomRolesAdminController(
 
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly ILogger<CustomRolesAdminController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CustomRoleResponse>), StatusCodes.Status200OK)]
@@ -157,17 +162,21 @@ public sealed class CustomRolesAdminController(
 
             ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.IdentityCustomRoleAssigned,
-                    ActorUserId = _actorContext.GetActorId(),
-                    ActorUserName = _actorContext.GetActor(),
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    DataJson = JsonSerializer.Serialize(new { roleId, userId = body.UserId }),
-                },
+            AuditEvent assignedAudit = new()
+            {
+                EventType = AuditEventTypes.IdentityCustomRoleAssigned,
+                ActorUserId = _actorContext.GetActorId(),
+                ActorUserName = _actorContext.GetActor(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(new { roleId, userId = body.UserId }),
+            };
+
+            await DurableAuditLogRetry.LogOrThrowAsync(
+                ct => _auditService.LogAsync(assignedAudit, ct),
+                _logger,
+                $"IdentityCustomRoleAssigned:{roleId:N}",
                 cancellationToken);
 
             return NoContent();

@@ -2,12 +2,15 @@ using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Models.Auth;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Security;
+using ArchLucid.Api.Services.Admin;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
+
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Asp.Versioning;
 
@@ -162,6 +165,7 @@ public sealed class PostAuthBootstrapController(
     [EnableRateLimiting("bootstrap-workspace")]
     [ProducesResponseType(typeof(PostAuthBootstrapSessionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> AcceptInvitationAsync(
         [FromBody] PostAuthAcceptInvitationBody? body,
         [FromQuery] string? returnUrl,
@@ -212,16 +216,25 @@ public sealed class PostAuthBootstrapController(
                 ProblemTypes.ValidationFailed);
         }
 
-        return Ok(
-            IssueSession(
-                user.Id,
-                displayEmail,
-                ResolveSessionRole(accepted.Role),
-                accepted.TenantId,
-                accepted.WorkspaceId,
-                accepted.ProjectId,
-                accepted.RedirectPath,
-                user.AuthVersion));
+        try
+        {
+            return Ok(
+                IssueSession(
+                    user.Id,
+                    displayEmail,
+                    ResolveSessionRole(accepted.Role),
+                    accepted.TenantId,
+                    accepted.WorkspaceId,
+                    accepted.ProjectId,
+                    accepted.RedirectPath,
+                    user.AuthVersion));
+        }
+        catch (InvalidOperationException ex) when (AuthBetaReadinessDiagnosticsEvaluator.IsLocalTrialJwtMisconfiguration(ex))
+        {
+            return this.ServiceUnavailableProblem(
+                AuthBetaReadinessDiagnosticsEvaluator.SessionMintMisconfigurationDetail,
+                ProblemTypes.UnavailableInProduction);
+        }
     }
 
     [HttpPost("workspaces/select")]

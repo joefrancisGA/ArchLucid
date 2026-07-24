@@ -1,12 +1,9 @@
+> **Reviewed:** 2026-07-23
 > **Scope:** Buyer-job → starter proof pack map for evaluators after Core Pilot first finalize. Not a certification catalog.
 
 # Accelerator chooser
 
-<<<<<<< HEAD
-Use this table **after** your first committed review ([Core Pilot](../CORE_PILOT.md)). It maps a buyer job to an **existing** starter proof pack under `templates/starter-proof-packs/` — no new templates required.
-=======
 Use this table **after** your first finalized architecture package ([Your first architecture review](/help/core-pilot)). It maps a buyer job to an **existing** starter proof pack under `templates/starter-proof-packs/` — no new templates required.
->>>>>>> 24ec218ce0 (Tier 3 doc walkthrough: gtm-internal review, prompt merge, digest delete.)
 
 | Buyer job | Starter pack | Target persona | Required inputs | Expected proof outputs | Scope | When **not** to use |
 | --- | --- | --- | --- | --- | --- | --- |

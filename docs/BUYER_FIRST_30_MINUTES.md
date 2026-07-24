@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-23
 > **Scope:** Buyer-first 30 minutes — GitHub-facing stub (no install); mirrors intent of `archlucid.net/get-started`; not contributor toolchain onboarding.
 > **Audience banner:** Evaluators and sponsors arriving from GitHub or a forwarded link. For engineers cloning the repo, use `docs/engineering/FIRST_30_MINUTES.md` instead.
 

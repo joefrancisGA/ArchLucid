@@ -59,6 +59,16 @@ public sealed class CachingFindingsSnapshotRepository(
     }
 
     /// <inheritdoc />
+    public Task<FindingsSnapshot?> GetCoverageProjectionByIdAsync(
+        ScopeContext scope,
+        Guid findingsSnapshotId,
+        CancellationToken ct)
+    {
+        // Do not reuse the full-snapshot hot-path cache key — coverage omits PayloadJson (TB-930).
+        return _inner.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, ct);
+    }
+
+    /// <inheritdoc />
     public Task<FindingRecordMetadataPage> ListFindingRecordsKeysetAsync(
         ScopeContext scope,
         Guid findingsSnapshotId,

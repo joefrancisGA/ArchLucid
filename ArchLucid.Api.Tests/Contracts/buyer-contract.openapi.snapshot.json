@@ -270,6 +270,9 @@
               "boolean"
             ]
           },
+          "localTrialIdentityConfigured": {
+            "type": "boolean"
+          },
           "misconfigurationHints": {
             "items": {
               "type": "string"
@@ -281,6 +284,9 @@
               "null",
               "boolean"
             ]
+          },
+          "operatorBaseUrlConfigured": {
+            "type": "boolean"
           },
           "roleClaimNameConfigured": {
             "type": [
@@ -961,6 +967,70 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "AdminQuickScanSafetySnapshotResponse": {
+        "properties": {
+          "actorUserId": {
+            "type": "string"
+          },
+          "anonymousExecutionAllowed": {
+            "type": "boolean"
+          },
+          "operationalMode": {
+            "type": "string"
+          },
+          "publicMessage": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "sampleResultAvailable": {
+            "type": "boolean"
+          },
+          "storeHealthy": {
+            "type": "boolean"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "actorUserId",
+          "anonymousExecutionAllowed",
+          "operationalMode",
+          "publicMessage",
+          "reason",
+          "sampleResultAvailable",
+          "storeHealthy",
+          "updatedUtc"
+        ],
+        "type": "object"
+      },
+      "AdminQuickScanSafetyUpdateRequest": {
+        "properties": {
+          "operationalMode": {
+            "type": "string"
+          },
+          "publicMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "operationalMode",
+          "reason"
+        ],
         "type": "object"
       },
       "AdminRagCorpusHealthItem": {
@@ -5276,6 +5346,32 @@
         },
         "type": "object"
       },
+      "BuyerFindingSummaryDto": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "policyRuleId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "severity": {
+            "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "BuyerRunDetailRunDto": {
         "properties": {
           "createdUtc": {
@@ -5393,6 +5489,12 @@
                 "$ref": "#/components/schemas/RunFindingCoverageSummary"
               }
             ]
+          },
+          "findingSummaries": {
+            "items": {
+              "$ref": "#/components/schemas/BuyerFindingSummaryDto"
+            },
+            "type": "array"
           },
           "lastAgentExecutionFailure": {
             "oneOf": [
@@ -19548,8 +19650,32 @@
           "capacityAvailable": {
             "type": "boolean"
           },
+          "capacityState": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "capacityStateMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "enabled": {
             "type": "boolean"
+          },
+          "operationalMode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "publicMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "requireSignIn": {
             "type": "boolean"
@@ -31368,14 +31494,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "systemName",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "primaryEnvironment",
+            "name": "sourceState",
             "schema": {
               "type": "string"
             }
@@ -32906,6 +33025,9 @@
     },
     {
       "name": "AdminQualityGateDiagnostics"
+    },
+    {
+      "name": "AdminQuickScanSafety"
     },
     {
       "name": "AdminRagHealth"

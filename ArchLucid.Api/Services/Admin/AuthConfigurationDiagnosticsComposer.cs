@@ -17,7 +17,9 @@ public static class AuthConfigurationDiagnosticsComposer
         AdminSamlOperationalHealthResponse saml,
         ArchLucidSamlAuthOptions samlOptions,
         TenantIdentityProviderConfigurationRecord? tenantIdentityProvider,
-        AuthConfigurationScimDiagnostics? scimDiagnostics = null)
+        AuthConfigurationScimDiagnostics? scimDiagnostics = null,
+        bool operatorBaseUrlConfigured = true,
+        bool localTrialIdentityConfigured = true)
     {
         ArgumentNullException.ThrowIfNull(oidc);
         ArgumentNullException.ThrowIfNull(saml);
@@ -49,6 +51,8 @@ public static class AuthConfigurationDiagnosticsComposer
             roleClaimNameConfigured,
             scimDiagnostics);
 
+        hints = AppendBetaReadinessHints(hints, operatorBaseUrlConfigured, localTrialIdentityConfigured);
+
         return new AdminAuthConfigurationDiagnosticsResponse
         {
             AuthMode = oidc.AuthMode,
@@ -65,6 +69,8 @@ public static class AuthConfigurationDiagnosticsComposer
             ScimBearerTokenActive = scimDiagnostics?.ScimBearerTokenActive,
             RoleClaimNameConfigured = roleClaimNameConfigured,
             MisconfigurationHints = hints,
+            OperatorBaseUrlConfigured = operatorBaseUrlConfigured,
+            LocalTrialIdentityConfigured = localTrialIdentityConfigured,
         };
     }
 
@@ -100,6 +106,12 @@ public static class AuthConfigurationDiagnosticsComposer
             return true;
 
         if (response.TenantClaimMappingConfigured == false)
+            return true;
+
+        if (!response.OperatorBaseUrlConfigured)
+            return true;
+
+        if (!response.LocalTrialIdentityConfigured)
             return true;
 
         return false;
@@ -366,5 +378,27 @@ public static class AuthConfigurationDiagnosticsComposer
             hints.Add(
                 "SCIM provisioning is configured but no active bearer token was found — issue or rotate a token under Settings → SCIM (see docs/integrations/SCIM_PROVISIONING.md).");
         }
+    }
+
+    private static List<string> AppendBetaReadinessHints(
+        List<string> hints,
+        bool operatorBaseUrlConfigured,
+        bool localTrialIdentityConfigured)
+    {
+        if (!operatorBaseUrlConfigured)
+        {
+            hints.Add(
+                "Email:OperatorBaseUrl is not set — user invitations cannot include a clickable accept link. "
+                + "Set it to your operator UI origin (for example https://app.example.com) before sending invites.");
+        }
+
+        if (!localTrialIdentityConfigured)
+        {
+            hints.Add(
+                "Auth:Trial:LocalIdentity is incomplete — invite accept cannot mint API sessions. "
+                + "Configure JwtIssuer, JwtAudience, and JwtPrivateKeyPemPath (file must exist on the API host).");
+        }
+
+        return hints;
     }
 }

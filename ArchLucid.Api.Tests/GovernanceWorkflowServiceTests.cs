@@ -364,6 +364,39 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [SkippableFact]
+    public async Task Approve_WhenDurableAuditFailsAfterRetries_ThrowsDurableAuditWriteFailedException()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-audit-fail",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "alice"
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-audit-fail", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+        _approvalRepo
+            .Setup(r => r.TryTransitionFromReviewableAsync(
+                "apr-audit-fail",
+                GovernanceApprovalStatus.Approved,
+                "bob",
+                "bob",
+                null,
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        _durableAudit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit store unavailable"));
+
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-audit-fail", "bob", "bob", null);
+
+        (await act.Should().ThrowAsync<DurableAuditWriteFailedException>())
+            .Which.OperationLabel.Should().Contain("GovernanceApprovalApproved");
+    }
+
+    [SkippableFact]
     public async Task Approve_DraftRequest_ChangesStatusToApproved()
     {
         GovernanceApprovalRequest existing = new()

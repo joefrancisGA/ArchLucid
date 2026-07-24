@@ -21,20 +21,18 @@ Categories listed per item are **expected high-level finding buckets** for regre
 
 ## Baseline SHAs
 
-`expectedCommittedManifestSha256` carries the **canonical Simulator-path** committed-manifest SHA-256 (lowercase hex) for each cohort row. Nightly drift compares fresh simulator runs to these values when the repository variable `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED` is `true`.
+`expectedCommittedManifestSha256` carries the **canonical Simulator-path** committed-manifest **content** SHA-256 (lowercase hex) for each cohort row — see `GoldenManifestFingerprint.ComputeContentSha256Hex`. Nightly drift compares fresh simulator runs to these values when the repository variable `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED` is `true`.
 
-### Locked baseline (Simulator) — 2026-04-22
+### Locked baseline (Simulator) — 2026-07-22
 
 | Field | Value |
 |-------|--------|
-| **Lock date (UTC)** | 2026-04-22 |
-| **Repository tree SHA at capture** | `eda94855c62d5a1a91fd189bf2e4b8b4d0546397` |
+| **Lock date (UTC)** | 2026-07-22 |
+| **Fingerprint** | `GoldenManifestFingerprint.ComputeContentSha256Hex` (excludes per-run `RunId`, `Metadata.CreatedUtc`, `Metadata.DecisionTraceIds`) |
+| **Capture method** | Offline authority-projection baseline via `GoldenCohortContentBaselineGeneratorTests` (Simulator topology + compliance controls → `AuthorityCommitProjectionBuilder`) after content-hasher fix; prior full-DTO SHA lock was non-deterministic under `Guid.NewGuid()` run ids |
 | **API mode** | `AgentExecution__Mode=Simulator`, `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=false` |
-| **Host** | Local `ArchLucid.Api` (`http` launch profile, port **5128**), `ASPNETCORE_ENVIRONMENT=Development` |
-| **SQL catalog** | `ArchLucidGoldenCohortLock` on local SQL Server (Windows integrated security) |
-| **Storage** | `ArchLucid__StorageProvider=InMemory` |
-| **Rate limits** | Development `RateLimiting:Expensive` permit limit raised for sequential create/execute/commit bursts during lock |
-| **Simulator payload stability** | `FakeScenarioFactory` uses SHA-256–derived stable ids per `(runId, taskId, slot)` and a fixed synthetic `CreatedUtc` (2024-06-01 UTC) so manifest fingerprints and `GoldenCohortSimulatorDeterminismTests` stay repeatable |
+| **Storage** | `ArchLucid__StorageProvider=InMemory` (E2E drift job) |
+| **Simulator payload stability** | `FakeScenarioFactory` uses SHA-256–derived stable ids per `(runId, taskId, slot)` and a fixed synthetic `CreatedUtc` (2024-06-01 UTC) so agent payloads stay repeatable; cohort SHAs use the content hasher so commit-path run identity cannot break the lock |
 
 Operator command (PowerShell):
 

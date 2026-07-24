@@ -132,6 +132,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminQuickScanSafetyController.cs",
+      "class_name": "AdminQuickScanSafetyController",
+      "route_template": "v{version:apiVersion}/admin/quick-scan/safety",
+      "normalized_prefix": "/v1/admin/quick-scan/safety",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminRagHealthController.cs",
       "class_name": "AdminRagHealthController",
       "route_template": "v{version:apiVersion}/admin",

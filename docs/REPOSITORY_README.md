@@ -6,7 +6,7 @@
 
 | Audience | What they use | This repo |
 |----------|----------------|-----------|
-| **Customers / pilots / buyers** | **Vendor-hosted SaaS** — browser operator UI (`archlucid.net`, staging hostnames per [docs/library/REFERENCE_SAAS_STACK_ORDER.md](library/REFERENCE_SAAS_STACK_ORDER.md)); no local install required | Buyer spine ([`docs/START_HERE.md`](START_HERE.md)), [**Trust Center**](go-to-market/trust-center.md), sponsor brief. They do **not** clone this repository to operate the product day to day. |
+| **Customers / pilots / buyers** | **Vendor-hosted SaaS** — browser architect workspace (`archlucid.net`, staging hostnames per [docs/library/REFERENCE_SAAS_STACK_ORDER.md](library/REFERENCE_SAAS_STACK_ORDER.md)); no local install required | Buyer spine ([`docs/START_HERE.md`](START_HERE.md)), [**Trust Center**](go-to-market/trust-center.md), sponsor brief. They do **not** clone this repository to operate the product day to day. |
 | **Engineering / platform** | Builds, CI, staged environments, IaC (`infra/`). Local Docker/.NET/SQL workflows are **for development and validation only** — not an advertised customer **self-hosted** deployment path | Install spine below, [`docs/engineering/`](engineering/), tests, pipelines |
 
 ArchLucid is a **proprietary** product codebase. References below to onboarding or “persona” docs mean **engineers and vendor operators extending or running the stack**, not an open-source contribution program.
@@ -20,9 +20,9 @@ Start at **[docs/START_HERE.md](START_HERE.md)** (buyers). **Engineering team** 
 
 **Architecture Decision Records:** **[docs/architecture/adrs/README.md](architecture/adrs/README.md)**.
 
-Buyers: `docs/BUYER_FIRST_30_MINUTES.md` · Sponsors: `docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md` · Security / trust: `docs/go-to-market/trust-center.md` · Depth: `docs/library/` · `docs/ARCHITECTURE_INDEX.md` · Archived root-era snapshots: `docs/archive/root-superseded-2026-05-01/README.md` · Engineering onboarding persona table: [`docs/library/CONTRIBUTOR_PERSONA_TABLE.md`](library/CONTRIBUTOR_PERSONA_TABLE.md) (legacy filename — refers to engineers on the codebase, not public OSS contributors).
+Buyers: `docs/BUYER_FIRST_30_MINUTES.md` · Sponsors: `docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md` · Security / trust: `docs/go-to-market/trust-center.md` · Depth: `docs/library/` · `docs/architecture/README.md` · Archived root-era snapshots: `docs/archive/root-superseded-2026-05-01/README.md` · Engineering onboarding persona table: [`docs/library/CONTRIBUTOR_PERSONA_TABLE.md`](library/CONTRIBUTOR_PERSONA_TABLE.md) (legacy filename — refers to engineers on the codebase, not public OSS contributors).
 
-**Quick routing:** buyer / evaluator — hosted SaaS + `START_HERE`, sponsor brief, Core Pilot **only** — no repo clone required. **Engineering** — spine above, then [`docs/ARCHITECTURE_INDEX.md`](ARCHITECTURE_INDEX.md) once something runs locally.
+**Quick routing:** buyer / evaluator — hosted SaaS + `START_HERE`, sponsor brief, Core Pilot **only** — no repo clone required. **Engineering** — spine above, then [`docs/architecture/README.md`](architecture/README.md) once something runs locally.
 
 </details>
 
@@ -52,7 +52,7 @@ Windows Docker-only helper: `.\scripts\demo-start.ps1`
 
 </details>
 
-**Deeper dive index:** [`docs/ARCHITECTURE_INDEX.md`](ARCHITECTURE_INDEX.md) · bulk reference markdown now lives under [`docs/library/`](library/).
+**Deeper dive index:** [`docs/architecture/README.md`](architecture/README.md) · bulk reference markdown now lives under [`docs/library/`](library/).
 
 <details>
 <summary><strong>Deeper docs</strong> — full README (install, personas, layers, API, CLI, tests, architecture)</summary>
@@ -67,7 +67,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 ## Getting started
 
-> **Audience.** This README and the documents linked from it are primarily for **the engineering team and vendor operators** building, testing, or operating **hosted SaaS**. **Buyers / evaluators / sponsors / customers** do not run Docker, SQL, .NET, Node, or local CLI scripts to consume the product — they sign up at **`archlucid.net`** (or staged hostnames per deployment) and use the in-product operator UI. Start at **[docs/START_HERE.md](START_HERE.md)**; canonical outward narrative: **[docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**.
+> **Audience.** This README and the documents linked from it are primarily for **the engineering team and vendor Admins** building, testing, or operating **hosted SaaS**. **Buyers / evaluators / sponsors / customers** do not run Docker, SQL, .NET, Node, or local CLI scripts to consume the product — they sign up at **`archlucid.net`** (or staged hostnames per deployment) and use the in-product architect workspace. Start at **[docs/START_HERE.md](START_HERE.md)**; canonical outward narrative: **[docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**.
 
 **Canonical install order (engineering / vendor ops):** **[docs/engineering/INSTALL_ORDER.md](engineering/INSTALL_ORDER.md)** — toolchain order for local development, CI parity, and validation against vendor Azure environments (**not** a customer self-managed install manual).
 
@@ -80,7 +80,7 @@ Full table (filename retained for links): **[docs/library/CONTRIBUTOR_PERSONA_TA
 
 </details>
 
-**Customer path (no install):** follow **[docs/START_HERE.md](START_HERE.md)** §2. **Security / GRC (single URL):** **[docs/go-to-market/trust-center.md](go-to-market/trust-center.md)**. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](library/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](library/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)**, **[docs/OPERATOR_DECISION_GUIDE.md](library/OPERATOR_DECISION_GUIDE.md)**, **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](library/FUTURE_PACKAGING_ENFORCEMENT.md)**, **[docs/go-to-market/reference-customers/README.md](go-to-market/reference-customers/README.md)**, **[docs/PENDING_QUESTIONS.md](PENDING_QUESTIONS.md)**, **[docs/archive/README.md](archive/README.md)**.
+**Customer path (no install):** follow **[docs/START_HERE.md](START_HERE.md)** §2. **Security / GRC (single URL):** **[docs/go-to-market/trust-center.md](go-to-market/trust-center.md)**. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](library/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/architecture/README.md](architecture/README.md)**, **[docs/V1_SCOPE.md](library/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)**, **[docs/OPERATOR_DECISION_GUIDE.md](library/OPERATOR_DECISION_GUIDE.md)**, **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](library/FUTURE_PACKAGING_ENFORCEMENT.md)**, **[docs/go-to-market/reference-customers/README.md](go-to-market/reference-customers/README.md)**, **[docs/PENDING_QUESTIONS.md](PENDING_QUESTIONS.md)**, **[docs/archive/README.md](archive/README.md)**.
 
 ## Product layers
 
@@ -132,9 +132,9 @@ lifecycle hooks (run completion, governance, alerts, advisory scans).
 
 See **[docs/engineering/INSTALL_ORDER.md](engineering/INSTALL_ORDER.md)** for the pinned toolchain (.NET SDK from [`global.json`](../global.json), Docker, Node **22** per CI, SQL) and verification commands. **Customers** do not install this toolchain to use hosted SaaS.
 
-## Operator UI (`archlucid-ui`)
+## Architect workspace UI (`archlucid-ui`)
 
-A thin Next.js shell organized around **two** product layers: **Pilot** (runs, commit, manifest, artifacts) visible by default; **Operate** (analysis, replay, graph, advisory **and** governance, audit, alerts, policy) via progressive disclosure.
+A thin Next.js shell organized around **two** product layers: **Pilot** (reviews, finalize, architecture package, artifacts) visible by default; **Operate** (analysis, replay, graph, advisory **and** governance, audit, alerts, policy) via progressive disclosure.
 
 **Keep the default mental model narrow:** **Pilot** is the default path. **Operate** is a follow-on layer for specific analytical or governance questions, not required for first-pilot success.
 
@@ -402,7 +402,7 @@ To update: `dotnet tool update -g ArchLucid.Cli --add-source ./nupkg`
 
 For deeper dives after the poster:
 
-- `docs/ARCHITECTURE_INDEX.md` – full doc map and indexes everything below.
+- `docs/architecture/README.md` – full doc map and indexes everything below.
 - `docs/ARCHITECTURE_CONTEXT.md` – high-level system context and qualities.
 - `docs/ARCHITECTURE_CONTAINERS.md` – projects/containers and their responsibilities.
 - `docs/ARCHITECTURE_COMPONENTS.md` – key components to touch when changing behavior.

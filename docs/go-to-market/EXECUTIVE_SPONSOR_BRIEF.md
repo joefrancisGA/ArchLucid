@@ -6,26 +6,33 @@
 
 **Status:** Sponsor-facing V1 summary. This brief is grounded in what the current product supports today. It is not a pricing sheet and it does not claim enterprise-wide transformation.
 
-This file is the outward **sponsor story of record**: why a pilot matters, what success should look like in plain language, and what not to over-claim. Other docs and go-to-market pages should align here rather than grow a second buyer story. Use the related links for ROI measurement, packaging semantics, operator motion, and positioning.
+This file is the outward **sponsor story of record**: why a pilot matters, what success should look like in plain language, and what not to over-claim. Other docs and go-to-market pages should align here rather than grow a second buyer story. Use the related links for ROI measurement, packaging, first-review motion, and positioning.
 
 ---
 
 ## Related
 
-- **[START_HERE.md](../START_HERE.md)** — decision-tree entry (buyer vs contributor vs security vs architecture)
-- **[README.md](../REPOSITORY_README.md)** — repo entry and deeper operator material
-- **[go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md](EXECUTIVE_ONE_EMAIL_KIT.md)** — one-email sponsor/procurement copy (subject, ~120-word summary, four-artifact checklist)
-- **[go-to-market/DEMO_VIDEO_STORYBOARD.md](DEMO_VIDEO_STORYBOARD.md)** — shot-by-shot demo video storyboard (script: [`DEMO_VIDEO_SCRIPT.md`](DEMO_VIDEO_SCRIPT.md))
-- **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)** — pilot measurement companion
-- **[PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
-- **[CORE_PILOT.md](../CORE_PILOT.md)** — operator first-pilot motion
-- **[runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** — single end-to-end V1 pilot path with failure recovery
-- **[library/walkthroughs/README.md](../library/walkthroughs/README.md)** — Azure SaaS, AI governance, and healthcare accelerator packs
-- **[go-to-market/INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)** — V1 vs V1.1 integration boundaries for procurement
-- **[go-to-market/POSITIONING.md](POSITIONING.md)** — positioning aligned to this brief
-- **[go-to-market/GTM_BACKLOG.md](GTM_BACKLOG.md)** — internal service-led sequencing (named offers, outreach, monetization tasks); **`SERVICE_LED_OFFERS.md`** productized SKU menu
+- **[Your first architecture review](/help/core-pilot)** — guided first-session checklist
+- **[Pilot ROI model](/help/pilot-roi-model)** — how pilot value is measured
+- **[Specialty review templates](/help/specialty-walkthroughs)** — Azure SaaS, AI governance, and healthcare starter packs
+- **[Procurement FAQ](/help/procurement)** — InfoSec and enterprise questionnaire answers
+- **[POSITIONING.md](POSITIONING.md)** — positioning aligned to this brief
 
-**One-shot sponsor PDF:** the operator-shell **review-detail** page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows a non-modal **“Email this review to your sponsor”** banner after a successful commit (exact banner text may still say *run* until label-only UI updates land). The banner downloads a PDF projection of the canonical first-value-report for that **review** via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known (pinned for **all** tiers on first authority commit; optional SQL backfill for legacy rows), the banner can show a small **“Day N since first commit”** badge (UTC full-day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](../library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](../library/API_CONTRACTS.md#pilots-v1pilots).
+<details>
+<summary>Administrator / contributor related links</summary>
+
+- **[START_HERE.md](../START_HERE.md)** — decision-tree entry (buyer vs contributor vs security vs architecture)
+- **[README.md](../REPOSITORY_README.md)** — repo entry and deeper platform material
+- **[EXECUTIVE_ONE_EMAIL_KIT.md](EXECUTIVE_ONE_EMAIL_KIT.md)** — one-email sponsor/procurement copy
+- **[DEMO_VIDEO_STORYBOARD.md](DEMO_VIDEO_STORYBOARD.md)** — shot-by-shot demo video storyboard
+- **[PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
+- **[FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** — SE/ops end-to-end pilot path
+- **[INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)** — V1 vs V1.1 integration boundaries
+- **[GTM_BACKLOG.md](GTM_BACKLOG.md)** — internal service-led sequencing
+
+**One-shot sponsor PDF (platform detail):** After finalize, review detail can show **Email this review to your sponsor**. Architects download the first-value report PDF and attach it to email. When the tenant’s first finalize timestamp is known, the banner may show **Day N since first finalize**. Legacy UI copy may still say *commit* / *run*. See [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](../library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md) and [API_CONTRACTS.md §Pilots](../library/API_CONTRACTS.md#pilots-v1pilots).
+
+</details>
 
 ---
 
@@ -70,7 +77,7 @@ ArchLucid is designed to reduce those problems.
 
 ### Pillar 1: AI-native architecture analysis
 
-ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a **multi-agent pipeline** — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a **versioned golden manifest** with structured findings, not a chat conversation that disappears.
+ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a **multi-agent pipeline** — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a **versioned architecture package** with structured findings, not a chat conversation that disappears.
 
 ### Pillar 2: Auditable decision trail
 
@@ -78,7 +85,7 @@ Every architecture recommendation ArchLucid produces comes with a complete chain
 
 ### Pillar 3: Enterprise governance
 
-Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** act as the adaptive "brain" of this governance model. By decoupling the core evaluation engine from domain-specific knowledge, they future-proof the system against rapid technology shifts; new compliance frameworks or cloud standards are simply injected as JSON/YAML rules. Curated packs are drafted with an **LLM generator → critic model → human SME** pipeline (see **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**) so content velocity stays high without sacrificing review rigor. Approval workflows enforce segregation of duties. Pre-commit gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
+Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** act as the adaptive "brain" of this governance model. By decoupling the core evaluation engine from domain-specific knowledge, they future-proof the system against rapid technology shifts; new compliance frameworks or cloud standards are simply injected as JSON/YAML rules. Curated packs are drafted with an **LLM generator → critic model → human SME** pipeline (see **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)**) so content velocity stays high without sacrificing review rigor. Approval workflows enforce segregation of duties. Pre-finalize gates block architecture packages when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
 
 ---
 
@@ -137,7 +144,7 @@ A credible pilot should show improvement in a few concrete areas:
 
 For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md).
 
-**Automated sponsor package:** operators on a Standard-tier tenant can generate a **per-tenant value report DOCX** from the operator UI (`/value-report` or “Generate sponsor report” on review detail after commit; legacy copy may say *run*). The document summarizes committed manifests, governance and drift audit activity, ROI_MODEL-aligned hour and LLM estimates, and annualized ROI vs the model baseline — see [go-to-market/ROI_MODEL.md](ROI_MODEL.md).
+**Automated sponsor package:** on a Standard-tier tenant, architects can generate a **per-tenant value report DOCX** from the workspace (`/value-report` or **Generate sponsor report** on review detail after finalize). The document summarizes finalized architecture packages, governance and drift audit activity, ROI_MODEL-aligned hour and LLM estimates, and annualized ROI vs the model baseline — see [ROI_MODEL.md](ROI_MODEL.md).
 
 ---
 
@@ -149,7 +156,7 @@ After **Pilot** is proven, **Operate** is the second buyer-facing layer. It comb
 
 **Governance and trust** — when the organization is ready to operationalize architecture decision workflows more broadly: governance approvals, policy packs, auditability, compliance drift visibility, alerts, and operational control surfaces. That half of Operate is where ArchLucid becomes more directly relevant to governance, audit, security, and compliance stakeholders.
 
-Progressive disclosure still applies: deeper governance and write-oriented operator affordances remain aligned with **Execute** rank and tier rules in the shell (see [PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md)); the API remains authoritative for **401/403**.
+Progressive disclosure still applies: deeper governance and write-oriented controls remain aligned with role and tier rules in the workspace (see [PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md)); the API remains authoritative for access denials.
 
 ---
 

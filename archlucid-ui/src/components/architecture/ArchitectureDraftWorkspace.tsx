@@ -71,7 +71,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [exitPending, setExitPending] = useState(false);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
-  const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("idle");
+  const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
@@ -275,8 +275,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             {ARCHITECTURE_DRAFT_WORKSPACE_LEAD}
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-            <span className="font-semibold text-al-text-primary">Status:</span>{" "}
-            {ARCHITECTURE_DRAFT_STATUS_LABELS.draft}
+            Status: {ARCHITECTURE_DRAFT_STATUS_LABELS.draft}
             {linkedReviewId !== null ? (
               <>
                 {" · "}
@@ -382,8 +381,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
       {!reviewReadiness.isValid && linkedReviewId === null ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-          <span className="font-semibold text-al-text-primary">Review readiness:</span> add{" "}
-          {reviewReadiness.blockers.join(" and ")} before starting a review.
+          Review readiness: add {reviewReadiness.blockers.join(" and ")} before starting a review.
         </p>
       ) : null}
     </div>

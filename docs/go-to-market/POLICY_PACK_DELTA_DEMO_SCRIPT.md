@@ -1,10 +1,10 @@
 > **Scope:** Repeatable sales/CS demo — same architecture review, different policy-pack enforcement, different pre-finalize gate outcome. Uses shipped V1 governance dry-run and simulation endpoints only.
 >
-> **Audience:** Sales engineers and CS (Admin / operator shell). Not a buyer self-serve help topic — buyers should use in-app [Governance approval](/help/governance-approval) and [Understanding governance alerts](/help/alerts) instead of running this script alone.
+> **Audience:** Sales engineers and CS (Admin / architect workspace). Not a buyer self-serve help topic — buyers should use in-app [Governance approval](/help/governance-approval) and [Understanding governance alerts](/help/alerts) instead of running this script alone.
 
 # Policy-pack delta demo script
 
-**Audience:** Sales engineers, CS, and founders answering *"Why not another ChatGPT seat?"* (Admin / operator shell)
+**Audience:** Sales engineers, CS, and founders answering *"Why not another ChatGPT seat?"* (Admin / architect workspace)
 
 **Buyer outcome:** Prospects see that **policy assignments change finalize-gate outcomes** on the **same finalized architecture package** — not just different finding prose.
 
@@ -153,7 +153,7 @@ Content-Type: application/json
 }
 ```
 
-Then enable enforcement via operator UI or tenant SQL — assignments ship with `BlockCommitOnCritical` default **false** until explicitly set.
+Then enable enforcement via architect workspace or tenant SQL — assignments ship with `BlockCommitOnCritical` default **false** until explicitly set.
 
 ---
 

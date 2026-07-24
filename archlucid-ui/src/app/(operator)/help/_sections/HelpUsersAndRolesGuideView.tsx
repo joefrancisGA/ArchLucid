@@ -32,7 +32,6 @@ import {
   USERS_AND_ROLES_SCOPE_GUIDE_HREF,
   USERS_AND_ROLES_SECURITY_TRUST_HREF,
 } from "@/lib/users-and-roles-help-manifest";
-import { BUILTIN_ROLE_ORDER } from "@/app/(operator)/settings/users/_sections/roles-matrix-constants";
 import { cn } from "@/lib/utils";
 
 type HelpUsersAndRolesGuideViewProps = {
@@ -98,9 +97,9 @@ function CapabilityMatrixTable(): React.ReactElement {
             <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
               Capability
             </th>
-            {BUILTIN_ROLE_ORDER.map((role) => (
-              <th key={role} scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
-                {role}
+            {USERS_AND_ROLES_ROLE_OVERVIEW.map((role) => (
+              <th key={role.id} scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+                {role.label}
               </th>
             ))}
           </tr>
@@ -111,14 +110,14 @@ function CapabilityMatrixTable(): React.ReactElement {
               <th scope="row" className={HELP_PAGE_LAYOUT.tableHeadCell}>
                 {row.label}
               </th>
-              {BUILTIN_ROLE_ORDER.map((role) => (
-                <td key={role} className={HELP_PAGE_LAYOUT.tableBodyCell}>
+              {USERS_AND_ROLES_ROLE_OVERVIEW.map((role) => (
+                <td key={role.id} className={HELP_PAGE_LAYOUT.tableBodyCell}>
                   <span
                     className="inline-flex min-w-[2rem] justify-center font-semibold"
-                    aria-label={`${row.label} for ${role}: ${row.roles[role] ? "Allowed" : "Not allowed"}`}
+                    aria-label={`${row.label} for ${role.label}: ${row.roles[role.id] ? "Allowed" : "Not allowed"}`}
                   >
-                    <span aria-hidden="true">{row.roles[role] ? "Yes" : "—"}</span>
-                    <span className="sr-only">{row.roles[role] ? "Allowed" : "Not allowed"}</span>
+                    <span aria-hidden="true">{row.roles[role.id] ? "Yes" : "—"}</span>
+                    <span className="sr-only">{row.roles[role.id] ? "Allowed" : "Not allowed"}</span>
                   </span>
                 </td>
               ))}

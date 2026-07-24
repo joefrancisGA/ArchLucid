@@ -9,18 +9,13 @@ public static class QuickScanSampleResultProvider
     public const string DemonstrationDisclaimer =
         "This is a demonstration result. It illustrates the kind of concise architecture feedback Quick Scan provides and is not a saved workspace review or a complete ArchLucid assessment.";
 
-    public static ArchitectureQuickScanResponse Build(string? systemName = null, string? primaryEnvironment = null)
+    public static ArchitectureQuickScanResponse Build()
     {
-        string resolvedName = string.IsNullOrWhiteSpace(systemName) ? "Claims intake API" : systemName.Trim();
-        string resolvedEnvironment = string.IsNullOrWhiteSpace(primaryEnvironment)
-            ? QuickScanPrimaryEnvironment.Azure
-            : primaryEnvironment;
-
         return new ArchitectureQuickScanResponse
         {
             ScanId = "sample-quick-scan",
-            SystemName = resolvedName,
-            PrimaryEnvironment = resolvedEnvironment,
+            SystemName = "Claims intake API",
+            PrimaryEnvironment = QuickScanPrimaryEnvironment.Azure,
             Summary =
                 "The described workload shows a conventional three-tier pattern with clear external boundaries, but several controls need tightening before production scale.",
             Findings =

@@ -18,7 +18,7 @@ ArchLucid is an AI-assisted architecture workflow system that shortens the path 
 
 The V1 proof is not "autonomous architecture." The V1 proof is narrower and more credible:
 
-- A team can move from a structured architecture request to a finalized review package.
+- A team can move from a structured architecture request to a finalized architecture package.
 - The package contains a manifest, findings, evidence references, and deliverables suitable for sponsor or architecture-board review.
 - Governance, audit, and traceability surfaces make the review easier to defend than an ad hoc document assembled after the fact.
 - AI-generated narrative is decision support, while persisted manifests, findings, traces, approvals, and audit events remain the reviewable evidence.
@@ -84,7 +84,7 @@ Start with:
 
 Decision focus:
 
-- Does the review package contain useful findings, decisions, and evidence?
+- Does the architecture package contain useful findings, decisions, and evidence?
 - Does the manifest model fit the organization’s architecture governance process?
 - Are graph, audit, and governance surfaces useful as follow-on maturity paths?
 
@@ -169,7 +169,7 @@ Optional, depending on buyer diligence:
 
 Use this answer when a buyer asks for a procurement-ready summary:
 
-> ArchLucid V1 is ready for a sales-led regulated-enterprise pilot where the goal is to prove faster architecture review package creation, stronger evidence traceability, and clearer governance/audit handoff. The current packet includes a sponsor brief, architecture overview, pilot success scorecard, ROI model, trust center, procurement artifact index, questionnaire accelerator, V1 scope, and explicit deferral register. It does not claim issued SOC 2 Type II, a completed third-party penetration test, a public reference customer, live Marketplace transactability, or live Stripe production status unless those source documents are later updated.
+> ArchLucid V1 is ready for a sales-led regulated-enterprise pilot where the goal is to prove faster architecture package creation, stronger evidence traceability, and clearer governance/audit handoff. The current packet includes a sponsor brief, architecture overview, pilot success scorecard, ROI model, trust center, procurement artifact index, questionnaire accelerator, V1 scope, and explicit deferral register. It does not claim issued SOC 2 Type II, a completed third-party penetration test, a public reference customer, live Marketplace transactability, or live Stripe production status unless those source documents are later updated.
 
 ---
 

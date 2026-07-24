@@ -252,8 +252,8 @@ variable "openai_embedding_capacity" {
 
 variable "enable_openai_consumption_budget" {
   type        = bool
-  description = "Emit azurerm_consumption_budget_resource_group for the hosted prod resource group."
-  default     = false
+  description = "Emit azurerm_consumption_budget_resource_group for the hosted prod resource group. Defaults true (2026-07-20): Azure Cost Management budgets are free; notifications use contact_roles (default Owner) when contact_emails is empty."
+  default     = true
 }
 
 variable "openai_consumption_budget_name" {
@@ -276,8 +276,14 @@ variable "openai_consumption_budget_period_start" {
 
 variable "openai_consumption_budget_contact_emails" {
   type        = list(string)
-  description = "Notification recipients for OpenAI consumption budget thresholds."
+  description = "Notification recipients for OpenAI consumption budget thresholds. When empty, contact_roles is used instead."
   default     = []
+}
+
+variable "openai_consumption_budget_contact_roles" {
+  type        = list(string)
+  description = "RBAC roles to notify when openai_consumption_budget_contact_emails is empty."
+  default     = ["Owner"]
 }
 
 variable "container_app_resource_ids" {

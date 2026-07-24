@@ -236,7 +236,8 @@ public sealed class AuditPathClassificationArchitectureTests
     private static bool MethodUsesDurableRetry(SyntaxNode bodyRoot)
     {
         // Syntax-only checks are easy to get wrong for qualified/static member access; substring is stable for this guardrail.
-        return bodyRoot.ToFullString().Contains("DurableAuditLogRetry.TryLogAsync", StringComparison.Ordinal);
+        return bodyRoot.ToFullString().Contains("DurableAuditLogRetry.TryLogAsync", StringComparison.Ordinal)
+            || bodyRoot.ToFullString().Contains("DurableAuditLogRetry.LogOrThrowAsync", StringComparison.Ordinal);
     }
 
     private static bool MethodHasMemberAccessLogAsync(SyntaxNode bodyRoot)

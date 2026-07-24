@@ -52,4 +52,10 @@ Email-code sign-in is not available as a routine bypass when SSO is enforced for
 
 - Sign-in events and administrative identity changes are recorded in the audit trail.
 - ArchLucid does not ask you to create a product password for routine access.
-- For data handling and assurance materials, see **Security and trust** and **What ArchLucid does with your data**.
+- For data handling and assurance materials, see [Security and trust](/help/security-trust) and [What ArchLucid does with your data](/help/data-handling).
+
+## Related
+
+- [Users and roles](/help/users-and-roles) — Admin, Architect, Reader, and Auditor
+- [Enterprise onboarding](/help/enterprise-onboarding) — SSO and claim mapping for hosted enterprise tenants
+- [Report a problem](/help/report-a-problem) — structured support when sign-in or workspace access fails

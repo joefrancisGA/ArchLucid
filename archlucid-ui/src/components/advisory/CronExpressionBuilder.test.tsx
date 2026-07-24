@@ -26,7 +26,7 @@ describe("CronExpressionBuilder", () => {
     render(<CronExpressionBuilder value="0 7 * * *" onChange={vi.fn()} />);
 
     expect(screen.getByTestId("cron-next-runs-preview")).toBeInTheDocument();
-    expect(screen.getByText(/Next 5 scheduled runs/i)).toBeInTheDocument();
+    expect(screen.getByText(/Next 5 scheduled runs \(UTC\)/i)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(governanceApi.previewRecurrenceScheduleRuns).toHaveBeenCalledWith({

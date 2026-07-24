@@ -62,14 +62,14 @@ Choose **one** workforce authentication path for the tenant (many customers run 
 | Decide IdP path: **SAML 2.0 SP** or **OIDC JwtBearer** | Joint | Documented in tenant runbook |
 | Pre-flight SAML metadata + claim mapping (if SAML) | Customer IT + ArchLucid | SAML validation passes with zero failures |
 | Configure ArchLucid auth mode + endpoints | ArchLucid | Keys documented for your tenant runbook |
-| Map IdP groups → ArchLucid roles (Admin, Operator, Reader, Auditor) | Joint | At least one Admin can sign in — see **[SAML claim-mapping reference](#saml-claim-mapping-reference)** |
-| Smoke test: Admin + Operator login | Customer admin | Both roles reach expected UI surfaces |
+| Map IdP groups → ArchLucid roles (Admin, Architect, Reader, Auditor) | Joint | At least one Admin can sign in — see **[SAML claim-mapping reference](#saml-claim-mapping-reference)** |
+| Smoke test: Admin + Architect login | Customer admin | Both roles reach expected UI surfaces |
 
-**Operator UI:** [`/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard).
+**Workspace settings:** [`/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard).
 
 ### SAML claim-mapping reference {#saml-claim-mapping-reference}
 
-ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader`**, or **`Auditor`** role strings after assertion processing. Persist mapping in **`ClaimMappingJson`** on the tenant identity-provider row (SSO wizard or ArchLucid support tooling).
+Buyer-facing role labels are **Admin**, **Architect**, **Reader**, and **Auditor**. Identity mappings still emit the claim/API values **`Admin`**, **`Operator`** (Architect), **`Reader`**, and **`Auditor`** after assertion processing. Persist mapping in **`ClaimMappingJson`** on the tenant identity-provider row (SSO wizard or ArchLucid support tooling).
 
 **Validate before go-live:** run SAML metadata and claim-mapping validation before production cutover. Procurement FAQ Q4 cross-links this checklist anchor for buyer questionnaires.
 
@@ -96,7 +96,7 @@ ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader
 | IdP source (typical) | Example IdP value | ArchLucid role | Notes |
 |----------------------|-------------------|----------------|-------|
 | Entra **Security group** display name | `ArchLucid-Admins` | `Admin` | Prefer stable group **object IDs** in `idpValue` when display names churn |
-| Entra security group | `ArchLucid-Operators` | `Operator` | |
+| Entra security group | `ArchLucid-Operators` | `Operator` (Architect) | |
 | Entra security group | `ArchLucid-Readers` | `Reader` | |
 | Entra security group | `ArchLucid-Auditors` | `Auditor` | Required for audit export without Admin |
 | Entra **App role** assignment | `Admin` | `Admin` | When using enterprise app roles instead of groups |
@@ -130,7 +130,7 @@ ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader
 | IdP source (typical) | Example IdP value | ArchLucid role | Notes |
 |----------------------|-------------------|----------------|-------|
 | Okta **Group** name | `ArchLucid Admin` | `Admin` | Match the string Okta emits in the SAML attribute you select |
-| Okta group | `ArchLucid Operator` | `Operator` | |
+| Okta group | `ArchLucid Operator` | `Operator` (Architect) | |
 | Okta group | `ArchLucid Reader` | `Reader` | |
 | Okta group | `ArchLucid Auditor` | `Auditor` | |
 
@@ -160,7 +160,7 @@ ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader
 | IdP source (typical) | Example IdP value | ArchLucid role | Notes |
 |----------------------|-------------------|----------------|-------|
 | Ping **group** membership | `archlucid-admins` | `Admin` | Use the same string Ping sends in the SAML attribute |
-| Ping group | `archlucid-operators` | `Operator` | |
+| Ping group | `archlucid-operators` | `Operator` (Architect) | |
 | Ping group | `archlucid-readers` | `Reader` | |
 | Ping group | `archlucid-auditors` | `Auditor` | |
 

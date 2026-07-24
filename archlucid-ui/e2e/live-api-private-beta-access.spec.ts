@@ -10,10 +10,14 @@ import { expect, test } from "@playwright/test";
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
 import {
+  acceptInvitationAsPlatformUser,
+  assertJwtScopeBindingRejectsForgedTenantHeader,
   clearJwtBrowserSession,
   createAdminUserInvite,
   fetchAuthMeViaProxy,
   listPendingInvitations,
+  provisionE2ePlatformUserPreAuth,
+  readRoleClaims,
   validateInvitationToken,
   LIVE_E2E_DEFAULT_PROJECT_ID,
   LIVE_E2E_DEFAULT_TENANT_ID,
@@ -47,6 +51,12 @@ test.describe("live-api-private-beta-access", () => {
 
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
+  });
+
+  test("JwtBearer rejects forged x-tenant-id on scope and invitations (TB-925)", async ({ request }) => {
+    requireLivePrivateBetaJwtEnv();
+
+    await assertJwtScopeBindingRejectsForgedTenantHeader(request);
   });
 
   test("invite → auth session → tenant scope → review → expiry recovery → deep-link round-trip", async ({
@@ -159,5 +169,89 @@ test.describe("live-api-private-beta-access", () => {
 
     test.info().annotations.push({ type: "e2e-beta-access-run-id", description: runId });
     test.info().annotations.push({ type: "e2e-beta-access-invite-id", description: invite.id });
+  });
+
+  test("invitee Operator accept → session → create review under invitee principal (TB-927)", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(300_000);
+
+    requireLivePrivateBetaJwtEnv();
+
+    const inviteeEmail = `e2e-beta-invitee-${Date.now()}@example.com`;
+    const invite = await createAdminUserInvite(request, inviteeEmail, { appRole: "Operator" });
+
+    const validation = await validateInvitationToken(request, invite.invitationToken);
+
+    expect(validation.status).toBe("Valid");
+    expect(validation.appRole).toBe("Operator");
+
+    const preAuth = await provisionE2ePlatformUserPreAuth(request, inviteeEmail);
+    const inviteeSession = await acceptInvitationAsPlatformUser(
+      request,
+      preAuth.preAuthAccessToken,
+      invite.id,
+      invite.invitationToken,
+    );
+
+    await primeJwtBrowserSession(page, inviteeSession.accessToken);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    const me = await fetchAuthMeViaProxy(page, inviteeSession.accessToken);
+    const scope = resolveScopeFromAuthMe(me, expectedScope);
+    const roles = readRoleClaims(me.claims);
+
+    expect(scope.tenantId.toLowerCase()).toBe(expectedScope.tenantId.toLowerCase());
+    expect(scope.workspaceId.toLowerCase()).toBe(expectedScope.workspaceId.toLowerCase());
+    expect(scope.projectId.toLowerCase()).toBe(expectedScope.projectId.toLowerCase());
+    expect(roles.map((role) => role.toLowerCase())).toContain("operator");
+
+    await page.goto("/reviews/new", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: CREATE_ARCHITECTURE_LABEL, level: 2 })).toBeVisible({
+      timeout: 60_000,
+    });
+
+    const { runId } = await createRun(
+      request,
+      enrichArchitectureRequestBody({
+        requestId: `E2E-BETA-INVITEE-${Date.now()}`,
+        description: liveE2eArchitectureDescription("Private beta invitee first meaningful action."),
+        systemName: "PrivateBetaInviteeSmoke",
+        environment: "prod",
+        cloudProvider: 1,
+        constraints: [] as string[],
+        requiredCapabilities: ["SQL"],
+        assumptions: [] as string[],
+        priorManifestVersion: null as string | null,
+      }),
+      null,
+      inviteeSession.accessToken,
+    );
+
+    await waitForArchitectureRunListIncludesRun(
+      request,
+      runId,
+      120_000,
+      null,
+      inviteeSession.accessToken,
+    );
+
+    const reviewPath = `/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
+
+    await page.goto("/reviews", { waitUntil: "domcontentloaded" });
+    await expect(
+      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+    ).toBeVisible({ timeout: 90_000 });
+    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000 });
+    await expect(page.getByRole("link", { name: new RegExp(runId.slice(0, 8), "i") }).first()).toBeVisible({
+      timeout: 90_000,
+    });
+
+    await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
+    await expectLiveRunDetailPageReady(page, 120_000);
+
+    test.info().annotations.push({ type: "e2e-beta-invitee-run-id", description: runId });
+    test.info().annotations.push({ type: "e2e-beta-invitee-platform-user-id", description: preAuth.platformUserId });
   });
 });

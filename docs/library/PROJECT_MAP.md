@@ -101,4 +101,4 @@ Tier and filter guidance: **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)**.
 
 - **[bounded-context-map.md](bounded-context-map.md)** — domain language and integration styles  
 - **[CONTROLLER_AREA_MAP.md](CONTROLLER_AREA_MAP.md)** — API areas ↔ controller types  
-- **[ARCHITECTURE_INDEX.md](../ARCHITECTURE_INDEX.md)** — full doc map  
+- **[architecture/README.md](../architecture/README.md)** — architecture index + C4 poster

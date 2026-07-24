@@ -44,7 +44,7 @@ The [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) **Known gaps** section 
 
 | Item | Status |
 |------|--------|
-| Legacy **ArchiForge** config / **`ARCHIFORGE_*`** env (application) | **Removed** — startup warns if legacy keys appear ([`BREAKING_CHANGES.md`](../../BREAKING_CHANGES.md) §2026-04-08) |
+| Legacy **ArchiForge** config / **`ARCHIFORGE_*`** env (application) | **Removed** — startup warns if legacy keys appear ([`BREAKING_CHANGES.md`](../BREAKING_CHANGES.md) §2026-04-08) |
 | Terraform **`archiforge`** resource addresses / **`state mv`** | **Not applicable** — greenfield applies only; use [`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md) |
 | GitHub repo / Entra rename (Phase 7.6–7.7) | **Closed 2026-04-19** ([`CHANGELOG.md`](../CHANGELOG.md)) |
 
@@ -72,7 +72,7 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 | Item | Doc source |
 |------|------------|
-| **ACR** / production image store, extending CI to **push** images | **Done — engineering side.** `.github/workflows/cd.yml` already builds/pushes both API and UI images to ACR and deploys to Container Apps (digest verification, canary support), fully gated on `ACR_LOGIN_SERVER`/`ACR_NAME`/`AZURE_RESOURCE_GROUP` GitHub secrets (owner-verified 2026-07-05: already configured). Remaining posture is purely operational (secrets/subscription), not missing code. [../engineering/../engineering/CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md) |
+| **ACR** / production image store, extending CI to **push** images | **Done — engineering side.** `.github/workflows/cd.yml` already builds/pushes both API and UI images to ACR and deploys to Container Apps (digest verification, canary support), fully gated on `ACR_LOGIN_SERVER`/`ACR_NAME`/`AZURE_RESOURCE_GROUP` GitHub secrets (owner-verified 2026-07-05: already configured). Remaining posture is purely operational (secrets/subscription), not missing code. [CONTAINERIZATION.md](CONTAINERIZATION.md) |
 | Subscription placement, naming, which Terraform roots to enable | Same doc — **organizational** follow-ups |
 
 ---

@@ -59,6 +59,9 @@ public static class CostRetailGroundingBuilder
         AgentEvidencePackage evidence,
         CloudProvider? effectiveCloudTarget = null)
     {
+        if (effectiveCloudTarget == CloudProvider.None)
+            return null;
+
         if (effectiveCloudTarget is CloudProvider.Azure or CloudProvider.Aws or CloudProvider.Gcp)
             return effectiveCloudTarget;
 

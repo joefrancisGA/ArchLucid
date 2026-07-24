@@ -1,29 +1,31 @@
-> **Scope:** Operator quickstart — getting started with ArchLucid reviews.
+> **Scope:** Evaluator / Admin command quickstart — API, CLI, and local UI after the environment is running. **Not** the default buyer help path — architects should start with [Your first architecture review](/help/core-pilot) or [Getting started](/help/getting-started).
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
-# Operator quickstart — ArchLucid
+# Architect / evaluator quickstart — ArchLucid
 
-**First pilot path (UI + phases):** [FIRST_PILOT_OPERATOR_PATH.md](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Stuck:** [FIRST_PILOT_TROUBLESHOOTING.md](../../runbooks/FIRST_PILOT_TROUBLESHOOTING.md).
+**Buyer UI path:** [Your first architecture review](/help/core-pilot) · [Complete review workflow](/help/first-pilot-path)
+
+**SE/ops phases:** [FIRST_PILOT_OPERATOR_PATH.md](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Stuck:** [FIRST_PILOT_TROUBLESHOOTING.md](../../runbooks/FIRST_PILOT_TROUBLESHOOTING.md) · [Troubleshooting](/help/troubleshooting)
 
 **Canonical action map (UI + API + CLI):** [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md).
 
-**V1 automation handoff (REST / CLI / OpenAPI for scripts and CI):** [V1_AUTOMATION_HANDOFF_PACK.md](../V1_AUTOMATION_HANDOFF_PACK.md) — full create → execute → commit → export → compare → ROI path without V1.1 first-party connectors.
+**V1 automation handoff (REST / CLI / OpenAPI for scripts and CI):** [V1_AUTOMATION_HANDOFF_PACK.md](../V1_AUTOMATION_HANDOFF_PACK.md) — full create → execute → finalize → export → compare → ROI path (API/CLI still use `commit` / `run` identifiers).
 
 Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; **PowerShell:** use `.ps1` where listed.
 
 ## What ArchLucid does (one paragraph)
 
-ArchLucid is an **HTTP API** (and optional **operator UI**) that turns a structured **architecture request** into a **review**, **agent results** (after **execute**), and a versioned **golden manifest** plus **artifacts** (after **commit**). API paths and CLI commands still use the word **run** for backward compatibility — see [CONCEPT_VOCABULARY.md](../CONCEPT_VOCABULARY.md) (**Reviewer-enforced rules**). Local pilots often use **`AgentExecution:Mode=Simulator`** so you do not need cloud AI keys to complete a flow. **V1 scope and gates:** [V1_SCOPE.md](../V1_SCOPE.md).
+ArchLucid is an **HTTP API** (and optional **architect workspace** UI) that turns a structured **architecture request** into an **architecture review**, analysis results (after **execute**), and a durable **architecture package** with a **signed review record** plus **artifacts** (after **finalize**). API paths and CLI commands still use **run** / **commit** for backward compatibility — see [CONCEPT_VOCABULARY.md](../CONCEPT_VOCABULARY.md). Local pilots often use **`AgentExecution:Mode=Simulator`** so you do not need cloud AI keys to complete a flow. **V1 scope and gates:** [V1_SCOPE.md](../V1_SCOPE.md).
 
-**After the demo (`archlucid try`) → your own inputs:** [SECOND_RUN.md](../SECOND_RUN.md) — `archlucid second-run SECOND_RUN.toml` (or paste the same file on **New review → Starting point** in the operator UI; legacy wizard may still say **New run**).
+**After the demo (`archlucid try`) → your own inputs:** [SECOND_RUN.md](../SECOND_RUN.md) — `archlucid second-run SECOND_RUN.toml` (or paste the same file on **New architecture review → Starting point**; legacy wizard may still say **New run**).
 
 ---
 
 ## Environment
 
-> **Install order moved.** See [INSTALL_ORDER.md](../../engineering/INSTALL_ORDER.md). This page now only covers operator commands **after** the local or hosted environment is running.
+> **Install order moved.** See [INSTALL_ORDER.md](../../engineering/INSTALL_ORDER.md). This page now only covers evaluator/Admin commands **after** the local or hosted environment is running.
 
 **Install the CLI (evaluators without .NET SDK):** [CLI_INSTALL.md](../../engineering/CLI_INSTALL.md) — GitHub **Publish CLI** workflow artifacts (self-contained binaries) or `dotnet tool install -g ArchLucid.Cli`. After install, prefer `archlucid …` instead of `dotnet run --project ArchLucid.Cli -- …` in the examples below.
 
@@ -133,7 +135,7 @@ curl -sS -o traceability-RUN_ID.zip "$BASE/v1/architecture/run/RUN_ID/traceabili
 
 ---
 
-## Operator UI
+## Architect workspace UI
 
 ```bash
 cd archlucid-ui
@@ -155,9 +157,9 @@ npm ci
 npm run dev
 ```
 
-Open **http://localhost:3000** → **Reviews** (legacy nav: **Runs**) → open review → **Artifacts**.
+Open **http://localhost:3000** → **Reviews** (legacy nav: **Runs**) → open review → **Artifacts** / architecture package exports.
 
-**Pilot feedback (58R):** Nav **Pilot feedback** → scoped dashboard, opportunities, triage queue, and export links. Details: [PRODUCT_LEARNING.md](../PRODUCT_LEARNING.md).
+**Pilot feedback (58R):** Nav **Pilot feedback** → scoped dashboard, opportunities, triage queue, and export links. Details: [PRODUCT_LEARNING.md](../PRODUCT_LEARNING.md) (Admin-only help: [/help/pilot-feedback](/help/pilot-feedback)).
 
 ```bash
 curl -s "http://localhost:5128/v1/product-learning/summary"

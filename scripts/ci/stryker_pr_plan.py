@@ -23,7 +23,6 @@ FULL_MATRIX: list[tuple[str, str]] = [
     ("Persistence", "stryker-config.persistence.json"),
     ("Application", "stryker-config.application.json"),
     ("AgentRuntime", "stryker-config.agentruntime.json"),
-    ("Coordinator", "stryker-config.coordinator.json"),
     ("Decisioning", "stryker-config.decisioning.json"),
     ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
     ("Api", "stryker-config.api.json"),
@@ -143,12 +142,6 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
 
     if p.startswith("ArchLucid.AgentRuntime/"):
         return [("AgentRuntime", "stryker-config.agentruntime.json")]
-
-    if p.startswith("ArchLucid.Coordinator.Tests/"):
-        return [("Coordinator", "stryker-config.coordinator.json")]
-
-    if p.startswith("ArchLucid.Coordinator/"):
-        return [("Coordinator", "stryker-config.coordinator.json")]
 
     if p.startswith("ArchLucid.Decisioning.Tests/"):
         return [

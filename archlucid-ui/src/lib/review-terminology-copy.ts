@@ -24,8 +24,8 @@ const RUN_PRIMARY_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
 const MANIFEST_PRIMARY_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
   [/\bgolden manifests\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
   [/\bgolden manifest\b/gi, SIGNED_MANIFEST_LABEL],
-  [/\bcommitted manifests\b/gi, `committed ${REVIEW_PACKAGE_LABEL.toLowerCase()}s`],
-  [/\bcommitted manifest\b/gi, `committed ${REVIEW_PACKAGE_LABEL.toLowerCase()}`],
+  [/\bcommitted manifests\b/gi, `finalized ${REVIEW_PACKAGE_LABEL.toLowerCase()}s`],
+  [/\bcommitted manifest\b/gi, `finalized ${REVIEW_PACKAGE_LABEL.toLowerCase()}`],
   [/\bfinalized manifest\b/gi, `finalized ${REVIEW_PACKAGE_LABEL.toLowerCase()}`],
   [/\barchitecture manifest\b/gi, REVIEW_PACKAGE_LABEL],
   [/\bmanifest diff\b/gi, "review comparison"],

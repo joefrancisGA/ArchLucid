@@ -98,6 +98,7 @@ internal static class ProofSurfaceContractRegistry
                 "agentExecutionLlmCostEstimate",
                 "trustEvidenceCard",
                 "findingCoverageSummary",
+                "findingSummaries",
                 "executionFlavorBuyerSummary",
                 "retrievalGroundingSummary",
                 "lastAgentExecutionFailure",

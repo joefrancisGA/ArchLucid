@@ -1,12 +1,12 @@
-> **Scope:** Customer-facing — browsing, inspecting, and exporting review packages in the operator workspace.
+> **Scope:** Customer-facing — browsing, inspecting, and exporting architecture packages in the architect workspace.
 
-# Review packages
+# Architecture packages
 
-Browse, inspect, and export governed review packages in the architect workspace.
+Browse, inspect, and export governed architecture packages in the architect workspace.
 
-## What a review package contains {#what-a-review-package-contains}
+## What an architecture package contains {#what-a-review-package-contains}
 
-A **review package** is the durable record for one architecture review. It typically includes:
+An **architecture package** is the durable record for one architecture review. It typically includes:
 
 - **Review metadata** — title, status, and workspace scope.
 - **Findings** — evidence-backed architecture risks with severity and recommendations.
@@ -19,17 +19,17 @@ Until you finalize, the package may still accept new evidence or decision update
 
 ## Where to find your packages {#where-to-find-your-packages}
 
-Open **Reviews** from the operator home or navigation to see review packages in your current workspace.
+Open **Reviews** from the architect home or navigation to see architecture packages in your current workspace.
 
 - **Recent reviews** on the home page surfaces packages you touched lately.
 - **Reviews list** shows all packages in scope, with status and last activity.
 - **Search** helps when you know the review title or identifier.
 
-Select a row to open the review package detail view.
+Select a row to open the architecture package detail view.
 
-## Inspect a review package {#inspect-a-review-package}
+## Inspect an architecture package {#inspect-a-review-package}
 
-The review package detail view is organized into tabs so you can focus on one concern at a time:
+The architecture package detail view is organized into tabs so you can focus on one concern at a time:
 
 | Area | What you do there |
 | --- | --- |
@@ -41,11 +41,11 @@ The review package detail view is organized into tabs so you can focus on one co
 
 Use **Review findings** when you need to triage risks. Use **Add evidence** if intake was incomplete before finalize.
 
-## Export a review package {#export-a-review-package}
+## Export an architecture package {#export-a-review-package}
 
 After analysis completes — and after finalize when your workflow requires it — export artifacts for sponsors, security reviewers, or auditors:
 
-- **Proof packet** and **architecture package** exports from the **Evidence** tab.
+- **Proof packet** and architecture package exports from the **Evidence** tab.
 - **Executive or sponsor summaries** when your tenant enables those outputs.
 - **Signed manifest** links when the review record has been finalized.
 
@@ -56,5 +56,5 @@ Exports are buyer-safe: they summarize outcomes without exposing raw engineering
 - [Review guide](/help/review-guide) — how the New architecture review wizard maps to a package.
 - [Start a review](/help/evidence-intake) — evidence formats and intake verification.
 - [Findings](/help/findings) — respond to architecture risks inside a package.
-- [Evidence trail](/help/evidence-trail) — trace a finding back to source artifacts.
+- [Evidence graph](/help/evidence-trail) — trace a finding back to source artifacts.
 - [Governance approval](/help/governance-approval) — approval and exception workflows.

@@ -142,6 +142,53 @@ describe("SidebarNav — Internal Operations section", () => {
     });
   });
 
+  it("does not show Internal Operations for public sample users (buyer-polished, not full shell)", async () => {
+    buyerPolishedShellMock.value = true;
+    fullOperatorShellMock.value = false;
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
+
+    render(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
+    });
+
+    expect(screen.queryByRole("navigation", { name: "Internal Operations" })).toBeNull();
+    expect(screen.queryByRole("link", { name: OPERATOR_NAV_LINK_LABELS.knowledgeIndexHealth })).toBeNull();
+  });
+
+  it("does not show Internal Operations for ordinary tenant users when the admin nav flag is off", async () => {
+    buyerPolishedShellMock.value = false;
+    fullOperatorShellMock.value = false;
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "false");
+
+    render(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("sidebar-group-toggle-operator-system-admin")).toBeNull();
+    });
+
+    expect(screen.queryByText("Internal Operations")).toBeNull();
+  });
+
+  it("shows Internal Operations only for authorized internal operator shells", async () => {
+    buyerPolishedShellMock.value = false;
+    fullOperatorShellMock.value = true;
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
+
+    render(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("sidebar-group-toggle-operator-system-admin")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("sidebar-group-toggle-operator-system-admin"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("navigation", { name: "Internal Operations" })).toBeInTheDocument();
+    });
+  });
+
   it("does not expose internal destinations in customer nav groups when the flag is disabled", async () => {
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "false");
 

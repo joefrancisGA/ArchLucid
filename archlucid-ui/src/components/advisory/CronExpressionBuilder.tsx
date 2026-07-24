@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { formatAdvisoryScheduleInstant } from "@/lib/advisory-schedule-form";
 import {
   CRON_SCHEDULE_PRESETS,
   resolveCronSchedulePresetId,
@@ -25,22 +26,39 @@ export type CronExpressionBuilderProps = {
   onChange: (cronExpression: string) => void;
   disabled?: boolean;
   inputClassName?: string;
+  /**
+   * When true, hides customer presets and `@hourly`/`@daily`/`@weekly` tokens —
+   * intended for the advisory schedules Advanced scheduling disclosure.
+   */
+  advancedOnly?: boolean;
+  /** IANA zone used to format upcoming-run previews (default UTC labels). */
+  previewTimeZoneId?: string;
+  /** Optional override for the preview heading. */
+  previewHeading?: string;
 };
 
-function formatPreviewUtc(instant: Date): string {
-  const iso = instant.toISOString();
+function formatPreviewLabel(instant: Date, timeZoneId: string | undefined): string {
+  if (timeZoneId === undefined || timeZoneId.trim().length === 0 || timeZoneId === "UTC") {
+    const iso = instant.toISOString();
 
-  return `${iso.slice(0, 10)} ${iso.slice(11, 16)} UTC`;
+    return `${iso.slice(0, 10)} ${iso.slice(11, 16)} UTC`;
+  }
+
+  return formatAdvisoryScheduleInstant(instant, timeZoneId).primary;
 }
 
 /**
- * Preset + custom cron editor with server-authoritative next-run preview (UTC).
+ * Preset + custom schedule editor with server-authoritative next-run preview.
+ * For customer advisory schedules, prefer the simple frequency form and pass `advancedOnly`.
  */
 export function CronExpressionBuilder({
   value,
   onChange,
   disabled = false,
   inputClassName,
+  advancedOnly = false,
+  previewTimeZoneId,
+  previewHeading,
 }: CronExpressionBuilderProps) {
   const presetId = resolveCronSchedulePresetId(value);
   const activePreset = CRON_SCHEDULE_PRESETS.find((preset) => preset.id === presetId);
@@ -73,7 +91,10 @@ export function CronExpressionBuilder({
           }
 
           if (!response.isValid) {
-            setValidationError(response.validationError ?? "Unsupported or invalid cron expression.");
+            setValidationError(
+              response.validationError ??
+                "That schedule pattern is not supported. Use a valid five-field UTC expression.",
+            );
             setPreviewRuns([]);
 
             return;
@@ -104,9 +125,18 @@ export function CronExpressionBuilder({
   const previewList = useMemo(
     () =>
       previewRuns.map((instant) => (
-        <li key={instant.toISOString()}>{formatPreviewUtc(instant)}</li>
+        <li key={instant.toISOString()}>
+          <span>{formatPreviewLabel(instant, previewTimeZoneId)}</span>
+          {previewTimeZoneId !== undefined &&
+          previewTimeZoneId.trim().length > 0 &&
+          previewTimeZoneId !== "UTC" ? (
+            <span className={cn("ml-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {formatAdvisoryScheduleInstant(instant, previewTimeZoneId).utcSecondary}
+            </span>
+          ) : null}
+        </li>
       )),
-    [previewRuns],
+    [previewRuns, previewTimeZoneId],
   );
 
   function onPresetChange(nextPresetId: string): void {
@@ -121,37 +151,45 @@ export function CronExpressionBuilder({
     }
   }
 
+  const heading =
+    previewHeading ??
+    (previewTimeZoneId !== undefined && previewTimeZoneId !== "UTC"
+      ? `Next ${PREVIEW_COUNT} scheduled runs`
+      : `Next ${PREVIEW_COUNT} scheduled runs (UTC)`);
+
   return (
     <fieldset className="space-y-3" disabled={disabled}>
-      <legend className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Schedule</legend>
+      <legend className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+        {advancedOnly ? "Advanced schedule expression" : "Schedule"}
+      </legend>
 
-      <label className={cn("block text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Preset
-        <Select
-          value={presetId}
-          onValueChange={onPresetChange}
-          disabled={disabled}
-        >
-          <SelectTrigger className={cn("mt-1", inputClassName)} aria-label="Cron schedule preset">
-            <SelectValue placeholder="Choose a schedule" />
-          </SelectTrigger>
-          <SelectContent>
-            {CRON_SCHEDULE_PRESETS.map((preset) => (
-              <SelectItem key={preset.id} value={preset.id}>
-                {preset.label}
-              </SelectItem>
-            ))}
-            <SelectItem value="custom">Custom expression</SelectItem>
-          </SelectContent>
-        </Select>
-      </label>
+      {!advancedOnly ? (
+        <label className={cn("block text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          Preset
+          <Select value={presetId} onValueChange={onPresetChange} disabled={disabled}>
+            <SelectTrigger className={cn("mt-1", inputClassName)} aria-label="Schedule preset">
+              <SelectValue placeholder="Choose a schedule" />
+            </SelectTrigger>
+            <SelectContent>
+              {CRON_SCHEDULE_PRESETS.map((preset) => (
+                <SelectItem key={preset.id} value={preset.id}>
+                  {preset.label}
+                </SelectItem>
+              ))}
+              <SelectItem value="custom">Custom expression</SelectItem>
+            </SelectContent>
+          </Select>
+        </label>
+      ) : null}
 
-      {activePreset !== undefined ? (
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{activePreset.description}</p>
+      {!advancedOnly && activePreset !== undefined ? (
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          {activePreset.description}
+        </p>
       ) : null}
 
       <label className={cn("block text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Cron expression (UTC)
+        {advancedOnly ? "Expression (UTC)" : "Cron expression (UTC)"}
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -164,12 +202,9 @@ export function CronExpressionBuilder({
       </label>
 
       <p id="cron-expression-hint" className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Supported presets: <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">@hourly</code>,{" "}
-        <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">@daily</code>,{" "}
-        <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">@weekly</code>,{" "}
-        <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">0 7 * * *</code>,{" "}
-        <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">0 8 * * 1</code>, or another valid five-field UTC cron.
-        Invalid expressions are rejected when you save.
+        {advancedOnly
+          ? "Enter a five-field UTC expression (minute hour day-of-month month day-of-week). Unsupported patterns are rejected before save."
+          : "Supported presets include daily and weekly UTC times, or another valid five-field UTC expression. Invalid expressions are rejected when you save."}
       </p>
 
       {validationError !== null ? (
@@ -183,15 +218,25 @@ export function CronExpressionBuilder({
         className="rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50"
         data-testid="cron-next-runs-preview"
       >
-        <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Next {PREVIEW_COUNT} scheduled runs (UTC)
+        <p
+          className={cn(
+            "m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+        >
+          {heading}
         </p>
         {previewLoading ? (
           <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
-            Loading server preview…
+            Loading preview…
           </p>
         ) : previewRuns.length > 0 ? (
-          <ol className={cn("m-0 mt-2 list-decimal space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          <ol
+            className={cn(
+              "m-0 mt-2 list-decimal space-y-1 pl-5 text-neutral-800 dark:text-neutral-200",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
             {previewList}
           </ol>
         ) : (

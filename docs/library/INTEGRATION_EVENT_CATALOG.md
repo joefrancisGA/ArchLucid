@@ -44,5 +44,5 @@
 ## Related
 
 - `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`
-- `docs/ARCHITECTURE_INDEX.md`
+- `docs/architecture/README.md`
 - `ArchLucid.Core.Tests/Integration/IntegrationEventCatalogSyncTests.cs`

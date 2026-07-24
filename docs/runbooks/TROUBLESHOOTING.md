@@ -47,7 +47,7 @@ Shape follows **RFC 9457** (*Problem Details for HTTP APIs*; obsoletes RFC 7807)
 
 The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures, aligned with the same guidance.
 
-**Operator UI:** JSON error bodies from **`/api/proxy/*`** include **`correlationId`** and **`supportHint`** for proxy-originated failures (502, 413, 429, bad upstream URL); upstream API errors pass through **`X-Correlation-ID`** and may include **`correlationId`** in problem JSON.
+**Architect workspace:** JSON error bodies from **`/api/proxy/*`** include **`correlationId`** and **`supportHint`** for proxy-originated failures (502, 413, 429, bad upstream URL); upstream API errors pass through **`X-Correlation-ID`** and may include **`correlationId`** in problem JSON.
 
 ---
 

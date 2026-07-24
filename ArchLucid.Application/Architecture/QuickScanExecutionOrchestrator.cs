@@ -6,6 +6,7 @@ using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.QuickScan;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,8 @@ public sealed class QuickScanExecutionOrchestrator(
     IOptionsMonitor<QuickScanSafetyOptions> quickScanSafetyOptions,
     IQuickScanCostEstimator quickScanCostEstimator,
     IQuickScanGlobalBudgetReservationService quickScanGlobalBudgetReservationService,
+    IQuickScanDistributedConcurrencyService quickScanDistributedConcurrencyService,
+    IQuickScanSafetyOperationalStateProvider quickScanSafetyOperationalStateProvider,
     IAuditService auditService,
     ILlmCostEstimator costEstimator,
     ILogger<QuickScanExecutionOrchestrator> logger,
@@ -34,6 +37,20 @@ public sealed class QuickScanExecutionOrchestrator(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context);
+
+        if (context.RequiresAnonymousDistributedConcurrency)
+        {
+            QuickScanSafetyOperationalSnapshot operational =
+                await quickScanSafetyOperationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+            if (!operational.AnonymousExecutionAllowed)
+            {
+                return QuickScanExecutionResult.EmergencyDisabled(
+                    string.IsNullOrWhiteSpace(operational.PublicMessage)
+                        ? "Quick Scan is temporarily unavailable."
+                        : operational.PublicMessage);
+            }
+        }
 
         QuickScanSafetyOptions safetyOptions = quickScanSafetyOptions.CurrentValue;
         QuickScanOptions baseOptions = quickScanOptions.CurrentValue;
@@ -62,7 +79,8 @@ public sealed class QuickScanExecutionOrchestrator(
         QuickScanGuardContext guardContext = QuickScanGuardContextFactory.Create(
             context.ClientIp,
             context.SessionId,
-            validated!.Description);
+            validated!.Description,
+            useDistributedConcurrencyLimit: context.RequiresAnonymousDistributedConcurrency);
         quickScanTelemetry.RecordAttempt(guardContext);
 
         QuickScanGuardDecision decision = quickScanGuard.TryBeginScan(guardContext);
@@ -102,7 +120,38 @@ public sealed class QuickScanExecutionOrchestrator(
             }
 
             reservedCostUsd = costReservation.Reservation!.TotalReservedUsd;
+        }
 
+        await using QuickScanDistributedConcurrencyAdmissionResult concurrencyAdmission =
+            context.RequiresAnonymousDistributedConcurrency
+                ? await quickScanDistributedConcurrencyService
+                    .WaitForAdmissionAsync(context.TraceIdentifier, cancellationToken)
+                    .ConfigureAwait(false)
+                : QuickScanDistributedConcurrencyAdmissionResult.NoOp();
+
+        if (!concurrencyAdmission.Allowed)
+        {
+            quickScanTelemetry.RecordFailure(
+                guardContext,
+                $"concurrency_{concurrencyAdmission.RejectionReason}",
+                TimeSpan.Zero);
+
+            if (concurrencyAdmission.RejectionReason == QuickScanConcurrencyRejectionReason.EmergencyDisabled)
+            {
+                QuickScanSafetyOperationalSnapshot operational =
+                    await quickScanSafetyOperationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+                return QuickScanExecutionResult.EmergencyDisabled(
+                    string.IsNullOrWhiteSpace(operational.PublicMessage)
+                        ? "Quick Scan is temporarily unavailable."
+                        : operational.PublicMessage);
+            }
+
+            return QuickScanExecutionResult.ConcurrencyRejected(concurrencyAdmission.RejectionReason!.Value);
+        }
+
+        if (safetyOptions.Enabled)
+        {
             QuickScanGlobalBudgetReservationAttemptResult budgetReservation =
                 await quickScanGlobalBudgetReservationService.TryReserveAsync(
                     context.TraceIdentifier,
@@ -127,6 +176,17 @@ public sealed class QuickScanExecutionOrchestrator(
 
         try
         {
+            QuickScanSafetyOperationalSnapshot preProviderOperational =
+                await quickScanSafetyOperationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
+
+            if (context.RequiresAnonymousDistributedConcurrency && !preProviderOperational.AnonymousExecutionAllowed)
+            {
+                return QuickScanExecutionResult.EmergencyDisabled(
+                    string.IsNullOrWhiteSpace(preProviderOperational.PublicMessage)
+                        ? "Quick Scan is temporarily unavailable."
+                        : preProviderOperational.PublicMessage);
+            }
+
             Dictionary<string, string> files = QuickScanMinimalContextBuilder.BuildFiles(validated!);
             QuickScanResult scan;
 

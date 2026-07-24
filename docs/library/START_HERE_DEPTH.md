@@ -14,8 +14,8 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 | You are… | What you ever touch | Start here | Never asked of you |
 |---|---|---|---|
-| **Buyer / evaluator / sponsor / customer** | The public site (`archlucid.net`), the in-product **operator UI** after sign-in, and the **Azure portal** only for your own tenant identity / billing artefacts. | **[`BUYER_FIRST_30_MINUTES.md`](../BUYER_FIRST_30_MINUTES.md)** (the canonical evaluator entry — five steps, no install) → **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** → **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)**. The same five steps with screenshots live at the marketing route `archlucid.net/get-started`. | **No Docker. No SQL. No .NET / Node SDKs. No Terraform. No CLI.** If any doc tells you to install one of those, you are reading a **contributor** doc by mistake. |
-| **ArchLucid contributor / engineer / internal operator** | The repo, your local toolchain (Docker / SQL container / .NET / Node), the GitHub workflows, and (operator only) the production Azure subscription via OIDC. | **[`../START_HERE.md`](../START_HERE.md)** | None — this column is the one with the toolchain. |
+| **Buyer / evaluator / sponsor / customer** | The public site (`archlucid.net`), the in-product **architect workspace** after sign-in, and the **Azure portal** only for your own tenant identity / billing artefacts. | **[`BUYER_FIRST_30_MINUTES.md`](../BUYER_FIRST_30_MINUTES.md)** (the canonical evaluator entry — five steps, no install) → **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** → **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)**. The same five steps with screenshots live at the marketing route `archlucid.net/get-started`. | **No Docker. No SQL. No .NET / Node SDKs. No Terraform. No CLI.** If any doc tells you to install one of those, you are reading a **contributor** doc by mistake. |
+| **ArchLucid contributor / engineer / internal Admin** | The repo, your local toolchain (Docker / SQL container / .NET / Node), the GitHub workflows, and (Admin only) the production Azure subscription via OIDC. | **[`../START_HERE.md`](../START_HERE.md)** | None — this column is the one with the toolchain. |
 
 **Which subtree is "mine" when browsing blindly?** [DOCUMENTATION_BY_AUDIENCE.md](DOCUMENTATION_BY_AUDIENCE.md) — heuristic map of **`docs/`** folders that skew customer-visible vs contributor/vendor-internal.
 
@@ -36,7 +36,7 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 ## Architecture overview (where ArchLucid sits)
 
-ArchLucid coordinates **architecture requests → authority pipeline → committed manifests + artifacts + evidence**. The **C4-style poster** is **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)** — read it once you have run something (even a demo run).
+ArchLucid coordinates **architecture requests → authority pipeline → finalized architecture packages + artifacts + evidence**. The **C4-style poster** is **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)** — read it once you have run something (even a demo run).
 
 ```text
 [Evaluator / Sponsor] --> START_HERE (hub)
@@ -51,8 +51,8 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 |-------|---------------------|
 | **Buyer / sponsor narrative** | You need procurement-safe language before touching the repo — **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** |
 | **Contributor path** | You will implement, operate, or govern ArchLucid — see `START_HERE.md` |
-| **Operator UI wizard** | You want `/reviews/new` semantics without screenshots — **[`library/FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** + checklist **[`library/FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md)** |
-| **Deeper engineering index** | You already ran the spine and need maps — **[`ARCHITECTURE_INDEX.md`](../ARCHITECTURE_INDEX.md)** |
+| **Architect workspace wizard** | You want `/reviews/new` semantics without screenshots — **[`library/FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** + checklist **[`library/FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md)** |
+| **Deeper engineering index** | You already ran the spine and need maps — **[`architecture/README.md`](../architecture/README.md)** |
 | **Everything else** | Search or browse **[`docs/library/`](.)** (~150+ reference markdown files moved 2026-04-23 to keep `/docs` root small) |
 
 ## Data flow — canonical **buyer / evaluator** journey (no install)

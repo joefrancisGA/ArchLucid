@@ -7,6 +7,8 @@ using ArchLucid.Persistence.Scim;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.Scim;
@@ -110,7 +112,7 @@ public sealed class ScimGroupServicePatchMembersTests
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        ScimGroupService sut = new(repo, audit.Object);
+        ScimGroupService sut = new(repo, audit.Object, NullLogger<ScimGroupService>.Instance);
         ScimGroupRecord g = await repo.InsertAsync(TenantId, "g-ext", "G", CancellationToken.None);
         await repo.SetMembersAsync(TenantId, g.Id, initialMembers, CancellationToken.None);
 

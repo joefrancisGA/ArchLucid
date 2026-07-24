@@ -45,6 +45,13 @@ public sealed class BuyerRunDetailSummaryDto
         set;
     }
 
+    /// <summary>Finding id/severity/title rows for first paint without <c>PayloadJson</c> (TB-930).</summary>
+    public IReadOnlyList<BuyerFindingSummaryDto> FindingSummaries
+    {
+        get;
+        set;
+    } = [];
+
     public RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate
     {
         get;

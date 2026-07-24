@@ -121,7 +121,6 @@ Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config
 | `stryker-config.persistence.json` (alias: `stryker-config.json`) | `ArchLucid.Persistence` | `ArchLucid.Persistence.Tests` |
 | `stryker-config.application.json` | `ArchLucid.Application` | `ArchLucid.Application.Tests` |
 | `stryker-config.agentruntime.json` | `ArchLucid.AgentRuntime` | `ArchLucid.AgentRuntime.Tests` |
-| `stryker-config.coordinator.json` | `ArchLucid.Coordinator` | `ArchLucid.Coordinator.Tests` |
 | `stryker-config.decisioning.json` | `ArchLucid.Decisioning` | `ArchLucid.Decisioning.Tests` |
 | `stryker-config.persistence-coordination.json` | `ArchLucid.Persistence.Coordination` | `ArchLucid.Persistence.Tests` |
 | `stryker-config.api.json` | `ArchLucid.Api` | `ArchLucid.Api.Tests` |

@@ -26,7 +26,27 @@ describe("help-product-language", () => {
 
     expect(output.toLowerCase()).not.toContain("golden manifest");
     expect(output).toContain("ReviewId=abc");
-    expect(output.toLowerCase()).toContain("review not ready");
+    expect(output.toLowerCase()).toContain("review not ready to finalize");
+    expect(output.toLowerCase()).toContain("architecture package");
+  });
+
+  it("preserves Architecture package and does not collapse it to architecture review", () => {
+    const input = "Finalize the architecture package after the architecture review completes.";
+    const output = applyHelpTopicProductLanguage(input);
+
+    expect(output.toLowerCase()).toContain("architecture package");
+    expect(output.toLowerCase()).toContain("architecture review");
+  });
+
+  it("maps review package and operator shell to buyer nouns", () => {
+    const output = applyHelpTopicProductLanguage(
+      "Open the review package in the operator shell after the pilot operator finishes.",
+    );
+
+    expect(output.toLowerCase()).toContain("architecture package");
+    expect(output.toLowerCase()).toContain("architect workspace");
+    expect(output.toLowerCase()).not.toContain("review package");
+    expect(output.toLowerCase()).not.toContain("operator shell");
   });
 
   it("preserves extractor manifest.json filenames", () => {
