@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Architecture;
 
+[Trait("Category", "Unit")]
 public sealed class QuickScanSampleResultProviderTests
 {
     [Fact]
