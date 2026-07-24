@@ -2,7 +2,7 @@
 
 # Minimum viable pilot success lane
 
-This lane minimizes decisions and produces a **committed review package** plus **sponsor-safe proof artifacts**. Optional paths (real AOAI, full RC evidence bundle, custom integrations) come **after** this baseline passes.
+This lane minimizes decisions and produces a **finalized architecture package** plus **sponsor-safe proof artifacts**. Optional paths (real AOAI, full RC evidence bundle, custom integrations) come **after** this baseline passes.
 
 ## Prerequisites (one-time)
 
@@ -10,19 +10,19 @@ This lane minimizes decisions and produces a **committed review package** plus *
 | --- | --- | --- |
 | API reachable | `dotnet run --project ArchLucid.Cli -- doctor` | Connected + schema OK |
 | SQL configured | `ConnectionStrings:ArchLucid` documented in run notes | `/health/ready` includes database healthy |
-| Operator login | [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) | Can open operator shell |
+| Architect login | [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) | Can open architect workspace |
 
-## The five-step lane (naive operator — guided intake recommended)
+## The five-step lane (first-time architect — guided intake recommended)
 
 1. **Guided intake** — open `/reviews/new`, use **Guided intake (recommended)**, enter intent/outcome/actors, admit the draft, answer or skip MUST questions, submit to spawn a review. Capture `runId`.
-2. **Execute** — `POST /v1/architecture/run/{runId}/execute` (or UI equivalent) to committable state.
-3. **Commit** — finalize golden manifest; confirm `goldenManifestId` on run detail.
+2. **Execute** — `POST /v1/architecture/run/{runId}/execute` (or UI equivalent) to ready-to-finalize state.
+3. **Finalize** — finalize architecture package (API: `commit` / golden manifest); confirm `goldenManifestId` on review detail.
 4. **Artifacts** — `GET /v1/artifacts/manifests/{manifestId}` returns ≥ 1 descriptor.
 5. **Proof packet** — `dotnet run --project ArchLucid.Cli -- pilot proof-packet <runId> --out artifacts/proof-packet/<runId>`; read `sponsor-proof-packet-index.md` and `limitations.md`.
 
-**Expert/API shortcut:** `POST /v1/architecture/request` remains valid when the operator already has a complete brief.
+**Expert/API shortcut:** `POST /v1/architecture/request` remains valid when the architect already has a complete brief.
 
-**Time budget:** first-value timing targets PASS ≤ 10 minutes create→commit→artifact per `V1_RELEASE_CHECKLIST.md`.
+**Time budget:** first-value timing targets PASS ≤ 10 minutes create→finalize→artifact per `V1_RELEASE_CHECKLIST.md`.
 
 ## Strict verification (recommended before sponsor handoff)
 

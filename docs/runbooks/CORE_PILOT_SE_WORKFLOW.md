@@ -1,4 +1,4 @@
-> **Scope:** Sales-engineer / pilot-lead checklist for Core Pilot completion using existing operator UI and telemetry; not a substitute for customer success contracts.
+> **Scope:** Sales-engineer / pilot-lead checklist for Core Pilot completion using existing architect workspace and telemetry; not a substitute for customer success contracts.
 
 # Core Pilot — sales-engineer workflow
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 2. During the session (operator Home)
+## 2. During the session (architect Home)
 
 1. Open **Home** — expand **First architecture review checklist (signals + steps)**.
 2. Watch **Server-tracked onboarding signals**: Sessions, Finalized, Conversion. These are **process-lifetime** for the deployment (reset on API host restart) — use for **this environment’s** pilot drill, not as long-term CRM analytics.

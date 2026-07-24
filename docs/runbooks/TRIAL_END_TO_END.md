@@ -13,7 +13,7 @@
 
 ## Objective
 
-Prove **self-serve trial in production shape**: anonymous `POST /v1/register`, SQL-backed tenant + trial rows, operator UI (DevelopmentBypass scope), trial metering (`402` + `application/problem+json`), **Noop** checkout URL, harness-simulated **subscription activation** (same activator as Stripe `checkout.session.completed`), Prometheus funnel counters, and **Converted** trial UI (trial banner hidden).
+Prove **self-serve trial in production shape**: anonymous `POST /v1/register`, SQL-backed tenant + trial rows, architect workspace (DevelopmentBypass scope), trial metering (`402` + `application/problem+json`), **Noop** checkout URL, harness-simulated **subscription activation** (same activator as Stripe `checkout.session.completed`), Prometheus funnel counters, and **Converted** trial UI (trial banner hidden).
 
 ---
 

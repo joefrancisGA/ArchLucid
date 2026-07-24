@@ -350,7 +350,7 @@ Ordered by impact. Items marked **[quick]** are single-file copy changes. Items 
 ### P0 — Demo safety (fix before next screenshot session)
 
 - [ ] **`enterprise-controls-context-copy.ts`** [quick]: Replace all "for this run" → "for this review"; "Load a run" → "Load a review"; "elevated permissions" → "approval rights" in governance copy (items 38–40, 43)
-- [ ] **`layer-guidance.ts`** [quick]: Replace `firstPilotNote` for `graph` — change "Defer until after Pilot proof…" to a buyer-facing benefit statement like "Best used after you have a committed review — visual exploration complements the manifest and finding tables" (item 28)
+- [ ] **`layer-guidance.ts`** [quick]: Replace `firstPilotNote` for `graph` — change "Defer until after Pilot proof…" to a buyer-facing benefit statement like "Best used after you have a finalized review — visual exploration complements the architecture package and finding tables" (item 28)
 - [ ] **`GraphIdleLegend.tsx`** [quick]: Replace "very large runs" → "very large reviews" (item 80)
 - [ ] **`operate-analysis-nav-group-builder.ts`** [quick]: Replace "one run" → "one review" in shortcut title (item 80)
 - [ ] **`help-topics.ts`** [quick]: Replace "one run's provenance" → "one review's provenance" (item 77)

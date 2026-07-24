@@ -6,7 +6,7 @@
 
 ## What the demo is
 
-- **API + operator UI** in **DevelopmentBypass** (no sign-in) for the simplest evaluator path, or you may switch to **ApiKey** / **JwtBearer** for a stricter public posture.
+- **API + architect workspace** in **DevelopmentBypass** (no sign-in) for the simplest evaluator path, or you may switch to **ApiKey** / **JwtBearer** for a stricter public posture.
 - **Agent execution: Simulator** — deterministic, no Azure OpenAI cost.
 - **Pre-seeded Contoso data** — on API startup, when `Demo:Enabled` and `Demo:SeedOnStartup` are `true` (Development), or when `Demo:Enabled` and `Demo:EnableShowcaseSeed` are `true` (hosted RC/dev CD uses **`ASPNETCORE_ENVIRONMENT=Staging`** + showcase seed), `IDemoSeedService` runs after DbUp (`ArchLucid.Application/Bootstrap/DemoSeedService.cs`). It creates **two committed** Contoso Retail runs (baseline + hardened) plus governance/export fixtures, not three. Hosted GitHub CD `target=dev` pins and asserts that showcase-seed posture on every deploy (see [`DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) § Dev Contoso showcase seed).
 - **On-demand reset** — there is no automatic nightly reset. Wipe the database or re-provision the environment when you need a clean state.
@@ -38,7 +38,7 @@ The marketing route `/get-started` shows **Try the live demo** when `NEXT_PUBLIC
    - `ArchLucid:StorageProvider=Sql`
    - `Demo:Enabled=true`, `Demo:SeedOnStartup=true` for seed (disable in true production if this host is shared with paid tenants).
    - `ArchLucid:AgentExecution:Mode=Simulator`
-4. **UI image build** — pass `NEXT_PUBLIC_DEMO_URL=https://demo.archlucid.net` (or the UI origin if the marketing site and operator UI share one host) so the CTA is visible.
+4. **UI image build** — pass `NEXT_PUBLIC_DEMO_URL=https://demo.archlucid.net` (or the UI origin if the marketing site and architect workspace share one host) so the CTA is visible.
 5. **Ingress** — TLS (Front Door or Container Apps ingress), WAF as required by your security policy.
 
 **Rough monthly cost (order of magnitude):** a small **Azure SQL** + two **Container Apps** replicas + **Storage** is often in the **tens to low hundreds USD/month** for light demo traffic, depending on region, SKU, and data volume — align with your `infra` modules and cost alerts.

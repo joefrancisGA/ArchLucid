@@ -13,7 +13,7 @@ Use this page when a pilot stalls, proof collection fails, or sponsor handoff is
 | `correlationId` | API problem details (`X-Correlation-ID`), support bundle, or Application Insights trace |
 | Proof working directory | `collect-first-pilot-proof.ps1` or `archlucid pilot proof-packet <runId>` |
 
-## Triage order (live API / operator UI)
+## Triage order (live API / architect workspace)
 
 1. **Health and version** — `GET /health/ready`, `GET /version`, or `archlucid doctor`. Confirm SQL and worker/API roles.
 2. **Run detail** — operator review detail or `GET /v1/authority/runs/{runId}`. Check execution mode, governance warnings, commit-blocking finding coverage, LLM cost estimate, trust evidence card.

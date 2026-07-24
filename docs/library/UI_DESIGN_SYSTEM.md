@@ -85,7 +85,7 @@ Use precise product language throughout the UI — labels, headings, empty state
 
 - **Hide CLI/script/API/model/runtime details from normal product surfaces.**
 - Keep technical details behind a "Diagnostics", "Technical appendix", or chevron-expandable disclosure.
-- Developer-facing identifiers (run IDs, UUIDs, correlation IDs) are fine in copy mode or support contexts, not in primary operator UI.
+- Developer-facing identifiers (run IDs, UUIDs, correlation IDs) are fine in copy mode or support contexts, not in primary architect workspace.
 
 ---
 
@@ -111,10 +111,10 @@ Use precise product language throughout the UI — labels, headings, empty state
 > - Prefer structured enterprise cards, data tables, tabs, accordions, command bars, and side panels.
 > - Use status tags consistently: Ready, Needs attention, Blocked, Approved, Approved with monitoring.
 > - Make primary content visibly dominant; diagnostics/supporting content quieter.
-> - Compact, readable enterprise spacing; no giant marketing cards in operator views.
+> - Compact, readable enterprise spacing; no giant marketing cards in architect workspace views.
 > - Hide CLI/script/API/model/runtime details from normal surfaces.
 > - Keep technical details behind diagnostics or technical appendix disclosures.
-> - Use precise product language: review package, finding, residual risk, evidence trail, signed decision record, governance approval, audit trail.
+> - Use precise product language: architecture package, finding, residual risk, evidence trail, signed decision record, governance approval, audit trail.
 > - Design for CIO/procurement/compliance credibility.
 
 ---
