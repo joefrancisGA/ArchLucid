@@ -221,7 +221,7 @@ likely-active path given the screenshot):
 
 1. Step 0's local repro is completed and its outcome stated explicitly before Step 1 is attempted.
 2. Generating a review through the normal wizard flow and following the post-generation redirect opens
-   the review package successfully — no `workspace-mismatch` screen — under the plain dev-default
+   the architecture package successfully — no `workspace-mismatch` screen — under the plain dev-default
    scope, with **no** scope-switcher interaction.
 3. A run whose `scopeProjectId` genuinely does not match the caller's effective project scope still
    produces the `workspace-mismatch` screen (IDOR defense preserved — verify with a manual cross-scope
