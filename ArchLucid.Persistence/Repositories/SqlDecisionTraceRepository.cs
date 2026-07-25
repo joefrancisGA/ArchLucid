@@ -133,25 +133,65 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             RuleSetId = row.RuleSetId,
             RuleSetVersion = row.RuleSetVersion,
             RuleSetHash = row.RuleSetHash,
-            AppliedRuleIds = JsonEntitySerializer.Deserialize<List<string>>(row.AppliedRuleIdsJson),
-            AcceptedFindingIds = JsonEntitySerializer.Deserialize<List<string>>(row.AcceptedFindingIdsJson),
-            RequiredFindingIds = DeserializeFindingIds(row.RequiredFindingIdsJson),
-            AllowedFindingIds = DeserializeFindingIds(row.AllowedFindingIdsJson),
-            PreferredFindingIds = DeserializeFindingIds(row.PreferredFindingIdsJson),
-            RejectedFindingIds = JsonEntitySerializer.Deserialize<List<string>>(row.RejectedFindingIdsJson),
-            Notes = JsonEntitySerializer.Deserialize<List<string>>(row.NotesJson),
+            AppliedRuleIds = DeserializeStringList(row.AppliedRuleIdsJson),
+            AcceptedFindingIds = DeserializeStringList(row.AcceptedFindingIdsJson),
+            RequiredFindingIds = DeserializeStringList(row.RequiredFindingIdsJson),
+            AllowedFindingIds = DeserializeStringList(row.AllowedFindingIdsJson),
+            PreferredFindingIds = DeserializeStringList(row.PreferredFindingIdsJson),
+            RejectedFindingIds = DeserializeStringList(row.RejectedFindingIdsJson),
+            Notes = DeserializeStringList(row.NotesJson),
             ContextSnapshotId = row.ContextSnapshotId,
             GraphSnapshotId = row.GraphSnapshotId,
             FindingsSnapshotId = row.FindingsSnapshotId,
-            PromptRefs = JsonEntitySerializer.Deserialize<List<RuleAuditTracePromptRef>>(row.PromptRefsJson ?? "[]"),
-            Warnings = JsonEntitySerializer.Deserialize<List<RuleAuditTraceWarning>>(row.WarningsJson ?? "[]"),
+            PromptRefs = DeserializePromptRefs(row.PromptRefsJson),
+            Warnings = DeserializeWarnings(row.WarningsJson),
         });
     }
 
-    private static List<string> DeserializeFindingIds(string? json) =>
-        string.IsNullOrWhiteSpace(json)
-            ? []
-            : JsonEntitySerializer.Deserialize<List<string>>(json);
+    private static List<string> DeserializeStringList(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            return JsonEntitySerializer.Deserialize<List<string>>(json) ?? [];
+        }
+        catch (InvalidOperationException)
+        {
+            return [];
+        }
+    }
+
+    private static List<RuleAuditTracePromptRef> DeserializePromptRefs(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            return JsonEntitySerializer.Deserialize<List<RuleAuditTracePromptRef>>(json) ?? [];
+        }
+        catch (InvalidOperationException)
+        {
+            return [];
+        }
+    }
+
+    private static List<RuleAuditTraceWarning> DeserializeWarnings(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            return JsonEntitySerializer.Deserialize<List<RuleAuditTraceWarning>>(json) ?? [];
+        }
+        catch (InvalidOperationException)
+        {
+            return [];
+        }
+    }
 
     private sealed class DecisionTraceRow
     {

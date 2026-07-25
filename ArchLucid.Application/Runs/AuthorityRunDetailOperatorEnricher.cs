@@ -127,7 +127,14 @@ public sealed class AuthorityRunDetailOperatorEnricher(
 
         detail.Run.IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(detail.Run);
 
-        await AppendLlmCostEstimateAsync(detail, runHex, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await AppendLlmCostEstimateAsync(detail, runHex, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Buyer SSR must not 500 on optional cost enrichment faults.
+        }
 
         detail.EstimatedUsdSavingsSummary = await RunDetailEstimatedUsdSavingsBuilder
             .TryBuildAsync(
@@ -162,21 +169,36 @@ public sealed class AuthorityRunDetailOperatorEnricher(
 
         detail.Results = buyerResults;
 
-        await AppendRetrievalGroundingSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
-        await AppendDecisionExplainabilityAsync(detail, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await AppendRetrievalGroundingSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Optional grounding summary — omit on fault.
+        }
+
+        try
+        {
+            await AppendDecisionExplainabilityAsync(detail, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Optional explainability — omit on fault.
+        }
 
         if (!detail.Run.GoldenManifestId.HasValue || detail.Run.GoldenManifestId.Value == Guid.Empty)
             return;
 
-        ArchitectureRunDetail architectureDetail = new()
-        {
-            Run = RunRecordToArchitectureRunMapper.ToArchitectureRun(detail.Run, []),
-            Results = buyerResults,
-            Manifest = BuildTrustManifestFromAuthorityDocument(runHex, detail.Run.ProjectId, detail.GoldenManifest),
-        };
-
         try
         {
+            ArchitectureRunDetail architectureDetail = new()
+            {
+                Run = RunRecordToArchitectureRunMapper.ToArchitectureRun(detail.Run, []),
+                Results = buyerResults,
+                Manifest = BuildTrustManifestFromAuthorityDocument(runHex, detail.Run.ProjectId, detail.GoldenManifest),
+            };
+
             detail.TrustEvidenceCard =
                 await _trustEvidenceCardBuilder
                     .BuildAsync(architectureDetail, hostAgentExecutionMode, cancellationToken)
@@ -184,7 +206,7 @@ public sealed class AuthorityRunDetailOperatorEnricher(
         }
         catch (Exception)
         {
-            // Buyer SSR must not 500 when trust-card enrichment faults; omit the card instead.
+            // Buyer SSR must not 500 when trust-card enrichment or status mapping faults; omit the card.
             detail.TrustEvidenceCard = null;
         }
 

@@ -420,10 +420,10 @@ public sealed class AgentResultRepository(
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
 
-        IEnumerable<EvidenceProposalListItem> rows;
+        IEnumerable<EvidenceProposalRow> rows;
         try
         {
-            rows = await conn.QueryAsync<EvidenceProposalListItem>(new CommandDefinition(
+            rows = await conn.QueryAsync<EvidenceProposalRow>(new CommandDefinition(
                 sql,
                 RunChildRunScopeSql.ScopeParameters(scope),
                 cancellationToken: cancellationToken));
@@ -433,7 +433,7 @@ public sealed class AgentResultRepository(
             ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
         }
 
-        return rows.ToList();
+        return rows.Select(MapEvidenceProposal).ToList();
     }
 
     public async Task<EvidenceProposalListItem?> TryGetEvidenceProposalAsync(
@@ -475,7 +475,7 @@ public sealed class AgentResultRepository(
 
         try
         {
-            return await conn.QuerySingleOrDefaultAsync<EvidenceProposalListItem>(new CommandDefinition(
+            EvidenceProposalRow? row = await conn.QuerySingleOrDefaultAsync<EvidenceProposalRow>(new CommandDefinition(
                 sql,
                 new
                 {
@@ -485,11 +485,26 @@ public sealed class AgentResultRepository(
                     ScopeProjectId = scope.ProjectId,
                 },
                 cancellationToken: cancellationToken));
+
+            return row is null ? null : MapEvidenceProposal(row);
         }
         finally
         {
             ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
         }
+    }
+
+    private static EvidenceProposalListItem MapEvidenceProposal(EvidenceProposalRow row)
+    {
+        return new EvidenceProposalListItem
+        {
+            ResultId = row.ResultId,
+            RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
+            AgentType = row.AgentType,
+            ProposedEvidenceJson = row.ProposedEvidenceJson,
+            CreatedUtc = row.CreatedUtc,
+            IsPromoted = row.IsPromoted,
+        };
     }
 
     private static async Task InsertAgentResultsBatchAsync(
@@ -562,6 +577,45 @@ public sealed class AgentResultRepository(
 
         commandText.Append(';');
         return new SqlChunkedBatchCommand(commandText.ToString(), parameters);
+    }
+
+    private sealed class EvidenceProposalRow
+    {
+        public string ResultId
+        {
+            get;
+            init;
+        } = null!;
+
+        public Guid RunId
+        {
+            get;
+            init;
+        }
+
+        public string AgentType
+        {
+            get;
+            init;
+        } = null!;
+
+        public string ProposedEvidenceJson
+        {
+            get;
+            init;
+        } = null!;
+
+        public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
+
+        public bool IsPromoted
+        {
+            get;
+            init;
+        }
     }
 
     private sealed class AgentTypeMarkerRow

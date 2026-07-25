@@ -431,7 +431,7 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [SkippableFact]
-    public async Task Approve_AlreadyRejected_ThrowsInvalidOperationException()
+    public async Task Approve_AlreadyRejected_ThrowsGovernanceApprovalReviewConflictException()
     {
         GovernanceApprovalRequest existing = new()
         {
@@ -444,8 +444,7 @@ public sealed class GovernanceWorkflowServiceTests
 
         Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-rejected", "bob", "bob", null);
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*cannot be approved*");
+        await act.Should().ThrowAsync<GovernanceApprovalReviewConflictException>();
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
@@ -710,7 +709,7 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [SkippableFact]
-    public async Task Reject_AlreadyApproved_ThrowsInvalidOperationException()
+    public async Task Reject_AlreadyApproved_ThrowsGovernanceApprovalReviewConflictException()
     {
         GovernanceApprovalRequest existing = new()
         {
@@ -723,8 +722,7 @@ public sealed class GovernanceWorkflowServiceTests
 
         Func<Task<GovernanceApprovalRequest>> act = () => _sut.RejectAsync("apr-approved", "carol", "carol", null);
 
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*cannot be rejected*");
+        await act.Should().ThrowAsync<GovernanceApprovalReviewConflictException>();
 
         _baselineAudit.Verify(
             a => a.RecordAsync(

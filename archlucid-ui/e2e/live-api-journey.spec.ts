@@ -32,7 +32,10 @@ import {
   postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
-import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
+import {
+  injectDemoWorkspaceOperatorScope,
+  openDemoWorkspaceReviewDetailShellReady,
+} from "./helpers/demo-workspace-live-scope";
 import {
   auditPageMainHeading,
   clickAuditSearchAndWaitForSuccessfulResponse,
@@ -140,20 +143,9 @@ test.describe("live-api-journey", () => {
     // skipped explicitly outside bypass mode to avoid the proxy forwarding the same forbidden header.
     // Call at use site (not module load) — the auth lane can change between import and test run.
     if (resolveLiveAuthMode() === "bypass") {
-      await injectDemoWorkspaceOperatorScope(page, tenantScope);
-    }
-
-    await gotoLiveRunDetailPage(page, runId);
-
-    try {
-      await expectLiveRunDetailPageReady(page, 90_000);
-    } catch (error) {
-      if (resolveLiveAuthMode() !== "bypass") {
-        throw error;
-      }
-
-      // First RSC flight can miss the scope cookie on cold isolated-tenant runs — re-seed and reload once.
-      await injectDemoWorkspaceOperatorScope(page, tenantScope);
+      // SSR uses buyer-summary; cold-start retries re-seed scope cookie between attempts.
+      await openDemoWorkspaceReviewDetailShellReady(page, tenantScope, runId, { timeoutMs: 45_000 });
+    } else {
       await gotoLiveRunDetailPage(page, runId);
       await expectLiveRunDetailPageReady(page, 120_000);
     }

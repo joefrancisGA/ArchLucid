@@ -159,24 +159,22 @@ public sealed class GovernanceWorkflowService(
         await EnforceSegregationOfDutiesForReviewAsync(request, approvalRequestId, reviewedBy, reviewedByActorKey, cancellationToken);
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
         {
-            if (string.Equals(request.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
-                throw new GovernanceApprovalReviewConflictException(approvalRequestId, "approve", request.Status);
-            throw new InvalidOperationException($"Approval request '{approvalRequestId}' cannot be approved from status '{request.Status}'. " +
-                                                "Approve is only valid from Draft or Submitted.");
+            // Terminal / non-reviewable statuses (Approved, Rejected, …) are HTTP 409 conflicts for clients.
+            throw new GovernanceApprovalReviewConflictException(approvalRequestId, "approve", request.Status);
         }
 
         DateTime reviewedUtc = TimeProvider.System.UtcNowDateTime();
         bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(approvalRequestId, GovernanceApprovalStatus.Approved, reviewedBy,
             reviewedByActorKey, reviewComment, reviewedUtc, cancellationToken);
+
         if (!transitioned)
         {
             GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+
             if (fresh is null)
                 throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
-            if (string.Equals(fresh.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
-                throw new GovernanceApprovalReviewConflictException(approvalRequestId, "approve", fresh.Status);
-            throw new InvalidOperationException($"Approval request '{approvalRequestId}' cannot be approved from status '{fresh.Status}'. " +
-                                                "Approve is only valid from Draft or Submitted.");
+
+            throw new GovernanceApprovalReviewConflictException(approvalRequestId, "approve", fresh.Status);
         }
 
         request.Status = GovernanceApprovalStatus.Approved;
@@ -225,24 +223,22 @@ public sealed class GovernanceWorkflowService(
         await EnforceSegregationOfDutiesForReviewAsync(request, approvalRequestId, reviewedBy, reviewedByActorKey, cancellationToken);
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
         {
-            if (string.Equals(request.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
-                throw new GovernanceApprovalReviewConflictException(approvalRequestId, "reject", request.Status);
-            throw new InvalidOperationException($"Approval request '{approvalRequestId}' cannot be rejected from status '{request.Status}'. " +
-                                                "Reject is only valid from Draft or Submitted.");
+            // Terminal / non-reviewable statuses (Approved, Rejected, …) are HTTP 409 conflicts for clients.
+            throw new GovernanceApprovalReviewConflictException(approvalRequestId, "reject", request.Status);
         }
 
         DateTime reviewedUtc = TimeProvider.System.UtcNowDateTime();
         bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(approvalRequestId, GovernanceApprovalStatus.Rejected, reviewedBy,
             reviewedByActorKey, reviewComment, reviewedUtc, cancellationToken);
+
         if (!transitioned)
         {
             GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+
             if (fresh is null)
                 throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
-            if (string.Equals(fresh.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
-                throw new GovernanceApprovalReviewConflictException(approvalRequestId, "reject", fresh.Status);
-            throw new InvalidOperationException($"Approval request '{approvalRequestId}' cannot be rejected from status '{fresh.Status}'. " +
-                                                "Reject is only valid from Draft or Submitted.");
+
+            throw new GovernanceApprovalReviewConflictException(approvalRequestId, "reject", fresh.Status);
         }
 
         request.Status = GovernanceApprovalStatus.Rejected;
