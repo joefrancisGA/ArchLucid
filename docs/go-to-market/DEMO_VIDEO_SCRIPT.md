@@ -12,6 +12,8 @@
 
 **Setup:** Run with Simulator agents for a deterministic timeline. Use the Contoso Retail demo tenant (Docker seed) or the static showcase tenant (`claims-intake-modernization`). Have the browser at 1440×900, 100% zoom, bookmarks hidden.
 
+**Demo honesty — Workspace B (M-111 / C4):** When you open the regulated Workspace B sample (`/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b`, Meridian / Alpine), narrate findings as a **seed-backed curated storyline**. Engines are `AiGovernanceSeed` / `SecurityBaselineSeed` — not live Topology / Cost / Compliance / Critic agent traces. Show live multi-agent analysis on **Workspace A** (Product Tour) or a real pilot run. Durable buyer-facing live sample is **M-93** (dogfood).
+
 **Trust ladder:** Open on a **completed architecture package**. Do **not** start at `/reviews/new` or describe generation speed.
 
 ---
@@ -166,3 +168,4 @@ Trim governance or compare if time is tight — core story is **finished package
 - Routes exist in **`archlucid-ui`** (App Router segments under `(operator)` / `(marketing)`).
 - Claims match **Pilot** capabilities in **[V1_SCOPE.md](../library/V1_SCOPE.md)** §2.
 - If a capability is gated (commercial tier / feature flag), voiceover states "when enabled for your tenant" rather than implying universal availability.
+- When using **Workspace B**, narrate seed-backed storyline honesty (**M-111**); do not imply live multi-agent traces for that sample.
