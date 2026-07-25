@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -62,7 +63,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
         Mock<IAuditService> audit = new();
         audit
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Returns(System.Threading.Tasks.Task.CompletedTask);
 
         ArchitectureRunExecuteOrchestrator sut = CreateSut(
             runId,
@@ -72,10 +73,10 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             audit.Object,
             ArchitectureRunStatus.PartiallyCompleted,
             [
-                Task(runId, topologyTaskId, AgentType.Topology),
-                Task(runId, costTaskId, AgentType.Cost),
-                Task(runId, complianceTaskId, AgentType.Compliance),
-                Task(runId, criticTaskId, AgentType.Critic),
+                MakeAgentTask(runId, topologyTaskId, AgentType.Topology),
+                MakeAgentTask(runId, costTaskId, AgentType.Cost),
+                MakeAgentTask(runId, complianceTaskId, AgentType.Compliance),
+                MakeAgentTask(runId, criticTaskId, AgentType.Critic),
             ]);
 
         ExecuteRunResult result = await sut.ExecuteSelectiveRunAsync(
@@ -112,7 +113,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
             Mock.Of<IAuditService>(),
             ArchitectureRunStatus.Committed,
-            [Task(runId, "t1", AgentType.Cost)]);
+            [MakeAgentTask(runId, "t1", AgentType.Cost)]);
 
         Func<Task> act = async () => await sut.ExecuteSelectiveRunAsync(
             runId,
@@ -148,7 +149,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             .ReturnsAsync(header);
         runRepo
             .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
+            .Returns(System.Threading.Tasks.Task.CompletedTask);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
@@ -179,7 +180,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
         evidenceRepo
             .Setup(r => r.CreateAsync(It.IsAny<AgentEvidencePackage>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
+            .Returns(System.Threading.Tasks.Task.CompletedTask);
 
         Mock<IAgentEvaluationRepository> evalRepo = new();
         evalRepo
@@ -188,7 +189,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
                 It.IsAny<CancellationToken>(),
                 null,
                 null))
-            .Returns(Task.CompletedTask);
+            .Returns(System.Threading.Tasks.Task.CompletedTask);
 
         Mock<IAgentEvaluationService> evaluationService = new();
         evaluationService
@@ -209,7 +210,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
                 It.IsAny<string>(),
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Returns(System.Threading.Tasks.Task.CompletedTask);
 
         return new ArchitectureRunExecuteOrchestrator(
             runRepo.Object,
@@ -237,10 +238,11 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             Mock.Of<IRunEngineProvenanceCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(scopeProvider.Object),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 
-    private static AgentTask Task(string runId, string taskId, AgentType agentType) =>
+    private static AgentTask MakeAgentTask(string runId, string taskId, AgentType agentType) =>
         new()
         {
             RunId = runId,
@@ -270,7 +272,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             string runId,
             ArchitectureRequest request,
             AgentEvidencePackage evidence,
-            IReadOnlyList<AgentTask> tasks,
+            IReadOnlyCollection<AgentTask> tasks,
             CancellationToken cancellationToken = default)
         {
             foreach (AgentTask task in tasks)
@@ -295,7 +297,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             string runId,
             ArchitectureRequest request,
             AgentEvidencePackage evidence,
-            IReadOnlyList<AgentTask> tasks,
+            IReadOnlyCollection<AgentTask> tasks,
             CancellationToken cancellationToken = default)
         {
             IReadOnlyList<AgentResult> persisted =

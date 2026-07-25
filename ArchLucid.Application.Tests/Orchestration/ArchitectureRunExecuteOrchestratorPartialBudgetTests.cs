@@ -236,6 +236,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
             Mock.Of<IRunEngineProvenanceCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 }

@@ -2,7 +2,9 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Ask;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Explanation;
@@ -38,6 +40,7 @@ using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Architecture;
+using ArchLucid.Persistence.Budgeting;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -137,6 +140,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<InMemoryQuickScanGlobalBudgetReservationStore>();
             services.AddSingleton<IQuickScanGlobalBudgetReservationStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanGlobalBudgetReservationStore>());
+            services.AddSingleton<InMemoryRunScopedLlmBudgetReservationStore>();
+            services.AddSingleton<IRunScopedLlmBudgetReservationStore>(sp =>
+                sp.GetRequiredService<InMemoryRunScopedLlmBudgetReservationStore>());
             services.AddSingleton<InMemoryQuickScanDistributedConcurrencyStore>();
             services.AddSingleton<IQuickScanDistributedConcurrencyStore>(sp =>
                 sp.GetRequiredService<InMemoryQuickScanDistributedConcurrencyStore>());
@@ -155,6 +161,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IQuickScanGlobalBudgetReservationStore, DapperQuickScanGlobalBudgetReservationStore>();
         services.AddSingleton<IQuickScanDistributedConcurrencyStore, DapperQuickScanDistributedConcurrencyStore>();
         services.AddSingleton<IQuickScanSafetyOperationalStateStore, DapperQuickScanSafetyOperationalStateStore>();
+        services.AddSingleton<IRunScopedLlmBudgetReservationStore, DapperRunScopedLlmBudgetReservationStore>();
         services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultEnrichmentRepository, AgentResultEnrichmentRepository>();

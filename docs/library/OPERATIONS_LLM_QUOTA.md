@@ -5,7 +5,7 @@
 
 # Operations — LLM token quota and metrics
 
-**Last reviewed:** 2026-05-01
+**Last reviewed:** 2026-07-24
 
 ## Configuration
 
@@ -23,7 +23,15 @@
 | `LlmMonthlyTenantDollarBudget:WarnFraction` | Fraction of **included** USD at which **`LlmTenantMonthlyDollarBudgetApproaching`** is logged (once per tenant per UTC month). |
 | `LlmMonthlyTenantDollarBudget:AssumedMaxPromptTokensPerRequest` | Pre-flight USD reservation before usage returns. |
 | `LlmMonthlyTenantDollarBudget:AssumedMaxCompletionTokensPerRequest` | Pre-flight USD reservation before usage returns. |
+| `RunScopedLlmBudgetReservation:Enabled` | **TB-939** — admit-before-spend for architecture run agent batches (reserve/commit/release before Topology). Default **true**. When monthly USD budget is disabled, admission is a no-op after MaxCost/MaxTokens checks. |
+| `RunScopedLlmBudgetReservation:AssumedCallsPerAgentTask` | Assumed provider calls per scheduled agent task when estimating batch USD (default **1**). |
+| `RunScopedLlmBudgetReservation:ReservationTtlMinutes` | Pending reservation TTL before automatic expiry (default **120**). |
+| `RunScopedLlmBudgetReservation:AccountingGracePercent` | Grace percent on monthly hard cap when summing pending run reservations + current pressure (default **2**). |
 | `LlmTelemetry:RecordPerTenantTokens` | Emit Prometheus series with `tenant_id` label (raises cardinality — enable only for bounded tenant counts). |
+
+### Run-scoped batch admission (TB-939)
+
+Before `IAgentExecutor.ExecuteAsync` for a run, ArchLucid estimates batch USD as `taskCount × AssumedCallsPerAgentTask × assumedUsdPerCall`, rejects when the estimate exceeds `AgentOutputQualityGate:MaxCostPerRun` / `MaxTokensPerRun` (`costBudget`), then holds a **tenant-scoped pending reservation** against the monthly hard cap so concurrent executes cannot overspend. On success the reservation is **committed** (pending released); on cancel/fail it is **released**. Per-call INV-004 leases remain; this is an outer admit latch (does not replace `LlmCompletionAccountingClient`).
 
 When quota is exceeded, the API returns **429** with problem type `#llm-token-quota-exceeded`. When the server can compute a retry instant (sliding-window expiry or next UTC-day budget boundary), the problem payload may include a **`retryAfterUtc`** extension (same shape as circuit-breaker **`retryAfterUtc`**). **Monthly dollar budget** uses **next UTC month start** for **`retryAfterUtc`** when the hard cutoff trips. OpenTelemetry counter **`archlucid_llm_quota_exceeded_total`** increments once per rejected pre-call (accounting decorator). Agent execution traces persist **`FailureReasonCode`=`LlmTokenQuotaExceeded`** when quota ends a handler.
 

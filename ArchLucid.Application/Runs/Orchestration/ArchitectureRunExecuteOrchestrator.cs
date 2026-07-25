@@ -4,10 +4,12 @@ using System.Diagnostics;
 
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.AiUsage;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -18,6 +20,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -61,6 +64,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IRunEngineProvenanceCaptureService runEngineProvenanceCaptureService,
     TechnologyLedgerTopologyProposalSeeder technologyLedgerTopologyProposalSeeder,
     DemoExpensiveActionGate demoExpensiveActionGate,
+    IRunScopedLlmBudgetReservationService runScopedLlmBudgetReservationService,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -123,6 +127,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly DemoExpensiveActionGate _demoExpensiveActionGate =
         demoExpensiveActionGate ?? throw new ArgumentNullException(nameof(demoExpensiveActionGate));
+
+    private readonly IRunScopedLlmBudgetReservationService _runScopedLlmBudgetReservationService =
+        runScopedLlmBudgetReservationService ?? throw new ArgumentNullException(nameof(runScopedLlmBudgetReservationService));
 
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -439,45 +446,66 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     "agent_batch_executing",
                     scheduledTaskIds);
 
+            Guid tenantId = executeScope.TenantId;
+            RunScopedLlmBudgetAdmitResult budgetAdmit =
+                await AdmitRunScopedLlmBudgetOrThrowAsync(tenantId, runId, tasks.Count, cancellationToken);
+
             IReadOnlyList<AgentResult> results;
 
             try
             {
-                using (AmbientAiUsageFeatureScope.Push(AiUsageFeature.ArchitectureGeneration))
+                try
                 {
-                    results = await agentExecutor.ExecuteAsync(runId, request, evidence, tasks, cancellationToken);
+                    using (AmbientAiUsageFeatureScope.Push(AiUsageFeature.ArchitectureGeneration))
+                    {
+                        results = await agentExecutor.ExecuteAsync(runId, request, evidence, tasks, cancellationToken);
+                    }
                 }
-            }
-            catch (AgentRunPartialBudgetException partial)
-                when (_agentOutputQualityGateOptions.Value.PersistPartialOutputsOnBudgetExceeded &&
-                      partial.CompletedResults.Count > 0)
-            {
-                IReadOnlyList<AgentEvaluation> partialEvaluations =
-                    await agentEvaluationService.EvaluateAsync(
+                catch (AgentRunPartialBudgetException partial)
+                    when (_agentOutputQualityGateOptions.Value.PersistPartialOutputsOnBudgetExceeded &&
+                          partial.CompletedResults.Count > 0)
+                {
+                    IReadOnlyList<AgentEvaluation> partialEvaluations =
+                        await agentEvaluationService.EvaluateAsync(
+                            runId,
+                            request,
+                            evidence,
+                            tasks,
+                            partial.CompletedResults,
+                            cancellationToken);
+
+                    await PersistPartialExecutePhaseAsync(evidence, partial.CompletedResults, partialEvaluations, cancellationToken);
+
+                    AgentExecutionFailureSummary partialFailure =
+                        AgentExecutionFailureSummaryFactory.FromException(partial.BudgetCause);
+
+                    await TryMarkRunExecuteFailedAsync(runId, partialFailure, partial.CompletedResults, cancellationToken);
+
+                    await baselineMutationAudit.RecordAsync(
+                        AuditEventTypes.Baseline.Architecture.RunFailed,
+                        actor,
                         runId,
-                        request,
-                        evidence,
-                        tasks,
-                        partial.CompletedResults,
+                        FormatExecuteRunFailureAuditDetails(partialFailure),
                         cancellationToken);
 
-                await PersistPartialExecutePhaseAsync(evidence, partial.CompletedResults, partialEvaluations, cancellationToken);
+                    throw new RunCostBudgetExceededPartialPersistRecordedException(
+                        partial.BudgetCause,
+                        partial.CompletedResults.Count);
+                }
 
-                AgentExecutionFailureSummary partialFailure =
-                    AgentExecutionFailureSummaryFactory.FromException(partial.BudgetCause);
-
-                await TryMarkRunExecuteFailedAsync(runId, partialFailure, partial.CompletedResults, cancellationToken);
-
-                await baselineMutationAudit.RecordAsync(
-                    AuditEventTypes.Baseline.Architecture.RunFailed,
-                    actor,
-                    runId,
-                    FormatExecuteRunFailureAuditDetails(partialFailure),
+                await FinalizeRunScopedLlmBudgetReservationAsync(
+                    budgetAdmit,
+                    commitReservation: true,
+                    cancellationToken);
+            }
+            catch
+            {
+                await FinalizeRunScopedLlmBudgetReservationAsync(
+                    budgetAdmit,
+                    commitReservation: false,
                     cancellationToken);
 
-                throw new RunCostBudgetExceededPartialPersistRecordedException(
-                    partial.BudgetCause,
-                    partial.CompletedResults.Count);
+                throw;
             }
 
             if (TryParseRunGuid(runId, out Guid afterBatchRunId))
@@ -1131,5 +1159,62 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 DecisionRecordMapper.ToRecords(evaluations),
                 cancellationToken);
         }
+    }
+
+    private async Task<RunScopedLlmBudgetAdmitResult> AdmitRunScopedLlmBudgetOrThrowAsync(
+        Guid tenantId,
+        string runId,
+        int agentTaskCount,
+        CancellationToken cancellationToken)
+    {
+        RunScopedLlmBudgetAdmitResult admit = await _runScopedLlmBudgetReservationService
+            .AdmitBeforeAgentBatchAsync(tenantId, runId, agentTaskCount, cancellationToken);
+
+        if (admit.Allowed)
+            return admit;
+
+        return admit.RejectionReason switch
+        {
+            RunScopedLlmBudgetAdmitRejectionReason.RunCostBudgetExceeded =>
+                throw new CostLimitExceededException(
+                    $"Run '{runId}' estimated agent-batch cost exceeds MaxCostPerRun / MaxTokensPerRun before execution."),
+            RunScopedLlmBudgetAdmitRejectionReason.MonthlyQuotaExceeded =>
+                throw new LlmTokenQuotaExceededException(
+                    $"Run '{runId}' cannot start: tenant monthly LLM dollar budget lacks headroom for the estimated agent batch."),
+            RunScopedLlmBudgetAdmitRejectionReason.StoreUnavailable =>
+                throw new InvalidOperationException(
+                    $"Run '{runId}' cannot start: run-scoped LLM budget reservation store is unavailable."),
+            RunScopedLlmBudgetAdmitRejectionReason.Disabled =>
+                admit,
+            null =>
+                throw new InvalidOperationException(
+                    $"Run '{runId}' cannot start: run-scoped LLM budget admission was rejected."),
+            _ =>
+                throw new InvalidOperationException(
+                    $"Run '{runId}' cannot start: run-scoped LLM budget admission was rejected ({admit.RejectionReason})."),
+        };
+    }
+
+    private async Task FinalizeRunScopedLlmBudgetReservationAsync(
+        RunScopedLlmBudgetAdmitResult admit,
+        bool commitReservation,
+        CancellationToken cancellationToken)
+    {
+        if (!admit.ReservationHeld || admit.ReservationId is null)
+            return;
+
+        Guid reservationId = admit.ReservationId.Value;
+
+        if (commitReservation)
+        {
+            await _runScopedLlmBudgetReservationService.CommitAsync(
+                reservationId,
+                admit.ReservedUsd,
+                cancellationToken);
+
+            return;
+        }
+
+        await _runScopedLlmBudgetReservationService.ReleaseAsync(reservationId, cancellationToken);
     }
 }

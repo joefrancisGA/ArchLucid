@@ -51,9 +51,9 @@ public sealed class ApplicationPackageCoverageBatch10Tests
         defaults.PositiveObservations.Should().NotBeEmpty();
         defaults.RecommendedNextSteps.Should().NotBeEmpty();
 
-        ArchitectureQuickScanResponse custom = QuickScanSampleResultProvider.Build("  Orders  ", "  AWS  ");
-        custom.SystemName.Should().Be("Orders");
-        custom.PrimaryEnvironment.Should().Be("  AWS  ");
+        ArchitectureQuickScanResponse sample = QuickScanSampleResultProvider.Build();
+        sample.SystemName.Should().Be("Claims intake API");
+        sample.PrimaryEnvironment.Should().Be(QuickScanPrimaryEnvironment.Azure);
     }
 
     [Fact]
@@ -204,6 +204,6 @@ public sealed class ApplicationPackageCoverageBatch10Tests
             .NotThrow();
         sut.Invoking(s => s.RecordRejection(context, QuickScanGuardRejectionReason.Disabled)).Should().NotThrow();
         sut.Invoking(s => s.RecordFailure(context, "timeout", TimeSpan.FromSeconds(2))).Should().NotThrow();
-        sut.Invoking(s => s.RecordSampleView(context)).Should().NotThrow();
+        sut.Invoking(s => s.RecordSampleView(context, "sample_available")).Should().NotThrow();
     }
 }

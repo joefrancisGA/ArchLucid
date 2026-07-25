@@ -1,4 +1,5 @@
 using ArchLucid.Application.AiUsage;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
@@ -17,6 +18,7 @@ namespace ArchLucid.Application.Tests.Orchestration;
 public sealed record ArchitectureRunExecuteOrchestratorTailDependencies(
     TechnologyLedgerTopologyProposalSeeder TopologyProposalSeeder,
     DemoExpensiveActionGate DemoExpensiveActionGate,
+    IRunScopedLlmBudgetReservationService RunScopedLlmBudgetReservationService,
     ILogger<ArchitectureRunExecuteOrchestrator> Logger);
 
 public static class ArchitectureRunExecuteOrchestratorTestFactory
@@ -26,7 +28,9 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
         new(
             CreateDefaultTopologyProposalSeeder(scopeContextProvider),
             CreatePermissiveDemoExpensiveActionGate(),
+            CreatePassThroughRunScopedLlmBudgetReservationService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+
     internal static TechnologyLedgerTopologyProposalSeeder CreateDefaultTopologyProposalSeeder(
         IScopeContextProvider? scopeContextProvider = null) =>
         new(
@@ -48,4 +52,7 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             policyResolver.Object,
             optionsMonitor.Object);
     }
+
+    internal static IRunScopedLlmBudgetReservationService CreatePassThroughRunScopedLlmBudgetReservationService() =>
+        new PassThroughRunScopedLlmBudgetReservationService();
 }

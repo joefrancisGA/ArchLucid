@@ -134,6 +134,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new DemoExpensiveActionGate(
                 BuildPermissiveAiBudgetPolicyResolver(),
                 BuildDemoModeOffOptionsMonitor()),
+            new ArchLucid.Application.Budgeting.PassThroughRunScopedLlmBudgetReservationService(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

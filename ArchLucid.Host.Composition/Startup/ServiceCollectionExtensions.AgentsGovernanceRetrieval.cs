@@ -18,6 +18,7 @@ using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Core.AgentSimulation;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Core.Evidence;
@@ -671,6 +672,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<QuickScanModelPricingCatalogOptions>, QuickScanModelPricingCatalogOptionsValidator>();
         services.AddSingleton<IQuickScanCostEstimator, QuickScanCostEstimator>();
         services.AddSingleton<IQuickScanGlobalBudgetReservationService, QuickScanGlobalBudgetReservationService>();
+        services.Configure<RunScopedLlmBudgetReservationOptions>(
+            configuration.GetSection(RunScopedLlmBudgetReservationOptions.SectionName));
+        services.AddSingleton<IRunScopedLlmBudgetReservationService, RunScopedLlmBudgetReservationService>();
         services.AddSingleton<IQuickScanDistributedConcurrencyService, QuickScanDistributedConcurrencyService>();
         services.AddSingleton<IQuickScanSafetyOperationalStateProvider, QuickScanSafetyOperationalStateProvider>();
         services.AddSingleton<IQuickScanSafetyOperationalAdminService, QuickScanSafetyOperationalAdminService>();
