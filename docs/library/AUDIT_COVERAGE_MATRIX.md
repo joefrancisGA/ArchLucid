@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:356 -->
+<!-- audit-core-const-count:357 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -200,6 +200,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Agent output LLM faithfulness gate warn (TB-021 Phase B) | `AgentOutputEvaluationRecorder` (post-execute trace evaluation) | `AgentOutputLlmFaithfulnessWarned` | RunId when parseable | `{ runId, traceId, agentType, llmFaithfulnessScore, minScoreWarnBelow, gateOutcome, evaluationReason }` |
 | Agent output LLM faithfulness gate reject (TB-021 Phase B) | `AgentOutputEvaluationRecorder` (post-execute trace evaluation) | `AgentOutputLlmFaithfulnessRejected` | RunId when parseable | `{ runId, traceId, agentType, llmFaithfulnessScore, minScoreRejectBelow, gateOutcome, evaluationReason }` |
 | Coordinator run execute retry (`LegacyRunStatus` / contract status **Failed**) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.Run.RetryRequested` | RunId when `runId` parses as GUID | `{ runId, previousStatus: "Failed" }` — direct `IAuditService` before baseline `Architecture.RunStarted`; clarifies durable trail when operators re-invoke execute after a failed run |
+| Coordinator run selective re-execute requested (TB-938) | `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`) | `AuditEventTypes.Run.SelectiveExecuteRequested` | RunId when `runId` parses as GUID | `{ runId, includeDependents, taskIds[], agentTypes[] }` — durable trail before selective agent re-execute |
 | Agent trace blob persistence failed or timed out | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceBlobPersistenceFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, failedBlobTypes? }` — emitted when inline blob writes after trace insert exhaust retries, time out, or throw unexpectedly; execute outcome elsewhere is unchanged. |
 | Agent trace mandatory inline fallback failed or forensic verification failed | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceInlineFallbackFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, exceptionDetail? }` — SQL inline patch threw, trace row missing on read, or blob+inline still missing non-empty prompt/response after patch; **`dbo.AgentExecutionTraces.InlineFallbackFailed`** set; execute outcome elsewhere is unchanged. |
 | Orphan comparison-record remediation (execute) | `AdminDiagnosticsService` | `ComparisonRecordOrphansRemediated` | — | `{ dryRun: false, deletedCount, comparisonRecordIds[] }` — `POST .../admin/diagnostics/data-consistency/orphan-comparison-records?dryRun=false`; dry-run calls emit no audit row. |
@@ -723,6 +724,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.Failed` | `Run.Failed` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunFailed`) |
 | `Run.QualityGateRejected` | `Run.QualityGateRejected` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunQualityGateRejected`) |
 | `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
+| `Run.SelectiveExecuteRequested` | `Run.SelectiveExecuteRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteSelectiveRunAsync`; scoped tenant/workspace/project + `RunId`; payload `includeDependents`, `taskIds`, `agentTypes`) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 
