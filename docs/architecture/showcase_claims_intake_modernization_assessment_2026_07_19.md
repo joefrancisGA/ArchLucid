@@ -44,7 +44,7 @@ There is a **structural slug mismatch**: the UI requests `GET /v1/marketing/show
 | `docs/go-to-market/SEO_AND_PAID_ACQUISITION.md` | Paid/SEO can target `/showcase/{static_demo}` |
 | `archlucid-ui/src/app/(marketing)/get-started/get-started-content.ts` | Healthcare vertical `publicSampleHref` → this route; other verticals → `/demo/preview` |
 
-**Intended role:** combination of marketing page, read-only sample output, and bridge into operator shell via deep links.
+**Intended role:** combination of marketing page, read-only sample output, and bridge into architect workspace via deep links.
 
 **Not intended:** live product workspace, per-visitor AI run, or the same backend path as `/v1/demo/preview` (Contoso).
 
@@ -192,10 +192,10 @@ flowchart TD
 | Marketing route is public (no auth gate in marketing layout) | Informational | Proven |
 | Page copy: no sign-in for sample (`customer-auth-messaging.ts`) | OK for marketing shell | Proven |
 | QuickNav discloses sign-in may be required | Good | Proven |
-| Deep links hit operator shell; static fallback needs demo env flags | **High** | Strong evidence |
+| Deep links hit architect workspace; static fallback needs demo env flags | **High** | Strong evidence |
 | `/try` uses client-only frictionless session → `/reviews/...` | Medium | Proven |
 
-**Trap risk:** Visitor reads “no sign-in” on get-started, opens showcase (works), clicks “Review” → operator shell without demo mode → 401/empty/error (**Likely**, **unproven** in production).
+**Trap risk:** Visitor reads “no sign-in” on get-started, opens showcase (works), clicks “Review” → architect workspace without demo mode → 401/empty/error (**Likely**, **unproven** in production).
 
 ---
 
@@ -208,7 +208,7 @@ flowchart TD
 | **Not** flagged `IsPublicShowcase` in SQL (migration 110 flags Contoso GUIDs only) | **Critical** (live API path) | Proven |
 | Shared across all visitors; read-only | OK | Proven |
 | Survives deployments (bundled) | Strong | Proven |
-| Static counts may disagree with operator UI (TB-048, BDA-083) | Medium | Strong evidence |
+| Static counts may disagree with architect workspace (TB-048, BDA-083) | Medium | Strong evidence |
 | No slug mapping for claims-intake in API | High | Proven |
 | Mock API returns static for any showcase slug | Masks prod bug in CI | Proven |
 
@@ -289,7 +289,7 @@ flowchart TD
 | All showcase data fabricated (`isDemoData: true`) | OK |
 | Public anonymous marketing endpoint | OK |
 | Writable shared sample on showcase page | **No** — read-only SSR |
-| QuickNav exposes operator shell | Low if demo mode; medium without static operator |
+| QuickNav exposes architect workspace | Low if demo mode; medium without static operator |
 | Cross-tenant risk on marketing fetch | Low — pinned demo scope server-side |
 
 ---

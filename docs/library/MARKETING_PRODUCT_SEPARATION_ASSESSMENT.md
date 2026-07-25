@@ -67,7 +67,7 @@ The original strongest argument for a deployment split was "a marketing traffic 
 - **Do not split before controlled beta, and do not split by default before public self-service either.** Split only when a concrete, measured trigger fires — not on a calendar date.
 - **Minimum safe version (recommended now, no Front Door change):**
   1. Add Container App autoscaling headroom for the UI app (TB-729) — directly addresses "public pages can receive traffic without stressing the product app."
-  2. Harden `OperatorRoleGate` / `OperatorHomeGate` so unauthenticated/unauthorized visitors never render operator shell chrome pre-redirect (TB-730) — directly addresses "public buyers do not see product-admin UI artifacts," which a domain split would not have fixed anyway.
+  2. Harden `OperatorRoleGate` / `OperatorHomeGate` so unauthenticated/unauthorized visitors never render architect workspace chrome pre-redirect (TB-730) — directly addresses "public buyers do not see product-admin UI artifacts," which a domain split would not have fixed anyway.
   3. Instrument one concrete re-split trigger metric — sustained Container App CPU/replica saturation during a traffic burst, or self-serve signup volume crossing a threshold where a marketing-caused incident would risk paying-customer access (TB-731). Revisit Front Door "Option B" or a real subdomain split only when that trigger fires.
 
 ### Concrete thresholds (TB-731, shipped 2026-07-17)

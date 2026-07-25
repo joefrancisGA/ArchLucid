@@ -213,7 +213,7 @@ Use on **generic** surfaces (before cloud selection, integration hub intros, err
 | Deployment config | “deployment settings” (with link to operator guide) | `Integrations:*` keys, “host configuration” |
 | Connection check | “connection test”, “connection check” | “vendor probe”, “smoke test” |
 | Tenant data store | “tenant database” | “tenant SQL”, `TenantDatabaseBindings` |
-| Review workflow | “architecture review”, “review package” | “pilot run”, `/v1/pilots/` in UI |
+| Review workflow | “architecture review”, “architecture package” | “pilot run”, `/v1/pilots/` in UI |
 | Identity | “work identity”, “corporate sign-in” | “Entra ID” unless discussing Microsoft auth |
 | Optional connectors | “cloud connections (optional)” | Implying any one cloud is required |
 
@@ -333,7 +333,7 @@ Use on **generic** surfaces (before cloud selection, integration hub intros, err
 | **P2** | Help index scrub `Integrations:*` excerpts | S | Search leakage |
 | **P3** | Optional `ISecretProvider` backends (AWS SM, Google SM) | L | Cannot honestly claim secret-store neutrality |
 | **P3** | Cloud-targeted default policy pack provisioning | M | Runtime Azure default vs marketing |
-| **P3** | AWS/GCP sample review packages | L | Demo parity |
+| **P3** | AWS/GCP sample architecture packages | L | Demo parity |
 
 ---
 

@@ -3,7 +3,7 @@
 
 # Starter proof pack chooser
 
-Pick **one** existing pack after Core Pilot first value (committed review). Do not read every folder README first.
+Pick **one** existing pack after Core Pilot first value (finalized architecture package). Do not read every folder README first.
 
 | Buyer job | Pack folder | Required inputs | Expected proof outputs | When **not** to use |
 | --- | --- | --- | --- | --- |

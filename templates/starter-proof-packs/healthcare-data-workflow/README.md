@@ -11,7 +11,7 @@
 | `second-run.json` | SECOND_RUN for CLI or wizard paste |
 | `architecture-request.json` | Full POST body with topology and security hints |
 | `policy-context.json` | Points at `templates/policy-packs/healthcare` |
-| `proof-package-checklist.md` | Checklist for the committed review package |
+| `proof-package-checklist.md` | Checklist for the finalized architecture package |
 
 ## What not to claim
 

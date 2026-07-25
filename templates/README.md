@@ -14,7 +14,7 @@ Starter artifacts for pilots, accelerators, and demos. See each subfolder’s `R
 | Public sector — US (FedRAMP / StateRAMP) | [briefs/public-sector-us/brief.md](briefs/public-sector-us/brief.md) | [policy-packs/public-sector-us/compliance-rules.json](policy-packs/public-sector-us/compliance-rules.json) | [policy-packs/public-sector-us/policy-pack.json](policy-packs/public-sector-us/policy-pack.json) |
 | **AI / LLM** (gen AI, RAG, copilot) | Starter narrative: [starter-proof-packs/ai-llm-workload/README.md](starter-proof-packs/ai-llm-workload/README.md) *(no `templates/briefs` card yet)* | [policy-packs/ai-llm/compliance-rules.json](policy-packs/ai-llm/compliance-rules.json) | [policy-packs/ai-llm/policy-pack.json](policy-packs/ai-llm/policy-pack.json) |
 
-**Operator UI:** the new-run wizard exposes **industry vertical** cards (same briefs). The policy packs page offers **Import a vertical policy pack** (loads `policy-pack.json` from `archlucid-ui/public/vertical-templates/{vertical}/`, kept in sync with this table).
+**Architect workspace:** the new-run wizard exposes **industry vertical** cards (same briefs). The policy packs page offers **Import a vertical policy pack** (loads `policy-pack.json` from `archlucid-ui/public/vertical-templates/{vertical}/`, kept in sync with this table).
 
 **Owner decisions (Resolved 2026-04-21 — see `docs/PENDING_QUESTIONS.md` items 17 / 18):**
 

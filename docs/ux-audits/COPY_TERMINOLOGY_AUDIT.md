@@ -59,7 +59,7 @@
 >
 > Two follow-ups:
 > 1. **Do not introduce new `"evaluation workspace"` phrasing.** Known **pre-existing** usages remain and are flagged for a future cleanup pass: `app/(marketing)/pricing/page.tsx` (`signupCallToActionLabel="Request evaluation workspace"`) and `buyer-polish-copy.ts` (`BUYER_DEMO_EVALUATION_WORKSPACE_BADGE`, `BUYER_DEMO_EVALUATION_WORKSPACE_STATUS`).
-> 2. **Showcase/demo package = `"sample review package"`** — this is the dominant shipped term (15+ surfaces: `SampleReviewPackageSummary`, `FrictionlessTrialLauncher`, `reviews/[runId]/error.tsx`, `/see-it`, `/live-demo`, `/demo/preview`). `"example review"` exists only as a synonym in the TB-473/474 renamed badges; keep marketing copy on `"sample review"` rather than re-standardizing.
+> 2. **Showcase/demo package = `"sample architecture package"`** (legacy UI may still say `"sample review package"`) — dominant sample-pack framing across `SampleReviewPackageSummary`, `FrictionlessTrialLauncher`, `reviews/[runId]/error.tsx`, `/see-it`, `/live-demo`, `/demo/preview`. `"example review"` exists only as a synonym in the TB-473/474 renamed badges; keep marketing copy on `"sample"` framing rather than re-standardizing.
 
 ---
 
@@ -126,10 +126,10 @@ These terms must not appear in any customer-visible rendered text (page titles, 
 
 | ID | TB | Symbol / Location | Current | Fix |
 |---|---|---|---|---|
-| C06 | TB-461 | `PILOT_PATH_PREVIEW_STEPS[2].label` | `"Commit review package"` | `"Finalize review package"` |
+| C06 | TB-461 | `PILOT_PATH_PREVIEW_STEPS[2].label` | `"Commit review package"` | `"Finalize architecture package"` |
 | C07 | TB-462 | `BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL` | `"Committed reviews"` | `"Finalized reviews"` |
 | C08 | TB-463 | `BUYER_EXECUTIVE_SUMMARY_VOCABULARY` (`emptyStateDescription`, `portfolioMetricsUnavailableDescription`) | "commit…" | "finalize…" |
-| C09 | TB-464 | `OPERATOR_GRAPH_PAGE_SUBTITLE` | `"committed review package"` | `"finalized review package"` |
+| C09 | TB-464 | `OPERATOR_GRAPH_PAGE_SUBTITLE` | `"committed review package"` | `"finalized architecture package"` |
 | C10 | TB-465 | `PILOT_COMMAND_CENTER_LEAD` | `"…or an optional Azure import."` | `"…or an optional cloud connection."` |
 | C11 | TB-466 | `PILOT_COMMAND_CENTER_CONNECT_AZURE` | `"Connect Azure"` | `"Connect cloud"` |
 | C12 | TB-467 | `OPERATOR_NAV_LINK_LABELS.azureCloudConnection` | `"Azure cloud connection"` | Retire; use `cloudConnections` |
@@ -177,13 +177,13 @@ archlucid-ui/src/lib/buyer-polish-copy.ts
 
 ```
 archlucid-ui/src/lib/buyer-polish-copy.ts
-  PILOT_PATH_PREVIEW_STEPS[2].label: "Commit review package" → "Finalize review package"
+  PILOT_PATH_PREVIEW_STEPS[2].label: "Commit review package" → "Finalize architecture package"
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL: "Committed reviews" → "Finalized reviews"
-  OPERATOR_GRAPH_PAGE_SUBTITLE: "committed review package" → "finalized review package"
+  OPERATOR_GRAPH_PAGE_SUBTITLE: "committed review package" → "finalized architecture package"
 
 archlucid-ui/src/lib/buyer-surface-vocabulary.ts
   emptyStateDescription: "...after you commit..." → "...after you finalize..."
-  portfolioMetricsUnavailableDescription: "Commit a review package..." → "Finalize a review package..."
+  portfolioMetricsUnavailableDescription: "Commit a review package..." → "Finalize an architecture package..."
 ```
 
 ### Batch 3: P1 Azure-first sweep
