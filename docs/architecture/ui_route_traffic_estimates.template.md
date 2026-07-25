@@ -26,7 +26,7 @@ ui_routes.md), or off-site marketing traffic.
 
 ## Core Web Vitals field telemetry (TB-692)
 
-The operator shell emits `WebVitalsMetric` custom events to Application Insights
+The architect workspace emits `WebVitalsMetric` custom events to Application Insights
 when `NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING` is configured. Metrics: **LCP**,
 **CLS**, **INP**, **TTFB**, **FCP**. Dimensions include normalized `route`
 (dynamic IDs collapsed), `tenantTier`, and `effectiveConnectionType`.

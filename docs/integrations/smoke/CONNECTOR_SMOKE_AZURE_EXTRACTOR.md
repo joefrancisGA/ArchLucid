@@ -23,7 +23,7 @@
 ## Verification
 
 - **Audit:** filter audit export or SQL audit queries for extractor ingest event types for this tenant (see [AUDIT coverage docs](../../library/AUDIT_COVERAGE_MATRIX.md) for stable type names in your build).
-- **Run association:** confirm a new or linked architecture run/request row appears in operator UI or via `GET /v1/architecture/run/{runId}` when the flow creates a run.
+- **Run association:** confirm a new or linked architecture review/request row appears in the architect workspace or via `GET /v1/architecture/run/{runId}` when the flow creates a review.
 
 ## Troubleshooting
 

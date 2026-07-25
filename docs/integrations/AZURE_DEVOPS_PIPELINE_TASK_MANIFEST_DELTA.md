@@ -9,7 +9,7 @@
 
 **Audience:** Platform engineers wiring ArchLucid into **Azure DevOps Pipelines** who want the same **`GET /v1/compare`** Markdown as the GitHub composite action, but rendered on the **pipeline run** summary page (the ADO equivalent of GitHub Actions’ job summary).
 
-**Purpose:** Surface structured golden-manifest delta between two **committed** runs without opening the operator UI first.
+**Purpose:** Surface structured architecture-package delta between two **finalized** reviews (API: golden-manifest / committed runs) without opening the architect workspace first.
 
 **Template path:** [`integrations/azure-devops-task-manifest-delta/`](../../integrations/azure-devops-task-manifest-delta/) (`task.yml` + [`job-summary.mjs`](../../integrations/azure-devops-task-manifest-delta/job-summary.mjs)).
 

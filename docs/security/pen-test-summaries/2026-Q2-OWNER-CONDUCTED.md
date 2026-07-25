@@ -18,7 +18,7 @@
 |-------|-------|
 | Assessor | ArchLucid engineering / security liaison (internal) |
 | Trigger | Quarterly assurance cadence aligned with [`PENTEST_EXTERNAL_UI_CHECKLIST.md`](../PENTEST_EXTERNAL_UI_CHECKLIST.md) and Trust Center disclosures |
-| Environments covered | Hosted SaaS **operator UI**, **HTTPS API**, and **data-plane** behaviours observable from external posture (non-production-first where stipulated in runbooks) |
+| Environments covered | Hosted SaaS **architect workspace**, **HTTPS API**, and **data-plane** behaviours observable from external posture (non-production-first where stipulated in runbooks) |
 
 ## Scope summary
 

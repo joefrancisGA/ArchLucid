@@ -11,7 +11,7 @@ Accepted (2026-04-21)
 
 ## Context
 
-Marketing needs a credible **“see a real commit page”** story. The operator shell already exposes a rich run detail page, but it requires an authenticated operator session. **`GET /v1/demo/explain`** proves explainability, yet it is a **different shape** than the commit page buyers expect (manifest summary, authority chain, artifacts, timeline).
+Marketing needs a credible **“see a real finalize / architecture-package page”** story. The architect workspace already exposes a rich review detail page, but it requires an authenticated architect session. **`GET /v1/demo/explain`** proves explainability, yet it is a **different shape** than the package page buyers expect (architecture package summary, authority chain, artifacts, timeline).
 
 ## Decision
 

@@ -34,7 +34,7 @@ Overflow tabs (**Policies and standards**, **Architecture**, **Activity**) moved
 - **Primary:** `resolveReviewPackagePrimaryAction` (unchanged logic) — e.g. review findings when blockers exist, governance when decision pending, export when finalized and clear.
 - **Desktop:** sticky `RunDetailWorkspaceStickyActions` hosts primary CTA + secondary outline actions.
 - **Mobile:** same primary CTA below header (`lg:hidden`).
-- **Recommended next actions:** state-derived list with specific button labels (`Review findings`, `Assign owners`, `Add evidence`, `Open review package`, etc.).
+- **Recommended next actions:** state-derived list with specific button labels (`Review findings`, `Assign owners`, `Add evidence`, `Open architecture package`, etc.).
 
 ## Architecture summary mapping
 

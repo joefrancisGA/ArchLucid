@@ -9,7 +9,7 @@
 
 **Audience:** Platform engineers wiring ArchLucid into GitHub pull-request review.
 
-**Purpose:** Surface **`GET /v1/compare`** (structured golden-manifest delta between two **committed** runs) in the Actions job summary so reviewers see added/removed/changed counts without opening the operator UI first.
+**Purpose:** Surface **`GET /v1/compare`** (structured architecture-package delta between two **finalized** reviews; API: golden-manifest / committed runs) in the Actions job summary so reviewers see added/removed/changed counts without opening the architect workspace first.
 
 **Action path:** [`integrations/github-action-manifest-delta/`](../../integrations/github-action-manifest-delta/) (composite action).
 
@@ -37,7 +37,7 @@ See **[`.github/workflows/example-manifest-delta.yml`](../../.github/workflows/e
 
 ## Operator deep link
 
-If your hosted operator UI supports a compare route, pass **`operator-compare-url-template`** so the summary includes a Markdown link. Use literal placeholders **`{baseRunId}`** and **`{targetRunId}`** in the template string.
+If your hosted architect workspace supports a compare route, pass **`operator-compare-url-template`** so the summary includes a Markdown link. Use literal placeholders **`{baseRunId}`** and **`{targetRunId}`** in the template string.
 
 ---
 

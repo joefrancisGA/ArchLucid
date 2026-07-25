@@ -93,7 +93,7 @@ No plan comparison matrix. No prices. No entitlement tables.
 | **Operator / Reader / Auditor** (rank < 3) | Sees permission hint; pricing link; read-only "Open Billing and plans" link; no portal button |
 | **Trial user** | Context card shows "Trial" + days remaining when API provides them |
 | **No paid plan** | Status shows "No active subscription" |
-| **Signed-out** (JWT mode) | Help route remains reachable in operator shell; trial/usage fetches skipped by existing client guards; context card degrades gracefully |
+| **Signed-out** (JWT mode) | Help route remains reachable in architect workspace; trial/usage fetches skipped by existing client guards; context card degrades gracefully |
 
 Billing mutation API remains gated by `AdminAuthority` on `BillingCheckoutController` — not by `Billing.Manage` custom permissions (defined but not wired to controllers).
 

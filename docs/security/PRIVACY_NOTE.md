@@ -95,17 +95,17 @@ The activity is **default aggregated-only** (no per-tenant correlation in the fu
 
 ### 3.C — Operator-shell client-error telemetry
 
-**Purpose.** Detect and diagnose JavaScript errors occurring in the operator shell browser application so that ArchLucid can maintain service reliability and identify regressions before they affect a broad operator population. No user-generated content is captured; only technical diagnostic signals are collected.
+**Purpose.** Detect and diagnose JavaScript errors occurring in the architect workspace browser application so that ArchLucid can maintain service reliability and identify regressions before they affect a broad architect population. No user-generated content is captured; only technical diagnostic signals are collected.
 
 **Legal basis.** **Article 6(1)(f)** — legitimate interest of the controller (ArchLucid) in maintaining the quality, stability, and security of the SaaS product delivered to paying tenants.
 
 **Balancing test.** The data collected is technical in nature (error messages, stack traces, URL pathnames, user-agent strings) and is processed solely for service reliability purposes. It is not used for profiling, advertising, or any purpose beyond diagnosing and resolving errors. The `LogSanitizer` is applied to every field before logging, preventing inadvertent capture of free-text user input. The interest in reliable service delivery is not overridden by the data subjects' interests.
 
-**Categories of data subjects.** Operator employees using the operator shell browser application at the time a client-side JavaScript error occurs.
+**Categories of data subjects.** Architect employees using the architect workspace browser application at the time a client-side JavaScript error occurs.
 
 **Categories of personal data.**
 - **User-agent string** (truncated to a platform-defined maximum length; identifies browser and OS family, not the individual).
-- **URL pathname** (the operator shell route at the time of the error; truncated; does not include query parameters or fragments that might carry session tokens).
+- **URL pathname** (the architect workspace route at the time of the error; truncated; does not include query parameters or fragments that might carry session tokens).
 - **Error message and stack trace** (application-layer JavaScript error text; truncated; sanitized via `LogSanitizer` before logging).
 - **Client-reported timestamp** (UTC string; truncated to 64 characters).
 - **Explicitly excluded:** `userId`, operator email, IP address, architecture artefact content, session tokens, request bodies.
@@ -129,7 +129,7 @@ The activity is **default aggregated-only** (no per-tenant correlation in the fu
 
 Operators (or their data-controller employer) may request:
 
-- **Access** — for per-tenant funnel mode rows (§3.A), the tenant administrator may export the relevant `dbo.FirstTenantFunnelEvents` rows via the same RLS-scoped read path used by the operator shell (forthcoming admin endpoint; not in V1). For transactional email (§3.B), the audit store holds the email address; access requests are fulfilled via the standard audit-data export path. For client-error telemetry (§3.C), Application Insights workspace access is restricted to ArchLucid operations staff; data subjects may request confirmation of what was logged about a specific session.
+- **Access** — for per-tenant funnel mode rows (§3.A), the tenant administrator may export the relevant `dbo.FirstTenantFunnelEvents` rows via the same RLS-scoped read path used by the architect workspace (forthcoming admin endpoint; not in V1). For transactional email (§3.B), the audit store holds the email address; access requests are fulfilled via the standard audit-data export path. For client-error telemetry (§3.C), Application Insights workspace access is restricted to ArchLucid operations staff; data subjects may request confirmation of what was logged about a specific session.
 - **Erasure** — the per-tenant funnel 90-day retention satisfies erasure on automatic schedule; out-of-cycle erasure for a single tenant is supported via the existing tenant-deletion path. For transactional email, tenant deletion cascades to `dbo.SentEmails`. For client-error telemetry, Application Insights data is purged on workspace retention schedule; individual-record purge is available via the Azure Monitor purge API.
 - **Objection** — for §3.A per-tenant mode, the tenant administrator may object by leaving the feature flag at `FALSE` (the V1 default). For §3.B and §3.C, the processing is necessary for contract performance and legitimate service operation respectively; objection would require ceasing use of the service.
 

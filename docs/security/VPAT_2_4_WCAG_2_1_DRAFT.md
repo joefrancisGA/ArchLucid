@@ -28,7 +28,7 @@
 
 ### Evaluation methods used (summary)
 
-- **Automated:** **axe-core** via **jest-axe / Vitest** component tests and **Playwright axe** integration runs in CI (operator UI codebase).
+- **Automated:** **axe-core** via **jest-axe / Vitest** component tests and **Playwright axe** integration runs in CI (architect workspace codebase).
 - **Manual:** Formal manual protocol for all fifty criteria — **pending** except where Remarks note known SPA/UI engineering risks.
 
 ---
