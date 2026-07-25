@@ -6,10 +6,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import {
-  TEAMS_INTEGRATION_HOSTED_SECRET_STORE_FOOTNOTE,
-  TEAMS_INTEGRATION_SECURITY_NOTE,
-} from "@/lib/teams-integration-page-copy";
+import { TEAMS_INTEGRATION_SECURITY_NOTE } from "@/lib/teams-integration-page-copy";
 import { cn } from "@/lib/utils";
 
 const BEFORE_YOU_CONNECT_STEPS = [
@@ -35,9 +32,6 @@ export function TeamsIntegrationAside(props: TeamsIntegrationAsideProps): React.
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Security</h2>
         <p className={cn("m-0 mt-2 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {TEAMS_INTEGRATION_SECURITY_NOTE}
-        </p>
-        <p className={cn("m-0 mt-2 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {TEAMS_INTEGRATION_HOSTED_SECRET_STORE_FOOTNOTE}
         </p>
       </div>
 
