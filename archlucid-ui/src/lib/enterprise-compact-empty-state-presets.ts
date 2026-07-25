@@ -1,7 +1,6 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import {
   BUYER_START_ARCHITECTURE_REVIEW_CTA,
-  OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_ARCHIVED_EMPTY_TITLE,
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
@@ -10,7 +9,6 @@ import {
 import {
   AZURE_REFERENCE_SAMPLE_REVIEW_CTA_LABEL,
 } from "@/lib/empty-state-presets";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /** Reviews list when the project has zero reviews. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
@@ -24,18 +22,11 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   ],
 };
 
-/** Operator home reviews zone — compact empty state without duplicating hero actions. */
+/** Operator home reviews zone — copy only; primary next step lives on the hero Do-this-next card (TB-1038). */
 export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "operator-home-workspace-empty-state",
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
   description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
-  actions: [
-    {
-      label: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
-      href: inAppHelpHref("core-pilot"),
-      variant: "outline",
-    },
-  ],
 };
 
 /** Workspace Activity archived filter — no archived reviews in scope. */

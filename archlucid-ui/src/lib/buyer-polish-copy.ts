@@ -169,6 +169,13 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
 
 export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
 
+/** Empty Overview primary card title — single next step (TB-1038). */
+export const OPERATOR_HOME_DO_THIS_NEXT_HEADING = "Do this next";
+
+/** Bridge when setup readiness still blocks the first review. */
+export const OPERATOR_HOME_DO_THIS_NEXT_SETUP_BRIDGE =
+  "Finish the remaining required setup item, then start or open a sample review.";
+
 export const OPERATOR_HOME_WORKSPACE_ACTIVITY_LEAD =
   "Continue active reviews or open completed results.";
 

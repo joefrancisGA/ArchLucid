@@ -5,10 +5,10 @@ import { PilotCommandCenterCard } from "./PilotCommandCenterCard";
 import { OperatorHomeContinueSetupCard } from "@/components/operator-home/OperatorHomeContinueSetupCard";
 import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
-  OPERATOR_HOME_CLOUD_EVIDENCE_LINK,
-  OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
+  OPERATOR_HOME_DO_THIS_NEXT_HEADING,
+  OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
+  OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
 
@@ -34,6 +34,22 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
+  useFeaturedCompletedSampleQuery: () => ({
+    isPending: false,
+    isError: false,
+    data: {
+      selectedRunId: "claims-intake-modernization",
+      isConfigured: true,
+      isAvailable: true,
+      reviewTitle: "Claims intake modernization",
+      architectureName: "Claims intake modernization",
+      completedUtc: "2026-01-01T00:00:00.000Z",
+      isSampleApproved: true,
+    },
+  }),
+}));
+
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
   useOperatorHomeWorkspaceActivity: () => ({
     hasWorkspaceReviews: false,
@@ -52,15 +68,17 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("PilotCommandCenterCard", () => {
-  it("renders three intent cards without duplicate completed-sample CTA rows", () => {
+  it("renders a single Do-this-next primary CTA on empty Overview (TB-1038)", () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-create-architecture-cta")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-review-architecture-cta")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
-
+    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.getAllByTestId("operator-home-do-this-next-primary")).toHaveLength(1);
+    expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(
+      OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+    );
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
@@ -70,16 +88,13 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-cta-row")).toBeNull();
   });
 
-  it("shows optional cloud shortcut on intent cards, not on the readiness panel (TB-346)", () => {
+  it("keeps optional cloud / invite setup off the empty-home hero (TB-346 / TB-1038)", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
-    expect(screen.getByTestId("operator-home-optional-cloud-shortcut")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-connect-cloud")).toHaveAttribute("href", "/integrations/cloud-connections");
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_CLOUD_EVIDENCE_LINK }).className).toMatch(/border/);
+    expect(screen.queryByTestId("operator-home-optional-cloud-shortcut")).toBeNull();
 
     render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
 

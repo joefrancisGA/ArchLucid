@@ -8,6 +8,7 @@ import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-co
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
+import { OperatorHomeDoThisNextCard } from "@/components/operator-home/OperatorHomeDoThisNextCard";
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
@@ -47,7 +48,8 @@ type PilotCommandCenterCardProps = {
 };
 
 /**
- * Overview command center — three intent paths for first-run tenants; state-aware CTA after commit.
+ * Overview command center — empty home uses a single Do-this-next card (TB-1038);
+ * populated workspaces keep lifecycle paths or the state-aware next-best CTA.
  */
 export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}): React.JSX.Element {
   const cardTestId = props.embedded === true ? "pilot-command-center-card-embedded" : "pilot-command-center-card";
@@ -57,6 +59,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const openFindingsCount = Math.max(props.openFindingsCount ?? 0, workspaceActivity.openFindingsCount);
   const hasWorkspaceReviews =
     (props.hasWorkspaceReviews ?? false) || workspaceActivity.hasWorkspaceReviews;
+  const isEmptyHome = !hasWorkspaceReviews;
   const heroHeading = hasCommittedArchitectureReview
     ? OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING
     : OPERATOR_HOME_INTENT_CHOOSER_HEADING;
@@ -99,7 +102,9 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
         </OperatorHomeCardSectionTitle>
       </div>
 
-      {!hasCommittedArchitectureReview ? (
+      {isEmptyHome ? (
+        <OperatorHomeDoThisNextCard />
+      ) : !hasCommittedArchitectureReview ? (
         <OperatorHomeDualPathCards />
       ) : (
         <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", OPERATOR_LAYOUT.inlineGap)}>

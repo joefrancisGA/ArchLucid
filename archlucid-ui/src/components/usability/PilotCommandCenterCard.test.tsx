@@ -3,19 +3,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
-import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import {
-  OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
+  OPERATOR_HOME_DO_THIS_NEXT_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
+  OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
-  OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer-polish-copy";
-import {
-  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
-  showcaseSampleReviewPackageHref,
-} from "@/lib/showcase-sample-review-registry";
+import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 
@@ -109,7 +105,7 @@ describe("PilotCommandCenterCard", () => {
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(emptyCommitContext);
   });
 
-  it("shows three intent paths before committed workspace activity", () => {
+  it("shows a single Do-this-next card on empty Overview (TB-1038)", () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-tagline")).toHaveTextContent(
@@ -131,19 +127,16 @@ describe("PilotCommandCenterCard", () => {
       }
     }
 
-    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-explore-recommended-badge")).toHaveTextContent(
-      OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE,
-    );
-    expect(screen.getByTestId("operator-home-explore-completed-review-cta")).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.getAllByTestId("operator-home-do-this-next-primary")).toHaveLength(1);
+    expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveAttribute(
       "href",
-      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+      featuredCompletedSampleReviewHref("claims-intake-modernization"),
     );
-    expect(screen.getByTestId("operator-home-create-architecture-cta")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-review-architecture-cta")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
+    expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("inline-guidance-recommended-next")).toBeNull();
     expect(screen.queryByText(/Recommended first/i)).toBeNull();
     expect(screen.queryByText(/Recommended next/i)).toBeNull();
@@ -177,7 +170,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
   });
 
-  it("does not lead with Review open findings when committed signal is set but workspace is empty", async () => {
+  it("does not lead with Review open findings when committed signal is set but workspace is empty", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue({
       ...PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT,
@@ -191,12 +184,14 @@ describe("PilotCommandCenterCard", () => {
       <PilotCommandCenterCard openFindingsCount={0} hasWorkspaceReviews={false} />,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId("pilot-next-best-action")).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId("pilot-next-best-action")).not.toHaveTextContent("Review open findings");
-    expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA);
+    expect(screen.getByTestId("operator-home-do-this-next-primary")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-do-this-next-primary")).not.toHaveTextContent(
+      "Review open findings",
+    );
+    expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(
+      OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+    );
+    expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
   });
 
   it("does not render optional setup links on the hero card", () => {
