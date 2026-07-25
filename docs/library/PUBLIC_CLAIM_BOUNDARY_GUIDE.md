@@ -31,5 +31,5 @@ See [`CLAIM_EVIDENCE_CONSISTENCY_GATE.md`](../quality/CLAIM_EVIDENCE_CONSISTENCY
 ## Linked artifacts
 
 - [`../go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md`](../go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md)
-- [`QUOTE_TO_PROOF_READINESS_CHECKLIST.md`](../go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md)
+- [`QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist)
 - [`tier_fit_validation_matrix.v1.json`](../../../../scripts/ci/data/tier_fit_validation_matrix.v1.json)

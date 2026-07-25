@@ -127,7 +127,7 @@ When a **v2** OpenAPI document is introduced:
 - Pin client generation to the **`info.version`** field from `/openapi/v1.json`.
 - Explorer Swagger (if enabled) is a convenience view — integrators and CI treat **`/openapi/v1.json`** as authoritative.
 - Do not assume Swashbuckle document ordering matches snapshot ordering.
-- Breaking changes are announced in [`BREAKING_CHANGES.md`](../archive/BREAKING_CHANGES.md).
+- Breaking changes are announced in [`BREAKING_CHANGES.md`](../../BREAKING_CHANGES.md).
 
 ## 11. Related documentation
 

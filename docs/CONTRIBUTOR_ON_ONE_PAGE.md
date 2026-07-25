@@ -31,4 +31,4 @@ dotnet run --project ArchLucid.Cli -- try
 
 ## Install + troubleshooting
 
-[engineering/INSTALL_ORDER.md](engineering/INSTALL_ORDER.md) — pinned SDK/SQL/Node. [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — ports and local failures. `dotnet run --project ArchLucid.Cli -- doctor` · `dotnet run --project ArchLucid.Cli -- support-bundle --zip` (review before sharing).
+[engineering/INSTALL_ORDER.md](engineering/INSTALL_ORDER.md) — pinned SDK/SQL/Node. [runbooks/TROUBLESHOOTING.md](runbooks/TROUBLESHOOTING.md) — ports and local failures. `dotnet run --project ArchLucid.Cli -- doctor` · `dotnet run --project ArchLucid.Cli -- support-bundle --zip` (review before sharing).

@@ -41,6 +41,12 @@
 | Governance dry-run | Governance UI | `POST /v1/governance/policy-packs/dry-run` |
 | Product learning rollups | Analytics where enabled | [`PRODUCT_LEARNING.md`](../library/PRODUCT_LEARNING.md) |
 
+Second-run proof collection (TB-227):
+
+```powershell
+./scripts/collect-first-pilot-proof.ps1 -BaseUrl $env:ARCHLUCID_API_URL -RunNumber 2 -RunId '<second-review-id>' -CompareBaseRunId '<first-review-id>'
+```
+
 </details>
 
 ---

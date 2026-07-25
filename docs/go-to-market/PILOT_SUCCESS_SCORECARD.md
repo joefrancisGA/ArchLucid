@@ -69,7 +69,7 @@ Measure these before the pilot (baseline) and at pilot end (actual). The delta i
 |--------|---------------|--------|--------------|--------|
 | **Run success rate** | Percentage of runs that reach "Committed" status without errors | ≥ 90% | _______% | Run status counts in API or UI |
 | **Average run duration** | Wall-clock time from run creation to manifest availability | < 5 min | _______ min | `archlucid.authority.run_duration_ms` OTel histogram |
-| **Wizard-to-finalize wall-clock** | Minutes from wizard submit to first finalized architecture package (wizard-sourced runs only; metric key still `wizard_to_committed_minutes`) | p50 ≤ 15 min (aspirational) | p50 _______ / p95 _______ min | `archlucid.pilot.wizard_to_committed_minutes` OTel histogram (`execution_mode`, `preset_used`) |
+| **Wizard-to-committed wall-clock** | Minutes from wizard submit to first finalized architecture package (wizard-sourced runs only; metric key `wizard_to_committed_minutes`) | p50 ≤ 15 min (aspirational) | p50 _______ / p95 _______ min | `archlucid.pilot.wizard_to_committed_minutes` OTel histogram (`execution_mode`, `preset_used`) |
 | **LLM cost per run** | Average Azure OpenAI consumption per run | < $10 | $_______ | `archlucid.llm_*` OTel metrics, Azure billing |
 
 ---
