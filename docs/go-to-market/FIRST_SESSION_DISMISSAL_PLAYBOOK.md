@@ -1,9 +1,10 @@
+> **Reviewed:** 2026-07-25
 > **Scope:** Founder-led 3-session first-session dismissal-rate measurement — market validation operations; no UI changes until cohort synthesis identifies repeated bottlenecks (≥2 sessions).
 
 # First-session dismissal playbook (3-session cohort)
 
 **Audience:** Founder / facilitator running principal-architect first-use observations.  
-**Last reviewed:** 2026-06-17
+**Last reviewed:** 2026-07-25
 
 **Purpose:** Measure first-session completion, export discovery, and dismissal triggers so ArchLucid can quantify **30-day voluntary usage risk** before investing in UI changes.
 

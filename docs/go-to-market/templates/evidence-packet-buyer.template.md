@@ -61,7 +61,7 @@ Use [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) § G
 
 ## Related
 
-- [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](../EXECUTIVE_PAID_PILOT_PROOF_PACKET.md) — six-element assembly map + mock procurement review
+- [`QUOTE_TO_PROOF_PACKET.md`](../QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review) — six-element assembly map + mock procurement review
 - [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
 - [`PROCUREMENT_DEAL_READY_ONE_PAGER.md`](../PROCUREMENT_DEAL_READY_ONE_PAGER.md)
 - [`RELEASE_EVIDENCE_BUNDLE_SCHEMA.md`](../../quality/RELEASE_EVIDENCE_BUNDLE_SCHEMA.md)

@@ -1,12 +1,13 @@
-ï»¿> **Scope:** Buyer-facing security pre-read for InfoSec / cloud platform reviewers evaluating the Tier 1 Azure extractor script before a pilot. Not legal attestation.
+> **Reviewed:** 2026-07-25
+> **Scope:** Buyer-facing security pre-read for InfoSec / cloud platform reviewers evaluating the Tier 1 Azure extractor script before a pilot. Not legal attestation.
 
-# Azure extractor â€” InfoSec pre-read
+# Azure extractor — InfoSec pre-read
 
 **Audience:** Customer security, cloud platform, and procurement reviewers who must approve running `Get-ArchLucidAzurePackage.ps1` or uploading its ZIP output to ArchLucid.
 
-**Status:** V1 GA â€” aligns with [V1_SCOPE.md](../library/V1_SCOPE.md) Â§2.16 and [trust-center.md](trust-center.md) Azure connectivity posture.
+**Status:** V1 GA — aligns with [V1_SCOPE.md](../library/V1_SCOPE.md) §2.16 and [trust-center.md](trust-center.md) Azure connectivity posture.
 
-**Related:** [AZURE_EXTRACTOR.md](../library/AZURE_EXTRACTOR.md) Â· [AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md) Â· [FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase B Â· [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)
+**Related:** [AZURE_EXTRACTOR.md](../library/AZURE_EXTRACTOR.md) · [AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md) · [FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase B · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)
 
 ---
 
@@ -16,12 +17,12 @@
 | --- | --- |
 | Does ArchLucid need credentials in our Azure tenant for Tier 1? | **No.** The script runs **in your environment** under **your** operator identity. |
 | What Azure permissions does the script need? | **Read-only** ARM access to list resources in the scoped subscription or resource group; optional **Cost Management Reader** when `-IncludeCost` is used. |
-| What leaves our tenant? | A **schema-versioned ZIP** the operator chooses to upload â€” not live API keys or Key Vault secrets. |
-| What if we cannot approve the script? | Use an **evidence-only** architecture review (`CloudProvider.None`) â€” upload briefs, diagrams, and documents without extractor output. |
+| What leaves our tenant? | A **schema-versioned ZIP** the operator chooses to upload — not live API keys or Key Vault secrets. |
+| What if we cannot approve the script? | Use an **evidence-only** architecture review (`CloudProvider.None`) — upload briefs, diagrams, and documents without extractor output. |
 
 ---
 
-## Tier 1 â€” customer-run collector (default V1 path)
+## Tier 1 — customer-run collector (default V1 path)
 
 ### Execution model
 
@@ -50,7 +51,7 @@ ArchLucid does **not** execute the script in your tenant and does **not** receiv
 - Entra ID directory secrets or user passwords
 - Any credential material from application configuration
 
-Treat the uploaded ZIP as **tenant confidential configuration metadata** â€” scope retention to your deployment backup and data-lifecycle policy once ingested.
+Treat the uploaded ZIP as **tenant confidential configuration metadata** — scope retention to your deployment backup and data-lifecycle policy once ingested.
 
 ### Minimum Azure RBAC for the operator running the script
 
@@ -63,14 +64,14 @@ Scope the run to the **smallest** subscription or resource group that represents
 
 ### Roles ArchLucid will never request
 
-Per [trust-center.md](trust-center.md) and [V1_SCOPE.md](../library/V1_SCOPE.md) Â§2.16:
+Per [trust-center.md](trust-center.md) and [V1_SCOPE.md](../library/V1_SCOPE.md) §2.16:
 
 - **`Global Reader`** (Entra directory role)
 - **`Owner`**, **`Contributor`**, **`User Access Administrator`**
 - Any **write**, **deploy**, or **destructive** role on workloads
 - Any role that would let ArchLucid **apply** or **destroy** infrastructure on your behalf
 
-ArchLucid Terraform emit is **advisory-only** â€” the product never runs **`terraform apply`** or **`terraform destroy`** for customers.
+ArchLucid Terraform emit is **advisory-only** — the product never runs **`terraform apply`** or **`terraform destroy`** for customers.
 
 ---
 
@@ -79,20 +80,20 @@ ArchLucid Terraform emit is **advisory-only** â€” the product never runs **`terr
 After upload:
 
 - Package stored in tenant-scoped SQL/blob per deployment ([trust-center.md](trust-center.md) data residency table).
-- Durable audit events include **`AzureExtractorPackage.Uploaded`**, **`AzureExtractorPackage.IngestSucceeded`**, and rejection events when schema validation fails â€” see [AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md).
+- Durable audit events include **`AzureExtractorPackage.Uploaded`**, **`AzureExtractorPackage.IngestSucceeded`**, and rejection events when schema validation fails — see [AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md).
 - Unsupported **`schemaVersion`** values are **rejected** (no silent parsing).
 
-**API:** `POST /v1/azure-extractor/upload` â€” requires **ExecuteAuthority**; optional `runId` associates the package with an existing architecture review.
+**API:** `POST /v1/azure-extractor/upload` — requires **ExecuteAuthority**; optional `runId` associates the package with an existing architecture review.
 
 ---
 
-## Tier 2 â€” optional hosted collection (separate approval)
+## Tier 2 — optional hosted collection (separate approval)
 
 Tier 2 is **opt-in** and **not required** for V1 pilots. If enabled later:
 
 - Customer provisions a **dedicated read-only service principal** with **`Reader`** + **`Cost Management Reader`** only.
 - **Federated workload identity** is preferred over long-lived client secrets.
-- ArchLucid stores only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` â€” **never** customer client secrets.
+- ArchLucid stores only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` — **never** customer client secrets.
 
 Detail: [AZURE_EXTRACTOR.md](../library/AZURE_EXTRACTOR.md) Tier 2 section. Approve Tier 2 only if Tier 1 upload is insufficient and your team accepts standing read access.
 
@@ -102,7 +103,7 @@ Detail: [AZURE_EXTRACTOR.md](../library/AZURE_EXTRACTOR.md) Tier 2 section. Appr
 
 If InfoSec will not approve script execution in production (or sandbox provisioning is delayed):
 
-1. Run an **evidence-only** review â€” structured request with briefs, diagrams, IaC, or policy documents (`CloudProvider.None`).
+1. Run an **evidence-only** review — structured request with briefs, diagrams, IaC, or policy documents (`CloudProvider.None`).
 2. Use **demo evidence** for internal evaluator dry-runs only (label outputs **demo-derived**; do not quote externally).
 3. Revisit Tier 1 after sandbox approval or use a **narrow resource-group scope** on a non-production subscription.
 
@@ -135,10 +136,10 @@ Upload uses HTTPS to the ArchLucid API endpoint in your deployment region.
 Hosted Azure OpenAI inference does not use customer content for foundation-model training per Microsoft DPA posture documented in [trust-center.md](trust-center.md). Treat ZIP as confidential tenant data regardless.
 
 **What if PowerShell execution policy blocks the script?**  
-See [EXTRACTOR_EXECUTION_POLICY_BYPASS.md](../runbooks/EXTRACTOR_EXECUTION_POLICY_BYPASS.md) â€” customer-controlled remediation, not ArchLucid remote execution.
+See [EXTRACTOR_EXECUTION_POLICY_BYPASS.md](../runbooks/EXTRACTOR_EXECUTION_POLICY_BYPASS.md) — customer-controlled remediation, not ArchLucid remote execution.
 
 ---
 
 ## Change control
 
-When extractor schema, RBAC posture, or trust-center rows change, update this pre-read and [trust-center.md](trust-center.md) Â§ Azure connectivity in the same change.
+When extractor schema, RBAC posture, or trust-center rows change, update this pre-read and [trust-center.md](trust-center.md) § Azure connectivity in the same change.

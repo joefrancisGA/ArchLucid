@@ -281,7 +281,7 @@ For the **same run id**, record (redacted — no customer-identifying content):
 
 ### Step 3 — Package buyer-safe + rehearse
 
-- **Assembly + mock procurement review:** [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](EXECUTIVE_PAID_PILOT_PROOF_PACKET.md)
+- **Assembly + mock procurement review:** [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review)
 - **One-page buyer evidence:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map)
 
 ### Step 4 — Market-execution half

@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-25
 > **Scope:** TB-167 — Sponsor AI readiness posture artifact. Composes execution mode, quality-gate results, retrieval posture, and budget posture into one sponsor-safe summary. This document describes the artifact schema and how to produce it; the actual per-release artifact lives in `artifacts/release/ai-readiness-posture.md` (and `.json`).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -6,7 +7,7 @@
 
 **Audience:** Pilot sponsors, executive buyers, and proof-packet reviewers who need a single artifact summarizing ArchLucid's AI evidence quality, retrieval posture, and budget posture without reading multiple technical evidence files.
 
-**Last reviewed:** 2026-06-01
+**Last reviewed:** 2026-07-25
 
 **Related:** [`AI_EVIDENCE_APPENDIX.md`](AI_EVIDENCE_APPENDIX.md), `docs/quality/RELEASE_CLAIM_GATE.md`, `scripts/Invoke-RealLlmEvidenceGate.ps1`, `scripts/collect-first-pilot-proof.ps1`, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`, `docs/library/AGENT_OUTPUT_EVALUATION.md`.
 

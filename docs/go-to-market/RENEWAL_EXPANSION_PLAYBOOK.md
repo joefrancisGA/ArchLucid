@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-25
 > **Scope:** ArchLucid — Renewal and expansion playbook - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +8,7 @@
 
 **Audience:** Customer success, account management, and sales leadership.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-07-25
 
 ---
 

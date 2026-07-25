@@ -138,9 +138,68 @@ Use when the buyer needs a labeled path from sample request → finalized archit
 
 ---
 
+## Executive paid-pilot proof packet (assembly + mock procurement review)
+
+**Audience:** Founder / pilot operator / sales engineer preparing a **paid** executive sponsor packet and rehearsing it before a real procurement call.
+
+**Goal:** Turn one finalized review into the six-element executive proof packet, then pressure-test it in a mock procurement review **before** sending. Market-validation tooling (V1 design half); running it on real authorized data is GTM backlog **M-37 (V1.1)**. Assessment Improvement **#4**.
+
+### Six required elements → canonical owners
+
+| # | Required element | Canonical source / command | Claim boundary |
+| --- | --- | --- | --- |
+| 1 | **ROI assumptions** | `executive-summary.json` + [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) + [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) | Lead with dollars only when `roiSponsorSafe=true` |
+| 2 | **Freshness labels** | `go-no-go-summary.json` → `roiBasisStatus`; [`ROI_BASELINE_SEND_POLICY.md`](ROI_BASELINE_SEND_POLICY.md) | Demo-derived values must not read as buyer outcomes |
+| 3 | **Cited evidence** | `provenance-references.json` + [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) | Evidence-linked claims only |
+| 4 | **Disposition basis** | `go-no-go-summary.json` → `sponsorPacketDisposition` | Do not upgrade `HOLD`/`WARN` |
+| 5 | **Audit timeline** | `provenance-references.json` + [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) | Ids only, no payloads or PII |
+| 6 | **One remediation ticket** | ITSM outbound create → `ItsmFindingCorrelations` reference | Reference only; never paste ticket bodies with customer identifiers |
+
+Elements 1–5 come from `archlucid sponsor-packet` / `collect-first-pilot-proof.ps1 -SponsorHandoff` ([`../runbooks/SPONSOR_PACKET.md`](../runbooks/SPONSOR_PACKET.md)). Element 6 is an explicit operator step.
+
+### Assembly steps
+
+**1 — Assemble**
+
+```powershell
+.\scripts\collect-first-pilot-proof.ps1 -RunId '<committed-run-guid>' -SponsorHandoff -FailOnHold
+```
+
+Stop if exit code ≠ 0 or disposition = `HOLD`.
+
+**2 — Remediation ticket (element 6)**
+
+| Action | Detail |
+| --- | --- |
+| Create one ticket | `POST /v1/integrations/itsm/outbound/issues` for one committed `FindingId` |
+| Capture reference | Persisted correlation id / external key — **reference only** |
+| If ITSM not configured | Copy/export fallback; label element 6 **`fallback-export`** |
+
+**3 — Pre-send gate**
+
+- [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md#operating-checklist)
+- [`SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md`](SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md) (or successor claim-audit appendix)
+
+**4 — Mock procurement review**
+
+1. Hand the packet to an internal reviewer playing procurement/security.
+2. Run the [controlled pilot drill](PROCUREMENT_OBJECTION_PLAYBOOK.md#controlled-pilot-drill) focused on objections **#1**, **#2**, **#8**, and real-mode AI evidence boundaries.
+3. Walk the six elements against the [evidence routing map](BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map).
+4. Record every objection the packet could **not** answer from existing evidence.
+
+### PASS / HOLD (mock review)
+
+| Outcome | Criteria |
+| --- | --- |
+| **PASS** | All six elements present/labeled; send gate PASS; mock reviewer reaches a sponsor decision using only packet evidence; deferred `(B)` items accepted as scope |
+| **HOLD** | Required element missing/unlabeled, send gate HOLD, or an objection needs a new claim |
+
+Market-execution (real authorized run + human mock review + [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md)) remains **M-37**.
+
+---
+
 ## Related
 
-- [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](EXECUTIVE_PAID_PILOT_PROOF_PACKET.md) — six-element executive packet assembly + mock procurement review
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
 - [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md)
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
@@ -148,3 +207,4 @@ Use when the buyer needs a labeled path from sample request → finalized archit
 - [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md)
 - [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
 - [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)
+- [`../runbooks/SPONSOR_PACKET.md`](../runbooks/SPONSOR_PACKET.md)

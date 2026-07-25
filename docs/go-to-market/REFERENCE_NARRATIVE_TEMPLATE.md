@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-25
 > **Scope:** ArchLucid — Customer reference narrative template - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +8,7 @@
 
 **Audience:** Marketing, sales, and customer success teams creating case studies.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-07-25
 
 **Note:** The three narratives below are **fictional but realistic**, grounded in ICP criteria ([BUYER_PERSONAS.md](BUYER_PERSONAS.md#ideal-customer-profile-icp)) and buyer personas ([BUYER_PERSONAS.md](BUYER_PERSONAS.md)). Replace with real customer data as pilots complete.
 

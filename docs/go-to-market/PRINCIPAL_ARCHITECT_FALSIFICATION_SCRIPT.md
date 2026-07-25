@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-25
 > **Scope:** 30–45 minute script for a skeptical principal architect (or security reviewer) to try to falsify ArchLucid’s three highest-stakes V1 claims in a live procurement tech review. Not a marketing page.
 
 > **Spine:** [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) · [`GTM_BACKLOG.md`](GTM_BACKLOG.md) **M-113**

@@ -28,7 +28,7 @@ Dominant claim types present and the labels that keep them honest. Disposition i
 | --- | --- | --- |
 | `BUYER_SECURITY_PROCUREMENT_PACKET.md` | review-backed, self-assessed, roadmap | "does **not** claim", deferred assurance |
 | `QUOTE_TO_PROOF_PACKET.md` | review-backed, illustrative, roadmap | ROI basis, send rule |
-| `EXECUTIVE_PAID_PILOT_PROOF_PACKET.md` | extractor-backed, review-backed, self-assessed, roadmap | six-element claim-boundary column |
+| `QUOTE_TO_PROOF_PACKET.md` (executive paid-pilot section) | extractor-backed, review-backed, self-assessed, roadmap | six-element claim-boundary column |
 | `DIFFERENTIATION_PROOF_PACKET.md` | review-backed, illustrative, self-assessed | "what we do **not** claim", ROI basis labels |
 | `DIFFERENTIATION_PROOF_PACKET.md` | review-backed, extractor-backed | evidence-linked comparison section |
 | `EXECUTIVE_SPONSOR_BRIEF.md` | review-backed, illustrative | execution-mode + estimate caveats |

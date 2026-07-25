@@ -1,13 +1,14 @@
-ï»¿> **Scope:** ArchLucid â€” Incident communications policy - full detail, tables, and links in the sections below.
+> **Reviewed:** 2026-07-25
+> **Scope:** ArchLucid — Incident communications policy - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# ArchLucid â€” Incident communications policy
+# ArchLucid — Incident communications policy
 
 **Audience:** Customers and internal operators; complements internal runbooks (not duplicated here).
 
-**Last reviewed:** 2026-06-06
+**Last reviewed:** 2026-07-25
 
 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 
@@ -26,10 +27,10 @@ This policy describes how ArchLucid classifies service and security incidents an
 
 | Severity | Description | Examples |
 |----------|-------------|----------|
-| **SEV-1** | Critical â€” service **unavailable** or **severely degraded** for **all** or **most** tenants | Regional outage, data plane unavailable, auth broken for Entra path |
-| **SEV-2** | Major â€” **subset** of tenants or **material features** impaired | Elevated 5xx on critical paths, worker backlog causing governance delay |
-| **SEV-3** | Minor â€” limited impact, **workaround** exists | Single feature degraded, non-critical background lag |
-| **SEV-4** | Low â€” **no** material customer impact | Cosmetic UI, internal-only tooling |
+| **SEV-1** | Critical — service **unavailable** or **severely degraded** for **all** or **most** tenants | Regional outage, data plane unavailable, auth broken for Entra path |
+| **SEV-2** | Major — **subset** of tenants or **material features** impaired | Elevated 5xx on critical paths, worker backlog causing governance delay |
+| **SEV-3** | Minor — limited impact, **workaround** exists | Single feature degraded, non-critical background lag |
+| **SEV-4** | Low — **no** material customer impact | Cosmetic UI, internal-only tooling |
 
 ---
 
@@ -42,7 +43,7 @@ Targets are **goals**; actual events may require adjustment (e.g., unknown root 
 | **SEV-1** | Within **1 hour** of confirmed impact | At least every **30 minutes** while impact continues | Within **5 business days** (root cause, impact, remediation) |
 | **SEV-2** | Within **4 hours** | At least every **2 hours** while impact continues | Within **10 business days** |
 | **SEV-3** | Next business day or in scheduled report | As needed | Optional summary |
-| **SEV-4** | Monthly operations / release notes | â€” | â€” |
+| **SEV-4** | Monthly operations / release notes | — | — |
 
 **Channels:** public status page URL is published in [trust-center.md](trust-center.md) once live; until then, use `security@archlucid.net` for incident notices and procurement follow-up. In-app banners remain SEV-1/2 communication channel when available.
 
@@ -61,7 +62,7 @@ Internal technical response may reference **[../runbooks/](../runbooks/)**; thos
 
 ## 5. Customer responsibilities
 
-- Include **`X-Correlation-ID`** on API requests when reporting issues so support can align logs across edge, API, and audit ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) Â§8).
+- Include **`X-Correlation-ID`** on API requests when reporting issues so support can align logs across edge, API, and audit ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) §8).
 - Provide a **security contact** on file for DPA and incident notices.
 
 ---

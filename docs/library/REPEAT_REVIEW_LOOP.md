@@ -27,7 +27,7 @@
 1. **Compare** two architecture packages — use Compare in the architect workspace.
 2. **Replay** a saved comparison when investigating regressions — see [Compare and replay](/help/comparison-replay).
 3. **Reuse** prior package context in a new review when evidence evolves incrementally — see [Prior manifest retrieval](/help/prior-manifest-retrieval).
-4. **Run governance dry-run** before enforcing a blocking finalize gate — [`DEFAULT_POLICY_PACK_CALIBRATION.md`](../go-to-market/DEFAULT_POLICY_PACK_CALIBRATION.md).
+4. **Run governance dry-run** before enforcing a blocking finalize gate — [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md#6-operator-calibration).
 5. **Collect proof** again for the second finalized package — disposition should improve or caveats should shrink.
 
 <details>

@@ -70,6 +70,9 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/LINKEDIN_CONTENT_V2.md` | [`docs/go-to-market/LINKEDIN_CONTENT_V1.md`](go-to-market/LINKEDIN_CONTENT_V1.md#builder-series-m-77m-88) | Builder-series articles folded into LinkedIn content hub |
 | `docs/go-to-market/Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md` | [`docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation) | Blind protocol folded into principal-architect insight validation |
 | `docs/go-to-market/Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md` | [`docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-cohort-operating-checklist) | Cohort checklist folded into principal-architect insight validation |
+| `docs/go-to-market/BUYER_BASELINE_CAPTURE_CHECKLIST.md` | [`docs/go-to-market/ROI_BASELINE_SEND_POLICY.md`](go-to-market/ROI_BASELINE_SEND_POLICY.md#pre-pilot-baseline-capture-operator-checklist) | Kickoff baseline checklist folded into ROI SEND policy |
+| `docs/go-to-market/EXECUTIVE_PAID_PILOT_PROOF_PACKET.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review) | Six-element assembly + mock review folded into quote-to-proof |
+| `docs/go-to-market/DEFAULT_POLICY_PACK_CALIBRATION.md` | [`docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`](go-to-market/DEFAULT_POLICY_PACKS_V1.md#6-operator-calibration) | Operator calibration folded into default policy packs catalog |
 
 ---
 

@@ -1,9 +1,10 @@
+> **Reviewed:** 2026-07-25
 > **Scope:** Lightweight decision-cycle telemetry for demo/pilot → commercial next-step learning — local artifacts only.
 
 # Decision-cycle telemetry
 
 **Audience:** GTM, pilot architects, release owner  
-**Last reviewed:** 2026-06-15
+**Last reviewed:** 2026-07-25
 
 ## Purpose
 

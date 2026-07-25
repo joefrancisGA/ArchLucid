@@ -1,9 +1,10 @@
+> **Reviewed:** 2026-07-25
 > **Scope:** Founder-led paid pilot interview template — decision-delta evidence for GTM Stage 1. Not a product spec.
 
 # Decision-delta interview (paid pilots)
 
 **Audience:** Founder / delivery lead after a committed real-mode or labeled simulator review.  
-**Last reviewed:** 2026-06-17
+**Last reviewed:** 2026-07-25
 
 **Related:** [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) · [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) · [`PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md`](PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md) · [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 

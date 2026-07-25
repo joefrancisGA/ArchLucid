@@ -126,3 +126,61 @@ The harness fails on duplicate `complianceRuleKeys`, missing rule rationale in c
 ## 5. Content roadmap
 
 The prioritized **top-20 commercial backlog** from **[`POLICY_PACK_CONTENT_BACKLOG.md`](../library/POLICY_PACK_CONTENT_BACKLOG.md)** is **included in V1 GA** (plus AI Governance and Security baseline as core corpora). Future work **expands rule count and priority tagging** per framework via content revisions, not binary releases — see **[`POLICY_PACK_RULE_PRIORITY_MODEL.md`](../library/POLICY_PACK_RULE_PRIORITY_MODEL.md)**.
+
+---
+
+## 6. Operator calibration
+
+Bundled packs are **curated architecture governance content**, not statutory certification of Azure WAF, ISO, HIPAA, or SOC 2 compliance.
+
+### Severity interpretation
+
+| Severity | Operator meaning | Typical action |
+| --- | --- | --- |
+| **Advisory** | Context and remediation hints | Document; no commit block |
+| **Warning** | Material gap — review before commit | Fix evidence or accept explicit waiver in pilot notes |
+| **Blocking (critical/high)** | May block commit when enforcement enabled | Resolve or run dry-run until clean |
+
+### False-positive handling
+
+1. Run **dry-run** before enabling `BlockCommitOnCritical`.
+2. Tune **priority floor** (P0 only for first pilot) per [`POLICY_PACK_RULE_PRIORITY_MODEL.md`](../library/POLICY_PACK_RULE_PRIORITY_MODEL.md).
+3. Scope packs at workspace/project when central security and squad packs must merge.
+4. Record waived findings in pilot notes — do not silently ignore blocking rows in sponsor packets.
+
+### Dry-run interpretation
+
+```http
+POST /v1/governance/policy-packs/dry-run
+```
+
+| Dry-run outcome | Next step |
+| --- | --- |
+| No blocking findings | Consider enforcement for pilot charter |
+| Warnings only | Proceed with documented caveats |
+| Critical/high blocking | Fix evidence or adjust pack scope before sponsor send |
+
+Proof artifact: `governance-policy-pack-dry-run-proof` in first-pilot evidence bundle when collected.
+
+### When to enforce BlockCommitOnCritical
+
+Enable only when:
+
+- Pilot charter requires hard governance stops, **and**
+- Dry-run false-positive rate is acceptable on buyer evidence, **and**
+- Sponsor understands blocked commits are product behavior, not infra failure.
+
+Keep **WarnOnly** on engineer laptops (`appsettings.Development.json`).
+
+### Calibration fixtures (repo tests)
+
+| Pack theme | Test / fixture anchor |
+| --- | --- |
+| Azure WAF / security baseline | Bundled `waf-az-*` rules in policy pack tests under `ArchLucid.Application.Tests` |
+| AI governance | `ai-gov-*` rules · walkthrough [`AI_GOVERNANCE_REVIEW.md`](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) |
+
+```powershell
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~PolicyPack"
+```
+
+Related: [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) · [`POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md)

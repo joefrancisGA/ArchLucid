@@ -2633,7 +2633,7 @@ function Add-PaidPilotBaselineReadinessFinding {
         $detail = 'No paid-pilot baseline JSON found. Copy docs/go-to-market/templates/paid-pilot-baseline.template.json to artifacts/paid-pilot-baseline/<runId>/baseline.json and record baselineReviewCycleHours + baselineReviewCycleSource before kickoff.'
 
         if ($strictPaidPilot) {
-            Add-ProofFinding -Disposition 'BLOCK' -Name 'paid-pilot-baseline-readiness' -Detail $detail -Remediation 'Capture buyer baselines per docs/go-to-market/BUYER_BASELINE_CAPTURE_CHECKLIST.md or document waiver rationale.' -TriageCard 'FP-T025'
+            Add-ProofFinding -Disposition 'BLOCK' -Name 'paid-pilot-baseline-readiness' -Detail $detail -Remediation 'Capture buyer baselines per docs/go-to-market/ROI_BASELINE_SEND_POLICY.md#pre-pilot-baseline-capture-operator-checklist or document waiver rationale.' -TriageCard 'FP-T025'
             return
         }
 

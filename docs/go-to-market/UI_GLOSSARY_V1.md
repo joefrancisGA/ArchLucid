@@ -1,3 +1,4 @@
+> **Reviewed:** 2026-07-25
 > **Scope:** Canonical buyer-facing ↔ technical vocabulary for the architect workspace, product UI, and go-to-market collateral. This document does not rename HTTP contracts, CLI verbs, or audit journal identifiers.
 
 # UI Glossary V1
