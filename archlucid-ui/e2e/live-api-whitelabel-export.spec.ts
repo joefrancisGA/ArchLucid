@@ -7,10 +7,18 @@ import path from "node:path";
 
 import { expect, test } from "@playwright/test";
 
-import { DEMO_WORKSPACE_A_LIVE_IDS, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
+import {
+  DEMO_WORKSPACE_A_LIVE_IDS,
+  DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+  openDemoWorkspaceReviewDetailShellReady,
+} from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
-import { liveApiBase, liveE2eArchitectureRunCyclePlaywrightTimeoutMs } from "./helpers/live-api-client";
-import { ensureBuyerDeliverablesSectionExpanded, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import {
+  liveApiBase,
+  liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
+  waitForAuthorityBuyerSummaryGoldenManifest,
+} from "./helpers/live-api-client";
+import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
 
 test.describe("live-api-whitelabel-export", () => {
   test.beforeAll(async ({ request }) => {
@@ -27,15 +35,21 @@ test.describe("live-api-whitelabel-export", () => {
 
   test("finalized showcase review: whitelabel consulting export modal fills packaging fields and downloads DOCX", async ({
     page,
+    request,
   }) => {
     test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
 
-    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
-
-    await page.goto(`/reviews/${encodeURIComponent(DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID)}`);
-
-    await expectLiveRunDetailPageReady(page, 120_000);
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 90_000 });
+    await waitForAuthorityBuyerSummaryGoldenManifest(
+      request,
+      DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+      90_000,
+      DEMO_WORKSPACE_A_LIVE_IDS,
+    );
+    await openDemoWorkspaceReviewDetailShellReady(
+      page,
+      DEMO_WORKSPACE_A_LIVE_IDS,
+      DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+    );
 
     await ensureBuyerDeliverablesSectionExpanded(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 

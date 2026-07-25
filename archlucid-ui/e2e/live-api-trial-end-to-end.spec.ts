@@ -9,6 +9,7 @@ import { expect, test } from "@playwright/test";
 
 import { START_REVIEW_LABEL } from "@/lib/architecture-workflow-labels";
 
+import { openDemoWorkspaceReviewDetailShellReady } from "./helpers/demo-workspace-live-scope";
 import {
   createRun,
   executeRun,
@@ -23,9 +24,11 @@ import {
   postHarnessBillingSimulateActivated,
   postHarnessTrialSetExpires,
   searchAudit,
+  waitForAuthorityBuyerSummaryGoldenManifest,
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
-import { expectFinalizedManifestLinkVisible, expectLiveManifestDetailPageReady, expectLiveRunDetailPageReady } from "./helpers/operator-journey";
+import { expectFinalizedManifestLinkVisible, expectLiveManifestDetailPageReady } from "./helpers/operator-journey";
+import { uniqueTrialWorkEmail } from "./helpers/trial-registration-email";
 import { manifestIdFromSignedRecordHref, runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
 type Register201 = {
@@ -116,7 +119,7 @@ test.describe("live-api-trial-end-to-end", () => {
     const firstRunCountBefore = readOtelHistogramCount(metricsBefore, "archlucid_trial_first_run_seconds");
 
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
-    const adminEmail = `e2e-b8-${suffix}@example.com`;
+    const adminEmail = uniqueTrialWorkEmail("e2e-b8", suffix);
     const orgName = `E2E B8 Trial Org ${suffix}`;
 
     const reg = await request.post(`${liveApiBase}/v1/register`, {
@@ -244,13 +247,10 @@ test.describe("live-api-trial-end-to-end", () => {
     // Canonical route is `/reviews/*` (`next.config.ts` permanently redirects legacy `/runs/*`).
     expect(sampleHref).toMatch(/^\/reviews\//);
 
-    await page.getByTestId("onboarding-open-sample-run").click();
-
-    await expectLiveRunDetailPageReady(page, 120_000);
-
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
-
     const sampleRunIdFromHref = runIdFromReviewsHref(sampleHref);
+
+    await waitForAuthorityBuyerSummaryGoldenManifest(request, sampleRunIdFromHref, 90_000, scope);
+    await openDemoWorkspaceReviewDetailShellReady(page, scope, sampleRunIdFromHref, { timeoutMs: 45_000 });
 
     const manifestLink = await expectFinalizedManifestLinkVisible(page, {
       runId: sampleRunIdFromHref,
@@ -304,10 +304,8 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await executeRun(request, wizardRunId, scope);
     await waitForReadyForCommit(request, wizardRunId, 120_000, scope);
-
-    await page.goto(`/reviews/${wizardRunId}`);
-
-    await expectLiveRunDetailPageReady(page, 120_000);
+    await waitForAuthorityBuyerSummaryGoldenManifest(request, wizardRunId, 90_000, scope);
+    await openDemoWorkspaceReviewDetailShellReady(page, scope, wizardRunId, { timeoutMs: 45_000 });
 
     await page.getByRole("button", { name: "Finalize manifest" }).first().click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Finalize manifest" }).click();
