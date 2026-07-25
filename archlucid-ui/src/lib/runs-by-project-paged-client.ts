@@ -6,9 +6,7 @@ import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 
 /** Raw fetch for TanStack Query `queryFn` (TB-562). */
 export async function fetchRunsByProjectPaged(params: RunsByProjectPagedParams): Promise<unknown> {
-  return listRunsByProjectPaged(params.projectId, params.page, params.pageSize, {
-    includeArchived: params.includeArchived,
-  });
+  return listRunsByProjectPaged(params.projectId, params.page, params.pageSize);
 }
 
 /** Imperative read through the shared TanStack Query cache. */

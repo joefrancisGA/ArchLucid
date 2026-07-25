@@ -72,7 +72,6 @@ export default function SignedRecordsListClient() {
     try {
       const raw: unknown = await listRunsByProjectPaged(projectId, 1, SIGNED_RECORDS_LIST_PAGE_SIZE, {
         scopeHeaders,
-        includeArchived: true,
       });
       const coerced = coerceRunSummaryPaged(raw, { page: 1 });
 
