@@ -87,7 +87,7 @@ Score each dimension 1–3 before advancing to intake.
 | Cold/warm outreach | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) one-pager | Link or attach; do not attach full procurement pack unsolicited |
 | Discovery call follow-up | [`SHOULD_YOU_EVALUATE.md`](SHOULD_YOU_EVALUATE.md) | Helps prospect self-qualify |
 | Qualification confirmed | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) SKU summary | Name the offer; do not just say "ArchLucid platform" |
-| Pilot proposal | [`SERVICE_LED_SOW_QUOTE_TEMPLATE.md`](SERVICE_LED_SOW_QUOTE_TEMPLATE.md) | Owner reviews each SOW before sending |
+| Pilot proposal | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | Owner reviews each SOW before sending |
 
 ---
 

@@ -12,7 +12,7 @@
 
 **Purpose:** V1 already ships **Architecture Review Report** export (DOCX/PDF), **consultant whitelabel**, **bulk evidence attach**, **default policy packs**, and **curated demo workspaces**. This document names **buyable SKUs** so GTM leads with **relief from pain** and a **defensible report**, not a platform feature tour.
 
-**Related:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (tasks M-22–M-28, M-34), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`SERVICE_LED_SOW_QUOTE_TEMPLATE.md`](SERVICE_LED_SOW_QUOTE_TEMPLATE.md), [`POSITIONING.md`](POSITIONING.md), [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (public pricing posture; **Marketing alignment Q8** companion).
+**Related:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (tasks M-22–M-28, M-34), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`POSITIONING.md`](POSITIONING.md), [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (public pricing posture; **Marketing alignment Q8** companion). Private SOW + paid-offer test live in sections below.
 
 ---
 
@@ -120,4 +120,95 @@ Feed results into **engineering backlog** / **`GTM_BACKLOG.md` retros** and pack
 ## Change control
 
 When a SKU name, band, or deliverable list becomes **public** on `archlucid.net`, update **`PRICING_PHILOSOPHY.md`** / procurement templates if numbers are no longer private — and refresh **`GTM_BACKLOG.md`** notes if **Marketing alignment** posture (Q7) changes.
+
+---
+
+## Paid offer test (private)
+
+Test **paid behavior** as stronger evidence than feature completion. Supports outbound and private SOW conversations without publishing new list prices.
+
+**Offer:** ArchLucid AI & Cloud Architecture Readiness Review — fixed-scope (2–3 weeks; 1 architecture domain). **Private band:** **$5,000–$10,000** standard; **$1,500–$3,000** when narrowly bounded.
+
+**Buyer gets:** executive summary + evidence inventory; risk register + recommended actions with evidence-basis labels; Architecture Review Report (DOCX/PDF; whitelabel); finalized architecture package with audit trail.
+
+**Buyer does not get (unless separately contracted):** SOC 2 CPA / third-party pen test; V1.1 connectors; Marketplace self-serve / MCP; guaranteed ROI dollars without buyer baselines.
+
+### Qualification (first call)
+
+1. What decision must this review support in 30–60 days?
+2. What architecture packet can you provide in week 1?
+3. Who signs off on findings / needs the sponsor export?
+4. Live Azure OpenAI required, or labeled simulator OK for phase 1?
+5. Baseline for review-cycle hours / prep effort?
+6. Deferred requirements to label (CPA SOC 2, pen test, connectors)?
+
+**Disqualify:** chatbot-only buyers; no sponsor; V1.1 connectors as go-live blocker before any review value.
+
+### Paid acceptance criteria
+
+Signed SOW/order form; baseline capture started; first finalize within 10 business days; sponsor export reviewed; 30-min debrief; payment per order form. **GTM success signal:** ≥2 paid reviews with ≥1 second-review/compare within 90 days.
+
+---
+
+## Private quote / SOW template
+
+**Not legal advice.** Counsel must review before customer signature. Default SKU: Readiness Review.
+
+### Parties
+
+| Field | Value |
+| --- | --- |
+| **Customer** | __________________ (legal entity) |
+| **Customer contact** | __________________ |
+| **Vendor** | ArchLucid (vendor legal entity per MSA/order form) |
+| **Effective date** | __________________ |
+| **SOW ID** | __________________ |
+
+### Selected SKU
+
+| SKU | Selected |
+| --- | --- |
+| **ArchLucid AI & Cloud Architecture Readiness Review** (default) | ☐ |
+| ArchLucid Evidence Pack (add-on / bundled) | ☐ |
+| ArchLucid Architecture Board / ARB Report | ☐ |
+| ArchLucid Cloud Governance Review (Azure-first) | ☐ |
+
+**Indicative fee (private):** $__________________ USD (planning bands above — **not** a public list price).
+
+### In scope
+
+1. Structured architecture review in ArchLucid (evidence intake, findings, decisions, export).
+2. Executive summary and Architecture Review Report (DOCX/PDF), whitelabel optional.
+3. Evidence inventory, decision register, risk register, recommended actions.
+4. Human judgment and sign-off framing; AI-assisted analysis labeled by execution mode.
+5. Buyer-safe proof disposition per [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) where applicable.
+
+### Out of scope (unless addendum)
+
+SOC 2 CPA / third-party pen-test publication; production SLA unless MSA exhibit; PHI / clinical systems; live Stripe self-serve; guaranteed ROI without labeled source data; production remediation execution; custom connector development.
+
+### Customer inputs
+
+Up to **200 files** per multipart upload (ZIP counts as one file); optional Azure extractor ZIP or demo-workspace acceptance; named sponsor + technical contact; IdP/access per [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md).
+
+### Acceptance
+
+1. Final Architecture Review Report in agreed format.
+2. Finalized architecture package with audit trail and export bundle.
+3. Execution mode labeled on sponsor-facing artifacts.
+4. No claims beyond [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+
+Customer written approval within __________ business days of delivery (or deemed accepted per MSA).
+
+### Fees and signatures
+
+| Item | Amount |
+| --- | --- |
+| Fixed fee | $__________________ |
+| Expenses | ☐ None  ☐ Pre-approved: __________________ |
+| Payment | ☐ 50/50 signature/acceptance  ☐ Net __________ |
+
+| Customer | Vendor |
+| --- | --- |
+| Name / Title / Date | Name / Title / Date |
 

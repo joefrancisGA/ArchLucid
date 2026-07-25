@@ -59,6 +59,12 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/CONTROLLED_PILOT_OBJECTION_DRILL.md` | [`docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md`](go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md#controlled-pilot-drill) | Rehearsal drill folded into objection playbook |
 | `docs/go-to-market/M18_OUTREACH_MESSAGE_TEMPLATE.md` | [`docs/go-to-market/ELEVATOR_PITCH.md`](go-to-market/ELEVATOR_PITCH.md#m-18-outreach-message-templates) | Warm outreach templates folded into elevator pitch |
 | `docs/go-to-market/validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md` | [`docs/go-to-market/FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](go-to-market/FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md#maintenance-cadence) | Cadence + claim rules folded into scoreboard |
+| `docs/go-to-market/PAID_SERVICE_LED_REVIEW_OFFER_TEST.md` | [`docs/go-to-market/SERVICE_LED_OFFERS.md`](go-to-market/SERVICE_LED_OFFERS.md#paid-offer-test-private) | Private paid offer test folded into service-led offers |
+| `docs/go-to-market/SERVICE_LED_SOW_QUOTE_TEMPLATE.md` | [`docs/go-to-market/SERVICE_LED_OFFERS.md`](go-to-market/SERVICE_LED_OFFERS.md#private-quote--sow-template) | Private SOW template folded into service-led offers |
+| `docs/go-to-market/PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md` | [`docs/go-to-market/PROOF_PACKET_RUN_LOG.md`](go-to-market/PROOF_PACKET_RUN_LOG.md#operating-checklist) | Operating checklist folded into proof run log |
+| `docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md` | [`docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md`](go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md#6-week-execution-board) | 6-week board folded into habit-loop validation |
+| `docs/go-to-market/CONNECTOR_PULL_FORWARD_DECISION.md` | [`docs/go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md#closed-hold-decisions-owner) | Closed HOLD decision archived in GTM backlog |
+| `docs/go-to-market/POLICY_PACK_BREADTH_DECISION.md` | [`docs/go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md#closed-hold-decisions-owner) | Closed HOLD decision archived in GTM backlog |
 
 ---
 

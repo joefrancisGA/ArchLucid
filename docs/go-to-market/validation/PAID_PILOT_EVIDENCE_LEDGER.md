@@ -114,7 +114,7 @@ Map close-out steps from [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../COMMERCIAL_CO
 | `soc2` | CPA attestation or trust-center gap (V1.1 backlog — do not score as V1 failure) |
 | `finding-quality` | Sponsor did not trust findings enough to act |
 | `pricing` | Price band mismatch |
-| `connector-gap` | Workflow handoff tool missing (capture per [`CONNECTOR_PULL_FORWARD_DECISION.md`](../CONNECTOR_PULL_FORWARD_DECISION.md)) |
+| `connector-gap` | Workflow handoff tool missing (capture per [`GTM_BACKLOG.md`](../GTM_BACKLOG.md#closed-hold-decisions-owner) closed hold decisions) |
 | `no-decision-change` | Outputs confirmatory only — no delta to act on |
 | `champion-loss` | Sponsor or champion left |
 | `other` | Named in `description` |

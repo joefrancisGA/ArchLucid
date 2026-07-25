@@ -5,7 +5,7 @@
 **Target close (UTC):** +6 weeks  
 **Founder owner:**  
 
-> Guide: [`docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md`](../../docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md)
+> Guide: [`docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md`](../../docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md#6-week-execution-board)
 
 ---
 

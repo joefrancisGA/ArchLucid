@@ -27,7 +27,7 @@
 
 ## Session workflow
 
-1. After each **real** pilot commit, complete [`PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md`](PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md) and append a row to [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md).
+1. After each **real** pilot commit, complete the [operating checklist](PROOF_PACKET_RUN_LOG.md#operating-checklist) and append a row to [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md).
 2. Score gates using the readiness checklist appendix below or pilot review notes.
 3. Update this table and the proof run log in the same PR or ops note.
 4. Run weekly cadence when reviewing G4/G5 posture: [`../runbooks/WEEKLY_PROOF_CADENCE.md`](../runbooks/WEEKLY_PROOF_CADENCE.md) (`.\scripts\Invoke-WeeklyProofCadence.ps1`).

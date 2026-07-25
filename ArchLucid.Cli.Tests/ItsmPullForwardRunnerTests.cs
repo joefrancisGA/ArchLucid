@@ -72,7 +72,7 @@ public sealed class ItsmPullForwardRunnerTests
             Directory.CreateDirectory(root);
 
             WriteFile(root, Path.Combine("docs", "go-to-market", "AZURE_MARKETPLACE_SAAS_OFFER.md"), "# marker");
-            WriteFile(root, Path.Combine("docs", "go-to-market", "CONNECTOR_PULL_FORWARD_DECISION.md"), "# decision");
+            WriteFile(root, Path.Combine("docs", "go-to-market", "GTM_BACKLOG.md"), "# Closed hold decisions (owner)");
             WriteFile(
                 root,
                 Path.Combine("docs", "go-to-market", "validation", "templates", "paid-pilot-evidence-ledger.template.json"),

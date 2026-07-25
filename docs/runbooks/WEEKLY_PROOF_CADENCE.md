@@ -60,7 +60,7 @@ python scripts/ci/validate_weekly_proof_cadence.py --cadence-json artifacts/week
 
 ## Closing G4 from HOLD → PASS
 
-Follow [`PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md`](../go-to-market/PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md):
+Follow [`PROOF_PACKET_RUN_LOG.md`](../go-to-market/PROOF_PACKET_RUN_LOG.md#operating-checklist):
 
 1. Complete a real pilot commit (not simulator-only if claiming real-mode proof).
 2. Run `.\scripts\collect-first-pilot-proof.ps1 -RunId <guid> -SponsorHandoff -FailOnHold`.
@@ -80,5 +80,5 @@ Follow [`PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md`](../go-to-market/PROOF_PAC
 - [`CLAIM_READINESS_STATUS.md`](../go-to-market/CLAIM_READINESS_STATUS.md)
 - [`CLAIM_READINESS_CHECKLIST.md`](../go-to-market/CLAIM_READINESS_CHECKLIST.md)
 - [`PROOF_PACKET_RUN_LOG.md`](../go-to-market/PROOF_PACKET_RUN_LOG.md)
-- [`PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md`](../go-to-market/PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md)
+- [`PROOF_PACKET_RUN_LOG.md`](../go-to-market/PROOF_PACKET_RUN_LOG.md#operating-checklist)
 - [`CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md)

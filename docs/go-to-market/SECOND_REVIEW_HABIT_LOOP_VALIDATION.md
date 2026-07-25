@@ -1,15 +1,17 @@
-> **Scope:** Second-review validation plan — market validation for repeat usage; no product features unless observed failure.
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Second-review validation plan and 6-week execution board — market validation for repeat usage; no product features unless observed failure.
 
 # Second-review habit loop validation
 
 **Audience:** Pilot operators, architecture leads after first successful commit.  
-**Last reviewed:** 2026-06-16
+**Last reviewed:** 2026-07-25
 
 **Purpose:** Measure whether **second and subsequent reviews** produce decision-changing drift visibility and reuse intent — where ArchLucid should outperform ad hoc frontier-AI chat.
 
 **Cookbook:** [`REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) · [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md) · [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 
-**6-week execution board:** [`SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md`](SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md) — 3 pilot accounts, pass/fail rules, weekly digests (**Done 2026-06-17**) · fixtures: [`fixtures/second-review/README.md`](../../fixtures/second-review/README.md)
+**Fixtures:** [`fixtures/second-review/README.md`](../../fixtures/second-review/README.md) · **Artifact root:** `artifacts/second-review/<cohort-label>/` (local; no customer-identifying content in git)
 
 ---
 
@@ -128,8 +130,37 @@ Otherwise hold feature work — market signal insufficient.
 
 ---
 
+## 6-week execution board
+
+| Parameter | Value |
+| --- | --- |
+| Duration | 6 weeks |
+| Pilot accounts | 3 (pseudonymous labels) |
+| Time box per account | Review #2 within **14 days** of review #1 commit |
+| Engineering gate | Only if **≥2** accounts show the **same** observed failure |
+| Cohort pass | **≥2** of 3 accounts pass |
+
+| Week | Milestone |
+| --- | --- |
+| **1** | Open cohort folder; assign 3 account labels; confirm run-A ids |
+| **2–4** | Accounts 1–3: packet evolution + review #2 commit + proof |
+| **5** | Cohort synthesis + weekly digests consolidated |
+| **6** | Positioning decision; engineering escalation (if any) |
+
+### Per-account workflow (summary)
+
+1. Baseline proof for run A (`collect-first-pilot-proof.ps1 -RunId … -RunNumber 1`).
+2. Evolve packet (3 bullets max — material change).
+3. Second review + compare against A.
+4. Second-review proof with `-RunNumber 2 -CompareBaseRunId '<run-A>' -FailOnHold`.
+5. 15-min interview: decision change Y/N; reuse intent 1–5; packaging vs discovery speed; friction.
+
+**Account PASS:** run B committed with distinct ids; compare linked; ≥1 stickiness signal or explained; ROI labeled; reuse intent ≥3/5.  
+**Account FAIL:** no second commit in 14 days (without blocker), missing compare drift, unlabeled exports, reuse ≤2/5, or proof HOLD on valid inputs.
+
+---
+
 ## Related
 
-- [`SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md`](SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md)
 - [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md) — run 3 in real-mode matrix
 - [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md)

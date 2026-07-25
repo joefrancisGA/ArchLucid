@@ -53,7 +53,7 @@ Prerequisite check before this step: confirm ITSM is enabled for the tenant (nat
 
 Run the existing send gate before any external circulation — do not re-invent it:
 
-- [`PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md`](PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md) § Pre-send gates (execution mode, ROI basis, disposition, no manual surgery, redaction)
+- [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md#operating-checklist) — pre-send gates (execution mode, ROI basis, disposition, no manual surgery, redaction)
 - [`SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md`](SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md)
 
 All six elements present + send gate PASS → proceed to the mock review. Any HOLD → fix the underlying run, do not paper over it.
@@ -99,7 +99,7 @@ This document (the assembly + mock-review sequence) is the V1 design half; no V1
 | [`../runbooks/SPONSOR_PACKET.md`](../runbooks/SPONSOR_PACKET.md) | One-command packet assembly (elements 1–5) |
 | [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md) | Proof → quote/annual-order index |
 | [`templates/evidence-packet-buyer.template.md`](templates/evidence-packet-buyer.template.md) | Buyer/executive evidence template + claim boundaries |
-| [`PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md`](PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md) | Pre-send gate + G4 discipline |
+| [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md#operating-checklist) | Pre-send gate + G4 discipline |
 | [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md) (incl. controlled pilot drill) | Mock procurement review |
 | [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md) | Procurement reviewer checklist and evidence routing |
 | [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md) | Real paid-pilot outcome capture (**M-37**) |

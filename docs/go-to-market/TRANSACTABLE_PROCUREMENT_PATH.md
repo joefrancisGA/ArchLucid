@@ -63,7 +63,7 @@ Start: Buyer wants to purchase
 | --- | --- |
 | Status | **Available** |
 | Mechanism | Founder-executed SOW or service order; invoice via agreed payment method |
-| Template | [`SERVICE_LED_SOW_QUOTE_TEMPLATE.md`](SERVICE_LED_SOW_QUOTE_TEMPLATE.md) |
+| Template | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) |
 | Payment terms | Net 30 standard; negotiable for enterprise buyers |
 | Legal readiness | Draft MSA + DPA templates available; owner/legal review before execution |
 | Tax readiness | Owner to confirm applicable tax registration before invoicing |
@@ -168,7 +168,7 @@ If the commercial closeout in [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_
 | --- | --- |
 | [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) | Pricing posture and band guidance |
 | [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) | Order form template |
-| [`SERVICE_LED_SOW_QUOTE_TEMPLATE.md`](SERVICE_LED_SOW_QUOTE_TEMPLATE.md) | SOW and quote template |
+| [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | SOW and quote template |
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial close-out checklist |
 | [`LEGAL_PROCUREMENT_TERMS_PACKET.md`](LEGAL_PROCUREMENT_TERMS_PACKET.md) | Legal terms and approval guidance |
 | [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md) | Marketplace planning document (not live) |

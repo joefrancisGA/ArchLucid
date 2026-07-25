@@ -25,7 +25,7 @@ This packet gives the founder or operator a single-document starting point for c
 | Term area | Current status | Source | Owner action required |
 | --- | --- | --- | --- |
 | Master Services Agreement (MSA) template | Available — draft | [`MSA_TEMPLATE.md`](MSA_TEMPLATE.md) | Owner + buyer legal review before execution |
-| SOW / quote template | Available | [`SERVICE_LED_SOW_QUOTE_TEMPLATE.md`](SERVICE_LED_SOW_QUOTE_TEMPLATE.md) | Owner review per engagement |
+| SOW / quote template | Available | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | Owner review per engagement |
 | Order form template | Available | [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) | Owner review per engagement |
 | Data Processing Addendum (DPA) | Template available | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Owner + buyer legal review before execution |
 | Cross-tenant data processing addendum | Template available | [`CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md`](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) | Owner review before execution |
@@ -131,7 +131,7 @@ Short summary:
 | [`MSA_TEMPLATE.md`](MSA_TEMPLATE.md) | Master Services Agreement template |
 | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Data Processing Addendum template |
 | [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) | Order form template |
-| [`SERVICE_LED_SOW_QUOTE_TEMPLATE.md`](SERVICE_LED_SOW_QUOTE_TEMPLATE.md) | SOW and quote template |
+| [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | SOW and quote template |
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial close-out checklist |
 | [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md) | Purchase path decision tree |
 | [`SUPPORT_AND_PILOT_OPERATING_MODEL.md`](SUPPORT_AND_PILOT_OPERATING_MODEL.md) | Support and SLA posture |

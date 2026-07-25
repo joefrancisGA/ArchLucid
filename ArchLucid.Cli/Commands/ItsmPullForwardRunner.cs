@@ -6,7 +6,7 @@ internal sealed class ItsmPullForwardRunner
 
     private static readonly string[] RequiredDecisionRelativePaths =
     [
-        Path.Combine("docs", "go-to-market", "CONNECTOR_PULL_FORWARD_DECISION.md"),
+        Path.Combine("docs", "go-to-market", "GTM_BACKLOG.md"),
         Path.Combine("docs", "go-to-market", "validation", "templates", "paid-pilot-evidence-ledger.template.json"),
         Path.Combine("fixtures", "itsm", "connector-pull-forward-evidence.template.json"),
     ];
@@ -95,7 +95,7 @@ internal sealed class ItsmPullForwardRunner
             Name = "Pull-forward decision framework",
             Verdict = ItsmPullForwardVerdict.Watch,
             Evidence = $"Missing decision assets: {string.Join(", ", missing)}.",
-            Resolution = "Restore CONNECTOR_PULL_FORWARD_DECISION.md and evidence templates before running the gate.",
+            Resolution = "Restore GTM_BACKLOG.md (closed hold decisions) and evidence templates before running the gate.",
         };
     }
 
