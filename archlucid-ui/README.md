@@ -1,10 +1,10 @@
-# ArchLucid UI (operator shell)
+# ArchLucid UI (architect workspace)
 
-Thin Next.js App Router UI for the ArchLucid operator experience. The default job of the UI is to help a team move from an architecture request to a reviewable, defensible output quickly through the **Pilot** path, then expand into **Operate** only when needed.
+Thin Next.js App Router UI for the ArchLucid architect experience. The default job of the UI is to help a team move from an architecture request to a reviewable, defensible output quickly through the **Pilot** path, then expand into **Operate** only when needed.
 
-**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains operator flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
+**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md](../docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains architect workspace flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
 
-**Pilot first-value rule:** for most first pilots, stay on the **Pilot** path until request → commit → artifact review is working cleanly. Treat **Operate** as a follow-on maturity path, not a co-equal Day-1 proof.
+**Pilot first-value rule:** for most first pilots, stay on the **Pilot** path until request → finalize (API `commit`) → artifact review is working cleanly. Treat **Operate** as a follow-on maturity path, not a co-equal Day-1 proof.
 
 **In-product guidance:** sidebar group **captions** summarize each layer; key **Operate** routes render a **`LayerHeader`** strip (what question the page answers)—including **governance resolution**, **policy packs**, **governance workflow**, and **alert operator tooling** (rules, routing, simulation, tuning, composite rules). Operate **`LayerHeader`** rows with **`enterpriseFootnote`** in `layer-guidance.ts` also pick up rank-aware lines from **`layerHeaderEnterpriseReaderRankLine` / `layerHeaderEnterpriseOperatorRankLine`** in `enterprise-controls-context-copy.ts`. **Home** lists **Operate** links **below** the Core Pilot checklist with **Pilot**-first copy; after all checklist steps, **AfterCorePilotChecklistHint** nudges toward deeper surfaces only when there is a real question; **run detail** shows an optional Operate strip after commit (still not a success criterion). Operate pages add **short leads** (often **inspect vs change** and first-pilot deferral in `layer-guidance.ts` + page intros) so read-heavy context is not weighted the same as configuration forms. Full routing logic stays in **`docs/OPERATOR_DECISION_GUIDE.md`** (repo root).
 
@@ -68,18 +68,18 @@ Single module for **who** the operator is and **which policy tier** the UI shoul
 The default experience is the **Pilot** path — four steps from an empty workspace to a reviewed, exportable run:
 
 ```
-New run (wizard) → pipeline runs → Commit → Artifacts
+New run (wizard) → pipeline runs → Finalize → Artifacts
 ```
 
-**First-time operators:** open **Overview** (`/`) and use the collapsible **Core Pilot checklist** panel (in-product label; step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The **Core Pilot guide** (`/help/core-pilot`) and **Onboarding** cover the V1 pilot path; a resumable step dialog remains available when opened from Help or explicit CTAs (progress stored under `archlucid.corePilotWizard.v1`). The sidebar **Review work** group shows **Overview**, **Start review**, **Evidence graph**, **Review packages**, **Portfolio overview**, and **Onboarding** by default; **Show analysis & investigation tools** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard). **Value realization, recommended next steps, and stickiness tiles** on Overview appear only after the tenant has a finalized (committed) review package — same gate as operational metrics.
+**First-time architects:** open **Overview** (`/`) and use the collapsible **Core Pilot checklist** panel (in-product label; step-by-step links: new run wizard → runs list → finalize → artifacts). **Hide checklist** stores preference in `localStorage`. The **Core Pilot guide** (`/help/core-pilot`) and **Onboarding** cover the V1 pilot path; a resumable step dialog remains available when opened from Help or explicit CTAs (progress stored under `archlucid.corePilotWizard.v1`). The sidebar **Review work** group shows **Overview**, **Start review**, **Evidence graph**, **Architecture packages**, **Portfolio overview**, and **Onboarding** by default; **Show analysis & investigation tools** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard). **Value realization, recommended next steps, and stickiness tiles** on Overview appear only after the tenant has a finalized architecture package — same gate as operational metrics.
 
-**End-to-end path:** Overview → **New review** or **Review packages** → **Open review** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two reviews** / **Validate review package** / **Graph** (enable via **Show analysis & investigation tools**).
+**End-to-end path:** Overview → **New review** or **Architecture packages** → **Open review** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two reviews** / **Validate architecture package** / **Graph** (enable via **Show analysis & investigation tools**).
 
 - **Artifact review:** List (`[]` when empty), descriptor metadata, in-shell preview with raw disclosure, stable table order (name, then id — aligned with API).
 - **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
 - **Compare / replay:** Two-run diff vs single-run authority replay — see [docs/operator-shell.md](../docs/library/operator-shell.md) in the repo root.
 
-## Operate — analysis (available once you have a committed run)
+## Operate — analysis (available once you have a finalized architecture package)
 
 Enable via **Show analysis & investigation tools** in the sidebar. These are **Operate** analysis surfaces.
 

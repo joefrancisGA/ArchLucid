@@ -305,7 +305,7 @@ These are content-only corrections (not implemented in this task, listed here as
 6. **Add a one-line cross-link** between `review-guide`'s "Confirm review scope" heading and `/help/scope`'s intro, each disambiguating the other ("This is about which standards evaluate your review, not your workspace's tenant/project scope — see [Workspace and scope guide] for that.").
 7. **Add `review-guide` to `HELP_CENTER_FEATURED_SLUGS`** (§7) so it is reachable by browsing, not only via the wizard header link.
 8. **Fix the asymmetric related-guide links** in §4.7 once the pages they point to are corrected.
-9. **Do not** touch the "Architecture package" vs. "review package" wording anywhere until Unresolved owner decision #1 is resolved — mixing a partial rename in with the fixes above would create a third, transitional terminology state.
+9. ~~**Do not** touch the "Architecture package" vs. "review package" wording until Unresolved owner decision #1 is resolved~~ — **superseded:** use **architecture package** (see Unresolved owner decisions §1 RESOLVED).
 
 ---
 
@@ -466,7 +466,7 @@ Once the two owner decisions below are resolved and the sequence in §18 is exec
 
 ## Unresolved owner decisions
 
-1. **Terminology direction:** does the product want **"review package"** (the task brief's assumed-correct noun, still used in 100% of inspected help content) or **"architecture package"** (the shipped, TB-738 buyer-facing canonical noun, per `UI_GLOSSARY_V1.md:12`) as the noun going forward for the finalized-review artifact? This decision blocks any terminology-touching copy work and should be made as a single, repo-wide vocabulary decision — not resolved implicitly, page by page, during the help rewrite.
+1. **Terminology direction (RESOLVED — 2026-07 docs sweep):** **"architecture package"** is canonical (TB-738 / `UI_GLOSSARY_V1.md`); **"review package"** is legacy. Help, GTM, and engineering docs were aligned in the Architect workspace / Finalize vocabulary pass; this assessment's earlier "help still says review package" findings are historical as-of the assessment date.
 2. **Evidence-intake/review-packages duplication fix path:** ~~Path 1 vs Path 2~~ — **Resolved 2026-07-12: Path 2** (relocate persona recipes out of buyer/operator `/help` as integration/engineering documentation; rewrite both help slugs to match their titles). Logged in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *PQ-HELP-01*; unblocks **TB-761**, §11, §15, and step 5 of §18.
 3. **Architecture-creation contextual help scope:** should the new draft-vs-review contextual help (§12, §16) be a small net-new component, or should it reuse/extend the existing (currently unused) `getting-started` mapping in `page-help-topic-map.ts:17`? Either is viable; this is a lower-stakes implementation-detail decision that can be made at the time step 8 (§18) is picked up, not before.
 4. **Feature-flag mechanics for future assurance-coverage copy (§14):** once implementation of the coverage model begins, should help copy for each phase be gated behind the same feature flag as its UI, or shipped as a docs-only PR immediately after each phase's UI merges? Either satisfies "do not claim unimplemented capability," but the choice affects how many help-content PRs are needed per phase.

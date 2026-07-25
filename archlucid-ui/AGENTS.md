@@ -2,7 +2,7 @@
 
 ## What this folder is
 
-Next.js (App Router) UI for ArchLucid: marketing, operator shell, and review workflows. It consumes the HTTP API; **business rules and authority logic live in .NET** under the repo root.
+Next.js (App Router) UI for ArchLucid: marketing, architect workspace, and review workflows. It consumes the HTTP API; **business rules and authority logic live in .NET** under the repo root.
 
 ## UI visual standard (V1 GA requirement — read before writing any component)
 
@@ -55,11 +55,11 @@ See **`docs/engineering/AGENTS.md`** (repo-root **`AGENTS.md`** is a pointer) fo
 
 ## UI-local deep docs (`archlucid-ui/docs/`)
 
-Implementation detail for this app (operator shell, nav contract, testing). Prefer these over duplicating long prose in code comments:
+Implementation detail for this app (architect workspace, nav contract, testing). Prefer these over duplicating long prose in code comments:
 
 | Topic | Doc |
 |------|-----|
-| Operator shell behaviour | [OPERATOR_SHELL_TUTORIAL.md](./docs/OPERATOR_SHELL_TUTORIAL.md) |
+| Architect workspace behaviour | [OPERATOR_SHELL_TUTORIAL.md](./docs/OPERATOR_SHELL_TUTORIAL.md) |
 | Nav metadata + drift guard | [NAV_CONFIG_CONTRACT.md](./docs/NAV_CONFIG_CONTRACT.md) |
 | App architecture | [ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | Data flow / client state | [DATA_FLOW_AND_STATE.md](./docs/DATA_FLOW_AND_STATE.md) |
