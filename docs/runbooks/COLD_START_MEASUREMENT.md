@@ -65,7 +65,7 @@ curl -sf -o /dev/null -w "http_code=%{http_code} time_total=%{time_total}s\n" \
 
 Repeat **3×**; record **median `time_total`**. This matches CD when `SMOKE_SYNTHETIC_PATH=/api/auth/me` (**TB-758**).
 
-**Alternative (operator UI path):** first authenticated list after login (e.g. workspace home) — higher variance; prefer `/api/auth/me` for repeatable baselines.
+**Alternative (architect workspace path):** first authenticated list after login (e.g. workspace home) — higher variance; prefer `/api/auth/me` for repeatable baselines.
 
 ---
 

@@ -25,7 +25,7 @@ Rotate **development / automation API keys** accepted by `ArchLucid.Api` (`ApiKe
 
 ## 4. Architecture overview
 
-**Nodes:** operators, secret store, API host, API clients (CI, scripts, operator UI BFF).
+**Nodes:** architects, secret store, API host, API clients (CI, scripts, architect workspace BFF).
 
 **Edges:** operators update configuration → API reload → clients send `X-Api-Key` (or configured header) → handler matches any configured segment.
 

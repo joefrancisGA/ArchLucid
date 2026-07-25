@@ -1,6 +1,6 @@
 > **Scope:** Owner-ratified rule for how ArchLucid presents documentation to product users vs engineering contributors.  
 > **Decision date:** 2026-05-27 (documented 2026-05-30). **Owner:** product owner.  
-> **Audience:** engineers, AI coding agents, designers, and GTM authors working on operator UI, marketing surfaces, and help links.  
+> **Audience:** engineers, AI coding agents, designers, and GTM authors working on the architect workspace, marketing surfaces, and help links.  
 > **V1 requirement:** customer-facing documentation must not use raw GitHub repository browsing as the default experience.
 
 # Product documentation presentation standard
@@ -88,7 +88,7 @@ https://github.com/.../docs/library/PILOT_GUIDE.md
 The page should open with a product title and summary, for example:
 
 > **Pilot guide**  
-> Learn how to create your first architecture review package, attach evidence, review findings, finalize the signed decision record, and export audit-ready evidence.
+> Learn how to create your first architecture package, attach evidence, review findings, finalize the signed decision record, and export audit-ready evidence.
 
 An optional footer **View source documentation** link may appear only in **admin/developer/diagnostics** mode — never as the primary CTA for buyers or operators.
 

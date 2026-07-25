@@ -14,7 +14,7 @@ Given a **run id** (no-dash hex or standard GUID string accepted by the API), re
 ## 2. Assumptions
 
 - The API is reachable with a token or **DevelopmentBypass** as in local/CI docs.
-- **Trace backend** (Jaeger, Grafana Tempo, Azure Application Insights, etc.) ingests OTLP or platform traces; you have a **trace viewer URL template** (same placeholder semantics as the operator UI — see **§4**).
+- **Trace backend** (Jaeger, Grafana Tempo, Azure Application Insights, etc.) ingests OTLP or platform traces; you have a **trace viewer URL template** (same placeholder semantics as the architect workspace — see **§4**).
 - **Logs** land in a queryable sink (Seq, Loki, Log Analytics) that indexes **`CorrelationId`** when present.
 - **`dbo.Runs.OtelTraceId`** was captured at **run creation** (migration **052**); it is **not** overwritten on later updates.
 

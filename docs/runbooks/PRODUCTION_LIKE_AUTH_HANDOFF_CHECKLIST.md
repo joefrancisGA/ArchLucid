@@ -2,7 +2,7 @@
 
 # Production-like auth handoff checklist
 
-> **Scope:** PASS/HOLD checks before enterprise handoff. **Depth:** [`../security/`](../security/) · identity provider setup in operator UI.
+> **Scope:** PASS/HOLD checks before enterprise handoff. **Depth:** [`../security/`](../security/) · identity provider setup in architect workspace.
 
 ## Entra / OIDC
 

@@ -8,7 +8,7 @@
 
 **Priority:** P1 — Adoption (enterprise workforce SSO; certificate expiry causes hard sign-in failures)
 
-**Canonical path:** Linked from **`CONFIGURATION_REFERENCE.md`** and operator UI doc resolution. Former short alias `SAML_CERT_ROTATION.md` — see [`redirects.md`](../redirects.md).
+**Canonical path:** Linked from **`CONFIGURATION_REFERENCE.md`** and architect workspace doc resolution. Former short alias `SAML_CERT_ROTATION.md` — see [`redirects.md`](../redirects.md).
 
 ## Summary
 
@@ -121,7 +121,7 @@ Steps vary by vendor; the invariant is: **the IdP must trust the new SP signing 
 1. **Deploy / rolling restart** API replicas so `CertificateUtil.Load` binds the new PFX during startup. There is no hot reload of the signing cert without a process recycle.
 2. During a rolling update, replicas may briefly use **old** and **new** material; the IdP must accept **both** signing certificates during this window.
 3. After all replicas report healthy readiness, run **production smoke**:
-   - Browser SSO through **`/Auth/Saml2/*`** (initiate login from the operator UI or your documented SSO entry URL).
+   - Browser SSO through **`/Auth/Saml2/*`** (initiate login from the architect workspace or your documented SSO entry URL).
    - Confirm audit event **`Saml2ServiceProviderSignInSucceeded`** (not **`Saml2ServiceProviderSignInFailed`**) for a test principal.
 4. Re-check **`GET /v1/admin/auth/saml-operational-health`** — `spSigningCertificateNotAfterUtc` should reflect the new cert; diagnostic summary should be null when load succeeds.
 

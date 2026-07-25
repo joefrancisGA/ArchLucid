@@ -1,6 +1,6 @@
 > **Scope:** Filled sample text for pasting into an Azure DevOps work-item or pipeline-summary comment during V1 workflow handoff; not a standalone runbook or connector spec.
 
-ArchLucid review package attached.
+ArchLucid architecture package attached.
 
 Review/run id: `61c60d76-2b80-93f9-46bb-2f66fd608b9b`
 Manifest id: `11111111-1111-1111-1111-111111111111`

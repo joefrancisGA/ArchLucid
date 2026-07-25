@@ -6,7 +6,7 @@
 
 ## When to run
 
-After the first committed review in a pilot tenant, before quoting expansion or annual conversion.
+After the first finalized review in a pilot tenant, before quoting expansion or annual conversion.
 
 ## Collect
 
