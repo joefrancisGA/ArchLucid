@@ -1289,7 +1289,15 @@ export async function waitForAuthorityBuyerSummaryGoldenManifest(
       if (goldenManifestId.length > 0) {
         return goldenManifestId;
       }
-    } else if (res.status() !== 404) {
+    } else {
+      const status = res.status();
+
+      // Cold-start / transient API faults: keep polling. Permanent client errors fail fast.
+      if (status === 404 || status >= 500) {
+        await new Promise((r) => setTimeout(r, 1000));
+        continue;
+      }
+
       await throwIfNotOk(res, `GET /v1/authority/runs/${encoded}/buyer-summary`);
     }
 

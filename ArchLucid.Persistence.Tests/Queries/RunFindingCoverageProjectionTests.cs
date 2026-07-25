@@ -52,4 +52,26 @@ public sealed class RunFindingCoverageProjectionTests
         summary.HasCommitBlockingFailures.Should().BeFalse();
         summary.FailedEngineLabels.Should().ContainSingle().Which.Should().Be("cost/Cost");
     }
+
+    [Fact]
+    public void Build_treats_null_engine_failures_and_findings_as_empty()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+            EngineFailures = null!,
+            Findings = null!,
+        };
+
+        (bool degraded, RunFindingCoverageSummary? summary) = RunFindingCoverageProjection.Build(snapshot);
+
+        degraded.Should().BeFalse();
+        summary.Should().NotBeNull();
+        summary!.EnginesFailed.Should().Be(0);
+        summary.HasCommitBlockingFailures.Should().BeFalse();
+    }
 }

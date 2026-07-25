@@ -140,6 +140,7 @@ public sealed class SqlFindingsSnapshotRepository(
                 fromJson.GraphSnapshotId = row.GraphSnapshotId;
                 fromJson.CreatedUtc = row.CreatedUtc;
                 fromJson.SchemaVersion = row.SchemaVersion;
+                CoerceNullFindingsSnapshotLists(fromJson);
                 FindingsSnapshotMigrator.Apply(fromJson);
                 FindingPayloadJsonCodec.HydrateJsonElementPayloads(fromJson.Findings);
                 return fromJson;
@@ -230,16 +231,15 @@ public sealed class SqlFindingsSnapshotRepository(
             if (full is null)
                 return null;
 
+            CoerceNullFindingsSnapshotLists(full);
+
             foreach (Finding finding in full.Findings)
                 finding.Payload = null;
 
             return full;
         }
 
-        List<FindingEngineFailure> engineFailures = [];
-
-        if (!string.IsNullOrWhiteSpace(header.EngineFailuresJson))
-            engineFailures = JsonEntitySerializer.Deserialize<List<FindingEngineFailure>>(header.EngineFailuresJson);
+        List<FindingEngineFailure> engineFailures = TryDeserializeEngineFailures(header.EngineFailuresJson);
 
         return new FindingsSnapshot
         {
@@ -254,6 +254,31 @@ public sealed class SqlFindingsSnapshotRepository(
             EvaluationConfidenceEnrichmentSkipped = header.EvaluationConfidenceEnrichmentSkipped ?? false,
             Findings = findings,
         };
+    }
+
+    /// <summary>
+    /// Soft-fails corrupt/partial <c>JSON_QUERY(...engineFailures)</c> so buyer-summary coverage never 500s.
+    /// </summary>
+    private static List<FindingEngineFailure> TryDeserializeEngineFailures(string? engineFailuresJson)
+    {
+        if (string.IsNullOrWhiteSpace(engineFailuresJson))
+            return [];
+
+        try
+        {
+            return JsonEntitySerializer.Deserialize<List<FindingEngineFailure>>(engineFailuresJson) ?? [];
+        }
+        catch (InvalidOperationException)
+        {
+            return [];
+        }
+    }
+
+    private static void CoerceNullFindingsSnapshotLists(FindingsSnapshot snapshot)
+    {
+        snapshot.EngineFailures ??= [];
+        snapshot.Findings ??= [];
+        snapshot.ChecklistCoverage ??= [];
     }
 
     /// <inheritdoc />

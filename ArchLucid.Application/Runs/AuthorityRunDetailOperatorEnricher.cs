@@ -165,10 +165,18 @@ public sealed class AuthorityRunDetailOperatorEnricher(
             Manifest = BuildTrustManifestFromAuthorityDocument(runHex, detail.Run.ProjectId, detail.GoldenManifest),
         };
 
-        detail.TrustEvidenceCard =
-            await _trustEvidenceCardBuilder
-                .BuildAsync(architectureDetail, hostAgentExecutionMode, cancellationToken)
-                .ConfigureAwait(false);
+        try
+        {
+            detail.TrustEvidenceCard =
+                await _trustEvidenceCardBuilder
+                    .BuildAsync(architectureDetail, hostAgentExecutionMode, cancellationToken)
+                    .ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Buyer SSR must not 500 when trust-card enrichment faults; omit the card instead.
+            detail.TrustEvidenceCard = null;
+        }
 
         // Buyer DTO omits Results; clear so accidental mappers cannot leak marker rows.
         detail.Results = [];

@@ -69,4 +69,31 @@ public sealed class FindingsSnapshotMetadataMergerTests
         snapshot.EngineFailures.Should().ContainSingle(f => f.EngineType == "Cost");
         snapshot.ChecklistCoverage.Should().ContainSingle(f => f.FindingType == "Tagging");
     }
+
+    [Fact]
+    public void MergeFromFindingsJson_coerces_null_engine_failures_and_checklist_to_empty()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            EngineFailures =
+            [
+                new FindingEngineFailure
+                {
+                    EngineType = "Security",
+                    Category = "Security",
+                    ErrorMessage = "prior",
+                    ExceptionType = nameof(InvalidOperationException),
+                },
+            ],
+            ChecklistCoverage = [new Finding { Category = "Prior", FindingType = "Prior" }],
+        };
+
+        FindingsSnapshotMetadataMerger.MergeFromFindingsJson(
+            snapshot,
+            """{"engineFailures":null,"checklistCoverage":null,"generationStatus":"Complete"}""");
+
+        snapshot.EngineFailures.Should().BeEmpty();
+        snapshot.ChecklistCoverage.Should().BeEmpty();
+        snapshot.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.Complete);
+    }
 }

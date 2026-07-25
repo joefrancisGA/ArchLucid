@@ -195,7 +195,10 @@ public sealed class PilotRunDeltaComputer(
     /// <summary>Picks the single highest-severity finding; ties broken by first-seen order to keep output deterministic.</summary>
     private static ArchitectureFinding? SelectTopSeverityFinding(ArchitectureRunDetail detail)
     {
-        return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true).OrderByDescending(static f => (int)f.Severity)
+        return detail.Results
+            .Where(static r => r is not null)
+            .SelectMany(static r => r.Findings ?? [])
+            .OrderByDescending(static f => (int)f.Severity)
             .FirstOrDefault();
     }
 
