@@ -91,7 +91,7 @@ The [`templates/integrations/`](../../../templates/integrations/) folder contain
 
 ## First-party roadmap vs these recipes
 
-When you adopt **managed** ArchLucid connectors, prefer **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)** §1 (**V1.1** first-party program). These **customer-owned** recipes align with the **V1.1** buyer contract for event-driven ITSM/docs automation ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.8, §3) — **V1 GA** emphasizes **REST** / **CLI** / **operator UI** / **§2.16+** per scope.
+When you adopt **managed** ArchLucid connectors, prefer **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)** §1 (**V1.1** first-party program). These **customer-owned** recipes align with the **V1.1** buyer contract for event-driven ITSM/docs automation ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.8, §3) — **V1 GA** emphasizes **REST** / **CLI** / **architect workspace** / **§2.16+** per scope.
 
 - **Jira** + **ServiceNow** + **Confluence** + **Teams** / **Slack** + outbound **webhooks** — **V1.1** committed surfaces per [`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.8, §2.13–§2.15; recipes support **customer-operated** and hybrid topologies.
 

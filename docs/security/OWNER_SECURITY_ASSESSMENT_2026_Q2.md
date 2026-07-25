@@ -11,7 +11,7 @@
 
 **Assessment window (planned):** `2026-04-28` — `2026-04-28`
 
-**Scope in / out:** ArchLucid API surface (ASP.NET Core), operator UI (Next.js), SQL Server persistence layer, Docker container images, Terraform IaC modules, CI pipeline security gates.
+**Scope in / out:** ArchLucid API surface (ASP.NET Core), architect workspace (Next.js), SQL Server persistence layer, Docker container images, Terraform IaC modules, CI pipeline security gates.
 
 **Related templates:** [`PEN_TEST_SOW_TEMPLATE.md`](PEN_TEST_SOW_TEMPLATE.md) (borrow structure for scope), [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md) (buyer index)
 

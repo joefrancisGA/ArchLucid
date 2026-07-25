@@ -1,4 +1,4 @@
-> **Scope:** Procurement, accessibility, and legal reviewers; ITI VPAT® 2.5–style Accessibility Conformance Report (ACR) for ArchLucid **web content** (marketing and operator UI) against **WCAG 2.1 Level A and AA**; not a legal determination of compliance, not covering non-web REST API or CLI except as noted.
+> **Scope:** Procurement, accessibility, and legal reviewers; ITI VPAT® 2.5–style Accessibility Conformance Report (ACR) for ArchLucid **web content** (marketing and architect workspace) against **WCAG 2.1 Level A and AA**; not a legal determination of compliance, not covering non-web REST API or CLI except as noted.
 
 # Accessibility Conformance Report — ArchLucid (VPAT® 2.5 structure, WCAG 2.1)
 

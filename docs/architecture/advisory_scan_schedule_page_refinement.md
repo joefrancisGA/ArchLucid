@@ -91,7 +91,7 @@ Existing gates already hide **Internal Operations** when:
 1. `NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV` is off, or  
 2. Buyer-polished shell without full-operator experience.
 
-**Finding:** A screenshot that shows Internal Operations alongside a sample-style advisory experience is consistent with an **authorized internal operator shell** (feature flag on + full-operator experience), not with public sample / ordinary tenant nav. No valid role behavior was loosened.
+**Finding:** A screenshot that shows Internal Operations alongside a sample-style advisory experience is consistent with an **authorized internal architect workspace** (feature flag on + full-architect experience), not with public sample / ordinary tenant nav. No valid role behavior was loosened.
 
 Tests added/extended:
 

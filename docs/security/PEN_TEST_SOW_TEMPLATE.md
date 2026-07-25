@@ -9,7 +9,7 @@
 
 ## 1. Objective
 
-Authorize a **time-boxed** technical assessment of ArchLucid’s exposed attack surface (web API, operator UI, supporting infrastructure in scope).
+Authorize a **time-boxed** technical assessment of ArchLucid’s exposed attack surface (web API, architect workspace, supporting infrastructure in scope).
 
 ## 2. Scope
 
