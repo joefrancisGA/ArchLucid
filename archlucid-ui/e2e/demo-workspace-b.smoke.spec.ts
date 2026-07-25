@@ -10,7 +10,7 @@ import { expect, test } from "@playwright/test";
 import {
   DEMO_WORKSPACE_B_LIVE_IDS,
   DEMO_WORKSPACE_B_REGULATED_RUN_ID,
-  injectDemoWorkspaceOperatorScope,
+  openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
@@ -23,7 +23,6 @@ import {
 } from "./helpers/live-api-client";
 import {
   ensureBuyerDeliverablesSectionExpanded,
-  expectBuyerPolishedReviewDetailShellReady,
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
   openReviewDetailWorkspaceTab,
@@ -131,10 +130,11 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
       demoWorkspacesFixtureManifest.workspaceB.expectedCommittedFindingCount,
     );
 
-    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_B_LIVE_IDS);
-    await page.goto(`/reviews/${DEMO_WORKSPACE_B_REGULATED_RUN_ID}`, { waitUntil: "domcontentloaded" });
-
-    await expectBuyerPolishedReviewDetailShellReady(page);
+    await openDemoWorkspaceReviewDetailShellReady(
+      page,
+      DEMO_WORKSPACE_B_LIVE_IDS,
+      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+    );
     await expectBuyerPolishedReviewDetailWorkspaceCore(page);
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "overview");

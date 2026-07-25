@@ -9,7 +9,10 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export function RunDetailPageMalformedResponseView(props: { readonly message: string }): React.JSX.Element {
   return (
     <RunDetailMinimalChromeMount>
-      <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
+      <div
+        className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
+        data-testid="run-detail-load-failure"
+      >
         <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
         <OperatorMalformedCallout>
           <strong>Review detail response was not usable.</strong>

@@ -37,7 +37,10 @@ export function RunDetailPageFetchErrorView(props: {
 
   if (props.loadFailure !== null && isApiTransientLoadFailure(props.loadFailure)) {
     return (
-      <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
+      <div
+        className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
+        data-testid="run-detail-load-failure"
+      >
         <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
         <OperatorBrandedTransientFailure
           failure={props.loadFailure}
@@ -49,7 +52,10 @@ export function RunDetailPageFetchErrorView(props: {
   }
 
   return (
-    <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
+    <div
+      className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
+      data-testid="run-detail-load-failure"
+    >
       <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
       <OperatorApiProblem
         problem={props.loadFailure?.problem ?? null}

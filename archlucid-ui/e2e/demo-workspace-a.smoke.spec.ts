@@ -7,14 +7,13 @@ import { expect, test } from "@playwright/test";
 import {
   DEMO_WORKSPACE_A_LIVE_IDS,
   DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
-  injectDemoWorkspaceOperatorScope,
+  openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
 import { liveApiBase } from "./helpers/live-api-client";
 import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPipelineTimelineSectionVisible,
-  expectBuyerPolishedReviewDetailShellReady,
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
   openReviewDetailWorkspaceTab,
@@ -35,10 +34,11 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
   test("canonical Product Tour reviewer shell loads with evidence, findings, finalized record, exports", async ({ page }) => {
     test.setTimeout(240_000);
 
-    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
-    await page.goto(`/reviews/${DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID}`, { waitUntil: "domcontentloaded" });
-
-    await expectBuyerPolishedReviewDetailShellReady(page);
+    await openDemoWorkspaceReviewDetailShellReady(
+      page,
+      DEMO_WORKSPACE_A_LIVE_IDS,
+      DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+    );
     await expectBuyerPolishedReviewDetailWorkspaceCore(page);
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID, "findings");

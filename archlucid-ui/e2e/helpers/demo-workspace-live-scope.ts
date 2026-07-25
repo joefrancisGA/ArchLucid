@@ -10,6 +10,10 @@ import {
 } from "@/lib/operator-scope-cookie";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
+import {
+  expectBuyerPolishedReviewDetailShellReady,
+  gotoLiveRunDetailPage,
+} from "./operator-journey";
 
 const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
 
@@ -105,4 +109,31 @@ export async function injectDemoWorkspaceOperatorScope(
   // Init script only runs on navigations after registration — reload once so localStorage and
   // document.cookie mirror the SSR cookie before isolated-tenant run-detail RSC hydration.
   await page.goto("/", { waitUntil: "domcontentloaded" });
+}
+
+/**
+ * Opens a SQL-backed demo workspace run detail with one cold-start retry.
+ * First RSC flight can miss the scope cookie or hit a transient API fault (same pattern as
+ * `live-api-journey.spec.ts`).
+ */
+export async function openDemoWorkspaceReviewDetailShellReady(
+  page: Page,
+  scope: DemoWorkspaceScopeIds,
+  runId: string,
+  options?: { readonly timeoutMs?: number },
+): Promise<void> {
+  const firstTimeoutMs = options?.timeoutMs ?? 60_000;
+
+  await injectDemoWorkspaceOperatorScope(page, scope);
+  await gotoLiveRunDetailPage(page, runId);
+
+  try {
+    await expectBuyerPolishedReviewDetailShellReady(page, { timeoutMs: firstTimeoutMs });
+  } catch {
+    await injectDemoWorkspaceOperatorScope(page, scope);
+    await gotoLiveRunDetailPage(page, runId);
+    await expectBuyerPolishedReviewDetailShellReady(page, {
+      timeoutMs: Math.max(firstTimeoutMs, 120_000),
+    });
+  }
 }
