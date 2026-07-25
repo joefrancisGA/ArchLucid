@@ -23,7 +23,7 @@ Give tenant admins and sales engineers **one short narrative** for what **V1.1**
 
 ## 4. Architecture overview
 
-**V1** ships a working tenant-isolated control plane + SQL persistence + HTTP API + operator UI. **V1.1** is expected to layer **buyer-visible optional capabilities** and commercial milestones that were explicitly deferred out of **V1** scoring — principally items summarized in **`V1_DEFERRED.md`** §**6b** (commerce un-hold), §**6d** (MCP / agent ecosystem documentation commitments), and §**6a** (Slack interactive approvals as a **V1.1** UX slice).
+**V1** ships a working tenant-isolated control plane + SQL persistence + HTTP API + architect workspace. **V1.1** is expected to layer **buyer-visible optional capabilities** and commercial milestones that were explicitly deferred out of **V1** scoring — principally items summarized in **`V1_DEFERRED.md`** §**6b** (commerce un-hold), §**6d** (MCP / agent ecosystem documentation commitments), and §**6a** (Slack interactive approvals as a **V1.1** UX slice).
 
 Data-plane isolation boundaries (**tenant / workspace / project** scopes, audit semantics, authority workflows) remain the spine; **V1.1** changes should present as **additive features**, **configuration**, or **documented breaking deltas** rather than silent behavioral drift.
 

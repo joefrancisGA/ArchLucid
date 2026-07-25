@@ -3,7 +3,7 @@
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Onboarding wizards (operator UI)
+# Onboarding wizards (architect workspace)
 
 > **Install order moved.** See [INSTALL_ORDER.md](../engineering/INSTALL_ORDER.md). This page describes in-product routes only (week-one tasks after install).
 

@@ -110,4 +110,4 @@ This is **V2+** scope: requires caching, PII review (embeddings of customer text
 
 ## UI: provenance graph
 
-The operator UI (`archlucid-ui`) renders coordinator provenance with `ProvenanceGraphDiagram`: layered SVG (snapshots → findings → decisions → manifest → artifacts), click-to-scroll to the nodes table, and a type/color legend. No extra npm dependencies.
+The architect workspace (`archlucid-ui`) renders coordinator provenance with `ProvenanceGraphDiagram`: layered SVG (snapshots → findings → decisions → manifest → artifacts), click-to-scroll to the nodes table, and a type/color legend. No extra npm dependencies.

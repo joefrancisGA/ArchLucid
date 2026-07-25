@@ -20,9 +20,9 @@
 | --- | --- | --- | --- |
 | **1** | Confirm platform prerequisites | `.\scripts\Test-ArchLucidPrerequisites.ps1 -Profile FirstPilotMinimum` | No **BLOCK** rows |
 | **2** | Run first-run preflight | `dotnet run --project ArchLucid.Cli -- --json pilot preflight` | No **BLOCK** rows |
-| **3** | Readiness-only proof (no committed review yet) | `.\scripts\collect-first-pilot-proof.ps1` | `first-pilot-command-center.md` shows phased status |
-| **4** | Sign in and start one architecture review | Operator UI `/reviews/new` or `POST /v1/architecture/request` | `runId` captured |
-| **5** | Commit the review package | `POST /v1/architecture/run/{runId}/commit` (or UI finalize) | `goldenManifestId` present |
+| **3** | Readiness-only proof (no finalized architecture package yet) | `.\scripts\collect-first-pilot-proof.ps1` | `first-pilot-command-center.md` shows phased status |
+| **4** | Sign in and start one architecture review | Architect workspace `/reviews/new` or `POST /v1/architecture/request` | `runId` captured |
+| **5** | Finalize the architecture package | `POST /v1/architecture/run/{runId}/commit` (or UI Finalize) | `goldenManifestId` present |
 | **6** | Collect committed-run proof | `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId>` | `first-pilot-evidence/first-value-report.md` attached |
 | **7** | Sponsor handoff only when SEND-eligible | `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId> -SponsorHandoff -FailOnHold` | `sponsorPacketDisposition` not **HOLD**; `sendEligible` true |
 

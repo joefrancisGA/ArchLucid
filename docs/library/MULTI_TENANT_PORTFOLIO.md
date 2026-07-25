@@ -6,7 +6,7 @@
 
 `GET /v1/roi/cross-tenant-portfolio` aggregates ROI and risk metrics across every tenant an identity can access, subject to **k-anonymity** (at least five active tenants).
 
-The standalone **Portfolio Dashboard** route (`/portfolio`) is **retired**; it permanently redirects to **Executive dashboard** (`/dashboard`), which is the canonical portfolio-overview surface in the operator shell.
+The standalone **Portfolio Dashboard** route (`/portfolio`) is **retired**; it permanently redirects to **Executive dashboard** (`/dashboard`), which is the canonical portfolio-overview surface in the architect workspace.
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ ArchLucid uses this key to resolve which tenants belong to the same directory us
 1. Sign in through Entra ID (not a dev-bypass principal without object-id claims).
 2. Confirm the token carries `oid` (decode JWT in your IdP test harness or API logs).
 3. Ensure the user has **ReadAuthority** (or higher) on each tenant that should appear in the portfolio.
-4. Verify at least **five** tenants with committed reviews if you expect numeric tiles (k-anonymity gate).
+4. Verify at least **five** tenants with finalized architecture packages if you expect numeric tiles (k-anonymity gate).
 
 Tenant-level SCIM role mapping and scope headers still apply per tenant; portfolio is a read-only rollup, not a scope bypass.
 

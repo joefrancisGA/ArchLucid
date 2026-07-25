@@ -18,7 +18,7 @@ Use this quick-reference to find where to make changes in the ArchLucid codebase
   - Look in `Repositories/` for data access.
   - SQL Migrations live in `ArchLucid.Persistence/Migrations/`. Remember to add your `.sql` file as an Embedded Resource.
 
-## 3. Editing the Operator UI
+## 3. Editing the architect workspace
 **"I need to change a React component or screen."**
 - **Location:** `archlucid-ui/src/`
 - **What to know:**
@@ -50,7 +50,7 @@ Use this quick-reference to find where to make changes in the ArchLucid codebase
 
 ## 7. Before Opening a PR
 **"What else must I update for this change type?"**
-- **Checklist:** [`CHANGE_IMPACT_CHECKLIST.md`](CHANGE_IMPACT_CHECKLIST.md) covers API routes/DTOs, SQL, config, operator UI, commercial tiers, audit events, retrieval/agent behavior, pricing/trust docs, and V1 scope boundaries.
+- **Checklist:** [`CHANGE_IMPACT_CHECKLIST.md`](CHANGE_IMPACT_CHECKLIST.md) covers API routes/DTOs, SQL, config, architect workspace, commercial tiers, audit events, retrieval/agent behavior, pricing/trust docs, and V1 scope boundaries.
 - **Generated map:** [`MAINTAINABILITY_BOUNDARY_MAP.generated.md`](MAINTAINABILITY_BOUNDARY_MAP.generated.md) (regenerate with `python scripts/ci/generate_maintainability_boundary_map.py`).
 - **Change checklist (controller → app → SQL → audit):** [`GOLDEN_CHANGE_PATH.md`](GOLDEN_CHANGE_PATH.md).
 

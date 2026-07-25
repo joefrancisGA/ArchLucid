@@ -1,6 +1,6 @@
 > **Scope:** Engineering backlog deferred past V1 UI contract work; aligns with migration of core authority types to OpenAPI-backed aliases and `/api/proxy` verb parity. Not a buyer document.
 
-# Operator UI architecture — deferred to V1.1
+# Architect workspace architecture — deferred to V1.1
 
 Baseline V1 commitments already shipped:
 

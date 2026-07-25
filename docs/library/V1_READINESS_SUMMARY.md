@@ -13,7 +13,7 @@
 
 ## One-paragraph verdict
 
-The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (DbUp), operator UI, CLI, health/version, support bundle, compare/replay/export surfaces, and documented pilot paths. **Self-serve SaaS trial** is covered by a **merge-blocking** live spec ([`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`(../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts), runbook [TRIAL_END_TO_END.md](../runbooks/TRIAL_END_TO_END.md)) in **`ui-e2e-live`**. **Operational completeness** (your deploy, auth, SQL, and recovery drills) is **your checklist**, not something the repo can sign for you. Remaining gaps are mostly **compliance/audit coverage** in specific flows and **staging validation** beyond CI: **`ui-axe-components`** runs fast **Vitest + jest-axe** on shell components, while **`ui-e2e-live`** is the **merge-blocking** **browser** gate running the full **`live-api-*.spec.ts`** suite (including the trial acceptance spec above, plus happy path, conflict, governance rejection, negative paths, advisory/replay/compare/policy packs, alerts, search/graph, digest subscriptions, concurrency, archival smoke, **live axe**) against **real API + SQL** (see [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md))—still not a substitute for your own staging validation.
+The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (DbUp), architect workspace, CLI, health/version, support bundle, compare/replay/export surfaces, and documented pilot paths. **Self-serve SaaS trial** is covered by a **merge-blocking** live spec ([`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`(../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts), runbook [TRIAL_END_TO_END.md](../runbooks/TRIAL_END_TO_END.md)) in **`ui-e2e-live`**. **Operational completeness** (your deploy, auth, SQL, and recovery drills) is **your checklist**, not something the repo can sign for you. Remaining gaps are mostly **compliance/audit coverage** in specific flows and **staging validation** beyond CI: **`ui-axe-components`** runs fast **Vitest + jest-axe** on shell components, while **`ui-e2e-live`** is the **merge-blocking** **browser** gate running the full **`live-api-*.spec.ts`** suite (including the trial acceptance spec above, plus happy path, conflict, governance rejection, negative paths, advisory/replay/compare/policy packs, alerts, search/graph, digest subscriptions, concurrency, archival smoke, **live axe**) against **real API + SQL** (see [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md))—still not a substitute for your own staging validation.
 
 ---
 
@@ -77,7 +77,7 @@ If those pass **in the environment you hand off**, the repo is **aligned** with 
 
 Ordered by **typical leverage**, not mandatory roadmap:
 
-1. **Live API + operator UI** validation pass where Playwright mocks are insufficient (record outcome in release notes).
+1. **Live API + architect workspace** validation pass where Playwright mocks are insufficient (record outcome in release notes).
 2. **Audit coverage** closes you care about for compliance ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md)).
 3. **Maintainer backlog** ([NEXT_REFACTORINGS.md](NEXT_REFACTORINGS.md))—engineering hygiene, not pilot-blocking by default.
 

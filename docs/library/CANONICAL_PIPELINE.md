@@ -4,7 +4,7 @@
 
 **Objective:** Give operators and sponsors a single mental model for how work flows from request to committed manifest and artifacts, without implementation seam vocabulary.
 
-**Assumptions:** You use the operator UI or public APIs with a normal tenant scope. Storage is SQL-backed with row-level security.
+**Assumptions:** You use the architect workspace or public APIs with a normal tenant scope. Storage is SQL-backed with row-level security.
 
 **Constraints:** Detailed contributor maps and ADR receipts live under `docs/architecture/adrs/` and `docs/archive/dual-pipeline-navigator-superseded.md` for engineering-only deep dives.
 
@@ -31,7 +31,7 @@ flowchart LR
 ## Where to read next
 
 - [`ARCHITECTURE_FLOWS.md`](ARCHITECTURE_FLOWS.md) — narrative lifecycle and API touchpoints.
-- [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) — operator UI checklist for first successful review; HTTP-level parity in [`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md).
+- [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) — architect workspace checklist for first successful review; HTTP-level parity in [`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md).
 - [`OPERATOR_ATLAS.md`](OPERATOR_ATLAS.md) — task → UI map.
 - [`API_CONTRACTS.md`](API_CONTRACTS.md) — stable HTTP contracts.
 

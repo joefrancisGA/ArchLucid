@@ -19,7 +19,7 @@
 
 - **API / Worker:** Only **`ConnectionStrings:ArchLucid`**, **`ArchLucid:*`**, and **`ArchLucidAuth:*`** are honored. If legacy keys are still present in configuration (for example Key Vault secret names mapped to old keys), **`ArchLucidLegacyConfigurationWarnings`** logs a **single warning** at startup listing which legacy keys were detected; those values are **not** applied.
 - **CLI:** Global tool command is **`archlucid`**; project manifest file is **`archlucid.json`** (with a one-time stderr notice if only the legacy manifest filename exists).
-- **Operator UI:** Only **`ARCHLUCID_*`** / **`NEXT_PUBLIC_ARCHLUCID_*`** are read; obsolete operator env names trigger a **console warning** and are ignored (see **`BREAKING_CHANGES.md`**).
+- **Architect workspace:** Only **`ARCHLUCID_*`** / **`NEXT_PUBLIC_ARCHLUCID_*`** are read; obsolete architect-workspace env names trigger a **console warning** and are ignored (see **`BREAKING_CHANGES.md`**).
 
 ## Historical context
 

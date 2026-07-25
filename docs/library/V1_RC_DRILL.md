@@ -74,7 +74,7 @@ curl -s "$BASE/version"
 
 ## Phase 2 — Create request → execute → commit (two reviews)
 
-You need **two committed reviews** (two **`runId`** values in the API) for compare and for authority run-level diff. Use **distinct** `requestId` values.
+You need **two finalized architecture packages** (two **`runId`** values in the API) for compare and for authority run-level diff. Use **distinct** `requestId` values.
 
 **Goal:** Two reviews, each **Created → executed → committed** with a **golden manifest** and **artifacts**.
 
@@ -91,7 +91,7 @@ You need **two committed reviews** (two **`runId`** values in the API) for compa
 
 Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or description) so compare has meaningful deltas.
 
-**CLI alternative (Development, one review):** [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) **`new`** + **`run --quick`** creates one committed review quickly; still create a **second** review (HTTP or second CLI project) for compare.
+**CLI alternative (Development, one review):** [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) **`new`** + **`run --quick`** creates one finalized architecture package quickly; still create a **second** review (HTTP or second CLI project) for compare.
 
 **Pass criteria:** Both reviews show **`goldenManifestId`**; no unexpected **5xx**; commit returns **200** (a second commit on an already-committed `runId` is **200** idempotent per **`API_CONTRACTS.md`**).
 
@@ -102,7 +102,7 @@ Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or
 | Step | Action | Pass criteria |
 |------|--------|----------------|
 | 3.1 | `GET /v1/artifacts/manifests/{goldenManifestId}` | **200**; JSON **array** with **≥ 1** descriptor for each review (`runId`) you care about (empty array is valid only if you explicitly expect no synthesized rows—usually **not** for RC) |
-| 3.2 | Open **operator UI** (optional): **Runs** (review list) → run → **Manifest** / **Artifacts** | List matches API; **Review** / download works ([operator-shell.md](operator-shell.md)) |
+| 3.2 | Open **architect workspace** (optional): **Runs** (review list) → run → **Manifest** / **Artifacts** | List matches API; **Review** / download works ([operator-shell.md](operator-shell.md)) |
 | 3.3 | `GET /v1/artifacts/manifests/{goldenManifestId}/bundle` (optional) | **200** ZIP, or **404** with documented problem type when no bundle (distinct from unknown manifest—[API_CONTRACTS.md](API_CONTRACTS.md)) |
 
 ---

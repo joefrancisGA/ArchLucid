@@ -84,7 +84,7 @@ dotnet test ArchLucid.Persistence.Tests --filter "Category=SqlServerContainer"
 dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~GreenfieldSqlBoot" -c Release --settings coverage.runsettings
 ```
 
-### Operator UI (`archlucid-ui/`)
+### Architect workspace (`archlucid-ui/`)
 
 **Vitest** (jsdom, fast — minimal harness):
 

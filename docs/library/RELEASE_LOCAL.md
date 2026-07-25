@@ -7,7 +7,7 @@
 
 Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the **ArchLucid** API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc). **Pilot narrative:** [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md). **Canonical RC order:** [RC_CANONICAL_RELEASE_FLOW.md](RC_CANONICAL_RELEASE_FLOW.md).
 
-**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download), SQL Server when using `ArchLucid:StorageProvider=Sql`, and optionally **Node.js 22+** for operator UI build/tests. See [../engineering/../engineering/BUILD.md](../engineering/BUILD.md) and [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
+**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download), SQL Server when using `ArchLucid:StorageProvider=Sql`, and optionally **Node.js 22+** for architect workspace build/tests. See [../engineering/../engineering/BUILD.md](../engineering/BUILD.md) and [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
 
 ---
 
@@ -51,7 +51,7 @@ dotnet test ArchLucid.sln `
 | **`checksums-sha256.txt`** | One line per published file: `<lowercase-hex>  api/relative/path` (same order as `apiPublishFiles` in the manifest) |
 | **`PACKAGE-HANDOFF.txt`** | Short human-readable summary for design partners (what each file is, how to run `dotnet ArchLucid.Api.dll`) |
 
-The operator UI remains developed from `archlucid-ui/` in the repo (or deploy via your host’s Node/Next workflow); it is **not** copied into `artifacts/release/` except as noted in the manifest.
+The architect workspace remains developed from `archlucid-ui/` in the repo (or deploy via your host’s Node/Next workflow); it is **not** copied into `artifacts/release/` except as noted in the manifest.
 
 ---
 
@@ -90,7 +90,7 @@ Defaults for URLs are in `ArchLucid.Api/Properties/launchSettings.json` when dev
 
 ---
 
-## Run the operator UI locally
+## Run the architect workspace locally
 
 From repo `archlucid-ui/`:
 

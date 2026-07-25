@@ -86,7 +86,7 @@ Architect workspace proxy (production-like): set `ARCHLUCID_PROXY_TRUST_SERVER_S
 | 2 | Start API + UI (`start-local-api-and-ui.ps1` or your host runbook) | [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) |
 | 3 | Confirm `/health/live` and `/health/ready` | [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) |
 | 4 | Run one CLI pilot or UI **New review → execute → commit** | [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
-| 5 | Open committed review detail — verify cost, trust card, decision summary, governance alerts | [`OPERATOR_ATLAS.md`](OPERATOR_ATLAS.md) |
+| 5 | Open finalized architecture package detail — verify cost, trust card, decision summary, governance alerts | [`OPERATOR_ATLAS.md`](OPERATOR_ATLAS.md) |
 | 6 | Export package or sponsor briefing only after step 4 succeeds | [`PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md) |
 
 Pilot onboarding spine: [`customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md).
