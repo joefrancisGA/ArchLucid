@@ -2,17 +2,17 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
+**Updated:** 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 16 |
-| Testability | 28 |
+| Testability | 29 |
 | Reliability | 19 |
 | Deployability | 18 |
-| AI/Agent readiness | 10 |
+| AI/Agent readiness | 11 |
 | Architectural integrity | 12 |
-| Adoption friction | 182 |
+| Adoption friction | 181 |
 | Commercial / marketability | 14 |
 | Data consistency | 7 |
 | Cutting-edge AI | 9 |
@@ -28,7 +28,7 @@
 | Cost-effectiveness | 10 |
 | Supportability | 15 |
 | Code hygiene | 11 |
-| **Total (unique)** | **~422** |
+| **Total (unique)** | **~424** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1ΓåÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ┬º6/┬º6a); **TB-599ΓÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ΓÇö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -216,6 +216,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-1161 — TB-1165** were added 2026-07-25 from an **owner review of ServiceNow** at `/integrations/servicenow` (scored ~50/100). Note: dedicated `ServiceNowIntegrationPageClient` (not shared Jira `ItsmProductIntegrationPageClient`). Findings: amber admin-must-configure banner + status next-step with **no primary CTA** (admin ITSM link buried in collapsed Platform operator notes); `Promise.all` load wipe; `loadError` pasted into Connection status; Incident creation Save stays primary while credentials missing; Setup Progress + three sections empty theater. **TB-1161** (P0) guided admin CTA. **TB-1162** (P0) isolate load failures. **TB-1163** (P0) sanitize status errors. **TB-1164** (P0) demote incident settings. **TB-1165** (P0) empty composition. No new GTM IDs.
 
 **TB-1156 — TB-1157** were added 2026-07-25 from the owner / PA question: *Commit path projects agent proposals into authority GoldenManifest via a single projection builder and hashes a canonical content subset for drift — what fails when canonical projection and persisted manifest evolve independently, and how do we make hasher changes impossible without deliberate baseline re-lock?* Finding: **two** hashers — production `ManifestHashService` over authority `ManifestDocument` (excludes `CreatedUtc`; no hasher version) vs cohort `GoldenManifestFingerprint.ComputeContentSha256Hex` over contract projection (excludes `RunId` / `CreatedUtc` / `DecisionTraceIds`; has lock-baseline ritual). Gaps: (1) no PA dual-hasher / lossy-projection failure-mode matrix, (2) production hasher subset changes can ship without deliberate re-lock (cohort has `lock-baseline` + env approval; production does not). **TB-1156** (P1) contract. **TB-1157** (P1) re-lock CI. GTM: **M-198**/**M-199**. Does **not** reopen Done **TB-307**/**TB-575**.
+
+**TB-1196 — TB-1197** were added 2026-07-25 from the owner / PA question: *Multi-agent execution (Topology, Compliance, Cost, Critic) is deterministic in Simulator but non-deterministic against real LLMs — how should the contract between agent output and downstream decisioning be designed so Real-mode variance cannot corrupt committed manifests?* Finding: authority decide already uses typed finding engines + `RuleBasedDecisionEngine`; Real variance mainly enters via **topology proposal overlay** at commit (`AgentTopologyProposalGraphMerge`) and legacy prose→governance paths; quality gate can be WarnOnly. Gaps: (1) PA contract — structured proposals only, validate-before-overlay, decide from typed findings/graph, fail-closed quality on commit-eligible Real, mode-labeled persistence, (2) honesty CI against “LLM text is the package” / unvalidated overlay. **TB-1196** (P1) contract. **TB-1197** (P1) honesty CI. GTM: **M-203**/**M-204**. Complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**.
 
 **TB-1179 — TB-1182** were added 2026-07-25 from an **owner review of the Projects recycle bin** at `/settings/tenant/recycle-bin` (Claims Intake Demo — scored ~58/100; owner: *"I am not even sure how to delete a project"*). Findings: API `DELETE /v1/tenant/workspaces/{workspaceId}/projects/{projectId}` exists but **no UI surface calls it** — the recycle bin restores projects that can only be deleted via raw API; page copy references an unnamed "retention period" twice while `ArchitectureProjectRetentionPurgeOptions.RetentionDays` + purge worker exist backend-side and the DTO omits any purge date; the only in-page entry link is buried in the collapsed **Technical details — routing scope** disclosure on Tenant settings; restore/error feedback is ad-hoc colored paragraphs (409 conflict looks like success) and `space-y-6` off operator density. **TB-1179** (P0) governed delete affordance. **TB-1180** (P0) retention transparency (API + UI). **TB-1181** (P0) unbury entry point. **TB-1182** (P0) status presentation + density. No new GTM IDs. (IDs start at **TB-1179**; **TB-1174**–**TB-1178** taken same day by the Teams cluster.)
 
@@ -423,7 +425,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1034 | Strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR; see `## TB-1034` below | Architectural integrity P1 — **V1**; PA Q20 2026-07-25; GTM **M-184**/**M-185**; complements **TB-1007** / Done **TB-919** / ADR 0042 | M |
 | TB-1035 | Anti-dual-default-run-lifecycle / result-as-finalize / legacy-coordinator-storage honesty CI; see `## TB-1035` below | Testability P1 — **V1**; after **TB-1034**; pairs **M-184** | S |
 | TB-1036 | **Done** (2026-07-25) — Operator Overview empty-state next-best-action hierarchy — never lead with Review open findings when findings=0; see `## TB-1036` below | Adoption friction P0 — **V1**; owner Overview empty-state review 2026-07-25; complements Done **TB-739** / `resolvePilotNextBestAction` | S |
-| TB-1037 | Suppress Overview zero-theater — metrics / median-delta / savings until real data; see `## TB-1037` below | Adoption friction P0 — **V1**; after or with **TB-1036**; extends Done **TB-349** (ROI baseline only) | S |
+| TB-1037 | **Done** (2026-07-25) — Suppress Overview zero-theater — metrics / median-delta / savings until real data; see `## TB-1037` below | Adoption friction P0 — **V1**; after or with **TB-1036**; extends Done **TB-349** (ROI baseline only) | S |
 | TB-1038 | Single Do-this-next empty-home card from setup readiness; see `## TB-1038` below | Adoption friction P0 — **V1**; after **TB-1036**; demotes competing Learn how / View workflow | S |
 | TB-1039 | **Done** (2026-07-25) — Demo/seeded workspace Overview lands on sample package (not empty shell); see `## TB-1039` below | Adoption friction P0 — **V1**; after **TB-1036**; pairs `DEMO_WORKSPACES.md` / showcase pins | M |
 | TB-1040 | `/help/core-pilot` single primary CTA + remove recursive View pilot guide; see `## TB-1040` below | Adoption friction P0 — **V1**; owner help-page review 2026-07-25 (~64/100) | S |
@@ -483,7 +485,28 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1175 | Teams draft vs saved honesty (prefilled recommended + example fields); see ## TB-1175 below | Trustworthiness P0 — **V1**; with **TB-1174** | S |
 | TB-1176 | Teams CTA hierarchy — Validate → Test → Save + disabled-test reason; see ## TB-1176 below | Adoption friction P0 — **V1**; with **TB-1174** | S |
 | TB-1177 | Teams operator spacing density (`space-y-8` / `py-8` → operator tokens); see ## TB-1177 below | Adoption friction P0 — **V1**; with **TB-1174**; cf. **TB-1170** | XS |
-| TB-1178 | Teams help-link dedupe (header vs aside footer); see ## TB-1178 below | Adoption friction P0 — **V1**; with **TB-1174** | XS |
+| TB-1178 | Teams help-link dedupe (header vs aside footer); see ## TB-1178 below | Adoption friction P0 — **V1**; with **TB-1174**; after **TB-1183** | XS |
+| TB-1183 | Teams page — remove Slack notifications cross-link; see ## TB-1183 below | Adoption friction P0 — **V1**; owner `/integrations/teams` 2026-07-25; with **TB-1178** | XS |
+| TB-1184 | Teams page — help as icon + caption in PageHeading actions; see ## TB-1184 below | Adoption friction P0 — **V1**; owner `/integrations/teams` 2026-07-25; with **TB-1178**/**TB-1183** | S |
+| TB-1185 | Slack page — remove Teams notifications cross-link; see ## TB-1185 below | Adoption friction P0 — **V1**; owner `/integrations/slack` ~57/100 2026-07-25; parity **TB-1183** | XS |
+| TB-1186 | Slack not-configured — StatusTag + guided next step; see ## TB-1186 below | Adoption friction P0 — **V1**; with **TB-1185** | S |
+| TB-1187 | Slack page — help as icon + caption in PageHeading actions; see ## TB-1187 below | Adoption friction P0 — **V1**; with **TB-1185**; parity **TB-1184** | S |
+| TB-1188 | Slack help/readiness link dedupe (header vs aside); see ## TB-1188 below | Adoption friction P0 — **V1**; with **TB-1185**/**TB-1187** | XS |
+| TB-1189 | Slack operator spacing density; see ## TB-1189 below | Adoption friction P0 — **V1**; with **TB-1185**; cf. **TB-1177** | XS |
+| TB-1190 | Slack CTA hierarchy — Test → Save on add form; see ## TB-1190 below | Adoption friction P0 — **V1**; with **TB-1186** | S |
+| TB-1191 | Webhooks page — remove Jira/ServiceNow/Teams/Slack cross-link strip; see ## TB-1191 below | Adoption friction P0 — **V1**; owner `/integrations/webhooks` ~56/100 2026-07-25; parity **TB-1183**/**TB-1185** | XS |
+| TB-1192 | Webhooks not-configured — StatusTag + guided next step; see ## TB-1192 below | Adoption friction P0 — **V1**; with **TB-1191** | S |
+| TB-1193 | Webhooks page — help as icon + caption in PageHeading actions; see ## TB-1193 below | Adoption friction P0 — **V1**; with **TB-1191**; parity **TB-1184**/**TB-1187** | S |
+| TB-1194 | Webhooks operator spacing density; see ## TB-1194 below | Adoption friction P0 — **V1**; with **TB-1191**; cf. **TB-1177**/**TB-1189** | XS |
+| TB-1195 | Webhooks empty composition — suppress zero theater; see ## TB-1195 below | Adoption friction P0 — **V1**; with **TB-1192** | S |
+| TB-1198 | Settings hub — emptyStateHint only when actually empty (no static lies); see ## TB-1198 below | Trustworthiness P0 — **V1**; owner `/settings` ~52/100 2026-07-25 | S |
+| TB-1199 | Settings hub — remove fake Last updated chip; see ## TB-1199 below | Trustworthiness P0 — **V1**; with **TB-1198** | XS |
+| TB-1200 | Settings hub — remove Recent changes empty theater; see ## TB-1200 below | Adoption friction P0 — **V1**; with **TB-1199** | S |
+| TB-1201 | Settings hub — PageHeading icon + PageContextualHelpButton; see ## TB-1201 below | Adoption friction P0 — **V1**; with **TB-1198**; parity **TB-1184** | S |
+| TB-1202 | Settings hub — section nav same-page jumps as links; see ## TB-1202 below | Adoption friction P0 — **V1**; a11y baseline; with **TB-1201** | XS |
+| TB-1203 | Settings hub — demote Scope/Source/Status meta density on destination cards; see ## TB-1203 below | Adoption friction P0 — **V1**; with **TB-1198** | S |
+| TB-1196 | Agent→decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 — **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
+| TB-1197 | Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI; see `## TB-1197` below | Testability P1 — **V1**; after **TB-1196**; pairs **M-203** | S |
 | TB-1179 | Project deletion has no UI — governed delete affordance; see ## TB-1179 below | Adoption friction P0 — **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
 | TB-1180 | Recycle bin retention transparency — actual window + purge date; see ## TB-1180 below | Trustworthiness P0 — **V1**; with **TB-1179**; API + UI | M |
 | TB-1181 | Recycle bin discoverability — unbury entry from Technical details disclosure; see ## TB-1181 below | Adoption friction P0 — **V1**; after **TB-1179** | S |
@@ -26654,7 +26677,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-07-25) — empty Overview hides zero KPIs / median-delta / empty savings chrome (`26ff326035`).
 
 **Priority:** P0.
 
@@ -28383,20 +28406,79 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Source:** Owner `/integrations/teams` screenshot 2026-07-25.
 
-**Problem:** The same three links (**Microsoft Teams notification help** · **Integration readiness** · **Slack notifications**) appear under the page heading and again at the bottom of `TeamsIntegrationAside`. Duplicate chrome adds noise without adding a second job.
+**Problem:** The same help-link cluster appears under the page heading and again at the bottom of `TeamsIntegrationAside`. Duplicate chrome adds noise without adding a second job. (Cross-product **Slack notifications** removal is **TB-1183** — do not reintroduce Slack while deduping.)
 
 **Approach:**
 
-1. Keep the link cluster in one place only (prefer header under `PageHeading`, or aside footer — not both).
+1. Keep the remaining link cluster in one place only (prefer header under `PageHeading`, or aside footer — not both).
 2. Vitest: only one occurrence of the Teams help link cluster on the page.
 
-**Acceptance:** Help/readiness/Slack links render once per Teams page load.
+**Acceptance:** Remaining help/readiness links (post-**TB-1183**) render once per Teams page load.
 
-**Depends on:** Prefer with **TB-1174**.
+**Depends on:** Prefer with **TB-1174**. Prefer after or with **TB-1183**.
 
-**Out of scope:** Rewriting help content destinations.
+**Out of scope:** Rewriting help content destinations; Slack link removal (**TB-1183**).
 
 **Size estimate:** XS.
+
+---
+
+## TB-1183 — Teams page — remove Slack notifications cross-link (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner note 2026-07-25 — `/integrations/teams` should not mention Slack; there is no reason to cross-link Slack on a Teams page.
+
+**Problem:** `TeamsNotificationsIntegrationPageView` and `TeamsIntegrationAside` both render a **Slack notifications** link (`INTEGRATIONS_SLACK_PATH`). Operators configuring Microsoft Teams do not need a sibling-product hop; the link is irrelevant chrome and implies Teams and Slack setup are interchangeable on this surface.
+
+**Approach:**
+
+1. Remove the Slack notifications link (and `INTEGRATIONS_SLACK_PATH` import if unused) from the Teams page view and aside.
+2. Leave Slack discoverable via Integrations nav / Slack’s own page — not from Teams.
+3. Vitest: Teams page has no href/text for Slack notifications.
+4. Coordinate with **TB-1178** so dedupe does not keep Slack in either location.
+
+**Acceptance:** `/integrations/teams` has zero Slack notifications links or Slack setup mentions in the page chrome.
+
+**Depends on:** None. Prefer with **TB-1178**.
+
+**Out of scope:** Changing Slack page content; removing Slack from the Integrations sidebar.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1184 — Teams page — help as icon + caption in PageHeading actions (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner note 2026-07-25 — Teams help is a plain text link under the title; most operator pages put a help **icon + caption** near the top of the page.
+
+**Problem:** `TeamsNotificationsIntegrationPageView` buries **Microsoft Teams notification help** as an inline text link in the `PageHeading` description (alongside Integration readiness / Slack). The product pattern on readiness, findings, alerts, advisory, planning, and reviews is `PageHeading` / `OperatorPageHeader` `actions={<PageContextualHelpButton />}` — `CircleHelp` icon plus a short caption. Teams is not registered in `page-help-topic-map.ts`, so the shared contextual-help control would render nothing even if wired.
+
+**Approach:**
+
+1. Register `/integrations/teams` in `page-help-topic-map.ts` with slug matching the current destination (`troubleshooting`, or a Teams-specific help slug if one exists) and caption e.g. **Microsoft Teams notification help**.
+2. Pass `actions={<PageContextualHelpButton />}` on the Teams `PageHeading`.
+3. Remove the inline **Microsoft Teams notification help** text link from the description (and from the aside if still present after **TB-1178**).
+4. Keep **Integration readiness** as a secondary operator hop only if still needed — not as a substitute for the help control; coordinate with **TB-1178** / **TB-1183**.
+5. Vitest: Teams page exposes `page-contextual-help-button` (or equivalent) with the Teams caption; no duplicate plain-text help link for the same destination in the description.
+
+**Acceptance:** `/integrations/teams` shows the standard top-of-page help icon + caption; help is not a left-side prose link in the heading description.
+
+**Depends on:** Prefer with **TB-1178** / **TB-1183** (link cluster cleanup).
+
+**Out of scope:** Rewriting the troubleshooting help body; Slack page help parity (separate unless trivial).
+
+**Size estimate:** S.
 
 ---
 
@@ -28510,6 +28592,543 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Depends on:** None. Pair with **TB-1180**.
 
 **Out of scope:** Toast migration; table redesign.
+
+**Size estimate:** S.
+
+---
+
+## TB-1185 — Slack page — remove Teams notifications cross-link (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/slack` review 2026-07-25 (~57/100). Same rule as **TB-1183**: sibling chat product does not belong on this page.
+
+**Problem:** `SlackIntegrationPageClient` and `SlackIntegrationAside` both say “Need a different channel? **Configure Microsoft Teams**” and link to `/integrations/teams`. Operators configuring Slack do not need that hop; Integrations nav already lists Teams.
+
+**Approach:**
+
+1. Remove the Teams cross-link (and copy) from the Slack page heading description and aside.
+2. Vitest: Slack page has no href/text for Microsoft Teams / `/integrations/teams`.
+3. Pair with **TB-1188** so dedupe does not reintroduce Teams.
+
+**Acceptance:** `/integrations/teams` is not linked or mentioned in Slack page chrome.
+
+**Depends on:** None. Prefer with **TB-1188**.
+
+**Out of scope:** Changing Teams page content; removing Teams from the Integrations sidebar.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1186 — Slack not-configured — StatusTag + guided next step (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/slack` review 2026-07-25.
+
+**Problem:** Configuration status is plain text via `slackIntegrationConfigurationStatusLabel` (`Not configured` / `N active destinations`) under the subtitle — no `StatusTag`, no setup-progress cue. The add form and empty destinations panel compete without a single “do this next” line when `activeDestinationCount === 0`.
+
+**Approach:**
+
+1. Render status with `StatusTag` (`needs-attention` when none active; `ready` when ≥1 enabled).
+2. When not configured, add one guided next-step line above the add form (create webhook → paste URL → test → save).
+3. Vitest: not-configured path exposes StatusTag + next-step copy/`data-testid`.
+
+**Acceptance:** Not-configured Slack page shows a design-system status tag and an obvious first action, not only prose under the title.
+
+**Depends on:** Prefer with **TB-1190**.
+
+**Out of scope:** Redesigning the destinations table; Key Vault secret-reference migration for Slack webhooks.
+
+**Size estimate:** S.
+
+---
+
+## TB-1187 — Slack page — help as icon + caption in PageHeading actions (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/slack` review 2026-07-25 — same pattern as **TB-1184** (Teams).
+
+**Problem:** Slack has no top-of-page help control. Guidance lives in a collapsed **About Slack notifications** aside and duplicated Integration readiness prose. Product pattern is `PageHeading` `actions={<PageContextualHelpButton />}` (`CircleHelp` + caption). `/integrations/slack` is not registered in `page-help-topic-map.ts`.
+
+**Approach:**
+
+1. Register `/integrations/slack` in `page-help-topic-map.ts` with an appropriate help slug/caption (e.g. Slack notifications help / troubleshooting).
+2. Pass `actions={<PageContextualHelpButton />}` on the Slack `PageHeading`.
+3. Do not keep a competing plain-text help link in the description; coordinate with **TB-1188**.
+4. Vitest: Slack page exposes `page-contextual-help-button` with the Slack caption.
+
+**Acceptance:** `/integrations/slack` shows the standard top-of-page help icon + caption.
+
+**Depends on:** Prefer with **TB-1185** / **TB-1188**.
+
+**Out of scope:** Rewriting long-form help bodies; Teams help (**TB-1184**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1188 — Slack help/readiness link dedupe (header vs aside) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/slack` review 2026-07-25.
+
+**Problem:** **Integration readiness** (and formerly Teams) appear under the page heading and again in `SlackIntegrationAside`. Duplicate chrome; after **TB-1185**/**TB-1187** the remaining hops should appear once.
+
+**Approach:**
+
+1. Keep Integration readiness in one place only (prefer aside footer or a single secondary line — not both header and aside).
+2. Vitest: only one Integration readiness link on the Slack page.
+
+**Acceptance:** Integration readiness renders once; no Teams cross-link remains (**TB-1185**).
+
+**Depends on:** Prefer with **TB-1185** / **TB-1187**.
+
+**Out of scope:** Changing readiness page content.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1189 — Slack operator spacing density (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/slack` review 2026-07-25.
+
+**Problem:** Page wrapper uses `space-y-8 px-4 py-8` and inner `space-y-10` / `gap-8` against operator density (`space-y-4` / `p-4` per `UI-Enterprise-Design-Standard.mdc`). Same class as Teams **TB-1177** / billing **TB-1170**.
+
+**Approach:**
+
+1. Tighten `SlackIntegrationPageClient` wrapper and grid/section gaps to operator tokens.
+2. Vitest/visual: page root no longer uses marketing-scale `py-8` / `space-y-8` as the primary rhythm.
+
+**Acceptance:** Slack page matches operator spacing density used on other integration settings pages.
+
+**Depends on:** Prefer with **TB-1185**.
+
+**Out of scope:** Global spacing audit (**TB-118**).
+
+**Size estimate:** XS.
+
+---
+
+## TB-1190 — Slack CTA hierarchy — Test → Save on add form (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/slack` review 2026-07-25.
+
+**Problem:** **Save destination** is the primary button; **Send test notification** is secondary. Dry-run test exists (`dryRunOutboundWebhook`) and does not require save, but the visual hierarchy pushes Save first — operators can persist a bad webhook before validating delivery. Mirrors the Teams CTA mismatch (**TB-1176**).
+
+**Approach:**
+
+1. For the add form: promote Test (or “Test then save”) as the primary path when the webhook URL is filled; keep Save primary only when a successful form test is on record, **or** reorder left-to-right Test → Save with Save demoted until test succeeds — pick one clear rule and match copy in **TB-1186** next-step.
+2. If Save stays available without test, require an explicit helper: “Send a test before saving when possible.”
+3. Vitest: CTA order/affordance matches the chosen gate rule; disabled Save (if gated) exposes a reason.
+
+**Acceptance:** Add-destination CTAs push validate-via-test before commit; hierarchy is unambiguous.
+
+**Depends on:** Prefer with **TB-1186**.
+
+**Out of scope:** Changing row-level Send test on saved destinations; changing webhook dry-run API.
+
+**Size estimate:** S.
+
+---
+
+## TB-1196 — Agent→decisioning Real-variance isolation contract (typed proposals only) (P1)
+
+**Window:** V1 — AI/Agent readiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *Our multi-agent execution (Topology, Compliance, Cost, Critic) runs deterministically in Simulator mode but non-deterministically against real LLMs. How should the contract between agent output and downstream decisioning be designed so real-mode variance can't corrupt committed manifests?*
+
+**Problem:** Simulator fixtures are stable; Real LLM outputs vary. Authority decide already builds from typed finding engines + rules (`RuleBasedDecisionEngine` → `ManifestDocument` → hash). Corruption path today is mainly **commit-time topology overlay** from agent `ProposedChanges` (`AgentTopologyProposalGraphMerge`) and any legacy merge that lifts finding `Message` into governance tags — schema-valid but semantically wrong Real JSON becomes committed topology. Quality gate may be WarnOnly in Dev; PilotStrict green ≠ Real proof (**M-166**).
+
+**Approach:**
+
+1. Author `docs/library/AGENT_OUTPUT_DECISIONING_REAL_VARIANCE_ISOLATION_CONTRACT.md` (or expand `AGENT_OUTPUT_EVALUATION.md` + ADR 0030/0042 appendix) with tables:
+   - **Decide inputs (authoritative):** sealed `FindingsSnapshot` (typed engines + payload validator) + graph; not free prose / `ReasoningTrace`.
+   - **Agent proposals (advisory until validated):** typed proposal DTOs only; re-validate schema + domain invariants **at commit before overlay**; reject/HOLD → no overlay, no new `GoldenManifestId`.
+   - **Prose quarantine:** `ReasoningTrace` / finding `Message` stay in audit/telemetry — never become topology nodes or compliance tags.
+   - **Fail-closed Real commit path:** PilotStrict + Enforce/Block for commit-eligible Real; quality reject ≠ transport failure (**TB-963**).
+   - **Mode-labeled persistence:** every `AgentResult` + run carries `StructuralExecutionMode`; never promote Simulator→Real (INV-002 / **TB-969**–**TB-971**).
+   - **Unit of truth:** buyer claims only for committed `GoldenManifestId` + `ManifestHash` (**TB-1003**).
+2. Cross-link **TB-1007** (Authority vs execute), **M-166** (PilotStrict≠Real), Done **TB-684**, GTM **M-203**/**M-204**.
+3. Name CI anchors for **TB-1197**.
+
+**Acceptance:** Contract published; GTM can cite “Real variance cannot write unvalidated proposals into the committed package”; decide stays typed-findings-first.
+
+**Depends on:** None (docs). Implementation of validate-before-overlay may follow as a separate ship after the contract.
+
+**Out of scope:** Making Real LLM outputs deterministic; reopening PilotStrict floors (**TB-684**); unifying dual hashers (**TB-1156**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1197 — Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1196**; hardens GTM **M-203**.
+
+**Problem:** Buyer/proof copy and contributor docs can imply that agent completions (or Critic prose) are the signed architecture package, or that Real-mode variance is “safe” because PilotStrict passed — while commit still overlays unvalidated topology proposals.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that claim agent free text / unvalidated `ProposedChanges` become the committed package, or that PilotStrict green alone makes Real overlays corruption-proof.
+2. Require **TB-1196** (or explicit validate-before-overlay + typed-findings-decide language) near Real-mode commit / agent-merge claims.
+3. Pair **M-203**; point Verification at `AgentTopologyProposalGraphMerge`, `DecisionMergeInputGate`, quality-gate Enforce/Block config, without re-implementing PilotStrict floors.
+
+**Acceptance:** CI fails on dishonest “LLM text = package” / unvalidated-overlay claims; pairs **M-203**.
+
+**Depends on:** **TB-1196**.
+
+**Out of scope:** Changing `RealAgentExecutor` sampling; Real-LLM budget (**PQ-15**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1191 — Webhooks page — remove Jira/ServiceNow/Teams/Slack cross-link strip (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/webhooks` screenshot 2026-07-25 (~56/100). Same rule as **TB-1183** / **TB-1185**: sibling integrations do not belong in page chrome.
+
+**Problem:** `WebhooksSettingsClient` renders `WEBHOOKS_PAGE_DEDICATED_INTEGRATIONS_INTRO` plus a link strip (`WEBHOOKS_DEDICATED_INTEGRATION_LINKS` — **Jira · ServiceNow · Microsoft Teams · Slack**) under the page description. Operators configuring a generic HTTPS webhook do not need four product hops; Integrations nav already lists them. `page.test.tsx` currently asserts those links exist.
+
+**Approach:**
+
+1. Remove the intro paragraph and dedicated-link strip from the `PageHeading` description (delete or stop exporting unused copy constants).
+2. Keep differentiation copy only in **About webhooks → When to use** (already covers “own HTTPS receiver”).
+3. Update Vitest: no Jira/ServiceNow/Teams/Slack links on `/integrations/webhooks`.
+
+**Acceptance:** Webhooks page chrome has zero cross-links to other Integrations products.
+
+**Depends on:** None.
+
+**Out of scope:** Changing those other integration pages; Integration readiness page.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1192 — Webhooks not-configured — StatusTag + guided next step (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/webhooks` screenshot 2026-07-25.
+
+**Problem:** Zero subscriptions show no page-level connection status (`StatusTag`). The operator sees only the New subscription form, then **Active subscriptions** with “0 subscriptions” + an empty box — no “Not configured” / next-step cue at the title (unlike the intended Teams/Slack pattern in **TB-1174** / **TB-1186**).
+
+**Approach:**
+
+1. When `webhookRows.length === 0`, show `StatusTag` (`needs-attention`) + one guided next-step line under the title (name → HTTPS URL → signing secret → save → test from list).
+2. When ≥1 enabled subscription, show `ready` (or count) via StatusTag.
+3. Vitest: empty path exposes StatusTag + next-step `data-testid`.
+
+**Acceptance:** Empty webhooks page has design-system status + an obvious first action at the top.
+
+**Depends on:** Prefer with **TB-1195**.
+
+**Out of scope:** Pre-save dry-run test (current save-then-test model stays unless a separate ID adds it).
+
+**Size estimate:** S.
+
+---
+
+## TB-1193 — Webhooks page — help as icon + caption in PageHeading actions (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/webhooks` screenshot 2026-07-25 — same pattern as **TB-1184** / **TB-1187**.
+
+**Problem:** Page help is only the right-rail **About webhooks** card (plus the global shell help). No `PageContextualHelpButton` (icon + caption) on `PageHeading`. `/integrations/webhooks` is not registered in `page-help-topic-map.ts`.
+
+**Approach:**
+
+1. Register `/integrations/webhooks` in `page-help-topic-map.ts` with an appropriate slug/caption (e.g. Webhooks / outbound webhooks help).
+2. Pass `actions={<PageContextualHelpButton />}` on the Webhooks `PageHeading`.
+3. Keep About panel for in-page orientation; do not duplicate a third prose help link in the description.
+4. Vitest: page exposes `page-contextual-help-button` with the Webhooks caption.
+
+**Acceptance:** `/integrations/webhooks` shows the standard top-of-page help icon + caption.
+
+**Depends on:** Prefer with **TB-1191**.
+
+**Out of scope:** Rewriting the About panel content; developer payload docs beyond existing help slug.
+
+**Size estimate:** S.
+
+---
+
+## TB-1194 — Webhooks operator spacing density (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/webhooks` screenshot 2026-07-25.
+
+**Problem:** Page wrapper uses `space-y-8 px-4 py-8` (and inner `space-y-8` / `gap-8`) against operator density (`space-y-4` / `p-4` per `UI-Enterprise-Design-Standard.mdc`). Same class as Teams **TB-1177** / Slack **TB-1189**.
+
+**Approach:**
+
+1. Tighten `WebhooksSettingsClient` wrapper and grid/section gaps to operator tokens.
+2. Keep the New subscription card readable; do not crush the About panel.
+
+**Acceptance:** Webhooks page matches operator spacing density used on other integration settings pages.
+
+**Depends on:** Prefer with **TB-1191**.
+
+**Out of scope:** Global spacing audit (**TB-118**).
+
+**Size estimate:** XS.
+
+---
+
+## TB-1195 — Webhooks empty composition — suppress zero theater (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/webhooks` screenshot 2026-07-25.
+
+**Problem:** With zero subscriptions, the page stacks (a) the full New subscription form, (b) **Active subscriptions** heading, (c) “0 subscriptions in this workspace,” and (d) a dashed empty-state box that restates “create a subscription.” That is zero theater / message dedupe — the form already is the create path. “Active” is also misleading when nothing exists.
+
+**Approach:**
+
+1. When empty: hide the Active subscriptions section entirely, **or** collapse it to a single quiet line without a second empty box; rename heading to **Subscriptions** (not Active) when used.
+2. Do not show “0 subscriptions” count theater next to an empty-state panel that says the same thing.
+3. Vitest: empty path has one create story (form + StatusTag/next-step from **TB-1192**), not form + count + empty card.
+
+**Acceptance:** Empty webhooks first viewport does not triple-announce “nothing configured.”
+
+**Depends on:** Prefer with **TB-1192**.
+
+**Out of scope:** Redesigning saved-subscription cards; changing save-then-test API.
+
+**Size estimate:** S.
+
+---
+
+## TB-1198 — Settings hub — emptyStateHint only when actually empty (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings` (Administration → Settings) review 2026-07-25 (~52/100).
+
+**Problem:** `SettingsMasterDestinationCard` always renders `destination.emptyStateHint` when the string is present. Catalog entries hardcode lines like **“No Jira connection configured.”**, **“No cloud connection configured.”**, and **“No custom policy packs assigned yet.”** even when those destinations are configured. That is a static lie on the settings index — worse than empty theater.
+
+**Approach:**
+
+1. Stop showing catalog `emptyStateHint` unconditionally. Either remove static hints from `settings-master-catalog.ts`, or gate each hint on a real readiness signal for that destination.
+2. Prefer destination pages own empty-state truth; hub cards describe what the surface does, not a fake “not configured.”
+3. Vitest: configured/mocked-ready destinations do not show “No … configured” copy on the hub.
+
+**Acceptance:** Settings hub never claims an integration/workspace surface is empty unless that emptiness is verified.
+
+**Depends on:** None.
+
+**Out of scope:** Building a full live status dashboard for every destination.
+
+**Size estimate:** S.
+
+---
+
+## TB-1199 — Settings hub — remove fake Last updated chip (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings` review 2026-07-25.
+
+**Problem:** `SettingsMasterOverviewHeader` shows a **Last updated** chip whose value is always **“See audit trail”** — not a timestamp. That reads as a real metadata field and fails the honesty bar.
+
+**Approach:**
+
+1. Remove the Last updated chip, **or** replace it with a real last-change timestamp from audit/API when available.
+2. Do not keep a chip that only redirects the reader to another page.
+
+**Acceptance:** Overview chips show only real scope/environment facts (or a real last-updated time).
+
+**Depends on:** Prefer with **TB-1200**.
+
+**Out of scope:** Full audit timeline embedding on the hub.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1200 — Settings hub — remove Recent changes empty theater (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings` review 2026-07-25.
+
+**Problem:** `SettingsMasterRecentChangesCard` always says there is **no inline history** and pushes **Open audit trail** — while Governance already lists Audit trail as a destination. Support’s “No support bundle generated yet in this session” is the same class of session-empty theater. Duplicate chrome without a job.
+
+**Approach:**
+
+1. Remove the Recent changes card, **or** replace it with N real recent settings-related audit events (with empty = hide card).
+2. Drop or rewrite the support-bundle session-empty italic so it does not announce “nothing” as content.
+3. Vitest: hub does not render a Recent changes card that only apologizes for having no history.
+
+**Acceptance:** No empty “recent changes” panel that exists only to link to Audit trail.
+
+**Depends on:** Prefer with **TB-1199**.
+
+**Out of scope:** Replacing `/governance/audit`.
+
+**Size estimate:** S.
+
+---
+
+## TB-1201 — Settings hub — PageHeading icon + PageContextualHelpButton (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings` review 2026-07-25 — same chrome pattern as Teams/Slack/Webhooks help work (**TB-1184** / **TB-1187** / **TB-1193**).
+
+**Problem:** Settings uses a raw `<h1>` in `SettingsMasterOverviewHeader` (no `PageHeading` / nav icon). Help is a General-section **Help** card with a button to `/help`, not the standard top-of-page `PageContextualHelpButton` (icon + caption). `/settings` may not be registered in `page-help-topic-map.ts` for contextual help.
+
+**Approach:**
+
+1. Switch overview to `PageHeading` with `navHref="/settings"` (or Administration settings nav href) so the nav icon appears.
+2. Register `/settings` in `page-help-topic-map.ts`; pass `actions={<PageContextualHelpButton />}`.
+3. Remove or demote the inline General Help card so help is not duplicated.
+4. Vitest: settings hub exposes page heading icon + contextual help control.
+
+**Acceptance:** `/settings` matches operator page-title + help chrome used on other Administration surfaces.
+
+**Depends on:** Prefer with **TB-1202**.
+
+**Out of scope:** Redesigning the entire catalog grid.
+
+**Size estimate:** S.
+
+---
+
+## TB-1202 — Settings hub — section nav same-page jumps as links (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings` review 2026-07-25; `UI-Accessibility-Baseline.mdc`.
+
+**Problem:** `SettingsMasterSectionNav` uses `<button onClick={scrollToSection}>` for same-page section jumps. Accessibility baseline requires same-page navigation to be links (`href="#…"`), not buttons that scroll.
+
+**Approach:**
+
+1. Render section anchors as `<Link href={`#${settingsMasterSectionDomId(id)}`}>` (or `<a>`), preserving sticky nav styling.
+2. Keep keyboard/focus behavior correct; optional smooth scroll via CSS `scroll-behavior`.
+3. Vitest: section nav items are links with hash hrefs.
+
+**Acceptance:** Settings section nav exposes link semantics for in-page jumps.
+
+**Depends on:** Prefer with **TB-1201**.
+
+**Out of scope:** Full TOC redesign.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1203 — Settings hub — demote Scope/Source/Status meta density (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings` review 2026-07-25.
+
+**Problem:** Every destination card shows a three-column **Scope / Source / Status** meta row (`SettingsScopeMeta`) plus optional save-behavior prose. On a discoverability hub this is engineering-dense noise — operators want title, one-line purpose, CTA. Inheritance vocabulary (“workspace override”, “inherited from tenant default”) belongs on destination pages or a progressive disclosure.
+
+**Approach:**
+
+1. Default hub cards: title, description, high-impact badge if needed, single CTA — hide Scope/Source/Status by default.
+2. Optional: one-line authority hint only when useful (e.g. admin-only), or a “Details” disclosure for meta.
+3. Vitest/visual: common-tier cards do not show the three-column meta grid unless disclosed.
+
+**Acceptance:** Settings hub destination cards are scannable; scope meta is not the default first-read content.
+
+**Depends on:** Prefer with **TB-1198** (honesty before polish).
+
+**Out of scope:** Changing destination page headers.
 
 **Size estimate:** S.
 
