@@ -1,6 +1,6 @@
-# Fix: post-generation review package fails to open — `workspace-mismatch` false positive
+# Fix: post-generation architecture package fails to open — `workspace-mismatch` false positive
 
-> Diagnosed 2026-07-07 from a screenshot of the operator shell (`Claims Intake Demo` workspace, local
+> Diagnosed 2026-07-07 from a screenshot of the architect workspace (`Claims Intake Demo` workspace, local
 > dev) showing:
 >
 > - Page title: **"Architecture review — package could not be opened"** / **"We could not open the
@@ -16,7 +16,7 @@
 
 ## Symptom
 
-Any review generated through the normal operator wizard (Quick review / Socratic intake / etc.) and
+Any review generated through the normal architect-workspace wizard (Quick review / Socratic intake / etc.) and
 then opened via the post-generation redirect (`/reviews/{runId}?fromGeneration=1`) shows the
 `workspace-mismatch` failure screen instead of the review, **even when the user never changed
 workspaces** between generating and opening it. `Workspace ID` / `Project ID` in the diagnostics panel
@@ -27,7 +27,7 @@ predicts the bug fires for **every** freshly generated review, not an edge case.
 ## Root cause (fully traced, cited below — this is a wrong-field comparison bug, not a scope/cookie bug)
 
 The `workspace-mismatch` check is a deliberate defense-in-depth IDOR guard added by **TB-077**
-("Operator UI resource ownership checks", shipped 2026-06-01):
+("Architect workspace resource ownership checks" — backlog title may still say Operator UI; shipped 2026-06-01):
 
 ```155:161:archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/load-run-detail-page-model.ts
   if (

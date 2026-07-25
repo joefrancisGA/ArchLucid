@@ -236,7 +236,7 @@ Use these quality categories, weights, and definitions exactly as given. Total w
 * **Correctness** — whether the system produces the right outputs, evaluations, recommendations, checks, and behaviors
 * **Explainability** — whether the system can explain its reasoning and outputs
 * **Trustworthiness** — whether a buyer or operator should rely on those outputs in real enterprise use
-* **Usability** — whether target users can complete tasks effectively without friction, confusion, or false starts; applies across operator shell, first-run path, CTO demo, and pilot operator journey
+* **Usability** — whether target users can complete tasks effectively without friction, confusion, or false starts; applies across the architect workspace, first-run path, CTO demo, and pilot architect journey
 * **Cognitive Load** — how much mental effort the system imposes while completing tasks
 * **Supportability** — how well issues can be diagnosed and resolved
 * **Observability** — how visible internal behavior is through logs, metrics, traces, and diagnostics

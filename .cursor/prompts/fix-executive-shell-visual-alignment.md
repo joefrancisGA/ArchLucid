@@ -1,11 +1,11 @@
-# Fix: Executive shell — visual alignment with operator shell
+# Fix: Executive shell — visual alignment with architect workspace
 
 ## Problem
 
-Switching between the Operator and Executive views causes cognitive dissonance because the two
+Switching between the Architect workspace and Executive views causes cognitive dissonance because the two
 shells differ on every visible dimension simultaneously:
 
-| Dimension | Operator (`AppShellClient`) | Executive (`ExecutiveShellFrame`) |
+| Dimension | Architect workspace (`AppShellClient`, route group `(operator)`) | Executive (`ExecutiveShellFrame`) |
 |---|---|---|
 | Content max-width | `max-w-[1600px]` (+ 248px sidebar) | `max-w-4xl` (~896px) on `<main>` |
 | Page padding | `px-4 py-4 lg:px-6 lg:py-6` | `px-6 py-8` |
@@ -20,9 +20,9 @@ shells differ on every visible dimension simultaneously:
 The dashboard content (`ExecutiveRoiDashboardPageView`) is designed for `max-w-6xl` (~1152px)
 but is clamped by the executive frame's `max-w-4xl` `<main>`. The 3-column KPI grid reflows
 to 2 columns and the trend charts compress. The user sees layout shift and narrower content
-compared to the same data in an operator context.
+compared to the same data in the architect workspace.
 
-The fix is **not** to make the executive shell identical to the operator shell. The executive
+The fix is **not** to make the executive shell identical to the architect workspace. The executive
 view intentionally has no sidebar (it is a read-only stakeholder surface). The fix is to align
 spacing, header construction, content width, and type tokens so it reads as the **same product
 design**, just with a narrower navigation chrome.
@@ -80,7 +80,7 @@ className="sticky top-0 z-30 border-b border-neutral-200 bg-neutral-50 dark:bord
 ```
 
 **Nav link styling:** The executive nav links currently render as `Button variant="ghost" size="sm"`
-with full button padding. Make them visually match the operator shell's secondary-nav feel — same
+with full button padding. Make them visually match the architect workspace's secondary-nav feel — same
 size/variant, but strip the unnecessary `shrink-0` inconsistencies and use `text-neutral-700` for
 inactive links and `font-semibold` only for the active one (matching `executiveNavLinkClassName`
 which already does this). No functional change needed — just verify the helper is applied
@@ -115,7 +115,7 @@ import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspace
 
 ### 4. `ExecutiveShellFrame` — `overflow-x-hidden` containment
 
-Match the operator shell. Add `overflow-x-hidden` to the root `<ShellReadySurface>` and the
+Match the architect workspace. Add `overflow-x-hidden` to the root `<ShellReadySurface>` and the
 sticky header wrapper so no wide executive content can cause horizontal scroll:
 
 ```tsx

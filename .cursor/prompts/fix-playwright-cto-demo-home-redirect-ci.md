@@ -11,7 +11,7 @@ Test: "signup form forwards the optional baseline + dashboard renders the before
 
 # tests/core-pilot-path.spec.ts
 Error: expect(locator).toBeVisible() failed — element(s) not found
-Test: "home hint, new request, reviews list, finalized review package, manifest roundtrip"
+Test: "home hint, new request, reviews list, finalized architecture package, manifest roundtrip" (update assertion if the spec title still says legacy "review package")
 Selector: getByTestId("core-pilot-buyer-step-hint")
 
 # e2e/demo-readiness.spec.ts

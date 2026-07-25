@@ -1,7 +1,7 @@
 <!-- Correctness improvement generator — run from Cursor chat or paste directly.
      Last updated: 2026-06-13. Complements `.cursor/prompts/assessment.md` (release readiness scoring). -->
 
-ArchLucid is an AI-assisted Architecture Proof Engine sold to enterprise buyers: CTOs, chief architects, architecture review boards, and governance leads at organizations running regulated or Azure-heavy workloads. The product coordinates multi-agent topology, cost, and compliance analysis into versioned, evidence-linked review packages with a full audit trail. Clients are technical professionals — not casual consumers.
+ArchLucid is an AI-assisted Architecture Proof Engine sold to enterprise buyers: CTOs, chief architects, architecture review boards, and governance leads at organizations running regulated or Azure-heavy workloads. The product coordinates multi-agent topology, cost, and compliance analysis into versioned, evidence-linked architecture packages with a full audit trail. Clients are technical professionals — not casual consumers.
 
 The UI design target is IBM Carbon Design System (primary) with Microsoft Fluent 2 shell polish. Correctness and proof integrity matter more than surface polish for this buyer profile.
 
