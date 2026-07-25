@@ -15,7 +15,7 @@ Target user: a principal architect, enterprise architect, security architect, or
 
 ## 1. Current-state diagnosis
 
-What actually renders on `/` for a first-run tenant (standard operator shell — `OperatorHomePageView` → `OperatorHomePageBody`), top to bottom:
+What actually renders on `/` for a first-run tenant (standard architect workspace — `OperatorHomePageView` → `OperatorHomePageBody`), top to bottom:
 
 | # | Visible label | Component | Job it claims | Verdict |
 | --- | --- | --- | --- | --- |
@@ -24,7 +24,7 @@ What actually renders on `/` for a first-run tenant (standard operator shell —
 | 2 | "Try a sample review" | `OperatorHomeSampleReviewPreview` | Shows 3 sample findings + "Run sample review" CTA | **Merge/demote.** Second sample concept ~100px below the first |
 | 3 | "Continue setup" | `OperatorHomeContinueSetupSlot` / `OperatorHomeContinueSetupCard` | Link to `/onboarding` while setup incomplete | **Merge** with the hero's "Optional setup" row into one Setup readiness section |
 | 4 | **"First-hour path"** | `OperatorFirstHourJourneyStrip` (injected *inside* the Workspace activity section by `RunsDashboardPanelClient`) | 4-step pill path, "Pilot first, Operate later" | **Remove from Overview.** Internal phase language leaking; duplicates the hero stepper |
-| 5 | "Workspace activity" | `OperatorHomeRunsPanel` / `RunsDashboardPanelClient` | Recent packages, attention, outcomes | **Keep.** Its empty state repeats "Start your first review or open the example review package" — a third repetition of the hero CTAs |
+| 5 | "Workspace activity" | `OperatorHomeRunsPanel` / `RunsDashboardPanelClient` | Recent packages, attention, outcomes | **Keep.** Its empty state repeats "Start your first review or open the example architecture package" — a third repetition of the hero CTAs |
 | 6 | "Workspace metrics and status" | `OperatorHomeWorkspaceContextDisclosure` | 5 metrics incl. "Setup readiness" | **Gate.** Before any review exists this is a row of zeros — empty dashboard noise |
 | 7 | "Setup and walkthroughs" (collapsed) | `OperatorHomeAdvancedGuidanceSection` | Container for everything below | **Rename + gut** |
 | 7a | "First review progress" tri-tab hub (Operating path / Checklist / Readiness) | `UnifiedFirstPilotProgressPanel` | Progress hub | **Remove the hub;** keep at most one checklist |
@@ -33,7 +33,7 @@ What actually renders on `/` for a first-run tenant (standard operator shell —
 | 7d | **"First-run evidence checklist"** | `InProductEvidenceChecklist` | Live health/config checks; links to `/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md` | **Move** signals to `/health` or Setup readiness; a runbook link is scaffolding leakage |
 | 7e | **"First review checklist"** | `CorePilotChecklist` | 5-step localStorage checklist | **Keep one of {7e, 7g};** collapsed |
 | 7f | "Workspace readiness" cockpit + status legend | `FirstPilotReadinessCockpit`, `StatusVocabularyLegend` | Diagnostics + vocabulary glossary | **Move** to `/health` and Help respectively |
-| 7g | **"Fast path to first review package"** | `PilotStartHereStrip` | Another 4-step path, plus CLI commands (`archlucid pilot proof-packet`, `collect-first-pilot-proof.ps1`) and the sentence "…commercial next step. Operate, V1.1 connectors, and MCP stay optional after first commit." | **Remove.** The single worst offender: CLI, PowerShell, roadmap ("V1.1"), protocol names ("MCP"), and sales-stage language ("commercial next step") on a customer Overview |
+| 7g | **"Fast path to first architecture package"** | `PilotStartHereStrip` | Another 4-step path, plus CLI commands (`archlucid pilot proof-packet`, `collect-first-pilot-proof.ps1`) and the sentence "…commercial next step. Operate, V1.1 connectors, and MCP stay optional after first finalize." | **Remove.** The single worst offender: CLI, PowerShell, roadmap ("V1.1"), protocol names ("MCP"), and sales-stage language ("commercial next step") on a customer Overview |
 | 7h | **"Recommended first session path"** | `FirstWeekRouteGuidance` (`variant="home"`) | Prose guidance + "Start new review" button | **Remove from Overview** (its copy is fine on `/onboarding`) |
 | 7i | "First review progress — X of 5 steps" | `CorePilotProgressTrackerBanner` | Duplicate of 7e reading the same localStorage keys | **Remove** (redundant with 7e) |
 
@@ -55,16 +55,16 @@ The target model is:
 
 One challenge worth stating: "Open a completed sample" and "Run a sample review" are genuinely different capabilities (static finished package vs. executing the pipeline on template input). But a new evaluator cannot tell them apart from labels, and offering both at the same level creates a fake fork. Resolution: the *completed sample* is the Overview-level concept; "run the sample yourself" becomes an action *inside* the sample package page or the new-review flow (it already exists there as "Start with an example"). Do not present it as a third path on Overview.
 
-There should be **zero** journey-stepper diagrams competing with the hero. The hero's 3-step preview ("Start with a design or evidence → Review findings and add supporting evidence → Finalize review package") is the only sequence the page needs.
+There should be **zero** journey-stepper diagrams competing with the hero. The hero's 3-step preview ("Start with a design or evidence → Review findings and add supporting evidence → Finalize architecture package") is the only sequence the page needs.
 
 ---
 
 ## 3. Recommended streamlined structure
 
 - **Top — Start your first review** (existing `PilotCommandCenterCard`, nearly unchanged): primary "Open completed sample", secondary "Start your own review", 3-step preview. **Remove** the "Optional setup" button row from the hero — setup gets exactly one home (below).
-- **Workspace activity** (existing runs panel): remove the injected "First-hour path" strip; simplify the empty state to one line ("Your review packages will appear here") since the hero directly above already carries both CTAs.
+- **Workspace activity** (existing runs panel): remove the injected "First-hour path" strip; simplify the empty state to one line ("Your architecture packages will appear here") since the hero directly above already carries both CTAs.
 - **Setup readiness** (current "Continue setup" absorbing the hero's Connect cloud / Invite reviewer buttons and the live checks from `InProductEvidenceChecklist`): visible while incomplete, one line + "Open setup guide"; hidden when complete (the existing `resolveOperatorHomeContinueSetupPlacement` logic already supports this).
-- **Workspace metrics** — render only when ≥1 committed review exists (the `useNavCommittedArchitectureReview` gate already used by `OperatorHomeExecutiveRoiStrip` is the right switch). A grid of zeros earns no trust.
+- **Workspace metrics** — render only when ≥1 finalized review exists (the `useNavCommittedArchitectureReview` gate already used by `OperatorHomeExecutiveRoiStrip` is the right switch). A grid of zeros earns no trust.
 - **How ArchLucid works** (collapsed; replaces "Setup and walkthroughs"): at most one checklist (the 5-step "First review checklist", renamed — see §4) and two or three links into Help. Everything else in the current drawer is deleted or moved.
 
 ---
@@ -78,7 +78,7 @@ There should be **zero** journey-stepper diagrams competing with the hero. The h
 | First-run evidence checklist | **Remove name;** surviving signals fold into "Setup readiness" |
 | Recommended first session path | **Remove** from Overview |
 | First review checklist | **Rename** to "Review walkthrough" (survives, collapsed, as the only checklist) |
-| Fast path to first review package | **Remove** entirely |
+| Fast path to first architecture package | **Remove** entirely |
 | Full operating path | **Remove;** "operating path" never appears in user-facing UI |
 
 Final page vocabulary — exactly one "first" phrase: **"Start your first review"**, **"Workspace activity"**, **"Setup readiness"**, **"How ArchLucid works"**. Banned on Overview: *lane, rail, runbook, operating path, fast path, first-hour, first-value, session path, core pilot, MCP, V1.1, commercial next step*.
@@ -115,7 +115,7 @@ Final page vocabulary — exactly one "first" phrase: **"Start your first review
    - Keep / change / remove: **keep** `PilotCommandCenterCard`; **remove** its optional-setup button row; optionally absorb one compact line from the sample preview ("Sample includes: PHI exposure finding, …").
 
 2. **Workspace activity**
-   - Purpose: latest review packages, attention items, outcomes.
+   - Purpose: latest architecture packages, attention items, outcomes.
    - CTAs: open package, open full reviews list.
    - Keep / change / remove: **keep** panel; **remove** embedded "First-hour path" strip; simplify empty state to one sentence.
 
@@ -127,7 +127,7 @@ Final page vocabulary — exactly one "first" phrase: **"Start your first review
 4. **Workspace metrics**
    - Purpose: counts once there is activity.
    - CTAs: "View details" disclosure.
-   - Keep / change / remove: **change** — render only after first committed review.
+   - Keep / change / remove: **change** — render only after first finalized review.
 
 5. **Help and walkthroughs** (collapsed)
    - Purpose: optional orientation.
@@ -145,7 +145,7 @@ Final page vocabulary — exactly one "first" phrase: **"Start your first review
 - **Risks:** onboarding tour anchors (`data-onboarding="tour-runs-dashboard"` survives; verify no tour step targets a deleted element); orphaned localStorage disclosure keys (harmless); First Load JS budget (TB-573) will shift down — refresh the baseline intentionally; help slugs (`first-pilot-path`, `first-hour-operator-path`, `first-value-20-minutes`) must remain routable since other pages still link to them.
 - **Rollback approach:** ship as one focused, UI-only PR with no route/API/permission changes — rollback is a plain `git revert`. No feature flag needed; the deleted components have no data dependencies. Optionally split into two waves: wave 1 = deletions/merges (low risk), wave 2 = metrics gating + setup consolidation (touches readiness hooks).
 
-Scoping note: this audit covers the standard operator shell (`OperatorHomePageBody`). The buyer-polished shell variant (`BuyerPolishedHomePageBody`) is already closer to the target structure and would inherit most of the cleanup for free.
+Scoping note: this audit covers the standard architect workspace (`OperatorHomePageBody`). The buyer-polished shell variant (`BuyerPolishedHomePageBody`) is already closer to the target structure and would inherit most of the cleanup for free.
 
 ---
 
@@ -156,7 +156,7 @@ Scoping note: this audit covers the standard operator shell (`OperatorHomePageBo
 3. Internal terms — "lane", "rail", "runbook", "operating path", "fast path", "first-hour", "first-value", "session path", "MCP", "V1.1", CLI commands, `.ps1` filenames — do not appear in user-facing Overview UI (assert via a terminology-guard test extension).
 4. Setup remains visible when incomplete but does not dominate — it appears in exactly one section, hidden when complete.
 5. Sample review (completed package) and own review are presented as one clearly distinct primary/secondary pair, not parallel cards.
-6. Workspace metrics render only when the tenant has ≥1 committed review — no empty-dashboard noise before activity.
+6. Workspace metrics render only when the tenant has ≥1 finalized review — no empty-dashboard noise before activity.
 7. Walkthrough content is collapsed or moved to Getting Started / Help; Overview contains no prose paragraphs of coaching outside the collapsed section.
 8. Unit, snapshot, and e2e suites pass.
 9. No route, permission, backend, upload, or review-package behavior changes — this is IA/copy/component-composition only.
@@ -181,7 +181,7 @@ Scoping note: this audit covers the standard operator shell (`OperatorHomePageBo
 | Full operating path rail | `archlucid-ui/src/components/FirstPilotOperatingRail.tsx`, `archlucid-ui/src/lib/first-pilot-operating-rail-copy.ts` |
 | First-run evidence checklist | `archlucid-ui/src/components/usability/InProductEvidenceChecklist.tsx` |
 | First review checklist | `archlucid-ui/src/components/CorePilotChecklist.tsx` |
-| Fast path to first review package | `archlucid-ui/src/components/operator-home/PilotStartHereStrip.tsx` |
+| Fast path to first architecture package | `archlucid-ui/src/components/operator-home/PilotStartHereStrip.tsx` |
 | Recommended first session path | `archlucid-ui/src/components/FirstWeekRouteGuidance.tsx`, `archlucid-ui/src/lib/first-week-route-guidance.ts` |
 | Duplicate progress banner | `archlucid-ui/src/components/usability/CorePilotProgressTrackerBanner.tsx` |
 | Dead first-hour path implementation | `archlucid-ui/src/components/operator-home/OperatorHomeFirstReviewSection.tsx`, `OperatorHomeFirstReviewPathStrip.tsx`, `OperatorHomeFirstReviewProgressCard.tsx` |
