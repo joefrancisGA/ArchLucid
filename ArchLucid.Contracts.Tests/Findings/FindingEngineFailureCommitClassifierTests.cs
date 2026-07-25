@@ -26,4 +26,22 @@ public sealed class FindingEngineFailureCommitClassifierTests
 
         FindingEngineFailureCommitClassifier.IsCommitBlocking(failure).Should().Be(expectedBlocking);
     }
+
+    [Fact]
+    public void HasCommitBlockingFailures_skips_null_entries()
+    {
+        FindingEngineFailure[] failures =
+        [
+            null!,
+            new FindingEngineFailure
+            {
+                EngineType = "cost",
+                Category = "Cost",
+                ErrorMessage = "offline",
+                ExceptionType = nameof(InvalidOperationException),
+            },
+        ];
+
+        FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(failures).Should().BeFalse();
+    }
 }

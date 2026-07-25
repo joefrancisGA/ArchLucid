@@ -1,8 +1,8 @@
-namespace ArchLucid.Persistence.Tests.Queries;
-
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
+
+namespace ArchLucid.Persistence.Tests.Queries;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
