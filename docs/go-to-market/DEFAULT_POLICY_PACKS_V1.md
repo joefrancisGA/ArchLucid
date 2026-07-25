@@ -1,8 +1,13 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Default policy packs — V1 GA bundles - full detail, tables, and links in the sections below.
 
 # Default policy packs — V1 GA bundles
 
 **Audience:** pilots, procurement, CS, and sellers explaining what governance content ships **in-tenant by default**.
+
+**Last reviewed:** 2026-07-25
+
 
 **Objective:** Declare **41** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
 
