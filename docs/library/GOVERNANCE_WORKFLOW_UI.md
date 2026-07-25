@@ -57,7 +57,7 @@ The page uses the same **`api.ts`** helpers as the rest of the shell: browser re
 
 ## Architecture risk register (`/governance/findings`)
 
-The **Architecture risk register** (`archlucid-ui/src/app/(operator)/governance/findings/`) is the portfolio-level surface for **owned architecture risks** and **linked manifest decisions** (TB-057). It answers “what risks do we own right now?” without opening each review package.
+The **Architecture risk register** (`archlucid-ui/src/app/(operator)/governance/findings/`) is the portfolio-level surface for **owned architecture risks** and **linked manifest decisions** (TB-057). It answers “what risks do we own right now?” without opening each architecture package.
 
 | Area | Source |
 |------|--------|

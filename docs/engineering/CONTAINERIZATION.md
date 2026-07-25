@@ -8,7 +8,7 @@
 
 ## Objective
 
-Provide production-ready Docker images for the **ArchLucid** API and Operator UI that are identical across local integration testing and **vendor-operated** cloud deployment (build once, run in CI and in the service operator’s registry).
+Provide production-ready Docker images for the **ArchLucid** API and architect workspace that are identical across local integration testing and **vendor-operated** cloud deployment (build once, run in CI and in the service operator’s registry).
 
 ## Customer product boundary (SaaS)
 

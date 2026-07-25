@@ -91,9 +91,9 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [customer-faci
 
 - [ ] **Create architecture request (review)** — `POST /v1/architecture/request` (or CLI path) succeeds; **`runId`** captured.
 - [ ] **Execute** — `POST /v1/architecture/run/{runId}/execute` (or environment’s equivalent) completes to a committable state.
-- [ ] **Commit** — `POST /v1/architecture/run/{runId}/commit` succeeds; **`409`** behavior understood if retried wrong state ([API_CONTRACTS.md](API_CONTRACTS.md)).
-- [ ] **Artifacts** — at least one artifact descriptor for committed **`goldenManifestId`** (API list or CLI `artifacts`).
-- [ ] **Operator UI** (if in scope): open run → manifest/artifacts **Review** / **Download** works ([operator-shell.md](operator-shell.md)).
+- [ ] **Finalize** — `POST /v1/architecture/run/{runId}/commit` succeeds; **`409`** behavior understood if retried wrong state ([API_CONTRACTS.md](API_CONTRACTS.md)).
+- [ ] **Artifacts** — at least one artifact descriptor for finalized **`goldenManifestId`** (API list or CLI `artifacts`).
+- [ ] **Architect workspace** (if in scope): open run → manifest/artifacts **Review** / **Download** works ([operator-shell.md](operator-shell.md)).
 - [ ] **Compare** — two-run compare produces an expected structured or legacy diff in UI or API ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
 - [ ] **Replay** — run replay or comparison replay path exercised per your pilot script ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)).
 - [ ] **Graph** — load graph for one **run ID** in UI ([operator-shell.md](operator-shell.md), [KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).

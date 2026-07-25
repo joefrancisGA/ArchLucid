@@ -24,7 +24,7 @@ Follow the **four steps** in **[CORE_PILOT.md](../CORE_PILOT.md)** §3 as the de
 
 **Anti-creep:** Do not expand scope to advanced Operate layers for the first dogfood pass unless the pilot charter explicitly includes them. **[CORE_PILOT.md](../CORE_PILOT.md)** §1 explains what stays secondary.
 
-**Subject matter:** Pick one **real** internal initiative (e.g. a subsystem, integration, or platform decision) that would normally get an architecture review package — not synthetic demo-only inputs unless you mark outcomes as **non-customer** and never copy demo numerics into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** as if they were measured baselines (see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** §4.1.1).
+**Subject matter:** Pick one **real** internal initiative (e.g. a subsystem, integration, or platform decision) that would normally get an architecture package — not synthetic demo-only inputs unless you mark outcomes as **non-customer** and never copy demo numerics into **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** as if they were measured baselines (see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** §4.1.1).
 
 ---
 

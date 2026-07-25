@@ -1,10 +1,10 @@
-> **Scope:** Accessibility Conformance Report (Draft) — ArchLucid Operator UI - full detail, tables, and links in the sections below.
+> **Scope:** Accessibility Conformance Report (Draft) — ArchLucid Architect workspace - full detail, tables, and links in the sections below.
 
 > **Superseded:** Canonical procurement ACR is [`VPAT_2_5_WCAG_2_1_AA.md`](VPAT_2_5_WCAG_2_1_AA.md). This VPAT 2.4–structure draft is retained for historical comparison only.
 
-> **Scope:** Procurement, accessibility reviewers, and security/compliance stakeholders evaluating **ArchLucid Operator UI** (web) against **WCAG 2.1 Level A and AA**; draft **VPAT® 2.4 Rev–style** ACR excerpt in Markdown; **not** a legal opinion, **not** certification, **not** a substitute for full manual conformance assessment across every workflow.
+> **Scope:** Procurement, accessibility reviewers, and security/compliance stakeholders evaluating **ArchLucid Architect workspace** (web) against **WCAG 2.1 Level A and AA**; draft **VPAT® 2.4 Rev–style** ACR excerpt in Markdown; **not** a legal opinion, **not** certification, **not** a substitute for full manual conformance assessment across every workflow.
 
-# Accessibility Conformance Report (Draft) — ArchLucid Operator UI
+# Accessibility Conformance Report (Draft) — ArchLucid Architect workspace
 
 **Template basis:** [ITI Voluntary Product Accessibility Template (VPAT®)](https://www.itic.org/policy/accessibility/vpat), **WCAG 2.1** reporting columns aligned with **VPAT® 2.4 Rev** (four conformance columns: conformance level **+ remarks**). VPAT® is an ITI registered service mark.
 
@@ -18,7 +18,7 @@
 
 | Field | Value |
 | ----- | ----- |
-| **Product name** | ArchLucid Operator UI (web application) |
+| **Product name** | ArchLucid Architect workspace (web application) |
 | **Product version** | V1 |
 | **Product description** | Web-based architecture review and governance platform |
 | **Vendor** | ArchLucid |
@@ -49,7 +49,7 @@
 | Criteria | Level | Conformance | Remarks and explanations |
 | -------- | ----- | ----------- | ------------------------ |
 | 1.1.1 Non-text Content | A | Not Evaluated | Manual evaluation pending. |
-| 1.2.1 Audio-only and Video-only (Prerecorded) | A | Not Applicable | Operator UI assessed as **documentation and application chrome**, not packaged as multimedia player product; reassess when embedded prerecorded media ships. |
+| 1.2.1 Audio-only and Video-only (Prerecorded) | A | Not Applicable | Architect workspace assessed as **documentation and application chrome**, not packaged as multimedia player product; reassess when embedded prerecorded media ships. |
 | 1.2.2 Captions (Prerecorded) | A | Not Applicable | Same applicability note as **1.2.1** for assessed scope. |
 | 1.2.3 Audio Description or Media Alternative (Prerecorded) | A | Not Applicable | Same applicability note as **1.2.1** for assessed scope. |
 | 1.2.4 Captions (Live) | AA | Not Evaluated | Manual evaluation pending. |

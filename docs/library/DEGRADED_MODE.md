@@ -43,7 +43,7 @@ Client → API → Authority pipeline / Application services
 | Governance (approve, promote, activate) | No | Continues | N/A |
 | Audit log & export | No | Continues | N/A |
 | Health & readiness | No | Continues | N/A |
-| Operator UI shell & governance dashboard | No | Continues for non-LLM pages | N/A |
+| Architect workspace & governance dashboard | No | Continues for non-LLM pages | N/A |
 | Explanation service / aggregate explanation | Yes | Errors or empty; cache may serve prior aggregate if enabled; when LLM returns but **faithfulness** vs findings is very low, aggregate may swap to **deterministic** manifest narrative (`ArchLucid:Explanation:Aggregate`) | Restore LLM; circuit closes |
 | Ask endpoint | Yes | Error response | Restore LLM |
 | Agent-enhanced handlers | Yes | Blocked or skipped when breaker open; may fall back to deterministic paths where implemented | Breaker half-open → closed |

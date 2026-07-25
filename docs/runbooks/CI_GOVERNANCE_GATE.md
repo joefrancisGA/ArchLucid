@@ -42,8 +42,8 @@ Copy-paste GitHub Actions and Azure DevOps snippets that call **`POST /v1/govern
 | Mode | API | Use when |
 | --- | --- | --- |
 | **Simulate** | `POST /v1/governance/pre-commit/simulate` | You already have a **ReadyForCommit** or **Committed** `runId` (nightly tag, manual workflow input) and want a **dry-run** gate check without mutating the golden manifest |
-| **Commit** | `POST /v1/architecture/run/{runId}/commit` | The review finished execute and is **ReadyForCommit** — CI should attempt real finalize and fail on governance block |
-| **Full PR gate** | create → execute → poll → commit | Infrastructure or architecture files changed on a PR — use [`examples/ci/archlucid-governance-gate.yml`](../../examples/ci/archlucid-governance-gate.yml) |
+| **Finalize** (API `commit`) | `POST /v1/architecture/run/{runId}/commit` | The review finished execute and is **ReadyForCommit** (ready to finalize) — CI should attempt real finalize and fail on governance block |
+| **Full PR gate** | create → execute → poll → finalize (`commit`) | Infrastructure or architecture files changed on a PR — use [`examples/ci/archlucid-governance-gate.yml`](../../examples/ci/archlucid-governance-gate.yml) |
 
 ### CI secrets (simulate / commit modes)
 
@@ -75,7 +75,7 @@ Example request shape (sanitized — see starter contracts JSON):
 }
 ```
 
-### Commit mode (real gate)
+### Finalize mode (real gate; API `commit`)
 
 **OpenAPI:** `POST /v1/architecture/run/{runId}/commit`
 
@@ -83,7 +83,7 @@ Example request shape (sanitized — see starter contracts JSON):
 | --- | --- | --- |
 | **200** | — | Pass |
 | **409** | `#governance-pre-commit-blocked` | **Fail** — read RFC 9457 `extensions.blockingFindingIds`, optional `extensions.policyPackId`, `extensions.minimumBlockingSeverity` per [`API_ERROR_CONTRACT.md`](../library/API_ERROR_CONTRACT.md) |
-| **400** | `#validation-failed` or run-state conflict | Fail — run not ready for commit |
+| **400** | `#validation-failed` or run-state conflict | Fail — run not ready to finalize (not **ReadyForCommit**) |
 | **401** / **403** | auth / authority | Fail — fix secrets or RBAC |
 
 ### Minimal starter setup
@@ -106,7 +106,7 @@ Example request shape (sanitized — see starter contracts JSON):
 - [ ] `python scripts/ci/check_v1_integration_starter_contracts.py` passes locally.
 - [ ] Simulate on compliant run → CI exit **0**, `PreCommitGateResult.blocked == false`.
 - [ ] Simulate with synthetic Critical on enforcing pack → CI exit **1**, `blocked == true`.
-- [ ] Commit on blocked run → HTTP **409**, problem type contains `governance-pre-commit-blocked`.
+- [ ] Finalize (`commit`) on blocked run → HTTP **409**, problem type contains `governance-pre-commit-blocked`.
 
 ## End-to-end flow
 

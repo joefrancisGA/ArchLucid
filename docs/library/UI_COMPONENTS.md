@@ -1,9 +1,9 @@
-> **Scope:** Contributor-reference — Operator UI — shared components (archlucid-ui) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference — Architect workspace — shared components (archlucid-ui) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Operator UI — shared components (`archlucid-ui`)
+# Architect workspace — shared components (`archlucid-ui`)
 
 **Purpose:** Document reusable React components that are not covered in depth by **`archlucid-ui/docs/COMPONENT_REFERENCE.md`** (shadcn primitives) but are important for operator workflows.
 

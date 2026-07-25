@@ -43,7 +43,7 @@ The layers explain the product clearly:
 
 ### 2.2 UI visibility shaping
 
-The operator shell uses progressive disclosure so users do not see the entire product by default.
+The architect workspace uses progressive disclosure so users do not see the entire product by default.
 
 ### 2.3 Role-shaped usage
 

@@ -16,7 +16,7 @@ Authorize a **time-boxed** technical assessment of ArchLucid’s exposed attack 
 | In scope | Out of scope (unless explicitly added) |
 |----------|------------------------------------------|
 | HTTPS API surface documented in OpenAPI | Customer-owned IdP misconfiguration |
-| Operator UI (`archlucid-ui`) staging tenant | Physical / social engineering |
+| Architect workspace (`archlucid-ui`) staging tenant | Physical / social engineering |
 | Azure OpenAI integration (rate limits, auth) | Third-party SaaS outside subprocessors list |
 | SQL Server with **RLS session context** enabled as in staging | Denial-of-service against shared CI |
 

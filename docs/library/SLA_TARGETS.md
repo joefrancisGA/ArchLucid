@@ -25,7 +25,7 @@
 
 **Availability** = (total minutes − downtime minutes) ÷ total minutes × 100.
 
-**Downtime:** `/health/live` on the API returns **non-200** for **5+ consecutive minutes** from an **external** synthetic probe (same class of signal as [`.github/workflows/api-synthetic-probe.yml`](../../.github/workflows/api-synthetic-probe.yml)). Operator UI availability uses the **production Front Door / UI hostname** with an equivalent **HTTP 2xx** check on a configured health or shell route as exercised by [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml).
+**Downtime:** `/health/live` on the API returns **non-200** for **5+ consecutive minutes** from an **external** synthetic probe (same class of signal as [`.github/workflows/api-synthetic-probe.yml`](../../.github/workflows/api-synthetic-probe.yml)). Architect workspace availability uses the **production Front Door / UI hostname** with an equivalent **HTTP 2xx** check on a configured health or shell route as exercised by [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml).
 
 ---
 

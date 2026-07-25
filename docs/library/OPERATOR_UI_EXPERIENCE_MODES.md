@@ -1,23 +1,25 @@
-> **Scope:** Next.js operator shell experience flags (`NEXT_PUBLIC_*`) — documents buyer-default vs full-operator UI only, not API auth or backend behavior.
+> **Scope:** Next.js architect workspace experience flags (`NEXT_PUBLIC_*`) — documents buyer-default vs full architect workspace only, not API auth or backend behavior.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Operator UI experience modes
+# Architect workspace experience modes
 
 **Audience:** Deployers wiring `archlucid-ui` for pilots or production.
 
+**Legacy filename / env:** doc path and `NEXT_PUBLIC_OPERATOR_EXPERIENCE` keep the historical `operator` identifier; product language is **architect workspace**.
+
 ## Buyer-default shell (omitted `NEXT_PUBLIC_OPERATOR_EXPERIENCE`)
 
-When **`NEXT_PUBLIC_OPERATOR_EXPERIENCE`** is **unset** or not equal to `operator`, the UI uses the **buyer-oriented** operator shell: friendlier labels, fewer shortcut chips, and deliverables-first copy on review detail. This is the **default for all authenticated production deploys** (TB-643) — not only demo or trial builds.
+When **`NEXT_PUBLIC_OPERATOR_EXPERIENCE`** is **unset** or not equal to `operator`, the UI uses the **buyer-oriented** architect workspace: friendlier labels, fewer shortcut chips, and deliverables-first copy on review detail. This is the **default for all authenticated production deploys** (TB-643) — not only demo or trial builds.
 
 **Does not change:** API authorization, RBAC, or progressive disclosure toggles in the sidebar footer (`Show analysis & investigation tools`, `Show governance, audit & admin controls`). Those still gate Operate-layer links per [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md).
 
-## Full operator shell (`NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`)
+## Full architect workspace (`NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`)
 
 Set to **`operator`** (case-insensitive) for **internal** or **power-user** deployments that opt into **engineering chrome**: dense nav metadata, shortcut hints, technical identifiers, COGS/telemetry surfaces, and LLM budget admin widgets. **Buyer-polished vocabulary remains the default** even with this flag — it does not revert labels to raw run/manifest jargon (see **TB-645** for the vocabulary pass).
 
-Local `next dev` sets this in **`archlucid-ui/.env.development`** so engineers keep the historical operator layout.
+Local `next dev` sets this in **`archlucid-ui/.env.development`** so engineers keep the historical full-workspace layout.
 
 ## Demo / static showcase builds
 

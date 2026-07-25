@@ -1,31 +1,31 @@
-> **Scope:** Buyer — Operators and sponsors interpreting the post-commit sponsor banner day badge; not general trial billing or unrelated UI components.
+> **Scope:** Buyer — Architects and sponsors interpreting the post-finalize sponsor banner day badge; not general trial billing or unrelated UI components.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Sponsor banner — “Day N since first commit” badge
+# Sponsor banner — “Day N since first finalize” badge
 
 ## Objective
 
-Explain the small **“Day N since first commit”** badge shown next to **Time to value** on the post-commit **Email this run to your sponsor** banner (`archlucid-ui/src/components/EmailRunToSponsorBanner.tsx`) so buyers and operators know what it measures, when it appears, and how it degrades safely.
+Explain the small **“Day N since first finalize”** badge (UI/API may still say *first commit*) shown next to **Time to value** on the post-finalize **Email this run to your sponsor** banner (`archlucid-ui/src/components/EmailRunToSponsorBanner.tsx`) so buyers and architects know what it measures, when it appears, and how it degrades safely.
 
 ## Assumptions
 
-- The tenant row may carry **`dbo.Tenants.TrialFirstManifestCommittedUtc`**, set on the **first golden manifest commit** for **every** tenant via `ITenantRepository.TryMarkFirstManifestCommittedAsync` (column name unchanged). Trial-only **`TrialFirstRunCompleted`** audit + histograms still fire only when **`TrialExpiresUtc`** is set — see **`SqlTrialFunnelCommitHook`**.
-- The operator shell calls **`GET /v1/tenant/trial-status`** (via **`/api/proxy/v1/tenant/trial-status`**) with the same registration scope headers as **`TrialBanner`**.
-- **Day N** is computed in the browser as **full UTC 24-hour periods** since that timestamp: `floor((nowUtcMillis − firstCommitUtcMillis) / 86400000)`, clamped at zero — so **Day 0** covers the first 24 hours after the recorded commit instant.
+- The tenant row may carry **`dbo.Tenants.TrialFirstManifestCommittedUtc`**, set on the **first golden manifest finalize** (API `commit`) for **every** tenant via `ITenantRepository.TryMarkFirstManifestCommittedAsync` (column name unchanged). Trial-only **`TrialFirstRunCompleted`** audit + histograms still fire only when **`TrialExpiresUtc`** is set — see **`SqlTrialFunnelCommitHook`**.
+- The architect workspace calls **`GET /v1/tenant/trial-status`** (via **`/api/proxy/v1/tenant/trial-status`**) with the same registration scope headers as **`TrialBanner`**.
+- **Day N** is computed in the browser as **full UTC 24-hour periods** since that timestamp: `floor((nowUtcMillis − firstCommitUtcMillis) / 86400000)`, clamped at zero — so **Day 0** covers the first 24 hours after the recorded finalize instant.
 
 ## Constraints
 
 - **No new SQL migration** — the column already exists (**081**).
 - **No new audit event** — badge render is read-only telemetry (`archlucid.ui.sponsor_banner.first_commit_badge_rendered`) plus optional **`POST /v1/diagnostics/sponsor-banner-first-commit-badge`** for server-side counting.
-- **Non-trial tenants** keep a **null** `firstCommitUtc` until their first authority commit (or until ops run the one-shot backfill script below); the badge stays hidden when null.
+- **Non-trial tenants** keep a **null** `firstCommitUtc` until their first authority finalize (or until ops run the one-shot backfill script below); the badge stays hidden when null.
 
 ## Architecture overview
 
 ```mermaid
 sequenceDiagram
-  participant UI as Operator UI (banner)
+  participant UI as Architect workspace (banner)
   participant Proxy as Next.js /api/proxy
   participant API as TenantTrialController
   participant Repo as ITenantRepository
@@ -56,7 +56,7 @@ sequenceDiagram
 
 1. First golden manifest commit sets **`TrialFirstManifestCommittedUtc`** once (all tiers).
 2. **`GET /v1/tenant/trial-status`** projects it to **`firstCommitUtc`** for both **Status = None** (blank trial status) and active trial payloads.
-3. The banner reads **`firstCommitUtc`**, computes **N**, shows **“Day N since first commit”**, and emits **one** telemetry increment per mount when a badge is shown.
+3. The banner reads **`firstCommitUtc`**, computes **N**, shows **“Day N since first finalize”** (UI string may still say *first commit*), and emits **one** telemetry increment per mount when a badge is shown.
 
 ## Security model
 

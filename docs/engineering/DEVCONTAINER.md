@@ -6,7 +6,7 @@
 
 # Dev container
 
-The **`.devcontainer/devcontainer.json`** uses the Microsoft **.NET 10** dev image plus **Node.js 22** (Operator UI). It is intended for editors that support the Dev Containers spec.
+The **`.devcontainer/devcontainer.json`** uses the Microsoft **.NET 10** dev image plus **Node.js 22** (architect workspace). It is intended for editors that support the Dev Containers spec.
 
 ## Data plane dependencies
 

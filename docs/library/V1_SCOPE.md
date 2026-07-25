@@ -58,7 +58,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 - **API:** list and download manifest-scoped artifacts; export-related endpoints per OpenAPI/Swagger.
 - **CLI:** `artifacts`, `status` per [CLI_USAGE.md](CLI_USAGE.md).
-- **Operator UI:** reviews list, review detail (legacy labels may still say *Runs*), manifest summary, artifact review, and download ([operator-shell.md](operator-shell.md)).
+- **Architect workspace:** reviews list, review detail (legacy labels may still say *Runs*), manifest summary, artifact review, and download ([operator-shell.md](operator-shell.md)).
 
 #### 2.3 Export and package generation
 
@@ -84,7 +84,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 #### 2.5 Compare
 
 - **Two-review** comparison: structured golden-manifest deltas + legacy diff + optional AI explanation ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
-- Operator UI: **Compare two reviews** workflow ([operator-shell.md](operator-shell.md)).
+- Architect workspace: **Compare two reviews** workflow ([operator-shell.md](operator-shell.md)).
 
 #### 2.6 Replay
 
@@ -317,7 +317,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | **Core-tier tests** pass for the agreed filter (e.g. fast core / `Suite=Core` conventions) | [TEST_STRUCTURE.md](TEST_STRUCTURE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../REPOSITORY_README.md), [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 | **One scripted end-to-end run** produces a committed manifest and **at least one** artifact descriptor | `scripts/release-smoke.ps1` expectations ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)) |
-| **Operator UI** builds when Node is in use; Vitest/build steps as per readiness scripts | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [archlucid-ui/README.md](../../archlucid-ui/README.md) |
+| **Architect workspace** builds when Node is in use; Vitest/build steps as per readiness scripts | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [archlucid-ui/README.md](../../archlucid-ui/README.md) |
 | **Version and diagnostics** available for handoff (`GET /version`, CLI `doctor`, support bundle discipline) | [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 
 **Not required** for every internal build: Playwright E2E, full integration matrix, performance benchmarks, or full Terraform apply to a live subscription—unless your program explicitly adds them as release gates.

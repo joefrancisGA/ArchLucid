@@ -24,7 +24,7 @@ Document every **DevelopmentBypass-only** assumption in `archlucid-ui/e2e/live-a
 
 ## 4. Architecture overview
 
-**Nodes:** Playwright `APIRequestContext`, ArchLucid.Api, SQL Server, Next.js operator shell (for UI portions of specs).
+**Nodes:** Playwright `APIRequestContext`, ArchLucid.Api, SQL Server, Next.js architect workspace (for UI portions of specs).
 
 **Edges:** Specs → `live-api-client` helpers → HTTP → API auth middleware → controllers.
 
