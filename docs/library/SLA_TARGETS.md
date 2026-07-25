@@ -1,4 +1,4 @@
-> **Scope:** Buyer — Hosted SaaS service availability target (API + operator UI) — pre-contractual engineering posture.
+> **Scope:** Buyer — Hosted SaaS service availability target (API + architect workspace) — pre-contractual engineering posture.
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Hosted SaaS availability target
@@ -15,7 +15,7 @@
 |---------|----------------|--------|
 | **ArchLucid API** + **operator web UI** | **99.9%** | Reflects Azure Container Apps + Azure SQL high-availability posture for the hosted stack. |
 
-**Meaning:** For each calendar month, we target at least **99.9%** uptime for API and operator UI together, measured as described below.
+**Meaning:** For each calendar month, we target at least **99.9%** uptime for API and architect workspace together, measured as described below.
 
 **Relationship to other docs:** The **HTTP** rolling objective in [`API_SLOS.md`](API_SLOS.md) and [`SLA_SUMMARY.md`](../go-to-market/SLA_SUMMARY.md) is aligned to **99.9%** availability (non-5xx / all requests) with tiered latency; this document states the **full hosted product** (API + UI) narrative **also** at **99.9%** for packaging and Trust Center (minute-based signal differs — see *Measurement* below).
 

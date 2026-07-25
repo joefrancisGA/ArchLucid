@@ -65,7 +65,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 
 ## Canonical terminology
 
-- [`GLOSSARY.md`](GLOSSARY.md) — domain terms (review package, signed manifest, audit trail, …).
+- [`GLOSSARY.md`](GLOSSARY.md) — domain terms (architecture package, signed manifest, audit trail, …).
 
 ## Architecture invariants (**INV-***)
 

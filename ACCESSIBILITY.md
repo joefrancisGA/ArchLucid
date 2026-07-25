@@ -9,7 +9,7 @@ Last reviewed: 2026-06-24
 
 ## Target compliance level
 
-**WCAG 2.2 Level AA** — the ArchLucid operator UI targets conformance with the [Web Content Accessibility Guidelines (WCAG) 2.2](https://www.w3.org/TR/WCAG22/) at Level AA, including WCAG 2.0/2.1 success criteria retained at that level.
+**WCAG 2.2 Level AA** — the ArchLucid architect workspace targets conformance with the [Web Content Accessibility Guidelines (WCAG) 2.2](https://www.w3.org/TR/WCAG22/) at Level AA, including WCAG 2.0/2.1 success criteria retained at that level.
 
 Playwright axe runs attach the **`wcag22aa`** ruleset bundle alongside **`wcag21aa`** (see **`archlucid-ui/e2e/helpers/axe-helper.ts`**).
 

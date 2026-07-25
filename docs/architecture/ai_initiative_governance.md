@@ -231,7 +231,7 @@ Readiness dispositions and RFI/decision memos are produced at **draft stage**, w
 | Initiative intake & readiness | Model cards, monitoring reports | AI inventories (LeanIX, Ardoq, ServiceNow, Credo) | Runtime model monitoring |
 | Design-time architecture analysis | Eval results, pen-test summaries | ITSM (Jira/ServiceNow — shipped) | Prompt/agent observability |
 | Evidence, lineage, policy evaluation | Vendor SOC 2, DPIAs | GRC evidence export | Bias/fairness testing execution |
-| Findings, dispositions, RFI, review packages | Regulatory guidance docs | Model registries (read metadata) | Drift detection, AI incident response |
+| Findings, dispositions, RFI, architecture packages | Regulatory guidance docs | Model registries (read metadata) | Drift detection, AI incident response |
 | Conversion, reevaluation, audit | | SSO/SCIM (shipped) | Model registry hosting, continuous validation |
 
 ArchLucid owns the **decision record about the design**; runtime artifacts flow in as evidence only.

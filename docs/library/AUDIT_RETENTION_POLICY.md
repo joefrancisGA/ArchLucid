@@ -21,7 +21,7 @@ Related material: durable audit producers are mapped in [`docs/AUDIT_COVERAGE_MA
 
 | Tier | Age (guidance) | Primary store | Access pattern |
 |------|----------------|---------------|----------------|
-| **Hot** | **0–90 days** | SQL Server `dbo.AuditEvents` | **Full interactive access** via API: `GET /v1/audit` (paginated, newest-first) and `GET /v1/audit/search` (filtered). Suitable for operator UI and incident response. |
+| **Hot** | **0–90 days** | SQL Server `dbo.AuditEvents` | **Full interactive access** via API: `GET /v1/audit` (paginated, newest-first) and `GET /v1/audit/search` (filtered). Suitable for architect workspace and incident response. |
 | **Warm** | **90–365 days** | Still in `dbo.AuditEvents` until archived | **Bulk extraction** via `GET /v1/audit/export` (JSON or CSV via `Accept`). Each request is limited to a **90-day UTC window** and a **row cap** (default 10 000 per export); operators run **multiple exports** to cover longer periods. **Recommendation:** schedule **periodic CSV exports** to **Azure Blob Storage** (e.g. **Cool** or **Archive** tier) using an automation account, Kubernetes `CronJob`, Logic App, or equivalent—**not** the interactive app role for ad-hoc deletes. |
 | **Cold** | **365+ days** | **Azure Blob Storage** (exported files) | Treat **object storage** as the long-term compliance copy. Prefer **immutable / WORM** (time-based retention or legal hold) on the container or blob prefix used for audit exports. **Database rows** in this tier are candidates for **removal from the hot query path** once blob retention is verified. |
 

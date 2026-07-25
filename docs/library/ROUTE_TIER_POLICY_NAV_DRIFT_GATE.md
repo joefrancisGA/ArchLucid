@@ -24,7 +24,7 @@ python scripts/ci/assert_route_tier_policy_nav.py --sync
 python scripts/ci/detect_route_tier_policy_nav_changes.py --base-ref origin/main
 ```
 
-Proof collection (with committed review):
+Proof collection (with finalized architecture package):
 
 ```powershell
 ./scripts/collect-first-pilot-proof.ps1 -BaseUrl https://your-api.example -RunId <runId> -SponsorHandoff

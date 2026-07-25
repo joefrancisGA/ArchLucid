@@ -145,5 +145,5 @@ The run detail page loads the timeline on the server (alongside other run sectio
 ## Related documents
 
 - [ACCESSIBILITY.md](ACCESSIBILITY.md) — Alert dialog focus behavior and live region for progress.
-- [ACCESSIBILITY.md](../../ACCESSIBILITY.md) — WCAG baseline, axe CI, and general operator UI accessibility policy (repo root).
+- [ACCESSIBILITY.md](../../ACCESSIBILITY.md) — WCAG baseline, axe CI, and general architect workspace accessibility policy (repo root).
 - `archlucid-ui/docs/COMPONENT_REFERENCE.md` — full component inventory for the shell.

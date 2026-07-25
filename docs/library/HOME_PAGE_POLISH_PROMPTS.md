@@ -3,7 +3,7 @@
 # Home page polish — composer prompt set
 
 **Goal:** Copy and hierarchy cleanup only. No new features, no layout changes, no behavior changes.
-**Surface:** Authenticated operator home (`/`) — both buyer-polished and full-operator shell variants.
+**Surface:** Authenticated architect home (`/`) — both buyer-polished and full architect workspace variants.
 
 Each prompt is independent and can be run individually. Run them in order if doing them in one session so the copy stays consistent.
 
@@ -153,7 +153,7 @@ Run `ReadLints` on `OperatorHomeFirstReviewEmptyState.tsx` after the edit to cat
 > session structure than the section actually delivers in a first demo context. "Review guide"
 > is neutral, shorter, and consistent with the "guide" framing already used elsewhere in the UI.
 >
-> This is a copy-only rename scoped to the buyer shell variant. The full operator shell label
+> This is a copy-only rename scoped to the buyer shell variant. The full architect workspace label
 > ("Full operating path") is unchanged.
 
 **Changes in `first-pilot-operating-rail-copy.ts` — `BUYER_SHELL_COPY` object:**

@@ -11,7 +11,7 @@
 
 ## Context
 
-The operator UI stores ArchLucid-issued access tokens in `sessionStorage` and sends them as `Authorization: Bearer` via the Next.js API proxy. This is acceptable for **controlled enterprise beta** and **invite-only trial**, but for **public self-service / GA** any XSS becomes full session theft. Idle timeout is also client-enforced only.
+The architect workspace stores ArchLucid-issued access tokens in `sessionStorage` and sends them as `Authorization: Bearer` via the Next.js API proxy. This is acceptable for **controlled enterprise beta** and **invite-only trial**, but for **public self-service / GA** any XSS becomes full session theft. Idle timeout is also client-enforced only.
 
 ## Decision
 

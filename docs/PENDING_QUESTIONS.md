@@ -392,7 +392,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | Sub-decision | Decision | Affects |
 |---|---|---|
 | **Default Authentication Strategy for SaaS vs. On-Prem** | **Require Entra ID configuration or a static API key.** The open `DevelopmentBypassAll` default must not be the production posture. | `ArchLucid.Api/Auth/Models/ArchLucidAuthOptions.cs`, `docs/library/` |
-| **Unify Error Responses for Hidden UI Features** | **404 Not Found.** Restricted API routes will return 404 instead of 403 to prevent feature and resource enumeration by unauthorized tiers/roles. | `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`, `ArchLucid.Api.Tests/`, Operator UI interpretation logic. |
+| **Unify Error Responses for Hidden UI Features** | **404 Not Found.** Restricted API routes will return 404 instead of 403 to prevent feature and resource enumeration by unauthorized tiers/roles. | `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`, `ArchLucid.Api.Tests/`, Architect workspace interpretation logic. |
 
 **Refined 2026-04-28 (Assessor B):** for **tenant-scoped** run/manifest APIs, owner prefers **403** with clear Problem Details for **debuggability**; **404** remains preferred for **admin** surfaces. See **Resolved 2026-04-28** — implementation work reconciles this split with the filter above on a per-route basis.
 

@@ -189,7 +189,7 @@ Each rule uses the existing `CuratedRulesRuleEntry` shape, with `priority` alrea
 }
 ```
 
-> **No new content-document fields are required by the engine** — `advisoryDefaults` and `metadata` already accept arbitrary string keys; only `priorityFloor` is honored by `PolicyPackPriorityFloor`. Other keys are advisory hints for the operator UI and the appendix.
+> **No new content-document fields are required by the engine** — `advisoryDefaults` and `metadata` already accept arbitrary string keys; only `priorityFloor` is honored by `PolicyPackPriorityFloor`. Other keys are advisory hints for the architect workspace and the appendix.
 
 ### 5.6 Files added (paths only — content not authored in this spec)
 
@@ -208,7 +208,7 @@ Each rule uses the existing `CuratedRulesRuleEntry` shape, with `priority` alrea
 ## 6. Data Flow
 
 1. **Provisioning** — `DefaultPolicyPackSeeder` reads `bundled-policy-packs-v1.manifest.json` (now 24 entries) and creates `PlatformDefault` rows per tenant.
-2. **Assignment** — Seeded enabled at tenant scope (same path as every other bundled pack). Operators can disable the assignment via the operator UI for tenants where ARC-AMPE is out of scope. `priorityFloor: P0` keeps the active rule count to the must-have anchors (~15–20 of ~80) until the operator widens.
+2. **Assignment** — Seeded enabled at tenant scope (same path as every other bundled pack). Architects can disable the assignment via the architect workspace for tenants where ARC-AMPE is out of scope. `priorityFloor: P0` keeps the active rule count to the must-have anchors (~15–20 of ~80) until the architect widens.
 3. **Effective merge** — `PolicyPackResolver` merges `advisoryDefaults` (including `priorityFloor: P0`) and `complianceRuleKeys` (the ~80 `arc-ampe-*` ids).
 4. **Compliance evaluation** — `TenantCuratedComplianceRulePackMerger` injects the curated rule bodies; `ComplianceRulePackGovernanceFilter` narrows to the merged key set; `PolicyPackPriorityFloor` enforces `P0` until widened.
 5. **Findings UI** — `/governance/findings` shows ARC-AMPE rule rows with chips: **Pillar**, **CSF function**, **800-53 family**.
