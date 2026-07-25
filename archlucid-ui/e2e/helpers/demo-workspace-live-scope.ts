@@ -112,9 +112,9 @@ export async function injectDemoWorkspaceOperatorScope(
 }
 
 /**
- * Opens a SQL-backed demo workspace run detail with one cold-start retry.
+ * Opens a SQL-backed demo workspace run detail with cold-start retries.
  * First RSC flight can miss the scope cookie or hit a transient API fault (same pattern as
- * `live-api-journey.spec.ts`).
+ * `live-api-journey.spec.ts`). Buyer shell SSR uses `/buyer-summary`.
  */
 export async function openDemoWorkspaceReviewDetailShellReady(
   page: Page,
@@ -122,18 +122,29 @@ export async function openDemoWorkspaceReviewDetailShellReady(
   runId: string,
   options?: { readonly timeoutMs?: number },
 ): Promise<void> {
-  const firstTimeoutMs = options?.timeoutMs ?? 60_000;
+  const attemptTimeoutMs = options?.timeoutMs ?? 45_000;
+  const maxAttempts = 3;
+  let lastError: unknown;
 
-  await injectDemoWorkspaceOperatorScope(page, scope);
-  await gotoLiveRunDetailPage(page, runId);
-
-  try {
-    await expectBuyerPolishedReviewDetailShellReady(page, { timeoutMs: firstTimeoutMs });
-  } catch {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     await injectDemoWorkspaceOperatorScope(page, scope);
     await gotoLiveRunDetailPage(page, runId);
-    await expectBuyerPolishedReviewDetailShellReady(page, {
-      timeoutMs: Math.max(firstTimeoutMs, 120_000),
-    });
+
+    try {
+      const timeoutMs =
+        attempt === maxAttempts ? Math.max(attemptTimeoutMs, 120_000) : attemptTimeoutMs;
+
+      await expectBuyerPolishedReviewDetailShellReady(page, { timeoutMs });
+
+      return;
+    } catch (error) {
+      lastError = error;
+
+      if (attempt === maxAttempts) {
+        break;
+      }
+    }
   }
+
+  throw lastError;
 }

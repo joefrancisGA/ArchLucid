@@ -10,7 +10,7 @@ import {
   openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
-import { liveApiBase } from "./helpers/live-api-client";
+import { liveApiBase, waitForAuthorityBuyerSummaryGoldenManifest } from "./helpers/live-api-client";
 import {
   ensureBuyerDeliverablesSectionExpanded,
   expectBuyerPipelineTimelineSectionVisible,

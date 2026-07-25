@@ -795,6 +795,20 @@ export async function getAuthorityRunDetailRaw(
   });
 }
 
+/** Buyer-polished run detail — same endpoint Next.js SSR uses for `/reviews/{runId}`. */
+export async function getAuthorityBuyerSummaryRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope: LiveTenantScopeHeaders,
+  options?: { apiKey?: string | null },
+): Promise<APIResponse> {
+  const encoded = encodeURIComponent(runId);
+
+  return request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/buyer-summary`, {
+    headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
+  });
+}
+
 const maxTransientHttpPollAttempts = 24;
 
 async function sleepTransientHttpBackoff(attempt: number): Promise<void> {

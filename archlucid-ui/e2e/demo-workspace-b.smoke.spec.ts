@@ -16,10 +16,12 @@ import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-se
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
 import {
   countFindingsInAuthorityRunDetailPayload,
+  getAuthorityBuyerSummaryRaw,
   getAuthorityRunDetailRaw,
   getRunArchitectureExportHistoryRaw,
   liveApiBase,
   postConsultingAnalysisDocxRaw,
+  waitForAuthorityBuyerSummaryGoldenManifest,
 } from "./helpers/live-api-client";
 import {
   ensureBuyerDeliverablesSectionExpanded,
@@ -129,6 +131,25 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
     expect(countFindingsInAuthorityRunDetailPayload(authorityJson)).toBe(
       demoWorkspacesFixtureManifest.workspaceB.expectedCommittedFindingCount,
     );
+
+    // Buyer shell SSR uses `/buyer-summary` — wait for that surface before navigating.
+    await waitForAuthorityBuyerSummaryGoldenManifest(
+      request,
+      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+      90_000,
+      DEMO_WORKSPACE_B_LIVE_IDS,
+    );
+
+    const buyerSummaryProbe = await getAuthorityBuyerSummaryRaw(
+      request,
+      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+      DEMO_WORKSPACE_B_LIVE_IDS,
+    );
+
+    expect(
+      buyerSummaryProbe.ok(),
+      `GET /v1/authority/runs/{runId}/buyer-summary expected 200 — ${await buyerSummaryProbe.text()}`,
+    ).toBeTruthy();
 
     await openDemoWorkspaceReviewDetailShellReady(
       page,
