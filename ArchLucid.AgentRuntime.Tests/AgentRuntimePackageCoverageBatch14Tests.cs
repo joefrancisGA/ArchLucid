@@ -58,7 +58,7 @@ public sealed class AgentRuntimePackageCoverageBatch14Tests
 
     [Theory]
     [InlineData("doc:requirements.md#line-42", true)]
-    [InlineData("general architecture guidance", false)]
+    [InlineData("request", false)]
     public void CriticFindingEvidenceCitationRules_detects_concrete_citations(string evidenceRef, bool expected)
     {
         ArchitectureFinding finding = new()
@@ -81,8 +81,8 @@ public sealed class AgentRuntimePackageCoverageBatch14Tests
             [
                 new ArchitectureFinding
                 {
-                    Message = "Consider implementing monitoring and alerting for production workloads.",
-                    EvidenceRefs = [],
+                    Message = "Enable MFA for all user accounts.",
+                    EvidenceRefs = ["critic-checklist"],
                 },
                 new ArchitectureFinding
                 {
