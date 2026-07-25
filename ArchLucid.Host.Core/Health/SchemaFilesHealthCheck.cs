@@ -43,6 +43,7 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         }
 
         string trimmed = relativePath.Trim();
+
         if (IsNonRelativeSchemaPath(trimmed))
         {
             problems.Add($"{logicalName} schema path must be relative (got rooted path).");
@@ -54,6 +55,7 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         string normalizedBase = Path.GetFullPath(baseDir);
         string fullPath = Path.GetFullPath(Path.Combine(baseDir, trimmed));
         string relativeToBase = Path.GetRelativePath(normalizedBase, fullPath);
+
         if (relativeToBase.Equals("..", StringComparison.Ordinal) ||
             relativeToBase.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) ||
             relativeToBase.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal))

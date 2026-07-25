@@ -116,7 +116,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 5,
     title: "Finalize and share outputs",
     description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
-    expectedOutputs: "Architecture package, evidence trail, and exports.",
+    expectedOutputs: "Signed review record, evidence trail, and exports.",
     href: "/reviews?projectId=default",
     ctaLabel: "Open reviews",
   },
