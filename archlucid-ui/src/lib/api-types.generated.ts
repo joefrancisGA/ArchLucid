@@ -28826,6 +28826,153 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/run/{runId}/execute/selective": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SelectiveExecuteRunRequest"];
+                    "application/json": null | components["schemas"]["SelectiveExecuteRunRequest"];
+                    "text/json": null | components["schemas"]["SelectiveExecuteRunRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ExecuteRunResponse"];
+                        "text/json": components["schemas"]["ExecuteRunResponse"];
+                        "text/plain": components["schemas"]["ExecuteRunResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Internal Server Error. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/architecture/run/{runId}/export/summary": {
         parameters: {
             query?: never;
@@ -78075,6 +78222,14 @@ export interface components {
             schemaVersion?: number;
             triageScenarioId?: null | string;
         };
+        AgentExecutionOutcome: {
+            agentType: components["schemas"]["AgentType"];
+            degradationReasonCode?: null | string;
+            outcome: components["schemas"]["AgentExecutionOutcomeKind"];
+            taskId?: null | string;
+        };
+        /** @enum {string} */
+        AgentExecutionOutcomeKind: "Missing" | "Succeeded" | "Degraded" | "Failed";
         AgentExecutionTrace: {
             agentType?: components["schemas"]["AgentType"];
             /** Format: int32 */
@@ -78787,7 +78942,7 @@ export interface components {
             traceabilityGaps?: string[];
         };
         /** @enum {string} */
-        ArchitectureRunStatus: "Created" | "TasksGenerated" | "WaitingForResults" | "ReadyForCommit" | "Committed" | "Failed" | "Retrying" | "ExecutionCompletedQualityRejected";
+        ArchitectureRunStatus: "Created" | "TasksGenerated" | "WaitingForResults" | "ReadyForCommit" | "Committed" | "Failed" | "Retrying" | "ExecutionCompletedQualityRejected" | "PartiallyCompleted" | "FailedPartial";
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -79158,6 +79313,7 @@ export interface components {
             hasGoldenManifest?: boolean;
             hasGraphSnapshot?: boolean;
             isDeadLettered?: boolean;
+            legacyRunStatus?: null | string;
             projectId?: string;
             runDegradedExecution?: boolean;
             /** Format: uuid */
@@ -79167,6 +79323,7 @@ export interface components {
         };
         BuyerRunDetailSummaryDto: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
+            agentExecutionOutcomes?: components["schemas"]["AgentExecutionOutcome"][];
             decisionExplainability?: null | components["schemas"]["RunDecisionExplainabilityDto"];
             degradedExecutionAgents?: string[];
             degradedFindingCoverage?: boolean;
@@ -84093,6 +84250,7 @@ export interface components {
         };
         RunDetailDto: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
+            agentExecutionOutcomes?: components["schemas"]["AgentExecutionOutcome"][];
             artifactBundle?: null | components["schemas"]["ArtifactBundle"];
             contextSnapshot?: null | components["schemas"]["ContextSnapshot"];
             decisionExplainability?: null | components["schemas"]["RunDecisionExplainabilityDto"];
@@ -84584,6 +84742,11 @@ export interface components {
         SeedFakeResultsResponse: {
             /** Format: int32 */
             resultCount?: number;
+        };
+        SelectiveExecuteRunRequest: {
+            agentTypes?: null | string[];
+            includeDependents?: boolean;
+            taskIds?: null | string[];
         };
         ServiceCatalogEvidence: {
             category?: string;
