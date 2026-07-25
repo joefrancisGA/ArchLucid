@@ -67,6 +67,8 @@ public static class ArchLucidInstrumentation
 
     private static long _llmCompletionCacheMissesAggregate;
 
+    private static long _llmCompletionCachePoisonBustsAggregate;
+
     private static long _hotPathReadCacheHitsAggregate;
 
     private static long _hotPathReadCacheMissesAggregate;
@@ -519,6 +521,14 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_llm_cache_misses_total",
             description: "LLM completion response cache misses (label: agent_type).");
+
+    /// <summary>
+    ///     Completion-cache entries removed after a cache-served body failed wire/schema admission (TB-940 poison bust).
+    /// </summary>
+    public static readonly Counter<long> LlmCompletionCachePoisonBustsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cache_poison_busts_total",
+            description: "LLM completion cache poison busts after cache-served admission failure (label: agent_type).");
 
     /// <summary>LLM completions that used the fallback client after primary throttling or server errors (labels: deployment).</summary>
     public static readonly Counter<long> LlmCompletionFallbackEngagementsTotal =
@@ -1554,6 +1564,19 @@ public static class ArchLucidInstrumentation
         tags.Add("agent_type", label);
 
         LlmCompletionCacheMissesTotal.Add(1, tags);
+    }
+
+    /// <summary>Records a TB-940 poison bust (cache-served body failed admission / schema).</summary>
+    public static void RecordLlmCompletionCachePoisonBust(string agentType)
+    {
+        string label = string.IsNullOrWhiteSpace(agentType) ? "unknown" : agentType.Trim();
+
+        _ = Interlocked.Increment(ref _llmCompletionCachePoisonBustsAggregate);
+
+        TagList tags = [];
+        tags.Add("agent_type", label);
+
+        LlmCompletionCachePoisonBustsTotal.Add(1, tags);
     }
 
     /// <summary>Records one hot-path read cache hit (<c>IHotPathReadCache</c> / HybridCache).</summary>

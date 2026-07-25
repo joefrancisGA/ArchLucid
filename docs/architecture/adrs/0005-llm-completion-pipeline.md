@@ -18,6 +18,7 @@ Pipeline order from the wire: **`CircuitBreaking( Caching( LlmCompletionAccounti
 
 - **Accounting** (scoped): pre-check quota, post-record usage, emit OTel counters (optional per-tenant labels).
 - **Caching** sits inside the breaker so hits do not trip failure counting.
+- **TB-940:** schema-gated agent completions defer cache **writes** until `ParseAndValidate` succeeds; empty/non-JSON bodies are never admitted; cache-served schema failures **bust** the key (`archlucid_llm_cache_poison_busts_total`). Keys include prompt + schema version segments (`al:llmcomp:v2:…`).
 - **Azure** client records usage into `AsyncLocal` consumed by accounting after each call.
 
 ## Consequences

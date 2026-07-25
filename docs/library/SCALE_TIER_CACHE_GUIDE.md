@@ -26,6 +26,7 @@ See [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) and [`V1_DEFERRED
 - **Memory-only on multiple replicas:** stale reads across pods; config lint and startup rules warn or fail in production-like profiles.
 - **Redis optional for V1 single-replica:** not a headline readiness defect per scope contract.
 - **Cost:** Redis adds Azure Cache spend; prefer private endpoint in production-like Terraform.
+- **LLM completion poison (TB-940):** agent schema path admits only after validation; invalid cache hits are busted (not replayed until TTL). Watch `archlucid_llm_cache_poison_busts_total`.
 
 ## Security / reliability
 

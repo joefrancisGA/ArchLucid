@@ -12,4 +12,7 @@ public interface ISemanticCache
 
     /// <summary>Persists a response for the given key with TTL from <c>AgentRuntime:CompletionCache</c>.</summary>
     Task SetCachedResponseAsync(string promptHash, string response, CancellationToken cancellationToken = default);
+
+    /// <summary>Removes a cached response when present (poison bust / explicit invalidation).</summary>
+    Task RemoveCachedResponseAsync(string promptHash, CancellationToken cancellationToken = default);
 }

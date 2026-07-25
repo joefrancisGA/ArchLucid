@@ -1,8 +1,9 @@
+using System.Runtime.CompilerServices;
+
+using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
-
-using System.Runtime.CompilerServices;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -83,18 +84,19 @@ public sealed class CachingAgentCompletionClient : IAgentStreamingCompletionClie
 
         string? cached = await _store.TryGetAsync(key, cancellationToken);
 
-        if (cached is { Length: > 0 })
+        if (LlmCompletionCacheWireAdmission.IsAdmissible(cached))
         {
             if (_logger.IsEnabled(LogLevel.Debug))
 
                 _logger.LogDebug("LLM completion cache hit (key prefix {KeyPrefix}).", key[..Math.Min(24, key.Length)]);
 
-            return cached;
+            return cached!;
         }
 
         string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
 
-        await _store.SetAsync(key, result, _ttl, cancellationToken);
+        if (LlmCompletionCacheWireAdmission.IsAdmissible(result))
+            await _store.SetAsync(key, result, _ttl, cancellationToken);
 
         return result;
     }
@@ -136,13 +138,13 @@ public sealed class CachingAgentCompletionClient : IAgentStreamingCompletionClie
 
         string? cached = await _store.TryGetAsync(key, cancellationToken).ConfigureAwait(false);
 
-        if (cached is { Length: > 0 })
+        if (LlmCompletionCacheWireAdmission.IsAdmissible(cached))
         {
             if (_logger.IsEnabled(LogLevel.Debug))
 
                 _logger.LogDebug("LLM completion cache hit for streaming (key prefix {KeyPrefix}).", key[..Math.Min(24, key.Length)]);
 
-            foreach (string chunk in AgentCompletionStreamingBridge.SimulateChunks(cached))
+            foreach (string chunk in AgentCompletionStreamingBridge.SimulateChunks(cached!))
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 yield return chunk;
@@ -165,7 +167,9 @@ public sealed class CachingAgentCompletionClient : IAgentStreamingCompletionClie
             yield return chunk;
         }
 
-        if (accumulator.Length > 0)
-            await _store.SetAsync(key, accumulator.ToString(), _ttl, cancellationToken).ConfigureAwait(false);
+        string assembled = accumulator.ToString();
+
+        if (LlmCompletionCacheWireAdmission.IsAdmissible(assembled))
+            await _store.SetAsync(key, assembled, _ttl, cancellationToken).ConfigureAwait(false);
     }
 }

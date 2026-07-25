@@ -8,11 +8,12 @@ namespace ArchLucid.AgentRuntime.Caching;
 
 /// <summary>
 ///     Decorator around <see cref="IAgentCompletionClient" /> that caches successful JSON completions in-process with OTel
-///     counters.
+///     counters. Schema-gated callers defer writes until admission succeeds (TB-940).
 /// </summary>
 public sealed class CachingLlmCompletionClient : IAgentCompletionClient
 {
     private readonly ILlmCompletionResponseCache _cache;
+    private readonly Func<bool> _deferWritesUntilSchemaAdmission;
     private readonly IAgentCompletionClient _inner;
 
     private readonly ILogger<CachingLlmCompletionClient> _logger;
@@ -29,7 +30,8 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
         IScopeContextProvider scopeProvider,
         IOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor,
         IOptionsMonitor<LlmTelemetryLabelOptions> telemetryLabels,
-        ILogger<CachingLlmCompletionClient> logger)
+        ILogger<CachingLlmCompletionClient> logger,
+        Func<bool>? deferWritesUntilSchemaAdmission = null)
     {
         ArgumentNullException.ThrowIfNull(inner);
         ArgumentNullException.ThrowIfNull(cache);
@@ -45,6 +47,8 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
         _optionsMonitor = optionsMonitor;
         _telemetryLabels = telemetryLabels;
         _logger = logger;
+        _deferWritesUntilSchemaAdmission = deferWritesUntilSchemaAdmission
+                                          ?? (() => LlmCompletionCacheDeferredAdmission.IsSchemaAdmissionRequired);
 
         ArchLucidInstrumentation.EnsureLlmCompletionCacheObservableInstrumentsRegistered();
     }
@@ -81,28 +85,69 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
             : string.Empty;
 
         LlmCompletionCacheKey cacheKey =
-            new(agentType, modelName, promptHash, _simulator, scopePartition);
+            new(
+                agentType,
+                modelName,
+                promptHash,
+                _simulator,
+                scopePartition,
+                LlmCompletionCacheKeyAmbient.CurrentPromptVersion,
+                LlmCompletionCacheKeyAmbient.CurrentSchemaVersion);
 
         LlmCompletionResult? cached = await _cache.TryGetAsync(cacheKey, cancellationToken);
 
         if (cached is not null)
         {
-            if (_logger.IsEnabled(LogLevel.Debug))
+            if (!LlmCompletionCacheWireAdmission.IsAdmissible(cached.JsonBody))
+            {
+                await _cache.RemoveAsync(cacheKey, cancellationToken).ConfigureAwait(false);
+                ArchLucidInstrumentation.RecordLlmCompletionCachePoisonBust(agentType);
+            }
+            else
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "LLM completion response cache hit (agent_type {AgentType}, model {Model}, simulator {Simulator}).",
+                        agentType,
+                        modelName,
+                        _simulator);
+                }
 
-                _logger.LogDebug(
-                    "LLM completion response cache hit (agent_type {AgentType}, model {Model}, simulator {Simulator}).",
-                    agentType,
-                    modelName,
-                    _simulator);
+                ArchLucidInstrumentation.RecordLlmCompletionCacheHit(agentType);
 
-            ArchLucidInstrumentation.RecordLlmCompletionCacheHit(agentType);
+                if (_deferWritesUntilSchemaAdmission())
+                {
+                    LlmCompletionCacheDeferredAdmission.Stage(
+                        _cache,
+                        cacheKey,
+                        cached.JsonBody,
+                        servedFromCache: true,
+                        agentType);
+                }
 
-            return cached.JsonBody;
+                return cached.JsonBody;
+            }
         }
 
         ArchLucidInstrumentation.RecordLlmCompletionCacheMiss(agentType);
 
         string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
+
+        if (!LlmCompletionCacheWireAdmission.IsAdmissible(result))
+            return result;
+
+        if (_deferWritesUntilSchemaAdmission())
+        {
+            LlmCompletionCacheDeferredAdmission.Stage(
+                _cache,
+                cacheKey,
+                result,
+                servedFromCache: false,
+                agentType);
+
+            return result;
+        }
 
         await _cache.SetAsync(cacheKey, new LlmCompletionResult(result), cancellationToken);
 

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -58,139 +59,174 @@ public static class LlmAgentSchemaCompletion
         RemediationState? lastRemediation = null;
         int schemaRetryCount = 0;
         string agentTypeLabel = agentType.ToString();
+        string promptVersion = promptRepro?.TemplateVersion ?? "none";
 
-        for (int attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex++)
+        // Defer completion-cache writes until ParseAndValidate succeeds; bust cache-served poison on failure (TB-940).
+        using (LlmCompletionCacheDeferredAdmission.EnterSchemaAdmissionGate())
+        using (LlmCompletionCacheKeyAmbient.Push(promptVersion, schemaVersion: "agent-result-json-v1"))
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            string userPrompt = BuildUserPrompt(baseUserPrompt, lastRemediation);
-
-            IAgentCompletionClient activeClient = lastRemediation is null
-                ? completionClient
-                : remediationCompletionClient ?? completionClient;
-
-            string rawJson = await activeClient
-                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens: maxTokensOverride, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-
             try
             {
-                AgentResult parsed = resultParser.ParseAndValidate(
-                    rawJson,
-                    runId,
-                    taskId,
-                    agentType,
-                    cancellationToken);
-
-                ArchLucidInstrumentation.RecordAgentSchemaRemediationCompletion(agentTypeLabel, schemaRetryCount);
-
-                if (logger?.IsEnabled(LogLevel.Information) == true)
+                for (int attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex++)
                 {
-                    logger.LogInformation(
-                        "Agent schema remediation completed for {AgentType} after {SchemaRetryCount} retries.",
-                        agentTypeLabel,
-                        schemaRetryCount);
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    string userPrompt = BuildUserPrompt(baseUserPrompt, lastRemediation);
+
+                    IAgentCompletionClient activeClient = lastRemediation is null
+                        ? completionClient
+                        : remediationCompletionClient ?? completionClient;
+
+                    string rawJson = await activeClient
+                        .CompleteJsonAsync(
+                            systemPrompt,
+                            userPrompt,
+                            maxTokens: maxTokensOverride,
+                            cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
+
+                    try
+                    {
+                        AgentResult parsed = resultParser.ParseAndValidate(
+                            rawJson,
+                            runId,
+                            taskId,
+                            agentType,
+                            cancellationToken);
+
+                        await LlmCompletionCacheDeferredAdmission.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+                        ArchLucidInstrumentation.RecordAgentSchemaRemediationCompletion(agentTypeLabel, schemaRetryCount);
+
+                        if (logger?.IsEnabled(LogLevel.Information) == true)
+                        {
+                            logger.LogInformation(
+                                "Agent schema remediation completed for {AgentType} after {SchemaRetryCount} retries.",
+                                agentTypeLabel,
+                                schemaRetryCount);
+                        }
+
+                        string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
+
+                        await AgentSchemaRemediationTraceSupport
+                            .RecordAttemptAsync(
+                                traceRecorder,
+                                attemptIndex,
+                                runId,
+                                taskId,
+                                agentType,
+                                systemPrompt,
+                                userPrompt,
+                                rawJson,
+                                parseSucceeded: true,
+                                errorMessage: null,
+                                promptRepro,
+                                parsedJson,
+                                cancellationToken)
+                            .ConfigureAwait(false);
+
+                        return (rawJson, parsed);
+                    }
+                    catch (AgentResultSchemaViolationException ex)
+                    {
+                        await LlmCompletionCacheDeferredAdmission
+                            .DiscardOrBustOnSchemaFailureAsync(cancellationToken)
+                            .ConfigureAwait(false);
+
+                        await PersistFailedAttemptAsync(
+                            traceRecorder,
+                            attemptIndex,
+                            runId,
+                            taskId,
+                            agentType,
+                            systemPrompt,
+                            userPrompt,
+                            rawJson,
+                            ex.Message,
+                            promptRepro,
+                            cancellationToken)
+                            .ConfigureAwait(false);
+
+                        if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
+                            throw;
+
+                        schemaRetryCount++;
+                        ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
+
+                        lastRemediation = RemediationState.FromSchemaViolation(ex);
+                    }
+                    catch (AgentResultValidationException ex)
+                    {
+                        await LlmCompletionCacheDeferredAdmission
+                            .DiscardOrBustOnSchemaFailureAsync(cancellationToken)
+                            .ConfigureAwait(false);
+
+                        await PersistFailedAttemptAsync(
+                            traceRecorder,
+                            attemptIndex,
+                            runId,
+                            taskId,
+                            agentType,
+                            systemPrompt,
+                            userPrompt,
+                            rawJson,
+                            ex.Message,
+                            promptRepro,
+                            cancellationToken)
+                            .ConfigureAwait(false);
+
+                        if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
+                            throw;
+
+                        schemaRetryCount++;
+                        ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
+
+                        lastRemediation = RemediationState.FromPlainDetail(ex.Message);
+                    }
+                    catch (InvalidOperationException ex) when (
+                        AgentSchemaRemediationTraceSupport.IsRetryableAgentResultParseFailure(ex))
+                    {
+                        await LlmCompletionCacheDeferredAdmission
+                            .DiscardOrBustOnSchemaFailureAsync(cancellationToken)
+                            .ConfigureAwait(false);
+
+                        string detail = AgentSchemaRemediationTraceSupport.BuildParseFailureDetail(ex);
+
+                        await PersistFailedAttemptAsync(
+                            traceRecorder,
+                            attemptIndex,
+                            runId,
+                            taskId,
+                            agentType,
+                            systemPrompt,
+                            userPrompt,
+                            rawJson,
+                            detail,
+                            promptRepro,
+                            cancellationToken)
+                            .ConfigureAwait(false);
+
+                        if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
+                            throw;
+
+                        schemaRetryCount++;
+                        ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
+
+                        lastRemediation = RemediationState.FromPlainDetail(detail);
+                    }
                 }
 
-                string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
-
-                await AgentSchemaRemediationTraceSupport
-                    .RecordAttemptAsync(
-                        traceRecorder,
-                        attemptIndex,
-                        runId,
-                        taskId,
-                        agentType,
-                        systemPrompt,
-                        userPrompt,
-                        rawJson,
-                        parseSucceeded: true,
-                        errorMessage: null,
-                        promptRepro,
-                        parsedJson,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-
-                return (rawJson, parsed);
+                throw new InvalidOperationException(
+                    $"Unexpected exit from agent schema completion loop ({agentType}, maxAttempts={maxAttempts}).");
             }
-            catch (AgentResultSchemaViolationException ex)
+            finally
             {
-                await PersistFailedAttemptAsync(
-                    traceRecorder,
-                    attemptIndex,
-                    runId,
-                    taskId,
-                    agentType,
-                    systemPrompt,
-                    userPrompt,
-                    rawJson,
-                    ex.Message,
-                    promptRepro,
-                    cancellationToken)
+                // Drop any staged miss body; bust only when the pending entry was cache-served.
+                await LlmCompletionCacheDeferredAdmission
+                    .DiscardOrBustOnSchemaFailureAsync(cancellationToken)
                     .ConfigureAwait(false);
-
-                if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
-                    throw;
-
-                schemaRetryCount++;
-                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
-
-                lastRemediation = RemediationState.FromSchemaViolation(ex);
-            }
-            catch (AgentResultValidationException ex)
-            {
-                await PersistFailedAttemptAsync(
-                    traceRecorder,
-                    attemptIndex,
-                    runId,
-                    taskId,
-                    agentType,
-                    systemPrompt,
-                    userPrompt,
-                    rawJson,
-                    ex.Message,
-                    promptRepro,
-                    cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
-                    throw;
-
-                schemaRetryCount++;
-                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
-
-                lastRemediation = RemediationState.FromPlainDetail(ex.Message);
-            }
-            catch (InvalidOperationException ex) when (AgentSchemaRemediationTraceSupport.IsRetryableAgentResultParseFailure(ex))
-            {
-                string detail = AgentSchemaRemediationTraceSupport.BuildParseFailureDetail(ex);
-
-                await PersistFailedAttemptAsync(
-                    traceRecorder,
-                    attemptIndex,
-                    runId,
-                    taskId,
-                    agentType,
-                    systemPrompt,
-                    userPrompt,
-                    rawJson,
-                    detail,
-                    promptRepro,
-                    cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
-                    throw;
-
-                schemaRetryCount++;
-                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
-
-                lastRemediation = RemediationState.FromPlainDetail(detail);
             }
         }
-
-        throw new InvalidOperationException(
-            $"Unexpected exit from agent schema completion loop ({agentType}, maxAttempts={maxAttempts}).");
     }
 
     private static async Task PersistFailedAttemptAsync(

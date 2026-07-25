@@ -66,4 +66,16 @@ public sealed class MemorySemanticCache : ISemanticCache, IDisposable
 
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task RemoveCachedResponseAsync(string promptHash, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(promptHash);
+        _ = cancellationToken;
+
+        string key = KeyPrefix + promptHash;
+        _cache.Remove(key);
+
+        return Task.CompletedTask;
+    }
 }

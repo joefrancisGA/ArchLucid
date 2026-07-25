@@ -32,6 +32,14 @@ public sealed class LlmCompletionResponseCache : ILlmCompletionResponseCache
         return _semanticCache.SetCachedResponseAsync(memoryKey, result.JsonBody, cancellationToken);
     }
 
+    /// <inheritdoc />
+    public Task RemoveAsync(LlmCompletionCacheKey key, CancellationToken cancellationToken)
+    {
+        string memoryKey = ToMemoryKey(key);
+
+        return _semanticCache.RemoveCachedResponseAsync(memoryKey, cancellationToken);
+    }
+
     internal static TimeSpan ResolveTtl(LlmCompletionCacheOptions options)
     {
         if (options is null)
@@ -58,7 +66,11 @@ public sealed class LlmCompletionResponseCache : ILlmCompletionResponseCache
         if (string.IsNullOrWhiteSpace(key.PromptHashHex))
             throw new ArgumentException("PromptHashHex is required.", nameof(key));
 
-        return "al:llmcomp:v1:"
+        string promptVersion = string.IsNullOrWhiteSpace(key.PromptVersion) ? "none" : key.PromptVersion.Trim();
+        string schemaVersion = string.IsNullOrWhiteSpace(key.SchemaVersion) ? "none" : key.SchemaVersion.Trim();
+
+        // v2 adds prompt/schema version segments so catalog/schema bumps orphan prior entries (TB-940).
+        return "al:llmcomp:v2:"
                + key.AgentType
                + ':'
                + key.ModelName
@@ -66,6 +78,10 @@ public sealed class LlmCompletionResponseCache : ILlmCompletionResponseCache
                + (key.Simulator ? '1' : '0')
                + ':'
                + key.ScopePartition
+               + ':'
+               + promptVersion
+               + ':'
+               + schemaVersion
                + ':'
                + key.PromptHashHex;
     }
