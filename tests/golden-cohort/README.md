@@ -23,13 +23,13 @@ Categories listed per item are **expected high-level finding buckets** for regre
 
 `expectedCommittedManifestSha256` carries the **canonical Simulator-path** committed-manifest **content** SHA-256 (lowercase hex) for each cohort row — see `GoldenManifestFingerprint.ComputeContentSha256Hex`. Nightly drift compares fresh simulator runs to these values when the repository variable `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED` is `true`.
 
-### Locked baseline (Simulator) — 2026-07-22
+### Locked baseline (Simulator) — 2026-07-25
 
 | Field | Value |
 |-------|--------|
-| **Lock date (UTC)** | 2026-07-22 |
+| **Lock date (UTC)** | 2026-07-25 |
 | **Fingerprint** | `GoldenManifestFingerprint.ComputeContentSha256Hex` (excludes per-run `RunId`, `Metadata.CreatedUtc`, `Metadata.DecisionTraceIds`) |
-| **Capture method** | Offline authority-projection baseline via `GoldenCohortContentBaselineGeneratorTests` (Simulator topology + compliance controls → `AuthorityCommitProjectionBuilder`) after content-hasher fix; prior full-DTO SHA lock was non-deterministic under `Guid.NewGuid()` run ids |
+| **Capture method** | Re-lock from CI `GoldenCohortSimulatorDriftTests` actual content SHAs (categories unchanged: Compliance, Cost, Critic, Topology). Prior 2026-07-22 offline authority-projection lock drifted after intentional Simulator/commit-path content changes |
 | **API mode** | `AgentExecution__Mode=Simulator`, `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=false` |
 | **Storage** | `ArchLucid__StorageProvider=InMemory` (E2E drift job) |
 | **Simulator payload stability** | `FakeScenarioFactory` uses SHA-256–derived stable ids per `(runId, taskId, slot)` and a fixed synthetic `CreatedUtc` (2024-06-01 UTC) so agent payloads stay repeatable; cohort SHAs use the content hasher so commit-path run identity cannot break the lock |
