@@ -68,6 +68,8 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md` | [`docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md`](go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md#policy-to-decision-proof-pilot-run-sheet) | Pilot run-sheet folded into policy-pack delta demo script |
 | `docs/go-to-market/FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md` | [`docs/go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md`](go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md#evidence-pack-checklist) | Evidence pack checklist/templates folded into bakeoff protocol |
 | `docs/go-to-market/LINKEDIN_CONTENT_V2.md` | [`docs/go-to-market/LINKEDIN_CONTENT_V1.md`](go-to-market/LINKEDIN_CONTENT_V1.md#builder-series-m-77m-88) | Builder-series articles folded into LinkedIn content hub |
+| `docs/go-to-market/Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md` | [`docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation) | Blind protocol folded into principal-architect insight validation |
+| `docs/go-to-market/Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md` | [`docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-cohort-operating-checklist) | Cohort checklist folded into principal-architect insight validation |
 
 ---
 

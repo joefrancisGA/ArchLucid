@@ -89,7 +89,7 @@ Use `Simulator` or `Mixed` when applicable — never present simulator as live c
 
 **Goal:** Score insight quality without arm bias.
 
-**Protocol:** [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
+**Protocol:** [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation)
 
 **Option A — Fixture demo (internal dry-run)**
 

@@ -31,4 +31,4 @@
 - [ ] Source mapping revealed only after blind scoring.
 - [ ] Participant identities and quotes stored outside the repository.
 
-**Protocol:** [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
+**Protocol:** [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation)

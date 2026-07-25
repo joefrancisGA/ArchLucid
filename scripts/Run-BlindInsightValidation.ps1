@@ -5,7 +5,7 @@
 
 .DESCRIPTION
   Wraps scripts/assemble_blind_validation_packet.py and scripts/ci/aggregate_blind_insight_sessions.py.
-  Protocol: docs/go-to-market/BLIND_INSIGHT_VALIDATION_PROTOCOL.md
+  Protocol: docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md (#blind-insight-validation)
 
 .EXAMPLE
   .\scripts\Run-BlindInsightValidation.ps1 -SessionLabel pilot-session-01

@@ -29,7 +29,7 @@
 
 ## Numeric scales (blind sessions — per finding)
 
-When using [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md), score **Arm A** and **Arm B** in `scoring-sheet.json`:
+When using [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation), score **Arm A** and **Arm B** in `scoring-sheet.json`:
 
 | Field | 1 | 5 |
 | --- | --- | --- |
@@ -82,7 +82,7 @@ Store completed scorecards and transcripts outside the repository. Summarize agg
 
 ## Related
 
-- [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
+- [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation)
 - [`templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json)
 - [`PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`](../PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)
 - [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md)

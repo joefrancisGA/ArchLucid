@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Design-partner and pilot-recruiting pipeline artifacts — target account profile, qualification criteria, intake process, and proof-permission capture. This is a founder-led pipeline, not an automated sales CRM.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -6,7 +8,8 @@
 
 **Audience:** Founder, sales engineer, and any team member sourcing and qualifying pilot accounts.
 
-**Last reviewed:** 2026-06-01
+**Last reviewed:** 2026-07-25
+
 
 **Related:** [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md), [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md), [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md).
 

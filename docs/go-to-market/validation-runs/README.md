@@ -23,9 +23,9 @@ It exists because [`../DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW
 
 Do **not** re-create protocol assets — they already exist:
 
-- Operating checklist: [`../Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](../Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md)
+- Operating checklist: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-cohort-operating-checklist)
 - Scorecard: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
-- Blind protocol: [`../Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
+- Blind protocol: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation)
 - Pre-registered tracker (fill this before scoring): [`BLIND_DECISION_DELTA_COHORT_TRACKER.md`](BLIND_DECISION_DELTA_COHORT_TRACKER.md)
 - Per-session dismissal capture + weekly triage: [`../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md)
 - Paid-pilot conversion ledger (per-row + monthly rollup): [`../validation/PAID_PILOT_EVIDENCE_LEDGER.md`](../validation/PAID_PILOT_EVIDENCE_LEDGER.md)

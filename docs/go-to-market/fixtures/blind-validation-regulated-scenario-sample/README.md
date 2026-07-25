@@ -22,4 +22,4 @@ python scripts/assemble_blind_validation_packet.py assemble `
   --seed 42
 ```
 
-**Guardrail:** Demo-derived fixture — not customer proof. See [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](../../Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md).
+**Guardrail:** Demo-derived fixture — not customer proof. See [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation).

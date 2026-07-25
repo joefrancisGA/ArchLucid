@@ -10,7 +10,7 @@
 
 This tracker does **not** replace the protocol assets — it is the single launch + capture surface that points at them:
 
-- Operating checklist: [`../Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](../Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md)
+- Operating checklist: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-cohort-operating-checklist)
 - Scorecard: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
 - Per-session JSON: [`../templates/principal-architect-session.template.json`](../templates/principal-architect-session.template.json)
 - Scoring sheet JSON: [`../templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json)

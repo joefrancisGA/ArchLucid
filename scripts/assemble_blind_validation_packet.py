@@ -425,7 +425,7 @@ def render_exec_summary_template(packet: dict[str, Any]) -> str:
             f"- Evidence basis: **{packet.get('evidenceBasis')}**",
             "- Do not convert demo-derived fixture output into customer outcomes.",
             "",
-            "Protocol: `docs/go-to-market/BLIND_INSIGHT_VALIDATION_PROTOCOL.md`",
+            "Protocol: `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md` (#blind-insight-validation)",
             "",
         ]
     )

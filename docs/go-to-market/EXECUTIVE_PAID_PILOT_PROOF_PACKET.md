@@ -1,8 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Sequencing map — assemble one executive paid-pilot proof packet from a committed run, then rehearse it in a mock procurement review. This is an **index/runbook only**; it restates no policy, ROI math, or assurance claim. Canonical sources own those. Market-validation tooling (V1 design half); running it on real authorized data is GTM backlog **M-37 (V1.1)**.
 
 # Executive paid-pilot proof packet (assembly + mock procurement review)
 
-**Audience:** Founder / pilot operator / sales engineer preparing a **paid** executive sponsor packet and rehearsing it before a real procurement call.
+**Audience:** Founder / pilot operator / sales engineer preparing a **paid** executive sponsor packet and rehearsing it before a real procurement call.  
+**Last reviewed:** 2026-07-25
+
 **Goal:** Turn one finalized review into the six-element executive proof packet the buyer's sponsor + procurement reviewers actually need, then pressure-test it in a mock procurement review **before** sending.
 **Execution tracked as:** GTM backlog **M-37 (V1.1)**. This document is the reusable **design half** (the assembly + mock-review sequence); assembling a *real* authorized packet and running a *real* mock procurement review require a committed run and human reviewers a coding agent cannot supply.
 
