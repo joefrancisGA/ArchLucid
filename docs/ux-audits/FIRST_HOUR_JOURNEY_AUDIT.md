@@ -82,7 +82,7 @@ Page title is "Onboarding". Lead copy says "...from intake to committed package.
 "Onboarding" is how internal teams describe the process, not how customers navigate a product. "Committed package" is git/software jargon. A senior IT leader expects "Getting started" and "approved review" or "finalized review."
 
 **Recommended fix**  
-Title → "Getting started". Lead → "Create and finalize your first architecture review package."
+Title → "Getting started". Lead → "Create and finalize your first architecture package."
 
 **Fix type:** Copy only
 
@@ -109,10 +109,10 @@ InAppHelpLink renders "First-pilot operator path — full walkthrough" as a visi
 Operator shell shows "Artifacts & exports" for the deliverables section. The section is also collapsed by default (`defaultOpen={!buyerPolishedArtifactTable}`).
 
 **Why it matters**  
-"Artifacts" is software pipeline jargon. The key outputs of a governance review are collapsed by default for the enterprise operator shell — the audience most likely to need them immediately.
+"Artifacts" is software pipeline jargon. The key outputs of a governance review are collapsed by default for the enterprise architect workspace — the audience most likely to need them immediately.
 
 **Recommended fix**  
-Title → "Deliverables". Set `defaultOpen=true` for the operator shell.
+Title → "Deliverables". Set `defaultOpen=true` for the architect workspace.
 
 **Fix type:** Copy only
 
@@ -249,7 +249,7 @@ Rename to "Command-line access (advanced)" and collapse into a nested disclosure
 "Manifest" is an internal product term. To an enterprise architect, a "manifest" means a deployment file or a shipping document — not a governance record.
 
 **Recommended fix**  
-"Review the decisions, findings, and supporting evidence for this review package."
+"Review the decisions, findings, and supporting evidence for this architecture package."
 
 **Fix type:** Copy only
 
@@ -309,7 +309,7 @@ Page subtitle: "Finalized architecture reviews with findings, evidence, signed r
 Users with in-progress (non-finalized) reviews land on this page and the subtitle implies they will only see completed reviews. A first-time user may not find their in-progress work and assume the review failed.
 
 **Recommended fix**  
-"Architecture review packages — in progress, finalized, and ready for export."
+"Architecture packages — in progress, finalized, and ready for export."
 
 **Fix type:** Copy only
 
@@ -335,13 +335,13 @@ Banner → "Quick path: upload one diagram to start. Review scope is pre-configu
 ### F21 · `/` · OperatorHomeSampleReviewPreview — lead copy (TB-451)
 
 **Current issue**  
-"See how ArchLucid turns an architecture request into findings, evidence, governance actions, and a completed review package."
+"See how ArchLucid turns an architecture request into findings, evidence, governance actions, and a completed architecture package."
 
 **Why it matters**  
 "Architecture request" is the internal API payload name, not how a customer describes their input. Customers submit "architecture proposals," "design documents," or "initiative briefs."
 
 **Recommended fix**  
-"See how ArchLucid turns an architecture document into findings, governance decisions, and a completed review package."
+"See how ArchLucid turns an architecture document into findings, governance decisions, and a completed architecture package."
 
 **Fix type:** Copy only
 
@@ -412,9 +412,9 @@ Error heading: "Review generation — Could not open generated package."
 | Internal / current term | Where it appears | Recommended customer-facing term |
 |------------------------|-----------------|----------------------------------|
 | commit (verb) | Onboarding lead, progress steps, empty state | finalize |
-| committed package | Onboarding page lead copy | finalized review package |
-| artifacts | "Artifacts & exports" section title, operator shell | deliverables |
-| manifest | "Review the manifest's decisions…" in artifact section description | review package / signed record |
+| committed package | Onboarding page lead copy | finalized architecture package |
+| artifacts | "Artifacts & exports" section title, architect workspace | deliverables |
+| manifest | "Review the manifest's decisions…" in artifact section description | architecture package / signed record |
 | pilot mode / pilot guidance / first-pilot | New review help link, advanced toggle, error toast | review / setup guide / focused scope |
 | traceability bundle | Actions card download CTA | evidence package |
 | Sponsor Export (DOCX) | Primary download button | Architecture review report (DOCX) |

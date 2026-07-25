@@ -2,7 +2,7 @@
 
 # First-value lane
 
-**Audience:** pilot operators cutting their first committed review package.
+**Audience:** pilot architects cutting their first finalized architecture package.
 
 **UI surface:** Operator home → **Advanced guidance** → **First pilot progress** → **Operating path** tab (`FirstValueLanePanel`).
 
@@ -17,7 +17,7 @@
 | 1 | **Create review** | At least one architecture review exists | Azure extractor tuning, multi-project setup |
 | 2 | **Execute review** | Assessment results are ready on review detail | Compare, replay, graph |
 | 3 | **Commit package** | Golden manifest committed (`hasGoldenManifest`) | Governance approvals beyond first pilot |
-| 4 | **Retrieve sponsor artifact** | First-value report / proof packet available from committed review | Executive ROI, procurement pack |
+| 4 | **Retrieve sponsor artifact** | First-value report / proof packet available from finalized review | Executive ROI, procurement pack |
 
 ---
 

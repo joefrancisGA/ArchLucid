@@ -117,7 +117,7 @@ jobs:
             -H "X-ArchLucid-Api-Key: ${ARCHLUCID_API_KEY}" \
             -H "X-Correlation-ID: gh-commit-${{ github.run_id }}")
           if [ "$HTTP_CODE" = "409" ]; then
-            echo "Pre-commit governance gate blocked commit:"
+            echo "Pre-finalize governance gate blocked finalize (API: pre-commit):"
             cat commit-body.json
             exit 1
           fi
