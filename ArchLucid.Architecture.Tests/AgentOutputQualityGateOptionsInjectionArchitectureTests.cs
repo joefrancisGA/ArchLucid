@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Tenancy;
@@ -21,6 +22,7 @@ public sealed class AgentOutputQualityGateOptionsInjectionArchitectureTests
         typeof(ArchitectureRunExecuteOrchestrator),
         typeof(TenantAgentOutputQualityGateModeService),
         typeof(AgentOutputQualityGateOptionsResolver),
+        typeof(RunScopedLlmBudgetReservationService),
     ];
 
     [Fact]
