@@ -28,7 +28,7 @@ pages do not feel like internal app screens" from the parent taxonomy request.
   `PROCUREMENT_FAQ.md` for actual content duplication before deciding whether to merge or just
   cross-link.
 - Pages that must **never** be linked from any marketing surface: `/why-archlucid` (internal live
-  instrumentation, lives in the authenticated operator shell) and `/demo/explain` (internal demo
+  instrumentation, lives in the authenticated architect workspace) and `/demo/explain` (internal demo
   explanation, already demo-blocked). This phase should add a regression check, not just confirm
   by eye.
 - `docs/library/DOCUMENTATION_BY_AUDIENCE.md` already flags a related voice issue: customer-visible

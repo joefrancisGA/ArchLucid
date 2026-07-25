@@ -57,11 +57,11 @@ export type BlockedRouteEntry = {
 export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/admin", label: "Admin console", description: "Tenant configuration, user management, and system health monitoring." },
   { prefix: "/settings", label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
-  { prefix: "/search", label: "Search", description: "Full-text search across all review packages, findings, and decisions." },
+  { prefix: "/search", label: "Search", description: "Full-text search across all architecture packages, findings, and decisions." },
   { prefix: "/replay", label: "Replay", description: "Re-run any historical review with updated policy packs to track improvement." },
   { prefix: "/planning", label: "Planning", description: "Multi-quarter governance roadmap and remediation scheduling." },
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines (V1.1)." },
-  { prefix: "/evolution", label: "Evolution candidates", description: "Trend analysis of recurring findings across review packages." },
+  { prefix: "/evolution", label: "Evolution candidates", description: "Trend analysis of recurring findings across architecture packages." },
   { prefix: "/users", label: "Users & roles", description: "Role-based access control and authority assignment." },
   { prefix: "/billing", label: "Billing", description: "Subscription management and usage reporting." },
 ];

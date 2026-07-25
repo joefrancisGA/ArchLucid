@@ -150,7 +150,7 @@ standalone route — leave as-is unless phase 05 finds a reason to split it out.
   `route-readiness: hidden`. **No change needed**, just confirm in phase 04.
 - `/demo/explain` — internal demo explanation, already demo-blocked. Confirm never linked from
   marketing (phase 05).
-- `/why-archlucid` — internal live instrumentation inside the operator shell. Confirm never linked
+- `/why-archlucid` — internal live instrumentation inside the architect workspace. Confirm never linked
   from marketing (phase 05).
 - `/help/first-pilot-operator-runbook`, `/help/first-value-20-minutes`, `/help/pre-commit-ci-gate` —
   currently gated **client-side only** (`isAdmin` prop in `help-center-catalog.ts`). **Must** become

@@ -18,7 +18,7 @@ Build an in-product, presenter-openable panel that answers the CTO's top securit
 Register `"how-it-works"` in `product-documentation-registry.ts`. The markdown content (see below) renders via the existing `HelpTopicMarkdownView`. Route: `/help/how-it-works`.
 
 Markdown content to include:
-- **What ArchLucid does:** takes your architecture brief (text/diagram), applies policy packs, produces a signed review package. No code execution. No write access to your systems.
+- **What ArchLucid does:** takes your architecture brief (text/diagram), applies policy packs, produces a signed architecture package. No code execution. No write access to your systems.
 - **What leaves your tenant:** the architecture brief text and any evidence context you provide is sent to Azure OpenAI (your tenant's deployment if configured). No source code, secrets, or credentials are sent.
 - **What stays in your tenant:** all findings, decisions, manifests, audit logs, and governance approvals are stored in your ArchLucid tenant database. ArchLucid does not retain copies.
 - **Isolation:** each tenant has a dedicated database. No cross-tenant data access is possible by design (append-only audit log; database-per-tenant isolation).

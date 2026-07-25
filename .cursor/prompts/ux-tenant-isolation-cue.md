@@ -78,7 +78,7 @@ If the how-it-works panel has not been built yet, link to `/help/how-it-works` a
 - The executive landing Step 1 shows the isolation callout in demo mode.
 - The badge is keyboard-focusable and has a tooltip with the full tenant + workspace name.
 - Unit tests: renders correct tenant/workspace text in demo mode; renders "Your tenant" when no tenant name is available; updates when story changes.
-- Does not render on marketing/public routes (use `isBuyerPolishedOperatorShellEnv()` guard — it's only true inside the operator shell).
+- Does not render on marketing/public routes (use `isBuyerPolishedOperatorShellEnv()` guard — it's only true inside the architect workspace; API name remains `OperatorShell`).
 
 ## Constraints
 - No new icon library — use `lucide-react` (already a dependency).

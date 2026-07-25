@@ -28,7 +28,7 @@ Generating audit record…            ○ pending
 ```
 
 Rules:
-- Stage labels must be plain business English — no "LLM", "agent", "model", "inference". Use product vocabulary: "review package", "policy pack", "finding", "signed decision record."
+- Stage labels must be plain business English — no "LLM", "agent", "model", "inference". Use product vocabulary: "architecture package", "policy pack", "finding", "signed decision record."
 - Stage timings come from polling `GET /v1/architecture/run/{runId}` pipeline status (or server-sent events if available).
 - Show a wall-clock elapsed time ("Elapsed: 14s") in `tabular-nums`.
 - At completion, show a green "Review ready — view it" CTA that navigates to `/reviews/{runId}`.

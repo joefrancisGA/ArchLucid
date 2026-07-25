@@ -113,7 +113,7 @@ gh run view $runId --log-failed 2>&1 | Out-File -FilePath ".local/ci-watch-<bran
 | `ArchLucidApiClient.g.cs` out of sync | Regenerate NSwag client or sync from `master` |
 | `api-types.generated.ts` drift | Regenerate from OpenAPI snapshot |
 | Terraform `azurerm_*` unsupported | Bump provider in `.terraform.lock.hcl` for cited stack |
-| ESLint `buyer-review-terminology` | Replace banned copy with "review" / "review package" |
+| ESLint `buyer-review-terminology` | Replace banned copy with "architecture review" / "architecture package" (not legacy "review package") |
 | Live Playwright flakes | Harden waits in `archlucid-ui/e2e/helpers/` (condition-based, no hard-coded IDs) |
 | `dotnet-fast-core-build:skipped` | Usually cascade; fix earlier blocking job |
 

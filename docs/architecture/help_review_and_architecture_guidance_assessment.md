@@ -203,10 +203,10 @@ No new top-level `/help/*` route is recommended for architecture creation (§12 
 
 **What is removed or shortened to a single link:**
 - "Review findings and evidence" → one sentence + link to `/help/findings` (already the case in spirit, but currently duplicates 2 sentences of `findings`' own territory; trim further).
-- "Finalize the review package" → one sentence + link to the corrected package-reference page (§11); remove the artifact/proof-packet enumeration, which belongs to that page.
-- "Related guides" → keep, but fix the asymmetric linking noted in §4.7 and remove the redundant double-listing of "Review packages" as both a related-guide row and the finalize section's implicit topic.
+- "Finalize the architecture package" → one sentence + link to the corrected package-reference page (§11); remove the artifact/proof-packet enumeration, which belongs to that page.
+- "Related guides" → keep, but fix the asymmetric linking noted in §4.7 and remove the redundant double-listing of "Architecture packages" as both a related-guide row and the finalize section's implicit topic.
 
-**Audience:** buyer/operator preparing or mid-wizard — i.e., people who are *at* `/reviews/new`, not people browsing `/help` cold. This argues for the page staying **out of the featured "Start here" grid's top tier** (it should not compete with `getting-started` for a first-time visitor's attention) while still being **added to the grid somewhere** so it is discoverable outside the wizard (§7).
+**Audience:** buyer/architect preparing or mid-wizard — i.e., people who are *at* `/reviews/new`, not people browsing `/help` cold. This argues for the page staying **out of the featured "Start here" grid's top tier** (it should not compete with `getting-started` for a first-time visitor's attention) while still being **added to the grid somewhere** so it is discoverable outside the wizard (§7).
 
 **Answers to the task brief's 20 evaluation questions, applied to `review-guide` specifically:**
 
@@ -242,8 +242,8 @@ No new top-level `/help/*` route is recommended for architecture creation (§12 
 **Job, unchanged:** the onboarding tutorial — *"I am new; what is the minimum path to one complete, shareable review, and what can I safely ignore for now?"* Its "Pilot first. Operate later." framing, its explicit "What can wait" section, and its buyer-facing tone are all correct for this job and should not be touched.
 
 **Required fixes (content-level, not structural):**
-- Its "Related guides" section links to `review-packages` **twice**, under two different labels ("Review packages" and "Review artifacts and proof packet") — both currently resolve to the same duplicate content (§4.1). Once §11 is resolved, re-point these two links to whichever page(s) actually own that content.
-- Confirm its four-step table's step 3 ("Finalize the review package") and step 4 ("Review artifacts") remain internally consistent with whatever terminology decision resolves Unresolved owner decision #1 (§6.2).
+- Its "Related guides" section links to `review-packages` **twice**, under two different labels ("Architecture packages" / legacy "Review packages", and "Review artifacts and proof packet") — both currently resolve to the same duplicate content (§4.1). Once §11 is resolved, re-point these two links to whichever page(s) actually own that content.
+- Confirm its four-step table's step 3 ("Finalize the architecture package") and step 4 ("Review artifacts") use **architecture package** vocabulary (Unresolved #1 RESOLVED — §6.2 / Unresolved owner decisions §1).
 
 **Do not:** merge it into `review-guide` (Option C, rejected §20); do not lengthen it with wizard-mechanics detail that belongs in `review-guide`; do not add assurance-coverage content (§14).
 
@@ -261,9 +261,9 @@ Applies to `/help/evidence-intake`.
 
 ---
 
-## 11. Recommended treatment of “Review packages” and “Evidence trail”
+## 11. Recommended treatment of “Architecture packages” (slug `review-packages`) and “Evidence trail”
 
-### Review packages
+### Architecture packages
 
 Two viable paths; this assessment does not pick between them because the choice depends on whether the owner wants a dedicated persona-recipes page to keep existing in the help center at all (its content is legitimate but is not help-center-shaped — it reads like engineering-adjacent integration documentation, similar in register to `cli-usage` or `api_contracts`-linked pages).
 
@@ -338,7 +338,7 @@ None of the following may be written as current-state copy anywhere in the help 
 5. Add architecture context (unchanged).
 6. Confirm review scope (expanded per §13.4; cross-linked against workspace scope per §13.6).
 7. Start the review (unchanged).
-8. After you start: findings, decisions, and the review package (one paragraph each, linking to `findings`, `governance-approval`, and the corrected package-reference page).
+8. After you start: findings, decisions, and the architecture package (one paragraph each, linking to `findings`, `governance-approval`, and the corrected package-reference page).
 9. Related guides (corrected link set).
 
 ### `/help/evidence-intake` (rewritten)
