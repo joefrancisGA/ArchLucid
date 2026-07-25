@@ -166,7 +166,7 @@ After session 3, complete `cohort-synthesis.md`:
 | --- | --- |
 | Best-performing script (A/B/C) | Default for next 5 sponsor calls |
 | Top disqualifying objection | Update [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md) private notes |
-| Phrases that resonated (verbatim) | Feed [`EXECUTIVE_ONE_EMAIL_KIT.md`](EXECUTIVE_ONE_EMAIL_KIT.md) — no repo commit of buyer quotes without clearance |
+| Phrases that resonated (verbatim) | Feed [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md#12-one-email-sponsor--procurement-kit) — no repo commit of buyer quotes without clearance |
 | Phrases that failed | Remove from outreach |
 | Recommended external claim posture | Conservative / pilot-only / hold |
 
@@ -175,7 +175,7 @@ After session 3, complete `cohort-synthesis.md`:
 ## Related
 
 - [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) — generic-AI comparison rubric
-- [`CONTROLLED_PILOT_OBJECTION_DRILL.md`](CONTROLLED_PILOT_OBJECTION_DRILL.md) — procurement drill (complementary)
+- [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md#controlled-pilot-drill) — procurement drill (complementary)
 - [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md) — empirical counterfactual rows
-- [`EXECUTIVE_ONE_EMAIL_KIT.md`](EXECUTIVE_ONE_EMAIL_KIT.md) — sponsor email copy
+- [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md#12-one-email-sponsor--procurement-kit) — sponsor email copy
 - **GTM M-42** — execution tracker in [`GTM_BACKLOG.md`](GTM_BACKLOG.md)

@@ -1,10 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Stripe Checkout for Team tier — engineering hand-off, operator configuration checklist, marketing site + live Stripe GA, webhook incident triage, and staging verification.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Stripe Checkout — Team tier (hosted)
 
-**Last reviewed:** 2026-07-21
+**Last reviewed:** 2026-07-25
 
 ## Goal
 

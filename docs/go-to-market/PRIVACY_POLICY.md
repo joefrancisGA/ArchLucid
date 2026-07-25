@@ -1,14 +1,16 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Public-facing privacy policy for archlucid.net visitors and ArchLucid product users. Covers GDPR and CCPA. Not legal advice — owner has reviewed and approved; no external law firm engagement.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-<!-- PRIVACY_POLICY_LAST_REVIEWED_UTC:2026-05-10 -->
+<!-- PRIVACY_POLICY_LAST_REVIEWED_UTC:2026-07-25 -->
 
 # ArchLucid Privacy Policy
 
 **Effective date:** 2026-04-26
 
-**Last reviewed (UTC):** 2026-05-10
+**Last reviewed (UTC):** 2026-07-25
 
 This privacy policy describes how ArchLucid ("we", "us", "our") collects, uses, shares, and protects personal information when you visit our website at `archlucid.net` or use the ArchLucid platform (the "Service"). It applies to all visitors, trial users, and paying customers.
 

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Procurement questionnaire accelerator — fifty SIG-themed prompts mapped **only** to in-repo evidence links; statuses are labels, not attestations.
 
 > **Spine doc:** [`trust-center.md`](trust-center.md) — buyer-facing index. **SOC 2 Type II CPA reports are _not_ stated as issued anywhere below** unless you follow a link that explicitly describes status (today: **not yet issued** per linked procurement statement).
@@ -8,6 +10,8 @@
 # Procurement response accelerator
 
 **Audience:** Teams pasting questionnaire rows (SIG / CAIQ-style) into spreadsheets who need **fast, honest** citations into this repository.
+
+**Last reviewed:** 2026-07-25
 
 **How to use:** Copy the question text into customer worksheets; cite the **Evidence** links as append-only references. **`Status`** is one of **`Implemented`** (engineering / shipped behavior documented), **`Self-asserted`** (internal narrative or matrices), **`Planned, not yet scheduled`** (future external program or gated publication per linked docs), or **`Deferred`** (out-of-current scope)—**not** a third-party auditor label.
 

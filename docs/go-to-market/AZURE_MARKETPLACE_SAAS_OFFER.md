@@ -1,10 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Azure Marketplace — SaaS offer (fulfillment v2) checklist, publication (GTM), publisher identity placeholders, webhook behavior, GA rollback, and ArchLucid configuration.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Azure Marketplace — SaaS offer (fulfillment v2) checklist
 
-**Last reviewed:** 2026-07-21
+**Last reviewed:** 2026-07-25
 
 ## Objective
 

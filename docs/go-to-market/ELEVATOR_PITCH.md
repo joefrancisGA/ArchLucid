@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** GTM copy — elevator pitch scripts for founder-led outreach; grounded in shipped V1 capabilities per [`V1_SCOPE.md`](../library/V1_SCOPE.md). Basis for **M-02** and outreach talk-track alignment in **M-34**.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -5,6 +7,8 @@
 # Elevator pitch scripts
 
 **Audience:** Founder using these in conversations, email, LinkedIn outreach, and live demos.
+
+**Last reviewed:** 2026-07-25
 
 **Relationship:** [`POSITIONING.md`](POSITIONING.md) owns the canonical tagline and positioning statement. [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) is the sponsor story of record. This file contains **verbal delivery scripts** — edit here when talk-track drifts from the brief, then reconcile the brief.
 
@@ -62,9 +66,61 @@
 
 ---
 
+## M-18 outreach message templates
+
+Founder-led "20 warm contacts" campaign (GTM **M-18**). Companion to **M-17** (list) and **M-19** (demos). Claims trace to this file and [`POSITIONING.md`](POSITIONING.md); guardrails in [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md). **Not a sales pitch** — ask for professional opinion / 10-minute reaction.
+
+### Framing rules
+
+- Ask for feedback, not a sale; personalize every send; one send + one bump only.
+- Ground claims in shipped V1; no mass BCC; skip disqualified segments per [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md).
+
+### LinkedIn connection-request note (≤300 characters)
+
+```
+Hi <<FIRST_NAME>> — <<SHARED_CONTEXT>>. I built a tool for evidence-backed architecture reviews and would value 10 minutes of your take. Would love to connect.
+```
+
+### Warm outreach (1st-degree / former colleagues)
+
+```
+Hi <<FIRST_NAME>>,
+
+<<PERSONALIZED_OPENER>>
+
+I've been heads-down building ArchLucid — it turns architecture review from scattered opinion into an evidence-backed decision package: findings prioritized, evidence cited, decisions recorded, with an exportable report your ARB or auditor can actually follow. Not another chat-with-your-docs tool.
+
+I'm not trying to sell you anything — I'd genuinely value your take as someone who has sat through real architecture reviews. Would you be open to 10 minutes for me to show you what it does and hear whether it would have helped on <<RELEVANT PAST CONTEXT>>? Happy to work around your schedule.
+
+Thanks either way,
+<<SENDER_NAME>>
+```
+
+### Follow-up bump (once, after 5–7 business days)
+
+```
+Hi <<FIRST_NAME>> — following up in case this got buried. No pressure at all; if a 10-minute look isn't useful right now, no worries. If it is, here's a link to grab time: <<CALENDAR_LINK>>.
+
+<<SENDER_NAME>>
+```
+
+### Persona-flavored openers (optional)
+
+| Persona | Opener swap |
+| --- | --- |
+| Architecture lead | "It replaces ad hoc review documentation with a structured, defensible package built from evidence you already have." |
+| CTO / VP Engineering | "It gets you evidence-backed reviews in a fraction of the time, with an audit trail your board and auditors can actually read." |
+| GRC / Compliance | "It adds a pre-commit governance gate and a structured audit trail aligned to policy packs — built for exactly the gap you flagged." |
+| Cloud consultant | "I built it as delivery infrastructure — bring your own evidence, produce a whitelabel report — thought it might be relevant to how you deliver review engagements." |
+
+Track 20 sends privately (contact, channel, date, response, outcome). Hand positives to **M-19** via [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md).
+
+---
+
 ## Related
 
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) — canonical sponsor story; keep aligned
 - [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) — named SKUs to use in talk tracks
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) — follow-up SOW template
-- [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — M-34 SOW / outreach alignment task
+- [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — M-17/M-18/M-19/M-34 alignment
+- [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md) — persona map and qualification

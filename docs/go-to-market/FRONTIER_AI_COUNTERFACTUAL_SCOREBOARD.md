@@ -1,9 +1,11 @@
-> **Scope:** Rolling markdown scoreboard for recurring ArchLucid vs frontier-AI bakeoff sessions — honest counterfactual comparison only; not a benchmark claim.
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Rolling markdown scoreboard for recurring ArchLucid vs frontier-AI bakeoff sessions, plus maintenance cadence — honest counterfactual comparison only; not a benchmark claim.
 
 # Frontier-AI counterfactual scoreboard
 
 **Audience:** Founder / facilitator after each bakeoff session.  
-**Last reviewed:** 2026-06-17
+**Last reviewed:** 2026-07-25
 
 **Purpose:** Track recurring bakeoff outcomes in one place so positioning updates from **measured sessions**, not intuition.
 
@@ -102,7 +104,39 @@ Update the rollup section at the bottom of the scoreboard file.
 3. Append one row to `artifacts/bakeoff/scoreboard/frontier-ai-scoreboard.md`.
 4. After session 3, refresh cohort rollup and review positioning signals.
 5. Do **not** quote timing medians externally unless basis = measured for majority of rows.
-6. Follow monthly minimum and urgent re-run rules in [`validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md`](validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md).
+6. Follow **Maintenance cadence** below.
+
+---
+
+## Maintenance cadence
+
+**Execution:** GTM **M-40 (V1.1)** — live bakeoff sessions need human participants; this section is the process half.
+
+### Monthly minimum
+
+Run on the **first Monday** of each month (or within 3 business days after month-end).
+
+| Step | Action | Done when |
+| --- | --- | --- |
+| 1 | Review scoreboard rollup at `artifacts/bakeoff/scoreboard/frontier-ai-scoreboard.md` | Cohort metrics current |
+| 2 | Run **≥1** bakeoff **or** document skip reason | Session row or skip logged |
+| 3 | Refresh cohort rollup when n ≥ 3 | Positioning signal table updated |
+| 4 | Apply claim update rules to GTM copy | No external claim contradicts rollup |
+
+### Urgent re-run (within 14 days)
+
+Major frontier model release; ≥2 `decisionDeltaOutcome: FAIL` in 30 days; L5 novelty gap in ≥2 consecutive sessions; product change to agents/retrieval/export labels; competitor publishes relevant architecture-AI benchmark.
+
+### Claim update rules (when ArchLucid underperforms)
+
+| Pattern | Update |
+| --- | --- |
+| L1/L7 dominant | Narrow: packaging/audit/repeatability — stop implying day-one speed parity |
+| L5 ≥ 2 sessions | Narrow reasoning-superiority claims |
+| Decision-change rate below hold | Hold decision-advantage headlines |
+| FAIL > PASS in 90 days | Revise brief toward governance infrastructure, not insight supremacy |
+
+Never publish win % without n ≥ 3 and anti-claims OK; never drop FAIL sessions; never treat simulator as customer proof.
 
 ---
 
@@ -117,6 +151,6 @@ Update the rollup section at the bottom of the scoreboard file.
 
 ## Related
 
-- [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — **M-40** tracks scoreboard maintenance per [`validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md`](validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md)
+- [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — **M-40** scoreboard maintenance; **M-43** live bakeoffs
 - [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md)
 - [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md)

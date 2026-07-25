@@ -4,7 +4,7 @@
 
 **Audience:** Sales engineers and pilot leads guiding a prospect tenant through the **first architecture review** outcome.
 
-**Companion:** [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/DECISION_FAST_LANE.md`](../go-to-market/DECISION_FAST_LANE.md).
+**Companion:** [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md`](../go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md#0-pilot-vs-procurement-fast-lane).
 
 ---
 

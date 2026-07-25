@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid — Tenant isolation (buyer overview) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +9,7 @@
 
 **Audience:** Security reviewers who need a **short** explanation before diving into engineering docs.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-07-25
 
 **Headline:** Your data is **logically isolated** at **identity**, **application**, and **database** layers when ArchLucid is deployed with the recommended Azure posture. This page summarizes; deep references are linked below.
 

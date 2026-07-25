@@ -1,8 +1,12 @@
-﻿> **Scope:** Owner security self-assessment — procurement pack excerpt (no customer names).
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** Owner security self-assessment — procurement pack excerpt (no customer names).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Owner-conducted security assessment — procurement excerpt
+
+**Last reviewed:** 2026-07-25
 
 This document is the **buyer-shareable excerpt** for procurement bundles. It summarizes the **same programme** as the in-repo canonical file [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) but **must not** be edited with customer-specific names in the pack — use `PROCUREMENT_PACK_COVER.md` for deal context only.
 

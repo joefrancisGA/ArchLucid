@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Master Service Agreement template — internal starting point for sales-led contract negotiation; not legal advice; owner must review with counsel before external use.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +9,7 @@
 
 **Important — not legal advice:** This is a **working template** to accelerate sales-led contract negotiation. It **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before execution with any customer.
 
-**Last reviewed:** 2026-04-26
+**Last reviewed:** 2026-07-25
 
 ---
 

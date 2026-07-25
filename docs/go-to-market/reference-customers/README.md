@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid — reference-customers index - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
@@ -6,6 +8,8 @@
 # ArchLucid — reference-customers index
 
 **Audience:** Marketing, sales, customer success, and product leadership.
+
+**Last reviewed:** 2026-07-25
 
 **Purpose:** Single source of truth for **real**, **publishable** reference-customer assets. This file replaces "no published reference customer" as a discount-stack assumption (see [`PRICING_PHILOSOPHY.md` § 5.4](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down)). The CI guard [`scripts/ci/check_reference_customer_status.py`](../../../scripts/ci/check_reference_customer_status.py) parses the table below and (today) **warns** when zero rows have `Status: Published`. The same guard becomes **merge-blocking** the day the first real customer is `Published`, at which point the **−15% reference discount** in [`PRICING_PHILOSOPHY.md` § 5.1](../PRICING_PHILOSOPHY.md#51-derivation-50-of-fair-value-basis) becomes a candidate for re-rate ([§ 5.3](../PRICING_PHILOSOPHY.md#53-re-rate-plan)).
 
@@ -36,7 +40,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 | First paying tenant (PLG) | `<<TIER>>` (at conversion) | TBD | [TRIAL_FIRST_REFERENCE_CASE_STUDY.md](TRIAL_FIRST_REFERENCE_CASE_STUDY.md) | TBD | Placeholder — populate after first self-serve trial converts to paid; see [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) |
 | **[DRAFT]** `[CUSTOMER]` · `[INDUSTRY]` | `[TIER]` | TBD | TBD — add `<slug>_CASE_STUDY.md` when entering Drafting | TBD — `[CONTACT]` | Draft — **DRAFT template row** (fabricated names forbidden here); replace placeholders and move to **Drafting** before naming a real customer |
 
-> **Published requires human approval.** Do not set **`Status: Published`** on any row based on assistant or unilateral documentation edits. Eligibility, logo use, case study copy, and reference-call commitments must follow **[`PRICING_PHILOSOPHY.md` §4.1](../PRICING_PHILOSOPHY.md#41-reference-customer-discount-standardized-2026-04-21)**. Use **[`PUBLICATION_CHECKLIST.md`](PUBLICATION_CHECKLIST.md)** before publication.
+> **Published requires human approval.** Do not set **`Status: Published`** on any row based on assistant or unilateral documentation edits. Eligibility, logo use, case study copy, and reference-call commitments must follow **[`PRICING_PHILOSOPHY.md` §4.1](../PRICING_PHILOSOPHY.md#41-reference-customer-discount-standardized-2026-04-21)**. Use **[`REFERENCE_PUBLICATION_RUNBOOK.md` §0](REFERENCE_PUBLICATION_RUNBOOK.md#0-publication-checklist-human-gates)** before publication.
 
 > **CI guard contract:** the script reads only this table. The exact column order and the literal `Status` header text matter. Do not split the table across multiple sub-tables; add new rows to the bottom.
 
@@ -59,7 +63,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 
 | Doc | Use |
 |-----|-----|
-| [`PUBLICATION_CHECKLIST.md`](PUBLICATION_CHECKLIST.md) | Logo, quotes, legal review, and CI gate awareness before **Published** |
+| [`REFERENCE_PUBLICATION_RUNBOOK.md`](REFERENCE_PUBLICATION_RUNBOOK.md) | Publish gates, evidence extraction, CI discount re-rate |
 | [`REFERENCE_PUBLICATION_RUNBOOK.md`](REFERENCE_PUBLICATION_RUNBOOK.md) | Drafting → customer review → Published steps + CLI evidence extraction |
 | [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md) | One-page measured-delta template tied to `pilot-run-deltas.json` |
 | [`PRICING_PHILOSOPHY.md` § 5.1](../PRICING_PHILOSOPHY.md#51-derivation-50-of-fair-value-basis) | Discount stack derivation (`−25%` trust, `−15%` reference, `−10%` self-serve = `−50%` total) |

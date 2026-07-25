@@ -1,4 +1,6 @@
-﻿> **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid) - full detail, tables, and links in the sections below.
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -6,6 +8,8 @@
 # Data Processing Agreement (DPA) — Template (ArchLucid)
 
 **Important — template only, not legal advice:** This document is a **working template** for negotiation. It is **not** your countersigned Data Processing Agreement and **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before execution.
+
+**Last reviewed:** 2026-07-25
 
 **Parties:** Complete legal names and registered addresses before execution (see §10A).
 

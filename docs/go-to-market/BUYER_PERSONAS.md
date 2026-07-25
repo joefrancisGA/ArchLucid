@@ -26,6 +26,26 @@ Buyer self-routing: [`SHOULD_YOU_EVALUATE.md`](SHOULD_YOU_EVALUATE.md) (includes
 
 ---
 
+## Buyer journey (field motion)
+
+Help enterprise architecture and platform leaders **hire ArchLucid** to turn messy architecture requests into **reviewable, versioned manifests, evidence, and governance-ready artifacts** in weeks instead of quarters — without replacing their existing EA tools wholesale.
+
+**Assumptions:** Buyer has Confluence/Jira and some formal governance; Entra (or equivalent) exists; value maps to release risk, audit evidence, or review cycle time (budget line may not say “AI architecture”).
+
+**Constraints:** Multi-stakeholder sales (EA, security, SRE, procurement); LLM outputs are not legal proof; data residency / tenant isolation are stop conditions when unsupported (see [not-a-fit](SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit)).
+
+| Stage | Buyer touchpoints | Proof artifacts |
+|-------|-------------------|-----------------|
+| **Discovery** | Executive sponsor brief, pilot ROI companion, demo script | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) |
+| **Pilot (30/60/90)** | Architect workspace + CLI, API keys or Entra JWT | Architecture packages, OTel trace ids, export records, audit events |
+| **Expand** | Governance approvals, integration events | `GovernanceApprovalRequests`, [`INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
+
+**Pilot success metrics (set X in charter):** median time-to-first finalized package; 100% of pilot reviews have OTel + package + findings for sponsor demo; at least one exportable governance/policy outcome when Enterprise layer is in scope.
+
+Canonical **buyer pitch** remains in [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) — this section aligns **field motion** to **persisted artifacts**.
+
+---
+
 ## Ideal customer profile (ICP)
 
 The ICP describes the **company profile** where ArchLucid delivers **maximum value** and has the **highest win probability** in V1. Qualifying against the ICP prevents wasted effort on poor-fit prospects.

@@ -50,6 +50,15 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md` | [`docs/go-to-market/TRIAL_AND_SIGNUP.md`](go-to-market/TRIAL_AND_SIGNUP.md#baseline-review-cycle-privacy) | Baseline field privacy note folded into trial/signup design |
 | `docs/go-to-market/NOT_A_FIT.md` | [`docs/go-to-market/SHOULD_YOU_EVALUATE.md`](go-to-market/SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit) | Blunt not-a-fit filter folded into buyer routing page |
 | `docs/go-to-market/IDEAL_CUSTOMER_PROFILE.md` | [`docs/go-to-market/BUYER_PERSONAS.md`](go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP firmographics + scoring matrix folded into buyer personas |
+| `docs/go-to-market/DEMO_VIDEO_STORYBOARD.md` | [`docs/go-to-market/DEMO_VIDEO_SCRIPT.md`](go-to-market/DEMO_VIDEO_SCRIPT.md#two-minute--under-3-minute-video-storyboard) | Shot table + pre/post checklists folded into demo scripts |
+| `docs/go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md` | [`docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md#12-one-email-sponsor--procurement-kit) | One-email copy blocks folded into sponsor brief |
+| `docs/go-to-market/reference-customers/PUBLICATION_CHECKLIST.md` | [`docs/go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md`](go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md#0-publication-checklist-human-gates) | Human publish gates folded into publication runbook |
+| `docs/go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_DEMO_SCAFFOLD.md` | [`docs/go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_TEMPLATE.md#demo-tenant-scaffold-internal-shape-only) | Demo shape mapping folded into evidence pack template |
+| `docs/go-to-market/DECISION_FAST_LANE.md` | [`docs/go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md`](go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md#0-pilot-vs-procurement-fast-lane) | Pilot vs procurement calendars folded into transactable path |
+| `docs/go-to-market/BUYER_JOURNEY.md` | [`docs/go-to-market/BUYER_PERSONAS.md`](go-to-market/BUYER_PERSONAS.md#buyer-journey-field-motion) | Outside-in journey folded into buyer personas |
+| `docs/go-to-market/CONTROLLED_PILOT_OBJECTION_DRILL.md` | [`docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md`](go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md#controlled-pilot-drill) | Rehearsal drill folded into objection playbook |
+| `docs/go-to-market/M18_OUTREACH_MESSAGE_TEMPLATE.md` | [`docs/go-to-market/ELEVATOR_PITCH.md`](go-to-market/ELEVATOR_PITCH.md#m-18-outreach-message-templates) | Warm outreach templates folded into elevator pitch |
+| `docs/go-to-market/validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md` | [`docs/go-to-market/FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](go-to-market/FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md#maintenance-cadence) | Cadence + claim rules folded into scoreboard |
 
 ---
 
@@ -229,7 +238,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/library/GOVERNANCE.md` | [`docs/library/contributor-reference/GOVERNANCE.md`](library/contributor-reference/GOVERNANCE.md) | Phase 1 move stub removed |
 | `docs/library/CONCEPTS_IN_5_MINUTES.md` | [`docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md`](library/customer-facing/CONCEPTS_IN_5_MINUTES.md) | Phase 2 move stub removed |
 | `docs/library/WORKFLOW_RECIPES_BY_PERSONA.md` | [`docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md`](library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md) | Phase 1 bookmark stub removed |
-| `docs/library/CHAMPION_48H_KIT.md` | [`docs/go-to-market/DECISION_FAST_LANE.md`](go-to-market/DECISION_FAST_LANE.md) · [`docs/CORE_PILOT.md`](CORE_PILOT.md) | Legacy champion kit filename |
+| `docs/library/CHAMPION_48H_KIT.md` | [`docs/go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md`](go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md#0-pilot-vs-procurement-fast-lane) · [`docs/CORE_PILOT.md`](CORE_PILOT.md) | Legacy champion kit filename |
 | `docs/runbooks/TENANT_SQL_TOPOLOGY_RUNBOOK.md` | [`docs/operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md`](operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md) | Runbook lives under `docs/operations/` |
 | `docs/runbooks/CORRELATION_AND_TRACING.md` | [`docs/library/BACKGROUND_JOB_CORRELATION.md`](library/BACKGROUND_JOB_CORRELATION.md) · [`docs/library/OBSERVABILITY.md`](library/OBSERVABILITY.md) | Correlation + tracing entry points |
 | `docs/library/SECURITY.md` | [`docs/library/contributor-reference/SECURITY.md`](library/contributor-reference/SECURITY.md) | Phase 3 move stub removed (TB-013) |

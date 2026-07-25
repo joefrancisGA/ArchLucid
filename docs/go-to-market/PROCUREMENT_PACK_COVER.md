@@ -1,8 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Procurement pack cover letter — **owner-completed scaffold only** (no deal-specific names in repo).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # Procurement pack — cover letter (scaffold)
+
+**Last reviewed:** 2026-07-25
 
 **Instructions (owner / sales engineering):** Duplicate this file **outside** the repository (or into a non-committed attachment) before adding **customer name**, **deal ID**, **DPA effective date**, and **contact emails**. **Do not** commit buyer-specific names into `main` without legal approval.
 

@@ -1,8 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid Executive Sponsor Brief - full detail, tables, and links in the sections below.
 
 # ArchLucid Executive Sponsor Brief
 
 **Audience:** CIOs, CTOs, chief architects, architecture review sponsors, governance leaders, and pilot sponsors who need a concise explanation of what ArchLucid does and why a pilot matters.
+
+**Last reviewed:** 2026-07-25
 
 **Status:** Sponsor-facing V1 summary. This brief is grounded in what the current product supports today. It is not a pricing sheet and it does not claim enterprise-wide transformation.
 
@@ -23,8 +27,8 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 - **[START_HERE.md](../START_HERE.md)** — decision-tree entry (buyer vs contributor vs security vs architecture)
 - **[README.md](../REPOSITORY_README.md)** — repo entry and deeper platform material
-- **[EXECUTIVE_ONE_EMAIL_KIT.md](EXECUTIVE_ONE_EMAIL_KIT.md)** — one-email sponsor/procurement copy
-- **[DEMO_VIDEO_STORYBOARD.md](DEMO_VIDEO_STORYBOARD.md)** — shot-by-shot demo video storyboard
+- **[One-email kit](#12-one-email-sponsor--procurement-kit)** — copy-paste sponsor/procurement blocks
+- **[DEMO_VIDEO_SCRIPT.md](DEMO_VIDEO_SCRIPT.md#two-minute--under-3-minute-video-storyboard)** — demo scripts + shot-by-shot storyboard
 - **[PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
 - **[FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** — SE/ops end-to-end pilot path
 - **[INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)** — V1 vs V1.1 integration boundaries
@@ -202,3 +206,73 @@ That is a credible sponsor-level outcome.
 ## 11. Limits of AI explanations (citations vs. proof)
 
 Explanations in ArchLucid combine **LLM-generated narrative** with **persisted artifacts** (manifests, findings, decision traces, optional bundles). The UI surfaces **citation links** to those artifacts so reviewers know **where the system grounded** an answer. That improves transparency; it does **not** turn an LLM paragraph into a **legal attestation** or a **formal verification**. The sponsor-safe stance: treat AI text as **decision support**; treat manifests, findings, traces, and governance records as **reviewable evidence** for human sign-off.
+
+---
+
+## 12. One-email sponsor / procurement kit
+
+Copy-paste blocks for a **single outbound email**. Summary claims stay grounded in [`V1_SCOPE.md`](../library/V1_SCOPE.md) and [`POSITIONING.md`](POSITIONING.md). **No list prices** — commercial list language stays in [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md).
+
+### Subject line options
+
+**Pilot closeout (after first commit):**
+
+```
+ArchLucid pilot results — <<PILOT_OUTCOME>> (review findings attached)
+```
+
+```
+When you have 30 minutes — ArchLucid architecture review findings
+```
+
+```
+Schedule 30 minutes: walkthrough of our ArchLucid pilot findings
+```
+
+**Procurement / evaluation (pre-pilot):**
+
+```
+ArchLucid pilot — executive summary and evidence requests
+```
+
+```
+Request: V1 scope summary for Architecture Proof Engine evaluation
+```
+
+```
+Architecture review automation — vendor briefing (ArchLucid V1)
+```
+
+### Pilot closeout email (~120 words)
+
+```
+Subject: (pick a subject line from above — pilot closeout)
+
+Hello <<SPONSOR_NAME>>,
+
+We completed an ArchLucid architecture review pilot on our <<SYSTEM_NAME>> context. <<PILOT_OUTCOME>>
+
+ArchLucid turns a structured architecture request into governed findings, a versioned manifest, and downloadable artifacts—every recommendation traced, every decision recorded. This is not a chat transcript; it is an evidence package your ARB or audit team can replay.
+
+I have attached our executive brief, first-value report, proof packet, and ROI context. Could we schedule 30 minutes this week to walk through the findings and decide on next steps?
+
+Thank you,
+<<SENDER_NAME>>
+```
+
+**Attach:** (1) this brief (PDF/export), (2) `first-value-report.pdf` for the committed run (`GET /v1/pilots/runs/{runId}/first-value-report.pdf`), (3) pilot proof packet ZIP from `.\scripts\collect-first-pilot-proof.ps1 -RunId <guid>`, (4) ROI context from [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) §5 with source labels.
+
+**Follow-up:** **48 hours** bump if no reply; **5 days** after send, second follow-up with one concrete finding headline from the proof packet (no new claims).
+
+### Procurement / evaluation summary (~120 words)
+
+```
+ArchLucid V1 is a bounded product contract for AI-assisted architecture work: architects submit a structured request, execute the analysis pipeline, and finalize a versioned architecture package with reviewable artifacts. V1 includes the core pilot path plus Operate layers—compare and replay, knowledge-graph views, advisory and ask, governance with policy packs, typed audit logging, and alerts—where configuration allows. We position ArchLucid as an Architecture Proof Engine for leaders who need explainable, governed outcomes with a durable evidence trail, not disposable chat. Reference deployments are Azure-native per published architecture intent. For shipped-versus-deferred capability detail rely on the linked V1 scope and positioning pages; list pricing language is maintained only in our pricing-philosophy document.
+```
+
+### Ask the vendor for these four artifacts
+
+1. **Trust Center index** — [`trust-center.md`](trust-center.md) (public site `/trust` when deployed).
+2. **Downloadable evidence pack (ZIP)** — `GET …/v1/marketing/trust-center/evidence-pack.zip` (see Trust Center).
+3. **Pilot ROI measurement companion** — [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md).
+4. **Proof-of-value snapshot playbook** — [`PROOF_OF_VALUE_SNAPSHOT.md`](../library/PROOF_OF_VALUE_SNAPSHOT.md).

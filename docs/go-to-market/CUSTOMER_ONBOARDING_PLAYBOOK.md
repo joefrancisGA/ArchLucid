@@ -1,4 +1,6 @@
-﻿> **Scope:** ArchLucid — Customer onboarding playbook - full detail, tables, and links in the sections below.
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** ArchLucid — Customer onboarding playbook - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -7,7 +9,7 @@
 
 **Audience:** Customer success, sales engineering, and account management teams onboarding new SaaS customers.
 
-**Last reviewed:** 2026-04-17
+**Last reviewed:** 2026-07-25
 
 This playbook aligns with the 6-week pilot timeline in [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) and the technical quickstart in [../OPERATOR_QUICKSTART.md](../library/customer-facing/OPERATOR_QUICKSTART.md).
 

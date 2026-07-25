@@ -30,7 +30,7 @@ Do **not** re-create protocol assets — they already exist:
 - Per-session dismissal capture + weekly triage: [`../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md)
 - Paid-pilot conversion ledger (per-row + monthly rollup): [`../validation/PAID_PILOT_EVIDENCE_LEDGER.md`](../validation/PAID_PILOT_EVIDENCE_LEDGER.md)
 - Decision-change addendum (sponsor handoff): [`../validation/DECISION_CHANGE_ADDENDUM.md`](../validation/DECISION_CHANGE_ADDENDUM.md)
-- Frontier-AI counterfactual cadence rollups: [`../validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md`](../validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md)
+- Frontier-AI counterfactual cadence rollups: [`../FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](../FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md#maintenance-cadence)
 
 ## Guardrail
 

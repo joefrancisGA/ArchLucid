@@ -90,7 +90,7 @@ Use these in internal decks and emails; buyers can be pointed to the same paths 
 
 **Where ArchLucid does *not* win:** The buyer insists on **one vendor** for *all* evidence lifecycle and will not allow a sidecar Azure deployment.
 
-**Summary:** ArchLucid is strongest when the buyer admits **manual packaging and inconsistent decision evidence** are slowing releases — and will put a **bounded pilot** on **Core Pilot** success metrics ([BUYER_JOURNEY.md](BUYER_JOURNEY.md)).
+**Summary:** ArchLucid is strongest when the buyer admits **manual packaging and inconsistent decision evidence** are slowing releases — and will put a **bounded pilot** on **Core Pilot** success metrics ([BUYER_PERSONAS.md](BUYER_PERSONAS.md#buyer-journey-field-motion)).
 
 ---
 

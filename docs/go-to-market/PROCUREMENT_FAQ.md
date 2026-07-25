@@ -1,8 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Procurement FAQ for enterprise buyers — honest answers anchored to shipped V1 materials; not legal advice.
 
 # Procurement FAQ (Enterprise)
 
 **Audience:** procurement, InfoSec questionnaires, resilience reviews preparing **SOC 2** / SIG / CAIQ spreadsheets.
+
+**Last reviewed:** 2026-07-25
 
 **Evidence index:** **[Security and trust](/help/security-trust)** · [trust-center.md](trust-center.md)
 

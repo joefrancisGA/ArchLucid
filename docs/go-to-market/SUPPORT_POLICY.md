@@ -1,11 +1,13 @@
-﻿> **Scope:** ArchLucid — Support and professional services (buyer summary).  
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** ArchLucid — Support and professional services (buyer summary).  
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ArchLucid — Support and professional services
 
 **Audience:** Procurement, customer success, and technical evaluators assessing support entitlements before purchase.
 
-**Last reviewed:** 2026-05-30
+**Last reviewed:** 2026-07-25
 
 **Pricing source:** Subscription tiers and list prices live only in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md). This document describes **support and services posture**, not price figures.
 

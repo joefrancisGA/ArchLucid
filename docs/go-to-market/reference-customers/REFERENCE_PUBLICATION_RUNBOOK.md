@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Operational runbook for moving a real customer reference from internal drafting to a **Published** row in [`README.md`](README.md), including computed-ROI evidence extraction and the CI discount re-rate gate.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
@@ -7,9 +9,20 @@
 
 **Audience:** Product marketing, customer success, sales engineering, and the owner who signs legal agreements.
 
+**Last reviewed:** 2026-07-25
+
 **Related:** [`PRICING_PHILOSOPHY.md` § 5.4](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down) · [`scripts/ci/check_reference_customer_status.py`](../../../scripts/ci/check_reference_customer_status.py) · [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md) · [`../REFERENCE_NARRATIVE_TEMPLATE.md`](../REFERENCE_NARRATIVE_TEMPLATE.md)
 
 ---
+
+## 0. Publication checklist (human gates)
+
+Complete these gates **before** changing any [`README.md`](README.md) table row to **`Status: Published`**. This list does not replace counsel.
+
+- **Logo permission** — Written approval for the customer’s logo (and associated brand marks) on the marketing site, decks, Marketplace copy, and any other surfaces named in the reference agreement.
+- **Quote approval** — Every attributable quote, metric, or endorsement in the case study is approved for **public** use under the same agreement.
+- **Case study legal review** — Customer legal / brand review of the **final** case-study document is complete; internal drafts stay out of public indexes until then.
+- **CI / pricing gate** — Understand how merge-time automation behaves when the first **Published** row lands: **[`PRICING_PHILOSOPHY.md` §5.4 — Discount-stack work-down](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down)** (link only — do not restate discounts here).
 
 ## 1. Objective
 

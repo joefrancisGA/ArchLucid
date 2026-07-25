@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid — Product Datasheet - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -6,6 +8,8 @@
 # ArchLucid — Product Datasheet
 
 <!-- Layout: designed for PDF export at US Letter or A4. Keep under 2 pages rendered. -->
+
+**Last reviewed:** 2026-07-25
 
 ---
 
@@ -114,7 +118,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 2. **Full-stack without demo overlay:** `docker compose --profile full-stack up -d --build` — same stack without automatic Contoso demo seed (see [CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md)).
 3. **First run:** Open `http://localhost:3000/reviews/new` — seven-step guided wizard (legacy `/runs/new` may redirect)
 4. **See it live, not on a slide:** open `http://localhost:3000/why-archlucid` — the in-product proof page renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the run explanation + citations against the seeded Contoso Retail demo tenant.
-5. **Record a buyer demo video:** follow [`DEMO_VIDEO_STORYBOARD.md`](DEMO_VIDEO_STORYBOARD.md) (script: [`DEMO_VIDEO_SCRIPT.md`](DEMO_VIDEO_SCRIPT.md)).
+5. **Record a buyer demo video:** follow [`DEMO_VIDEO_SCRIPT.md`](DEMO_VIDEO_SCRIPT.md#two-minute--under-3-minute-video-storyboard) (live-call scripts + shot table).
 5. **Pilot:** Follow the [Pilot Guide](../library/customer-facing/PILOT_GUIDE.md) for production-style deployment
 6. **Learn more:** [docs/go-to-market/POSITIONING.md](POSITIONING.md) | [docs/go-to-market/COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md)
 

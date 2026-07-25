@@ -1,4 +1,6 @@
-﻿> **Scope:** Legal and procurement terms packet for founder-led paid pilots. This is a planning and conversation guide, not a substitute for executed contracts. All legal commitments require owner review and, where applicable, legal counsel sign-off.
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** Legal and procurement terms packet for founder-led paid pilots. This is a planning and conversation guide, not a substitute for executed contracts. All legal commitments require owner review and, where applicable, legal counsel sign-off.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -6,7 +8,7 @@
 
 **Audience:** Founder / operator preparing for a first paid-pilot procurement conversation; buyers' legal or procurement teams reviewing commercial terms.
 
-**Last reviewed:** 2026-06-01
+**Last reviewed:** 2026-07-25
 
 **Approval path:** Owner must review before sending to any buyer. Items marked **"owner/legal review required"** must not be committed verbally or in product copy without that review.
 

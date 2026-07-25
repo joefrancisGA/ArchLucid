@@ -1,4 +1,6 @@
-﻿> **Scope:** ArchLucid — Subprocessors - full detail, tables, and links in the sections below.
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** ArchLucid — Subprocessors - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -7,7 +9,7 @@
 
 **Audience:** Customers and prospects who need a **subprocessor list** for security questionnaires and DPAs.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-07-25
 
 ArchLucid uses the following **subprocessors** to deliver the hosted service. The list is derived from the **Azure-first** architecture described in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md), and repository `infra/` modules.
 

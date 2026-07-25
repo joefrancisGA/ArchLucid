@@ -1,8 +1,12 @@
-﻿> **Scope:** How buyers and field teams obtain the ArchLucid procurement documentation ZIP.
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** How buyers and field teams obtain the ArchLucid procurement documentation ZIP.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # How to request the procurement pack
+
+**Last reviewed:** 2026-07-25
 
 ## Who this is for
 

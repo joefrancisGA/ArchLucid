@@ -37,7 +37,7 @@ Dominant claim types present and the labels that keep them honest. Disposition i
 | `POLICY_PACK_DELTA_DEMO_SCRIPT.md` | review-backed, illustrative | governance-evidence-not-certification grounding rule |
 | `DEMO_VIDEO_SCRIPT.md`, `DEMO_QUICKSTART.md` | illustrative | demo/sample framing |
 | `GENERIC_AI_BAKEOFF_PROTOCOL.md` | review-backed, illustrative | honest "where each wins" |
-| `CONTROLLED_PILOT_OBJECTION_DRILL.md`, `PROCUREMENT_OBJECTION_PLAYBOOK.md` | self-assessed, roadmap | honest-posture answers |
+| `PROCUREMENT_OBJECTION_PLAYBOOK.md` (incl. controlled pilot drill) | self-assessed, roadmap | honest-posture answers |
 | `MODEL_SEATS_COUNTER_POSITIONING_TEST.md` | review-backed, self-assessed | grounding rule: "do **not** claim ArchLucid always beats frontier AI" |
 | `demo-proof-packets/*.md` | illustrative | sample-not-customer labels |
 | `templates/evidence-packet-buyer.template.md` | all five (as columns) | claim-boundary column |

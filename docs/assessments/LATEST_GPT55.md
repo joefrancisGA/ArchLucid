@@ -21,7 +21,7 @@ Sourced from open `GTM_BACKLOG.md` rows (M-series / G-REAL-series), ranked by cr
 | Task | Status |
 |------|--------|
 | **M-08** — Align `POSITIONING.md` "audit chain / signed manifest" language with the one-minute pitch and demo script | Agent copy alignment **Done 2026-07-03**. **Owner:** optional read-through before next outreach copy freeze — not a blocking gate. |
-| **M-18** — Send 20 outreach messages offering a 10-minute demo | Agent message drafting **Done 2026-07-03** — see [`M18_OUTREACH_MESSAGE_TEMPLATE.md`](../go-to-market/M18_OUTREACH_MESSAGE_TEMPLATE.md). **Owner:** personalize and send once M-09/M-16/M-17 clear. |
+| **M-18** — Send 20 outreach messages offering a 10-minute demo | Agent message drafting **Done 2026-07-03** — see [`ELEVATOR_PITCH.md`](../go-to-market/ELEVATOR_PITCH.md#m-18-outreach-message-templates). **Owner:** personalize and send once M-09/M-16/M-17 clear. |
 
 | # | Task | Why ranked here | Engine-assistable? | Recommended engine |
 |---|------|------------------|---------------------|---------------------|

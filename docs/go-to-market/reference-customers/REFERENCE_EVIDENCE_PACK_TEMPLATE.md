@@ -1,9 +1,13 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** One-page **template** for a single customer reference pack. Replace `<<…>>` placeholders. Every **computed** line must map to `pilot-run-deltas.json` produced by `archlucid reference-evidence` (or the admin ZIP).
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Reference evidence pack — `<<CUSTOMER_NAME>>`
+
+**Last reviewed:** 2026-07-25
 
 **Status:** Draft — internal only until legal sign-off.
 
@@ -59,3 +63,20 @@
 
 - Case study file: `<<PATH_TO_CASE_STUDY_MD>>`
 - Evidence folder / ZIP on secure share: `<<INTERNAL_LINK>>`
+
+---
+
+## Demo-tenant scaffold (internal shape only)
+
+**Not** a publishable customer artefact. Until a paying customer export exists, you may copy **shape only** from [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) — keep the literal banner **demo tenant — replace before publishing** on every ArchLucid-side artifact. Every numeric and narrative cell in a real pack must come from **customer-approved** sources per [`REFERENCE_PUBLICATION_RUNBOOK.md`](REFERENCE_PUBLICATION_RUNBOOK.md).
+
+| Template metric row | JSON / API field |
+|---------------------|------------------|
+| Wall-clock request → finalized architecture package | `timeToCommittedManifestTotalSeconds` (convert to `HH:MM:SS` in the template; metric key unchanged) |
+| Manifest committed at | `manifestCommittedUtc` |
+| Run created at | `runCreatedUtc` |
+| Findings by severity | `findingsBySeverity[]` |
+| Audit rows | `auditRowCount`, `auditRowCountTruncated` |
+| LLM completion calls | `llmCallCount` |
+| Top finding | `topFindingId`, `topFindingSeverity` |
+| Demo flag | `isDemoTenant` — must be **false** before external publication |

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Decision tree for how a buyer can actually purchase an ArchLucid pilot or service-led engagement. Defines available vs. unavailable purchase channels and copy-guard coverage for buyer-facing materials.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -6,9 +8,24 @@
 
 **Audience:** Founder, sales engineer, and buyers' procurement teams selecting a purchase mechanism.
 
-**Last reviewed:** 2026-06-01
+**Last reviewed:** 2026-07-25
 
-**Related:** [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md), [`LEGAL_PROCUREMENT_TERMS_PACKET.md`](LEGAL_PROCUREMENT_TERMS_PACKET.md).
+**Related:** [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md), [`LEGAL_PROCUREMENT_TERMS_PACKET.md`](LEGAL_PROCUREMENT_TERMS_PACKET.md), [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md).
+
+---
+
+## 0. Pilot vs procurement fast lane
+
+| Motion | Start here | Often |
+|--------|------------|--------|
+| **Pilot (first useful outcome)** | [`CORE_PILOT.md`](../CORE_PILOT.md) — request → pipeline → finalize → review artifacts | Same day–few days (team + environment) |
+| **Internal sponsor yes/no** | Sponsor brief + scorecard | 1–4 weeks |
+| **Procurement diligence** | [`trust-center.md`](trust-center.md) → [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) → evidence ZIP / [`HOW_TO_REQUEST_PROCUREMENT_PACK.md`](HOW_TO_REQUEST_PROCUREMENT_PACK.md) | 2–8+ weeks |
+| **Contract execution** | Templates in pack (DPA/MSA/order form) — customer legal review required | 2–8+ weeks after paper starts |
+
+**Escalation (founder / legal / security):** contractual demand for SOC 2 Type II **attestation date** or third-party pen **vendor report** inside V1; custom DPA terms that contradict in-repo stance; multi-region active/active or rigid residency guarantees not in signed commercial terms.
+
+**One-email sponsor kit:** [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md#12-one-email-sponsor--procurement-kit).
 
 ---
 

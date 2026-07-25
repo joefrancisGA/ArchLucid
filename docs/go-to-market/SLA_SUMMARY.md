@@ -1,4 +1,6 @@
-﻿> **Scope:** ArchLucid — Service level objectives (buyer summary) - full detail, tables, and links in the sections below.
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** ArchLucid — Service level objectives (buyer summary) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -7,7 +9,7 @@
 
 **Audience:** Procurement, security reviewers, and technical evaluators assessing ArchLucid's reliability commitments.
 
-**Last reviewed:** 2026-05-30
+**Last reviewed:** 2026-07-25
 
 ArchLucid targets **high availability and low latency** for the production API. This document translates internal engineering objectives into buyer-readable commitments. For engineering depth (Prometheus rules, OTel metrics, burn-rate math), see [../API_SLOS.md](../library/API_SLOS.md).
 

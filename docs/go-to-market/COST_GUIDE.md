@@ -1,8 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Buyer-facing **cost-of-operations** framing for ArchLucid-hosted and self-hosted pilots — estimates, not contractual pricing; verify against your Azure subscription and AOAI deployment.
 
 # Cost guide (ArchLucid operations)
 
 **Audience:** finance + platform owners sizing **LLM token burn** and **Azure footprint** before a pilot.
+
+**Last reviewed:** 2026-07-25
 
 ---
 

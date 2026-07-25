@@ -63,7 +63,7 @@ All six elements present + send gate PASS → proceed to the mock review. Any HO
 This is the "use it in a mock procurement review" half of #4. Reuse the existing drill — do not author a new objection set:
 
 1. Hand the assembled packet to an internal reviewer playing procurement/security.
-2. Run [`CONTROLLED_PILOT_OBJECTION_DRILL.md`](CONTROLLED_PILOT_OBJECTION_DRILL.md) (45–60 min) using [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md) answers, focused on objections **#1 (SOC 2)**, **#2 (pen test)**, **#8 (pack completeness)**, and real-mode AI evidence boundaries.
+2. Run the [controlled pilot drill](PROCUREMENT_OBJECTION_PLAYBOOK.md#controlled-pilot-drill) (45–60 min) using [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md) answers, focused on objections **#1 (SOC 2)**, **#2 (pen test)**, **#8 (pack completeness)**, and real-mode AI evidence boundaries.
 3. Walk the six elements against the [evidence routing map](BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map).
 4. Record every objection the packet could **not** answer from existing evidence.
 
@@ -100,7 +100,7 @@ This document (the assembly + mock-review sequence) is the V1 design half; no V1
 | [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md) | Proof → quote/annual-order index |
 | [`templates/evidence-packet-buyer.template.md`](templates/evidence-packet-buyer.template.md) | Buyer/executive evidence template + claim boundaries |
 | [`PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md`](PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md) | Pre-send gate + G4 discipline |
-| [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md) · [`CONTROLLED_PILOT_OBJECTION_DRILL.md`](CONTROLLED_PILOT_OBJECTION_DRILL.md) | Mock procurement review |
+| [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md) (incl. controlled pilot drill) | Mock procurement review |
 | [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md) | Procurement reviewer checklist and evidence routing |
 | [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md) | Real paid-pilot outcome capture (**M-37**) |
 | [`demo-proof-packets/README.md`](demo-proof-packets/README.md) | Worked buyer-safe exemplars |

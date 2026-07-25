@@ -1,6 +1,10 @@
-> **Scope:** Live-call demo scripts for the core pilot path. The **five-minute version** (M-03) opens on a **finished architecture package** — never generation-first. The **30-minute principal-architect variant** adds Graph, Ask, a created-package bridge, and **Compare** between reviewed and created packages. The two-minute version targets async video drop-off. Neither is a promise of marketing artifacts already produced.
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard for the first buyer-facing video cut. The **five-minute version** (M-03) opens on a **finished architecture package** — never generation-first. The **30-minute principal-architect variant** adds Graph, Ask, a created-package bridge, and **Compare** between reviewed and created packages. The two-minute version targets async video drop-off. Neither is a promise of marketing artifacts already produced.
 
 # Demo scripts
+
+**Last reviewed:** 2026-07-25
 
 ---
 
@@ -11,6 +15,8 @@
 **Grounding:** V1 Pilot layer only. All routes exist in `archlucid-ui` unless noted as conditional. If a capability is behind a feature flag or commercial tier, say "when this is enabled for your tenant" — never imply universal availability.
 
 **Setup:** Run with Simulator agents for a deterministic timeline. Use the Contoso Retail demo tenant (Docker seed) or the static showcase tenant (`claims-intake-modernization`). Have the browser at 1440×900, 100% zoom, bookmarks hidden.
+
+**Demo honesty — Workspace B (M-111 / C4):** When you open the regulated Workspace B sample (`/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b`, Meridian / Alpine), narrate findings as a **seed-backed curated storyline**. Engines are `AiGovernanceSeed` / `SecurityBaselineSeed` — not live Topology / Cost / Compliance / Critic agent traces. Show live multi-agent analysis on **Workspace A** (Product Tour) or a real pilot run. Durable buyer-facing live sample is **M-93** (dogfood).
 
 **Trust ladder:** Open on a **completed architecture package**. Do **not** start at `/reviews/new` or describe generation speed.
 
@@ -166,3 +172,43 @@ Trim governance or compare if time is tight — core story is **finished package
 - Routes exist in **`archlucid-ui`** (App Router segments under `(operator)` / `(marketing)`).
 - Claims match **Pilot** capabilities in **[V1_SCOPE.md](../library/V1_SCOPE.md)** §2.
 - If a capability is gated (commercial tier / feature flag), voiceover states "when enabled for your tenant" rather than implying universal availability.
+- When using **Workspace B**, narrate seed-backed storyline honesty (**M-111**); do not imply live multi-agent traces for that sample.
+
+---
+
+## Two-minute / under-3-minute video storyboard
+
+**Target length:** Under **3 minutes** for the first buyer-facing cut (core path: wizard → execute → findings → commit; trim governance/compare if over budget). Align narration with the **two-minute video script** section above.
+
+### Shot table
+
+| Segment | URL / screen | Action | Narration extract | Annotation | Duration (s) |
+| --- | --- | --- | --- | --- | ---: |
+| Opening | Marketing home or operator home | Hold static frame; optional split slide (wiki chaos vs manifest table) | "Enterprise architecture review is still slow, inconsistent, and hard to prove. ArchLucid turns a structured request into governed, auditable outputs you can diff and replay." | Title-safe lower third optional | 15 |
+| Create review | `/reviews/new` | Step through wizard; paste 3–4 sentence migration scenario | "An operator starts from a guided flow: system name, constraints, and requirement lines that feed the ingestion pipeline—no mystery prompts." | Highlight structured fields, not a chat box | 20 |
+| Execute | Run detail → pipeline timeline | Show stages advancing (simulator or pre-seeded run) | "Execution runs the multi-stage authority pipeline: ingestion, graph, findings, decisioning, artifacts—visible in the UI." | Point to stage labels as each completes | 15 |
+| Findings | Run detail findings panel or `/runs/{runId}/findings/{findingId}` | Open one finding; expand explainability trace | "Findings aren't a chat paragraph. Each item carries structured traces you can inspect for what was checked and why." | Show severity, confidence, recommended action | 25 |
+| Finalize + package | Review detail → Finalize → Artifacts | Click Finalize; show architecture package summary and one download row | "When ready, Finalize produces an architecture package and downloadable artifacts—the reviewable record for your program." | Emphasize versioned package, not slide deck | 15 |
+| Governance (optional) | `/governance` or policy packs | Brief policy or approval screen; skip if not configured | "Policy packs and pre-finalize gates can block promotion when severities exceed thresholds." | Say "when enabled for your tenant" if gated | 15 |
+| Compare (optional) | `/compare` | Select two reviews; show structured deltas | "When designs iterate, compare two reviews with structured deltas—not just a text diff." | Trim if total runtime exceeds 2:45 | 15 |
+| Close | `/why-archlucid` or home CTA | Logo + contact/signup | "Every recommendation traced. Every decision governed. Start a pilot on your terms." | End card: archlucid.net/contact | 10 |
+
+**Trim order if over 3:00:** Governance → Compare → shorten Opening split slide.
+
+### Pre-production checklist
+
+- [ ] Staging or local environment with seeded Contoso demo tenant running
+- [ ] Browser zoom at 100%, full-screen, clean bookmark bar
+- [ ] Loom / Camtasia recording started before narration begins
+- [ ] Close all non-ArchLucid browser tabs
+- [ ] Test audio quality before recording
+
+### Post-production checklist
+
+- [ ] Trim dead air at start/end
+- [ ] Add title card: **ArchLucid — Defensible architecture, on demand**
+- [ ] Add captions for accessibility
+- [ ] Upload to Loom or Wistia (not YouTube for sales demo — avoid competitor ads)
+- [ ] Add link in [`PRODUCT_DATASHEET.md`](PRODUCT_DATASHEET.md) and [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
+
+**Production owner:** TB-236 (screen recording) — deferred until owner returns media per `V1_DEFERRED.md`.
