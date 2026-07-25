@@ -381,7 +381,8 @@ public sealed class AgentResultRepository(
             {
                 ResultId = row.ResultId,
                 TaskId = row.TaskId,
-                RunId = row.RunId,
+                // SQL UNIQUEIDENTIFIER — map via Guid row type (string cast throws DataException).
+                RunId = RunChildRunScopeSql.ToContractRunId(row.RunId),
                 AgentType = agentType,
                 Confidence = row.Confidence,
                 CreatedUtc = row.CreatedUtc,
@@ -577,11 +578,11 @@ public sealed class AgentResultRepository(
             init;
         } = null!;
 
-        public string RunId
+        public Guid RunId
         {
             get;
             init;
-        } = null!;
+        }
 
         public string AgentType
         {

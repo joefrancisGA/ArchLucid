@@ -332,6 +332,84 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
     }
 
     [SkippableFact]
+    public async Task EnrichBuyerSummaryAsync_swallows_agent_type_marker_failures()
+    {
+        Guid runId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        Guid manifestId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runId,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                ProjectId = "default",
+                GoldenManifestId = manifestId,
+            },
+        };
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(t => t.GetLlmCostSlicesByRunIdAsync(It.IsAny<ScopeContext>(), runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<AgentExecutionTraceLlmCostSlice>());
+
+        Mock<IAgentResultRepository> agentResults = new();
+        agentResults
+            .Setup(r => r.GetAgentTypeMarkersByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                runId.ToString("N"),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidCastException("Object must implement IConvertible."));
+
+        Mock<ILlmCostEstimator> estimator = new();
+        Mock<IRunTrustEvidenceCardBuilder> trustBuilder = new();
+        trustBuilder
+            .Setup(b => b.BuildAsync(It.IsAny<ArchitectureRunDetail>(), "Real", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunTrustEvidenceCard?)null);
+
+        Mock<IRetrievalGroundingTraceReader> groundingReader = new();
+        groundingReader
+            .Setup(r => r.GetByRunIdAsync(
+                detail.Run.TenantId,
+                detail.Run.WorkspaceId,
+                detail.Run.ScopeProjectId,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<ITenantEstimatedUsdSavingsResolver> savingsResolver = new();
+        savingsResolver
+            .Setup(r => r.ResolveFromFindingsSnapshotIdAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((decimal?)null);
+
+        Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
+        Mock<IDecisionNodeRepository> decisionNodes = new();
+        decisionNodes
+            .Setup(r => r.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        AuthorityRunDetailOperatorEnricher sut = new(
+            runDetailQuery.Object,
+            traces.Object,
+            agentResults.Object,
+            estimator.Object,
+            trustBuilder.Object,
+            groundingReader.Object,
+            savingsResolver.Object,
+            tenantCostSettings.Object,
+            decisionNodes.Object,
+            new ConfigurationBuilder().Build());
+
+        await sut.Invoking(s => s.EnrichBuyerSummaryAsync(detail, "Real", CancellationToken.None))
+            .Should()
+            .NotThrowAsync();
+
+        detail.Results.Should().BeEmpty();
+    }
+
+    [SkippableFact]
     public async Task EnrichBuyerSummaryAsync_swallows_trust_card_failures()
     {
         Guid runId = Guid.Parse("55555555-5555-5555-5555-555555555555");

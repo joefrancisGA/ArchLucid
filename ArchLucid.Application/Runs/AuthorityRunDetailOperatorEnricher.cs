@@ -138,10 +138,20 @@ public sealed class AuthorityRunDetailOperatorEnricher(
             .ConfigureAwait(false);
 
         ScopeContext scope = ScopeContextRunChildExtensions.FromRunRecord(detail.Run);
-        IReadOnlyList<AgentResult> agentTypeMarkers =
-            await _agentResultRepository
-                .GetAgentTypeMarkersByRunIdAsync(scope, runHex, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<AgentResult> agentTypeMarkers;
+
+        try
+        {
+            agentTypeMarkers =
+                await _agentResultRepository
+                    .GetAgentTypeMarkersByRunIdAsync(scope, runHex, cancellationToken)
+                    .ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Buyer SSR must not 500 when marker rows fail to map; coverage carrier can still attach.
+            agentTypeMarkers = [];
+        }
 
         // Markers preserve RAG grounding HOLD without loading ResultJson; coverage findings feed TopFinding.
         List<AgentResult> buyerResults = agentTypeMarkers.ToList();
