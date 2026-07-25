@@ -143,7 +143,7 @@ This entry's **title says "First review guide"** but its **href points at `/help
 | Evidence trail | *"The chronological, inspectable lineage from inputs (prompts, repositories, citations) through deterministic steps to reviewer-visible outputs."* | `docs/library/GLOSSARY.md:18` |
 | Architecture draft | **No glossary entry.** Product-copy-only usage. | `ArchitectureDraftWorkspace.tsx:43`, `guided-intake-copy.ts:100` |
 
-### 6.2 The unresolved conflict (owner decision required — see “Unresolved owner decisions” at the end)
+### 6.2 The terminology conflict (RESOLVED — see “Unresolved owner decisions” §1)
 
 The task brief's stated rule — *"Do not use 'architecture package' when 'review package' is intended"* — assumes **review package** is the settled, correct noun. Repository history shows the **opposite** settled direction:
 
@@ -352,7 +352,7 @@ None of the following may be written as current-state copy anywhere in the help 
 ### `/help/review-packages` (rewritten, Path 1) or renamed persona-recipes page (Path 2)
 
 *If Path 1:*
-1. What a review package contains.
+1. What an architecture package contains.
 2. Where to find your packages (workspace list, filters).
 3. Inspecting a package (tabs: findings, evidence, policies, decisions).
 4. Exporting a package (formats, audiences: sponsor, security reviewer, auditor).
@@ -398,7 +398,7 @@ None of the following may be written as current-state copy anywhere in the help 
 | Step | Change | Depends on | Risk |
 |---|---|---|---|
 | 1 | Fix `help-search-panel-catalog.ts` "first-review-guide" entry mislabeling (§13.1) | Nothing | Very low — one file, corrects a proven bug |
-| 2 | Owner decision on Unresolved #1 (review package vs. architecture package) | Owner | N/A — blocking, not code |
+| 2 | ~~Owner decision on Unresolved #1 (review package vs. architecture package)~~ — **RESOLVED:** prefer **architecture package** in buyer copy | Owner | Done — terminology pass may proceed |
 | 3 | ~~Owner decision on Unresolved #2 (Path 1 vs. Path 2)~~ — **Resolved 2026-07-12: Path 2** (PQ-HELP-01 / **TB-761**) | Owner | Done — engineering may implement |
 | 4 | Rewrite `evidence-trail` to describe the actual evidence trail (§11, §15) | Step 2 (terminology) | Low — single page, no route change |
 | 5 | Resolve `evidence-intake`/`review-packages` duplication per the chosen path (§11, §15) | Steps 2, 3 | Medium — touches two registry entries and possibly one new slug |
@@ -408,7 +408,7 @@ None of the following may be written as current-state copy anywhere in the help 
 | 9 | Add outbound help link from `/graph` (§16) | Step 4 | Very low |
 | 10 | (Future, gated on feature work) Assurance-coverage copy, phase-paired with implementation per §14 | Assurance-coverage code phases 1–7 | N/A until then |
 
-Steps 1, 7, 8, and 9 are independently shippable with no dependency on the two owner decisions and are the lowest-risk starting points.
+Steps 1, 7, 8, and 9 remain independently shippable; both owner decisions (#1 terminology, #2 Path 2) are now resolved, so steps 4–6 are unblocked on naming.
 
 ---
 
@@ -451,7 +451,7 @@ Steps 1, 7, 8, and 9 are independently shippable with no dependency on the two o
 
 ## Content architecture summary
 
-Once the two owner decisions below are resolved and the sequence in §18 is executed:
+With both owner decisions resolved (#1 architecture package; #2 Path 2) and the sequence in §18 executed:
 
 - **`getting-started` / `how-it-works`** own the conceptual overview ("what is ArchLucid, how does a review work in general").
 - **`first-hour-operator-path`** owns the first-time onboarding narrative ("what is the minimum path to one complete package, what can wait").

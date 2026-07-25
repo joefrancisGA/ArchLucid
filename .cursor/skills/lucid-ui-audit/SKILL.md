@@ -2,16 +2,16 @@
 name: lucid-ui-audit
 description: >-
   Runs the ArchLucid persona-driven UX audit for archlucid-ui: Playwright screenshot
-  capture (buyer-polished, full operator shell, and marketing entry points), rubric review
+  capture (buyer-polished, full architect workspace, and marketing entry points), rubric review
   against buyer personas and UI design system, and a dated audit report under docs/architecture/.
   Use when the user asks to run a UX audit, re-run lucid-ui-audit, /lucid-ui-audit,
-  persona screenshot audit, or buyer vs operator shell comparison.
+  persona screenshot audit, or buyer vs architect workspace comparison.
 disable-model-invocation: false
 ---
 
 # lucid-ui-audit — ArchLucid UI persona UX audit
 
-Repeatable workflow for screenshot-backed UX audits of `archlucid-ui`. Compares **buyer-polished** demo shell vs **full operator shell** across persona-mapped routes, plus **marketing** `/welcome` and `/why`.
+Repeatable workflow for screenshot-backed UX audits of `archlucid-ui`. Compares **buyer-polished** demo shell vs **full architect workspace** (npm/CI mode still named `operator`) across persona-mapped routes, plus **marketing** `/welcome` and `/why`.
 
 ## Capture (one command)
 
@@ -35,13 +35,13 @@ Individual modes:
 - `npm run ux-audit:screenshots:operator` → `public/screenshots/ux-audit/operator/*.png` (14 routes)
 - `npm run ux-audit:screenshots:marketing` → `public/screenshots/ux-audit/marketing/*.png` (2 routes)
 
-**Build note:** buyer and operator captures require **separate Next builds** (`NEXT_PUBLIC_*` is inlined at build time). `run-ux-audit.ps1` runs full builds per mode; marketing reuses the buyer build when captured in the same session.
+**Build note:** buyer and architect-workspace (`operator`) captures require **separate Next builds** (`NEXT_PUBLIC_*` is inlined at build time). `run-ux-audit.ps1` runs full builds per mode; marketing reuses the buyer build when captured in the same session.
 
 ## Review rubric
 
 1. `docs/go-to-market/BUYER_PERSONAS.md` — rejection criteria per persona
 2. `docs/library/UI_DESIGN_SYSTEM.md` — status tags, vocabulary, density
-3. Pair buyer vs operator PNGs for the same slug; note regressions visible only in operator shell
+3. Pair buyer vs architect-workspace (`operator`) PNGs for the same slug; note regressions visible only in the full workspace
 
 ## Report output
 
@@ -58,7 +58,7 @@ Write `docs/architecture/UX_AUDIT_YYYY_MM_DD.md` with executive summary, finding
 
 Re-run `npm run ux-audit` (or ask the agent to run **lucid-ui-audit**) after changes to:
 
-- Operator shell / buyer polish flags (`NEXT_PUBLIC_*` build-time env)
+- Architect workspace / buyer polish flags (`NEXT_PUBLIC_*` build-time env; CI/npm still say `operator`)
 - Sidebar nav, intake wizard, or persona-mapped routes in `ux-audit-route-registry.ts`
 - Playwright mock configs or `run-ux-audit.ps1` port alignment
 
