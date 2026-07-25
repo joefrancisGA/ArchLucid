@@ -1,4 +1,3 @@
-> **Reviewed:** 2026-07-23
 > **Scope:** Contributor-reference — Compatibility anchor for Markdown links spelled as `README.md` from sibling files in this folder; canonical overview is **`../REPOSITORY_README.md`**. Not a product overview.
 > **Reviewed:** 2026-07-23
 

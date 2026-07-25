@@ -56,6 +56,12 @@ The ZIP includes the DPA template, subprocessors register, SLA summary, `securit
 
 ---
 
+## Tenant isolation (production)
+
+Production tenant data is isolated with a **database-per-tenant** model (`SystemWithPerTenantCatalogs`) and connection routing — not SQL row-level security as the primary control. The accepted architecture decision is documented in **ADR** [0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md); normative detail lives in [Tenant isolation defense in depth](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md). Buyer-facing summary: [Data handling and tenant isolation](/help/data-handling-tenant-isolation).
+
+---
+
 ## Posture summary
 
 | Control | Status | Evidence | Last reviewed |

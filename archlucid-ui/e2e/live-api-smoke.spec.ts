@@ -20,6 +20,7 @@ import {
   DEMO_WORKSPACE_A_LIVE_IDS,
   DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
   injectDemoWorkspaceOperatorScope,
+  openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import {
@@ -37,12 +38,12 @@ import {
   liveE2eArchitectureRunCyclePlaywrightTimeoutMs,
   minimalPolicyPackContentJson,
   resolveLiveJwtMode,
+  waitForAuthorityBuyerSummaryGoldenManifest,
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
 import {
   comparisonRequestOutcomePanel,
   comparePageMainHeading,
-  expectLiveRunDetailPageReady,
   openReviewDetailWorkspaceTab,
 } from "./helpers/operator-journey";
 import { expandWizardBaselineZipEvidence } from "./helpers/wizard-baseline-zip-evidence";
@@ -226,10 +227,8 @@ test.describe("live-api-smoke", () => {
     // commit; sealed findings alone are not sufficient. Commit before asserting on those sections.
     await waitForReadyForCommit(request, runId, 120_000, scope);
     await commitRun(request, runId, scope);
-
-    await page.goto(`/reviews/${encodeURIComponent(runId)}`, { waitUntil: "domcontentloaded" });
-
-    await expectLiveRunDetailPageReady(page, 120_000);
+    await waitForAuthorityBuyerSummaryGoldenManifest(request, runId, 90_000, scope);
+    await openDemoWorkspaceReviewDetailShellReady(page, scope, runId, { timeoutMs: 45_000 });
 
     await openReviewDetailWorkspaceTab(page, runId, "findings");
 

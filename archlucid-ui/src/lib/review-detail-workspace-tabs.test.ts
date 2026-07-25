@@ -1,11 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
   buildReviewDetailTabHref,
   readReviewDetailTabFromHref,
+  readReviewDetailTabFromWindowLocation,
   resolveReviewDetailTab,
   resolveReviewDetailTabFromHash,
+  writeReviewDetailTabToUrl,
 } from "@/lib/review-detail-workspace-tabs";
 
 describe("review-detail-workspace-tabs", () => {
@@ -36,4 +38,25 @@ describe("review-detail-workspace-tabs", () => {
     expect(readReviewDetailTabFromHref("/reviews/run-1?reviewTab=policies")).toBe("policies");
     expect(readReviewDetailTabFromHref("/reviews/new")).toBeNull();
   });
+
+  it("writes and reads reviewTab from the browser location without navigation", () => {
+    window.history.replaceState({}, "", "/reviews/run-1?reviewTab=overview");
+    const replaceStateSpy = vi.spyOn(window.history, "replaceState");
+
+    writeReviewDetailTabToUrl("findings");
+
+    expect(replaceStateSpy).toHaveBeenCalled();
+    expect(readReviewDetailTabFromWindowLocation()).toBe("findings");
+    expect(window.location.search).toContain("reviewTab=findings");
+  });
+
+  it("prefers hash-mapped tabs when reading from window location", () => {
+    window.history.replaceState({}, "", "/reviews/run-1?reviewTab=overview#run-explanation");
+
+    expect(readReviewDetailTabFromWindowLocation()).toBe("findings");
+  });
+});
+
+afterEach(() => {
+  window.history.replaceState({}, "", "/");
 });

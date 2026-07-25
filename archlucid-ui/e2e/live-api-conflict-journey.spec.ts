@@ -4,7 +4,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { injectDemoWorkspaceOperatorScope } from "./helpers/demo-workspace-live-scope";
+import { openDemoWorkspaceReviewDetailShellReady } from "./helpers/demo-workspace-live-scope";
 import {
   type CommitRunResponseJson,
   commitRun,
@@ -14,12 +14,11 @@ import {
   freshIsolatedTenantScope,
   getRunDetailsWithTransientRetries,
   liveApiBase,
-  resolveLiveAuthMode,
   searchAudit,
+  waitForAuthorityBuyerSummaryGoldenManifest,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
-import { expectLiveRunDetailPageReady } from "./helpers/operator-journey";
 
 const liveConflictForensics: { runId?: string } = {};
 
@@ -128,13 +127,9 @@ test.describe("live-api-conflict-journey", () => {
 
     expect(countAuditByType(auditAfterSecond, "ManifestGenerated")).toBe(manifestGenCountAfterFirst);
 
-    if (resolveLiveAuthMode() === "bypass") {
-      await injectDemoWorkspaceOperatorScope(page, tenantScope);
-    }
-
-    await page.goto(`/reviews/${runId}`);
-
-    await expectLiveRunDetailPageReady(page, 120_000);
+    // SSR uses buyer-summary; wait until goldenManifestId is present, then open with cold-start retries.
+    await waitForAuthorityBuyerSummaryGoldenManifest(request, runId, 90_000, tenantScope);
+    await openDemoWorkspaceReviewDetailShellReady(page, tenantScope, runId, { timeoutMs: 45_000 });
 
     const detail = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
     const st = detail.run?.status;

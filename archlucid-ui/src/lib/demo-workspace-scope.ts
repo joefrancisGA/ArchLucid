@@ -16,6 +16,12 @@ const DEMO_WORKSPACE_MANIFEST = {
   },
 } as const;
 
+/** Canonical Product Tour (Workspace A) run — keep aligned with fixture manifest. */
+export const DEMO_WORKSPACE_A_RUN_ID = DEMO_WORKSPACE_MANIFEST.workspaceA.runId;
+
+/** Canonical regulated storyline (Workspace B) run — keep aligned with fixture manifest. */
+export const DEMO_WORKSPACE_B_RUN_ID = DEMO_WORKSPACE_MANIFEST.workspaceB.runId;
+
 function normalizeRunId(runId: string): string {
   return runId.trim().replace(/-/g, "").toLowerCase();
 }

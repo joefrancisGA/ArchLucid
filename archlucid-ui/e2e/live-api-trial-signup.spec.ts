@@ -11,6 +11,7 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { openDemoWorkspaceReviewDetailShellReady } from "./helpers/demo-workspace-live-scope";
 import {
   commitRun,
   createRun,
@@ -21,10 +22,12 @@ import {
   liveJsonHeaders,
   liveTenantScopeHeaders,
   searchAudit,
+  waitForAuthorityBuyerSummaryGoldenManifest,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
-import { expectLiveManifestDetailPageReady, expectLiveRunDetailPageReady, expectFinalizedManifestLinkVisible } from "./helpers/operator-journey";
+import { expectLiveManifestDetailPageReady, expectFinalizedManifestLinkVisible } from "./helpers/operator-journey";
+import { uniqueTrialWorkEmail } from "./helpers/trial-registration-email";
 import { manifestIdFromSignedRecordHref, runIdFromReviewsHref } from "./helpers/run-id-from-href";
 
 const modes = (process.env.LIVE_TRIAL_E2E_MODES ?? "register-baseline")
@@ -72,7 +75,7 @@ test.describe("live-api-trial-signup", () => {
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       data: {
         organizationName: `Live Trial Org ${suffix}`,
-        adminEmail: `trial-admin-${suffix}@example.com`,
+        adminEmail: uniqueTrialWorkEmail("trial-admin", suffix),
         adminDisplayName: "Live Trial Admin",
       },
     });
@@ -99,7 +102,7 @@ test.describe("live-api-trial-signup", () => {
     test.skip(password.length < 8, "Set LIVE_TRIAL_LOCAL_PASSWORD (>= 8 chars) for local-identity matrix row.");
 
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-    const email = `trial-local-${suffix}@example.com`;
+    const email = uniqueTrialWorkEmail("trial-local", suffix);
 
     const localReg = await request.post(`${liveApiBase}/v1/auth/trial/local/register`, {
       headers: { Accept: "application/json", "Content-Type": "application/json" },
@@ -129,7 +132,7 @@ test.describe("live-api-trial-signup", () => {
     test.skip(resolveLiveAuthMode() !== "bypass", "Requires DevelopmentBypass auth (default ui-e2e-live API).");
 
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-    const adminEmail = `trial-ui-${suffix}@example.com`;
+    const adminEmail = uniqueTrialWorkEmail("trial-ui", suffix);
     const orgName = `Trial UI Org ${suffix}`;
 
     await page.goto("/signup");
@@ -217,12 +220,8 @@ test.describe("live-api-trial-signup", () => {
     };
 
     await waitForRunDetailCommitted(request, sampleRunId, 120_000, sampleRunScope);
-
-    await sampleLink.click();
-
-    await expectLiveRunDetailPageReady(page, 120_000);
-
-    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
+    await waitForAuthorityBuyerSummaryGoldenManifest(request, sampleRunId, 90_000, sampleRunScope);
+    await openDemoWorkspaceReviewDetailShellReady(page, sampleRunScope, sampleRunId, { timeoutMs: 45_000 });
 
     const manifestLink = await expectFinalizedManifestLinkVisible(page, {
       runId: sampleRunId,
@@ -260,7 +259,7 @@ test.describe("live-api-trial-signup", () => {
 
     const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
     const orgName = `Metrics Funnel Org ${suffix}`;
-    const adminEmail = `metrics-funnel-${suffix}@example.com`;
+    const adminEmail = uniqueTrialWorkEmail("metrics-funnel", suffix);
 
     const first = await request.post(`${liveApiBase}/v1/register`, {
       headers: { Accept: "application/json", "Content-Type": "application/json" },

@@ -1,4 +1,4 @@
-> **Scope:** Architect cookbook — guide for second and subsequent finalized architecture packages — V1 surfaces only.
+> **Scope:** Customer-facing — operator cookbook guide for second and subsequent finalized architecture reviews — V1 surfaces only.
 
 # Repeat-review stickiness loop
 
@@ -40,6 +40,12 @@
 | Executive ROI summary | Exports / sponsor views | Export endpoints with ROI basis labels |
 | Governance dry-run | Governance UI | `POST /v1/governance/policy-packs/dry-run` |
 | Product learning rollups | Analytics where enabled | [`PRODUCT_LEARNING.md`](../library/PRODUCT_LEARNING.md) |
+
+Second-run proof collection (TB-227):
+
+```powershell
+./scripts/collect-first-pilot-proof.ps1 -BaseUrl $env:ARCHLUCID_API_URL -RunNumber 2 -RunId '<second-review-id>' -CompareBaseRunId '<first-review-id>'
+```
 
 </details>
 

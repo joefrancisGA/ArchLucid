@@ -98,6 +98,33 @@ export function ArtifactListTable(props: {
   const artifactColumnLabel = sponsorMode ? "Output" : "Artifact";
   const createdColumnLabel = sponsorMode ? "Generated" : "Created";
 
+  const sponsorDeliverablesTable = sponsorMode === true;
+  const tableClassName = cn(
+    "w-full border-collapse",
+    sponsorDeliverablesTable ? "table-fixed" : undefined,
+    OPERATOR_TYPOGRAPHY.body,
+  );
+  const outputCellClassName = cn(
+    "px-3 py-2.5 align-top",
+    sponsorMode === true ? "min-w-0 w-[42%]" : "max-w-[280px]",
+  );
+  const createdCellClassName = cn(
+    "whitespace-nowrap px-3 py-2.5 align-top text-neutral-600 dark:text-neutral-400",
+    sponsorMode === true ? "w-[18%]" : undefined,
+  );
+  const actionsCellClassName = cn("px-3 py-2.5 align-top", sponsorMode === true ? "min-w-0 w-[40%]" : undefined);
+
+  const thead = (
+    <thead>
+      <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
+        <th className={cn("px-3 py-2.5", sponsorMode === true ? "w-[42%]" : undefined)}>{artifactColumnLabel}</th>
+        {sponsorMode ? null : <th className="px-3 py-2.5">Format</th>}
+        <th className={cn("px-3 py-2.5", sponsorMode === true ? "w-[18%]" : undefined)}>{createdColumnLabel}</th>
+        <th className={cn("px-3 py-2.5", sponsorMode === true ? "w-[40%]" : undefined)}>Actions</th>
+      </tr>
+    </thead>
+  );
+
   const renderArtifactRows = (list: ArtifactDescriptor[]) =>
     list.map((artifact) => {
       const reviewHref = reviewHrefForArtifact(manifestId, artifact.artifactId, runId);
@@ -120,7 +147,7 @@ export function ArtifactListTable(props: {
           className={`border-b border-neutral-100 dark:border-neutral-800 ${isCurrent ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""}`}
           title={sponsorMode ? undefined : `Content hash: ${artifact.contentHash}`}
         >
-          <td className="max-w-[280px] px-2 py-2.5">
+          <td className={outputCellClassName}>
             <strong className="font-semibold">{businessLabel}</strong>
             {sponsorMode ? (
               sponsorAudience !== null ? (
@@ -134,16 +161,16 @@ export function ArtifactListTable(props: {
             ) : null}
           </td>
           {sponsorMode ? null : (
-            <td className="px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
+            <td className="px-3 py-2.5 text-neutral-600 dark:text-neutral-400">
               <span title={getArtifactFormatLabel(artifact.format)} className={OPERATOR_TYPOGRAPHY.helper}>
                 {getArtifactFormatLabel(artifact.format)}
               </span>
             </td>
           )}
-          <td className="whitespace-nowrap px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
+          <td className={createdCellClassName}>
             {formatDate(artifact.createdUtc)}
           </td>
-          <td className="px-2 py-2.5">
+          <td className={actionsCellClassName}>
             <Link href={reviewHref} className={OPERATOR_LINK.nav}>
               {openActionLabel}
             </Link>
@@ -173,17 +200,6 @@ export function ArtifactListTable(props: {
       );
     });
 
-  const thead = (
-    <thead>
-      <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
-        <th className="px-2 py-2.5">{artifactColumnLabel}</th>
-        {sponsorMode ? null : <th className="px-2 py-2.5">Format</th>}
-        <th className="px-2 py-2.5">{createdColumnLabel}</th>
-        <th className="px-2 py-2.5">Actions</th>
-      </tr>
-    </thead>
-  );
-
   const integrityDetails =
     !omitIntegrityDetails && sponsorMode && sorted.length > 0 ? (
       <ArtifactIntegrityTechnicalDetails artifacts={sorted} />
@@ -196,8 +212,8 @@ export function ArtifactListTable(props: {
         : [...AUDIENCE_BUCKET_ORDER];
 
     return (
-      <div className="overflow-x-auto">
-        <div className="space-y-10" role="region" aria-label="Deliverables grouped by audience">
+      <div className="w-full min-w-0 overflow-x-auto">
+        <div className="w-full space-y-10" role="region" aria-label="Deliverables grouped by audience">
           {bucketSequence.map((bucket) => {
             const slice = sorted.filter((a) => sponsorArtifactAudienceBucket(a.artifactType) === bucket);
 
@@ -224,7 +240,7 @@ export function ArtifactListTable(props: {
                 <p className={cn("m-0 mt-1 mb-3 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                   {sponsorAudienceSectionLead(bucket)}
                 </p>
-                <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
+                <table className={tableClassName}>
                   {thead}
                   <tbody>{renderArtifactRows(slice)}</tbody>
                 </table>
@@ -238,8 +254,8 @@ export function ArtifactListTable(props: {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
+    <div className="w-full min-w-0 overflow-x-auto">
+      <table className={tableClassName}>
         {thead}
         <tbody>{renderArtifactRows(sorted)}</tbody>
       </table>

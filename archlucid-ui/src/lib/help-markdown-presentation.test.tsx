@@ -163,7 +163,7 @@ describe("help-markdown-presentation", () => {
 
     expect(prepared).toContain("reviewid=abc");
     expect(prepared).toContain("/reviews/abc");
-    expect(prepared).toContain("architecture package");
+    expect(prepared).toContain("signed review record");
     expect(prepared).toContain("review not ready to finalize");
     for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {
       expect(prepared, `should not contain "${pattern}"`).not.toContain(pattern);

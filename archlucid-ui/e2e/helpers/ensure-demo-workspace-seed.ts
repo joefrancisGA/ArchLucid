@@ -2,6 +2,7 @@ import type { APIRequestContext } from "@playwright/test";
 
 import { demoWorkspacesFixtureManifest } from "./demo-workspaces-fixture-manifest";
 import {
+  getAuthorityBuyerSummaryRaw,
   getAuthorityRunDetailRaw,
   getAuthorityRunDetailWithTransientRetries,
   getPilotRunDeltasRaw,
@@ -119,6 +120,13 @@ async function isDemoWorkspaceSeedCheckReady(
     return false;
   }
 
+  // SSR buyer shell loads `/buyer-summary`, not the full authority detail envelope.
+  const buyerSummary = await getAuthorityBuyerSummaryRaw(request, check.runId, check.scope);
+
+  if (!buyerSummary.ok()) {
+    return false;
+  }
+
   const deltas = await getPilotRunDeltasRaw(request, check.runId, check.scope);
 
   return deltas.ok();
@@ -138,6 +146,14 @@ async function assertDemoWorkspaceSeedCheckReady(
   if (!probe.ok()) {
     throw new Error(
       `${check.label}: GET /v1/authority/runs/{runId} expected 200 — ${probe.status()}: ${(await probe.text()).slice(0, 500)}`,
+    );
+  }
+
+  const buyerSummary = await getAuthorityBuyerSummaryRaw(request, check.runId, check.scope);
+
+  if (!buyerSummary.ok()) {
+    throw new Error(
+      `${check.label}: GET /v1/authority/runs/{runId}/buyer-summary expected 200 — ${buyerSummary.status()}: ${(await buyerSummary.text()).slice(0, 500)}`,
     );
   }
 

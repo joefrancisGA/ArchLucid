@@ -61,7 +61,7 @@ public sealed class QuickScanExecutionOrchestrator(
             return QuickScanExecutionResult.ValidationFailed(validationError ?? "Validation failed.");
         }
 
-        if (safetyOptions.Enabled)
+        if (safetyOptions.Enabled && context.RequiresAnonymousDistributedConcurrency)
         {
             Dictionary<string, string> previewFiles = QuickScanMinimalContextBuilder.BuildFiles(validated!);
             string userPayload = JsonSerializer.Serialize(previewFiles);
@@ -97,7 +97,7 @@ public sealed class QuickScanExecutionOrchestrator(
         decimal reservedCostUsd = 0m;
         Guid? globalBudgetReservationId = null;
 
-        if (safetyOptions.Enabled)
+        if (safetyOptions.Enabled && context.RequiresAnonymousDistributedConcurrency)
         {
             QuickScanCostEstimateResult costReservation = quickScanCostEstimator.TryReserveCost(
                 validated!,
@@ -150,7 +150,7 @@ public sealed class QuickScanExecutionOrchestrator(
             return QuickScanExecutionResult.ConcurrencyRejected(concurrencyAdmission.RejectionReason!.Value);
         }
 
-        if (safetyOptions.Enabled)
+        if (safetyOptions.Enabled && context.RequiresAnonymousDistributedConcurrency)
         {
             QuickScanGlobalBudgetReservationAttemptResult budgetReservation =
                 await quickScanGlobalBudgetReservationService.TryReserveAsync(

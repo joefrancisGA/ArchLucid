@@ -57,6 +57,8 @@ const RunDetailArchitectureGraphSection = dynamic(
 type RunDetailBelowFoldSectionsProps = {
   readonly model: RunDetailPageModel;
   readonly context: RunDetailDeferredSectionContext;
+  /** Tabbed buyer workspace renders deliverables on the Evidence tab — skip duplicate anchor here. */
+  readonly skipArtifactsExports?: boolean;
 };
 
 /** Streams pipeline, graph, and technical appendices after first-screen run detail chrome. */
@@ -171,7 +173,7 @@ export async function RunDetailBelowFoldSections(
         </>
       ) : null}
 
-      {m.manifestId ? (
+      {m.manifestId && props.skipArtifactsExports !== true ? (
         <RunDetailArtifactsExportsSection
           manifestId={m.manifestId}
           runId={m.resolvedDetail.run.runId}

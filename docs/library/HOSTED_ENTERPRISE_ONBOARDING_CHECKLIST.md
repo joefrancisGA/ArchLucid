@@ -16,7 +16,7 @@ ArchLucid is delivered as hosted SaaS. Enterprise onboarding configures tenant s
 > - **[Enable governance workflow](#governance-enablement)**
 > - **[Configure audit export](#audit-export)**
 > - **[Connect Azure securely](/help/cloud-connections/azure)**
-> - **[Validate first architecture package](/help/pilot-guide)**
+> - **[Validate first architecture review](/help/pilot-guide)**
 > - **[Prepare procurement/trust review](/help/procurement)** · **[Security and trust](/help/security-trust)**
 
 ---
@@ -31,7 +31,7 @@ Use this checklist to track hosted SaaS enterprise onboarding. For task-specific
 - **[Enable governance workflow](#governance-enablement)**
 - **[Configure audit export](#audit-export)**
 - **[Connect Azure securely](/help/cloud-connections/azure)**
-- **[Validate first architecture package](/help/pilot-guide)**
+- **[Validate first architecture review](/help/pilot-guide)**
 - **[Prepare procurement/trust review](/help/procurement)** · **[Security and trust](/help/security-trust)**
 
 ---

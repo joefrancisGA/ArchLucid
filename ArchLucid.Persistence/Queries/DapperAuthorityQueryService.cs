@@ -170,24 +170,32 @@ public sealed class DapperAuthorityQueryService(
     public async Task<RunDetailDto?> GetRunDetailForBuyerSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
+
         if (run is null)
             return null;
 
-        Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
-            ? findingsSnapshotRepository.GetCoverageProjectionByIdAsync(scope, run.FindingsSnapshotId.Value, ct)
-            : Task.FromResult<FindingsSnapshot?>(null);
-        Task<DecisionTraceDto?> traceTask = run.DecisionTraceId.HasValue
-            ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
-            : Task.FromResult<DecisionTraceDto?>(null);
-        // Manifest document only (no artifact bodies) — needed for decision explainability honesty.
-        Task<ManifestDocument?> manifestTask = run.GoldenManifestId.HasValue
-            ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
-            : Task.FromResult<ManifestDocument?>(null);
-        Task<IReadOnlyList<string>> degradedAgentsTask =
-            _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        // Soft-fail satellite loads: corrupt golden-manifest / findings JSON must not 500 buyer SSR.
+        Task<FindingsSnapshot?> findingsTask = BuyerSummaryOptionalLoad.SoftAsync(
+            token => run.FindingsSnapshotId.HasValue
+                ? findingsSnapshotRepository.GetCoverageProjectionByIdAsync(scope, run.FindingsSnapshotId.Value, token)
+                : Task.FromResult<FindingsSnapshot?>(null),
+            ct);
+        Task<DecisionTraceDto?> traceTask = BuyerSummaryOptionalLoad.SoftAsync(
+            token => run.DecisionTraceId.HasValue
+                ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, token)
+                : Task.FromResult<DecisionTraceDto?>(null),
+            ct);
+        Task<ManifestDocument?> manifestTask = BuyerSummaryOptionalLoad.SoftAsync(
+            token => run.GoldenManifestId.HasValue
+                ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, token)
+                : Task.FromResult<ManifestDocument?>(null),
+            ct);
+        Task<IReadOnlyList<string>> degradedAgentsTask = BuyerSummaryOptionalLoad.SoftListAsync(
+            token => _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
                 scope,
                 run.RunId.ToString("N"),
-                ct);
+                token),
+            ct);
 
         await Task.WhenAll(findingsTask, traceTask, manifestTask, degradedAgentsTask);
 
@@ -204,17 +212,28 @@ public sealed class DapperAuthorityQueryService(
 
         if (detail.FindingsSnapshot is not null)
         {
-            DateTimeOffset since = TimeProvider.System.UtcNowDateTime().AddYears(-2);
-            IReadOnlyList<FindingReviewEventRecord> trailEvents =
-                await _findingReviewTrailRepository.ListSinceUtcAsync(scope.TenantId, since, ct);
-            IReadOnlyList<RiskExceptionRecord> activeWaivers =
-                await _riskExceptionRepository.ListActiveForTenantAsync(scope.TenantId, scope.ProjectId, ct);
-            RunFindingDispositionCoverage? dispositionCoverage = RunFindingDispositionCoverageBuilder.Build(
-                detail.FindingsSnapshot,
-                trailEvents,
-                activeWaivers);
+            try
+            {
+                DateTimeOffset since = TimeProvider.System.UtcNowDateTime().AddYears(-2);
+                IReadOnlyList<FindingReviewEventRecord> trailEvents =
+                    await _findingReviewTrailRepository.ListSinceUtcAsync(scope.TenantId, since, ct);
+                IReadOnlyList<RiskExceptionRecord> activeWaivers =
+                    await _riskExceptionRepository.ListActiveForTenantAsync(scope.TenantId, scope.ProjectId, ct);
+                RunFindingDispositionCoverage? dispositionCoverage = RunFindingDispositionCoverageBuilder.Build(
+                    detail.FindingsSnapshot,
+                    trailEvents,
+                    activeWaivers);
 
-            RunFindingCoverageProjection.ApplyDispositionCoverage(detail, dispositionCoverage);
+                RunFindingCoverageProjection.ApplyDispositionCoverage(detail, dispositionCoverage);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                // Disposition counts are optional for buyer SSR.
+            }
         }
 
         return detail;

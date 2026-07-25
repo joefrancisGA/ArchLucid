@@ -85,6 +85,31 @@ public sealed class RunTrustEvidenceCardBuilderTests
         card!.ExecutionMode.Detail.Should().Be(StructuralExecutionModeLabels.MixedDetail);
     }
 
+    [Fact]
+    public async Task BuildAsync_when_result_findings_null_still_returns_card()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        ArchitectureRunDetail detail = BuildCommittedDetail(runGuid);
+        detail.Results =
+        [
+            new AgentResult
+            {
+                ResultId = "marker",
+                TaskId = "marker",
+                RunId = detail.Run.RunId,
+                AgentType = AgentType.Compliance,
+                Findings = null!,
+            },
+        ];
+
+        RunTrustEvidenceCardBuilder sut = CreateSut(out _, out _);
+
+        RunTrustEvidenceCard? card = await sut.BuildAsync(detail, "Real", CancellationToken.None);
+
+        card.Should().NotBeNull();
+        card!.TopFinding.Should().BeNull();
+    }
+
     private static RunTrustEvidenceCardBuilder CreateSut(
         out Mock<IAuditRepository> audit,
         out Mock<IAgentExecutionTraceRepository> traces)

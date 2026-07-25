@@ -7,6 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Architecture;
 
+[Trait("Category", "Unit")]
 public sealed class QuickScanPublicCapacityStateResolverTests
 {
     private static QuickScanSafetyOptions EnabledSafetyOptions() => new()

@@ -293,7 +293,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
           {hiddenFeaturedCount > 0 ? (
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
               <Link href="/reviews" className="font-medium underline underline-offset-2">
-                View all architecture packages
+                View all reviews
               </Link>
               {` (${hiddenFeaturedCount} more on this page)`}
             </p>

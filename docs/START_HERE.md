@@ -19,7 +19,7 @@ Use this page to pick **one** door based on your role.
 
 > **Role-based entry (3–4 docs per persona):** [`runbooks/ROLE_INDEX.md`](runbooks/ROLE_INDEX.md) — operator, platform engineer, and release owner sequences with failure branches.
 
-> **V1 critical path (minimum doc set):** [`library/V1_CRITICAL_PATH_MAP.md`](library/V1_CRITICAL_PATH_MAP.md) — one-page map for buyer, operator, security reviewer, and RC signoff; excludes deferred v1.1/v2 distractions.
+> **V1 critical path (minimum doc set):** [`runbooks/ROLE_INDEX.md`](runbooks/ROLE_INDEX.md#v1-critical-path-mandatory-docs) — mandatory paths for buyer, operator, security reviewer, and RC signoff; excludes deferred v1.1/v2 distractions.
 
 > **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps; time-boxed evaluators use § [First value in 20 minutes](runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed). **Evaluators choosing a path:** [`runbooks/FIRST_EVALUATOR_DECISION.md`](runbooks/FIRST_EVALUATOR_DECISION.md) — three choices only (demo, real pilot, sponsor handoff). **Production-like preflight:** [`runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only.
 
@@ -38,8 +38,7 @@ START_HERE.md (you are here)
 │   ├─ go-to-market/DIFFERENTIATION_PROOF_PACKET.md  (why not generic AI — evidence-linked)
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story — after first finalize)
 │   ├─ library/walkthroughs/README.md            (accelerator pack index — optional depth, after first finalize)
-│   ├─ onboarding/EVALUATOR_WORKBOOK.md        (**compact evaluator path** — references architect checklist)
-│   ├─ onboarding/EVALUATION_GUIDE.md     (**depth** — same steps; do not use as a second checklist)
+│   ├─ onboarding/EVALUATOR_WORKBOOK.md        (**compact + depth** — do not use as a second checklist)
 │   ├─ runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md   (post-finalize evidence folder)
 │   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (printable evidence checklist)
 │   ├─ runbooks/PILOT_RESCUE_PLAYBOOK.md  (stuck mid-pilot — quick matrix)
@@ -51,7 +50,7 @@ START_HERE.md (you are here)
 │   ├─ onboarding/day-one-developer.md         (week one after install)
 │   ├─ onboarding/day-one-sre.md               (canonical SRE onboarding)
 │   ├─ library/FIRST_AZURE_DEPLOYMENT.md       (platform Admin — first Azure deploy)
-│   ├─ onboarding/EVALUATION_GUIDE.md          (first pilot / architect motion)
+│   ├─ onboarding/EVALUATOR_WORKBOOK.md        (first pilot / architect motion)
 │   ├─ architecture/README.md                  (poster + ownership; map after first **review**)
 │   ├─ PENDING_QUESTIONS.md                    (owner decisions + gates)
 │   ├─ library/CONTRIBUTOR_CODE_MAP.md         (1-page decision tree for where to change code)
@@ -68,7 +67,7 @@ START_HERE.md (you are here)
 
 **Deep lookup (tasks, not personas):** [`architecture/README.md`](architecture/README.md).
 
-**Do not read yet (depth / recovery only until first finalize):** [`onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md) · [`architecture/README.md`](architecture/README.md) · [`library/LIVE_E2E_HAPPY_PATH.md`](library/LIVE_E2E_HAPPY_PATH.md) · [`library/operator-shell.md`](library/operator-shell.md) · V1.1 connector catalog · Operate governance depth.
+**Do not read yet (depth / recovery only until first finalize):** [`onboarding/EVALUATOR_WORKBOOK.md`](onboarding/EVALUATOR_WORKBOOK.md) · [`architecture/README.md`](architecture/README.md) · [`library/LIVE_E2E_HAPPY_PATH.md`](library/LIVE_E2E_HAPPY_PATH.md) · [`library/operator-shell.md`](library/operator-shell.md) · V1.1 connector catalog · Operate governance depth.
 
 **After first finalize:** [`library/REPEAT_REVIEW_LOOP.md`](library/REPEAT_REVIEW_LOOP.md) · [`go-to-market/DIFFERENTIATION_PROOF_PACKET.md`](go-to-market/DIFFERENTIATION_PROOF_PACKET.md).
 

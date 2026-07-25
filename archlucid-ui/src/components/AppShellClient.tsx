@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppInsightsTelemetryInit } from "@/components/AppInsightsTelemetryInit";
+import { ClientRuntimeDiagnostics } from "@/components/ClientRuntimeDiagnostics";
 import { OperatorRouteEnteredTelemetry } from "@/components/OperatorRouteEnteredTelemetry";
 import { AppToaster } from "@/components/AppToaster";
 import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
@@ -297,6 +298,7 @@ function AppShellInner({ children }: AppShellClientProps) {
       <OperatorShellProviders>
         <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
           <AppInsightsTelemetryInit />
+          <ClientRuntimeDiagnostics />
           <OperatorRouteEnteredTelemetry />
           <SessionIdleTimeoutGuard />
           <TooltipProvider delayDuration={200}>
@@ -399,6 +401,7 @@ function AppShellInner({ children }: AppShellClientProps) {
     <OperatorShellProviders>
       <AppShellDeferChromeBoundary deferChrome={deferChrome} shellRootRef={shellRootRef}>
       <AppInsightsTelemetryInit />
+      <ClientRuntimeDiagnostics />
       <OperatorRouteEnteredTelemetry />
       <DevTestingShellShortcuts />
       <SessionIdleTimeoutGuard />

@@ -128,21 +128,45 @@ public sealed class AuthorityRunDetailOperatorEnricher(
 
         detail.Run.IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(detail.Run);
 
-        await AppendLlmCostEstimateAsync(detail, runHex, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await AppendLlmCostEstimateAsync(detail, runHex, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Buyer SSR must not 500 on optional cost enrichment faults.
+        }
 
-        detail.EstimatedUsdSavingsSummary = await RunDetailEstimatedUsdSavingsBuilder
-            .TryBuildAsync(
-                detail.Run,
-                _tenantEstimatedUsdSavingsResolver,
-                _tenantCostSettingsRepository,
-                cancellationToken)
-            .ConfigureAwait(false);
+        try
+        {
+            detail.EstimatedUsdSavingsSummary = await RunDetailEstimatedUsdSavingsBuilder
+                .TryBuildAsync(
+                    detail.Run,
+                    _tenantEstimatedUsdSavingsResolver,
+                    _tenantCostSettingsRepository,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            detail.EstimatedUsdSavingsSummary = null;
+        }
 
         ScopeContext scope = ScopeContextRunChildExtensions.FromRunRecord(detail.Run);
-        IReadOnlyList<AgentResult> agentTypeMarkers =
-            await _agentResultRepository
-                .GetAgentTypeMarkersByRunIdAsync(scope, runHex, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<AgentResult> agentTypeMarkers;
+
+        try
+        {
+            agentTypeMarkers =
+                await _agentResultRepository
+                    .GetAgentTypeMarkersByRunIdAsync(scope, runHex, cancellationToken)
+                    .ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Buyer SSR must not 500 when marker rows fail to map; coverage carrier can still attach.
+            agentTypeMarkers = [];
+        }
 
         // Markers preserve RAG grounding HOLD without loading ResultJson; coverage findings feed TopFinding.
         List<AgentResult> buyerResults = agentTypeMarkers.ToList();
@@ -155,23 +179,46 @@ public sealed class AuthorityRunDetailOperatorEnricher(
         // Markers omit ResultJson; presence vs Missing is enough for buyer finalize honesty (TB-937 / TB-930).
         detail.AgentExecutionOutcomes = RequiredAgentExecutionOutcomes.ProjectPresenceMarkers(agentTypeMarkers);
 
-        await AppendRetrievalGroundingSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
-        await AppendDecisionExplainabilityAsync(detail, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await AppendRetrievalGroundingSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Optional grounding summary — omit on fault.
+        }
+
+        try
+        {
+            await AppendDecisionExplainabilityAsync(detail, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Optional explainability — omit on fault.
+        }
 
         if (!detail.Run.GoldenManifestId.HasValue || detail.Run.GoldenManifestId.Value == Guid.Empty)
             return;
 
-        ArchitectureRunDetail architectureDetail = new()
+        try
         {
-            Run = RunRecordToArchitectureRunMapper.ToArchitectureRun(detail.Run, []),
-            Results = buyerResults,
-            Manifest = BuildTrustManifestFromAuthorityDocument(runHex, detail.Run.ProjectId, detail.GoldenManifest),
-        };
+            ArchitectureRunDetail architectureDetail = new()
+            {
+                Run = RunRecordToArchitectureRunMapper.ToArchitectureRun(detail.Run, []),
+                Results = buyerResults,
+                Manifest = BuildTrustManifestFromAuthorityDocument(runHex, detail.Run.ProjectId, detail.GoldenManifest),
+            };
 
-        detail.TrustEvidenceCard =
-            await _trustEvidenceCardBuilder
-                .BuildAsync(architectureDetail, hostAgentExecutionMode, cancellationToken)
-                .ConfigureAwait(false);
+            detail.TrustEvidenceCard =
+                await _trustEvidenceCardBuilder
+                    .BuildAsync(architectureDetail, hostAgentExecutionMode, cancellationToken)
+                    .ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // Buyer SSR must not 500 when trust-card enrichment or status mapping faults; omit the card.
+            detail.TrustEvidenceCard = null;
+        }
 
         // Buyer DTO omits Results; clear so accidental mappers cannot leak marker rows.
         detail.Results = [];

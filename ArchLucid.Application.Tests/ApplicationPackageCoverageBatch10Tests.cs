@@ -51,9 +51,9 @@ public sealed class ApplicationPackageCoverageBatch10Tests
         defaults.PositiveObservations.Should().NotBeEmpty();
         defaults.RecommendedNextSteps.Should().NotBeEmpty();
 
-        ArchitectureQuickScanResponse sample = QuickScanSampleResultProvider.Build();
-        sample.SystemName.Should().Be("Claims intake API");
-        sample.PrimaryEnvironment.Should().Be(QuickScanPrimaryEnvironment.Azure);
+        ArchitectureQuickScanResponse rescan = QuickScanSampleResultProvider.Build();
+        rescan.SystemName.Should().Be(defaults.SystemName);
+        rescan.PrimaryEnvironment.Should().Be(defaults.PrimaryEnvironment);
     }
 
     [Fact]

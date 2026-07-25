@@ -19,7 +19,7 @@ describe("formatOperatorHomeRecentReviewsOutcome", () => {
     };
 
     expect(formatOperatorHomeRecentReviewsOutcome(metrics)).toBe(
-      "No architecture packages in this workspace yet.",
+      "No reviews in this workspace yet.",
     );
   });
 

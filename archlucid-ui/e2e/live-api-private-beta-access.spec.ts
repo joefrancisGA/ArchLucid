@@ -208,7 +208,7 @@ test.describe("live-api-private-beta-access", () => {
     expect(roles.map((role) => role.toLowerCase())).toContain("operator");
 
     await page.goto("/reviews/new", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: CREATE_ARCHITECTURE_LABEL, level: 2 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 2 })).toBeVisible({
       timeout: 60_000,
     });
 

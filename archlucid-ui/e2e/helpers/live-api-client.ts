@@ -795,6 +795,20 @@ export async function getAuthorityRunDetailRaw(
   });
 }
 
+/** Buyer-polished run detail — same endpoint Next.js SSR uses for `/reviews/{runId}`. */
+export async function getAuthorityBuyerSummaryRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope: LiveTenantScopeHeaders,
+  options?: { apiKey?: string | null },
+): Promise<APIResponse> {
+  const encoded = encodeURIComponent(runId);
+
+  return request.get(`${resolveLiveApiBase()}/v1/authority/runs/${encoded}/buyer-summary`, {
+    headers: mergeTenantScope(liveAcceptHeaders(options?.apiKey), tenantScope),
+  });
+}
+
 const maxTransientHttpPollAttempts = 24;
 
 async function sleepTransientHttpBackoff(attempt: number): Promise<void> {
@@ -1275,7 +1289,15 @@ export async function waitForAuthorityBuyerSummaryGoldenManifest(
       if (goldenManifestId.length > 0) {
         return goldenManifestId;
       }
-    } else if (res.status() !== 404) {
+    } else {
+      const status = res.status();
+
+      // Cold-start / transient API faults: keep polling. Permanent client errors fail fast.
+      if (status === 404 || status >= 500) {
+        await new Promise((r) => setTimeout(r, 1000));
+        continue;
+      }
+
       await throwIfNotOk(res, `GET /v1/authority/runs/${encoded}/buyer-summary`);
     }
 

@@ -189,8 +189,9 @@ Hosted **`target=dev`** (RC lab) keeps Contoso Retail baseline/hardened sample r
 | `ASPNETCORE_ENVIRONMENT` | **`Staging`** (not Production — `Demo:Enabled` is blocked on the Production profile) | unchanged / Production-like |
 | `Demo__Enabled` | **`true`** | **`false`** (CD config gate) |
 | `Demo__EnableShowcaseSeed` | **`true`** (startup seed on non-Development hosts) | unset / false |
+| `Demo__SaaSGuestSeedEnabled` | **`true`** (allows idempotent `POST /v1/demo/seed` on Staging) | unset / false |
 
-CD **auto-heals** those three API Container App env vars during the pre-deploy config check when `target=dev`, and re-pins them on each `az containerapp update` for the API. Seed is **idempotent** (`IDemoSeedService`). Post-deploy product smoke treats Contoso summary as **required** on `dev` only.
+CD **auto-heals** those API Container App env vars during the pre-deploy config check when `target=dev`, and re-pins them on each `az containerapp update` for the API. Seed is **idempotent** (`IDemoSeedService`) and covers Contoso baseline/hardened plus Product Tour / regulated demo workspaces. Post-deploy product smoke treats Contoso summary as **required** on `dev` only.
 
 ## Operational considerations
 

@@ -18,7 +18,7 @@
 | **Inputs** | SQL + auth configured, evidence uploaded or demo accepted, one architecture run executed and **committed** | — | Do not sponsor-send while `sponsorPacketDisposition` is **HOLD** or data-consistency is **NOT_RUN** in sponsor-handoff mode |
 | **Outputs** | — | `first-pilot-command-center.md`, `go-no-go-summary.md`, committed-run `first-value-report.md` + PDF, `quote-to-proof-packet.md`, proof folder under `artifacts/first-pilot-proof/`, run-scoped folder via `archlucid pilot proof-packet <runId>` | Stop external circulation when ROI basis is demo-derived or PilotStrict failed without caveat |
 
-**Do not start here for the checklist:** [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) (depth only), [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) (recovery only), [`architecture/README.md`](../architecture/README.md) (contributor map).
+**Do not start here for the checklist:** [`onboarding/EVALUATOR_WORKBOOK.md`](../onboarding/EVALUATOR_WORKBOOK.md) (depth only), [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) (recovery only), [`architecture/README.md`](../architecture/README.md) (contributor map).
 
 ## Successful first-pilot output artifacts
 
@@ -233,6 +233,6 @@ Until you have one **finalized** architecture package, you do **not** need: Oper
 ## Related
 
 - [`START_HERE.md`](../START_HERE.md) — role routing (**hub**) and [`CORE_PILOT.md`](../CORE_PILOT.md) — four-step narrative (**read second**)
-- [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) — **depth** evaluator guide (same steps; not a second checklist)
+- [`onboarding/EVALUATOR_WORKBOOK.md`](../onboarding/EVALUATOR_WORKBOOK.md) — **depth** evaluator guide (same steps; not a second checklist)
 - [`library/operator-shell.md`](../library/operator-shell.md) — **depth** UI layer map
 - [`library/LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) — **depth** scripted HTTP parity

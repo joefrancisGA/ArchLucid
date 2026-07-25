@@ -33,6 +33,15 @@ export function WelcomeMarketingUseCasesSection() {
           >
             <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{useCase.title}</h3>
             <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{useCase.body}</p>
+            <p className="mt-3">
+              <Link
+                className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+                data-testid={`welcome-use-case-${useCase.id}-cta`}
+                href={useCase.href}
+              >
+                {useCase.ctaLabel}
+              </Link>
+            </p>
           </li>
         ))}
       </ul>
