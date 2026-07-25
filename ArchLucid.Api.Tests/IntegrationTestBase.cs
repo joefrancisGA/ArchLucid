@@ -2,6 +2,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Findings;
+
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Core.Scoping;
 
@@ -32,7 +34,7 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     {
         PropertyNameCaseInsensitive = true,
         DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new JsonStringEnumConverter(null) }
+        Converters = { new EvalCorpusFindingSeverityJsonConverter(), new JsonStringEnumConverter(null) }
     };
 
     /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>
