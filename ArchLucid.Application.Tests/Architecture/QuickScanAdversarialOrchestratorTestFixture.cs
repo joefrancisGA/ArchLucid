@@ -127,6 +127,19 @@ internal sealed class QuickScanAdversarialOrchestratorTestFixture
             RequiresAnonymousDistributedConcurrency = true,
         };
 
+    public static QuickScanExecutionRequestContext AuthenticatedContext(string sessionId = "session-authenticated") =>
+        new()
+        {
+            ClientIp = "10.0.0.5",
+            SessionId = sessionId,
+            TraceIdentifier = Guid.NewGuid().ToString("N"),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            AuditActor = "authenticated-user",
+            RequiresAnonymousDistributedConcurrency = false,
+        };
+
     public static ArchitectureQuickScanRequest ValidRequest(string? description = null) =>
         new()
         {

@@ -155,6 +155,63 @@ public sealed class HostCorePackageCoverageBatch12Tests
     }
 
     [Fact]
+    public async Task SchemaFilesHealthCheck_rejects_unix_absolute_schema_path()
+    {
+        SchemaValidationOptions options = new()
+        {
+            AgentResultSchemaPath = "schemas/agent-result.schema.json",
+            GoldenManifestSchemaPath = "/etc/schemas/goldenmanifest.schema.json",
+            ExplanationRunSchemaPath = "schemas/explanation-run.schema.json",
+            ComparisonExplanationSchemaPath = "schemas/comparison-explanation.schema.json",
+        };
+        SchemaFilesHealthCheck sut = new(Options.Create(options));
+
+        HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext());
+
+        result.Status.Should().Be(HealthStatus.Unhealthy);
+        result.Description.Should().Contain("GoldenManifest");
+        result.Description.Should().Contain("must be relative");
+    }
+
+    [Fact]
+    public async Task SchemaFilesHealthCheck_rejects_windows_drive_letter_schema_path()
+    {
+        SchemaValidationOptions options = new()
+        {
+            AgentResultSchemaPath = "schemas/agent-result.schema.json",
+            GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
+            ExplanationRunSchemaPath = "d:\\schemas\\explanation-run.schema.json",
+            ComparisonExplanationSchemaPath = "schemas/comparison-explanation.schema.json",
+        };
+        SchemaFilesHealthCheck sut = new(Options.Create(options));
+
+        HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext());
+
+        result.Status.Should().Be(HealthStatus.Unhealthy);
+        result.Description.Should().Contain("ExplanationRun");
+        result.Description.Should().Contain("must be relative");
+    }
+
+    [Fact]
+    public async Task SchemaFilesHealthCheck_rejects_schema_path_that_escapes_base_directory()
+    {
+        SchemaValidationOptions options = new()
+        {
+            AgentResultSchemaPath = "schemas/agent-result.schema.json",
+            GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
+            ExplanationRunSchemaPath = "schemas/explanation-run.schema.json",
+            ComparisonExplanationSchemaPath = "../../../outside/comparison-explanation.schema.json",
+        };
+        SchemaFilesHealthCheck sut = new(Options.Create(options));
+
+        HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext());
+
+        result.Status.Should().Be(HealthStatus.Unhealthy);
+        result.Description.Should().Contain("ComparisonExplanation");
+        result.Description.Should().Contain("escapes the application base directory");
+    }
+
+    [Fact]
     public void ContentSafetyConfigurationWarnings_logs_in_production_like_host()
     {
         IConfiguration configuration = new ConfigurationBuilder()
