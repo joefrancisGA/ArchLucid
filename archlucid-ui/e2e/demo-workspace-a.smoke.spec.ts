@@ -31,8 +31,18 @@ test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateT
     await ensureDemoWorkspaceSeedReady(request, { workspaces: ["A"] });
   });
 
-  test("canonical Product Tour reviewer shell loads with evidence, findings, finalized record, exports", async ({ page }) => {
+  test("canonical Product Tour reviewer shell loads with evidence, findings, finalized record, exports", async ({
+    page,
+    request,
+  }) => {
     test.setTimeout(240_000);
+
+    await waitForAuthorityBuyerSummaryGoldenManifest(
+      request,
+      DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+      90_000,
+      DEMO_WORKSPACE_A_LIVE_IDS,
+    );
 
     await openDemoWorkspaceReviewDetailShellReady(
       page,
