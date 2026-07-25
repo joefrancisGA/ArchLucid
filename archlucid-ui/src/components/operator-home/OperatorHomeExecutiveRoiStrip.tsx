@@ -71,8 +71,18 @@ export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
       summary.savingsPricingBasisDescription,
     ),
   });
-  const savingsLabel =
-    resolvedSavings !== null ? formatUsd(resolvedSavings.annualizedUsd) : "—";
+
+  // TB-1037: hide empty/zero savings chrome — do not imply estimated savings without data.
+  if (
+    resolvedSavings === null ||
+    !Number.isFinite(resolvedSavings.annualizedUsd) ||
+    resolvedSavings.annualizedUsd <= 0 ||
+    summary.latestRunCount < 1
+  ) {
+    return null;
+  }
+
+  const savingsLabel = formatUsd(resolvedSavings.annualizedUsd);
   const scopeLabel = resolveExecutiveHeadlineScopeLabel(summary);
 
   return (

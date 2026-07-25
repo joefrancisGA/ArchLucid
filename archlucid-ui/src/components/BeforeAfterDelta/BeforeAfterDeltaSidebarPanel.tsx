@@ -2,7 +2,12 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
-import { formatFindings, formatHours, safeCommittedRunWindowCount } from "./formatDelta";
+import {
+  formatFindings,
+  formatHours,
+  hasMeaningfulSidebarDeltaMedians,
+  safeCommittedRunWindowCount,
+} from "./formatDelta";
 import { useDeltaQuery } from "./useDeltaQuery";
 
 /**
@@ -28,6 +33,8 @@ export function BeforeAfterDeltaSidebarPanel({ count = 5 }: BeforeAfterDeltaSide
   const windowCount = safeCommittedRunWindowCount(data.returnedCount);
 
   if (windowCount === null || windowCount < 1) return null;
+
+  if (!hasMeaningfulSidebarDeltaMedians(data)) return null;
 
   return (
     <aside

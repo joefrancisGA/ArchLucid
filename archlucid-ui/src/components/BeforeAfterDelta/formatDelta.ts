@@ -54,6 +54,28 @@ export function percentDelta(prior: number | null, current: number | null): numb
   return ((prior - current) / prior) * 100;
 }
 
+/** Seconds that formatHours rounds to at least 0.01 h (avoid 0.00 h theater). */
+const MIN_MEANINGFUL_DELTA_TIME_SECONDS = 36;
+
+/**
+ * True when sidebar median-delta chrome has at least one non-zero displayable input (TB-1037).
+ * Hides 0 findings / 0.00 h theater on empty or uninformative windows.
+ */
+export function hasMeaningfulSidebarDeltaMedians(data: {
+  readonly medianTotalFindings: number | null | undefined;
+  readonly medianTimeToCommittedManifestTotalSeconds: number | null | undefined;
+}): boolean {
+  const findings = data.medianTotalFindings;
+  const seconds = data.medianTimeToCommittedManifestTotalSeconds;
+  const hasFindings = typeof findings === "number" && Number.isFinite(findings) && findings > 0;
+  const hasTime =
+    typeof seconds === "number" &&
+    Number.isFinite(seconds) &&
+    seconds >= MIN_MEANINGFUL_DELTA_TIME_SECONDS;
+
+  return hasFindings || hasTime;
+}
+
 /** Non-negative window size from recent-deltas payloads — null when missing or non-finite; use `< 1` to hide panels. */
 export function safeCommittedRunWindowCount(count: unknown): number | null {
   if (count === null || count === undefined) {

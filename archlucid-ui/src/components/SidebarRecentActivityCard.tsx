@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
+import { hasMeaningfulSidebarDeltaMedians } from "@/components/BeforeAfterDelta/formatDelta";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -50,7 +51,10 @@ export function SidebarRecentActivityCard() {
   }
 
   const hasDeltaData =
-    status === "ready" && data !== null && data.returnedCount > 0;
+    status === "ready" &&
+    data !== null &&
+    data.returnedCount > 0 &&
+    hasMeaningfulSidebarDeltaMedians(data);
 
   if (!hasDeltaData) {
     return null;

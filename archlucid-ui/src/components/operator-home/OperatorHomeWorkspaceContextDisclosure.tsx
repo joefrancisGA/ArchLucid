@@ -16,6 +16,7 @@ import {
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator-home-disclosure-storage";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -59,8 +60,14 @@ export function OperatorHomeWorkspaceContextDisclosure(
     return null;
   }
 
+  const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
+    props.runsDashboard.items,
+    props.runsDashboard.totalCount,
+  );
   const showDetailsExpanded = hydrated ? detailsExpanded : false;
   const detailsToggleLabel = showDetailsExpanded ? "Hide metrics details" : "View details";
+  // TB-1037: details (delta / zero evidence) stay collapsed away until reviews exist.
+  const showDetailsToggle = workspaceMetrics.hasReviews;
 
   return (
     <section
@@ -85,45 +92,47 @@ export function OperatorHomeWorkspaceContextDisclosure(
         setupReadinessLoading={setupReadiness.phase === "loading"}
       />
 
-      <Collapsible open={showDetailsExpanded} onOpenChange={persistDetailsExpanded}>
-        <CollapsibleTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "mt-1 h-auto gap-1 px-0 py-1 hover:bg-transparent",
-              OPERATOR_LINK.optional,
-            )}
-            aria-expanded={showDetailsExpanded}
-            aria-controls={detailsPanelId}
-            data-testid="operator-home-workspace-metrics-details-toggle"
-          >
-            <span>{detailsToggleLabel}</span>
-            <ChevronDown
+      {showDetailsToggle ? (
+        <Collapsible open={showDetailsExpanded} onOpenChange={persistDetailsExpanded}>
+          <CollapsibleTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
               className={cn(
-                "h-3.5 w-3.5 shrink-0 transition-transform",
-                showDetailsExpanded ? "rotate-180" : "rotate-0",
+                "mt-1 h-auto gap-1 px-0 py-1 hover:bg-transparent",
+                OPERATOR_LINK.optional,
               )}
-              aria-hidden
-            />
-          </Button>
-        </CollapsibleTrigger>
+              aria-expanded={showDetailsExpanded}
+              aria-controls={detailsPanelId}
+              data-testid="operator-home-workspace-metrics-details-toggle"
+            >
+              <span>{detailsToggleLabel}</span>
+              <ChevronDown
+                className={cn(
+                  "h-3.5 w-3.5 shrink-0 transition-transform",
+                  showDetailsExpanded ? "rotate-180" : "rotate-0",
+                )}
+                aria-hidden
+              />
+            </Button>
+          </CollapsibleTrigger>
 
-        <CollapsibleContent id={detailsPanelId} data-testid="operator-home-workspace-metrics-details">
-          <div className="space-y-4 border-t border-neutral-200/80 pt-3 dark:border-neutral-800">
-            <OperatorHomeWorkspaceMetricsSummary
-              variant="secondary"
-              runsDashboard={props.runsDashboard}
-              setupReadyCount={setupReadiness.readyCount}
-              setupTotalCount={setupReadiness.totalCount}
-              setupReadinessLoading={setupReadiness.phase === "loading"}
-            />
-            <OperatorHomeDeltaPanel />
-            {props.showWorkspaceStatus ? <OperatorHomeWorkspaceStatusPanel /> : null}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+          <CollapsibleContent id={detailsPanelId} data-testid="operator-home-workspace-metrics-details">
+            <div className="space-y-4 border-t border-neutral-200/80 pt-3 dark:border-neutral-800">
+              <OperatorHomeWorkspaceMetricsSummary
+                variant="secondary"
+                runsDashboard={props.runsDashboard}
+                setupReadyCount={setupReadiness.readyCount}
+                setupTotalCount={setupReadiness.totalCount}
+                setupReadinessLoading={setupReadiness.phase === "loading"}
+              />
+              <OperatorHomeDeltaPanel />
+              {props.showWorkspaceStatus ? <OperatorHomeWorkspaceStatusPanel /> : null}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      ) : null}
     </section>
   );
 }

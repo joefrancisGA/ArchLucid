@@ -75,43 +75,25 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
     expect(screen.queryByTestId("operator-home-workspace-context")).not.toBeInTheDocument();
   });
 
-  it("renders compact workspace metrics summary by default with details collapsed", () => {
+  it("suppresses zero KPI theater on empty workspace (TB-1037)", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
 
     render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus runsDashboard={emptyRunsDashboard} />);
 
     expect(screen.getByRole("heading", { level: 2, name: "Workspace metrics and status" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-workspace-metrics-summary")).toBeInTheDocument();
-    expect(screen.getByText("Reviews")).toBeInTheDocument();
-    expect(screen.getByText("Open findings")).toBeInTheDocument();
-    expect(screen.getByText("Governance warnings")).toBeInTheDocument();
-    expect(screen.queryByText("Evidence sources")).not.toBeInTheDocument();
-    expect(screen.queryByText("Setup readiness")).not.toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY)).toBeInTheDocument();
-    const summary = screen.getByTestId("operator-home-workspace-metrics-summary");
-    const summaryHrefs = within(summary)
-      .getAllByRole("link")
-      .map((link) => link.getAttribute("href"));
-    expect(summaryHrefs).toEqual(
-      expect.arrayContaining([
-        "/reviews",
-        "/governance/findings?filter=open",
-        "/?warnings=1",
-      ]),
-    );
-
-    const detailsToggle = screen.getByRole("button", { name: "View details" });
-
-    expect(detailsToggle).toHaveAttribute("aria-expanded", "false");
-    expect(detailsToggle.className).toMatch(/underline/);
+    expect(screen.queryByText("Reviews")).not.toBeInTheDocument();
+    expect(screen.queryByText("Open findings")).not.toBeInTheDocument();
+    expect(screen.queryByText("Governance warnings")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "View details" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("home-block-delta-panel")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("home-block-workspace-status")).not.toBeInTheDocument();
   });
 
   it("expands details to reveal secondary metrics, delta, and workspace status panels", async () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
 
-    render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus runsDashboard={emptyRunsDashboard} />);
+    render(<OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus runsDashboard={loadedRunsDashboard} />);
 
     fireEvent.click(screen.getByRole("button", { name: "View details" }));
 

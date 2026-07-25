@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { formatFindings, formatHours, percentDelta, formatPerRunFindingsLine, safeCommittedRunWindowCount } from "../formatDelta";
+import {
+  formatFindings,
+  formatHours,
+  hasMeaningfulSidebarDeltaMedians,
+  percentDelta,
+  formatPerRunFindingsLine,
+  safeCommittedRunWindowCount,
+} from "../formatDelta";
 
 describe("formatHours", () => {
   it("converts seconds to hours with two decimal places", () => {
@@ -64,5 +71,40 @@ describe("formatPerRunFindingsLine", () => {
     expect(formatPerRunFindingsLine(1)).toBe("1 finding");
     expect(formatPerRunFindingsLine(4)).toBe("4 findings");
     expect(formatPerRunFindingsLine(Number.NaN)).toBe("Not enough data yet");
+  });
+});
+
+describe("hasMeaningfulSidebarDeltaMedians", () => {
+  it("rejects zero/zero theater", () => {
+    expect(
+      hasMeaningfulSidebarDeltaMedians({
+        medianTotalFindings: 0,
+        medianTimeToCommittedManifestTotalSeconds: 0,
+      }),
+    ).toBe(false);
+  });
+
+  it("accepts a non-zero findings or displayable time median", () => {
+    expect(
+      hasMeaningfulSidebarDeltaMedians({
+        medianTotalFindings: 2,
+        medianTimeToCommittedManifestTotalSeconds: 0,
+      }),
+    ).toBe(true);
+    expect(
+      hasMeaningfulSidebarDeltaMedians({
+        medianTotalFindings: 0,
+        medianTimeToCommittedManifestTotalSeconds: 3600,
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects sub-display time that would render as 0.00 h", () => {
+    expect(
+      hasMeaningfulSidebarDeltaMedians({
+        medianTotalFindings: 0,
+        medianTimeToCommittedManifestTotalSeconds: 18,
+      }),
+    ).toBe(false);
   });
 });

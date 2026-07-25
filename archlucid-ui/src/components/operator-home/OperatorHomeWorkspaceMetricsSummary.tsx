@@ -53,10 +53,6 @@ function MetricItem(props: MetricItemProps) {
 }
 
 function buildReviewPackagesValue(metrics: OperatorHomeWorkspaceMetricsSnapshot): string {
-  if (!metrics.hasReviews) {
-    return "0";
-  }
-
   if (metrics.reviewPackagesCommitted > 0 || metrics.reviewPackagesActive > 0) {
     return `${metrics.reviewPackagesTotal} (${metrics.reviewPackagesCommitted} committed · ${metrics.reviewPackagesActive} active)`;
   }
@@ -71,6 +67,34 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
   const setupReadinessValue = props.setupReadinessLoading
     ? "…"
     : formatSetupReadinessLabel(props.setupReadyCount, props.setupTotalCount);
+
+  // TB-1037: no zero KPI theater before the first review — one helper line only.
+  if (!metrics.hasReviews) {
+    if (variant === "secondary") {
+      return (
+        <div data-testid="operator-home-workspace-metrics-secondary">
+          <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-1">
+            <MetricItem
+              label="Setup readiness"
+              value={setupReadinessValue}
+              href={OPERATOR_HOME_SETUP_READINESS_HREF}
+            />
+          </dl>
+        </div>
+      );
+    }
+
+    return (
+      <div data-testid="operator-home-workspace-metrics-summary">
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPE_SCALE.helper)}
+          data-testid="operator-home-workspace-metrics-empty-copy"
+        >
+          {OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY}
+        </p>
+      </div>
+    );
+  }
 
   if (variant === "secondary") {
     return (
@@ -106,15 +130,6 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
           href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF}
         />
       </dl>
-
-      {!metrics.hasReviews ? (
-        <p
-          className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPE_SCALE.helper)}
-          data-testid="operator-home-workspace-metrics-empty-copy"
-        >
-          {OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY}
-        </p>
-      ) : null}
     </div>
   );
 }

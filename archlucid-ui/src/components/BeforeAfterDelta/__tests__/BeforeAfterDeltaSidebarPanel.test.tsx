@@ -68,4 +68,23 @@ describe("BeforeAfterDeltaSidebarPanel", () => {
     expect(screen.getByTestId("delta-sidebar-median-findings")).toHaveTextContent("5");
     expect(screen.getByTestId("delta-sidebar-median-time")).toHaveTextContent("1.00 h");
   });
+
+  it("hides zero-median theater when a window has no meaningful delta inputs (TB-1037)", async () => {
+    installRecentDeltasFetch({
+      items: [makeRow({ runId: "row1", totalFindings: 0, timeToCommittedManifestTotalSeconds: 0 })],
+      requestedCount: 5,
+      returnedCount: 1,
+      medianTotalFindings: 0,
+      medianTimeToCommittedManifestTotalSeconds: 0,
+      medianLlmCallCount: null,
+    });
+
+    const { container } = render(<BeforeAfterDeltaSidebarPanel />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    expect(container.querySelector('[data-testid="before-after-delta-panel-sidebar"]')).toBeNull();
+  });
 });
