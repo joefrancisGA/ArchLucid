@@ -7,7 +7,7 @@ export function formatOperatorHomeRecentReviewsOutcome(
   metrics: OperatorHomeWorkspaceMetricsSnapshot,
 ): string {
   if (!metrics.hasReviews) {
-    return "No architecture packages in this workspace yet.";
+    return "No reviews in this workspace yet.";
   }
 
   const committed = metrics.reviewPackagesCommitted;

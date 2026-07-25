@@ -34,7 +34,7 @@ const TOC_SECTION_TITLES = [
 
 const RELATED_GUIDE_LINKS: ReadonlyArray<{ readonly label: string; readonly href: string }> = [
   { label: "Start a review", href: "/help/evidence-intake" },
-  { label: "Architecture packages", href: "/help/review-packages" },
+  { label: "Reviews", href: "/help/review-packages" },
   { label: "Evidence graph", href: "/help/evidence-trail" },
   { label: "Governance approval", href: "/help/governance-approval" },
 ];
@@ -89,7 +89,7 @@ describe("First-review guide", () => {
 
     expect(screen.getByText(/1\. Start a new architecture review/i)).toBeInTheDocument();
     expect(screen.getByText(/2\. Review findings/i)).toBeInTheDocument();
-    expect(screen.getByText(/3\. Finalize the architecture package/i)).toBeInTheDocument();
+    expect(screen.getByText(/3\. Finalize the architecture review/i)).toBeInTheDocument();
     expect(screen.getByText(/4\. Review artifacts/i)).toBeInTheDocument();
   });
 

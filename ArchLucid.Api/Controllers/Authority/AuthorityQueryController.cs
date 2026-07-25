@@ -209,9 +209,20 @@ public sealed class AuthorityQueryController(
             result.Run.RealModeFellBackToSimulator,
             _configuration["AgentExecution:Mode"]);
 
-        await runDetailOperatorEnricher
-            .EnrichBuyerSummaryAsync(result, _configuration["AgentExecution:Mode"], ct)
-            .ConfigureAwait(false);
+        try
+        {
+            await runDetailOperatorEnricher
+                .EnrichBuyerSummaryAsync(result, _configuration["AgentExecution:Mode"], ct)
+                .ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Buyer-summary enrichment failed for run {RunId}; returning unenriched proof DTO.", runId);
+        }
 
         BuyerRunDetailSummaryDto buyerSummary = RunDetailBuyerMapper.Map(result);
 

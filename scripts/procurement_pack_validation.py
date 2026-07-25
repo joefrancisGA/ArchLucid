@@ -16,15 +16,15 @@ from pathlib import Path
 import procurement_scope_classification as scope_class
 
 
-_TEMPLATE_REQUIRED_SUBSTRINGS: tuple[tuple[Path, tuple[str, ...]], ...] = (
-    (
-        Path("docs/go-to-market/DPA_TEMPLATE.md"),
-        ("**Important — not legal advice:**", "working template"),
-    ),
-    (
-        Path("docs/go-to-market/ORDER_FORM_TEMPLATE.md"),
-        ("**Important — not legal advice:**", "working template"),
-    ),
+# Banner must include "Important … not legal advice" (em/en/ASCII dash) plus "working template".
+_TEMPLATE_BANNER_RE = re.compile(
+    r"\*\*Important\s+[-\u2013\u2014]\s+not legal advice:\*\*",
+    re.IGNORECASE,
+)
+
+_TEMPLATE_REQUIRED_FILES: tuple[Path, ...] = (
+    Path("docs/go-to-market/DPA_TEMPLATE.md"),
+    Path("docs/go-to-market/ORDER_FORM_TEMPLATE.md"),
 )
 
 # False-attestation wording on Evidence/Self-assessment sources and selected buyer narratives.
@@ -258,7 +258,7 @@ def assurance_phrase_violations_for_text(text: str, posix_label: str) -> list[st
 def template_only_markers(root: Path) -> list[str]:
     errors: list[str] = []
 
-    for rel_path, needles in _TEMPLATE_REQUIRED_SUBSTRINGS:
+    for rel_path in _TEMPLATE_REQUIRED_FILES:
         p = root / rel_path
 
         if not p.is_file():
@@ -268,8 +268,13 @@ def template_only_markers(root: Path) -> list[str]:
             continue
 
         text = p.read_text(encoding="utf-8", errors="replace")
+        missing: list[str] = []
 
-        missing = tuple(n for n in needles if n not in text)
+        if _TEMPLATE_BANNER_RE.search(text) is None:
+            missing.append("**Important — not legal advice:**")
+
+        if "working template" not in text:
+            missing.append("working template")
 
         if missing:
             joined = "; ".join(f"`{m}`" for m in missing)

@@ -111,7 +111,8 @@ public sealed class QuickScanAdversarialMarketingApiTests
         HttpResponseMessage response = await client.GetAsync("/v1/marketing/quick-scan/sample?sourceState=SampleOnly");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        ArchitectureQuickScanResponse? body = await response.Content.ReadFromJsonAsync<ArchitectureQuickScanResponse>();
+        ArchitectureQuickScanResponse? body =
+            await response.Content.ReadFromJsonAsync<ArchitectureQuickScanResponse>(IntegrationTestQuickScanJson.Options);
         body.Should().NotBeNull();
         body!.IsSampleResult.Should().BeTrue();
         body.ScanId.Should().Be("sample-quick-scan");

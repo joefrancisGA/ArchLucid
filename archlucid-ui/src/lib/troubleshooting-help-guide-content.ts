@@ -271,7 +271,7 @@ export const TROUBLESHOOTING_DECISION_TREE_STEPS: readonly TroubleshootingDecisi
   },
   {
     id: "decision-finalized",
-    question: "Is the architecture package finalized?",
+    question: "Is the architecture review finalized?",
     branches: [
       { label: "No", href: "/reviews", linkLabel: "Open review detail and finalize review" },
       { label: "Yes", href: "#decision-outputs", linkLabel: "Continue to outputs check" },

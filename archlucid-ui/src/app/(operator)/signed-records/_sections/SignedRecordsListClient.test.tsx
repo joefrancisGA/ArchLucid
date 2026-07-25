@@ -61,6 +61,10 @@ describe("SignedRecordsListClient", () => {
       expect(screen.getByRole("link", { name: "Claims modernization" })).toBeInTheDocument();
     });
 
+    expect(listRunsByProjectPaged).toHaveBeenCalled();
+    const listOptions = listRunsByProjectPaged.mock.calls[0]?.[3] as Record<string, unknown> | undefined;
+    expect(listOptions?.includeArchived).toBeUndefined();
+
     expect(screen.getByRole("link", { name: "Open signed record" })).toHaveAttribute(
       "href",
       "/signed-records/manifest-abc",

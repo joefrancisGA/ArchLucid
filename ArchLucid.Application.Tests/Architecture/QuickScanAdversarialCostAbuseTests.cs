@@ -163,7 +163,7 @@ public sealed class QuickScanAdversarialCostAbuseTests
                         MaxDayUsd = 100m,
                         AccountingGracePercent = 0m,
                         ReservationTtl = TimeSpan.FromMinutes(15),
-                    }).ConfigureAwait(false);
+                    });
 
                 if (result.Allowed)
                 {
@@ -200,7 +200,7 @@ public sealed class QuickScanAdversarialCostAbuseTests
                         MaxQueuedScans = 0,
                         QueueWaitTimeout = TimeSpan.FromSeconds(30),
                         LeaseDuration = TimeSpan.FromSeconds(60),
-                    }).ConfigureAwait(false);
+                    });
 
                 if (result.Outcome == QuickScanConcurrencyAdmitOutcome.DirectLease)
                 {

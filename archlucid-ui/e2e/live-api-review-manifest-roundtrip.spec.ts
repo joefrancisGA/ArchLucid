@@ -11,14 +11,13 @@ import { getAppMain } from "./helpers/app-main";
 import {
   DEMO_WORKSPACE_A_LIVE_IDS,
   DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
-  injectDemoWorkspaceOperatorScope,
+  openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
-import { liveApiBase } from "./helpers/live-api-client";
+import { liveApiBase, waitForAuthorityBuyerSummaryGoldenManifest } from "./helpers/live-api-client";
 import {
   expectFinalizedManifestLinkVisible,
   expectLiveManifestDetailPageReady,
-  expectLiveRunDetailPageReady,
   openVisibleReviewOutcomeSummaryStrip,
   outcomeStripSignedRecordLink,
 } from "./helpers/operator-journey";
@@ -41,14 +40,19 @@ test.describe("live-api-review-manifest-roundtrip", () => {
     await ensureDemoWorkspaceSeedReady(request);
   });
 
-  test("canonical showcase: outcome finalized link → manifest → breadcrumb back to review", async ({ page }) => {
+  test("canonical showcase: outcome finalized link → manifest → breadcrumb back to review", async ({
+    page,
+    request,
+  }) => {
     test.setTimeout(180_000);
 
-    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_A_LIVE_IDS);
-
-    await page.goto(`/reviews/${encodeURIComponent(productTourRunId)}`);
-
-    await expectLiveRunDetailPageReady(page, 120_000);
+    await waitForAuthorityBuyerSummaryGoldenManifest(
+      request,
+      productTourRunId,
+      90_000,
+      DEMO_WORKSPACE_A_LIVE_IDS,
+    );
+    await openDemoWorkspaceReviewDetailShellReady(page, DEMO_WORKSPACE_A_LIVE_IDS, productTourRunId);
     await expect(getAppMain(page)).not.toContainText(/Something went wrong/i);
 
     const outcomeStrip = await openVisibleReviewOutcomeSummaryStrip(page, productTourRunId);

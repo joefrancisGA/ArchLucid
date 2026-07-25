@@ -218,7 +218,7 @@ export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
   "src/lib/architecture-review-vocabulary.ts",
   "src/lib/governance-mode-vocabulary.ts",
   "src/lib/operator-nav-labels.ts",
-  "src/app/(operator)/reviews/[runId]/_sections/RunDetailBreadcrumb.tsx",
+  "src/components/Breadcrumbs.tsx",
   "src/components/OperatorFirstRunWorkflowPanel.tsx",
   "src/components/WelcomeBanner.tsx",
   "src/components/EmailRunToSponsorBanner.tsx",

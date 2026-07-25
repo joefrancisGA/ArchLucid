@@ -151,7 +151,7 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly b
           audit or trace metadata. It is not a legal attestation.
         </p>
       </div>
-      <ol className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
         <ProofChainStep
           index={1}
           label="Evidence"
@@ -274,7 +274,7 @@ export function RunTrustEvidenceCardSection(props: {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-2">{rows}</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{rows}</div>
 
           <ProofChainView card={card} buyerPolishedShell={buyerPolishedShell} />
 

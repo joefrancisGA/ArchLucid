@@ -1,5 +1,8 @@
 /** Homepage marketing copy — aligned to service-led GTM (pain → outcome → report). */
 
+import { DEMO_WORKSPACE_B_RUN_ID } from "@/lib/demo-workspace-scope";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+
 export const WELCOME_HERO_PITCH =
   "Turn scattered architecture evidence into an evidence-backed review your ARB can trust — prioritized findings, explicit limits where we do not conclude, and an exportable report in days instead of weeks. ArchLucid runs a governed workflow from capture through report so every claim traces to proof, not a chat transcript that disappears.";
 
@@ -80,23 +83,35 @@ export type WelcomeUseCaseCard = {
   readonly id: string;
   readonly title: string;
   readonly body: string;
+  /** App route or in-app help path — must match the card theme (M-09 C8 routing). */
+  readonly href: string;
+  readonly ctaLabel: string;
 };
+
+const DEFAULT_POLICY_PACKS_HREF = resolveInAppDocHref("docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md");
 
 export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
   {
     id: "ai-governance-security",
     title: "AI governance + security baseline",
     body: "Default bundled policy packs seed responsible-AI and security-architecture rules on every new tenant — ready for regulated and cloud-native reviews without building packs from scratch.",
+    // Workspace B Meridian/Alpine storyline — not WAF/CAF findings (M-06 C8).
+    href: `/reviews/${DEMO_WORKSPACE_B_RUN_ID}`,
+    ctaLabel: "Open regulated sample",
   },
   {
     id: "aws-waf",
     title: "AWS Well-Architected Framework",
     body: "Curated Well-Architected themed compliance rules accelerate cloud posture reviews across operational excellence, security, reliability, performance, cost, and sustainability — mapped to architecture evidence, not checkbox theater.",
+    href: DEFAULT_POLICY_PACKS_HREF,
+    ctaLabel: "View bundled policy packs",
   },
   {
     id: "gcp-architecture-framework",
     title: "Google Cloud Architecture Framework",
     body: "Google Cloud architecture and security themes help teams sanity-check platform design, identity, and network patterns before ARB — especially for Google Cloud–first estates.",
+    href: DEFAULT_POLICY_PACKS_HREF,
+    ctaLabel: "View bundled policy packs",
   },
 ] as const;
 

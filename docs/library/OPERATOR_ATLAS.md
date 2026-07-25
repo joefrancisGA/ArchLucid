@@ -9,7 +9,7 @@
 
 **Source of truth for nav:** `archlucid-ui/src/lib/nav-config.ts` (labels, `tier`, `requiredAuthority`) composed with `nav-shell-visibility.ts`. **Authoritative authorization** remains **`[Authorize(Policy = …)]`** on `ArchLucid.Api` — the UI only shapes disclosure.
 
-**Related:** [CORE_PILOT.md](../CORE_PILOT.md) · [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [operator-shell.md](operator-shell.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) §3 · [API_CONTRACTS.md](API_CONTRACTS.md)
+**Related:** [CORE_PILOT.md](../CORE_PILOT.md) · [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [operator-shell.md](operator-shell.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) §3 · [API_CONTRACTS.md](API_CONTRACTS.md)
 
 ---
 
@@ -17,14 +17,14 @@
 
 | Action | CLI (examples) | Primary API | Architect workspace | Authority (nav hint) | Runbook / doc |
 |--------|----------------|-------------|-------------|------------------------|---------------|
-| Health / readiness | `dotnet run --project ArchLucid.Cli -- health` | `GET /health/live`, `GET /health/ready` | — | Anonymous | [BUILD.md](BUILD.md) |
+| Health / readiness | `dotnet run --project ArchLucid.Cli -- health` | `GET /health/live`, `GET /health/ready` | — | Anonymous | [BUILD.md](../engineering/BUILD.md) |
 | Version | `dotnet run --project ArchLucid.Cli -- doctor` | `GET /version` | — | Read (doctor) | [README.md](../REPOSITORY_README.md) |
 | Create architecture request | `dotnet run --project ArchLucid.Cli -- run` | `POST /v1/architecture/request` | `/reviews/new` (legacy `/runs/new`) | Execute (wizard submit) | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
-| Poll review / pipeline | `… status <runId>` | `GET /v1/architecture/run/{runId}` | `/runs/{runId}` | Read | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
+| Poll review / pipeline | `… status <runId>` | `GET /v1/architecture/run/{runId}` | `/runs/{runId}` | Read | [OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) |
 | Finalize architecture package | `… commit <runId>` | `POST /v1/architecture/run/{runId}/commit` | Run detail → **Finalize** | Execute | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
 | Package + artifacts | `… artifacts <runId> [--save]` | `GET /v1/architecture/manifest/{version}`, artifact routes | Run detail | Read | [CORE_PILOT — manifest & artifacts](../CORE_PILOT.md#review-manifest-and-artifacts) |
 | Home / pilot checklist | `… try`, `… pilot up` | tenant + health reads | `/` | Read | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) |
-| Getting started / trial checklist | — | `GET /v1/tenant/trial-status`, registration session, same checklist as Home | `/getting-started` | Read | [TRIAL_SIGNUP_UI.md](../../archlucid-ui/docs/TRIAL_SIGNUP_UI.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
+| Getting started / trial checklist | — | `GET /v1/tenant/trial-status`, registration session, same checklist as Home | `/getting-started` | Read | [TRIAL_SIGNUP_UI.md](../../archlucid-ui/docs/TRIAL_SIGNUP_UI.md), [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 | Sponsor PDF (post-finalize) | `… sponsor-one-pager <runId> [--save]` | export endpoints on run | Run detail → exports | Read / Execute per op | [CORE_PILOT.md](../CORE_PILOT.md), [CLI_USAGE.md](CLI_USAGE.md) |
 | First-value Markdown | `… first-value-report <runId> [--save]` | value report API | Run detail | Read / Execute | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) |
 | Workflow handoff | proof pipeline output | existing PR / issue / work item attachment | External GitHub / Azure DevOps | N/A (outside ArchLucid) | [V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |
@@ -52,7 +52,7 @@
 | Advisory hub (scans + schedules) | — | `/v1/advisory…`; `/v1/advisory-scheduling…` (CRUD) | `/advisory` (default **Scans**; **Schedules** `?tab=schedules`; legacy `/advisory-scheduling` → redirect) | Read (scans); schedules tab lists GET at Read, mutations Execute | [runbooks/ADVISORY_SCAN_FAILURES.md](../runbooks/ADVISORY_SCAN_FAILURES.md), [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
 | Digests hub (browse + subs + schedule) | — | digest list reads; `/v1/digest-subscriptions…` (mutations); `/v1/tenant/exec-digest-preferences` (save) | `/digests` (default **Browse**; **Subscriptions** `?tab=subscriptions`; **Schedule** `?tab=schedule`; legacy `/digest-subscriptions` and `/settings/exec-digest` → redirect) | Read nav; subscription CRUD Execute; exec schedule GET Read, save Execute | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), [CHANGELOG.md](../CHANGELOG.md) |
 | Recommendation learning | — | learning APIs | `/recommendation-learning` | Read | [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) |
-| Pilot feedback | — | feedback APIs | `/product-learning` | Read | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
+| Pilot feedback | — | feedback APIs | `/product-learning` | Read | [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md) |
 | Planning themes | — | planning writes | `/planning` | Execute | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
 | Evolution candidates | — | evolution APIs | `/evolution-review` | Execute | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
 
@@ -81,7 +81,7 @@
 | Action | CLI | Notes | Doc |
 |--------|-----|-------|-----|
 | New project scaffold | `… new <name>` | Creates client folder layout | [CLI_USAGE.md](CLI_USAGE.md) |
-| Local dependencies | `… dev up` | SQL / Azurite / Redis profile | [CONTAINERIZATION.md](CONTAINERIZATION.md) |
+| Local dependencies | `… dev up` | SQL / Azurite / Redis profile | [CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md) |
 | Pilot stack | `… pilot up` | Demo-oriented compose | [FIRST_30_MINUTES.md](../engineering/FIRST_30_MINUTES.md) |
 | One-shot try | `… try` | Seed + sample + open UI | [CLI_USAGE.md](CLI_USAGE.md#archlucid-try) |
 | Comparisons library | `… comparisons …` | list / replay / drift | [COMPARISON_REPLAY.md](COMPARISON_REPLAY.md) |

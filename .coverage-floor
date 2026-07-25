@@ -1,4 +1,4 @@
 # Merged Cobertura root line % baseline (ratchet anchor). CI: assert_coverage_floor_ratchet.py (slack 2%).
-# Interim RC6 target 76% merged line; ratchet toward V1.1 restore to 95 (see docs/library/coverage-exclusions.md).
+# Hard gate is 78% merged line; anchor 80 → effective ratchet minimum 78 (see docs/library/coverage-exclusions.md).
 # Pass when merged line >= (baseline - slack%), default slack 2.
-76.00
+80.00

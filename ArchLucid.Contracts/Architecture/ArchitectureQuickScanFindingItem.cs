@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Contracts.Architecture;
@@ -14,9 +16,11 @@ public sealed class ArchitectureQuickScanFindingItem
     [Required]
     public string Description { get; init; } = string.Empty;
 
+    [JsonConverter(typeof(EvalCorpusFindingSeverityJsonConverter))]
     public FindingSeverity Severity { get; init; }
 
     public double? ConfidenceScore { get; init; }
 
+    [JsonConverter(typeof(JsonStringEnumConverter<FindingConfidenceLevel>))]
     public FindingConfidenceLevel? ConfidenceLevel { get; init; }
 }

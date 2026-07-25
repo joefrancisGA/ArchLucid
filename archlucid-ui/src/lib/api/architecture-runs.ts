@@ -185,7 +185,6 @@ export async function listRunsByProjectPaged(
   pageSize: number,
   options?: {
     readonly cursor?: string | null;
-    readonly includeArchived?: boolean;
     readonly scopeHeaders?: Record<string, string>;
   },
 ): Promise<PagedResponse<RunSummary>> {
@@ -199,9 +198,9 @@ export async function listRunsByProjectPaged(
     q.set("pageSize", String(pageSize));
   }
 
-  if (options?.includeArchived === true) {
-    q.set("includeArchived", "true");
-  }
+  // Do not send includeArchived: GET /v1/authority/projects/{id}/runs does not declare it.
+  // OpenApiUndeclaredQueryParameterFilter returns 400 "Unknown query parameter 'includeArchived'".
+  // List SQL already excludes ArchivedUtc until a declared API ships.
 
   return apiGet<PagedResponse<RunSummary>>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?${q}`,

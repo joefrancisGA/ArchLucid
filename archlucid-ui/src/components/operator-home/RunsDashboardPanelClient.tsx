@@ -112,7 +112,8 @@ export function RunsDashboardPanelClient({
     let malformedMessage: string | null = null;
 
     try {
-      const raw: unknown = await listRunsByProjectPaged(projectId, 1, pageSize, { includeArchived: showArchived });
+      // showArchived is client-side filter only until runs list declares includeArchived (avoids 400).
+      const raw: unknown = await listRunsByProjectPaged(projectId, 1, pageSize);
       const coerced = coerceRunSummaryPaged(raw, { page: 1 });
 
       if (!coerced.ok) {

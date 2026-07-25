@@ -14,10 +14,12 @@ internal static class FindingsSnapshotMetadataMerger
 
         FindingsSnapshot? header = JsonEntitySerializer.Deserialize<FindingsSnapshot>(findingsJson);
 
-        snapshot.EngineFailures = header.EngineFailures;
+        // JSON `"engineFailures": null` / `"checklistCoverage": null` must not wipe list defaults —
+        // buyer-summary coverage projection and commit classifier throw on null EngineFailures.
+        snapshot.EngineFailures = header.EngineFailures ?? [];
         snapshot.EvaluationConfidenceEnrichmentSkipped = header.EvaluationConfidenceEnrichmentSkipped;
         snapshot.GenerationStatus = header.GenerationStatus;
-        snapshot.ChecklistCoverage = header.ChecklistCoverage;
+        snapshot.ChecklistCoverage = header.ChecklistCoverage ?? [];
         snapshot.InsightDensityCuration = header.InsightDensityCuration;
     }
 }

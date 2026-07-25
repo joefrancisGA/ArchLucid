@@ -51,7 +51,7 @@ export const LIVE_DEMO_GOVERNANCE_APPROVAL_NOTE =
 export const LIVE_DEMO_EVIDENCE_CHAIN_HEADING = "Evidence chain (sample)";
 
 export const LIVE_DEMO_EVIDENCE_CHAIN_INTRO =
-  "How source evidence, requirements, findings, monitored conditions, and the governance decision connect in this sample package.";
+  "How source evidence, requirements, findings, monitored conditions, and the governance decision connect in this sample review.";
 
 export const LIVE_DEMO_DELIVERABLES_HEADING = "Included outputs";
 

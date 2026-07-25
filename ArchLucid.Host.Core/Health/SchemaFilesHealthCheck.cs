@@ -43,7 +43,8 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         }
 
         string trimmed = relativePath.Trim();
-        if (Path.IsPathRooted(trimmed))
+
+        if (IsNonRelativeSchemaPath(trimmed))
         {
             problems.Add($"{logicalName} schema path must be relative (got rooted path).");
 
@@ -54,6 +55,7 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         string normalizedBase = Path.GetFullPath(baseDir);
         string fullPath = Path.GetFullPath(Path.Combine(baseDir, trimmed));
         string relativeToBase = Path.GetRelativePath(normalizedBase, fullPath);
+
         if (relativeToBase.Equals("..", StringComparison.Ordinal) ||
             relativeToBase.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) ||
             relativeToBase.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal))
@@ -66,5 +68,24 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         if (!File.Exists(fullPath))
 
             problems.Add($"{logicalName} schema not found at '{fullPath}'.");
+    }
+
+    /// <summary>
+    /// Detects absolute paths on all platforms, including Windows drive-letter paths that
+    /// <see cref="Path.IsPathRooted"/> does not treat as rooted on Linux.
+    /// </summary>
+    private static bool IsNonRelativeSchemaPath(string trimmed)
+    {
+        if (Path.IsPathRooted(trimmed))
+        {
+            return true;
+        }
+
+        if (trimmed.Length >= 2 && char.IsAsciiLetter(trimmed[0]) && trimmed[1] == ':')
+        {
+            return true;
+        }
+
+        return false;
     }
 }

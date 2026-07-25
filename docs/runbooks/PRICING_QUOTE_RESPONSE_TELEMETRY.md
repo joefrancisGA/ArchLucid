@@ -41,7 +41,7 @@ Targets align with [`MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](MARKETING_PRICIN
 | **breach** | closed and ≥ 168, **or** still open at 168h | Executive review of stalled deal; close or re-open with logged reason |
 | **pending** | `ClosedUtc` is null | Include in weekly open-follow-up list |
 
-Close breach at **168h (7 days)** matches the quote-to-proof follow-up SLA in [`QUOTE_TO_PROOF_READINESS_CHECKLIST.md`](../go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md).
+Close breach at **168h (7 days)** matches the quote-to-proof follow-up SLA in [`QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist).
 
 ## Weekly summary generation
 
@@ -96,5 +96,5 @@ Optional: add `--strict` to exit non-zero when `weeklyDisposition` is **HOLD** (
 ## Related
 
 - Inbox + real-time aging: [`MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](MARKETING_PRICING_QUOTE_NOTIFICATIONS.md)
-- Proof handoff checklist: [`QUOTE_TO_PROOF_READINESS_CHECKLIST.md`](../go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md)
+- Proof handoff checklist: [`QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist)
 - Grafana sales-ops row: [`OBSERVABILITY.md`](../library/OBSERVABILITY.md)

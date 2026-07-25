@@ -815,12 +815,28 @@ export async function expectLiveRunDetailPageReady(page: Page, timeoutMs = 120_0
   const loadingReviewDetail = page.getByLabel("Loading review detail");
   const reviewDetailRoot = page.getByTestId("review-detail-root");
   const mainHeading = page.locator("main h1").first();
+  const loadFailure = page.getByTestId("run-detail-load-failure");
+  const brandedNotFound = page.getByTestId("branded-not-found");
+  const brandedTransientFailure = page.getByTestId("branded-transient-failure");
 
   await expect(async () => {
     await expect(loadingReviewDetail).toHaveCount(0, { timeout: 5_000 });
     await expect(page.getByRole("main").first()).not.toContainText(/Something went wrong/i);
-    await expect(page.getByTestId("run-detail-load-failure")).toHaveCount(0, { timeout: 2_000 });
-    await expect(page.getByTestId("branded-not-found")).toHaveCount(0, { timeout: 2_000 });
+
+    // Fail this toPass iteration immediately on hard/transient failure chrome so callers can reload
+    // instead of polling a dead SSR error page until timeoutMs (demo-workspace cold starts).
+    if ((await loadFailure.count()) > 0) {
+      throw new Error("Review detail load-failure surface is visible (run-detail-load-failure).");
+    }
+
+    if ((await brandedNotFound.count()) > 0) {
+      throw new Error("Review detail branded-not-found surface is visible.");
+    }
+
+    if ((await brandedTransientFailure.count()) > 0) {
+      throw new Error("Review detail branded-transient-failure surface is visible.");
+    }
+
     await expect(reviewDetailRoot).toBeVisible({ timeout: 5_000 });
     await expect(mainHeading).toBeVisible({ timeout: 5_000 });
   }).toPass({ timeout: timeoutMs });

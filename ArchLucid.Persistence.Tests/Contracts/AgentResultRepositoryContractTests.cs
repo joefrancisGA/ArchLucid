@@ -154,6 +154,32 @@ public abstract class AgentResultRepositoryContractTests
         afterCreate.Should().ContainSingle(r => r.ResultId == "recreated");
     }
 
+    [SkippableFact]
+    public async Task Create_then_GetAgentTypeMarkersByRunId_maps_uniqueidentifier_run_id()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentResultRepository repo = CreateRepository();
+        string requestId = "arr-marker-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTaskRow(runId, "res-task-marker");
+
+        await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(NewResult(runId, task.TaskId, "marker-r1", TimeProvider.System.UtcNowDateTime()),
+            CancellationToken.None);
+
+        IReadOnlyList<AgentResult> markers =
+            await repo.GetAgentTypeMarkersByRunIdAsync(
+                ArchitectureCommitTestSeed.AsScopeContext(),
+                runId,
+                CancellationToken.None);
+
+        markers.Should().ContainSingle();
+        markers[0].ResultId.Should().Be("marker-r1");
+        markers[0].RunId.Should().Be(runId);
+        markers[0].AgentType.Should().Be(AgentType.Topology);
+    }
+
     private static AgentTask NewTaskRow(string runId, string taskId)
     {
         return new AgentTask

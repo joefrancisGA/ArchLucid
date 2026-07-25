@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 
 import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -12,6 +12,7 @@ import { ShareableReviewLinkButton } from "@/components/usability/ShareableRevie
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
+import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer-golden-spine-run-id";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -96,6 +97,7 @@ import {
   RunDetailWhatIfBranchCompareBannerDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
+import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
   RunDetailBelowFoldDeferredSkeleton,
@@ -198,6 +200,33 @@ export function RunDetailPageView(props: {
   const buyerFinalizedPackage =
     m.buyerPolishedArtifactTable === true && Boolean(m.manifestId);
   const blockingFindingCount = m.manifestSummary?.unresolvedIssueCount ?? 0;
+
+  const artifactsExportsSectionEl =
+    m.manifestId ? (
+      <RunDetailArtifactsExportsSection
+        manifestId={m.manifestId}
+        runId={m.resolvedDetail.run.runId}
+        buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+        artifacts={m.artifacts}
+        artifactsFailure={m.artifactsFailure}
+        artifactsMalformed={m.artifactsMalformed}
+        goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+        manifestSummaryForUi={m.manifestSummaryForUi}
+        manifestSummary={m.manifestSummary}
+        trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
+        samplePolicyPackContextLine={
+          m.usedStaticDemoRun === true
+            ? m.buyerPolishedArtifactTable === true
+              ? BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE
+              : "Policy pack used for this sample review."
+            : null
+        }
+        requestId={
+          m.resolvedDetail.run.architectureRequestId ??
+          (m.resolvedDetail.run as { requestId?: string }).requestId
+        }
+      />
+    ) : null;
 
   const sectionNavEl = <RunDetailSectionNav sections={m.runDetailNavSections} />;
 
@@ -416,6 +445,7 @@ export function RunDetailPageView(props: {
                   evidenceAskRunId={m.buyerPolishedArtifactTable ? m.resolvedDetail.run.runId : null}
                 />
               ) : null}
+              {artifactsExportsSectionEl}
             </div>
           ),
           policies: (
@@ -558,7 +588,11 @@ export function RunDetailPageView(props: {
                 />
               ) : null}
               <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
-                <RunDetailBelowFoldSections model={m} context={deferredContext} />
+                <RunDetailBelowFoldSections
+                  model={m}
+                  context={deferredContext}
+                  skipArtifactsExports={buyerFinalizedPackage}
+                />
               </Suspense>
             </div>
           ),
@@ -582,7 +616,12 @@ export function RunDetailPageView(props: {
 
   const runDetailBody = (
     <div
-      className={`w-full ${OPERATOR_LAYOUT.sectionStack} px-1 py-2 sm:px-0 max-w-[1160px]`}
+      className={cn(
+        OPERATOR_PAGE_CONTAINER.base,
+        OPERATOR_PAGE_CONTAINER.variant.dashboard,
+        OPERATOR_LAYOUT.sectionStack,
+        "px-1 py-2 sm:px-0",
+      )}
     >
       <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
 

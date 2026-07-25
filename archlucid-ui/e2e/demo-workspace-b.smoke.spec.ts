@@ -10,20 +10,21 @@ import { expect, test } from "@playwright/test";
 import {
   DEMO_WORKSPACE_B_LIVE_IDS,
   DEMO_WORKSPACE_B_REGULATED_RUN_ID,
-  injectDemoWorkspaceOperatorScope,
+  openDemoWorkspaceReviewDetailShellReady,
 } from "./helpers/demo-workspace-live-scope";
 import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-seed";
 import { demoWorkspacesFixtureManifest } from "./helpers/demo-workspaces-fixture-manifest";
 import {
   countFindingsInAuthorityRunDetailPayload,
+  getAuthorityBuyerSummaryRaw,
   getAuthorityRunDetailRaw,
   getRunArchitectureExportHistoryRaw,
   liveApiBase,
   postConsultingAnalysisDocxRaw,
+  waitForAuthorityBuyerSummaryGoldenManifest,
 } from "./helpers/live-api-client";
 import {
   ensureBuyerDeliverablesSectionExpanded,
-  expectBuyerPolishedReviewDetailShellReady,
   expectBuyerPolishedReviewDetailWorkspaceCore,
   expectQuickDecisionSeverityVisible,
   openReviewDetailWorkspaceTab,
@@ -131,10 +132,30 @@ test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateT
       demoWorkspacesFixtureManifest.workspaceB.expectedCommittedFindingCount,
     );
 
-    await injectDemoWorkspaceOperatorScope(page, DEMO_WORKSPACE_B_LIVE_IDS);
-    await page.goto(`/reviews/${DEMO_WORKSPACE_B_REGULATED_RUN_ID}`, { waitUntil: "domcontentloaded" });
+    // Buyer shell SSR uses `/buyer-summary` — wait for that surface before navigating.
+    await waitForAuthorityBuyerSummaryGoldenManifest(
+      request,
+      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+      90_000,
+      DEMO_WORKSPACE_B_LIVE_IDS,
+    );
 
-    await expectBuyerPolishedReviewDetailShellReady(page);
+    const buyerSummaryProbe = await getAuthorityBuyerSummaryRaw(
+      request,
+      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+      DEMO_WORKSPACE_B_LIVE_IDS,
+    );
+
+    expect(
+      buyerSummaryProbe.ok(),
+      `GET /v1/authority/runs/{runId}/buyer-summary expected 200 — ${await buyerSummaryProbe.text()}`,
+    ).toBeTruthy();
+
+    await openDemoWorkspaceReviewDetailShellReady(
+      page,
+      DEMO_WORKSPACE_B_LIVE_IDS,
+      DEMO_WORKSPACE_B_REGULATED_RUN_ID,
+    );
     await expectBuyerPolishedReviewDetailWorkspaceCore(page);
 
     await openReviewDetailWorkspaceTab(page, DEMO_WORKSPACE_B_REGULATED_RUN_ID, "overview");

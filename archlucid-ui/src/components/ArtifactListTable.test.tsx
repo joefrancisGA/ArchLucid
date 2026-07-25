@@ -76,6 +76,7 @@ describe("ArtifactListTable", () => {
 
     expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Generated" })).toBeInTheDocument();
+    expect(screen.getByRole("table")).toHaveClass("table-fixed");
     expect(screen.getByRole("link", { name: "Open sponsor brief" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Download sponsor brief" })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: "Format" })).toBeNull();

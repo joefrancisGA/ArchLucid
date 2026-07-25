@@ -11,7 +11,7 @@ internal static class RunFindingDispositionCoverageBuilder
         IReadOnlyList<FindingReviewEventRecord> dispositionEvents,
         IReadOnlyList<RiskExceptionRecord> activeWaivers)
     {
-        if (findingsSnapshot is null || findingsSnapshot.Findings.Count == 0)
+        if (findingsSnapshot?.Findings is null || findingsSnapshot.Findings.Count == 0)
             return null;
 
         HashSet<string> findingIds = findingsSnapshot.Findings

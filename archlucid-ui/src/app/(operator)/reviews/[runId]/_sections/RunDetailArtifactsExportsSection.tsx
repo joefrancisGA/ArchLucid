@@ -51,6 +51,8 @@ export type RunDetailArtifactsExportsSectionProps = {
   /** Curated demo: show policy-pack diligence line above the table. */
   readonly samplePolicyPackContextLine: string | null;
   readonly requestId?: string | null;
+  /** When set, overrides buyer-polished default collapsed deliverables accordion. */
+  readonly deliverablesDefaultOpen?: boolean;
 };
 
 function resolveFeasibilityVerdict(
@@ -82,12 +84,14 @@ export function RunDetailArtifactsExportsSection(
     trustEvidenceCard,
     samplePolicyPackContextLine,
     requestId,
+    deliverablesDefaultOpen,
   } = props;
 
   const feasibilityVerdict = resolveFeasibilityVerdict(manifestSummaryForUi, manifestSummary);
   const showDecisionReceipt =
     feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
-  const deliverablesSectionDefaultOpen = !buyerPolishedArtifactTable;
+  const deliverablesSectionDefaultOpen =
+    deliverablesDefaultOpen ?? !buyerPolishedArtifactTable;
 
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
@@ -229,17 +233,19 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 ? (
-            buyerPolishedArtifactTable ? (
-              <BuyerDeliverablesArtifactTabs manifestId={manifestId} runId={runId} artifacts={artifacts} />
-            ) : (
-              <ArtifactListTable
-                manifestId={manifestId}
-                artifacts={artifacts}
-                runId={runId}
-                sponsorMode={buyerPolishedArtifactTable}
-                audienceSections={buyerPolishedArtifactTable}
-              />
-            )
+            <div className="w-full min-w-0">
+              {buyerPolishedArtifactTable ? (
+                <BuyerDeliverablesArtifactTabs manifestId={manifestId} runId={runId} artifacts={artifacts} />
+              ) : (
+                <ArtifactListTable
+                  manifestId={manifestId}
+                  artifacts={artifacts}
+                  runId={runId}
+                  sponsorMode={buyerPolishedArtifactTable}
+                  audienceSections={buyerPolishedArtifactTable}
+                />
+              )}
+            </div>
           ) : null}
 
           <div className="mt-4 flex flex-col gap-3">

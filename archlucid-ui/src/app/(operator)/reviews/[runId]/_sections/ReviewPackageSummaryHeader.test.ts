@@ -28,5 +28,6 @@ describe("Run detail workspace header integration", () => {
   it("uses shared operator layout spacing tokens", () => {
     expect(workspaceChromeSource).toContain("OPERATOR_LAYOUT.sectionStack");
     expect(pageViewSource).toContain("OPERATOR_LAYOUT.sectionStack");
+    expect(pageViewSource).toContain("OPERATOR_PAGE_CONTAINER.variant.dashboard");
   });
 });

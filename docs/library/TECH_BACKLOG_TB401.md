@@ -1,4 +1,3 @@
-> **Reviewed:** 2026-07-23
 > **Scope:** Contributor-reference — V1.1 backlog item TB-401 (progressive disclosure Batch 3, run-detail IA refactor).
 > **Reviewed:** 2026-07-23
 

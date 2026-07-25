@@ -40,7 +40,8 @@ public sealed class MarketingQuickScanSampleEndpointTests
             "/v1/marketing/quick-scan/sample?sourceState=SampleOnly");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        ArchitectureQuickScanResponse? body = await response.Content.ReadFromJsonAsync<ArchitectureQuickScanResponse>();
+        ArchitectureQuickScanResponse? body =
+            await response.Content.ReadFromJsonAsync<ArchitectureQuickScanResponse>(IntegrationTestQuickScanJson.Options);
         body.Should().NotBeNull();
         body!.IsSampleResult.Should().BeTrue();
         body.SystemName.Should().Be("Claims intake API");

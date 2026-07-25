@@ -4,7 +4,7 @@
 
 **Audience:** Sales engineers, architects, and sponsors evaluating a **vertical or posture-specific** first review without V1.1 connectors.
 
-**Core spine (start here):** [Your first architecture review](/help/core-pilot) — the canonical workflow every tenant completes for first value. **Specialty** rows below add a named buyer narrative when the buyer’s job matches; they are **not** mandatory checklists before first finalize.
+**Core spine (start here):** [Your first architecture review](../../CORE_PILOT.md) — the canonical workflow every tenant completes for first value. **Specialty** rows below add a named buyer narrative when the buyer’s job matches; they are **not** mandatory checklists before first finalize.
 
 Each Specialty template follows the same shipped sequence — **capture → evidence → policy packs → findings → finalize → sponsor export** — and produces a **sponsor artifact** (architecture package / proof ZIP) at the end.
 
@@ -26,8 +26,8 @@ Each Specialty template follows the same shipped sequence — **capture → evid
 
 | Need | Read |
 |------|------|
-| **Core** path from zero to first finalized package | [Your first architecture review](/help/core-pilot) · [`CORE_PILOT.md`](../../CORE_PILOT.md) |
-| Choose a **Specialty** buyer-job narrative (after first value or when job is clear) | Buyer-job pages under [`go-to-market/buyer-jobs/README.md`](../../go-to-market/buyer-jobs/README.md) · in-app [Specialty review templates](/help/specialty-walkthroughs) |
+| **Core** path from zero to first finalized package | [Your first architecture review](../../CORE_PILOT.md) · [`CORE_PILOT.md`](../../CORE_PILOT.md) |
+| Choose a **Specialty** buyer-job narrative (after first value or when job is clear) | Buyer-job pages under [`go-to-market/buyer-jobs/README.md`](../../go-to-market/buyer-jobs/README.md) · [Specialty review templates](README.md) (this catalog) |
 | Static demo proof packet shape (before tenant setup) | [`go-to-market/demo-proof-packets/README.md`](../../go-to-market/demo-proof-packets/README.md) |
 | Printable evidence checklist before a sponsor demo | [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](../../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) |
 | Specialty accelerator acceptance criteria | [`ACCELERATOR_ACCEPTANCE_CRITERIA.md`](ACCELERATOR_ACCEPTANCE_CRITERIA.md) |

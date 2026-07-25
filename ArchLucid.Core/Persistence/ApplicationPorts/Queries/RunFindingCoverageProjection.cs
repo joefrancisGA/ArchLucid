@@ -38,18 +38,22 @@ public static class RunFindingCoverageProjection
         FindingsSnapshot findingsSnapshot,
         RunFindingDispositionCoverage? dispositionCoverage)
     {
-        int failed = findingsSnapshot.EngineFailures.Count;
+        // JSON nulls can clear list defaults after deserialize/merge — treat as empty for coverage.
+        IReadOnlyList<FindingEngineFailure> engineFailures = findingsSnapshot.EngineFailures ?? [];
+        IReadOnlyList<Finding> findings = findingsSnapshot.Findings ?? [];
+
+        int failed = engineFailures.Count;
         int succeeded = failed == 0 && findingsSnapshot.GenerationStatus == FindingsSnapshotGenerationStatus.Complete
-            ? Math.Max(1, EstimateSucceededEngines(findingsSnapshot))
-            : Math.Max(0, EstimateSucceededEngines(findingsSnapshot));
+            ? Math.Max(1, EstimateSucceededEngines(findings, engineFailures))
+            : Math.Max(0, EstimateSucceededEngines(findings, engineFailures));
 
         int attempted = failed + succeeded;
-        bool blocking = FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(findingsSnapshot.EngineFailures);
+        bool blocking = FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(engineFailures);
         bool degraded = findingsSnapshot.GenerationStatus == FindingsSnapshotGenerationStatus.PartiallyComplete
                         && !blocking
                         && failed > 0;
 
-        List<string> failedLabels = findingsSnapshot.EngineFailures
+        List<string> failedLabels = engineFailures
             .Select(static f => $"{f.EngineType}/{f.Category}")
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(static s => s, StringComparer.OrdinalIgnoreCase)
@@ -68,14 +72,16 @@ public static class RunFindingCoverageProjection
         };
     }
 
-    private static int EstimateSucceededEngines(FindingsSnapshot findingsSnapshot)
+    private static int EstimateSucceededEngines(
+        IReadOnlyList<Finding> findings,
+        IReadOnlyList<FindingEngineFailure> engineFailures)
     {
-        if (findingsSnapshot.Findings.Count == 0 && findingsSnapshot.EngineFailures.Count == 0)
+        if (findings.Count == 0 && engineFailures.Count == 0)
             return 0;
 
         HashSet<string> engineKeys = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (Finding finding in findingsSnapshot.Findings)
+        foreach (Finding finding in findings)
         {
             string key = $"{finding.EngineType}|{finding.Category}";
 
