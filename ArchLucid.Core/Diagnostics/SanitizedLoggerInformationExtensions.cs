@@ -315,4 +315,20 @@ public static partial class SanitizedLoggerInformationExtensions
 
         EmitPolicyPackAssignmentUnassigned(logger, policyPackId, tenantId, workspaceId);
     }
+
+    /// <summary>
+    ///     Logs a successful run-scoped LLM budget reservation (run id may be caller-supplied; sanitize for CWE-117).
+    /// </summary>
+    public static void LogInformationRunScopedLlmBudgetReserved(
+        this ILogger logger,
+        Guid reservationId,
+        string userRunId,
+        decimal reserveUsd)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+
+        EmitRunScopedLlmBudgetReserved(logger, reservationId, safeRunId, reserveUsd);
+    }
 }

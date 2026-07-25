@@ -186,4 +186,15 @@ public static partial class SanitizedLoggerInformationExtensions
             "Policy pack assignment unassigned: PolicyPackId={PolicyPackId}, TenantId={TenantId}, WorkspaceId={WorkspaceId}")]
     private static partial void EmitPolicyPackAssignmentUnassigned(ILogger logger, Guid policyPackId, Guid tenantId,
         Guid workspaceId);
+
+    [LoggerMessage(
+        EventId = 3018,
+        Level = LogLevel.Information,
+        Message =
+            "Run-scoped LLM budget reserved {ReservationId} for run {RunId} ({ReserveUsd} USD).")]
+    private static partial void EmitRunScopedLlmBudgetReserved(
+        ILogger logger,
+        Guid reservationId,
+        string runId,
+        decimal reserveUsd);
 }

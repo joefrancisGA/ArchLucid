@@ -67,4 +67,25 @@ public static class SanitizedLoggerErrorExtensions
             sqlErrorNumber,
             safeCorrelationId); // codeql[cs/log-forging]: method, path, problem type, and correlation id sanitized immediately above.
     }
+
+    /// <summary>
+    ///     Logs a failed run-scoped LLM budget reservation with sanitized tenant/run identifiers (CWE-117).
+    /// </summary>
+    public static void LogErrorRunScopedLlmBudgetReservationFailed(
+        this ILogger logger,
+        Exception ex,
+        Guid tenantId,
+        string? userRunId)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(ex);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+
+        logger.LogError(
+            ex,
+            "Run-scoped LLM budget reservation failed for tenant {TenantId} run {RunId}.",
+            tenantId,
+            safeRunId); // codeql[cs/log-forging]: run id sanitized immediately above.
+    }
 }

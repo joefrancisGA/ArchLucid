@@ -2,6 +2,7 @@ using System.Globalization;
 
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -148,21 +149,13 @@ public sealed class RunScopedLlmBudgetReservationService(
 
             Guid heldReservationId = storeResult.ReservationId ?? reservationId;
 
-            _logger.LogInformation(
-                "Run-scoped LLM budget reserved {ReservationId} for run {RunId} ({ReserveUsd} USD).",
-                heldReservationId,
-                runId,
-                estimateUsd);
+            _logger.LogInformationRunScopedLlmBudgetReserved(heldReservationId, runId, estimateUsd);
 
             return RunScopedLlmBudgetAdmitResult.Permit(heldReservationId, estimateUsd);
         }
         catch (Exception ex)
         {
-            _logger.LogError(
-                ex,
-                "Run-scoped LLM budget reservation failed for tenant {TenantId} run {RunId}.",
-                tenantId,
-                runId);
+            _logger.LogErrorRunScopedLlmBudgetReservationFailed(ex, tenantId, runId);
 
             return RunScopedLlmBudgetAdmitResult.Reject(RunScopedLlmBudgetAdmitRejectionReason.StoreUnavailable);
         }
