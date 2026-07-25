@@ -11,7 +11,7 @@ The workflow [`.github/workflows/codeql.yml`](../../.github/workflows/codeql.yml
 **Branch protection (recommended):** In the GitHub repo, open **Settings → Branches → Branch protection rule** for **`main`** (and **`master`** if used). Under **Require status checks to pass before merging**, require at least:
 
 - **`CodeQL (csharp)`** — C# job (includes restore, analysis, SARIF gate).
-- **`CodeQL (javascript)`** — Operator UI job (includes `npm ci` / `npm run build`, analysis, SARIF gate).
+- **`CodeQL (javascript)`** — Architect workspace (`archlucid-ui`) job (includes `npm ci` / `npm run build`, analysis, SARIF gate).
 
 Optional but useful: under **Settings → Code security and analysis → Code scanning**, configure **pull request check failure** severities so GitHub’s own code-scanning check aligns with your policy (the workflow gate above is independent and enforces zero unresolved SARIF findings in the uploaded run output).
 
@@ -32,7 +32,7 @@ From the repository root, with **.NET SDK** and **CodeQL CLI** on **`PATH`**:
 
 These scripts create **`codeql-out/db-csharp`**, run **`security-extended`**, write **`codeql-out/results-csharp.sarif`**, then invoke the same Python SARIF gate as CI on **`codeql-out/`**. Output lives under **`codeql-out/`** (gitignored).
 
-**JavaScript / Operator UI:** Use the same steps as the **`javascript`** job in [`.github/workflows/codeql.yml`](../../.github/workflows/codeql.yml) (`npm ci` / `npm run build` under **`archlucid-ui/`**), then run **`codeql`** against that source root; for a one-off local gate, point the Python script at the directory that contains the generated **`*.sarif`** files.
+**JavaScript / architect workspace:** Use the same steps as the **`javascript`** job in [`.github/workflows/codeql.yml`](../../.github/workflows/codeql.yml) (`npm ci` / `npm run build` under **`archlucid-ui/`**), then run **`codeql`** against that source root; for a one-off local gate, point the Python script at the directory that contains the generated **`*.sarif`** files.
 
 ## Related
 

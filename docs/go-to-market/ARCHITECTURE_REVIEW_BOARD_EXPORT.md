@@ -15,11 +15,11 @@ See [`samples/README.md`](samples/README.md) for regeneration. These files conta
 
 ## How to trigger export
 
-### Operator UI (today)
+### Architect workspace (today)
 
 1. Open a **review** from **Reviews** (`/reviews`, `/reviews/{runId}`).
-2. **Finalize review** when the architecture snapshot is ready (buyer-facing language for commit).
-3. On the review detail page, open **Artifacts & exports** (or **Deliverables** in buyer-polished shells).
+2. **Finalize** the architecture package when the architecture snapshot is ready (buyer-facing language for API `commit`).
+3. On the review detail page, open **Artifacts & exports** (or **Deliverables** in buyer-polished architect workspace).
 4. **Consulting DOCX:** use **Export to DOCX** when your principal includes `export:consulting-docx` — this uses the consulting analysis template, not the architecture review board packet described here.
 5. **Architecture review board packet (DOCX/PDF):** generation is implemented in application code (`IArchitectureReviewExportService`). Dedicated UI controls and a versioned HTTP download mirroring consulting exports may ship in a follow-on; hosts with internal composition can invoke the service directly (see below).
 

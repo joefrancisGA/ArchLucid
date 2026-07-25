@@ -15,7 +15,7 @@ This document is the **canonical reference** for how the ArchLucid product codeb
 
 ## Objectives
 
-- **Predictable gates:** Everyone uses the same names (`Core`, `Fast core`, `Integration`, `SQL Server integration`, `Full regression`, `Operator UI unit`, `Operator UI e2e smoke`).
+- **Predictable gates:** Everyone uses the same names (`Core`, `Fast core`, `Integration`, `SQL Server integration`, `Full regression`, `Operator UI unit` / architect workspace Vitest, `Operator UI e2e smoke` / architect workspace Playwright — CI job titles keep the historical `Operator UI` prefix).
 - **Fail-fast locally:** Run the smallest meaningful subset before pushing.
 - **Authoritative CI:** The pipeline enforces **full regression** against SQL Server (**Dapper** + **DbUp**; **no Entity Framework** in tests or product DB path).
 - **No product churn:** This change set only defines execution and documentation unless a test must be stabilized.

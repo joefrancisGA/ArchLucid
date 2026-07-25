@@ -14,7 +14,7 @@ Customers run ArchLucid on **Azure-hosted SaaS** (or self-hosted Azure-aligned s
 
 **V1.1 commits to:**
 
-- **`CloudProvider.Aws`** and **`CloudProvider.Gcp`** on `ArchitectureRequest` (wire + CLI + operator UI).
+- **`CloudProvider.Aws`** and **`CloudProvider.Gcp`** on `ArchitectureRequest` (wire + CLI + architect workspace).
 - Ingestion of **AWS/GCP topology** via Terraform (`simple-terraform`, `terraform-show-json`) and **customer-controlled inventory ZIPs** (parity with **§2.16** Azure extractor posture).
 - **Cost artifacts** for AWS/GCP rows using **live public pricing APIs** where feasible, with **illustrative fallbacks** when SKU/region probes fail (same honesty bar as Azure Retail + illustrative blend today).
 - **Agent and finding context** that treats the **target** cloud as AWS or GCP (not Azure-by-default prompts when `CloudProvider` is set).
@@ -73,7 +73,7 @@ Implementation may land **incrementally** before all phases complete; **buyer-co
 | Extend enum | `ArchLucid.Contracts/Common/CloudProvider.cs` — add `Aws = 2`, `Gcp = 3` |
 | CLI parsing | `ArchLucid.Cli/Commands/CliCommandShared.cs` — map `aws`, `gcp` (replace today’s silent Azure fallback for non-empty unknown strings) |
 | Wire / OpenAPI | Regenerate snapshot + clients per [Http-Surface-Docs-And-Clients.mdc](../engineering/AGENTS.md) |
-| Operator UI | Baseline wizard / review create — cloud provider selector when promoted from deferred wizard copy |
+| Architect workspace | Baseline wizard / review create — cloud provider selector when promoted from deferred wizard copy |
 
 **Acceptance:** `POST /v1/architecture/request` with `cloudProvider: 2` persists and flows to orchestration; CLI `--cloud aws` sets enum correctly.
 

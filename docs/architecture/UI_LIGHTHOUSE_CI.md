@@ -36,7 +36,7 @@ Assertions use **`warn`**, not **`error`**, for the first promotion window per *
 | --- | --- | --- |
 | `categories:performance` | min **0.35** | Lab mock stack is heavier than CDN-hosted marketing; directional guard only until field baselines land |
 | `categories:accessibility` | min **0.85** | Aligns with axe Playwright gate intent |
-| `categories:best-practices` | min **0.75** | Catches mixed-content / console regressions on operator shells |
+| `categories:best-practices` | min **0.75** | Catches mixed-content / console regressions on architect workspace shells |
 | `categories:seo` | min **0.80** | Marketing `/welcome` only meaningful SEO surface in set |
 | `first-contentful-paint` | max **4000 ms** | Generous lab ceiling for CI agent CPU |
 | `largest-contentful-paint` | max **6000 ms** | Same — tighten after **TB-692** field p75 available |

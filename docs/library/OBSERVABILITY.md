@@ -114,9 +114,9 @@ Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-o
 | **`archlucid_executive_roi_background_scope_violations_total`** | Counter | **`reason`** | Incremented when **`ExecutiveRoiBackgroundScopeGuard`** rejects a tenant scope during cache warmup or savings-gauge refresh (`tenant_id_empty`, `workspace_id_empty`, `project_id_empty`, `dev_default_scope_triple`). Should remain **zero** in production; investigate any sustained increase before scaling tenant count. |
 | **`archlucid_llm_prompt_redactions_total`** | Counter | **`category`** | Deny-list replacements applied on the **LLM accounting** path before the model call. |
 | **`archlucid_llm_prompt_redaction_skipped_total`** | Counter | — | Model calls observed while **`LlmPromptRedaction:Enabled`** is **false** (audit deliberate bypass). |
-| **`archlucid_first_session_completed_total`** | Counter | — | Once per tenant on first successful golden-manifest commit (Core Pilot funnel; SQL **`TenantOnboardingState`**). |
-| **`archlucid.pilot.wizard_to_committed_minutes`** | Histogram | `min` | **`execution_mode`**, **`preset_used`**. Wall-clock minutes from wizard run creation to first committed manifest when **`requestSource=wizard`** (TB-220). |
-| **`archlucid_operator_task_success_total`** | Counter | `task` (`first_run_committed` \| `first_session_completed`) | Server-side onboarding milestones: first golden-manifest commit per tenant (`SqlFirstSessionLifecycleHook`) and successful self-service registration completion (`RegistrationController` **201**). Process-life in default Prometheus scrape; operator UI tile reads **`GET /v1/diagnostics/operator-task-success-rates`** (in-process listener snapshot — resets on API host restart). |
+| **`archlucid_first_session_completed_total`** | Counter | — | Once per tenant on first successful golden-manifest finalize (Core Pilot funnel; SQL **`TenantOnboardingState`**). |
+| **`archlucid.pilot.wizard_to_committed_minutes`** | Histogram | `min` | **`execution_mode`**, **`preset_used`**. Wall-clock minutes from wizard run creation to first finalized manifest when **`requestSource=wizard`** (TB-220). |
+| **`archlucid_operator_task_success_total`** | Counter | `task` (`first_run_committed` \| `first_session_completed`) | Server-side onboarding milestones: first golden-manifest finalize per tenant (`SqlFirstSessionLifecycleHook`) and successful self-service registration completion (`RegistrationController` **201**). Process-life in default Prometheus scrape; architect workspace tile reads **`GET /v1/diagnostics/operator-task-success-rates`** (in-process listener snapshot — resets on API host restart). |
 | **`archlucid_email_otp_challenge_requested_total`** | Counter | **`result`** (`accepted` \| `rate_limited` \| `sso_required` \| `disabled` \| `invalid_email` \| `bot_challenge_failed`) | Passwordless sign-in challenge requests (`EmailOtpAuthService`). Alerts: **`infra/prometheus/archlucid-alerts.yml`**; runbook: **`docs/runbooks/EMAIL_OTP_DELIVERY_AND_ABUSE.md`**. |
 | **`archlucid_email_otp_challenge_verified_total`** | Counter | **`result`** (`success` \| `invalid` \| `expired` \| `rate_limited` \| `sso_required`) | Email OTP verify outcomes. |
 | **`archlucid_email_otp_delivery_failed_total`** | Counter | — | Outbound sign-in code delivery failures. |
@@ -242,9 +242,9 @@ Registered via `tracing.AddSource(...)` in **`ObservabilityExtensions`** (includ
 
 **`dbo.Runs.OtelTraceId`** stores the **W3C trace ID** captured at **run creation** (from the active **`Activity`** when the authority run record is first persisted — see migration **052**). It is **not** overwritten on later updates, so it remains a stable handle for **creation-time** distributed tracing.
 
-Operators can use it for **post-hoc trace lookup** in two ways:
+Architects can use it for **post-hoc trace lookup** in two ways:
 
-- **Run detail UI** — the operator shell shows a **Creation trace** link when a persisted id exists (distinct from the per-request **`X-Trace-Id`** / **`traceparent`** on the current page load). Configure **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** in **`archlucid-ui`** (same **`{traceId}`** placeholder as below).
+- **Run detail UI** — the architect workspace shows a **Creation trace** link when a persisted id exists (distinct from the per-request **`X-Trace-Id`** / **`traceparent`** on the current page load). Configure **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** in **`archlucid-ui`** (same **`{traceId}`** placeholder as below).
 - **CLI** — **`archlucid trace <runId>`** fetches run detail from the API, reads **`run.otelTraceId`**, and prints a trace viewer URL when **`ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`** is set (optional browser open via **`ARCHLUCID_TRACE_OPEN_BROWSER`**). See **[CLI_USAGE.md](CLI_USAGE.md)**.
 
 For request-scoped correlation headers and sampling, see **Sampling strategy** and **Response headers** below.
@@ -291,9 +291,9 @@ The built-in sampler is **head-based** (decision at trace start). Some interesti
 
 **Response headers**
 
-Every API response includes **`traceparent`** (W3C) and **`X-Trace-Id`** headers **regardless of sampling**. The values reflect the current **`Activity`** context even when the trace is not exported, so operators can copy an ID into a trace backend (a sampled-out trace may appear as “not found” rather than a mismatched id).
+Every API response includes **`traceparent`** (W3C) and **`X-Trace-Id`** headers **regardless of sampling**. The values reflect the current **`Activity`** context even when the trace is not exported, so architects can copy an ID into a trace backend (a sampled-out trace may appear as “not found” rather than a mismatched id).
 
-The **operator UI** run detail page (and coordinator **Provenance** page) read **`X-Trace-Id`** from the API response and show a **View trace** deep link when **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** is set in **`archlucid-ui`** (see [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) §Operator UI).
+The **architect workspace** run detail page (and coordinator **Provenance** page) read **`X-Trace-Id`** from the API response and show a **View trace** deep link when **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** is set in **`archlucid-ui`** (see [customer-facing/customer-facing/OPERATOR_QUICKSTART.md](customer-facing/OPERATOR_QUICKSTART.md) §Architect workspace UI).
 
 Wiring: **`ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling`** runs **before** `AddAspNetCoreInstrumentation` in **`ObservabilityExtensions.AddArchLucidOpenTelemetry`**. Malformed **`SamplingRatio`** strings are treated as **`1.0`** (full sampling) so configuration typos do not prevent the host from starting.
 

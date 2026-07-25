@@ -25,7 +25,7 @@ This design enables deep customization via hierarchical scoping (Tenant, Workspa
 
 ## 1. What ships for V1 GA
 
-All rows below are seeded as **`PlatformDefault`** (Operator UI: **Bundled default (platform)**). Curated rule narratives live in **`docs/samples/policy-packs/*-rules-v1.json`**; provisioning copies are embedded under **`ArchLucid.Application/.../Bundled/`**.
+All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundled default (platform)**). Curated rule narratives live in **`docs/samples/policy-packs/*-rules-v1.json`**; provisioning copies are embedded under **`ArchLucid.Application/.../Bundled/`**.
 
 | # | Bundled category | Display name | Rule key prefix (examples) | Notes |
 |---|------------------|--------------|----------------------------|
@@ -94,7 +94,7 @@ Starter corpora use **informative thematic mapping** (`frameworkMappings`) to ac
 
 ---
 
-## 3. Operator UI — where bundles appear
+## 3. Architect workspace — where bundles appear
 
 - **Registered list & effective merge:** **`/policy-packs`** surfaces packs returned by **`GET`** list + effective merges; seeded rows show **Bundled default (platform)**.
 - **Rule key inspection:** Expanded **Inspect** accordion lists merged **`complianceRuleKeys`** plus pointers to appendix / sample JSON.
@@ -104,7 +104,7 @@ Starter corpora use **informative thematic mapping** (`frameworkMappings`) to ac
 
 ## 4. Security / tenancy posture (non-regression assertion)
 
-Bundles are **`PlatformDefault`** rows **scoped per tenant/workspace/project**, not silently shared writable globals. Operators **cannot republish** them through the shipped HTTP surface (UI disables **Publish**, API rejects `PublishVersion`).
+Bundles are **`PlatformDefault`** rows **scoped per tenant/workspace/project**, not silently shared writable globals. Architects **cannot republish** them through the shipped HTTP surface (UI disables **Publish**, API rejects `PublishVersion`).
 
 ### Content quality harness (CI)
 

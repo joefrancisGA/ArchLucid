@@ -237,7 +237,7 @@ Each rule uses the existing `CuratedRulesRuleEntry` shape, with `priority` alrea
 | **CI / count tests** | Bump expected manifest size from **23 → 24** in `DefaultPolicyPackBundledManifestTests` and the corresponding seeder test. |
 | **GA stub generation** | `scripts/generate_v1_bundled_policy_packs.py` extended to recognize `existing_rules: true` for `arc-ampe-architecture-themes`; stub rows propagate `priority` per §5.2. |
 | **Pack count claim in landing page** | Update M-09 copy: "**24** curated policy packs" once content is authored. Hold copy change until JSON is merged. |
-| **Operator UI** | No new code; Inspect tab already renders `metadata` keys. Add appendix link button if not present in `metadata.appendixDoc`. **No new vertical-filter chip** at V1 (see §11.Q4). |
+| **Architect workspace** | No new code; Inspect tab already renders `metadata` keys. Add appendix link button if not present in `metadata.appendixDoc`. **No new vertical-filter chip** at V1 (see §11.Q4). |
 | **Procurement export** | Reuse the existing **Inspect → DOCX** export shipped under #28; **no dedicated ARC-AMPE PDF** at V1 (see §11.Q2). |
 | **Pre-commit blocking** | **No rule ships at `Critical`** in V1 — ARC-AMPE is an architecture-review pack, not a deterministic gate (see §11.Q3). Customers can promote individual rules at the assignment level if desired. |
 | **Pricing / SKUs** | None. Pack is bundled `PlatformDefault`; no separate add-on SKU at V1 (revisit at V1.1 if buyers ask for paid "Healthcare exchange" tier). |
