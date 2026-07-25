@@ -4,7 +4,7 @@
 
 # Demo recording storyboard
 
-**Audience:** Marketing, solutions engineers, and founders capturing a **polished** operator UI walkthrough.
+**Audience:** Marketing, solutions engineers, and founders capturing a **polished** architect workspace walkthrough.
 
 **Last reviewed:** 2026-05-10
 

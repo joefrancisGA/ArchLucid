@@ -1,4 +1,4 @@
-> **Scope:** ArchLucid brand system — colors, typography, layout, components, content language, and logo direction. Derived from the shipped V1 operator shell and marketing surfaces (April 2026).
+> **Scope:** ArchLucid brand system — colors, typography, layout, components, content language, and logo direction. Derived from the shipped V1 architect workspace and marketing surfaces (April 2026).
 
 # ArchLucid brand system
 
@@ -168,7 +168,7 @@ Dark mode is a **first-class citizen**, not an afterthought. Every component shi
 │  with     │  [Page content]                                 │
 │  collapse │                                                 │
 ├───────────┴─────────────────────────────────────────────────┤
-│  (Footer: none — operator shell has no footer)              │
+│  (Footer: none — architect workspace has no footer)         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -256,7 +256,7 @@ Findings, recommendations, and evidence are always **structured blocks** (cards 
 - Icon-only buttons require `aria-label`.
 
 **Avoid:**
-- Emoji in operator UI (marketing pages may use sparingly in headings).
+- Emoji in architect workspace (marketing pages may use sparingly in headings).
 - Filled/solid icon styles — keep to outlined/line weight.
 - Mixing icon libraries.
 
@@ -322,7 +322,7 @@ The product renders the word **"ArchLucid"** as `text-2xl font-semibold tracking
 
 ## 10. Print
 
-The operator shell supports `Ctrl+P` / browser print on document pages. Print styles live in `globals.css`:
+The architect workspace supports `Ctrl+P` / browser print on document pages. Print styles live in `globals.css`:
 
 - Header, sidebar, and skip-link are hidden.
 - Main content resets to full width, zero padding.

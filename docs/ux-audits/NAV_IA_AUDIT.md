@@ -51,7 +51,7 @@ The entire "Governance" nav group — including the Audit trail — is hidden un
 A senior IT leader who has just committed their first review and needs governance sign-off sees no governance option in the sidebar. The product looks incomplete.
 
 **Recommended fix**  
-Phase 1 (first committed review): show Governance workflow + Audit trail as visible links, or unlock them at phase 1. Keep Risk register, Policy packs, Risk exceptions at phase 2. Phase 0 → 1 transition is already gated by `hasCommittedArchitectureReview`.
+Phase 1 (first finalized architecture package): show Governance workflow + Audit trail as visible links, or unlock them at phase 1. Keep Risk register, Policy packs, Risk exceptions at phase 2. Phase 0 → 1 transition is already gated by `hasCommittedArchitectureReview`.
 
 **Fix type:** Behavior  
 **Files:** `archlucid-ui/src/lib/nav-shell-visibility.ts`
@@ -150,7 +150,7 @@ The executive summary (`/executive/reviews/[runId]`) is not in the left nav at a
 Executive summary is step 3 of the golden path and the primary output for sponsor handoff. Hiding it entirely from the nav makes the product feel like a dead-end after running a review.
 
 **Recommended fix**  
-Add "Executive summary" as a deep-link destination visible when a committed review is selected, or as a persistent tab on the review detail page with a stable anchor in the breadcrumb.
+Add "Executive summary" as a deep-link destination visible when a finalized architecture package is selected, or as a persistent tab on the review detail page with a stable anchor in the breadcrumb.
 
 **Fix type:** IA
 
@@ -319,9 +319,9 @@ One group per conceptual domain. Progressive disclosure preserved — advanced t
 | Group | Always/gated | Contents |
 |-------|-------------|----------|
 | **Reviews** | Always visible | Overview (`/`) · New review · Review packages |
-| **Insights** | After first committed review | Executive dashboard · Evidence graph · Ask · Compare · [advanced] Search · [advanced] Impact preview · [advanced] Advisory scans |
+| **Insights** | After first finalized architecture package | Executive dashboard · Evidence graph · Ask · Compare · [advanced] Search · [advanced] Impact preview · [advanced] Advisory scans |
 | **Governance** | Unlocked at phase 1 (first commit) | Approval queue · Risk register · Decision register · Audit trail · [extended] Risk exceptions · [extended] Standards · [extended] Standards & rules · [extended] Governance setup guide · [extended] Alerts |
-| **Reports** | After first committed review | Scorecard · Value report |
+| **Reports** | After first finalized architecture package | Scorecard · Value report |
 | **Integrations** | When configured | Connection status · Cloud connections · Jira · ServiceNow · Microsoft Teams · Slack · Webhooks |
 | **Administration** | Admin rank | Workspace settings · Users & roles (consolidated) · Billing & plans · [extended] AI usage · [extended] Security & trust · [extended] Support |
 

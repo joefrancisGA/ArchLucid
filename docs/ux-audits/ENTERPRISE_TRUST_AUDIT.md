@@ -226,7 +226,7 @@ File: archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveSqlBackupRegi
 ```
 File: archlucid-ui/src/lib/buyer-polish-copy.ts
 Find:   "In a live pilot, an architect with Execute authority approves here. The view below shows the post-approval state for demonstration purposes."
-Change: "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review package."
+Change: "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example architecture package."
 ```
 
 **TB-510 — Governance promotion vocabulary:**

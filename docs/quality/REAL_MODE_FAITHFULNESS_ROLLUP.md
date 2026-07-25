@@ -4,7 +4,7 @@
 
 # Real-mode faithfulness rollup (sponsor-facing correctness gate)
 
-**Audience:** Release owner / pilot operator deciding whether real-mode finding correctness is good enough to put a committed review package in front of a sponsor.
+**Audience:** Release owner / pilot architect deciding whether real-mode finding correctness is good enough to put a finalized architecture package in front of a sponsor.
 
 **Outcome:** One table per cohort that rolls up the human-counted faithfulness signals from ≥3 real-mode runs and resolves a single verdict — **GOOD ENOUGH FOR SPONSOR-FACING PILOTS** or **HOLD** — with the specific runs that forced a HOLD.
 
@@ -37,7 +37,7 @@ Admissible execution modes for a row: **Real**, or **Mixed** only when each non-
 | **Date (UTC)** | | |
 | **Execution mode** | Real / Mixed (labeled) | Simulator/unlabeled-fallback ⇒ row is **inadmissible** |
 | **Packet source** | Internal brief / sanitized buyer packet id | No customer PII in repo |
-| **Top findings (count · max severity)** | e.g. `6 · High` | From the committed review |
+| **Top findings (count · max severity)** | e.g. `6 · High` | From the finalized architecture package |
 | **Evidence-chain completeness** | % of top findings whose claim → cited evidence chain is verifiable by the operator | Score the **highest-severity** finding explicitly |
 | **Unsupported-claim count** | integer | Findings/claims with no sufficient cited evidence (plausible ≠ supported) |
 | **Wrong / overstated finding count** | integer | Findings that are factually wrong or overstate severity/impact |

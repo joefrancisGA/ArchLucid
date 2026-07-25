@@ -73,7 +73,7 @@ Use **private network paths** for Redis (private endpoint / controlled VNet), co
 
 Use these checks after changing replica count or cache settings:
 
-1. **Configuration catalog** — In the operator UI, open **Admin → Configuration** (`/admin/configuration`). Confirm:
+1. **Configuration catalog** — In the architect workspace, open **Admin → Configuration** (`/admin/configuration`). Confirm:
    - `ArchLucid:KnowledgeGraph:ProjectionCache:Backend` is `Distributed` when running multiple API replicas.
    - `HotPathCache:ExpectedApiReplicaCount` matches your scale-out ceiling when using `HotPathCache:Provider=Auto`.
 2. **Environment health** — On the same page, review **Environment health** / config lint. Resolve **Fail** on Redis or cache-related rules before promoting traffic.

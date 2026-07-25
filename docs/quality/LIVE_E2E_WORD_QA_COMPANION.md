@@ -22,7 +22,7 @@ Pick one:
 
 | Aspect | Detail |
 |--------|--------|
-| **Stack** | Real **ArchLucid.Api** + **SQL Server** + **Next.js operator shell** (not mock API) |
+| **Stack** | Real **ArchLucid.Api** + **SQL Server** + **Next.js architect workspace** (not mock API) |
 | **Auth (default CI job)** | **DevelopmentBypass** — not production Entra ID |
 | **Agents** | **Simulator** — no real LLM; output quality is not scored |
 | **CI posture** | **`ui-e2e-live`** is **warn-only** on full CI; failures are visible but do not fail the workflow |

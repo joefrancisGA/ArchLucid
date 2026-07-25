@@ -5,7 +5,7 @@
 Non-proprietary JSON fragments for **slides, PLG onboarding copy, and CI examples**.
 
 - **`manifest-snippet.json`** / **`manifest-snippet-head.json`** — paired files for `scripts/integrations/github_pr_manifest_delta.py` and `.github/workflows/example-github-manifest-delta.yml`.
-- **`finding-example.json`** — finding-shaped object matching list/inspect field names used in operator UI.
+- **`finding-example.json`** — finding-shaped object matching list/inspect field names used in architect workspace.
 - **`trace-event-skeleton.json`** — illustrates pipeline timeline rows (see live **`GET /v1/authority/runs/{runId}/pipeline-timeline`** for authoritative data).
 
 ## CLI export

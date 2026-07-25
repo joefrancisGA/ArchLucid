@@ -20,7 +20,7 @@ reductions, caching, artifact metadata-only reads, watchdog).
   `BackgroundJobStuckRunningWatchdogHostedService` (durable mode) registered from
   `RegisterDurableBackgroundJobInfrastructure`.
 - **Audit HTTP (`/v1/audit`, `/v1/audit/search`)**: `CursorPagedResponse<AuditEvent>` with optional opaque `cursor`
-  (`AuditEventCursorCodec`); **`take` + 1** computes `HasMore`/`NextCursor`; operator UI uses `items` / `nextCursor` /
+  (`AuditEventCursorCodec`); **`take` + 1** computes `HasMore`/`NextCursor`; architect workspace uses `items` / `nextCursor` /
   `hasMore` for load-more.
 - **Findings relational write**: `InsertFindingChildrenAsync` batches related nodes, recommended actions, properties,
   and trace lists with chunked multi-row `VALUES` (parameter budget–aware chunk sizes).

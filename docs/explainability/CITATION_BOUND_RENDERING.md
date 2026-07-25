@@ -12,7 +12,7 @@ Tie **aggregate** run explanations to **persisted artifacts** operators can insp
 ## Assumptions
 
 - **`GET /v1/explain/runs/{runId}/aggregate`** returns **`RunExplanationSummary`** including **`citations`** (`CitationReference[]`).
-- The operator UI renders **chips** linking to manifest / provenance / run anchors.
+- The architect workspace renders **chips** linking to manifest / provenance / run anchors.
 
 ## Constraints
 

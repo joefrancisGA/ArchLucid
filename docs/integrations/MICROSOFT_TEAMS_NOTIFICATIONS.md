@@ -76,7 +76,7 @@ curl -sS -X DELETE "https://<api-host>/v1/integrations/teams/connections" \
   -H "Authorization: Bearer <token>"
 ```
 
-## Operator UI
+## Architect workspace
 
 **Path:** `/integrations/teams` (Operate (governance and trust) — extended tier). Writes use the same **`useEnterpriseMutationCapability()`** floor as other Enterprise surfaces.
 
