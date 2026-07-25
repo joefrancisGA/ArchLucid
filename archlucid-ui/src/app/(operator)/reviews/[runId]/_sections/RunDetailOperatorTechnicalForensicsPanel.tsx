@@ -44,6 +44,7 @@ export function RunDetailOperatorTechnicalForensicsPanel(
         results={props.results}
         agentExecutionOutcomes={props.agentExecutionOutcomes}
         retrievalGroundingSummary={props.retrievalGroundingSummary}
+        runId={props.run.runId}
       />
       <RunDetailReviewAgentExecutionLogSectionDeferred results={props.results} />
       <RunDetailRetrievalGroundingSummaryCardDeferred

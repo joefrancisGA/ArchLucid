@@ -29,6 +29,9 @@ public sealed class CancellationForwardingArchitectureTests
         string text = File.ReadAllText(path);
 
         text.Should().Contain("ExecuteRunAsync(string runId, CancellationToken cancellationToken");
+        text.Should().Contain("ExecuteSelectiveRunAsync(");
+        text.Should().Contain("SelectiveAgentExecuteRequest request");
+        text.Should().Contain("CancellationToken cancellationToken = default)");
     }
 
     [Fact]

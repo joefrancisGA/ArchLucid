@@ -124,6 +124,36 @@ public abstract class AgentResultRepositoryContractTests
         await act.Should().ThrowAsync<AgentResultDuplicateConflictException>();
     }
 
+    [SkippableFact]
+    public async Task DeleteForRunTask_removes_result_so_task_can_be_recreated()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentResultRepository repo = CreateRepository();
+        string requestId = "arr-del-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTaskRow(runId, "res-task-del");
+
+        await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(NewResult(runId, task.TaskId, "to-delete", TimeProvider.System.UtcNowDateTime()),
+            CancellationToken.None);
+
+        await repo.DeleteForRunTaskAsync(runId, task.TaskId, CancellationToken.None);
+
+        IReadOnlyList<AgentResult> afterDelete =
+            await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
+
+        afterDelete.Should().BeEmpty();
+
+        await repo.CreateAsync(NewResult(runId, task.TaskId, "recreated", TimeProvider.System.UtcNowDateTime()),
+            CancellationToken.None);
+
+        IReadOnlyList<AgentResult> afterCreate =
+            await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
+
+        afterCreate.Should().ContainSingle(r => r.ResultId == "recreated");
+    }
+
     private static AgentTask NewTaskRow(string runId, string taskId)
     {
         return new AgentTask

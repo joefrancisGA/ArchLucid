@@ -254,6 +254,39 @@ public sealed class AgentResultRepository(
         }
     }
 
+    /// <inheritdoc />
+    public async Task DeleteForRunTaskAsync(
+        string runId,
+        string taskId,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
+
+        const string deleteSql = """
+                                 DELETE FROM AgentResults
+                                 WHERE RunId = @RunId AND TaskId = @TaskId;
+                                 """;
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
+
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                deleteSql,
+                new { RunId = RunChildRunScopeSql.ToSqlRunId(runId), TaskId = taskId },
+                transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
         ScopeContext scope,
         string runId,

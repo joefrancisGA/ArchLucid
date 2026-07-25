@@ -527,9 +527,95 @@ public sealed partial class RunsController(
 
             return Ok(response);
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "ExecuteRun conflict for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "ExecuteRun failed for run '{RunId}'.", runId);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+    }
+
+    /// <summary>
+    ///     TB-938: re-execute selected agents/tasks for <paramref name="runId" />, keeping successful results and
+    ///     invalidating Critic when upstream inputs change.
+    /// </summary>
+    [HttpPost("run/{runId}/execute/selective")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+    [EnableRateLimiting("expensive")]
+    public async Task<IActionResult> ExecuteRunSelective(
+        [FromRoute] string runId,
+        [FromBody] SelectiveExecuteRunRequest? body,
+        CancellationToken cancellationToken)
+    {
+        string user = actorContext.GetActor();
+        string correlationId = HttpContext.TraceIdentifier;
+        SelectiveExecuteRunRequest request = body ?? new SelectiveExecuteRunRequest();
+
+        try
+        {
+            ExecuteRunResult result = await architectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync(
+                runId,
+                new SelectiveAgentExecuteRequest
+                {
+                    TaskIds = request.TaskIds,
+                    AgentTypes = request.AgentTypes,
+                    IncludeDependents = request.IncludeDependents,
+                },
+                cancellationToken);
+
+            ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
+
+            LogRunExecuted(runId, result.Results.Count, user, correlationId);
+
+            ScopeContext selectiveScope = scopeContextProvider.GetCurrentScope();
+            Guid? selectiveRunGuid = TryParseRunGuidForAudit(runId);
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.Run.SelectiveExecuteRequested,
+                    ActorUserId = user,
+                    ActorUserName = user,
+                    TenantId = selectiveScope.TenantId,
+                    WorkspaceId = selectiveScope.WorkspaceId,
+                    ProjectId = selectiveScope.ProjectId,
+                    RunId = selectiveRunGuid,
+                    CorrelationId = correlationId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            taskIds = request.TaskIds,
+                            agentTypes = request.AgentTypes,
+                            includeDependents = request.IncludeDependents
+                        },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                cancellationToken);
+
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "ExecuteRunSelective conflict for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "ExecuteRunSelective failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
         catch (RunNotFoundException ex)

@@ -52,6 +52,17 @@ public interface IAgentResultRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
 
+    /// <summary>
+    ///     Deletes the persisted <see cref="AgentResult" /> for one run/task pair so selective re-execute (TB-938)
+    ///     can force that task past TB-039 idempotent skip. No-op when no row exists.
+    /// </summary>
+    Task DeleteForRunTaskAsync(
+        string runId,
+        string taskId,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
+
     Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default);

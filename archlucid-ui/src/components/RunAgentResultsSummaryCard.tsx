@@ -2,9 +2,12 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import type { ReactElement } from "react";
+import { useRouter } from "next/navigation";
+import { useState, type ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { executeArchitectureRunSelective } from "@/lib/api/architecture-runs";
+import { resolveFailedAgentTypesForSelectiveRetry } from "@/lib/run-detail-selective-agent-retry";
 import type { RunDetailAgentResult, RunRetrievalGroundingSummary } from "@/types/authority";
 
 export type AgentExecutionOutcomeRow = {
@@ -54,17 +57,47 @@ function topologyExemplarLink(summary: RunRetrievalGroundingSummary | null | und
   );
 }
 
-/** Summarizes architecture pipeline agent results on the operator run detail page (TB-106 / TB-937). */
+/** Summarizes architecture pipeline agent results on the operator run detail page (TB-106 / TB-937 / TB-938). */
 export function RunAgentResultsSummaryCard(props: {
   readonly results: readonly RunDetailAgentResult[] | null | undefined;
   readonly agentExecutionOutcomes?: readonly AgentExecutionOutcomeRow[] | null;
   readonly retrievalGroundingSummary?: RunRetrievalGroundingSummary | null;
+  readonly runId?: string | null;
 }): ReactElement | null {
+  const router = useRouter();
+  const [retryBusy, setRetryBusy] = useState(false);
+  const [retryError, setRetryError] = useState<string | null>(null);
+
   const outcomes = props.agentExecutionOutcomes?.filter((row) => row !== null && row !== undefined) ?? [];
   const rows = props.results?.filter((row) => row !== null && row !== undefined) ?? [];
+  const failedAgentTypes = resolveFailedAgentTypesForSelectiveRetry(outcomes);
+  const runId = (props.runId ?? "").trim();
+  const canRetryFailed = runId.length > 0 && failedAgentTypes.length > 0;
 
   if (outcomes.length === 0 && rows.length === 0) {
     return null;
+  }
+
+  async function onRetryFailedAgents(): Promise<void> {
+    if (!canRetryFailed || retryBusy) {
+      return;
+    }
+
+    setRetryBusy(true);
+    setRetryError(null);
+
+    try {
+      await executeArchitectureRunSelective(runId, {
+        agentTypes: failedAgentTypes,
+        includeDependents: true,
+      });
+      router.refresh();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Selective retry failed.";
+      setRetryError(message);
+    } finally {
+      setRetryBusy(false);
+    }
   }
 
   return (
@@ -145,6 +178,26 @@ export function RunAgentResultsSummaryCard(props: {
             })}
           </ul>
         )}
+        {canRetryFailed ? (
+          <div className="space-y-2" data-testid="run-agent-selective-retry">
+            <button
+              type="button"
+              className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 disabled:opacity-60 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+              data-testid="run-agent-retry-failed-button"
+              disabled={retryBusy}
+              onClick={() => {
+                void onRetryFailedAgents();
+              }}
+            >
+              {retryBusy ? "Retrying failed agents…" : "Retry failed agents"}
+            </button>
+            {retryError ? (
+              <p className="m-0 text-sm text-red-700 dark:text-red-400" data-testid="run-agent-selective-retry-error">
+                {retryError}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

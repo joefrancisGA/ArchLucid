@@ -138,6 +138,22 @@ export async function executeArchitectureRun(runId: string): Promise<unknown> {
   return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/execute`, {});
 }
 
+/** TB-938: re-execute selected agents only (POST /v1/architecture/run/{runId}/execute/selective). */
+export async function executeArchitectureRunSelective(
+  runId: string,
+  body: {
+    readonly agentTypes?: readonly string[];
+    readonly taskIds?: readonly string[];
+    readonly includeDependents?: boolean;
+  },
+): Promise<unknown> {
+  return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/execute/selective`, {
+    agentTypes: body.agentTypes ?? [],
+    taskIds: body.taskIds ?? [],
+    includeDependents: body.includeDependents !== false,
+  });
+}
+
 /** Seeds deterministic fake agent results for a run (POST /v1/internal/architecture/runs/{runId}/seed-fake-results; operator + ExecuteAuthority). */
 export async function seedFakeArchitectureRunResults(runId: string): Promise<{ resultCount?: number }> {
   return apiPostJson<{ resultCount?: number }>(

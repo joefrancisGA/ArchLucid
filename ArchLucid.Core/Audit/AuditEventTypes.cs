@@ -1098,6 +1098,9 @@ public static class AuditEventTypes
 
         /// <summary>Operator or API requested retry of a failed run (same <c>RunId</c>).</summary>
         public const string RetryRequested = "Run.RetryRequested";
+
+        /// <summary>Operator or API requested selective re-execute of specific agents/tasks (TB-938).</summary>
+        public const string SelectiveExecuteRequested = "Run.SelectiveExecuteRequested";
     }
 
     /// <summary>

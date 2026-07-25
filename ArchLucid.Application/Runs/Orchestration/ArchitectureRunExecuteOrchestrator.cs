@@ -145,6 +145,117 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
     }
 
+    /// <inheritdoc/>
+    public async Task<ExecuteRunResult> ExecuteSelectiveRunAsync(
+        string runId,
+        SelectiveAgentExecuteRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentNullException.ThrowIfNull(request);
+        ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository,
+            agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory,
+            outputTraceEvaluationHook, agentResultPostExecutionEnricher, evidencePackageInjectionMitigator,
+            agentEvidenceUntrustedInputSanitizer, requestContentSafetyPrecheck,
+            agentExecutionOptions, agentOutputQualityGateOptions, logger);
+
+        string actor = actorContext.GetActor();
+        ArchitectureRun? run =
+            await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+                runRepository,
+                scopeContextProvider,
+                taskRepository,
+                runId,
+                cancellationToken);
+
+        if (run is null)
+            throw new RunNotFoundException(runId);
+
+        if (run.Status is ArchitectureRunStatus.Committed)
+        {
+            throw new ConflictException(
+                $"Run '{runId}' is already committed and cannot be selectively re-executed.");
+        }
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentTask> scheduledTasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+
+        if (scheduledTasks.Count == 0)
+            throw new InvalidOperationException($"No tasks found for run '{runId}'.");
+
+        IReadOnlyList<AgentTask> forcedTasks = SelectiveAgentExecutePlanner.ResolveTasksToForce(scheduledTasks, request);
+
+        foreach (AgentTask task in forcedTasks)
+        {
+            await _resultRepository.DeleteForRunTaskAsync(runId, task.TaskId, cancellationToken);
+        }
+
+        await TryDemoteReadyForCommitBeforeSelectiveExecuteAsync(runId, run.Status, cancellationToken);
+        await TryLogSelectiveExecuteRequestedAsync(runId, actor, forcedTasks, request.IncludeDependents, cancellationToken);
+
+        return await ExecuteRunAsync(runId, cancellationToken);
+    }
+
+    private async Task TryDemoteReadyForCommitBeforeSelectiveExecuteAsync(
+        string runId,
+        ArchitectureRunStatus currentStatus,
+        CancellationToken cancellationToken)
+    {
+        if (currentStatus is not ArchitectureRunStatus.ReadyForCommit)
+            return;
+
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (header is null)
+            return;
+
+        if (string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ConflictException(
+                $"Run '{runId}' is already committed and cannot be selectively re-executed.");
+        }
+
+        header.LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults);
+        await runRepository.UpdateAsync(header, cancellationToken);
+    }
+
+    private async Task TryLogSelectiveExecuteRequestedAsync(
+        string runId,
+        string actor,
+        IReadOnlyList<AgentTask> forcedTasks,
+        bool includeDependents,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        AuditEvent selectiveRequested = scope.CreateAuditEvent(
+            AuditEventTypes.Run.SelectiveExecuteRequested,
+            actor,
+            actor,
+            JsonSerializer.Serialize(new
+            {
+                runId,
+                includeDependents,
+                taskIds = forcedTasks.Select(static t => t.TaskId).ToArray(),
+                agentTypes = forcedTasks.Select(static t => t.AgentType.ToString()).ToArray(),
+            },
+                AuditJsonSerializationOptions.Instance));
+        selectiveRequested.RunId = runGuid;
+
+        await DurableAuditLogRetry.TryLogAsync(
+            ct => auditService.LogAsync(selectiveRequested, ct),
+            logger,
+            $"{AuditEventTypes.Run.SelectiveExecuteRequested}:{LogSanitizer.Sanitize(runId)}",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.Run.SelectiveExecuteRequested);
+    }
+
     private static void ValidateDependencies(IRunRepository runRepository, IScopeContextProvider scopeContextProvider,
         IArchitectureRequestRepository requestRepository, IAgentTaskRepository taskRepository, IAgentExecutor agentExecutor,
         IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository,
