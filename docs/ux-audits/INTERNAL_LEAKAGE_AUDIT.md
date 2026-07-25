@@ -76,7 +76,7 @@ An enterprise IT leader opening the home page and expanding "Advanced guidance" 
 ### L03 · Governance submit form — "dev"/"test" environment defaults (P1) · TB-547
 
 **Component:** `archlucid-ui/src/app/(operator)/governance/_sections/GovernanceWorkflowPageContent.tsx`  
-**Visible on:** `/governance` (operator shell, non-buyer)
+**Visible on:** `/governance` (full architect workspace, non-buyer)
 
 **Current issue**  
 ```typescript
@@ -99,14 +99,14 @@ Remove the default values (use empty string `""`). Use placeholder text `e.g. so
 **Current issue**  
 On successful `promoteManifest` API call: `setToast({ kind: "ok", message: "Review package promoted." })`
 
-"Promoted" is a deployment pipeline verb (e.g., "promote to production"). In the governance context, the action the user took is getting an architecture review package approved for the next step — not deploying software.
+"Promoted" is a deployment pipeline verb (e.g., "promote to production"). In the governance context, the action the user took is getting an architecture package approved for the next step — not deploying software.
 
 **Recommended fix**  
-Change to: `"Approval recorded — review package approved for release."` or `"Review package advanced to target environment."`
+Change to: `"Approval recorded — architecture package approved for release."` or `"Architecture package advanced to target environment."`
 
 ---
 
-### L05 · `RunTraceViewerLink` — raw trace IDs in operator UI (P1) · TB-549
+### L05 · `RunTraceViewerLink` — raw trace IDs in architect workspace (P1) · TB-549
 
 **Component:** `archlucid-ui/src/components/RunTraceViewerLink.tsx`  
 **Visible on:** Finding inspect view and error surfaces
@@ -192,7 +192,7 @@ Rename to `"How governance approval works"`. Revise the card to describe the gov
 | "promoted" (toast) | "approved for release" |
 | "dev" / "test" env defaults | Remove defaults; use placeholders |
 | "activate environment" | "record go-live" or "mark active" |
-| "promote manifest" (quickstart) | "approve and release review package" |
+| "promote manifest" (quickstart) | "approve and release architecture package" |
 | "artifacts & graph" CTA | "Open review summary" |
 
 ---

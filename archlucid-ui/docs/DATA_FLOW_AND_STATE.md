@@ -91,7 +91,7 @@ For **client component** pages (graph, compare, replay), the flow is different:
 
 ## 2. Server-side data flow (the common path)
 
-Most pages in the operator shell are server components. Here is the data flow pattern they all follow.
+Most pages in the architect workspace are server components. Here is the data flow pattern they all follow.
 
 ### Template: server component page
 
@@ -273,7 +273,7 @@ When you call `setInputId("abc")`:
 
 This codebase does **not** use Redux, Zustand, MobX, or any global state library. Each page manages its own state. This is intentional:
 
-- The operator shell is read-mostly. Pages fetch, display, and the operator navigates.
+- The architect workspace is read-mostly. Pages fetch, display, and the architect navigates.
 - There is no cross-page state to share (no shopping cart, no user preferences).
 - Global stores add complexity that is not justified here.
 

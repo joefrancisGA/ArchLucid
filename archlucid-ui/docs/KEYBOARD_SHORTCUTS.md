@@ -1,4 +1,4 @@
-# ArchLucid operator shell — keyboard shortcuts
+# ArchLucid architect workspace — keyboard shortcuts
 
 **Audience:** Operators using `archlucid-ui` and developers extending the shell.  
 **Tests:** `src/integration/keyboard-shortcuts-*.test.tsx`
@@ -127,4 +127,4 @@ These shortcuts are active only when `NODE_ENV=development` (for example `npm ru
 | **Alt+Shift+D** | Cycle shell density override (`buyer-polished` → `full-operator` → build default) and reload |
 | **Ctrl+Shift+H** | Hide or show the home-page **Dev testing quick switch** panel (persists in `localStorage`) |
 
-The quick-switch panel also exposes shell-density and dev-role override buttons on the workspace overview (`/`). **Internal Operations** appears in the sidebar when the full-operator shell is active (`NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator` in `archlucid-ui/.env.development`, or choose **Full operator** in the quick-switch panel).
+The quick-switch panel also exposes shell-density and dev-role override buttons on the workspace overview (`/`). **Internal Operations** appears in the sidebar when the full architect workspace is active (`NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator` in `archlucid-ui/.env.development`, or choose **Full operator** in the quick-switch panel).

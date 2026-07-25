@@ -1,6 +1,6 @@
 # ArchLucid Operator Shell — Component Reference
 
-> **Audience:** Developers maintaining or extending the operator shell UI.  
+> **Audience:** Developers maintaining or extending the architect workspace UI.  
 > See `OPERATOR_SHELL_TUTORIAL.md` for foundational concepts. This document is the reference.
 
 ---
@@ -295,7 +295,7 @@ The `<Link>` component from `next/link` performs client-side navigation (no full
 ```ts
 export const metadata = {
   title: "ArchLucid",
-  description: "ArchLucid operator shell",
+  description: "ArchLucid architect workspace",
 };
 ```
 

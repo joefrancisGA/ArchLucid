@@ -1,6 +1,6 @@
 # ArchLucid Operator Shell — Architecture
 
-This document describes the architectural design of the ArchLucid operator shell (`archlucid-ui`). It follows the same C4-style conventions used in the backend architecture docs (`docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_CONTAINERS.md`, etc.) and the project's required architecture output sections.
+This document describes the architectural design of the ArchLucid architect workspace (`archlucid-ui`). It follows the same C4-style conventions used in the backend architecture docs (`docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_CONTAINERS.md`, etc.) and the project's required architecture output sections.
 
 ---
 
@@ -31,7 +31,7 @@ The UI is **not** a general-purpose SPA. It is a dashboard for operators who und
 |-----------|--------|
 | No heavy client-side state management (Redux, Zustand) | Read-mostly dashboard with no cross-page state; simplicity over power |
 | Tailwind CSS + shadcn/Radix primitives styled to IBM Carbon (see `docs/library/UI_DESIGN_SYSTEM.md`) | Enterprise visual standard; not default Tailwind/shadcn aesthetics |
-| Component library: shadcn/Radix + React Flow (graphs) + targeted chart/export libs | Carbon-aligned operator shell; heavy libs code-split per route |
+| Component library: shadcn/Radix + React Flow (graphs) + targeted chart/export libs | Carbon-aligned architect workspace; heavy libs code-split per route |
 | Server components by default; `"use client"` only when interactivity requires it | Minimizes JavaScript shipped to the browser; aligns with Next.js App Router best practices |
 | All API secrets stay server-side | `ARCHLUCID_API_KEY` is never exposed to the browser; proxy route enforces this |
 | TypeScript strict mode | Catches type errors at compile time; all types are explicit |
@@ -46,7 +46,7 @@ The UI is **not** a general-purpose SPA. It is a dashboard for operators who und
 ┌──────────────────────────────────────────────────────────────┐
 │                      OPERATOR (browser)                      │
 │                                                              │
-│  Navigates to operator shell pages.                          │
+│  Navigates to architect workspace pages.                     │
 │  Sees runs, manifests, artifacts, comparisons, graphs.       │
 │  Downloads ZIPs, DOCX packages.                              │
 └────────────────────────┬─────────────────────────────────────┘
@@ -73,7 +73,7 @@ The UI is **not** a general-purpose SPA. It is a dashboard for operators who und
 
 ### Container view (C4 Level 2)
 
-The operator shell is a single Next.js application. Inside it are four logical containers:
+The architect workspace is a single Next.js application. Inside it are four logical containers:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -488,7 +488,7 @@ In development, these are hardcoded in `scope.ts`. In production, they would com
 **Decision:** No Redux, Zustand, MobX, or Context providers.
 
 **Reasoning:**
-- The operator shell is read-mostly. Each page fetches its own data and displays it.
+- The architect workspace is read-mostly. Each page fetches its own data and displays it.
 - There is no cross-page state (no cart, no user preferences, no wizard flow).
 - Server components cannot use client-side state stores.
 - Page-local state (`useState` in client components, `let` in server components) is sufficient.
@@ -512,7 +512,7 @@ In development, these are hardcoded in `scope.ts`. In production, they would com
 **Decision:** Tailwind utility classes with ArchLucid design tokens (`--al-*`, `design-tokens.ts`) and shadcn/Radix primitives, styled to IBM Carbon with Fluent 2 shell polish.
 
 **Reasoning:**
-- The operator shell grew well beyond ~15 pages; a tokenized utility system scales layout and spacing consistently (TB-114–TB-120).
+- The architect workspace grew well beyond ~15 pages; a tokenized utility system scales layout and spacing consistently (TB-114–TB-120).
 - `EnterpriseTable`, `StatusTag`, and compact operator spacing are shared across reviews, governance, and audit surfaces.
 - Residual inline `style={{ ... }}` remains only for dynamic layout (graph fallbacks, progress bars) where class names cannot express runtime values.
 
@@ -579,7 +579,7 @@ There is no explicit orchestration layer. Each page is a self-contained orchestr
 2. **Client pages** orchestrate in event handlers: clear state → fetch → coerce → set state → React re-renders.
 3. The **proxy route** orchestrates credential attachment: read env → merge headers → forward → pass through response.
 
-This is intentional. The operator shell is thin — it does not have business logic to orchestrate. All business logic lives in the C# API.
+This is intentional. The architect workspace is thin — it does not have business logic to orchestrate. All business logic lives in the C# API.
 
 ---
 

@@ -26,7 +26,7 @@ Do **not** report, score, or generate backlog items for:
 - Feature requests or capability gaps unrelated to access
 - Broad information-architecture or navigation-redesign work
 - Performance tuning, cost, scalability, or observability improvements (unless a failure directly blocks the six proofs)
-- Marketing/trial funnel pages (`/welcome`, `/try`, `/signup`, `/pricing`, etc.) except where they intercept an invited user's path into the operator shell
+- Marketing/trial funnel pages (`/welcome`, `/try`, `/signup`, `/pricing`, etc.) except where they intercept an invited user's path into the architect workspace
 - GTM rows M-90/M-44/M-91/M-92 must not resurface here in any form
 
 If you notice a non-blocker issue while testing, put it in a single unranked appendix list ("Observed, out of scope") with one line each. No prompts, no priorities, no elaboration.
@@ -64,7 +64,7 @@ Test every way a private-beta user can be provisioned and told to show up:
 
 ### 2. Authentication and SSO
 
-- Fresh OIDC sign-in via `/auth/signin` → IdP → `/auth/callback` for a provisioned user: prove it completes into the operator shell under `JwtBearer` mode (Entra and/or generic OIDC authority).
+- Fresh OIDC sign-in via `/auth/signin` → IdP → `/auth/callback` for a provisioned user: prove it completes into the architect workspace under `JwtBearer` mode (Entra and/or generic OIDC authority).
 - Callback failure modes: denied consent, state mismatch, clock-skewed/expired token, IdP error response — each must land on an actionable screen, not a blank page or loop.
 - Session expiry: idle timeout → `/auth/session-expired` → re-sign-in returns the user to a working state (verify the post-re-auth landing).
 - SSO configuration surfaces (`/settings/identity-providers` incl. `oidc`, `saml`, `role-mapping`, `diagnostics`; `/settings/identity/sso-wizard`): only test that a **misconfigured or half-configured IdP cannot lock every user out of the tenant** and that diagnostics identify the failure. Configuration UX quality is out of scope.

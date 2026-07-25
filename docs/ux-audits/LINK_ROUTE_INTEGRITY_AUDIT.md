@@ -26,7 +26,7 @@
 The golden path (Home → Reviews → Review detail → Executive → Evidence graph → Governance → Audit) is structurally intact — all routes exist and are reachable. However, three junction points have integrity issues:
 
 1. **Finding inspect → review context**: The CTA label differs between demo and live environments, producing an inconsistent user experience with no semantic justification.
-2. **Governance → audit trail**: In the standard operator shell with no loaded review, the governance page shows an empty state with no link to the audit trail. Users who arrive at governance first (e.g., from the nav) have no obvious next step.
+2. **Governance → audit trail**: In the full architect workspace with no loaded review, the governance page shows an empty state with no link to the audit trail. Users who arrive at governance first (e.g., from the nav) have no obvious next step.
 3. **Review detail error recovery**: In static-demo or buyer-polished mode, the error boundary links to a hardcoded demo manifest ID without any "this is sample data" disclosure.
 
 ---
@@ -95,11 +95,11 @@ In static-demo or buyer-polished mode, when the review detail page errors:
 
 ```tsx
 <Link href={`/signed-records/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
-  Open sample review package
+  Open sample architecture package
 </Link>
 ```
 
-The `SHOWCASE_STATIC_DEMO_MANIFEST_ID` is a hardcoded internal demo record. The CTA says "Open sample review package" — the word "sample" is a disclosure that this is not the user's real data. However, a buyer-polished-shell user who reaches this error state while trying to open their own review will be silently redirected to a static demo record.
+The `SHOWCASE_STATIC_DEMO_MANIFEST_ID` is a hardcoded internal demo record. The CTA says "Open sample architecture package" — the word "sample" is a disclosure that this is not the user's real data. However, a buyer-polished-shell user who reaches this error state while trying to open their own review will be silently redirected to a static demo record.
 
 **Why it matters**  
 A real operator error on `/reviews/[runId]` — perhaps a network timeout — redirects the user to demo data without explaining that their data is still available. This is a trust issue (TB-555).
@@ -121,7 +121,7 @@ In buyer-polished mode:
 <Link href="/demo/preview">{isBuyerPolished ? "Read-only walkthrough" : "View sample walkthrough"}</Link>
 ```
 
-`/demo/preview` is a marketing-surface route under `(marketing)`. Rendering it as a recovery CTA inside the operator shell creates a context switch: the user goes from a governance/review workflow to a marketing demo page.
+`/demo/preview` is a marketing-surface route under `(marketing)`. Rendering it as a recovery CTA inside the architect workspace creates a context switch: the user goes from a governance/review workflow to a marketing demo page.
 
 **Recommended fix**  
 Replace with `/showcase/[SHOWCASE_STATIC_DEMO_RUN_ID]` (the operator-appropriate showcase route) or a help article. Rename CTA to `"View sample review"`.

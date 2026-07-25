@@ -23,7 +23,7 @@
 
 ## Section 1. Overall visual-polish diagnosis
 
-The ArchLucid operator shell has a coherent enterprise design language: IBM Carbon-inspired typography scale (`OPERATOR_TYPE_SCALE`), a systematic status badge system (`EnterpriseStatusKind`, `FindingSeverityKind`), token-driven card chrome (`OPERATOR_CARD`), and table tokens (`DESIGN_TOKENS.table`). The buyer-polished shell surfaces are visibly more polished than the standard operator shell.
+The ArchLucid architect workspace has a coherent enterprise design language: IBM Carbon-inspired typography scale (`OPERATOR_TYPE_SCALE`), a systematic status badge system (`EnterpriseStatusKind`, `FindingSeverityKind`), token-driven card chrome (`OPERATOR_CARD`), and table tokens (`DESIGN_TOKENS.table`). The buyer-polished shell surfaces are visibly more polished than the full architect workspace.
 
 **Main consistency gaps:**
 
@@ -60,7 +60,7 @@ For `warning`/`medium`: use `bg-al-surface-raised border-amber-500/50 text-amber
 An enterprise architect waiting for their real graph to load sees "Sample evidence trail." They may assume the graph is showing demo data, not their architecture.
 
 **Recommended fix**  
-Change body copy to: `"Evidence trail — loading interactive graph…"` Remove "Sample" entirely. The `aria-label` should also drop "Sample": → `"Evidence trail: context, finding, decisions, and signed review package."`
+Change body copy to: `"Evidence trail — loading interactive graph…"` Remove "Sample" entirely. The `aria-label` should also drop "Sample": → `"Evidence trail: context, finding, decisions, and signed architecture package."`
 
 **Files:** `archlucid-ui/src/components/GraphStaticFallback.tsx`
 

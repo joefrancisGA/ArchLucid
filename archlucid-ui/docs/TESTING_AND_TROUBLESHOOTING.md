@@ -92,7 +92,7 @@ From the repo root: **`test-ui-smoke.cmd`** or **`test-ui-smoke.ps1`**. **What i
 
 ## 3. 55R / review workflow smoke tests (Change Set 55R)
 
-Focused **component** and **API client contract** coverage for the operator shell (no heavy E2E in this set). Run from `archlucid-ui/`:
+Focused **component** and **API client contract** coverage for the architect workspace (no heavy E2E in this set). Run from `archlucid-ui/`:
 
 ```powershell
 # Full suite (includes 55R tests):
@@ -493,7 +493,7 @@ resolve: {
 
 ### Linking browser actions to App Insights traces (TB-335)
 
-**Behavior:** The operator UI does **not** ship the browser Application Insights SDK. Instead, distributed trace context is propagated manually:
+**Behavior:** The architect workspace does **not** ship the browser Application Insights SDK. Instead, distributed trace context is propagated manually:
 
 1. Every API response includes **`traceparent`** (W3C) and **`X-Trace-Id`** (see `TraceResponseHeaderMiddleware` on the .NET host).
 2. Browser JSON helpers in `src/lib/api/http.ts` call `captureTraceContextFromResponse()` and persist the last valid **`traceparent`** in **`sessionStorage`** for the tab (`archlucid.session.traceparent`).

@@ -63,4 +63,4 @@ Until OIDC completes, `mergeRegistrationScopeForProxy` adds **`x-tenant-id` / `x
 - **Security:** Registration remains server rate-limited (**`registration`** policy). Scope headers are only merged when **no OIDC access token** is present, avoiding header overrides for signed-in JWT users.
 - **Scalability:** Static marketing pages are edge-cache friendly; pricing JSON is small and cacheable.
 - **Reliability:** Pricing generation fails closed in CI when the doc fence drifts.
-- **Cost:** No additional services; same proxy and API paths as the operator shell.
+- **Cost:** No additional services; same proxy and API paths as the architect workspace.

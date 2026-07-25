@@ -34,7 +34,7 @@
 
 ## 1. Why does this project exist?
 
-The **operator shell** (`archlucid-ui`) is a thin, read-mostly UI that lets an operator:
+The **architect workspace** (`archlucid-ui`) is a thin, read-mostly UI that lets an architect:
 
 - browse architecture runs for a project,
 - inspect golden manifests (decisions, warnings, unresolved issues),
@@ -654,7 +654,7 @@ The result uses a structured `<dl>` grid for validation flags and a list for not
 
 In Next.js App Router, if you put a `loading.tsx` file next to a `page.tsx`, Next.js shows it **while the page is loading** (for server components) or **while the JavaScript bundle is downloading** (for client components).
 
-Every route in the operator shell has one:
+Every route in the architect workspace has one:
 
 ```
 app/loading.tsx                          → "Loading."
@@ -825,7 +825,7 @@ Key differences from HTML:
 
 ## 19. Keyboard shortcuts
 
-The operator shell registers **Alt+letter** navigation (e.g. Alt+N → new run), a **Shift+?** help dialog, and **page-specific** shortcuts on Alerts. Shortcuts are **guarded** inside text fields and selects. For the full shortcut table, discoverability (nav `aria-keyshortcuts`, `<ShortcutHint>` badges), accessibility notes, and how to extend [`shortcut-registry.ts`](../src/lib/shortcut-registry.ts), read **[KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md)**. Integration coverage: `src/integration/keyboard-shortcuts-*.test.tsx`.
+The architect workspace registers **Alt+letter** navigation (e.g. Alt+N → new run), a **Shift+?** help dialog, and **page-specific** shortcuts on Alerts. Shortcuts are **guarded** inside text fields and selects. For the full shortcut table, discoverability (nav `aria-keyshortcuts`, `<ShortcutHint>` badges), accessibility notes, and how to extend [`shortcut-registry.ts`](../src/lib/shortcut-registry.ts), read **[KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md)**. Integration coverage: `src/integration/keyboard-shortcuts-*.test.tsx`.
 
 ---
 

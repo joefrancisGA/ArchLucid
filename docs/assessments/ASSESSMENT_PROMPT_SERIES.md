@@ -13,7 +13,7 @@ Perform an independent, first-principles assessment of ArchLucid.
 This assessment optimizes for five outcomes (ranked; earlier = more important):
 
 1. **Decision-changing insight** — non-obvious, correct findings that change a decision a skilled architect using frontier AI alone would not have changed.
-2. **Governed repeatability across an organization** — the same policy-aware, evidence-backed, auditable review package produced consistently by different operators, not heroics.
+2. **Governed repeatability across an organization** — the same policy-aware, evidence-backed, auditable architecture package produced consistently by different architects, not heroics.
 3. **30-Day Voluntary Usage Probability.**
 4. **Executive Purchase Probability.**
 5. **Long-Term Differentiation / Survivability Against Frontier AI.**
@@ -33,7 +33,7 @@ Evaluate ArchLucid against **both**:
 
 Do not ask only: *"Can frontier AI produce a similar critique?"* Ask:
 
-> Can a skilled architect using frontier AI alone reliably reproduce the same governed, policy-aware, evidence-backed, repeatable, auditable review package — with comparable consistency and organizational adoption?
+> Can a skilled architect using frontier AI alone reliably reproduce the same governed, policy-aware, evidence-backed, repeatable, auditable architecture package — with comparable consistency and organizational adoption?
 
 ---
 
@@ -175,9 +175,9 @@ For each quality provide: Score · Weight · Weighted contribution · Weighted d
 * **Governed Review Integrity** — does *changing a policy pack* change findings, priorities, recommendations, decisions, executive reporting, and the pre-commit gate outcome, with full traceability and audit reconstruction?
 * **Correctness & Evidence Integrity** — coherent states; preserved review/session/workspace identity; **no hallucinated or uncited policy/evidence claims**; no false confidence.
 * **AI / Agent Readiness** — grounded, inspectable, repeatable, policy-aware, safe; account for real-Azure-OpenAI vs simulator separation, Application-layer orchestration, and RAG-V2 depth caveats (Graph-RAG bounded multi-hop per **TB-597**; single-pass query expansion per **TB-598** — not iterative agentic retrieval). "Uses AI" ≠ "AI-ready."
-* **Time-to-Value** — speed to a credible review package or "I did not think of that" moment.
+* **Time-to-Value** — speed to a credible architecture package or "I did not think of that" moment.
 * **Proof-of-ROI Readiness** — credibility (not mere presence) of the ROI story: `GET /v1/roi/executive-summary` + board-pack export, cost evidence, savings basis labels, disposition-aware totals, and (for AWS/GCP) whether cost findings carry structured retail-price grounding or only illustrative framing (**TB-603**).
-* **Executive / Operator Comprehension** — understandable to architects, operators, executives, and governance stakeholders without excessive explanation.
+* **Executive / Architect Comprehension** — understandable to architects, executives, and governance stakeholders without excessive explanation.
 * **Runtime & First-Review Reliability** — does first review generation, commit, manifest, and export work reliably end to end? (UI breakage is also a **ship gate** below.)
 * **Adoption Friction** — effort to configure identity, ingest evidence, run the pilot path, validate security, and fit existing operations; account for `Integrations:Itsm:NativeEnabled` defaulting `false` out of the box (**TB-599**).
 
@@ -202,7 +202,7 @@ Before any narrative, answer each **PASS / FAIL / UNKNOWN** with one-line eviden
 2. Representative review contains **no hallucinated or uncited** policy/evidence citations.
 3. Executive summary / ROI output is coherent and not misleading (incl. the per-system-vs-headline ROI labeling).
 4. Export/package generation works (Markdown / DOCX / ZIP).
-5. Operator UI does not break during the first-review / demo path.
+5. Architect workspace does not break during the first-review / demo path.
 6. Auth + tenant isolation behave correctly on the pilot path.
 
 ---
@@ -397,7 +397,7 @@ Do not ask only:
 "Can frontier AI produce a similar critique?"
 
 Ask:
-Can a skilled architect using frontier AI alone reliably reproduce the same governed, policy-aware, evidence-backed, repeatable, auditable review package — with comparable consistency, role separation, executive packaging, policy traceability, and organizational adoption?
+Can a skilled architect using frontier AI alone reliably reproduce the same governed, policy-aware, evidence-backed, repeatable, auditable architecture package — with comparable consistency, role separation, executive packaging, policy traceability, and organizational adoption?
 
 ---
 
@@ -495,7 +495,7 @@ Then explain the rationale in plain English.
 Optimize for these outcomes in priority order:
 
 1. Decision-changing insight — non-obvious, correct findings that change a decision a skilled architect using frontier AI alone would not have changed.
-2. Governed repeatability across an organization — same policy-aware, evidence-backed, auditable review package produced consistently by different operators.
+2. Governed repeatability across an organization — same policy-aware, evidence-backed, auditable architecture package produced consistently by different architects.
 3. Trustworthy buyer first impression.
 4. 30-day voluntary usage probability.
 5. Executive purchase probability.
@@ -539,7 +539,7 @@ Pay special attention to these observed risk patterns:
 
 2. Inconsistent product language:
    - "Create architecture" used where the user chose Reviews
-   - review packages versus architecture creation
+   - architecture packages versus architecture creation
    - alerts versus approvals
    - governance versus approval workflow
    - sample workspace versus completed sample versus sample package
@@ -737,7 +737,7 @@ PASS / FAIL / UNKNOWN for:
 6. Founder can support users directly.
 7. System health is either useful, hidden, or polished restricted-access.
 8. Auth/access flow does not dead-end users.
-9. Core review package flow is understandable.
+9. Core architecture package flow is understandable.
 10. No tenant isolation uncertainty on beta path.
 11. Cloud connector page does not alienate non-Azure users.
 12. Product can survive a guided 30-minute walkthrough.
@@ -793,7 +793,7 @@ Before long narrative, answer each PASS / FAIL / UNKNOWN with one-line evidence 
 2. Representative review contains no hallucinated or uncited policy/evidence citations.
 3. Executive summary / ROI output is coherent and not misleading.
 4. Export/package generation works.
-5. Operator UI does not break during first-review / demo path.
+5. Architect workspace does not break during first-review / demo path.
 6. Auth and tenant isolation behave correctly on the pilot path.
 
 Any FAIL caps broad exposure readiness regardless of weighted score. UNKNOWN must name the fastest test to resolve.
@@ -995,7 +995,7 @@ Assess whether a principal architect understands:
 - what ArchLucid is
 - why it is not just AI chat
 - how to start
-- what a review package is
+- what an architecture package is
 - what evidence produces
 - how governance works
 - what they get after 30 minutes
