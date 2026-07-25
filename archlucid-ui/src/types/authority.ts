@@ -19,6 +19,8 @@ type RunSummaryWireExtensions = {
   idempotencyReplayed?: boolean | null;
   /** Package origin for list badges (`Created` | `Reviewed`). */
   packageOrigin?: string | null;
+  /** Synthetic Overview sample row for demo/seeded empty home (TB-1039) — not real tenant activity. */
+  demoSeededOverviewInject?: boolean | null;
   /** Detail merge: pipeline re-attempt count when run detail is projected onto summary props. */
   retryCount?: number | null;
   /** Detail merge: creation-span OTel trace id from `RunRecord` when run detail is projected onto summary props. */

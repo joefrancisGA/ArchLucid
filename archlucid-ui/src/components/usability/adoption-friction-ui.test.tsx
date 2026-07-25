@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "./PilotCommandCenterCard";
@@ -8,7 +8,7 @@ import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import {
   OPERATOR_HOME_DO_THIS_NEXT_HEADING,
   OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
-  OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+  OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
 
@@ -68,15 +68,19 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("PilotCommandCenterCard", () => {
-  it("renders a single Do-this-next primary CTA on empty Overview (TB-1038)", () => {
+  it("renders a single Do-this-next primary CTA on empty Overview (TB-1038 / TB-1039)", async () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(
+        OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
+      );
+    });
+
     expect(screen.getAllByTestId("operator-home-do-this-next-primary")).toHaveLength(1);
-    expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(
-      OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
-    );
     expect(screen.getByRole("link", { name: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();

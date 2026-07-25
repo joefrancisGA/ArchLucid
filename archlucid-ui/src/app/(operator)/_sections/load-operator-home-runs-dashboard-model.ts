@@ -2,6 +2,7 @@ import { listRunsByProjectPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
+import { resolveOverviewListProjectId } from "@/lib/demo-seeded-overview";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
@@ -16,12 +17,13 @@ const DEFAULT_PROJECT_ID = "default";
 
 /** Server loader for operator home runs dashboard first paint (TB-564). */
 export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHomeRunsDashboardModel> {
-  const projectId = DEFAULT_PROJECT_ID;
   const page = 1;
   const pageSize = OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { getServerResolvedScopeHeaders } = await import("@/lib/server-operator-scope");
+  // Server-resolved scope only — never getEffectiveBrowserProxyScopeHeaders() on SSR (dev defaults).
   const scopeHeaders = await getServerResolvedScopeHeaders();
+  const projectId = resolveOverviewListProjectId(scopeHeaders, DEFAULT_PROJECT_ID);
 
   let items: RunSummary[] = [];
   let totalCount = 0;
@@ -75,6 +77,9 @@ export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHome
       usedStaticRunsFallback = true;
     }
   }
+
+  // TB-1039 sample-row inject is client-only (RunsDashboardPanelClient) so SSR never paints
+  // a sticky fake review from DEV-default scope headers and skip-initial-fetch.
 
   items = dedupeRunSummariesByRunId(items.map(normalizeRunSummaryForDemoPicker));
 

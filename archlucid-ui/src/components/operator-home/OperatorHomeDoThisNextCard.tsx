@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useFeaturedCompletedSampleQuery } from "@/hooks/use-featured-completed-sample-query";
@@ -10,8 +11,19 @@ import {
   OPERATOR_HOME_EXPLORE_REVIEW_WALKTHROUGH_CTA,
   OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA,
 } from "@/lib/buyer-polish-copy";
+import {
+  isDemoSeededOverviewWorkspaceLabel,
+  resolveDemoSeededOverviewSamplePackage,
+  shouldInjectDemoSeededOverviewSample,
+} from "@/lib/demo-seeded-overview";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import {
+  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
+  getEffectiveBrowserProxyScopeHeaders,
+  readOperatorScopeFromStorage,
+} from "@/lib/operator-scope-storage";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { resolveEmptyHomeDoThisNext } from "@/lib/resolve-empty-home-do-this-next";
 import { cn } from "@/lib/utils";
@@ -50,14 +62,54 @@ function resolveFeaturedSampleHref(
   return featuredCompletedSampleReviewHref(runId);
 }
 
-/** Empty Overview — one primary next step from setup readiness; help links stay secondary (TB-1038). */
+function resolveDemoSeededFlag(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
+  const workspaceLabel = readOperatorScopeFromStorage()?.workspaceLabel ?? null;
+
+  return (
+    shouldInjectDemoSeededOverviewSample({
+      itemCount: 0,
+      scopeHeaders,
+      workspaceLabel,
+      staticDemoFallbackEnabled: isStaticDemoPayloadFallbackEnabled(),
+    }) || isDemoSeededOverviewWorkspaceLabel(workspaceLabel)
+  );
+}
+
+/** Empty Overview — one primary next step; demo/seeded pins open the sample package (TB-1038 / TB-1039). */
 export function OperatorHomeDoThisNextCard(): React.JSX.Element {
   const readiness = useFinishSetupReadinessContext();
   const sampleQuery = useFeaturedCompletedSampleQuery();
-  const sampleHref = resolveFeaturedSampleHref(sampleQuery.data);
+  const featuredHref = resolveFeaturedSampleHref(sampleQuery.data);
+  // Start false on SSR so production empty tenants do not inherit dev-default demo scope.
+  const [demoSeeded, setDemoSeeded] = useState(false);
+
+  useEffect(() => {
+    const refresh = () => {
+      setDemoSeeded(resolveDemoSeededFlag());
+    };
+
+    refresh();
+    window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, refresh);
+
+    return () => {
+      window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, refresh);
+    };
+  }, []);
+
+  const demoSample =
+    demoSeeded && typeof window !== "undefined"
+      ? resolveDemoSeededOverviewSamplePackage(getEffectiveBrowserProxyScopeHeaders())
+      : null;
+  const sampleHref = demoSample?.href ?? featuredHref;
   const action = resolveEmptyHomeDoThisNext({
     setupContext: readiness.context,
     sampleHref,
+    demoSeededOverview: demoSeeded,
   });
 
   return (
@@ -76,7 +128,7 @@ export function OperatorHomeDoThisNextCard(): React.JSX.Element {
         {action.bridgeCopy}
       </p>
 
-      {action.kind === "sample" && sampleQuery.isPending ? (
+      {action.kind === "sample" && sampleQuery.isPending && !demoSeeded ? (
         <p
           className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
           aria-live="polite"

@@ -2,23 +2,23 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster). Prior: 2026-07-25 (**TB-1024**–**TB-1025** opened — PA Q14: comparison/replay minimal immutable snapshot set so drift is real, not UI illusion; artifact vs regenerate vs verify + honesty CI; GTM **M-174**/**M-175**; complements **TB-1003**/**TB-1009** without reopening compare engine; see `## TB-1024`–`## TB-1025` below). Prior: 2026-07-25 (**TB-1022**–**TB-1023** opened — PA Q13: pre-finalize governance gate + policy packs — block commit vs advisory + SoD ownership matrix + honesty CI; GTM **M-172**/**M-173**; complements Done gate/SoD (**TB-184**, ADR 0034) and finding-race **TB-986** without reopening; see `## TB-1022`–`## TB-1023` below). Prior: 2026-07-25 (**TB-1003**–**TB-1004** / **M-154**/**M-155** enriched — PA Q: Evidence → finding → manifest → artifact → audit chain; hop-skip features + honest labels; no new IDs — already owned by committed-manifest unit-of-truth cluster). Prior: 2026-07-25 (**TB-940** **Done** — completion-cache admission + poison bust: deferred schema commit, key v2 prompt/schema versions, ``archlucid_llm_cache_poison_busts_total``). Prior: 2026-07-24 (**TB-939** **Done** — run-scoped LLM budget reservation: admit-before-spend reserve/commit/release before agent batch; migration 289; `OPERATIONS_LLM_QUOTA.md`). Prior: 2026-07-24 (**TB-1003**–**TB-1004** opened — PA Q: buyer-facing claim unit of truth = committed golden manifest; forbidden substitutes matrix + honesty CI; GTM **M-154**/**M-155**; complements `PROOF_LANGUAGE_CLAIM_AUDIT` / Done commit path — does not reopen Simulator ROI (**TB-983**–**TB-985**); see `## TB-1003`–`## TB-1004` below). Prior: 2026-07-24 (**TB-938** **Done** — selective agent re-execute: clear forced (+ Critic) results, reuse execute + TB-039 skip, `POST …/execute/selective`, UI Retry failed agents). Prior: 2026-07-24 (**TB-1001**–**TB-1002** opened — PA Q3 Azure AI Search / Ask / Graph-RAG hit cannot be another tenant’s chunk: retrieval tenancy guarantee matrix (OData filter + upsert + scoped graph expand) + honesty CI; GTM **M-152**/**M-153**; complements Done **TB-048**/**TB-071**/**TB-604** — does not claim per-tenant Search service; see `## TB-1001`–`## TB-1002` below). Prior: 2026-07-24 (**TB-999**–**TB-1000** opened — PA Q1 tenant identity decided once at host boundary: INV-001 single-derivation vs forbidden-layer matrix; honesty CI against header/ambient re-derive claims; GTM **M-150**/**M-151**; complements Done **TB-010**/**TB-071**/**TB-072**/**TB-304**/**TB-925** + ARCH001 — does not reopen RLS or catalog topology; see `## TB-999`–`## TB-1000` below). Prior: 2026-07-24 (**TB-937** **Done** — partial-run contract: PartiallyCompleted/FailedPartial, commit-ready required-agent gate, AgentExecutionOutcomes, UI finalize block, triage partialRequiredAgentsIncomplete). Prior: 2026-07-24 (**TB-933** **Done** — next-wave `/reviews/[runId]` First Load JS deferral: outcome cards, what-if/usability/CTO banners, policy-pack callout, forensics panel wrapper + last-failure resolver extract; Vitest import-graph guards; composition doc; see `## TB-933` below). Prior: 2026-07-24 (**TB-997**–**TB-998** opened — PA Q11 LLM trust boundary: into-model ingress matrix (docs/repo/evidence/retrieval/ledger) vs structurally impossible host confinement (no model-driven exfil/side effects); honesty CI; GTM **M-148**/**M-149**; complements open **TB-949**–**TB-952** + Done **TB-082**/Content Safety — does not claim injection-proof PDFs; see `## TB-997`–`## TB-998` below). Prior: 2026-07-24 (**TB-995**–**TB-996** opened — PA Q7 Polly/CB transport vs run-level semantics: surface matrix contract (partial agents / poisoned completion cache / mid-run budget) + honesty CI; GTM **M-146**/**M-147**; does **not** duplicate open **TB-937**–**TB-945** / **TB-960**–**TB-962** / **TB-975**–**TB-977** implementations; see `## TB-995`–`## TB-996` below). Prior: 2026-07-24 (**TB-992**–**TB-994** opened — PA Q15 transactional outbox publish-success / crash: replay-safe vs consumer-must-idempotent contract (integration + internal SQL outboxes), enforce stable `MessageId` + handler idempotency audit, crash-between-publish-and-mark regression + honesty CI; GTM **M-144**/**M-145**; complements Done ADR 0004/0043/0044 + open **TB-920**; does not promise exactly-once delivery or reopen **TB-924** DTF; see `## TB-992`–`## TB-994` below). Prior: 2026-07-24 (**TB-933** **Done** — next-wave `/reviews/[runId]` First Load JS deferral: outcome cards, what-if/usability/CTO banners, policy-pack callout, forensics panel wrapper + last-failure resolver extract; Vitest import-graph guards; composition doc; see `## TB-933` below). Prior: 2026-07-24 (**TB-989**–**TB-991** opened — PA Q17 solo-operator pages-before-ticket vs support-email-only: decision-matrix contract (fleet MVO P0 vs ops email vs Report Problem vs single-tenant gap), Support Problem Report ↔ MVO triage enrichment, honesty CI guard; GTM **M-142**/**M-143**; complements Done **TB-957** + open **TB-958**/**TB-959** / **M-119**/**M-120** — does not duplicate per-tenant alert or review-path canary rows; see `## TB-989`–`## TB-991` below). Prior: 2026-07-24 (**TB-986**–**TB-988** opened — PA Q6 finding concurrent approve/reject/disposition race: append-only last-by-time contract (vs governance approval-request CAS), enforce stale/conflict UX + `HumanReviewStatus` honesty, concurrent race regression + CI; GTM **M-140**/**M-141**; does not weaken Done approval-request `TryTransitionFromReviewableAsync`; see `## TB-986`–`## TB-988` below). Prior: 2026-07-24 (**TB-983**–**TB-985** opened — PA Q19 Simulator-derived ROI/savings forbid on sponsor-facing surfaces: canonical forbid contract (demo/HOLD/unlabeled Simulator ≠ realized savings), enforce suppression on executive ROI headline + buyer trend (**BDA-069**/**BDA-070**) + Email-to-sponsor projected-USD badge, cross-surface regression + CI guard; GTM **M-138**/**M-139**; extends Done **TB-239** / first-value ROI gate / PDF execution-mode block — does not reopen DONE disposition resolver; see `## TB-983`–`## TB-985` below). Prior: 2026-07-24 (**TB-930** **Done** — run-detail summary + lazy-load: `GetRunDetailForBuyerSummaryAsync` + `GetCoverageProjectionByIdAsync` (no `PayloadJson`/`ResultJson` on buyer first paint); `BuyerFindingSummaryDto` + UI synthesizes QuickDecision from `findingSummaries`; measurement [`run_detail_summary_lazy_load_tb930.md`](../architecture/run_detail_summary_lazy_load_tb930.md); see `## TB-930` below). Prior: 2026-07-23 (**TB-929** **Done** — hot-path list SQL projection audit: `GetPagedSummariesByRunIdAsync` / `CountByRunIdAsync` omit full `TraceJson` for operator lists + trust card; `FindingRecordListSql` / `AgentResultListSql` / `AgentExecutionTraceListSql` + shape tests; inventory [`hot_path_json_blob_list_inventory.md`](../architecture/hot_path_json_blob_list_inventory.md); agent-result `ResultJson` by-run remains intentional → **TB-930**; see `## TB-929` below). Prior: 2026-07-23 (**TB-957** **Done** — solo-operator MVO observability enablement: `SOLO_OPERATOR_MVO_OBSERVABILITY.md` (six critical P0s), `scripts/ops/verify-amw-p0-metrics.ps1`, V1 release checklist + OBSERVABILITY / terraform-monitoring / FOUNDER cross-links; live Portal Test / founder page remains GTM **M-120**; see `## TB-957` below). Prior: 2026-07-23 (**TB-978**–**TB-982** opened — showcase scenario portfolio from [`showcase_scenario_strategy_assessment_2026_07_23.md`](../architecture/showcase_scenario_strategy_assessment_2026_07_23.md): extend **TB-891** with scenario dimension + funnel events, typed sample-definition extraction (decouple PHI/healthcare helper branches), author Enterprise Customer Intake Modernization package, default-flip + trial-sample alignment, later AI-scenario formalization + Contoso/Northwind buyer-label cleanup; GTM **M-133**–**M-137**; does **not** rename Claims Intake in place or authorize Contoso as buyer-facing showcase org; see `## TB-978`–`## TB-982` below). Prior: 2026-07-23 (**TB-975**–**TB-977** opened — INV-004 LLM budget reserve/settle hardening: reservation lifecycle contract (crash orphans, month-boundary clock, racing assumed-max), durable per-reservation leases + orphan reclaim + paid-unsettle reconcile, SQL-owned UTC period + reserved-pool admission fairness; GTM **M-131**/**M-132**; complements Quick Scan **TB-894** Done and open **TB-939**; does not reopen Done **TB-011** INV-004 dual-replica harness baseline; see `## TB-975`–`## TB-977` below). Prior: 2026-07-23 (**TB-972**–**TB-974** opened — quality-gate definition versioning + historical immutability: append-only threshold-set versions, recorded vs advisoryCurrent evaluation split (stop live re-gate as authority), wrong-gate migration (deprecate / re-execute / append supersede — never silent UPDATE); GTM **M-129**/**M-130**; extends **TB-963**/**TB-964**; see `## TB-972`–`## TB-974` below). Prior: 2026-07-23 (**TB-969**–**TB-971** opened — INV-002 execution-mode honesty: per-outcome mode + Mixed auto-aggregation contract, persist cacheServed / recompute run mode after execute & selective resume, cross-surface no-promote guards; GTM **M-127**/**M-128**; Mixed reserved today and not auto-derived from per-agent Real+Simulator mixes; see `## TB-969`–`## TB-971` below). Prior: 2026-07-23 (**TB-966**–**TB-968** opened — inbound webhook hostile-internet hardening beyond INV-015 spine: PA-defensible order (rate → bounded size → verify → parse), bounded body intake + size-before-HMAC on all inbound routes, ITSM replay/idempotency parity with billing guards; GTM **M-125**/**M-126**; does not reopen Done **TB-012** / INV-015 baseline enforcement; see `## TB-966`–`## TB-968` below). Prior: 2026-07-23 (**TB-953** **Done** — transactional audit `LogOrThrowAsync` fail-closed path: `DurableAuditWriteFailedException`, governance disposition / waiver / finalize / identity grant / export completion migrated off soft-fail `TryLogAsync`; INV-003 updated; unit tests for retry+throw and approve/disposition fail-closed; see `## TB-953` below). Prior: 2026-07-23 (**TB-963**–**TB-965** opened — LLM review pipeline: distinguish execution failure (“model failed”) vs quality rejection (“low-quality but admissible parse”); taxonomy contract, durable auditable quality-outcome persistence, buyer/operator UX + API surfaces; GTM **M-123**/**M-124**; builds on Done quality gate / `qualityGate` failure class / `ExecutionCompletedQualityRejected` — does not reopen **TB-684** defaults or duplicate **TB-944** transport-vs-semantic Polly matrix; see `## TB-963`–`## TB-965` below). Prior: 2026-07-23 (**TB-960**–**TB-962** opened — Azure Container Apps Worker long-running LLM review failure semantics: canonical contract (replica death, lease resume, no double-bill of persisted tasks, buyer states), SIGTERM/scale-in graceful drain + execute ownership release, staging replica-kill drill; GTM **M-121**/**M-122**; binds **TB-937**–**TB-943** + Done **TB-039**/**TB-201** to the ACA Worker host — does not reopen Polly/ADR 0005 transport policy; see `## TB-960`–`## TB-962` below). Prior: 2026-07-23 (**TB-957**–**TB-959** opened — solo-operator multi-tenant LLM SaaS MVO observability: founder P0 enablement checklist + verified page path, cardinality-safe per-tenant / stuck-run degradation detection, canary create→execute→finalize synthetic that pages; GTM **M-119**/**M-120**; builds on ADR 0053 / **TB-329** Done, `prometheus_p0_rules.tf`, `archlucid-alerts.yml`, **TB-889**/**TB-758** probes — does not add another full SRE platform; see `## TB-957`–`## TB-959` below). Prior: 2026-07-22 (**TB-953**–**TB-956** opened — INV-003 transactional audit fail-closed: `LogOrThrow` for indefensible governance/finalize/identity events, Required `AuditEventTypes` registry + arch test forbidding `TryLogAsync`, Required-abandon alerting + domain/audit orphan probe, same-TX/outbox hardening; GTM **M-117**/**M-118**; does not reopen **TB-001** informational best-effort; see `## TB-953`–`## TB-956` below). Prior: 2026-07-22 (**TB-948** **Done** — `/help/cli-usage` technical-reference refinement: hierarchical index + in-page filter, copy-link deep anchors, wider reference column, landing summary, section-anchor drift guard, terminology guard; `help_cli_usage_technical_reference_refinement.md`; see `## TB-948` below). Prior: 2026-07-22 (**TB-936** **Done** — Alerts Conditions tab refinement on `/governance/alert-rules`: plain-language rule preview, finding terminology, alert priority vs finding severity, notification readiness panel, sample-mode guards, create pending/success UX; `alerts_conditions_page_refinement.md`; see `## TB-936` below). Prior: 2026-07-22 (**TB-949**–**TB-952** opened — prompt-injection resistance when agents must read customer docs/repo: untrusted-content prompt delimiters, `AllowedTools` fail-closed (empty ≠ unrestricted), indirect-injection adversarial corpus, agent side-effect surface inventory; GTM **M-115**/**M-116**; does not reopen **TB-082** Done dispatch guard or Content Safety precheck Done; see `## TB-949`–`## TB-952` below). Prior: 2026-07-22 (**TB-948** opened — Adoption friction P0: refine `/help/cli-usage` into a navigable, searchable technical-reference experience without diluting technical depth; hierarchical index over the flat ToC, in-page reference search, stable deep links, consistent field tables + wide desktop layout, labeled copy-safe examples, progressive disclosure, documentation-drift controls against authoritative metadata, internal-only material moved, "Day one developer" positioning prohibited with regression guard; deliverable `docs/architecture/help_cli_usage_technical_reference_refinement.md`; owner route workbook **HCX**; see `## TB-948` below). Prior: 2026-07-22 (**TB-928** **Done** — beta readiness auth configuration diagnostics: `operatorBaseUrlConfigured` + `localTrialIdentityConfigured` on `GET /v1/admin/auth/configuration-diagnostics`; `AuthBetaReadinessDiagnosticsEvaluator`; identity-providers checklist steps; invite accept returns 503 ProblemDetails when LocalIdentity misconfigured; `LIVE_E2E_JWT_SETUP.md`; see `## TB-928` below). Prior: 2026-07-22 (**TB-915** promoted **V2 → V1** + expanded; **TB-946**–**TB-947** opened — Container Apps scale-rule mix for LLM-bound vs CPU-bound phases: HTTP concurrency + CPU (+ optional memory), single-signal micro-drill harness before **TB-905** launch load, API max-replicas sizing vs bulkhead/AOAI TPM; GTM **G-SCALE-01**/**G-SCALE-02**; see `## TB-915`, `## TB-946`, `## TB-947` below). Prior: 2026-07-22 (**TB-937**–**TB-945** opened — multi-step agent pipeline failure modes beyond Polly/circuit-breaker/429: partial-run contract, selective re-execute, run budget reservation, completion-cache admission, per-step spend cap, downstream consistency, zombie reconciliation, semantic-failure classification, chaos suite; see `## TB-937` through `## TB-945` below). Prior: 2026-07-22 (**TB-936** opened — Adoption friction P0: refine `/governance/alert-rules` **Conditions** tab (`?tab=rules`) into a plain-language alert-rule workflow; terminology (finding vs recommendation), alert priority vs finding severity, live rule preview, scope/readiness, sample-mode + Internal ops guards; deliverable `docs/architecture/alerts_conditions_page_refinement.md`; owner route workbook **GLR**/**GOA**; see `## TB-936` below). Prior: 2026-07-22 (**TB-933**–**TB-935** opened — UI performance next-wave after **TB-691**–**TB-698**: `/reviews/[runId]` First Load JS deferral, `/reviews`+`/governance` bundle cut, TanStack Query + virtualization for remaining high-churn lists; pairs field CWV **G-QA-06** / triage **M-112**; see `## TB-933` through `## TB-935` below). Prior: 2026-07-22 (**TB-927** **Done** — private-beta invitee accept→session→Operator first-action smoke: harness `POST /v1/e2e/platform-users`, `acceptInvitationAsPlatformUser`, invitee-principal `createRun`/list polling; CI `LocalIdentity` PEM + `LIVE_E2E_HARNESS_SECRET`; `LIVE_E2E_JWT_SETUP.md`; see `## TB-927` below). Prior: 2026-07-22 (**TB-875** **Done** — cloud-aware Aws/Gcp agent system/user prompts via `CloudProviderAgentPromptComposer`; golden cohort fixtures + `AgentUserPromptCloudTargetTests`; GCP cost guidance omits Azure retail catalog wording; see `## TB-875` below). Prior: 2026-07-22 (**TB-929**–**TB-932** opened — JSON payload-shape follow-on from backend performance assessment H2 / **TB-577** remainder: list-path `*Json` projection audit, run-detail summary + lazy-load, typed cost/finding scalars out of `TraceJson`/`PayloadJson`, V2 blob offload when measured; see `## TB-929` through `## TB-932` below). Prior: 2026-07-22 (**TB-927** + **TB-928** opened — private-beta access-path P0 follow-up from assessment `latest_beta_access_202607211939.md`: invitee accept→session→Operator first-action smoke extends **TB-797**; auth configuration-diagnostics surfaces `OperatorBaseUrl` + `LocalIdentity` beta blockers; see `## TB-927` / `## TB-928` below). Prior: 2026-07-22 (**TB-926** **Done** — `/digests?tab=subscriptions` delivery destinations workflow: readiness panel, channel-aware create form, masked list, sample guards; `architecture_digest_subscriptions_refinement.md`; see `## TB-926` below). Prior: 2026-07-22 (**TB-925** **Done** — JwtBearer scope-binding regression: integration tests for `/v1/scope` + admin invitations; `assertJwtScopeBindingRejectsForgedTenantHeader` in private-beta suite; `LIVE_E2E_JWT_SETUP.md`; see `## TB-925` below). Prior: 2026-07-21 (**TB-890** **Done** — showcase QuickNav anonymous read contract: `showcase-quick-nav-contract.ts` gates operator deep links; sign-in CTA when static fallback off; Vitest + Playwright; `ui_routes.md`; see `## TB-890` below). Prior: 2026-07-21 (**TB-926** opened — Adoption friction P0: refine `/digests?tab=subscriptions` only — customer-goal delivery workflow, channel-aware destinations, distinct schedule vs subscription readiness, safe test delivery, sample/public guards, Internal ops nav regression; deliverable `docs/architecture/architecture_digest_subscriptions_refinement.md`; owner route workbook **DIX**; see `## TB-926` below). Prior: 2026-07-21 (**TB-925** opened — private-beta access-path P0: live API forged `x-tenant-id` overrides authenticated tenant scope; claims-win + ScopeIdentityBindingMiddleware must hold under JwtBearer; Cursor prompt from assessment `latest_beta_access_202607211939.md`; see `## TB-925` below). Prior: 2026-07-21 (**TB-881** **Done** — RC12 registration duplicate-organization conflict regression: assembly-level `DisableTestParallelization`, `RegistrationDuplicateOrganizationRegressionTests` guards `xunit.runner.json` + `ArchLucidEnvMutation` collection; prior `IntegrationTestSqlCatalogEnvironment` catalog pins retained; see `## TB-881` below). Prior: 2026-07-21 (**TB-889** **Done** — production showcase availability gate: `hosted-saas-probe.yml` probes `/showcase/claims-intake-modernization` (`showcase_ok` in artifact); `archlucid-ui/e2e/showcase-production-availability.spec.ts` (`@release-smoke`); `FOUNDER_UI_ACCEPTANCE_ROUTINE.md` + optional `ARCHLUCID_STAGING_UI_BASE_URL`; see `## TB-889` below). Prior: 2026-07-21 (**TB-874** **Done** — Terraform AWS/GCP canonical classification closure: `ConnectorIntakeParserService` CloudProvider inference for aws/google imports, GCP parser/simple-terraform tests, golden corpus cases 06–07, parse→enrich integration test, `InfrastructureCostSummaryNotesTests`; see `## TB-874` below). Prior: 2026-07-21 (**TB-902** **Done** — Quick Scan public release gate assessment: **YELLOW** (sample-only public release); evidence matrix `.local/owner/quick_scan_public_release_gate.md`; production `AnonymousExecutionEnabled: false` + `SampleFallbackEnabled: true`; see `## TB-902` below). Prior: 2026-07-21 (**TB-901** **Done** — Quick Scan adversarial cost/abuse test suite: `QuickScanAdversarialCostAbuseTests` (15 scenarios), `QuickScanAdversarialMarketingApiTests` (4 HTTP scenarios), `run-quick-scan-adversarial-suite.ps1`, owner report `.local/owner/quick_scan_adversarial_test_report.md`; see `## TB-901` below). Prior: 2026-07-21 (**TB-900** **Done** — Quick Scan sample fallback + public capacity UX: `QuickScanPublicCapacityState` + resolver, fixed static sample provider, marketing status `capacityState`/`capacityStateMessage`, UI capacity messaging + App Insights conversion events; see `## TB-900` below). Prior: 2026-07-20 (**TB-903** promoted **V2 → V1** and scope finalized with owner — production posture-tier assertion now requires private endpoints (no public-access carve-out) for Cosmos/Redis/SQL/Storage/Key Vault, Front Door WAF stays Standard tier with unsupported managed-rule blocks removed from `frontdoor.tf`, full secondary-region stack + SQL failover group required in staging/production (staging SQL failover has a documented drill-window waiver matching **TB-905**), and a new prerequisite to fix `terraform-private`'s manual public-access-flip step with a cross-root check; size revised M → L; see `## TB-903` below). Prior: 2026-07-20 (**TB-898** **Done** — Quick Scan emergency kill switch: runtime SQL override + admin API + cached operational provider; fail-closed in Production/Staging when store unreadable; marketing/concurrency/budget/orchestrator enforcement; `docs/operations/quick-scan-emergency-shutdown.md`; see `## TB-898` below). Prior: 2026-07-20 (**TB-896** **Done** — distributed Quick Scan concurrency + bounded queue: `IQuickScanDistributedConcurrencyStore` (SQL migration **287** + in-memory), `QuickScanDistributedConcurrencyService`, orchestrator admission before budget reserve; `QUICK_SCAN_BUSY`/`QUICK_SCAN_QUEUE_FULL`/`QUICK_SCAN_QUEUE_TIMEOUT`; see `## TB-896` below). Prior: 2026-07-20 (**TB-920**–**TB-924** opened — DTF/hand-rolled-outbox follow-up from the "when does outbox orchestration become worse than adopting a durable-execution framework" question (TB-302): **TB-920** shared outbox base (dedup 6 outboxes), **TB-921** formalized DTF-adoption trigger checklist, **TB-922** CI smoke coverage for the dormant `DtfAuthorityRunOrchestrator` seam, **TB-923** governance-approval-SLA notify-vs-auto-act decision (assessment-only), **TB-924** gated DTF cutover epic — blocked until **TB-921**'s gate fires, not required for V1 GA; see `## TB-920` through `## TB-924` below). Prior: 2026-07-20 (**TB-895** **Done** — anonymous marketing Quick Scan endpoint `POST/GET /v1/marketing/quick-scan`; shared `QuickScanExecutionOrchestrator`; `AiUsageFeature.QuickScan`; UI/proxy anonymous path without privileged bearer; see `## TB-895` below). Prior: 2026-07-20 (**TB-214** **Closed — Rejected**: owner decision — will not build a generic non-Azure/non-extractor evidence JSON upload path, in any scope or schema; the Azure extractor ZIP (plus Tier 2 hosted pollers **TB-402**/**TB-403** and Tier 1 inventory ZIP **TB-876**) remains the sole evidence ingest/citation contract; do not resurface in future assessment batches; see `## TB-214` below). Prior: 2026-07-20 (**TB-908** promoted **V2 → V1** — DDoS posture assessment (Front Door Standard baseline vs DDoS Network Protection); owner decision, not a GTM/marketing task, so it stays in this file rather than `GTM_BACKLOG.md`; Cursor may draft the decision doc + cost trade-off, owner still ratifies the posture; see `## TB-908` below). Prior: 2026-07-20 (**TB-894** **Done** — atomic global Quick Scan hourly/daily budget reservations: `IQuickScanGlobalBudgetReservationStore` (SQL migration **286** + in-memory), `QuickScanGlobalBudgetReservationService`, controller reserve/commit/release; concurrency tests; see `## TB-894` below). Prior: 2026-07-20 (**TB-919** **Done** — retired the deprecated run-lifecycle alias routes (`v1/requests`, `v1/runs/{runId}/submit`, `v1/runs/{runId}/manifest/finalize`); closes the coordinator strangler migration's last open item — TB-305's deferred "later sunset TB" placeholder plus ADR 0021 gate (iv); owner decision 2026-07-20: pre-release, no paying customer, safe to delete now rather than wait for the gate's customer-traffic trigger; see `## TB-919` below). Prior: 2026-07-20 (**TB-893** **Done** — `QuickScanModelPricingCatalogOptions` + `IQuickScanCostEstimator` pre-exec cost reservation; controller fail-closed before provider when `Safety.Enabled`; appsettings catalog overlays; `QuickScanCostEstimatorTests` + token estimator tests). Prior: 2026-07-20 (added **TB-903**–**TB-918** — Azure Well-Architected Framework deviation review **V2** cluster (five-pillar repo review 2026-07-20; canvas `azure-waf-deviation-review.canvas.tsx`, IDE-only): production posture-tier plan assertion for opt-in flags (**TB-903**), storage security + redundancy baseline (**TB-904**), executed reliability/load drills with recorded RTO/RPO (**TB-905**), Redis/Cosmos managed-identity data plane (**TB-906**), secret expiry + rotation automation (**TB-907**), DDoS posture assessment (**TB-908**), cost anomaly detection + subscription rollup budget (**TB-909**), cross-stack FinOps tagging (**TB-910**), reservation applicability assessment (**TB-911**), brownfield import retirement (**TB-912**), scheduled Terraform drift detection (**TB-913**), production chaos decision gate (**TB-914**), CPU-based Container Apps scale rules (**TB-915**), consumed OpenAI/Search capacity assertions (**TB-916**), Cosmos indexing policy + partition-skew monitoring (**TB-917**), ACR geo-replication dead-variable resolution (**TB-918**); deviations already tracked elsewhere were **not** duplicated — Quick Scan spend ceiling (**TB-893**–**TB-902**), Terraform root/state consolidation (**TB-655**), multi-region active/active (committed V1.1, `V1_DEFERRED.md` §6l)). Prior: 2026-07-20 (**TB-892** **Done** — `QuickScanSafetyOptions` + fail-closed `QuickScanSafetyOptionsValidator`, host `ValidateOnStart`, appsettings Safety overlays, 8 unit tests; enforcement deferred to TB-893–TB-898). Prior: 2026-07-20 (**TB-888** **Done** — public showcase illustrative-sample disclosure copy; `showcase-disclosure-copy.ts`, buyer-safe banners on static/API-fallback showcase paths, Vitest + Playwright guards). Prior: 2026-07-19 (**TB-887** **Done** — public showcase static-first SSR for `claims-intake-modernization`; `showcase-page-resolution.ts`, static-first branch + API 404 fallback in `(marketing)/showcase/[runId]/page.tsx`, Playwright `showcase-static-first.spec.ts`, `DEMO_PREVIEW.md` deploy posture). Prior: 2026-07-19 (added **TB-892**–**TB-902** — anonymous Quick Scan public-safety cluster from [`quick_scan_budget_safety_assessment.md`](../architecture/quick_scan_budget_safety_assessment.md) + rewritten prompts [`quick_scan_public_safety_prompts.md`](../architecture/quick_scan_public_safety_prompts.md): safety config, pricing/cost estimate, atomic global budgets, anonymous endpoint + execution bounds, concurrency/queue, identity abuse limits, kill switch, telemetry, sample fallback, adversarial tests, release gate; GTM **M-109**–**M-110**, **G-QA-05**). Prior: 2026-07-19 (added **TB-887**–**TB-891** — public showcase `/showcase/claims-intake-modernization` cluster from [`showcase_claims_intake_modernization_assessment_2026_07_19.md`](../architecture/showcase_claims_intake_modernization_assessment_2026_07_19.md): static-first SSR, illustrative-sample disclosure copy, production availability gate, QuickNav anonymous read contract, render-mode telemetry; GTM **M-107**–**M-108**, **G-QA-04**). Prior: 2026-07-19 (closed tech **TB-135** / **TB-136** — owner closed engineering-side assurance tracking; GTM owner work remains open as **G-REAL-05** / **G-ASSURANCE-02**; does not claim CPA SOC 2 or third-party pen-test publication). Prior: 2026-07-19 (added **TB-882**–**TB-886** — `LATEST_GPT55.md` §17 Tier 3 hold candidates that lacked TB rows: nav-authority/label CI guard, live-model Graph-RAG ablation signal, policy-pack attribution signal, compounding-evidence ledger, tamper-evident manifest-verify buyer docs; remain **Hold for reassessment** pending G-REAL-06 unless owner promotes). Prior: 2026-07-19 (added **TB-881** — RC12 registration duplicate-organization conflict regression; release-candidate blocker; leading hypothesis is a process-wide env-var race in `IntegrationTestSqlCatalogEnvironment` across parallel xUnit collections). Prior: 2026-07-19 (summary-table **V2 window** — all **V2** rows at bottom; IDs unchanged; **TB-686** remains **V1**). Prior: 2026-07-19 (closed **TB-673** — archive hygiene program Done; batches A/B executed, [`TECH_BACKLOG_OPEN.md`](TECH_BACKLOG_OPEN.md) curated; added **TB-878**–**TB-880** — promoted RAG-V2-002 iterative retrieve-critique-retry loop + RAG-V1.1-003/004; **GTM purge wave 2** — removed **TB-640**, **TB-161**–**TB-163**; canonical in [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md)). Prior: 2026-07-19 (added **TB-877** — community summarization Graph-RAG / RAG-V2-001 remainder; ADR 0057 option (a) owner override). Prior: 2026-07-19 (added **TB-874**–**TB-876** — remaining V1_SCOPE §2.19 multi-cloud analysis P1 cluster: Terraform AWS/GCP CanonicalObject classification + illustrative cost/service labels; cloud-aware agent context; Tier 1 customer-controlled inventory ZIP; live pricing already **TB-603** Done). Prior: 2026-07-19 (**GTM purge** — removed GTM-only **TB-141**, **TB-142**, **TB-164**, **TB-236**; canonical tracking in [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md)). Prior: 2026-07-19 (**TB-752** closed — signed records App Router physical relocation: `(operator)/signed-records/**`; `/manifests/*` permanent redirects retained; rewrite shim removed). Prior: 2026-07-19 (**TB-685** closed — Azure OpenAI Batch API for offline LLM paths: `IBatchAgentCompletionClient`, `AzureOpenAiBatchCompletionClient`, `ArchLucid:LlmBatch` options, batch-routing judge/manifest clients with sync fallback, OTel `archlucid_llm_batch_*` counters, nightly trend metadata step). Prior: 2026-07-19 (**TB-871** closed — Settings → AI and Model Governance: `/settings/model-governance` admin page (`ModelGovernanceSettingsCard`), `GET /v1/admin/settings/model-governance-catalog`, wizard per-review profile picker + payload, `GeneratedByModelAliasDisclosure` on review/finding outputs, forensics model-alias column, audit event friendly titles; `ModelAlias` on finding inspect). Prior: 2026-07-18 (**TB-870** closed — workspace model-governance policy: `WorkspaceModelExecutionProfileService`, `ModelExecutionProfileResolver`, admin `GET/PUT/DELETE /v1/admin/settings/model-execution-profile`, per-review override on `ArchitectureRequest`, `ModelTierOverride` via `RunStarterTaskFactory`, audit events; unit/API tests). Prior: 2026-07-18 (**TB-869** closed — model alias & capability registry: `ConfigAgentModelAliasRegistry`, `AgentModelAliasResolver`, tier-router ambient binding, `ModelAlias` on `AgentExecutionTrace`; fail-closed task approval; drift tests). Prior: 2026-07-18 (**TB-753** closed — Settings AI usage physical path: `(operator)/settings/ai-usage/**`; removed `/settings/ai-usage` rewrite shim; `/settings/cost-reporting` permanent redirect retained). Prior: 2026-07-18 (**TB-721** closed — browser print stylesheet for public `/help/{topic}` docs: `HelpTopicPrintButton`, export-actions chrome hidden in `@media print`, complements static PDF downloads from **TB-723**/**TB-726**). Prior: 2026-07-18 (**TB-737** closed — security & trust consolidation: public assurance downloads on `/trust`; canonical `trust-center.md`; pointer stubs; `/trust` vs `/security-trust` differentiation). Prior: 2026-07-18 (**TB-736** closed — marketing first-run consolidation: `/quick-start` → `/get-started` redirect; guided-trial CTAs hand off to `/onboarding`; `marketing-surface-hygiene` regression guard; procurement FAQ cross-link). Prior: 2026-07-18 (**TB-734** closed — `/help` Guides vs Documentation split by `contentKind`; `HelpDocumentationGuide`, browse labels, settings links; Vitest). Prior: 2026-07-18 (added **TB-869**–**TB-873** AI model chooser cluster — alias/capability registry, workspace model-governance policy, admin UI + output visibility, gated customer-provided Azure OpenAI connection, gated OpenAI-compatible adapter; ADR 0060 drafted resolving the **TB-689** decision gate; source [`ai_model_chooser_plan_review_2026_07_18.md`](../architecture/ai_model_chooser_plan_review_2026_07_18.md)). Prior: 2026-07-18 (**TB-733** closed — context-sensitive help registry + inline popover on six operator pages; `contextual-help-registry.ts`, `PageScopedContextualHelpPanel`, `PageContextualHelpButton` registry-first path, content-constraint Vitest). Prior: 2026-07-18 (**TB-747** closed — create-vs-review intake copy: evidence-first quick review progress, drafting-first architecture draft workspace + `/architectures/new` lead, `create-vs-review-intake-copy.ts` + Vitest guard). Prior: 2026-07-18 (**TB-748** closed — route traffic template synced to canonical catalog; `assert_ui_route_traffic_workbook_canonical.py` + Vitest guard; `ui_routes.md` page count 142). Prior: 2026-07-18 (**TB-746** closed — `POSITIONING.md` evidence-package-first §0 + positioning statement; `BRAND_SYSTEM.md` cross-link; `positioning-doc-guard.test.ts`). Prior: 2026-07-18 (**TB-743** closed — billing meter buyer vocabulary: architecture packages/month on pricing cards, billing settings, and `PRICING_PHILOSOPHY.md`; `billing-meter-vocabulary.ts` + Vitest). Prior: 2026-07-18 (**TB-659** closed — onboarding persona map in `START_HERE.md`; `demo-quickstart` archived; quickstart filename CI guard). Prior: 2026-07-18 (**TB-697** follow-up — `ArchitectureCreateWorkItemSection` + `ArchitectureSponsorSharingPanel` deferred on `/reviews/[runId]`). Prior: 2026-07-17 (**TB-865** closed — `optimizePackageImports` allowlist drift guard extends TB-565 Vitest). Prior: 2026-07-17 (**TB-862** closed — `reactflow-import-policy.test.ts` guards reactflow importers + dynamic graph surfaces). Prior: 2026-07-17 (**TB-861** closed — `archlucid-ui/package.json` `engines.node >=22` matches Dockerfile `node:22-alpine` and CI `node-version: "22"`). Prior: 2026-07-17 (**TB-858** closed — removed unused `@microsoft/applicationinsights-react-js` from `archlucid-ui/package.json`; lockfile pruned; telemetry remains on dynamic `@microsoft/applicationinsights-web` in `telemetry.ts`). Prior: 2026-07-17 (**TB-758** closed — recommended `SMOKE_SYNTHETIC_PATH=/api/auth/me`; deployment-evidence sends `X-Api-Key` only on synthetic GET; `verify-cd-synthetic-path-vars.ps1` + bootstrap; bash parity). Prior: 2026-07-17 (**TB-757** closed — `warmup-retry.ts` bounded GET retry on 502/503 + transport failures; proxy `upstream_warmup_retry` logs; server RSC direct GET retry in `http.ts`; Vitest). Prior: 2026-07-17 (**TB-755** closed — `api_revision_mode = Multiple` in staging/production tfvars examples; `verify-cd-canary-vars.ps1` + bootstrap sets `CD_CANARY_ENABLED`/`10`/`3`; canary checklist in `GITHUB_CD_ENVIRONMENTS.md` + `DEPLOYMENT_CD_PIPELINE.md` + `CANARY_DEPLOYMENT.md`). Prior: 2026-07-17 (**TB-754** closed — `verify-cd-post-deploy-retry-vars.ps1` audits/`-Apply` sets `CD_POST_DEPLOY_MAX_ATTEMPTS=6` + `CD_POST_DEPLOY_RETRY_WAIT_SECONDS=10`; cold-start checklist in `GITHUB_CD_ENVIRONMENTS.md` + `DEPLOYMENT_CD_PIPELINE.md`; bootstrap re-verifies). Prior: 2026-07-17 (**TB-765** closed — `review-guide` added to `HELP_CENTER_FEATURED_SLUGS` for `/help` landing-grid browse discovery; Vitest). Prior: 2026-07-17 (**TB-763** closed — `/graph` `GraphEvidenceTrailGuidanceDisclosure` links to `/help/evidence-trail` via `page-help-topic-map` + `InAppHelpLink`; Vitest). Prior: 2026-07-17 (**TB-731** closed — UI Container App CPU/replica saturation metric alerts + Prometheus signup funnel thresholds in `infra/terraform-monitoring`; optional first-tenant funnel workbook; concrete §6 thresholds in `MARKETING_PRODUCT_SEPARATION_ASSESSMENT.md`; mirrored in `archlucid-alerts.yml`). Prior: 2026-07-17 (**TB-728** closed — `pilot-roi-model` buyer-safe content redaction in `PILOT_ROI_MODEL.md`; `HELP_CENTER_TIER_BY_SLUG` → `product`; `pdfStatus: public`; `check_public_pdf_safety.py` pass). Prior: 2026-07-17 (**TB-727** closed — `product-overview`, `evidence-only-review`, and `data-handling-tenant-isolation` registry entries via `sectionAnchors` on existing markdown). Prior: 2026-07-17 (**TB-726** closed — role-gated `GET /api/help/[slug]/pdf` for customer-tier docs + help topic Download PDF button). Prior: 2026-07-17 (**TB-696** closed — AppShell idle-deferred tour/wizard/demo overlays + dynamic footer/main affordances). Prior: 2026-07-17 (**TB-695** closed — governance findings queue on TanStack Query with bounded fallback summary fan-out). Prior: 2026-07-17 (**TB-868** closed — document shell `no-store` + immutable static override in `next.config.ts`; `archlucid:build-commit` HTML meta; required CD smoke `ui_public_shell_build_id` on cache-bypass `/welcome`; `FRONTEND_SHELL_CACHE.md` + Front Door honor-origin docs). Prior: 2026-07-17 (**TB-792** closed — `SUPPORT_PROBLEM_REPORT_TRIAGE.md` runbook: Report reference SQL lookup, App Insights queries (TB-329 tags), bundle checklist, next-business-day SLA, private-beta inbox escalation; linked from `TROUBLESHOOTING.md` + support bundle `references.json`). Prior: 2026-07-17 (**TB-868** opened — eliminate stale frontend/CDN app shell after successful CD: HTML/shell cache policy, Front Door/CDN purge posture, cache-bypass public-page BUILD_ID check, cache-propagation docs; hashed `/_next/static` + BUILD_ID smoke already shipped). Prior: 2026-07-17 (**TB-791** closed — Report Problem error-site sweep + Vitest/registry drift guards: `report-problem-surfaces-guard.ts`, per-surface fixture tests, `/403` + malformed review/export failures wired; warn-only mailto drift script). Prior: 2026-07-17 (**TB-790** closed — Report problem help topic, Settings → Support primary path, troubleshooting cross-links, trust-center responsiveness copy). Prior: 2026-07-17 (**TB-789** closed — in-app acknowledgement + submitter email auto-ack with next-business-day SLA; `SupportProblemReportCopy`, `NotifySubmitterAsync`, `IActorContext.TryGetSubmitterMailbox`). Prior: 2026-07-16 (**TB-867** closed — ServiceNow/ITSM settings+health used primary SQL catalog; PD-002). (**TB-787** closed — consent-gated optional redacted support bundle attach on problem report intake; `SupportProblemReportService` + UI checkbox). Prior: 2026-07-16 (**TB-788** closed — `POST /v1/support/problem-reports` intake API + migration **278** `dbo.SupportProblemReports`; scope-aligned redacted envelope; `SupportProblemReportSubmitted` audit + `Email:SupportInbox` notifier; UI `report-problem-intake-api.ts` wired; API/integration tests). Prior: 2026-07-16 (**TB-786** closed — registry-gated `FatalPageReportProblemAction` on reviews hub malformed response, review load failure, governance queue load fail, and review-detail transient failures; tertiary email support link; Vitest). Prior: 2026-07-16 (**TB-785** closed — Report Problem wired into `OperatorApiProblem` + `OperatorLayeredConnectivityError` via `OperatorReportProblemAction`; registry gating excludes validation-only 400; Vitest). Prior: 2026-07-15 (**TB-797** closed — `live-api-private-beta-access.spec.ts` + `live-private-beta-access.ts` helpers; merge-blocking CI job **`ui-e2e-live-beta-access`** with `NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt-bearer`; mint script scope claims; invite→session→`/me`→review→expiry recovery→deep-link). Prior: 2026-07-15 (**TB-796** closed — unsigned JWT operator deep links redirect to `/auth/signin?returnUrl=` via `OperatorRoleGate` + `buildAuthSignInHref`; Vitest guards). Prior: 2026-07-15 (**TB-795** closed — extended `UsersAdminInvitationEndpointTests` (401/403/409/cross-tenant/expired/role matrix); `live-api-invite-flow.spec.ts` in `ui-e2e-live-jwt` + `ui-e2e-live-apikey`; expired invite display + active-pending lookup fix). Prior: 2026-07-15 (**TB-794** closed — invite UI truthful failures + pending-invitations panel wired to TB-793 APIs; role-assignment preview-success removed). Prior: 2026-07-15 (**TB-793** closed — tenant-scoped user invitation admin API + `dbo.UserInvitations` migration **277**; `UsersAdminController`; Dapper/in-memory repositories; API integration tests). Prior: 2026-07-15 (**TB-782** closed — `REPORT_PROBLEM_V1_SCOPE.md` + `report-problem-surfaces.ts` registry + `report-problem-copy.ts` SLA/consent constants; `AGENTS.md` pointer; Vitest drift guards). Prior: 2026-07-15 (**TB-793–TB-797 added** — private-beta access-path P0 cluster from the private-beta access-path blocker assessment (`docs/assessments/private_beta_access_prompt_07152026.md` → `latest_beta_access_202607151210.md`, gitignored): invite UI has no backend (**TB-793** admin API + DDL, **TB-794** UI truthful-failure + pending list, **TB-795** companion tests), signed-out operator deep links discard their target and land on `/welcome` (**TB-796**), and a canonical JwtBearer smoke test gates any beta invite wave (**TB-797**) — see `## TB-793` below). Prior: 2026-07-15 (**TB-781** closed — Organization-Private policy pack `DistributionScope`; migration **276**; catalog promote guard; UI badge + `DEFAULT_POLICY_PACKS_V1.md` trust copy). Prior: 2026-07-15 (**TB-782–TB-792** added — Report Problem / support-as-product V1 cluster from OpenAI private-beta trust discussion + owner next-business-day SLA decision; see `## TB-782` below). Prior: 2026-07-15 (**TB-764** closed — `/help/review-guide` narrowed to wizard field-reference in `REVIEW_GUIDE.md`; shared `REVIEW_SCOPE_HELP_EXPLANATION` + workspace-scope disambiguation in `focused-pilot-mode-policy-packs.ts`; bidirectional related-guide links; `review-guide-doc-guard.test.ts` + `HelpTopicReviewGuide.test.tsx`). Prior: 2026-07-15 (**TB-762** closed — `/help/evidence-trail` now renders `EVIDENCE_TRAIL_OPERATOR_GUIDE.md` (Evidence graph traceability); `getting-started` remains sole owner of `CONCEPTS_IN_5_MINUTES.md`; `product-documentation-registry.test.ts`). Prior: 2026-07-15 (**TB-781** added — Organization-Private policy pack `DistributionScope` as V1 trust capability; see `## TB-781` below). Prior: 2026-07-15 (**TB-771** closed — Teams integration provider-neutral secret-store copy in `teams-integration-page-copy.ts`; Azure Key Vault only in hosted footnote; `teams-integration-page-copy.test.ts` + `customer-integration-copy-guard.ts`). Prior: 2026-07-15 (**TB-770** closed — `FAQ.md` + `CI_CD_INTEGRATION_GUIDE.md` state first-party Jira/ServiceNow/Teams/Slack V1 GA; stale V1.1 ITSM deferral copy removed; guarded by `assert_v1_connector_catalog_alignment.py`). Prior: 2026-07-15 (**TB-769** closed — welcome `WELCOME_USE_CASE_CARDS` multi-cloud parity: AWS WAF + GCP Architecture Framework peers, zero Azure-only framework cards; `welcome-marketing-copy.test.ts`). Prior: 2026-07-15 (**TB-768** closed — `/why` competitive table tenant isolation row uses buyer-safe catalog copy in `why-comparison.ts`; aligned with `COMPETITIVE_LANDSCAPE.md`; `why-comparison.test.ts` + `check_why_table_alignment.py`). Prior: 2026-07-15 (**TB-780** closed — `WORKFLOW_RECIPES_BY_PERSONA.md` leads numbered steps with review export vocabulary; `/v1/pilots/` paths demoted to collapsed API alias subsection; `workflow-recipes-doc-guard.test.ts`). Prior: 2026-07-15 (**TB-779** closed — welcome `WELCOME_DEFAULT_POLICY_PACK_BASELINE_NOTE` discloses Azure-default bundled packs until AWS/GCP review target). Prior: 2026-07-15 (**TB-778** closed — sample/demo CTA Azure-reference labels on `RUNS_EMPTY`/`GRAPH_IDLE`/`RUNS_EMPTY_COMPACT` + buyer-polished graph idle via `evidence-graph-page.ts`; `/try` body discloses Azure reference + fabricated data; `empty-state-presets.test.ts` guards). Prior: 2026-07-15 (**TB-777** closed — connector summaries + help index scrub `Integrations:*` from customer-visible copy). Prior: 2026-07-15 (**TB-776** closed — integration copy regression guards for Teams/ITSM surfaces). Prior: 2026-07-12 (**TB-767ΓÇôTB-780 added** ΓÇö customer-facing cloud neutrality P0 cluster from [`customer_facing_cloud_neutrality_assessment.md`](../architecture/customer_facing_cloud_neutrality_assessment.md): ITSM Jira/ServiceNow copy purge (**TB-767**), `/why` tenant-isolation row (**TB-768**), welcome use-case multi-cloud parity (**TB-769**), stale ITSM V1 GA docs (**TB-770**), Teams secret-store wording (**TB-771**), health + finish-setup labels (**TB-772**), cloud-neutral intake placeholders (**TB-773**), marketing try/get-started auth copy (**TB-774**), wizard inventory no Azure default when `None` (**TB-775**), integration copy regression guards (**TB-776**), connector status + help-index scrub (**TB-777**), sample CTA Azure-reference labels (**TB-778**), default policy-pack baseline disclaimer (**TB-779**), workflow doc pilots API alias (**TB-780**) ΓÇö copy-paste prompts in [`customer_facing_cloud_neutrality_P0_IMPLEMENTATION_PROMPTS_2026_07_12.md`](../architecture/customer_facing_cloud_neutrality_P0_IMPLEMENTATION_PROMPTS_2026_07_12.md); see `## TB-767` below). Prior: 2026-07-12 (**TB-760ΓÇôTB-766 added** ΓÇö help review-and-architecture guidance IA assessment cluster from [`help_review_and_architecture_guidance_assessment.md`](../architecture/help_review_and_architecture_guidance_assessment.md): help-search-catalog "First review guide" mislabeling fix (**TB-760**, P0, confirmed bug), `evidence-intake`/`review-packages` de-duplication (**TB-761**, P0, **Path 2** chosen 2026-07-12), `evidence-trail` rewrite (**TB-762**, P1) + `/graph` outbound link (**TB-763**, P2), `review-guide` narrowing (**TB-764**, P1) + featured-grid add (**TB-765**, P2), and architecture-creation contextual help for the draft-vs-review distinction (**TB-766**, P0) ΓÇö see `## TB-760` below). Prior: 2026-07-12 (**TB-680 closed** ΓÇö hub-page IA contract in `NAV_CONFIG_CONTRACT.md` ┬º Hub pages; `onboarding-hub-contract.ts` + `onboarding-hub-drift-guard.test.ts`; `AGENTS.md` cross-link). Prior: 2026-07-12 (**TB-672 closed** ΓÇö Ask thread list `aria-current` + labeled `<nav>` on `AskThreadHistoryPanel`; `AskThreadHistoryPanel.test.tsx`). Prior: 2026-07-12 (**TB-670 closed** ΓÇö hand-rolled tab UIs migrated to TB-665 `Tabs`: `SettingsRolesPageView` (validated `?tab=` sync), `HelpTabsShell`, `HelpPanel`, `BuyerDeliverablesArtifactTabs`, `AdvisoryHubClient`; `enterprise-tabs-drift-guard.test.ts` + `AdvisoryHubClient.test.tsx`). Prior: 2026-07-12 (**TB-664 closed** ΓÇö prior-manifest operator guide at `/help/prior-manifest-retrieval`, finalize success hint in `CommitRunButton`, `PILOT_GUIDE.md` cross-link). Prior: 2026-07-12 (**TB-754ΓÇôTB-759 added** ΓÇö Container Apps cold-start mitigations that do **not** meaningfully raise Azure spend: verify CD post-deploy retries, enable canary+bake, avoid no-op revision thrash, UI proxy warm-up tolerance, cheap `SMOKE_SYNTHETIC_PATH`, cold-start measurement runbook ΓÇö see `## TB-754` below). Prior: 2026-07-11 (**TB-740 closed** ΓÇö architecture package origin badges: `PackageOrigin` on `dbo.Runs` + list DTOs; `WorkflowIntent` on draft/architecture requests; buyer-polished **Created** / **Reviewed** badges on home workspace rows and `/reviews` hub list). Prior: 2026-07-11 (**TB-751 closed** ΓÇö administration App Router physical relocation: `settings/security-trust`, `settings/users` (tabbed roles UI), and `settings/support` colocated under `(operator)/settings/**`; retired redundant `admin/users` tree; administration rewrite shims removed from `next.config.ts`; legacy `/workspace/security-trust`, `/admin/*`, and `/settings/roles` permanent redirects retained; `settings-admin-route-paths.ts` + `next.config.admin-routes.test.ts`). Prior: 2026-07-11 (**TB-750 closed** ΓÇö integrations App Router physical relocation: `(operator)/integrations/cloud-connections/**` colocated from settings; `integrations/operations` renamed to `integrations/readiness`; integrations rewrite shims removed from `next.config.ts`; legacy `/settings/cloud-connections` and `/integrations/operations` permanent redirects retained; `integrations-nav-paths.ts` + `next.config.integrations-routes.test.ts`). Prior: 2026-07-11 (**TB-749 closed** ΓÇö governance App Router physical relocation: alerts/audit/resolution/alert-rules + policy-packs `_sections` colocated under `(operator)/governance/**`; governance rewrite shims removed from `next.config.ts`; legacy URL permanent redirects retained). Prior: 2026-07-11 (**TB-742 closed** ΓÇö sample created architecture package: `CreatedSampleWorkspaceSeed` demo seed, `SHOWCASE_SAMPLE_CREATED_REGISTRY`, static `northwind-copilot-rag-platform` payload, home **Open created sample** CTA). Prior: 2026-07-11 (**TB-741 closed** ΓÇö born-governed creation output parity: home Create CTA deep-links to `/reviews/new?path=guided-intake`; `ReviewsNewPathSwitcher` honors `path=guided-intake`; `CreationOutputPipelineParityTests` + `DraftRequestProjectorTests` assert draft-intake shares quad-agent starter tasks incl. Critic and preserves intake transparency trail). Prior: 2026-07-11 (**TB-729 closed** ΓÇö UI Container App autoscaling headroom verified on `master`: `ui_max_replicas = 6`, `ui_scale_concurrent_requests = 10` defaults in `infra/terraform-container-apps` with HTTP scale rules on the existing UI Container App; no Front Door/origin split). Prior: 2026-07-11 (**TB-739 closed** ΓÇö Home evidence-package-first copy: evaluation tagline + born-governed create card body; review card **Recommended first** badge; sample-first recommended-next link; `OperatorHomeDualPathCards.test.tsx` + updated Pilot/recommended-next Vitest). Prior: 2026-07-11 (**TB-730 closed** ΓÇö operator shell access gate: `unsignedJwtSessionBlocksOperatorShell` defers sidebar/top bar on all deep-linked operator routes when JWT session is absent; `OperatorRoleGate` redirects unsigned sessions to `/welcome` and never paints page content pre-redirect; `operator-shell-access-gate.test.ts` + `OperatorRoleGate.test.tsx`). Prior: 2026-07-11 (**TB-738 closed** ΓÇö Architecture package vocabulary unification: sidebar/hub/home empty states use **Architecture packages** list noun; pilot nav caption; TB-738 terminology drift guards; `UI_GLOSSARY_V1.md` **Architecture package** row). Prior: 2026-07-11 (**TB-732 closed** ΓÇö IA taxonomy foundation: `docs/architecture/INFORMATION_ARCHITECTURE.md` five-category taxonomy; `product-documentation-content-kinds.ts` slugΓåÆ`contentKind` map on every registry topic; Vitest guards; cross-links in `DOCUMENTATION_BY_AUDIENCE.md` and `ui_routes.md`; no rendering change). Prior: 2026-07-11 (**TB-725 closed** ΓÇö public-PDF buyer-safety CI guard: `scripts/ci/check_public_pdf_safety.py` scans resolved markdown for every `pdfStatus: "public"` registry entry and fails on internal `/api/`/`/v1/` routes, source file paths, `Internal` section labels, localhost/env-var strings, and code names; blocking `public-pdf-buyer-safety` CI job + `run_guards_pre_corset.sh` wiring; Vitest-style unit tests in `test_check_public_pdf_safety.py`). Prior: 2026-07-10 (**TB-748ΓÇôTB-753 added** ΓÇö App Router physical Γåö nav canonical alignment phase 2 (owner bias: `page.tsx` tree matches sidebar URL prefixes; finish TB-405ΓÇô408 redirect-only shims): owner workbook canonical-path rows + drift CI (**TB-748**), governance physical relocation (**TB-749**), integrations cloud-connections + `readiness` folder rename (**TB-750**), administration settings physical relocation (**TB-751**), signed-records physical relocation (**TB-752**), `settings/ai-usage` physical rename (**TB-753**) ΓÇö see `## TB-748` below). Prior: 2026-07-10 (**TB-738ΓÇôTB-747 added** ΓÇö evidence-package-first positioning implementation cluster from [`CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`](../go-to-market/CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md): architecture-package vocabulary unification (**TB-738**), home copy + trust-ladder pass (**TB-739**), Created/Reviewed package badges (**TB-740**), born-governed creation output parity (**TB-741**), sample created package seed (**TB-742**), billing meter rename reviews ΓåÆ packages (**TB-743**), scorecard nav rename (**TB-744**), demo-script realignment (**TB-745**), `POSITIONING.md` alignment (**TB-746**), create-intake drafting UX (**TB-747**) ΓÇö see `## TB-738` below). Prior: 2026-07-10 (**TB-724 closed** ΓÇö PDF cover page and footer template: `ProductDocumentationPdfCoverFooterComposer` adds logo/title/version/audience/status cover page plus copyright + "Page N of M" footer on every page; `archlucid-dark.png` raster target in `generate-brand-raster.mjs`; build script passes `logoPath` metadata). Prior: 2026-07-10 (**TB-729ΓÇôTB-737 merged in** ΓÇö reconciled two satellite backlogs that had been kept out of this file while it had unrelated uncommitted changes: **TB-729ΓÇôTB-731** from `MARKETING_PRODUCT_SEPARATION_TECHNICAL_BACKLOG.md` (UI Container App autoscaling headroom instead of a new Front Door origin; harden `OperatorRoleGate`/`OperatorHomeGate` against pre-redirect shell exposure; instrument the marketing/product re-split trigger metric) and **TB-732ΓÇôTB-737** from `IA_TAXONOMY_TECHNICAL_BACKLOG.md` (help/documentation/marketing/trust information-architecture cluster: foundation doc + registry `contentKind` metadata, context-sensitive help extraction, `/help` Guides-vs-Documentation split, internal-runbook gating hardening, marketing surface hygiene, security & trust materials consolidation); both satellite files now point back here; no implementation in this pass ΓÇö see `## TB-729` below). Prior: 2026-07-10 (**TB-721ΓÇôTB-728 added** ΓÇö PDF documentation strategy cluster: build-time static PDF generation for buyer-safe help/security/technical docs, reusing `MarkdownPdfRenderer.cs` (QuestPDF) and the existing registry instead of a new PDF stack; browser-print Phase 0, registry `pdfStatus` field, cover/footer template, public-PDF buyer-safety CI guard, role-gated customer-tier PDF route, new registry entries via `sectionAnchors` reuse, and `pilot-roi-model` tier-reclassification review; owner directed strategy-only this session, no execution; canonical doc `docs/library/PDF_DOCUMENTATION_STRATEGY.md` ΓÇö see `## TB-721` below). Prior: 2026-07-10 (**TB-671 closed** ΓÇö decision register Cards/Timeline view switcher uses segmented-control semantics: `role="group"` + `aria-pressed`; labeled cards/timeline panels; `DecisionRegisterViewSwitcher.test.tsx`). Prior: 2026-07-10 (**TB-720 closed** ΓÇö per-cloud cloud-connection help pages: cloud-neutral hub + AWS/GCP dedicated `/help/cloud-connections/{aws,gcp}` topics; registry, search, breadcrumbs, and detail-client deep links). Prior: 2026-07-10 (**TB-720 added** ΓÇö per-cloud cloud-connection help pages AWS/Azure/GCP; cursor prompt `.cursor/prompts/tb-720-per-cloud-connection-help-pages.md`; owner scored `/signup` SIG Evidence dimension 1 ΓåÆ **100** post evaluation-signup polish). Prior: 2026-07-10 (**TB-693 closed** ΓÇö Lighthouse CI synthetic lab checks on `/welcome`, `/reviews`, `/reviews/claims-intake-modernization`, `/governance/findings` via `@lhci/cli` + mock-backed standalone server; warn-only budgets; CI job `ui-lighthouse-ci`; `docs/architecture/UI_LIGHTHOUSE_CI.md`). Prior: 2026-07-10 (**TB-684 closed** ΓÇö hosted quality-gate + RAG promotion: Staging/Production `EnforceOnReject`/`BlockRunOnReject`, `LlmJudge` + `LlmFaithfulness:EnforcePhaseB`, semantic reranking; Staging advanced retrieval (query rewrite, HyDE, Graph-RAG); Production defers advanced retrieval per **QUALITY_GATE_PROMOTION_PLAN.md**; `HostedRetrievalPromotionAppsettingsTests`). Prior: 2026-07-10 (**TB-718 closed** ΓÇö cloud-neutral policy pack evidence parity: `security-architecture-baseline` + `cost-optimization` curated rules cite Azure/AWS/GCP extractor manifests; bundled metadata sync (v1.1.1 / v1.0.1); `scripts/fix_cloud_neutral_policy_pack_evidence.py`; `check_policy_pack_content_quality.py` multi-cloud grounding guard). Prior: 2026-07-10 (**TB-716 closed** ΓÇö GCP data-layer security policy pack: **28** `gcp-data-*` curated rules in `gcp-data-layer-security-rules-v1.json` (peer-generated from `azure-data-layer-security` with GCP-native Cloud SQL/Spanner/BigQuery/GCS copy); bundled `gcp-data-layer-security.json`; `scripts/fix_gcp_data_layer_security_copy.py`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-10 (**TB-715 closed** ΓÇö AWS data-layer security policy pack: **28** `aws-data-*` curated rules in `aws-data-layer-security-rules-v1.json` (peer-generated from `azure-data-layer-security` with AWS-native RDS/DynamoDB/S3/KMS copy); bundled `aws-data-layer-security.json`; `scripts/fix_aws_data_layer_security_copy.py`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-10 (**TB-714 closed** ΓÇö GCP serverless & PaaS security policy pack: **28** `gcp-paas-*` curated rules in `gcp-paas-security-rules-v1.json` (peer-generated from `azure-paas-security` with GCP-native Cloud Run/Cloud Functions/VPC connector copy); bundled `gcp-paas-security.json`; `scripts/fix_gcp_paas_security_copy.py`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-10 (**TB-713 closed** ΓÇö AWS serverless & PaaS security policy pack: **28** `aws-paas-*` curated rules in `aws-paas-security-rules-v1.json` (peer-generated from `azure-paas-security` with AWS-native Lambda/API Gateway/App Runner/ECS Fargate copy); bundled `aws-paas-security.json`; `scripts/fix_aws_paas_security_copy.py`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-712 closed** ΓÇö GKE production baseline policy pack: **28** `gke-*` curated rules in `gke-production-baseline-rules-v1.json`; bundled `gke-production-baseline.json`; GCP-native Workload Identity/Cloud Logging/SCC copy; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-711 closed** ΓÇö EKS production baseline policy pack: **28** `eks-*` curated rules in `eks-production-baseline-rules-v1.json`; bundled `eks-production-baseline.json`; AWS-native IRSA/CloudWatch/GuardDuty copy; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-710 closed** ΓÇö GCP resiliency & disaster recovery policy pack: **28** `gcp-dr-*` curated rules in `gcp-resiliency-dr-rules-v1.json`; bundled `gcp-resiliency-dr.json`; GCP-native Cloud SQL/Cloud DNS/Cloud Deploy copy; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-709 closed** ΓÇö AWS resiliency & disaster recovery policy pack: **28** `aws-dr-*` curated rules in `aws-resiliency-dr-rules-v1.json`; bundled `aws-resiliency-dr.json`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-717 closed** ΓÇö CloudProvider-scoped default policy pack assignment: `ResolveStandardBaselineDisplayNames`, `DefaultPolicyPackCloudBaselineApplicator` on run create, `DefaultPolicyPackCatalogTests` + `DefaultPolicyPackCloudBaselineApplicatorTests`). Prior: 2026-07-09 (**TB-708 closed** ΓÇö GCP Landing Zone / resource hierarchy policy pack: **12** `lz-gcp-*` curated rules in `gcp-landing-zone-rules-v1.json`; bundled `gcp-landing-zone.json`; GCP-native org/Shared VPC/VPC-SC copy; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-707 closed** ΓÇö AWS Landing Zone / Control Tower policy pack: **12** `lz-aws-*` curated rules in `aws-landing-zone-rules-v1.json`; bundled `aws-landing-zone.json`; AWS-native Organizations/SCP/hub-spoke copy; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-706 closed** ΓÇö GCP Cloud IAM architecture baseline policy pack: **28** `iam-gcp-*` curated rules in `gcp-iam-baseline-rules-v1.json`; bundled `gcp-iam-baseline.json`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-705 closed** ΓÇö AWS IAM / Identity Center architecture baseline policy pack: **28** `iam-aws-*` curated rules in `aws-iam-baseline-rules-v1.json`; bundled `aws-iam-baseline.json`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-704 closed** ΓÇö CIS GCP Foundations Benchmark policy pack: **28** `cis-gcp-*` curated rules in `cis-gcp-foundations-rules-v1.json`; bundled `cis-gcp-foundations.json`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-703 closed** ΓÇö CIS AWS Foundations Benchmark policy pack: **28** `cis-aws-*` curated rules in `cis-aws-foundations-rules-v1.json`; bundled `cis-aws-foundations.json`; `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-702 closed** ΓÇö GCP Architecture Framework policy pack: 17 `waf-gcp-*` curated rules in `gcp-architecture-framework-rules-v1.json`; bundled `gcp-architecture-framework.json` promoted via **TB-719** manifest; content-quality CI + `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-701 closed** ΓÇö AWS Well-Architected Framework policy pack: 17 `waf-aws-*` curated rules in `aws-waf-rules-v1.json`; bundled `aws-waf.json` promoted via **TB-719** manifest; content-quality CI + `DefaultPolicyPackCoverageTests`). Prior: 2026-07-09 (**TB-719 closed** ΓÇö multi-cloud policy pack manifest/CI/GTM parity: `bundled-policy-packs-v1.manifest.json` expanded to **41** bundles (25 V1 GA + 16 AWS/GCP peers); `DefaultPolicyPackCoverageTests`/`DefaultPolicyPackBundledManifestTests`; `DEFAULT_POLICY_PACKS_V1.md`; content-quality CI). Prior: 2026-07-09 (**TB-683 closed** ΓÇö nightly real-mode eval loop: `real-mode-eval-nightly.yml` scores 18 committed `*.real.json` exemplars when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true`; JSON+Markdown trend artifacts; consecutive-night regression warn via `assert_real_mode_eval_consecutive_regression.py`; `test_real_mode_eval_trend.py`). Prior: 2026-07-08 (**TB-681 closed** ΓÇö static-first user prompts for Azure prompt-cache prefix hits; quad handlers + Ask/draft intake; Technology Ledger appended after static prefix; `archlucid_llm_cached_prompt_tokens_total` OTel counter). Prior: 2026-07-08 (**TB-682 closed** ΓÇö quality-gate auto-retry escalates `ModelTierOverride` EconomyΓåÆStandardΓåÆPremium; `EscalateTierOnRetry` default true; orchestrator + unit tests). Prior: 2026-07-08 (**TB-701ΓÇôTB-719 added** ΓÇö multi-cloud policy pack full-parity cluster: 16 AWS/GCP bundled packs mirroring 8 Azure-specific V1 GA packs, plus CloudProvider-scoped default assignment, cloud-neutral pack evidence-hint refresh, and manifest/CI/GTM promotion gate ΓÇö see `## TB-701` below). Prior: 2026-07-07 (**TB-694 closed** ΓÇö governance findings queue desktop table virtualization at 50+ rows via `@tanstack/react-virtual`; extracted row component; Vitest coverage). Prior: 2026-07-07 (**TB-692 closed** ΓÇö Core Web Vitals field telemetry via `web-vitals` + App Insights). Prior: 2026-07-07 (**TB-691ΓÇôTB-698 added** ΓÇö UI performance review cluster: broken Next 16 First Load JS bundle regression gate (**P0**), real Core Web Vitals field data collection (owner-requested), Lighthouse CI synthetic checks, governance-findings table virtualization + query migration, `AppShellClient` hydration surface trim, `/reviews/[runId]` bundle re-audit, and policy-pack authoring lazy-load ΓÇö see `## TB-691` below). Prior: 2026-07-07 (**TB-681ΓÇôTB-690 added** ΓÇö AI quality/cost/speed optimization cluster from 2026-07-07 architecture review: **TB-681**ΓÇô**TB-685** are **V1** (Azure OpenAI prompt-cache prefix ordering, escalation-based model-tier routing, nightly real-mode eval loop, promote quality gates + advanced RAG defaults, Batch API for offline LLM/judge paths); **TB-686**ΓÇô**TB-690** are **V2** (semantic chunking, prompt A/B iteration harness, per-tier model refresh cadence, multi-vendor LLM routing decision gate, fine-tuning activation gate ΓÇö see `## TB-681` below). Prior: 2026-07-07 (**TB-679 closed** ΓÇö onboarding trial/optional-setup copy drift: `GettingStartedTrialSection` checklist-on-this-page copy, optional-setup collapsed summary, home continue-setup body; tests). Prior: 2026-07-07 (**TB-639 closed** ΓÇö `ArchLucid.Api` post-triage genuine coverage gaps: unit + integration tests for TB-635 genuinely-untested bucket; `coverage-exclusions.md` ┬º TB-639 resolution table). Prior: 2026-07-07 (**TB-638 closed** ΓÇö `ArchLucid.Api` Integration-shard Coverlet measurement-gap documentation in `coverage-exclusions.md` and `COVERAGE_GAP_ANALYSIS.md`; skip-gate removal criteria). Prior: 2026-07-07 (**TB-637 closed** ΓÇö unit tests for `ArchLucid.Api` small-logic surfaces: `ComparisonResponseMapperTests`, `EvolutionOutcomeParserTests`, `MicrosoftOpenApiAnonymousSecurityOperationTransformerTests`; auth/mapper examples from triage already covered). Prior: 2026-07-07 (**TB-636 closed** ΓÇö `[ExcludeFromCodeCoverage]` on all 21 **TB-635** pure-DTO `ArchLucid.Api` types; `docs/library/coverage-exclusions.md` Category 2b table lists each file/class). Prior: 2026-07-06 (**TB-678 closed** ΓÇö role-gate `/onboarding` optional workspace setup on `principalAdmin`; non-admins see admin-delegation copy only). Prior: 2026-07-06 (**TB-674 closed** ΓÇö `/onboarding` renamed **First review guide**: `BUYER_ONBOARDING_PAGE_TITLE`, nav tooltip, home CTA, contextual help label). Prior: 2026-07-06 (**TB-676 closed** ΓÇö Finish setup wizard no longer duplicates Core Pilot cloud-inventory evidence step; `finish-setup-wizard-steps.ts` + regression tests). Prior: 2026-07-06 (**TB-621 closed** ΓÇö Review Package detail spacing/affordance pass: `OPERATOR_LAYOUT`/`OPERATOR_CARD` on summary layer + section cards; `REVIEW_TERMINOLOGY_REVIEW_PACKAGE_DETAIL_SURFACE_PATHS` terminology guard). Prior: 2026-07-06 (**TB-677 closed** ΓÇö Finish setup wizard links platform health to buyer-safe `/health`; health step hidden on managed SaaS via `NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED` / production default; `finish-setup-deployment.ts` + regression tests). Prior: 2026-07-06 (**TB-674ΓÇôTB-680 added** ΓÇö First review guide / onboarding hub redundancy audit cluster: rename Getting started ΓåÆ First review guide; derive Core Pilot checklist from tenant state; remove duplicate cloud-inventory setup step; customer-safe platform-health link (no `/admin/health` leak); role-gate workspace setup block; trial/copy drift fixes; hub-page do-not-duplicate IA contract + drift guard ΓÇö see `## TB-674` below). Prior: 2026-07-06 (**TB-673 batch B executed** ΓÇö archived Review Package detail sections **TB-617ΓÇô620**; **TB-621** remains open; **TB-622ΓÇô634** summary-only Done). Prior: 2026-07-06 (**TB-668 closed** ΓÇö `/governance/policy-packs` My packs / Catalog on TB-665 `Tabs` with `tabpanel` linkage; authoring segmented controls gain `aria-pressed`). Prior: 2026-07-06 (**TB-660 closed** ΓÇö reference-architecture exemplar library expanded to 10 indexed `ArchitectureRequest` JSON patterns under `templates/reference-architectures/**`; renamed `azure-data-pipeline-batch.json` (`.request.` suffix excluded from indexer); README pattern matrix; `ExemplarCorpusIndexerTests` + style-prior smoke). Prior: 2026-07-06 (**TB-669 closed** ΓÇö `/graph` buyer evidence trail Trace table / Graph view on TB-665 `Tabs`; graph-scope pills inside Graph `tabpanel`; Open graph view selects Graph tab). Prior: 2026-07-06 (**TB-667 closed** ΓÇö runs dashboard view switcher unified on TB-665 `Tabs` in buyer and operator shells; `All`/open-list links moved outside tablist; Archived toggle beside tablist; `tabpanel` wrappers + keyboard roving). Prior: 2026-07-06 (**TB-658 closed** ΓÇö `archlucid stack doctor` unified deployment readiness router over prerequisites, config lint, terraform drift preflight, and post-deploy HTTP verification by profile). Prior: 2026-07-06 (**TB-656 closed** ΓÇö user-assigned API/Worker Key Vault identities in `terraform-keyvault`; Container Apps attach + `key_vault_reference_identity_id`; TB-092 second pass retired by default). Prior: 2026-07-06 (**TB-673 batch A executed** ΓÇö archived Done detail sections **TB-642ΓÇô654**, **TB-657** to [`docs/library/TECH_BACKLOG.md`](TECH_BACKLOG.md) (summary **Done** rows); regenerated [`TECH_BACKLOG_OPEN.md`](TECH_BACKLOG_OPEN.md); **TB-655**/**TB-656** remain open). Prior: 2026-07-06 (**TB-673 added** ΓÇö TECH_BACKLOG done-item archive hygiene program ΓÇö see `## TB-673` below). Prior: 2026-07-06 (**TB-671ΓÇôTB-672 added** ΓÇö tab-candidate assessment "possible" tier triage: decision register Cards/Timeline segmented-control semantics; Ask thread list selection semantics; policy-pack authoring switcher semantics folded into **TB-668**; internal hub single-tab chrome already covered by **TB-670** ΓÇö see `## TB-671` below). Prior: 2026-07-06 (**TB-665ΓÇôTB-670 added** ΓÇö tab semantics UX cluster from 2026-07-06 tab-candidate assessment: shared accessible `Tabs` primitive; convert `/reviews/new` start-mode selector, overview runs dashboard, policy packs section switcher, and evidence graph view toggle; migrate nine hand-rolled tab UIs ΓÇö see `## TB-665` below). Prior: 2026-07-06 (**TB-654 closed** ΓÇö canonical `archlucid.stack.yaml` + `archlucid stack init`/`stack diff` generator; schema, example answers, Vitest drift guard). Prior: 2026-07-06 (**TB-657 closed** ΓÇö CD owns Container App runtime image tags; Terraform `lifecycle.ignore_changes` on API/worker/UI). Prior: 2026-07-06 (**TB-653 closed** ΓÇö UX audit harness drift guard + Playwright `testIgnore` hardening + skill maintenance cadence). Prior: 2026-07-06 (**TB-652 closed** ΓÇö UX audit harness + marketing `/welcome`/`/why` capture; `run-ux-audit.ps1`, dedicated Playwright projects, 30 PNG validation). Prior: 2026-07-06 (**TB-651 closed** ΓÇö canonical pipeline status labels via `PIPELINE_STATUS_BUYER_DISPLAY_LABELS` + `resolvePipelineStatusDisplayLabel`; vocabulary pass on list badges and stage names). Prior: 2026-07-06 (**TB-650 closed** ΓÇö operator health labels use product-language copy; `DATA_ARCHIVAL_HEALTH_LABELS` + `operator-health-label-guard` tests; archival banner, home strip, setup callout, post-commit tooltips). Prior: 2026-07-06 (**TB-648 closed** ΓÇö gate AI usage nav at AdminAuthority; relabel Internal Operations jargon). Prior: 2026-07-06 (**TB-645 closed** ΓÇö production-wide buyer vocabulary pass: `isBuyerVocabularyPassActive`, governance-mode Reviews labels, nav vocabulary wiring, terminology guard surfaces). Prior: 2026-07-05 (**TB-660ΓÇôTB-664 added** ΓÇö incremental RAG reference-architecture exemplar curation cluster from corpus-quality analysis: owner-reviewed exemplar library expansion under `templates/reference-architectures/**` (RAG-V1.1-001 content); curation runbook; `ReferenceArchitecture` IR golden cases; topology style-prior observability on run detail; prior-manifest commit guidance for Ask cross-run memory ΓÇö see `## TB-660` below). Prior: 2026-07-05 (**TB-654ΓÇôTB-659 added** ΓÇö setup/deployment simplification cluster from operator setup-complexity review: canonical `archlucid.stack.yaml` + `archlucid stack init` generator; user-assigned managed identities to retire TB-092 Key Vault second pass; CD-vs-Terraform Container App image ownership; `archlucid stack doctor` readiness router; Terraform three-root consolidation target; onboarding doc consolidation per persona ΓÇö see `## TB-654` below). Prior: 2026-07-05 (**TB-642ΓÇôTB-653 added** ΓÇö persona-driven UX audit 2026-07-05 cluster from `docs/architecture/UX_AUDIT_2026_07_05.md`: remove header AI budget pill for non-admin; default authenticated shell to buyer polish (authority-gate admin density); cloud-neutral intake defaults; production vocabulary pass; outcome-first intake CTA; split architect workflows from ops telemetry in sidebar; hide/relabel admin tools for non-admin; scope audit nav to review context; re-audit Service Bus/Azure infra health copy; pipeline/manifest vocabulary on status surfaces; extend UX audit capture to `/welcome`/`/why`; maintain Playwright UX audit harness + `lucid-ui-audit` skill ΓÇö see `## TB-642` below). Prior: 2026-07-05 (**TB-635ΓÇôTB-639 added** ΓÇö `ArchLucid.Api` merged-Cobertura triage cluster: classify gap-analysis classes vs `ArchLucid.Api.Tests` before exclusions or new tests; batch pure-DTO `[ExcludeFromCodeCoverage]`; cheap unit tests for auth patterns/mappers/validators; document Integration-shard Coverlet-off measurement gap (owner: keep Coverlet disabled on Integration shards); post-triage tests only for genuinely untested logic ΓÇö not metric gaming on Integration-covered controllers). Prior: 2026-07-05 (**TB-620 closed** ΓÇö Review Package detail section reorder per architect workflow: buyer finalized findings/evidence promoted above export actions and below-fold pipeline; operator findings lead below-fold; draft capture-evidence + progress tracker after proof status; `run-detail-architect-section-order.ts` + regression tests). Prior: 2026-07-05 (**TB-634 closed** ΓÇö "Internal Operations" mixed genuinely internal ArchLucid-employee surfaces (cross-tenant business data, `AdminAuthority`, no tenant-tier gate) with tenant-scoped and tenant-admin surfaces that only *appeared* internal because they sat behind `features.showSystemAdministrationNav` (defaults `false` in production, doc-commented "internal diagnostics, sales-ops, and employee tools"); a left-nav business-purpose review found 10 of 21 items were actually `[RequiresCommercialTenantTier(Standard)]` tenant features ΓÇö Recommendation tuning, Pilot feedback, Planning (all three also hit plain `ReadAuthority`/`ExecuteAuthority` policies scoped to "the caller's scope", not cross-tenant), Pilot value report, ROI report, Digests (same tier gate; `/planning`'s own empty state already links to `/product-learning` as a companion feature, proving both were meant to be reachable by real tenants) ΓÇö or tenant-admin settings where `AdminAuthority` means the tenant's own IT admin, not an ArchLucid employee (Identity providers, SSO wizard, API keys, SCIM provisioning); confirmed by contrast that Integration DLQ (list/retry endpoints have no tenant filter and bulk-retry spans "all tenants and event types" ΓÇö TB-632) and Replay review (backend `AuthorityReplayController` requires `RequireOperatorRole`, stricter than any tenant authority tier) are genuinely internal and correctly stay; System health also stays in Internal Operations despite being a weak fit, because the Administration group has a hard `/settings/*`-only invariant (TB-406) that a bare `/health` route would violate; moved Recommendation tuning/Pilot feedback/Planning to Insights (`operate-analysis-nav-group-builder.ts`), Pilot value report/ROI report/Digests to Reports (`operate-reports-nav-group-builder.ts` ΓÇö Digests needed a `nav-route-namespace-exceptions.ts` row since Reports' canonical prefix is `/scorecard`+`/value-report`; Governance was considered first but rejected, its TB-405 test hard-enforces `/governance/*` with no exception path), and Identity providers/SSO wizard/API keys/SCIM provisioning to Administration (`operator-admin-nav-group-builder.ts`, matches its existing `/settings`-prefix `AdminAuthority` "Users & roles" row); separately fixed Planning's nav `requiredAuthority` from `ExecuteAuthority` to `ReadAuthority` (backend `LearningController`'s themes/plans GETs are class-level `ReadAuthority` and `PlanningPageClient`/`PlanningPlanDetailPageClient` render zero mutation controls ΓÇö the only mutation, "Create draft plans", lives on the Pilot feedback page) and removed the parallel `internalOnly` gate on the `/value-report` tab strip for Pilot outcomes/ROI summary (`value-report-outcomes-nav-tabs.ts`, supersedes TB-605) so the in-page tab strip matches the new sidebar placement; updated `nav-config.structure.test.ts`, `getLayerForRoute.test.ts`, `nav-route-namespace-exceptions.ts`, `nav-committed-architecture-review-promotion.test.ts`, `value-report-outcomes-nav-tabs.test.ts`, and `route-readiness.ts` (`/product-learning` and `/recommendation-learning` from `hidden` to `advanced-only`, matching `/planning`/`/advisory`); note a separate, independent `PRE_RELEASE_OPERATOR_HREFS` gate in `nav-publish-readiness.ts` still hides `/recommendation-learning` and `/product-learning` from the default sidebar pending a deliberate GA decision ΓÇö left untouched, this pass only fixed placement/RBAC, not feature-completeness gating; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-633 closed** ΓÇö "Recommendation tuning" (`/recommendation-learning`, `ReadAuthority`) ΓÇö the "Rebuild tuning profile" button hit `POST /v1/recommendation-learning/rebuild`, which overrides the controller's class-level `ReadAuthority` up to `ExecuteAuthority`, but the button had zero client-side capability check ΓÇö the same gap as TB-614/616/632; owner confirmed this whole "Internal Operations" group is only reachable in ArchLucid's own internal deployment (`showSystemAdministrationNav` feature flag), but directed adding the gating anyway since internal staff still hold different authority ranks; added `useOperateCapability()` to `RecommendationLearningPageClient`, threaded a new `canMutate` field through the view model, disabled the Rebuild button with `enterpriseMutationControlDisabledTitle` and a helper message, and added `RecommendationLearningPageClient.test.tsx` (previously untested); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-632 closed** ΓÇö "Integration DLQ" (`/operate/integration-events/dlq`, `AdminAuthority`) had zero client-side authority gate ΓÇö `page.tsx` rendered the client component unconditionally and the Retry/Suppress/Bulk retry(100) buttons had no capability check, only the backend's `AdminAuthority` policy on `AdminController` caught non-Admins with a raw 403 toast; confirmed this is a genuine cross-tenant, internal-staff-only surface (the list endpoint has no tenant filter and the bulk-retry confirm dialog says "all tenants and event types"), so the nav item correctly stays in Internal Operations rather than moving to the tenant-facing Administration group; added `useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority` gating to all three mutation buttons in `IntegrationEventsDlqPageClient` with `enterpriseMutationControlDisabledTitle` tooltips, early-return guards on `retry`/`suppress`/`bulkRetry`, a helper message, and a new `IntegrationEventsDlqPageClient.test.tsx` (this component had no prior test coverage); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-619 closed** ΓÇö first item picked up from the **TB-617ΓÇôTB-621** principal-architect Review Package detail page hierarchy audit cluster; `QuickDecisionSummary` ΓÇö the actual per-finding rendering on this page (findings do not render as an inline table; they render via this severity-sorted card) ΓÇö now surfaces an explicit "Evidence gap" `StatusTag` when a finding has zero evidence refs/snippets/policy-rule citation (`findingHasNoSourceEvidence` in `quick-decision-summary-derive.ts`; previously a finding with no evidence rendered no signal at all), plus owner (`assignedToUserId`) and review-status (`humanReviewStatus` ΓåÆ Pending review/Approved/Rejected/Overridden via new `humanReviewStatusDisplay`) rows and a bolded "Recommended action:" label; `FindingEvidenceLinkChip` restyled from a bordered chip (looked like a noninteractive badge) to genuine underlined-link styling; also added summary-table rows for **TB-617**, **TB-618**, **TB-620**, **TB-621** (the cluster's other 4 items existed only as `## TB-617` etc. detail sections below, never synced to this table ΓÇö fixed same pass); **TB-617** (P1, consolidate the header/summary widgets) and **TB-618** (P1, single primary CTA) remain open and are blocked this pass by a concurrent uncommitted edit to their primary target files (`RunDetailPageView.tsx`, `RunDetailPageHeader.tsx`); full 5-term evidence vocabulary (Evidence/Evidence gap/Assumption/Policy rule/Decision) unification across `FindingPolicyProvenancePanel` remains open for a follow-up pass). Prior: 2026-07-05 (**TB-631 closed** ΓÇö "Diagnostics dashboard" (`/admin/health`, `AdminAuthority`) and the separate "System health" (`/health`, `ReadAuthority`) both rendered an identical `<h1>`/header text "System health", despite being two different pages at two different authority tiers with materially different content (the Admin page adds configuration probes, config-lint, and operator task success rates on top of the readiness/circuit-breaker/build-identity sections both share); renamed the Admin page's heading in `AdminHealthPageView` to "Diagnostics dashboard" to match its own nav label and disambiguate from `/health`; the page's per-section graceful degradation (readiness/version public, circuit/rates/config-lint/configuration-health each independently show an auth-specific note on 401/403) is a deliberate design for a health page, not a gating bug, so left untouched; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-630 closed** ΓÇö "Trial funnel" (`/admin/trial-funnel`) nav label vs. page `<h1>` mismatch ΓÇö page read "Trial-to-paid funnel"; renamed the `<h1>` in `TrialFunnelOpsPageClient` to "Trial funnel" to match; backend (`AdminTrialFunnelOperationalController`) and nav authority were already aligned at `AdminAuthority`, and the page is read-only (no mutations) so no gating gap; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-629 closed** ΓÇö "AI processing diagnostics" (`/admin/ai-cost-diagnostics`) sidebar nav item was a dead link ΓÇö no `page.tsx` ever existed for that route, no rewrite/redirect covered it, and it would 404 on click; its described content (outbox queue depth, dead-letter posture) already ships as the `OperatorOutboxDiagnosticsCard` "Related diagnostics" section on the AI usage page (`/settings/cost-reporting`); owner directed removing the redundant nav item outright rather than re-pointing or building a standalone page; removed the link from `operator-system-admin-nav-group-builder.ts`, the now-unused `AI_COST_DIAGNOSTICS_PATH` constant, and the dead route references in `nav-shell-visibility.ts` / `route-readiness.ts` / `getLayerForRoute.test.ts`; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-628 closed** ΓÇö "Support" (`/settings/support`) nav item is `ExecuteAuthority`, but `SupportBundleController` (backing both the Support page's and the Settings page's "Download support bundle" buttons) was class-level `AdminAuthority` ΓÇö any Execute-tier non-Admin (Operator, Architect, Reviewer, WorkspaceAdmin, Sponsor) saw a fully-enabled download button with zero indication it would 403; owner directed lowering the backend instead of gating the UI, since the bundle is already redacted (secret-shaped env vars show set/not-set only, no raw evidence); lowered `SupportBundleController`'s class policy to `ExecuteAuthority`; updated `SupportBundleEndpointTests` (`Post_WithOperatorRole_...` now asserts 200 instead of 403, reader-role test renamed to reflect ExecuteAuthority) and the `route_tier_policy_nav_registry.json` / `ROUTE_TIER_POLICY_NAV_MATRIX.md` snapshots; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-627 closed** ΓÇö "Security & trust" (`/settings/security-trust` ΓåÆ `/workspace/security-trust`) had no page-level heading at all ΓÇö `OperatorSecurityTrustPageView` went straight from the `LayerHeader` contextual banner into `<h2>` subsection headings with no parent title, the only page in this review's sweep missing one entirely; added an `OperatorPageHeader` titled "Security & trust" (matching the nav label) above the existing sections; page has no backend calls (static procurement content), so no authority mismatch to fix; found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-626 closed** ΓÇö "AI usage" (`/settings/ai-usage` ΓåÆ `/settings/cost-reporting`) nav item and page were gated at `AdminAuthority`, but the backend (`TenantLlmCostReportingController`) is `ReadAuthority` and the page has zero mutations (read-only report + a "Refresh" button) ΓÇö owner directed lowering to match, consistent with the Billing wallet call (TB-625); lowered the nav item's `requiredAuthority` to `ReadAuthority`, renamed the page's `"admin"` surface state to `"granted"` and its gating check from `AdminAuthority` to `ReadAuthority` in `use-cost-reporting-settings-page.ts`, and updated the forbidden-state copy; `page.test.tsx` updated (renamed "blocks non-admins" ΓåÆ "blocks callers without read authority" at rank 0, added a new case asserting Execute-rank callers can view the report); found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-625 closed** ΓÇö "Billing & plans" (`/settings/billing`) nav item is ReadAuthority, but `WalletController`'s class-level `AdminAuthority` policy covered its `GET` too, so any non-Admin visitor (which is most callers who can reach this ReadAuthority-gated page) got a 403 on load, surfaced as an alarming "Could not load AI usage credit settings" error toast before the panel silently vanished; owner directed that non-Admins should be able to see their wallet ΓÇö lowered `GET` to `ReadAuthority` (view balance/cap/refill history), kept `PUT` at `AdminAuthority` (mutations stay Admin-only), and added `useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority` gating to `OperatorBillingWalletPanel`'s Save/Add-payment-method controls with `enterpriseMutationControlDisabledTitle` tooltips; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-624 closed** ΓÇö owner kept "Jira"/"ServiceNow" nav items at AdminAuthority (ITSM connector config stays Admin-only), but `ItsmProductIntegrationPageClient`'s shared "Save tenant settings" button had zero `useOperateCapability()` check even though the backend (`TenantItsmOutboundSettingsController` `PUT`) only requires ExecuteAuthority ΓÇö added the check as defense-in-depth so a direct URL visit or future nav-authority relaxation can't produce a live-looking button with no client-side signal; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-623 closed** ΓÇö "Cloud connections" (`/integrations/cloud-connections`) nav item stays ExecuteAuthority by owner decision (Readers must not see or touch cloud connections), but its three connector-config `GET` endpoints (`Tier2ConnectionController` Azure, `AwsTier2ConnectionController`, `GcpTier2ConnectionController`) had each explicitly lowered their list endpoint to ReadAuthority ΓÇö closed that gap so all three now inherit the class-level ExecuteAuthority; also added `useOperateCapability()` gating (Save/Re-poll/Disconnect buttons) to all three connector sections (`Tier2ConnectionWizard`, `AwsConnectionSection`, `GcpConnectionSection`), which previously had zero capability checks ΓÇö same gap as TB-614/TB-616 ΓÇö plus a separate AdminAuthority-tier check on the Azure wizard's "Run validation pull" button, which hits an Admin-only hosted-run endpoint stricter than the Execute-tier "Save connection" step; found + directed during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-622 closed** ΓÇö TB-520 (2026-06-30) renamed the sidebar nav label to "Governance setup guide" but never touched the page itself: `<h1>`/tab title still said "First 30 days ΓÇö governance operating preset" and `GovernanceInteractiveQuickstartCard`'s inline link said "First 30 days ΓÇö governance rhythm" ΓÇö three names for one page; both now say "Governance setup guide", the unused `@deprecated first30DaysGovernance` i18n key was removed, and `MANUAL_QA_CHECKLIST.md` updated; also tightened Value report's disabled-state copy from a stale "Operator or Administrator role required" to generic "Elevated workspace permissions required" now that Execute-tier includes more roles ΓÇö found during a left-nav business-purpose review). Prior: 2026-07-05 (**TB-617ΓÇôTB-621 added** ΓÇö Review Package detail page principal-architect hierarchy audit: `RunDetailPageView.tsx` and its deferred sections carry duplicate summary widgets (`RunDetailPageHeader` + `ReviewPackagePlainSummary` + `RunDetailOutcomeCards` + `ReviewPackageEvidenceDensityStrip` all answering "what's the status" separately), multiple competing primary CTAs, and no explicit dual-mode-aware (`buyerPolishedArtifactTable`) reorder spec; split into 5 sequential items, see `## TB-617` below). Prior: 2026-07-04 (**TB-600 Done** ΓÇö operator Atlassian auth-code consent UI: `ItsmAtlassianOAuthConsentService`, `Integrations:AtlassianOAuth`, PKCE start/complete API, `/integrations/itsm/oauth/callback`, Key Vault refresh-token writer). Prior: 2026-07-04 (**TB-600 Confluence OAuth + deployment-wide ITSM OAuth + migration runbook** ΓÇö `ConfluencePublishingOptions.AuthMode` + `ConfluencePublishingHttpAuthenticator`; deployment-wide `Integrations:ItsmOutbound` Jira/ServiceNow OAuth fields; `docs/runbooks/ITSM_CONFLUENCE_OAUTH_MIGRATION.md`; operator auth-code consent UI still open). Prior: 2026-07-04 (**TB-600 foundation** ΓÇö OAuth auth-mode schema + token exchange + Bearer outbound auth for tenant-scoped Jira/ServiceNow connections; `BasicApiToken` remains default; Confluence + auth-code UI still open). Prior: 2026-07-04 (**TB-404** and **TB-405** summary-table rows synced **Done** ΓÇö policy + drift guard shipped 2026-06-28 (`nav-route-namespace-policy.ts`, `nav-route-namespace-exceptions.ts`, `nav-route-namespace.test.ts`, `NAV_CONFIG_CONTRACT.md` ┬º Route namespace); governance route tree consolidation shipped 2026-06-28 (canonical `/governance/*` paths + legacy redirects); Vitest re-verified this pass). Prior: 2026-07-04 (**TB-609 closed** ΓÇö `SanitizedLoggerDebugExtensions` migrated to `[LoggerMessage]` emitters in `SanitizedLoggerDebugExtensions.LoggerMessage.cs` (EventIds 3101ΓÇô3103); caller `cs/log-forging` suppressions removed; tests extended in `SanitizedLoggerDebugExtensionsTests`). Prior: 2026-07-04 (**TB-611 closed** ΓÇö CodeQL model pack `integration-event-logging-barrier.model.yml` registers `IntegrationEventTypes` canonical URNs and `SanitizedLoggerWarningExtensions` / `SanitizedLoggerHostLeaderElectionExtensions` as `file-content-store` neutral/summary models; caller-line `cs/exposure-of-sensitive-information` suppressions removed from Service Bus publisher and outbox paths; documented in `CODEQL_TRIAGE.md`). Prior: 2026-07-04 (**TB-610 closed** ΓÇö `LogSanitizer.EmailDomainForLogs` logs only the email domain on trial-bootstrap email-verification denial paths; full mailbox retained in `AuditEvent` actor fields; tests in `LogSanitizerTests` and `TrialTenantBootstrapServiceTests`). Prior: 2026-07-04 (**TB-616 closed** ΓÇö `RecurrenceSchedulesClient` (sidebar "Recurrence schedules") and its `RecurrenceScheduleCreatePanel` rendered live Create/Edit/Save/Enable/Disable buttons with zero `useOperateCapability()` gating, the same gap as TB-614's Risk exceptions pages, even though `GovernanceStickinessController`'s recurrence-schedule create/update endpoints are ExecuteAuthority ΓÇö found + fixed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-615 closed** ΓÇö sidebar "Alerts" (`/governance/alerts`) hub had no page-level heading at all: the Inbox tab showed its own `<h2>Alerts</h2>` and Rules/Routing/Composite/Simulation tabs each showed only their own tab-specific `<h2>` with no parent "Alerts" heading, so a deep link straight to a non-Inbox tab gave no indication of which hub it belonged to; added `OperatorPageHeader` titled "Alerts" above the tab bar in `AlertsHubClient` and renamed the now-redundant Inbox `<h2>` to "Inbox" (each tab already carries its own distinct `LayerHeader` guidance, which was left untouched) ΓÇö found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-604 closed** ΓÇö `RetrievalIndexingScopeValidator.ValidateChunks` fail-closes `InMemoryVectorIndex` and `AzureAiSearchVectorIndex` upserts when chunk tenant/workspace/project metadata disagrees with ambient `IScopeContextProvider` scope; platform corpus sentinel chunks bypass; regression tests in `RetrievalIndexingScopeValidatorTests` and `InMemoryVectorIndexTests`). Prior: 2026-07-04 (**TB-614 closed** ΓÇö `RiskExceptionsClient` (sidebar "Risk exceptions") and its sibling `FindingInspectGovernanceStickinessPanel` (finding-detail waiver/disposition panel) rendered live, always-enabled Renew/Revoke/Create-waiver/Save-disposition buttons with zero `useOperateCapability()` gating, unlike every other mutating Governance surface; Readers/Sponsors could click an action and get a raw 403 instead of a disabled control ΓÇö found + fixed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-613 closed** ΓÇö sidebar "Approval queue" (`/governance`) lowered from ExecuteAuthority to ReadAuthority to match `GovernanceController`'s class-level policy default and the reader-mode support already built into `GovernanceWorkflowPageContent`; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-596 closed** ΓÇö `GraphRagQualityPosture` promotes Azure Search vector-index posture from advisory `GraphRagProductionLikeConfigurationLint` to run-level `graphRagQualityPosture` (`proven` \| `unproven`) on `RunRetrievalGroundingSummaryDto` when Graph-RAG neighbors/seeds contributed; operator diagnostics strip surfaces posture on review detail). Prior: 2026-07-04 (**TB-612 closed** ΓÇö Advisory hub naming unified: `OperatorPageHeader` "Advisory scans" added above the `/advisory` tab bar, tabs renamed **Scans**/**Schedules** to match content headings (previously "Recommendation scans"/"Scheduled scans" tabs vs. "Architecture advisory"/"Advisory schedules" headings), and `WeeklyDigestHealthBanner`'s schedules quick link fixed to deep-link `?tab=schedules` instead of the Scans-default `/advisory`; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-609ΓÇôTB-611 added** ΓÇö CodeQL triage session dismissed GitHub alerts **#729ΓÇô#738** as false positives (not exploitable); residual hardening: Debug `[LoggerMessage]` migration to stop recurring `cs/log-forging` at call sites (**TB-609**), trial-bootstrap denial-path email log redaction policy (**TB-610**), `IntegrationEventTypes` CodeQL model pack for `cs/exposure-of-sensitive-information` noise (**TB-611**); see `docs/library/CODEQL_TRIAGE.md`). Prior: 2026-07-04 (**TB-608 closed** ΓÇö retired the standalone `/executive/dashboard` route (301 redirect to `/dashboard`) and the "legacy operator" ROI dashboard layout that only real (non-demo/trial) tenants saw; `ExecutiveRoiDashboardPageView` now always renders the richer "portfolio" layout so the sidebar's **Executive dashboard** link and the former executive-shell route show identical content; `ExecutiveShellFrame`'s own "Dashboard" tab now points at `/dashboard`, and Sponsor-only principals are exempted from the forced executive-shell redirect for `/dashboard` and `/` (the shell's own "Architect workspace" handoff link) instead of being bounced back out; found + directed during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-605 closed** ΓÇö `ValueReportOutcomesNav` gates internal **Pilot outcomes** and **ROI summary** tabs behind `isShowSystemAdministrationNavEnabled()` via `value-report-outcomes-nav-tabs.ts`, matching `operator-system-admin` sidebar gating; tests in `value-report-outcomes-nav-tabs.test.ts` and `ValueReportOutcomesNav.test.tsx`). Prior: 2026-07-04 (**TB-606 closed** ΓÇö reviews-list sidebar label uses `governanceModeVocabulary` (`Reviews` / `Runs`) via `resolveReviewsListNavLinkLabel` in `operator-nav-labels.ts`, matching `RunDetailBreadcrumb` and removing garden-path **Review packages**; tests in `operator-nav-labels.test.ts`, `sidebar-nav-link-filters.test.ts`, `pilot-nav-group-builder.test.ts`). Prior: 2026-07-04 (**TB-607 closed** ΓÇö shared `help-page-layout.ts` + `InlineHelp` (`HelpTooltipTrigger` 28├ù28px, `Help: ΓÇª` aria labels) standardize `/help/*` section rhythm/TOC and replace ad hoc inline info icons; `help-search-panel-catalog.ts` groups architect Help drawer topics with route-based recommendations; tests in `help-page-layout.test.ts`, `InlineHelp.test.tsx`, `HelpSearchPanel.test.tsx`). Prior: 2026-07-04 (**TB-606 added** ΓÇö sidebar label **"Review packages"** is a noun/verb garden-path phrase ("package" primes a software-dependency reading for a technical audience) and diverges from breadcrumb labels for the same destination (**"Reviews"** Pilot mode / **"Runs"** Governance mode via `governance-mode-vocabulary.ts`), which the sidebar builder does not consume; found during left-nav business-purpose review). Prior: 2026-07-04 (**TB-605 added** ΓÇö `ValueReportOutcomesNav` tab strip on customer-facing `/value-report` and `/scorecard` unconditionally links to the nominally staff-only `/value-report/roi` and `/value-report/pilot` routes with no feature-flag or authority check, undermining the `operator-system-admin` sidebar gating and `nav-route-namespace-exceptions.ts` "internal" designation; found during a left-nav business-purpose review). Prior: 2026-07-04 (**TB-602 closed** ΓÇö `INTEGRATION_CATALOG.md` ┬º2 roadmap + ┬º3 "Build your own" distinguish **V1 GA first-party** Jira/ServiceNow/Confluence/Slack/Teams from **V1.1 customer-operated** recipe bridges; `integration-catalog-buyer-copy.test.ts` guard). Prior: 2026-07-04 (**TB-603 closed** ΓÇö `IAwsRetailPriceStructuredLookup` / `IGcpRetailPriceStructuredLookup` + multi-cloud `CostRetailGroundingBuilder` branches wire AWS Price List and GCP Billing Catalog into Cost-agent LLM grounding). Prior: 2026-07-04 (**TB-598 closed** ΓÇö owner chose relabel: buyer-facing term **single-pass query expansion + managed semantic reranking** replaces unqualified "agentic retrieval"; `V1_SCOPE.md` ┬º2.20 + `V1_DEFERRED.md` ┬º6q + `V1_MAGIC_GUARDRAILS.md` aligned; iterative loop deferred pending G-REAL-06). Prior: 2026-07-03 (**TB-597 closed** ΓÇö bounded multi-hop Graph-RAG neighbor expansion via `GraphRagBoundedNeighborCollector`; `Retrieval:Advanced:MaxGraphTraversalHops` default 2, cycle-safe BFS, per-hop score decay; `V1_SCOPE.md` ┬º2.20 + `V1_DEFERRED.md` ┬º6q aligned). Prior: 2026-07-03 (**TB-599 closed** ΓÇö `Integrations:Itsm:NativeEnabled` defaults `true` in options + appsettings with documented deployment opt-out; operator admin copy aligned). Prior: 2026-07-03 (**TB-589 closed** ΓÇö `FindingsSnapshotTypeIndex` + `FindingsSnapshotIdIndex`, single-pass graph topology populate, `DecisionRuleFindingTypeIndex` for rule eval). Prior: 2026-07-03 (**TB-570 closed** ΓÇö recharts hot-path drift guard; dynamic loading shipped in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-572 closed** ΓÇö shared `app-insights-init-scheduler.ts` + drift guard; idle defer landed in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-567 closed** ΓÇö shared `marketing-isr-route-policy.ts` + drift guard for `/welcome`, `/pricing`, `/trust`; ISR landed in `cc5a18275f`, table row synced same session). Prior: 2026-07-03 (**TB-021 closed** ΓÇö RAG quality V1-foundation closeout audit verified all 12 **RAG-V1-000**ΓÇô**RAG-V1-011** sub-items shipped in code; 3 had missing "Status: Shipped" lines in `RAG_QUALITY_TECHNICAL_BACKLOG.md`, corrected same session; 2 genuine residual gaps split into fresh items **TB-603** (RAG-V1-003 has no AWS/GCP structured retail-price grounding for the Cost agent, now that multi-cloud ships) and **TB-604** (RAG-V1-010 P2 upsert-time tenant validation never picked up)). Prior: 2026-07-03 (TB-599ΓÇôTB-602 added ΓÇö first-party **Jira/ServiceNow/Confluence/Slack/Microsoft Teams** connectors promoted from V1.1 to **V1 GA** (owner scope 2026-07-03) after `CONNECTOR_READINESS_MATRIX.md` showed all five already **Shipped**/**Shipped + manual vendor**; `V1_DEFERRED.md` ┬º6/┬º6a, `V1_SCOPE.md` ┬º2.13ΓÇô┬º2.15/┬º3, `CONNECTOR_READINESS_MATRIX.md`, `CONNECTOR_SMOKE_INDEX.md`, and `INTEGRATION_CATALOG.md` corrected same session; new items cover native-create default posture, OAuth upgrade, live-validation parity, and a buyer-copy sweep). Prior: 2026-07-03 (TB-594ΓÇôTB-598 added ΓÇö RAG-V2 doc-accuracy audit found `V1_DEFERRED.md` ┬º6q / `V1_SCOPE.md` ┬º2.20 claimed "None remainder" for RAG-V2-001/002/003 while RAG-V2-003 online fine-tuning has **zero code** and RAG-V2-001/002 are shallower than claimed; both docs corrected same session). Prior: 2026-07-03 (TB-560 **Done** ΓÇö `CommandPaletteLazy.tsx` + Ctrl+K chunk preload). Prior: 2026-07-03 (TB-561 **Done** re-verified ΓÇö `FindingEvidenceGraphLazy.tsx` in `cc5a18275f`). Prior: 2026-07-02 (TB-587 **Done** ΓÇö Azure DevOps HTTP client Polly resilience). Prior: 2026-07-02 (TB-577ΓÇô**TB-586** **Done** ΓÇö backend performance assessment batch). Prior: 2026-07-02 (TB-573 **Done** ΓÇö First Load JS baseline + CI regression gate). Prior: 2026-06-30 (TB-530 **Done** ΓÇö Integration readiness nav renamed Connection status). Prior: 2026-06-30 (TB-525 **Done** ΓÇö Analysis nav group renamed Insights). Prior: 2026-06-30 (TB-519 **Done** ΓÇö Evidence graph first in Analysis nav). Prior: 2026-06-28 (TB-506 **Done** ΓÇö security-trust data retention section). Prior: 2026-06-28 (TB-505 **Done** ΓÇö security-trust tenant isolation section). Prior: 2026-06-28 (TB-479 **Done** ΓÇö workspace list unavailable session copy). Prior: 2026-06-28 (TB-478 **Done** ΓÇö service bus banner System health link label). Prior: 2026-06-28 (TB-477 **Done** ΓÇö roles settings Finalize reviews permission label). Prior: 2026-06-28 (TB-476 **Done** ΓÇö onboarding step tracker Finalize checkpoint label). Prior: 2026-06-28 (TB-475 **Done** ΓÇö Rule-based analysis simulator trust badge). Prior: 2026-06-28 (TB-474 **Done** ΓÇö example review defensible-layer caption). Prior: 2026-06-28 (TB-493 **Done** ΓÇö Core Pilot step 4 document/brief-only evidence acknowledgment). Prior: 2026-06-28 (TB-492 **Done** ΓÇö FindingTrustChip no-evidence label and guidance tooltip). Prior: 2026-06-28 (TB-491 **Done** ΓÇö remove Tier-1 from wizard evidence descriptions). Prior: 2026-06-28 (TB-490 **Done** ΓÇö plain-language inventory ZIP drop hint). Prior: 2026-06-28 (TB-489 **Done** ΓÇö Service connectivity checklist label). Prior: 2026-06-28 (TB-488 **Done** ΓÇö Cloud inventory ZIP label on AzureExtractorPackageZipField).
+**Updated:** 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Correctness | 14 |
-| Testability | 22 |
-| Reliability | 17 |
+| Correctness | 16 |
+| Testability | 28 |
+| Reliability | 19 |
 | Deployability | 18 |
 | AI/Agent readiness | 10 |
 | Architectural integrity | 12 |
-| Adoption friction | 169 |
-| Commercial / marketability | 10 |
+| Adoption friction | 182 |
+| Commercial / marketability | 14 |
 | Data consistency | 7 |
 | Cutting-edge AI | 9 |
 | Explainability | 9 |
 | Proof-of-ROI / executive value | 6 |
-| Trustworthiness | 51 |
+| Trustworthiness | 56 |
 | Maintainability | 15 |
 | Traceability | 6 |
 | Interoperability | 8 |
@@ -28,7 +28,7 @@
 | Cost-effectiveness | 10 |
 | Supportability | 15 |
 | Code hygiene | 11 |
-| **Total (unique)** | **~392** |
+| **Total (unique)** | **~422** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1ΓåÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ┬º6/┬º6a); **TB-599ΓÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ΓÇö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -204,6 +204,34 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-1007 — TB-1008** were added 2026-07-24 from the owner / PA question: *Authority pipeline vs legacy coordinator: which path is canonical for new product surfaces, and when is `execute`/`result`/`commit` forbidden?* Finding: **canonical for new surfaces = Authority pipeline** (`POST /v1/architecture/request` → `IAuthorityRunOrchestrator` / `AuthorityPipelineStagesExecutor` → `FinalizeCommittedPipelineAsync`); dual coordinator storage/orchestrators retired (ADR 0030); HTTP write family is `v1/architecture/*` (ADR 0042 / **TB-919** Done). `execute`/`result`/`commit` remain the **AgentTask / AgentResult** loop (docs: “legacy coordinator”) for task-driven agents, external result push, trial/QuickStart, selective re-execute (**TB-938** Done) — not the default after create. Forbidden / must-not-use-to-finish: authority already finalized; async queue (`ContextSnapshotId` null); `result` outside `TasksGenerated`/`WaitingForResults`; mixing models (Flow A1). Gaps: (1) no single PA **canonical vs task-loop + forbid matrix** that reconciles “legacy coordinator” naming with Authority-driven commit, (2) no doc/CI against “always execute after create” / “dual pipeline still live” overclaims. **TB-1007** (P1) contract. **TB-1008** (P1) honesty CI. GTM: **M-158** claim honesty, **M-159** PA one-pager. Does **not** reopen Done **TB-305**/**TB-919** or delete `/result`.
 
 **TB-1009 — TB-1010** were added 2026-07-24 from the owner / PA question: *Which tables/events must stay append-only, and what would a mutable `Update` API destroy for audit/procurement?* Finding: **shipped** — `dbo.AuditEvents` DENY + INV-011 interface shape; commit-sealed registry (`SealedEvidenceTableRegistry` / ADR 0039 / **TB-303** Done); committed run-header anchors (ADR 0045); finding disposition trail append-only (**TB-986**); hash/export verify without platform WORM (ADR 0040 / **TB-307**). Mutable overlays exist (`AgentResultEnrichments`, Socratic drafts, run lifecycle columns). Gaps: (1) no single PA **append-only vs mutable** matrix naming what a repository `Update*` would destroy for auditors, (2) no doc/CI against “editable audit log” / “correct findings in place after commit” / platform-WORM overclaims. **TB-1009** (P1) contract. **TB-1010** (P1) honesty CI. GTM: **M-160** claim honesty, **M-161** PA one-pager. Does **not** reopen Done **TB-303**/**TB-307**/**TB-310** or platform WORM.
+
+**TB-1134 — TB-1138** were added 2026-07-25 from an **owner screenshot review of Governance setup** at `/governance/first-30-days` (Claims Intake Demo — scored ~52/100). Findings: nav/H1 say setup but URL is `first-30-days`; orphan **First 30 days** chip; LayerHeader generic Governance overview blurb; five identical Not-started cards with equal primary CTAs (template look); Foundation panel all Pending duplicates 0/5 progress. **TB-1134** (P0) route → `/governance/setup`. **TB-1135** (P0) naming consistency. **TB-1136** (P0) orientation. **TB-1137** (P0) checklist visual design. **TB-1138** (P0) foundation vs progress dedupe. No new GTM IDs.
+
+**TB-1139 — TB-1143** were added 2026-07-25 from an **owner review of Cloud connections** at `/integrations/cloud-connections` (scored ~49/100). Findings: GCP hardcodes a **Preview** maturity chip though Tier 2 hosted polling shipped (**TB-403 Done**); unchecking the GCP platform-scope checkbox leaves the GCP summary card on screen because `writeCloudPlatformScopeToStorage` silent-no-ops when operator workspace id is missing (no change event → parent cards unchanged); each provider card stacks Configure + View details to the same href; unconfigured cards show Not configured / Not validated / No packages zero theater. **TB-1139** (P0) checkbox↔card sync correctness. **TB-1140** (P0) remove stale GCP Preview. **TB-1141** (P0) single primary CTA. **TB-1142** (P0) scope panel fail-closed + shared state. **TB-1143** (P0) suppress empty zero theater. No new GTM IDs.
+
+**TB-1146 — TB-1150** were added 2026-07-25 from an **owner screenshot review of Jira** at `/integrations/jira` (Claims Intake Demo — scored ~46/100). Findings: page says credentials are not configured but offers no configure path (subtitle claims “Set connection details”); same not-configured sentence repeats on status card and Connection test; tenant overrides lead with a raw JSON textarea for issue types; Connection test + overrides remain fully interactive while credentials missing; Platform operator notes collapsed and vague. Shared client `ItsmProductIntegrationPageClient` also powers ServiceNow — apply parity. **TB-1146** (P0) guided next step. **TB-1147** (P0) copy honesty. **TB-1148** (P0) message dedupe. **TB-1149** (P0) structured severity→issue-type UI. **TB-1150** (P0) empty composition / gate test. No new GTM IDs. (IDs skip **TB-1144**–**TB-1145** reserved for PA Q17 SOC 2 / pen-test talk-track cluster.)
+
+**TB-1151 — TB-1155** were added 2026-07-25 from an **owner screenshot review of Azure Boards** at `/integrations/azure-boards` (Claims Intake Demo — scored ~38/100). Findings: page load surfaces **Database Query Failed: The database rejected the query due to a programming error** as Connection status **Not available**; `SqlTenantAzureBoardsOutboundSettingsRepository` still injects `IBackgroundWorkerSqlConnectionFactory` (same PD-002 / **TB-867** class as ServiceNow before fix); UI `Promise.all` fails the whole load; raw problem title shown as status explanation; forms remain while “Work management integrations are not enabled” / setup checklist all empty. **TB-1151** (P0) SQL catalog fix. **TB-1152** (P0) isolate load failures. **TB-1153** (P0) sanitize status errors. **TB-1154** (P0) feature-off honesty. **TB-1155** (P0) empty composition. No new GTM IDs.
+
+**TB-1161 — TB-1165** were added 2026-07-25 from an **owner review of ServiceNow** at `/integrations/servicenow` (scored ~50/100). Note: dedicated `ServiceNowIntegrationPageClient` (not shared Jira `ItsmProductIntegrationPageClient`). Findings: amber admin-must-configure banner + status next-step with **no primary CTA** (admin ITSM link buried in collapsed Platform operator notes); `Promise.all` load wipe; `loadError` pasted into Connection status; Incident creation Save stays primary while credentials missing; Setup Progress + three sections empty theater. **TB-1161** (P0) guided admin CTA. **TB-1162** (P0) isolate load failures. **TB-1163** (P0) sanitize status errors. **TB-1164** (P0) demote incident settings. **TB-1165** (P0) empty composition. No new GTM IDs.
+
+**TB-1156 — TB-1157** were added 2026-07-25 from the owner / PA question: *Commit path projects agent proposals into authority GoldenManifest via a single projection builder and hashes a canonical content subset for drift — what fails when canonical projection and persisted manifest evolve independently, and how do we make hasher changes impossible without deliberate baseline re-lock?* Finding: **two** hashers — production `ManifestHashService` over authority `ManifestDocument` (excludes `CreatedUtc`; no hasher version) vs cohort `GoldenManifestFingerprint.ComputeContentSha256Hex` over contract projection (excludes `RunId` / `CreatedUtc` / `DecisionTraceIds`; has lock-baseline ritual). Gaps: (1) no PA dual-hasher / lossy-projection failure-mode matrix, (2) production hasher subset changes can ship without deliberate re-lock (cohort has `lock-baseline` + env approval; production does not). **TB-1156** (P1) contract. **TB-1157** (P1) re-lock CI. GTM: **M-198**/**M-199**. Does **not** reopen Done **TB-307**/**TB-575**.
+
+**TB-1179 — TB-1182** were added 2026-07-25 from an **owner review of the Projects recycle bin** at `/settings/tenant/recycle-bin` (Claims Intake Demo — scored ~58/100; owner: *"I am not even sure how to delete a project"*). Findings: API `DELETE /v1/tenant/workspaces/{workspaceId}/projects/{projectId}` exists but **no UI surface calls it** — the recycle bin restores projects that can only be deleted via raw API; page copy references an unnamed "retention period" twice while `ArchitectureProjectRetentionPurgeOptions.RetentionDays` + purge worker exist backend-side and the DTO omits any purge date; the only in-page entry link is buried in the collapsed **Technical details — routing scope** disclosure on Tenant settings; restore/error feedback is ad-hoc colored paragraphs (409 conflict looks like success) and `space-y-6` off operator density. **TB-1179** (P0) governed delete affordance. **TB-1180** (P0) retention transparency (API + UI). **TB-1181** (P0) unbury entry point. **TB-1182** (P0) status presentation + density. No new GTM IDs. (IDs start at **TB-1179**; **TB-1174**–**TB-1178** taken same day by the Teams cluster.)
+
+**TB-1166 — TB-1170** were added 2026-07-25 from an **owner screenshot review of Billing & plans** at `/settings/billing` (Claims Intake Demo — scored ~64/100). Findings: catalog value ladder inverted — **Recommended** Professional ($1,799) is worse per-unit than Team ($249) on every displayed axis ($119.93 vs $49.80 / seat; $0.18 vs $0.10 / credit; $17.99 vs $12.45 / review), Team add-on seats $79 uncapped put the upgrade crossover at ~25 seats, and the Team bundle contradicts the `PRICING_PHILOSOPHY.md` component rate card ($199 + 5 × $79 = $594); Enterprise card renders **Included 0 users**; **Included AI usage** means dollars on the Current plan card but credits on tier cards; sales-led CTAs (Request guided trial / enterprise discussion) dead-end into toasts; current-plan anchor jumps styled as primary buttons + `space-y-8 py-8` spacing off operator standard. **TB-1166** (P0) implement owner repricing + catalog coherence guard. **TB-1167** (P0) Enterprise 0-users fix. **TB-1168** (P0) AI-usage unit vocabulary. **TB-1169** (P0) sales-led CTA navigation. **TB-1170** (P0) composition / accessibility baseline. GTM: **M-200** (owner pricing decision — P0). (IDs start at **TB-1166**; **TB-1156**–**TB-1157** and **TB-1161**–**TB-1165** were taken same day by the GoldenManifest dual-hasher and ServiceNow clusters.)
+
+**TB-1129 — TB-1133** were added 2026-07-25 from an **owner screenshot review of Recurrence schedules** at `/governance/recurrence-schedules` (Claims Intake Demo — scored ~47/100). Findings: LayerHeader shows generic **Governance — Workspace governance status…** instead of recurrence job; dense GOVERNANCE intro prose above H1; empty state duplicates Create + View governed reviews + View pending approvals (chip row + empty card = six controls); Common schedule examples lead with raw cron; right Governance workflow rail restates next step; layout feels unprofessional. **TB-1129** (P0) recurrence orientation. **TB-1130** (P0) collapse intro prose. **TB-1131** (P0) single primary + dedupe CTAs. **TB-1132** (P0) human cadence examples. **TB-1133** (P0) empty first-viewport composition. No new GTM IDs.
+
+**TB-1112 — TB-1113** were added 2026-07-25 from the owner / PA question: *What is the smallest proof packet a buyer needs to trust a pilot without CPA SOC 2 or third-party pen test?* Finding: six-element executive packet + self-attested assurance substitutes already exist; Stage 0 allowlist forbids SOC 2 certified / published pen test. Gaps: PA **minimum pilot trust packet** matrix + honesty CI. **TB-1112** (P1) contract. **TB-1113** (P1) honesty CI. GTM: **M-190**/**M-191**. Does **not** reopen Done **TB-135**/**TB-136**.
+
+**TB-1144 — TB-1145** were added 2026-07-25 from the owner / PA question: *How do we talk about SOC 2 / pen test honestly without tanking procurement?* Finding: [`ASSURANCE_STATUS_CANONICAL.md`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md) + playbook objections #1/#2 already pin allowed wording; **M-190**/**TB-1112** own packet composition. Residual gaps: (1) no PA **conversation ladder** (intent → evidence-type label → pack → defer with funding trigger — never lead with “no”), (2) forbidden hedging inventory (“SOC 2 ready/almost/in process,” “pen test in flight” when only SoW/template), (3) controlled-pilot exception path when attestation is hard-required. Distinct from Contoso-funnel PA Q17 (**TB-1028**/**M-178**). **TB-1144** (P1) talk-track contract. **TB-1145** (P1) honesty CI. GTM: **M-196**/**M-197**. Does **not** reopen Done **TB-135**/**TB-136**.
+
+**TB-1120 — TB-1121** were added 2026-07-25 from the owner / PA question: *Which PA one-pagers should ship before the first security review?* Finding: must **M-151**+**M-118**; should **M-124** if AI; defer **M-171**; already **M-114**. Gaps: ship-order matrix + honesty CI. **TB-1120** (P1) contract. **TB-1121** (P1) honesty CI. GTM: **M-192**/**M-193**.
+
+**TB-1122 — TB-1123** were added 2026-07-25 from the owner / PA question: *What isolation/security claims are still too strong relative to shipped INV-001 / defense-in-depth docs?* Finding: shipped truth is ADR 0037 database-per-tenant + INV-001 host decide-once + **M-114** G3 identity-wins; honesty clusters already own Search (**M-152**), NetArch (**M-156**), empty-scope (**M-168**), tools (**TB-950**/**M-115**), audit split (**M-118**). Residual gaps: (1) no single PA **too-strong vs shipped** matrix + stale **RLS-as-control** purge list (`TENANT_ISOLATION.md` Layer-2 → `MULTI_TENANT_RLS.md`, trust-center RLS links, pack “RLS + JWT”), (2) G3 **PASS** / “provable” over-reads while **TB-948**/**TB-949** pending, (3) no consolidated doc/CI for RLS-as-live / workspace=security-boundary / crypto-proof-Search / NetArchTest-alone-isolation overclaims. **TB-1122** (P1) contract + RLS stale-doc purge. **TB-1123** (P1) honesty CI. GTM: **M-194** claim honesty, **M-195** PA one-pager. Does **not** reopen Done **M-114** or reinstate RLS.
+
+**TB-1124 — TB-1128** were added 2026-07-25 from an **owner screenshot review of Advisory scans** at `/advisory` (Claims Intake Demo — scored ~51/100). Findings: nav places the page under **Governance** but URL is top-level `/advisory` (namespace exception; label rename Done **TB-529** left path); LayerHeader + subtitle + value + trust + form subtext triple the same story; empty stacks Generate (disabled) + No scan yet (two CTAs) + Sample recommendation with pale disposition buttons; Accept/Defer/Reject/Mark implemented look non-button (affordance, cf. ghost Refresh pattern). **TB-1124** (P0) route → `/governance/advisory-scans`. **TB-1125** (P0) collapse triple description. **TB-1126** (P0) empty/demo one next story. **TB-1127** (P0) disposition button affordance. **TB-1128** (P0) single primary empty/demo CTA. No new GTM IDs.
 
 **TB-1040 — TB-1047** were added 2026-07-25 from **owner screenshot reviews** of (1) `/help/core-pilot` (“Your first architecture review”, ~64/100) and (2) the right-edge **Help** drawer (~61/100). Finding: core-pilot page repeats **Start an architecture review** ~4×, links recursively to **View pilot guide**, shows `Help / Core-pilot` jargon, and exposes dead step CTAs (Open/Finalize/Exports) with no active run; Help drawer “Recommended for this page” relaunches Getting started / How ArchLucid works / First review guide while already on the first-review article. Complements Overview empty-state **TB-1036**–**TB-1039** and First review guide hub **TB-674**–**TB-680**. **TB-1040**–**TB-1043** (P0) core-pilot page. **TB-1044**–**TB-1047** (P0) Help drawer. No new GTM IDs.
 **TB-1036 — TB-1039** were added 2026-07-25 from an **owner screenshot review of authenticated operator Overview** (Claims Intake Demo empty workspace — scored ~48/100 as first-session empty state). Finding: empty Overview still leads with **Review open findings** while Reviews/Open findings/Governance warnings are **0**; sidebar **median delta** and savings chrome advertise zeros; competing Learn how / View workflow / First review guide dilute the next step; a demo-named workspace should surface a sample package, not an empty shell. Complements Done first-run cluster **TB-345**–**TB-353** (esp. **TB-349** ROI gate — savings/metrics/median-delta still leak) and **TB-739** (Recommended first). **TB-1036** (P0) next-best-action hierarchy. **TB-1037** (P0) suppress zero-theater. **TB-1038** (P0) single Do-this-next card. **TB-1039** (P0) demo/seeded Overview → sample package. No new GTM IDs (operator UX, not marketing landing **M-09**).
@@ -397,7 +425,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1036 | **Done** (2026-07-25) — Operator Overview empty-state next-best-action hierarchy — never lead with Review open findings when findings=0; see `## TB-1036` below | Adoption friction P0 — **V1**; owner Overview empty-state review 2026-07-25; complements Done **TB-739** / `resolvePilotNextBestAction` | S |
 | TB-1037 | Suppress Overview zero-theater — metrics / median-delta / savings until real data; see `## TB-1037` below | Adoption friction P0 — **V1**; after or with **TB-1036**; extends Done **TB-349** (ROI baseline only) | S |
 | TB-1038 | Single Do-this-next empty-home card from setup readiness; see `## TB-1038` below | Adoption friction P0 — **V1**; after **TB-1036**; demotes competing Learn how / View workflow | S |
-| TB-1039 | Demo/seeded workspace Overview lands on sample package (not empty shell); see `## TB-1039` below | Adoption friction P0 — **V1**; after **TB-1036**; pairs `DEMO_WORKSPACES.md` / showcase pins | M |
+| TB-1039 | **Done** (2026-07-25) — Demo/seeded workspace Overview lands on sample package (not empty shell); see `## TB-1039` below | Adoption friction P0 — **V1**; after **TB-1036**; pairs `DEMO_WORKSPACES.md` / showcase pins | M |
 | TB-1040 | `/help/core-pilot` single primary CTA + remove recursive View pilot guide; see `## TB-1040` below | Adoption friction P0 — **V1**; owner help-page review 2026-07-25 (~64/100) | S |
 | TB-1041 | `/help/core-pilot` breadcrumb/title + buyer subtitle (no Core-pilot jargon); see `## TB-1041` below | Adoption friction P0 — **V1**; with **TB-1040** | XS |
 | TB-1042 | `/help/core-pilot` state-aware steps 3–5 CTAs; see `## TB-1042` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
@@ -406,6 +434,68 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1045 | Help drawer max-3 recommended + Do-this-now action row; see `## TB-1045` below | Adoption friction P0 — **V1**; after **TB-1044** | S |
 | TB-1046 | Help-on-help mode — search/anchors when already on `/help/*`; see `## TB-1046` below | Adoption friction P0 — **V1**; after **TB-1044** | S |
 | TB-1047 | Help drawer topic-title disambiguation + autofocus search; see `## TB-1047` below | Adoption friction P0 — **V1**; with **TB-1044**/**TB-1045** | S |
+| TB-1124 | Rename Advisory scans → /governance/advisory-scans + redirects; see ## TB-1124 below | Adoption friction P0 — **V1**; owner advisory ~51/100 2026-07-25 | M |
+| TB-1125 | Advisory scans collapse triple description chrome; see ## TB-1125 below | Adoption friction P0 — **V1**; with **TB-1124** | S |
+| TB-1126 | Advisory scans empty/demo density — one next story; see ## TB-1126 below | Adoption friction P0 — **V1**; with **TB-1128** | S |
+| TB-1127 | Advisory disposition controls must look like buttons; see ## TB-1127 below | Adoption friction P0 — **V1**; with **TB-1126** | S |
+| TB-1128 | Advisory scans single primary empty/demo CTA; see ## TB-1128 below | Adoption friction P0 — **V1**; with **TB-1126** | S |
+| TB-1129 | Recurrence schedules page orientation (not generic Governance blurb); see ## TB-1129 below | Adoption friction P0 — **V1**; owner recurrence ~47/100 2026-07-25 | S |
+| TB-1130 | Recurrence schedules collapse dense intro prose; see ## TB-1130 below | Adoption friction P0 — **V1**; with **TB-1129** | S |
+| TB-1131 | Recurrence schedules single primary CTA + dedupe secondary links; see ## TB-1131 below | Adoption friction P0 — **V1**; with **TB-1130** | S |
+| TB-1132 | Recurrence schedule examples use human cadence (not raw cron first); see ## TB-1132 below | Adoption friction P0 — **V1**; with **TB-1131** | S |
+| TB-1133 | Recurrence schedules empty first-viewport composition; see ## TB-1133 below | Adoption friction P0 — **V1**; with **TB-1130**–**TB-1132** | S |
+| TB-1134 | Rename Governance setup → /governance/setup + redirects; see ## TB-1134 below | Adoption friction P0 — **V1**; owner governance setup ~52/100 2026-07-25 | M |
+| TB-1135 | Governance setup naming consistency (drop orphan First 30 days chip); see ## TB-1135 below | Adoption friction P0 — **V1**; with **TB-1134** | S |
+| TB-1136 | Governance setup orientation (not generic Governance overview); see ## TB-1136 below | Adoption friction P0 — **V1**; with **TB-1134**; cf. **TB-1129** | S |
+| TB-1137 | Governance setup checklist visual design (not five identical cards); see ## TB-1137 below | Adoption friction P0 — **V1**; with **TB-1135** | M |
+| TB-1138 | Governance setup foundation panel vs progress merge/dedupe; see ## TB-1138 below | Adoption friction P0 — **V1**; with **TB-1137** | S |
+| TB-1139 | Cloud connections platform-scope checkbox must hide provider cards (fix silent no-op); see ## TB-1139 below | Correctness P0 — **V1**; owner cloud-connections ~49/100 2026-07-25 | S |
+| TB-1140 | Remove stale GCP Preview maturity label (Tier 2 Done TB-403); see ## TB-1140 below | Trustworthiness P0 — **V1**; with **TB-1139** | XS |
+| TB-1141 | Cloud provider summary cards — single primary CTA (dedupe Configure / View details); see ## TB-1141 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
+| TB-1142 | Cloud platform scope panel — fail closed when workspace missing + shared filter state; see ## TB-1142 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
+| TB-1143 | Cloud connections empty/not-configured composition — suppress zero theater; see ## TB-1143 below | Adoption friction P0 — **V1**; with **TB-1141** | S |
+| TB-1146 | Jira integration not-configured dead end — guided next step; see ## TB-1146 below | Adoption friction P0 — **V1**; owner `/integrations/jira` ~46/100 2026-07-25 | S |
+| TB-1147 | Jira page copy honesty — do not claim Set connection details; see ## TB-1147 below | Adoption friction P0 — **V1**; with **TB-1146** | XS |
+| TB-1148 | Jira not-configured message dedupe (status vs connection test); see ## TB-1148 below | Adoption friction P0 — **V1**; with **TB-1146** | XS |
+| TB-1149 | Jira issue type by severity — structured UI (no raw JSON); see ## TB-1149 below | Adoption friction P0 — **V1**; with **TB-1146** | M |
+| TB-1150 | Jira empty composition — gate connection test + demote overrides; see ## TB-1150 below | Adoption friction P0 — **V1**; with **TB-1146**/**TB-1148** | S |
+| TB-1151 | Azure Boards settings wrong SQL catalog (Database Query Failed) — TB-867 parity; see ## TB-1151 below | Correctness P0 — **V1**; owner `/integrations/azure-boards` ~38/100 2026-07-25; PD-002 class | S |
+| TB-1152 | Azure Boards page load — isolate failures (no Promise.all wipe); see ## TB-1152 below | Reliability P0 — **V1**; with **TB-1151** | S |
+| TB-1153 | Azure Boards — never show raw Database Query Failed as connection status; see ## TB-1153 below | Trustworthiness P0 — **V1**; with **TB-1151** | S |
+| TB-1154 | Azure Boards feature-off / load-error empty path honesty; see ## TB-1154 below | Adoption friction P0 — **V1**; with **TB-1151** | S |
+| TB-1155 | Azure Boards empty composition — demote forms until connectable; see ## TB-1155 below | Adoption friction P0 — **V1**; with **TB-1154** | S |
+| TB-1156 | Dual ManifestHash / GoldenManifestFingerprint + projection evolution failure-mode contract; see `## TB-1156` below | Trustworthiness P1 — **V1**; PA hasher Q; GTM **M-198**/**M-199** | S |
+| TB-1157 | Production ManifestHashService deliberate re-lock CI (no silent hasher subset ship); see `## TB-1157` below | Testability P1 — **V1**; after **TB-1156**; pairs **M-198** | M |
+| TB-1161 | ServiceNow not-configured dead end — guided admin CTA; see ## TB-1161 below | Adoption friction P0 — **V1**; owner `/integrations/servicenow` ~50/100 2026-07-25 | S |
+| TB-1162 | ServiceNow page load — isolate failures (no Promise.all wipe); see ## TB-1162 below | Reliability P0 — **V1**; with **TB-1161**; cf. **TB-1152** | S |
+| TB-1163 | ServiceNow — never show raw API/problem titles as connection status; see ## TB-1163 below | Trustworthiness P0 — **V1**; with **TB-1162**; cf. **TB-1153** | S |
+| TB-1164 | ServiceNow demote incident settings until credentials ready; see ## TB-1164 below | Adoption friction P0 — **V1**; with **TB-1161** | S |
+| TB-1165 | ServiceNow empty composition — setup progress drives primary story; see ## TB-1165 below | Adoption friction P0 — **V1**; with **TB-1161**/**TB-1164** | S |
+| TB-1171 | ServiceNow page title — show nav icon via PageHeading (parity with Azure Boards); see ## TB-1171 below | Adoption friction P0 — **V1**; owner ServiceNow icon gap 2026-07-25; with **TB-1161**–**TB-1165** | XS |
+| TB-1172 | Golden-cohort re-lock vs rubber-stamp + never-re-lockable invariants contract; see `## TB-1172` below | Trustworthiness P1 — **V1**; PA cohort re-lock Q; GTM **M-201**/**M-202** | S |
+| TB-1173 | Anti-rubber-stamp cohort re-lock / unexplained mass SHA rewrite honesty CI; see `## TB-1173` below | Testability P1 — **V1**; after **TB-1172**; pairs **M-201** | S |
+| TB-1166 | Billing tier value-ladder coherence — implement owner repricing decision; see ## TB-1166 below | Commercial / trustworthiness P0 — **V1**; owner `/settings/billing` ~64/100 2026-07-25; after GTM **M-200** | M |
+| TB-1167 | Enterprise billing card shows Included 0 users; see ## TB-1167 below | Correctness P0 — **V1**; with **TB-1166** | XS |
+| TB-1168 | Billing Included AI usage unit collision (dollars vs credits); see ## TB-1168 below | Trustworthiness P0 — **V1**; with **TB-1166** | S |
+| TB-1169 | Billing sales-led CTAs dead-end into toasts — navigate instead; see ## TB-1169 below | Adoption friction P0 — **V1**; with **TB-1170** | S |
+| TB-1170 | Billing composition — anchor-jump buttons, duplicate primary, operator spacing; see ## TB-1170 below | Adoption friction P0 — **V1**; with **TB-1169** | S |
+| TB-1174 | Teams not-configured — StatusTag + guided next step; see ## TB-1174 below | Adoption friction P0 — **V1**; owner `/integrations/teams` ~60/100 2026-07-25 | S |
+| TB-1175 | Teams draft vs saved honesty (prefilled recommended + example fields); see ## TB-1175 below | Trustworthiness P0 — **V1**; with **TB-1174** | S |
+| TB-1176 | Teams CTA hierarchy — Validate → Test → Save + disabled-test reason; see ## TB-1176 below | Adoption friction P0 — **V1**; with **TB-1174** | S |
+| TB-1177 | Teams operator spacing density (`space-y-8` / `py-8` → operator tokens); see ## TB-1177 below | Adoption friction P0 — **V1**; with **TB-1174**; cf. **TB-1170** | XS |
+| TB-1178 | Teams help-link dedupe (header vs aside footer); see ## TB-1178 below | Adoption friction P0 — **V1**; with **TB-1174** | XS |
+| TB-1179 | Project deletion has no UI — governed delete affordance; see ## TB-1179 below | Adoption friction P0 — **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
+| TB-1180 | Recycle bin retention transparency — actual window + purge date; see ## TB-1180 below | Trustworthiness P0 — **V1**; with **TB-1179**; API + UI | M |
+| TB-1181 | Recycle bin discoverability — unbury entry from Technical details disclosure; see ## TB-1181 below | Adoption friction P0 — **V1**; after **TB-1179** | S |
+| TB-1182 | Recycle bin status presentation + operator density; see ## TB-1182 below | Adoption friction P0 — **V1**; with **TB-1180** | S |
+| TB-1144 | SOC 2 / pen-test honest procurement talk-track contract; see `## TB-1144` below | Commercial / marketability P1 — **V1**; PA Q17 assurance talk; GTM **M-196**/**M-197** | S |
+| TB-1145 | Anti-SOC2-certified / pen-test-in-flight / almost-attested honesty CI; see `## TB-1145` below | Testability P1 — **V1**; after **TB-1144**; pairs **M-196** | S |
+| TB-1112 | Minimum pilot trust packet contract (no CPA SOC 2 / 3P pen test); see `## TB-1112` below | Commercial / marketability P1 — **V1**; PA Q14; GTM **M-190**/**M-191** | S |
+| TB-1113 | Anti-CPA/3P-pen-test-as-pilot-trust-packet honesty CI; see `## TB-1113` below | Testability P1 — **V1**; after **TB-1112**; pairs **M-190** | S |
+| TB-1120 | First security review PA one-pager ship-order contract; see `## TB-1120` below | Commercial / marketability P1 — **V1**; PA Q16; GTM **M-192**/**M-193** | S |
+| TB-1121 | Anti-security-review-ready-without-musts honesty CI; see `## TB-1121` below | Testability P1 — **V1**; after **TB-1120**; pairs **M-192** | S |
+| TB-1122 | Isolation claims too strong vs INV-001 / ADR 0037 + RLS purge; see `## TB-1122` below | Commercial / marketability P1 — **V1**; PA Q18; GTM **M-194**/**M-195** | S |
+| TB-1123 | Anti-RLS-as-live / workspace-boundary / crypto-Search honesty CI; see `## TB-1123` below | Testability P1 — **V1**; after **TB-1122**; pairs **M-194** | S |
 | TB-906 | Redis + Cosmos managed-identity data plane — replace Key Vault connection-string secrets with Entra/MI auth where supported; document residual secret paths; see `## TB-906` below | Trustworthiness P2 — **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20; extends TB-080/TB-100 pattern | M |
 | TB-907 | Key Vault secret expiry + rotation automation — `expiration_date` on managed secrets, rotation runbook wiring or `rotation_policy` where supported, near-expiry alerting; see `## TB-907` below | Trustworthiness P2 — **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20 | M |
 | TB-909 | Cost anomaly detection + subscription rollup budget — `azurerm_cost_anomaly_alert` + one subscription-scope budget (formula-derived: sum of per-RG budgets + 20% headroom) over the per-RG budgets; deliberately not folded into TB-903's gate; see `## TB-909` below | **Done** (2026-07-21) — Cost-effectiveness P2 **V1**; `infra/terraform-monitoring/subscription_cost_management.tf` | S |
@@ -26622,7 +26712,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-07-25) — client-only sample-row inject + Open sample package Do-this-next; injects excluded from hasWorkspaceReviews.
 
 **Priority:** P0.
 
@@ -26644,4 +26734,1782 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Out of scope:** Marketing `/welcome` proof funnel (**M-107**); inventing synthetic KPI numbers.
 
 **Size estimate:** M.
+﻿---
+
+## TB-1124 — Rename Advisory scans to `/governance/advisory-scans` (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot review of `/advisory` 2026-07-25 (~51/100).
+
+**Problem:** Sidebar lists **Advisory scans** under **Governance**, but the App Router path is top-level `/advisory` (explicit namespace exception alongside `/signed-records`). Owner wants `/governance/advisory-scans` (same IA rename pattern as Risk register **TB-1097** / Standards & rules **TB-1107**).
+
+**Approach:**
+
+1. Canonical App Router path: `/governance/advisory-scans` (reuse AdvisoryHubClient / scans+schedules tabs).
+2. Permanent redirects: `/advisory`, `/advisory-scheduling` → new path (+ `?tab=schedules` preserved).
+3. Update nav href, breadcrumbs, digests deep links, impact-preview links, route titles, tests, e2e.
+4. Remove `/advisory` from `nav-route-namespace-exceptions` when migrated.
+
+**Acceptance:** Governance nav and URL agree on `/governance/advisory-scans`; legacy `/advisory` redirects.
+
+**Depends on:** None.
+
+**Out of scope:** Renaming backend advisory scan APIs.
+
+**Size estimate:** M.
+
+---
+
+## TB-1125 — Advisory scans collapse triple description chrome (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Advisory scans screenshot 2026-07-25.
+
+**Problem:** First viewport stacks LayerHeader/orientation (**Advisory scans — Prioritized follow-up…**), page subtitle, value statement, trust copy, and Generate-card subtext that repeats the same “findings / evidence / governance rules” story three+ times.
+
+**Approach:**
+
+1. Keep one OperatorPageHeader title + one short lead.
+2. Fold value/trust into a single sentence or How-it-works disclosure.
+3. Remove duplicate body under Generate advisory scan when it restates the page lead.
+4. Vitest: one primary description block above the fold.
+
+**Acceptance:** Advisory scans does not open with three near-identical paragraphs.
+
+**Depends on:** Prefer with **TB-1124**.
+
+**Out of scope:** Schedules tab copy redesign.
+
+**Size estimate:** S.
+
+---
+
+## TB-1126 — Advisory scans empty/demo density — one next story (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Advisory scans screenshot 2026-07-25 (Claims Intake Demo).
+
+**Problem:** Empty state stacks **Generate advisory scan** (disabled), **No advisory scan generated yet** (Open reviews + View sample), and a full **Sample advisory recommendation** card with disposition chrome — three competing empty/demo stories.
+
+**Approach:**
+
+1. Demo/empty: lead with sample-first OR generate-with-preselected showcase review — not both full cards plus empty CTA strip.
+2. Collapse sample disposition into the sample path; do not show a separate empty card with two peer CTAs when sample is visible.
+3. Vitest for demo empty first-viewport structure.
+
+**Acceptance:** Demo Advisory scans has one clear next story above the fold.
+
+**Depends on:** Prefer with **TB-1128**.
+
+**Out of scope:** Changing advisory generation algorithms.
+
+**Size estimate:** S.
+
+---
+
+## TB-1127 — Advisory disposition controls must look like buttons (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Advisory scans screenshot 2026-07-25; complements Standards & rules **TB-1114** Refresh affordance.
+
+**Problem:** Sample (and live) disposition actions **Accept / Defer / Reject / Mark implemented** use low-contrast outline/disabled styling that reads as non-buttons — same class of affordance bug as ghost Refresh.
+
+**Approach:**
+
+1. Sample preview: show disposition as labeled non-interactive chips OR visibly disabled buttons with clearer button chrome (not pale outline-only).
+2. Live recommendation cards: ensure disposition actions use recognizable button variants (outline/secondary with sufficient contrast; primary for Accept when appropriate).
+3. Vitest/visual contract: disposition controls are role=button and not ghost/text-only.
+
+**Acceptance:** Disposition actions are unmistakably buttons (or clearly labeled non-action chips on sample).
+
+**Depends on:** Prefer with **TB-1126**.
+
+**Out of scope:** Changing disposition semantics/API.
+
+**Size estimate:** S.
+
+---
+
+## TB-1128 — Advisory scans single primary empty/demo CTA (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Advisory scans screenshot 2026-07-25.
+
+**Problem:** Empty card offers **Open reviews** (primary) and **View sample advisory scan** (outline) as peers while Generate remains the page primary — unclear Do-this-next for Claims Intake Demo.
+
+**Approach:**
+
+1. Demo: primary = View sample / Generate on showcase review.
+2. Real empty: primary = Open finalized review / finalize path; demote secondary links.
+3. Vitest: exactly one primary CTA in empty/demo state.
+
+**Acceptance:** Empty/demo Advisory scans has one clear primary next step.
+
+**Depends on:** **TB-1126**.
+
+**Out of scope:** Schedules empty state.
+
+**Size estimate:** S.
+﻿---
+
+## TB-1129 — Recurrence schedules page orientation (not generic Governance blurb) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot review of `/governance/recurrence-schedules` 2026-07-25 (~47/100).
+
+**Problem:** `LayerHeader pageKey="recurrence-schedules"` surfaces **Governance — Workspace governance status, pending approvals…** — overview/workflow vocabulary that is wrong for a schedules admin page and fights the H1 **Recurrence schedules**.
+
+**Approach:**
+
+1. Replace orientation with recurrence-specific line (automate follow-up review cadences) or drop LayerHeader when OperatorPageHeader already carries the job.
+2. Align buyer-polished orientation if present.
+3. Vitest: orientation does not claim pending-approvals overview on this route.
+
+**Acceptance:** First chrome matches Recurrence schedules, not Governance overview.
+
+**Depends on:** None.
+
+**Out of scope:** Redesigning `/governance` overview LayerHeader.
+
+**Size estimate:** S.
+
+---
+
+## TB-1130 — Recurrence schedules collapse dense intro prose (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Recurrence schedules screenshot 2026-07-25.
+
+**Problem:** Above the H1, a multi-paragraph GOVERNANCE intro block explains schedules, cadences, and evidence trails — high word count before any action. Feels unprofessional and buries Create.
+
+**Approach:**
+
+1. Remove or collapse marketing/layer guidance into a single short lead under OperatorPageHeader (subtitle already covers the job).
+2. Move long “why schedules” copy behind How-it-works / Learn more.
+3. Vitest: empty page has ≤1 short description block above Create.
+
+**Acceptance:** Page does not open with a wall of governance prose before the primary action.
+
+**Depends on:** Prefer with **TB-1129**.
+
+**Out of scope:** Rewriting all recurrence help-center articles.
+
+**Size estimate:** S.
+
+---
+
+## TB-1131 — Recurrence schedules single primary CTA + dedupe secondary links (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Recurrence schedules screenshot 2026-07-25.
+
+**Problem:** Empty state shows **Create recurrence schedule** in the header and again in the empty footer; **View governed reviews** / **View pending approvals** appear as an outline chip row and again inside the empty state (different variants). Six controls compete in one viewport — unprofessional and confusing.
+
+**Approach:**
+
+1. One primary: Create recurrence schedule (header or empty — not both equally loud).
+2. Secondary links once, as quiet text links (not a second button row duplicating empty actions).
+3. Empty primary should be Create (demo: create on sample review); demote Open reviews / approvals.
+4. Vitest: Create appears once as primary; each secondary label appears once.
+
+**Acceptance:** Empty Recurrence schedules has one clear primary and no duplicated CTA pairs.
+
+**Depends on:** Prefer with **TB-1130**.
+
+**Out of scope:** Create-panel form field redesign.
+
+**Size estimate:** S.
+
+---
+
+## TB-1132 — Recurrence schedule examples use human cadence (not raw cron first) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Recurrence schedules screenshot 2026-07-25.
+
+**Problem:** **Common schedule examples** lead with cron strings like `0 0 1 */3 * (UTC)` as the visual identity of each card — operator jargon on a buyer-facing Governance page.
+
+**Approach:**
+
+1. Lead each example with human cadence (e.g. Quarterly on the 1st, 08:00 UTC).
+2. Demote cron to helper/mono secondary or Advanced disclosure.
+3. Clicking an example should still populate cron when creating.
+4. Vitest/copy guard: example cards do not put cron as the sole/primary subtitle.
+
+**Acceptance:** Examples read as business cadences first; cron is secondary.
+
+**Depends on:** Prefer with **TB-1131**.
+
+**Out of scope:** Changing cron engine semantics.
+
+**Size estimate:** S.
+
+---
+
+## TB-1133 — Recurrence schedules empty first-viewport composition (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Recurrence schedules screenshot 2026-07-25.
+
+**Problem:** Empty layout mixes header actions, chip row, empty card, four example cards, and a right **Governance workflow** rail — sparse middle whitespace with crowded control clusters; right rail restates the page job (“Next step: choose a governed review…”).
+
+**Approach:**
+
+1. Empty first viewport: title + one lead + one primary Create + optional one secondary link.
+2. Examples as compact chooser under Create (or inside create panel), not a fourth competing column of cards.
+3. Demote or hide workflow helper rail on empty (or collapse to one line).
+4. Visual/Vitest contract for empty composition density.
+
+**Acceptance:** Empty page reads as one professional composition, not a dashboard of leftover chrome.
+
+**Depends on:** **TB-1130** / **TB-1131** / **TB-1132**.
+
+**Out of scope:** Populated table density redesign.
+
+**Size estimate:** S.
+﻿---
+
+## TB-1134 — Rename Governance setup to `/governance/setup` (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot review of `/governance/first-30-days` 2026-07-25 (~52/100).
+
+**Problem:** Nav/H1 say **Governance setup** / **Governance setup guide**, but the App Router path remains `/governance/first-30-days` (program nickname). Owner wants `/governance/setup` (same IA rename pattern as Risk register **TB-1097** / Advisory **TB-1124**).
+
+**Approach:**
+
+1. Canonical App Router path: `/governance/setup` (reuse first-30-days setup guide modules).
+2. Permanent redirects: `/governance/first-30-days` → `/governance/setup`.
+3. Update nav href, breadcrumbs, alerts deep links, tests, e2e, route-readiness.
+4. Keep “first 30 days” only as optional program copy if still needed — not in the URL.
+
+**Acceptance:** Governance nav and URL agree on `/governance/setup`; legacy first-30-days redirects.
+
+**Depends on:** None. Prefer with **TB-1135**.
+
+**Out of scope:** Changing the five setup step definitions/content.
+
+**Size estimate:** M.
+
+---
+
+## TB-1135 — Governance setup naming consistency (drop orphan First 30 days chip) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Governance setup screenshot 2026-07-25.
+
+**Problem:** Page shows three names at once: nav **Governance setup guide**, H1 **Governance setup**, metadata chip **First 30 days**, breadcrumb **Governance setup**. The chip reads as a random program tag, not designed UI.
+
+**Approach:**
+
+1. Pick one buyer-facing title (prefer Governance setup) for H1 + nav + breadcrumb.
+2. Remove or demote **First 30 days** to helper text / How-it-works — not a hero chip.
+3. Vitest: no orphan First 30 days chip beside the H1.
+
+**Acceptance:** One clear product name; First 30 days is not a competing title signal.
+
+**Depends on:** Prefer with **TB-1134**.
+
+**Out of scope:** Renaming Core Pilot / other onboarding programs.
+
+**Size estimate:** S.
+
+---
+
+## TB-1136 — Governance setup orientation (not generic Governance overview blurb) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Governance setup screenshot 2026-07-25; same anti-pattern as Recurrence **TB-1129**.
+
+**Problem:** Top chrome shows **Governance — Workspace governance status, pending approvals, recent decisions…** — overview vocabulary that does not match a setup checklist.
+
+**Approach:**
+
+1. Recurrence-style fix: setup-specific orientation line, or drop LayerHeader when OperatorPageHeader carries the job.
+2. Vitest: orientation does not claim pending-approvals overview on setup route.
+
+**Acceptance:** First chrome matches Governance setup, not Governance overview.
+
+**Depends on:** Prefer with **TB-1134**. Complements **TB-1129**.
+
+**Out of scope:** `/governance` overview page redesign.
+
+**Size estimate:** S.
+
+---
+
+## TB-1137 — Governance setup checklist visual design (not five identical cards) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Governance setup screenshot 2026-07-25.
+
+**Problem:** Five stacked white cards look template-generated: identical Not started tags + identical dark-green primary buttons for every step. Only a thin teal rail marks “recommended next.” Sparse right whitespace; no numbered track / progress rhythm a human designer would use.
+
+**Approach:**
+
+1. Checklist composition: vertical step track or numbered list; emphasize current step; demote future steps (outline/secondary CTAs until recommended).
+2. Keep Recommended next as the only primary button when others are not started.
+3. Tighten max-width / alignment so the page does not feel left-stacked in a void.
+4. Visual/Vitest: non-recommended steps are not all primary-variant CTAs.
+
+**Acceptance:** Setup guide reads as a designed checklist, not five clone cards.
+
+**Depends on:** Prefer with **TB-1135** / **TB-1138**.
+
+**Out of scope:** Changing step order or destinations.
+
+**Size estimate:** M.
+
+---
+
+## TB-1138 — Governance setup foundation panel vs progress — merge/dedupe (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Governance setup screenshot 2026-07-25.
+
+**Problem:** **0 of 5 completed** progress plus bottom **Governance foundation** panel with four Pending rows duplicates the same unfinished story — zero/pending theater after the checklist.
+
+**Approach:**
+
+1. Merge foundation signals into step completion or a compact summary beside progress.
+2. Hide foundation panel when all indicators pending and steps not started; show when some complete.
+3. Vitest for empty/demo: no all-Pending foundation grid under an untouched checklist.
+
+**Acceptance:** Empty setup does not end with a second unfinished status list.
+
+**Depends on:** Prefer with **TB-1137**.
+
+**Out of scope:** Changing foundation indicator business rules.
+
+**Size estimate:** S.
+
+---
+
+## TB-1139 — Cloud connections platform-scope checkbox must hide provider cards (P0)
+
+**Window:** V1 — Correctness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/integrations/cloud-connections` 2026-07-25 (~49/100). Owner unchecked GCP; GCP summary card stayed on screen.
+
+**Problem:** `CloudPlatformScopePanel` updates local checkbox state, then calls `writeCloudPlatformScopeToStorage`. That write **returns early without dispatching** `CLOUD_PLATFORM_SCOPE_CHANGED_EVENT` when `readWorkspaceIdForScope()` is null (no operator workspace in `localStorage`). Parent `CloudConnectionsPageClient` never re-reads scope, so `visibleLandingPlatformCards` still includes GCP. Checkbox lies; filter is a no-op. Existing Vitest only covers the happy path with operator scope pre-seeded.
+
+**Approach:**
+
+1. Never show a checked→unchecked UI change that does not also update the card grid (lift shared scope state into the page client, or always dispatch + re-read even when persistence is deferred).
+2. When workspace id is missing: either persist under a documented fallback key, or disable checkboxes with an explicit “Select a workspace first” helper — do **not** silent no-op.
+3. Vitest: toggle GCP **without** operator scope → card disappears (or checkbox disabled with helper); toggle **with** scope → card disappears (keep existing test).
+
+**Acceptance:** Unchecking GCP always removes `cloud-connection-card-gcp` from the landing grid (or the control is disabled with a clear reason).
+
+**Depends on:** None. Pair with **TB-1142**.
+
+**Out of scope:** Changing which platforms exist; GCP detail-page wizard.
+
+**Size estimate:** S.
+
+---
+
+## TB-1140 — Remove stale GCP Preview maturity label (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/integrations/cloud-connections` 2026-07-25. Owner believed GCP Tier 2 was finished; UI still shows **Preview**.
+
+**Problem:** `CloudConnectionsPageClient` hardcodes `maturityLabel={platformId === "gcp" ? "Preview" : null}`. Hosted GCP Tier 2 polling shipped as **TB-403 Done (2026-06-27)** (Workload Identity Federation, Cloud Asset Inventory, connect UI). Labeling GCP Preview while Azure/AWS show no maturity chip is buyer-misleading and contradicts shipped status.
+
+**Approach:**
+
+1. Remove the hardcoded GCP Preview chip (default GA parity with Azure/AWS unless a real maturity registry says otherwise).
+2. If a maturity model is needed later, drive it from a single source of truth — never a one-off ternary on the landing page.
+3. Vitest/drift: GCP card title must not contain “Preview”.
+
+**Acceptance:** GCP landing card has no Preview badge; copy matches Tier 2 Done posture.
+
+**Depends on:** None. Ship with **TB-1139** if convenient.
+
+**Out of scope:** Reopening TB-403; marketing claim changes outside this route.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1141 — Cloud provider summary cards — single primary CTA (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner cloud-connections review 2026-07-25 (~49/100).
+
+**Problem:** Each provider card (`CloudProviderSummaryCard`) offers **Configure** and **View details** as stacked full-width buttons that both link to the same `cloudProviderDetailPath(provider)`. Duplicate CTAs add noise and look unfinished.
+
+**Approach:**
+
+1. One primary CTA (e.g. Configure when not configured; Open connection / View details when configured).
+2. Optional secondary text link only if it goes somewhere different (help permissions, etc.).
+3. Vitest: each provider card has a single primary button to the detail path.
+
+**Acceptance:** No dual identical-destination buttons on provider summary cards.
+
+**Depends on:** Prefer with **TB-1143**.
+
+**Out of scope:** Redesigning the detail wizard.
+
+**Size estimate:** S.
+
+---
+
+## TB-1142 — Cloud platform scope panel — fail closed when workspace missing + shared filter state (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner cloud-connections review 2026-07-25 (checkbox desync; see **TB-1139**).
+
+**Problem:** Scope panel and landing cards own separate React state bridged only by storage events. When persistence cannot run, the panel still looks interactive. Operators cannot tell why filtering failed.
+
+**Approach:**
+
+1. Single source of truth for platform scope on the landing page (props/callback or shared hook); panel is presentational.
+2. Visible empty/disabled affordance when workspace scope is unavailable.
+3. Optional: toast or inline alert on failed persist (never silent).
+
+**Acceptance:** Scope UI cannot diverge from visible cards; missing workspace is explained in-product.
+
+**Depends on:** **TB-1139** (correctness fix first).
+
+**Out of scope:** Server-persisted workspace platform preferences (localStorage remains fine for V1).
+
+**Size estimate:** S.
+
+---
+
+## TB-1143 — Cloud connections empty/not-configured composition — suppress zero theater (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner cloud-connections review 2026-07-25 (~49/100).
+
+**Problem:** Unconfigured providers show Status **Not configured**, Last validation **Not validated yet**, Evidence collected **No packages collected** — three rows of zero theater that make every card look equally empty/broken. Grid of four lookalike cards (evidence-only + three clouds) reads as a template dashboard, not a guided connect path.
+
+**Approach:**
+
+1. For not-configured providers: collapse status rows to a short “Not connected” line + one CTA; reserve validation/evidence rows for configured connections.
+2. Prefer a clearer hierarchy: evidence-only as the safe default path; cloud cards as optional accelerators (visual weight, not Azure advocacy).
+3. Visual/Vitest: unconfigured card does not render all three empty-metric rows.
+
+**Acceptance:** Empty workspace cloud-connections page does not lead with a wall of Not configured / Not validated / No packages.
+
+**Depends on:** Prefer with **TB-1141**.
+
+**Out of scope:** Changing Tier 2 API contracts.
+
+**Size estimate:** S.
+
+---
+
+## TB-1146 — Jira integration not-configured dead end — guided next step (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot review of `/integrations/jira` 2026-07-25 (~46/100).
+
+**Problem:** Status shows **Jira Not configured** / “Jira credentials are not configured for this workspace” with **no CTA** to configure credentials, open admin ITSM onboarding (`/admin/integrations/itsm`), or Integration readiness. Collapsed **Platform operator notes** only says contact an administrator. Operator is stuck on a settings form that cannot unblock the blocker.
+
+**Approach:**
+
+1. When `locallyConfigured !== true`, replace dead-end status with one primary next step: link to admin ITSM connector onboarding when the user can access it; otherwise expand/show platform-operator instructions + Integration readiness.
+2. Do not bury the unblock path only inside a collapsed disclosure.
+3. Apply the same empty-path pattern on `/integrations/servicenow` via shared `ItsmProductIntegrationPageClient`.
+4. Vitest: not-configured state exposes a single primary next-step control (admin or readiness), not only repeated prose.
+
+**Acceptance:** Not-configured Jira page always offers a clear next action to get credentials configured — never status-only.
+
+**Depends on:** None. Pair with **TB-1147** / **TB-1150**.
+
+**Out of scope:** Letting workspace operators paste host secrets into this page if product policy keeps credentials platform-only.
+
+**Size estimate:** S.
+
+---
+
+## TB-1147 — Jira page copy honesty — do not claim Set connection details (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/jira` screenshot 2026-07-25.
+
+**Problem:** Subtitle in `ITSM_PRODUCT_PAGE_COPY.jira.summary` says “Set connection details and routing preferences for this workspace,” but the page only edits **tenant overrides** (project key, severity filter, issue-type map). Connection credentials are host/platform-configured. Copy overpromises and worsens the dead end in **TB-1146**.
+
+**Approach:**
+
+1. Rewrite summary to: outbound ticket routing for this workspace + credentials configured by platform/admin (honest split).
+2. Mirror for ServiceNow copy.
+3. Drift/Vitest: page summary must not claim operators set connection credentials on this route.
+
+**Acceptance:** Page copy matches what the form can actually change.
+
+**Depends on:** Prefer with **TB-1146**.
+
+**Out of scope:** Changing where credentials are stored.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1148 — Jira not-configured message dedupe (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/jira` screenshot 2026-07-25.
+
+**Problem:** Sanitized probe summary “Jira credentials are not configured for this workspace” appears on `ItsmConnectorProbeCard` **and again** under Connection test (`probe?.summary` after Run connection test / on load). Duplicate failure theater.
+
+**Approach:**
+
+1. Show the not-configured / probe summary in **one** place (prefer status card).
+2. Connection test section: result only after an explicit Run, or a short “Test unavailable until credentials are configured” without repeating the same sentence.
+3. Vitest: not-configured page does not render the identical summary string twice.
+
+**Acceptance:** One not-configured explanation on the page at a time.
+
+**Depends on:** Prefer with **TB-1146** / **TB-1150**.
+
+**Out of scope:** Changing probe API payloads.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1149 — Jira issue type by severity — structured UI (no raw JSON) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/jira` screenshot 2026-07-25.
+
+**Problem:** **Jira issue type by severity (JSON object)** is a freeform textarea with placeholder `{"Critical":"Bug","Warning":"Task"}`. Easy to break; looks like an internal admin dump on a product Integrations page.
+
+**Approach:**
+
+1. Replace textarea with structured rows (severity → issue type) that serialize to the existing `jiraIssueTypeBySeverityJson` API field.
+2. Keep an advanced “Edit as JSON” disclosure optional for power users — default path is form fields.
+3. Client-side validation before save; Vitest covers round-trip serialize/parse.
+4. ServiceNow page unchanged except shared chrome if any.
+
+**Acceptance:** Default Jira settings UI does not require hand-editing JSON.
+
+**Depends on:** Prefer after empty-path **TB-1146** (form still secondary when not configured).
+
+**Out of scope:** Changing server schema beyond the existing JSON string field.
+
+**Size estimate:** M.
+
+---
+
+## TB-1150 — Jira empty composition — gate connection test + demote overrides (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/jira` screenshot 2026-07-25.
+
+**Problem:** While credentials are missing, the page still presents full **Tenant overrides** (Save/Reload) and an enabled **Run connection test** that can only restate the same failure. Left-stacked cards with large empty right rail feel unfinished; no single empty-state story.
+
+**Approach:**
+
+1. When not configured: lead with status + **TB-1146** next step; demote overrides (collapsed “Optional routing — available after connection”) or disable Save with helper.
+2. Disable or explain Connection test until `locallyConfigured`; do not present it as the primary action.
+3. Single primary CTA in the empty viewport (configure path / readiness); checklist link secondary.
+4. Parity on ServiceNow product page.
+5. Visual/Vitest: not-configured viewport has one primary button; connection test not primary-enabled.
+
+**Acceptance:** Empty Jira page reads as “connect first,” not “fill JSON and test a missing connection.”
+
+**Depends on:** **TB-1146**, **TB-1148**.
+
+**Out of scope:** Full visual redesign of Integrations IA.
+
+**Size estimate:** S.
+
+---
+
+## TB-1151 — Azure Boards settings wrong SQL catalog (Database Query Failed) — TB-867 parity (P0)
+
+**Window:** V1 — Correctness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot of `/integrations/azure-boards` 2026-07-25 (~38/100). Connection status shows **Database Query Failed: The database rejected the query due to a programming error.**
+
+**Problem:** Same class as **PD-002** / Done **TB-867**. `SqlTenantAzureBoardsOutboundSettingsRepository` injects `IBackgroundWorkerSqlConnectionFactory` (primary/system catalog). `dbo.TenantAzureBoardsOutboundSettings` lives in the **tenant** catalog (`ArchLucid.sql` migration 275). Under `SystemWithPerTenantCatalogs`, settings GET/PUT hit SQL 208 → ApplicationProblemMapper **Database Query Failed**. Page `refresh()` loads settings via `Promise.all` with health/ITSM/connection, so one 500 bricks the route.
+
+**Approach:**
+
+1. Switch repository ctor to scoped `ISqlConnectionFactory` (parity with `SqlTenantItsmOutboundSettingsRepository` after **TB-867**).
+2. Add `SqlTenantAzureBoardsOutboundSettingsRepositoryConnectionFactoryContractTests` mirroring the ITSM contract test.
+3. Document in `COMMON_ERRORS.md` (extend §7c or add Azure Boards bullet) + note in `PRODUCTION_DEFECT_LOG.md` if filing a new PD or PD-002 sibling.
+4. API/integration smoke: `GET /v1/integrations/azure-boards/settings` returns 200 (empty defaults OK) on per-tenant-catalog hosts.
+
+**Acceptance:** Opening Azure Boards does not 500 on settings; contract test fails if background-worker factory is reintroduced.
+
+**Depends on:** None. Ship first in this cluster.
+
+**Out of scope:** Azure DevOps OAuth redesign; changing table schema.
+
+**Size estimate:** S.
+
+---
+
+## TB-1152 — Azure Boards page load — isolate failures (no Promise.all wipe) (P0)
+
+**Window:** V1 — Reliability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Azure Boards screenshot 2026-07-25.
+
+**Problem:** `AzureBoardsIntegrationPageClient.refresh` uses `Promise.all` across health, ITSM health, settings, and connection. Any single rejection nulls **all** state and sets one `loadError`, so a settings catalog bug also hides connection fields and readiness that may have succeeded.
+
+**Approach:**
+
+1. Load each resource independently (`Promise.allSettled` or sequential try/catch per call).
+2. Surface partial success: show connection form if connection GET worked; show scoped error banner only for the failed slice.
+3. Vitest: settings failure does not clear a successful connection payload.
+
+**Acceptance:** One failing Azure Boards API does not blank the entire page.
+
+**Depends on:** Prefer with **TB-1151** (root 500 still must be fixed).
+
+**Out of scope:** Redesigning all Integrations loaders.
+
+**Size estimate:** S.
+
+---
+
+## TB-1153 — Azure Boards — never show raw Database Query Failed as connection status (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Azure Boards screenshot 2026-07-25.
+
+**Problem:** `resolveAzureBoardsConnectionStatus` puts `loadError` (problem title + detail from the API client) into **Connection status** explanation verbatim — operators see “Database Query Failed… programming error” as if it were product status. Looks like a broken demo.
+
+**Approach:**
+
+1. Map known problem titles (Database Query Failed / 5xx) to buyer-safe copy + “Reload / contact support” + optional correlation id.
+2. Keep raw detail in console/diagnostics only (or operator-notes when admin nav enabled).
+3. Vitest: loadError containing “Database Query Failed” never appears as the status explanation string.
+
+**Acceptance:** Connection status never pastes raw SQL/problem-mapper titles to buyers.
+
+**Depends on:** Prefer with **TB-1151** / **TB-1152**.
+
+**Out of scope:** Changing ApplicationProblemMapper globally (may share helpers if they exist).
+
+**Size estimate:** S.
+
+---
+
+## TB-1154 — Azure Boards feature-off / load-error empty path honesty (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Azure Boards screenshot 2026-07-25.
+
+**Problem:** Page simultaneously shows load/database failure (or “Work management integrations are not enabled for this deployment”) **and** a full Connection settings / Default work item behavior form with Save buttons. Setup Progress checklist stays all unchecked. Operators cannot tell whether to fill the form, ask admin to enable the feature, or wait for a fix.
+
+**Approach:**
+
+1. When `nativeEnabled !== true` or load hard-fails: lead with one honest next step (enable work management / contact platform / retry after **TB-1151**).
+2. Do not present Save connection as the primary story while the feature or API is unavailable.
+3. Align status label, Test connection reason, and Setup Progress step 0.
+
+**Acceptance:** Feature-off or load-error states have one clear next action; forms are secondary/disabled with reason.
+
+**Depends on:** **TB-1151** for true empty-not-configured path after fix.
+
+**Out of scope:** Changing how `nativeEnabled` is configured in host options.
+
+**Size estimate:** S.
+
+---
+
+## TB-1155 — Azure Boards empty composition — demote forms until connectable (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Azure Boards screenshot 2026-07-25.
+
+**Problem:** Three stacked sections (Connection settings, Default work item behavior, Test connection) plus right-rail Setup Progress create a long empty configure theater while Credential status is **Not configured**, project dropdowns say “Save connection first,” and Test is disabled. Feels unfinished even when APIs are healthy.
+
+**Approach:**
+
+1. Progressive disclosure: connection fields first; collapse/demote default behavior until credentials ready; test section only when gate allows.
+2. Single primary CTA for the current step; Save settings / Reload secondary.
+3. Setup Progress should drive hierarchy (current step emphasized), not a static unchecked list beside a full form dump.
+4. Visual/Vitest: with credentials not ready, default-behavior Save is not a primary equal peer to Save connection.
+
+**Acceptance:** Empty Azure Boards page reads as a short connect path, not three equal empty cards.
+
+**Depends on:** Prefer with **TB-1154**.
+
+**Out of scope:** Azure Boards OAuth / removing PAT secure-reference model.
+
+**Size estimate:** S.
+
+---
+
+## TB-1161 — ServiceNow not-configured dead end — guided admin CTA (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/integrations/servicenow` 2026-07-25 (~50/100).
+
+**Problem:** When credentials are missing, status next-step says ask an administrator and an amber banner repeats `SERVICENOW_CREDENTIALS_ADMIN_REQUIRED`, but there is **no primary button/link** to `/admin/integrations/itsm`. The only admin link is inside collapsed **Platform operator notes** (and only when system-administration nav is enabled).
+
+**Approach:**
+
+1. When `!credentialsReady`: one primary CTA — Open ITSM connector administration if accessible; else Integration readiness + clear ask-admin copy.
+2. Put the CTA in the main column (status or connection settings), not only in aside operator notes.
+3. Vitest: not-configured state exposes a next-step control with href to admin ITSM or readiness.
+
+**Acceptance:** Not-configured ServiceNow always offers a clickable next action — never prose-only.
+
+**Depends on:** None.
+
+**Out of scope:** Letting workspace operators paste secrets on this page if credentials stay admin-only.
+
+**Size estimate:** S.
+
+---
+
+## TB-1162 — ServiceNow page load — isolate failures (no Promise.all wipe) (P0)
+
+**Window:** V1 — Reliability.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ServiceNow review 2026-07-25; same pattern as **TB-1152**.
+
+**Problem:** `ServiceNowIntegrationPageClient.refresh` uses `Promise.all` across health, settings, and connection. One rejection nulls all state and sets a single `loadError`.
+
+**Approach:**
+
+1. `Promise.allSettled` (or per-call try/catch); keep successful slices.
+2. Scoped error banner for the failed resource.
+3. Vitest: settings failure does not clear a successful connection payload.
+
+**Acceptance:** One failing ITSM API does not blank the ServiceNow page.
+
+**Depends on:** Prefer with **TB-1163**.
+
+**Out of scope:** Changing ITSM API contracts.
+
+**Size estimate:** S.
+
+---
+
+## TB-1163 — ServiceNow — never show raw API/problem titles as connection status (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ServiceNow review 2026-07-25; same class as **TB-1153**.
+
+**Problem:** `resolveServiceNowConnectionStatus` assigns `loadError` verbatim to Connection status explanation — buyers can see “Database Query Failed…” / problem-mapper titles.
+
+**Approach:**
+
+1. Map 5xx / Database Query Failed / known problem titles to buyer-safe copy + reload/support next step.
+2. Vitest: loadError containing “Database Query Failed” never appears as status explanation.
+
+**Acceptance:** Connection status never pastes raw problem titles.
+
+**Depends on:** Prefer with **TB-1162**.
+
+**Out of scope:** Global ApplicationProblemMapper rewrite.
+
+**Size estimate:** S.
+
+---
+
+## TB-1164 — ServiceNow demote incident settings until credentials ready (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ServiceNow review 2026-07-25.
+
+**Problem:** While credentials are missing, **Incident creation settings** still offers primary **Save settings** + Reload for the CMDB auto-create checkbox — competing with the real blocker.
+
+**Approach:**
+
+1. When `!credentialsReady` (or `nativeEnabled !== true`): collapse/disable incident settings with helper “Available after connection is configured.”
+2. Do not present Save settings as the page primary CTA in that state.
+3. Vitest: not-configured → Save settings disabled or section demoted.
+
+**Acceptance:** Empty ServiceNow does not lead with incident-settings Save.
+
+**Depends on:** Prefer with **TB-1161**.
+
+**Out of scope:** Changing CMDB auto-create semantics.
+
+**Size estimate:** S.
+
+---
+
+## TB-1165 — ServiceNow empty composition — setup progress drives primary story (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner ServiceNow review 2026-07-25.
+
+**Problem:** Connection settings (read-only empties) + Incident settings + Test connection + right-rail Setup Progress (all incomplete) create long empty theater without a single visual hierarchy.
+
+**Approach:**
+
+1. Lead with status + **TB-1161** CTA; demote Test until gate allows; demote incident settings per **TB-1164**.
+2. Emphasize current Setup Progress step; de-emphasize future steps.
+3. Visual/Vitest: not-configured viewport has one primary control.
+
+**Acceptance:** Empty ServiceNow reads as “complete credential setup next,” not three equal empty cards.
+
+**Depends on:** **TB-1161**, **TB-1164**.
+
+**Out of scope:** Merging ServiceNow into the Jira shared client.
+
+**Size estimate:** S.
+
+---
+
+## TB-1112 — Minimum pilot trust packet contract (no CPA SOC 2 / 3P pen test) (P1)
+
+**Window:** V1 — Commercial / marketability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *What is the smallest proof packet a buyer needs to trust a pilot without CPA SOC 2 or third-party pen test?*
+
+**Problem:** Stage 0 selling and pilot packing still risk treating CPA SOC 2 or a published third-party pen test as the single-pilot trust bar, or equating Trust Center / SOC self-assessment / owner-conducted pen-style summary with “SOC 2 certified” / “third-party pen tested.” The six-element Real SEND executive packet and self-attested assurance substitutes already exist; they are not pinned as the **minimum** Stage 0 bar with an explicit drop list.
+
+**Approach:**
+
+1. Author `docs/library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md` (or a PA appendix under [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](../go-to-market/EXECUTIVE_PAID_PILOT_PROOF_PACKET.md) + [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md)) with tables:
+   - **Include (minimum bar):** six-element Real SEND executive packet + labeled self-attested assurance substitutes (Trust Center honesty, SOC self-assessment, owner-conducted pen-style summary per V1 **TB-005** posture — not CPA/3P).
+   - **Drop / defer from single-pilot bar:** CPA-issued SOC 2 report; published third-party pen test; Stage 1 “evidence-backed selling”; G4 ≥3 pilots as a first-pilot gate.
+   - **Mock-review PASS:** deferred `(B)` procurement realism items (CPA/3P) accepted as scope when the include matrix is complete.
+2. Cross-link Done **TB-135**/**TB-136** (stay closed), GTM **G-REAL-05** / **G-ASSURANCE-02** (owner execution only), **M-188**/**M-189**, **M-190**/**M-191**.
+3. Name CI anchors for **TB-1113**.
+
+**Acceptance:** Contract published; GTM can cite “Stage 0 pilot trust ≠ CPA SOC 2 / published 3P pen test”; does not reopen Done **TB-135**/**TB-136**.
+
+**Depends on:** None (docs). Complements Stage 0 allowlist (**TB-1072** cluster if present / **M-188**).
+
+**Out of scope:** Executing CPA SOC 2 or third-party pen test; substituting for **G-REAL-06**/**G-REAL-07** G4 evidence.
+
+**Size estimate:** S.
+
+---
+
+## TB-1113 — Anti-CPA/3P-pen-test-as-pilot-trust-packet honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1112**; hardens GTM **M-190**.
+
+**Problem:** Buyer-facing / Stage 0 copy can imply the pilot trust packet requires or includes CPA SOC 2 or a published third-party pen test, or that Trust Center / self-assessment equals “SOC 2 certified” / “third-party pen tested.”
+
+**Approach:**
+
+1. Doc/CI guard: fail WHAT_NOT_TO_PROMISE-adjacent / proof-packet stubs that require CPA SOC 2 or published 3P pen test as the Stage 0 single-pilot trust bar, or equate self-attested substitutes with CPA/3P publication.
+2. Require **TB-1112** (or explicit include/drop matrix) near “pilot trust packet” / “ready for paid pilot security conversation” language.
+3. Optional: assert GTM **G-REAL-05** / **G-ASSURANCE-02** remain the only homes for CPA/3P execution claims — do not reopen Done **TB-135**/**TB-136**.
+4. Pair **M-190** bullets with the guard list.
+
+**Acceptance:** CI fails on dishonest CPA/3P-as-pilot-packet claims; pairs **M-190**.
+
+**Depends on:** **TB-1112**.
+
+**Out of scope:** Changing Trust Center content beyond honesty anchors; running CPA/3P programs.
+
+**Size estimate:** S.
+
+---
+
+## TB-1120 — First security review PA one-pager ship-order contract (P1)
+
+**Window:** V1 — Commercial / marketability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *Which PA one-pagers should ship before the first security review?*
+
+**Problem:** “Ready for first buyer security review” can be claimed without a pinned must/should/defer order. Done **M-114** isolation one-pager is necessary but not sufficient; identity decide-once (**M-151**) and audit-trail honesty (**M-118**) are first-review musts; AI model-fail vs quality-reject (**M-124**) is conditional; billing/task idempotency (**M-171**) is FinOps/second-pass.
+
+**Approach:**
+
+1. Author `docs/library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md` (or a section under [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md) / [`REVIEW_CADENCE.md`](../go-to-market/REVIEW_CADENCE.md)) with tables:
+   - **Already:** **M-114** (Done).
+   - **Must before first security review:** **M-151** + **M-118**.
+   - **Should if AI trust in scope:** **M-124**.
+   - **Defer from first-review bar:** **M-171** (FinOps / second pass).
+   - **Adjacent / agenda-dependent:** **M-115** / **M-153** / **M-126** (cite without re-authoring).
+2. Explicit non-goals: re-authoring owned one-pager bodies; CPA/3P bar (**TB-1112** / **M-190**).
+3. Name CI anchors for **TB-1121**; GTM **M-192**/**M-193**.
+
+**Acceptance:** Ship-order contract published; GTM can cite must/should/defer without inventing new one-pager topics.
+
+**Depends on:** None (docs). Does not block implementing **M-118**/**M-151**/**M-124** content rows themselves.
+
+**Out of scope:** Writing the deferred one-pagers in this TB; CPA/3P programs.
+
+**Size estimate:** S.
+
+---
+
+## TB-1121 — Anti-security-review-ready-without-musts honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1120**; hardens GTM **M-192**.
+
+**Problem:** Sales/procurement copy can claim “ready for first security review” with only **M-114**, or treat **M-171** as a first-review must, or omit **M-151**/**M-118**.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that claim first-security-review readiness without **M-114** + **M-151** + **M-118** (or **TB-1120** must anchors).
+2. Fail stubs that require **M-171** as a first-review gate without FinOps/second-pass caveat.
+3. Require **TB-1120** ship-order near “security review ready” language; pair **M-192**.
+
+**Acceptance:** CI fails on dishonest first-review-ready claims; pairs **M-192**.
+
+**Depends on:** **TB-1120**.
+
+**Out of scope:** Authoring **M-118**/**M-151**/**M-124** artifacts (owned GTM content rows).
+
+**Size estimate:** S.
+
+---
+
+## TB-1122 — Isolation claims too strong vs INV-001 / ADR 0037 + RLS purge (P1)
+
+**Window:** V1 — Commercial / marketability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *What isolation/security claims are still too strong relative to shipped INV-001 / defense-in-depth docs?*
+
+**Problem:** Shipped truth is ADR 0037 database-per-tenant + INV-001 host decide-once + **M-114** G3 identity-wins. Honesty clusters already own Search (**M-152**), NetArch (**M-156**), empty-scope (**M-168**), tools (**TB-950**/**M-115**), audit Required vs informational (**M-118**). Residual gaps: (1) no single PA **too-strong vs shipped** matrix, (2) stale **RLS-as-control** language still linked from living docs (`TENANT_ISOLATION.md` Layer-2 → `MULTI_TENANT_RLS.md`, trust-center RLS links, pack “RLS + JWT”), (3) G3 **PASS** / “provable” over-reads while **TB-948**/**TB-949** pending, (4) consolidated purge for workspace=security-boundary / crypto-proof-Search / NetArchTest-alone / empty-AllowedTools confinement / empty-TenantId⇒no-data overclaims.
+
+**Approach:**
+
+1. Author `docs/library/ISOLATION_CLAIMS_TOO_STRONG_VS_INV001_ADR0037_CONTRACT.md` (or expand [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) + [`TENANT_ISOLATION.md`](../go-to-market/TENANT_ISOLATION.md)) with tables:
+   - **Too strong vs shipped:** RLS as deployed control; workspace/project as paying-client security boundary; G3 “provable PASS” without **TB-948**/**TB-949**; per-tenant Search / crypto-proof retrieval; NetArchTest alone = isolation; empty `AllowedTools` = confined; empty TenantId ⇒ no data; uniform append-only audit.
+   - **Safe to claim:** database-per-tenant catalogs + INV-001 decide-once + **M-114** identity-wins (with caveats).
+   - **Owner map:** do not duplicate bodies of **M-150**/**M-152**/**M-156**/**M-168**/**M-115**/**M-118** — cite them; this contract is the inventory + RLS stale-doc purge list.
+2. Purge or relabel living RLS-as-control links to legacy/historical only (ADR 0037); do not reinstate RLS.
+3. Soften G3 PASS language to match open **TB-948**/**TB-949** residuals.
+4. Name CI anchors for **TB-1123**; GTM **M-194**/**M-195**.
+
+**Acceptance:** Contract + purge list published; living buyer docs do not present RLS as a production control; GTM can cite too-strong vs safe matrix.
+
+**Depends on:** None (docs). Complements Done **M-114**; does not reopen ADR 0037.
+
+**Out of scope:** Implementing **TB-948**/**TB-949**/**TB-950**; re-enabling SQL RLS; re-authoring owned honesty cluster bodies.
+
+**Size estimate:** S.
+
+---
+
+## TB-1123 — Anti-RLS-as-live / workspace-boundary / crypto-Search honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1122**; hardens GTM **M-194**.
+
+**Problem:** Trust Center, TENANT_ISOLATION, CLAIM_READINESS, and pack stubs can still imply live SQL RLS, workspace-as-security-boundary, crypto-proof / per-tenant Search isolation, NetArchTest-alone isolation, or G3 fully proven without **TB-948**/**TB-949**.
+
+**Approach:**
+
+1. Doc/CI guard: fail buyer-facing stubs that cite SQL RLS as a deployed production control, treat workspace/project as the paying-client security boundary, promise crypto-proof or per-tenant Search indexes, or claim NetArchTest alone proves isolation — without **TB-1122** / ADR 0037 / INV-001 caveats.
+2. Require **TB-1122** (or explicit too-strong vs safe matrix) near G3 / isolation “PASS” language; soften overclaims when **TB-948**/**TB-949** remain open.
+3. Pair **M-194** bullets with the guard list; point Verification at existing honesty clusters (**TB-1000**/**TB-1002**/**TB-1006**/**TB-1019**) without duplicating their scopes.
+
+**Acceptance:** CI fails on dishonest RLS-as-live / workspace-boundary / crypto-Search / NetArch-alone claims; pairs **M-194**.
+
+**Depends on:** **TB-1122**.
+
+**Out of scope:** Product isolation feature work; reopening Done **M-114**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1144 — SOC 2 / pen-test honest procurement talk-track contract (P1)
+
+**Window:** V1 — Commercial / marketability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *How do we talk about SOC 2 / pen test honestly without tanking procurement?* (assurance talk-track — **distinct** from Contoso-funnel PA Q17 **TB-1028**/**M-178**).
+
+**Problem:** Canonical allowed wording exists ([`ASSURANCE_STATUS_CANONICAL.md`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md), playbook #1/#2), and **TB-1112** pins the minimum packet, but sellers still tank deals by (a) leading with “no SOC 2 / no pen test,” (b) hedging into “almost / ready / in process / in flight,” or (c) equating self-assessment / owner-conducted testing with CPA / third-party attestation. Reviewers need a **conversation ladder** that answers the *intent* (controls + evidence path) before the attestation checkbox.
+
+**Approach:**
+
+1. Author `docs/library/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_CONTRACT.md` (or a PA appendix under [`ASSURANCE_STATUS_CANONICAL.md`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md) + [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](../go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md)) with tables:
+   - **Ladder (order):** (1) answer intent — isolation, audit, DPA, Trust Center; (2) label evidence type — self-asserted / owner-conducted / template / deferred; (3) hand pack links; (4) state CPA Type II / third-party pen test not issued / not executed; (5) funding trigger — $250K ARR **or** first binding contracted procurement requirement ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)); (6) offer controlled-pilot exception when attestation is hard-required.
+   - **Safe phrases:** mirror ASSURANCE_STATUS_CANONICAL allowed buyer wording; playbook short answers for #1/#2.
+   - **Forbidden hedges:** “SOC 2 certified/ready/almost/in process,” “we are SOC 2,” “pen tested” / “independent pen test available,” “pen test in flight/underway/pending engagement” when only SoW/template exists; “in flight” for deferred attestation (canonical forbid).
+   - **Align interim stubs:** [`PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`](../go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md) “Pending — Q2 2026 third-party engagement” → canonical “planned, not yet scheduled” (no implied awarded vendor).
+   - **Owner map:** packet composition **TB-1112**/**M-190**; live rehearsal **M-91** (GTM V1.1 — do not implement here); CPA/3P execution **G-REAL-05** / **G-ASSURANCE-02**.
+2. Cross-link Done **TB-135**/**TB-136** (stay closed), **M-188** Stage 0 allowlist, Trust Center evidence labels.
+3. Name CI anchors for **TB-1145**; GTM **M-196**/**M-197**.
+
+**Acceptance:** Talk-track contract published; GTM can cite ladder + forbidden hedges; living interim pen-test procurement stub matches canonical status language.
+
+**Depends on:** None (docs). Complements **TB-1112** (packet) without duplicating include/drop matrix.
+
+**Out of scope:** Executing CPA SOC 2 or third-party pen test; live **M-91** rehearsal; changing `(A)` scoring rules.
+
+**Size estimate:** S.
+
+---
+
+## TB-1145 — Anti-SOC2-certified / pen-test-in-flight / almost-attested honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1144**; hardens GTM **M-196**.
+
+**Problem:** Buyer-facing / Stage 0 / interim pack stubs can claim or imply SOC 2 certification, “SOC 2 ready/almost/in process,” or a third-party pen test in flight / available when evidence is self-assessment, owner-conducted testing, or SoW template only.
+
+**Approach:**
+
+1. Doc/CI guard (prefer extending `scripts/ci/check_procurement_claim_coherence.py` or adjacent trust-center posture checks): fail phrases that assert CPA SOC 2 issuance, “SOC 2 certified/ready,” or completed/in-flight third-party pen test without **TB-1144** / ASSURANCE_STATUS_CANONICAL caveats.
+2. Require **TB-1144** (or ASSURANCE_STATUS_CANONICAL + evidence-type label) near SOC 2 / pen-test marketing and procurement answers.
+3. Align/fail interim “Pending engagement” language that contradicts “planned, not yet scheduled.”
+4. Pair **M-196** bullets with the guard list; do not reopen Done **TB-135**/**TB-136**.
+
+**Acceptance:** CI fails on dishonest SOC 2 certified / pen-test-in-flight / almost-attested claims; pairs **M-196**.
+
+**Depends on:** **TB-1144**.
+
+**Out of scope:** Running CPA/3P programs; **M-91** live red-team.
+
+**Size estimate:** S.
+
+---
+
+## TB-1156 — Dual ManifestHash / GoldenManifestFingerprint + projection evolution failure-mode contract (P1)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *Our commit path projects agent proposals into an authority GoldenManifest via a single projection builder, and we hash a canonical content subset for drift detection. What failure modes exist when the "canonical content" projection and the persisted manifest evolve independently — and how would you make hasher changes impossible to ship without a deliberate baseline re-lock?*
+
+**Problem:** Commit builds authority `ManifestDocument` → `ManifestHashService.ComputeHash` → `AuthorityCommitProjectionBuilder` → contract `GoldenManifest`. Drift detection also uses a **second** hasher (`GoldenManifestFingerprint.ComputeContentSha256Hex`) over a **lossy** contract projection. Cohort re-lock is deliberate (`golden-cohort lock-baseline` + env approval); production `ManifestHashService` has **no hasher version** and no equivalent ritual — subset/serializer changes silently invalidate replay/export verify (Done **TB-307**) for all historical rows.
+
+**Approach:**
+
+1. Author `docs/library/MANIFEST_DUAL_HASHER_PROJECTION_EVOLUTION_CONTRACT.md` (or expand ADR 0040 / `EVIDENCE_IMMUTABILITY.md`) with tables:
+   - **Hasher A (production):** `ManifestHashService` over authority `ManifestDocument`; include/exclude list (excludes `CreatedUtc`; note `SchemaVersion` not in projection today); consumers: persist, replay, export verify.
+   - **Hasher B (cohort content):** `GoldenManifestFingerprint.ComputeContentSha256Hex` over contract projection; include/exclude (`RunId`, `CreatedUtc`, `DecisionTraceIds`); consumers: golden-cohort baseline / nightly drift.
+   - **Projection lossiness:** `AuthorityCommitProjectionBuilder` maps topology + derived governance + metadata only — authority fields not on contract can change authority hash without cohort SHA (and vice versa when `MapGovernance` drifts).
+   - **Failure modes:** (1) projection field add/omit without cohort re-lock; (2) `ManifestHashService` subset change without production re-lock → verify/replay mass-fail; (3) governance mapping drift (gate/buyer vs authority hash); (4) `JsonSerializer` / ordering churn; (5) save remap without `authorityPersistBody`; (6) conflating content fingerprint with `ManifestHash` in buyer/proof language.
+   - **Deliberate re-lock (target):** production hasher version + fixture/baseline ritual named for **TB-1157**; cohort keeps existing lock-baseline (document, do not replace).
+2. Cross-link Done **TB-307**/**TB-575**, open **TB-1003**/**M-154**, GTM **M-198**/**M-199**.
+3. Name CI anchors for **TB-1157**.
+
+**Acceptance:** Contract published; GTM can cite “content fingerprint ≠ ManifestHash”; failure modes + which re-lock each surface requires are explicit.
+
+**Depends on:** None (docs). Complements **TB-1003** without re-authoring unit-of-truth.
+
+**Out of scope:** Reopening Done **TB-307**; changing seal triggers; unifying both hashers into one algorithm in this TB (document only unless owner later promotes).
+
+**Size estimate:** S.
+
+---
+
+## TB-1157 — Production ManifestHashService deliberate re-lock CI (no silent hasher subset ship) (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1156**; hardens GTM **M-198**.
+
+**Problem:** A PR can change `ManifestHashService`’s canonical anonymous projection (add/remove fields, sort keys, serializer options) and merge without an owner-visible re-lock step. Historical `ManifestHash` values then fail export verify / replay while cohort baselines stay green (different hasher).
+
+**Approach:**
+
+1. **Engineering gate (primary):** CI fails when `ManifestHashService.cs` (or extracted canonical-projection helper) changes unless the PR also updates an explicit **hasher baseline / version** artifact (e.g. `docs/library/MANIFEST_HASH_HASHER_BASELINE.md` or committed fixture golden hashes) **and** a single-shot approval env/marker analogous to `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED` — or a CODEOWNERS + required checklist file touched in the same commit.
+2. Prefer embedding a **hasher schema version** string into the canonical projection (or adjacent persisted metadata) so future algorithm changes are detectable rather than silent — document migration: old rows verify under vN; new commits use vN+1 after re-lock.
+3. **Doc/CI honesty:** fail buyer/proof stubs that equate golden-cohort content SHA with production `ManifestHash`, or that claim “deterministic drift” without naming which hasher + re-lock ritual.
+4. Pair **M-198**; point Verification at `ManifestHashServiceTests`, export verify, `AuthorityReplayService`, and cohort lock docs without re-implementing cohort lock.
+
+**Acceptance:** Silent `ManifestHashService` subset changes cannot merge without deliberate baseline/version re-lock; pairs **M-198**.
+
+**Depends on:** **TB-1156**.
+
+**Out of scope:** Re-hashing all historical tenant manifests in production (runbook only); changing cohort lock-baseline CLI; reopening Done **TB-307** feature work.
+
+**Size estimate:** M.
+
+---
+
+## TB-1166 — Billing tier value-ladder coherence — implement owner repricing decision (P0)
+
+**Window:** V1 — Commercial / trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot review of `/settings/billing` 2026-07-25 (~64/100); pairs GTM **M-200** (owner decision — do not pick numbers without it).
+
+**Problem:** The catalog in `archlucid-ui/public/pricing.json` inverts the value ladder. **Team** ($249 → 5 seats, 2,500 credits, 20 reviews) beats **Professional** ($1,799 → 15 seats, 10,000 credits, 100 reviews) on every per-unit axis the cards display: $49.80 vs $119.93 / seat, $0.10 vs $0.18 / credit, $12.45 vs $17.99 / review — and Professional carries the **Recommended** tag. Team add-on seats at $79 (uncapped) put the Team→Professional cost crossover at ~**25 seats** (15 seats on Team = $1,039 vs $1,799). The Team bundle also contradicts the component rate card in [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) §6 ($199 platform + 5 × $79 = $594, not $249). Professional JSON is internally inconsistent (`includedUsers: 15` vs `includedArchitectSeats: 20`). Workspace add-on prices (`workspaceMonthlyUsd` $199 / $899) are never rendered anywhere on the page.
+
+**Approach:**
+
+1. After **M-200** decides numbers: update `public/pricing.json`, [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) embedded JSON + rate card, and other single-source files; keep `scripts/ci/check_pricing_single_source.py` and `scripts/ci/assert_marketplace_pricing_alignment.py` green.
+2. Fix `includedUsers` vs `includedArchitectSeats` mismatch on Professional (one field wins; document which).
+3. Render workspace add-on price in the Usage and add-ons disclosure (`buildOperatorBillingAddonLines`) so expansion economics are visible.
+4. Add a catalog coherence test (Vitest): for adjacent paid tiers, per-seat / per-credit / per-review included rates must be monotonically non-increasing going up-tier, or the row must carry an explicit documented exception.
+
+**Acceptance:** Published catalog has a defensible ladder (higher tier never strictly worse per-unit without a stated reason); page shows workspace add-on pricing; coherence test guards regressions.
+
+**Depends on:** GTM **M-200** (owner pricing decision).
+
+**Out of scope:** Choosing the new prices (owner call); Stripe live keys; Enterprise custom pricing.
+
+**Size estimate:** M.
+
+---
+
+## TB-1167 — Enterprise billing card shows "Included 0 users" (P0)
+
+**Window:** V1 — Correctness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/billing` screenshot 2026-07-25.
+
+**Problem:** Enterprise has `includedUsers: 0` / `includedWorkspaces: 0` in `pricing.json`, and `formatIncludedUsersAndWorkspaces` (`src/lib/pricing-catalog-display.ts`) renders `0 users` because only the workspace branch guards `> 0`. The card literally says **Included 0 users** next to **Custom AI allowance** — looks broken on a procurement-facing surface.
+
+**Approach:**
+
+1. In `formatIncludedUsersAndWorkspaces`, treat `users === 0` like `undefined` (or return `Custom` for `pricingDisplay === "custom"` tiers).
+2. Vitest: Enterprise package renders no `0 users` line; public `/pricing` shares the helper — verify parity.
+
+**Acceptance:** No paid-plan card ever shows a zero-quantity included line.
+
+**Depends on:** None. Pair with **TB-1166**.
+
+**Out of scope:** Changing Enterprise packaging.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1168 — Billing "Included AI usage" unit collision — dollars vs credits (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/billing` screenshot 2026-07-25.
+
+**Problem:** The **Current plan** card shows `Included AI usage — $75 / month` (LLM dollar budget from `fetchLlmMonthlyDollarBudgetStatusCached`), while every plan card shows `Included AI usage — 500/2,500/10,000 AI credits / month` under the **identical label**. Monthly AI usage and Prepaid credits sections are also dollar-denominated (`$0.00 of $75.00`, `Credit balance $0.00`). A buyer cannot tell whether the product meters dollars or credits, or how they convert — on the page where they pick a plan.
+
+**Approach:**
+
+1. Pick one buyer-facing unit (or an explicit conversion, e.g. "1 AI credit ≈ $x of AI usage") with vocabulary pinned in `billing-meter-vocabulary.ts`.
+2. Distinct labels when both must appear (e.g. "Included AI allowance (plan)" vs "AI budget used this month"); never the same label for two units.
+3. Vitest: current-plan card and tier cards do not render the same label with different units.
+
+**Acceptance:** One coherent AI-usage vocabulary across Current plan, tier cards, Monthly AI usage, and Prepaid credits.
+
+**Depends on:** None. Pair with **TB-1166**.
+
+**Out of scope:** Changing the metering backend.
+
+**Size estimate:** S.
+
+---
+
+## TB-1169 — Billing sales-led CTAs dead-end into toasts (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/billing` screenshot 2026-07-25.
+
+**Problem:** Professional **Request guided trial** and Enterprise **Request enterprise discussion** call `onSalesLedPlanAction`, which only fires a toast telling the user to go somewhere else ("Use the quote form on public pricing or contact sales"). A button that performs no action and points elsewhere is a dead end on the highest-intent page in the product. Self-serve (Architect, Team) and sales-led (Professional, Enterprise) CTAs are also visually indistinguishable (Team self-serve renders `outline` like sales-led buttons, while Architect renders `primary`).
+
+**Approach:**
+
+1. Sales-led CTAs navigate (Next `Link`) to the public pricing quote form / contact-sales route instead of toasting; keep one sentence of expectation-setting copy on the card.
+2. Differentiate affordances: self-serve checkout buttons vs sales-led request links styled per `UI-Accessibility-Baseline.mdc` (button = do something; link = go somewhere).
+3. Vitest: sales-led tier CTA renders as navigation with a real `href`; no toast-only path remains.
+
+**Acceptance:** Every tier CTA either starts checkout or navigates to a real request path — no dead-end toasts.
+
+**Depends on:** None. Pair with **TB-1170**.
+
+**Out of scope:** Building a new in-app quote form.
+
+**Size estimate:** S.
+
+---
+
+## TB-1170 — Billing page composition — anchor-jump buttons, duplicate primary CTA, operator spacing (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/billing` screenshot 2026-07-25.
+
+**Problem:** (a) Current-plan **Start Architect plan** (primary) and **Compare available plans** are same-page anchor jumps to `#billing-plans` styled as buttons — `UI-Accessibility-Baseline.mdc` requires same-page jumps to be links; (b) **Start Architect plan** appears twice as a filled primary (current-plan card + Architect tier card) with different behaviors (scroll vs checkout); (c) page wrapper uses `space-y-8 px-4 py-8` against the operator standard `space-y-4` / `p-4` (`UI-Enterprise-Design-Standard.mdc`); (d) tier card footers show raw ISO `Effective 2026-07-09 · USD` instead of a human-readable date.
+
+**Approach:**
+
+1. Current-plan card: render anchor jumps as links per the RunDetailSectionNav pattern; keep exactly one filled primary per viewport (the Architect card checkout, or promote the current-plan CTA and demote the card one).
+2. Tighten wrapper spacing to operator tokens.
+3. Format effective date via `Intl.DateTimeFormat`.
+4. Vitest/visual: one primary button in the no-paid-plan first viewport; anchor jumps expose link semantics.
+
+**Acceptance:** Billing page follows the accessibility baseline and operator density standard with a single unambiguous primary action.
+
+**Depends on:** Prefer with **TB-1169**.
+
+**Out of scope:** Full billing IA redesign; wallet/auto-replenish UX changes.
+
+**Size estimate:** S.
+
+---
+
+## TB-1171 — ServiceNow page title — show nav icon via PageHeading (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner note 2026-07-25 — `/integrations/servicenow` has no icon next to the title unlike many other ArchLucid operator pages.
+
+**Problem:** `ServiceNowIntegrationPageClient` renders a raw `<h1>` in a custom `<header>`, so no Lucide/nav icon appears beside **ServiceNow**. Azure Boards already uses `PageHeading` with `navHref={INTEGRATIONS_AZURE_BOARDS_PATH}` and `variant="integration"`, which resolves the icon via `resolveNavIconForHref`. ServiceNow nav already maps to `Workflow` (`resolve-nav-link-for-pathname.test.ts` / `operate-integrations-nav-group-builder.ts`), but the page heading never consumes it.
+
+**Approach:**
+
+1. Replace the custom title header with `PageHeading` (same pattern as Azure Boards): `navHref={INTEGRATIONS_SERVICENOW_PATH}`, `title={SERVICENOW_INTEGRATION_PAGE_TITLE}`, `variant="integration"`, description = existing subtitle + Integration readiness line.
+2. Vitest: page heading exposes the resolved icon (or `data-nav-href` / icon sibling) for `/integrations/servicenow`.
+3. Optional follow-on (out of this ID unless trivial): Jira shared client also uses a raw `<h1>` — only ship ServiceNow unless owner expands scope.
+
+**Acceptance:** `/integrations/servicenow` H1 shows the same class of title icon as Azure Boards / other `PageHeading` integration pages.
+
+**Depends on:** None. Can ship independently of **TB-1161**–**TB-1165**.
+
+**Out of scope:** Changing the ServiceNow nav icon choice; redesigning the rest of the page chrome.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1172 — Golden-cohort re-lock vs rubber-stamp + never-re-lockable invariants contract (P1)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *We just re-locked 20/20 drifted golden-cohort SHAs after an intentional content change. At what point does a re-lockable baseline stop being a regression guard and become a rubber stamp, and what invariants should never be re-lockable?*
+
+**Problem:** After intentional Simulator/commit-path content changes, mass cohort re-lock (20/20) is **correct** when documented. Without a PA boundary, the same ritual can absorb unexplained drift, Real-mode capture, or hasher/algorithm changes — and green nightlies stop meaning “no unintended regression.” README already says single-shot `LOCK_APPROVED` does not cover subsequent re-locks, but there is no allow/forbid matrix or never-re-lockable invariant list.
+
+**Approach:**
+
+1. Author `docs/library/GOLDEN_COHORT_RELOCK_VS_RUBBER_STAMP_CONTRACT.md` (or a section under [`tests/golden-cohort/README.md`](../../tests/golden-cohort/README.md) + dual-hasher contract **TB-1156**) with tables:
+   - **Still a regression guard when:** intentional content/projection change named in PR + README lock note; Simulator-only; content hasher unchanged (or Hasher B change + re-lock called out); categories expected unless intentionally changed; `BASELINE_LOCKED` stays true; single-shot `LOCK_APPROVED` per write.
+   - **Becomes a rubber stamp when:** unexplained mass SHA rewrite; re-lock to silence nightly without owning the product change; Real LLM / Real agent mode capture sold as Simulator baseline; cohort SHA rewrite used to “heal” production `ManifestHash` / export verify; placeholder unlock while `/why` still claims locked drift (Done **TB-266**).
+   - **Never re-lockable (fix by rewriting expected SHA):** production `ManifestHashService` semantics for historical rows (needs **TB-1157** versioning, not cohort.json); buyer unit-of-truth = committed `GoldenManifestId` + authority `ManifestHash` (**TB-1003**); equating content fingerprint with `ManifestHash` (**M-198**); mode honesty (INV-002); claim lock coherence while placeholders remain.
+   - **May re-lock with ritual:** `expectedCommittedManifestSha256` (+ optional finding categories) after documented intentional Simulator/commit content or Hasher B include-set change — exactly the 2026-07-25 20/20 case.
+2. Cross-link **TB-1156**/**TB-1157**, Done **TB-266**/**TB-307**, GTM **M-201**/**M-202**.
+3. Name CI anchors for **TB-1173** (require lock-rationale text near mass SHA diffs; optional: fail if `continue-on-error` softens locked assert without ADR).
+
+**Acceptance:** Contract published; GTM can cite “intentional content re-lock OK; unexplained mass re-lock = rubber stamp”; never-re-lockable list is explicit.
+
+**Depends on:** None (docs). Complements **TB-1156** without duplicating dual-hasher field tables.
+
+**Out of scope:** Changing the 2026-07-25 SHAs; enabling Real-LLM cohort as the Simulator baseline; reopening Done **TB-266**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1173 — Anti-rubber-stamp cohort re-lock / unexplained mass SHA rewrite honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1172**; hardens GTM **M-201**.
+
+**Problem:** A PR can rewrite all 20 `expectedCommittedManifestSha256` values with only a mechanical lock-baseline run and no intentional-change rationale — nightlies go green while the guard became a stamp. Soft CI (`continue-on-error` on locked assert) can also paper over unlock/placeholder drift.
+
+**Approach:**
+
+1. Doc/CI guard: fail buyer/proof / quality stubs that treat a green post-re-lock cohort as proof that production `ManifestHash` / historical verify stayed valid, or that claim “deterministic drift locked” while describing unexplained mass re-locks.
+2. Require **TB-1172** (or README Locked-baseline table + intentional-change sentence) when `cohort.json` changes a large fraction of expected SHAs (e.g. ≥N rows or ≥50% of cohort) in one PR.
+3. Optional engineering tighten: make `assert_golden_cohort_baseline_locked.py` merge-blocking without `continue-on-error` when `BASELINE_LOCKED=true` (document in contract); keep Simulator-only refuse on lock CLI.
+4. Pair **M-201**; point Verification at Done **TB-266** claim lock + nightly `cohort-simulator-drift`.
+
+**Acceptance:** Unexplained mass cohort SHA rewrites and “re-lock healed ManifestHash” claims fail CI/docs guards; pairs **M-201**.
+
+**Depends on:** **TB-1172**.
+
+**Out of scope:** Replacing golden-cohort with a different eval harness; Real-LLM budget (**PQ-15**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1174 — Teams not-configured — StatusTag + guided next step (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/teams` screenshot 2026-07-25 (~60/100).
+
+**Problem:** Connection status is plain text **"Not configured."** under the page subtitle (`teams-connection-status`). There is no `StatusTag`, no setup-progress cue, and no single guided next step — the operator lands on a full connect form with three peer CTAs. Stronger than ServiceNow/Jira empty paths (has `PageHeading` icon + notification taxonomy), but still a dead-end feel for first-time setup.
+
+**Approach:**
+
+1. Render status with `StatusTag` (`needs-attention` / `ready` / issue kinds via existing `resolveTeamsIntegrationConnectionStatus`).
+2. When not configured, add one clear next-step line (or compact progress) above the form: e.g. enter secret → validate → test → save — aligned with **TB-1176**.
+3. Vitest: not-configured path exposes StatusTag + next-step copy/`data-testid`.
+
+**Acceptance:** Not-configured Teams page shows a design-system status tag and an obvious first action, not only prose under the title.
+
+**Depends on:** None. Pair with **TB-1175**–**TB-1176**.
+
+**Out of scope:** Redesigning the notification catalog; Slack parity (separate unless trivial).
+
+**Size estimate:** S.
+
+---
+
+## TB-1175 — Teams draft vs saved honesty (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/teams` screenshot 2026-07-25.
+
+**Problem:** While status says **Not configured**, the form shows secret/destination fields that match example placeholders (`teams-governance-alerts-prod`, `Architecture governance`) and **Notifications to send** pre-checks recommended triggers (`use-teams-notifications-integration-page.ts` seeds `TEAMS_RECOMMENDED_EVENT_TYPES` when `!isConfigured`). Operators cannot tell draft/defaults from a saved connection — especially with green **Recommended** badges looking like active policy.
+
+**Approach:**
+
+1. Visually separate unsaved draft from saved connection: e.g. "Draft — not saved" helper when `!conn.isConfigured`, or keep recommended triggers unchecked until the user picks "Select recommended".
+2. Ensure placeholders never look like committed values (lighter placeholder styling / empty fields on first load).
+3. Vitest: not-configured load does not imply a saved connection; recommended pre-select is either removed or labeled as draft defaults.
+
+**Acceptance:** A not-configured Teams page cannot be mistaken for an active saved connection.
+
+**Depends on:** Prefer with **TB-1174**.
+
+**Out of scope:** Changing which events are "recommended" in the catalog.
+
+**Size estimate:** S.
+
+---
+
+## TB-1176 — Teams CTA hierarchy — Validate → Test → Save + disabled-test reason (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/teams` screenshot 2026-07-25.
+
+**Problem:** Aside **Before you connect** says validate, then send a test, then save — but the primary button is **Save Teams connection**, with **Validate secret** / **Send test notification** as muted secondaries. `canSendTest` requires `secretValidation?.outcome === "valid"`, so Test stays disabled with no inline reason when the secret field looks filled. Operators hit Save first or bounce off greyed Test.
+
+**Approach:**
+
+1. Align primary CTA with the guided path for not-configured: promote Validate (or a single "Validate and continue" flow); demote Save until validated (or keep Save secondary until test succeeds — pick one clear rule and document it in copy).
+2. When Test is disabled, show helper text: "Validate the secret before sending a test."
+3. Button order left-to-right matches the aside: Validate → Test → Save (Remove stays last when configured).
+4. Vitest: disabled Test exposes the reason; not-configured primary matches the chosen gate rule.
+
+**Acceptance:** CTA hierarchy matches "Before you connect"; disabled Test never looks broken without explanation.
+
+**Depends on:** Prefer with **TB-1174**.
+
+**Out of scope:** Changing secret-store validation API semantics.
+
+**Size estimate:** S.
+
+---
+
+## TB-1177 — Teams operator spacing density (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/teams` screenshot 2026-07-25.
+
+**Problem:** Page wrapper uses `space-y-8 px-4 py-8` (and inner `space-y-8` / `gap-8`) against the operator density standard (`space-y-4` / `p-4` per `UI-Enterprise-Design-Standard.mdc`). Same class of issue as billing **TB-1170**. First viewport wastes vertical space before CTAs.
+
+**Approach:**
+
+1. Tighten `TeamsNotificationsIntegrationPageView` wrapper and grid gaps to operator tokens.
+2. Keep aside readable; do not crush Security note into illegibility.
+3. Visual/Vitest smoke: page root no longer uses marketing-scale `py-8` / `space-y-8` as the primary rhythm.
+
+**Acceptance:** Teams page matches operator spacing density used on other integration settings pages.
+
+**Depends on:** Prefer with **TB-1174**.
+
+**Out of scope:** Global spacing audit (**TB-118**).
+
+**Size estimate:** XS.
+
+---
+
+## TB-1178 — Teams help-link dedupe (header vs aside footer) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/integrations/teams` screenshot 2026-07-25.
+
+**Problem:** The same three links (**Microsoft Teams notification help** · **Integration readiness** · **Slack notifications**) appear under the page heading and again at the bottom of `TeamsIntegrationAside`. Duplicate chrome adds noise without adding a second job.
+
+**Approach:**
+
+1. Keep the link cluster in one place only (prefer header under `PageHeading`, or aside footer — not both).
+2. Vitest: only one occurrence of the Teams help link cluster on the page.
+
+**Acceptance:** Help/readiness/Slack links render once per Teams page load.
+
+**Depends on:** Prefer with **TB-1174**.
+
+**Out of scope:** Rewriting help content destinations.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1179 — Project deletion has no UI — governed delete affordance (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/settings/tenant/recycle-bin` 2026-07-25 (~58/100) — owner: *"I am not even sure how to delete a project."*
+
+**Problem:** The API ships `DELETE /v1/tenant/workspaces/{workspaceId}/projects/{projectId}` (soft delete) and the recycle bin ships restore, but **no UI surface calls the delete endpoint** — grep of `archlucid-ui/src` finds no project delete affordance anywhere. The recycle bin is an exit door for an entrance that does not exist: the only way a project ever lands in it is a raw API call. The bin page and `settings-master-catalog.ts` even index the keyword `delete`, compounding the confusion.
+
+**Approach:**
+
+1. Add a governed **Delete project** action on the surface where projects are visible/managed (workspace/project scope management; align with wherever project creation lives).
+2. Confirm dialog states soft-delete semantics: retention window, restore path (`/settings/tenant/recycle-bin`), name-conflict rule on restore.
+3. Gate on the same authority rank the API enforces; disabled-with-reason for lower ranks (match recycle bin restore pattern).
+4. Success toast links to the recycle bin ("Project moved to recycle bin — Restore").
+5. Vitest: delete calls the existing endpoint, confirm required, authority gating, 404/409 handling.
+
+**Acceptance:** An operator can delete a project from the UI and immediately find it in the recycle bin; the recycle bin is no longer API-fed only.
+
+**Depends on:** None (API exists). Pair with **TB-1180** / **TB-1181**.
+
+**Out of scope:** Permanent/hard delete from the UI (retention purge worker remains the only hard-delete path); workspace deletion.
+
+**Size estimate:** M.
+
+---
+
+## TB-1180 — Recycle bin retention transparency — show the actual window and purge date (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/tenant/recycle-bin` review 2026-07-25.
+
+**Problem:** Page copy says twice that items are kept "until the retention period expires" but never says how long, and no row shows when a project will be permanently removed. The backend knows: `ArchitectureProjectRetentionPurgeOptions.RetentionDays` drives `ArchitectureProjectRetentionPurgeBackgroundWork` (hard purge + `ArchitectureProjectHardPurgedRetention` audit event). The recycle-bin payload (`TenantWorkspaceDeletedProjectApiDto`) carries only id/name/`deletedUtc`, so the UI cannot compute the deadline honestly.
+
+**Approach:**
+
+1. API: expose the effective retention window on `GET /v1/tenant/workspaces/recycle-bin` (response-level `retentionDays` or per-row computed `purgeAfterUtc`).
+2. UI: description states the concrete window ("kept for N days"); each row gains a "Permanently removed on" column (or inline note) from the exposed value.
+3. Dedupe the header description vs empty-state copy (currently near-identical sentences).
+4. Tests: API DTO round-trip; UI renders the deadline; copy does not promise an unspecified "retention period."
+
+**Acceptance:** An admin can see exactly when each deleted project will be purged, and the page never references an unnamed retention period.
+
+**Depends on:** None. Pair with **TB-1179**.
+
+**Out of scope:** Making retention tenant-configurable from the UI.
+
+**Size estimate:** M.
+
+---
+
+## TB-1181 — Recycle bin discoverability — unbury the entry point (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/tenant/recycle-bin` review 2026-07-25.
+
+**Problem:** Besides the extended-tier sidebar item, the only in-page link to the recycle bin lives **inside the collapsed "Technical details — routing scope" disclosure** on Tenant settings (`TenantSettingsPageView.tsx`) — a diagnostics section no operator opens looking for deleted projects. Once **TB-1179** ships, the delete flow and the bin must reference each other.
+
+**Approach:**
+
+1. Move (or duplicate) the recycle-bin link into a visible project/data-management position on Tenant settings — not under technical routing details.
+2. Recycle bin empty state points at where deletion lives ("Delete a project from … and it appears here for N days") once **TB-1179** ships.
+3. Vitest: recycle-bin link reachable without expanding a collapsed technical disclosure.
+
+**Acceptance:** The path project → delete → recycle bin → restore is discoverable end-to-end without opening diagnostics disclosures.
+
+**Depends on:** Prefer after **TB-1179** (empty-state pointer needs the delete surface to exist).
+
+**Out of scope:** Sidebar nav tier changes beyond this link.
+
+**Size estimate:** S.
+
+---
+
+## TB-1182 — Recycle bin status presentation + operator density (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/tenant/recycle-bin` review 2026-07-25.
+
+**Problem:** Load errors and restore outcomes render as ad-hoc colored paragraphs (`text-rose-800`, plain `role="status"` text) instead of the canonical `StatusTag` / `DESIGN_TOKENS.callout.*` treatment (`UI-Enterprise-Design-Standard.mdc`); the 409 name-conflict message — the one outcome needing user action — looks identical to the success message. Wrapper uses `space-y-6` against the operator `space-y-4` standard.
+
+**Approach:**
+
+1. Restore outcomes: success vs actionable-conflict vs failure rendered via canonical callout/StatusTag components with distinct semantics; keep `role="status"` / `role="alert"`.
+2. Tighten spacing to operator tokens.
+3. Vitest: 409 outcome renders as an actionable warning distinct from success.
+
+**Acceptance:** Restore/error feedback follows the design system and the conflict case is visually actionable.
+
+**Depends on:** None. Pair with **TB-1180**.
+
+**Out of scope:** Toast migration; table redesign.
+
+**Size estimate:** S.
 

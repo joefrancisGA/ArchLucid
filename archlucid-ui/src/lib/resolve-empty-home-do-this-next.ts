@@ -1,6 +1,8 @@
 import {
+  OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE,
   OPERATOR_HOME_DO_THIS_NEXT_SETUP_BRIDGE,
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 } from "@/lib/buyer-polish-copy";
 import { isSelfHostedDeploymentEnv } from "@/lib/finish-setup-deployment";
@@ -74,28 +76,48 @@ function resolveBlockingSetupAction(
   return toSetupAction(nextRequired, bridgeCopy);
 }
 
-function resolveSampleAction(sampleHref: string | null | undefined): EmptyHomeDoThisNextAction {
-  const href =
-    typeof sampleHref === "string" && sampleHref.trim().length > 0
-      ? sampleHref.trim()
-      : showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
+function resolveSampleHref(sampleHref: string | null | undefined): string {
+  if (typeof sampleHref === "string" && sampleHref.trim().length > 0) {
+    return sampleHref.trim();
+  }
 
+  return showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
+}
+
+function resolveSampleAction(sampleHref: string | null | undefined): EmptyHomeDoThisNextAction {
   return {
     kind: "sample",
     label: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
-    href,
+    href: resolveSampleHref(sampleHref),
     bridgeCopy: PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
+  };
+}
+
+function resolveDemoSeededSampleAction(
+  sampleHref: string | null | undefined,
+): EmptyHomeDoThisNextAction {
+  return {
+    kind: "sample",
+    label: OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
+    href: resolveSampleHref(sampleHref),
+    bridgeCopy: OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE,
   };
 }
 
 /**
  * Single primary CTA for empty Overview (no workspace reviews) — setup blockers first, then sample (TB-1038).
+ * Demo/seeded pins skip setup and open the sample package (TB-1039).
  * Prefer a workspace featured-sample href when the caller has resolved one.
  */
 export function resolveEmptyHomeDoThisNext(input: {
   readonly setupContext: FinishSetupWizardContext | null;
   readonly sampleHref?: string | null;
+  readonly demoSeededOverview?: boolean;
 }): EmptyHomeDoThisNextAction {
+  if (input.demoSeededOverview === true) {
+    return resolveDemoSeededSampleAction(input.sampleHref);
+  }
+
   if (input.setupContext !== null) {
     const setupAction = resolveBlockingSetupAction(input.setupContext);
 

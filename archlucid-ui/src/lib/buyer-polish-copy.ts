@@ -51,6 +51,13 @@ export const OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA = "Open review";
 /** @deprecated Prefer {@link OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA}. */
 export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA;
 
+/** Empty Overview primary CTA on demo/seeded Claims Intake / Workspace A/B pins (TB-1039). */
+export const OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA = "Open sample package";
+
+/** Bridge when demo/seeded Overview skips setup and opens the sample package (TB-1039). */
+export const OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE =
+  "This demo workspace includes a finished sample architecture package — open it to see findings, evidence, and decisions.";
+
 export const OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA = "Open creation example";
 
 /** @deprecated Prefer {@link OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA}. */

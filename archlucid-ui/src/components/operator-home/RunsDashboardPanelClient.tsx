@@ -48,7 +48,16 @@ import {
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM } from "@/lib/operator-home-metric-hrefs";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import {
+  buildDemoSeededOverviewRunSummary,
+  resolveOverviewListProjectId,
+  shouldInjectDemoSeededOverviewSample,
+} from "@/lib/demo-seeded-overview";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  getEffectiveBrowserProxyScopeHeaders,
+  readOperatorScopeFromStorage,
+} from "@/lib/operator-scope-storage";
 import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -90,7 +99,12 @@ export function RunsDashboardPanelClient({
   const [runsListAuthorityUnusable, setRunsListAuthorityUnusable] = useState(initialModel?.loadFailure !== null);
 
   const buyerPolishedShell = initialModel?.buyerPolishedShell ?? isBuyerPolishedOperatorShellEnv();
-  const projectId = initialModel?.projectId ?? DEFAULT_PROJECT_ID;
+  const projectId =
+    initialModel?.projectId ??
+    resolveOverviewListProjectId(
+      typeof window !== "undefined" ? getEffectiveBrowserProxyScopeHeaders() : null,
+      DEFAULT_PROJECT_ID,
+    );
   const pageSize = initialModel?.pageSize ?? OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
   const { reportWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
 
@@ -113,7 +127,9 @@ export function RunsDashboardPanelClient({
 
     try {
       // showArchived is client-side filter only until runs list declares includeArchived (avoids 400).
-      const raw: unknown = await listRunsByProjectPaged(projectId, 1, pageSize);
+      const raw: unknown = await listRunsByProjectPaged(projectId, 1, pageSize, {
+        scopeHeaders: getEffectiveBrowserProxyScopeHeaders(),
+      });
       const coerced = coerceRunSummaryPaged(raw, { page: 1 });
 
       if (!coerced.ok) {
@@ -150,6 +166,21 @@ export function RunsDashboardPanelClient({
       if (emptyWorkspaceDemo !== null && emptyWorkspaceDemo.items.length > 0) {
         nextItems = emptyWorkspaceDemo.items;
       }
+    }
+
+    if (
+      typeof window !== "undefined" &&
+      shouldInjectDemoSeededOverviewSample({
+        itemCount: nextItems.length,
+        scopeHeaders: getEffectiveBrowserProxyScopeHeaders(),
+        workspaceLabel: readOperatorScopeFromStorage()?.workspaceLabel ?? null,
+        staticDemoFallbackEnabled: isStaticDemoPayloadFallbackEnabled(),
+      })
+    ) {
+      nextItems = [buildDemoSeededOverviewRunSummary(projectId, getEffectiveBrowserProxyScopeHeaders())];
+      nextFailure = null;
+      malformedMessage = null;
+      authorityUnusable = false;
     }
 
     nextItems = dedupeRunSummariesByRunId(nextItems.map(normalizeRunSummaryForDemoPicker));
@@ -203,6 +234,19 @@ export function RunsDashboardPanelClient({
 
       if (emptyWorkspaceFallback !== null && emptyWorkspaceFallback.items.length > 0) {
         return emptyWorkspaceFallback.items;
+      }
+
+      // Browser-only — SSR must not use getEffectiveBrowserProxyScopeHeaders() (dev defaults).
+      if (
+        typeof window !== "undefined" &&
+        shouldInjectDemoSeededOverviewSample({
+          itemCount: 0,
+          scopeHeaders: getEffectiveBrowserProxyScopeHeaders(),
+          workspaceLabel: readOperatorScopeFromStorage()?.workspaceLabel ?? null,
+          staticDemoFallbackEnabled: isStaticDemoPayloadFallbackEnabled(),
+        })
+      ) {
+        return [buildDemoSeededOverviewRunSummary(projectId, getEffectiveBrowserProxyScopeHeaders())];
       }
     }
 

@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
 import { isRunNeedingAttention } from "@/components/operator-home/runs-dashboard-helpers";
+import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 
@@ -43,10 +44,13 @@ export function OperatorHomeWorkspaceActivityProvider(
 
   const reportWorkspaceReviews = useCallback((items: readonly RunSummary[]) => {
     const activeItems = items.filter((run) => run.isArchived !== true);
-    const metrics = deriveOperatorHomeWorkspaceMetrics(activeItems, activeItems.length);
+    // Synthetic demo/seeded Overview rows stay visible in Recent reviews but must not flip
+    // empty-home off — otherwise Do-this-next / Open sample package disappears (TB-1039).
+    const realItems = activeItems.filter((run) => !isDemoSeededOverviewInjectedRun(run));
+    const metrics = deriveOperatorHomeWorkspaceMetrics(realItems, realItems.length);
 
-    setHasWorkspaceReviews(activeItems.length > 0);
-    setHasActionNeededReviews(activeItems.some(isRunNeedingAttention));
+    setHasWorkspaceReviews(realItems.length > 0);
+    setHasActionNeededReviews(realItems.some(isRunNeedingAttention));
     setOpenFindingsCount(metrics.openFindings);
     setRecentRunIds(activeItems.map((run) => run.runId));
   }, []);

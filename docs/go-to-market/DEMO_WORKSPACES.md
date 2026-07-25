@@ -115,8 +115,8 @@ If you add realism, prefer clearly fake domains (**`*.example`** / **`northwind-
 **TB-1039:** When the active scope is a **pinned demo workspace** (Workspace A/B project/workspace GUIDs from the fixture manifest), the **Claims Intake Demo** buyer label, or local **dev-default** Claims Intake scope, an empty Overview must not look like a blank customer tenant:
 
 1. Runs list uses the **scoped demo `projectId`** (not bare `default`) when the pin is Workspace A/B.
-2. If the list is still empty, Overview injects the **canonical sample architecture package** row (Workspace A/B run GUID, or Claims Intake showcase `claims-intake-modernization`).
-3. Empty-home **Do this next** leads with **Open sample package** (setup blockers skipped for demo/seeded pins).
+2. If the list is still empty, the **browser** Overview injects the **canonical sample architecture package** row (Workspace A/B run GUID, or Claims Intake showcase `claims-intake-modernization`). Injection is **client-only** (not SSR) so production empty tenants never stick a fake row from DEV-default server scope.
+3. Empty-home **Do this next** leads with **Open sample package** (setup blockers skipped for demo/seeded pins). Injected rows do **not** count as real workspace reviews for empty-home gating.
 
 Real empty customer tenants (non-demo scope IDs / labels) keep TB-1036 / TB-1038 empty-tenant behavior. Implementation: `archlucid-ui/src/lib/demo-seeded-overview.ts`.
 

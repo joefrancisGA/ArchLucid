@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE,
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY,
 } from "@/lib/buyer-polish-copy";
 import { FINISH_SETUP_SYSTEM_HEALTH_PATH } from "@/lib/finish-setup-wizard-steps";
@@ -89,5 +91,24 @@ describe("resolveEmptyHomeDoThisNext", () => {
     expect(action.kind).toBe("setup");
     expect(action.label).toBe("Open system health");
     expect(action.href).toBe(FINISH_SETUP_SYSTEM_HEALTH_PATH);
+  });
+
+  it("skips setup blockers on demo-seeded Overview and opens the sample package (TB-1039)", () => {
+    process.env.NEXT_PUBLIC_ARCHLUCID_SELF_HOSTED = "false";
+
+    const action = resolveEmptyHomeDoThisNext({
+      setupContext: {
+        healthReady: true,
+        healthLoadFailed: false,
+        principalAdmin: false,
+      },
+      demoSeededOverview: true,
+      sampleHref: "/reviews/claims-intake-modernization",
+    });
+
+    expect(action.kind).toBe("sample");
+    expect(action.label).toBe(OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA);
+    expect(action.href).toBe("/reviews/claims-intake-modernization");
+    expect(action.bridgeCopy).toBe(OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE);
   });
 });
