@@ -24088,6 +24088,32 @@
         },
         "type": "object"
       },
+      "SelectiveExecuteRunRequest": {
+        "properties": {
+          "agentTypes": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "includeDependents": {
+            "type": "boolean"
+          },
+          "taskIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ServiceCatalogEvidence": {
         "properties": {
           "category": {
