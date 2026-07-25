@@ -45,7 +45,7 @@ The marketing route `/get-started` shows **Try the live demo** when `NEXT_PUBLIC
 
 ## URLs you can share after seeding
 
-- Operator UI: `https://demo.archlucid.net/` (home)
+- Architect workspace: `https://demo.archlucid.net/` (home)
 - Runs list: `/runs?projectId=default` (or your tenant’s default project query)
 - Pre-seeded run IDs: see `docs/TRUSTED_BASELINE.md` and `ContosoRetailDemoIdentifiers` for the canonical default-tenant run IDs in logs and docs.
 

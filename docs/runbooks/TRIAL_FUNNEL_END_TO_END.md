@@ -1,11 +1,11 @@
-> **Scope:** Self-serve trial funnel — end-to-end map (signup → tenant → sample run → first commit → sponsor banner) - full detail, tables, and links in the sections below.
+> **Scope:** Self-serve trial funnel — end-to-end map (signup → tenant → sample run → first finalize → sponsor banner) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Trial funnel — end-to-end (signup → first commit → sponsor banner)
+# Trial funnel — end-to-end (signup → first finalize → sponsor banner)
 
-**Audience:** engineers, product, and onboarding owners who need a single map of what happens between a prospect typing their email on `/signup` and the operator dashboard showing the **Day N since first commit** badge with a **before vs measured** review-cycle delta.
+**Audience:** engineers, product, and onboarding owners who need a single map of what happens between a prospect typing their email on `/signup` and the architect workspace showing the **Day N since first finalize** badge with a **before vs measured** review-cycle delta.
 
 **Companion docs (do not duplicate them here):**
 
@@ -33,7 +33,7 @@ Document the **single happy path** a prospect takes through the funnel, with **f
 - Funnel is exercised **either** locally (`dotnet run --project ArchLucid.Api` + `npm run dev`) **or** against staging (`https://staging.archlucid.net`).
 - `Billing:Provider=Noop` (local) **or** `Billing:Provider=Stripe` with **TEST** keys (staging). Live keys are an **owner-only** decision (see § 7).
 - `Auth:Trial:Modes=LocalIdentity` (or `MsaExternalId` when External ID is configured).
-- Operator UI has access to the API via the same-origin proxy (`/api/proxy/v1/...`).
+- Architect workspace has access to the API via the same-origin proxy (`/api/proxy/v1/...`).
 
 ---
 
@@ -67,7 +67,7 @@ flowchart LR
   CoordinatorCommit --> TrialFirstCommit[(dbo.Tenants.TrialFirstManifestCommittedUtc)]
   RunDetail --> SponsorBanner[EmailRunToSponsorBanner]
   SponsorBanner -->|GET /v1/tenant/trial-status| TenantTrialController
-  TenantTrialController -->|firstCommitUtc| BadgeRender[Day N since first commit badge]
+  TenantTrialController -->|firstCommitUtc| BadgeRender[Day N since first finalize badge]
 ```
 
 ---
@@ -132,33 +132,33 @@ Each step lists: **what happens**, **file path / HTTP endpoint**, **durable audi
 | **JWT** | ArchLucid-issued RSA JWT with `tenant_id`, `roles=Reader|Operator|Admin` matching workforce JWT shape |
 | **Failure mode** | Verification token expiry (`ITokenLifetime`) → user requests a new link |
 
-### Step 6 — Operator UI first-run
+### Step 6 — Architect workspace first-run
 
 | Item | Value |
 |------|-------|
 | **Landing** | [`archlucid-ui/src/app/(operator)/page.tsx`](../../archlucid-ui/src/app/(operator)/page.tsx) — wraps in `OperatorHomeGate` + `TrialWelcomeRunDeepLink` |
 | **Deep-link source** | `GET /v1/tenant/trial-status` returns `trialWelcomeRunId` → UI navigates to `/runs/{id}` automatically on first visit |
-| **First-run wizard** | `OperatorFirstRunWorkflowPanel` shows the four-step Core Pilot path (new run / runs / commit / artifacts) |
+| **First-run wizard** | `OperatorFirstRunWorkflowPanel` shows the four-step Core Pilot path (new run / runs / finalize / artifacts) |
 | **Telemetry** | `archlucid.ui.trial_welcome_deep_link.taken` (counter) |
 
-### Step 7 — Commit the seeded run
+### Step 7 — Finalize the seeded run
 
 | Item | Value |
 |------|-------|
-| **UI button** | "Commit run" on `/runs/{runId}` |
+| **UI button** | Finalize on `/runs/{runId}` (product copy; API/CLI still use `commit`) |
 | **API** | `POST /v1/architecture/run/{runId}/commit` (façade `IRunCommitOrchestrator` → legacy `IArchitectureRunCommitOrchestrator` during ADR 0021 Phase 2) |
 | **Audit (canonical + dual-write)** | `Run.CommitCompleted` + `CoordinatorRunCommitCompleted` |
 | **Tenant trial counter** | `dbo.Tenants.TrialRunsUsed` increment is **atomic in the same transaction** as the run insert (`SqlRunRepository.SaveAsync`) — see [`docs/security/TRIAL_LIMITS.md`](../security/TRIAL_LIMITS.md) § "Data flow" |
-| **First-commit pin** | `dbo.Tenants.TrialFirstManifestCommittedUtc` set once on the **tenant's first** committed golden manifest (**all** tiers; trial-only **`TrialFirstRunCompleted`** audit still gates on `TrialExpiresUtc`) |
+| **First-finalize pin** | `dbo.Tenants.TrialFirstManifestCommittedUtc` set once on the **tenant's first** finalized golden manifest (**all** tiers; trial-only **`TrialFirstRunCompleted`** audit still gates on `TrialExpiresUtc`) |
 
 ### Step 8 — Sponsor banner + Day N badge + before-vs-measured panel
 
 | Item | Value |
 |------|-------|
-| **Sponsor banner** | [`archlucid-ui/src/components/EmailRunToSponsorBanner.tsx`](../../archlucid-ui/src/components/EmailRunToSponsorBanner.tsx) — fetches `GET /v1/tenant/trial-status` and renders the **Day N since first commit** badge using `firstCommitUtc` |
+| **Sponsor banner** | [`archlucid-ui/src/components/EmailRunToSponsorBanner.tsx`](../../archlucid-ui/src/components/EmailRunToSponsorBanner.tsx) — fetches `GET /v1/tenant/trial-status` and renders the **Day N since first finalize** badge using `firstCommitUtc` |
 | **Telemetry** | `archlucid.ui.sponsor_banner.first_commit_badge_rendered` + `POST /v1/diagnostics/sponsor-banner-first-commit-badge` |
 | **PDF download** | `POST /v1/pilots/runs/{runId}/first-value-report.pdf` (ReadAuthority) |
-| **Before-vs-measured panel** | [`archlucid-ui/src/components/BeforeAfterDeltaPanel.tsx`](../../archlucid-ui/src/components/BeforeAfterDeltaPanel.tsx) — renders the same shape as `ValueReportReviewCycleSectionFormatter`: `baselineReviewCycleHours` (from `/v1/tenant/trial-status`) vs measured time-to-commit (from `GET /v1/pilots/runs/{runId}/pilot-run-deltas` → `timeToCommittedManifestTotalSeconds`) |
+| **Before-vs-measured panel** | [`archlucid-ui/src/components/BeforeAfterDeltaPanel.tsx`](../../archlucid-ui/src/components/BeforeAfterDeltaPanel.tsx) — renders the same shape as `ValueReportReviewCycleSectionFormatter`: `baselineReviewCycleHours` (from `/v1/tenant/trial-status`) vs measured time-to-finalize (from `GET /v1/pilots/runs/{runId}/pilot-run-deltas` → `timeToCommittedManifestTotalSeconds`) |
 
 ---
 
@@ -197,7 +197,7 @@ A cross-tenant audit query for a single funnel run **must** find at least rows 1
 |-------|-------------|----------------|
 | **Unit (controller)** | `ArchLucid.Api.Tests/RegistrationControllerTests.cs` | Validation rules, audit events emitted, baseline capture forwarded |
 | **Unit (bootstrap)** | `ArchLucid.Application.Tests/Tenancy/TrialTenantBootstrapServiceTests.cs` | Email verification gate, baseline persistence |
-| **Mock Playwright** | [`archlucid-ui/e2e/trial-funnel.spec.ts`](../../archlucid-ui/e2e/trial-funnel.spec.ts) | Form → mocked `/v1/register` 201 → mocked `/v1/tenant/trial-status` with `firstCommitUtc` → operator dashboard renders Day N badge + `BeforeAfterDeltaPanel` |
+| **Mock Playwright** | [`archlucid-ui/e2e/trial-funnel.spec.ts`](../../archlucid-ui/e2e/trial-funnel.spec.ts) | Form → mocked `/v1/register` 201 → mocked `/v1/tenant/trial-status` with `firstCommitUtc` → architect workspace renders Day N badge + `BeforeAfterDeltaPanel` |
 | **Live Playwright** | [`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) | Real SQL, real RegistrationController, Noop checkout, harness-simulated subscription activation |
 | **CLI smoke** | `archlucid trial smoke` ([`ArchLucid.Cli/Commands/TrialSmokeCommand.cs`](../../ArchLucid.Cli/Commands/TrialSmokeCommand.cs)) — pure HTTP loop. Prints **PASS / FAIL** per step against any local or staging API base URL. Tests in `ArchLucid.Cli.Tests/TrialSmokeCommandTests.cs`. |
 | **CLI smoke (staging preset)** | `archlucid trial smoke --staging` — convenience: auto-targets `https://staging.archlucid.net` and emits a **single greppable line** `PASS|FAIL host=… correlation=… tenant=… welcomeRun=… failed=…`. Use this for sales-engineer pre-flight and for the nightly oncall paging payload (see § 9.1.b). Implementation: [`TrialSmokeOneLineSummaryFormatter`](../../ArchLucid.Cli/Commands/TrialSmokeOneLineSummaryFormatter.cs); correlation id is read from the `X-Correlation-ID` header on the first `POST /v1/register` response. |
@@ -242,7 +242,7 @@ STRIPE_TEST_KEY=<key> npx playwright test -c playwright.trial-funnel-test-mode.c
 | Surface | URL (default) | What you do here |
 |---|---|---|
 | **Public signup** | `https://signup.staging.archlucid.net/signup` | Drive the prospect through the form. |
-| **Operator UI** | same host, post-verification | Show the wizard, commit, and the Day-N badge. |
+| **Architect workspace** | same host, post-verification | Show the wizard, finalize, and the Day-N badge. |
 | **API smoke (no UI)** | `archlucid trial smoke --staging` | Pre-flight check before joining the prospect call — confirms the funnel is alive on staging. One-line **PASS|FAIL** with a **correlation id** to hand to support if anything is off. |
 | **UI smoke (Playwright)** | `npx playwright test -c playwright.trial-funnel-test-mode.config.ts` from `archlucid-ui/` | Same flow as the prospect, end-to-end. Use this if the prospect reports something you cannot reproduce in the API smoke. |
 | **Nightly automation** | `.github/workflows/trial-funnel-test-mode.yml` | Runs both smokes nightly. If you start the day with a green run on the dashboard, you know the funnel is healthy *before* the prospect call. |
@@ -266,11 +266,11 @@ If either fails, **do not** start the demo — open the nightly workflow on the 
 
 Keep it consultative. Avoid trial-puffery — the SaaS-on-GitHub posture is the differentiator, not the trial form.
 
-> "I'm going to take you through the same five steps an evaluator sees on `archlucid.net/get-started`. We're on the staging environment so the billing path is in **TEST mode** — no card is charged, no Marketplace listing is involved. After you commit your first run we'll look at the Day-N badge together; that's the smallest unit of value the product produces."
+> "I'm going to take you through the same five steps an evaluator sees on `archlucid.net/get-started`. We're on the staging environment so the billing path is in **TEST mode** — no card is charged, no Marketplace listing is involved. After you finalize your first architecture package we'll look at the Day-N badge together; that's the smallest unit of value the product produces."
 
 Then drive the form on `/signup`. Stay on the **model-default** baseline (the radio is preselected) unless the prospect asks for the custom hours field — that field is **optional** and gated behind an `aria-expanded` disclosure (see § 5 Step 1, owner Q28). Telling the prospect the hours field is optional is the right answer: ArchLucid still renders a measured-vs-modeled curve, just from the conservative model defaults.
 
-After the wizard step 1 → step 7 → commit, point the prospect at the **before-vs-measured panel** (`BeforeAfterDeltaPanel`) and the **Day-N since first commit** badge. Those two surfaces are the demo's punchline.
+After the wizard step 1 → step 7 → finalize, point the prospect at the **before-vs-measured panel** (`BeforeAfterDeltaPanel`) and the **Day-N since first finalize** badge. Those two surfaces are the demo's punchline.
 
 ### 9.1.d Resetting a trial tenant after the evaluation
 

@@ -99,7 +99,7 @@ Tab responsibilities:
 
 ## Sample-mode behavior
 
-When buyer-polished shell and not full operator shell:
+When buyer-polished shell and not full architect workspace:
 
 - Schedule experience is read-only / illustrative for mutations.  
 - Save, enable, pause, and recipient edits are disabled.  

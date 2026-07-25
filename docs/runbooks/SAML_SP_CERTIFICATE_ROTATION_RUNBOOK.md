@@ -25,7 +25,7 @@ Run these on a schedule (monthly for production-like SAML) and at least **30 day
 | CLI offline check | `archlucid saml test-config` | **Warn** on `saml2.signingCertificate` within 30 days; **Fail** if expired or PFX unloadable |
 | Admin API health | `GET /v1/admin/auth/saml-operational-health` | `spSigningCertificateNotAfterUtc` approaching expiry; non-null `spSigningCertificateDiagnosticSummary` |
 | Email (when configured) | Template **`saml-sp-signing-cert-expiry-warning`** | Daily leader-elected scan when expiry within 30 days and `EmailNotification` is configured |
-| Operator UI | **Settings → Identity providers** | Imminent-expiry banner from the same health signal |
+| Architect workspace | **Settings → Identity providers** | Imminent-expiry banner from the same health signal |
 | Startup logs | API startup configuration summary | Critical warning when cert expires within 30 days |
 
 **Escalation:** open a change ticket when **Warn** appears; treat **Fail** or expired cert as **Sev-1** workforce SSO risk.

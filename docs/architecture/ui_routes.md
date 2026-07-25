@@ -17,7 +17,7 @@ Pick one tier before walking routes. Tiers are ordered from fastest (UI-only) to
 
 ### Tier 1 — UI-only static demo (no SQL)
 
-Best for review workflow, graph, compare, governance mock tiles, and buyer-polished operator shell.
+Best for review workflow, graph, compare, governance mock tiles, and buyer-polished architect workspace.
 
 ```powershell
 cd archlucid-ui
@@ -171,15 +171,15 @@ Columns:
 | `/auth/callback` | OAuth redirect handler | Only during real OIDC flow |
 | `/login` | Legacy shim | Redirects to `/auth/signin` |
 
-### Operator home and core workflow
+### Architect home and core workflow
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/` | Operator home — checklist and quick links | T1 or T2 |
+| `/` | Architect home — checklist and quick links | T1 or T2 |
 | `/dashboard` | Portfolio overview / executive ROI dashboard | T1 static tiles; T2 after seed |
-| `/reviews` | List review packages | T2: `/reviews?projectId=default`; T1: static paged list |
+| `/reviews` | List architecture packages | T2: `/reviews?projectId=default`; T1: static paged list |
 | `/reviews/new` | New architecture review wizard | T2: submit default run; T1: wizard UI (submit needs API) |
-| `/reviews/[runId]` | Review package detail | T1: `claims-intake-modernization`; T2: seed GUIDs above |
+| `/reviews/[runId]` | Architecture package detail | T1: `claims-intake-modernization`; T2: seed GUIDs above |
 | `/reviews/[runId]/provenance` | Evidence provenance diagram | Append to populated review URL |
 | `/reviews/[runId]/findings/[findingId]` | Finding detail | T1: `…/findings/phi-minimization-risk` |
 | `/reviews/[runId]/findings/[findingId]/inspect` | Finding evidence trace inspect | Same finding + `/inspect` |
@@ -247,18 +247,18 @@ Layer guidance copy for many governance/analysis routes: `archlucid-ui/src/lib/l
 | `/planning` | Planning hub | T1/T3 |
 | `/planning/plans/[planId]` | Plan detail | T1: `claims-intake-modernization-plan` |
 | `/evolution-review` | Evolution candidates | T3 mock |
-| `/value-report/pilot` | Sponsor proof snapshot (no DOCX) | T1/T2 after committed review |
+| `/value-report/pilot` | Sponsor proof snapshot (no DOCX) | T1/T2 after finalized architecture package |
 | `/value-report/roi` | ROI / hours summary | T1 illustrative; T2 with seed |
 | `/digests` | Digests | T3 mock |
 | `/digest-subscriptions` | Digest subscriptions | T3 mock |
 | `/patterns` | Architecture pattern library | T3 mock or API if seeded |
 | `/portfolio` | Retired — redirects to `/dashboard` | Legacy bookmark only |
 | `/operate/architecture-graph` | Tenant graph entry | Redirects to `/graph` |
-| `/operate/integration-events/dlq` | Integration event DLQ | Full operator + Admin + T2 API |
+| `/operate/integration-events/dlq` | Integration event DLQ | Full architect workspace + Admin + T2 API |
 
 ### Executive route group
 
-Lighter chrome than the full operator shell; `(executive)` route group does not appear in the URL.
+Lighter chrome than the full architect workspace; `(executive)` route group does not appear in the URL.
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
@@ -270,8 +270,8 @@ Lighter chrome than the full operator shell; `(executive)` route group does not 
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
-| `/settings` | General settings (appearance, support bundle) | Layout OK T1; blocked in strict demo — T3 bypass or operator mode |
-| `/settings/billing` | Billing and plans | Admin + operator mode + API |
+| `/settings` | General settings (appearance, support bundle) | Layout OK T1; blocked in strict demo — T3 bypass or full architect workspace |
+| `/settings/billing` | Billing and plans | Admin + full architect workspace + API |
 | `/settings/identity-providers` | Identity provider config | Admin + API |
 | `/settings/identity/sso-wizard` | SSO setup wizard | Admin + API |
 | `/settings/api-keys` | API key management | Admin + API |
@@ -289,7 +289,7 @@ Lighter chrome than the full operator shell; `(executive)` route group does not 
 
 ### Admin
 
-Requires **Admin authority**, full operator shell, no demo nav blockers, and Tier 2 API (or Tier 3 mock with E2E bypass).
+Requires **Admin authority**, full architect workspace, no demo nav blockers, and Tier 2 API (or Tier 3 mock with E2E bypass).
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
@@ -310,13 +310,13 @@ Requires **Admin authority**, full operator shell, no demo nav blockers, and Tie
 
 | Goal | Fastest path |
 |------|----------------|
-| Review package with findings, manifest, artifacts | T1 → `/reviews/claims-intake-modernization` |
+| Architecture package with findings, manifest, artifacts | T1 → `/reviews/claims-intake-modernization` |
 | Side-by-side compare | T1 → `/compare?priorRunId=claims-intake-run-v1&laterRunId=claims-intake-run-v2` |
 | Evidence graph | T1 → `/graph?runId=claims-intake-modernization` + **Load graph** |
 | Governance, audit, alerts | T1 static or T3 mock harness |
 | Real pipeline + SQL truth | T2 `.\scripts\demo-start.ps1` |
 | Every route for design review | T3 `npm run screenshots:all:prebuilt` |
-| Admin / settings dense UI | Operator mode + Admin + T2 API |
+| Admin / settings dense UI | Full architect workspace + Admin + T2 API |
 | Marketing surfaces only | Open URLs directly (no setup) |
 
 ---
@@ -326,7 +326,7 @@ Requires **Admin authority**, full operator shell, no demo nav blockers, and Tie
 When adding or moving a route:
 
 1. Add `page.tsx` under a **unique** URL path (run `python scripts/ci/assert_archlucid_ui_app_router_unique_paths.py` from repo root).
-2. If the route appears in the operator shell, update `nav-config.ts` and follow the drift guard in `docs/library/PRODUCT_PACKAGING.md` §3.
+2. If the route appears in the architect workspace, update `nav-config.ts` and follow the drift guard in `docs/library/PRODUCT_PACKAGING.md` §3.
 3. Update this document and, if applicable, `archlucid-ui/e2e/capture-all-screenshots.spec.ts` `HREFS`.
 
 **Related docs:**

@@ -47,7 +47,7 @@ Give opted-in operators **actionable, anonymised pattern guidance** (“peers in
 
 ## Architecture Overview
 
-**Opinionated v1 shape:** **nightly ETL** (ArchLucid Worker or Container Apps Job per [ADR 0018](0018-background-workloads-container-apps-jobs.md)) reads **per-tenant manifest fingerprints** from the **existing tenant-isolated stores** using **elevated but narrow** batch credentials, writes **normalised rows** into a **staging** table in a **non-tenant schema**, runs a **k-anonymity gate** (`HAVING COUNT(DISTINCT tenant_id) >= 5`), and refreshes a **materialised view** (or indexed table) consumed **read-only** by a new **PatternInsights** API surface. The **operator UI** calls that API with the **normal user JWT**; the API **never** receives cross-tenant SQL powers—it only reads the **pre-filtered** aggregate projection.
+**Opinionated v1 shape:** **nightly ETL** (ArchLucid Worker or Container Apps Job per [ADR 0018](0018-background-workloads-container-apps-jobs.md)) reads **per-tenant manifest fingerprints** from the **existing tenant-isolated stores** using **elevated but narrow** batch credentials, writes **normalised rows** into a **staging** table in a **non-tenant schema**, runs a **k-anonymity gate** (`HAVING COUNT(DISTINCT tenant_id) >= 5`), and refreshes a **materialised view** (or indexed table) consumed **read-only** by a new **PatternInsights** API surface. The **architect workspace** calls that API with the **normal user JWT**; the API **never** receives cross-tenant SQL powers—it only reads the **pre-filtered** aggregate projection.
 
 **Trade-off — nightly vs near-real-time.** **Nightly** cadence trades freshness (up to ~24h lag) for **predictable cost**, **simpler cache coherence**, and **time to run re-identification regression tests** offline. Near-real-time streaming (e.g. Event Hub + stream aggregation) is explicitly **deferred** until a future ADR proves need and funds **24/7** operational coverage.
 
@@ -63,7 +63,7 @@ flowchart TB
   K[k-anonymity gate\nk >= 5]
   PUB[Published projection\n(read-only)]
   API[PatternInsights API\n(user JWT)]
-  UI[Operator UI\nvertical guidance strip]
+  UI[Architect workspace\nvertical guidance strip]
 
   M --> ETL
   ETL --> STG
@@ -84,7 +84,7 @@ flowchart TB
 | **Published projection** | `mv_pattern_insights_public` (illustrative) refreshed nightly | Data | Refresh job idempotency; empty-set behaviour |
 | **Dedicated SQL login / MI** | `SELECT` only on published projection + staging write during ETL | Security | IaC review; secret rotation runbook |
 | **PatternInsights API** | Read projection; enforce vertical preset match; rate-limit | Backend | AuthZ tests; penetration-test item |
-| **Operator UI strip** | “Peers in *{vertical}*” cards; no drill-down to foreign tenants | Frontend | Accessibility + copy review |
+| **Architect workspace strip** | “Peers in *{vertical}*” cards; no drill-down to foreign tenants | Frontend | Accessibility + copy review |
 
 ## Data Flow
 

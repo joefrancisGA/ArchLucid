@@ -6,7 +6,7 @@
 
 ## Taxonomy
 
-| Symptom class | Typical cause | Operator UI toast title |
+| Symptom class | Typical cause | Architect workspace toast title |
 | --- | --- | --- |
 | API/proxy unreachable | `ArchLucid.Api` down, wrong `ARCHLUCID_API_BASE_URL`, or UI proxy 502 | **ArchLucid API unreachable** |
 | API URL not configured | Missing `ARCHLUCID_API_BASE_URL` in UI dev env | **API URL not configured** |

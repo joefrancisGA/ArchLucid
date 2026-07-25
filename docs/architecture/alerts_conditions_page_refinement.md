@@ -44,7 +44,7 @@ Engine comparison semantics (from `AlertEvaluator`):
 
 ## Sample mode
 
-When `isBuyerPolishedOperatorShellEnv()` and not full-operator shell: read-only banner, disabled create, Start an evaluation CTA.
+When `isBuyerPolishedOperatorShellEnv()` and not full architect workspace: read-only banner, disabled create, Start an evaluation CTA.
 
 ## Files changed
 

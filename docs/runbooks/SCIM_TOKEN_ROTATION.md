@@ -19,7 +19,7 @@ ArchLucid authenticates inbound SCIM requests with the dedicated **`ScimBearer`*
 
 - Entra / Okta provisioning logs show **401 Unauthorized** against `POST /v1/scim/v2/Users` (or Groups).
 - **`ScimTokenRotationReminderJob`** audit/email reminders for tokens older than the configured rotation window.
-- Operator UI or **`GET /v1/admin/scim/tokens`** shows multiple active tokens after a partial rotation.
+- Architect workspace or **`GET /v1/admin/scim/tokens`** shows multiple active tokens after a partial rotation.
 
 ## Configuration reference
 

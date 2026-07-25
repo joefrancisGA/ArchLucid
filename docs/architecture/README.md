@@ -46,7 +46,7 @@ title ArchLucid — logical containers
 Person(operator, "Operator", "Uses product via browser.")
 Container(cli, "ArchLucid.Cli", ".NET tool", "Scripts and laptops calling the HTTP API.")
 System_Boundary(platform, "ArchLucid product") {
-    Container(ui, "Operator UI", "Next.js", "Progressive shell; proxies to API.")
+    Container(ui, "Architect workspace", "Next.js", "Progressive shell; proxies to API.")
     Container(api, "ArchLucid.Api", "ASP.NET Core", "Versioned REST, authZ, orchestration.")
     Container(worker, "ArchLucid.Worker", ".NET worker", "Hosted loops.")
     ContainerDb(db, "SQL Server", "Relational", "Runs, manifests, governance.")

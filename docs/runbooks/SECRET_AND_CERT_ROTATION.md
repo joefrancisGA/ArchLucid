@@ -33,7 +33,7 @@ flowchart LR
   end
   subgraph apps [Workloads]
     API[ArchLucid API]
-    UI[Operator UI]
+    UI[Architect workspace]
   end
   KV --> API
   KV --> UI
