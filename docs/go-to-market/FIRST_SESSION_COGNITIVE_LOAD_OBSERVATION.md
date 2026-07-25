@@ -1,9 +1,11 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** 45-minute first-session usability observation for Core Pilot — market validation design; no UI implementation until bottlenecks are observed.
 
 # First-session cognitive load observation
 
 **Audience:** Founder / facilitator, principal-architect participant, product observer.  
-**Last reviewed:** 2026-06-16
+**Last reviewed:** 2026-07-25
 
 **Purpose:** Determine whether a competent principal architect reaches a **sponsor-ready architecture package** on first use **without feature-tour narration**. This reduces market uncertainty about Time-to-Value and voluntary usage — not design uncertainty about individual widgets.
 

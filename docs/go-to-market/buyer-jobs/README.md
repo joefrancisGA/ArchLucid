@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Index of outcome-led Specialty buyer-job pages linked from accelerator walkthroughs; not the Core first-pilot operator path.
 
 # Buyer jobs (Specialty accelerators)

@@ -81,10 +81,6 @@ public sealed class FrontierAiBaselineRunnerTests
                 "# scoreboard guide");
             WriteFile(
                 root,
-                Path.Combine("docs", "go-to-market", "validation", "FRONTIER_AI_COUNTERFACTUAL_CADENCE.md"),
-                "# cadence");
-            WriteFile(
-                root,
                 Path.Combine("docs", "runbooks", "PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md"),
                 "# runbook");
 

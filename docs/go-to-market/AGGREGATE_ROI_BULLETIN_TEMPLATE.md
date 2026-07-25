@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Quarterly **aggregate** ROI bulletin template for GTM and leadership — sanitized statistics only; not a vehicle for per-customer disclosure.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).

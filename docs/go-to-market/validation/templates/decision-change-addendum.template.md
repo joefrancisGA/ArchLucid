@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 # Decision-change addendum — {{pilotLabel}}
 
 > Copy this template per sponsor handoff. Replace `{{placeholders}}`. Do not fabricate outcomes. See [`DECISION_CHANGE_ADDENDUM.md`](../DECISION_CHANGE_ADDENDUM.md).

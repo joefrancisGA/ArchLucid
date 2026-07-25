@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Statement-of-work template for **Custom Policy Pack Authoring** professional services (not legal advice).
 
 > **Pricing source:** All SKU list prices live only in [PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services) and [§5.2](PRICING_PHILOSOPHY.md#52-locked-price-table-do-not-edit-without-re-rate-gate-decision). Do not restate dollar figures in customer-facing copies — reference the order form line item.

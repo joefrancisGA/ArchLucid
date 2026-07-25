@@ -74,6 +74,10 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/EXECUTIVE_PAID_PILOT_PROOF_PACKET.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review) | Six-element assembly + mock review folded into quote-to-proof |
 | `docs/go-to-market/DEFAULT_POLICY_PACK_CALIBRATION.md` | [`docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`](go-to-market/DEFAULT_POLICY_PACKS_V1.md#6-operator-calibration) | Operator calibration folded into default policy packs catalog |
 | `docs/go-to-market/SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md` | [`docs/go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md`](go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md#appendix--sendno-send-hardening-review-2026-06-16) | 2026-06-16 hardening review folded into claim label audit |
+| `docs/go-to-market/demo-proof-packets/ai-governance-demo-proof.md` | [`docs/go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md`](go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only) | Demo proof shape folded into buyer job |
+| `docs/go-to-market/demo-proof-packets/azure-saas-readiness-demo-proof.md` | [`docs/go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md`](go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md#demo-proof-shape-demo-derived-only) | Demo proof shape folded into buyer job |
+| `docs/go-to-market/demo-proof-packets/healthcare-claims-demo-proof.md` | [`docs/go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md#demo-proof-shape-demo-derived-only) | Demo proof shape folded into buyer job |
+| `docs/go-to-market/demo-proof-packets/first-run-demo-script.md` | [`docs/go-to-market/DEMO_QUICKSTART.md`](go-to-market/DEMO_QUICKSTART.md#first-run-demo-script-simulator) | First-run simulator script folded into demo quickstart |
 
 ---
 

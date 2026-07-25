@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** <<CUSTOMER_NAME>> — ArchLucid design-partner case study - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
@@ -15,7 +17,7 @@
 
 **Reference-call cadence:** `<<REFERENCE_CALL_CADENCE>>` (target: quarterly for the first year, semi-annual thereafter)
 
-**Last reviewed:** `<<LAST_REVIEW_DATE>>` (this line gets a real date the day a sales engineer takes ownership of the file)
+**Last reviewed:** 2026-07-25
 
 ---
 

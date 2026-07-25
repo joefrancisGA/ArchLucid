@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Go-to-market and sales-enablement readers reviewing a synthetic Contoso Retail modernization vignette; it is not real customer results, tenant SQL metrics, or a measured pilot write-up.
 
 > **SYNTHETIC — NOT REAL CUSTOMER DATA.** This narrative is fabricated for sales-enablement and DOCX examples. Do not cite figures as observed outcomes without replacing them with measured pilot data.

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** First paying tenant (PLG) — ArchLucid reference case study template - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
@@ -33,7 +35,7 @@
 
 **Paid conversion date:** `<<CONVERSION_DATE>>` (`YYYY-MM-DD`)
 
-**Last reviewed:** `<<LAST_REVIEW_DATE>>`
+**Last reviewed:** 2026-07-25
 
 ---
 

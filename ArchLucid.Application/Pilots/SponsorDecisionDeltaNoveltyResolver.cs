@@ -177,7 +177,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
             $"PilotStrict posture: {(proof.AgentOutputPilotStrictEvidenceSatisfied ? "satisfied" : "failed")}",
             $"buyer-safe send gate: {(IsBuyerSafeSendAllowed(buyerSafeGate) ? "allowed" : "blocked")}",
             $"LLM trace rows resolved: {(proof.LlmCallCountResolved ? deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture) : "no")}",
-            "blind principal-architect sessions: not inferred — see repository `docs/go-to-market/BLIND_INSIGHT_VALIDATION_PROTOCOL.md`",
+            "blind principal-architect sessions: not inferred — see repository `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`",
         ];
 
         return string.Join("; ", parts) + ".";

@@ -1,9 +1,11 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Focused ~10-minute no-code usability test isolating one question — can a first-time principal architect find the sponsor-sendable export **after commit** without help? Market-validation operations; no UI changes until repeated failure clears the product decision gate.
 
 # Sponsor export discovery test (focused micro-test)
 
 **Audience:** Founder / facilitator running a quick post-commit export-discovery check.
-**Last reviewed:** 2026-06-18
+**Last reviewed:** 2026-07-25
 
 **Purpose:** The proof engine fails commercially if operators commit a review but cannot find what to
 send. This test isolates the **commit → sponsor export** discovery moment so it can be measured quickly

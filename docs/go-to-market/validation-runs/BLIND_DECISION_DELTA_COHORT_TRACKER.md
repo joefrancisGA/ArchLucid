@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Pre-registered tracker for one blind decision-delta cohort. Lock the plan and thresholds **before** collecting data so results cannot be threshold-gamed after the fact. Market-validation only.
 
 # Blind decision-delta cohort tracker

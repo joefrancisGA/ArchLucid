@@ -1,6 +1,10 @@
-> **Scope:** Buyer-job packaging — Azure SaaS readiness pilot outcome (V1 surfaces only).
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Buyer-job packaging — Azure SaaS readiness pilot outcome (V1 surfaces only). Includes the demo-derived proof shape for self-serve walkthroughs.
 
 # Buyer job — Azure SaaS readiness review
+
+**Last reviewed:** 2026-07-25
 
 **Classification:** **Specialty** template (optional). Use when the buyer’s job is Azure SaaS production readiness — not as a mandatory pre-first-value checklist. **Core path:** [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
 
@@ -98,6 +102,20 @@ A **board- or architecture-review-ready package** that ties Azure posture eviden
 ## How to measure success
 
 Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): finalized architecture package present, top findings traceable to Azure extractor or labeled demo evidence, sponsor disposition **SEND** or documented HOLD, and ROI basis labels that do not present demo-derived hours as buyer outcomes.
+
+---
+
+## Demo proof shape (Demo-derived only)
+
+**Evidence basis:** **Demo-derived** · **Manual review required** for AI narrative. Not a verified customer deployment.
+
+| Finding (illustrative) | Category | Evidence label |
+| --- | --- | --- |
+| Managed identity for app → Key Vault | Topology | Demo-derived |
+| Front Door TLS termination | Topology | Demo-derived |
+| App Service zone redundancy gap | Cost | Estimate |
+
+**Do not claim:** verified customer ROI, production SLA history, or procurement-safe proof without a committed buyer `runId`. Deferred: CPA SOC 2, third-party pen-test publication, native ITSM connectors (V1.1).
 
 ---
 

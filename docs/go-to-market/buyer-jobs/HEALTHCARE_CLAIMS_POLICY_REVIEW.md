@@ -1,6 +1,10 @@
-> **Scope:** Buyer-job packaging — Healthcare claims policy pack pilot outcome (V1 surfaces only; demo seed friendly).
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Buyer-job packaging — Healthcare claims policy pack pilot outcome (V1 surfaces only; demo seed friendly). Includes the demo-derived proof shape for self-serve walkthroughs.
 
 # Buyer job — Healthcare claims policy review
+
+**Last reviewed:** 2026-07-25
 
 **Classification:** **Specialty** template (optional). Use when the buyer’s job is PHI-minimization / claims intake policy — not as a mandatory pre-first-value checklist. **Core path:** [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
 
@@ -98,6 +102,20 @@ A **policy-anchored architecture package** that shows how healthcare claims cont
 ## How to measure success
 
 Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): `healthcare-claims-v3` assigned and pinned, critical findings dispositioned before finalize, synthetic-only demo payloads, and sponsor export with labeled ROI basis (never real PHI).
+
+---
+
+## Demo proof shape (Demo-derived only)
+
+**Evidence basis:** **Demo-derived** · **Deferred scope** for production PHI environments. Synthetic/demo evidence only — no production PHI.
+
+| Finding (illustrative) | Category | Evidence label |
+| --- | --- | --- |
+| PHI minimization rule triggered on narrative field | Policy | Demo-derived |
+| BAA / production HIPAA attestation not in scope | Compliance | Deferred scope |
+| Audit export path present | Auditability | Evidence-backed (structural) |
+
+**Do not claim:** HIPAA compliance certification or sponsor ROI dollars from this demo shape.
 
 ---
 

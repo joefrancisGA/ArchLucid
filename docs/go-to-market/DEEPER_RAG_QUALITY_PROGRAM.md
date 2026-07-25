@@ -1,8 +1,10 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Release engineering program for **offline RAG quality** — sequences existing faithfulness, retrieval IR, and floor-ratchet harnesses into one enforceable gate. Implements assessment **§17 #10 (Deeper RAG quality program)**. Not buyer-facing.
 
 # Deeper RAG quality program
 
-**Last reviewed:** 2026-06-27 · **Disposition:** PASS (offline golden fixtures meet committed floors).
+**Last reviewed:** 2026-07-25
 
 This program answers one question for engineering and release: **are Ask/agent outputs still citing retrieved evidence and retrieving the right chunks on golden fixtures, without silent regression?** It reuses the TB-021 harness stack documented in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](../library/RAG_QUALITY_TECHNICAL_BACKLOG.md) and [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md); it does not restate retrieval architecture those docs own.
 

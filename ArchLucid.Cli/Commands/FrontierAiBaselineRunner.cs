@@ -11,7 +11,6 @@ internal sealed class FrontierAiBaselineRunner
         Path.Combine("fixtures", "bakeoff", "frontier-ai-scoreboard.template.md"),
         Path.Combine("fixtures", "bakeoff", "session-template", "README.md"),
         Path.Combine("docs", "go-to-market", "FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md"),
-        Path.Combine("docs", "go-to-market", "validation", "FRONTIER_AI_COUNTERFACTUAL_CADENCE.md"),
         Path.Combine("docs", "runbooks", "PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md"),
     ];
 

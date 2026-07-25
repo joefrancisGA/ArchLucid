@@ -1,5 +1,6 @@
 > **Scope:** Synthetic aggregate ROI bulletin sample. **FORBIDDEN (repository hygiene):** Do not append this document to `docs/CHANGELOG.md`. Do not add a `## YYYY-MM-DD — ROI bulletin signed:` section for this synthetic artefact. Sign-off audit format applies only to real published bulletins (see `docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md`).
 
+> **Reviewed:** 2026-07-25
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 

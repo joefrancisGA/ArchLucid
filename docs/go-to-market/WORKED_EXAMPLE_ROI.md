@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Reproducible sample-data ROI artifact (PDF + parsed Markdown table) generated from a fictional Contoso tenant via the existing value-report path; for buyer/seller demo conversations only. Not a real customer outcome and not a citable benchmark.
 
 # Worked example ROI (Contoso sample)

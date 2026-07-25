@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** `/welcome` hero — three CTAs, Microsoft Clarity custom events, environment variables, copy/legal posture, and links to demo workspaces (#31) and product FAQ.
 
 # Welcome hero — CTAs, analytics, and compliance

@@ -1,6 +1,10 @@
-> **Scope:** Buyer-job packaging — Responsible AI governance pilot outcome (V1 surfaces only).
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Buyer-job packaging — Responsible AI governance pilot outcome (V1 surfaces only). Includes the demo-derived proof shape for self-serve walkthroughs.
 
 # Buyer job — AI governance review
+
+**Last reviewed:** 2026-07-25
 
 **Classification:** **Specialty** template (optional). Use when the buyer’s job is Responsible AI oversight — not as a mandatory pre-first-value checklist. **Core path:** [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
 
@@ -100,6 +104,20 @@ A **defensible Responsible AI narrative** anchored in a finalized architecture p
 ## How to measure success
 
 Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): `ai-gov-*` findings dispositioned, pre-finalize gate status recorded when configured, sponsor export bundle attached, and ROI basis labels explicit (no mock production KPIs on live tenant paths).
+
+---
+
+## Demo proof shape (Demo-derived only)
+
+**Evidence basis:** **Demo-derived** · **Estimate** for ROI rows without buyer baselines. Not a verified customer outcome or production attestation.
+
+| Finding (illustrative) | Category | Evidence label |
+| --- | --- | --- |
+| Model inventory incomplete in evidence ZIP | Compliance | Demo-derived |
+| Human-in-the-loop approval not mapped | Governance | Demo-derived |
+| Citation coverage below sponsor threshold | AI quality | Low support |
+
+**Do not claim:** regulator sign-off, SOC 2 CPA, or projected dollar savings without buyer baselines. Deferred: public reference customer, Marketplace checkout, MCP (V1.1+).
 
 ---
 

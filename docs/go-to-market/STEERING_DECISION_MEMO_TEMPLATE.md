@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** One-page steering / ARB memo template aligned to pilot scorecard language; internal drafts only until filled by the customer team.
 
 # Steering decision memo — ArchLucid pilot (template)

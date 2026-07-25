@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** One-page facilitator scorecard for principal-architect insight validation sessions. Captures market uncertainty — not product claims.
 
 # Principal-architect session scorecard
