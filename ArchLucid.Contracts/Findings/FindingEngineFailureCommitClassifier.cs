@@ -29,8 +29,10 @@ public static class FindingEngineFailureCommitClassifier
     {
         ArgumentNullException.ThrowIfNull(failures);
 
-        foreach (FindingEngineFailure failure in failures)
+        foreach (FindingEngineFailure? failure in failures)
         {
+            if (failure is null)
+                continue;
 
             if (IsCommitBlocking(failure, compliancePackRequired))
                 return true;
@@ -48,8 +50,10 @@ public static class FindingEngineFailureCommitClassifier
 
         List<FindingEngineFailure> advisory = [];
 
-        foreach (FindingEngineFailure failure in failures)
+        foreach (FindingEngineFailure? failure in failures)
         {
+            if (failure is null)
+                continue;
 
             if (!IsCommitBlocking(failure, compliancePackRequired))
                 advisory.Add(failure);

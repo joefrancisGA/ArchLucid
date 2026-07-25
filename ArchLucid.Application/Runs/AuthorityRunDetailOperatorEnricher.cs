@@ -136,13 +136,20 @@ public sealed class AuthorityRunDetailOperatorEnricher(
             // Buyer SSR must not 500 on optional cost enrichment faults.
         }
 
-        detail.EstimatedUsdSavingsSummary = await RunDetailEstimatedUsdSavingsBuilder
-            .TryBuildAsync(
-                detail.Run,
-                _tenantEstimatedUsdSavingsResolver,
-                _tenantCostSettingsRepository,
-                cancellationToken)
-            .ConfigureAwait(false);
+        try
+        {
+            detail.EstimatedUsdSavingsSummary = await RunDetailEstimatedUsdSavingsBuilder
+                .TryBuildAsync(
+                    detail.Run,
+                    _tenantEstimatedUsdSavingsResolver,
+                    _tenantCostSettingsRepository,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            detail.EstimatedUsdSavingsSummary = null;
+        }
 
         ScopeContext scope = ScopeContextRunChildExtensions.FromRunRecord(detail.Run);
         IReadOnlyList<AgentResult> agentTypeMarkers;

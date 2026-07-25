@@ -306,32 +306,80 @@ internal static class GoldenManifestPhase1RelationalRead
     /// <summary>Falls back to the legacy JSON column when no relational rows exist for a string list slice.</summary>
     private static List<string> FallbackDeserializeList(string? json)
     {
-        return string.IsNullOrWhiteSpace(json) ? [] : JsonEntitySerializer.Deserialize<List<string>>(json);
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            return JsonEntitySerializer.Deserialize<List<string>>(json) ?? [];
+        }
+        catch (InvalidOperationException)
+        {
+            return [];
+        }
     }
 
     /// <summary>Falls back to the legacy JSON column when no relational provenance rows exist.</summary>
     private static ManifestProvenance FallbackDeserializeProvenance(string? json)
     {
-        return string.IsNullOrWhiteSpace(json) ? new ManifestProvenance() : JsonEntitySerializer.Deserialize<ManifestProvenance>(json);
+        if (string.IsNullOrWhiteSpace(json))
+            return new ManifestProvenance();
+
+        try
+        {
+            return JsonEntitySerializer.Deserialize<ManifestProvenance>(json) ?? new ManifestProvenance();
+        }
+        catch (InvalidOperationException)
+        {
+            return new ManifestProvenance();
+        }
     }
 
     /// <summary>Falls back to the legacy JSON column when no relational decision rows exist.</summary>
     private static List<ResolvedArchitectureDecision> FallbackDeserializeDecisions(string? json)
     {
-        return string.IsNullOrWhiteSpace(json) ? [] : JsonEntitySerializer.Deserialize<List<ResolvedArchitectureDecision>>(json);
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            return JsonEntitySerializer.Deserialize<List<ResolvedArchitectureDecision>>(json) ?? [];
+        }
+        catch (InvalidOperationException)
+        {
+            return [];
+        }
     }
 
     private static ComplianceSection DeserializeCompliance(string? json)
     {
-        return string.IsNullOrWhiteSpace(json)
-            ? new ComplianceSection()
-            : JsonEntitySerializer.Deserialize<ComplianceSection>(json);
+        if (string.IsNullOrWhiteSpace(json))
+            return new ComplianceSection();
+
+        try
+        {
+            return JsonEntitySerializer.Deserialize<ComplianceSection>(json) ?? new ComplianceSection();
+        }
+        catch (InvalidOperationException)
+        {
+            return new ComplianceSection();
+        }
     }
 
     private static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
         where T : class, new()
     {
-        return string.IsNullOrWhiteSpace(json) ? new T() : deserialize(json);
+        if (string.IsNullOrWhiteSpace(json))
+            return new T();
+
+        try
+        {
+            return deserialize(json) ?? new T();
+        }
+        catch (InvalidOperationException)
+        {
+            return new T();
+        }
     }
 
     private sealed class ManifestDecisionRow
