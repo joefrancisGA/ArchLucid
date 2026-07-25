@@ -38,6 +38,8 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
   useOperatorHomeWorkspaceActivity: () => ({
     hasWorkspaceReviews: false,
     hasActionNeededReviews: false,
+    openFindingsCount: 0,
+    recentRunIds: [],
     reportWorkspaceReviews: vi.fn(),
   }),
 }));

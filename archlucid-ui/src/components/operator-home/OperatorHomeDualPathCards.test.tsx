@@ -35,6 +35,8 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
   useOperatorHomeWorkspaceActivity: () => ({
+    openFindingsCount: 0,
+    recentRunIds: [],
     hasWorkspaceReviews: false,
     hasActionNeededReviews: false,
     reportWorkspaceReviews: vi.fn(),

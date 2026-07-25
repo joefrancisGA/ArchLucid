@@ -98,17 +98,24 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
 function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
   const fullOperatorShell = isOperatorExperienceFullShellEnv();
-  const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
-
-
+  const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
+    props.model.runsDashboard.items,
+    props.model.runsDashboard.totalCount,
+  );
 
   return (
 
-    <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
+    <OperatorHomeWorkspaceActivityProvider
+      initialHasReviews={workspaceMetrics.hasReviews}
+      initialOpenFindingsCount={workspaceMetrics.openFindings}
+    >
 
       <section aria-label="Overview command center" data-testid="operator-home-pilot-command-center-host">
 
-        <PilotCommandCenterCard />
+        <PilotCommandCenterCard
+          openFindingsCount={workspaceMetrics.openFindings}
+          hasWorkspaceReviews={workspaceMetrics.hasReviews}
+        />
 
       </section>
 

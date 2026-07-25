@@ -41,6 +41,8 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
   useOperatorHomeWorkspaceActivity: () => ({
     hasWorkspaceReviews: false,
     hasActionNeededReviews: false,
+    openFindingsCount: 0,
+    recentRunIds: [],
     reportWorkspaceReviews: vi.fn(),
   }),
 }));
@@ -162,14 +164,39 @@ describe("PilotCommandCenterCard", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
 
-    renderWithOperatorQuery(<PilotCommandCenterCard />);
+    renderWithOperatorQuery(
+      <PilotCommandCenterCard openFindingsCount={2} hasWorkspaceReviews />,
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId("pilot-next-best-action")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent("Review open findings");
     expect(screen.getByTestId("pilot-command-center-lead")).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
+  });
+
+  it("does not lead with Review open findings when committed signal is set but workspace is empty", async () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+    vi.mocked(fetchCorePilotCommitContext).mockResolvedValue({
+      ...PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT,
+      committedReviewCount: 0,
+      latestRunId: null,
+      firstCommittedRunId: null,
+      secondCommittedRunId: null,
+    });
+
+    renderWithOperatorQuery(
+      <PilotCommandCenterCard openFindingsCount={0} hasWorkspaceReviews={false} />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("pilot-next-best-action")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("pilot-next-best-action")).not.toHaveTextContent("Review open findings");
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent(OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA);
   });
 
   it("does not render optional setup links on the hero card", () => {
