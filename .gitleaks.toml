@@ -16,6 +16,7 @@ useDefault = true
 description = "Support bundle redaction tests: synthetic PEM markers for RedactSensitivePatterns coverage, not real keys"
 paths = [
   '''(?:^|/)ArchLucid\.Cli\.Tests/SupportBundleTests\.cs$''',
+  '''(?:^|/)ArchLucid\.Cli\.Tests/CliPackageCoverageBatch13Tests\.cs$''',
 ]
 
 [[allowlists]]
