@@ -15,6 +15,11 @@ type RenderInlineOptions = {
   readonly linkMode: "external-only" | "help";
 };
 
+/** Landmark names must be unique when multiple scrollable table regions appear on one page (axe landmark-unique). */
+function privacyScrollableTableRegionLabel(tableOrdinal: number): string {
+  return `Scrollable comparison table ${tableOrdinal}`;
+}
+
 function renderInline(text: string, keyPrefix: string, options: RenderInlineOptions): ReactNode[] {
   const nodes: ReactNode[] = [];
   let remaining = text;
@@ -256,6 +261,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const lines = markdownBody.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
   let key = 0;
+  let privacyTableOrdinal = 0;
   const allocateSectionSlug = createHelpHeadingSlugAllocator();
   let skippedDuplicateHelpTitle = !isHelp;
 
@@ -461,6 +467,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         .filter((c) => c.length > 0);
       const dataStart = isTableDivider(bodyRows[1] ?? "") ? 2 : 1;
 
+      if (isPrivacy) {
+        privacyTableOrdinal++;
+      }
+
+      const privacyTableCaption =
+        isPrivacy ? `${props.tableCaption} ${privacyTableOrdinal}` : props.tableCaption;
+
       blocks.push(
         <div
           key={`tbl-${key}`}
@@ -469,7 +482,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
             ? {
                 tabIndex: 0 as const,
                 role: "region" as const,
-                "aria-label": "Scrollable comparison table",
+                "aria-label": privacyScrollableTableRegionLabel(privacyTableOrdinal),
               }
             : {})}
         >
@@ -482,7 +495,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                   : cn("w-full border-collapse border border-neutral-200 dark:border-neutral-800", tableTextClass)
             }
           >
-            <caption className="sr-only">{props.tableCaption}</caption>
+            <caption className="sr-only">{privacyTableCaption}</caption>
             <thead className={isPrivacy || isHelp ? undefined : "bg-neutral-100 dark:bg-neutral-900"}>
               <tr>
                 {headerCells.map((c, idx) => (

@@ -330,3 +330,28 @@ Body copy.`}
     );
   });
 });
+
+describe("MarketingAccessibilityMarkdownFragment privacy presentation", () => {
+  it("gives each scrollable table region a unique landmark name", () => {
+    const markdownBody = [
+      "| A | B |",
+      "| --- | --- |",
+      "| 1 | 2 |",
+      "",
+      "| C | D |",
+      "| --- | --- |",
+      "| 3 | 4 |",
+    ].join("\n");
+
+    render(
+      <MarketingAccessibilityMarkdownFragment
+        markdownBody={markdownBody}
+        tableCaption="ArchLucid privacy policy details"
+        presentation="privacy"
+      />,
+    );
+
+    expect(screen.getByRole("region", { name: "Scrollable comparison table 1" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Scrollable comparison table 2" })).toBeInTheDocument();
+  });
+});
