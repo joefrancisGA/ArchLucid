@@ -2,10 +2,12 @@
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-> **Audience:** Internal operators and design partners using the thin Next.js UI in `archlucid-ui/` against the ArchLucid API.
+> **Audience:** Internal architects and design partners using the thin Next.js UI in `archlucid-ui/` against the ArchLucid API.
 
 
-# ArchLucid operator shell
+# ArchLucid architect workspace
+
+**Legacy doc title:** operator shell (route group `(operator)` unchanged).
 
 **Canonical route × API × CLI map:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md).
 

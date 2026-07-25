@@ -28,7 +28,7 @@ Success is **decision signal**, not completing every UI surface.
 | **3** | **Execute** the review. Stay on the run detail page — do not open Operate, Graph, Compare, or Governance routes. | 5–12 min | Findings list visible |
 | **4** | **STOP-IF-VALUE-NOT-SEEN checkpoint** — see below. | 12–13 min | Pass → step 5; Fail → stop |
 | **5** | **Commit** the manifest — only if step 4 passed. | 13–14 min | `goldenManifestId` present |
-| **6** | Locate the **sponsor export** or review package — unaided. | 14–15 min | Sendable artifact path found |
+| **6** | Locate the **sponsor export** or architecture package — unaided. | 14–15 min | Sendable artifact path found |
 | **7** | *(Optional)* Walk **one** finding's evidence trail — only when step 4 was marginal. | ≤15 min total | Evidence chain stronger than raw AI output |
 
 ---

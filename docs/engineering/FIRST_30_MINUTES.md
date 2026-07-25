@@ -2,7 +2,7 @@
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never run Docker, SQL, .NET, Node, or any local CLI.** They sign up at **`archlucid.net`** and use the in-product operator UI. This document is the **contributor / internal-engineer** first-run path — it is **not** the customer first-run path. If you arrived here as a buyer or evaluator, start at **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** then **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)**, and request a guided trial. See **[`START_HERE.md`](../START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1.
+> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never run Docker, SQL, .NET, Node, or any local CLI.** They sign up at **`archlucid.net`** and use the in-product architect workspace. This document is the **contributor / internal-engineer** first-run path — it is **not** the customer first-run path. If you arrived here as a buyer or evaluator, start at **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** then **[`ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md)**, and request a guided trial. See **[`START_HERE.md`](../START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1.
 
 # First 30 minutes — ArchLucid (contributor / internal engineer)
 
@@ -11,7 +11,7 @@ This is the **single canonical first-run path for ArchLucid contributors and int
 You will:
 
 1. Start the full stack in Docker (Contoso demo seed, simulator agents — no AI keys needed).
-2. Open the operator UI and create a run from the sample preset.
+2. Open the architect workspace and create a review from the sample preset.
 3. Watch the run execute, commit a versioned manifest, and open at least one finding.
 4. Tear it down cleanly.
 
@@ -21,7 +21,7 @@ If you get stuck, jump to the **[Troubleshooting](#troubleshooting)** section at
 
 > **Validating the public trial funnel against staging?** Use **`dotnet run --project ArchLucid.Cli -- trial smoke --org "Smoke-$(date +%s)" --email trial-smoke@example.invalid --baseline-hours 16`** (PowerShell: replace `$(date +%s)` with `(Get-Date -UFormat %s)`). It is a pure-HTTP loop — no Docker, no SQL on your laptop — that calls **`POST /v1/register` → `GET /v1/tenant/trial-status` → `GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. See [`docs/CLI_USAGE.md#archlucid-trial-smoke`](../library/CLI_USAGE.md#archlucid-trial-smoke) and [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](../runbooks/TRIAL_FUNNEL_END_TO_END.md).
 
-> **Operator funnel metrics (optional):** after you are signed into the operator shell, the home page shows **process-lifetime** counts from **`GET /v1/diagnostics/operator-task-success-rates`** (see [`docs/OBSERVABILITY.md`](../library/OBSERVABILITY.md) for `archlucid_operator_task_success_total`). These reset when the API host restarts — useful for demos, not a substitute for long-window analytics.
+> **Architect funnel metrics (optional):** after you are signed into the architect workspace, the home page shows **process-lifetime** counts from **`GET /v1/diagnostics/operator-task-success-rates`** (see [`docs/OBSERVABILITY.md`](../library/OBSERVABILITY.md) for `archlucid_operator_task_success_total`). These reset when the API host restarts — useful for demos, not a substitute for long-window analytics.
 
 ---
 
@@ -72,7 +72,7 @@ cd ArchLucid
 
 **Optional (same stack, from a .NET SDK checkout):** if you already cloned the repo and have the **.NET 10 SDK** installed, you can run **`dotnet run --project ArchLucid.Cli -- pilot up`** from the repo root instead of the scripts above. It runs the same **`docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build`** command and polls **`http://127.0.0.1:5000/health/ready`** for up to **120 seconds**.
 
-> *What to expect:* Docker pulls/builds five containers (SQL Server, Azurite, Redis, API, UI) and waits up to **120 seconds** for `GET http://localhost:5000/health/ready` to return **200**. On success the script prints `API is ready.` and tries to open the operator UI at `http://localhost:3000/reviews/new` in your default browser (legacy `/runs/new` may redirect). **Simulator agents** are enabled — no Azure OpenAI key required.
+> *What to expect:* Docker pulls/builds five containers (SQL Server, Azurite, Redis, API, UI) and waits up to **120 seconds** for `GET http://localhost:5000/health/ready` to return **200**. On success the script prints `API is ready.` and tries to open the architect workspace at `http://localhost:3000/reviews/new` in your default browser (legacy `/runs/new` may redirect). **Simulator agents** are enabled — no Azure OpenAI key required.
 
 ![Demo stack starting — placeholder](placeholder-02-demo-up.png)
 
@@ -92,7 +92,7 @@ curl -s http://localhost:5000/version
 
 > *What to expect:* JSON with `informationalVersion`, `commitSha`, `runtimeFramework`, and `environment`. This is what you cite to support if you file an issue.
 
-### 5. Open the operator UI
+### 5. Open the architect workspace
 
 If your browser did not auto-open:
 

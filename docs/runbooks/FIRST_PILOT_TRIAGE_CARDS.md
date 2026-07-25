@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-05-28 · Full spine: [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md)
 
-`scripts/collect-first-pilot-proof.ps1` writes these IDs into `go-no-go-summary.md` when a preflight, evidence collection, or sponsor-evidence quality gate step can be mapped to a known failure mode. For committed reviews, unresolved or failed PilotStrict sponsor evidence is a `BLOCK`; simulator-only/demo evidence remains allowed only when it is visibly labeled.
+`scripts/collect-first-pilot-proof.ps1` writes these IDs into `go-no-go-summary.md` when a preflight, evidence collection, or sponsor-evidence quality gate step can be mapped to a known failure mode. For finalized reviews, unresolved or failed PilotStrict sponsor evidence is a `BLOCK`; simulator-only/demo evidence remains allowed only when it is visibly labeled.
 
 Every **BLOCK** or **WARN** finding in `go-no-go-summary.md` includes a **`supportNextStep`** column (concrete command or doc link). Open **`first-pilot-command-center.md`** for the single phased **NEXT ACTION** when proof collection finishes.
 
