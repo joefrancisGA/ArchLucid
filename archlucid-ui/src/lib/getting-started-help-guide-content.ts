@@ -34,9 +34,9 @@ export type GettingStartedPlainLanguageTerm = {
 
 export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedPlainLanguageTerm[] = [
   {
-    term: "Architecture review",
+    term: "Architecture package",
     definition:
-      "The durable record of findings, decisions, evidence, and exports for one architecture review session.",
+      "The durable record of findings, decisions, evidence, and exports for one architecture review.",
   },
   {
     term: "Evidence",
@@ -116,7 +116,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 5,
     title: "Finalize and share outputs",
     description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
-    expectedOutputs: "Architecture review, evidence trail, and exports.",
+    expectedOutputs: "Architecture package, evidence trail, and exports.",
     href: "/reviews?projectId=default",
     ctaLabel: "Open reviews",
   },

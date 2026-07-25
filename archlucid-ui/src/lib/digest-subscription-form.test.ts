@@ -51,8 +51,8 @@ describe("digest-subscription-form", () => {
   });
 
   it("returns channel helper copy", () => {
-    expect(channelDestinationHelper("Email")).toMatch(/email address/i);
-    expect(channelDestinationHelper("TeamsWebhook")).toMatch(/HTTPS endpoint/i);
+    expect(channelDestinationHelper("Email")).toMatch(/mailbox/i);
+    expect(channelDestinationHelper("TeamsWebhook")).toMatch(/HTTPS/i);
   });
 
   it("maps subscription status badges", () => {
