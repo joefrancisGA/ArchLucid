@@ -2,7 +2,7 @@
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customer-facing deliverables are the public website, the in-product operator UI, the published API client libraries, OpenAPI contracts, and documentation.** Docker images, `docker compose` definitions, and the contents of this document are **engineering / CI/CD / vendor-operations artifacts** — not a "customer installs our containers" distribution model. Customer entry points: **[`START_HERE.md`](../START_HERE.md)** "Audience split" and `archlucid.net`.
+> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customer-facing deliverables are the public website, the in-product architect workspace, the published API client libraries, OpenAPI contracts, and documentation.** Docker images, `docker compose` definitions, and the contents of this document are **engineering / CI/CD / vendor-operations artifacts** — not a "customer installs our containers" distribution model. Customer entry points: **[`START_HERE.md`](../START_HERE.md)** "Audience split" and `archlucid.net`.
 
 # Containerization
 
@@ -12,7 +12,7 @@ Provide production-ready Docker images for the **ArchLucid** API and Operator UI
 
 ## Customer product boundary (SaaS)
 
-ArchLucid is a **vendor-operated SaaS** product. **Customer-facing deliverables** are the **public website**, the **in-product operator UI**, **published API client libraries**, **OpenAPI contracts**, and **documentation** — not a program to **ship production container images or Helm charts to customers** as the licensed product (see **`docs/PENDING_QUESTIONS.md`** Resolved, 2026-04-21).
+ArchLucid is a **vendor-operated SaaS** product. **Customer-facing deliverables** are the **public website**, the **in-product architect workspace**, **published API client libraries**, **OpenAPI contracts**, and **documentation** — not a program to **ship production container images or Helm charts to customers** as the licensed product (see **`docs/PENDING_QUESTIONS.md`** Resolved, 2026-04-21).
 
 Images and **`docker compose`** definitions in this repository exist for **engineering**, **CI/CD**, **security scanning**, and **optional internal-operator demos** (including seller-led demos). They are **development and operations artifacts**, not a committed “customer installs our stack from a container tarball” distribution model unless product strategy reopens that path in a future ADR.
 

@@ -6,7 +6,7 @@
 
 ## When to use this
 
-Use this **after** a review is committed and the first-pilot evidence bundle exists. The goal is to attach the defensible architecture review package to the buyer's existing workflow **without** waiting for V1.1 connectors (Jira, ServiceNow, Confluence, Slack, Teams, CloudEvents, MCP).
+Use this **after** a review is finalized and the first-pilot evidence bundle exists. The goal is to attach the defensible architecture package to the buyer's existing workflow **without** waiting for V1.1 connectors (Jira, ServiceNow, Confluence, Slack, Teams, CloudEvents, MCP).
 
 **Canonical proof command (sponsor-grade):**
 
@@ -95,7 +95,7 @@ Deferred scope not required for this V1 handoff: Jira/ServiceNow/Confluence/Slac
 See filled sample: [`fixtures/v1-workflow-handoff-azdo-comment.sample.md`](fixtures/v1-workflow-handoff-azdo-comment.sample.md).
 
 ```markdown
-ArchLucid review package attached.
+ArchLucid architecture package attached.
 
 Review/run id: `<runId>`
 Manifest id: `<manifestId>`
@@ -115,7 +115,7 @@ For PR decoration without V1.1 ticket sync:
 | Azure DevOps pipeline task | [`../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md`](../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md) |
 | Server-side ADO PR decoration | [`../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md`](../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md) |
 
-Use OpenAPI (`GET /openapi/v1.json`) and CLI outputs for automation; do not scrape the operator UI.
+Use OpenAPI (`GET /openapi/v1.json`) and CLI outputs for automation; do not scrape the architect workspace.
 
 ## 5. V1.1 boundary (do not imply these are required)
 

@@ -2,7 +2,7 @@
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform** — they sign up at **`archlucid.net`** and use the in-product operator UI. This document is the **contributor / internal-operator** install path. It exists for people building, testing, or operating ArchLucid itself, not for customers using it. See **[`START_HERE.md`](../START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1.
+> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform** — they sign up at **`archlucid.net`** and use the in-product architect workspace. This document is the **contributor / internal-operator** install path. It exists for people building, testing, or operating ArchLucid itself, not for customers using it. See **[`START_HERE.md`](../START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1.
 
 # Install order (canonical — ArchLucid contributors and internal operators)
 

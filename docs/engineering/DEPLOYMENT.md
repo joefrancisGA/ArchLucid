@@ -84,7 +84,7 @@ The API registers policy **`ArchLucid`** (`UseCors("ArchLucid")` in the pipeline
 |---------------|----------|
 | **`Cors:AllowedOrigins`** (array) | If **empty or missing**, **no** browser origin is allowed (`SetIsOriginAllowed(_ => false)`). If non-empty, only those exact origins receive `Access-Control-Allow-Origin`. |
 | **`Cors:AllowedMethods`** (array, optional) | Defaults: **`GET`**, **`POST`**, **`PUT`**, **`DELETE`**, **`OPTIONS`**. **`OPTIONS`** is required for preflight. If you set this array, it **replaces** the default list (include every method you need). |
-| **`Cors:AllowedHeaders`** (array, optional) | Defaults: **`Content-Type`**, **`Authorization`**, **`X-Api-Key`**, **`X-Correlation-ID`**, **`Idempotency-Key`**, **`Accept`**. Aligns with the operator UI proxy and idempotent run creation. If you set this array, it **replaces** the default list—add any extra request headers your SPA sends. |
+| **`Cors:AllowedHeaders`** (array, optional) | Defaults: **`Content-Type`**, **`Authorization`**, **`X-Api-Key`**, **`X-Correlation-ID`**, **`Idempotency-Key`**, **`Accept`**. Aligns with the architect workspace proxy and idempotent review creation. If you set this array, it **replaces** the default list—add any extra request headers your SPA sends. |
 
 Production validation (`ArchLucidConfigurationRules.CollectErrors` → `ProductionSafetyRules` + `BillingProductionSafetyRules`) still requires a non-empty **`Cors:AllowedOrigins`** without wildcard `*`.
 
