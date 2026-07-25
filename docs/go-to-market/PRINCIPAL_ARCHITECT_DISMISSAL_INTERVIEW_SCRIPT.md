@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** Founder-led structured dismissal interview for the principal-architect persona who already uses frontier AI well. Market-validation instrument (V1 design half). Running it with real participants is GTM backlog **M-44 (V1.1)** — a coding agent cannot perform the live sessions.
 
 # Principal architect dismissal interview script

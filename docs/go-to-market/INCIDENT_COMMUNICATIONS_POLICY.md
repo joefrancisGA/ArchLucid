@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid — Incident communications policy - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).

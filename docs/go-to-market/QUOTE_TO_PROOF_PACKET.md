@@ -178,7 +178,7 @@ Stop if exit code ≠ 0 or disposition = `HOLD`.
 **3 — Pre-send gate**
 
 - [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md#operating-checklist)
-- [`SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md`](SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md) (or successor claim-audit appendix)
+- [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md#appendix--sendno-send-hardening-review-2026-06-16)
 
 **4 — Mock procurement review**
 

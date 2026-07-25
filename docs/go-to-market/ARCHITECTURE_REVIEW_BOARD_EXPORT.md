@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** Architecture review board packet export (DOCX/PDF), consultant whitelabel, and checked-in marketing samples. Buyer-facing vocabulary follows [UI Glossary V1](UI_GLOSSARY_V1.md) (improvement #27).
 
 # Architecture review board export

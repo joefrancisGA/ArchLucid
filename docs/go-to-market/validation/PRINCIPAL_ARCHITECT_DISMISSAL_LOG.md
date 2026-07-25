@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Per-session dismissal-trigger capture + weekly triage runbook for principal-architect validation. Market-validation instrumentation only — not product claims.
 
 # Principal architect dismissal log

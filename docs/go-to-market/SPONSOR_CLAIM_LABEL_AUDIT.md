@@ -1,8 +1,11 @@
-> **Scope:** Release audit checklist — sponsor-facing execution-mode and evidence-basis labels. Not buyer-facing.
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Release audit checklist — sponsor-facing execution-mode and evidence-basis labels. Includes the 2026-06-16 send/no-send hardening review appendix. Not buyer-facing.
 
 # Sponsor claim and execution-mode label audit
 
-**Last reviewed:** 2026-06-18
+**Last reviewed:** 2026-07-25
+
 
 ## Unsupported-Claim Audit (Task #8) — 2026-06-18 pass
 
@@ -69,3 +72,53 @@ python scripts/ci/run_buyer_surface_strict_guards.py --strict
 ```
 
 **Cross-refs:** [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) G1 · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) · [`PROOF_LANGUAGE_CLAIM_AUDIT.md`](PROOF_LANGUAGE_CLAIM_AUDIT.md) (buyer-facing proof packets + demo scripts; superlative guard)
+
+---
+
+## Appendix — Send/no-send hardening review (2026-06-16)
+
+Point-in-time follow-up confirming sponsor-facing artifact paths cannot be sent with missing execution mode, weak ROI basis, demo-derived data, or low support.
+
+### Surfaces reviewed
+
+| Surface | Execution mode | ROI gate | Demo / low support | Verdict |
+| --- | --- | --- | --- | --- |
+| First-value report (Markdown) | ✅ Sponsor first-page table | ✅ PASS/WARN/HOLD narrative gate | ✅ Demo tenant banner | **OK** |
+| Executive review packet (Markdown) | ✅ **Added 2026-06-16** (`## Execution mode`) | ✅ ROI claim disposition section | ⚠️ Demo run context operator-dependent | **Fixed gap** |
+| Sponsor evidence pack (API) | ⚠️ Indirect via deltas/trust surfaces | Partial — process instrumentation | Demo run id explicit in response | **OK with labels** |
+| Executive ROI summary (API) | Via trust card / run detail | ✅ Disposition resolver | Heuristic fallback → HOLD | **OK** |
+| Architecture Review DOCX/PDF | ✅ Provenance footer | ✅ ROI sections | Whitelabel does not strip labels | **OK** |
+| Proof pipeline (`collect-first-pilot-proof.ps1`) | ✅ `realModeEvidenceStatus` | ✅ `roiSponsorSafe`, `-FailOnHold` | ✅ BLOCK rows | **OK** |
+| UI command center phase | ✅ `sponsorDisposition` | ✅ Baseline gate | ✅ Deferred scope phase | **OK** |
+
+### Finding (2026-06-16)
+
+**Gap:** `ExecutiveReviewPacketComposer` exported sponsor Markdown **without** an execution-mode section, violating rule 3 above.
+
+**Remediation:** Shared `SponsorExecutionModeMarkdownFormatter` + executive packet `## Execution mode` section + golden fixture / cross-surface tests.
+
+### Send / no-send rules (consolidated)
+
+**SEND only when all true:**
+
+- `sponsorPacketDisposition` ∈ {READY, WARN} and proof `-FailOnHold` passes
+- Execution mode visible on **every** sponsor export path used
+- ROI narrative gate ≠ HOLD when quoting dollars or % savings
+- `projectedDollarClaimsSponsorSafe` = true for projected USD
+- Not demo-derived outcome claims on demo tenant
+
+**HOLD when any:**
+
+- BLOCK row in proof pipeline
+- Simulator/Fallback without labels
+- ROI basis `not-collected` / `demo-derived` with dollar lead
+- PilotStrict failed on real-mode host
+- Missing real-mode gate while claiming full-real-mode (see [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md))
+
+### Verification commands
+
+```powershell
+dotnet test ArchLucid.Application.Tests --filter "FullyQualifiedName~ExecutiveReviewPacketGoldenFixtureTests|FullyQualifiedName~ExecutionModeCrossSurfaceInvariantTests"
+Invoke-Pester -Path scripts/tests/collect-first-pilot-proof.Tests.ps1
+```
+

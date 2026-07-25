@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** Founder-led 3-session first-session dismissal-rate measurement — market validation operations; no UI changes until cohort synthesis identifies repeated bottlenecks (≥2 sessions).
 
 # First-session dismissal playbook (3-session cohort)

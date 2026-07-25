@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** Buyer-facing security pre-read for InfoSec / cloud platform reviewers evaluating the Tier 1 Azure extractor script before a pilot. Not legal attestation.
 
 # Azure extractor — InfoSec pre-read

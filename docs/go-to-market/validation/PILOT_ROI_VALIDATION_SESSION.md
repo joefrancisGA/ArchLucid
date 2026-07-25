@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Founder / delivery lead runbook for a 15-minute pilot ROI validation conversation — market validation, not new ROI math.
 
 # Pilot ROI validation session

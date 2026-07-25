@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** Lightweight decision-cycle telemetry for demo/pilot → commercial next-step learning — local artifacts only.
 
 # Decision-cycle telemetry

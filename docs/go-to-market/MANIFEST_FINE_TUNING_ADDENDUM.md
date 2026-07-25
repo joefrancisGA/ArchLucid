@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** Manifest fine-tuning addendum — optional continuous learning on accepted manifests; referenced by `DPA_TEMPLATE.md` and ADR 0056.
 
 # Manifest Fine-Tuning Data Processing Addendum

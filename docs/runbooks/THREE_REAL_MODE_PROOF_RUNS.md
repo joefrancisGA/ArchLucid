@@ -134,7 +134,7 @@ Then roll the per-run human-counted faithfulness signals (unsupported-claim coun
 6. Real-mode gate missing and no valid waiver while claiming full-real-mode execution.
 7. Data-consistency or procurement pack HOLD unresolved.
 
-See [`SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md`](../go-to-market/SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md) for surface audit.
+See [`SPONSOR_CLAIM_LABEL_AUDIT.md`](../go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md#appendix--sendno-send-hardening-review-2026-06-16) for surface audit.
 
 ---
 

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Buyer-safe addendum format for pilot proof packets — explicit decision-change framing only; not customer-identifying proof.
 
 # Decision-change addendum

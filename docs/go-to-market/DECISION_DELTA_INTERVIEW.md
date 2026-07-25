@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** Founder-led paid pilot interview template — decision-delta evidence for GTM Stage 1. Not a product spec.
 
 # Decision-delta interview (paid pilots)

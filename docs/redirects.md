@@ -73,6 +73,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/BUYER_BASELINE_CAPTURE_CHECKLIST.md` | [`docs/go-to-market/ROI_BASELINE_SEND_POLICY.md`](go-to-market/ROI_BASELINE_SEND_POLICY.md#pre-pilot-baseline-capture-operator-checklist) | Kickoff baseline checklist folded into ROI SEND policy |
 | `docs/go-to-market/EXECUTIVE_PAID_PILOT_PROOF_PACKET.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review) | Six-element assembly + mock review folded into quote-to-proof |
 | `docs/go-to-market/DEFAULT_POLICY_PACK_CALIBRATION.md` | [`docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`](go-to-market/DEFAULT_POLICY_PACKS_V1.md#6-operator-calibration) | Operator calibration folded into default policy packs catalog |
+| `docs/go-to-market/SPONSOR_PACKET_SEND_NO_SEND_HARDENING_REVIEW.md` | [`docs/go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md`](go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md#appendix--sendno-send-hardening-review-2026-06-16) | 2026-06-16 hardening review folded into claim label audit |
 
 ---
 

@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** TB-167 — Sponsor AI readiness posture artifact. Composes execution mode, quality-gate results, retrieval posture, and budget posture into one sponsor-safe summary. This document describes the artifact schema and how to produce it; the actual per-release artifact lives in `artifacts/release/ai-readiness-posture.md` (and `.json`).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).

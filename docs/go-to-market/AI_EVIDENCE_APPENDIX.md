@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** AI evidence appendix (buyer-safe) - full detail, tables, and links in the sections below.
 
 # AI evidence appendix (buyer-safe)

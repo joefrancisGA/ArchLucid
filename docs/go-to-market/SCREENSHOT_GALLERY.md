@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid screenshot gallery — capture brief - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +9,7 @@
 
 **Audience:** Anyone producing screenshots for the marketing site, sales decks, product documentation, or demo recordings.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-07-25
 
 ---
 

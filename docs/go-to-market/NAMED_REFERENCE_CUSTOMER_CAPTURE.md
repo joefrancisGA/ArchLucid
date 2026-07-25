@@ -1,4 +1,5 @@
 > **Reviewed:** 2026-07-25
+
 > **Scope:** V1.1 GTM backlog item (TB-164). This template captures the owner-output work required before ArchLucid can use a named customer logo, public case study, or reference call as market proof. Using a named reference without completing this checklist is not permitted.
 
 > **Window:** V1.1 GTM backlog — do not treat as a V1 release requirement or headline-readiness factor.

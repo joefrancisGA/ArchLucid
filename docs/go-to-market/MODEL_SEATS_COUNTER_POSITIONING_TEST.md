@@ -1,10 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Founder-led sponsor message test — three concise scripts answering "Why ArchLucid instead of more Claude/GPT/Gemini seats?" Market validation only; no product changes.
 
 # Model seats counter-positioning message test
 
 **Audience:** Founder / facilitator before executive sponsor or procurement conversations where frontier-AI seat expansion is the default alternative.
 
-**Last reviewed:** 2026-06-17
+**Last reviewed:** 2026-07-25
 
 **Purpose:** Test whether sponsors accept the **Architecture Proof Engine** framing versus buying more general-purpose model seats. Reduce fragile counter-positioning before purchase conversations scale.
 
