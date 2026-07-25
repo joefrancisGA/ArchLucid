@@ -32,10 +32,7 @@ import {
   postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
-import {
-  injectDemoWorkspaceOperatorScope,
-  openDemoWorkspaceReviewDetailShellReady,
-} from "./helpers/demo-workspace-live-scope";
+import { openDemoWorkspaceReviewDetailShellReady } from "./helpers/demo-workspace-live-scope";
 import {
   auditPageMainHeading,
   clickAuditSearchAndWaitForSuccessfulResponse,
