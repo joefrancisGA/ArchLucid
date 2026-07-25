@@ -98,5 +98,5 @@ rg -n '^## \d{4}-\d{2}-\d{2} — ROI bulletin signed: Q[1-4]-\d{4}$' docs/CHANGE
 
 ## Related
 
-- [`TRIAL_BASELINE_PRIVACY_NOTE.md`](TRIAL_BASELINE_PRIVACY_NOTE.md) — how the per-tenant baseline field is used and *not* used.
+- [`TRIAL_AND_SIGNUP.md`](TRIAL_AND_SIGNUP.md#baseline-review-cycle-privacy) — how the per-tenant baseline field is used and *not* used.
 - [`docs/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) — modeled default when prospects skip custom hours.

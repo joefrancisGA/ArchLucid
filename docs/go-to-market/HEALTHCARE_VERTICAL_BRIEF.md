@@ -1,10 +1,12 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** Healthcare / Medicare–adjacent **sales and architecture** positioning — not legal advice, not a compliance attestation. For procurement posture, see [`trust-center.md`](trust-center.md) and in-repo DPA/MSA templates.
 
 # Healthcare vertical — architecture brief (starter)
 
 **Audience:** Field architects and sponsors describing ArchLucid next to **Medicare / Medicaid–adjacent** systems. **BAA, PHI, and attestation** questions belong in **contract** and **trust-center** copy — not in this file as claims.
 
-**Last reviewed:** 2026-04-27
+**Last reviewed:** 2026-07-24
 
 ## Product fit (one paragraph)
 
@@ -20,11 +22,11 @@ ArchLucid helps teams produce **reviewable architecture manifests, findings, and
 
 ## Minimum HIPAA *program* control mapping (illustrative)
 
-**Not** a HITRUST/SOC mapping — a **starter list** for conversation with GRC. Product controls in-repo: RLS, tenant scope, DPA template, subprocessors, trust center.
+**Not** a HITRUST/SOC mapping — a **starter list** for conversation with GRC. Product controls in-repo: database-per-tenant catalogs + app RBAC, DPA template, subprocessors, trust center (see [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md); SQL RLS is **not** the production isolation story — [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)).
 
 | Typical HIPAA administrative / technical theme | In-repo touchpoint (self-asserted) |
 |------------------------------------------------|------------------------------------|
-| Access control (least privilege) | App RBAC + optional API keys; see [`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md) |
+| Access control (least privilege) | App RBAC + optional API keys; tenant catalog routing — [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md), [`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md) (historical RLS notes / non-production) |
 | Audit controls | Durable audit design — [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) |
 | Transmission / integrity (in scope of your deployment) | TLS, Azure patterns in [`MANAGED_IDENTITY_SQL_BLOB.md`](../security/MANAGED_IDENTITY_SQL_BLOB.md) |
 

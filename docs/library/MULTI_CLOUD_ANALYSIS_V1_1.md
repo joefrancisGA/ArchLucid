@@ -155,7 +155,7 @@ Release checklist: extend [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) V1.
 
 - **Positioning:** “ArchLucid runs on Azure; analyzes Azure, AWS, and GCP architectures” — update [POSITIONING.md](../go-to-market/POSITIONING.md) and [COMPETITIVE_LANDSCAPE.md](../go-to-market/COMPETITIVE_LANDSCAPE.md) when Phase 2 ships (not before contract text in **§2.19**).
 - **`(A)` V1.1 readiness:** Absence of AWS/GCP analyze **before** V1.1 window closes may score against product readiness **after** **§2.19** is in force; **V1 GA** assessments **must not** deduct for AWS/GCP-only buyers (per prior competitive gap framing).
-- **Procurement:** Buyers requiring ArchLucid **hosted** in AWS/GCP remain **not a fit** for V1.1 — see [NOT_A_FIT.md](../go-to-market/NOT_A_FIT.md) until ADR supersedes.
+- **Procurement:** Buyers requiring ArchLucid **hosted** in AWS/GCP remain **not a fit** for V1.1 — see [SHOULD_YOU_EVALUATE.md](../go-to-market/SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit) until ADR supersedes.
 
 ---
 

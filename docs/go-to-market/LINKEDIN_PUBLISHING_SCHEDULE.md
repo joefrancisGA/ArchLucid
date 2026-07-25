@@ -1,10 +1,12 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** Execution calendar for LinkedIn posts M-10–M-15. Owner sets publish dates before posting; copy lives in [`LINKEDIN_CONTENT_V1.md`](LINKEDIN_CONTENT_V1.md).
 
 # LinkedIn publishing schedule
 
 **Cadence:** Weekly, **Monday 8:00 AM** (local poster timezone) recommended.
 
-**Last reviewed:** 2026-06-02
+**Last reviewed:** 2026-07-24
 
 | Week | Asset | Title (from content pack) | Hashtags (3–4 max) | Comment seed (post within 30 min) | Published | Publish date |
 | --- | --- | --- | --- | --- | --- | --- |

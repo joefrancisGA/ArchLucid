@@ -46,7 +46,7 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 
 | Column | How to fill |
 |--------|-------------|
-| **ICP score** | From [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) scoring, or **TBD** until scored. |
+| **ICP score** | From [BUYER_PERSONAS.md](../../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) scoring, or **TBD** until scored. |
 | **ICP segment** | Short code (e.g. **FS** / **Tech** / **HC**) or **TBD**. |
 | **Baseline** | Pre-ArchLucid or pre-pilot measure, **TBD** if not yet collected, or **Unknown** if you deliberately skip baseline (note in **Notes**). |
 | **Result** | Observed value after the pilot window, **TBD** if not finished, or **Unknown** if not measured. |
@@ -130,7 +130,7 @@ No numeric **Result** or **Baseline** cells should be fabricated. If the team on
 | H4 | 0 | — | **Not yet tested** |
 | H5 | 0 | — | **Not yet tested** |
 
-**Next action:** Execute first pilot with a strong-fit ICP customer ([IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md)), record measures per **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)**, and move **Pilot A** rows from **Pending** to **Captured** when data exists.
+**Next action:** Execute first pilot with a strong-fit ICP customer ([BUYER_PERSONAS.md](../../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp)), record measures per **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)**, and move **Pilot A** rows from **Pending** to **Captured** when data exists.
 
 **Last aggregate review:** _TBD_
 
@@ -143,7 +143,7 @@ No numeric **Result** or **Baseline** cells should be fabricated. If the team on
 | [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) | Baseline (§3), during-pilot metrics (§4–§4.1), demo-number rules (§4.1.1) |
 | [DOGFOOD_PILOT_KIT.md](../library/DOGFOOD_PILOT_KIT.md) | Internal Core Pilot worksheets; **Pilot A** row update discipline (notes-first, no fabricated baselines/results) |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Measurement framework |
-| [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) | ICP scoring for pilot selection |
+| [BUYER_PERSONAS.md](../../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP scoring for pilot selection |
 | [ROI_MODEL.md](ROI_MODEL.md) | Value hypotheses grounding |
 | [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | Learning signals |
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates for validated hypotheses |

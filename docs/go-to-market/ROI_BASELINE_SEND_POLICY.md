@@ -1,6 +1,10 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Commercial SEND gating for ROI baseline completeness (Assessment Improvement 4).
 
 # ROI baseline SEND policy (V1)
+
+**Last reviewed:** 2026-07-25
 
 **Owner decision (2026-06-07):** Commercial **SEND** requires **COMPLETE** baseline completeness unless an approved override artifact is attached.
 

@@ -111,7 +111,7 @@ class CommercialCloseoutBatchTests(unittest.TestCase):
 
     def test_offer_pack_and_boundary_guide_exist(self) -> None:
         self.assertTrue(
-            (REPO_ROOT / "docs/go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md").is_file(),
+            (REPO_ROOT / "docs/go-to-market/SERVICE_LED_OFFERS.md").is_file(),
         )
         self.assertTrue((REPO_ROOT / "docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md").is_file())
 

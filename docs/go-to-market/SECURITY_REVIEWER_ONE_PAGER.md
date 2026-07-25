@@ -50,6 +50,22 @@
 
 **Not issued (do not imply):** SOC 2 Type I/II CPA report · third-party penetration test attestation · public customer reference.
 
+## Example audit walkthrough (one finalized review)
+
+Assume review id `runId` and tenant scope already established. Uses existing routes and exports only.
+
+| Step | What to inspect | Surface |
+| --- | --- | --- |
+| 1 | Confirm review is **Finalized** (API status: Committed) | `GET /v1/architecture/run/{runId}` or architect workspace `/reviews/{runId}` |
+| 2 | Record **architecture package id** and finalize timestamp | Review detail · `GoldenManifest.Metadata.CreatedUtc` |
+| 3 | Export or query **audit events** for the run window | `GET /v1/audit/events` (scoped) · CSV export · SIEM path in [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) |
+| 4 | Capture **correlation id** from a failed or successful API call | Response header `X-Correlation-ID` |
+| 5 | Open **top finding evidence chain** | First-value report evidence card · finding evidence-chain endpoints per [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
+| 6 | Verify **artifact descriptors** for the finalized architecture package | Review detail artifacts table · evidence bundle `artifact-manifest.json` |
+| 7 | Attach **procurement pack** when buyer review requires policies | `python scripts/build_procurement_pack.py --deal-ready` — [`HOW_TO_REQUEST_PROCUREMENT_PACK.md`](HOW_TO_REQUEST_PROCUREMENT_PACK.md) |
+
+**Walkthrough limits:** Audit volume can be large — filter by run id, time window, and event type. Retention follows environment configuration ([`../library/AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md)). Primary isolation is database-per-tenant ([`TENANT_ISOLATION.md`](TENANT_ISOLATION.md)); SQL RLS is not the production isolation story.
+
 ## Source documents
 
 - `docs/go-to-market/trust-center.md` (Trust center narrative) — present

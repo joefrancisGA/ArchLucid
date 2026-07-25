@@ -180,5 +180,5 @@ Maintain a simple record for each active prospect:
 | [`NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](NAMED_REFERENCE_CUSTOMER_CAPTURE.md) | Public reference permission process |
 | [`SHOULD_YOU_EVALUATE.md`](SHOULD_YOU_EVALUATE.md) | Prospect self-qualification guide |
 | [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md) | Detailed buyer persona profiles |
-| [`IDEAL_CUSTOMER_PROFILE.md`](IDEAL_CUSTOMER_PROFILE.md) | ICP detail |
+| [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP detail |
 | [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) | GTM overclaim guardrails |

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** PASS/HOLD criteria for founder-led pilots. Owner review required before use in any customer-facing commitment.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -5,6 +7,8 @@
 # Pilot acceptance thresholds (PASS / HOLD / DEFERRED_SCOPE)
 
 **Audience:** Founder, pilot operator, sales engineer, and executive sponsor moving from a completed pilot to a commercial recommendation.
+
+**Last reviewed:** 2026-07-25
 
 **Grounding rule:** Thresholds reference shipped V1 capabilities per [`docs/library/V1_SCOPE.md`](../library/V1_SCOPE.md). Owner must review and sign off on any threshold before it is quoted in a customer-facing commitment or sponsor packet.
 

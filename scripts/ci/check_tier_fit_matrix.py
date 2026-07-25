@@ -73,7 +73,7 @@ def matrix_violations(root: Path) -> list[str]:
             if "archive" in path.parts:
                 continue
 
-            if path.name in {"PUBLIC_CLAIM_BOUNDARY_GUIDE.md", "AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md"}:
+            if path.name in {"PUBLIC_CLAIM_BOUNDARY_GUIDE.md", "SERVICE_LED_OFFERS.md"}:
                 continue
 
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
@@ -101,10 +101,10 @@ def matrix_violations(root: Path) -> list[str]:
 
                     violations.append(f"{path.relative_to(root)}:{index}: forbidden V1 tier claim {phrase!r}")
 
-    offer_pack = root / "docs" / "go-to-market" / "AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md"
+    service_led_offers = root / "docs" / "go-to-market" / "SERVICE_LED_OFFERS.md"
 
-    if not offer_pack.is_file():
-        violations.append("missing AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md")
+    if not service_led_offers.is_file():
+        violations.append("missing SERVICE_LED_OFFERS.md (Readiness Review engagement pack)")
 
     return violations
 

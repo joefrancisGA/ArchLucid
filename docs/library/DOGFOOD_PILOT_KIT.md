@@ -75,7 +75,7 @@ Ground in **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** §4 and **§4.1** primary
 
 - **Notes** column for **Pilot A** rows — cite this kit, link scorecard, clarify internal dogfood vs external pilot.  
 - **Status** transitions that match reality (**Pending** → **Captured** when qualitative or numeric evidence exists — see tracker §2.2).  
-- **ICP score** / **ICP segment** when scored per **[IDEAL_CUSTOMER_PROFILE.md](../go-to-market/IDEAL_CUSTOMER_PROFILE.md)** (else leave **TBD**).
+- **ICP score** / **ICP segment** when scored per **[BUYER_PERSONAS.md](../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp)** (else leave **TBD**).
 
 **Not allowed:** Fabricating **Baseline** or **Result** numerics to “fill the table.” If only qualitative signal exists, use **See scorecard** for **Result** and **Captured** **Status**, per **[PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md)** §2.2.
 

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-24 — archived from `docs/go-to-market/` (closed M-06 / G-REAL-04 deliverable).
+
 > **Scope:** M-06 / G-REAL-04 deliverable — mechanical claim-vs-copy review of Workspace B sample report output against landing-page and positioning claims. **Agent review date:** 2026-07-03. **Owner final sign-off:** **Done 2026-07-19** — landing claims accepted as sufficiently aligned for outreach; optional live DOCX visual check waived. Follow-ups routed: **C8** → M-09 remainder (use-case-card routing fix), **C4** → M-111 (demo-script footnote).
 
 # M-06 — Workspace B sample report vs landing-page claims

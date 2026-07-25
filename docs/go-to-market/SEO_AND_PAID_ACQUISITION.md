@@ -1,4 +1,4 @@
-﻿> **Scope:** Organic search optimization and disciplined web-paid acquisition for `archlucid.net` — aligns with **`IDEAL_CUSTOMER_PROFILE.md`** and **`POSITIONING.md`**. Not procurement legal advice.
+﻿> **Scope:** Organic search optimization and disciplined web-paid acquisition for `archlucid.net` — aligns with **`BUYER_PERSONAS.md` (ICP)** and **`POSITIONING.md`**. Not procurement legal advice.
 
 # SEO and paid web acquisition playbook
 
@@ -10,7 +10,7 @@
 
 ## 1. Objective
 
-Increase **qualified trial signups** (and eventual paid pilots) from people who fit the ICP (**`IDEAL_CUSTOMER_PROFILE.md`**) by stacking **technical crawlability**, **problem-aware content**, **honest trust pages**, and **small, measurable paid experiments** — without fragmenting infra or drifting claims beyond **`POSITIONING.md`** and **`docs/library/V1_SCOPE.md`**.
+Increase **qualified trial signups** (and eventual paid pilots) from people who fit the ICP (**`BUYER_PERSONAS.md` (ICP)**) by stacking **technical crawlability**, **problem-aware content**, **honest trust pages**, and **small, measurable paid experiments** — without fragmenting infra or drifting claims beyond **`POSITIONING.md`** and **`docs/library/V1_SCOPE.md`**.
 
 ---
 
@@ -101,7 +101,7 @@ Off-page realism for a modest team:
 
 ### 5.3 Paid acquisition
 
-Channel ordering by **expected ICP ROI** (`IDEAL_CUSTOMER_PROFILE.md`)
+Channel ordering by **expected ICP ROI** (`BUYER_PERSONAS.md` (ICP))
 
 | Priority | Channel | Why | First experiment |
 |:---:|:---|:---|:---|
@@ -169,7 +169,7 @@ Until **TB-019** lands, defer non-essential client pixels and rely on Front Door
 | Doc | Use |
 |-----|-----|
 | [`POSITIONING.md`](POSITIONING.md) | Headline narratives, pillars, elevator pitches |
-| [`IDEAL_CUSTOMER_PROFILE.md`](IDEAL_CUSTOMER_PROFILE.md) | Firmographics, scoring, disqualifiers |
+| [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md#ideal-customer-profile-icp) | Firmographics, scoring, disqualifiers |
 | [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md) | Person-level hooks for creative variants |
 | [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md) | Honest differentiation for comparison content |
 | [`TRIAL_AND_SIGNUP.md`](TRIAL_AND_SIGNUP.md) | Funnel truths and infra cadence |

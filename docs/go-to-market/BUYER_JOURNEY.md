@@ -19,7 +19,7 @@ Help enterprise architecture and platform leaders **hire ArchLucid** to turn mes
 
 - Sales motion is **multi-stakeholder** (EA, security reviewer, SRE, procurement).
 - **LLM outputs are not legal proof**; value is in **traceability, versioning, and workflow discipline**.
-- **Data residency** and **tenant isolation** are non-negotiable in regulated pilots; unsupported regions are a stop condition (see [NOT_A_FIT.md](NOT_A_FIT.md)).
+- **Data residency** and **tenant isolation** are non-negotiable in regulated pilots; unsupported regions are a stop condition (see [SHOULD_YOU_EVALUATE.md](SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit)).
 
 ## Architecture overview (buyer mental model)
 

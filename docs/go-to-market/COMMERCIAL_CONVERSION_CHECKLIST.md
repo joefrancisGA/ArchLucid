@@ -1,8 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Sales-led Readiness Review close-out checklist. Use after first-pilot evidence exists; do not treat this as legal, pricing, or procurement attestation.
 
 # Commercial conversion checklist
 
 **Audience:** founders, sales engineers, pilot champions, and sponsor owners moving from a guided Readiness Review to an Evidence Pack, ARB Report, or annual Professional / Enterprise order form.
+
+**Last reviewed:** 2026-07-25
 
 ## Conversion rule
 

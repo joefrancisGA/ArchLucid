@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid ROI model - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +9,7 @@
 
 **Audience:** Pilot champions, enterprise architects, and engineering leaders who need to justify an ArchLucid purchase to their CFO or procurement team.
 
-**Last reviewed:** 2026-06-02
+**Last reviewed:** 2026-07-25
 
 **Pricing reference:** [`PRICING_PHILOSOPHY.md` §5](PRICING_PHILOSOPHY.md) — verify §8–9 inline numbers match before any sponsor conversation.
 

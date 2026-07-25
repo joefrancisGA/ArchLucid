@@ -21,12 +21,15 @@ class TestAdoptionBatch5BD(unittest.TestCase):
         self.assertIn("archlucid.net/contact", text)
         self.assertIn("AWS or GCP", text)
 
-    def test_tb_230_placeholder_audit_and_ci_script(self) -> None:
-        audit = REPO_ROOT / "docs" / "go-to-market" / "PLACEHOLDER_AUDIT.md"
+    def test_tb_230_placeholder_ci_script(self) -> None:
         script = REPO_ROOT / "scripts" / "ci" / "check_gtm_placeholder_tokens.py"
-        self.assertTrue(audit.is_file())
         self.assertTrue(script.is_file())
-        self.assertIn("<<TOKEN>>", audit.read_text(encoding="utf-8"))
+        text = script.read_text(encoding="utf-8")
+        self.assertIn("TOKEN_PATTERN", text)
+        self.assertIn("<<([A-Z][A-Z0-9_]*)>>", text)
+        # Human checklist PLACEHOLDER_AUDIT.md was deleted; scanner is the SoT.
+        audit = REPO_ROOT / "docs" / "go-to-market" / "PLACEHOLDER_AUDIT.md"
+        self.assertFalse(audit.is_file())
 
 
 if __name__ == "__main__":

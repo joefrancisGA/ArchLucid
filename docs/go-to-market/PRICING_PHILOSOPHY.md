@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid — Pricing philosophy and packaging - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +9,7 @@
 
 **Audience:** Product leadership, sales, and finance — internal alignment before external pricing publication.
 
-**Last reviewed:** 2026-05-01 (interim Stripe Team bundled monthly — § 3.2)
+**Last reviewed:** 2026-07-25 (interim Stripe Team bundled monthly — § 3.2)
 
 **Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~180 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
 

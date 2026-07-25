@@ -32,8 +32,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 
 | Customer | Tier | Pilot start | Case-study link | Reference-call cadence | Status |
 |----------|------|-------------|-----------------|------------------------|--------|
-| EXAMPLE_DESIGN_PARTNER | Professional (design-partner −50%) | TBD | [EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) | TBD (target: quarterly) | Placeholder — replace before publishing |
-| DESIGN_PARTNER_NEXT | `<<TIER>>` (fill before Drafting) | TBD | [DESIGN_PARTNER_NEXT_CASE_STUDY.md](DESIGN_PARTNER_NEXT_CASE_STUDY.md) | TBD | Customer review — replace `<<CUSTOMER_NAME>>` and placeholders before publication |
+| EXAMPLE_DESIGN_PARTNER | Professional (design-partner −50%) | TBD | [EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) | TBD (target: quarterly) | Placeholder — copy to `<slug>_CASE_STUDY.md` when a named design partner is authorized |
 | First paying tenant (PLG) | `<<TIER>>` (at conversion) | TBD | [TRIAL_FIRST_REFERENCE_CASE_STUDY.md](TRIAL_FIRST_REFERENCE_CASE_STUDY.md) | TBD | Placeholder — populate after first self-serve trial converts to paid; see [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) |
 | **[DRAFT]** `[CUSTOMER]` · `[INDUSTRY]` | `[TIER]` | TBD | TBD — add `<slug>_CASE_STUDY.md` when entering Drafting | TBD — `[CONTACT]` | Draft — **DRAFT template row** (fabricated names forbidden here); replace placeholders and move to **Drafting** before naming a real customer |
 

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-24
+
 > **Scope:** LinkedIn posts M-10–M-14 and long-form article M-15. Copy is grounded in shipped V1 capabilities. Do not publish until capabilities referenced have been verified in a live tenant. Do not claim specific customer outcomes until reference customers have approved those statements.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -6,11 +8,13 @@
 
 **Audience:** Architects, CTOs, architecture review board members, fractional CTOs, and cloud governance practitioners on LinkedIn.
 
+**Last reviewed:** 2026-07-24
+
 **Tone:** Practitioner-to-practitioner. Specific and concrete. No buzzwords that are not defined. No aspirational futures claimed as present. Challenge conventional assumptions with evidence.
 
-**Posting cadence:** One post per week, staggered, not all on the same day. Article after the fifth post so the audience has context.
+**Posting cadence:** One post per week, staggered, not all on the same day. Article after the fifth post so the audience has context. Calendar: [`LINKEDIN_PUBLISHING_SCHEDULE.md`](LINKEDIN_PUBLISHING_SCHEDULE.md).
 
-**Related:** [`POSITIONING.md`](POSITIONING.md), [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md), [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (M-10–M-15).
+**Related:** [`POSITIONING.md`](POSITIONING.md), [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md), [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (M-10–M-15), [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md).
 
 ---
 

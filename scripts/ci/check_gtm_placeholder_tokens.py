@@ -68,7 +68,11 @@ def main(argv: list[str] | None = None) -> int:
     for message in messages:
         print(message)
 
-    print(f"WARN: {len(messages)} <<TOKEN>> placeholder(s) — see docs/go-to-market/PLACEHOLDER_AUDIT.md")
+    print(
+        f"WARN: {len(messages)} <<TOKEN>> placeholder(s) under {root.as_posix()} "
+        "(intentional deal-template fields are OK; substitute before buyer send — "
+        "see docs/go-to-market/reference-customers/)."
+    )
     return 0
 
 

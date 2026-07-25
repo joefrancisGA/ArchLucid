@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Internal productized consulting and service-SKU definitions for founder-led revenue — named offers, indicative bands, and deliverables; not a public price list until published on the marketing site and aligned with `PRICING_PHILOSOPHY.md`.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -5,6 +7,8 @@
 # ArchLucid — productized service offers (founder-led)
 
 **Audience:** Founder, sales-led pilot owners, and boutique consultants using ArchLucid as **delivery infrastructure** for client-facing architecture reviews.
+
+**Last reviewed:** 2026-07-25
 
 **Purpose:** V1 already ships **Architecture Review Report** export (DOCX/PDF), **consultant whitelabel**, **bulk evidence attach**, **default policy packs**, and **curated demo workspaces**. This document names **buyable SKUs** so GTM leads with **relief from pain** and a **defensible report**, not a platform feature tour.
 
@@ -32,6 +36,61 @@ Use these names in landing copy, Upwork, SOWs, and outreach so buyers purchase a
 | **ArchLucid Cloud Governance Review (Azure-first)** | Azure-heavy estate; cost + security baseline narrative | Customer **`Get-ArchLucidAzurePackage.ps1`** ZIP ingest where applicable; security-baseline + cost-oriented findings; report | Align with **Azure Architecture Readiness** Upwork listing in [`GTM_BACKLOG.md`](GTM_BACKLOG.md) M-25 |
 
 **Note:** Indicative bands are planning defaults for **founder-led / consulting-enabled** motion. **[PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)** (**Marketing alignment Q7**) still applies: **no public paid-pilot $ band on the landing page** in the first 90 days — use **walkthrough → qualify → quote** and private SOWs.
+
+---
+
+## Readiness Review engagement pack (TB-133)
+
+Owner-reviewable before customer send. Not a legal order form. Primary motion aligns with [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) and [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
+
+### One-page offer
+
+ArchLucid delivers a **time-boxed architecture review** that produces a **committed, sponsor-safe proof package** on Azure workloads. The engagement uses the ArchLucid proof engine (agents + governance policy packs + audit trail) with explicit **non-certification** boundaries.
+
+### Buyer prerequisites
+
+- Azure architecture evidence (topology, identity, data flows) the buyer may share under contract
+- Executive sponsor and technical lead for a 30-minute findings review
+- Agreement that outputs are **architecture-review evidence**, not regulator attestation
+
+### Week 1 / week 2 outcomes
+
+| Week | Buyer-visible outcomes |
+| --- | --- |
+| **Week 1** | Scoped architecture request, first finalized review, limitations + execution mode labeled |
+| **Week 2** | Sponsor proof packet, governance summary, quote-to-proof readiness checklist, commercial closeout next step |
+
+### Proof outputs (from platform)
+
+- Finalized architecture package and `pilot proof-packet` folder
+- `governance-outcome-summary`, `audit-evidence-summary`, `policy-pack-freshness`
+- `quote-to-proof-readiness` and `commercial-closeout` artifacts
+- Optional: procurement deal-ready classification when buyer procurement is in scope
+
+### Exclusions (do not promise)
+
+- SOC 2 CPA attestation, third-party pen-test publication, public reference logo
+- Live Marketplace / Stripe self-serve unless explicitly enabled for the tenant
+- V1.1 connectors (Jira, ServiceNow, Teams, Slack) unless separately contracted
+- Multi-tenant load-test SLA or production AI certification
+
+### Pricing bands (owner-reviewable)
+
+| Motion | Indicative list | Notes |
+| --- | --- | --- |
+| Guided pilot | See PRICING_PHILOSOPHY §4 | Credited toward Professional/Enterprise on conversion |
+| Professional tier | Link PRICING_PHILOSOPHY | After PASS proof + tier-fit validation |
+| Custom enterprise | Negotiated | Order form + procurement pack |
+
+### Order-form path
+
+1. PASS proof disposition on quote-to-proof readiness
+2. Agree tier via [`tier_fit_validation_matrix.v1.json`](../../scripts/ci/data/tier_fit_validation_matrix.v1.json)
+3. Execute [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
+
+### Next step after proof
+
+Use `commercial-closeout.json` **recommendedNextAction** — typically schedule sponsor review, then quote request for Team/Professional expansion. See [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md).
 
 ---
 

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** ArchLucid — Trial and signup experience design - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -7,7 +9,7 @@
 
 **Audience:** Product and engineering teams planning the self-serve trial path.
 
-**Last reviewed:** 2026-05-12 (**§3.2** — trial infra marginal cost vs AOAI + **no** gated Azure **subscription-commitment milestone** for prospects; §4 infra-purge urgency; §3 AOAI bands; prior §2 PLG/email stance unchanged).
+**Last reviewed:** 2026-07-25 (**§3.2** — trial infra marginal cost vs AOAI + **no** gated Azure **subscription-commitment milestone** for prospects; §4 infra-purge urgency; §3 AOAI bands; prior §2 PLG/email stance unchanged).
 
 **Pricing:** Trial parameters (seats, runs, duration) are governed by the free trial row in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) §4. Prices for conversion are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — do not restate numbers here.
 
@@ -45,7 +47,7 @@ flowchart LR
 
 ### 2.1 Baseline review-cycle (soft-required UX)
 
-The signup form defaults to **“Use model default (modeled estimate)”** so prospects are nudged toward a consistent “before” anchor without blocking signup. Prospects may switch to **custom hours**; how that field is used in deltas and **what is never published per-tenant** is documented in [`TRIAL_BASELINE_PRIVACY_NOTE.md`](TRIAL_BASELINE_PRIVACY_NOTE.md). When prospects stay on the model default path, the API increments `archlucid_trial_signup_baseline_skipped_total` (see [`docs/runbooks/TRIAL_FUNNEL.md`](../runbooks/TRIAL_FUNNEL.md)).
+The signup form defaults to **“Use model default (modeled estimate)”** so prospects are nudged toward a consistent “before” anchor without blocking signup. Prospects may switch to **custom hours**; how that field is used in deltas and **what is never published per-tenant** is documented in [§ Baseline review-cycle privacy](#baseline-review-cycle-privacy). When prospects stay on the model default path, the API increments `archlucid_trial_signup_baseline_skipped_total` (see [`docs/runbooks/TRIAL_FUNNEL.md`](../runbooks/TRIAL_FUNNEL.md)).
 
 ### 2.2 Team Stripe checkout (`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`)
 
@@ -150,6 +152,36 @@ Merge order for **`appsettings`** is environment‑specific — reconcile **`Age
 | **Outcome** | "Wow" moment → schedule deeper evaluation | "Wow" moment → convert to paid or escalate to sales |
 
 Both paths should deliver the **same first impression**: a completed architecture run with findings, manifest, and governance gate visible within minutes.
+
+---
+
+## Baseline review-cycle privacy
+
+How ArchLucid uses the optional trial-signup **baseline review-cycle hours** field. Audience: prospects, security reviewers, and legal. Not a substitute for the full privacy policy.
+
+### What we collect
+
+When you choose **“I will enter our median review-cycle hours”** on the self-serve signup form, we store:
+
+- **BaselineReviewCycleHours** — a positive decimal you supply (median wall-clock hours for an architecture review cycle *before* ArchLucid).
+- **BaselineReviewCycleSource** (optional) — a short free-text note you supply (for example “team estimate” or “last five reviews”).
+
+When you stay on **“Use model default (modeled estimate)”**, we **do not** store tenant-specific hours at signup; the product uses the conservative default described in [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) for “before” comparisons until you commit runs.
+
+### How we use it
+
+- **Delta computation only** — we compare your supplied baseline (or the model default) to **measured** time-to-commit derived from your tenant’s committed runs (`PilotRunDeltaComputer` / pilot-run-deltas surface). This powers in-product copy such as the **Review-cycle delta (before vs measured)** panel and sponsor-facing value-report sections (`ValueReportReviewCycleSectionFormatter`).
+- **Never published per-tenant in aggregate bulletins** — quarterly aggregate ROI bulletins (see [`AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](AGGREGATE_ROI_BULLETIN_TEMPLATE.md)) intentionally **exclude per-tenant rows** and require a **minimum tenant count** plus **owner sign-off** before any external publication.
+
+### What we do not do
+
+- We do **not** sell this field as a standalone dataset.
+- We do **not** use it for advertising retargeting.
+- We do **not** bypass trial write gates or billing controls based solely on this field.
+
+### Retention and access
+
+Baseline fields live on the **tenant row** (`dbo.Tenants`) with the same access controls as other tenant metadata (RLS-scoped application paths; global admin surfaces are operator-only and audited). Exact retention aligns with your **tenant lifecycle** (see [`TRIAL_LIFECYCLE.md`](../runbooks/TRIAL_LIFECYCLE.md)). See also [`TRIAL_AUTH.md`](../security/TRIAL_AUTH.md).
 
 ---
 

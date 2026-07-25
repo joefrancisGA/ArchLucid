@@ -12,5 +12,6 @@ These files lived under **`docs/go-to-market/`** and were relocated so buyer-fac
 | [`OPENAI_UI_SCREENSHOT_ASSESSMENT_PROMPT.md`](OPENAI_UI_SCREENSHOT_ASSESSMENT_PROMPT.md) | External LLM screenshot review prompt batches only. |
 | [`PMF_VALIDATION_TRACKER.md`](PMF_VALIDATION_TRACKER.md) | Internal pilots / hypotheses table; CI discipline via **`scripts/ci/assert_pmf_tracker_discipline.py`**. |
 | [`PROCUREMENT_PACK_DRYRUN_RESULTS.md`](PROCUREMENT_PACK_DRYRUN_RESULTS.md) | Internal dry-run log for procurement index validation. |
+| [`M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md`](M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md) | Closed M-06 / G-REAL-04 Workspace B vs landing claim matrix (Done 2026-07-19). |
 
 **Buyer index:** **[`../go-to-market/README.md`](../go-to-market/README.md)**.

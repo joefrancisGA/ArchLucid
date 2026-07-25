@@ -1,4 +1,6 @@
-﻿> **Scope:** ArchLucid — Subscription order form (template) - full detail, tables, and links in the sections below.
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** ArchLucid — Subscription order form (template) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -7,7 +9,7 @@
 
 **Important — not legal advice:** This is a **working template** to reduce friction for SMB-midmarket deals (< $50K ARR). It **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before use.
 
-**Last reviewed:** 2026-04-22
+**Last reviewed:** 2026-07-25
 
 **Pricing source:** All current list prices (platform fee, seat price, run overage, pilot fee) are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). The worked examples in this document compute totals from those locked prices — the numbers are derived here for convenience, but the prices themselves live only in that file. The CI guard `scripts/ci/check_pricing_single_source.py` allows price literals in this file.
 

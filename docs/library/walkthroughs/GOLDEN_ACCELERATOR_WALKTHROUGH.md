@@ -18,7 +18,7 @@ Use **after** Core Pilot first finalize. Fictional names only.
 4. **Execute and finalize** — Wait for **Ready to finalize**, run optional governance dry-run, then **Finalize**.
 5. **Review outputs** — Walk `proof-package-checklist.md`: findings, evidence labels, signed review record id, artifacts table.
 6. **Proof packet** — `archlucid pilot proof-packet <runId>` and/or `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId> -SponsorHandoff`.
-7. **Commercial next step** — Send proof folder + [`COMMERCIAL_DECISION_PACKET.md`](../../go-to-market/COMMERCIAL_DECISION_PACKET.md); review `quote-to-proof-readiness.json` / `commercial-closeout.md`.
+7. **Commercial next step** — Send proof folder + [`QUOTE_TO_PROOF_PACKET.md`](../../go-to-market/QUOTE_TO_PROOF_PACKET.md#founder-led-offer-menu-after-first-credible-review); review `quote-to-proof-readiness.json` / `commercial-closeout.md`.
 
 ## What good looks like
 

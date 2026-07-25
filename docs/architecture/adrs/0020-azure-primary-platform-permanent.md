@@ -23,7 +23,7 @@ Portability at the **application** layer (containers, standard protocols) remain
 
 - **Positive:** Clearer buyer story, simpler SRE assumptions, alignment with IaC in `infra/`, and less hedging language to maintain.
 - **Negative:** Organizations that mandate non-Azure production regions must treat ArchLucid as “Azure in their estate” or negotiate a separate product track (out of scope until documented elsewhere).
-- **Clarification (2026-04-21):** Buyers who require **self-managed / on-premises** installation of the full product should be told **SaaS-only for V1** (see also **`docs/go-to-market/IDEAL_CUSTOMER_PROFILE.md`**); reopening BYOC/BYOK-style delivery requires an explicit future ADR and commercial packaging, not implied by containerized builds alone.
+- **Clarification (2026-04-21):** Buyers who require **self-managed / on-premises** installation of the full product should be told **SaaS-only for V1** (see also **`docs/go-to-market/BUYER_PERSONAS.md`** (ICP)); reopening BYOC/BYOK-style delivery requires an explicit future ADR and commercial packaging, not implied by containerized builds alone.
 
 ## Compliance
 

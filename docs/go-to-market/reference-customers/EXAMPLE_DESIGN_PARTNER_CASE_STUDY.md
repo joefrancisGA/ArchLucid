@@ -27,7 +27,7 @@
 | Employees | `<<EMPLOYEE_COUNT>>` |
 | Architecture team | `<<ARCH_TEAM_DESCRIPTION>>` (e.g., "8 enterprise architects, central practice") |
 | Cloud posture | `<<CLOUD_POSTURE>>` (e.g., "Azure-primary (landing zone v3)") |
-| ICP score | `<<ICP_SCORE>> / 45` (compute via [`IDEAL_CUSTOMER_PROFILE.md`](../IDEAL_CUSTOMER_PROFILE.md)) |
+| ICP score | `<<ICP_SCORE>> / 45` (compute via [`BUYER_PERSONAS.md`](../BUYER_PERSONAS.md#ideal-customer-profile-icp)) |
 
 ---
 

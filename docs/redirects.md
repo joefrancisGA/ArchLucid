@@ -38,6 +38,18 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/SECURITY_CONTROL_EVIDENCE_MAP.md` | [`docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md`](go-to-market/SECURITY_REVIEWER_ONE_PAGER.md#control-to-evidence-map) | Control-to-evidence table folded into security reviewer one-pager |
 | `docs/go-to-market/DESIGN_PARTNER_RECRUITING_PIPELINE.md` | [`docs/go-to-market/PILOT_RECRUITING_PIPELINE.md`](go-to-market/PILOT_RECRUITING_PIPELINE.md) | TB-161 subset twin; canonical recruiting pipeline |
 | `docs/go-to-market/PILOT_SUPPORT_OPERATING_MODEL.md` | [`docs/go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md`](go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md) | TB-162 subset twin; white-glove vs self-serve modes folded into §1 |
+| `docs/go-to-market/ADMIN_SURFACE_FIRST_60S_AUDIT.md` | [`archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`](../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md) | Point-in-time first-60s admin leakage audit; living contract is nav tests + NAV_CONFIG_CONTRACT |
+| `docs/go-to-market/BUSINESS_VALUE_CHEAT_SHEET.md` | [`docs/go-to-market/PRODUCT_DATASHEET.md`](go-to-market/PRODUCT_DATASHEET.md) | Orphan feature→outcome table; buyer capability claims live in product datasheet |
+| `docs/go-to-market/V1_1_PUBLIC_REFERENCE_CUSTOMER_CHECKLIST.md` | [`docs/go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md) | Empty V1.1 stub; capture + publication checklists are canonical |
+| `docs/go-to-market/M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md` | [`docs/archive/gtm-internal/M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md`](archive/gtm-internal/M06_WORKSPACE_B_LANDING_CLAIM_REVIEW.md) | Closed M-06 / G-REAL-04 claim review archived from live GTM |
+| `docs/go-to-market/PLACEHOLDER_AUDIT.md` | [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md) | TB-230 human checklist retired; live SoT is `scripts/ci/check_gtm_placeholder_tokens.py` |
+| `docs/go-to-market/SECURITY_AUDIT_WALKTHROUGH.md` | [`docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md`](go-to-market/SECURITY_REVIEWER_ONE_PAGER.md#example-audit-walkthrough-one-finalized-review) | Seven-step audit path folded into security reviewer one-pager |
+| `docs/go-to-market/reference-customers/DESIGN_PARTNER_NEXT_CASE_STUDY.md` | [`docs/go-to-market/reference-customers/EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md`](go-to-market/reference-customers/EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) | Duplicate placeholder scaffold; copy EXAMPLE to `<slug>_CASE_STUDY.md` for the next partner |
+| `docs/go-to-market/COMMERCIAL_DECISION_PACKET.md` | [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md#founder-led-offer-menu-after-first-credible-review) | Founder-led offer menu + pilot deliverables folded into quote-to-proof |
+| `docs/go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md` | [`docs/go-to-market/SERVICE_LED_OFFERS.md`](go-to-market/SERVICE_LED_OFFERS.md#readiness-review-engagement-pack-tb-133) | TB-133 Readiness Review pack folded into service-led SKUs |
+| `docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md` | [`docs/go-to-market/TRIAL_AND_SIGNUP.md`](go-to-market/TRIAL_AND_SIGNUP.md#baseline-review-cycle-privacy) | Baseline field privacy note folded into trial/signup design |
+| `docs/go-to-market/NOT_A_FIT.md` | [`docs/go-to-market/SHOULD_YOU_EVALUATE.md`](go-to-market/SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit) | Blunt not-a-fit filter folded into buyer routing page |
+| `docs/go-to-market/IDEAL_CUSTOMER_PROFILE.md` | [`docs/go-to-market/BUYER_PERSONAS.md`](go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP firmographics + scoring matrix folded into buyer personas |
 
 ---
 

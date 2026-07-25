@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-15
 
-**Note:** The three narratives below are **fictional but realistic**, grounded in ICP criteria ([IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md)) and buyer personas ([BUYER_PERSONAS.md](BUYER_PERSONAS.md)). Replace with real customer data as pilots complete.
+**Note:** The three narratives below are **fictional but realistic**, grounded in ICP criteria ([BUYER_PERSONAS.md](BUYER_PERSONAS.md#ideal-customer-profile-icp)) and buyer personas ([BUYER_PERSONAS.md](BUYER_PERSONAS.md)). Replace with real customer data as pilots complete.
 
 **Alignment:** Outcomes and quotes should stay plausible against **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)** and **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)**—especially §8 of the brief (what not to over-claim in V1).
 
@@ -161,7 +161,7 @@ Exploring governance policy packs aligned with HIPAA technical safeguards. Expan
 
 | Doc | Use |
 |-----|-----|
-| [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) | ICP criteria |
+| [BUYER_PERSONAS.md](BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP criteria |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Metrics to populate results |
 | [ROI_MODEL.md](ROI_MODEL.md) | Value calculation for results sections |
 | [POSITIONING.md](POSITIONING.md) | Messaging alignment |

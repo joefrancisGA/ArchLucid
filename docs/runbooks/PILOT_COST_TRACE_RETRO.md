@@ -35,4 +35,4 @@ $deltas = Get-Content "artifacts/proof-packet/$runId/run-evidence.json" | Conver
 - Label all USD figures **BenchmarkAssumption** unless tied to customer-provided baselines.
 - Do not treat Azure retail price rows as realized spend without billing export evidence.
 
-Related: [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) · [`../go-to-market/COMMERCIAL_DECISION_PACKET.md`](../go-to-market/COMMERCIAL_DECISION_PACKET.md)
+Related: [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) · [`../go-to-market/QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#founder-led-offer-menu-after-first-credible-review)

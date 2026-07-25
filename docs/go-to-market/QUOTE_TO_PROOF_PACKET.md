@@ -1,11 +1,54 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness. Not legal advice, pricing authority, or procurement attestation.
 
 # Quote-to-proof packet
 
 **Audience:** founders, sales engineers, and sponsor owners after a guided Readiness Review when the buyer is ready to discuss **Evidence Pack**, **ARB Report**, or an **annual Professional / Enterprise order form**.
 
+**Last reviewed:** 2026-07-25
+
 **Canonical conversion checklist:** [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) (send/hold/defer rules).  
 **Pre-pilot quote motion:** See **Pre-pilot quote pack** below (quote → pilot start).
+
+**Prices:** link to [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) — do not duplicate list prices here unless already published.
+
+**Readiness boundary:** Pricing discounts for trust, reference participation, or procurement friction are commercial choices. They do not mean `(A)` product readiness is blocked by SOC 2 CPA, third-party pen-test publication, live commerce, or public reference customers.
+
+---
+
+## Founder-led offer menu (after first credible review)
+
+**Recommended first purchase:** Architecture Review Pilot (service-led or SaaS trial) — one finalized review with a sponsor-safe proof packet (`buyer-proof-pack` or `pilot proof-packet`). Deliverable: first-value report + proof summary + explicit limitations + trust pointer.
+
+| Motion | Buyer gets | Proof required |
+| --- | --- | --- |
+| SaaS subscription (team tier) | Self-serve tenant + architect workspace | Finalized review + proof packet; demo labeled if simulator-only |
+| Service-led Architecture Review | Facilitated review + export pack | Same proof packet + optional `-SponsorHandoff` rollup |
+| Annual conversion | Expanded seats + governance | ROI source classification **Strong** or explicit assumption labels |
+
+### Pilot deliverables (send gate)
+
+- [ ] Committed run id and manifest version in proof packet
+- [ ] Structural execution mode labeled (Real / Simulator / Fallback / Mixed)
+- [ ] ROI lines show source kind (`CustomerProvided` vs `BenchmarkAssumption`)
+- [ ] Redaction reviewed before external email
+- [ ] [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) reviewed with buyer
+
+### Procurement objections → artifacts
+
+| Objection | Point to |
+| --- | --- |
+| "Is the AI real?" | [`AI_EVIDENCE_APPENDIX.md`](AI_EVIDENCE_APPENDIX.md) + run provenance footer |
+| "What is ROI based on?" | First-value report **ROI and cost source classification** section |
+| "SOC 2 / pen test?" | Trust Center + deferred assurance wording |
+| "Integrations?" | V1 REST/CLI/UI/SCIM/extractor — V1.1 connectors labeled deferred |
+
+### Next commercial action
+
+1. Send proof packet (not a slide deck alone).
+2. Schedule 30-minute decision review using **Sponsor first-page status** table.
+3. Log quote follow-up SLA per internal sales workflow.
 
 ---
 
@@ -98,6 +141,7 @@ Use when the buyer needs a labeled path from sample request → finalized archit
 ## Related
 
 - [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](EXECUTIVE_PAID_PILOT_PROOF_PACKET.md) — six-element executive packet assembly + mock procurement review
+- [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
 - [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md)
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
 - [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md)

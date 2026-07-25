@@ -206,7 +206,7 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 | [../GLOSSARY.md](../library/GLOSSARY.md) | Domain terminology for consistent messaging |
 | [../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Full marketability quality assessment (archived series)
 | [trust-center.md](trust-center.md) | Trust center — security overview, DPA template, subprocessors, incident comms, SOC 2 roadmap |
-| [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) | ICP definition, scoring matrix, disqualifiers |
+| [BUYER_PERSONAS.md](BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP definition, scoring matrix, disqualifiers |
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Available and planned integrations |
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates (3 fictional narratives) |
 | [SEO_AND_PAID_ACQUISITION.md](SEO_AND_PAID_ACQUISITION.md) | Organic SEO + disciplined web-paid acquisition playbook (apex, ICP-aligned channels, measurement stance) |
