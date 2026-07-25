@@ -16,15 +16,16 @@ class TestAdoptionBatch5BC(unittest.TestCase):
         self.assertIn("15%", text)
 
     def test_tb_229_tracking_checklist(self) -> None:
-        path = REPO_ROOT / "docs" / "go-to-market" / "REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md"
+        path = REPO_ROOT / "docs" / "go-to-market" / "reference-customers" / "README.md"
         text = path.read_text(encoding="utf-8")
+        self.assertIn("Per-customer tracking checklist", text)
         self.assertIn("Published", text)
 
     def test_tb_229_readme_link(self) -> None:
         path = REPO_ROOT / "docs" / "go-to-market" / "reference-customers" / "README.md"
         text = path.read_text(encoding="utf-8")
         self.assertIn("REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md", text)
-        self.assertIn("REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md", text)
+        self.assertIn("per-customer-tracking-checklist", text)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Operator-facing evidence packet template — minimum artifacts for first pilot and RC signoff.
 > **Canonical sources:** [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md), [`V1_RELEASE_CHECKLIST.md`](../../library/V1_RELEASE_CHECKLIST.md).
 

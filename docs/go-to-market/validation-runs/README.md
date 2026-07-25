@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Landing folder for completed validation-run summaries (decision-delta interviews, blind cohort rollups). Market-validation evidence only — not product claims, not customer proof.
 
 # Validation runs

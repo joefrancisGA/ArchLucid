@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 # Blind insight validation — reviewer packet
 
 **Packet label:** Synthetic regulated healthcare data platform (demo-safe)

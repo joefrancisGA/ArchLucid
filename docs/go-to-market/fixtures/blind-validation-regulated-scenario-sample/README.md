@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Checked-in sample output from `scripts/assemble_blind_validation_packet.py` — demo-safe illustration only.
 
 # Blind validation sample packet (regulated scenario)

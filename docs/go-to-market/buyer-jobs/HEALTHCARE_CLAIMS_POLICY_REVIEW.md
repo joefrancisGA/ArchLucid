@@ -105,6 +105,22 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): `healthcare-c
 
 ---
 
+## Healthcare vertical positioning (sales / architecture)
+
+**Not** legal advice or a compliance attestation. For procurement posture, see [`trust-center.md`](../trust-center.md) and in-repo DPA/MSA templates.
+
+ArchLucid helps teams produce **reviewable architecture manifests, findings, and governance evidence** for systems *you describe* in briefs and structured context. It is **not** an EHR, claims system, or clinical data store. **Do not upload PHI** into briefs or free-text context; use de-identified or architectural descriptions only. Contractual and BAA paths → **`sales@archlucid.net`**.
+
+| Concern | How teams usually frame it in an architecture run | What ArchLucid evidence can reflect |
+|--------|----------------------------------------------------|-------------------------------------|
+| **Boundary systems** (e.g. CMS interfaces, state MMIS) | As components and data-flow edges in the manifest | Graph + findings on coupling and interfaces |
+| **PII/PHI separation** | As explicit non-goals in the brief and policy packs | Drift and governance rules against “no PHI in context” team norms |
+| **Audit trail** | As operational requirement | Append-only audit and run history ([`AUDIT_COVERAGE_MATRIX.md`](../../library/AUDIT_COVERAGE_MATRIX.md)) |
+
+**Illustrative HIPAA *program* themes** (not HITRUST/SOC mapping): access control → app RBAC + tenant catalog routing ([`TENANT_ISOLATION.md`](../TENANT_ISOLATION.md)); audit controls → [`AUDIT_COVERAGE_MATRIX.md`](../../library/AUDIT_COVERAGE_MATRIX.md); transmission/integrity → Azure patterns in [`MANAGED_IDENTITY_SQL_BLOB.md`](../../security/MANAGED_IDENTITY_SQL_BLOB.md). A **BAA** (if required) is a **legal** instrument, not a feature flag — default product positioning is **architecture evidence only, no clinical PHI in scope** unless a separate agreement says otherwise.
+
+---
+
 ## Demo proof shape (Demo-derived only)
 
 **Evidence basis:** **Demo-derived** · **Deferred scope** for production PHI environments. Synthetic/demo evidence only — no production PHI.

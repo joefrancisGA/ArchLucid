@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Buyer-facing evidence packet template — map artifacts to sponsor decision needs with strict claim boundaries.
 > **Canonical sources:** Do not restate policy here; link to [`PROCUREMENT_PACK_INDEX.md`](../PROCUREMENT_PACK_INDEX.md) and [`ROI_BASELINE_SEND_POLICY.md`](../ROI_BASELINE_SEND_POLICY.md).
 

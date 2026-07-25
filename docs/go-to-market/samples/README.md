@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Synthetic DOCX/PDF samples for buyers and partners previewing collateral formats; not customer exports, signed legal deliverables, or authoritative product specs.
 
 # Go-to-market samples

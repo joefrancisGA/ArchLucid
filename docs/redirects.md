@@ -78,6 +78,9 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/demo-proof-packets/azure-saas-readiness-demo-proof.md` | [`docs/go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md`](go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md#demo-proof-shape-demo-derived-only) | Demo proof shape folded into buyer job |
 | `docs/go-to-market/demo-proof-packets/healthcare-claims-demo-proof.md` | [`docs/go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md#demo-proof-shape-demo-derived-only) | Demo proof shape folded into buyer job |
 | `docs/go-to-market/demo-proof-packets/first-run-demo-script.md` | [`docs/go-to-market/DEMO_QUICKSTART.md`](go-to-market/DEMO_QUICKSTART.md#first-run-demo-script-simulator) | First-run simulator script folded into demo quickstart |
+| `docs/go-to-market/BUYER_OPERATOR_PATH_CHOOSER.md` | [`docs/go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md#choose-your-next-step) | Next-step chooser folded into buyer orientation |
+| `docs/go-to-market/REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` | [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md#per-customer-tracking-checklist-ah) | Tracking checklist a–h folded into reference-customers index |
+| `docs/go-to-market/HEALTHCARE_VERTICAL_BRIEF.md` | [`docs/go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md#healthcare-vertical-positioning-sales--architecture) | Healthcare sales/architecture brief folded into buyer job |
 
 ---
 

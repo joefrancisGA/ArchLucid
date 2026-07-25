@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 # Blind insight validation — executive summary (template)
 
 **Cohort label:** _(e.g. regulated-workload Q2 validation)_  

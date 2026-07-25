@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 # Blind insight validation — facilitator source key
 
 **Do not share with reviewer until scoring is complete.**

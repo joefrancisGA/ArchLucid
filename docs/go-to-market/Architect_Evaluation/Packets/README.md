@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-25
+
 # ArchLucid Principal Architect Evaluation Packet Set
 
 Synthetic sanitized raw architecture packets for principal-architect validation sessions.

@@ -519,7 +519,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Choose your next step",
     summary: "Map your current goal — evaluate, pilot, procurement, sponsor output, or engineering support — to one primary next action.",
     audience: "buyer",
-    sourcePaths: ["docs/go-to-market/BUYER_OPERATOR_PATH_CHOOSER.md"],
+    sourcePaths: ["docs/go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md"],
   },
   {
     slug: "comparison-replay",
