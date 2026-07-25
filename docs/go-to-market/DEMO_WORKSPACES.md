@@ -1,8 +1,12 @@
-﻿> **Scope:** Evaluator-facing demo workspaces (Workspace A Product Tour, Workspace B synthetic regulated storyline, stable URLs, scope headers, and export hints).
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** Evaluator-facing demo workspaces (Workspace A Product Tour, Workspace B synthetic regulated storyline, stable URLs, scope headers, and export hints).
 
 > **Spine docs:** [`DEMO_QUICKSTART.md`](DEMO_QUICKSTART.md), [`demo-quickstart.md`](../archive/onboarding/demo-quickstart.md).
 
 # Demo workspaces (go-to-market)
+
+**Last reviewed:** 2026-07-25
 
 ## Cross-navigation (marketing + onboarding)
 
@@ -103,6 +107,18 @@ rg -n "\\b@gmail\\.com\\b|\\b(contoso\\.com|fabrikam\\.com)\\b|\\b\\d{3}-\\d{2}-
 ```
 
 If you add realism, prefer clearly fake domains (**`*.example`** / **`northwind-demo`**) documented here.
+
+---
+
+## Operator Overview (authenticated home)
+
+**TB-1039:** When the active scope is a **pinned demo workspace** (Workspace A/B project/workspace GUIDs from the fixture manifest), the **Claims Intake Demo** buyer label, or local **dev-default** Claims Intake scope, an empty Overview must not look like a blank customer tenant:
+
+1. Runs list uses the **scoped demo `projectId`** (not bare `default`) when the pin is Workspace A/B.
+2. If the list is still empty, Overview injects the **canonical sample architecture package** row (Workspace A/B run GUID, or Claims Intake showcase `claims-intake-modernization`).
+3. Empty-home **Do this next** leads with **Open sample package** (setup blockers skipped for demo/seeded pins).
+
+Real empty customer tenants (non-demo scope IDs / labels) keep TB-1036 / TB-1038 empty-tenant behavior. Implementation: `archlucid-ui/src/lib/demo-seeded-overview.ts`.
 
 ---
 

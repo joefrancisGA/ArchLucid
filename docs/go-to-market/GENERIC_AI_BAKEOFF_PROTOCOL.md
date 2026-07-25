@@ -1,9 +1,15 @@
-> **Scope:** Repeatable comparison protocol — ArchLucid vs a principal architect using frontier AI manually. Not a competitive benchmark claim.
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Repeatable comparison protocol — ArchLucid vs a principal architect using frontier AI manually. Includes the evidence-pack checklist, prompt, and summary templates. Not a competitive benchmark claim.
 
 # Generic-AI bakeoff protocol
 
 **Audience:** Founder-led demos, pilot debriefs, and differentiation conversations.  
-**Last reviewed:** 2026-06-14
+**Last reviewed:** 2026-07-25
+
+**End-to-end runbook (five steps):** [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md)  
+**Session folder template:** [`fixtures/bakeoff/session-template/README.md`](../../fixtures/bakeoff/session-template/README.md)  
+**Rolling scoreboard:** [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md)
 
 ## What this compares
 
@@ -72,10 +78,150 @@ ArchLucid does **not** always reason better than frontier AI. This protocol docu
 | Manual AI consistently faster to first draft | Lead with packaging / audit / repeatability |
 | Faithfulness failures on real packet | Narrow AI claims; engineering priority |
 
+## Evidence pack checklist
+
+| # | Item | Status |
+| --- | --- | --- |
+| 1 | Sanitized architecture packet (same for both arms) | ☐ |
+| 2 | ArchLucid committed run id + execution mode label | ☐ |
+| 3 | ArchLucid sponsor export (first-value Markdown or proof ZIP) | ☐ |
+| 4 | Manual AI findings list (not raw chat dump) | ☐ |
+| 5 | Manual AI prompt saved | ☐ |
+| 6 | Wall-clock times recorded or labeled **unknown** | ☐ |
+| 7 | Session notes (honest wins/losses) | ☐ |
+| 8 | Anti-claim review (no "smarter than GPT" language) | ☐ |
+| 9 | Generated summary JSON + Markdown | ☐ |
+
+## Manual frontier-AI prompt (copy/adapt)
+
+Use the same packet as ArchLucid. Save the prompt with the session.
+
+```text
+You are a principal cloud architect reviewing an architecture packet for a regulated enterprise buyer.
+
+Inputs:
+- Architecture packet: [attach sanitized brief + manifest excerpt]
+- Buyer context: [industry, compliance drivers — no PII]
+
+Tasks:
+1. List the top 10 material architecture findings (severity + one-line rationale each).
+2. For each finding, cite which packet section or artifact supports it.
+3. Recommend three decision changes the ARB should consider before approval.
+4. Draft a 150-word executive summary suitable for a CIO — label any estimate as an estimate.
+
+Constraints:
+- Do not invent infrastructure not present in the packet.
+- Flag uncertainty explicitly.
+- Output a numbered findings list only (no marketing language).
+```
+
+**Baseline prompt file:** [`fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt`](../../fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt)
+
+## Blind comparison of findings
+
+After manual and ArchLucid arms complete, run blind scoring so reviewers do not know which arm is which.
+
+**Protocol:** [`Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
+
+```powershell
+# Demo / internal dry-run on regulated fixture
+.\scripts\Run-BlindInsightValidation.ps1 -SessionLabel <label> -NonInteractiveScore -AutoSummarize
+
+# Live session — see runbook Step 3 for fixture layout under artifacts/bakeoff/<label>/
+python scripts/assemble_blind_validation_packet.py assemble `
+  --fixture artifacts/bakeoff/<label> `
+  --output artifacts/bakeoff/<label>/blind `
+  --session-id <label>
+```
+
+**Facilitator only:** `source-key.json` — do not share until scoring completes.
+
+## Decision-delta scoring
+
+Within 7 days, complete [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) and save to `artifacts/bakeoff/<label>/decision-delta.md` (template: [`fixtures/bakeoff/session-template/decision-delta.template.md`](../../fixtures/bakeoff/session-template/decision-delta.template.md)).
+
+| Outcome | Criteria |
+| --- | --- |
+| **PASS** | ≥1 documented decision change from an ArchLucid finding not in the manual AI pass |
+| **WARN** | Confirmatory only — packaging/audit value |
+| **FAIL** | Participant would not run review #2 |
+
+## Generate summary artifacts
+
+From repository root after packet folder is prepared:
+
+```powershell
+python scripts/ci/build_generic_ai_bakeoff_summary.py `
+  --archlucid-packet-dir artifacts/bakeoff/<session>/archlucid `
+  --manual-ai-findings artifacts/bakeoff/<session>/manual-findings.md `
+  --archlucid-minutes 42 `
+  --manual-minutes 35 `
+  --session-notes "Manual timing self-reported; ArchLucid includes commit + export." `
+  --json-out artifacts/bakeoff/<session>/bakeoff-summary.json `
+  --markdown-out artifacts/bakeoff/<session>/bakeoff-summary.md
+```
+
+**Required `archlucid/packet-metadata.json` fields:**
+
+```json
+{
+  "runId": "<guid>",
+  "executionMode": "Real"
+}
+```
+
+Omit `--archlucid-minutes` / `--manual-minutes` when not measured — summary will label **unknown / not measured**.
+
+## Summary template (facilitator rollup)
+
+```markdown
+# Bakeoff session summary — <label>
+
+**Date (UTC):**  
+**Packet:**  
+**ArchLucid execution mode:**  
+**Evidence basis:**  
+
+## Timing (honest)
+
+| Path | Minutes | Basis |
+| --- | --- | --- |
+| ArchLucid | | measured / unknown |
+| Manual frontier AI | | measured / unknown |
+
+## Dimension notes
+
+- Time to sponsor packet:  
+- Evidence traceability:  
+- Repeatability:  
+- Governance readiness:  
+- Finding usefulness:  
+- Sponsor packet quality:  
+
+## Where manual frontier AI won
+
+- 
+
+## Where ArchLucid won
+
+- 
+
+## Anti-claims confirmed
+
+- [ ] Did not claim ArchLucid is smarter than frontier AI
+- [ ] Did not present simulator as live proof
+- [ ] Did not invent benchmark percentages
+
+## Decision
+
+- [ ] Strengthen repeatability / evidence narrative  
+- [ ] Narrow AI reasoning claims  
+- [ ] Engineering follow-up for faithfulness gap  
+```
+
 ## Related
 
 - [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) — end-to-end five-step bakeoff runbook
-- [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md) — packet checklist and templates
 - [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md) — rolling scoreboard (**Done 2026-06-17**)
 - [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md) — automated blind packet assembly
 - [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) — post-bakeoff decision scoring

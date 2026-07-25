@@ -10,7 +10,7 @@
 **Purpose:** Track recurring bakeoff outcomes in one place so positioning updates from **measured sessions**, not intuition.
 
 **Canonical protocol:** [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)  
-**Evidence pack:** [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md)  
+**Evidence pack checklist:** [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md#evidence-pack-checklist)  
 **Session template:** [`fixtures/bakeoff/frontier-ai-scoreboard.template.md`](../../fixtures/bakeoff/frontier-ai-scoreboard.template.md)  
 **Runbook:** [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md)
 

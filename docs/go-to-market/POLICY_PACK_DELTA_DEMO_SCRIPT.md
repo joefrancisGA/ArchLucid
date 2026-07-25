@@ -1,4 +1,6 @@
-> **Scope:** Repeatable sales/CS demo — same architecture review, different policy-pack enforcement, different pre-finalize gate outcome. Uses shipped V1 governance dry-run and simulation endpoints only.
+> **Reviewed:** 2026-07-25
+
+> **Scope:** Repeatable sales/CS demo — same architecture review, different policy-pack enforcement, different pre-finalize gate outcome. Uses shipped V1 governance dry-run and simulation endpoints only. Includes the policy-to-decision proof pilot run-sheet (assessment Tier 1 #1).
 >
 > **Audience:** Sales engineers and CS (Admin / architect workspace). Not a buyer self-serve help topic — buyers should use in-app [Governance approval](/help/governance-approval) and [Understanding governance alerts](/help/alerts) instead of running this script alone.
 
@@ -6,11 +8,15 @@
 
 **Audience:** Sales engineers, CS, and founders answering *"Why not another ChatGPT seat?"* (Admin / architect workspace)
 
+**Last reviewed:** 2026-07-25
+
 **Buyer outcome:** Prospects see that **policy assignments change finalize-gate outcomes** on the **same finalized architecture package** — not just different finding prose.
 
 **Grounding rule:** Dry-run and simulation output is **architecture-review governance evidence**, not certification. See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) and [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
 
 **Automation:** [`scripts/demo-policy-pack-delta.ps1`](../../scripts/demo-policy-pack-delta.ps1) runs Phases B–D against a local or staging API when `-RunId` is supplied.
+
+**Pilot sequencing:** [`#policy-to-decision-proof-pilot-run-sheet`](#policy-to-decision-proof-pilot-run-sheet) turns this demo + fixture + proof packet into one repeatable pilot.
 
 ---
 
@@ -225,10 +231,77 @@ When you **persist** a stricter assignment (`POST /v1/policy-packs/{id}/assign`)
 
 ---
 
+## Policy-to-decision proof pilot (run-sheet)
+
+**Implements:** assessment **Tier 1 #1 — Policy-to-decision proof pilot** ([`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) §17).
+
+This section sequences the shipped demo (above), deterministic fixture, and proof-packet assembly into one repeatable pilot. It does not restate policy logic, gate math, or ROI claims.
+
+### What is human vs. automated
+
+| Half | Who | What |
+| --- | --- | --- |
+| **Mechanism (automated)** | Coding agent / CI | The A/B delta is shipped: dry-run + pre-finalize simulation endpoints, the demo script, and a deterministic regression fixture. Provable offline with **no live env and no buyer data**. |
+| **Live demo (architect)** | Founder / SE | Run the A/B against a **finalized review** on a local or staging stack and narrate the gate flip. |
+| **Authorized pilot + judgment (market-execution)** | Human + buyer | Run it on **authorized** evidence, capture the six deltas, and have a buyer judge that the changed decision matters. A coding agent cannot perform this. |
+
+### Step 0 — Offline / CI rehearsal
+
+Prove the mechanism still holds before booking any live session.
+
+- **Canonical fixture:** [`../../tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json`](../../tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json)
+- **Backend regression:** `ArchLucid.Application.Tests/Governance/PolicyAbDemoRegressionTests.cs`
+- **UI regression:** `archlucid-ui/src/lib/policy-ab-demo-fixture.test.tsx`
+
+```powershell
+dotnet test .\ArchLucid.Application.Tests\ArchLucid.Application.Tests.csproj --filter "FullyQualifiedName~PolicyAbDemoRegressionTests"
+```
+
+```powershell
+cd archlucid-ui
+npx vitest run src/lib/policy-ab-demo-fixture.test.tsx
+```
+
+### Step 1 — Live A/B on one committed run
+
+Drive Phases A–E above (or `.\scripts\demo-policy-pack-delta.ps1 -RunId <committed-run-id> -OutputDirectory artifacts/policy-pack-delta-demo`).
+
+### Step 2 — Record the six decision deltas
+
+For the **same run id**, record (redacted — no customer-identifying content):
+
+| # | Delta | Source |
+| --- | --- | --- |
+| 1 | Changed **rule keys** (added/removed) | dry-run rule selection / before-after diff |
+| 2 | **Finding set** change under enforcement | finalized review findings + dry-run |
+| 3 | **Gate outcome** flip (`Blocked` false → true) | `GateResult.Blocked` in dry-run / pre-commit simulation |
+| 4 | **Executive summary** delta | `GET /v1/roi/executive-summary` before/after posture |
+| 5 | **Remediation owner** for the new blocking finding | one ITSM ticket correlation |
+| 6 | **Audit timeline** of the dry-run/simulation events | `GET /v1/audit/export/csv` (Phase D) |
+
+### Step 3 — Package buyer-safe + rehearse
+
+- **Assembly + mock procurement review:** [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](EXECUTIVE_PAID_PILOT_PROOF_PACKET.md)
+- **One-page buyer evidence:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map)
+
+### Step 4 — Market-execution half
+
+Running the pilot on **authorized** evidence and getting a buyer judgment is the human half. File the outcome in the paid-pilot ledger and track on [`GTM_BACKLOG.md`](GTM_BACKLOG.md); do not treat a green Step 0 rehearsal as buyer validation.
+
+### Pilot acceptance checklist
+
+- [ ] Step 0 regression tests pass (mechanism intact).
+- [ ] Same **run id** shows a different gate outcome between default and stricter packs.
+- [ ] All six deltas recorded, redacted.
+- [ ] Packet assembled and survives the mock procurement review before any real send.
+- [ ] Narrator states output is **review evidence**, not certification.
+
+---
+
 ## Related
 
-- [`POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md`](POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md) — sequences this demo + deterministic fixture + proof-packet into a repeatable pilot (assessment Tier 1 #1)
 - [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) — generic-AI comparison rubric
 - [`DEFAULT_POLICY_PACKS_V1.md`](DEFAULT_POLICY_PACKS_V1.md) — bundled platform packs
 - [`AI_GOVERNANCE_REVIEW.md`](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) — regulated vertical walkthrough
 - [`MODEL_SEATS_COUNTER_POSITIONING_TEST.md`](MODEL_SEATS_COUNTER_POSITIONING_TEST.md) — objection handling
+- [`../library/POLICY_PACK_DRY_RUN_INDEX.md`](../library/POLICY_PACK_DRY_RUN_INDEX.md) — vertical pack templates for the stricter arm

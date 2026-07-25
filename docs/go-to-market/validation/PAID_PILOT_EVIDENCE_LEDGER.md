@@ -1,8 +1,13 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Buyer-safe paid-pilot conversion evidence ledger — executive purchase proof, not customer-identifying proof. Market-validation instrumentation only.
 
 # Paid pilot evidence ledger
 
 **Audience:** Founder / delivery lead after each paid pilot handoff and at monthly conversion review.  
+**Last reviewed:** 2026-07-25
+
+
 **Companion JSON:** [`templates/paid-pilot-evidence-ledger.template.json`](templates/paid-pilot-evidence-ledger.template.json)  
 **Execution tracked as:** GTM backlog **M-37 (V1.1)** — populating rows requires completed paid pilots; this template is the V1 design half.
 

@@ -1,10 +1,12 @@
-﻿> **Scope:** Buyer-safe differentiation proof — manual review vs generic AI vs ArchLucid V1 outputs.
+﻿> **Reviewed:** 2026-07-25
+
+> **Scope:** Buyer-safe differentiation proof — manual review vs generic AI vs ArchLucid V1 outputs.
 
 # Differentiation proof packet
 
 **Audience:** Evaluators, executive sponsors, and sales engineers answering "why not generic AI or a consultant checklist?"
 
-**Last reviewed:** 2026-07-24
+**Last reviewed:** 2026-07-25
 
 ---
 

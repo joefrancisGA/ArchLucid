@@ -18,7 +18,7 @@
 | Sanitized architecture packet | Same file set for both arms — no PII |
 | ArchLucid tenant / pilot path | [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) or demo-safe fixture |
 | Comparison framing | [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md) |
-| Evidence pack checklist | [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](../go-to-market/FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md) |
+| Evidence pack checklist | [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md) |
 | Session folder template | [`fixtures/bakeoff/session-template/README.md`](../../fixtures/bakeoff/session-template/README.md) |
 
 **Time box:** 90–120 minutes facilitator time (excluding async sponsor send).
@@ -51,7 +51,7 @@ Expected tree under `artifacts/bakeoff/<label>/` (local; do not commit customer-
 
 **Goal:** Baseline findings list on the same packet ArchLucid will use.
 
-1. Copy the manual prompt from [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](../go-to-market/FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md) or [`fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt`](../../fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt).
+1. Copy the manual prompt from [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md) or [`fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt`](../../fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt).
 2. Attach the **same** sanitized packet as Step 2.
 3. Save:
    - `manual/manual-ai-prompt.txt` — final prompt used
@@ -185,7 +185,7 @@ Add `--archlucid-minutes` / `--manual-minutes` only when measured.
 
 ## Related
 
-- [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](../go-to-market/FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md)
+- [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md)
 - [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md)
 - [`SPONSOR_PACKET.md`](SPONSOR_PACKET.md)
 - [`REAL_MODE_EVIDENCE_COHORT.md`](REAL_MODE_EVIDENCE_COHORT.md)

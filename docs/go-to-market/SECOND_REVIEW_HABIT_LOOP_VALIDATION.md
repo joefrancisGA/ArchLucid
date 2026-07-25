@@ -163,4 +163,4 @@ Otherwise hold feature work — market signal insufficient.
 ## Related
 
 - [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md) — run 3 in real-mode matrix
-- [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md)
+- [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md#evidence-pack-checklist)

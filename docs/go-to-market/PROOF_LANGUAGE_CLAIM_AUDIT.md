@@ -32,8 +32,8 @@ Dominant claim types present and the labels that keep them honest. Disposition i
 | `DIFFERENTIATION_PROOF_PACKET.md` | review-backed, illustrative, self-assessed | "what we do **not** claim", ROI basis labels |
 | `DIFFERENTIATION_PROOF_PACKET.md` | review-backed, extractor-backed | evidence-linked comparison section |
 | `EXECUTIVE_SPONSOR_BRIEF.md` | review-backed, illustrative | execution-mode + estimate caveats |
-| `FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md` | review-backed, illustrative | bakeoff honesty ("where each wins") |
-| `POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md` | review-backed, illustrative | "review evidence, not certification" |
+| `GENERIC_AI_BAKEOFF_PROTOCOL.md` (evidence pack sections) | review-backed, illustrative | bakeoff honesty ("where each wins") |
+| `POLICY_PACK_DELTA_DEMO_SCRIPT.md` (pilot run-sheet) | review-backed, illustrative | "review evidence, not certification" |
 | `POLICY_PACK_DELTA_DEMO_SCRIPT.md` | review-backed, illustrative | governance-evidence-not-certification grounding rule |
 | `DEMO_VIDEO_SCRIPT.md`, `DEMO_QUICKSTART.md` | illustrative | demo/sample framing |
 | `GENERIC_AI_BAKEOFF_PROTOCOL.md` | review-backed, illustrative | honest "where each wins" |

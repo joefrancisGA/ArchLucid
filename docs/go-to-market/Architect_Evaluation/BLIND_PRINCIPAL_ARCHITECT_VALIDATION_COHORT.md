@@ -178,5 +178,5 @@ python scripts/ci/guard_principal_architect_cohort.py
 
 ## Related
 
-- [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](../FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md) — time/traceability comparison companion
+- [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md#evidence-pack-checklist) — time/traceability comparison companion
 - [`CLAIM_READINESS_STATUS.md`](../CLAIM_READINESS_STATUS.md) — G1 insight validation gate

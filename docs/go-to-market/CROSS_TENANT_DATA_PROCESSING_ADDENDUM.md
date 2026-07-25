@@ -1,10 +1,12 @@
+> **Reviewed:** 2026-07-25
+
 > **Scope:** Cross-tenant optional processing addendum defining exact data classes, privacy floor controls, opt-in/withdrawal behavior, and audit evidence expectations for procurement and DPA alignment.
 
 # Cross-Tenant Data Processing Addendum
 
 **Audience:** Legal reviewers, procurement, and product/security teams documenting optional cross-tenant processing.
 
-**Last reviewed:** 2026-05-01
+**Last reviewed:** 2026-07-25
 
 ---
 

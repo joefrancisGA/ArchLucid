@@ -30,4 +30,4 @@
 
 ## Builder series (M-51+)
 
-Long-form founder/builder articles draft in [`LINKEDIN_CONTENT_V2.md`](LINKEDIN_CONTENT_V2.md). Assign publish dates when ready; drafts shipped: **M-77 — Capturing Screenshots**, **M-78 — Text System Complexity**, **M-79 — Convex Optimization?**, **M-80 — I Miss Fable**, **M-81 — One Thing at a Time**, **M-82 — UI Development**, **M-83 — Dirty Secrets**, **M-84 — Adventures in Space!**, **M-85 — Can't Good Good Help**, **M-86 — Big Words Hurt My Head**, **M-87 — Architecture Decision Records**, **M-88 — Checking in Broken Code**.
+Long-form founder/builder articles draft in [`LINKEDIN_CONTENT_V1.md`](LINKEDIN_CONTENT_V1.md#builder-series-m-77m-88). Assign publish dates when ready; drafts shipped: **M-77 — Capturing Screenshots**, **M-78 — Text System Complexity**, **M-79 — Convex Optimization?**, **M-80 — I Miss Fable**, **M-81 — One Thing at a Time**, **M-82 — UI Development**, **M-83 — Dirty Secrets**, **M-84 — Adventures in Space!**, **M-85 — Can't Good Good Help**, **M-86 — Big Words Hurt My Head**, **M-87 — Architecture Decision Records**, **M-88 — Checking in Broken Code**.
