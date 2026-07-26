@@ -31,8 +31,10 @@ namespace ArchLucid.Application;
 /// </summary>
 /// <remarks>
 ///     All run reads are routed through <c>IRunDetailQueryService</c> to ensure a single authoritative
-///     data-loading path. Result and evidence writes execute inside <see cref = "IArchLucidUnitOfWork"/> for atomicity;
-///     Authority <c>dbo.Runs</c> lifecycle is updated by dedicated orchestrators, not this application service.
+///     data-loading path. Result and evidence writes execute inside <see cref="IArchLucidUnitOfWork"/> for atomicity.
+///     Execute/commit orchestrators own most Authority <c>dbo.Runs</c> transitions. Development-only
+///     <see cref="SeedFakeResultsAsync"/> also promotes Authority <c>LegacyRunStatus</c> so seeded runs can
+///     reach commit without calling execute (TB-937 requires <c>ReadyForCommit</c>).
 /// </remarks>
 public sealed class ArchitectureApplicationService(
     IRunDetailQueryService runDetailQueryService,
@@ -187,17 +189,23 @@ public sealed class ArchitectureApplicationService(
         if (tasks.Count == 0)
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
         List<AgentResult> existingResults = detail.Results;
+
         if (existingResults.Count > 0)
         {
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", LogSanitizer.Sanitize(runId),
                     existingResults.Count);
+
+            // Prior seed may have written results before LegacyRunStatus promotion existed — heal status.
+            await TryPromoteLegacyRunStatusAfterSeedAsync(runId, existingResults, cancellationToken);
+
             return new SeedFakeResultsResult(true, 0, null);
         }
 
         IReadOnlyList<AgentResult> fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
         ArchitectureRunStatus newStatus = _runStateTransitionService.DeriveStatusAfterResultSubmission(fakeResults);
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+
         try
         {
             await SeedFakeResultsPersistAsync(runId, fakeResults, architectureRequest, uow, cancellationToken);
@@ -220,10 +228,48 @@ public sealed class ArchitectureApplicationService(
                     runId);
         }
 
+        await TryPromoteLegacyRunStatusAfterSeedAsync(runId, fakeResults, cancellationToken);
+
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", LogSanitizer.Sanitize(runId),
                 fakeResults.Count, newStatus);
+
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
+    }
+
+    /// <summary>
+    ///     TB-937: commit requires ReadyForCommit. Seed skips execute, so promote Authority LegacyRunStatus from seeded results.
+    /// </summary>
+    private async Task TryPromoteLegacyRunStatusAfterSeedAsync(
+        string runId,
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (header is null)
+            return;
+
+        string previousLegacyRunStatus = header.LegacyRunStatus ?? string.Empty;
+
+        if (string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        ArchitectureRunStatus derived = _runStateTransitionService.DeriveStatusAfterResultSubmission(results);
+
+        if (derived is ArchitectureRunStatus.ReadyForCommit
+            && !_runStateTransitionService.ShouldPromoteLegacyStatusToReadyForCommit(previousLegacyRunStatus))
+            return;
+
+        if (string.Equals(previousLegacyRunStatus, derived.ToString(), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        header.LegacyRunStatus = derived.ToString();
+        await _runRepository.UpdateAsync(header, cancellationToken);
     }
 
     private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(string runId, AgentResult result, IArchLucidUnitOfWork uow,
