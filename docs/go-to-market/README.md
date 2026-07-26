@@ -18,4 +18,4 @@
 
 **Related:** [`../runbooks/README.md`](../runbooks/README.md) (operations), [`../library/DOCUMENTATION_BY_AUDIENCE.md`](../library/DOCUMENTATION_BY_AUDIENCE.md) (role routing).
 
-**Welcome hero (CTAs + Clarity analytics + compliance checklist):** [`WELCOME_HERO_CTA_ANALYTICS.md`](WELCOME_HERO_CTA_ANALYTICS.md) · demo Workspace A URLs: [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md).
+**Welcome hero (CTAs + Clarity analytics + compliance checklist):** [`DEMO_WORKSPACES.md#welcome-hero--ctas-analytics-and-compliance`](DEMO_WORKSPACES.md#welcome-hero--ctas-analytics-and-compliance) · demo Workspace A URLs: [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md).
