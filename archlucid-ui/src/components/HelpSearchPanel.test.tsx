@@ -66,6 +66,18 @@ describe("HelpSearchPanel", () => {
     expect(within(screen.getByTestId("help-search-recommended-group")).getByText("Getting started")).toBeInTheDocument();
   });
 
+  it("on core-pilot recommends next steps instead of first-review relaunches (TB-1044)", () => {
+    pathnameMock.value = "/help/core-pilot";
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    const recommended = screen.getByTestId("help-search-recommended-group");
+    expect(within(recommended).getByText("Create your first review")).toBeInTheDocument();
+    expect(within(recommended).getByText("Run a sample review")).toBeInTheDocument();
+    expect(within(recommended).queryByText("Getting started")).toBeNull();
+    expect(within(recommended).queryByText("How ArchLucid works")).toBeNull();
+    expect(within(recommended).queryByText("First review guide")).toBeNull();
+  });
+
   it("filters topics when searching and renders an empty state", () => {
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 

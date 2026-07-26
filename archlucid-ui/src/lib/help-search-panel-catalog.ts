@@ -325,9 +325,18 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   privacy: ["data-handling-help", "security-trust-help"],
 };
 
+const CORE_PILOT_NEXT_STEP_TOPIC_IDS: readonly string[] = [
+  "create-first-review",
+  "sample-review",
+  "upload-evidence",
+  "cloud-connections",
+  "troubleshoot",
+];
+
 const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly topicIds: readonly string[] }[] = [
   { prefix: "/", topicIds: ["getting-started-help", "how-archlucid-works", "first-review-guide", "product-faq", "create-first-review"] },
   { prefix: "/onboarding", topicIds: ["how-archlucid-works", "first-review-guide", "product-faq", "create-first-review", "sample-review"] },
+  { prefix: "/help/core-pilot", topicIds: CORE_PILOT_NEXT_STEP_TOPIC_IDS },
   { prefix: "/help", topicIds: ["getting-started-help", "how-archlucid-works", "path-chooser", "first-review-guide", "product-faq", "cloud-connections", "data-handling-help", "security-trust-help", "troubleshoot"] },
   { prefix: "/pricing", topicIds: ["product-faq", "first-review-guide"] },
   { prefix: "/signup", topicIds: ["authentication-sign-in", "product-faq", "first-review-guide"] },
@@ -358,7 +367,44 @@ const ROUTE_RECOMMENDED_TOPIC_IDS: readonly { readonly prefix: string; readonly 
 ];
 
 function normalizePathname(pathname: string): string {
-  return (pathname ?? "").split("?")[0] ?? "";
+  const withoutQuery = (pathname ?? "").split("?")[0] ?? "";
+  const trimmed = withoutQuery.replace(/\/$/, "");
+
+  return trimmed.length === 0 ? "/" : trimmed;
+}
+
+function helpSlugFromPath(path: string): string | null {
+  if (!path.startsWith("/help/")) {
+    return null;
+  }
+
+  const rest = path.slice("/help/".length);
+  const slug = rest.split("/").find((segment) => segment.length > 0);
+
+  return slug ?? null;
+}
+
+/** True when the recommendation would navigate to the page the drawer is already open on. */
+export function helpSearchPanelTopicTargetsCurrentPage(
+  topic: HelpSearchPanelTopic,
+  pathname: string,
+): boolean {
+  if (topic.action.kind !== "route") {
+    return false;
+  }
+
+  const path = normalizePathname(pathname);
+  const href = normalizePathname(topic.action.href);
+
+  if (href === path) {
+    return true;
+  }
+
+  if (topic.action.helpSlug !== null && helpSlugFromPath(path) === topic.action.helpSlug) {
+    return true;
+  }
+
+  return false;
 }
 
 export function listHelpSearchPanelTopics(isAdmin: boolean): HelpSearchPanelTopic[] {
@@ -430,7 +476,10 @@ export function recommendedHelpSearchPanelTopics(
   const byId = new Map(listHelpSearchPanelTopics(isAdmin).map((topic) => [topic.id, topic]));
   const ids = recommendedHelpSearchPanelTopicIds(pathname);
 
-  return ids.map((id) => byId.get(id)).filter((topic): topic is HelpSearchPanelTopic => topic !== undefined);
+  return ids
+    .map((id) => byId.get(id))
+    .filter((topic): topic is HelpSearchPanelTopic => topic !== undefined)
+    .filter((topic) => !helpSearchPanelTopicTargetsCurrentPage(topic, pathname));
 }
 
 function topicMatchesQuery(topic: HelpSearchPanelTopic, normalizedQuery: string): boolean {

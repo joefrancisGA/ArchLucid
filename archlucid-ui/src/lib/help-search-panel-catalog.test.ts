@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   filterHelpSearchPanelTopics,
   helpSearchPanelTopicHasBannedPublicCopy,
+  helpSearchPanelTopicTargetsCurrentPage,
   listHelpSearchPanelTopics,
   recommendedHelpSearchPanelTopicIds,
+  recommendedHelpSearchPanelTopics,
 } from "@/lib/help-search-panel-catalog";
 
 describe("help-search-panel-catalog", () => {
@@ -16,6 +18,39 @@ describe("help-search-panel-catalog", () => {
       "product-faq",
       "create-first-review",
     ]);
+  });
+
+  it("recommends next-step actions on core-pilot instead of first-review relaunches (TB-1044)", () => {
+    expect(recommendedHelpSearchPanelTopicIds("/help/core-pilot")).toEqual([
+      "create-first-review",
+      "sample-review",
+      "upload-evidence",
+      "cloud-connections",
+      "troubleshoot",
+    ]);
+
+    const titles = recommendedHelpSearchPanelTopics("/help/core-pilot", false).map((topic) => topic.title);
+
+    expect(titles).not.toContain("Getting started");
+    expect(titles).not.toContain("How ArchLucid works");
+    expect(titles).not.toContain("First review guide");
+    expect(titles).toContain("Create your first review");
+    expect(titles).toContain("Run a sample review");
+  });
+
+  it("never recommends a topic that navigates to the current page (TB-1044)", () => {
+    const topics = recommendedHelpSearchPanelTopics("/integrations/cloud-connections", false);
+
+    expect(topics.map((topic) => topic.id)).not.toContain("cloud-connections");
+
+    for (const topic of topics) {
+      expect(helpSearchPanelTopicTargetsCurrentPage(topic, "/integrations/cloud-connections")).toBe(false);
+    }
+
+    const gettingStarted = listHelpSearchPanelTopics(false).find((topic) => topic.id === "getting-started-help");
+
+    expect(gettingStarted).toBeDefined();
+    expect(helpSearchPanelTopicTargetsCurrentPage(gettingStarted!, "/help/getting-started")).toBe(true);
   });
 
   it("recommends cloud connection topics on integrations route", () => {
