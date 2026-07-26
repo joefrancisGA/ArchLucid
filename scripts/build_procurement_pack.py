@@ -171,8 +171,8 @@ This bundle was produced by **`scripts/build_procurement_pack.py`** (or `archluc
 
 ## Operator reference
 
-- **How to regenerate:** in a full clone, see **`docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`**.
-- **Strict release scan:** **`--strict`** or **`PROCUREMENT_PACK_STRICT=1`** on release drops (see **`docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`** § *Release / buyer drop — marker strictness*).
+- **How to regenerate:** in a full clone, see **`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`** (§ How to request and build the pack).
+- **Strict release scan:** **`--strict`** or **`PROCUREMENT_PACK_STRICT=1`** on release drops (see **`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`** § *Release / buyer drop — marker strictness*).
 
 **Do not** treat **Template** or **Self-assessment** artifacts as executed legal agreements or third-party certifications.
 """
@@ -240,7 +240,7 @@ def write_versions_txt(stage: Path, root: Path) -> None:
         f"built_utc={now}",
         f"archlucid_cli_version={ver}",
         "",
-        "Built by scripts/build_procurement_pack.py — see docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md.",
+        "Built by scripts/build_procurement_pack.py — see docs/go-to-market/PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack.",
     ]
     (stage / "versions.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 

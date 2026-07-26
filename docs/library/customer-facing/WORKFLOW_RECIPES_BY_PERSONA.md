@@ -58,7 +58,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`STA
 **Steps**
 
 1. **Read trust posture** — Hosted narrative: [trust-center.md](../../go-to-market/trust-center.md) · UI: `/trust` (download control mirrors API; workspace variant `/workspace/security-trust` per [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md)).
-2. **Download evidence pack** — API (anonymous): `GET /v1/marketing/trust-center/evidence-pack.zip` · Index / fast lane: [go-to-market/PROCUREMENT_PACK_INDEX.md](../../go-to-market/PROCUREMENT_PACK_INDEX.md), [go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md](../../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md).
+2. **Download evidence pack** — API (anonymous): `GET /v1/marketing/trust-center/evidence-pack.zip` · Index / build: [go-to-market/PROCUREMENT_PACK_INDEX.md](../../go-to-market/PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack).
 3. **Review-level proof (after finalize)** — UI: exports on review detail (first-value report, before/after proof metrics) · API: **review exports** — first-value report (`text/markdown`) and review proof metrics (`PilotRunDeltasResponse` JSON), ReadAuthority.
 4. **Operational bundle (internal)** — UI: `/admin/support` · API: `POST /v1/admin/support-bundle` · CLI: `archlucid support-bundle` — use only with explicit disclosure rules ([OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md)).
 

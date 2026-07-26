@@ -20,7 +20,7 @@
 |--------|------------|--------|
 | **Pilot (first useful outcome)** | [`CORE_PILOT.md`](../CORE_PILOT.md) — request → pipeline → finalize → review artifacts | Same day–few days (team + environment) |
 | **Internal sponsor yes/no** | Sponsor brief + scorecard | 1–4 weeks |
-| **Procurement diligence** | [`trust-center.md`](trust-center.md) → [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) → evidence ZIP / [`HOW_TO_REQUEST_PROCUREMENT_PACK.md`](HOW_TO_REQUEST_PROCUREMENT_PACK.md) | 2–8+ weeks |
+| **Procurement diligence** | [`trust-center.md`](trust-center.md) → [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) → evidence ZIP / [`PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack`](PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack) | 2–8+ weeks |
 | **Contract execution** | Templates in pack (DPA/MSA/order form) — customer legal review required | 2–8+ weeks after paper starts |
 
 **Escalation (founder / legal / security):** contractual demand for SOC 2 Type II **attestation date** or third-party pen **vendor report** inside V1; custom DPA terms that contradict in-repo stance; multi-region active/active or rigid residency guarantees not in signed commercial terms.

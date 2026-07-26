@@ -54,7 +54,7 @@ No V1.1 connector required — paste generated comment:
 python scripts/build_procurement_pack.py --strict
 ```
 
-Read `procurement-pack-quality.md` before send. Request guide: [`../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`](../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md).
+Read `procurement-pack-quality.md` before send. Request guide: [`../go-to-market/PROCUREMENT_PACK_INDEX.md`](../go-to-market/PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack).
 
 ## 7. Error handling examples
 

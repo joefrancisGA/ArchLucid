@@ -53,7 +53,7 @@ Catalog rows (SOC 2 CPA, third-party pen test, reference customer, live marketpl
 | Doc | Use |
 | --- | --- |
 | [PROCUREMENT_PACK_INDEX.md](../go-to-market/PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager) | Buyer one-page deal-ready index |
-| [HOW_TO_REQUEST_PROCUREMENT_PACK.md](../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md) | Full pack build and ZIP |
+| [PROCUREMENT_PACK_INDEX.md](../go-to-market/PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack) | Full pack build and ZIP |
 | [PROCUREMENT_PACK_INDEX.md](../go-to-market/PROCUREMENT_PACK_INDEX.md) | Buyer index |
 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) | Deferred scope authority |
 | [FIRST_PILOT_EVIDENCE_BUNDLE.md](FIRST_PILOT_EVIDENCE_BUNDLE.md) | Proof pipeline |

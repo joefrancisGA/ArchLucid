@@ -142,6 +142,6 @@ In-product **Report problem** (on high-stakes error surfaces) submits through th
 
 Use the CLI from a repository clone, or follow the email-safe buyer steps:
 
-- [How to request the procurement pack](HOW_TO_REQUEST_PROCUREMENT_PACK.md)
+- [How to request the procurement pack](PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack)
 
 Contact **security@archlucid.net** for NDA-gated pen-test materials or to align procurement on a specific diligence list.

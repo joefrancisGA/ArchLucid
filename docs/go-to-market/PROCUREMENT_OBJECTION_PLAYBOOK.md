@@ -74,7 +74,7 @@
 
 - **Short answer:** Pack generation is deterministic with manifest hashes and canonical source checks.
 - **Long answer:** Build emits file hashes, version metadata, and redaction report; deal-ready mode adds stricter quality gates.
-- **Evidence:** [HOW_TO_REQUEST_PROCUREMENT_PACK.md](HOW_TO_REQUEST_PROCUREMENT_PACK.md), `scripts/build_procurement_pack.py`
+- **Evidence:** [PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack), `scripts/build_procurement_pack.py`
 - **Escalate when:** Buyer requires customer-specific annexes outside canonical pack.
 
 ### 9) "Do you support legal fallback if support channels fail?"

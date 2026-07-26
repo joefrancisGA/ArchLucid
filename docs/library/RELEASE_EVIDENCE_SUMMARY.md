@@ -60,7 +60,7 @@ Use this drill after a candidate release build to gather **signals** (not a subs
    python scripts/ci/check_procurement_pack_index.py
    ```
 
-   **Broader pack validation** (canonical JSON sources, templates, optional **--deal-ready** staleness stack): `python scripts/validate_procurement_pack.py` · **Strict buyer ZIP staging:** `python scripts/build_procurement_pack.py --dry-run` or **`--deal-ready`** per **`docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`**. **Self-test:** `python -m unittest discover -s scripts/ci/tests -p "test_check_procurement_pack_index.py"`.
+   **Broader pack validation** (canonical JSON sources, templates, optional **--deal-ready** staleness stack): `python scripts/validate_procurement_pack.py` · **Strict buyer ZIP staging:** `python scripts/build_procurement_pack.py --dry-run` or **`--deal-ready`** per **`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`** (§ How to request and build the pack). **Self-test:** `python -m unittest discover -s scripts/ci/tests -p "test_check_procurement_pack_index.py"`.
 
 9. **Fixture expectation (offline):** `scripts/fixtures/release-evidence/expected-status-labels.txt` lists the Result labels the preflight report may emit (`Passed`, `Warning`, `Failed`, `Skipped`, `Not captured`). CI guards structure via `scripts/ci/tests/test_production_profile_preflight_md.py`.
 
