@@ -8,6 +8,11 @@ import {
   HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER,
   HELP_SEARCH_PANEL_SUBTITLE,
 } from "@/lib/help-search-panel-catalog";
+import {
+  HELP_ON_HELP_ON_THIS_PAGE_HEADING,
+  HELP_ON_HELP_SEARCH_PLACEHOLDER,
+  HELP_ON_HELP_SUBTITLE,
+} from "@/lib/help-on-help";
 
 const push = vi.fn();
 const pathnameMock = vi.hoisted(() => ({ value: "/" }));
@@ -97,6 +102,34 @@ describe("HelpSearchPanel", () => {
     expect(within(recommended).getByText("Upload architecture evidence")).toBeInTheDocument();
     expect(within(recommended).queryByText("Cloud connections")).toBeNull();
     expect(within(recommended).queryByText("Troubleshoot common issues")).toBeNull();
+  });
+
+  it("uses help-on-help copy and on-this-page anchors on /help/* (TB-1046)", () => {
+    pathnameMock.value = "/help/core-pilot";
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    expect(screen.getByText(HELP_ON_HELP_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByLabelText("Search help")).toHaveAttribute("placeholder", HELP_ON_HELP_SEARCH_PLACEHOLDER);
+    expect(screen.getByRole("heading", { name: HELP_ON_HELP_ON_THIS_PAGE_HEADING })).toBeInTheDocument();
+
+    const onThisPage = screen.getByTestId("help-search-on-this-page");
+    expect(within(onThisPage).getByText("First review path")).toBeInTheDocument();
+    expect(within(onThisPage).getByText("Run the first review")).toBeInTheDocument();
+  });
+
+  it("jumps to a current-page hash instead of loading an inline article (TB-1046)", () => {
+    pathnameMock.value = "/help/core-pilot";
+    const onOpenChange = vi.fn();
+    render(<HelpSearchPanel open onOpenChange={onOpenChange} />);
+
+    fireEvent.click(
+      within(screen.getByTestId("help-search-on-this-page")).getByRole("button", {
+        name: /First review path/i,
+      }),
+    );
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(window.location.hash).toBe("#first-review-path");
   });
 
   it("filters topics when searching and renders an empty state", () => {

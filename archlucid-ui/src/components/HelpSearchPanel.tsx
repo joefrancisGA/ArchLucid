@@ -43,6 +43,15 @@ import {
   type HelpSearchPanelTopic,
 } from "@/lib/help-search-panel-catalog";
 import { type HelpDocSearchRecord, searchHelpDocumentation } from "@/lib/help-index";
+import {
+  HELP_ON_HELP_ON_THIS_PAGE_HEADING,
+  HELP_ON_HELP_SEARCH_PLACEHOLDER,
+  HELP_ON_HELP_SUBTITLE,
+  helpDocRecordTargetsPath,
+  isHelpOnHelpPath,
+  listHelpOnHelpSectionAnchors,
+  prioritizeHelpSearchHitsForCurrentPage,
+} from "@/lib/help-on-help";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -173,6 +182,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
 
   const isSearching = query.trim().length > 0;
   const isViewingArticle = article.status === "loaded" || article.status === "loading" || article.status === "error";
+  const helpOnHelp = isHelpOnHelpPath(pathname);
 
   const visibleGroups = useMemo(() => listHelpSearchPanelGroups(isAdmin), [isAdmin]);
   const allTopics = useMemo(
@@ -186,6 +196,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const { doThisNow, moreRecommended } = useMemo(
     () => splitHelpSearchPanelDoThisNow(recommendedTopics),
     [recommendedTopics],
+  );
+  const onThisPageAnchors = useMemo(
+    () => (helpOnHelp ? listHelpOnHelpSectionAnchors(pathname) : []),
+    [helpOnHelp, pathname],
   );
   const recommendedTopicIds = useMemo(
     () => new Set(recommendedTopics.map((topic) => topic.id)),
@@ -203,7 +217,13 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     () => filterHelpSearchPanelTopics(allTopics, query),
     [allTopics, query],
   );
-  const hits = useMemo(() => (isSearching ? searchHelpDocumentation(query) : []), [isSearching, query]);
+  const hits = useMemo(() => {
+    if (!isSearching) {
+      return [];
+    }
+
+    return prioritizeHelpSearchHitsForCurrentPage(searchHelpDocumentation(query), pathname);
+  }, [isSearching, pathname, query]);
 
   const defaultHighlightedRowId = useMemo(() => {
     if (isSearching) {
@@ -222,6 +242,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
       return `do-this-now:${doThisNow.id}`;
     }
 
+    if (onThisPageAnchors.length > 0) {
+      return `on-page:${helpRecordSelectionValue(onThisPageAnchors[0]!)}`;
+    }
+
     if (moreRecommended.length > 0) {
       return `recommended:${moreRecommended[0]!.id}`;
     }
@@ -234,7 +258,15 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     }
 
     return "";
-  }, [doThisNow, filteredTopics, hits, isSearching, moreRecommended, visibleGroupsWithoutRecommended]);
+  }, [
+    doThisNow,
+    filteredTopics,
+    hits,
+    isSearching,
+    moreRecommended,
+    onThisPageAnchors,
+    visibleGroupsWithoutRecommended,
+  ]);
 
   useEffect(() => {
     if (!open) {
@@ -317,7 +349,24 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     router.push(href);
   }
 
+  function openCurrentPageAnchor(record: HelpDocSearchRecord): void {
+    onOpenChange(false);
+
+    // Build-time help-index slugs are [a-z0-9-]+; reject anything else before touching location.hash.
+    if (record.sectionSlug.length === 0 || !/^[a-z0-9-]+$/i.test(record.sectionSlug)) {
+      return;
+    }
+
+    // Hash navigation keeps the open help page; HelpTopicHashScroll expands/scrolls the section.
+    window.location.hash = record.sectionSlug;
+  }
+
   function openSearchHit(record: HelpDocSearchRecord): void {
+    if (helpOnHelp && helpDocRecordTargetsPath(record, pathname)) {
+      openCurrentPageAnchor(record);
+      return;
+    }
+
     const href = helpRecordHref(record);
     const slug = helpSlugFromHref(href);
 
@@ -452,7 +501,11 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               <DialogHeader className="shrink-0 space-y-1 border-b border-neutral-200 px-5 pb-3 pt-5 text-left dark:border-neutral-800">
                 <DialogTitle className="text-left text-lg text-neutral-900 dark:text-neutral-100">Help</DialogTitle>
                 <DialogDescription className={cn("text-left", OPERATOR_TYPOGRAPHY.body)}>
-                  {isSearching ? HELP_SEARCH_PANEL_SEARCHING_SUBTITLE : HELP_SEARCH_PANEL_SUBTITLE}
+                  {isSearching
+                    ? HELP_SEARCH_PANEL_SEARCHING_SUBTITLE
+                    : helpOnHelp
+                      ? HELP_ON_HELP_SUBTITLE
+                      : HELP_SEARCH_PANEL_SUBTITLE}
                 </DialogDescription>
               </DialogHeader>
 
@@ -469,7 +522,9 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     ref={searchInputRef}
                     id="help-doc-search-input"
                     type="search"
-                    placeholder={HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER}
+                    placeholder={
+                      helpOnHelp ? HELP_ON_HELP_SEARCH_PLACEHOLDER : HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER
+                    }
                     value={query}
                     onChange={(event) => {
                       setQuery(event.target.value);
@@ -565,6 +620,33 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                           setHighlightedRowId(`do-this-now:${doThisNow.id}`);
                         }}
                       />
+                    ) : null}
+                    {onThisPageAnchors.length > 0 ? (
+                      <section
+                        aria-labelledby="help-search-on-this-page-heading"
+                        data-testid="help-search-on-this-page"
+                      >
+                        <HelpDrawerGroupHeading id="help-search-on-this-page-heading">
+                          {HELP_ON_HELP_ON_THIS_PAGE_HEADING}
+                        </HelpDrawerGroupHeading>
+                        <ul className="m-0 space-y-2 p-0">
+                          {onThisPageAnchors.map((anchor) => {
+                            const rowId = `on-page:${helpRecordSelectionValue(anchor)}`;
+
+                            return (
+                              <HelpDrawerDocHitRow
+                                key={rowId}
+                                hit={anchor}
+                                isHighlighted={highlightedRowId === rowId}
+                                onActivate={openCurrentPageAnchor}
+                                onHighlight={() => {
+                                  setHighlightedRowId(rowId);
+                                }}
+                              />
+                            );
+                          })}
+                        </ul>
+                      </section>
                     ) : null}
                     {moreRecommended.length > 0 ? (
                       <section
