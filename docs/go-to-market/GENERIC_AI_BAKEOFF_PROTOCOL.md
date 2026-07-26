@@ -225,7 +225,7 @@ Omit `--archlucid-minutes` / `--manual-minutes` when not measured — summary wi
 - [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md) — rolling scoreboard (**Done 2026-06-17**)
 - [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation) — blind packet assembly + cohort checklist
 - [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) — post-bakeoff decision scoring
-- [`PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md`](PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md) — randomized two-arm dismissal interview (30-day reuse + pay-to-avoid)
+- [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md#dismissal-interview-script-head-to-head`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md#dismissal-interview-script-head-to-head) — randomized two-arm dismissal interview (30-day reuse + pay-to-avoid)
 - [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md)
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
 - [`V1_SCOPE.md`](../library/V1_SCOPE.md)

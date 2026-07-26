@@ -215,7 +215,7 @@ No per-pilot quotes or names in the rollup.
 
 Founder-led interview template after a committed real-mode or labeled simulator review. Feeds `decisionChanged` on the ledger row (**M-45**).
 
-**Also used by:** bakeoff sessions ([`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md)), service-led engagements ([`SERVICE_LED_OFFERS.md`](../SERVICE_LED_OFFERS.md)), dismissal interview reuse ([`PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md`](../PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md)).
+**Also used by:** bakeoff sessions ([`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md)), service-led engagements ([`SERVICE_LED_OFFERS.md`](../SERVICE_LED_OFFERS.md)), dismissal interview reuse ([`PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md#dismissal-interview-script-head-to-head`](PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md#dismissal-interview-script-head-to-head)).
 
 ### When to run
 
