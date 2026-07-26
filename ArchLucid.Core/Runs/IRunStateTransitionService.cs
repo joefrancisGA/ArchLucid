@@ -38,6 +38,12 @@ public interface IRunStateTransitionService
 
     bool ShouldPromoteLegacyStatusToReadyForCommit(string? currentLegacyRunStatus);
 
+    /// <summary>
+    ///     Deferred outbox may set <see cref="ArchitectureRunStatus.TasksGenerated"/> after task materialize,
+    ///     but must not demote a run that already advanced (e.g. seed/execute → ReadyForCommit).
+    /// </summary>
+    bool ShouldSetTasksGeneratedAfterDeferredMaterialize(string? currentLegacyRunStatus);
+
     string GetCoordinationLegacyStatusAfterCreate(bool deferredAuthorityPipeline);
 
     /// <summary>Queued authority work may skip stage execution when context snapshot already exists.</summary>
