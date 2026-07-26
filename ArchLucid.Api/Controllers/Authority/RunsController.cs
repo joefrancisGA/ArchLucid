@@ -344,7 +344,7 @@ public sealed partial class RunsController(
 
         bool isReplay = false;
 
-        if (idempotency != null)
+        if (idempotency is not null)
         {
             // Check if batch was already processed
             // We can reuse the commitRunIdempotencyRepository or create a new one.
@@ -356,7 +356,7 @@ public sealed partial class RunsController(
             CommitRunIdempotencyLookup? lookup = await commitRunIdempotencyRepository
                 .TryGetAsync(idempotency.TenantId, idempotency.WorkspaceId, idempotency.ProjectId, batchKey, idempotency.IdempotencyKeyHash, cancellationToken);
             
-            if (lookup != null)
+            if (lookup is not null)
             {
                 if (!CryptographicOperations.FixedTimeEquals(lookup.RequestFingerprint, idempotency.RequestFingerprint))
                     return this.ConflictProblem("Idempotency-Key was reused with a different request payload.", ProblemTypes.Conflict);
@@ -415,7 +415,7 @@ public sealed partial class RunsController(
             }
         }
 
-        if (idempotency != null && !isReplay)
+        if (idempotency is not null && !isReplay)
         {
             string batchKey = "batch_" + Convert.ToBase64String(idempotency.IdempotencyKeyHash).Substring(0, 16);
             await commitRunIdempotencyRepository.TryInsertAsync(
