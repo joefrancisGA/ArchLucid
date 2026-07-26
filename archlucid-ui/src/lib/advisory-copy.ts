@@ -60,11 +60,18 @@ export const ADVISORY_SCANS_EMPTY_TITLE = "No advisory scan generated yet";
 export const ADVISORY_SCANS_EMPTY_BODY =
   "Select a finalized review to generate recommendations, or view a sample advisory scan.";
 
+/** Single empty/demo next-story lead when no scan results yet (TB-1126). */
+export const ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD =
+  "No advisory scan yet. Preview a sample recommendation below, then select a finalized review above to generate your own.";
+
 export const ADVISORY_SCANS_VIEW_SAMPLE_LABEL = "View sample advisory scan";
 
 export const ADVISORY_SCANS_SAMPLE_SECTION_TITLE = "Sample advisory recommendation";
 
 export const ADVISORY_SCANS_SAMPLE_BADGE_LABEL = "Sample recommendation";
+
+/** Collapsed demo disposition chrome under the sample card (TB-1126). */
+export const ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY = "Example dispositions (demo only)";
 
 export const ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE = "Advisory recommendations";
 

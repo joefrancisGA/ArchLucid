@@ -14,6 +14,7 @@ import {
   ADVISORY_SCANS_DISPOSITION_REJECT,
   ADVISORY_SCANS_DISPOSITION_REJECT_HINT,
   ADVISORY_SCANS_SAMPLE_BADGE_LABEL,
+  ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY,
   ADVISORY_SCANS_SAMPLE_RECOMMENDATION,
   ADVISORY_SCANS_SAMPLE_SECTION_TITLE,
 } from "@/lib/advisory-copy";
@@ -65,21 +66,34 @@ export function AdvisorySampleRecommendationPreview(): React.JSX.Element {
           <span className="font-medium text-neutral-800 dark:text-neutral-200">Owner or role:</span> {sample.ownerRole}
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {SAMPLE_DISPOSITION_ACTIONS.map((action) => (
-            <Button
-              key={action.label}
-              type="button"
-              size="sm"
-              variant="outline"
-              disabled
-              title={action.hint}
-              className="pointer-events-none opacity-80"
-            >
-              {action.label}
-            </Button>
-          ))}
-        </div>
+        <details
+          className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
+          data-testid="advisory-sample-disposition-disclosure"
+        >
+          <summary
+            className={cn(
+              "cursor-pointer font-medium text-neutral-800 dark:text-neutral-200",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            {ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY}
+          </summary>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {SAMPLE_DISPOSITION_ACTIONS.map((action) => (
+              <Button
+                key={action.label}
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled
+                title={action.hint}
+                className="pointer-events-none opacity-80"
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        </details>
       </div>
     </section>
   );

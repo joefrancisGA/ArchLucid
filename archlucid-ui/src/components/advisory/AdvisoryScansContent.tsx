@@ -3,13 +3,12 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
 import { DocumentLayout } from "@/components/DocumentLayout";
-import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { RunIdPicker } from "@/components/RunIdPicker";
@@ -21,8 +20,7 @@ import {
   ADVISORY_SCANS_BASELINE_REVIEW_PLACEHOLDER,
   ADVISORY_SCANS_CANT_FIND_REVIEW_BODY,
   ADVISORY_SCANS_CANT_FIND_REVIEW_SUMMARY,
-  ADVISORY_SCANS_EMPTY_BODY,
-  ADVISORY_SCANS_EMPTY_TITLE,
+  ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD,
   ADVISORY_SCANS_FINALIZED_REVIEW_LABEL,
   ADVISORY_SCANS_FINALIZED_REVIEW_PLACEHOLDER,
   ADVISORY_SCANS_FORM_SECTION_TITLE,
@@ -38,7 +36,6 @@ import {
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY,
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE,
   ADVISORY_SCANS_REFRESH_SAVED_LABEL,
-  ADVISORY_SCANS_VIEW_SAMPLE_LABEL,
 } from "@/lib/advisory-copy";
 import { buildAdvisoryScanSummary } from "@/lib/advisory-scan-summary";
 import { getImprovementPlan } from "@/lib/api";
@@ -55,7 +52,6 @@ import type { ImprovementPlan, RecommendationRecord } from "@/types/advisory";
 export function AdvisoryScansContent(): React.JSX.Element {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const isAdminCaller = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
-  const sampleSectionRef = useRef<HTMLDivElement | null>(null);
 
   const [runId, setRunId] = useState("");
   const [compareToRunId, setCompareToRunId] = useState("");
@@ -137,10 +133,6 @@ export function AdvisoryScansContent(): React.JSX.Element {
       setLoading(false);
     }
   }, [runId]);
-
-  const scrollToSample = useCallback(() => {
-    sampleSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
 
   return (
     <div className="w-full max-w-[1200px] px-4 py-6">
@@ -353,28 +345,24 @@ export function AdvisoryScansContent(): React.JSX.Element {
         ) : null}
 
         {!hasResults ? (
-          <div className="space-y-4">
-            <EnterpriseCompactEmptyState
-              testId="advisory-scan-empty-state"
-              title={ADVISORY_SCANS_EMPTY_TITLE}
-              description={ADVISORY_SCANS_EMPTY_BODY}
-              actions={[
-                {
-                  label: ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL,
-                  href: ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF,
-                  variant: "primary",
-                },
-              ]}
-              footer={
-                <Button type="button" size="sm" variant="outline" onClick={scrollToSample}>
-                  {ADVISORY_SCANS_VIEW_SAMPLE_LABEL}
-                </Button>
-              }
-            />
+          <div className="space-y-3" data-testid="advisory-empty-next-story">
+            <p
+              className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="advisory-empty-next-story-lead"
+            >
+              {ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD}
+            </p>
 
-            <div ref={sampleSectionRef}>
-              <AdvisorySampleRecommendationPreview />
-            </div>
+            <AdvisorySampleRecommendationPreview />
+
+            <Button asChild size="sm" variant="outline">
+              <Link
+                href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}
+                data-testid="advisory-empty-open-reviews-link"
+              >
+                {ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}
+              </Link>
+            </Button>
           </div>
         ) : null}
       </DocumentLayout>
