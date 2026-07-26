@@ -6,7 +6,7 @@ floors (p50, absolute, adversarial ceiling) and writes buyer-safe rollups for th
 deeper RAG quality program. Uses committed ``*.real.json`` scores — no live OpenAI
 invoke in this script.
 
-See docs/go-to-market/DEEPER_RAG_QUALITY_PROGRAM.md § Phase B.
+See docs/go-to-market/AI_READINESS_POSTURE.md#deeper-rag-quality-program (§ Phase B).
 """
 
 from __future__ import annotations

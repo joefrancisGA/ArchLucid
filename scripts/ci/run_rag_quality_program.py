@@ -5,7 +5,7 @@ Sequentially runs output-side faithfulness scoring, retrieval IR scoring, the
 committed floor ratchet, and an optional pilot-proof rollup. Reuses existing
 harnesses; does not duplicate IR or faithfulness logic.
 
-See docs/go-to-market/DEEPER_RAG_QUALITY_PROGRAM.md.
+See docs/go-to-market/AI_READINESS_POSTURE.md#deeper-rag-quality-program.
 """
 
 from __future__ import annotations

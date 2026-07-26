@@ -65,6 +65,6 @@ Before merging a new or changed exemplar:
 ## Cross-references
 
 - `templates/reference-architectures/README.md` — indexed pattern matrix (**TB-660**).
-- `docs/go-to-market/DEEPER_RAG_QUALITY_PROGRAM.md` — corpus quality program.
+- `docs/go-to-market/AI_READINESS_POSTURE.md#deeper-rag-quality-program` — corpus quality program.
 - `docs/runbooks/RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md` — operator retrieval UI.
 - `ArchLucid.Retrieval/Topology/TopologyExemplarStylePriorFormatter.cs` — prompt block contract.
