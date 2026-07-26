@@ -45,9 +45,10 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
     [SkippableFact]
     public async Task GoldenPath_ShouldProduceManifest()
     {
+        // Unique per execution: fixed "REQ-1" collides across sharded SQL integration runs.
         object request = new
         {
-            requestId = "REQ-1",
+            requestId = $"REQ-{Guid.NewGuid():N}",
             description = "Test architecture",
             systemName = "TestSystem",
             environment = "dev",
@@ -66,6 +67,8 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
             .GetProperty("run")
             .GetProperty("runId")
             .GetString();
+
+        runId.Should().NotBeNullOrWhiteSpace();
 
         HttpResponseMessage seed = await Client.PostAsync(
             $"/v1/internal/architecture/runs/{runId}/seed-fake-results",
