@@ -6,7 +6,7 @@
 **runId:**  
 **findingIds discussed:**  
 
-## Questions (from DECISION_DELTA_INTERVIEW.md)
+## Questions (from PAID_PILOT_EVIDENCE_LEDGER.md — decision-delta interview)
 
 1. **Counterfactual approval:** What would you have approved or deferred without ArchLucid?
 2. **Changed priority:** Which finding changed severity, scope, or timeline because of ArchLucid?

@@ -8,7 +8,7 @@
 **Companion template:** [`templates/decision-change-addendum.template.md`](templates/decision-change-addendum.template.md)  
 **Execution tracked as:** GTM backlog **M-45 (V1.1)** — populating with real sponsor interviews requires live handoffs; this format is the V1 design half.
 
-This addendum bridges **technical findings** to **executive decisions** without inventing outcomes. It complements the proof ZIP, first-value report, and [`DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) — it does not replace them.
+This addendum bridges **technical findings** to **executive decisions** without inventing outcomes. It complements the proof ZIP, first-value report, and [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) — it does not replace them.
 
 ---
 
@@ -59,7 +59,7 @@ If outputs were confirmatory only, set `deltaCategory: confirmatory-only` and `d
 | `confidenceRationale` | Why this level — verbatim sponsor quote + observable action = high; inferred = medium; facilitator guess = low |
 | `evidenceRefs[]` | Manifest id, finding id(s), audit/event refs, or proof-packet paths — **no raw infra identifiers** |
 | `executionMode` | `real` \| `simulator` \| `mixed` — required on any external excerpt |
-| `decisionDeltaOutcome` | `pass` \| `warn` \| `fail` per [`DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) |
+| `decisionDeltaOutcome` | `pass` \| `warn` \| `fail` per [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) |
 
 ### 4. Sponsor-safe caveats (mandatory)
 
@@ -77,7 +77,7 @@ Include **all** that apply — never omit execution-mode or ROI basis warnings.
 
 ## Usage instructions
 
-1. Complete [`DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) within **7 days** of sponsor handoff.
+1. Complete [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) within **7 days** of sponsor handoff.
 2. Copy [`templates/decision-change-addendum.template.md`](templates/decision-change-addendum.template.md) to `artifacts/paid-pilot-ledger/<pilot-label>/decision-change-addendum.md` (or bakeoff folder).
 3. Fill placeholders from interview answers — **never** backfill a PASS without `notInManualPass: Y` and at least one `findingId`.
 4. Merge `decisionDeltaOutcome` into [`PAID_PILOT_EVIDENCE_LEDGER.md`](PAID_PILOT_EVIDENCE_LEDGER.md) when the pilot is paid.
@@ -102,7 +102,7 @@ Store full addenda locally. Commit only sanitized aggregates per [`../validation
 
 | Asset | Role |
 | --- | --- |
-| [`DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) | Source interview — feeds all four sections |
+| [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) | Source interview — feeds all four sections |
 | [`PAID_PILOT_EVIDENCE_LEDGER.md`](PAID_PILOT_EVIDENCE_LEDGER.md) | Conversion rollup — `decisionChanged` field |
 | [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) | Proof packet context |
 | [`../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) | Sponsor handoff bundle |

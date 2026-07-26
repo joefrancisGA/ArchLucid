@@ -23,7 +23,7 @@ Reuse aggressively. Do **not** redefine anything below — link to it.
 | Per-session dismissal capture + weekly top-2 triage | [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) | This interview is one `protocol: blind-bakeoff` source for that log |
 | Frontier-AI baseline prompt | [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) § Frontier-AI baseline prompt | The chat-style arm of the bakeoff |
 | Honest "where each wins" framing | [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md) | Randomized arm order to remove order/polish bias |
-| Decision-delta + budget questions | [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) | Two decisive new questions (below) |
+| Decision-delta + budget questions | [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) | Two decisive new questions (below) |
 | Recruitment / disqualification profile | [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § Recruitment criteria | Same profile — do not relax it |
 
 **The two decisive questions this script exists to ask:**
@@ -153,13 +153,13 @@ Capture exactly **one** primary dismissal trigger using the **D1–D8** taxonomy
 
 ### Step 6 — Budget / buyer (4 min)
 
-Reuse [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) budget questions and [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) § Buying-path questions. Minimum capture: `likelyBuyerOrSponsor`, `wouldSponsorPilot` (`yes|no|maybe`).
+Reuse [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) budget questions and [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) § Buying-path questions. Minimum capture: `likelyBuyerOrSponsor`, `wouldSponsorPilot` (`yes|no|maybe`).
 
 ---
 
 ## Redaction rules
 
-Identical to [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) § Redaction rules:
+Identical to [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) § Redaction rules:
 
 - Remove customer name, subscription IDs, and raw infrastructure identifiers unless permissioned.
 - Keep finding category + severity + decision outcome; drop employee names unless quoted with approval.
@@ -210,5 +210,5 @@ Storage paths follow the dismissal log: `artifacts/principal-architect/<runId>/d
 | [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) | Per-session dismissal capture + weekly top-2 triage |
 | [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) | Per-finding insight scoring + frontier-AI baseline prompt |
 | [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md) | Honest "where each wins" comparison rubric |
-| [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) | Post-pilot decision-delta + budget questions |
+| [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) | Post-pilot decision-delta + budget questions |
 | [`GTM_BACKLOG.md`](GTM_BACKLOG.md) **M-44** | Live cohort execution (V1.1) |

@@ -45,7 +45,7 @@ Cross-check [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) for conserv
    - `baselineSourceConfidence.*` — buyer-reported vs model-default
    - `sponsorActionTaken.*` — observable action within 30 days
    - `conversionSignal.status` — annual order, deferred, declined, etc.
-4. If a decision-delta interview was run, cross-ref [`../DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md).
+4. If a decision-delta interview was run, cross-ref [`PAID_PILOT_EVIDENCE_LEDGER.md`](PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots).
 
 ---
 

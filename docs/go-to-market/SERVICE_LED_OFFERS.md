@@ -101,7 +101,7 @@ Use `commercial-closeout.json` **recommendedNextAction** — typically schedule 
 3. AI-assisted analysis with **human** architecture judgment and sign-off framing in exports.
 4. Traceable findings and **exportable** DOCX/PDF.
 
-After each paid engagement, run the [**decision-delta interview**](DECISION_DELTA_INTERVIEW.md) within seven days to capture whether ArchLucid changed an approval outcome versus frontier AI alone.
+After each paid engagement, run the [**decision-delta interview**](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) within seven days to capture whether ArchLucid changed an approval outcome versus frontier AI alone.
 
 ---
 

@@ -1,17 +1,16 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-26
 
-> **Scope:** Buyer-safe paid-pilot conversion evidence ledger — executive purchase proof, not customer-identifying proof. Market-validation instrumentation only.
+> **Scope:** Buyer-safe paid-pilot conversion evidence ledger — executive purchase proof, not customer-identifying proof — plus the decision-delta interview script (formerly `DECISION_DELTA_INTERVIEW.md`). Market-validation instrumentation only.
 
 # Paid pilot evidence ledger
 
 **Audience:** Founder / delivery lead after each paid pilot handoff and at monthly conversion review.  
-**Last reviewed:** 2026-07-25
-
+**Last reviewed:** 2026-07-26
 
 **Companion JSON:** [`templates/paid-pilot-evidence-ledger.template.json`](templates/paid-pilot-evidence-ledger.template.json)  
-**Execution tracked as:** GTM backlog **M-37 (V1.1)** — populating rows requires completed paid pilots; this template is the V1 design half.
+**Execution tracked as:** GTM backlog **M-37** / **M-45 (V1.1)** — populating rows requires completed paid pilots; this template is the V1 design half.
 
-This ledger converts the ROI narrative into **observable executive purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It complements — does not replace — the decision-delta interview, commercial conversion checklist, and ROI baseline capture.
+This ledger converts the ROI narrative into **observable executive purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It includes the [decision-delta interview](#decision-delta-interview-paid-pilots) and complements the commercial conversion checklist and ROI baseline capture.
 
 ---
 
@@ -64,7 +63,7 @@ Record `rationale` in one sentence. Do **not** commit dollar figures unless buye
 | `decisionChanged.changed` | `true` only when ≥1 sponsor decision differs from counterfactual without ArchLucid |
 | `decisionChanged.why` | One sentence — approval, deferral, scope change, or budget shift |
 | `decisionChanged.findingIds[]` | Finding IDs that drove the change (no internal employee names) |
-| `decisionChanged.decisionDeltaOutcome` | `pass`, `warn`, or `fail` per [`DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) |
+| `decisionChanged.decisionDeltaOutcome` | `pass`, `warn`, or `fail` per [decision-delta interview](#decision-delta-interview-paid-pilots) |
 | `decisionChanged.attributionNote` | PASS requires attribution to a finding **not** in participant's manual AI pass |
 
 ### 4. Sponsor action taken
@@ -158,12 +157,60 @@ No per-pilot quotes or names in the rollup.
 
 ---
 
+## Decision-delta interview (paid pilots)
+
+Founder-led interview template after a committed real-mode or labeled simulator review. Feeds `decisionChanged` on the ledger row (**M-45**).
+
+**Also used by:** bakeoff sessions ([`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md)), service-led engagements ([`SERVICE_LED_OFFERS.md`](../SERVICE_LED_OFFERS.md)), dismissal interview reuse ([`PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md`](../PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md)).
+
+### When to run
+
+Within **7 days** of sponsor PDF or proof-packet handoff on a **paid** Readiness Review / ARB Report SKU.
+
+### Capture fields
+
+| Field | Value |
+| --- | --- |
+| `runId` | |
+| `findingIds[]` | Findings discussed |
+| `interviewer` | |
+| `participantTitle` | |
+| `interviewDateUtc` | |
+
+### Questions
+
+1. **Counterfactual approval:** What would you have approved or deferred without ArchLucid on this packet?
+2. **Changed priority:** Which finding changed severity, scope, or timeline because of ArchLucid output?
+3. **Incorrect output:** Which finding was wrong or unsupported? (`findingId` + why)
+4. **Frontier AI substitute:** Could Claude/GPT/Gemini on the same packet have produced an equivalent decision record? What would be missing?
+5. **Repeat usage:** Will you run review #2 in ArchLucid? If no, what is the stop trigger?
+6. **Budget:** Would you spend your own budget or recommend team budget? At what price band?
+
+### Redaction rules (buyer-safe case study)
+
+- Remove customer name, subscription IDs, and raw infrastructure identifiers unless permissioned.
+- Keep **finding category + severity + decision outcome**; drop internal employee names unless quoted with approval.
+- ROI numbers only when customer authorized external use (`<<QUOTE_APPROVAL_REFERENCE>>` pattern in reference-customer templates).
+- Label execution mode (**Real / Simulator / Mixed**) on any exported excerpt.
+
+### PASS / FAIL for decision advantage
+
+| Outcome | Criteria |
+| --- | --- |
+| **PASS** | ≥1 documented decision change attributable to an ArchLucid finding not present in participant's manual AI pass |
+| **WARN** | Outputs confirmatory only — still valuable for packaging/audit |
+| **FAIL** | Participant would not run review #2; primary reason recorded |
+
+Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit customer-identifying content without permission). Merge outcomes into the per-pilot row above. Attach a buyer-safe [`DECISION_CHANGE_ADDENDUM.md`](DECISION_CHANGE_ADDENDUM.md) to the proof packet when decision delta is material.
+
+---
+
 ## Related assets (do not duplicate)
 
 | Asset | Role |
 | --- | --- |
-| [`DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) | Per-handoff interview — feeds `decisionChanged` (execution: **M-45**) |
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../COMMERCIAL_CONVERSION_CHECKLIST.md) | Sponsor close-out sequence — feeds `conversionStatus` |
 | [`templates/paid-pilot-baseline.template.json`](../templates/paid-pilot-baseline.template.json) | ROI baseline capture — feeds `baselineSourceConfidence` |
+| [`DECISION_CHANGE_ADDENDUM.md`](DECISION_CHANGE_ADDENDUM.md) | Proof-packet addendum format from interview outcomes |
 | [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) | ROI framing and confidence boundaries |
-| [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-37** | Cohort execution — populate ledger across ≥10 paid pilots (V1.1) |
+| [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-37** / **M-45** | Cohort execution + interview population (V1.1) |

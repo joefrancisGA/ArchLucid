@@ -11,7 +11,7 @@ This folder is the **commit-safe** home for **sanitized** summaries of validatio
 - Paid-pilot conversion evidence ledger rollups (monthly aggregates).
 - First-non-obvious-moment and dismissal-trigger aggregates.
 
-It exists because [`../DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) and the cohort playbook point here for stored summaries.
+It exists because [`../validation/PAID_PILOT_EVIDENCE_LEDGER.md`](../validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) and the cohort playbook point here for stored summaries.
 
 ## What belongs here
 
