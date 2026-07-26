@@ -80,7 +80,7 @@ Use this matrix in sales conversations and sponsor briefings. Each row ties a bu
 2. **Execute** agents on uploaded Azure evidence or accepted demo workspace.
 3. **Commit** manifest — note manifest id and run id.
 4. **Collect proof** with `-RunId` — open **`first-pilot-command-center.md`** for SEND/HOLD/DEFERRED_SCOPE.
-5. **Attach decision-change addendum** when sponsor handoff includes material decision delta — [`validation/DECISION_CHANGE_ADDENDUM.md`](validation/DECISION_CHANGE_ADDENDUM.md).
+5. **Attach decision-change addendum** when sponsor handoff includes material decision delta — [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum).
 6. **Compare** to a generic copilot session: ArchLucid adds manifest, audit, governance, labeled ROI, and repeatable sponsor export.
 
 **Policy-pack moat demo (same run, different gate):** [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](POLICY_PACK_DELTA_DEMO_SCRIPT.md) · automation: `scripts/demo-policy-pack-delta.ps1` · in-app help: `/help/policy-pack-delta-demo`.

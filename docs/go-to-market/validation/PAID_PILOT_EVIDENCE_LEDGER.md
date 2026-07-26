@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-26
 
-> **Scope:** Buyer-safe paid-pilot conversion evidence ledger — executive purchase proof, not customer-identifying proof — plus the 15-minute ROI validation session (formerly `PILOT_ROI_VALIDATION_SESSION.md`) and the decision-delta interview script (formerly `DECISION_DELTA_INTERVIEW.md`). Market-validation instrumentation only.
+> **Scope:** Buyer-safe paid-pilot conversion evidence ledger — executive purchase proof, not customer-identifying proof — plus the 15-minute ROI validation session (formerly `PILOT_ROI_VALIDATION_SESSION.md`), the decision-delta interview script (formerly `DECISION_DELTA_INTERVIEW.md`), and the decision-change addendum format (formerly `DECISION_CHANGE_ADDENDUM.md`). Market-validation instrumentation only.
 
 # Paid pilot evidence ledger
 
@@ -12,7 +12,7 @@
 **ROI model:** [`../../library/PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md)  
 **Execution tracked as:** GTM backlog **M-37** / **M-45 (V1.1)** — populating rows requires completed paid pilots; this template is the V1 design half.
 
-This ledger converts the ROI narrative into **observable executive purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It includes the [ROI validation session](#pilot-roi-validation-session) and [decision-delta interview](#decision-delta-interview-paid-pilots), and complements the commercial conversion checklist and ROI baseline capture.
+This ledger converts the ROI narrative into **observable executive purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It includes the [ROI validation session](#pilot-roi-validation-session), [decision-delta interview](#decision-delta-interview-paid-pilots), and [decision-change addendum](#decision-change-addendum), and complements the commercial conversion checklist and ROI baseline capture.
 
 ---
 
@@ -255,7 +255,97 @@ Within **7 days** of sponsor PDF or proof-packet handoff on a **paid** Readiness
 | **WARN** | Outputs confirmatory only — still valuable for packaging/audit |
 | **FAIL** | Participant would not run review #2; primary reason recorded |
 
-Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit customer-identifying content without permission). Merge outcomes into the per-pilot row above. Attach a buyer-safe [`DECISION_CHANGE_ADDENDUM.md`](DECISION_CHANGE_ADDENDUM.md) to the proof packet when decision delta is material.
+Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit customer-identifying content without permission). Merge outcomes into the per-pilot row above. Attach a buyer-safe [decision-change addendum](#decision-change-addendum) to the proof packet when decision delta is material.
+
+---
+
+## Decision-change addendum
+
+**Audience:** Founder / delivery lead attaching decision-delta evidence to a sponsor proof packet or paid-pilot handoff.  
+**Companion template:** [`templates/decision-change-addendum.template.md`](templates/decision-change-addendum.template.md)  
+**Execution tracked as:** GTM backlog **M-45 (V1.1)** — populating with real sponsor interviews requires live handoffs; this format is the V1 design half.
+
+This addendum bridges **technical findings** to **executive decisions** without inventing outcomes. It complements the proof ZIP, first-value report, and [decision-delta interview](#decision-delta-interview-paid-pilots) — it does not replace them.
+
+### When to attach
+
+| Trigger | Attach to |
+| --- | --- |
+| Sponsor proof pack sent on a **paid** or design-partner pilot | Proof folder alongside `first-value-report.md` |
+| Bakeoff session with decision-delta PASS or WARN | `artifacts/bakeoff/<label>/` next to `decision-delta.md` |
+| Paid-pilot ledger row filed | Cross-ref from this ledger’s `decisionChanged` |
+
+Copy the template per handoff. **Do not** attach externally until sponsor-safe redaction rules below are satisfied.
+
+### Required sections (no fabricated data)
+
+#### 1. Original decision path (counterfactual)
+
+What would the sponsor or ARB have done **without** ArchLucid on this packet?
+
+| Field | Placeholder / rule |
+| --- | --- |
+| `counterfactualDecision` | e.g. _"Approve with standard conditions"_ / _"Defer pending security review"_ |
+| `counterfactualBasis` | Participant-stated or documented pre-ArchLucid position — **no inference without source** |
+| `manualAiPassSummary` | One sentence: what the participant's own frontier-AI pass would have produced (from interview Q4) |
+
+If unknown, write **`not captured`** — do not invent a counterfactual.
+
+#### 2. ArchLucid-influenced delta
+
+What changed because of ArchLucid output?
+
+| Field | Placeholder / rule |
+| --- | --- |
+| `deltaSummary` | One sentence — approval, deferral, scope change, budget shift, or new condition |
+| `findingIds[]` | IDs that drove the delta (minimum one for PASS) |
+| `deltaCategory` | `approval-changed` \| `scope-changed` \| `timeline-changed` \| `budget-changed` \| `risk-elevated` \| `confirmatory-only` |
+| `notInManualPass` | **Y / N** — PASS requires **Y** with named finding(s) |
+
+If outputs were confirmatory only, set `deltaCategory: confirmatory-only` and `decisionDeltaOutcome: WARN`.
+
+#### 3. Confidence and evidence references
+
+| Field | Placeholder / rule |
+| --- | --- |
+| `confidenceLevel` | `high` \| `medium` \| `low` |
+| `confidenceRationale` | Why this level — verbatim sponsor quote + observable action = high; inferred = medium; facilitator guess = low |
+| `evidenceRefs[]` | Manifest id, finding id(s), audit/event refs, or proof-packet paths — **no raw infra identifiers** |
+| `executionMode` | `real` \| `simulator` \| `mixed` — required on any external excerpt |
+| `decisionDeltaOutcome` | `pass` \| `warn` \| `fail` per [decision-delta interview](#decision-delta-interview-paid-pilots) |
+
+#### 4. Sponsor-safe caveats (mandatory)
+
+Include **all** that apply — never omit execution-mode or ROI basis warnings.
+
+| Caveat | Text pattern |
+| --- | --- |
+| Execution mode | _"Findings produced under **{Real/Simulator/Mixed}** execution; sponsor materials label evidence basis accordingly."_ |
+| ROI basis | _"ROI figures in the attached packet use **{buyer-reported / model-default / demo-derived / not collected}** labels — see first-value report."_ |
+| Confirmatory-only | _"ArchLucid outputs confirmed prior judgment; no net new approval condition documented."_ |
+| Interview timing | _"Decision delta captured within 7 days of handoff per internal protocol."_ |
+| External quote | _"Verbatim sponsor language used only with documented permission."_ |
+
+### Usage instructions
+
+1. Complete the [decision-delta interview](#decision-delta-interview-paid-pilots) within **7 days** of sponsor handoff.
+2. Copy [`templates/decision-change-addendum.template.md`](templates/decision-change-addendum.template.md) to `artifacts/paid-pilot-ledger/<pilot-label>/decision-change-addendum.md` (or bakeoff folder).
+3. Fill placeholders from interview answers — **never** backfill a PASS without `notInManualPass: Y` and at least one `findingId`.
+4. Merge `decisionDeltaOutcome` into the ledger row when the pilot is paid.
+5. For external use: strip customer names, subscription IDs, and unauthorized dollar figures; keep category + outcome + execution mode only.
+
+### Redaction rules
+
+| Allowed in committed/sponsor excerpts | Never include |
+| --- | --- |
+| Sanitized pilot label, finding category, severity | Customer legal name, DBA, domain |
+| Decision outcome enums, delta category | Employee names (unless permissioned quote) |
+| Execution mode, confidence level | Unauthorized ROI dollar amounts |
+| Finding IDs (internal reference) | Raw subscription or tenant identifiers |
+
+Store full addenda locally. Commit only sanitized aggregates per [`../validation-runs/README.md`](../validation-runs/README.md).
+
+Former standalone: `docs/go-to-market/validation/DECISION_CHANGE_ADDENDUM.md` → this section.
 
 ---
 
@@ -265,8 +355,9 @@ Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit
 | --- | --- |
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../COMMERCIAL_CONVERSION_CHECKLIST.md) | Sponsor close-out sequence — feeds `conversionStatus` |
 | [`templates/paid-pilot-baseline.template.json`](../templates/paid-pilot-baseline.template.json) | ROI baseline capture — feeds `baselineSourceConfidence` |
-| [`DECISION_CHANGE_ADDENDUM.md`](DECISION_CHANGE_ADDENDUM.md) | Proof-packet addendum format from interview outcomes |
+| [`#decision-change-addendum`](#decision-change-addendum) | Proof-packet addendum format from interview outcomes |
+| [`templates/decision-change-addendum.template.md`](templates/decision-change-addendum.template.md) | Fillable addendum copy per handoff |
 | [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) | ROI framing and confidence boundaries |
 | [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-37** / **M-45** | Cohort execution + interview population (V1.1) |
 
-Former standalone runbook: `docs/go-to-market/validation/PILOT_ROI_VALIDATION_SESSION.md` → this section.
+Former standalone runbook: `docs/go-to-market/validation/PILOT_ROI_VALIDATION_SESSION.md` → [Pilot ROI validation session](#pilot-roi-validation-session).

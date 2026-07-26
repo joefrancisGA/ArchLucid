@@ -267,7 +267,7 @@ Cohort dismissal rate = `(sessions with DISMISSAL) / (completed sessions)` — r
 - [ ] Complete the interview capture JSON (local; do not commit raw quotes).
 - [ ] File the per-session dismissal log (this document) with `protocol: "blind-bakeoff"`.
 - [ ] Feed the weekly **top-2 triage** runbook above — do **not** open product/UI work off a single session.
-- [ ] When decision delta is material, attach a buyer-safe [`DECISION_CHANGE_ADDENDUM.md`](DECISION_CHANGE_ADDENDUM.md) to the proof packet.
+- [ ] When decision delta is material, attach a buyer-safe [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum`](PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum) to the proof packet.
 
 Storage: `artifacts/principal-architect/<runId>/dismissal-interview.json` (local).
 
