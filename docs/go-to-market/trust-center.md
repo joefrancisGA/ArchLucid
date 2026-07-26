@@ -42,7 +42,7 @@ ArchLucid is for **architecture and governance evidence** about systems you desc
 
 Details: [Cloud connections](/help/cloud-connections), operator runbook [`AZURE_EXTRACTOR_INGEST.md`](../runbooks/AZURE_EXTRACTOR_INGEST.md), and technical follow-ups [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
 
-**Azure — what we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role — see [`AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](AZURE_EXTRACTOR_INFOSEC_PREREAD.md) for the explicit buyer-facing list.
+**Azure — what we will never ask for (high level):** **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, or any **write/destructive** subscription role — see [`BUYER_SECURITY_PROCUREMENT_PACKET.md#azure-extractor--infosec-pre-read`](BUYER_SECURITY_PROCUREMENT_PACKET.md#azure-extractor--infosec-pre-read) for the explicit buyer-facing list.
 
 ---
 
