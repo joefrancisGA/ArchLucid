@@ -5,7 +5,7 @@
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# ArchLucid — Incident communications policy
+# ArchLucid â€” Incident communications policy
 
 **Audience:** Customers and internal operators; complements internal runbooks (not duplicated here). Also product/engineering planning the public status page.
 
@@ -13,7 +13,7 @@
 
 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 
-This policy describes how ArchLucid classifies service and security incidents and **communicates** with customers in a **SaaS** context. It aligns with correlation and support practices in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) and service objectives in [../API_SLOS.md](../library/API_SLOS.md). [§8 Operational transparency](#8-operational-transparency--status-page-plan) defines **where** and **how** a public status page will surface incidents (planned — not live).
+This policy describes how ArchLucid classifies service and security incidents and **communicates** with customers in a **SaaS** context. It aligns with correlation and support practices in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) and service objectives in [../API_SLOS.md](../library/API_SLOS.md). [Â§8 Operational transparency](#8-operational-transparency--status-page-plan) defines **where** and **how** a public status page will surface incidents (planned â€” not live).
 
 ---
 
@@ -28,10 +28,10 @@ This policy describes how ArchLucid classifies service and security incidents an
 
 | Severity | Description | Examples |
 |----------|-------------|----------|
-| **SEV-1** | Critical — service **unavailable** or **severely degraded** for **all** or **most** tenants | Regional outage, data plane unavailable, auth broken for Entra path |
-| **SEV-2** | Major — **subset** of tenants or **material features** impaired | Elevated 5xx on critical paths, worker backlog causing governance delay |
-| **SEV-3** | Minor — limited impact, **workaround** exists | Single feature degraded, non-critical background lag |
-| **SEV-4** | Low — **no** material customer impact | Cosmetic UI, internal-only tooling |
+| **SEV-1** | Critical â€” service **unavailable** or **severely degraded** for **all** or **most** tenants | Regional outage, data plane unavailable, auth broken for Entra path |
+| **SEV-2** | Major â€” **subset** of tenants or **material features** impaired | Elevated 5xx on critical paths, worker backlog causing governance delay |
+| **SEV-3** | Minor â€” limited impact, **workaround** exists | Single feature degraded, non-critical background lag |
+| **SEV-4** | Low â€” **no** material customer impact | Cosmetic UI, internal-only tooling |
 
 ---
 
@@ -44,7 +44,7 @@ Targets are **goals**; actual events may require adjustment (e.g., unknown root 
 | **SEV-1** | Within **1 hour** of confirmed impact | At least every **30 minutes** while impact continues | Within **5 business days** (root cause, impact, remediation) |
 | **SEV-2** | Within **4 hours** | At least every **2 hours** while impact continues | Within **10 business days** |
 | **SEV-3** | Next business day or in scheduled report | As needed | Optional summary |
-| **SEV-4** | Monthly operations / release notes | — | — |
+| **SEV-4** | Monthly operations / release notes | â€” | â€” |
 
 **Channels:** public status page URL is published in [trust-center.md](trust-center.md) once live; until then, use `security@archlucid.net` for incident notices and procurement follow-up. In-app banners remain SEV-1/2 communication channel when available.
 
@@ -63,7 +63,7 @@ Internal technical response may reference **[../runbooks/](../runbooks/)**; thos
 
 ## 5. Customer responsibilities
 
-- Include **`X-Correlation-ID`** on API requests when reporting issues so support can align logs across edge, API, and audit ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) §8).
+- Include **`X-Correlation-ID`** on API requests when reporting issues so support can align logs across edge, API, and audit ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) Â§8).
 - Provide a **security contact** on file for DPA and incident notices.
 
 ---
@@ -85,18 +85,18 @@ Blameless review covers: **timeline**, **customer impact**, **root cause**, **re
 
 ## 8. Operational transparency / status page plan
 
-SaaS buyers — especially in enterprise and regulated environments — need confidence that service disruptions will be **visible**, **communicated**, and **resolved transparently**. Sections 1–7 define **what** we communicate; this section defines **where** and **how**. The public status page is **planned**, not claimed as live.
+SaaS buyers â€” especially in enterprise and regulated environments â€” need confidence that service disruptions will be **visible**, **communicated**, and **resolved transparently**. Sections 1â€“7 define **what** we communicate; this section defines **where** and **how**. The public status page is **planned**, not claimed as live.
 
 ### Status page options
 
 | Option | Pros | Cons | Cost |
 |--------|------|------|------|
-| **Atlassian Statuspage** | Industry standard, subscriber notifications, API, components/groups, incident templates | Vendor dependency, monthly cost ($29–$399+/mo) | Medium |
+| **Atlassian Statuspage** | Industry standard, subscriber notifications, API, components/groups, incident templates | Vendor dependency, monthly cost ($29â€“$399+/mo) | Medium |
 | **Instatus** | Modern UI, generous free tier, API, custom domain | Smaller ecosystem, fewer enterprise references | Low |
 | **GitHub repo + Actions** | Free, version-controlled, RSS via releases | Manual, lacks subscriber notifications, less professional appearance | Free |
 | **Cachet (self-hosted)** | Full control, open-source | Operational overhead, maintenance burden | Low (infra cost) |
 
-**Recommendation:** Start with **Instatus** (free tier) or **Atlassian Statuspage** (Starter) — lowest effort to a professional public page. Migrate to a higher tier or self-hosted solution if requirements grow.
+**Recommendation:** Start with **Instatus** (free tier) or **Atlassian Statuspage** (Starter) â€” lowest effort to a professional public page. Migrate to a higher tier or self-hosted solution if requirements grow.
 
 ### Components to track
 
@@ -112,27 +112,27 @@ SaaS buyers — especially in enterprise and regulated environments — need confide
 
 | Status page state | Incident severity | Description |
 |-------------------|-------------------|-------------|
-| **Operational** | — | All components healthy |
+| **Operational** | â€” | All components healthy |
 | **Degraded performance** | SEV-3 | Minor impact, workaround available |
 | **Partial outage** | SEV-2 | Subset of tenants or features impaired |
 | **Major outage** | SEV-1 | Service unavailable for all or most tenants |
-| **Under maintenance** | Planned | Scheduled maintenance window per [SLA_SUMMARY.md](SLA_SUMMARY.md) §3 |
+| **Under maintenance** | Planned | Scheduled maintenance window per [SLA_SUMMARY.md](SLA_SUMMARY.md) Â§3 |
 
 ### Integration points
 
-- **Prometheus/Grafana alerts** ? Status page updates. **Phase 1:** Manual update by on-call when alert fires. **Phase 3:** Automate via status page API (e.g., Statuspage API `POST /incidents` triggered by alert webhook).
-- **Incident communications** ? Status page is the **primary public channel** for SEV-1 and SEV-2 incidents (see §3 channels).
-- **Synthetic probes** (GitHub Actions) ? Feed uptime percentage displayed on the status page.
+- **Prometheus/Grafana alerts** â†’ Status page updates. **Phase 1:** Manual update by on-call when alert fires. **Phase 3:** Automate via status page API (e.g., Statuspage API `POST /incidents` triggered by alert webhook).
+- **Incident communications** â†’ Status page is the **primary public channel** for SEV-1 and SEV-2 incidents (see Â§3 channels).
+- **Synthetic probes** (GitHub Actions) â†’ Feed uptime percentage displayed on the status page.
 
 ### Implementation plan
 
 | Phase | Scope | Timeline target |
 |-------|-------|---------------------|
-| **Phase 1** | Choose provider, create page with 5 components, add URL to [trust-center.md](trust-center.md), [SLA_SUMMARY.md](SLA_SUMMARY.md), and this policy §3 | Near-term |
+| **Phase 1** | Choose provider, create page with 5 components, add URL to [trust-center.md](trust-center.md), [SLA_SUMMARY.md](SLA_SUMMARY.md), and this policy Â§3 | Near-term |
 | **Phase 2** | Manual incident updates aligned with this policy; team trained on update workflow | With first production customer |
 | **Phase 3** | Automated uptime checks feeding the page; alert-to-incident webhook integration | Post Phase 2 stabilization |
 
-When a dedicated status URL is published, keep [SLA_SUMMARY.md](SLA_SUMMARY.md) §8 and this policy §3 (channels) aligned in the same change.
+When a dedicated status URL is published, keep [SLA_SUMMARY.md](SLA_SUMMARY.md) Â§8 and this policy Â§3 (channels) aligned in the same change.
 
 ---
 
@@ -145,4 +145,4 @@ When a dedicated status URL is published, keep [SLA_SUMMARY.md](SLA_SUMMARY.md) 
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Breach notification clause |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Availability targets |
 
-Former standalone plan: `docs/go-to-market/OPERATIONAL_TRANSPARENCY.md` ? [§8](#8-operational-transparency--status-page-plan).
+Former standalone plan: `docs/go-to-market/OPERATIONAL_TRANSPARENCY.md` â†’ [Â§8](#8-operational-transparency--status-page-plan).

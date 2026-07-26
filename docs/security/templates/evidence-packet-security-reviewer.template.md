@@ -47,5 +47,5 @@
 
 ## Related
 
-- [`PROCUREMENT_DEAL_READY_ONE_PAGER.md`](../../go-to-market/PROCUREMENT_DEAL_READY_ONE_PAGER.md)
+- [`PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager`](../../go-to-market/PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager)
 - [`evidence-packet-buyer.template.md`](../../go-to-market/templates/evidence-packet-buyer.template.md)

@@ -48,7 +48,7 @@ Evidence links: `archlucid sponsor-packet <runId>` · `scripts/Emit-ReleaseReadi
 | Can a sponsor receive a bounded export? | Sponsor packet export · [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase D |
 | Are AI outputs gated before handoff? | [`AGENT_QUALITY_STRICT_MODE_PILOT.md`](../runbooks/AGENT_QUALITY_STRICT_MODE_PILOT.md) · `first-pilot-command-center.md` quality rows |
 | Is ROI honest about evidence source? | `go-no-go-summary.json` · `roiBasisStatus` · [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) §2.1.1 |
-| Is procurement scope honest about deferrals? | [`PROCUREMENT_DEAL_READY_ONE_PAGER.md`](PROCUREMENT_DEAL_READY_ONE_PAGER.md) |
+| Is procurement scope honest about deferrals? | [`PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager`](PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager) |
 
 ---
 

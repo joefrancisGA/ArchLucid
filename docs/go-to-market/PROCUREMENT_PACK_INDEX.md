@@ -1,11 +1,11 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-26
 
-> **Scope:** Single canonical procurement evidence index — file paths are source of truth for CI; statuses are buyer-safe labels aligned with **`PROCUREMENT_RESPONSE_ACCELERATOR.md`**, not attestations. The **Procurement artifact status map** below uses a fixed vocabulary (`Implemented`, `Self-attested`, `Template`, `Deferred`, `Not applicable`, `External/NDA-gated`) enforced by **`scripts/ci/check_procurement_pack_index.py`** (links, **90-day** freshness on **Implemented** / **Self-asserted** canonical rows, buyer-placeholder strictness, and forbidden assurance wording). Release operators: **`docs/library/RELEASE_EVIDENCE_SUMMARY.md`** §8.
+> **Scope:** Single canonical procurement evidence index — file paths are source of truth for CI; statuses are buyer-safe labels aligned with **`PROCUREMENT_RESPONSE_ACCELERATOR.md`**, not attestations — plus the deal-ready one-pager (formerly `PROCUREMENT_DEAL_READY_ONE_PAGER.md`). The **Procurement artifact status map** below uses a fixed vocabulary (`Implemented`, `Self-attested`, `Template`, `Deferred`, `Not applicable`, `External/NDA-gated`) enforced by **`scripts/ci/check_procurement_pack_index.py`** (links, **90-day** freshness on **Implemented** / **Self-asserted** canonical rows, buyer-placeholder strictness, and forbidden assurance wording). Release operators: **`docs/library/RELEASE_EVIDENCE_SUMMARY.md`** §8.
 
 # Procurement evidence pack — buyer index (canonical)
 
 **Audience:** Security, procurement, and GRC reviewers.
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-26
 
 **How to cite:** Prefer **Evidence Artifact** titles and **`Source File`** links below rather than improvising statuses in questionnaires. Use **`trust-center.md`** for high-level posture; use this file for granular artifact inventory.
 
@@ -65,6 +65,94 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | CAIQ / SIG pre-fills | Self-asserted | [CAIQ](../security/CAIQ_LITE_2026.md) · [SIG](../security/SIG_CORE_2026.md) |
 | DPA / subprocessors | Template / self-asserted | [DPA](DPA_TEMPLATE.md) · [Subprocessors](SUBPROCESSORS.md) |
 | **Route ↔ tier ↔ policy ↔ nav crosswalk** | Engineering-maintained | [ROUTE_TIER_POLICY_NAV_MATRIX.md](../library/ROUTE_TIER_POLICY_NAV_MATRIX.md) |
+
+## Deal-ready one-pager
+
+**Audience:** Procurement reviewers, security champions, and founders before sending the full evidence ZIP.  
+**Canonical assurance wording:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md).
+
+**Target segment:** Mid-market CTO, fractional CTO, cloud consulting buyer, regulated startup — not Fortune 500 rigid RFP.
+
+### What is available now (V1) — required before paid pilot
+
+| Artifact | What it proves |
+| --- | --- |
+| DPA template | Contractual data-processing terms (legal review required) |
+| Subprocessor list | Third-party processors |
+| Trust Center narrative | Security, privacy, data handling posture |
+| Tenant isolation summary | Design intent for paying-client isolation |
+| Security architecture overview | Controls map for reviewers |
+| SOC 2 self-assessment + roadmap | **Not CPA attestation** — honest readiness narrative |
+| CAIQ Lite / SIG-style responses | Standard questionnaire answers (self-attested) |
+| Support policy | Escalation and response expectations |
+| SLA/SLO target summary | **Targets**, not contractual SLA unless executed |
+| Incident communications policy | Breach / outage comms posture |
+| AI output limits / decision-support disclaimer | Human-review boundaries |
+| Pilot evidence bundle | Real or clearly labeled controlled run |
+| Order form / paid pilot SOW | Commercial terms |
+
+### Acceptable as deferred-scope disclosures
+
+| Item | Label |
+| --- | --- |
+| CPA-issued SOC 2 Type I/II | **DEFERRED / (B)** — GTM **G-REAL-05** (tech TB-135 Done) |
+| Third-party penetration test publication | **DEFERRED / (B)** — GTM **G-ASSURANCE-02** (tech TB-136 Done) |
+| ISO 27001 certification | **DEFERRED / (B)** |
+| Named public reference customer | **DEFERRED / (B)** |
+| Live Marketplace / Stripe checkout | **DEFERRED / (B)** |
+| PGP security contact key | Deferred unless buyer asks |
+| First-party ITSM/chat/docs connectors, MCP, multi-cloud AWS/GCP | **DEFERRED V1.1/V2** |
+
+| Artifact | What it proves | Link |
+| --- | --- | --- |
+| Trust Center narrative | Security, privacy, subprocessors, data handling posture | [`trust-center.md`](trust-center.md) |
+| CAIQ / SIG responses | Standard questionnaire answers (self-attested) | Procurement pack build |
+| DPA template | Contractual data-processing terms (legal review required) | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) |
+| Subprocessor list | Third-party processors | Trust Center + pack |
+| SOC 2 roadmap + self-assessment | Readiness narrative — **not CPA attestation** | Trust Center · [`SOC2_STATUS_PROCUREMENT.md`](SOC2_STATUS_PROCUREMENT.md) · [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) |
+| Tenant isolation + security architecture | Design intent and controls map | Trust Center · security architecture docs |
+| API SLO targets | **Targets**, not contractual SLA | [`API_SLOS.md`](../library/API_SLOS.md) |
+| `--deal-ready` dry-run | Required V1 assurance **sources exist** and placeholders are buyer-safe | [`PROCUREMENT_DEAL_READY.md`](../runbooks/PROCUREMENT_DEAL_READY.md) |
+
+Full pack request: [`HOW_TO_REQUEST_PROCUREMENT_PACK.md`](HOW_TO_REQUEST_PROCUREMENT_PACK.md)
+
+### What `--deal-ready` proves and does not prove
+
+**Proves:** Required deal-ready doc paths exist; blocking placeholder language is absent; deferred **(B)** items are labeled **DEFERRED_SCOPE** rather than hidden.
+
+**Does not prove:** CPA-issued SOC 2 report, third-party penetration test publication, named reference customer, production contractual SLA, or live Marketplace checkout.
+
+### `(B)` procurement realism (zero weight on headline `(A)` score)
+
+| Buyer ask | V1 posture | Label |
+| --- | --- | --- |
+| SOC 2 Type I/II CPA report | Roadmap + self-assessment only | **DEFERRED / (B)** |
+| Third-party pen test report | Internal testing narrative; no published third-party report | **DEFERRED / (B)** |
+| Named public reference | Not in repo | **DEFERRED / (B)** |
+| Live commerce / Marketplace transact | Sales-led order form | **DEFERRED / (B)** |
+
+Objection handling: [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md)
+
+### How to request the full pack
+
+```powershell
+python scripts/build_procurement_pack.py --dry-run --deal-ready
+```
+
+First-pilot proof collection writes the same classification under the proof folder (`procurement-deal-ready-check.txt`, `procurement-deal-ready-classification.md`).
+
+### Accessibility procurement honesty
+
+- Automated **axe-core** / **jsx-a11y** evidence exists for architect workspace top routes.
+- **VPAT** drafts mark manual gaps — do not claim full manual WCAG conformance without completed AT user testing.
+- Contact: Trust Center accessibility row · root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md)
+
+### Legal review required before external send
+
+- DPA redlines, order form, and customer-specific security schedules
+- Any buyer-specific naming in cover letters (never commit buyer legal names to the repo)
+
+Former standalone: `docs/go-to-market/PROCUREMENT_DEAL_READY_ONE_PAGER.md` → this section.
 
 ## Additional navigation
 

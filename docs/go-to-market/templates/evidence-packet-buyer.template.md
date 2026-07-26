@@ -65,5 +65,5 @@ Use [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) § G
 
 - [`QUOTE_TO_PROOF_PACKET.md`](../QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review) — six-element assembly map + mock procurement review
 - [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
-- [`PROCUREMENT_DEAL_READY_ONE_PAGER.md`](../PROCUREMENT_DEAL_READY_ONE_PAGER.md)
+- [`PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager`](../PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager)
 - [`RELEASE_EVIDENCE_BUNDLE_SCHEMA.md`](../../quality/RELEASE_EVIDENCE_BUNDLE_SCHEMA.md)
