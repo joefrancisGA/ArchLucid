@@ -18,7 +18,7 @@
 
   Live runs write separate metrics JSON files for topology-only and full-pipeline profiles.
 
-  See docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md and docs/go-to-market/AI_EVIDENCE_APPENDIX.md.
+  See docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md and docs/go-to-market/AI_READINESS_POSTURE.md#buyer-safe-evidence-inventory.
 
 #>
 
@@ -464,7 +464,7 @@ $md += "**Overall disposition:** ``$overallDisposition```n`n"
 
 $md += "Template: [docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md)`n`n"
 
-$md += "Buyer index: [docs/go-to-market/AI_EVIDENCE_APPENDIX.md](../docs/go-to-market/AI_EVIDENCE_APPENDIX.md)`n`n"
+$md += "Buyer index: [docs/go-to-market/AI_READINESS_POSTURE.md](../docs/go-to-market/AI_READINESS_POSTURE.md#buyer-safe-evidence-inventory)`n`n"
 
 
 

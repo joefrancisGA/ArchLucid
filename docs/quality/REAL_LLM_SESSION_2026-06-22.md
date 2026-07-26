@@ -25,4 +25,4 @@ Generated (UTC): **2026-06-22T09:33:58Z**
 - [ ] Confirmed retrieval faithfulness / IR reports meet configured floors when retrieval-backed claims are part of the sponsor story.
 
 Template: [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](REAL_LLM_RUN_EVIDENCE_TEMPLATE.md)
-Buyer index: [AI_EVIDENCE_APPENDIX.md](../go-to-market/AI_EVIDENCE_APPENDIX.md)
+Buyer index: [AI_READINESS_POSTURE.md](../go-to-market/AI_READINESS_POSTURE.md#buyer-safe-evidence-inventory)

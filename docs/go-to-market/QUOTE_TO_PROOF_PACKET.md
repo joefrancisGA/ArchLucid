@@ -39,7 +39,7 @@
 
 | Objection | Point to |
 | --- | --- |
-| "Is the AI real?" | [`AI_EVIDENCE_APPENDIX.md`](AI_EVIDENCE_APPENDIX.md) + run provenance footer |
+| "Is the AI real?" | [`AI_READINESS_POSTURE.md#buyer-safe-evidence-inventory`](AI_READINESS_POSTURE.md#buyer-safe-evidence-inventory) + run provenance footer |
 | "What is ROI based on?" | First-value report **ROI and cost source classification** section |
 | "SOC 2 / pen test?" | Trust Center + deferred assurance wording |
 | "Integrations?" | V1 REST/CLI/UI/SCIM/extractor — V1.1 connectors labeled deferred |

@@ -41,7 +41,7 @@ DOCS_TO_SCAN: tuple[Path, ...] = (
     Path("docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md"),
     Path("docs/go-to-market/PROCUREMENT_FAQ.md"),
     Path("docs/go-to-market/SOC2_STATUS_PROCUREMENT.md"),
-    Path("docs/go-to-market/AI_EVIDENCE_APPENDIX.md"),
+    Path("docs/go-to-market/AI_READINESS_POSTURE.md"),
 )
 
 
@@ -102,7 +102,7 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
     ClaimPattern(
         re.compile(r"(?:full|broad|production[-\s]grade)\s+real[-\s]LLM\s+(?:validation|proof|cohort)\s+(?:is\s+)?(?:complete|available|passed)", re.IGNORECASE),
         "real-LLM proof must not be described as broad/full when only limited topology evidence exists.",
-        "docs/go-to-market/AI_EVIDENCE_APPENDIX.md",
+        "docs/go-to-market/AI_READINESS_POSTURE.md",
     ),
     ClaimPattern(
         re.compile(

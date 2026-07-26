@@ -134,7 +134,7 @@ class TestBuyerClaimDrift(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("Safe default text.\n", encoding="utf-8")
 
-            bad = root / "docs/go-to-market/AI_EVIDENCE_APPENDIX.md"
+            bad = root / "docs/go-to-market/AI_READINESS_POSTURE.md"
             bad.write_text("Full real-LLM validation is complete for the product.\n", encoding="utf-8")
 
             violations = G.buyer_claim_drift_violations(root)
