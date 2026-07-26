@@ -1,6 +1,6 @@
-﻿> **Reviewed:** 2026-07-25
+﻿> **Reviewed:** 2026-07-26
 
-> **Scope:** ArchLucid positioning - full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid positioning — full detail, tables, and links below — plus the closed create/review adversarial evaluation (formerly `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`; Done **TB-738**–**TB-747**).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **Audience:** Anyone who needs to explain what ArchLucid is and why it matters — in a sentence, a paragraph, or a two-minute conversation.
 
-**Last reviewed:** 2026-07-25 — evidence-package-first alignment (**TB-746**); engineering canonical copy in §0–§1; **owner external-publish sign-off** still required before treating §1 as frozen for paid media.
+**Last reviewed:** 2026-07-26 — evidence-package-first alignment (**TB-746**); engineering canonical copy in §0–§1; **owner external-publish sign-off** still required before treating §1 as frozen for paid media.
 
 **Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../library/V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
@@ -31,6 +31,38 @@
 | **Trust ladder** | **Review-led** first (sample, intake, evidence-backed review), then a **creation bridge** on the same outputs ([TB-739](GTM_BACKLOG.md) home copy, [TB-742](../library/TECH_BACKLOG.md) created sample, [TB-745](DEMO_VIDEO_SCRIPT.md) demo scripts). |
 
 Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/src/lib/buyer-surface-vocabulary.ts). Brand voice: [`BRAND_SYSTEM.md`](../brand/BRAND_SYSTEM.md) §1.
+
+### Create vs review — adversarial evaluation (closed)
+
+**Status:** Closed — findings shipped as **TB-738**–**TB-747** (all **Done**). Implement detail lives in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (`## TB-738` through `## TB-747`). This subsection is the durable assessment pointer for product, UI, and GTM authors updating `/reviews/new`, home dual-path cards, billing meter nouns, and marketing CTAs.
+
+| Question | Answer |
+| --- | --- |
+| Symmetric **create** / **review** as **workflows**? | **Yes** — both paths produce the same governed architecture package shape. |
+| Symmetric **create** / **review** as **headline positioning**? | **No** — do not pitch two equal product nouns. Subordinate both verbs to the **architecture package** noun (evidence-package-first, review-led trust ladder). |
+
+**One-sentence positioning rule:** Create and review are verbs; the artifact buyers hire ArchLucid for is an **architecture package** with findings, evidence, and a decision record — not “AI creates your architecture” as the lead claim.
+
+**Guardrails for `/reviews/new`, wizard intake, and marketing CTAs:**
+
+- Do **not** over-promise automated approval or production deployment.
+- Do **not** lead create-path copy with commodity “generate from goals” without a born-governed follow-on (findings, risks, evidence, explicit limits).
+- Prefer the **review / sample** path as **Recommended first** on first-run home surfaces.
+
+| Theme (evaluation) | Backlog | Outcome (summary) |
+| --- | --- | --- |
+| List noun + empty states + drift guards | **TB-738** | **Architecture packages** vocabulary; hub/home/nav; Vitest drift guards |
+| Home tagline + dual-path trust ladder | **TB-739** | Born-governed create promise; review/sample **Recommended first** |
+| Created / Reviewed origin badges | **TB-740** | Package origin on list rows |
+| Creation output parity with review | **TB-741** | Same agent pipeline / governance surfaces; create ≠ second-class |
+| Inspectable created sample | **TB-742** | Demo seed + showcase created sample |
+| Billing meter noun | **TB-743** | Packages/month (buyer-facing); internal keys may remain `review*` |
+| Scorecard nav label | **TB-744** | **Architecture scorecard** |
+| Demo scripts package-first | **TB-745** | `DEMO_QUICKSTART` / video script realigned |
+| Positioning one-noun-two-verbs | **TB-746** | This document’s §0 alignment |
+| Create intake feels like drafting | **TB-747** | Create wizard differentiated from evidence-only review intake |
+
+Related: [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) (**Architecture package**) · [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
 
 ---
 
