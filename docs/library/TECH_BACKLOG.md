@@ -2,24 +2,24 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-26 (**TB-1046** **Done** — Help-on-help mode: On this page anchors + search bias on `/help/*`). Prior: 2026-07-26 (**TB-1045** **Done** — Help drawer max-3 recommended + Do this now primary action row). Prior: 2026-07-26 (**TB-1044** **Done** — Help drawer page-true recommendations: never current topic; core-pilot shows next-step CTAs). Prior: 2026-07-26 (**TB-1043** **Done** — `/help/core-pilot` first-viewport = hero + stepper; secondary sections collapsed; related guides trimmed to two + troubleshooting). Prior: 2026-07-26 (**TB-1246**–**TB-1250** opened — P0 `/help/developer-troubleshooting` consumer exposure: reclassify as internal-runbook + Admin gate, de-index from product search, route/title rename, remove customer deep-link, sibling technical-doc audit from owner review ~32/100; see `## TB-1246`–`## TB-1250` below). Prior: 2026-07-26 (**TB-1244**–**TB-1245** opened — PA: Container Apps + SQL + AOAI privilege-escalation seam (SQL bootstrap MI co-located with request path) + honesty CI; GTM **M-215**/**M-216**; complements **TB-903**/**TB-906**/**TB-1232**/**M-213**; does not reopen Done **TB-080**/**TB-091**/**TB-092**/**TB-656**). Prior: 2026-07-26 (**TB-1239**–**TB-1243** opened — P0 `/help/cloud-connections/gcp` specialty guide parity + jargon purge + Cloud Asset / WIF actionability + federation template + workflow CTA chrome from owner help-page review ~51/100; see `## TB-1239`–`## TB-1243` below). Prior: 2026-07-26 (**TB-1042** **Done** — `/help/core-pilot` steps 3–5 CTAs commit-aware; no empty `/reviews?projectId=default` deep links). Prior: 2026-07-26 (**TB-1234**–**TB-1238** opened — P0 `/help/cloud-connections/aws` specialty guide parity + jargon purge + IAM/Resource Explorer actionability + OIDC trust-policy template + workflow CTA chrome from owner help-page review ~52/100; see `## TB-1234`–`## TB-1238` below). Prior: 2026-07-26 (**TB-1232**–**TB-1233** opened — PA: tenant DiD erosion modes + enforcement beyond per-query scope predicates + honesty CI; GTM **M-213**/**M-214**; complements **TB-999**/**TB-1001**/**TB-1122**/**M-150**/**M-194**; does not reopen Done **TB-010**/**TB-071**/**TB-925**; RLS stays non-control per ADR 0037). Prior: 2026-07-26 (**TB-1041** **Done** — `/help/core-pilot` breadcrumb + buyer subtitle use “Your first architecture review”; no Core-pilot jargon in chrome). Prior: 2026-07-25 (**TB-1230**–**TB-1231** opened — PA: shared hallucination defense plane vs mode-specific executors (anti-fork) + honesty CI; GTM **M-211**/**M-212**; complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1040** **Done** — `/help/core-pilot` single primary Start CTA; removed recursive View pilot guide; workflow/fast-path/closing Starts demoted to outline). Prior: 2026-07-25 (**TB-1228**–**TB-1229** opened — PA: faithfulness/support-ratio scoring lane positioning (inline commit vs async signal vs model-promotion) + honesty CI; GTM **M-209**/**M-210**; complements **TB-1221**/**M-166** / Done **TB-684**/**TB-021**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1223**–**TB-1227** opened — P0 `/settings/security-trust` Administration wayfinding + single-hero intro collapse + PageHeading/help + Available-now CTA hierarchy + contact dedupe from owner review ~53/100; see `## TB-1223`–`## TB-1227` below). Prior: 2026-07-25 (**TB-1221**–**TB-1222** opened — PA: decision-grade finding fail-closed provenance contract + honesty CI (architectural guarantees, not prompt-level); GTM **M-207**/**M-208**; complements **TB-1003**/**TB-1196** / Done **TB-033**–**TB-037**; does not claim semantic faithfulness). Prior: 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
+**Updated:** 2026-07-26 (**TB-1270**–**TB-1271** opened — PA: concurrent execute + idempotent commit race matrix + honesty CI; GTM **M-221**/**M-222**; complements **TB-1009**/**TB-1011**/**TB-943**/**M-160**/**M-162**/**M-170**; does not reopen Done **TB-039**/**TB-201**/**TB-303**/**TB-310**). Prior: 2026-07-26 (**TB-1265**–**TB-1269** opened — P0 `/live-demo` honest title + first-viewport hero budget + see-it journey ladder + compact stepper/sticky CTA + continuous-mode density from owner review ~61/100; traffic **LXX**; see `## TB-1265`–`## TB-1269` below). Prior: 2026-07-26 (**TB-1047** **Done** — Help drawer topic-title disambiguation + search autofocus on open). Prior: 2026-07-26 (**TB-1263**–**TB-1264** opened — PA: Dapper/DDL/satellite dual-write complexity breakdown signals + strategy ladder (pre-ORM) + honesty CI; GTM **M-219**/**M-220**; complements **TB-931**/**TB-1003**/**TB-1009**/**TB-1156**/**M-69**; does not reopen Done **TB-929**/**TB-930** / DDL hygiene **TB-064**–**TB-070**). Prior: 2026-07-26 (**TB-1258**–**TB-1262** opened — P0 `/help/starting-reviews` duplicate-slug collapse + wizard CTA chrome + dual-title fix + discovery unify + related-guides density from owner review ~52/100; see `## TB-1258`–`## TB-1262` below). Prior: 2026-07-26 (**TB-1253**–**TB-1257** opened — P0 `/help/procurement` buyer FAQ presentation: specialty guide + contributor-leak purge + buyer-safe residency + diligence CTAs + in-app link map from owner review ~49/100; see `## TB-1253`–`## TB-1257` below). Prior: 2026-07-26 (**TB-1251**–**TB-1252** opened — PA: demo/anonymous read plane vs paying-tenant data (structural, not query-filter) + honesty CI; GTM **M-217**/**M-218**; complements **TB-1028**/**TB-1232**/**M-168**/**M-178**; does not reopen Done **TB-887**–**TB-890** / Quick Scan **TB-892**–**TB-902**). Prior: 2026-07-26 (**TB-1046** **Done** — Help-on-help mode: On this page anchors + search bias on `/help/*`). Prior: 2026-07-26 (**TB-1045** **Done** — Help drawer max-3 recommended + Do this now primary action row). Prior: 2026-07-26 (**TB-1044** **Done** — Help drawer page-true recommendations: never current topic; core-pilot shows next-step CTAs). Prior: 2026-07-26 (**TB-1043** **Done** — `/help/core-pilot` first-viewport = hero + stepper; secondary sections collapsed; related guides trimmed to two + troubleshooting). Prior: 2026-07-26 (**TB-1246**–**TB-1250** opened — P0 `/help/developer-troubleshooting` consumer exposure: reclassify as internal-runbook + Admin gate, de-index from product search, route/title rename, remove customer deep-link, sibling technical-doc audit from owner review ~32/100; see `## TB-1246`–`## TB-1250` below). Prior: 2026-07-26 (**TB-1244**–**TB-1245** opened — PA: Container Apps + SQL + AOAI privilege-escalation seam (SQL bootstrap MI co-located with request path) + honesty CI; GTM **M-215**/**M-216**; complements **TB-903**/**TB-906**/**TB-1232**/**M-213**; does not reopen Done **TB-080**/**TB-091**/**TB-092**/**TB-656**). Prior: 2026-07-26 (**TB-1239**–**TB-1243** opened — P0 `/help/cloud-connections/gcp` specialty guide parity + jargon purge + Cloud Asset / WIF actionability + federation template + workflow CTA chrome from owner help-page review ~51/100; see `## TB-1239`–`## TB-1243` below). Prior: 2026-07-26 (**TB-1042** **Done** — `/help/core-pilot` steps 3–5 CTAs commit-aware; no empty `/reviews?projectId=default` deep links). Prior: 2026-07-26 (**TB-1234**–**TB-1238** opened — P0 `/help/cloud-connections/aws` specialty guide parity + jargon purge + IAM/Resource Explorer actionability + OIDC trust-policy template + workflow CTA chrome from owner help-page review ~52/100; see `## TB-1234`–`## TB-1238` below). Prior: 2026-07-26 (**TB-1232**–**TB-1233** opened — PA: tenant DiD erosion modes + enforcement beyond per-query scope predicates + honesty CI; GTM **M-213**/**M-214**; complements **TB-999**/**TB-1001**/**TB-1122**/**M-150**/**M-194**; does not reopen Done **TB-010**/**TB-071**/**TB-925**; RLS stays non-control per ADR 0037). Prior: 2026-07-26 (**TB-1041** **Done** — `/help/core-pilot` breadcrumb + buyer subtitle use “Your first architecture review”; no Core-pilot jargon in chrome). Prior: 2026-07-25 (**TB-1230**–**TB-1231** opened — PA: shared hallucination defense plane vs mode-specific executors (anti-fork) + honesty CI; GTM **M-211**/**M-212**; complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1040** **Done** — `/help/core-pilot` single primary Start CTA; removed recursive View pilot guide; workflow/fast-path/closing Starts demoted to outline). Prior: 2026-07-25 (**TB-1228**–**TB-1229** opened — PA: faithfulness/support-ratio scoring lane positioning (inline commit vs async signal vs model-promotion) + honesty CI; GTM **M-209**/**M-210**; complements **TB-1221**/**M-166** / Done **TB-684**/**TB-021**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1223**–**TB-1227** opened — P0 `/settings/security-trust` Administration wayfinding + single-hero intro collapse + PageHeading/help + Available-now CTA hierarchy + contact dedupe from owner review ~53/100; see `## TB-1223`–`## TB-1227` below). Prior: 2026-07-25 (**TB-1221**–**TB-1222** opened — PA: decision-grade finding fail-closed provenance contract + honesty CI (architectural guarantees, not prompt-level); GTM **M-207**/**M-208**; complements **TB-1003**/**TB-1196** / Done **TB-033**–**TB-037**; does not claim semantic faithfulness). Prior: 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 16 |
-| Testability | 35 |
+| Testability | 37 |
 | Reliability | 19 |
 | Deployability | 18 |
 | AI/Agent readiness | 13 |
 | Architectural integrity | 13 |
-| Adoption friction | 178 |
+| Adoption friction | 179 |
 | Commercial / marketability | 14 |
 | Data consistency | 7 |
 | Cutting-edge AI | 9 |
 | Explainability | 9 |
 | Proof-of-ROI / executive value | 6 |
-| Trustworthiness | 69 |
-| Maintainability | 15 |
+| Trustworthiness | 73 |
+| Maintainability | 16 |
 | Traceability | 6 |
 | Interoperability | 8 |
 | Compliance readiness | 4 |
@@ -28,7 +28,7 @@
 | Cost-effectiveness | 10 |
 | Supportability | 15 |
 | Code hygiene | 11 |
-| **Total (unique)** | **~436** |
+| **Total (unique)** | **~445** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1ΓåÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ┬º6/┬º6a); **TB-599ΓÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ΓÇö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -233,7 +233,17 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-1244 — TB-1245** were added 2026-07-26 from the owner / PA question: *Given Entra ID identity, private endpoints, and least-privilege defaults, where is the most likely privilege-escalation seam in a Container Apps + SQL + Azure OpenAI topology like ours?* Finding: highest Azure PE seam is **SQL bootstrap privilege co-located on the API managed identity** (`db_owner`-equivalent documented; `enable_api_sql_runtime_identity` default false; `ArchLucidRuntime` unwired). Secondary: vault-wide KV Secrets User, account-scope Blob Contributor, Search Contributor + filter DiD, public CA ingress defaults. AOAI workload RBAC is already OpenAI **User** (not the headline). Product tenancy PE stays **TB-1232**/**TB-999**. Gaps: (1) PA workload PE seam matrix contract, (2) honesty CI against least-privilege-while-colocated / PE-equals-private / AOAI-Contributor. **TB-1244** (P1) contract. **TB-1245** (P1) honesty CI. GTM: **M-215**/**M-216**. Complements **TB-903**/**TB-906**/**TB-1232**; does not reopen Done **TB-080**/**TB-091**/**TB-092**/**TB-656**.
 
+**TB-1258 — TB-1262** were added 2026-07-26 from an **owner review of Starting architecture reviews** at `/help/starting-reviews` (scored ~52/100; traffic ID **HER**). Findings: registry hosts a **duplicate** of `REVIEW_GUIDE.md` beside featured `/help/review-guide` (HR already scored ~50) with a different H1 (“Starting architecture reviews” vs markdown “Review guide”); help landing features only `review-guide` while empty-state / `creating-runs` alias still land on `starting-reviews`; generic `HelpTopicMarkdownView` with Print/PDF but **no primary CTA** into `/reviews/new`; Related guides list competes with first-hour / core-pilot paths. Content itself is buyer-safe (Vitest banned-copy on `review-guide`). **TB-1258** (P0) canonicalize to one slug. **TB-1259** (P0) wizard companion CTA chrome. **TB-1260** (P0) single title hierarchy. **TB-1261** (P0) unify discovery pointers. **TB-1262** (P0) related-guides density. No new GTM IDs.
+
+**TB-1253 — TB-1257** were added 2026-07-26 from an **owner review of Procurement FAQ** at `/help/procurement` (scored ~49/100). Findings: honest SOC 2 / pen-test answers are a strength, but the page is a generic `HelpTopicMarkdownView` dump of `PROCUREMENT_FAQ.md` with no diligence hero/CTAs; residual contributor leakage survives presentation strips (`V1_SCOPE.md`, `SECURITY.md`, `CONFIGURATION_REFERENCE.md`, `infra/terraform-entra/`, `archlucid auth validate-saml`, “Improvement archived #4”, MSA/Order Form `.md` filenames); Q3 still exposes administrator residency config (`ArtifactLargePayload`, `TenantProvisioning`) under a disclosure; SSO answer is a contributor essay; relative GTM links are incomplete in `in-app-doc-href.ts` (how-to-request pack even maps to `executive-summary`); Help-center tier is `admin` while registry audience is `buyer`. Complements Done **TB-159**/**TB-736** and open **TB-1144**/**M-196**. **TB-1253** (P0) specialty buyer FAQ guide. **TB-1254** (P0) contributor-leak purge. **TB-1255** (P0) buyer-safe residency. **TB-1256** (P0) diligence CTA chrome. **TB-1257** (P0) in-app-only link map + shorten SSO. No new GTM IDs.
+
 **TB-1246 — TB-1250** were added 2026-07-26 from an **owner review of Engineering troubleshooting runbook** at `/help/developer-troubleshooting` (scored ~32/100 as a consumer-exposed help page). Findings: route slug says **developer-troubleshooting** while H1/title say **Engineering troubleshooting runbook**; help-center tier is `internal` but `contentKind` is `technical-documentation`, so **TB-735** Admin gating does not apply — any session that can load `/help/*` gets CLI doctor/support-bundle commands, `DevelopmentBypass`, SQL env vars, circuit-breaker config, DbUp/migration triage, and links into contributor BUILD/SQL docs; page is in `generateStaticParams`, `help-index.generated.ts`, and Help drawer search; customer `/help/troubleshooting` Advanced diagnostics deep-links here (UI `adminOnly` is not an access control). Complements Done **TB-735**/**TB-732**. **TB-1246** (P0) reclassify + Admin gate. **TB-1247** (P0) de-index from product search/static params. **TB-1248** (P0) route/title rename. **TB-1249** (P0) remove customer deep-link. **TB-1250** (P0) sibling technical-doc exposure audit. No new GTM IDs.
+
+**TB-1251 — TB-1252** were added 2026-07-26 from the owner / PA question: *Our demo/trial paths seed data and expose unauthenticated read-only routes (e.g., `/demo/explain`). How do we architecturally guarantee demo scope can never read tenant data, rather than relying on query filters?* Finding: today demo pins `DemoScopes` → DefaultTenant and reuses product repos — **convention + predicates**, not a third structural plane; empty ambient → system catalog; SingleCatalog collapses filter-only. Prod fails closed on live demo; Claims showcase is mostly static. Gaps: (1) PA demo/anonymous read-plane contract (factory/catalog or static-only), (2) honesty CI against AllowAnonymous=safe / pin=catalog / empty=no-data. **TB-1251** (P1) contract. **TB-1252** (P1) honesty CI. GTM: **M-217**/**M-218**. Complements **TB-1028**/**TB-1232**/**M-168**/**M-178**; does not reopen Done **TB-887**–**TB-890** or Quick Scan **TB-892**–**TB-902**.
+
+**TB-1265 — TB-1269** were added 2026-07-26 from an **owner review of Live demo** at `/live-demo` (scored ~61/100; traffic ID **LXX**). Findings: guided five-step walkthrough, fabricated-data disclosure, and conversion CTAs are solid, but the **H1 “Live demo”** oversells a fabricated/static sample (often offline fallback); first viewport stacks eyebrow + title + subtitle + value prop + amber disclosure before any step; marketing IA already pushes **`/see-it`** (30 seconds) while Resources also links `/live-demo` with no ladder; stepper is five full-title pills plus continuous mode that mounts all panels. Complements open **TB-1028**/**TB-1029** (`/see-it` universe honesty). **TB-1265** (P0) honest title. **TB-1266** (P0) hero budget. **TB-1267** (P0) see-it ↔ live-demo journey. **TB-1268** (P0) compact stepper + early CTA. **TB-1269** (P0) continuous-mode density. No new GTM IDs.
+
+**TB-1263 — TB-1264** were added 2026-07-26 from the owner / PA question: *We use Dapper with hand-written SQL and a single DDL file per database, plus relational satellite tables for manifest provenance. At what complexity does this pattern break down, and what would you watch as the signal to change strategy — before an ORM debate happens under duress?* Finding: posture is already mature (~10k-line DDL, ~280 DbUp, GoldenManifest phase-1 satellites dual-written beside `*Json`, DENY-sealed evidence); break is **not** “need EF” but when new features routinely require satellite + dual-write + list projection + DENY inventory + InMemory + backfill without typed read models. Signals: LOB/list size, hot-path `*Json` drift, cutover readiness, RMW on sealed/hot tables, MigrateVerify toil. Ladder: typed projections → **TB-931** scalars → query objects/read models → optional mapper helpers/codegen → **TB-932** blob offload → EF only after measured failure + ADR. Gaps: (1) PA breakdown-signals + strategy-ladder contract, (2) honesty CI against EF-fixes-tenancy/immutability/perf under duress. **TB-1263** (P1) contract. **TB-1264** (P1) honesty CI. GTM: **M-219**/**M-220**. Complements **TB-931**/**TB-1003**/**TB-1009**/**TB-1156**/**M-69**; does not reopen Done **TB-929**/**TB-930**.
 
 **TB-1196 — TB-1197** were added 2026-07-25 from the owner / PA question: *Multi-agent execution (Topology, Compliance, Cost, Critic) is deterministic in Simulator but non-deterministic against real LLMs — how should the contract between agent output and downstream decisioning be designed so Real-mode variance cannot corrupt committed manifests?* Finding: authority decide already uses typed finding engines + `RuleBasedDecisionEngine`; Real variance mainly enters via **topology proposal overlay** at commit (`AgentTopologyProposalGraphMerge`) and legacy prose→governance paths; quality gate can be WarnOnly. Gaps: (1) PA contract — structured proposals only, validate-before-overlay, decide from typed findings/graph, fail-closed quality on commit-eligible Real, mode-labeled persistence, (2) honesty CI against “LLM text is the package” / unvalidated overlay. **TB-1196** (P1) contract. **TB-1197** (P1) honesty CI. GTM: **M-203**/**M-204**. Complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**.
 
@@ -453,7 +463,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1044 | **Done** (2026-07-26) — Help drawer page-true recommendations (never current topic; next-steps on core-pilot); see `## TB-1044` below | Adoption friction P0 — **V1**; owner Help-drawer review 2026-07-25 (~61/100) | S |
 | TB-1045 | **Done** (2026-07-26) — Help drawer max-3 recommended + Do this now action row; see `## TB-1045` below | Adoption friction P0 — **V1**; after **TB-1044** | S |
 | TB-1046 | **Done** (2026-07-26) — Help-on-help mode — search/anchors when already on `/help/*`; see `## TB-1046` below | Adoption friction P0 — **V1**; after **TB-1044** | S |
-| TB-1047 | Help drawer topic-title disambiguation + autofocus search; see `## TB-1047` below | Adoption friction P0 — **V1**; with **TB-1044**/**TB-1045** | S |
+| TB-1047 | **Done** (2026-07-26) — Help drawer topic-title disambiguation + autofocus search; see `## TB-1047` below | Adoption friction P0 — **V1**; with **TB-1044**/**TB-1045** | S |
 | TB-1124 | Rename Advisory scans → /governance/advisory-scans + redirects; see ## TB-1124 below | Adoption friction P0 — **V1**; owner advisory ~51/100 2026-07-25 | M |
 | TB-1125 | Advisory scans collapse triple description chrome; see ## TB-1125 below | Adoption friction P0 — **V1**; with **TB-1124** | S |
 | TB-1126 | Advisory scans empty/demo density — one next story; see ## TB-1126 below | Adoption friction P0 — **V1**; with **TB-1128** | S |
@@ -566,6 +576,25 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1248 | Engineering troubleshooting — align route slug with page title; see ## TB-1248 below | Adoption friction P0 — **V1**; with **TB-1246** | S |
 | TB-1249 | Customer Troubleshooting — remove eng-runbook deep link; see ## TB-1249 below | Trustworthiness P0 — **V1**; with **TB-1246** | S |
 | TB-1250 | Audit sibling technical-documentation help for consumer exposure; see ## TB-1250 below | Trustworthiness P0 — **V1**; after **TB-1246**; includes `cli-usage` | M |
+| TB-1251 | Demo/anonymous read plane vs paying-tenant structural isolation contract; see `## TB-1251` below | Trustworthiness P1 — **V1**; PA Q10 demo≠tenant; GTM **M-217**/**M-218** | S |
+| TB-1252 | Anti-AllowAnonymous-equals-safe / DemoScopes-pin-equals-catalog / empty-demo-scope honesty CI; see `## TB-1252` below | Testability P1 — **V1**; after **TB-1251**; pairs **M-217** | S |
+| TB-1253 | `/help/procurement` specialty buyer FAQ guide view; see ## TB-1253 below | Adoption friction P0 — **V1**; owner procurement help ~49/100 2026-07-26; complements Done **TB-159**/**TB-736** | M |
+| TB-1254 | Procurement FAQ — purge contributor/repo leakage from rendered help; see ## TB-1254 below | Trustworthiness P0 — **V1**; with **TB-1253**; banned-copy parity | S |
+| TB-1255 | Procurement FAQ — buyer-safe data residency (no appsettings keys); see ## TB-1255 below | Trustworthiness P0 — **V1**; with **TB-1253** | S |
+| TB-1256 | Procurement FAQ — diligence CTA chrome (trust / pack / DPA); see ## TB-1256 below | Adoption friction P0 — **V1**; with **TB-1253** | S |
+| TB-1257 | Procurement FAQ — in-app-only link map + shorten SSO answer; see ## TB-1257 below | Trustworthiness P0 — **V1**; with **TB-1253**; pairs **TB-1254** | S |
+| TB-1258 | `/help/starting-reviews` — canonicalize into `/help/review-guide`; see ## TB-1258 below | Adoption friction P0 — **V1**; owner starting-reviews ~52/100 2026-07-26; traffic **HER** | S |
+| TB-1259 | Starting/review guide — wizard companion CTA to `/reviews/new`; see ## TB-1259 below | Adoption friction P0 — **V1**; with **TB-1258** | S |
+| TB-1260 | Starting/review guide — single title hierarchy (no dual H1); see ## TB-1260 below | Adoption friction P0 — **V1**; with **TB-1258** | XS |
+| TB-1261 | Starting/review guide — unify empty-state / alias / search discovery; see ## TB-1261 below | Adoption friction P0 — **V1**; with **TB-1258** | S |
+| TB-1262 | Starting/review guide — collapse Related guides density; see ## TB-1262 below | Adoption friction P0 — **V1**; with **TB-1259** | XS |
+| TB-1263 | Dapper/DDL/satellite dual-write breakdown signals + pre-ORM strategy ladder contract; see `## TB-1263` below | Maintainability P1 — **V1**; PA Q11 data-access; GTM **M-219**/**M-220** | S |
+| TB-1264 | Anti-EF-fixes-tenancy-immutability-perf / ORM-under-duress honesty CI; see `## TB-1264` below | Testability P1 — **V1**; after **TB-1263**; pairs **M-219** | S |
+| TB-1265 | `/live-demo` — honest sample-walkthrough title (not “Live demo”); see ## TB-1265 below | Trustworthiness P0 — **V1**; owner live-demo ~61/100 2026-07-26; traffic **LXX** | S |
+| TB-1266 | `/live-demo` — first-viewport hero budget (start before disclosure wall); see ## TB-1266 below | Adoption friction P0 — **V1**; with **TB-1265** | S |
+| TB-1267 | `/live-demo` — clarify journey vs `/see-it` (entry ladder); see ## TB-1267 below | Adoption friction P0 — **V1**; with **TB-1265**; pairs **TB-1028** | S |
+| TB-1268 | `/live-demo` — compact stepper + early conversion CTA; see ## TB-1268 below | Adoption friction P0 — **V1**; with **TB-1266** | S |
+| TB-1269 | `/live-demo` — continuous-mode density (no five-panel dump); see ## TB-1269 below | Adoption friction P0 — **V1**; with **TB-1268** | S |
 | TB-1196 | Agent→decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 — **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
 | TB-1197 | Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI; see `## TB-1197` below | Testability P1 — **V1**; after **TB-1196**; pairs **M-203** | S |
 | TB-1179 | Project deletion has no UI — governed delete affordance; see ## TB-1179 below | Adoption friction P0 — **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
@@ -26962,6 +26991,26 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ---
 
+## TB-1047 — Help drawer topic-title disambiguation + autofocus search (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** **Done** (2026-07-26) — Drawer titles **First-hour review path** vs **Review wizard reference**; unique-title guard; Radix `onOpenAutoFocus` focuses search; Vitest coverage.
+
+**Priority:** P0.
+
+**Source:** Owner Help-drawer review 2026-07-25 (~61/100); with **TB-1044**/**TB-1045**.
+
+**Problem:** Near-identical “First review guide” / “Review guide” titles made the drawer hard to scan; focus did not reliably land in search on open (Radix dialog default focus won).
+
+**Approach:** Catalog title disambiguation + `listDuplicateHelpSearchPanelTopicTitles`; `HelpDrawerContent` `onOpenAutoFocus` → search input.
+
+**Acceptance:** No duplicate drawer topic titles; search input focused when the drawer opens.
+
+**Size estimate:** S.
+
+---
+
 ## TB-1124 — Rename Advisory scans to `/governance/advisory-scans` (P0)
 
 **Window:** V1 — Adoption friction.
@@ -30161,6 +30210,273 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
+## TB-1251 — Demo/anonymous read plane vs paying-tenant structural isolation contract (P1)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-26: *Our demo/trial paths seed data and expose unauthenticated read-only routes (e.g., `/demo/explain`). How do we architecturally guarantee demo scope can never read tenant data, rather than relying on query filters?*
+
+**Problem:** Anonymous demo routes (`[AllowAnonymous]` + `[AllowUnscopedRoute]` + `Demo:Enabled`) hard-pin `DemoScopes.BuildDemoScope()` → `ScopeIds.DefaultTenant` and reuse the same product repositories. That is **convention + Layer D predicates**, not a structural “demo cannot open a paying-tenant catalog” guarantee. Empty ambient scope → **system catalog** (worse than “no rows”). SingleCatalog/dev collapses demo and other tenants into one DB. Prod fails closed on live demo APIs, and Claims showcase is mostly static — but a convenient unscoped repo call from a demo controller can still widen. Distinct from Contoso≠Claims content honesty (**TB-1028**) and general DiD erosion (**TB-1232**).
+
+**Approach:**
+
+1. Author `docs/library/DEMO_ANONYMOUS_READ_PLANE_CONTRACT.md` with tables:
+   - **Planes:** (A) paying-tenant catalogs (ADR 0037); (B) system catalog (`Guid.Empty`); (C) demo/anonymous read plane (seed under DefaultTenant **or** static-only / dedicated demo catalog).
+   - **Surfaces × data plane:** `/v1/demo/*`, showcase static vs Contoso live, `/see-it`, Quick Scan anonymous (sample-only in prod — cite **TB-892**–**TB-902**).
+   - **Not enough:** `WHERE TenantId = DefaultTenant`; remembering `DemoScopes`; FeatureGate alone; `[AllowAnonymous]` ⇒ safe.
+   - **Structural targets:** demo SQL only via dedicated factory/catalog (or static-only — no product `ISqlConnectionFactory`); forbid ambient `IScopeContextProvider` on demo controllers; analyzer/CI + integration test (demo path vs customer-B catalog → zero rows).
+   - **Prod pin:** live demo SQL off (`ProductionSafetyRules`); public proof = static showcase / sample Quick Scan unless hosted-demo SKU with its own catalog.
+   - Cross-link **TB-1028**/**TB-1232**/**M-168**/**M-178**, Done **TB-887**–**TB-890**, GTM **M-217**/**M-218**.
+2. Name CI anchors for **TB-1252**.
+3. Do **not** absorb Quick Scan cost/abuse or Claims/Contoso universe rows.
+
+**Acceptance:** Contract published; GTM can cite “demo plane cannot open paying-tenant catalogs” as a structural target, not filter discipline.
+
+**Depends on:** None (docs). Complements open **TB-1028**/**TB-1232**/**M-168**.
+
+**Out of scope:** Implementing dedicated demo catalog / factory wiring (follow-on after contract); reopening Done showcase SSR; changing Quick Scan budgets.
+
+**Size estimate:** S.
+
+---
+
+## TB-1252 — Anti-AllowAnonymous-equals-safe / DemoScopes-pin-equals-catalog / empty-demo-scope honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1251**; hardens GTM **M-217**.
+
+**Problem:** Docs/PRs can claim unauthenticated demo routes are tenant-safe because they are read-only / AllowAnonymous / hard-pin `DemoScopes`, or that empty demo scope returns no data — both overclaim today’s filter/convention posture.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that equate `[AllowAnonymous]` / `[AllowUnscopedRoute]` / FeatureGate with paying-tenant isolation without **TB-1251** plane caveats.
+2. Fail claims that hard-pinning `DemoScopes` alone equals catalog isolation (pin: same product repos + SingleCatalog residual; structural factory/catalog is the target).
+3. Fail claims that empty/unscoped demo ambient scope means “no data” (point to system catalog + **M-168**).
+4. Pair **M-217**; Verification points at `DemoScopes`, `DemoExplainController`, `DemoReadModelClient`, `ScopedRoutingSqlConnectionFactory`, `ProductionSafetyRules.CollectDemoDisallowedInProductionProfile`, `showcase-static-demo.ts`.
+
+**Acceptance:** CI fails dishonest AllowAnonymous=safe / pin=catalog / empty=no-data claims; pairs **M-217**.
+
+**Depends on:** **TB-1251**.
+
+**Out of scope:** Re-authoring Contoso≠Claims (**TB-1029**); implementing demo factory.
+
+**Size estimate:** S.
+
+---
+
+## TB-1263 — Dapper/DDL/satellite dual-write breakdown signals + pre-ORM strategy ladder contract (P1)
+
+**Window:** V1 — Maintainability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-26: *We use Dapper with hand-written SQL and a single DDL file per database, plus relational satellite tables for manifest provenance. At what complexity does this pattern break down, and what would you watch as the signal to change strategy — before an ORM debate happens under duress?*
+
+**Problem:** The stack is intentional and already past simple CRUD (consolidated `ArchLucid.sql` / System DDL, DbUp forward path, GoldenManifest/Findings/Context satellites dual-written with JSON compatibility, sealed DENYs). Without a named breakdown-signal matrix and strategy ladder, pain from fat `*Json`, dual-write tax, or MigrateVerify toil gets misframed as “we need EF” under schedule pressure — which does **not** fix catalog isolation, DENY immutability, or commit-hash cost.
+
+**Approach:**
+
+1. Author `docs/library/DAPPER_DDL_SATELLITE_BREAKDOWN_SIGNALS_CONTRACT.md` (or PA appendix on `SQL_SCRIPTS.md` / `JSON_FALLBACK_AUDIT.md`) with tables:
+   - **Break when (compound):** new feature PRs routinely need ≥3 of {new satellite, dual-write, list projection audit, DENY inventory, InMemory parity, backfill stage} without typed read models — not when someone wants LINQ `Include`.
+   - **Leading indicators:** App Insights dep duration/size on list/summary; SQL LOB/avg row for hot `*Json`; drift vs `HotPathRelationalQueryShapeTests`; cutover readiness coverage; RMW `SELECT *Json → patch → UPDATE` count; MigrateVerify/unified-schema failure rate; commit rebuild/hash CPU (H4/H5).
+   - **Strategy ladder (ordered):** typed list/summary projections (TB-929 pattern) → typed scalars (**TB-931**) → query objects / named SQL modules → Persistence-boundary read-model DTOs → optional Dapper mapper/source-gen helpers (SQL stays hand-written) → DDL→DTO codegen → blob offload (**TB-932** V2, measured) → heavy ORM only after ladder + metrics + new ADR; sealed evidence path excluded from change-tracking ORM.
+   - **Pins:** Authority GoldenManifest = buyer truth (**TB-1003**); JSON = compatibility / non–phase-1; relational = query/provenance; list omits fat `*Json`; DENY = INSERT-only for app role (**ADR 0039/0045**); catalog routing = isolation (**ADR 0037**).
+   - Cross-link **TB-931**/**TB-932**/**TB-1003**/**TB-1009**/**TB-1156**, Done **TB-929**/**TB-930**/**TB-064**–**TB-070**, GTM **M-219**/**M-220**/**M-69**.
+2. Name CI anchors for **TB-1264**.
+3. Do **not** reopen H2 Done work or prescribe EF.
+
+**Acceptance:** Contract published; GTM can cite breakdown signals + ladder without “ORM next” as default.
+
+**Depends on:** None (docs). Complements open **TB-931**/**TB-1003**/**TB-1009**/**TB-1156**.
+
+**Out of scope:** Implementing TB-931/932; adopting EF; changing DENY model.
+
+**Size estimate:** S.
+
+---
+
+## TB-1264 — Anti-EF-fixes-tenancy-immutability-perf / ORM-under-duress honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1263**; hardens GTM **M-219**.
+
+**Problem:** Docs/PRs can claim Entity Framework (or “an ORM”) would fix tenant isolation, sealed-evidence immutability, or hot-path JSON deserialize cost — or that Dapper is “temporary until we get an ORM” — inviting duress rewrites that fight DENYs and miss catalog routing.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that claim EF/ORM substitutes for ADR 0037 catalog isolation, ADR 0039/0045 DENYs, or H2 list/`*Json` engineering without **TB-1263** ladder caveats.
+2. Fail claims that dual-write satellites mean the product is “already halfway to ORM” or that JSON columns prove Dapper failed.
+3. Fail “adopt ORM now” without measured LOB/list/commit indicators and exhaustion of typed-projection / **TB-931** (and optionally **TB-932**) steps.
+4. Pair **M-219**; Verification points at `SqlGoldenManifestRepository`, `GoldenManifestPhase1RelationalRead`, `HotPathRelationalQueryShapes`, `JSON_FALLBACK_AUDIT.md`, `SQL_SCRIPTS.md`, ADR 0011/0037/0039.
+
+**Acceptance:** CI fails dishonest EF-fixes-*/ORM-under-duress claims; pairs **M-219**.
+
+**Depends on:** **TB-1263**.
+
+**Out of scope:** Authoring LinkedIn **M-69** article body; implementing typed scalars.
+
+**Size estimate:** S.
+
+---
+
+## TB-1265 — `/live-demo` — honest sample-walkthrough title (not “Live demo”) (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/live-demo` 2026-07-26 (~61/100; traffic **LXX**).
+
+**Problem:** Page title / H1 is **Live demo**, but the experience is a guided **fabricated sample** walkthrough (disclosure text already says so) and often renders the curated offline payload when the public demo API base is missing or fails. Buyers hear “live” and expect a live product session. Metadata `robots: noindex` does not fix the on-page overclaim.
+
+**Approach:**
+
+1. Rename customer-facing title/subtitle to honest language (e.g. **Guided sample walkthrough** / **Sample architecture review**) in `live-demo-page-copy.ts`, metadata, Resources menu label, and any CTAs that say “live demo” for this route.
+2. Keep route `/live-demo` for bookmarks if needed, or add a clearer alias later — do not invent a second competing marketing URL without **TB-1267**.
+3. Vitest: visible H1/title excludes bare “Live demo” as the primary product claim; fabricated disclosure remains.
+
+**Acceptance:** First headline matches fabricated/sample reality; disclosure is reinforcement, not a correction of a lie.
+
+**Depends on:** None (pairs with **TB-1266**–**TB-1269**).
+
+**Out of scope:** Building a true authenticated live trial product; changing `/see-it` Contoso/Claims universe (**TB-1028**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1266 — `/live-demo` — first-viewport hero budget (start before disclosure wall) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/live-demo` review 2026-07-26 — header stacks meta + H1 + subtitle + value proposition + amber fabricated callout before the stepper.
+
+**Problem:** First viewport reads as a policy wall, not a walkthrough start. Marketing hero budget should be brand/product signal, one headline, one supporting sentence, one primary action (Start walkthrough / Step 1), then quieter sample identity + fabricated disclosure.
+
+**Approach:**
+
+1. Collapse header: title + one line + primary **Start** (scroll/focus step 1 or auto-land).
+2. Move sample identity + fabricated disclosure to a compact status line or secondary callout below the fold / beside step 1 — keep honesty, reduce amber full-bleed dominance.
+3. Vitest / screenshot contract: primary walkthrough chrome visible without scrolling past a multi-paragraph preamble (document expected structure).
+
+**Acceptance:** User can begin step 1 without reading three body paragraphs first.
+
+**Depends on:** Prefer with **TB-1265**.
+
+**Out of scope:** Full brand redesign of all marketing pages.
+
+**Size estimate:** S.
+
+---
+
+## TB-1267 — `/live-demo` — clarify journey vs `/see-it` (entry ladder) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26; welcome/header CTAs push `/see-it`; Resources menu also links `/live-demo`.
+
+**Problem:** Two public sample experiences compete without an explicit ladder (30-second proof vs five-minute guided walkthrough). Buyers bounce between them; neither page explains the other.
+
+**Approach:**
+
+1. Document and implement entry ladder: **See it** (30s) → **Guided sample walkthrough** (`/live-demo`) → evaluation CTAs / showcase.
+2. Cross-link: `/see-it` offers “Take the guided walkthrough”; `/live-demo` offers “Prefer a 30-second proof? See it”.
+3. Align Resources menu labels with the ladder (no two “demo” synonyms).
+4. Vitest: cross-links present; labels distinct.
+
+**Acceptance:** A first-time visitor can tell which sample path is which in one sentence each.
+
+**Depends on:** Prefer with **TB-1265**; complements **TB-1028** without blocking on Contoso fail-closed work.
+
+**Out of scope:** Merging `/see-it` and `/live-demo` into one route.
+
+**Size estimate:** S.
+
+---
+
+## TB-1268 — `/live-demo` — compact stepper + early conversion CTA (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26 — five full-title stepper pills + Prev/Next; conversion block only after the shell.
+
+**Problem:** Stepper wraps into a dense chip cloud on mid widths; conversion (**Start your evaluation** / enterprise / explore) appears only after the walkthrough chrome, so early exits never see it.
+
+**Approach:**
+
+1. Compact stepper: number + short label (full title in `aria-label` / active panel H2).
+2. Surface a secondary evaluation CTA after step 1 (or sticky footer on marketing shell) without drowning the Next control.
+3. Keep one primary CTA hierarchy (evaluation > enterprise > explore).
+4. Vitest: stepper buttons have accessible names; conversion testid reachable earlier in DOM order or sticky region.
+
+**Acceptance:** Steps remain scannable on laptop width; evaluation path visible without finishing all five steps.
+
+**Depends on:** Prefer with **TB-1266**.
+
+**Out of scope:** Changing conversion destinations (`/get-started`, pricing quote).
+
+**Size estimate:** S.
+
+---
+
+## TB-1269 — `/live-demo` — continuous-mode density (no five-panel dump) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26 — “View full walkthrough” mounts all five step panels in one scroll region.
+
+**Problem:** Continuous mode is a wall of repeated panel chrome (recommendation blocks, takeaways, inspect links). It fights the guided story and is heavy for anonymous marketing ISR.
+
+**Approach:**
+
+1. Replace full dump with: compact table-of-contents jump list + one expanded panel, **or** lazy-mount panels as they enter the viewport.
+2. Keep guided mode as default; continuous as progressive disclosure.
+3. Vitest: continuous mode does not require all five `live-demo-step-*` articles in the initial paint (or documents lazy behavior).
+
+**Acceptance:** “Full walkthrough” remains usable without five-fold content duplication on first paint.
+
+**Depends on:** Prefer with **TB-1268**.
+
+**Out of scope:** Removing continuous mode entirely if product wants a printable one-pager later.
+
+**Size estimate:** S.
+
+---
+
 ## TB-1234 — `/help/cloud-connections/aws` specialty guide view (Azure parity) (P0)
 
 **Window:** V1 — Adoption friction.
@@ -30593,3 +30909,275 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Size estimate:** M.
 
+---
+
+## TB-1253 — `/help/procurement` specialty buyer FAQ guide view (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/help/procurement` 2026-07-26 (~49/100).
+
+**Problem:** Route falls through to generic `HelpTopicMarkdownView` over `docs/go-to-market/PROCUREMENT_FAQ.md`. Honesty of SOC 2 / pen-test answers is good, but the page has no buyer diligence hero, no primary next actions, and no structured FAQ chrome — a wall of Q&A plus residual contributor prose. Help-center tier is `admin` while registry audience is `buyer`, so IA already signals the page is half-migrated.
+
+**Approach:**
+
+1. Add a specialty help view (pattern: Azure connect / security-trust specialty) or curated content module for `procurement` with: short hero (what this page is for), FAQ list with clean question labels, and room for CTA chrome (**TB-1256**).
+2. Keep canonical honesty text in GTM markdown or a typed content module; do not invent new assurance claims.
+3. Align Help-center tier / discovery with buyer diligence (or document Admin-as-workspace-admin intentionally) so path chooser / trust surfaces land cleanly.
+4. Vitest: specialty view renders; H1 remains **Procurement FAQ**; no regression of SOC 2 / pen-test honesty.
+
+**Acceptance:** `/help/procurement` reads as a buyer diligence FAQ surface, not a raw GTM markdown dump.
+
+**Depends on:** None (pairs with **TB-1254**–**TB-1257** in one PR if practical).
+
+**Out of scope:** Rewriting full procurement pack ZIP / CLI build path; GTM **M-91** live objection rehearsal.
+
+**Size estimate:** M.
+
+---
+
+## TB-1254 — Procurement FAQ — purge contributor/repo leakage from rendered help (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/procurement` review 2026-07-26; presentation strips remove some internals but not enough.
+
+**Problem:** Rendered FAQ still surfaces contributor anchors: `V1_SCOPE.md`, `SECURITY.md`, `CONFIGURATION_REFERENCE.md`, `infra/terraform-entra/`, `archlucid auth validate-saml`, “Improvement archived #4”, MSA / Order Form / SoW `.md` filenames, `PENDING_QUESTIONS.md`-style refs. Buyers should see product answers and in-app help links only.
+
+**Approach:**
+
+1. Extend `prepareHelpMarkdownForPresentation` / procurement-specific banned list (parity with Azure connect banned-copy tests) **or** rewrite FAQ answers in a buyer content module.
+2. Vitest banned strings for procurement help: no `infra/`, no `V1_SCOPE`, no `CONFIGURATION_REFERENCE`, no `archlucid auth`, no “Improvement archived”, no raw `*.md` repo filenames in visible copy (human labels / in-app hrefs OK).
+3. Keep contributor detail in repo GTM docs for SE/ops; do not require deleting GTM source files.
+
+**Acceptance:** In-app `/help/procurement` body has no contributor path/CLI/improvement-ID leakage.
+
+**Depends on:** Prefer with **TB-1253**.
+
+**Out of scope:** Changing CPA SOC 2 / third-party pen-test status (Done **TB-135**/**TB-136** tracking; GTM owner rows remain).
+
+**Size estimate:** S.
+
+---
+
+## TB-1255 — Procurement FAQ — buyer-safe data residency (no appsettings keys) (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26; Q3 “Administrator details” disclosure.
+
+**Problem:** Data residency answer includes (or leaves remnants of) platform config: `ArtifactLargePayload:AzureBlobServiceUriByRegion`, `TenantProvisioning:SupportedDataRegions`, SQL column names. Even behind `<details>`, procurement reviewers should not be handed appsettings keys. Partial line filters already drop some `Tenant.DataRegion` lines but leave a broken/admin-shaped disclosure.
+
+**Approach:**
+
+1. Replace Q3 answer with buyer-safe residency: Azure regions by contract, isolation pointer to `/help/data-handling-tenant-isolation`, no config keys / SQL / blob URI maps.
+2. Move administrator residency config exclusively to Admin/internal docs (configuration reference / enterprise onboarding), not Procurement FAQ.
+3. Vitest: procurement help never contains `ArtifactLargePayload`, `TenantProvisioning`, or `dbo.Tenants`.
+
+**Acceptance:** Residency answer is procurement-safe; admin config lives elsewhere.
+
+**Depends on:** Prefer with **TB-1253**.
+
+**Out of scope:** Changing actual tenancy/residency product behavior.
+
+**Size estimate:** S.
+
+---
+
+## TB-1256 — Procurement FAQ — diligence CTA chrome (trust / pack / DPA) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/procurement` review 2026-07-26 — FAQ answers without a “what do I do next” ladder.
+
+**Problem:** Page has Print/PDF but no primary diligence actions. Buyers need clear CTAs to Trust Center (public evidence), Security & trust help, DPA template, Subprocessors, and a **buyer-safe** path to request/download the procurement pack — **not** “clone the repo and run `archlucid procurement-pack`” (that is SE/ops).
+
+**Approach:**
+
+1. Add a first-viewport CTA group: Trust Center, Security & trust (`/help/security-trust`), DPA, Subprocessors; secondary: contact security/sales for pack under NDA.
+2. Do not deep-link buyers to contributor HOW_TO_REQUEST CLI instructions; fix or replace the `how_to_request_procurement_pack.md` → `executive-summary` mapping so it cannot strand reviewers.
+3. Vitest: specialty view exposes the CTA group; no buyer-visible `procurement-pack --out` command on this page.
+
+**Acceptance:** A procurement reviewer can leave the page with a clear next diligence action without opening the monorepo.
+
+**Depends on:** Prefer with **TB-1253**.
+
+**Out of scope:** Building a new authenticated pack-download product feature (unless already shipped on Trust Center — reuse that).
+
+**Size estimate:** S.
+
+---
+
+## TB-1257 — Procurement FAQ — in-app-only link map + shorten SSO answer (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26; Q4 SSO answer and incomplete `in-app-doc-href` coverage.
+
+**Problem:** Q4 (Okta/Ping/Auth0) is a multi-paragraph contributor essay (scope commits, Terraform sample paths, SAML SP cutover CLI). Relative GTM/security links either 404, humanize into awkward filenames, or map wrongly. FAQ answers should stay short questionnaire responses with optional “see also” in-app links.
+
+**Approach:**
+
+1. Rewrite Q4 to a short buyer answer: OIDC (and SAML where GA) supported; collect issuer/audience/claims with your IdP admin; see Enterprise onboarding / Users & roles / Security help — no infra paths or CLI.
+2. Complete `in-app-doc-href` (or specialty content links) so every remaining procurement FAQ href resolves to `/help/*`, `/trust`, or mailto — never raw repo paths for buyers.
+3. Vitest: SSO section word-budget / banned infra+CLI; every markdown link in rendered procurement help resolves to an allowed scheme/path.
+
+**Acceptance:** SSO and other FAQ answers are questionnaire-length; all links are buyer-safe in-app or public trust URLs.
+
+**Depends on:** Prefer with **TB-1253**/**TB-1254**.
+
+**Out of scope:** Changing actual SSO product capabilities.
+
+**Size estimate:** S.
+
+---
+
+## TB-1258 — `/help/starting-reviews` — canonicalize into `/help/review-guide` (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/help/starting-reviews` 2026-07-26 (~52/100; traffic **HER**). Sibling `/help/review-guide` (**HR**) already scored ~50 on the same `REVIEW_GUIDE.md`.
+
+**Problem:** Two registry slugs (`starting-reviews`, `review-guide`) load the same customer markdown with different titles. Help center features only `review-guide`; empty-state and `creating-runs` alias still resolve to `starting-reviews`. Operators see two URLs for one guide — traffic and scores split, discovery drifts.
+
+**Approach:**
+
+1. Make `starting-reviews` (and keep `creating-runs`) a **slug alias** to canonical `review-guide` (same pattern as other `HELP_TOPIC_SLUG_ALIASES`).
+2. Remove the duplicate registry entry; permanent redirect `/help/starting-reviews` → `/help/review-guide` if App Router needs it.
+3. Update `internal-concept-leakage-guard` / empty-state tests to expect the canonical slug.
+4. Vitest: one product entry for the guide; alias normalize; no second featured card.
+
+**Acceptance:** One canonical in-app guide URL; legacy paths still resolve; workbook **HER** can later fold into **HR** via `/al-ui-tableupdate` migration if desired.
+
+**Depends on:** None (pairs with **TB-1259**–**TB-1262**).
+
+**Out of scope:** Rewriting wizard product behavior; scoring **HR** again in the same pass.
+
+**Size estimate:** S.
+
+---
+
+## TB-1259 — Starting/review guide — wizard companion CTA to `/reviews/new` (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/starting-reviews` review 2026-07-26 — guide describes the New architecture review wizard but has no primary in-product next step.
+
+**Problem:** Page chrome is Print/PDF + TOC + markdown steps. A reader finishing “Name the review” has no first-viewport **Start architecture review** (or Continue in wizard) CTA to `/reviews/new`. Specialty guides (getting-started, core-pilot, Azure connect) already use Do-this-now patterns.
+
+**Approach:**
+
+1. Add first-viewport primary CTA to `/reviews/new` (label aligned with product: Start architecture review); secondary optional: Evidence intake help.
+2. Prefer a thin specialty view or shared help CTA strip reused by canonical `review-guide` after **TB-1258**.
+3. Vitest: CTA present; href `/reviews/new`.
+
+**Acceptance:** From the guide, one click starts or resumes the wizard.
+
+**Depends on:** Prefer with **TB-1258** (ship on canonical slug).
+
+**Out of scope:** Changing wizard step order.
+
+**Size estimate:** S.
+
+---
+
+## TB-1260 — Starting/review guide — single title hierarchy (no dual H1) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26 — `HelpTopicMarkdownView` H1 from registry title plus markdown `# Review guide`.
+
+**Problem:** `/help/starting-reviews` shows H1 **Starting architecture reviews** and body still opens with **Review guide**, so the page fails the single-job / single-headline test and confuses TOC vs chrome.
+
+**Approach:**
+
+1. Strip or demote the markdown H1 when presentation already emits `entry.title`, **or** align registry title to **Review guide** only after **TB-1258**.
+2. Ensure one visible `h1` in the DOM for a11y/E2E.
+3. Vitest: single `level: 1` heading on the guide page.
+
+**Acceptance:** One page title; steps remain `h2`.
+
+**Depends on:** Prefer with **TB-1258**.
+
+**Out of scope:** Renaming all customer “review guide” marketing copy outside help.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1261 — Starting/review guide — unify empty-state / alias / search discovery (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26; `RUNS_EMPTY.helpTopicPath` → `starting-reviews`; Help drawer/search promote `review-guide` / first-hour paths.
+
+**Problem:** Empty reviews list, `creating-runs` alias, help search, and featured grid disagree on which URL is the wizard companion. After canonicalize, every pointer must land on the same slug.
+
+**Approach:**
+
+1. Point `RUNS_EMPTY` / create-first-review help / any `starting-reviews` deep links at canonical `review-guide`.
+2. Keep `creating-runs` → `review-guide` (via alias chain).
+3. Drift-guard test: no live product string still prefers `starting-reviews` as a distinct destination after migration.
+
+**Acceptance:** Empty-state Help and Help center “Review guide” open the same page.
+
+**Depends on:** **TB-1258**.
+
+**Out of scope:** Reworking first-hour / core-pilot as the primary path (they remain separate guides).
+
+**Size estimate:** S.
+
+---
+
+## TB-1262 — Starting/review guide — collapse Related guides density (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26 — Related guides lists six peer topics including first-hour and evidence graph.
+
+**Problem:** A wizard field reference should not compete with getting-started / first-hour journeys in the first scroll. Related links should be two high-value next steps (e.g. Evidence intake + Architecture packages), with the rest collapsed or omitted.
+
+**Approach:**
+
+1. Trim Related guides to ≤2 primary links (+ optional collapsed “More help”).
+2. Align with core-pilot 

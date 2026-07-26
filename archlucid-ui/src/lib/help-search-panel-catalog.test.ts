@@ -5,6 +5,7 @@ import {
   HELP_SEARCH_PANEL_MAX_RECOMMENDED,
   helpSearchPanelTopicHasBannedPublicCopy,
   helpSearchPanelTopicTargetsCurrentPage,
+  listDuplicateHelpSearchPanelTopicTitles,
   listHelpSearchPanelTopics,
   recommendedHelpSearchPanelTopicIds,
   recommendedHelpSearchPanelTopics,
@@ -116,6 +117,7 @@ describe("help-search-panel-catalog", () => {
     const firstReview = topics.find((topic) => topic.id === "first-review-guide");
 
     expect(firstReview).toBeDefined();
+    expect(firstReview?.title).toBe("First-hour review path");
     expect(firstReview?.action).toEqual({
       kind: "route",
       href: "/help/first-hour-operator-path",
@@ -128,11 +130,16 @@ describe("help-search-panel-catalog", () => {
     const reviewGuide = topics.find((topic) => topic.id === "review-guide");
 
     expect(reviewGuide).toBeDefined();
-    expect(reviewGuide?.title).toBe("Review guide");
+    expect(reviewGuide?.title).toBe("Review wizard reference");
     expect(reviewGuide?.action).toEqual({
       kind: "route",
       href: "/help/review-guide",
       helpSlug: "review-guide",
     });
+  });
+
+  it("keeps Help drawer topic titles unique after disambiguation (TB-1047)", () => {
+    expect(listDuplicateHelpSearchPanelTopicTitles(false)).toEqual([]);
+    expect(listDuplicateHelpSearchPanelTopicTitles(true)).toEqual([]);
   });
 });

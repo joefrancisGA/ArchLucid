@@ -73,14 +73,16 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
   {
     id: "first-review-guide",
-    title: "First review guide",
+    // TB-1047: disambiguate from "Review wizard reference" (review-guide).
+    title: "First-hour review path",
     description: "Step-by-step: name the review, upload evidence, add context, and finalize the review.",
-    keywords: ["first review", "review guide", "new review", "architecture context", "getting started"],
+    keywords: ["first review", "review guide", "first-hour", "new review", "architecture context", "getting started"],
     action: { kind: "route", href: "/help/first-hour-operator-path", helpSlug: "first-hour-operator-path" },
   },
   {
     id: "review-guide",
-    title: "Review guide",
+    // TB-1047: disambiguate from "First-hour review path" (first-review-guide).
+    title: "Review wizard reference",
     description: "Wizard field reference: scope, evidence upload, review settings, and finalize options.",
     keywords: ["review guide", "wizard", "review fields", "scope", "evidence upload", "finalize"],
     action: { kind: "route", href: "/help/review-guide", helpSlug: "review-guide" },
@@ -552,4 +554,19 @@ export function helpSearchPanelTopicHasBannedPublicCopy(topic: HelpSearchPanelTo
     REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS.some((pattern) => corpus.includes(pattern))
     || HELP_SEARCH_PANEL_EXTRA_BANNED_PUBLIC_COPY.some((pattern) => corpus.includes(pattern))
   );
+}
+
+/** Returns duplicate titles in the Help drawer catalog (case-insensitive). Empty when titles are unique (TB-1047). */
+export function listDuplicateHelpSearchPanelTopicTitles(isAdmin: boolean): string[] {
+  const counts = new Map<string, number>();
+
+  for (const topic of listHelpSearchPanelTopics(isAdmin)) {
+    const key = topic.title.trim().toLowerCase();
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([title]) => title)
+    .sort((left, right) => left.localeCompare(right));
 }

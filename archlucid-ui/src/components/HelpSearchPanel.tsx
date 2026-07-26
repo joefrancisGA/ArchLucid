@@ -421,6 +421,11 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
           data-testid="help-search-panel"
           closeAriaLabel="Close help"
           aria-label="Contextual help"
+          onOpenAutoFocus={(event) => {
+            // Keep caret in search so the drawer opens ready to type (TB-1047).
+            event.preventDefault();
+            searchInputRef.current?.focus();
+          }}
         >
           {isViewingArticle ? (
             <>
@@ -532,7 +537,6 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     }}
                     onKeyDown={handleSearchInputKeyDown}
                     aria-label="Search help"
-                    autoFocus
                     className={cn(
                       "h-9 border-neutral-200 bg-white pl-8 font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
                       OPERATOR_TYPOGRAPHY.body,
