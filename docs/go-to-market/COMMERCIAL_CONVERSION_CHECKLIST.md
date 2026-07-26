@@ -1,12 +1,12 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-26
 
-> **Scope:** Sales-led Readiness Review close-out checklist. Use after first-pilot evidence exists; do not treat this as legal, pricing, or procurement attestation.
+> **Scope:** Sales-led Readiness Review close-out checklist, plus lightweight decision-cycle telemetry for demo → commercial next-step learning (formerly `DECISION_CYCLE_TELEMETRY.md`). Use after first-pilot evidence exists; do not treat this as legal, pricing, or procurement attestation.
 
 # Commercial conversion checklist
 
 **Audience:** founders, sales engineers, pilot champions, and sponsor owners moving from a guided Readiness Review to an Evidence Pack, ARB Report, or annual Professional / Enterprise order form.
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-26
 
 ## Conversion rule
 
@@ -72,11 +72,54 @@ python scripts/ci/assert_route_tier_policy_nav.py
 
 For hosted Azure pilots, also follow [`../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md). These checks are evidence collection and drift detection; they do not create SOC 2 CPA attestation, third-party pen-test publication, or marketplace availability.
 
+## 6. Decision-cycle telemetry (local learning)
+
+Track milestone timestamps from **demo complete** through **next-step decision** without CRM integration. Summaries expose cohort medians and outlier thresholds to prioritize roadmap work that improves deal motion. Local artifacts only — no PII required.
+
+### Canonical milestones
+
+| Event type | Meaning |
+| --- | --- |
+| `demo_complete` | Curated demo or CTO walkthrough finished |
+| `pilot_start` | Tenant/environment provisioned for pilot work |
+| `first_committed_run` | First architecture-package finalize captured (API: golden manifest commit; event name unchanged) |
+| `sponsor_packet_sent` | Sponsor-facing packet shared (only when SEND-eligible) |
+| `next_step_decision` | Commercial outcome recorded (`advance`, `hold`, `decline`, `unknown`) |
+
+**Template:** [`templates/decision-cycle-events.template.json`](templates/decision-cycle-events.template.json)  
+**Schema:** `archlucid.decision-cycle-telemetry.v1`  
+**Storage:** one JSON file per account under `artifacts/decision-cycle/<account>/events.json` (or a combined log). Use pseudonymous `accountLabel` values.
+
+### Build summary report
+
+```powershell
+python scripts/ci/build_decision_cycle_telemetry.py `
+  --events-json docs/go-to-market/templates/decision-cycle-events.template.json `
+  --json-out artifacts/decision-cycle/sample-summary.json `
+  --markdown-out artifacts/decision-cycle/sample-summary.md
+```
+
+### Interpreting delay hotspots
+
+- Compare per-account segment durations to cohort medians in the summary JSON.
+- Segments above **2× median** are flagged as outlier thresholds in `outlierThresholdsHours`.
+- Missing milestones mean the journey is incomplete — do not infer velocity from partial data.
+
+| Hotspot segment | Typical remediation focus |
+| --- | --- |
+| Demo → pilot start | Procurement / environment prerequisites |
+| Pilot start → first finalize | First-hour architect friction (see [`FIRST_HOUR_OPERATOR_PATH.md`](../library/FIRST_HOUR_OPERATOR_PATH.md)) |
+| First commit → sponsor send | Proof packet / ROI baseline SEND gates (this checklist §3) |
+| Sponsor send → decision | Executive value narrative and faithfulness guardrails |
+
 ## Related
 
 - [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md#pre-pilot-quote-pack)
 - [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md)
 - [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md)
+- [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md)
 - [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
 - [`../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md)
 - [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map)
+
+Former standalone runbook: `docs/go-to-market/DECISION_CYCLE_TELEMETRY.md` → [§6 Decision-cycle telemetry](#6-decision-cycle-telemetry-local-learning).
