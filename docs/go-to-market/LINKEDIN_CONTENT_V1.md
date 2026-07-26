@@ -14,7 +14,7 @@
 
 **Posting cadence:** One short post per week for the V1 batch (article after the fifth post). Builder articles every two to three weeks after M-15 has had time to breathe — publish from personal profile, not company page. Calendar: [publishing schedule](#publishing-schedule-m-10m-15).
 
-**Related:** [`POSITIONING.md`](POSITIONING.md), [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md), [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (M-10–M-15, M-77–M-88), [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md), [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md), [`SCREENSHOT_GALLERY.md`](SCREENSHOT_GALLERY.md).
+**Related:** [`POSITIONING.md`](POSITIONING.md), [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md), [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (M-10–M-15, M-77–M-88), [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md), [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), [`SCREENSHOT_GALLERY.md`](SCREENSHOT_GALLERY.md).
 
 ---
 
@@ -1353,7 +1353,7 @@ This article lives in a content pack next to posts about typography migrations a
 
 The secret founders rarely admit: **thought leadership is often pre-written before proof catches up** — because writing is cheap and pilot evidence is slow.
 
-The guardrail is not "stop writing." It is **`WHAT_NOT_TO_PROMISE.md`** and **`CLAIM_READINESS_STATUS.md`**: queue the copy, gate the claims, label execution mode on anything that shows product output, never quote customer outcomes without permission.
+The guardrail is not "stop writing." It is **`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`** and **`CLAIM_READINESS_STATUS.md`**: queue the copy, gate the claims, label execution mode on anything that shows product output, never quote customer outcomes without permission.
 
 Drafting ahead is fine. Publishing ahead is claim debt.
 
@@ -2128,7 +2128,7 @@ Write ADRs if they help your team think. Just do not confuse them with the revie
 >
 > [Link]"
 
-**Format:** Short link post. Service-led mention only; do not imply named customer ADR cleanup outcomes. Align with Stage 0 posture and [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+**Format:** Short link post. Service-led mention only; do not imply named customer ADR cleanup outcomes. Align with Stage 0 posture and [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
 ---
 

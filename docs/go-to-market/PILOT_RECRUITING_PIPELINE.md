@@ -184,4 +184,4 @@ Maintain a simple record for each active prospect:
 | [`SHOULD_YOU_EVALUATE.md`](SHOULD_YOU_EVALUATE.md) | Prospect self-qualification guide |
 | [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md) | Detailed buyer persona profiles |
 | [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP detail |
-| [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) | GTM overclaim guardrails |
+| [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) | GTM overclaim guardrails |

@@ -1,4 +1,4 @@
-﻿> **Reviewed:** 2026-07-26
+> **Reviewed:** 2026-07-26
 
 > **Scope:** Buyer-safe differentiation proof — manual review vs generic AI vs ArchLucid V1 outputs — plus the model-seats counter-positioning message test (formerly `MODEL_SEATS_COUNTER_POSITIONING_TEST.md`).
 
@@ -93,7 +93,7 @@ Static demo proof shape (before setup): [`buyer-jobs/README.md`](buyer-jobs/READ
 
 Use this when an evaluator asks: *"Why not Claude/GPT/Gemini with a good prompt?"*
 
-This is **validation guidance**, not a claim that ArchLucid always beats frontier AI. Do not publish benchmark superiority without data. See [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+This is **validation guidance**, not a claim that ArchLucid always beats frontier AI. Do not publish benchmark superiority without data. See [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
 ### Model-seats counter-positioning message test
 
@@ -156,7 +156,7 @@ Stop or pivot when the sponsor's need matches these — **model seats are the ri
 | "We only need faster first drafts" | L1 loss mode territory; ArchLucid is not optimized for ad-hoc speed | Acknowledge; offer bakeoff only if they also have formal review pain |
 | "We won't run a finalized review" | Value is in the defensible architecture package, not chat ([§ When ArchLucid is not a fit yet](#when-archlucid-is-not-a-fit-yet)) | Qualify out or propose service-led single review deliverable |
 | "Azure-native hosting is a hard blocker" | [`SHOULD_YOU_EVALUATE.md`](SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit) · [`COMPETITIVE_POSITIONING.md`](COMPETITIVE_POSITIONING.md) | Resolve platform fit before pilot |
-| "We need CPA SOC 2 / external pen test before any pilot" | V1.1 backlog; self-assessment only ([`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)) | Trust Center + defer; GTM **G-REAL-05** / **G-ASSURANCE-02** remain owner work |
+| "We need CPA SOC 2 / external pen test before any pilot" | V1.1 backlog; self-assessment only ([`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)) | Trust Center + defer; GTM **G-REAL-05** / **G-ASSURANCE-02** remain owner work |
 | "Copilot is $20/mo unlimited — prove cheaper TCO" | [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md) §4.4 — cost per interaction favors chat | Reframe to risk-of-undocumented-decisions, not seat price |
 | "We need native Jira/ServiceNow/Slack day one" | V1.1 connectors per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) | REST/CLI/export handoff only |
 

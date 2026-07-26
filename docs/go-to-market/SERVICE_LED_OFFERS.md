@@ -196,7 +196,7 @@ Up to **200 files** per multipart upload (ZIP counts as one file); optional Azur
 1. Final Architecture Review Report in agreed format.
 2. Finalized architecture package with audit trail and export bundle.
 3. Execution mode labeled on sponsor-facing artifacts.
-4. No claims beyond [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+4. No claims beyond [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
 Customer written approval within __________ business days of delivery (or deemed accepted per MSA).
 

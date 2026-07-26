@@ -279,4 +279,4 @@ The `sponsorSafeSummary` paragraph must:
 | [`#buyer-safe-evidence-inventory`](#buyer-safe-evidence-inventory) | Buyer-safe AI evidence index (sponsor packets) |
 | `scripts/Invoke-RealLlmEvidenceGate.ps1` | Generates real-mode evidence artifact |
 | `scripts/collect-first-pilot-proof.ps1` | Assembles first-pilot proof bundle |
-| `WHAT_NOT_TO_PROMISE.md` | GTM overclaim guardrails |
+| `PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise` | GTM overclaim guardrails |

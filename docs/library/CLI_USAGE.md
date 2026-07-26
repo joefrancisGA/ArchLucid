@@ -420,7 +420,7 @@ Example (with plugin lock and Terraform path, common for `archlucid new`):
 
 ## Proof-packet GTM guardrails (CI)
 
-Warn-only scan for forbidden sales promises (see [`WHAT_NOT_TO_PROMISE.md`](../go-to-market/WHAT_NOT_TO_PROMISE.md)):
+Warn-only scan for forbidden sales promises (see [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)):
 
 ```bash
 python scripts/ci/check_proof_summary_promise_language.py path/to/proof-summary.md

@@ -108,7 +108,7 @@ Start: Buyer wants to purchase
 | Safe language | "Self-serve checkout is not available yet. Pilots and subscriptions are purchased via invoice or order form." |
 | Unsafe language | "Buy now" buttons or "Start free trial" flows that imply live Stripe — do not use until configured and approved |
 | Reference | [`STRIPE_CHECKOUT.md`](STRIPE_CHECKOUT.md) (planning doc only) |
-| Related | [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) |
+| Related | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) |
 
 ### 2.5 Private offer / MACC draw-down (owner decision required)
 
@@ -269,5 +269,5 @@ Former standalone: `docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md` → thi
 | [`trust-center.md`](trust-center.md) | Trust and assurance index |
 | [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md) | Marketplace planning document (not live) |
 | [`STRIPE_CHECKOUT.md`](STRIPE_CHECKOUT.md) | Stripe checkout planning document (not live) |
-| [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) | GTM overclaim guardrails |
+| [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) | GTM overclaim guardrails |
 | [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) | V1 deferred items (Stripe, Marketplace) |

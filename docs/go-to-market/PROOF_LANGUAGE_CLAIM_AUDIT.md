@@ -6,7 +6,7 @@
 
 **Last reviewed:** 2026-07-25
 
-This audit answers one question for every buyer-facing proof packet and demo script: **is each claim labeled with the kind of backing it actually has, and are unsupported superlatives removed?** It reuses the existing claim guardrails ([`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md), the buyer-surface CI guards) and adds a tight superlative regression guard ? it does not restate policy those docs own.
+This audit answers one question for every buyer-facing proof packet and demo script: **is each claim labeled with the kind of backing it actually has, and are unsupported superlatives removed?** It reuses the existing claim guardrails ([`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), the buyer-surface CI guards) and adds a tight superlative regression guard ? it does not restate policy those docs own.
 
 ## Claim-type taxonomy (canonical for ?17 #7)
 
@@ -18,7 +18,7 @@ Five backing types. Each buyer-facing claim should be reducible to one of them; 
 | **review-backed** | Traces to a finalized review's persisted findings / architecture package / audit rows. | Architecture package (API: golden manifest) + authority chain; `DIFFERENTIATION_PROOF_PACKET.md`. |
 | **illustrative** | Demo-derived / sample, explicitly not a customer outcome. | `illustrative` posture; demo-proof-packet labels; `ROI_BASELINE_SEND_POLICY.md` (`demo-derived`). |
 | **self-assessed** | Internally attested (e.g. SOC mapping), not third-party issued. | `SOC2_SELF_ASSESSMENT_2026.md`, `trust-center.md`, `PROCUREMENT_PACK_INDEX.md` (`Self-attested`). |
-| **roadmap** | Deferred V1.1/V2 capability ? stated as planned, never as shipped. | `V1_DEFERRED.md`; `PROCUREMENT_PACK_INDEX.md` (`Deferred`); `WHAT_NOT_TO_PROMISE.md`. |
+| **roadmap** | Deferred V1.1/V2 capability ? stated as planned, never as shipped. | `V1_DEFERRED.md`; `PROCUREMENT_PACK_INDEX.md` (`Deferred`); `PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`. |
 
 Governance overlay (orthogonal): AI output is **governed** vs **advisory** per `ai-output-governance-label.ts`; ROI dollar headlines obey the first-value **ROI narrative claim gate** (PASS/WARN/HOLD) ? see [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md) Rule 2.
 
@@ -64,4 +64,4 @@ python scripts/ci/run_buyer_surface_strict_guards.py --strict
 
 The automated guard removes unsupported superlatives and the matrix classifies dominant claim types, but **line-level sign-off on borderline comparative/ROI claims and the live buyer reaction** are market-execution. Pair this audit with the procurement objection rehearsal (`GTM_BACKLOG.md` **M-91**) when that window opens; do not treat a green scan as buyer acceptance.
 
-**Cross-refs:** [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) ? [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md) ? [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) ? [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) ? [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md)
+**Cross-refs:** [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) ? [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md) ? [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) ? [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) ? [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md)

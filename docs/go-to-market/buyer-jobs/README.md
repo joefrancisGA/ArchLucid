@@ -18,7 +18,7 @@ Use demo proof shapes **before** a buyer runs their own tenant to show package s
 
 | Buyer job | Accelerator / proof shape | Prerequisites | Limitations |
 | --- | --- | --- | --- |
-| First sponsor artifact in 20 minutes | [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed) + `archlucid pilot proof-packet` | API + SQL + auth mode; one committed run | Simulator vs real must be labeled; see [`WHAT_NOT_TO_PROMISE.md`](../WHAT_NOT_TO_PROMISE.md) |
+| First sponsor artifact in 20 minutes | [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed) + `archlucid pilot proof-packet` | API + SQL + auth mode; one committed run | Simulator vs real must be labeled; see [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) |
 | Azure SaaS procurement questions | [AZURE_SAAS_READINESS.md](AZURE_SAAS_READINESS.md#demo-proof-shape-demo-derived-only) | Hosted pilot profile lint PASS/HOLD snapshot | Not a CPA SOC 2 report |
 | Responsible AI / governance review | [AI_GOVERNANCE_REVIEW.md](AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only) | Policy pack + PilotStrict posture on run | Not third-party model audit |
 | Healthcare claims (demo only) | [HEALTHCARE_CLAIMS_POLICY_REVIEW.md](HEALTHCARE_CLAIMS_POLICY_REVIEW.md#demo-proof-shape-demo-derived-only) | Demo workspace only | **Demo-derived** — not a customer outcome |

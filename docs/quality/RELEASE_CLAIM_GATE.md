@@ -168,4 +168,4 @@ Tests covering the gate logic live in the CI Python test suite. The following sc
 | `docs/quality/REAL_LLM_SESSION_2026-05-29.md` | Example real-mode evidence session |
 | `docs/library/V1_RELEASE_CHECKLIST.md` | Full V1 release checklist |
 | `docs/go-to-market/AI_READINESS_POSTURE.md` | Sponsor AI readiness posture artifact (TB-167) |
-| `docs/go-to-market/WHAT_NOT_TO_PROMISE.md` | GTM overclaim guardrails |
+| `docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise` | GTM overclaim guardrails |

@@ -1,4 +1,4 @@
-﻿> **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
+> **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
 >
 > **Status:** current
 
@@ -188,7 +188,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | Sub-decision | Decision | Affects |
 |---|---|---|
 | **Real-mode output in public assets** | **Allowed.** Real-mode output may be shown in market-facing screenshots, video, and sales copy when the underlying data/output is authorized for publication, redacted, source-labeled, and caveated. | [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) TB-142, GTM asset production |
-| **Synthetic/demo fallback** | Synthetic/demo-labeled assets remain allowed and should be used when real output is not approved, is too sensitive, or would imply unsupported customer proof. | [`WHAT_NOT_TO_PROMISE.md`](go-to-market/WHAT_NOT_TO_PROMISE.md), public claims review |
+| **Synthetic/demo fallback** | Synthetic/demo-labeled assets remain allowed and should be used when real output is not approved, is too sensitive, or would imply unsupported customer proof. | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), public claims review |
 | **Limits** | Do not imply public customer proof, production SLA, CPA SOC 2, third-party validation, or broad real-LLM validation unless separate evidence exists. | Promise-language checks, publication approval |
 
 ---

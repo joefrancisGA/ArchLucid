@@ -33,7 +33,7 @@
 - [ ] Structural execution mode labeled (Real / Simulator / Fallback / Mixed)
 - [ ] ROI lines show source kind (`CustomerProvided` vs `BenchmarkAssumption`)
 - [ ] Redaction reviewed before external email
-- [ ] [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) reviewed with buyer
+- [ ] [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) reviewed with buyer
 
 ### Procurement objections → artifacts
 

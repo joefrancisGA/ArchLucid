@@ -68,7 +68,7 @@
 
 ## M-18 outreach message templates
 
-Founder-led "20 warm contacts" campaign (GTM **M-18**). Companion to **M-17** (list) and **M-19** (demos). Claims trace to this file and [`POSITIONING.md`](POSITIONING.md); guardrails in [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md). **Not a sales pitch** — ask for professional opinion / 10-minute reaction.
+Founder-led "20 warm contacts" campaign (GTM **M-18**). Companion to **M-17** (list) and **M-19** (demos). Claims trace to this file and [`POSITIONING.md`](POSITIONING.md); guardrails in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise). **Not a sales pitch** — ask for professional opinion / 10-minute reaction.
 
 ### Framing rules
 

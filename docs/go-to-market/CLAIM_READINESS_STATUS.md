@@ -31,7 +31,7 @@
 2. Score gates using the readiness checklist appendix below or pilot review notes.
 3. Update this table and the proof run log in the same PR or ops note.
 4. Run weekly cadence when reviewing G4/G5 posture: [`../runbooks/WEEKLY_PROOF_CADENCE.md`](../runbooks/WEEKLY_PROOF_CADENCE.md) (`.\scripts\Invoke-WeeklyProofCadence.ps1`).
-5. Do not advance marketing claims past the highest fully-passed stage ([`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)).
+5. Do not advance marketing claims past the highest fully-passed stage ([`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)).
 6. Before a principal-architect or security-reviewer tech review, run [`BUYER_SECURITY_PROCUREMENT_PACKET.md#principal-architect-falsification-script-m-113`](BUYER_SECURITY_PROCUREMENT_PACKET.md#principal-architect-falsification-script-m-113) (**M-113**) and hand [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114) (**M-114**). After micro-proofs land (**TB-948** harness, **TB-949** probe, **TB-950** UI path, **TB-951** export CI, **TB-886** buyer verify talk track), refresh Evidence / Blocking columns here.
 
 ## G5 release-evidence workflow
@@ -56,7 +56,7 @@
 
 | Gate | Signal | PASS when | HOLD when | Evidence / remediation pointer |
 | --- | --- | --- | --- | --- |
-| **G1** | Execution-mode honesty | Every sponsor-facing surface labels `Real`, `Simulator`, `Fallback`, or `Mixed`; PilotStrict HOLD blocks unsafe forwarding | Any unlabeled or mislabeled execution mode in exports/UI | [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md); run-detail and proof-packet tests |
+| **G1** | Execution-mode honesty | Every sponsor-facing surface labels `Real`, `Simulator`, `Fallback`, or `Mixed`; PilotStrict HOLD blocks unsafe forwarding | Any unlabeled or mislabeled execution mode in exports/UI | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise); run-detail and proof-packet tests |
 | **G2** | ROI source integrity | No dollar/time claim without `RoiMetricSourceKind` and freshness labels | Synthetic, stale, or missing-source ROI presented as savings | [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md); proof-packet ROI table |
 | **G3** | Tenant isolation provable | Production-like profiles use scoped Azure Search (or equivalent) with tenant filters on every query/delete | Missing filters, header-only scope, or policy-pack safe-default gaps | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md); RAG backlog RAG-V1-010 |
 | **G4** | Repeatable proof packet | ≥3 distinct real committed runs produced clean, redacted, buyer-safe proof packets | Manual artifact surgery required per run | `collect-first-pilot-proof.ps1`; [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) |
@@ -83,6 +83,6 @@ Next action:
 
 | Stage | Exit gate |
 | --- | --- |
-| **0 — Controlled pilots (now)** | Pilot path end-to-end; proof packet generates; [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) in active use |
+| **0 — Controlled pilots (now)** | Pilot path end-to-end; proof packet generates; [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) in active use |
 | **1 — Evidence-backed selling** | **G1–G4** all **PASS** for ≥3 distinct real pilot runs |
 | **2 — Broad GTM / scale claims** | **G1–G6** all **PASS**; ≥1 published/permissioned reference (owner-deferred) |

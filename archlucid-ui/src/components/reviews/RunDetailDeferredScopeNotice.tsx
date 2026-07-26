@@ -25,13 +25,13 @@ const DEFERRED_ITEMS = [
   {
     id: "mcp-marketplace",
     label: "MCP / plugin marketplace GA",
-    docPath: "/docs/go-to-market/WHAT_NOT_TO_PROMISE.md",
+    docPath: "/docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md",
     safeWording: "MCP and public plugin marketplace are deferred — do not promise GA in V1 pilots.",
   },
   {
     id: "live-commerce",
     label: "Live marketplace checkout",
-    docPath: "/docs/go-to-market/WHAT_NOT_TO_PROMISE.md",
+    docPath: "/docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md",
     safeWording: "Self-serve commerce and live Marketplace checkout remain deferred — use quote/order-form motion.",
   },
 ] as const;

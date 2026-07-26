@@ -12,7 +12,7 @@
 
 **Last reviewed:** 2026-07-26
 
-**Related:** [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md), [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md), [`reference-customers/README.md`](reference-customers/README.md).
+**Related:** [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md), [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md), [`reference-customers/README.md`](reference-customers/README.md).
 
 ---
 
@@ -24,7 +24,7 @@ Before any named reference, logo, case study, or reference call is used external
 
 1. This checklist must be completed and signed off by the owner.
 2. The claim must be scoped to exactly what the reference record permits.
-3. The claim must pass the copy guard in [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+3. The claim must pass the copy guard in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
 ---
 
@@ -76,7 +76,7 @@ Complete one record per customer reference candidate.
 
 ### 3.4 Claim boundary review
 
-- [ ] Every external use of this reference has been reviewed against [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+- [ ] Every external use of this reference has been reviewed against [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 - [ ] The claim does not imply SOC 2 CPA, third-party pen test, guaranteed ROI, or other unavailable assurance.
 - [ ] If ROI figures are used, they include source labels and the claim scope matches what the customer approved.
 - [ ] Claim has passed the commercial copy overclaim check.
@@ -185,7 +185,7 @@ Until at least one reference record has been completed and signed off:
 | --- | --- |
 | [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) | PASS/HOLD criteria for pilot proof |
 | [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md) | Proof-permission capture during intake |
-| [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) | GTM overclaim guardrails |
+| [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) | GTM overclaim guardrails |
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial close-out checklist |
 | [`reference-customers/README.md`](reference-customers/README.md) | Status table + a–h tracking checklist |
 | [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) | V1.1 GTM backlog context (TB-164) |

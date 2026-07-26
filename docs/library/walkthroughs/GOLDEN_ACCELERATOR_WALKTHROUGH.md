@@ -29,4 +29,4 @@ Use **after** Core Pilot first finalize. Fictional names only.
 
 ## What not to promise
 
-See [`WHAT_NOT_TO_PROMISE.md`](../../go-to-market/WHAT_NOT_TO_PROMISE.md).
+See [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).

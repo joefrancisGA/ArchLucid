@@ -12,7 +12,7 @@
 
 **Buyer outcome:** Prospects see that **policy assignments change finalize-gate outcomes** on the **same finalized architecture package** — not just different finding prose.
 
-**Grounding rule:** Dry-run and simulation output is **architecture-review governance evidence**, not certification. See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) and [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+**Grounding rule:** Dry-run and simulation output is **architecture-review governance evidence**, not certification. See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) and [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
 **Automation:** [`scripts/demo-policy-pack-delta.ps1`](../../scripts/demo-policy-pack-delta.ps1) runs Phases B–D against a local or staging API when `-RunId` is supplied.
 

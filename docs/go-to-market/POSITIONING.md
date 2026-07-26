@@ -1,4 +1,4 @@
-﻿> **Reviewed:** 2026-07-26
+> **Reviewed:** 2026-07-26
 
 > **Scope:** ArchLucid positioning — full detail, tables, and links below — plus the closed create/review adversarial evaluation (formerly `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`; Done **TB-738**–**TB-747**).
 
@@ -62,7 +62,7 @@ Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/
 | Positioning one-noun-two-verbs | **TB-746** | This document’s §0 alignment |
 | Create intake feels like drafting | **TB-747** | Create wizard differentiated from evidence-only review intake |
 
-Related: [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) (**Architecture package**) · [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+Related: [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) (**Architecture package**) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
 ---
 

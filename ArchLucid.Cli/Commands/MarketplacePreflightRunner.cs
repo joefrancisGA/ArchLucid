@@ -221,7 +221,7 @@ public static class MarketplacePreflightRunner
             new MarketplacePreflightStepResult(
                 "marketplace_go_live",
                 true,
-                "Owner-only — Azure Marketplace \"Go live\" and DNS cutover are deferred (WHAT_NOT_TO_PROMISE.md).",
+                "Owner-only — Azure Marketplace \"Go live\" and DNS cutover are deferred (PUBLIC_CLAIM_BOUNDARY_GUIDE.md § GTM do-not-promise).",
                 NotAutomated: true));
     }
 

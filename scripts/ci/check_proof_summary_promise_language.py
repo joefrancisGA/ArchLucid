@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Warn-only scan for forbidden GTM promise phrases (Improvement #20 / WHAT_NOT_TO_PROMISE.md)."""
+"""Warn-only scan for forbidden GTM promise phrases (Improvement #20 / PUBLIC_CLAIM_BOUNDARY_GUIDE.md § GTM do-not-promise)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-# Phrases from docs/go-to-market/WHAT_NOT_TO_PROMISE.md "Do not promise" column (lowercase match).
+# Phrases from docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md § GTM do-not-promise "Do not promise" column (lowercase match).
 FORBIDDEN_PHRASES: tuple[str, ...] = (
     "we are soc 2 certified",
     "soc 2 certified",
@@ -96,7 +96,7 @@ def main(argv: list[str] | None = None) -> int:
     targets = args.paths
     if not targets:
         targets = [
-            root / "docs" / "go-to-market" / "WHAT_NOT_TO_PROMISE.md",
+            root / "docs" / "library" / "PUBLIC_CLAIM_BOUNDARY_GUIDE.md",
             root / "docs" / "go-to-market" / "PROCUREMENT_FAQ.md",
             root / "docs" / "go-to-market" / "QUOTE_TO_PROOF_PACKET.md",
         ]
