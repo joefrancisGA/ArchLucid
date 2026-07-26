@@ -119,7 +119,7 @@ Merge order for **`appsettings`** is environment‑specific — reconcile **`Age
 |-------------|-------------|----------|
 | **Multi-tenant provisioning** | API or background service that creates tenant, workspace, seeds sample data, and assigns roles | Must-have |
 | **Trial feature flags** | Configuration-driven tier enforcement (run limits, feature gates per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)) | Must-have |
-| **Usage metering** | Track runs consumed, seats active, features used — feeds health scoring ([CUSTOMER_HEALTH_SCORING.md](CUSTOMER_HEALTH_SCORING.md)) and conversion analytics | Must-have |
+| **Usage metering** | Track runs consumed, seats active, features used — feeds health scoring ([RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md#1-customer-health-scoring)) and conversion analytics | Must-have |
 | **Billing integration** | Stripe, Azure Marketplace, or equivalent — triggered on conversion from trial to paid | Phase 2 |
 | **Marketing Team Stripe CTA** | Public `/pricing` Team tier: **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED=true`** (or **`1`**) required for Stripe Checkout as primary CTA; optional **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL`** overrides **`pricing.json`**. **`resolveTeamStripeCheckoutHref`** still returns **`null`** when the flag is **`0`**/**`false`** (suppression). Details in **section 2.2** above. | Phase 2 |
 | **Trial lifecycle (CRM + entitlement)** | Automated lifecycle emails (**§5**), **read‑only enforcement** once trial phases advance, **`TrialLimitGate`**, **`dbo.TenantLifecycleTransitions`** / audit trail (**[`TRIAL_LIFECYCLE.md`](../runbooks/TRIAL_LIFECYCLE.md)**) | Must‑have |

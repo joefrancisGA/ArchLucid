@@ -112,7 +112,7 @@ This playbook aligns with the 6-week pilot timeline in [PILOT_SUCCESS_SCORECARD.
 After successful pilot conversion:
 
 - Transition from pilot CSM touchpoints to **steady-state** cadence (quarterly business review).
-- Activate health scoring per [CUSTOMER_HEALTH_SCORING.md](CUSTOMER_HEALTH_SCORING.md).
+- Activate health scoring per [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md#1-customer-health-scoring).
 - Enter renewal timeline per [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md).
 
 ---
@@ -123,6 +123,5 @@ After successful pilot conversion:
 |-----|-----|
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | What to measure during pilot |
 | [ROI_MODEL.md](ROI_MODEL.md) | Value calculation for leadership presentation |
-| [CUSTOMER_HEALTH_SCORING.md](CUSTOMER_HEALTH_SCORING.md) | Post-onboarding health framework |
-| [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md) | Renewal process |
+| [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md) | Health scoring (§1) + renewal/expansion |
 | [trust-center.md](trust-center.md) | Security and trust artifacts for onboarding |
