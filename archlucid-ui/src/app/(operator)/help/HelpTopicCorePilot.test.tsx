@@ -42,10 +42,21 @@ describe("HelpCorePilotGuideView", () => {
       "/reviews/new",
     );
     expect(within(summaryCard).getByRole("link", { name: "Open sample review" })).toBeInTheDocument();
-    expect(within(summaryCard).getByRole("link", { name: "View pilot guide" })).toHaveAttribute(
-      "href",
-      "/help/pilot-guide",
-    );
+    expect(within(summaryCard).queryByRole("link", { name: "View pilot guide" })).toBeNull();
+    expect(screen.getByTestId("core-pilot-primary-start-cta")).toBeInTheDocument();
+    // TB-1040: only the hero Start control uses the primary button style.
+    expect(screen.getAllByTestId("core-pilot-primary-start-cta")).toHaveLength(1);
+  });
+
+  it("does not link recursively to View pilot guide anywhere on the page (TB-1040)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected core-pilot documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.queryByRole("link", { name: "View pilot guide" })).toBeNull();
+    expect(screen.queryByRole("link", { name: /pilot guide/i })).toBeNull();
   });
 
   it("renders a five-step workflow stepper with action links", () => {

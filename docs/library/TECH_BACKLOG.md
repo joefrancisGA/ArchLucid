@@ -2,23 +2,23 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
+**Updated:** 2026-07-25 (**TB-1230**–**TB-1231** opened — PA: shared hallucination defense plane vs mode-specific executors (anti-fork) + honesty CI; GTM **M-211**/**M-212**; complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1040** **Done** — `/help/core-pilot` single primary Start CTA; removed recursive View pilot guide; workflow/fast-path/closing Starts demoted to outline). Prior: 2026-07-25 (**TB-1228**–**TB-1229** opened — PA: faithfulness/support-ratio scoring lane positioning (inline commit vs async signal vs model-promotion) + honesty CI; GTM **M-209**/**M-210**; complements **TB-1221**/**M-166** / Done **TB-684**/**TB-021**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1223**–**TB-1227** opened — P0 `/settings/security-trust` Administration wayfinding + single-hero intro collapse + PageHeading/help + Available-now CTA hierarchy + contact dedupe from owner review ~53/100; see `## TB-1223`–`## TB-1227` below). Prior: 2026-07-25 (**TB-1221**–**TB-1222** opened — PA: decision-grade finding fail-closed provenance contract + honesty CI (architectural guarantees, not prompt-level); GTM **M-207**/**M-208**; complements **TB-1003**/**TB-1196** / Done **TB-033**–**TB-037**; does not claim semantic faithfulness). Prior: 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 16 |
-| Testability | 30 |
+| Testability | 33 |
 | Reliability | 19 |
 | Deployability | 18 |
-| AI/Agent readiness | 11 |
+| AI/Agent readiness | 13 |
 | Architectural integrity | 13 |
-| Adoption friction | 180 |
+| Adoption friction | 179 |
 | Commercial / marketability | 14 |
 | Data consistency | 7 |
 | Cutting-edge AI | 9 |
 | Explainability | 9 |
 | Proof-of-ROI / executive value | 6 |
-| Trustworthiness | 56 |
+| Trustworthiness | 57 |
 | Maintainability | 15 |
 | Traceability | 6 |
 | Interoperability | 8 |
@@ -28,7 +28,7 @@
 | Cost-effectiveness | 10 |
 | Supportability | 15 |
 | Code hygiene | 11 |
-| **Total (unique)** | **~426** |
+| **Total (unique)** | **~432** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1ΓåÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ┬º6/┬º6a); **TB-599ΓÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ΓÇö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -218,6 +218,12 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-1156 — TB-1157** were added 2026-07-25 from the owner / PA question: *Commit path projects agent proposals into authority GoldenManifest via a single projection builder and hashes a canonical content subset for drift — what fails when canonical projection and persisted manifest evolve independently, and how do we make hasher changes impossible without deliberate baseline re-lock?* Finding: **two** hashers — production `ManifestHashService` over authority `ManifestDocument` (excludes `CreatedUtc`; no hasher version) vs cohort `GoldenManifestFingerprint.ComputeContentSha256Hex` over contract projection (excludes `RunId` / `CreatedUtc` / `DecisionTraceIds`; has lock-baseline ritual). Gaps: (1) no PA dual-hasher / lossy-projection failure-mode matrix, (2) production hasher subset changes can ship without deliberate re-lock (cohort has `lock-baseline` + env approval; production does not). **TB-1156** (P1) contract. **TB-1157** (P1) re-lock CI. GTM: **M-198**/**M-199**. Does **not** reopen Done **TB-307**/**TB-575**.
 
 **TB-1204 — TB-1205** were added 2026-07-25 from the owner / PA question: *We completed a strangler migration from Coordinator to Authority (dual repositories, allow-listed legacy references, reflection-based discipline tests) — what residual coupling should we hunt after a strangler “completes,” and how do we know when to delete the discipline tests themselves?* Finding: **storage strangler is Done** (ADR 0030 + **TB-919**); dual coordinator repos/orchestrators gone. Residuals are not dual storage — they are Contracts↔Authority DTO/projection soft bridges, AgentTask `execute`/`result`/`commit` mental model (**TB-1007**/**TB-1034**), dual hasher (**TB-1156**), UI/docs “coordinator” vocabulary, string-token ceilings / comment allowlists, and the temptation to delete anti-resurrection pins because inventory says complete. Gaps: (1) PA residual-coupling hunt matrix + discipline-test retirement gates, (2) honesty CI against “delete pins = complete” / soft-bridge-as-dual-storage. **TB-1204** (P1) contract. **TB-1205** (P1) honesty CI. GTM: **M-205**/**M-206**. Complements **TB-1007**/**TB-1034**/**TB-1156**; does not reopen Done **TB-919**.
+
+**TB-1221 — TB-1222** were added 2026-07-25 from the owner / PA question: *ArchLucid's differentiator is citation-bound, evidence-grounded findings — what architectural guarantees (not prompt-level ones) can actually prevent a finding from being emitted without traceable provenance?* Finding: dual pipelines (typed `IFindingEngine` vs LLM `ArchitectureFinding`); empty `EvidenceRefs` / empty `Trace.Citations` are schema-valid; Critic only lowers confidence; `FindingCitationCoverageRatio` is unwired in production; Message→`ComplianceTags` lifts uncited prose; commit does not require per-finding provenance. Gaps: (1) PA fail-closed decision-grade provenance contract (schema + validator + emission + commit), (2) honesty CI against “all findings are evidence-grounded” while empty refs persist. **TB-1221** (P1) contract. **TB-1222** (P1) honesty CI. GTM: **M-207**/**M-208**. Complements **TB-1003**/**TB-1196**; semantic faithfulness stays RAG-V1-005 / probabilistic. Score-lane positioning (inline vs async vs promotion) is **TB-1228**/**TB-1229**.
+
+**TB-1228 — TB-1229** were added 2026-07-25 from the owner / PA question: *How should faithfulness/support-ratio scoring be positioned architecturally — inline gate on commit, async quality signal, or promotion gate for model changes — and what are the trade-offs of each?* Finding: PilotStrict can block execute→commit via heuristic faithfulness floors (when Enforce/Block on), but per-finding `FindingCitationCoverageRatio` is inert; RAG-V1-005 / nightly eval are async; fine-tuning promotion uses cohort support ratios. Gaps: (1) PA three-lane trade-off contract (what belongs where), (2) honesty CI against selling semantic faithfulness / RAG support-ratio as the commit gate. **TB-1228** (P1) contract. **TB-1229** (P1) honesty CI. GTM: **M-209**/**M-210**. Complements **TB-1221**/**M-166**; does not reopen Done **TB-684**/**TB-021**. Shared defense-plane ownership (Simulator vs Real vs FT) is **TB-1230**/**TB-1231**.
+
+**TB-1230 — TB-1231** were added 2026-07-25 from the owner / PA question: *Where should hallucination defenses live when the same manifest can be produced by a simulator, a base model, or a fine-tuned model — and how do we stop defense logic from forking per execution mode?* Finding: post-execute quality stack is largely shared (`AgentOutputTraceQualityEvaluator` / `AgentOutputQualityGate`); forks today are mostly `SkipWhenSimulator` LLM judges + Real-only content safety; FT swaps deployment after cohort promotion but reuses the same plane; dangerous claim is Simulator PilotStrict green = Real-safe, not a second code stack. Gaps: (1) PA shared defense-plane ownership + allow/forbid fork matrix, (2) honesty CI against Simulator-safe=Real-safe / parallel defense stacks. **TB-1230** (P1) contract. **TB-1231** (P1) honesty CI. GTM: **M-211**/**M-212**. Complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**.
 
 **TB-1196 — TB-1197** were added 2026-07-25 from the owner / PA question: *Multi-agent execution (Topology, Compliance, Cost, Critic) is deterministic in Simulator but non-deterministic against real LLMs — how should the contract between agent output and downstream decisioning be designed so Real-mode variance cannot corrupt committed manifests?* Finding: authority decide already uses typed finding engines + `RuleBasedDecisionEngine`; Real variance mainly enters via **topology proposal overlay** at commit (`AgentTopologyProposalGraphMerge`) and legacy prose→governance paths; quality gate can be WarnOnly. Gaps: (1) PA contract — structured proposals only, validate-before-overlay, decide from typed findings/graph, fail-closed quality on commit-eligible Real, mode-labeled persistence, (2) honesty CI against “LLM text is the package” / unvalidated overlay. **TB-1196** (P1) contract. **TB-1197** (P1) honesty CI. GTM: **M-203**/**M-204**. Complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**.
 
@@ -430,7 +436,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1037 | **Done** (2026-07-25) — Suppress Overview zero-theater — metrics / median-delta / savings until real data; see `## TB-1037` below | Adoption friction P0 — **V1**; after or with **TB-1036**; extends Done **TB-349** (ROI baseline only) | S |
 | TB-1038 | **Done** (2026-07-25) — Single Do-this-next empty-home card from setup readiness; see `## TB-1038` below | Adoption friction P0 — **V1**; after **TB-1036**; demotes competing Learn how / View workflow | S |
 | TB-1039 | **Done** (2026-07-25) — Demo/seeded workspace Overview lands on sample package (not empty shell); see `## TB-1039` below | Adoption friction P0 — **V1**; after **TB-1036**; pairs `DEMO_WORKSPACES.md` / showcase pins | M |
-| TB-1040 | `/help/core-pilot` single primary CTA + remove recursive View pilot guide; see `## TB-1040` below | Adoption friction P0 — **V1**; owner help-page review 2026-07-25 (~64/100) | S |
+| TB-1040 | **Done** (2026-07-25) — `/help/core-pilot` single primary Start CTA + remove recursive View pilot guide; see `## TB-1040` below | Adoption friction P0 — **V1**; owner help-page review 2026-07-25 (~64/100) | S |
 | TB-1041 | `/help/core-pilot` breadcrumb/title + buyer subtitle (no Core-pilot jargon); see `## TB-1041` below | Adoption friction P0 — **V1**; with **TB-1040** | XS |
 | TB-1042 | `/help/core-pilot` state-aware steps 3–5 CTAs; see `## TB-1042` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
 | TB-1043 | `/help/core-pilot` first-viewport compression + trim related guides; see `## TB-1043` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
@@ -520,6 +526,17 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1218 | AI usage — PageHeading icon + PageContextualHelpButton; see ## TB-1218 below | Adoption friction P0 — **V1**; with **TB-1216**; parity **TB-1184** | S |
 | TB-1219 | AI usage — dedupe Edit budget / budget-control CTAs; see ## TB-1219 below | Adoption friction P0 — **V1**; with **TB-1216** | S |
 | TB-1220 | AI usage — hide Highest-cost project when no usage; see ## TB-1220 below | Trustworthiness P0 — **V1**; with **TB-1217** | XS |
+| TB-1221 | Decision-grade finding fail-closed provenance contract (structural, not prompt); see `## TB-1221` below | Trustworthiness P1 — **V1**; PA Q5 citation/provenance; GTM **M-207**/**M-208** | S |
+| TB-1222 | Anti-all-findings-evidence-grounded / empty-EvidenceRefs-as-proof honesty CI; see `## TB-1222` below | Testability P1 — **V1**; after **TB-1221**; pairs **M-207** | S |
+| TB-1223 | Security & trust — Administration vs Settings wayfinding (breadcrumb / URL honesty); see ## TB-1223 below | Adoption friction P0 — **V1**; owner `/settings/security-trust` ~53/100 2026-07-25; TB-404; with **TB-1216** | S |
+| TB-1224 | Security & trust — collapse triple intro into one hero; see ## TB-1224 below | Adoption friction P0 — **V1**; with **TB-1223** | S |
+| TB-1225 | Security & trust — PageHeading icon + PageContextualHelpButton; see ## TB-1225 below | Adoption friction P0 — **V1**; with **TB-1224**; parity **TB-1184** | XS |
+| TB-1226 | Security & trust — Available-now primary CTA hierarchy; see ## TB-1226 below | Adoption friction P0 — **V1**; with **TB-1224** | S |
+| TB-1227 | Security & trust — dedupe security@ contact CTAs; see ## TB-1227 below | Adoption friction P0 — **V1**; with **TB-1223** | XS |
+| TB-1228 | Faithfulness/support-ratio scoring lane positioning contract; see `## TB-1228` below | AI/Agent readiness P1 — **V1**; PA Q6 scoring lanes; GTM **M-209**/**M-210** | S |
+| TB-1229 | Anti-faithfulness-as-commit-gate / support-ratio-as-legal-truth honesty CI; see `## TB-1229` below | Testability P1 — **V1**; after **TB-1228**; pairs **M-209** | S |
+| TB-1230 | Shared hallucination defense plane (anti mode-fork) contract; see `## TB-1230` below | AI/Agent readiness P1 — **V1**; PA Q7 defense placement; GTM **M-211**/**M-212** | S |
+| TB-1231 | Anti-Simulator-safe-equals-Real / forked-defense-stack honesty CI; see `## TB-1231` below | Testability P1 — **V1**; after **TB-1230**; pairs **M-211** | S |
 | TB-1196 | Agent→decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 — **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
 | TB-1197 | Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI; see `## TB-1197` below | Testability P1 — **V1**; after **TB-1196**; pairs **M-203** | S |
 | TB-1179 | Project deletion has no UI — governed delete affordance; see ## TB-1179 below | Adoption friction P0 — **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
@@ -25943,12 +25960,13 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
    - **Cross-links:** pre-commit gate, export verify (TB-307 / ADR 0040), `COMPLETE_REVIEW_WORKFLOW`, `PILOT_MISCONFIGURATION_GUARDS` (sponsor before commit); sealed evidence **TB-1009**; Required audit **TB-953**.
 2. Explicit non-goals: renaming API `GoldenManifest`; changing seal triggers; Simulator ROI dollar rules (**TB-983**–**TB-985**); new TB/M IDs for the chain Q (owned here).
 3. Name CI anchors for **TB-1004**; GTM **M-154**/**M-155**.
+4. Cross-link **TB-1221**/**TB-1222** for fail-closed **decision-grade finding provenance** (empty `EvidenceRefs` / uncited emission) — do not expand hop labels into that invariant here.
 
 **Acceptance:** Contract published with unit-of-truth + hop/label matrices; GTM can cite it; does not claim WORM/PKI beyond application-layer hash lineage.
 
 **Depends on:** None (docs). Builds on shipped commit/hash.
 
-**Out of scope:** New persistence model; “Architecture” as separate top-level entity (object-model assessment); reopening **TB-1009**/**TB-953** implementation.
+**Out of scope:** New persistence model; “Architecture” as separate top-level entity (object-model assessment); reopening **TB-1009**/**TB-953** implementation; per-finding citation fail-closed (**TB-1221**).
 
 **Size estimate:** S.
 
@@ -26772,7 +26790,27 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Out of scope:** Marketing `/welcome` proof funnel (**M-107**); inventing synthetic KPI numbers.
 
 **Size estimate:** M.
-﻿---
+---
+
+## TB-1040 — `/help/core-pilot` single primary CTA + remove recursive View pilot guide (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** **Done** (2026-07-25) — summary card owns one primary Start; removed View pilot guide from primary actions and footer; workflow/fast-path/closing Starts demoted to outline; Vitest asserts single `core-pilot-primary-start-cta` and no recursive pilot-guide links.
+
+**Priority:** P0.
+
+**Source:** Owner help-page review 2026-07-25 (~64/100).
+
+**Problem:** Page repeated "Start an architecture review" and linked to "View pilot guide" while already on the first-review help page.
+
+**Approach:** One hero primary Start; demote other Starts; drop self-referential pilot-guide CTAs.
+
+**Acceptance:** Exactly one primary Start CTA; no View pilot guide on `/help/core-pilot`.
+
+**Size estimate:** S.
+
+---
 
 ## TB-1124 — Rename Advisory scans to `/governance/advisory-scans` (P0)
 
@@ -29513,4 +29551,330 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Out of scope:** Changing top-project ranking algorithm when usage exists.
 
 **Size estimate:** XS.
+
+---
+
+## TB-1223 — Security & trust — Administration vs Settings wayfinding (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/security-trust` review 2026-07-25 (~53/100). Owner concern: route should be `administration/security-trust`.
+
+**Problem:** Sidebar places **Security & trust** under **Administration**, but breadcrumbs under `/settings/*` resolve the parent as **Settings** (`breadcrumb-map` segment label). URL is `/settings/security-trust` (`SETTINGS_SECURITY_TRUST_PATH`). Same class as **TB-1216**. Product history (**TB-404** Done): Administration nav group uses the **`/settings/*`** URL namespace; **`/admin/*`** is System Administration. Inventing a one-off `/administration/security-trust` breaks namespace policy.
+
+**Approach (preferred path first):**
+
+1. Breadcrumb for `/settings/security-trust` (and Administration siblings) should read **Administration / Security & trust**, while keeping canonical href `/settings/security-trust`.
+2. Document: Administration = nav label; `/settings` = URL prefix (coordinate **TB-1212** / **TB-1216**).
+3. Optional owner decision (separate, L): rename entire `/settings` → `/administration` with redirects — do **not** move only this route.
+4. Vitest: parent crumb is Administration; path constant stays `/settings/security-trust` unless whole-namespace rename is approved.
+
+**Acceptance:** Operators no longer see Administration in the nav and Settings in the breadcrumb for this page; URL policy stays consistent with TB-404 unless owner approves a full rename.
+
+**Depends on:** Coordinate with **TB-1216** (shared breadcrumb contract).
+
+**Out of scope:** Moving under `/admin/*`; inventing single-route `/administration/security-trust` without namespace policy update; changing public marketing `/security-trust`.
+
+**Size estimate:** S (breadcrumb/docs); L if owner later approves full namespace rename.
+
+---
+
+## TB-1224 — Security & trust — collapse triple intro into one hero (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-25 — three separate page descriptions at the top that should be one hero.
+
+**Problem:** `OperatorSecurityTrustPageView` stacks three near-duplicate orientation blocks before materials:
+
+1. `OperatorPageHeader` subtitle — “Procurement-ready security and trust materials for this workspace.”
+2. `LayerHeader` (`pageKey="security-trust"`) — badge + headline “Security materials for procurement…” + useWhen “Share procurement-ready…”
+3. Available-now section helper — “Security posture is documented through policies…”
+
+Operators must read three intros before reaching the Trust Center link list.
+
+**Approach:**
+
+1. One hero: title + single subtitle (and optional one-line scope) via **PageHeading** (or equivalent); remove stacked `LayerHeader` on this route **or** fold its unique bits into that hero and stop rendering the compact strip.
+2. Drop the Available-now helper paragraph when it restates the hero; keep section title + badge only.
+3. Vitest: zero-usage / default render shows at most one page-level description block above the first materials section.
+
+**Acceptance:** First viewport reads as one hero, not three stacked page descriptions.
+
+**Depends on:** Prefer with **TB-1225**.
+
+**Out of scope:** Rewriting Available-now / NDA / Roadmap body content; marketing `/security-trust`.
+
+**Size estimate:** S.
+
+---
+
+## TB-1225 — Security & trust — PageHeading icon + PageContextualHelpButton (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Administration-page reviews 2026-07-25; parity with **TB-1184** / **TB-1218**.
+
+**Problem:** Page uses `OperatorPageHeader` without the shared PageHeading icon + captioned contextual help pattern. Header `?` alone is not a discoverable page-help affordance.
+
+**Approach:**
+
+1. Replace/align header with **PageHeading** (shield/lock or existing security icon) + **PageContextualHelpButton** near the title (caption + help topic `/help/security-trust` or Trust Center slug).
+2. Vitest: help control present with accessible name including a caption (not icon-only).
+
+**Acceptance:** Top of page matches Administration help chrome parity.
+
+**Depends on:** Prefer with **TB-1224**.
+
+**Out of scope:** Rewriting help topic prose.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1226 — Security & trust — Available-now primary CTA hierarchy (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/security-trust` review 2026-07-25 — flat link laundry list after stacked intros.
+
+**Problem:** `OPERATOR_SECURITY_TRUST_AVAILABLE_NOW_ITEMS` renders as an equal-weight disc list (Trust Center, Security policies, DPA, Subprocessors, SOC 2 self-assessment, CAIQ, Procurement contact). No primary “start here” for a buyer or admin sharing materials.
+
+**Approach:**
+
+1. Elevate **Trust Center** (`/trust`) as the primary CTA (button or emphasized link).
+2. Keep remaining items as a secondary list or compact “More materials” group.
+3. Vitest: primary Trust Center control is distinct from secondary links.
+
+**Acceptance:** Operators can start with one obvious share path; remaining docs stay reachable without competing for primacy.
+
+**Depends on:** Prefer after **TB-1224**.
+
+**Out of scope:** Changing which documents exist; NDA / Roadmap sections.
+
+**Size estimate:** S.
+
+---
+
+## TB-1227 — Security & trust — dedupe security@ contact CTAs (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-25 — repeated `security@archlucid.net` CTAs (NDA block + “Need security review support?” + Available-now procurement mailto).
+
+**Problem:** Same mailbox appears in three places with overlapping asks (NDA access, procurement packs, questionnaire alignment). Feels like three pages stuck together.
+
+**Approach:**
+
+1. One contact CTA at page level (or one in NDA + hero/footer only) with a single clear ask line.
+2. Available-now “Procurement contact” may remain if it is the only mailto in that list — then remove the duplicate footer card, or reverse.
+3. Vitest: at most one prominent `mailto:security@archlucid.net` block in the default composition (secondary inline mentions OK if clearly subordinate).
+
+**Acceptance:** Operators see one clear path to contact security — not three parallel mailto pitches.
+
+**Depends on:** Prefer with **TB-1226**.
+
+**Out of scope:** Changing the mailbox address; GTM assurance program execution (**G-REAL-05** / **G-ASSURANCE-02**).
+
+**Size estimate:** XS.
+
+---
+
+## TB-1221 — Decision-grade finding fail-closed provenance contract (structural, not prompt) (P1)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *ArchLucid's differentiator is citation-bound, evidence-grounded findings. What architectural guarantees (not prompt-level ones) can actually prevent a finding from being emitted without traceable provenance?*
+
+**Problem:** Differentiator marketing implies citation-bound findings, but architecture today allows empty provenance: `ArchitectureFinding.EvidenceRefs` may be `[]`; authority `Finding` has no required citation FK; Critic only labels Low; insight-density demotes heuristically; `FindingClaimCoverageEvaluator` is not a commit gate; PilotStrict `FindingCitationCoverageRatio` is never set in production (inert); Message→`ComplianceTags` lifts uncited prose. Typed engines use graph/`RelatedNodeIds`/`RulesApplied` (real structural provenance) but that is not a uniform fail-closed rule for decision-grade agent findings.
+
+**Approach:**
+
+1. Author `docs/library/DECISION_GRADE_FINDING_PROVENANCE_FAIL_CLOSED_CONTRACT.md` with tables:
+   - **ProvenanceKind (decision-grade):** (A) typed — non-empty `RelatedNodeIds` + `RulesApplied` / engine payload; (B) agent — non-empty `EvidenceRefs` or `Trace.Citations` that resolve into sealed evidence package / allowlisted prefixes; checklist/advisory tiers explicitly exempt.
+   - **Emission gate:** `IFindingProvenanceValidator` (or extend `FindingPayloadValidator`) rejects decision-grade findings lacking ProvenanceKind; apply in `FindingsOrchestrator` and post-`AgentResultParser` before persist.
+   - **Commit gate:** wire coverage ratio / unsupported IDs into PilotStrict Enforce/Block for commit-eligible Real; quarantine Message→governance unless provenance passes (**TB-1196**).
+   - **Not guaranteed here:** semantic faithfulness of cited text (RAG-V1-005 / LLM-as-judge); Ask/chat narratives.
+2. Cross-link **TB-1003** (unit of truth), **TB-1196** (prose quarantine), Done **TB-033**–**TB-037**, GTM **M-207**/**M-208**.
+3. Name CI anchors for **TB-1222**.
+
+**Acceptance:** Contract published; GTM can cite structural fail-closed decision-grade provenance without overclaiming semantic faithfulness; checklist exemption explicit.
+
+**Depends on:** None (docs). Implementation of validators/gates may follow as a separate ship after the contract.
+
+**Out of scope:** Making Real LLM outputs deterministic; claiming every UI string is citation-bound; reopening Done provenance forensics (**TB-033**–**TB-037**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1222 — Anti-all-findings-evidence-grounded / empty-EvidenceRefs-as-proof honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1221**; hardens GTM **M-207**.
+
+**Problem:** Buyer/proof copy can claim “all findings are citation-bound / evidence-grounded” while empty `EvidenceRefs` still persist and PilotStrict citation ratio is unwired — overselling the differentiator.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that claim universal evidence-grounded findings without **TB-1221** fail-closed language (or shipped emission+commit gates).
+2. Fail claims that Critic Low confidence, insight-density demotion, or top-level `AgentResult.EvidenceRefs` alone make per-finding provenance architecturally guaranteed.
+3. Pair **M-207**; Verification points at `FindingFactory`, `AgentResultParser`, `AgentOutputQualityGate` (`FindingCitationCoverageRatio`), `AgentProposalManifestMerger.ApplyFindingsToGovernance`.
+
+**Acceptance:** CI fails dishonest “all findings evidence-grounded” claims; pairs **M-207**.
+
+**Depends on:** **TB-1221**.
+
+**Out of scope:** Implementing semantic citation faithfulness eval (**RAG-V1-005**); score-lane positioning matrix (**TB-1228**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1228 — Faithfulness/support-ratio scoring lane positioning contract (P1)
+
+**Window:** V1 — AI/Agent readiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *How should faithfulness/support-ratio scoring be positioned architecturally — inline gate on commit, async quality signal, or promotion gate for model changes — and what are the trade-offs of each?*
+
+**Problem:** Multiple scores share “faithfulness / support-ratio” language but sit on different lanes: PilotStrict heuristic floors can deny commit-ready status; RAG-V1-005 / nightly eval / embedding cosine are async; `GoldenCohortFineTuningPromotionGate` is model promotion. Without a PA matrix, buyers and contributors conflate them — and inert `FindingCitationCoverageRatio` plus warn-only nightly (**G-FAITH-01**) make overclaims easy.
+
+**Approach:**
+
+1. Author `docs/library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md` with tables:
+   - **Lane A — Inline execute→commit (structural + light heuristic):** non-empty resolvable provenance (**TB-1221**); top-level citations/`evidenceRefs` floors; optional deterministic `AgentResultEvidenceFaithfulnessChecker` floors when PilotStrict Enforce/Block on. Trade-offs: latency OK for sync heuristics; false rejects if semantic LLM judge forced here; PilotStrict≠Real (**M-166**).
+   - **Lane B — Async quality signal:** RAG-V1-005 output citation coverage, `eval_agent_faithfulness.py`, IR, OTel histograms, embedding cosine, CitationIntegrity CLI/ship-gate. Trade-offs: no commit safety by itself; marketing must not treat CI green as commit gate.
+   - **Lane C — Model/config promotion:** golden-cohort / FT promotion support-ratio floors. Trade-offs: promotion ≠ per-run manifest safety.
+   - **V1 default:** structural provenance → Lane A; semantic/RAG support-ratio → B (+ C for model changes); never promise semantic faithfulness is the commit gate.
+2. Cross-link **TB-1221**, **M-166**, Done **TB-684**/**TB-021**, **G-FAITH-01**, GTM **M-209**/**M-210**.
+3. Name CI anchors for **TB-1229**.
+
+**Acceptance:** Contract published with three-lane trade-offs; GTM can cite V1 default without overclaiming.
+
+**Depends on:** None (docs). Does not implement new floors.
+
+**Out of scope:** Wiring inert `FindingCitationCoverageRatio` (follow **TB-1221**); flipping **G-FAITH-01**; reopening Done **TB-684**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1229 — Anti-faithfulness-as-commit-gate / support-ratio-as-legal-truth honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1228**; hardens GTM **M-209**.
+
+**Problem:** Differentiator/proof copy can claim “faithfulness / support-ratio gates the commit” or that nightly RAG eval proves each package is faithful — while semantic scores are async/probabilistic and per-finding citation coverage is unwired.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that equate RAG-V1-005 / offline support-ratio / LLM faithfulness judge / embedding cosine with the golden-manifest commit gate.
+2. Fail claims that PilotStrict green alone proves Real live-model faithfulness (pair **M-166**; do not re-author that contract).
+3. Pair **M-209**; Verification points at `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluator`, `GoldenCohortFineTuningPromotionGate`, `FindingCitationCoverageRatio` dead path.
+
+**Acceptance:** CI fails dishonest faithfulness-as-commit-gate claims; pairs **M-209**.
+
+**Depends on:** **TB-1228**.
+
+**Out of scope:** Changing Prod PilotStrict floors; implementing **TB-1221** validators; shared defense-plane ownership (**TB-1230**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1230 — Shared hallucination defense plane (anti mode-fork) contract (P1)
+
+**Window:** V1 — AI/Agent readiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *Where should hallucination defenses live when the same manifest can be produced by a simulator, a base model, or a fine-tuned model — and how do we stop defense logic from forking per execution mode?*
+
+**Problem:** Simulator, base Real, and fine-tuned Real can all feed the same commit path. Heuristic defenses already run through one post-execute plane, but optional LLM judges skip Simulator and content safety wraps Real completions only — easy to grow into parallel “Simulator defenses” vs “Real defenses.” Product risk is also claim-side: Simulator PilotStrict green looks defense-passed without Real proof (**M-166**).
+
+**Approach:**
+
+1. Author `docs/library/SHARED_HALLUCINATION_DEFENSE_PLANE_CONTRACT.md` with tables:
+   - **Owned by shared plane (must not fork):** schema/`AgentResultParser`; structural + heuristic semantic evaluators; deterministic `AgentResultEvidenceFaithfulnessChecker` semantics; Critic/insight-density post-processors; `AgentOutputQualityGate` disposition; planned provenance fail-closed + validate-before-overlay (**TB-1221**/**TB-1196**); INV-002 mode labeling on every result/run.
+   - **Executor/mode may vary (config/cost only):** AOAI vs fixture vs FT deployment selection; `SkipWhenSimulator` for expensive LLM judges; content-safety on live completions; host threshold profiles (WarnOnly vs PilotStrict Enforce/Block).
+   - **Never:** separate Validator/Gate class trees per execution mode; skip schema/heuristic plane for Simulator; promote Simulator→Real; treat FT promotion cohort ratios as per-run defense.
+   - **Relationship to **TB-1228** lanes:** shared plane implements Lane A structural/light-heuristic; Lane B/C stay async/promotion.
+2. Cross-link **TB-1196**/**TB-1221**/**TB-1228**, **M-166**, Done **TB-684**, GTM **M-211**/**M-212**.
+3. Name CI anchors for **TB-1231**.
+
+**Acceptance:** Contract published; GTM can cite “one defense plane; mode labels and thresholds, not forked stacks.”
+
+**Depends on:** None (docs).
+
+**Out of scope:** Implementing validate-before-overlay / provenance validators; changing FT activation (**TB-690**); reopening Done **TB-684**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1231 — Anti-Simulator-safe-equals-Real / forked-defense-stack honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1230**; hardens GTM **M-211**.
+
+**Problem:** Docs/PRs can claim Simulator quality-gate green means Real-safe, or that hallucination defenses intentionally fork into separate Simulator vs Real stacks — both corrupt buyer trust and invite divergent implementations.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that equate Simulator (or QuickStartForcedSimulator) PilotStrict/quality pass with Real live-model sponsor safety without **M-166** / INV-002 disclosure.
+2. Fail claims that schema/heuristic/commit defenses are (or should be) implemented as parallel mode-specific stacks rather than one plane with optional judges/thresholds (**TB-1230**).
+3. Pair **M-211**; Verification points at `AgentOutputTraceQualityEvaluator`, `SkipWhenSimulator`, `ContentSafetyEnforcingAgentCompletionClient`, `FineTunedAgentCompletionDeploymentResolver`, `GoldenCohortFineTuningPromotionGate`.
+
+**Acceptance:** CI fails dishonest Simulator=Real-safe / forked-stack claims; pairs **M-211**.
+
+**Depends on:** **TB-1230**.
+
+**Out of scope:** Re-authoring PilotStrict≠Real matrix (**M-166**); flipping **G-FAITH-01**.
+
+**Size estimate:** S.
 

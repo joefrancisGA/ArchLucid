@@ -75,7 +75,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CORE_PILOT_HELP_SUMMARY_COPY}</p>
             </CardHeader>
             <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap gap-2")}>
-              <Button asChild size="sm">
+              <Button asChild size="sm" data-testid="core-pilot-primary-start-cta">
                 <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
                   {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
                 </Link>
@@ -83,11 +83,6 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               <Button asChild size="sm" variant="outline">
                 <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}>
                   {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.pilotGuide.href}>
-                  {CORE_PILOT_HELP_PRIMARY_ACTIONS.pilotGuide.label}
                 </Link>
               </Button>
             </CardContent>
@@ -126,7 +121,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                       <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                         <span className="font-medium text-al-text-primary">Expected output:</span> {step.expectedOutput}
                       </p>
-                      <Button asChild size="sm" variant={step.stepNumber === 1 ? "default" : "outline"}>
+                      <Button asChild size="sm" variant="outline">
                         <Link href={step.href}>{step.ctaLabel}</Link>
                       </Button>
                     </div>
@@ -185,7 +180,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                   <li>Upload files or paste your architecture brief — a cloud connector is not required.</li>
                   <li>Start the review, finalize the package, and export the sponsor packet.</li>
                 </ol>
-                <Button asChild size="sm">
+                <Button asChild size="sm" variant="outline">
                   <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
                     {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
                   </Link>
@@ -222,7 +217,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               Start your first review now, or explore the sample review to see a completed outcome.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button asChild size="sm">
+              <Button asChild size="sm" variant="outline">
                 <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
                   {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
                 </Link>
@@ -258,13 +253,6 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                 className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
               >
                 {CORE_PILOT_HELP_PRIMARY_ACTIONS.troubleshooting.label}
-              </Link>
-              {" · "}
-              <Link
-                href={CORE_PILOT_HELP_PRIMARY_ACTIONS.pilotGuide.href}
-                className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
-              >
-                Report an issue (pilot guide)
               </Link>
             </p>
           </section>

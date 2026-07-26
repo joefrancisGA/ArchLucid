@@ -123,10 +123,10 @@ export const CORE_PILOT_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "ready-to-begin", title: "Ready to begin?" },
 ];
 
+/** Hero + secondary actions for `/help/core-pilot` — no recursive pilot-guide link (TB-1040). */
 export const CORE_PILOT_HELP_PRIMARY_ACTIONS = {
   startReview: { href: "/reviews/new", label: BUYER_START_ARCHITECTURE_REVIEW_CTA },
   sampleReview: { href: sampleReviewHref, label: "Open sample review" },
-  pilotGuide: { href: inAppHelpHref("pilot-guide"), label: "View pilot guide" },
   troubleshooting: { href: inAppHelpHref("troubleshooting"), label: "Troubleshooting" },
 } as const;
 
