@@ -51,9 +51,9 @@ This packet gives the founder or operator a single-document starting point for c
 
 | Item | Current position | Source | Notes |
 | --- | --- | --- | --- |
-| Pilot support posture | White-glove, founder-led | [`SUPPORT_AND_PILOT_OPERATING_MODEL.md`](SUPPORT_AND_PILOT_OPERATING_MODEL.md) | Applies to V1 controlled pilots only |
-| Support hours | Business hours (Eastern); reasonable effort response on critical issues | [`SUPPORT_AND_PILOT_OPERATING_MODEL.md`](SUPPORT_AND_PILOT_OPERATING_MODEL.md) | Not a 24×7 enterprise SLA |
-| Response time targets | Pilot SLA: P1 same business day; P2 2 business days | [`SUPPORT_AND_PILOT_OPERATING_MODEL.md`](SUPPORT_AND_PILOT_OPERATING_MODEL.md) | Draft — owner review required before commitment |
+| Pilot support posture | White-glove, founder-led | [`SUPPORT_POLICY.md`](SUPPORT_POLICY.md#v1-pilot-operating-model) | Applies to V1 controlled pilots only |
+| Support hours | Business hours (Eastern); reasonable effort response on critical issues | [`SUPPORT_POLICY.md`](SUPPORT_POLICY.md#v1-pilot-operating-model) | Not a 24×7 enterprise SLA |
+| Response time targets | Pilot SLA: P1 same business day; P2 2 business days | [`SUPPORT_POLICY.md`](SUPPORT_POLICY.md#v1-pilot-operating-model) | Draft — owner review required before commitment |
 | Uptime SLA | No formal SLA in V1; reasonable-effort availability for controlled pilots | [`SLA_SUMMARY.md`](SLA_SUMMARY.md) | Do not quote a percentage SLA without owner approval |
 | Support model (GA) | Not available — post-V1 | — | Do not promise GA support tier in V1 materials |
 
@@ -134,7 +134,7 @@ Short summary:
 | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | SOW and quote template |
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial close-out checklist |
 | [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md) | Purchase path decision tree |
-| [`SUPPORT_AND_PILOT_OPERATING_MODEL.md`](SUPPORT_AND_PILOT_OPERATING_MODEL.md) | Support and SLA posture |
+| [`SUPPORT_POLICY.md`](SUPPORT_POLICY.md#v1-pilot-operating-model) | Support entitlements + V1 pilot operating model |
 | [`trust-center.md`](trust-center.md) | Trust and assurance index |
 | [`SLA_SUMMARY.md`](SLA_SUMMARY.md) | SLA summary |
 | [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) | GTM overclaim guardrails |

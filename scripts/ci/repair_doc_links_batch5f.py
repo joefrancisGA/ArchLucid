@@ -178,7 +178,7 @@ def rules_for_file(path: Path) -> list[tuple[str, str]]:
     if rel.startswith("docs/deployment/"):
         rules.extend(deployment_replacements())
 
-    if rel.startswith("docs/go-to-market/buyer-jobs/") or rel.startswith("docs/go-to-market/demo-proof-packets/"):
+    if rel.startswith("docs/go-to-market/buyer-jobs/"):
         rules.append(("](../CORE_PILOT.md", "](../../CORE_PILOT.md)"))
 
     if rel.startswith("docs/go-to-market/reference-customers/"):

@@ -340,6 +340,7 @@ ArchLucid pays for itself in under 4 months even in the conservative scenario.
 | [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Order form with Design partner addendum and worked examples |
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor capability and pricing context used in §9 |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Measurement framework for the pilot that validates this ROI model |
+| [WORKED_EXAMPLE_ROI.md](WORKED_EXAMPLE_ROI.md) | Contoso sample ROI artifact (PDF + MD) — demo-derived only, not customer ROI |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who presents this model and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars that map to the levers above |
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships (grounding for capability claims) |
