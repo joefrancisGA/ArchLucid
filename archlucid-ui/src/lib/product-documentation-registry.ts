@@ -422,7 +422,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "core-pilot",
     title: "Your first architecture review",
     summary:
-      "Guided first-review checklist — evidence, optional cloud connectors, finalize, and sponsor exports.",
+      "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
     audience: "buyer",
     sourcePaths: ["docs/CORE_PILOT.md"],
     pdfStatus: "public",

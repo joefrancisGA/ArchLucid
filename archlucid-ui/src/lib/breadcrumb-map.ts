@@ -113,6 +113,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   scope: "Workspace and scope",
   "how-it-works": "How ArchLucid works",
   "data-handling": "What ArchLucid does with your data",
+  "core-pilot": "Your first architecture review",
 };
 
 /**

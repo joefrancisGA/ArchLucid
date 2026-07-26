@@ -98,7 +98,7 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
   "core-pilot": {
     title: "Your first architecture review",
     summary:
-      "First-session checklist — evidence-only or cloud connectors (Azure, AWS, GCP), finalize, and sponsor exports.",
+      "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
   },
   "pilot-guide": {
     title: "Pilot guide",

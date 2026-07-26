@@ -24,6 +24,20 @@ describe("HelpCorePilotGuideView", () => {
   it("registers the core pilot guide entry", () => {
     expect(entry?.title).toBe("Your first architecture review");
     expect(entry?.slug).toBe("core-pilot");
+    expect(entry?.summary).toMatch(/guided path from evidence intake/i);
+    expect(entry?.summary).not.toMatch(/core[- ]?pilot/i);
+  });
+
+  it("renders buyer title and subtitle without Core-pilot jargon (TB-1041)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected core-pilot documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Your first architecture review" })).toBeInTheDocument();
+    expect(screen.getByText(entry.summary)).toBeInTheDocument();
+    expect(screen.queryByText(/core[- ]?pilot/i)).toBeNull();
   });
 
   it("renders the guided first-review path near the top", () => {

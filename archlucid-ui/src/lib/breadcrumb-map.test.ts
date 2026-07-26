@@ -169,6 +169,13 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps core-pilot breadcrumb to the buyer page title (TB-1041)", () => {
+    expect(getBreadcrumbs("/help/core-pilot")).toEqual([
+      { label: "Help", href: "/help" },
+      { label: "Your first architecture review" },
+    ]);
+  });
+
   it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
     expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
       { label: "Policy packs", href: "/governance/policy-packs" },
