@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpCorePilotWorkflowStepper } from "@/app/(operator)/help/_sections/HelpCorePilotWorkflowStepper";
@@ -42,9 +43,13 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function HelpDisclosure(props: { readonly title: string; readonly children: string }): React.ReactElement {
+function HelpDisclosure(props: {
+  readonly title: string;
+  readonly children: ReactNode;
+  readonly testId?: string;
+}): React.ReactElement {
   return (
-    <details className={HELP_PAGE_LAYOUT.details}>
+    <details className={HELP_PAGE_LAYOUT.details} data-testid={props.testId}>
       <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.title}</summary>
       <div className={cn(HELP_PAGE_LAYOUT.detailsBody, OPERATOR_TYPOGRAPHY.body)}>{props.children}</div>
     </details>
@@ -65,113 +70,139 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
 
       <div className={HELP_PAGE_LAYOUT.contentGrid}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
-          <Card
-            id="first-review-path"
-            className={cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20")}
-            data-testid="core-pilot-summary-card"
-          >
-            <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>{CORE_PILOT_HELP_SUMMARY_TITLE}</CardTitle>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CORE_PILOT_HELP_SUMMARY_COPY}</p>
-            </CardHeader>
-            <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap gap-2")}>
-              <Button asChild size="sm" data-testid="core-pilot-primary-start-cta">
-                <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
-                  {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="outline">
-                <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}>
-                  {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="space-y-6" data-testid="core-pilot-first-viewport">
+            <Card
+              id="first-review-path"
+              className={cn(
+                OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+                "border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20",
+              )}
+              data-testid="core-pilot-summary-card"
+            >
+              <CardHeader className={OPERATOR_CARD.header}>
+                <CardTitle className={cn("text-lg", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                  {CORE_PILOT_HELP_SUMMARY_TITLE}
+                </CardTitle>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{CORE_PILOT_HELP_SUMMARY_COPY}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CORE_PILOT_HELP_HOME_STATUS_NOTE}</p>
+              </CardHeader>
+              <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap gap-2")}>
+                <Button asChild size="sm" data-testid="core-pilot-primary-start-cta">
+                  <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
+                    {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.href}>
+                    {CORE_PILOT_HELP_PRIMARY_ACTIONS.sampleReview.label}
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
 
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CORE_PILOT_HELP_HOME_STATUS_NOTE}</p>
-
-          <section aria-labelledby="run-the-first-review-heading" className="space-y-4">
-            <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
-            <p id="run-the-first-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Follow these five steps in order. Each step links to the product surface where you take action.
-            </p>
-            <HelpCorePilotWorkflowStepper />
-          </section>
+            <section aria-labelledby="run-the-first-review-heading" className="space-y-4">
+              <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
+              <p id="run-the-first-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                Follow these five steps in order. Each step links to the product surface where you take action.
+              </p>
+              <HelpCorePilotWorkflowStepper />
+            </section>
+          </div>
 
           <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}>
             {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
           </HelpDisclosure>
 
-          <section aria-labelledby="cloud-connectors-heading" className="space-y-4">
+          <section aria-labelledby="cloud-connectors-heading" className="space-y-3">
             <HelpSectionHeading id="cloud-connectors-optional">
               Cloud connectors are optional for your first review
             </HelpSectionHeading>
             <p
               id="cloud-connectors-heading"
               data-testid="cloud-connectors-heading"
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
             >
-              You can run an evidence-only review first, then connect Azure, AWS, or GCP later when source-system
-              evidence is needed.
+              You can run an evidence-only review first, then connect a provider later when needed.
             </p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="core-pilot-cloud-actions">
-              {CORE_PILOT_HELP_CLOUD_ACTIONS.map((action) => (
-                <Card key={action.title} className="h-full">
-                  <CardHeader className={OPERATOR_CARD.header}>
-                    <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.title}</CardTitle>
-                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
-                  </CardHeader>
-                  <CardContent className={OPERATOR_CARD.content}>
-                    <Button asChild size="sm" variant="outline">
-                      <Link href={action.href}>{action.ctaLabel}</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whenToUseCloudConnectors.title}>
-              {CORE_PILOT_HELP_DISCLOSURE.whenToUseCloudConnectors.body}
-            </HelpDisclosure>
+            <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-cloud-disclosure">
+              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Show cloud connector options
+              </summary>
+              <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="core-pilot-cloud-actions">
+                  {CORE_PILOT_HELP_CLOUD_ACTIONS.map((action) => (
+                    <Card key={action.title} className="h-full">
+                      <CardHeader className={OPERATOR_CARD.header}>
+                        <CardTitle className={cn("text-base", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.title}</CardTitle>
+                        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</p>
+                      </CardHeader>
+                      <CardContent className={OPERATOR_CARD.content}>
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={action.href}>{action.ctaLabel}</Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  {CORE_PILOT_HELP_DISCLOSURE.whenToUseCloudConnectors.body}
+                </p>
+              </div>
+            </details>
           </section>
 
           <section aria-labelledby="fast-path-heading" className="space-y-3">
             <HelpSectionHeading id="fast-path-evidence-only">Fast path: evidence-only review</HelpSectionHeading>
-            <Card id="fast-path-heading" className="border-neutral-200 dark:border-neutral-800">
-              <CardContent className={cn(OPERATOR_CARD.body, "space-y-3")}>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  Recommended when connector access is not approved yet, or when your first session only has briefs,
-                  diagrams, IaC, screenshots, exports, or policy documents.
-                </p>
-                <ol className={cn("m-0 list-decimal space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                  <li>Start a review with no cloud target selected (evidence-only).</li>
-                  <li>Upload files or paste your architecture brief — a cloud connector is not required.</li>
-                  <li>Start the review, finalize the package, and export the sponsor packet.</li>
-                </ol>
-                <Button asChild size="sm" variant="outline">
-                  <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
-                    {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-fast-path-disclosure">
+              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Show evidence-only steps
+              </summary>
+              <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
+                <Card id="fast-path-heading" className="border-neutral-200 dark:border-neutral-800">
+                  <CardContent className={cn(OPERATOR_CARD.body, "space-y-3")}>
+                    <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                      Recommended when connector access is not approved yet, or when your first session only has briefs,
+                      diagrams, IaC, screenshots, exports, or policy documents.
+                    </p>
+                    <ol className={cn("m-0 list-decimal space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                      <li>Start a review with no cloud target selected (evidence-only).</li>
+                      <li>Upload files or paste your architecture brief — a cloud connector is not required.</li>
+                      <li>Start the review, finalize the package, and export the sponsor packet.</li>
+                    </ol>
+                    <Button asChild size="sm" variant="outline">
+                      <Link href={CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.href}>
+                        {CORE_PILOT_HELP_PRIMARY_ACTIONS.startReview.label}
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </details>
           </section>
 
           <section aria-labelledby="what-can-wait-heading" className="space-y-3">
             <HelpSectionHeading id="what-can-wait">What can wait</HelpSectionHeading>
-            <ul id="what-can-wait-heading" className="m-0 list-none space-y-3 p-0">
-              {CORE_PILOT_HELP_DEFERRED_ITEMS.map((item) => (
-                <li
-                  key={item.title}
-                  className="rounded-md border border-neutral-200 bg-neutral-50/60 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/40"
-                >
-                  <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{item.title}</p>
-                  <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{item.description}</p>
-                </li>
-              ))}
-            </ul>
-            <HelpDisclosure title={CORE_PILOT_HELP_DISCLOSURE.whatCanWaitUntilLater.title}>
-              {CORE_PILOT_HELP_DISCLOSURE.whatCanWaitUntilLater.body}
-            </HelpDisclosure>
+            <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-what-can-wait-disclosure">
+              <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Show deferred topics
+              </summary>
+              <div className={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-3")}>
+                <ul id="what-can-wait-heading" className="m-0 list-none space-y-3 p-0">
+                  {CORE_PILOT_HELP_DEFERRED_ITEMS.map((item) => (
+                    <li
+                      key={item.title}
+                      className="rounded-md border border-neutral-200 bg-neutral-50/60 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/40"
+                    >
+                      <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>{item.title}</p>
+                      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{item.description}</p>
+                    </li>
+                  ))}
+                </ul>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  {CORE_PILOT_HELP_DISCLOSURE.whatCanWaitUntilLater.body}
+                </p>
+              </div>
+            </details>
           </section>
 
           <section
@@ -197,7 +228,11 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
             </div>
           </section>
 
-          <section aria-labelledby="depth-guides-heading" className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+          <section
+            aria-labelledby="depth-guides-heading"
+            className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            data-testid="core-pilot-related-guides"
+          >
             <h2 id="depth-guides-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Related guides
             </h2>

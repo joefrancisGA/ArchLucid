@@ -131,8 +131,10 @@ describe("HelpCorePilotGuideView", () => {
     expect(
       screen.getByRole("heading", { name: "Cloud connectors are optional for your first review" }),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-cloud-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connectors-heading")).toHaveTextContent(/evidence-only review first/i);
     expect(screen.getByRole("heading", { name: "Fast path: evidence-only review" })).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-fast-path-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("core-pilot-cloud-actions")).toBeInTheDocument();
   });
 
@@ -144,6 +146,7 @@ describe("HelpCorePilotGuideView", () => {
     render(<HelpCorePilotGuideView entry={entry} />);
 
     expect(screen.getByRole("heading", { name: "What can wait" })).toBeInTheDocument();
+    expect(screen.getByTestId("core-pilot-what-can-wait-disclosure")).toBeInTheDocument();
     expect(screen.getByText(/compare, replay, and portfolio graph at scale/i)).toBeInTheDocument();
     expect(screen.getByTestId("core-pilot-closing-cta")).toBeInTheDocument();
     expect(screen.getByText("The home page shows your next recommended action after each review step.")).toBeInTheDocument();
@@ -153,6 +156,28 @@ describe("HelpCorePilotGuideView", () => {
     for (const banned of BANNED_INTERNAL_COPY) {
       expect(visibleText, `should not contain "${banned}"`).not.toContain(banned);
     }
+  });
+
+  it("compresses first viewport to hero + stepper and trims related guides (TB-1043)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected core-pilot documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const firstViewport = screen.getByTestId("core-pilot-first-viewport");
+    expect(within(firstViewport).getByTestId("core-pilot-summary-card")).toBeInTheDocument();
+    expect(within(firstViewport).getByTestId("core-pilot-workflow-stepper")).toBeInTheDocument();
+    expect(within(firstViewport).queryByTestId("core-pilot-cloud-disclosure")).toBeNull();
+    expect(within(firstViewport).queryByTestId("core-pilot-related-guides")).toBeNull();
+
+    const related = screen.getByTestId("core-pilot-related-guides");
+    expect(within(related).getAllByRole("link")).toHaveLength(3);
+    expect(within(related).getByRole("link", { name: "Complete review workflow" })).toBeInTheDocument();
+    expect(within(related).getByRole("link", { name: "First review guide in the product" })).toBeInTheDocument();
+    expect(within(related).getByRole("link", { name: "Troubleshooting" })).toBeInTheDocument();
+    expect(within(related).queryByRole("link", { name: "Review templates" })).toBeNull();
+    expect(within(related).queryByRole("link", { name: "Evaluator workbook" })).toBeNull();
   });
 
   it("renders sticky on-this-page navigation when enough sections exist", () => {

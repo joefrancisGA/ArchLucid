@@ -155,8 +155,6 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
 
 export const CORE_PILOT_HELP_DEPTH_GUIDES: readonly { readonly label: string; readonly href: string }[] = [
   { label: "Complete review workflow", href: inAppHelpHref("first-pilot-path") },
-  { label: "Review templates", href: inAppHelpHref("specialty-walkthroughs") },
-  { label: "Evaluator workbook", href: inAppHelpHref("evaluator-workbook") },
   { label: "First review guide in the product", href: "/onboarding" },
 ];
 

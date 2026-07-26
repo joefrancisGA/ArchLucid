@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-26 (**TB-1244**–**TB-1245** opened — PA: Container Apps + SQL + AOAI privilege-escalation seam (SQL bootstrap MI co-located with request path) + honesty CI; GTM **M-215**/**M-216**; complements **TB-903**/**TB-906**/**TB-1232**/**M-213**; does not reopen Done **TB-080**/**TB-091**/**TB-092**/**TB-656**). Prior: 2026-07-26 (**TB-1239**–**TB-1243** opened — P0 `/help/cloud-connections/gcp` specialty guide parity + jargon purge + Cloud Asset / WIF actionability + federation template + workflow CTA chrome from owner help-page review ~51/100; see `## TB-1239`–`## TB-1243` below). Prior: 2026-07-26 (**TB-1042** **Done** — `/help/core-pilot` steps 3–5 CTAs commit-aware; no empty `/reviews?projectId=default` deep links). Prior: 2026-07-26 (**TB-1234**–**TB-1238** opened — P0 `/help/cloud-connections/aws` specialty guide parity + jargon purge + IAM/Resource Explorer actionability + OIDC trust-policy template + workflow CTA chrome from owner help-page review ~52/100; see `## TB-1234`–`## TB-1238` below). Prior: 2026-07-26 (**TB-1232**–**TB-1233** opened — PA: tenant DiD erosion modes + enforcement beyond per-query scope predicates + honesty CI; GTM **M-213**/**M-214**; complements **TB-999**/**TB-1001**/**TB-1122**/**M-150**/**M-194**; does not reopen Done **TB-010**/**TB-071**/**TB-925**; RLS stays non-control per ADR 0037). Prior: 2026-07-26 (**TB-1041** **Done** — `/help/core-pilot` breadcrumb + buyer subtitle use “Your first architecture review”; no Core-pilot jargon in chrome). Prior: 2026-07-25 (**TB-1230**–**TB-1231** opened — PA: shared hallucination defense plane vs mode-specific executors (anti-fork) + honesty CI; GTM **M-211**/**M-212**; complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1040** **Done** — `/help/core-pilot` single primary Start CTA; removed recursive View pilot guide; workflow/fast-path/closing Starts demoted to outline). Prior: 2026-07-25 (**TB-1228**–**TB-1229** opened — PA: faithfulness/support-ratio scoring lane positioning (inline commit vs async signal vs model-promotion) + honesty CI; GTM **M-209**/**M-210**; complements **TB-1221**/**M-166** / Done **TB-684**/**TB-021**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1223**–**TB-1227** opened — P0 `/settings/security-trust` Administration wayfinding + single-hero intro collapse + PageHeading/help + Available-now CTA hierarchy + contact dedupe from owner review ~53/100; see `## TB-1223`–`## TB-1227` below). Prior: 2026-07-25 (**TB-1221**–**TB-1222** opened — PA: decision-grade finding fail-closed provenance contract + honesty CI (architectural guarantees, not prompt-level); GTM **M-207**/**M-208**; complements **TB-1003**/**TB-1196** / Done **TB-033**–**TB-037**; does not claim semantic faithfulness). Prior: 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
+**Updated:** 2026-07-26 (**TB-1043** **Done** — `/help/core-pilot` first-viewport = hero + stepper; secondary sections collapsed; related guides trimmed to two + troubleshooting). Prior: 2026-07-26 (**TB-1246**–**TB-1250** opened — P0 `/help/developer-troubleshooting` consumer exposure: reclassify as internal-runbook + Admin gate, de-index from product search, route/title rename, remove customer deep-link, sibling technical-doc audit from owner review ~32/100; see `## TB-1246`–`## TB-1250` below). Prior: 2026-07-26 (**TB-1244**–**TB-1245** opened — PA: Container Apps + SQL + AOAI privilege-escalation seam (SQL bootstrap MI co-located with request path) + honesty CI; GTM **M-215**/**M-216**; complements **TB-903**/**TB-906**/**TB-1232**/**M-213**; does not reopen Done **TB-080**/**TB-091**/**TB-092**/**TB-656**). Prior: 2026-07-26 (**TB-1239**–**TB-1243** opened — P0 `/help/cloud-connections/gcp` specialty guide parity + jargon purge + Cloud Asset / WIF actionability + federation template + workflow CTA chrome from owner help-page review ~51/100; see `## TB-1239`–`## TB-1243` below). Prior: 2026-07-26 (**TB-1042** **Done** — `/help/core-pilot` steps 3–5 CTAs commit-aware; no empty `/reviews?projectId=default` deep links). Prior: 2026-07-26 (**TB-1234**–**TB-1238** opened — P0 `/help/cloud-connections/aws` specialty guide parity + jargon purge + IAM/Resource Explorer actionability + OIDC trust-policy template + workflow CTA chrome from owner help-page review ~52/100; see `## TB-1234`–`## TB-1238` below). Prior: 2026-07-26 (**TB-1232**–**TB-1233** opened — PA: tenant DiD erosion modes + enforcement beyond per-query scope predicates + honesty CI; GTM **M-213**/**M-214**; complements **TB-999**/**TB-1001**/**TB-1122**/**M-150**/**M-194**; does not reopen Done **TB-010**/**TB-071**/**TB-925**; RLS stays non-control per ADR 0037). Prior: 2026-07-26 (**TB-1041** **Done** — `/help/core-pilot` breadcrumb + buyer subtitle use “Your first architecture review”; no Core-pilot jargon in chrome). Prior: 2026-07-25 (**TB-1230**–**TB-1231** opened — PA: shared hallucination defense plane vs mode-specific executors (anti-fork) + honesty CI; GTM **M-211**/**M-212**; complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1040** **Done** — `/help/core-pilot` single primary Start CTA; removed recursive View pilot guide; workflow/fast-path/closing Starts demoted to outline). Prior: 2026-07-25 (**TB-1228**–**TB-1229** opened — PA: faithfulness/support-ratio scoring lane positioning (inline commit vs async signal vs model-promotion) + honesty CI; GTM **M-209**/**M-210**; complements **TB-1221**/**M-166** / Done **TB-684**/**TB-021**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1223**–**TB-1227** opened — P0 `/settings/security-trust` Administration wayfinding + single-hero intro collapse + PageHeading/help + Available-now CTA hierarchy + contact dedupe from owner review ~53/100; see `## TB-1223`–`## TB-1227` below). Prior: 2026-07-25 (**TB-1221**–**TB-1222** opened — PA: decision-grade finding fail-closed provenance contract + honesty CI (architectural guarantees, not prompt-level); GTM **M-207**/**M-208**; complements **TB-1003**/**TB-1196** / Done **TB-033**–**TB-037**; does not claim semantic faithfulness). Prior: 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -18,7 +18,7 @@
 | Cutting-edge AI | 9 |
 | Explainability | 9 |
 | Proof-of-ROI / executive value | 6 |
-| Trustworthiness | 65 |
+| Trustworthiness | 69 |
 | Maintainability | 15 |
 | Traceability | 6 |
 | Interoperability | 8 |
@@ -230,6 +230,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-1234 — TB-1238** were added 2026-07-26 from an **owner review of Connect AWS securely** at `/help/cloud-connections/aws` (scored ~52/100). Findings: route falls through to generic markdown section extract from `CLOUD_CONNECTIONS.md` while Azure ships `HelpConnectAzureSecurelyGuideView` (security panel, roles table, CTAs, TOC, banned jargon); primary copy uses internal taxonomy (**Evidence tiers**, **Tier 1/2**, **hosted pull**, **published Azure managed identity**) that Azure already bans; permissions table says only “Resource Explorer” with no IAM actions / managed policy / index enablement though hosted poller calls `resource-explorer-2` `Search`; setup step 2 says “trust policy for ArchLucid's federated identity” with no issuer/audience/subject or copyable JSON; no Back / Configure CTA chrome or classified retained/not-retained sections. Complements Done **TB-720** and open cloud-connections UX **TB-1139**–**TB-1143**. **TB-1234** (P0) specialty guide view. **TB-1235** (P0) jargon purge. **TB-1236** (P0) IAM + Resource Explorer actionability. **TB-1237** (P0) OIDC trust-policy template. **TB-1238** (P0) workflow CTA + classification chrome. No new GTM IDs. (IDs start at **TB-1234**; **TB-1216**–**TB-1220** already used by AI usage cluster.)
 
 **TB-1239 — TB-1243** were added 2026-07-26 from an **owner review of Connect GCP securely** at `/help/cloud-connections/gcp` (scored ~51/100). Findings: same structural debt as AWS help — generic markdown extract vs Azure specialty guide; **Evidence tiers** / **Tier 1/2** / **hosted pull** / **published Azure managed identity** jargon; roles table names Cloud Asset Viewer but omits IAM role ID (`roles/cloudasset.viewer`), API enablement, and Workload Identity User binding; setup step 2 says create a WIF pool provider that “trusts ArchLucid's federated identity” with no issuer/audience/attribute-mapping template; no Back / Configure CTA or classified retained/not-retained sections. Complements Done **TB-720**, open AWS help **TB-1234**–**TB-1238**, and GCP Preview honesty **TB-1140**. **TB-1239** (P0) specialty guide view. **TB-1240** (P0) jargon purge. **TB-1241** (P0) roles + Cloud Asset enablement. **TB-1242** (P0) WIF federation template. **TB-1243** (P0) workflow CTA + classification chrome. No new GTM IDs.
+
+**TB-1244 — TB-1245** were added 2026-07-26 from the owner / PA question: *Given Entra ID identity, private endpoints, and least-privilege defaults, where is the most likely privilege-escalation seam in a Container Apps + SQL + Azure OpenAI topology like ours?* Finding: highest Azure PE seam is **SQL bootstrap privilege co-located on the API managed identity** (`db_owner`-equivalent documented; `enable_api_sql_runtime_identity` default false; `ArchLucidRuntime` unwired). Secondary: vault-wide KV Secrets User, account-scope Blob Contributor, Search Contributor + filter DiD, public CA ingress defaults. AOAI workload RBAC is already OpenAI **User** (not the headline). Product tenancy PE stays **TB-1232**/**TB-999**. Gaps: (1) PA workload PE seam matrix contract, (2) honesty CI against least-privilege-while-colocated / PE-equals-private / AOAI-Contributor. **TB-1244** (P1) contract. **TB-1245** (P1) honesty CI. GTM: **M-215**/**M-216**. Complements **TB-903**/**TB-906**/**TB-1232**; does not reopen Done **TB-080**/**TB-091**/**TB-092**/**TB-656**.
+
+**TB-1246 — TB-1250** were added 2026-07-26 from an **owner review of Engineering troubleshooting runbook** at `/help/developer-troubleshooting` (scored ~32/100 as a consumer-exposed help page). Findings: route slug says **developer-troubleshooting** while H1/title say **Engineering troubleshooting runbook**; help-center tier is `internal` but `contentKind` is `technical-documentation`, so **TB-735** Admin gating does not apply — any session that can load `/help/*` gets CLI doctor/support-bundle commands, `DevelopmentBypass`, SQL env vars, circuit-breaker config, DbUp/migration triage, and links into contributor BUILD/SQL docs; page is in `generateStaticParams`, `help-index.generated.ts`, and Help drawer search; customer `/help/troubleshooting` Advanced diagnostics deep-links here (UI `adminOnly` is not an access control). Complements Done **TB-735**/**TB-732**. **TB-1246** (P0) reclassify + Admin gate. **TB-1247** (P0) de-index from product search/static params. **TB-1248** (P0) route/title rename. **TB-1249** (P0) remove customer deep-link. **TB-1250** (P0) sibling technical-doc exposure audit. No new GTM IDs.
 
 **TB-1196 — TB-1197** were added 2026-07-25 from the owner / PA question: *Multi-agent execution (Topology, Compliance, Cost, Critic) is deterministic in Simulator but non-deterministic against real LLMs — how should the contract between agent output and downstream decisioning be designed so Real-mode variance cannot corrupt committed manifests?* Finding: authority decide already uses typed finding engines + `RuleBasedDecisionEngine`; Real variance mainly enters via **topology proposal overlay** at commit (`AgentTopologyProposalGraphMerge`) and legacy prose→governance paths; quality gate can be WarnOnly. Gaps: (1) PA contract — structured proposals only, validate-before-overlay, decide from typed findings/graph, fail-closed quality on commit-eligible Real, mode-labeled persistence, (2) honesty CI against “LLM text is the package” / unvalidated overlay. **TB-1196** (P1) contract. **TB-1197** (P1) honesty CI. GTM: **M-203**/**M-204**. Complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**.
 
@@ -445,7 +449,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1040 | **Done** (2026-07-25) — `/help/core-pilot` single primary Start CTA + remove recursive View pilot guide; see `## TB-1040` below | Adoption friction P0 — **V1**; owner help-page review 2026-07-25 (~64/100) | S |
 | TB-1041 | **Done** (2026-07-26) — `/help/core-pilot` breadcrumb/title + buyer subtitle (no Core-pilot jargon); see `## TB-1041` below | Adoption friction P0 — **V1**; with **TB-1040** | XS |
 | TB-1042 | **Done** (2026-07-26) — `/help/core-pilot` state-aware steps 3–5 CTAs; see `## TB-1042` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
-| TB-1043 | `/help/core-pilot` first-viewport compression + trim related guides; see `## TB-1043` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
+| TB-1043 | **Done** (2026-07-26) — `/help/core-pilot` first-viewport compression + trim related guides; see `## TB-1043` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
 | TB-1044 | Help drawer page-true recommendations (never current topic; next-steps on core-pilot); see `## TB-1044` below | Adoption friction P0 — **V1**; owner Help-drawer review 2026-07-25 (~61/100) | S |
 | TB-1045 | Help drawer max-3 recommended + Do-this-now action row; see `## TB-1045` below | Adoption friction P0 — **V1**; after **TB-1044** | S |
 | TB-1046 | Help-on-help mode — search/anchors when already on `/help/*`; see `## TB-1046` below | Adoption friction P0 — **V1**; after **TB-1044** | S |
@@ -557,6 +561,11 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1243 | GCP help — workflow CTAs + classified data sections (Azure chrome parity); see ## TB-1243 below | Adoption friction P0 — **V1**; with **TB-1239** | S |
 | TB-1244 | Azure workload privilege-escalation seam matrix (SQL bootstrap vs runtime MI); see `## TB-1244` below | Trustworthiness P1 — **V1**; PA Q9 CA+SQL+AOAI; GTM **M-215**/**M-216** | S |
 | TB-1245 | Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI; see `## TB-1245` below | Testability P1 — **V1**; after **TB-1244**; pairs **M-215** | S |
+| TB-1246 | `/help/developer-troubleshooting` — reclassify as internal-runbook + Admin gate; see ## TB-1246 below | Trustworthiness P0 — **V1**; owner review ~32/100 2026-07-26; TB-735 parity | S |
+| TB-1247 | Engineering troubleshooting — de-index from product help search / static params; see ## TB-1247 below | Trustworthiness P0 — **V1**; with **TB-1246** | S |
+| TB-1248 | Engineering troubleshooting — align route slug with page title; see ## TB-1248 below | Adoption friction P0 — **V1**; with **TB-1246** | S |
+| TB-1249 | Customer Troubleshooting — remove eng-runbook deep link; see ## TB-1249 below | Trustworthiness P0 — **V1**; with **TB-1246** | S |
+| TB-1250 | Audit sibling technical-documentation help for consumer exposure; see ## TB-1250 below | Trustworthiness P0 — **V1**; after **TB-1246**; includes `cli-usage` | M |
 | TB-1196 | Agent→decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 — **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
 | TB-1197 | Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI; see `## TB-1197` below | Testability P1 — **V1**; after **TB-1196**; pairs **M-203** | S |
 | TB-1179 | Project deletion has no UI — governed delete affordance; see ## TB-1179 below | Adoption friction P0 — **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
@@ -26873,6 +26882,26 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ---
 
+## TB-1043 — `/help/core-pilot` first-viewport compression + trim related guides (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** **Done** (2026-07-26) — first viewport is hero + five-step stepper; cloud/fast-path/what-can-wait collapsed; related guides max two + troubleshooting; Vitest coverage.
+
+**Priority:** P0.
+
+**Source:** Owner help-page review 2026-07-25 (~64/100).
+
+**Problem:** First viewport competed among status note, long secondary sections, and four related-guide links before the operator finished the primary path.
+
+**Approach:** `core-pilot-first-viewport` owns card + stepper; secondary topics in `<details>`; trim depth guides to Complete review workflow + First review guide.
+
+**Acceptance:** First viewport excludes cloud/related chrome; related guides ≤2 depth links (+ troubleshooting).
+
+**Size estimate:** S.
+
+---
+
 ## TB-1124 — Rename Advisory scans to `/governance/advisory-scans` (P0)
 
 **Window:** V1 — Adoption friction.
@@ -30359,4 +30388,148 @@ Operators must read three intros before reaching the Trust Center link list.
 **Out of scope:** Changing the GCP connection settings form fields (except Preview label owned by **TB-1140**).
 
 **Size estimate:** S.
+
+---
+
+## TB-1246 — `/help/developer-troubleshooting` — reclassify as internal-runbook + Admin gate (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/help/developer-troubleshooting` 2026-07-26 (~32/100 as consumer-exposed help). Concern: most content is internal and should not be exposed to consumers.
+
+**Problem:** Registry title/summary and source (`docs/runbooks/TROUBLESHOOTING.md`, `COMMON_ERRORS.md`) are engineering runbooks (CLI doctor, support-bundle, DevelopmentBypass, SQL env vars, DbUp, circuit breakers, contributor BUILD/SQL links). Help-center tier is `internal`, but `product-documentation-content-kinds.ts` maps the slug to `technical-documentation`. **TB-735** Admin gating / `notFound()` only applies to `contentKind: internal-runbook`, so non-admin operators (and anyone who can hit `/help/{slug}` or `/api/help/{slug}`) receive the full eng runbook. Client `adminOnly` on links is not an access control.
+
+**Approach:**
+
+1. Set `developer-troubleshooting` (and post-rename slug from **TB-1248**) to `contentKind: "internal-runbook"`; add to `INTERNAL_RUNBOOK_SLUGS` if that set is still used.
+2. Ensure page + `/api/help/[slug]` use existing `principalCanAccessHelpTopic` / `HelpTopicAuthorityGate` (TB-735 path).
+3. Vitest: non-admin principal cannot load the topic (API 404/notFound); Admin can.
+4. Prefer keeping the markdown in `docs/runbooks/` for contributors even if in-app access is Admin-only.
+
+**Acceptance:** Non-admin sessions cannot render or fetch the engineering troubleshooting help body; Admin can.
+
+**Depends on:** None (extends Done **TB-735**).
+
+**Out of scope:** Rewriting the runbook content quality; removing the repo markdown files.
+
+**Size estimate:** S.
+
+---
+
+## TB-1247 — Engineering troubleshooting — de-index from product help search / static params (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/developer-troubleshooting` review 2026-07-26; discovery leak even when UI labels say Admin.
+
+**Problem:** Topic appears in `help-index.generated.ts`, Help drawer catalog (`help-search-panel-catalog.ts` Advanced diagnostics), and `generateStaticParams` (because it is not `internal-runbook`). Consumers can discover engineering triage content via Help search without knowing the URL.
+
+**Approach:**
+
+1. After **TB-1246** reclassification, confirm exclusion from `generateStaticParams` (already filters `internal-runbook`).
+2. Regenerate / gate help index so product Help search does not surface the eng runbook to non-admins (or at all in buyer-polished shell).
+3. Keep Help drawer entry `adminOnly` **and** ensure search results respect the same gate server-side.
+4. Vitest/CI: product help index / featured catalog never includes the eng-runbook slug for non-admin audiences.
+
+**Acceptance:** Non-admin Help search and static generation do not expose the engineering troubleshooting topic.
+
+**Depends on:** Prefer with **TB-1246**.
+
+**Out of scope:** Changing customer `/help/troubleshooting` product guide content (except deep-link in **TB-1249**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1248 — Engineering troubleshooting — align route slug with page title (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/developer-troubleshooting` review 2026-07-26 — route name does not match page name.
+
+**Problem:** URL/slug is `developer-troubleshooting` (breadcrumb/path reads “Developer troubleshooting”) while registry title and H1 are **Engineering troubleshooting runbook**. Mismatch signals a half-renamed internal page and confuses Admins who do have access.
+
+**Approach:**
+
+1. Canonical slug: `engineering-troubleshooting` (match title) — or shorter `engineering-runbook` if preferred; pick one and use everywhere.
+2. Permanent redirect from `/help/developer-troubleshooting` → new path; update `HELP_TOPIC_SLUG_ALIASES`, `in-app-doc-href.ts`, registry, tests, Help drawer href.
+3. Explicit breadcrumb map entry using the page title (not path-segment Title Case).
+4. Vitest: breadcrumb final segment matches title; old path redirects.
+
+**Acceptance:** One product name in URL (or alias), H1, breadcrumb, and Help labels; old developer-* URL still resolves via redirect for bookmarks.
+
+**Depends on:** Prefer with **TB-1246** (rename + reclassify in one PR if possible).
+
+**Out of scope:** Renaming the markdown files under `docs/runbooks/`.
+
+**Size estimate:** S.
+
+---
+
+## TB-1249 — Customer Troubleshooting — remove eng-runbook deep link (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review 2026-07-26; `TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS` “Support reference for tickets” links to eng runbook.
+
+**Problem:** Customer `/help/troubleshooting` Advanced diagnostics includes a row titled like support-reference guidance whose CTA is **Engineering troubleshooting runbook** (`adminOnly: true`). Even for Admins, that pairs consumer “copy the request ID” advice with an eng-internal runbook. For non-admins, the href is still a guessable consumer exposure path until **TB-1246** ships.
+
+**Approach:**
+
+1. Change the Advanced diagnostics “Support reference” row to stay on customer paths: copy correlation/request ID + link to `/help/report-a-problem` (and optionally System health for admins).
+2. Do not link customer Troubleshooting → eng runbook. If Admins need the runbook, surface it only under Help Documentation / internal tier after gate.
+3. Vitest: customer troubleshooting primary content never hrefs `developer-troubleshooting` / `engineering-troubleshooting`.
+
+**Acceptance:** `/help/troubleshooting` does not deep-link the engineering runbook; support escalation stays on Report a problem + correlation ID.
+
+**Depends on:** Prefer with **TB-1246**.
+
+**Out of scope:** Rewriting the full customer troubleshooting decision tree.
+
+**Size estimate:** S.
+
+---
+
+## TB-1250 — Audit sibling technical-documentation help for consumer exposure (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner concern on `/help/developer-troubleshooting` 2026-07-26 — same misclassification pattern may apply to other eng-facing help.
+
+**Problem:** Several registry slugs are `contentKind: technical-documentation` and Help-center `internal` (e.g. `cli-usage`, `governance-api-contracts`, possibly `admin-diagnostics`) while only `internal-runbook` is Admin-gated. That recreates the same “labeled internal, served to consumers” failure mode.
+
+**Approach:**
+
+1. Inventory every `technical-documentation` + Help-center `internal` slug; classify each as (a) Admin-gated in-app OK, (b) must become `internal-runbook`, or (c) truly customer/admin technical reference that may stay ungated for Operator Admins only vs all Operators.
+2. Apply **TB-1246**/**TB-1247** pattern to any eng-runbook-class topics (minimum: `cli-usage` if it exposes contributor CLI/env internals to non-admins).
+3. Document the rule in `PRODUCT_DOCUMENTATION_PRESENTATION.md` or IA taxonomy: Help-center `internal` tier must not map to ungated `technical-documentation` without an explicit consumer-safe exception.
+4. Vitest/CI: no Help-center `internal` slug remains `technical-documentation` without an allowlist entry and rationale.
+
+**Acceptance:** No eng-internal help topic remains consumer-reachable solely because it was mis-typed as `technical-documentation`.
+
+**Depends on:** After **TB-1246** (pattern established).
+
+**Out of scope:** Rewriting CLI reference UX (**TB-948** Done area) beyond access classification.
+
+**Size estimate:** M.
 
