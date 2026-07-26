@@ -112,7 +112,7 @@ When availability or latency targets are at risk, the incident communications po
 
 Public status URL is published in [trust-center.md](trust-center.md). Until a dedicated URL is live, incident updates are routed through [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) channels (`security@archlucid.net` fallback).
 
-See [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) for the status page implementation plan.
+See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md#8-operational-transparency--status-page-plan) for the status page implementation plan.
 
 ---
 

@@ -21,7 +21,7 @@
 | `CLAIM_READINESS_STATUS.md` | Founder / GTM owner | After each pilot or release review | Hold outbound claim stage advances until gates refreshed |
 | `SLA_SUMMARY.md` | Platform lead | Every 45 days | Escalate to product + ops owner for confirmation |
 | `INCIDENT_COMMUNICATIONS_POLICY.md` | Incident manager role | Every 45 days | Escalate to on-call manager; confirm channels and timelines |
-| `OPERATIONAL_TRANSPARENCY.md` | Platform lead | Every 90 days | Confirm status-page plan honesty (planned vs live) before buyer send |
+| `INCIDENT_COMMUNICATIONS_POLICY.md` §8 (status-page plan) | Platform lead | Every 90 days | Confirm status-page plan honesty (planned vs live) before buyer send |
 | `SUBPROCESSORS.md` | Privacy/legal operations role | Every 90 days | Escalate to legal review queue and update changelog note |
 
 ---

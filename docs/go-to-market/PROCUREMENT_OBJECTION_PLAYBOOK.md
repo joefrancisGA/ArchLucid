@@ -46,7 +46,7 @@
 
 - **Short answer:** Incident timelines and channels are documented with explicit severity-based response windows.
 - **Long answer:** We publish response timing targets and fallback communication channels for status incidents, with policy links from SLA and trust docs.
-- **Evidence:** [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md), [SLA_SUMMARY.md](SLA_SUMMARY.md), [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md)
+- **Evidence:** [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md), [SLA_SUMMARY.md](SLA_SUMMARY.md), [INCIDENT_COMMUNICATIONS_POLICY.md §8](INCIDENT_COMMUNICATIONS_POLICY.md#8-operational-transparency--status-page-plan)
 - **Escalate when:** Buyer requires contractual service-credit language.
 
 ### 5) "What are your data residency commitments?"
@@ -102,7 +102,7 @@
 
 - **Short answer:** We publish incident communication channels now and keep status-page implementation explicit in the transparency plan.
 - **Long answer:** Current model includes operational channels plus fallback policy. Status endpoint rollout remains tracked as an operational transparency task.
-- **Evidence:** [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md), [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md)
+- **Evidence:** [INCIDENT_COMMUNICATIONS_POLICY.md §8](INCIDENT_COMMUNICATIONS_POLICY.md#8-operational-transparency--status-page-plan), [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md)
 - **Escalate when:** Buyer blocks onboarding on public status URL publication.
 
 ### 13) "How do we validate subprocessor changes?"
