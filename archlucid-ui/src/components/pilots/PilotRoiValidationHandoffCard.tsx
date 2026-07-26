@@ -67,7 +67,7 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
   const executionMode = formatStructuralExecutionModeLabel(payload);
   const dollarSafe = isProjectedDollarClaimsSponsorSafe(payload);
   const validationSessionHref = resolveInAppDocHref(
-    "docs/go-to-market/validation/PILOT_ROI_VALIDATION_SESSION.md",
+    "docs/go-to-market/validation/PAID_PILOT_EVIDENCE_LEDGER.md#pilot-roi-validation-session",
   );
   const firstRunHelpHref = "/help/first-run";
 

@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-26
 
-> **Scope:** Buyer-safe paid-pilot conversion evidence ledger — executive purchase proof, not customer-identifying proof — plus the decision-delta interview script (formerly `DECISION_DELTA_INTERVIEW.md`). Market-validation instrumentation only.
+> **Scope:** Buyer-safe paid-pilot conversion evidence ledger — executive purchase proof, not customer-identifying proof — plus the 15-minute ROI validation session (formerly `PILOT_ROI_VALIDATION_SESSION.md`) and the decision-delta interview script (formerly `DECISION_DELTA_INTERVIEW.md`). Market-validation instrumentation only.
 
 # Paid pilot evidence ledger
 
@@ -8,9 +8,11 @@
 **Last reviewed:** 2026-07-26
 
 **Companion JSON:** [`templates/paid-pilot-evidence-ledger.template.json`](templates/paid-pilot-evidence-ledger.template.json)  
+**Companion UI:** Pilot ROI validation handoff card on review detail and `/value-report/pilot`.  
+**ROI model:** [`../../library/PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md)  
 **Execution tracked as:** GTM backlog **M-37** / **M-45 (V1.1)** — populating rows requires completed paid pilots; this template is the V1 design half.
 
-This ledger converts the ROI narrative into **observable executive purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It includes the [decision-delta interview](#decision-delta-interview-paid-pilots) and complements the commercial conversion checklist and ROI baseline capture.
+This ledger converts the ROI narrative into **observable executive purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It includes the [ROI validation session](#pilot-roi-validation-session) and [decision-delta interview](#decision-delta-interview-paid-pilots), and complements the commercial conversion checklist and ROI baseline capture.
 
 ---
 
@@ -19,11 +21,63 @@ This ledger converts the ROI narrative into **observable executive purchase proo
 | Trigger | Action | Storage (local; sanitize before commit) |
 | --- | --- | --- |
 | Sponsor proof pack sent on a **paid** SKU | Open one ledger row within **7 days** | `artifacts/paid-pilot-ledger/<pilot-label>/ledger-row.json` |
+| ROI validation session complete | Populate ledger fields from handoff-card notes | Same folder |
 | Decision-delta interview complete | Merge interview outcome into `decisionChanged` | Same folder + `decision-delta.md` cross-ref |
 | Conversion status changes | Update row (new `recordedUtc`) | Append status history in private notes |
 | Monthly review | Roll up sanitized aggregates | Commit summary only under [`../validation-runs/`](../validation-runs/) |
 
 Copy the JSON template per pilot. Use a **sanitized `pilotLabel`** only (e.g. `regulated-analytics-2026Q3`) — never customer legal names in committed artifacts.
+
+---
+
+## Pilot ROI validation session
+
+**Audience:** Operator or founder before external sponsor handoff on a paid pilot.  
+**Purpose:** Convert persisted proof signals into **observable purchase proof** — did the pilot change a decision, and can ROI claims be quoted externally without overreach? Market validation only — not new ROI math.
+
+### 15-minute agenda
+
+| Minutes | Activity |
+| --- | --- |
+| 0–3 | Read persisted signals on the handoff card: ROI confidence, execution mode, sponsor-safe dollar gate, sendability |
+| 3–10 | Walk the six validation questions (card collapsible section) with the executive sponsor or proxy |
+| 10–13 | Decide verdict: external ROI quote vs internal directional vs hold sponsor PDF |
+| 13–15 | Copy validation notes to clipboard and populate one ledger row |
+
+### When to use confidence tiers externally
+
+| `roiEvidenceConfidence` | External use |
+| --- | --- |
+| **Strong** | May quote ROI framing **only when** execution mode is Real, dollar claims are sponsor-safe, and sendability is Sendable |
+| **Partial** | Directional cycle-time / findings narrative only — no dollar savings unless buyer authorized |
+| **Low** | Internal steering only — do not send sponsor PDF or quote savings |
+
+Cross-check [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) for conservative assumptions before any external excerpt.
+
+### Populating the evidence ledger from the session
+
+1. Copy [`templates/paid-pilot-evidence-ledger.template.json`](templates/paid-pilot-evidence-ledger.template.json) to `artifacts/paid-pilot-ledger/<pilot-label>/ledger-row.json` (local; sanitize before commit).
+2. Set `runId` and `executionMode` from the handoff card (Real / Simulator / Fallback / Mixed).
+3. Map interview answers to ledger fields in this document:
+   - `decisionChanged.*` — finding-driven decision shift
+   - `baselineSourceConfidence.*` — buyer-reported vs model-default
+   - `sponsorActionTaken.*` — observable action within 30 days
+   - `conversionSignal.status` — annual order, deferred, declined, etc.
+4. If a decision-delta interview was run, cross-ref [decision-delta interview](#decision-delta-interview-paid-pilots).
+
+### Stop rules (non-negotiable)
+
+- **Do not quote USD savings** when `projectedDollarClaimsSponsorSafe` is **false**.
+- **Do not send sponsor PDF** when execution mode is not Real (unless curated demo sample with explicit internal-only labeling).
+- **Do not publish** when sponsor proof readiness is DemoOnly, Incomplete, or NotSendable.
+- **Do not invent dollar figures** in the ledger — record buyer authorization in private notes only.
+- When ROI confidence is **Low**, treat the pilot as **internal directional** regardless of findings count.
+
+### Related surfaces
+
+- Review detail sponsor handoff (`RunDetailSponsorBriefingSection`)
+- [`/value-report/pilot`](../../../archlucid-ui/src/app/(operator)/value-report/pilot/) aggregate window (uses latest finalized review in sample)
+- First-run operator help: `/help/first-run`
 
 ---
 
@@ -214,3 +268,5 @@ Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit
 | [`DECISION_CHANGE_ADDENDUM.md`](DECISION_CHANGE_ADDENDUM.md) | Proof-packet addendum format from interview outcomes |
 | [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) | ROI framing and confidence boundaries |
 | [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-37** / **M-45** | Cohort execution + interview population (V1.1) |
+
+Former standalone runbook: `docs/go-to-market/validation/PILOT_ROI_VALIDATION_SESSION.md` → this section.
