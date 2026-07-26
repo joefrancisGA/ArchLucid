@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-26
 
-> **Scope:** ArchLucid pilot success scorecard - full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **Audience:** Pilot champions, architecture team leads, and sales engineers who need to measure whether a pilot succeeded — and present the results to leadership for a purchase decision.
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-26
 
 **Grounding rule:** Metrics reference shipped V1 capabilities per [V1_SCOPE.md](../library/V1_SCOPE.md) and existing data collection per [PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md).
 
@@ -224,14 +224,74 @@ Before presenting, run through [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL
 
 ---
 
+## 8. Steering decision memo (template)
+
+One-page steering / ARB memo aligned to this scorecard’s language. **Audience:** Architecture review board, IT steering, or innovation gate **before** expanding paid use. Copy into your wiki; **remove** rows you do not need. Internal drafts only until filled by the customer team.
+
+### Decision
+
+**Recommendation:** ☐ Proceed with bounded pilot ☐ Defer ☐ Reject (capture short reason below)
+
+**Rationale (3–5 bullets):**
+
+-
+
+-
+
+### Alternatives considered
+
+| Option | Pros | Cons | Why not chosen |
+|--------|------|------|----------------|
+| Status quo (manual packages) | | | |
+| Generic LLM chat / ad-hoc Copilot | | | |
+| ArchLucid pilot | | | |
+
+### Pilot scope (time-boxed)
+
+| Field | Value |
+|-------|-------|
+| **Start (UTC date)** | |
+| **End (UTC date)** | |
+| **Primary use case** | |
+| **Out of scope for pilot** | (e.g. full Operate governance — optional) |
+| **Success owner** | Name / role |
+
+### Success measures (mapped to [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) §4)
+
+| Area | Target (qualitative or numeric) |
+|------|----------------------------------|
+| Speed — time to finalized architecture package | |
+| Artifact readiness | |
+| Traceability / evidence | |
+| Stakeholder confidence | |
+
+**Minimum bar:** See [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) §5.1–5.2 and this scorecard §5.
+
+### Commercial / procurement notes (optional)
+
+- Trust index: [`trust-center.md`](trust-center.md)
+- Fast lane: [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md#0-pilot-vs-procurement-fast-lane)
+
+### Sign-off
+
+| Role | Name | Date |
+|------|------|------|
+| Sponsor | | |
+| Architecture lead | | |
+| Security (if engaged) | | |
+
+Former standalone: `docs/go-to-market/STEERING_DECISION_MEMO_TEMPLATE.md` → this section.
+
+---
+
 ## Related documents
 
 | Doc | Use |
 |-----|-----|
-| [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI |
+| [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI (includes operational cost guide) |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which persona presents the report (Section 6) and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars to reference in the executive summary |
 | [../PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md) | Technical setup for the pilot environment |
 | [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | How pilot feedback signals are captured and analyzed |
 | [../OBSERVABILITY.md](../library/OBSERVABILITY.md) | OTel metric names referenced in this scorecard |
-| [../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Full marketability assessment (archived series)
+| [../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_SERIES_2026_04_15.md) | Full marketability assessment (archived series) |
