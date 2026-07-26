@@ -1,6 +1,6 @@
 {
   "schema": "archlucid.proof-packet-claim-lint-rules.v1",
-  "comment": "Deterministic forbidden-claim phrases for buyer-safe proof-packet markdown/text artifacts. Companion linter: ArchLucid.Cli.Commands.ProofPacketClaimLinter. Cross-link: docs/go-to-market/PROOF_LANGUAGE_CLAIM_AUDIT.md.",
+  "comment": "Deterministic forbidden-claim phrases for buyer-safe proof-packet markdown/text artifacts. Companion linter: ArchLucid.Cli.Commands.ProofPacketClaimLinter. Cross-link: docs/go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md#proof-language-claim-audit-static-buyer-docs.",
   "scanExtensions": [".md", ".txt"],
   "forbiddenClaims": [
     {

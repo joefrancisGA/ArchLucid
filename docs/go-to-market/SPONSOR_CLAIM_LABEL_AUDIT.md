@@ -1,10 +1,10 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-26
 
-> **Scope:** Release audit checklist — sponsor-facing execution-mode and evidence-basis labels. Includes the 2026-06-16 send/no-send hardening review appendix. Not buyer-facing.
+> **Scope:** Release audit checklist — sponsor-facing execution-mode and evidence-basis labels, plus the static buyer-facing proof-language claim audit (formerly `PROOF_LANGUAGE_CLAIM_AUDIT.md`; assessment §17 #7). Includes the 2026-06-16 send/no-send hardening review appendix. Not buyer-facing.
 
 # Sponsor claim and execution-mode label audit
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-26
 
 
 ## Unsupported-Claim Audit (Task #8) — 2026-06-18 pass
@@ -71,7 +71,73 @@ python scripts/ci/validate_first_value_lane.py
 python scripts/ci/run_buyer_surface_strict_guards.py --strict
 ```
 
-**Cross-refs:** [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) G1 · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) · [`PROOF_LANGUAGE_CLAIM_AUDIT.md`](PROOF_LANGUAGE_CLAIM_AUDIT.md) (buyer-facing proof packets + demo scripts; superlative guard)
+**Cross-refs:** [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) G1 · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) · [`#proof-language-claim-audit-static-buyer-docs`](#proof-language-claim-audit-static-buyer-docs) (buyer-facing proof packets + demo scripts; superlative guard)
+
+---
+
+## Proof-language claim audit (static buyer docs)
+
+Release audit log for **buyer-facing proof packets and demo scripts** — classifies each surface's dominant claim types and confirms no unsupported superlatives. Implements assessment **§17 #7 (Proof-language claim audit)**. Sponsor-generated *output* labels (first-value report, value DOCX, sponsor packet) are audited in the Task #8 section above; this section covers the static buyer-facing **documents**.
+
+This audit answers one question for every buyer-facing proof packet and demo script: **is each claim labeled with the kind of backing it actually has, and are unsupported superlatives removed?** It reuses the existing claim guardrails ([`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), the buyer-surface CI guards) and adds a tight superlative regression guard — it does not restate policy those docs own.
+
+### Claim-type taxonomy (canonical for §17 #7)
+
+Five backing types. Each buyer-facing claim should be reducible to one of them; if it cannot, it is an over-claim and must be softened or labeled.
+
+| Type | Meaning | Canonical backing layer |
+| --- | --- | --- |
+| **extractor-backed** | Traces to uploaded Azure extractor ZIP evidence (cost/savings cite `manifest.json` `collectionTimestamp` + schema version). | `ProofPacketSourceLabelsBuilder.cs`; board-pack posture `extractor-backed` in `executive-roi-board-pack-evidence-clusters.ts`. |
+| **review-backed** | Traces to a finalized review's persisted findings / architecture package / audit rows. | Architecture package (API: golden manifest) + authority chain; `DIFFERENTIATION_PROOF_PACKET.md`. |
+| **illustrative** | Demo-derived / sample, explicitly not a customer outcome. | `illustrative` posture; demo-proof-packet labels; `ROI_BASELINE_SEND_POLICY.md` (`demo-derived`). |
+| **self-assessed** | Internally attested (e.g. SOC mapping), not third-party issued. | `SOC2_SELF_ASSESSMENT_2026.md`, `trust-center.md`, `PROCUREMENT_PACK_INDEX.md` (`Self-attested`). |
+| **roadmap** | Deferred V1.1/V2 capability — stated as planned, never as shipped. | `V1_DEFERRED.md`; `PROCUREMENT_PACK_INDEX.md` (`Deferred`); `PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`. |
+
+Governance overlay (orthogonal): AI output is **governed** vs **advisory** per `ai-output-governance-label.ts`; ROI dollar headlines obey the first-value **ROI narrative claim gate** (PASS/WARN/HOLD) — see Rule 2 above.
+
+### Audited surfaces (2026-06-27 pass)
+
+Dominant claim types present and the labels that keep them honest. Disposition is **PASS** for all rows after this pass.
+
+| Surface | Dominant claim types | Honest-label anchors |
+| --- | --- | --- |
+| `BUYER_SECURITY_PROCUREMENT_PACKET.md` | review-backed, self-assessed, roadmap | "does **not** claim", deferred assurance |
+| `QUOTE_TO_PROOF_PACKET.md` | review-backed, illustrative, roadmap | ROI basis, send rule |
+| `QUOTE_TO_PROOF_PACKET.md` (executive paid-pilot section) | extractor-backed, review-backed, self-assessed, roadmap | six-element claim-boundary column |
+| `DIFFERENTIATION_PROOF_PACKET.md` | review-backed, illustrative, self-assessed | "what we do **not** claim", ROI basis labels |
+| `DIFFERENTIATION_PROOF_PACKET.md` | review-backed, extractor-backed | evidence-linked comparison section |
+| `EXECUTIVE_SPONSOR_BRIEF.md` | review-backed, illustrative | execution-mode + estimate caveats |
+| `GENERIC_AI_BAKEOFF_PROTOCOL.md` (evidence pack sections) | review-backed, illustrative | bakeoff honesty ("where each wins") |
+| `POLICY_PACK_DELTA_DEMO_SCRIPT.md` (pilot run-sheet) | review-backed, illustrative | "review evidence, not certification" |
+| `POLICY_PACK_DELTA_DEMO_SCRIPT.md` | review-backed, illustrative | governance-evidence-not-certification grounding rule |
+| `DEMO_VIDEO_SCRIPT.md`, `DEMO_QUICKSTART.md` | illustrative | demo/sample framing |
+| `GENERIC_AI_BAKEOFF_PROTOCOL.md` | review-backed, illustrative | honest "where each wins" |
+| `PROCUREMENT_OBJECTION_PLAYBOOK.md` (incl. controlled pilot drill) | self-assessed, roadmap | honest-posture answers |
+| `DIFFERENTIATION_PROOF_PACKET.md` (model-seats message test) | review-backed, self-assessed | grounding rule: "do **not** claim ArchLucid always beats frontier AI" |
+| `buyer-jobs/*` (demo proof shape sections) | illustrative | sample-not-customer labels |
+| `templates/evidence-packet-buyer.template.md` | all five (as columns) | claim-boundary column |
+
+**Patch this pass:** model-seats grounding rule (now in `DIFFERENTIATION_PROOF_PACKET.md`) — "Do **not** claim ArchLucid always beats frontier AI" is correct guidance; the new guard now normalizes markdown emphasis so the bolded `**not**` registers as a caveat (no copy change required). No unsupported superlatives remain in scope.
+
+### Superlative regression guard
+
+`scripts/ci/check_proof_language_superlatives.py` scans the surfaces in `scripts/ci/data/proof_language_audit_scope.v1.json` for a **tight** list of unsupported superlatives (best-in-class, world-class, industry-leading, unmatched, guaranteed savings/ROI, never fails, always beats, 100% accurate, fully compliant, …). A term is flagged **only** when the line carries no caveat/backing marker (do not / without / illustrative / estimate / roadmap / source-labeled / …), and markdown emphasis is normalized first so bolded caveats still count. Common, legitimate terms (e.g. "enterprise-grade", "fastest path") are deliberately excluded to keep the guard trustworthy.
+
+Wired into the buyer-surface bundle (`scripts/ci/run_buyer_surface_strict_guards.py`) and unit-tested in `scripts/ci/tests/test_check_proof_language_superlatives.py`.
+
+### Verification (proof-language)
+
+```powershell
+python scripts/ci/check_proof_language_superlatives.py
+python -m pytest scripts/ci/tests/test_check_proof_language_superlatives.py
+python scripts/ci/run_buyer_surface_strict_guards.py --strict
+```
+
+### Residual (human / GTM half)
+
+The automated guard removes unsupported superlatives and the matrix classifies dominant claim types, but **line-level sign-off on borderline comparative/ROI claims and the live buyer reaction** are market-execution. Pair this audit with the procurement objection rehearsal (`GTM_BACKLOG.md` **M-91**) when that window opens; do not treat a green scan as buyer acceptance.
+
+Former standalone: `docs/go-to-market/PROOF_LANGUAGE_CLAIM_AUDIT.md` → this section.
 
 ---
 
