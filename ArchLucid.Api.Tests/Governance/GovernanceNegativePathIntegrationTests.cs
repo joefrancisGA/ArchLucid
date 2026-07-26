@@ -49,9 +49,10 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
     }
 
     [SkippableFact]
-    public async Task Reject_after_approve_returns_bad_request_tb297()
+    public async Task Reject_after_approve_returns_conflict_tb297()
     {
-        string runId = await CreateRunAsync("REQ-GOV-NEG-REJ-01");
+        // Unique per execution: fixed request ids collide across sharded SQL integration runs.
+        string runId = await CreateRunAsync($"REQ-GOV-NEG-REJ-{Guid.NewGuid():N}");
 
         HttpResponseMessage submit = await PostGovernanceApprovalRequestAsync(
             runId,
@@ -74,8 +75,9 @@ public sealed class GovernanceNegativePathIntegrationTests(ArchLucidApiFactory f
             ProdReviewerName,
             ProdReviewerOid);
 
-        reject.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        ReadProblemType(await reject.Content.ReadAsStringAsync()).Should().Be(ProblemTypes.BadRequest);
+        // Reject after approve is a first-wins CAS conflict (GovernanceApprovalReviewConflictException → 409).
+        reject.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        ReadProblemType(await reject.Content.ReadAsStringAsync()).Should().Be(ProblemTypes.Conflict);
     }
 
     [SkippableFact]
