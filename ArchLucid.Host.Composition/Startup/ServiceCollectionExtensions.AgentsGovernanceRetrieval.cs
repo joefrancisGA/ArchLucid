@@ -674,7 +674,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IQuickScanGlobalBudgetReservationService, QuickScanGlobalBudgetReservationService>();
         services.Configure<RunScopedLlmBudgetReservationOptions>(
             configuration.GetSection(RunScopedLlmBudgetReservationOptions.SectionName));
-        services.AddSingleton<IRunScopedLlmBudgetReservationService, RunScopedLlmBudgetReservationService>();
+        // Scoped: SQL ILlmTenantBudgetRepository is scoped; cross-request state lives on IRunScopedLlmBudgetReservationStore (singleton).
+        services.AddScoped<IRunScopedLlmBudgetReservationService, RunScopedLlmBudgetReservationService>();
         services.AddSingleton<IQuickScanDistributedConcurrencyService, QuickScanDistributedConcurrencyService>();
         services.AddSingleton<IQuickScanSafetyOperationalStateProvider, QuickScanSafetyOperationalStateProvider>();
         services.AddSingleton<IQuickScanSafetyOperationalAdminService, QuickScanSafetyOperationalAdminService>();

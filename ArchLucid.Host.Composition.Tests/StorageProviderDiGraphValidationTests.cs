@@ -85,10 +85,29 @@ public sealed class StorageProviderDiGraphValidationTests
     }
 
     /// <summary>
-    ///     Sql + <see cref="ServiceProviderOptions.ValidateOnBuild" /> is not run here: building the full graph eagerly
-    ///     constructs many scoped services and can block on SQL/network; that path is covered by API integration tests
-    ///     and CI full regression. This test only asserts Sql storage registration completes and wires the connection stack.
+    ///     Sql composition must pass <see cref="ServiceProviderOptions.ValidateScopes" /> — InMemory registers
+    ///     <c>ILlmTenantBudgetRepository</c> as singleton, so lifetime bugs like singleton
+    ///     <c>IRunScopedLlmBudgetReservationService</c> → scoped SQL budget repo only surface on the Sql path
+    ///     (Live E2E nightly). Ctors must not open SQL connections.
     /// </summary>
+    [Fact]
+    public void Sql_storage_full_composition_validates_on_build()
+    {
+        IConfiguration configuration = CreateSqlCompositionConfiguration();
+        ServiceCollection services = CreateCompositionServices(configuration);
+        services.AddHttpContextAccessor();
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        ServiceProviderOptions options = new() { ValidateOnBuild = true, ValidateScopes = true };
+        Action act = () =>
+        {
+            ServiceProvider provider = services.BuildServiceProvider(options);
+            provider.Dispose();
+        };
+
+        act.Should().NotThrow();
+    }
+
     [Fact]
     public void Sql_storage_AddArchLucidStorage_registers_sql_connection_abstractions()
     {
@@ -165,6 +184,8 @@ public sealed class StorageProviderDiGraphValidationTests
                     ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
                     ["RateLimiting:Expensive:PermitLimit"] = "100000",
                     ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                    ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
+                    ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                     ["LlmCompletionCache:Enabled"] = "false",
                     ["HotPathCache:Enabled"] = "false"
                 })
