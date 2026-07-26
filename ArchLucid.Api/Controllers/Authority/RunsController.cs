@@ -547,6 +547,7 @@ public sealed partial class RunsController(
     ///     TB-938: re-execute selected agents/tasks for <paramref name="runId" />, keeping successful results and
     ///     invalidating Critic when upstream inputs change.
     /// </summary>
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("run/{runId}/execute/selective")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]

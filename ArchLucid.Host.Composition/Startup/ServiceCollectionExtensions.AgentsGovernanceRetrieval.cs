@@ -674,7 +674,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IQuickScanGlobalBudgetReservationService, QuickScanGlobalBudgetReservationService>();
         services.Configure<RunScopedLlmBudgetReservationOptions>(
             configuration.GetSection(RunScopedLlmBudgetReservationOptions.SectionName));
-        services.AddSingleton<IRunScopedLlmBudgetReservationService, RunScopedLlmBudgetReservationService>();
+        // Scoped: depends on ILlmTenantBudgetRepository (SQL = scoped). Reservation state lives in the singleton store.
+        services.AddScoped<IRunScopedLlmBudgetReservationService, RunScopedLlmBudgetReservationService>();
         services.AddSingleton<IQuickScanDistributedConcurrencyService, QuickScanDistributedConcurrencyService>();
         services.AddSingleton<IQuickScanSafetyOperationalStateProvider, QuickScanSafetyOperationalStateProvider>();
         services.AddSingleton<IQuickScanSafetyOperationalAdminService, QuickScanSafetyOperationalAdminService>();
