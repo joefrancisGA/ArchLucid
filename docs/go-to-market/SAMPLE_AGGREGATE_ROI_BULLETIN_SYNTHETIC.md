@@ -28,4 +28,4 @@
 
 - [`AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](AGGREGATE_ROI_BULLETIN_TEMPLATE.md)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
-- [`SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md`](SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md) — single-tenant synthetic sponsor narrative (DOCX-shaped metrics via `SyntheticCaseStudyDataProvider`)
+- [`ROI_MODEL.md#synthetic-contoso-retail-case-study`](ROI_MODEL.md#synthetic-contoso-retail-case-study) — single-tenant synthetic sponsor narrative (DOCX-shaped metrics via `SyntheticCaseStudyDataProvider`)
