@@ -85,17 +85,13 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/reviews/new")).toBeNull();
   });
 
-  it("orients the advisory route with recommendation copy", () => {
-    const o = buyerPolishedRouteOrientation("/governance/advisory-scans");
-
-    expect(o?.label).toBe("Advisory scans");
-    expect(o?.line).toContain("Prioritized follow-up");
+  it("returns null for advisory scans — the page carries its own OperatorPageHeader lead (TB-1125)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/advisory-scans")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/advisory")).toBeNull();
   });
 
-  it("orients advisory sub-routes (e.g. ?tab=schedules) consistently", () => {
-    const o = buyerPolishedRouteOrientation("/governance/advisory-scans?tab=schedules");
-
-    expect(o?.label).toBe("Advisory scans");
+  it("returns null for advisory schedules deep links — same page chrome (TB-1125)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/advisory-scans?tab=schedules")).toBeNull();
   });
 
   it("orients the operator security-trust route for procurement reviewers", () => {

@@ -20,9 +20,30 @@ vi.mock("./AdvisorySchedulesContent", () => ({
   AdvisorySchedulesContent: () => <div>Schedules panel</div>,
 }));
 
+import {
+  ADVISORY_SCANS_HOW_IT_WORKS_BODY,
+  ADVISORY_SCANS_PAGE_LEAD,
+  ADVISORY_SCANS_PAGE_VALUE_STATEMENT,
+  ADVISORY_SCANS_TRUST_COPY,
+} from "@/lib/advisory-copy";
+
 import { AdvisoryHubClient } from "./AdvisoryHubClient";
 
 describe("AdvisoryHubClient (TB-670)", () => {
+  it("shows one primary description above the fold (TB-1125)", () => {
+    render(<AdvisoryHubClient initialTab="scans" />);
+
+    expect(screen.getByTestId("advisory-scans-page-lead")).toHaveTextContent(ADVISORY_SCANS_PAGE_LEAD);
+
+    const howItWorks = screen.getByTestId("advisory-scans-how-it-works");
+
+    expect(howItWorks).toBeInTheDocument();
+    expect(howItWorks).not.toHaveAttribute("open");
+    expect(screen.queryByText(ADVISORY_SCANS_PAGE_VALUE_STATEMENT)).not.toBeInTheDocument();
+    expect(screen.queryByText(ADVISORY_SCANS_TRUST_COPY)).not.toBeInTheDocument();
+    expect(screen.getByText(ADVISORY_SCANS_HOW_IT_WORKS_BODY)).toBeInTheDocument();
+  });
+
   it("uses shared Tabs with linked tabpanels and keyboard roving", () => {
     render(<AdvisoryHubClient initialTab="scans" />);
 

@@ -5,14 +5,15 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
-  ADVISORY_SCANS_PAGE_SUBTITLE,
-  ADVISORY_SCANS_PAGE_VALUE_STATEMENT,
-  ADVISORY_SCANS_TRUST_COPY,
+  ADVISORY_SCANS_HOW_IT_WORKS_BODY,
+  ADVISORY_SCANS_HOW_IT_WORKS_TITLE,
+  ADVISORY_SCANS_PAGE_LEAD,
 } from "@/lib/advisory-copy";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -36,8 +37,8 @@ export type AdvisoryHubClientProps = {
 };
 
 /**
- * Single `/advisory` ("Advisory scans") surface: **Scans** and **Schedules** tabs. Tab state in `?tab=` for deep links.
- * `initialTab` comes from the server so this tree does not depend on `useSearchParams` (avoids long Suspense fallbacks).
+ * Advisory scans hub under `/governance/advisory-scans`: **Scans** and **Schedules** tabs.
+ * Tab state in `?tab=` for deep links. `initialTab` comes from the server (no `useSearchParams` Suspense).
  */
 export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React.JSX.Element {
   const router: ReturnType<typeof useRouter> = useRouter();
@@ -82,16 +83,22 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
     <div className="px-0" data-testid="advisory-hub">
       <OperatorPageHeader
         title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory}
-        subtitle={ADVISORY_SCANS_PAGE_SUBTITLE}
         actions={<PageContextualHelpButton />}
+        titleTestId="advisory-scans-page-title"
       >
-        <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          {ADVISORY_SCANS_PAGE_VALUE_STATEMENT}
-        </p>
-        <p className={cn("m-0 mt-2 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {ADVISORY_SCANS_TRUST_COPY}
+        <p
+          data-testid="advisory-scans-page-lead"
+          className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+        >
+          {ADVISORY_SCANS_PAGE_LEAD}
         </p>
       </OperatorPageHeader>
+
+      <CollapsibleSection title={ADVISORY_SCANS_HOW_IT_WORKS_TITLE} sectionTestId="advisory-scans-how-it-works">
+        <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          {ADVISORY_SCANS_HOW_IT_WORKS_BODY}
+        </p>
+      </CollapsibleSection>
 
       <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-6">
         <TabsList

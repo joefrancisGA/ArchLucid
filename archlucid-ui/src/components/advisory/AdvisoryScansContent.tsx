@@ -38,7 +38,6 @@ import {
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY,
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE,
   ADVISORY_SCANS_REFRESH_SAVED_LABEL,
-  ADVISORY_SCANS_TRUST_COPY,
   ADVISORY_SCANS_VIEW_SAMPLE_LABEL,
 } from "@/lib/advisory-copy";
 import { buildAdvisoryScanSummary } from "@/lib/advisory-scan-summary";
@@ -155,9 +154,6 @@ export function AdvisoryScansContent(): React.JSX.Element {
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {ADVISORY_SCANS_FORM_SECTION_TITLE}
             </h2>
-            <p className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              {ADVISORY_SCANS_TRUST_COPY}
-            </p>
           </div>
 
           <div className="grid gap-4">

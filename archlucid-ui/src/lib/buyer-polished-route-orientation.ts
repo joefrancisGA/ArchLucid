@@ -5,7 +5,6 @@ import {
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
@@ -166,12 +165,9 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  // Canonical Advisory scans under /governance/* must win before the generic Governance branch.
+  // Advisory scans carries its own OperatorPageHeader lead (TB-1125) — skip LayerHeader orientation.
   if (path.startsWith("/governance/advisory-scans") || path.startsWith("/advisory")) {
-    return {
-      label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
-      line: "Prioritized follow-up recommendations from finalized reviews.",
-    };
+    return null;
   }
 
   if (path === "/governance") {
