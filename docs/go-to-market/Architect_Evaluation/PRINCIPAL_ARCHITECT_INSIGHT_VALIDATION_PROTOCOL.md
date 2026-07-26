@@ -1,15 +1,15 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-26
 
-> **Scope:** Market validation protocol — live principal-architect sessions plus blind insight comparison and cohort operating checklist. Tests whether experienced architects find ArchLucid outputs non-obvious, correct, evidence-backed, decision-changing, and worth repeating after demo novelty wears off. Validation work, not a product spec.
+> **Scope:** Market validation protocol — live principal-architect sessions, fillable session scorecard (formerly `PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`), blind insight comparison, and cohort operating checklist. Tests whether experienced architects find ArchLucid outputs non-obvious, correct, evidence-backed, decision-changing, and worth repeating after demo novelty wears off. Validation work, not a product spec.
 
 # Principal-Architect Insight Validation Protocol
 
 **Audience:** Founder / release owner running live demos, advisory sessions, or paid pilots.  
 **Duration:** 30–45 minutes per session.  
-**Last reviewed:** 2026-07-25.  
+**Last reviewed:** 2026-07-26.  
 **Recommended sample:** 3–5 sessions before changing roadmap messaging; 5+ sessions before treating results as directional market evidence.
 
-**Blind comparison + cohort ops:** [`#blind-insight-validation`](#blind-insight-validation) · [`#blind-cohort-operating-checklist`](#blind-cohort-operating-checklist)
+**Blind comparison + cohort ops:** [`#blind-insight-validation`](#blind-insight-validation) · [`#blind-cohort-operating-checklist`](#blind-cohort-operating-checklist) · Fillable worksheet: [`#session-scorecard`](#session-scorecard)
 
 ## Purpose
 
@@ -78,7 +78,7 @@ Use when the participant is time-constrained. Still capture:
 | Sanitized architecture packet | Customer-redacted packet or realistic Contoso-style sample, ideally 8–15 pages. |
 | ArchLucid finalized review output | Real-mode preferred. Simulator output is acceptable only if clearly labeled as representative. |
 | Frontier-AI manual baseline | Same packet reviewed in Claude Opus / GPT-5 / Gemini Pro using a principal-architect prompt. |
-| Scoring sheet | `PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md` or equivalent shared form. |
+| Scoring sheet | [`#session-scorecard`](#session-scorecard) or equivalent shared form. |
 | Blind comparison packet | Recommended for at least 2 of 5 sessions. Use [`#blind-insight-validation`](#blind-insight-validation). |
 | Session log template | `templates/principal-architect-session.template.json` or equivalent notes document. |
 
@@ -443,9 +443,92 @@ Tracker: [`../validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`](../valida
 
 ---
 
+## Session scorecard
+
+**Audience:** Facilitator running expert validation sessions. Captures market uncertainty — not product claims.  
+**Bakeoff framing:** [`../GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md).
+
+### Session metadata
+
+| Field | Value |
+| --- | --- |
+| Session date (UTC) | |
+| Facilitator | |
+| Participant role (no names in committed artifacts) | Principal / staff architect / CTO |
+| Packet label (sanitized) | e.g. Contoso retail API — no customer identifiers |
+| ArchLucid execution mode | simulator / real-mode (attach gate class) |
+| Frontier-AI baseline model | e.g. Claude Opus / GPT-5 — manual review |
+| Transcript / notes location | Private storage path only — do not commit |
+| Buyer quote redaction status | not collected / redacted / withheld |
+
+### Artifact checklist (prepare before session)
+
+- [ ] Sanitized architecture packet (8–15 pages)
+- [ ] ArchLucid finalized review output (sponsor-safe export)
+- [ ] Manual frontier-AI baseline on the same packet
+- [ ] Printed or shared scoring sheet (this section)
+- [ ] Real-mode / simulator label visible on ArchLucid materials
+
+### Numeric scales (blind sessions — per finding)
+
+When using [`#blind-insight-validation`](#blind-insight-validation), score **Arm A** and **Arm B** in `scoring-sheet.json`:
+
+| Field | 1 | 5 |
+| --- | --- | --- |
+| `novelty` | Obvious to any architect | Non-obvious and valuable |
+| `correctnessConfidence` | Likely wrong vs packet | High confidence correct |
+| `actionability` | Vague | Clear sponsor/team next step |
+| `surpriseFactor` | Expected in first pass | Would not write unprompted |
+| `decisionImpact` | Informational only | Changes approval or priority |
+
+### Finding labels (per material finding)
+
+Rate **each material finding** separately for ArchLucid and for the manual frontier-AI baseline (or blind arms before unblinding). For the richer live-session scheme (including **D** / **E**), see [Finding classification](#finding-classification).
+
+| Code | Label | Definition |
+| --- | --- | --- |
+| **O** | Obvious | Experienced architect would write this in a first pass |
+| **U** | Useful | Correct and actionable but not surprising |
+| **N** | Non-obvious | Correct and not expected in a first pass — primary value signal |
+| **X** | Wrong / unsupported | Incorrect, missing evidence, or not grounded in the packet |
+| **S** | Skipped | Not produced when it should have been |
+
+### Session scores (counts)
+
+| Source | O | U | N | X | S |
+| --- | --- | --- | --- | --- | --- |
+| ArchLucid | | | | | |
+| Manual frontier AI | | | | | |
+
+### Reuse and decision intent
+
+| Question | Response |
+| --- | --- |
+| Would participant reuse ArchLucid for the next review cycle? | yes / maybe / no |
+| Primary blocker to reuse (if not yes) | |
+| Strongest evidence-trail advantage vs manual AI | |
+| Weakest ArchLucid finding (if any X) | |
+
+### Roadmap guidance (observation-driven)
+
+- **High N-rate + reuse intent yes/maybe:** sharpen proof-package positioning; do not add features by default.
+- **High X-rate:** treat as correctness / faithfulness work — not marketing.
+- **High O-rate, low N-rate:** ArchLucid is competent but not differentiated — run more sessions before changing messaging.
+- **Low reuse intent:** validate whether the gap is insight quality, workflow friction, or procurement — do not infer from a single session.
+
+### Post-session storage
+
+Store completed scorecards and transcripts outside the repository. Summarize aggregate N/X rates and reuse intent in private founder notes only until **≥ 3 sessions** justify a messaging update.
+
+**Electronic capture:** Copy [`../templates/first-non-obvious-moment.template.json`](../templates/first-non-obvious-moment.template.json) to `artifacts/first-non-obvious-moment/<runId>/moment.json` after debrief; proof collection surfaces **`first-non-obvious-moment-report.md`**. For dismissal signals, copy [`../templates/pilot-dismissal-trigger.template.json`](../templates/pilot-dismissal-trigger.template.json) to `artifacts/pilot-dismissal-triggers/<runId>/dismissal.json`.
+
+Former standalone: `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md` → this section.
+
+---
+
 ## Related files
 
-- [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
+- [`#session-scorecard`](#session-scorecard) (fillable worksheet)
 - [`../templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json)
 - [`../templates/blind-validation-exec-summary.template.md`](../templates/blind-validation-exec-summary.template.md)
 - [`../PILOT_ROI_MODEL.md`](../PILOT_ROI_MODEL.md)
