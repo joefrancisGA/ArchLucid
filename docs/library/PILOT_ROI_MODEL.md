@@ -11,7 +11,7 @@
 
 **Narrative of record for sponsors:** **[EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**. This ROI model is the measurement companion; keep headline buyer claims in the brief.
 
-**Related:** [README.md](../REPOSITORY_README.md) · [CORE_PILOT.md](../CORE_PILOT.md) · [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [customer-facing/customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md)
+**Related:** [README.md](../REPOSITORY_README.md) · [CORE_PILOT.md](../CORE_PILOT.md) · [PMF buyer-safe evidence row](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md#21a-buyer-safe-evidence-row-template) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [customer-facing/PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md)
 
 ---
 

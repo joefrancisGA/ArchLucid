@@ -86,5 +86,5 @@ Store completed scorecards and transcripts outside the repository. Summarize agg
 
 - [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation)
 - [`templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json)
-- [`PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`](../PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)
+- [`PMF_VALIDATION_TRACKER.md`](../../archive/gtm-internal/PMF_VALIDATION_TRACKER.md#21a-buyer-safe-evidence-row-template) (buyer-safe evidence row)
 - [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md)

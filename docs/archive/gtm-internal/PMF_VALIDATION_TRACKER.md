@@ -1,14 +1,14 @@
-> **Reviewed:** 2026-07-22
-> **Scope:** ArchLucid — Product-market fit validation tracker - full detail, tables, and links in the sections below.
+> **Reviewed:** 2026-07-26
+> **Scope:** ArchLucid — Product-market fit validation tracker, including buyer-safe evidence row template (formerly `docs/go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`).
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ArchLucid — Product-market fit validation tracker
 
 **Audience:** Product, sales, and leadership teams validating PMF hypotheses with pilot evidence.
 
-**Last reviewed:** 2026-05-01
+**Last reviewed:** 2026-07-26
 
 This is a **living document**. Use **anonymous pilot identifiers** only (**Pilot A**, **Pilot B**, …)—never customer, company, or employee names here. Populate rows as pilots execute; aggregate into §6 after synthesis.
 
@@ -37,8 +37,8 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 | Rule | Detail |
 |------|--------|
 | **Pilot ID** | Use **Pilot A**, **Pilot B**, **Pilot C**, … in this file only. Map to real programs in a **separate** restricted system (CRM, pilot charter, or internal tracker) if names are required. |
-| **Buyer-safe template** | **[PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)** — copy row + ethics guardrails before updating §2.3. |
-| **After each scorecard** | Within **5 business days** of a [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) review, update every row for that **Pilot ID** that was in scope. |
+| **Buyer-safe template** | Copy the [buyer-safe evidence row](#21a-buyer-safe-evidence-row-template) below before updating §2.3. |
+| **After each scorecard** | Within **5 business days** of a [PILOT_SUCCESS_SCORECARD.md](../../go-to-market/PILOT_SUCCESS_SCORECARD.md) review, update every row for that **Pilot ID** that was in scope. |
 | **Internal dogfood** | You may fill **Pilot A** (or **Pilot B**) from **internal** runs first—aggregate numbers and qualitative signal are enough; do not invent customer outcomes. |
 | **Quarterly** | Reconcile §2.2 with §6 **Current PMF status** and note the date in the §6 summary row (footer). |
 
@@ -53,6 +53,29 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 | **Status** | **Pending** (not started / no data), **Captured** (values or qualitative signal recorded), **Deferred** (pilot paused), or **N/A** (hypothesis not in scope for that pilot). |
 
 No numeric **Result** or **Baseline** cells should be fabricated. If the team only has qualitative signal, put **See scorecard** in **Result** and keep **Status** = **Captured**.
+
+### 2.1a Buyer-safe evidence row template
+
+Copy per hypothesis / pilot. Internal and NDA channels only unless policy says otherwise. Demo-tenant figures are **not** customer outcomes ([PILOT_ROI_MODEL.md](../../library/PILOT_ROI_MODEL.md) §4.1.1).
+
+**Rules:**
+
+- Use **Pilot A**, **Pilot B** identifiers in shared docs — map to real programs only in restricted systems (CRM, charter).
+- **Do not** invent **Baseline** or **Result** numerics. Use **TBD** until measured, **See scorecard** for qualitative capture per §2.2, or **Unknown** when deliberately not measured (note why).
+- Redact tenant, people, and identifiable quotes before anything leaves trusted channels.
+
+| Field | Value |
+|-------|--------|
+| **Pilot ID** | Pilot A / B / … |
+| **Hypothesis ID** | H1–H5 (from §1) |
+| **Evidence date (UTC)** | |
+| **Environment** | e.g. staging URL pattern only — no secrets |
+| **Baseline** | Measured pre-pilot or **TBD** / **See scorecard** / **Unknown** |
+| **Result** | Measured post-window or qualitative pointer — never placeholder numerics |
+| **Artifacts** | Links or paths: scorecard, benchmark JSON name, internal ticket IDs |
+| **Owner sign** | Initials + date when row is **Captured** in §2.3 |
+
+Within **5 business days** of a formal scorecard review, update every in-scope row in §2.3 for that **Pilot ID**. Also used alongside [PROOF_OF_VALUE_SNAPSHOT.md](../../library/PROOF_OF_VALUE_SNAPSHOT.md).
 
 ### 2.3 Evidence rows
 
