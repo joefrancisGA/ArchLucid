@@ -13,6 +13,7 @@ import {
   HELP_DRAWER_CHEVRON_CLASS,
   helpDrawerRowButtonClass,
 } from "@/components/help/help-drawer-row-class";
+import { HelpDrawerDoThisNowRow } from "@/components/help/HelpDrawerDoThisNowRow";
 import { HelpDrawerTopicRow } from "@/components/help/HelpDrawerTopicRow";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +38,7 @@ import {
   HELP_SEARCH_PANEL_SUBTITLE,
   listHelpSearchPanelGroups,
   recommendedHelpSearchPanelTopics,
+  splitHelpSearchPanelDoThisNow,
   type HelpSearchPanelAction,
   type HelpSearchPanelTopic,
 } from "@/lib/help-search-panel-catalog";
@@ -181,6 +183,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     () => recommendedHelpSearchPanelTopics(pathname, isAdmin),
     [isAdmin, pathname],
   );
+  const { doThisNow, moreRecommended } = useMemo(
+    () => splitHelpSearchPanelDoThisNow(recommendedTopics),
+    [recommendedTopics],
+  );
   const recommendedTopicIds = useMemo(
     () => new Set(recommendedTopics.map((topic) => topic.id)),
     [recommendedTopics],
@@ -212,8 +218,12 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
       return "";
     }
 
-    if (recommendedTopics.length > 0) {
-      return `recommended:${recommendedTopics[0]!.id}`;
+    if (doThisNow !== null) {
+      return `do-this-now:${doThisNow.id}`;
+    }
+
+    if (moreRecommended.length > 0) {
+      return `recommended:${moreRecommended[0]!.id}`;
     }
 
     const firstGroup = visibleGroupsWithoutRecommended.find((group) => group.topics.length > 0);
@@ -224,7 +234,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     }
 
     return "";
-  }, [filteredTopics, hits, isSearching, recommendedTopics, visibleGroupsWithoutRecommended]);
+  }, [doThisNow, filteredTopics, hits, isSearching, moreRecommended, visibleGroupsWithoutRecommended]);
 
   useEffect(() => {
     if (!open) {
@@ -546,7 +556,17 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                   </>
                 ) : (
                   <div className="space-y-4">
-                    {recommendedTopics.length > 0 ? (
+                    {doThisNow !== null ? (
+                      <HelpDrawerDoThisNowRow
+                        topic={doThisNow}
+                        isHighlighted={highlightedRowId === `do-this-now:${doThisNow.id}`}
+                        onActivate={openTopic}
+                        onHighlight={() => {
+                          setHighlightedRowId(`do-this-now:${doThisNow.id}`);
+                        }}
+                      />
+                    ) : null}
+                    {moreRecommended.length > 0 ? (
                       <section
                         aria-labelledby="help-search-recommended-heading"
                         data-testid="help-search-recommended-group"
@@ -555,7 +575,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                           Recommended for this page
                         </HelpDrawerGroupHeading>
                         <ul className="m-0 space-y-2 p-0">
-                          {recommendedTopics.map((topic) => {
+                          {moreRecommended.map((topic) => {
                             const rowId = `recommended:${topic.id}`;
 
                             return (

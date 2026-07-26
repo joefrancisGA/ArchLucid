@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import {
+  HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING,
   HELP_SEARCH_PANEL_KEYBOARD_HINT,
   HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER,
   HELP_SEARCH_PANEL_SUBTITLE,
@@ -62,20 +63,40 @@ describe("HelpSearchPanel", () => {
     pathnameMock.value = "/";
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
+    expect(screen.getByTestId("help-search-do-this-now")).toBeInTheDocument();
+    expect(within(screen.getByTestId("help-search-do-this-now")).getByText("Getting started")).toBeInTheDocument();
     expect(screen.getByTestId("help-search-recommended-group")).toBeInTheDocument();
-    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("Getting started")).toBeInTheDocument();
+    expect(within(screen.getByTestId("help-search-recommended-group")).getByText("How ArchLucid works")).toBeInTheDocument();
   });
 
   it("on core-pilot recommends next steps instead of first-review relaunches (TB-1044)", () => {
     pathnameMock.value = "/help/core-pilot";
     render(<HelpSearchPanel open onOpenChange={() => {}} />);
 
+    expect(within(screen.getByTestId("help-search-do-this-now")).getByText("Create your first review")).toBeInTheDocument();
     const recommended = screen.getByTestId("help-search-recommended-group");
-    expect(within(recommended).getByText("Create your first review")).toBeInTheDocument();
     expect(within(recommended).getByText("Run a sample review")).toBeInTheDocument();
+    expect(within(recommended).queryByText("Create your first review")).toBeNull();
     expect(within(recommended).queryByText("Getting started")).toBeNull();
     expect(within(recommended).queryByText("How ArchLucid works")).toBeNull();
     expect(within(recommended).queryByText("First review guide")).toBeNull();
+  });
+
+  it("elevates Do this now and caps recommended at two more topics (TB-1045)", () => {
+    pathnameMock.value = "/help/core-pilot";
+    render(<HelpSearchPanel open onOpenChange={() => {}} />);
+
+    expect(screen.getByRole("heading", { name: HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("help-search-do-this-now-primary")).toHaveTextContent("Create your first review");
+
+    const recommended = screen.getByTestId("help-search-recommended-group");
+    const recommendedButtons = within(recommended).getAllByRole("button");
+
+    expect(recommendedButtons).toHaveLength(2);
+    expect(within(recommended).getByText("Run a sample review")).toBeInTheDocument();
+    expect(within(recommended).getByText("Upload architecture evidence")).toBeInTheDocument();
+    expect(within(recommended).queryByText("Cloud connections")).toBeNull();
+    expect(within(recommended).queryByText("Troubleshoot common issues")).toBeNull();
   });
 
   it("filters topics when searching and renders an empty state", () => {

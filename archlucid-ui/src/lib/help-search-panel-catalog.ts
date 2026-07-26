@@ -15,6 +15,12 @@ export const HELP_SEARCH_PANEL_EMPTY_HINT =
 
 export const HELP_SEARCH_PANEL_KEYBOARD_HINT = "↑↓ Navigate · Enter Open · Esc Close" as const;
 
+/** Cap for “Recommended for this page” before Do-this-now split (TB-1045). */
+export const HELP_SEARCH_PANEL_MAX_RECOMMENDED = 3 as const;
+
+/** Primary next-step heading above the first recommended topic (TB-1045). */
+export const HELP_SEARCH_PANEL_DO_THIS_NOW_HEADING = "Do this now" as const;
+
 export type HelpSearchPanelAction =
   | { readonly kind: "route"; readonly href: string; readonly helpSlug: string | null }
   | { readonly kind: "guides-panel"; readonly tab: HelpTabId }
@@ -479,7 +485,25 @@ export function recommendedHelpSearchPanelTopics(
   return ids
     .map((id) => byId.get(id))
     .filter((topic): topic is HelpSearchPanelTopic => topic !== undefined)
-    .filter((topic) => !helpSearchPanelTopicTargetsCurrentPage(topic, pathname));
+    .filter((topic) => !helpSearchPanelTopicTargetsCurrentPage(topic, pathname))
+    .slice(0, HELP_SEARCH_PANEL_MAX_RECOMMENDED);
+}
+
+/**
+ * Elevate the first recommended topic as Do this now; keep the rest under Recommended (TB-1045).
+ */
+export function splitHelpSearchPanelDoThisNow(topics: readonly HelpSearchPanelTopic[]): {
+  readonly doThisNow: HelpSearchPanelTopic | null;
+  readonly moreRecommended: readonly HelpSearchPanelTopic[];
+} {
+  if (topics.length === 0) {
+    return { doThisNow: null, moreRecommended: [] };
+  }
+
+  return {
+    doThisNow: topics[0]!,
+    moreRecommended: topics.slice(1),
+  };
 }
 
 function topicMatchesQuery(topic: HelpSearchPanelTopic, normalizedQuery: string): boolean {

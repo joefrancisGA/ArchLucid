@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   filterHelpSearchPanelTopics,
+  HELP_SEARCH_PANEL_MAX_RECOMMENDED,
   helpSearchPanelTopicHasBannedPublicCopy,
   helpSearchPanelTopicTargetsCurrentPage,
   listHelpSearchPanelTopics,
   recommendedHelpSearchPanelTopicIds,
   recommendedHelpSearchPanelTopics,
+  splitHelpSearchPanelDoThisNow,
 } from "@/lib/help-search-panel-catalog";
 
 describe("help-search-panel-catalog", () => {
@@ -36,6 +38,22 @@ describe("help-search-panel-catalog", () => {
     expect(titles).not.toContain("First review guide");
     expect(titles).toContain("Create your first review");
     expect(titles).toContain("Run a sample review");
+  });
+
+  it("caps recommended topics at three and splits Do this now (TB-1045)", () => {
+    const topics = recommendedHelpSearchPanelTopics("/help/core-pilot", false);
+
+    expect(topics).toHaveLength(HELP_SEARCH_PANEL_MAX_RECOMMENDED);
+    expect(topics.map((topic) => topic.id)).toEqual([
+      "create-first-review",
+      "sample-review",
+      "upload-evidence",
+    ]);
+
+    const { doThisNow, moreRecommended } = splitHelpSearchPanelDoThisNow(topics);
+
+    expect(doThisNow?.id).toBe("create-first-review");
+    expect(moreRecommended.map((topic) => topic.id)).toEqual(["sample-review", "upload-evidence"]);
   });
 
   it("never recommends a topic that navigates to the current page (TB-1044)", () => {
