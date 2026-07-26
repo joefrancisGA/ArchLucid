@@ -424,6 +424,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         // Non-streaming inners: call CompleteJsonAsync on this async method (not a nested
         // IAsyncEnumerable). AsyncLocal token seeds from the inner client are otherwise lost
         // across AgentCompletionStreamingBridge yields and never reach metering/quota settle.
+
         if (_inner is not IAgentStreamingCompletionClient)
         {
             string full;

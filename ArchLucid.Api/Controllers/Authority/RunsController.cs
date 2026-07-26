@@ -320,6 +320,7 @@ public sealed partial class RunsController(
         // Here we just use the key and a hash of the serialized requests.
         // We will store it in the idempotency table using a special prefix.
         CreateRunIdempotencyState? idempotency = null;
+
         if (Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) && !string.IsNullOrWhiteSpace(raw.ToString()))
         {
             string trimmed = raw.ToString().Trim();
@@ -342,6 +343,7 @@ public sealed partial class RunsController(
         // Let's implement batch idempotency properly.
 
         bool isReplay = false;
+
         if (idempotency != null)
         {
             // Check if batch was already processed
@@ -975,6 +977,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
         ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -998,6 +1001,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
         ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -1024,6 +1028,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
         ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -1067,6 +1072,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
         ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
