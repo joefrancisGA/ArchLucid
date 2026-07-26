@@ -28,7 +28,7 @@ Each Specialty template follows the same shipped sequence — **capture → evid
 |------|------|
 | **Core** path from zero to first finalized package | [Your first architecture review](../../CORE_PILOT.md) · [`CORE_PILOT.md`](../../CORE_PILOT.md) |
 | Choose a **Specialty** buyer-job narrative (after first value or when job is clear) | Buyer-job pages under [`go-to-market/buyer-jobs/README.md`](../../go-to-market/buyer-jobs/README.md) · [Specialty review templates](README.md) (this catalog) |
-| Static demo proof packet shape (before tenant setup) | [`go-to-market/demo-proof-packets/README.md`](../../go-to-market/demo-proof-packets/README.md) |
+| Static demo proof packet shape (before tenant setup) | [`go-to-market/buyer-jobs/README.md`](../../go-to-market/buyer-jobs/README.md) |
 | Printable evidence checklist before a sponsor demo | [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](../../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) |
 | Specialty accelerator acceptance criteria | [`ACCELERATOR_ACCEPTANCE_CRITERIA.md`](ACCELERATOR_ACCEPTANCE_CRITERIA.md) |
 | Capability inventory and layer model | [`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) |

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-26
+
 # Architecture Review Packet: Retail Checkout and Loyalty API
 
 **Classification:** Sanitized synthetic packet for principal architect evaluation  

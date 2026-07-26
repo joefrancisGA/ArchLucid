@@ -3,7 +3,7 @@
 > **Assessment date:** 2026-07-23
 > **Method:** Repository-wide evidence review (UI routes and static demo payloads, backend seed services, policy packs, tests, docs, GTM backlog). No live production click-through and no buyer interviews were performed; unproven items are labeled explicitly.
 >
-> **Related:** [`showcase_claims_intake_modernization_assessment_2026_07_19.md`](showcase_claims_intake_modernization_assessment_2026_07_19.md) ┬╖ [`ui_routes.md`](ui_routes.md) ┬╖ [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) ┬╖ [`POSITIONING.md`](../go-to-market/POSITIONING.md) ┬╖ [`IDEAL_CUSTOMER_PROFILE.md`](../go-to-market/IDEAL_CUSTOMER_PROFILE.md) ┬╖ [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) (**M-107**, **M-108**, **M-133**ΓÇô**M-137**) ┬╖ [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (**TB-887**ΓÇô**TB-891**, **TB-978**ΓÇô**TB-982**)
+> **Related:** [`showcase_claims_intake_modernization_assessment_2026_07_19.md`](showcase_claims_intake_modernization_assessment_2026_07_19.md) · [`ui_routes.md`](ui_routes.md) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`POSITIONING.md`](../go-to-market/POSITIONING.md) · [`BUYER_PERSONAS.md`](../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) · [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) (**M-107**, **M-108**, **M-133**–**M-137**) · [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (**TB-887**–**TB-891**, **TB-978**–**TB-982**)
 
 # Showcase scenario strategy assessment (2026-07-23)
 
@@ -112,12 +112,12 @@ The prior assessment reached the same verdict: "Cross-industry clarity: **Weak**
 | Signal | Present? | Evidence |
 |---|---|---|
 | Healthcare-only product | **Partly** | `/see-it` always banners "Healthcare claims sample"; the only fully-backed spine is healthcare; CTO demo's only backed story is `healthcare` (fintech/retail/public-sector are talk-track labels without backing) |
-| Claims-processing product | **Mild** | Scenario title + adjudication vocabulary; countered by "not an EHR, claims system" in `HEALTHCARE_VERTICAL_BRIEF.md` |
+| Claims-processing product | **Mild** | Scenario title + adjudication vocabulary; countered by "not an EHR, claims system" in `buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md` (#healthcare-vertical-positioning) |
 | Azure-first product | **Yes ΓÇö deliberate** | ADR 0020 declares Azure primary/permanent; ICP requires Azure-primary buyers; CTAs say "Azure reference architecture" (TB-778). This is honest positioning, not accidental bias |
 | Compliance-only / review-only product | **Partly** | The spine is a completed *review*; creation exists (Northwind created sample, TB-742) but is secondary in the funnel (prior assessment ┬º14: creation "underrepresented") |
 | Big-regulated-enterprise-only | **Mild** | 9 findings / 12 decisions density "may overwhelm first-time visitors" (prior assessment ┬º19) |
 
-**Is the specificity credibility or translation tax?** Both, split by persona: for the regulated ICP (which explicitly includes healthcare ΓÇö `IDEAL_CUSTOMER_PROFILE.md` ┬º2 lists "financial services, technology, healthcare"), the depth is a credibility asset. For the other two-thirds of the ICP it is a translation tax with no measured conversion evidence either way. Do not discard the depth; add a lower-tax default.
+**Is the specificity credibility or translation tax?** Both, split by persona: for the regulated ICP (which explicitly includes healthcare ΓÇö `BUYER_PERSONAS.md` (ICP) §2 lists "financial services, technology, healthcare"), the depth is a credibility asset. For the other two-thirds of the ICP it is a translation tax with no measured conversion evidence either way. Do not discard the depth; add a lower-tax default.
 
 ---
 
@@ -134,7 +134,7 @@ The prior assessment reached the same verdict: "Cross-industry clarity: **Weak**
 | **Route/persistent identifiers** | **Very high** | Slug + 3 aliases, `phi-minimization-risk`, `demo-healthcare-claims-pack`, manifest UUID, compare pair, `next.config.ts` redirects, sitemap |
 | **Test fixtures** | Very high | 80+ test/e2e files lock the run id, "PHI Minimization Risk", pack label, spine counts 9/1/12; C# golden `ExecutiveReviewPacketDemoFixture` |
 | **Analytics identifiers** | **Low** | No claims/PHI event names; route normalizer strips the slug; only the AI-budget tenant slug |
-| **Documentation** | Heavy | 80ΓÇô100+ docs; dedicated: `HEALTHCARE_VERTICAL_BRIEF.md`, healthcare demo-proof packet, architect-evaluation packets, walkthroughs, `MANUAL_QA_CHECKLIST.md` |
+| **Documentation** | Heavy | 80–100+ docs; dedicated: `buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md` (vertical positioning + demo proof shape), architect-evaluation packets, walkthroughs, `MANUAL_QA_CHECKLIST.md` |
 | **Shared application assumptions** | **The expensive layer** | See ┬º4.2 |
 
 ### 4.2 Healthcare concepts inside *generic* components (the expensive couplings)
@@ -227,7 +227,7 @@ Confidence on effort: **Likely** (derived from file counts and coupling inventor
 | Option | Verdict | Key evidence |
 |---|---|---|
 | **1. Healthcare only** | Viable for controlled beta; ceiling for public promotion | Only fully-backed spine; prior assessment already flagged cross-industry weakness |
-| **2. Replace healthcare** | Rejected | Destroys the regulated wedge GTM deliberately built (`HEALTHCARE_VERTICAL_BRIEF.md`, healthcare proof packets, HIPAA pack); loses the only proven experience mid-beta |
+| **2. Replace healthcare** | Rejected | Destroys the regulated wedge GTM deliberately built (`buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`, healthcare proof shapes, HIPAA pack); loses the only proven experience mid-beta |
 | **3. Generalize in place** | Rejected | PHI-minimization hero finding and healthcare pack are load-bearing narrative; generalizing dilutes without gaining a second example |
 | **4. Generic primary + healthcare secondary** | **Recommended end state** | Reuses ~70% of architecture/findings; keeps vertical depth; matches multi-vertical ICP |
 | **5. Three examples** | Right V-next, wrong launch scope | Third scenario (AI assistant) already ~exists as Northwind created sample + Workspace B; formalize later rather than author from scratch |
@@ -443,7 +443,7 @@ Sufficient evidence to flip the default: (a) TB-891 scenario-tagged funnel data 
 | F-05 | Claims spine is static TS, not SQL-seeded; no AI in path; shared read-only | `showcase-static-demo.ts`; prior assessment ┬º9, ┬º11 | Info (positive) | Proven | Reliable demo | Cheap to replicate pattern | No schema migration needed for new scenarios | Reuse pattern for generic package |
 | F-06 | Trial onboarding sample is Contoso baseline GUID, not Claims ΓÇö marketing promise and trial reality diverge | `TRIAL_ONBOARDING_SAMPLE_RUN_ID`; `DEMO_WORKSPACES.md` | Medium | Proven | Marketing shows healthcare; trial shows retail | Weakens showcaseΓåÆtrial continuity | Alignment work in flip phase | Align trial sample with chosen primary scenario at Phase 3 |
 | F-07 | No scenario-level analytics; slug stripped from route dimension; TB-891 open | `live-demo-telemetry.ts`; route normalizer; prior assessment ┬º14 | **High** (for this decision) | Proven | ΓÇö | Cannot compare scenarios post-launch | Small | Ship TB-891 + scenario dimension before flip |
-| F-08 | Healthcare specificity is a wedge for regulated ICP, a tax elsewhere; ICP is multi-vertical, Azure-primary | `IDEAL_CUSTOMER_PROFILE.md` ┬º2; `POSITIONING.md`; prior assessment ┬º19 | Medium | Strong evidence | Two-thirds of ICP must self-translate | Ceiling on public promotion | ΓÇö | Option D |
+| F-08 | Healthcare specificity is a wedge for regulated ICP, a tax elsewhere; ICP is multi-vertical, Azure-primary | `BUYER_PERSONAS.md` (ICP) §2; `POSITIONING.md`; prior assessment §19 | Medium | Strong evidence | Two-thirds of ICP must self-translate | Ceiling on public promotion | — | Option D |
 | F-09 | Creation underrepresented in the funnel despite created-sample assets existing | Prior assessment ┬º14; TB-742/745 | Medium | Proven | Product looks review-only | Misses half the value prop | Content change only | Two-beat creation+review framing (┬º9) |
 | F-10 | "Healthcare Claims Policy Pack v3.4.1" is UI narrative with no backend pack; real HIPAA pack exists separately | No `demo-healthcare-claims-pack` in C#/SQL; `hipaa-architecture.json` bundled | Low | Proven | Minor honesty risk if probed | Narrative/runtime divergence | Trivial | Note in scenario definition; keep HIPAA pack regardless |
 
@@ -465,7 +465,7 @@ Sufficient evidence to flip the default: (a) TB-891 scenario-tagged funnel data 
 | Bundled policy packs (incl. HIPAA, privacy, AI governance) | `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/` |
 | Healthcare architecture components | `docs/go-to-market/Architect_Evaluation/Packets/healthcare_claims_intake_PARTICIPANT.md` |
 | Prior showcase assessment | `docs/architecture/showcase_claims_intake_modernization_assessment_2026_07_19.md` |
-| ICP / positioning / vertical brief | `docs/go-to-market/IDEAL_CUSTOMER_PROFILE.md`, `POSITIONING.md`, `HEALTHCARE_VERTICAL_BRIEF.md` |
+| ICP / positioning / vertical brief | `docs/go-to-market/BUYER_PERSONAS.md` (ICP), `POSITIONING.md`, `buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md` |
 | Open decision + screenshot rows | `docs/go-to-market/GTM_BACKLOG.md` M-107, M-108 |
 | Terminology canon | `docs/ux-audits/COPY_TERMINOLOGY_AUDIT.md` |
 | Telemetry gap | `archlucid-ui/src/lib/live-demo-telemetry.ts`; TB-891 |

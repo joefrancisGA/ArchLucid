@@ -85,7 +85,7 @@ Use this matrix in sales conversations and sponsor briefings. Each row ties a bu
 
 **Policy-pack moat demo (same run, different gate):** [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](POLICY_PACK_DELTA_DEMO_SCRIPT.md) · automation: `scripts/demo-policy-pack-delta.ps1` · in-app help: `/help/policy-pack-delta-demo`.
 
-Static demo proof shape (before setup): [`demo-proof-packets/README.md`](demo-proof-packets/README.md)
+Static demo proof shape (before setup): [`buyer-jobs/README.md`](buyer-jobs/README.md)
 
 ---
 

@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-26
+
 # Architecture Review Packet: Manufacturing IoT Edge Telemetry Platform
 
 **Classification:** Sanitized synthetic packet for principal architect evaluation  

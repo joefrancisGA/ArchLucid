@@ -1,3 +1,5 @@
+> **Reviewed:** 2026-07-26
+
 # Architecture Review Packet: Healthcare Claims Intake Modernization
 
 **Classification:** Sanitized synthetic packet for principal architect evaluation  
