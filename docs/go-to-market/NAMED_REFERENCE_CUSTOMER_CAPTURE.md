@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-26
 
-> **Scope:** V1.1 GTM backlog item (TB-164). This template captures the owner-output work required before ArchLucid can use a named customer logo, public case study, or reference call as market proof. Using a named reference without completing this checklist is not permitted.
+> **Scope:** V1.1 GTM backlog item (TB-164). Owner checklist before named logo, public case study, or reference call; includes the first-contact email template (formerly `REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md`). Using a named reference without completing this checklist is not permitted.
 
 > **Window:** V1.1 GTM backlog — do not treat as a V1 release requirement or headline-readiness factor.
 
@@ -10,9 +10,9 @@
 
 **Audience:** Founder and GTM lead managing the transition from controlled pilot to public-reference customer.
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-26
 
-**Related:** [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md), [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md).
+**Related:** [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md), [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md), [`reference-customers/README.md`](reference-customers/README.md).
 
 ---
 
@@ -129,7 +129,47 @@ Notes:
 
 ---
 
-## 5. Routing for current V1 materials
+## 5. First-contact email template
+
+Copy-paste after a successful pilot for founder, sales, and customer success. Not a legal commitment or published case study.
+
+**Pricing context:** Reference participation unlocks the standing **−15% reference discount** described in [PRICING_PHILOSOPHY.md §4.1](PRICING_PHILOSOPHY.md#41-reference-customer-discount-standardized-2026-04-21). Do not promise publication until written approval is on file.
+
+### Subject line variants
+
+**Short:** ArchLucid pilot wrap-up — reference request?
+
+**Long:** Thank you for the ArchLucid pilot — optional reference participation (15% ongoing discount)
+
+### Body template
+
+Hello <<CUSTOMER_NAME>> team,
+
+Thank you for completing the ArchLucid architecture review pilot on the **<<TIER>>** tier. <<PILOT_OUTCOME_SENTENCE>>
+
+We would be grateful if you would consider becoming a published reference customer. Participation includes a **15% standing discount** on subscription pricing while the reference remains active (see our pricing philosophy for re-rate rules).
+
+Please choose one commitment level:
+
+1. **Logo only** — permission to display your logo on archlucid.net and sales decks.
+2. **Logo + written quote** — a short attributed quote we can use in marketplace and datasheet copy.
+3. **Full case study + reference call** — a one-page case study (we draft; you approve) plus up to one 30-minute reference call per quarter for qualified prospects.
+
+**Next step:** Reply with your preferred option (1, 2, or 3) and the best contact for legal/brand review.
+
+Thank you,  
+<<SENDER_NAME>>  
+ArchLucid
+
+### Objection-handling postscript
+
+**If your policy blocks customer references:** We can still document an **internal success summary** without public logo use. The −15% reference discount applies only after a **Published** row in [reference-customers/README.md](reference-customers/README.md) — not from this email alone.
+
+**If legal needs more time:** We will keep your row in **Customer review** status until written approval arrives; nothing is published without your sign-off.
+
+---
+
+## 6. Routing for current V1 materials
 
 Until at least one reference record has been completed and signed off:
 
@@ -139,7 +179,7 @@ Until at least one reference record has been completed and signed off:
 
 ---
 
-## 6. References
+## 7. References
 
 | Document | Purpose |
 | --- | --- |
@@ -147,4 +187,5 @@ Until at least one reference record has been completed and signed off:
 | [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md) | Proof-permission capture during intake |
 | [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) | GTM overclaim guardrails |
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial close-out checklist |
+| [`reference-customers/README.md`](reference-customers/README.md) | Status table + a–h tracking checklist |
 | [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) | V1.1 GTM backlog context (TB-164) |

@@ -48,7 +48,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 
 ## How to add a real reference
 
-0. **Workflow docs (TB-229):** Use [`REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md`](../REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md) for the initial ask and the [tracking checklist](#per-customer-tracking-checklist-ah) below for steps **a–h** from pilot-complete through **Published**.
+0. **Workflow docs (TB-229):** Use [`NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](../NAMED_REFERENCE_CUSTOMER_CAPTURE.md#5-first-contact-email-template) for the initial ask and the [tracking checklist](#per-customer-tracking-checklist-ah) below for steps **a–h** from pilot-complete through **Published**.
 1. **Copy** [`EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md`](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) to a new file named `<CUSTOMER_SLUG>_CASE_STUDY.md` (lowercase-hyphen-or-underscore slug; no spaces).
 2. **Find/replace** every `<<CUSTOMER_NAME>>`, `<<TIER>>`, `<<DESIGN_PARTNER_TERM_START>>` and any other `<<...>>` placeholder with the real value. The existing pattern is intentional — it lets a sales engineer one-shot the substitution from a single deal-close email.
 3. **Add a row** to the table above, with `Status: Drafting`.
@@ -66,7 +66,7 @@ Operational checklist from pilot-complete to **Published** (owner, sales, CS). C
 | Step | Action | Done |
 |------|--------|------|
 | **a** | Gather pilot metrics from [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md) and [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) §5 (runs committed, findings resolved, hours saved). | ☐ |
-| **b** | Send first-contact email using [`REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md`](../REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md). | ☐ |
+| **b** | Send first-contact email using [`NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](../NAMED_REFERENCE_CUSTOMER_CAPTURE.md#5-first-contact-email-template). | ☐ |
 | **c** | Receive **written approval** for the chosen commitment tier (1, 2, or 3). | ☐ |
 | **d** | Collect logo file (vector preferred) if logo use is approved. | ☐ |
 | **e** | Draft case study from `<slug>_CASE_STUDY.md`; move README row to **Customer review**. | ☐ |

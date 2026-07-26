@@ -82,6 +82,7 @@ Human readers and agents should follow **canonical** paths below. This file is t
 | `docs/go-to-market/BUYER_OPERATOR_PATH_CHOOSER.md` | [`docs/go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md#choose-your-next-step) | Next-step chooser folded into buyer orientation |
 | `docs/go-to-market/REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` | [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md#per-customer-tracking-checklist-ah) | Tracking checklist a–h folded into reference-customers index |
 | `docs/go-to-market/HEALTHCARE_VERTICAL_BRIEF.md` | [`docs/go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md#healthcare-vertical-positioning-sales--architecture) | Healthcare sales/architecture brief folded into buyer job |
+| `docs/go-to-market/REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md` | [`docs/go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md#5-first-contact-email-template) | First-contact email folded into named-reference capture |
 
 ---
 
