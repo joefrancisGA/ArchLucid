@@ -2,23 +2,23 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-26 (**TB-1041** **Done** — `/help/core-pilot` breadcrumb + buyer subtitle use “Your first architecture review”; no Core-pilot jargon in chrome). Prior: 2026-07-25 (**TB-1230**–**TB-1231** opened — PA: shared hallucination defense plane vs mode-specific executors (anti-fork) + honesty CI; GTM **M-211**/**M-212**; complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1040** **Done** — `/help/core-pilot` single primary Start CTA; removed recursive View pilot guide; workflow/fast-path/closing Starts demoted to outline). Prior: 2026-07-25 (**TB-1228**–**TB-1229** opened — PA: faithfulness/support-ratio scoring lane positioning (inline commit vs async signal vs model-promotion) + honesty CI; GTM **M-209**/**M-210**; complements **TB-1221**/**M-166** / Done **TB-684**/**TB-021**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1223**–**TB-1227** opened — P0 `/settings/security-trust` Administration wayfinding + single-hero intro collapse + PageHeading/help + Available-now CTA hierarchy + contact dedupe from owner review ~53/100; see `## TB-1223`–`## TB-1227` below). Prior: 2026-07-25 (**TB-1221**–**TB-1222** opened — PA: decision-grade finding fail-closed provenance contract + honesty CI (architectural guarantees, not prompt-level); GTM **M-207**/**M-208**; complements **TB-1003**/**TB-1196** / Done **TB-033**–**TB-037**; does not claim semantic faithfulness). Prior: 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
+**Updated:** 2026-07-26 (**TB-1244**–**TB-1245** opened — PA: Container Apps + SQL + AOAI privilege-escalation seam (SQL bootstrap MI co-located with request path) + honesty CI; GTM **M-215**/**M-216**; complements **TB-903**/**TB-906**/**TB-1232**/**M-213**; does not reopen Done **TB-080**/**TB-091**/**TB-092**/**TB-656**). Prior: 2026-07-26 (**TB-1239**–**TB-1243** opened — P0 `/help/cloud-connections/gcp` specialty guide parity + jargon purge + Cloud Asset / WIF actionability + federation template + workflow CTA chrome from owner help-page review ~51/100; see `## TB-1239`–`## TB-1243` below). Prior: 2026-07-26 (**TB-1042** **Done** — `/help/core-pilot` steps 3–5 CTAs commit-aware; no empty `/reviews?projectId=default` deep links). Prior: 2026-07-26 (**TB-1234**–**TB-1238** opened — P0 `/help/cloud-connections/aws` specialty guide parity + jargon purge + IAM/Resource Explorer actionability + OIDC trust-policy template + workflow CTA chrome from owner help-page review ~52/100; see `## TB-1234`–`## TB-1238` below). Prior: 2026-07-26 (**TB-1232**–**TB-1233** opened — PA: tenant DiD erosion modes + enforcement beyond per-query scope predicates + honesty CI; GTM **M-213**/**M-214**; complements **TB-999**/**TB-1001**/**TB-1122**/**M-150**/**M-194**; does not reopen Done **TB-010**/**TB-071**/**TB-925**; RLS stays non-control per ADR 0037). Prior: 2026-07-26 (**TB-1041** **Done** — `/help/core-pilot` breadcrumb + buyer subtitle use “Your first architecture review”; no Core-pilot jargon in chrome). Prior: 2026-07-25 (**TB-1230**–**TB-1231** opened — PA: shared hallucination defense plane vs mode-specific executors (anti-fork) + honesty CI; GTM **M-211**/**M-212**; complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1040** **Done** — `/help/core-pilot` single primary Start CTA; removed recursive View pilot guide; workflow/fast-path/closing Starts demoted to outline). Prior: 2026-07-25 (**TB-1228**–**TB-1229** opened — PA: faithfulness/support-ratio scoring lane positioning (inline commit vs async signal vs model-promotion) + honesty CI; GTM **M-209**/**M-210**; complements **TB-1221**/**M-166** / Done **TB-684**/**TB-021**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1223**–**TB-1227** opened — P0 `/settings/security-trust` Administration wayfinding + single-hero intro collapse + PageHeading/help + Available-now CTA hierarchy + contact dedupe from owner review ~53/100; see `## TB-1223`–`## TB-1227` below). Prior: 2026-07-25 (**TB-1221**–**TB-1222** opened — PA: decision-grade finding fail-closed provenance contract + honesty CI (architectural guarantees, not prompt-level); GTM **M-207**/**M-208**; complements **TB-1003**/**TB-1196** / Done **TB-033**–**TB-037**; does not claim semantic faithfulness). Prior: 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 16 |
-| Testability | 33 |
+| Testability | 35 |
 | Reliability | 19 |
 | Deployability | 18 |
 | AI/Agent readiness | 13 |
 | Architectural integrity | 13 |
-| Adoption friction | 178 |
+| Adoption friction | 181 |
 | Commercial / marketability | 14 |
 | Data consistency | 7 |
 | Cutting-edge AI | 9 |
 | Explainability | 9 |
 | Proof-of-ROI / executive value | 6 |
-| Trustworthiness | 57 |
+| Trustworthiness | 65 |
 | Maintainability | 15 |
 | Traceability | 6 |
 | Interoperability | 8 |
@@ -28,7 +28,7 @@
 | Cost-effectiveness | 10 |
 | Supportability | 15 |
 | Code hygiene | 11 |
-| **Total (unique)** | **~432** |
+| **Total (unique)** | **~436** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1ΓåÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ┬º6/┬º6a); **TB-599ΓÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ΓÇö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -224,6 +224,12 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-1228 — TB-1229** were added 2026-07-25 from the owner / PA question: *How should faithfulness/support-ratio scoring be positioned architecturally — inline gate on commit, async quality signal, or promotion gate for model changes — and what are the trade-offs of each?* Finding: PilotStrict can block execute→commit via heuristic faithfulness floors (when Enforce/Block on), but per-finding `FindingCitationCoverageRatio` is inert; RAG-V1-005 / nightly eval are async; fine-tuning promotion uses cohort support ratios. Gaps: (1) PA three-lane trade-off contract (what belongs where), (2) honesty CI against selling semantic faithfulness / RAG support-ratio as the commit gate. **TB-1228** (P1) contract. **TB-1229** (P1) honesty CI. GTM: **M-209**/**M-210**. Complements **TB-1221**/**M-166**; does not reopen Done **TB-684**/**TB-021**. Shared defense-plane ownership (Simulator vs Real vs FT) is **TB-1230**/**TB-1231**.
 
 **TB-1230 — TB-1231** were added 2026-07-25 from the owner / PA question: *Where should hallucination defenses live when the same manifest can be produced by a simulator, a base model, or a fine-tuned model — and how do we stop defense logic from forking per execution mode?* Finding: post-execute quality stack is largely shared (`AgentOutputTraceQualityEvaluator` / `AgentOutputQualityGate`); forks today are mostly `SkipWhenSimulator` LLM judges + Real-only content safety; FT swaps deployment after cohort promotion but reuses the same plane; dangerous claim is Simulator PilotStrict green = Real-safe, not a second code stack. Gaps: (1) PA shared defense-plane ownership + allow/forbid fork matrix, (2) honesty CI against Simulator-safe=Real-safe / parallel defense stacks. **TB-1230** (P1) contract. **TB-1231** (P1) honesty CI. GTM: **M-211**/**M-212**. Complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; does not reopen Done **TB-684**.
+
+**TB-1232 — TB-1233** were added 2026-07-26 from the owner / PA question: *We enforce tenant isolation with a scope-context provider threaded through repositories. What are the classic ways defense-in-depth tenancy erodes over time, and what compile-time or test-time enforcement would you add beyond per-query scope predicates?* Finding: production isolation is **database-per-tenant** (ADR 0037) + INV-001 decide-once + ARCH001/ARCH006 + route binding + Search required filters — **not** SQL RLS; `WHERE TenantId = @scope` is Layer D DiD, not the primary boundary. Classic erosion: unscoped new queries; GUID IDOR within catalog; ambient vs param dual paths; empty TenantId → system catalog; jobs missing `AmbientScopeContext.Push`; Search filter optional (largely closed); admin/ARCH006 exemption creep; tests mocking away scope; stale RLS-as-control docs. Gaps beyond predicates: (1) PA erosion-mode + enforcement-beyond-predicates contract, (2) honesty CI against WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate. **TB-1232** (P1) contract. **TB-1233** (P1) honesty CI. GTM: **M-213**/**M-214**. Complements **TB-999**/**TB-1001**/**TB-1122**/**TB-1005**; does not reopen Done **TB-010**/**TB-071**/**TB-925**.
+
+**TB-1234 — TB-1238** were added 2026-07-26 from an **owner review of Connect AWS securely** at `/help/cloud-connections/aws` (scored ~52/100). Findings: route falls through to generic markdown section extract from `CLOUD_CONNECTIONS.md` while Azure ships `HelpConnectAzureSecurelyGuideView` (security panel, roles table, CTAs, TOC, banned jargon); primary copy uses internal taxonomy (**Evidence tiers**, **Tier 1/2**, **hosted pull**, **published Azure managed identity**) that Azure already bans; permissions table says only “Resource Explorer” with no IAM actions / managed policy / index enablement though hosted poller calls `resource-explorer-2` `Search`; setup step 2 says “trust policy for ArchLucid's federated identity” with no issuer/audience/subject or copyable JSON; no Back / Configure CTA chrome or classified retained/not-retained sections. Complements Done **TB-720** and open cloud-connections UX **TB-1139**–**TB-1143**. **TB-1234** (P0) specialty guide view. **TB-1235** (P0) jargon purge. **TB-1236** (P0) IAM + Resource Explorer actionability. **TB-1237** (P0) OIDC trust-policy template. **TB-1238** (P0) workflow CTA + classification chrome. No new GTM IDs. (IDs start at **TB-1234**; **TB-1216**–**TB-1220** already used by AI usage cluster.)
+
+**TB-1239 — TB-1243** were added 2026-07-26 from an **owner review of Connect GCP securely** at `/help/cloud-connections/gcp` (scored ~51/100). Findings: same structural debt as AWS help — generic markdown extract vs Azure specialty guide; **Evidence tiers** / **Tier 1/2** / **hosted pull** / **published Azure managed identity** jargon; roles table names Cloud Asset Viewer but omits IAM role ID (`roles/cloudasset.viewer`), API enablement, and Workload Identity User binding; setup step 2 says create a WIF pool provider that “trusts ArchLucid's federated identity” with no issuer/audience/attribute-mapping template; no Back / Configure CTA or classified retained/not-retained sections. Complements Done **TB-720**, open AWS help **TB-1234**–**TB-1238**, and GCP Preview honesty **TB-1140**. **TB-1239** (P0) specialty guide view. **TB-1240** (P0) jargon purge. **TB-1241** (P0) roles + Cloud Asset enablement. **TB-1242** (P0) WIF federation template. **TB-1243** (P0) workflow CTA + classification chrome. No new GTM IDs.
 
 **TB-1196 — TB-1197** were added 2026-07-25 from the owner / PA question: *Multi-agent execution (Topology, Compliance, Cost, Critic) is deterministic in Simulator but non-deterministic against real LLMs — how should the contract between agent output and downstream decisioning be designed so Real-mode variance cannot corrupt committed manifests?* Finding: authority decide already uses typed finding engines + `RuleBasedDecisionEngine`; Real variance mainly enters via **topology proposal overlay** at commit (`AgentTopologyProposalGraphMerge`) and legacy prose→governance paths; quality gate can be WarnOnly. Gaps: (1) PA contract — structured proposals only, validate-before-overlay, decide from typed findings/graph, fail-closed quality on commit-eligible Real, mode-labeled persistence, (2) honesty CI against “LLM text is the package” / unvalidated overlay. **TB-1196** (P1) contract. **TB-1197** (P1) honesty CI. GTM: **M-203**/**M-204**. Complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**.
 
@@ -438,7 +444,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1039 | **Done** (2026-07-25) — Demo/seeded workspace Overview lands on sample package (not empty shell); see `## TB-1039` below | Adoption friction P0 — **V1**; after **TB-1036**; pairs `DEMO_WORKSPACES.md` / showcase pins | M |
 | TB-1040 | **Done** (2026-07-25) — `/help/core-pilot` single primary Start CTA + remove recursive View pilot guide; see `## TB-1040` below | Adoption friction P0 — **V1**; owner help-page review 2026-07-25 (~64/100) | S |
 | TB-1041 | **Done** (2026-07-26) — `/help/core-pilot` breadcrumb/title + buyer subtitle (no Core-pilot jargon); see `## TB-1041` below | Adoption friction P0 — **V1**; with **TB-1040** | XS |
-| TB-1042 | `/help/core-pilot` state-aware steps 3–5 CTAs; see `## TB-1042` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
+| TB-1042 | **Done** (2026-07-26) — `/help/core-pilot` state-aware steps 3–5 CTAs; see `## TB-1042` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
 | TB-1043 | `/help/core-pilot` first-viewport compression + trim related guides; see `## TB-1043` below | Adoption friction P0 — **V1**; after **TB-1040** | S |
 | TB-1044 | Help drawer page-true recommendations (never current topic; next-steps on core-pilot); see `## TB-1044` below | Adoption friction P0 — **V1**; owner Help-drawer review 2026-07-25 (~61/100) | S |
 | TB-1045 | Help drawer max-3 recommended + Do-this-now action row; see `## TB-1045` below | Adoption friction P0 — **V1**; after **TB-1044** | S |
@@ -537,6 +543,20 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1229 | Anti-faithfulness-as-commit-gate / support-ratio-as-legal-truth honesty CI; see `## TB-1229` below | Testability P1 — **V1**; after **TB-1228**; pairs **M-209** | S |
 | TB-1230 | Shared hallucination defense plane (anti mode-fork) contract; see `## TB-1230` below | AI/Agent readiness P1 — **V1**; PA Q7 defense placement; GTM **M-211**/**M-212** | S |
 | TB-1231 | Anti-Simulator-safe-equals-Real / forked-defense-stack honesty CI; see `## TB-1231` below | Testability P1 — **V1**; after **TB-1230**; pairs **M-211** | S |
+| TB-1232 | Tenant DiD erosion modes + enforcement-beyond-predicates contract; see `## TB-1232` below | Trustworthiness P1 — **V1**; PA Q8 tenancy DiD; GTM **M-213**/**M-214** | S |
+| TB-1233 | Anti-WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate honesty CI; see `## TB-1233` below | Testability P1 — **V1**; after **TB-1232**; pairs **M-213** | S |
+| TB-1234 | `/help/cloud-connections/aws` specialty guide view (Azure parity); see ## TB-1234 below | Adoption friction P0 — **V1**; owner AWS help ~52/100 2026-07-26; complements Done **TB-720** | M |
+| TB-1235 | AWS help — purge Tier/hosted-pull jargon from primary copy; see ## TB-1235 below | Trustworthiness P0 — **V1**; with **TB-1234**; parity Azure banned-copy list | S |
+| TB-1236 | AWS help — manifest-driven IAM permissions + Resource Explorer enablement; see ## TB-1236 below | Trustworthiness P0 — **V1**; with **TB-1234** | M |
+| TB-1237 | AWS help — copyable OIDC trust-policy template + federation identifiers; see ## TB-1237 below | Trustworthiness P0 — **V1**; with **TB-1234**; pairs **TB-1236** | M |
+| TB-1238 | AWS help — workflow CTAs + classified data sections (Azure chrome parity); see ## TB-1238 below | Adoption friction P0 — **V1**; with **TB-1234** | S |
+| TB-1239 | `/help/cloud-connections/gcp` specialty guide view (Azure parity); see ## TB-1239 below | Adoption friction P0 — **V1**; owner GCP help ~51/100 2026-07-26; complements Done **TB-720** / **TB-1234** | M |
+| TB-1240 | GCP help — purge Tier/hosted-pull jargon from primary copy; see ## TB-1240 below | Trustworthiness P0 — **V1**; with **TB-1239**; parity Azure/AWS banned-copy | S |
+| TB-1241 | GCP help — manifest-driven roles + Cloud Asset Inventory enablement; see ## TB-1241 below | Trustworthiness P0 — **V1**; with **TB-1239** | M |
+| TB-1242 | GCP help — copyable WIF pool-provider template + federation identifiers; see ## TB-1242 below | Trustworthiness P0 — **V1**; with **TB-1239**; pairs **TB-1241** | M |
+| TB-1243 | GCP help — workflow CTAs + classified data sections (Azure chrome parity); see ## TB-1243 below | Adoption friction P0 — **V1**; with **TB-1239** | S |
+| TB-1244 | Azure workload privilege-escalation seam matrix (SQL bootstrap vs runtime MI); see `## TB-1244` below | Trustworthiness P1 — **V1**; PA Q9 CA+SQL+AOAI; GTM **M-215**/**M-216** | S |
+| TB-1245 | Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI; see `## TB-1245` below | Testability P1 — **V1**; after **TB-1244**; pairs **M-215** | S |
 | TB-1196 | Agent→decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 — **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
 | TB-1197 | Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI; see `## TB-1197` below | Testability P1 — **V1**; after **TB-1196**; pairs **M-203** | S |
 | TB-1179 | Project deletion has no UI — governed delete affordance; see ## TB-1179 below | Adoption friction P0 — **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
@@ -25835,12 +25855,13 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
    - **Primary isolation reminder:** per-tenant catalogs (ADR 0037 Layer A); typed scope is defense-in-depth, not a substitute for wrong-catalog binding residual.
 2. Cross-link Done **TB-010**/**TB-071**/**TB-072**/**TB-276**/**TB-304**/**TB-925**, GTM **M-150**/**M-151** and Done **M-114**.
 3. Name CI anchors for **TB-1000**.
+4. Cross-link PA Q8 DiD erosion / beyond-predicates contract **TB-1232**–**TB-1233** / GTM **M-213**/**M-214** (how decide-once erodes after the provider exists).
 
 **Acceptance:** Contract published; GTM can cite it; does not claim RLS or reopen ADR 0037.
 
 **Depends on:** Done Wave A / scope-binding cluster. Docs-only to start.
 
-**Out of scope:** New catalog topology; within-tenant workspace/project as a paying-client security boundary; re-enabling RLS.
+**Out of scope:** New catalog topology; within-tenant workspace/project as a paying-client security boundary; re-enabling RLS. Erosion-mode matrix itself is **TB-1232** (do not duplicate).
 
 **Size estimate:** S.
 
@@ -26829,6 +26850,26 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Acceptance:** Breadcrumb and page chrome match buyer title/subtitle; no visible Core-pilot jargon.
 
 **Size estimate:** XS.
+
+---
+
+## TB-1042 — `/help/core-pilot` state-aware steps 3–5 CTAs (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** **Done** (2026-07-26) — `resolveCorePilotHelpWorkflowStepCta` + client stepper from `CorePilotCommitContext`; empty workspace → Start a review first; in-progress/committed deep-link detail/finalize/exports; Vitest coverage.
+
+**Priority:** P0.
+
+**Source:** Owner help-page review 2026-07-25 (~64/100).
+
+**Problem:** Steps 3–5 always linked to `/reviews?projectId=default` (Open/Finalize/Exports) with no active run.
+
+**Approach:** Commit-aware CTA resolver; gate empty state to Start; deep-link when `latestRunId` / committed run exists.
+
+**Acceptance:** No empty-list deep links for steps 3–5; CTAs reflect workspace run state.
+
+**Size estimate:** S.
 
 ---
 
@@ -29895,6 +29936,427 @@ Operators must read three intros before reaching the Trust Center link list.
 **Depends on:** **TB-1230**.
 
 **Out of scope:** Re-authoring PilotStrict≠Real matrix (**M-166**); flipping **G-FAITH-01**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1232 — Tenant DiD erosion modes + enforcement-beyond-predicates contract (P1)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-26: *We enforce tenant isolation with a scope-context provider threaded through repositories. What are the classic ways defense-in-depth tenancy erodes over time, and what compile-time or test-time enforcement would you add beyond per-query scope predicates?*
+
+**Problem:** Scope-context threading + per-query predicates are necessary DiD (Layer D) but erode as the codebase grows. Reviewers and buyers also over-read “we have `IScopeContextProvider` + `WHERE TenantId`” as the isolation story, while production paying-client isolation is **catalog routing** (ADR 0037 Layer A). Without a named erosion matrix and beyond-predicate enforcement list, new repos, jobs, Search call sites, and ARCH006 exemptions reintroduce cross-tenant risk or dishonest claims.
+
+**Approach:**
+
+1. Author `docs/library/TENANT_DID_EROSION_AND_ENFORCEMENT_BEYOND_PREDICATES_CONTRACT.md` (or PA appendix on `TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`) with tables:
+   - **Erosion modes (classic):** unscoped new SQL/Dapper paths; GUID-only lookup IDOR within shared/dev catalog; ambient `IScopeContextProvider` vs explicit `ScopeContext` param dual paths drifting; empty/default TenantId resolving to **system** catalog; background jobs / outbox handlers forgetting `AmbientScopeContext.Push`; Search/Ask omitting `BuildRequiredScopeFilter` (or making filter optional again); platform-admin / `[AllowUnscopedRoute]` / ARCH006 exemption creep; unit tests that mock scope away and never assert catalog+filter; stale docs selling SQL RLS as the control.
+   - **Primary vs DiD reminder:** Layer A catalog binding is the production security boundary; Layers B–F are DiD; within-tenant workspace/project predicates are **not** paying-client isolation (rule §5).
+   - **Beyond per-query predicates (compile/test/CI to add or harden):**
+     - Keep/extend ARCH001 (forbidden HttpContext re-derive) + ARCH006 (repos must take scope) with an **exemption budget CI** (new `[Allow…]` / allowlist rows fail unless justified + owner ack).
+     - Sealed / forced `ScopeContext` on base repository APIs (no optional scope overload that defaults empty).
+     - Ambient Push discipline tests on Worker/job entrypoints (fail if handler runs product SQL without ambient or explicit scope).
+     - Forbid product Search DI paths that skip `AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter`.
+     - Ban `EmptyPersistenceScopeContextProvider` (or equivalent) from Api/Worker product DI graphs (NetArch + DI smoke).
+     - Integration IDOR smoke: wrong-tenant GUID → 404/empty on hot routes (already partly owned; name anchors).
+     - Honesty: NetArchTest ≠ isolation proof (**TB-1005**/**TB-1006**); RLS ≠ beyond-predicate fix (**TB-1122**).
+   - Cross-link **TB-999**/**TB-1001**/**TB-1005**/**TB-1122**, Done **TB-010**/**TB-071**/**TB-925**, GTM **M-213**/**M-214**.
+2. Name CI anchors for **TB-1233**.
+3. Do **not** promise SQL RLS reinstatement; do not reopen Done Wave A IDs.
+
+**Acceptance:** Contract published; GTM can cite erosion modes + beyond-predicate enforcement list without claiming WHERE-TenantId or ARCH alone equals isolation.
+
+**Depends on:** None (docs). Complements open **TB-999**/**TB-1001**/**TB-1005**/**TB-1122**.
+
+**Out of scope:** Implementing new NetArch rules / exemption budget (follow-on engineering after contract); re-enabling RLS; within-tenant workspace as security boundary; reopening Done **TB-010**/**TB-071**/**TB-925**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1233 — Anti-WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1232**; hardens GTM **M-213**.
+
+**Problem:** Docs/PRs can claim repository `WHERE TenantId = @scope` (or ARCH001/ARCH006 green) is sufficient tenant isolation, or that adding SQL RLS is the missing “beyond predicates” control — both contradict ADR 0037 and invite wrong fixes.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that equate per-query TenantId/scope predicates (or scope-provider threading alone) with production paying-client isolation without Layer A catalog + INV-001 caveats (**TB-1232** / ADR 0037).
+2. Fail claims that NetArchTest / ARCH green alone proves isolation (**TB-1005**/**TB-1006** overlap OK — this row focuses on predicate/provider overclaim).
+3. Fail claims that reinstating SQL RLS is the required beyond-predicate enforcement (point to ADR 0037 + **TB-1122**); allow historical RLS doc citations only as rejected posture.
+4. Pair **M-213**; Verification points at `IScopeContextProvider`, `AmbientScopeContext`, `ScopedRoutingSqlConnectionFactory`, ARCH001/ARCH006, `AzureSearchTenantScopeFilterBuilder`, `TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`.
+
+**Acceptance:** CI fails dishonest WHERE-TenantId=/ARCH-alone=/RLS-as-beyond-predicate claims; pairs **M-213**.
+
+**Depends on:** **TB-1232**.
+
+**Out of scope:** Re-authoring full too-strong isolation inventory (**TB-1122**); changing catalog topology.
+
+**Size estimate:** S.
+
+---
+
+## TB-1244 — Azure workload privilege-escalation seam matrix (SQL bootstrap vs runtime MI) (P1)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-26: *Given Entra ID identity, private endpoints, and least-privilege defaults, where is the most likely privilege-escalation seam in a Container Apps + SQL + Azure OpenAI topology like ours?*
+
+**Problem:** Buyer/security reviewers hear Entra + PE + least privilege and assume the request-path API MI cannot DDL or read vault-wide secrets. Terraform still documents the API **system-assigned** identity as **db_owner-equivalent** for schema bootstrap, while `enable_api_sql_runtime_identity` defaults **false** and `ConnectionStrings:ArchLucidRuntime` is not app-wired — so a compromised API process (RCE / stolen MI token / IMDS) is the highest Azure PE seam. Secondary seams (vault-wide Secrets User, account-scope Blob Contributor, Search Index Data Contributor + app filter DiD, public ingress defaults) matter but rank below SQL privilege co-location. AOAI workload RBAC is already **Cognitive Services OpenAI User** (not Contributor) — weaker concern here. Tenant DiD / INV-001 erosion is a separate product PE seam owned by **TB-1232** / **TB-999**.
+
+**Approach:**
+
+1. Author `docs/library/AZURE_WORKLOAD_PRIVILEGE_ESCALATION_SEAM_CONTRACT.md` (or PA appendix on `MANAGED_IDENTITY_SQL_BLOB.md` + `SYSTEM_THREAT_MODEL.md`) with tables:
+   - **Ranked seams:** (1) SQL bootstrap MI co-located on API request path; (2) Key Vault Secrets User at vault scope; (3) Storage Blob Data Contributor at account scope; (4) Search Index Data Contributor + filter DiD; (5) public CA ingress / no Easy Auth (auth is JwtBearer/ApiKey in-app); (6) residual ApiKey paths (AOAI options default, Content Safety, Redis/Cosmos — cite **TB-906**).
+   - **Pins:** Production query path must use `[ArchLucidApp]` (or equivalent non-`db_owner`) principal; DDL/bootstrap is a **separate** principal/job; do not claim least-privilege SQL while runtime UAMI is off and runtime CS equals bootstrap CS.
+   - **AOAI pin:** Workload = OpenAI **User**, not Contributor; consumed AOAI PE often platform-owned.
+   - **Private pin:** PE resources ≠ private posture without publicNetworkAccess disabled + VNet-integrated CA (**TB-903**).
+   - **KV pin:** Secrets User is vault-scoped today — not per-secret ACL.
+   - Cross-link **TB-903**/**TB-906**/**TB-1232**, Done **TB-080**/**TB-091**/**TB-092**/**TB-656**, GTM **M-215**/**M-216**.
+2. Name CI anchors for **TB-1245**.
+3. Do **not** reopen Done MI/PE wiring; do **not** re-own tenant DiD (**TB-1232**); do **not** reinstate RLS.
+
+**Acceptance:** Contract published; GTM can cite “most likely PE seam = SQL bootstrap privilege on API MI” without claiming AOAI Contributor or missing PE as the headline.
+
+**Depends on:** None (docs). Complements open **TB-903**/**TB-906**/**TB-1232**.
+
+**Out of scope:** Implementing runtime UAMI default-on + `ArchLucidRuntime` wiring (follow-on engineering after contract); Easy Auth on Container Apps; changing AOAI to Contributor.
+
+**Size estimate:** S.
+
+---
+
+## TB-1245 — Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1244**; hardens GTM **M-215**.
+
+**Problem:** Docs/PRs can claim production workloads are least-privilege SQL / fully private / AOAI-overprivileged while Terraform defaults keep bootstrap `db_owner`-equivalent on the API MI, PE roots opt-in with public ingress defaults, and intended AOAI RBAC is already OpenAI User.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that claim least-privilege / non-`db_owner` SQL for the API request path while `enable_api_sql_runtime_identity` remains false (or runtime CS is undocumented/unwired) without **TB-1244** caveats.
+2. Fail claims that private endpoints alone equal private data plane without public-network closure + CA VNet integration (**TB-903**).
+3. Fail claims that ArchLucid’s intended AOAI workload role is Contributor/Owner (pin OpenAI **User**); allow ApiKey residual honesty separately (**TB-080** Done path + Content Safety / **TB-906**).
+4. Pair **M-215**; Verification points at `infra/terraform-container-apps` (`enable_api_sql_runtime_identity`, comments on db_owner-equivalent), `MANAGED_IDENTITY_SQL_BLOB.md`, `azure_openai.tf` OpenAI User assignments, `AuthSafetyGuard`.
+
+**Acceptance:** CI fails dishonest least-privilege-while-colocated / PE-equals-private / AOAI-Contributor claims; pairs **M-215**.
+
+**Depends on:** **TB-1244**.
+
+**Out of scope:** Re-authoring tenant DiD honesty (**TB-1233**); implementing UAMI split.
+
+**Size estimate:** S.
+
+---
+
+## TB-1234 — `/help/cloud-connections/aws` specialty guide view (Azure parity) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/help/cloud-connections/aws` 2026-07-26 (~52/100 overall Connect AWS securely help).
+
+**Problem:** `cloud-connections-aws` falls through to `HelpTopicMarkdownView` (section extract from `CLOUD_CONNECTIONS.md` `#connect-aws-securely`). Azure uses purpose-built `HelpConnectAzureSecurelyGuideView` with security panel, roles table, TOC, and primary CTAs. AWS/GCP InfoSec readers get a thinner, less navigable article than Azure — and Azure permissions already links here as “AWS connection permissions.”
+
+**Approach:**
+
+1. Add `HelpConnectAwsSecurelyGuideView` (mirror Azure structure; reuse `HELP_PAGE_LAYOUT` / TOC / section heading helpers).
+2. Branch `help/[...topic]/page.tsx` for `cloud-connections-aws` (same pattern as `cloud-connections-azure`).
+3. Move customer-facing copy into `connect-aws-securely-help-content.ts` (or equivalent); keep markdown section as hub stub / source for PDF if needed.
+4. Vitest: one H1, TOC starts at Security model, no duplicate page-title H2 from section extract.
+
+**Acceptance:** `/help/cloud-connections/aws` renders a specialty guide with Azure-parity layout chrome (content depth filled by **TB-1235**–**TB-1238**).
+
+**Depends on:** None.
+
+**Out of scope:** GCP specialty guide (follow-on); rewriting Azure guide; changing connection settings UI (**TB-1139**–**TB-1143**).
+
+**Size estimate:** M.
+
+---
+
+## TB-1235 — AWS help — purge Tier/hosted-pull jargon from primary copy (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/cloud-connections/aws` review 2026-07-26; parity with Azure `BANNED_COPY` in `HelpTopicConnectAzureSecurely.test.tsx`.
+
+**Problem:** Primary AWS help copy leads with **Evidence tiers**, **Tier 1/2**, **hosted pull**, and **published Azure managed identity**. Azure already bans “Evidence tier”, “hosted pull”, “published managed identity”, “validation pull” from primary copy. Operators and InfoSec should not need internal taxonomy to set up a connection.
+
+**Approach:**
+
+1. Rewrite intro / security / setup copy in buyer-safe language (optional connection; federated read-only role; inventory evidence; customer-controlled revoke) — match `CONNECT_AZURE_SECURELY_*` tone.
+2. Keep Tier 1 ZIP upload path as a short optional note if needed, without “Evidence tiers” framing; avoid “clone the ArchLucid repo” as the default SaaS path.
+3. Vitest banned-copy list on AWS primary surface (same strings as Azure + “Evidence tier”).
+
+**Acceptance:** Primary `/help/cloud-connections/aws` body never uses banned internal taxonomy strings.
+
+**Depends on:** Prefer with **TB-1234**.
+
+**Out of scope:** Renaming backend Tier 1/Tier 2 option names or trust-center tables.
+
+**Size estimate:** S.
+
+---
+
+## TB-1236 — AWS help — manifest-driven IAM permissions + Resource Explorer enablement (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/cloud-connections/aws` review 2026-07-26; `HostedAwsExtractorClient` uses Resource Explorer `Search`.
+
+**Problem:** Required permissions table has a single vague row (“Resource Explorer” / Write access No). An IAM admin cannot assign a role from that page — no managed policy ARN, IAM actions, or Resource Explorer index/aggregator enablement steps. Azure guide shows concrete role rows from `azure-cloud-connection-permissions-manifest.ts`.
+
+**Approach:**
+
+1. Add `aws-cloud-connection-permissions-manifest.ts` (or shared cloud permissions manifest) with required/conditional rows aligned to what the hosted poller actually calls (`resource-explorer-2:Search` / `AWSResourceExplorerReadOnlyAccess` or documented equivalent).
+2. Document Resource Explorer prerequisites (index/view enabled in the account/region used for connection).
+3. Forbidden-policies callout: do not assign AdministratorAccess, PowerUserAccess, IAMFullAccess (already partially present — keep in specialty guide).
+4. Vitest: permissions table exposes concrete IAM identifiers; stays in sync with manifest.
+
+**Acceptance:** IAM admin can grant the minimum read-only policy from the help page without guessing actions.
+
+**Depends on:** Prefer with **TB-1234**.
+
+**Out of scope:** Expanding inventory beyond Resource Explorer; shipping a separate `/help/aws-permissions` deep page unless content overflow requires it (may fold into this guide for V1).
+
+**Size estimate:** M.
+
+---
+
+## TB-1237 — AWS help — copyable OIDC trust-policy template + federation identifiers (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/cloud-connections/aws` review 2026-07-26; `HostedAwsExtractorOptions` / AssumeRoleWithWebIdentity path.
+
+**Problem:** Setup step 2 says create a trust policy for “ArchLucid's federated identity” with no issuer URL, audience, subject claim, OIDC provider ARN, or copyable JSON. Without published federation identifiers, customers cannot implement Tier 2 safely or pass InfoSec review.
+
+**Approach:**
+
+1. Publish customer-facing federation identifiers (issuer, audience, subject/condition keys, session name expectations) from the same source of truth as hosted config (`HostedAwsExtractor` / trust-center), with copy controls.
+2. Provide a copyable IAM trust-policy JSON template for `sts:AssumeRoleWithWebIdentity` with placeholders clearly marked when values are environment-specific.
+3. Link from setup steps; keep secrets out of the page (no access keys).
+4. Vitest: page exposes trust-policy template + at least issuer/audience fields (or documented “obtain from Cloud connections security review” if values are tenant-runtime only — prefer published host constants).
+
+**Acceptance:** An AWS IAM admin can create the federated role trust policy from the help page (or clearly labeled in-product security-review values) without opening engineering docs.
+
+**Depends on:** Prefer with **TB-1234** / **TB-1236**.
+
+**Out of scope:** Changing the OIDC federation design (PQ-CLOUD-01 option a already chosen); provisioning customer roles from ArchLucid.
+
+**Size estimate:** M.
+
+---
+
+## TB-1238 — AWS help — workflow CTAs + classified data sections (Azure chrome parity) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/cloud-connections/aws` review 2026-07-26; parity with `HelpConnectAzureSecurelyGuideView`.
+
+**Problem:** AWS markdown help has no **Back to cloud connections**, no primary **Configure AWS connection**, no scroll-spy TOC grid, and no separated **Information retained** / **Credentials not retained** / **Permissions not required** sections — so operators leave the article without a clear next step.
+
+**Approach:**
+
+1. Header: back link (`returnTo` or `/integrations/cloud-connections/aws`) + primary Configure CTA.
+2. Classification sections matching Azure headings/lists (account ID, region, role ARN, status/timestamps retained; access keys not retained; admin/write policies not required).
+3. Footer secondary Configure CTA; TOC includes new sections.
+4. Vitest: Configure link targets `/integrations/cloud-connections/aws`; classification headings present.
+
+**Acceptance:** Help page has Azure-parity workflow chrome and data-classification sections.
+
+**Depends on:** Prefer with **TB-1234**.
+
+**Out of scope:** Changing the AWS connection settings form fields.
+
+**Size estimate:** S.
+
+---
+
+## TB-1239 — `/help/cloud-connections/gcp` specialty guide view (Azure parity) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner review of `/help/cloud-connections/gcp` 2026-07-26 (~51/100 overall Connect GCP securely help).
+
+**Problem:** `cloud-connections-gcp` falls through to `HelpTopicMarkdownView` (section extract from `CLOUD_CONNECTIONS.md` `#connect-gcp-securely`). Azure uses `HelpConnectAzureSecurelyGuideView`; AWS is tracked for the same specialty-view fix (**TB-1234**). GCP InfoSec readers get a thinner article than Azure despite Workload Identity Federation being the most multi-step of the three connectors.
+
+**Approach:**
+
+1. Add `HelpConnectGcpSecurelyGuideView` (mirror Azure / planned AWS structure; reuse `HELP_PAGE_LAYOUT` / TOC helpers).
+2. Branch `help/[...topic]/page.tsx` for `cloud-connections-gcp`.
+3. Move customer-facing copy into `connect-gcp-securely-help-content.ts` (or equivalent).
+4. Vitest: one H1, TOC starts at Security model, no duplicate page-title H2 from section extract.
+5. Prefer shared primitives with **TB-1234** when shipping both (do not fork three unrelated guide shells).
+
+**Acceptance:** `/help/cloud-connections/gcp` renders a specialty guide with Azure-parity layout chrome (content depth filled by **TB-1240**–**TB-1243**).
+
+**Depends on:** None (coordinate with **TB-1234** for shared shell).
+
+**Out of scope:** Changing GCP connection settings UI Preview label (**TB-1140**); expanding inventory beyond Cloud Asset Inventory.
+
+**Size estimate:** M.
+
+---
+
+## TB-1240 — GCP help — purge Tier/hosted-pull jargon from primary copy (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/cloud-connections/gcp` review 2026-07-26; parity with Azure `BANNED_COPY` and AWS **TB-1235**.
+
+**Problem:** Primary GCP help leads with **Evidence tiers**, **Tier 1/2**, **hosted pull**, and **published Azure managed identity**. Operators should not need internal taxonomy to configure Workload Identity Federation.
+
+**Approach:**
+
+1. Rewrite intro / security / setup copy in buyer-safe language (optional connection; federated impersonation; inventory evidence; customer-controlled revoke).
+2. Keep ZIP upload path as a short optional note without “Evidence tiers” framing; avoid “clone the ArchLucid repo” as the default SaaS path.
+3. Vitest banned-copy list on GCP primary surface (same strings as Azure/AWS **TB-1235**).
+
+**Acceptance:** Primary `/help/cloud-connections/gcp` body never uses banned internal taxonomy strings.
+
+**Depends on:** Prefer with **TB-1239**.
+
+**Out of scope:** Renaming backend Tier 1/Tier 2 option names or trust-center tables.
+
+**Size estimate:** S.
+
+---
+
+## TB-1241 — GCP help — manifest-driven roles + Cloud Asset Inventory enablement (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/cloud-connections/gcp` review 2026-07-26; hosted GCP extractor uses Cloud Asset Inventory.
+
+**Problem:** Roles table names **Cloud Asset Viewer** but omits the IAM role ID (`roles/cloudasset.viewer`), Cloud Asset API enablement, and the **Workload Identity User** binding required for WIF impersonation. A GCP admin cannot finish setup from the page alone.
+
+**Approach:**
+
+1. Add `gcp-cloud-connection-permissions-manifest.ts` with required/conditional rows aligned to what the hosted poller calls (`roles/cloudasset.viewer` and any additional read-only roles actually required).
+2. Document prerequisites: enable Cloud Asset Inventory API; grant `roles/iam.workloadIdentityUser` (or documented equivalent) so the WIF principal can impersonate the service account.
+3. Forbidden-roles callout: Owner, Editor, `roles/iam.serviceAccountKeyAdmin` (already partially present — keep in specialty guide).
+4. Vitest: permissions table exposes concrete role IDs; stays in sync with manifest.
+
+**Acceptance:** A GCP IAM admin can assign the minimum read-only roles and WIF impersonation binding from the help page without guessing IDs.
+
+**Depends on:** Prefer with **TB-1239**.
+
+**Out of scope:** Folder/org-scoped multi-project inventory beyond current project connection model.
+
+**Size estimate:** M.
+
+---
+
+## TB-1242 — GCP help — copyable WIF pool-provider template + federation identifiers (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/cloud-connections/gcp` review 2026-07-26; PQ-CLOUD GCP Tier 2 option (a) WIF to Azure managed identity.
+
+**Problem:** Setup step 2 says create a Workload Identity Pool provider that trusts “ArchLucid's federated identity” with no issuer URL, allowed audiences, attribute mapping, or copyable `gcloud` / Console steps. WIF is the hardest of the three connectors to implement from prose alone.
+
+**Approach:**
+
+1. Publish customer-facing federation identifiers (OIDC issuer, audience, attribute mapping / subject conditions) from the same source of truth as hosted GCP extractor config / trust-center, with copy controls.
+2. Provide a copyable pool-provider configuration template (Console checklist and/or `gcloud` commands) with placeholders clearly marked when environment-specific.
+3. Document the expected provider resource name format operators paste into ArchLucid.
+4. Vitest: page exposes WIF template + at least issuer/audience (or documented “obtain from Cloud connections security review” if values are tenant-runtime only — prefer published host constants).
+
+**Acceptance:** A GCP admin can create the WIF pool provider and bind the service account from the help page (or clearly labeled in-product security-review values) without opening engineering docs.
+
+**Depends on:** Prefer with **TB-1239** / **TB-1241**.
+
+**Out of scope:** Changing the WIF design (PQ-CLOUD option a already chosen); provisioning customer pools from ArchLucid.
+
+**Size estimate:** M.
+
+---
+
+## TB-1243 — GCP help — workflow CTAs + classified data sections (Azure chrome parity) (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/help/cloud-connections/gcp` review 2026-07-26; parity with `HelpConnectAzureSecurelyGuideView` / AWS **TB-1238**.
+
+**Problem:** GCP markdown help has no **Back to cloud connections**, no primary **Configure GCP connection**, no scroll-spy TOC grid, and no separated **Information retained** / **Credentials not retained** / **Permissions not required** sections.
+
+**Approach:**
+
+1. Header: back link (`returnTo` or `/integrations/cloud-connections/gcp`) + primary Configure CTA.
+2. Classification sections matching Azure headings (project ID, WIF provider resource name, service account email, status/timestamps retained; service-account JSON keys not retained; Owner/Editor not required).
+3. Footer secondary Configure CTA; TOC includes new sections.
+4. Vitest: Configure link targets `/integrations/cloud-connections/gcp`; classification headings present.
+5. Do not reintroduce stale **Preview** maturity language in help (pair **TB-1140** on the settings surface).
+
+**Acceptance:** Help page has Azure-parity workflow chrome and data-classification sections; no Preview maturity claim in help copy.
+
+**Depends on:** Prefer with **TB-1239**.
+
+**Out of scope:** Changing the GCP connection settings form fields (except Preview label owned by **TB-1140**).
 
 **Size estimate:** S.
 

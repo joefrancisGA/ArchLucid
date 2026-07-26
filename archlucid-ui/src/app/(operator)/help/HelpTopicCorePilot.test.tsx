@@ -5,6 +5,20 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
+vi.mock("@/hooks/use-core-pilot-commit-context-query", () => ({
+  useCorePilotCommitContextQuery: () => ({
+    isPending: false,
+    data: {
+      hasCommittedManifest: false,
+      committedReviewCount: 0,
+      latestRunId: null,
+      firstCommittedRunId: null,
+      secondCommittedRunId: null,
+      latestRunReadyToFinalize: false,
+    },
+  }),
+}));
+
 import { HelpCorePilotGuideView } from "@/app/(operator)/help/_sections/HelpCorePilotGuideView";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 import { CORE_PILOT_HELP_SUMMARY_TITLE } from "@/lib/core-pilot-help-guide-content";
@@ -87,6 +101,24 @@ describe("HelpCorePilotGuideView", () => {
     expect(within(stepper).getByRole("heading", { name: "Finalize review" })).toBeInTheDocument();
     expect(within(stepper).getByRole("heading", { name: "Share outputs" })).toBeInTheDocument();
     expect(within(stepper).getAllByRole("link").length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("gates steps 3–5 away from empty reviews list when no active run (TB-1042)", () => {
+    if (entry === undefined) {
+      throw new Error("Expected core-pilot documentation entry.");
+    }
+
+    render(<HelpCorePilotGuideView entry={entry} />);
+
+    const stepper = screen.getByTestId("core-pilot-workflow-stepper");
+    const gatedLinks = within(stepper).getAllByRole("link", { name: "Start a review first" });
+
+    expect(gatedLinks).toHaveLength(3);
+
+    for (const link of gatedLinks) {
+      expect(link).toHaveAttribute("href", "/reviews/new");
+      expect(link.getAttribute("href")).not.toContain("projectId=default");
+    }
   });
 
   it("frames cloud connectors as optional and shows fast-path evidence-only review", () => {

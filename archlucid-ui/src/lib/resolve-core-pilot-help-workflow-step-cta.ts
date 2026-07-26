@@ -1,0 +1,160 @@
+import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import type { CorePilotHelpWorkflowStep } from "@/lib/core-pilot-help-guide-content";
+import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
+
+export type CorePilotHelpWorkflowStepCta = {
+  readonly enabled: boolean;
+  readonly href: string | null;
+  readonly label: string;
+  readonly helperText: string | null;
+};
+
+const START_REVIEW_FIRST: CorePilotHelpWorkflowStepCta = {
+  enabled: true,
+  href: "/reviews/new",
+  label: "Start a review first",
+  helperText: "Open detail, finalize, and exports unlock after you start a review.",
+};
+
+function reviewDetailHref(runId: string): string {
+  return `/reviews/${encodeURIComponent(runId)}`;
+}
+
+function finalizeHref(runId: string): string {
+  return `${reviewDetailHref(runId)}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`;
+}
+
+function exportsHref(runId: string): string {
+  return `${reviewDetailHref(runId)}#artifacts-exports`;
+}
+
+function resolveMonitorCta(ctx: CorePilotCommitContext): CorePilotHelpWorkflowStepCta {
+  if (ctx.latestRunId !== null) {
+    return {
+      enabled: true,
+      href: reviewDetailHref(ctx.latestRunId),
+      label: "Open review detail",
+      helperText: null,
+    };
+  }
+
+  if (ctx.firstCommittedRunId !== null) {
+    return {
+      enabled: true,
+      href: reviewDetailHref(ctx.firstCommittedRunId),
+      label: "Open review detail",
+      helperText: null,
+    };
+  }
+
+  return START_REVIEW_FIRST;
+}
+
+function resolveFinalizeCta(ctx: CorePilotCommitContext): CorePilotHelpWorkflowStepCta {
+  if (ctx.latestRunReadyToFinalize && ctx.latestRunId !== null) {
+    return {
+      enabled: true,
+      href: finalizeHref(ctx.latestRunId),
+      label: "Finalize on review detail",
+      helperText: null,
+    };
+  }
+
+  // Prefer the newest in-progress run over an older committed package.
+  if (ctx.latestRunId !== null && ctx.latestRunId !== ctx.firstCommittedRunId) {
+    return {
+      enabled: true,
+      href: reviewDetailHref(ctx.latestRunId),
+      label: "Open review detail",
+      helperText: "Finalize unlocks when findings are ready on the review.",
+    };
+  }
+
+  if (ctx.hasCommittedManifest && ctx.firstCommittedRunId !== null) {
+    return {
+      enabled: true,
+      href: reviewDetailHref(ctx.firstCommittedRunId),
+      label: "View finalized review",
+      helperText: "This workspace already has a finalized review.",
+    };
+  }
+
+  if (ctx.latestRunId !== null) {
+    return {
+      enabled: true,
+      href: reviewDetailHref(ctx.latestRunId),
+      label: "Open review detail",
+      helperText: "Finalize unlocks when findings are ready on the review.",
+    };
+  }
+
+  return START_REVIEW_FIRST;
+}
+
+function resolveShareCta(ctx: CorePilotCommitContext): CorePilotHelpWorkflowStepCta {
+  if (ctx.hasCommittedManifest && ctx.firstCommittedRunId !== null) {
+    return {
+      enabled: true,
+      href: exportsHref(ctx.firstCommittedRunId),
+      label: "Open exports",
+      helperText: null,
+    };
+  }
+
+  if (ctx.latestRunId !== null) {
+    return {
+      enabled: true,
+      href: reviewDetailHref(ctx.latestRunId),
+      label: "Open review detail",
+      helperText: "Exports unlock after you finalize the architecture review.",
+    };
+  }
+
+  return START_REVIEW_FIRST;
+}
+
+/**
+ * Resolves help-guide workflow CTAs from Core Pilot commit signals (TB-1042).
+ * Steps 1–2 stay static; steps 3–5 never deep-link into an empty reviews list.
+ */
+export function resolveCorePilotHelpWorkflowStepCta(
+  step: CorePilotHelpWorkflowStep,
+  ctx: CorePilotCommitContext | null,
+): CorePilotHelpWorkflowStepCta {
+  if (step.stepNumber <= 2) {
+    return {
+      enabled: true,
+      href: step.href,
+      label: step.ctaLabel,
+      helperText: null,
+    };
+  }
+
+  if (ctx === null) {
+    return {
+      enabled: false,
+      href: null,
+      label: step.ctaLabel,
+      helperText: null,
+    };
+  }
+
+  if (step.stepNumber === 3) {
+    return resolveMonitorCta(ctx);
+  }
+
+  if (step.stepNumber === 4) {
+    return resolveFinalizeCta(ctx);
+  }
+
+  if (step.stepNumber === 5) {
+    return resolveShareCta(ctx);
+  }
+
+  return {
+    enabled: true,
+    href: step.href,
+    label: step.ctaLabel,
+    helperText: null,
+  };
+}

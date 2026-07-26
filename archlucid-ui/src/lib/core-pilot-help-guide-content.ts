@@ -56,7 +56,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     title: "Monitor review progress",
     description: "Watch progress on review detail until findings are ready to finalize.",
     expectedOutput: "Findings and evidence labels ready for your review.",
-    href: "/reviews?projectId=default",
+    href: "/reviews/new",
     ctaLabel: "Open review detail",
   },
   {
@@ -65,7 +65,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     description:
       "Finalize when ready — this locks the signed review record, findings, and export surfaces on the architecture review.",
     expectedOutput: "A finalized architecture review with artifacts and audit trail.",
-    href: "/reviews?projectId=default",
+    href: "/reviews/new",
     ctaLabel: "Finalize on review detail",
   },
   {
@@ -73,7 +73,7 @@ export const CORE_PILOT_HELP_WORKFLOW_STEPS: readonly CorePilotHelpWorkflowStep[
     title: "Share outputs",
     description: "Download sponsor exports and share proof with stakeholders when your internal review is complete.",
     expectedOutput: "Sponsor packet, board materials, or markdown exports.",
-    href: "/reviews?projectId=default",
+    href: "/reviews/new",
     ctaLabel: "Open exports",
   },
 ];
