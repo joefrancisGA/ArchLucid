@@ -27,13 +27,7 @@
     {
       "pack_path": "ASSURANCE_STATUS_CANONICAL.md",
       "source_repo_path": "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
-      "description": "Canonical assurance status wording for procurement responses",
-      "artifact_status": "Evidence"
-    },
-    {
-      "pack_path": "REVIEW_CADENCE.md",
-      "source_repo_path": "docs/go-to-market/REVIEW_CADENCE.md",
-      "description": "Procurement document review ownership and freshness cadence",
+      "description": "Canonical assurance status wording plus procurement documentation review cadence",
       "artifact_status": "Evidence"
     },
     {

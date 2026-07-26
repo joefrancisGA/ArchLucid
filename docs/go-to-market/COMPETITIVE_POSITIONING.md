@@ -98,5 +98,5 @@ Use these in internal decks and emails; buyers can be pointed to the same paths 
 
 - [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) — category and longer-form competitor context (includes pricing in places; **do not** copy pricing into customer decks from this internal page without verification).
 - [COMPETITIVE_COMPARISON.md](COMPETITIVE_COMPARISON.md) — procurement-facing comparison surface.
-- [REVIEW_CADENCE.md](REVIEW_CADENCE.md) — ownership and refresh expectations for go-to-market docs.
+- [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md#procurement-documentation-review-cadence) — ownership and refresh expectations for procurement/trust docs.
 

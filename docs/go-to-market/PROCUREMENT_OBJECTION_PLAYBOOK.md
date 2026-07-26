@@ -60,7 +60,7 @@
 
 - **Short answer:** Key procurement docs are on a cadence and checked in CI for staleness.
 - **Long answer:** Review ownership and frequency are documented; CI warns on stale dates for key buyer-facing documents.
-- **Evidence:** [REVIEW_CADENCE.md](REVIEW_CADENCE.md), [trust-center.md](trust-center.md)
+- **Evidence:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md#procurement-documentation-review-cadence), [trust-center.md](trust-center.md)
 - **Escalate when:** Buyer requests named individual owners rather than role ownership.
 
 ### 7) "Can we trust that docs are consistent?"
