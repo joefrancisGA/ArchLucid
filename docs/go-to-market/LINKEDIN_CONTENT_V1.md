@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-26
 
-> **Scope:** LinkedIn posts M-10–M-14, long-form article M-15, and builder-series long-form articles M-77–M-88. Copy is grounded in shipped V1 capabilities and internal build experience. Do not publish until capabilities/screenshots referenced have been verified in a live tenant. Do not claim specific customer outcomes until reference customers have approved those statements.
+> **Scope:** LinkedIn posts M-10–M-14, long-form article M-15, builder-series long-form articles M-77–M-88, and the V1 publishing calendar (formerly `LINKEDIN_PUBLISHING_SCHEDULE.md`). Copy is grounded in shipped V1 capabilities and internal build experience. Do not publish until capabilities/screenshots referenced have been verified in a live tenant. Do not claim specific customer outcomes until reference customers have approved those statements.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -8,13 +8,41 @@
 
 **Audience:** Architects, CTOs, architecture review board members, fractional CTOs, cloud governance practitioners, and solo founders building technical products.
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-26
 
 **Tone:** Practitioner-to-practitioner for M-10–M-15; founder/builder diary for M-77–M-88. Specific and concrete. No buzzwords that are not defined. No aspirational futures claimed as present.
 
-**Posting cadence:** One short post per week for the V1 batch (article after the fifth post). Builder articles every two to three weeks after M-15 has had time to breathe — publish from personal profile, not company page. Calendar: [`LINKEDIN_PUBLISHING_SCHEDULE.md`](LINKEDIN_PUBLISHING_SCHEDULE.md).
+**Posting cadence:** One short post per week for the V1 batch (article after the fifth post). Builder articles every two to three weeks after M-15 has had time to breathe — publish from personal profile, not company page. Calendar: [publishing schedule](#publishing-schedule-m-10m-15).
 
 **Related:** [`POSITIONING.md`](POSITIONING.md), [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md), [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (M-10–M-15, M-77–M-88), [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md), [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md), [`SCREENSHOT_GALLERY.md`](SCREENSHOT_GALLERY.md).
+
+---
+
+## Publishing schedule (M-10–M-15)
+
+**Cadence:** Weekly, **Monday 8:00 AM** (local poster timezone) recommended. Owner sets publish dates before posting; full copy lives in the sections below.
+
+| Week | Asset | Title (from content pack) | Hashtags (3–4 max) | Comment seed (post within 30 min) | Published | Publish date |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | M-10 | The bottleneck nobody talks about | `#EnterpriseArchitecture` `#SoftwareArchitecture` `#CloudGovernance` | "Curious which step in your review cycle costs the most calendar time — discovery, analysis, or sign-off?" | No | TBD |
+| 2 | M-11 | Why "AI for architecture" keeps disappointing teams | `#EnterpriseArchitecture` `#AIGovernance` `#CloudGovernance` | "We see teams confuse speed of draft with defensibility of evidence — what signal do you require before trusting an AI finding?" | No | TBD |
+| 3 | M-12 | What evidence actually means in an architecture review | `#EnterpriseArchitecture` `#SoftwareArchitecture` `#Compliance` | "Diagrams vs committed artifacts: which do your auditors treat as authoritative?" | No | TBD |
+| 4 | M-13 | The thing architecture diagrams cannot tell you | `#EnterpriseArchitecture` `#CloudGovernance` `#Azure` | "What is one question your last architecture review could not answer from diagrams alone?" | No | TBD |
+| 5 | M-14 | Why architecture governance fails at the implementation layer | `#EnterpriseArchitecture` `#AIGovernance` `#SoftwareArchitecture` | "Where does governance break first for you — policy authoring, run execution, or remediation tracking?" | No | TBD |
+| 7 | M-15 (long-form) | Architecture Review Is Broken — Why Diagrams Are Not Evidence | `#EnterpriseArchitecture` `#SoftwareArchitecture` `#CloudGovernance` `#AIGovernance` | "If this resonates, I am happy to share how we label execution mode and evidence source in pilot proof packets — no oversell." | No | TBD |
+
+**Week 6:** Intentional gap (audience warmup) before M-15 long-form article.
+
+### Publishing tips
+
+- **Timing:** Post at a consistent slot; reply to early comments in the first 30 minutes to boost distribution.
+- **Hashtags:** Use 3–4 relevant tags; avoid hashtag stacks that read as spam.
+- **Engagement:** Paste the comment seed as the first comment immediately after publish.
+- **Claims:** Do not advance product claims beyond the stage authorized in [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md).
+
+### Builder series (M-51+)
+
+Long-form founder/builder articles draft in [Builder series (M-77–M-88)](#builder-series-m-77m-88). Assign publish dates when ready; drafts shipped: **M-77 — Capturing Screenshots**, **M-78 — Text System Complexity**, **M-79 — Convex Optimization?**, **M-80 — I Miss Fable**, **M-81 — One Thing at a Time**, **M-82 — UI Development**, **M-83 — Dirty Secrets**, **M-84 — Adventures in Space!**, **M-85 — Can't Good Good Help**, **M-86 — Big Words Hurt My Head**, **M-87 — Architecture Decision Records**, **M-88 — Checking in Broken Code**.
 
 ---
 
