@@ -53,7 +53,7 @@
   "notes": [
     "Set armOrder BEFORE the session; odd sessions A-then-B, even sessions B-then-A.",
     "Do not reveal which arm is ArchLucid (Arm B) until the reveal step.",
-    "Map primaryTriggerCode to FIRST_SESSION_DISMISSAL_PLAYBOOK.md taxonomy D1-D8.",
+    "Map primaryTriggerCode to FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md taxonomy D1-D8.",
     "PASS requires a concrete 30-day reuse (Q4 yes) AND a non-empty pay-to-avoid (Q5) sourced from Arm B.",
     "File the per-session dismissal log via validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md with protocol blind-bakeoff.",
     "Keep quotes and price bands redacted - no customer-identifying content in committed artifacts."

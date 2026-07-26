@@ -43,7 +43,7 @@ At **minute 12**, scan the top three findings and answer **both**:
 | Result | Action |
 | --- | --- |
 | **YES to both** | Continue to commit (steps 5–6). |
-| **NO to either** | **Stop.** Do not commit. Record primary dismissal code **D1** (equivalent to frontier AI) or **D7** (finding quality doubt) per [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](../go-to-market/FIRST_SESSION_DISMISSAL_PLAYBOOK.md). File [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](../go-to-market/validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md). |
+| **NO to either** | **Stop.** Do not commit. Record primary dismissal code **D1** (equivalent to frontier AI) or **D7** (finding quality doubt) per [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md). File [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](../go-to-market/validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md). |
 
 This checkpoint prevents ceremony completion without value signal — the most common expert dismissal pattern.
 

@@ -9,7 +9,7 @@
 **Companion JSON:** [`templates/principal-architect-dismissal-interview.template.json`](templates/principal-architect-dismissal-interview.template.json)
 **Execution tracked as:** GTM backlog **M-44 (V1.1)**. This document is the reusable **design half** (the script); filing real interviews requires live sessions.
 
-This script tests assessment Improvement **#3**. It is deliberately a **head-to-head dismissal test**, not an unguided first-session observation ([`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md)) and not a broad insight scoring pass ([`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md)). Use those for their purposes; use this when the explicit question is **dismissal risk against frontier AI**.
+This script tests assessment Improvement **#3**. It is deliberately a **head-to-head dismissal test**, not an unguided first-session observation ([`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md)) and not a broad insight scoring pass ([`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md)). Use those for their purposes; use this when the explicit question is **dismissal risk against frontier AI**.
 
 ---
 
@@ -19,12 +19,12 @@ Reuse aggressively. Do **not** redefine anything below — link to it.
 
 | Concern | Reused from | This script adds |
 | --- | --- | --- |
-| Dismissal-trigger taxonomy (**D1–D8**) | [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § Dismissal-trigger taxonomy | Applies it to a head-to-head, not a solo session |
+| Dismissal-trigger taxonomy (**D1–D8**) | [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § Dismissal-trigger taxonomy | Applies it to a head-to-head, not a solo session |
 | Per-session dismissal capture + weekly top-2 triage | [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) | This interview is one `protocol: blind-bakeoff` source for that log |
 | Frontier-AI baseline prompt | [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) § Frontier-AI baseline prompt | The chat-style arm of the bakeoff |
 | Honest "where each wins" framing | [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md) | Randomized arm order to remove order/polish bias |
 | Decision-delta + budget questions | [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) | Two decisive new questions (below) |
-| Recruitment / disqualification profile | [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § Recruitment criteria | Same profile — do not relax it |
+| Recruitment / disqualification profile | [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § Recruitment criteria | Same profile — do not relax it |
 
 **The two decisive questions this script exists to ask:**
 
@@ -40,7 +40,7 @@ Everything else in the session exists to make the answers to these two questions
 | Trigger | Action |
 | --- | --- |
 | Validating 30-day voluntary usage + frontier-AI survival | Run this script |
-| Need unguided first-use friction signal | Use [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) instead |
+| Need unguided first-use friction signal | Use [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) instead |
 | Need per-finding insight scoring | Use [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) |
 
 **Recommended sample:** 6–8 sessions before treating dismissal-rate results as directional (matches assessment #3 plan). Treat single sessions as anecdotes.
@@ -49,7 +49,7 @@ Everything else in the session exists to make the answers to these two questions
 
 ## Recruitment (do not relax)
 
-Use the **exact** profile in [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § Recruitment criteria. The non-negotiable for this script:
+Use the **exact** profile in [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § Recruitment criteria. The non-negotiable for this script:
 
 - Principal / staff / lead architect (or equivalent cloud depth).
 - **Daily** frontier-AI user (Claude / GPT / Gemini / Cursor with a strong model) — they are the real substitute under test.
@@ -149,7 +149,7 @@ If the answer to #4 is "neither" and #5 is "nothing", that is a **dismissal** �
 
 > "Approach [A/B] was ArchLucid. Knowing that now — what is the single most likely reason you would *not* come back to it?"
 
-Capture exactly **one** primary dismissal trigger using the **D1–D8** taxonomy in [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md). Then run the 3–5 minute **evidence-trail walkthrough** on one finding and note whether the trigger shifts (see [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) § Before or after evidence-trail walkthrough). A trigger that shifts from **D1** ("equivalent to frontier AI") to **D8** after the walkthrough is the highest-value differentiation signal.
+Capture exactly **one** primary dismissal trigger using the **D1–D8** taxonomy in [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md). Then run the 3–5 minute **evidence-trail walkthrough** on one finding and note whether the trigger shifts (see [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) § Before or after evidence-trail walkthrough). A trigger that shifts from **D1** ("equivalent to frontier AI") to **D8** after the walkthrough is the highest-value differentiation signal.
 
 ### Step 6 — Budget / buyer (4 min)
 
@@ -206,7 +206,7 @@ Storage paths follow the dismissal log: `artifacts/principal-architect/<runId>/d
 
 | Asset | Role |
 | --- | --- |
-| [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) | D1–D8 taxonomy + unguided first-session cohort + product decision gate |
+| [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) | D1–D8 taxonomy + unguided first-session cohort + product decision gate |
 | [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) | Per-session dismissal capture + weekly top-2 triage |
 | [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) | Per-finding insight scoring + frontier-AI baseline prompt |
 | [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md) | Honest "where each wins" comparison rubric |

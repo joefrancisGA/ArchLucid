@@ -52,7 +52,7 @@
 
 ## Product decision gate (one row per confirmed bottleneck)
 
-See `FIRST_SESSION_DISMISSAL_PLAYBOOK.md` § Product decision gate. A confirmed bottleneck does **not**
+See `FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md` § Product decision gate. A confirmed bottleneck does **not**
 automatically justify a change — it must clear this gate as **Justified now** first.
 
 | Confirmed bottleneck | Uncertainty type (design / market) | Observed evidence (sessions + codes + verbatim) | Change justified now? (Y/N) | Smallest viable change | Do NOT change yet | Gate outcome (Justified now / Observe more / Watch) |

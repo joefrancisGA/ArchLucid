@@ -1,6 +1,6 @@
 # First-session observation fixtures
 
-Copy templates into `artifacts/first-session/<cohort-label>/` before running [`docs/go-to-market/FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](../../docs/go-to-market/FIRST_SESSION_DISMISSAL_PLAYBOOK.md).
+Copy templates into `artifacts/first-session/<cohort-label>/` before running [`docs/go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../../docs/go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md).
 
 **Do not commit** customer-identifying content under `artifacts/`. Use pseudonymous participant labels only.
 

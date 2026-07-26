@@ -32,7 +32,7 @@
   },
   "facilitatorNotes": "",
   "notes": [
-    "Map primaryTriggerCode to FIRST_SESSION_DISMISSAL_PLAYBOOK.md taxonomy D1–D8.",
+    "Map primaryTriggerCode to FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md taxonomy D1–D8.",
     "confidenceLevel: high = verbatim quote + observable behavior; medium = inferred from hesitation codes; low = facilitator hypothesis only.",
     "Record contradictingSignals when participant also praised export, evidence trail, or reuse intent.",
     "evidenceTrailWalkthrough: the 3–5 minute debrief where facilitator opens audit/evidence trail for one finding (see PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md).",

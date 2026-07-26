@@ -13,9 +13,9 @@ send. This test isolates the **commit → sponsor export** discovery moment so i
 
 **Reuse, do not duplicate:** this test inherits the taxonomy and discipline already shipped:
 
-- Hesitation marker **H5** (cannot find export) and dismissal code **D4** (export / handoff hidden) — [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § dismissal-trigger taxonomy.
+- Hesitation marker **H5** (cannot find export) and dismissal code **D4** (export / handoff hidden) — [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § dismissal-trigger taxonomy.
 - Closing question "Would you send this to a sponsor as-is?" — [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md).
-- Promotion + gate — [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § Product decision gate.
+- Promotion + gate — [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § Product decision gate.
 
 For a full first-use evaluation, run the 45-minute protocol instead; this micro-test is the **scoped
 regression** for the export moment only.
@@ -110,7 +110,7 @@ After the participants, summarize and hand off — do **not** scope UI work here
 | Most common terminology confusion | |
 
 **Gate handoff:** if H5 / D4 repeats in **≥2** participants, file it as a confirmed bottleneck and run it
-through [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § Product decision
+through [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § Product decision
 gate. Only a bottleneck that clears as **Justified now** (design uncertainty, copy/UX-local) may open a
 UI batch — for example, a single explicit "Send to sponsor / Export" affordance on the commit
 confirmation, not an export-hub redesign.
@@ -119,7 +119,6 @@ confirmation, not an export-hub redesign.
 
 ## Related
 
-- [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) — full cohort protocol + product decision gate
-- [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) — 45-minute protocol + hesitation markers
+- [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) — 45-minute protocol, dismissal cohort ops, D1–D8 taxonomy, product decision gate
 - [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) — Phase D export surfaces
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — GTM tracking (real run: `M-47`)

@@ -28,7 +28,7 @@ Copy the JSON template before each session. Set `noDismissalObserved: true` when
 
 ### 1. Single most likely dismissal trigger
 
-Pick **one** primary code from the taxonomy in [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](../FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § Dismissal-trigger taxonomy (**D1–D8**). Use **D8** only when no near-dismissal signal occurred.
+Pick **one** primary code from the taxonomy in [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § Dismissal-trigger taxonomy (**D1–D8**). Use **D8** only when no near-dismissal signal occurred.
 
 | Field (JSON) | Rule |
 | --- | --- |
@@ -110,7 +110,7 @@ Select **at most two** recurring triggers to act on this week:
 
 | Promotion rule | Action |
 | --- | --- |
-| Same **D*** code in **≥2** sessions (high or medium confidence) | **Promote** — eligible for product decision gate ([`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](../FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § Product decision gate) |
+| Same **D*** code in **≥2** sessions (high or medium confidence) | **Promote** — eligible for product decision gate ([`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) § Product decision gate) |
 | Same code in **1** session only | **Watch** — no action this week |
 | Conflicting contradicting signals across sessions | **Observe** — schedule one more session before prioritizing |
 
@@ -135,7 +135,7 @@ Select **at most two** recurring triggers to act on this week:
 
 | Asset | Role |
 | --- | --- |
-| [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](../FIRST_SESSION_DISMISSAL_PLAYBOOK.md) | 3-session cohort protocol + D1–D8 taxonomy + product decision gate |
+| [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) | 3-session cohort protocol + D1–D8 taxonomy + product decision gate |
 | [`fixtures/first-session/dismissal-trigger.template.json`](../../../fixtures/first-session/dismissal-trigger.template.json) | Lighter first-session JSON (hesitation codes, no confidence/contradiction fields) |
 | [`templates/pilot-dismissal-trigger.template.json`](../templates/pilot-dismissal-trigger.template.json) | Paid-pilot adjunct |
 | [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) | Timestamped hesitation observation protocol |
