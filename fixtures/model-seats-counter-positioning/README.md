@@ -1,6 +1,6 @@
 # Model seats counter-positioning fixtures
 
-Copy templates into `artifacts/model-seats/<cohort-label>/` before running [`docs/go-to-market/MODEL_SEATS_COUNTER_POSITIONING_TEST.md`](../../docs/go-to-market/MODEL_SEATS_COUNTER_POSITIONING_TEST.md).
+Copy templates into `artifacts/model-seats/<cohort-label>/` before running [`docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md`](../../docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md#model-seats-counter-positioning-message-test).
 
 **Do not commit** customer-identifying content under `artifacts/`.
 

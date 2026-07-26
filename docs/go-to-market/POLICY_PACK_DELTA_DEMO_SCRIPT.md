@@ -300,8 +300,7 @@ Running the pilot on **authorized** evidence and getting a buyer judgment is the
 
 ## Related
 
-- [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) — generic-AI comparison rubric
+- [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) — generic-AI comparison rubric + model-seats message test
 - [`DEFAULT_POLICY_PACKS_V1.md`](DEFAULT_POLICY_PACKS_V1.md) — bundled platform packs
 - [`AI_GOVERNANCE_REVIEW.md`](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) — regulated vertical walkthrough
-- [`MODEL_SEATS_COUNTER_POSITIONING_TEST.md`](MODEL_SEATS_COUNTER_POSITIONING_TEST.md) — objection handling
 - [`../library/POLICY_PACK_DRY_RUN_INDEX.md`](../library/POLICY_PACK_DRY_RUN_INDEX.md) — vertical pack templates for the stricter arm

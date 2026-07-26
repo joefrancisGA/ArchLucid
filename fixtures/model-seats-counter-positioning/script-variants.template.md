@@ -1,7 +1,7 @@
 # Script variants — facilitator quick reference
 
 **Cohort:** `<cohort-label>`  
-**Canonical doc:** [`MODEL_SEATS_COUNTER_POSITIONING_TEST.md`](../../docs/go-to-market/MODEL_SEATS_COUNTER_POSITIONING_TEST.md)
+**Canonical doc:** [`DIFFERENTIATION_PROOF_PACKET.md`](../../docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md#model-seats-counter-positioning-message-test)
 
 Do not edit claims here without updating the canonical doc and evidence links.
 

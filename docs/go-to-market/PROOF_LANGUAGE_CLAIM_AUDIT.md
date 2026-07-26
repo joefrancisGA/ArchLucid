@@ -40,11 +40,11 @@ Dominant claim types present and the labels that keep them honest. Disposition i
 | `DEMO_VIDEO_SCRIPT.md`, `DEMO_QUICKSTART.md` | illustrative | demo/sample framing |
 | `GENERIC_AI_BAKEOFF_PROTOCOL.md` | review-backed, illustrative | honest "where each wins" |
 | `PROCUREMENT_OBJECTION_PLAYBOOK.md` (incl. controlled pilot drill) | self-assessed, roadmap | honest-posture answers |
-| `MODEL_SEATS_COUNTER_POSITIONING_TEST.md` | review-backed, self-assessed | grounding rule: "do **not** claim ArchLucid always beats frontier AI" |
+| `DIFFERENTIATION_PROOF_PACKET.md` (model-seats message test) | review-backed, self-assessed | grounding rule: "do **not** claim ArchLucid always beats frontier AI" |
 | `buyer-jobs/*` (demo proof shape sections) | illustrative | sample-not-customer labels |
 | `templates/evidence-packet-buyer.template.md` | all five (as columns) | claim-boundary column |
 
-**Patch this pass:** `MODEL_SEATS_COUNTER_POSITIONING_TEST.md` ? the grounding-rule sentence "Do **not** claim ArchLucid always beats frontier AI" is correct guidance; the new guard now normalizes markdown emphasis so the bolded `**not**` registers as a caveat (no copy change required). No unsupported superlatives remain in scope.
+**Patch this pass:** model-seats grounding rule (now in `DIFFERENTIATION_PROOF_PACKET.md`) — "Do **not** claim ArchLucid always beats frontier AI" is correct guidance; the new guard now normalizes markdown emphasis so the bolded `**not**` registers as a caveat (no copy change required). No unsupported superlatives remain in scope.
 
 ## Regression guard (new)
 
