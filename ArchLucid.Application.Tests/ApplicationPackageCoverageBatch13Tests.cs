@@ -180,7 +180,7 @@ public sealed class ApplicationPackageCoverageBatch13Tests
 
         string formatted = SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run);
 
-        formatted.Should().Contain(expectedFragment, StringComparison.Ordinal);
+        formatted.Should().Contain(expectedFragment);
     }
 
     [Fact]
