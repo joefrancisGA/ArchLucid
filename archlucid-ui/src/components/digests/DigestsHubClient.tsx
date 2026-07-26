@@ -182,7 +182,7 @@ export function DigestsHubClient(): ReactElement {
                 data-testid="digests-send-test-action"
                 title={sendTestActionTitle}
               >
-                <Link href="/advisory?tab=schedules">{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
+                <Link href="/governance/advisory-scans?tab=schedules">{DIGESTS_BROWSE_SEND_TEST_LABEL}</Link>
               </Button>
               <div className="flex flex-wrap items-center gap-2">
                 <Button

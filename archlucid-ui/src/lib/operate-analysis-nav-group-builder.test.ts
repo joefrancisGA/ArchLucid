@@ -46,7 +46,7 @@ describe("OperateAnalysisNavGroupBuilder", () => {
 describe("OperateGovernanceNavGroupBuilder", () => {
   it("labels advisory nav as Advisory scans (TB-529)", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
-    const advisoryLink = group.links.find((link) => link.href === "/advisory");
+    const advisoryLink = group.links.find((link) => link.href === "/governance/advisory-scans");
 
     expect(advisoryLink?.label).toBe("Advisory scans");
   });

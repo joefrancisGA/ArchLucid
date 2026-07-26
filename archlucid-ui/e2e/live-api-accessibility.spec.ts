@@ -49,7 +49,7 @@ const PAGES = [
   { name: "Replay", path: "/replay" },
   { name: "Ask", path: "/ask" },
   { name: "Search", path: "/search" },
-  { name: "Advisory", path: "/advisory" },
+  { name: "Advisory", path: "/governance/advisory-scans" },
   { name: "Graph", path: "/graph" },
   { name: "Audit", path: "/governance/audit" },
   { name: "Policy packs (operator hub)", path: "/governance/policy-packs" },

@@ -190,7 +190,7 @@ describe("nav-config structure", () => {
       "/governance/resolution",
       "/governance/decision-register",
       "/signed-records",
-      "/advisory",
+      "/governance/advisory-scans",
       "/governance/audit",
       "/governance/alerts",
       "/governance/alert-rules",
@@ -216,7 +216,7 @@ describe("nav-config structure", () => {
     expect(systemAdminHrefs).toContain("/admin/deployment-status");
     expect(systemAdminHrefs).toContain("/replay");
     expect(systemAdminHrefs).not.toContain("/health");
-    expect(systemAdminHrefs).not.toContain("/advisory");
+    expect(systemAdminHrefs).not.toContain("/governance/advisory-scans");
     expect(systemAdminHrefs).not.toContain("/settings/tenant");
     expect(systemAdminHrefs).not.toContain("/workspace/security-trust");
     // Tenant-tier-gated features (RequiresCommercialTenantTier) moved out of the employee-only,
@@ -281,7 +281,7 @@ describe("nav-config structure", () => {
 
   it("keeps governance nav hrefs under /governance/* (TB-405)", () => {
     const governance = NAV_GROUPS.find((group) => group.id === "operate-governance");
-    const governanceNamespaceExceptions = new Set(["/advisory", "/signed-records"]);
+    const governanceNamespaceExceptions = new Set(["/signed-records"]);
 
     expect(governance).toBeDefined();
 

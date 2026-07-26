@@ -14,7 +14,7 @@ export const DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_NOTE =
 
 export const DIGEST_SUBSCRIPTIONS_SENSITIVE_CONTENT_HELP_HREF = "/help/data-handling-tenant-isolation" as const;
 
-export const DIGEST_SUBSCRIPTIONS_SEND_TEST_HREF = "/advisory?tab=schedules" as const;
+export const DIGEST_SUBSCRIPTIONS_SEND_TEST_HREF = "/governance/advisory-scans?tab=schedules" as const;
 
 export type DigestSubscriptionReadinessRow = {
   readonly id: string;
@@ -189,7 +189,7 @@ export function buildDigestSubscriptionReadinessSummary(
       label: "Digest schedule",
       value: scheduleStatus,
       detail: scheduleDetail,
-      href: scheduleEnabled ? null : "/advisory?tab=schedules",
+      href: scheduleEnabled ? null : "/governance/advisory-scans?tab=schedules",
     },
     {
       id: "last-delivery",
@@ -203,7 +203,7 @@ export function buildDigestSubscriptionReadinessSummary(
       label: "Next scheduled generation",
       value: nextScheduled,
       detail: "Subscriptions receive the next generated digest once the schedule runs.",
-      href: scheduleEnabled ? null : "/advisory?tab=schedules",
+      href: scheduleEnabled ? null : "/governance/advisory-scans?tab=schedules",
     },
   ];
 
@@ -214,7 +214,7 @@ export function buildDigestSubscriptionReadinessSummary(
   if (!scheduleEnabled) {
     blockingIssue = "No advisory scan schedule is enabled — digests will not be generated automatically.";
     nextActionLabel = "Configure schedule";
-    nextActionHref = "/advisory?tab=schedules";
+    nextActionHref = "/governance/advisory-scans?tab=schedules";
   } else if (activeDestinations === 0) {
     blockingIssue = "No active delivery destinations — generated digests have no outbound recipients.";
     nextActionLabel = "Add delivery destination";

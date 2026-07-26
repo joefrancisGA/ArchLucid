@@ -86,7 +86,7 @@ describe("digest-subscriptions-workflow", () => {
     );
 
     expect(summary.blockingIssue).toMatch(/schedule/i);
-    expect(summary.nextActionHref).toBe("/advisory?tab=schedules");
+    expect(summary.nextActionHref).toBe("/governance/advisory-scans?tab=schedules");
   });
 
   it("suggests channel-aware delivery names", () => {

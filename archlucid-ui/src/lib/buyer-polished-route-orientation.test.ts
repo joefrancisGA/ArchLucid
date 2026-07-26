@@ -86,14 +86,14 @@ describe("buyerPolishedRouteOrientation", () => {
   });
 
   it("orients the advisory route with recommendation copy", () => {
-    const o = buyerPolishedRouteOrientation("/advisory");
+    const o = buyerPolishedRouteOrientation("/governance/advisory-scans");
 
     expect(o?.label).toBe("Advisory scans");
     expect(o?.line).toContain("Prioritized follow-up");
   });
 
   it("orients advisory sub-routes (e.g. ?tab=schedules) consistently", () => {
-    const o = buyerPolishedRouteOrientation("/advisory?tab=schedules");
+    const o = buyerPolishedRouteOrientation("/governance/advisory-scans?tab=schedules");
 
     expect(o?.label).toBe("Advisory scans");
   });

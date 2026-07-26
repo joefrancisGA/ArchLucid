@@ -122,10 +122,10 @@ vi.mock("@/components/advisory/AdvisoryHubClient", () => ({
   AdvisoryHubClient: () => <div data-testid="stub-advisory-hub">Advisory Hub</div>,
 }));
 
-/** RSC `advisory/page` is async; Vitest client render needs a sync stub. */
-vi.mock("@/app/(operator)/advisory/page", () => ({
+/** RSC advisory-scans page is async; Vitest client render needs a sync stub. */
+vi.mock("@/app/(operator)/governance/advisory-scans/page", () => ({
   __esModule: true,
-  default: function AdvisoryPageStub() {
+  default: function AdvisoryScansPageStub() {
     return <div data-testid="stub-advisory-page">Advisory</div>;
   },
 }));
@@ -199,7 +199,7 @@ vi.mock("@/app/(operator)/value-report/_sections/load-value-report-page-data", (
 }));
 
 import SponsorReportExecutiveSummaryPage from "@/app/(operator)/sponsor-report/executive-summary/page";
-import AdvisoryPage from "@/app/(operator)/advisory/page";
+import AdvisoryScansPage from "@/app/(operator)/governance/advisory-scans/page";
 import AdvisorySchedulingPage from "@/app/(operator)/advisory-scheduling/page";
 import DigestsPage from "@/app/(operator)/digests/page";
 import DigestSubscriptionsPage from "@/app/(operator)/digest-subscriptions/page";
@@ -220,9 +220,9 @@ describe("operator value + advisory pages — axe (Vitest)", () => {
   );
 
   it(
-    "AdvisoryPage has no serious axe violations",
+    "AdvisoryScansPage has no serious axe violations",
     async () => {
-      const { container } = render(<AdvisoryPage />);
+      const { container } = render(<AdvisoryScansPage />);
 
       expect(await axe(container)).toHaveNoViolations();
     },

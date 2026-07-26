@@ -235,7 +235,7 @@ describe("ExecDigestScheduleContent", () => {
 
     expect(screen.getByRole("link", { name: "Generate architecture digest test" })).toHaveAttribute(
       "href",
-      "/advisory?tab=schedules",
+      "/governance/advisory-scans?tab=schedules",
     );
     expect(screen.getByText(/may consume AI budget/i)).toBeInTheDocument();
     expect(screen.getByText(/does not email executive recipients/i)).toBeInTheDocument();

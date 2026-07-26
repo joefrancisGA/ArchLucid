@@ -16,7 +16,7 @@ describe("usability lib", () => {
     expect(navLinkQuestionSubtitle("/graph")).toBeNull();
     expect(navLinkQuestionSubtitle("/governance")).toBeNull();
     expect(navLinkQuestionSubtitle("/replay")).toBeNull();
-    expect(navLinkQuestionSubtitle("/advisory")).toBeNull();
+    expect(navLinkQuestionSubtitle("/governance/advisory-scans")).toBeNull();
   });
 
   it("filterNavLinksByOperateUnlockPhase hides all Operate links at phase 0", () => {
@@ -66,7 +66,7 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/architectures/draft-id-123")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/digests")?.slug).toBe("how-it-works");
     expect(pageHelpTopicForPathname("/planning")?.slug).toBe("pilot-feedback");
-    expect(pageHelpTopicForPathname("/advisory")?.slug).toBe("how-it-works");
+    expect(pageHelpTopicForPathname("/governance/advisory-scans")?.slug).toBe("how-it-works");
   });
 
   it("searchHelpTopics finds pilot guide", () => {

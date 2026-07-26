@@ -91,7 +91,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/advisory",
+          href: "/governance/advisory-scans",
           label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
           title: "Generate prioritized follow-up recommendations from finalized reviews",
           icon: Lightbulb,

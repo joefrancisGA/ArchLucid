@@ -11,8 +11,16 @@ describe("next.config hub bookmark redirects", () => {
     expect(
       redirectRules?.find(
         (rule) =>
+          rule.source === "/advisory"
+          && rule.destination === "/governance/advisory-scans",
+      )?.permanent,
+    ).toBe(true);
+
+    expect(
+      redirectRules?.find(
+        (rule) =>
           rule.source === "/advisory-scheduling"
-          && rule.destination === "/advisory?tab=schedules",
+          && rule.destination === "/governance/advisory-scans?tab=schedules",
       )?.permanent,
     ).toBe(true);
 

@@ -29,7 +29,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/graph": "advanced-only",
   "/compare": "advanced-only",
   "/replay": "advanced-only",
-  "/advisory": "advanced-only",
+  "/governance/advisory-scans": "advanced-only",
   "/planning": "advanced-only",
   "/digests": "advanced-only",
   "/evolution-review": "advanced-only",

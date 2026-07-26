@@ -123,7 +123,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(governancePageMainHeading(page)).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/advisory");
+    await page.goto("/governance/advisory-scans");
     await expect(page.getByTestId("advisory-hub")).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 

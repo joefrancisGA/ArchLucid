@@ -38,6 +38,6 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
   it("returns analysis when architecture advisory is active", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, true, true, 3, false, "all", true, 2);
 
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/advisory")).toEqual(["operate-governance"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/advisory-scans")).toEqual(["operate-governance"]);
   });
 });

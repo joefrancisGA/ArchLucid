@@ -835,7 +835,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
               {!sampleModeBlocked ? (
                 <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800">
                   <Button asChild size="sm" variant="outline" data-testid="exec-digest-test-action">
-                    <Link href="/advisory?tab=schedules" title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
+                    <Link href="/governance/advisory-scans?tab=schedules" title={EXEC_DIGEST_TEST_GENERATION_HELPER}>
                       {DIGESTS_SCHEDULE_GENERATE_TEST_LABEL}
                     </Link>
                   </Button>

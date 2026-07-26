@@ -29,7 +29,7 @@ export function mapDigestSetupGap(gap: string): DigestSetupGapAction {
       title: "No advisory scan schedule",
       impact: "Weekly digests will not be generated automatically.",
       actionLabel: "Open schedules",
-      href: "/advisory?tab=schedules",
+      href: "/governance/advisory-scans?tab=schedules",
     };
   }
 
@@ -105,7 +105,7 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
       title: "Configure schedule",
       impact: "Enable an advisory scan schedule to generate digests on a cadence.",
       actionLabel: "Configure schedule",
-      href: "/advisory?tab=schedules",
+      href: "/governance/advisory-scans?tab=schedules",
     };
   }
 
@@ -136,7 +136,7 @@ export function resolveDigestNextBestAction(snap: WeeklyDigestHealthDto): Digest
       title: "Send test digest",
       impact: "Generate the first digest to verify delivery and preview content.",
       actionLabel: DIGESTS_BROWSE_SEND_TEST_LABEL,
-      href: "/advisory?tab=schedules",
+      href: "/governance/advisory-scans?tab=schedules",
     };
   }
 
@@ -158,7 +158,7 @@ export function buildDigestSetupChecklistItems(
     {
       id: "schedule",
       label: "Configure schedule",
-      href: "/advisory?tab=schedules",
+      href: "/governance/advisory-scans?tab=schedules",
       complete: hasSchedule,
       detail: hasSchedule ? "Advisory scan schedule enabled." : "Enable a cadence for digest generation.",
     },
@@ -172,7 +172,7 @@ export function buildDigestSetupChecklistItems(
     {
       id: "test",
       label: DIGESTS_BROWSE_SEND_TEST_LABEL,
-      href: "/advisory?tab=schedules",
+      href: "/governance/advisory-scans?tab=schedules",
       complete: hasTestDigest,
       detail: hasTestDigest ? "At least one digest has been generated." : "Verify delivery with a test digest.",
     },

@@ -1,5 +1,5 @@
 /**
- * Query-string tab ids for the `/advisory` hub (`?tab=`). **scans** is the default when the param is absent or unknown.
+ * Query-string tab ids for the Advisory scans hub (`?tab=`). **scans** is the default when the param is absent or unknown.
  */
 export const ADVISORY_HUB_TAB_IDS = ["scans", "schedules"] as const;
 export type AdvisoryHubTabId = (typeof ADVISORY_HUB_TAB_IDS)[number];

@@ -34,7 +34,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/governance/resolution": OPERATOR_NAV_LINK_LABELS.governanceResolution,
   "/governance/audit": "Audit",
   "/governance/alerts": "Alerts",
-  "/advisory": "Advisory",
+  "/governance/advisory-scans": "Advisory scans",
   "/search": "Search",
   "/ask": "Ask",
   "/replay": "Replay",

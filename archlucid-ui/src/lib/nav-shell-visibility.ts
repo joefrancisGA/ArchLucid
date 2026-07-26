@@ -33,7 +33,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/replay",
   "/search",
   "/compare",
-  "/advisory",
+  "/governance/advisory-scans",
   "/advisory-scheduling",
   "/demo/explain",
   "/admin/health",

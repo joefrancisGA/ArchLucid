@@ -59,7 +59,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
     },
   },
   {
-    prefix: "/advisory",
+    prefix: "/governance/advisory-scans",
     entry: {
       whatIsThisPage: "Generate prioritized follow-up recommendations from finalized reviews.",
       whatToDoNext: "Select a finalized review and generate a scan, or open Schedules for recurring runs.",

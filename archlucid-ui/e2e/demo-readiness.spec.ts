@@ -199,7 +199,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/graph",
       "/compare",
       "/governance",
-      "/advisory",
+      "/governance/advisory-scans",
       "/replay",
       "/search",
       "/governance/policy-packs",

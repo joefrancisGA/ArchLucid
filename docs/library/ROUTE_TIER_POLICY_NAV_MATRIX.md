@@ -119,7 +119,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/TenantAuthDomainAdminController.cs` | `/v1/admin/identity/domains` | none | AdminAuthority |  |  |
 | `Admin/TenantsAdminController.cs` | `/v1/admin/tenants` | none | AdminAuthority | /settings/users |  |
 | `Admin/UsersAdminController.cs` | `/v1/admin/users` | none | AdminAuthority |  |  |
-| `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /advisory |  |
+| `Advisory/AdvisoryController.cs` | `/v1/advisory` | standard | ReadAuthority | /governance/advisory-scans |  |
 | `Advisory/AdvisorySchedulingController.cs` | `/v1/advisory-scheduling` | standard | ReadAuthority |  |  |
 | `Advisory/DigestSubscriptionsController.cs` | `/v1/digest-subscriptions` | standard | ReadAuthority | /digests |  |
 | `Advisory/LearningController.cs` | `/v1/learning` | standard | ReadAuthority |  |  |

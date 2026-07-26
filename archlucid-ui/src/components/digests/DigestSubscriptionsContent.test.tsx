@@ -180,7 +180,7 @@ describe("DigestSubscriptionsContent", () => {
     expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Send test digest" })).toHaveAttribute(
       "href",
-      "/advisory?tab=schedules",
+      "/governance/advisory-scans?tab=schedules",
     );
     expect(screen.getByRole("button", { name: "Delete" })).toBeDisabled();
     expect(screen.getByTestId("digest-subscriptions-refresh")).toBeInTheDocument();

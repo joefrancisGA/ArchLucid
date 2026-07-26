@@ -479,7 +479,7 @@
       "commercial_tier": "standard",
       "class_policy": "ReadAuthority",
       "exemption": null,
-      "nav_operator_href": "/advisory"
+      "nav_operator_href": "/governance/advisory-scans"
     },
     {
       "controller_file": "Advisory/AdvisorySchedulingController.cs",

@@ -2,7 +2,8 @@ import type { Page } from "@playwright/test";
 
 /** Legacy bookmark paths → URL pattern after HTTP or App Router redirect (see next.config.ts + page.tsx shims). */
 export const SCREENSHOT_LEGACY_REDIRECT_URL_PATTERNS: Readonly<Record<string, RegExp>> = {
-  "/advisory-scheduling": /\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/,
+  "/advisory": /\/governance\/advisory-scans(?:\?[^#]*)?(?:$|#)/,
+  "/advisory-scheduling": /\/governance\/advisory-scans\?tab=schedules(?:&[^#]*)?(?:$|#)/,
   "/settings/exec-digest": /\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/,
   "/digest-subscriptions": /\/digests\?tab=subscriptions(?:&[^#]*)?(?:$|#)/,
   "/audit": /\/governance\/audit(?:\?|$|#)/,

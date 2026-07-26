@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 
+import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
+
 /**
- * Legacy route: advisory scan schedules live on the **Advisory** hub **Schedules** tab.
+ * Legacy route: advisory scan schedules live on the Advisory scans hub Schedules tab (TB-1124).
  */
 export default function AdvisorySchedulingRedirect() {
-  redirect("/advisory?tab=schedules");
+  redirect(ADVISORY_SCANS_SCHEDULES_HREF);
 }

@@ -5,7 +5,7 @@ const pushMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
-  usePathname: () => "/advisory",
+  usePathname: () => "/governance/advisory-scans",
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -35,7 +35,7 @@ describe("AdvisoryHubClient (TB-670)", () => {
 
     fireEvent.click(schedulesTab);
 
-    expect(pushMock).toHaveBeenCalledWith("/advisory?tab=schedules");
+    expect(pushMock).toHaveBeenCalledWith("/governance/advisory-scans?tab=schedules");
     expect(schedulesTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByText("Schedules panel")).toBeInTheDocument();
 

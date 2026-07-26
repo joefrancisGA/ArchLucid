@@ -46,7 +46,7 @@
     "Admin/SupportBundleController.cs": "/settings/support",
     "Admin/AdminTenantsController.cs": "/settings/users",
     "Admin/TenantsAdminController.cs": "/settings/users",
-    "Advisory/AdvisoryController.cs": "/advisory",
+    "Advisory/AdvisoryController.cs": "/governance/advisory-scans",
     "Advisory/DigestSubscriptionsController.cs": "/digests",
     "Advisory/ProductLearningController.cs": "/product-learning",
     "Advisory/RecommendationLearningController.cs": "/internal-operations/recommendation-learning",

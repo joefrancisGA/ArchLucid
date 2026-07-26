@@ -166,6 +166,14 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  // Canonical Advisory scans under /governance/* must win before the generic Governance branch.
+  if (path.startsWith("/governance/advisory-scans") || path.startsWith("/advisory")) {
+    return {
+      label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
+      line: "Prioritized follow-up recommendations from finalized reviews.",
+    };
+  }
+
   if (path === "/governance") {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 
@@ -250,13 +258,6 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/compare")) {
     return null;
-  }
-
-  if (path.startsWith("/advisory")) {
-    return {
-      label: OPERATOR_NAV_LINK_LABELS.architectureAdvisory,
-      line: "Prioritized follow-up recommendations from finalized reviews.",
-    };
   }
 
   if (path === "/settings/security-trust" || path === "/workspace/security-trust") {

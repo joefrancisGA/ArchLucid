@@ -37,7 +37,7 @@ describe("contextual-help-registry (TB-733)", () => {
       "/governance/findings",
       "/digests",
       "/planning",
-      "/advisory",
+      "/governance/advisory-scans",
       "/value-report",
     ]);
   });

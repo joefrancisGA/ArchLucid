@@ -39,7 +39,7 @@ describe("digest-setup-gap-actions", () => {
     expect(action.title).toBe("No advisory scan schedule");
     expect(action.impact).toContain("not be generated automatically");
     expect(action.actionLabel).toBe("Open schedules");
-    expect(action.href).toBe("/advisory?tab=schedules");
+    expect(action.href).toBe("/governance/advisory-scans?tab=schedules");
   });
 
   it("maps subscription and executive gaps", () => {
@@ -80,7 +80,7 @@ describe("digest-setup-gap-actions", () => {
     const action = resolveDigestNextBestAction(baseSnap());
 
     expect(action?.actionLabel).toBe("Configure schedule");
-    expect(action?.href).toBe("/advisory?tab=schedules");
+    expect(action?.href).toBe("/governance/advisory-scans?tab=schedules");
   });
 
   it("builds checklist completion from health and history", () => {

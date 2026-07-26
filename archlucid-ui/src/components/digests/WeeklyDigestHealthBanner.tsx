@@ -205,7 +205,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
         {variant === "full" ? (
           <div className="flex flex-wrap gap-2" data-testid="digests-browse-related-actions">
             <Button asChild size="sm" variant="outline">
-              <Link href="/advisory?tab=schedules">{DIGESTS_BROWSE_RELATED_ADVISORY_LABEL}</Link>
+              <Link href="/governance/advisory-scans?tab=schedules">{DIGESTS_BROWSE_RELATED_ADVISORY_LABEL}</Link>
             </Button>
             <Button asChild size="sm" variant="outline">
               <Link href={INTEGRATIONS_READINESS_PATH}>{DIGESTS_BROWSE_RELATED_INTEGRATIONS_LABEL}</Link>
@@ -216,7 +216,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
             Related:{" "}
             <Link
               className="text-al-link underline-offset-2 hover:underline"
-              href="/advisory?tab=schedules"
+              href="/governance/advisory-scans?tab=schedules"
             >
               Advisory schedules
             </Link>

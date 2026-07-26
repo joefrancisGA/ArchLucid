@@ -52,7 +52,7 @@ Operator sidebar groups imply a URL prefix in the address bar. **57** nav hrefs 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|
 | `pilot` | *(none — heterogeneous top-level review paths)* | Portfolio overview may use CTO demo executive showcase href (registered exception). |
-| `operate-analysis` | *(none)* | `/ask`, `/compare`, `/advisory`, … |
+| `operate-analysis` | *(none)* | `/ask`, `/compare`, … |
 | `operate-governance` | `/governance` | All governance nav hrefs are under `/governance/*` (TB-405). |
 | `operate-reports` | `/sponsor-report`, `/value-report` | Architecture scorecard is Insights-only (`/scorecard`); digests exception in registry |
 | `operate-integrations` | `/integrations` | All Integrations nav hrefs under `/integrations/*` (TB-407). |
@@ -112,7 +112,7 @@ UI hint only; API still 401/403.
 
 - **Omit** on Pilot *essentials* (home, getting-started, new run, runs) so Reader-signed-in pilots keep the default path.
 - **Analysis · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`, `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`** (`AuthorityReplayController`).
-- **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/advisory`** and **`/digests`** with in-page Execute gating). Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
+- **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/governance/advisory-scans`** and **`/digests`** with in-page Execute gating). Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
 - **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
 - **Operator admin (`operator-admin`, `platform-admin` surface):** tenant directory and support use **`/settings/users`** and **`/settings/support`** (legacy `/admin/*` redirect); **`/settings/security-trust`** replaces **`/workspace/security-trust`**. **`AdminAuthority`** on user management. Other admin destinations use **`ReadAuthority`** / **`ExecuteAuthority`** as appropriate. Elsewhere under Operate, do not label list/browse pages **`AdminAuthority`** when the API is Read-class — POST-only admin actions stay on server policy.
 

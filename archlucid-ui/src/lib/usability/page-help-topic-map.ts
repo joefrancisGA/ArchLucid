@@ -38,7 +38,7 @@ const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/digests", topic: { slug: "how-it-works", label: "Architecture digests" } },
   { prefix: "/planning", topic: { slug: "pilot-feedback", label: "Improvement planning" } },
   { prefix: "/internal-operations/recommendation-learning", topic: { slug: "how-it-works", label: "How recommendation learning works" } },
-  { prefix: "/advisory", topic: { slug: "how-it-works", label: "Advisory scans" } },
+  { prefix: "/governance/advisory-scans", topic: { slug: "how-it-works", label: "Advisory scans" } },
   { prefix: "/integrations/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
   { prefix: "/settings/cloud-connections/azure", topic: { slug: "azure-permissions", label: "Azure permissions" } },
   { prefix: "/integrations/cloud-connections/aws", topic: { slug: "cloud-connections-aws", label: "AWS cloud connection" } },

@@ -159,7 +159,7 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 | `/replay` | `ReplayPage` | Client | Run ID input, mode selector, replay submission, validation display |
 | `/ask` | `AskPage` | Client | Conversational AI interface for architecture questions |
 | `/search` | `SearchPage` | Client | Semantic search across run content |
-| `/advisory` | `AdvisoryPage` (hub) | Server shell + `AdvisoryHubClient` | `?tab=` — **scans** (default; improvement advisor), **schedules** (scan windows; legacy `/advisory-scheduling` redirects). |
+| `/governance/advisory-scans` | `GovernanceAdvisoryScansPage` (hub) | Server shell + `AdvisoryHubClient` | `?tab=` — **scans** (default; improvement advisor), **schedules** (scan windows; legacy `/advisory` + `/advisory-scheduling` redirect here — TB-1124). |
 | `/alerts` | `AlertsPage` (hub) | Client | `?tab=` — **inbox** (default), **rules**, **routing**, **composite**, **simulation** (simulation + tuning). Legacy `/alert-*` paths redirect here. |
 | `/digests` | `DigestsPage` (hub) | Server shell + `DigestsHubClient` | `?tab=` — **browse** (default; digest list), **subscriptions** (email delivery), **schedule** (exec digest prefs; legacy `/digest-subscriptions` and `/settings/exec-digest` redirect). |
 | `/recommendation-learning` | `LearningPage` | Client | Learning profile display + rebuild |

@@ -80,7 +80,7 @@ describe("DigestsHubClient", () => {
     expect(screen.getByTestId("digests-preview-action")).toBeDisabled();
     expect(screen.getByRole("link", { name: "Send test digest" })).toHaveAttribute(
       "href",
-      "/advisory?tab=schedules",
+      "/governance/advisory-scans?tab=schedules",
     );
 
     await waitFor(() => {

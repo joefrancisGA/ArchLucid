@@ -178,7 +178,9 @@ export async function waitForScreenshotOperatorShellChildren(
 
   if (
     pathOnly === "/advisory-scheduling"
-    || (pathOnly === "/advisory" && tabParam === "schedules")
+    || pathOnly === "/advisory"
+    || (pathOnly === "/governance/advisory-scans" && tabParam === "schedules")
+    || pathOnly === "/governance/advisory-scans"
   ) {
     await expect(page.getByTestId("advisory-hub")).toBeVisible({ timeout: 60_000 });
   }

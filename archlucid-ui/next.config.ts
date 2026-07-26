@@ -141,8 +141,11 @@ const nextConfig: NextConfig = {
       { source: "/alerts/:path*", destination: "/governance/alerts/:path*", permanent: true },
       { source: "/alert-rules", destination: "/governance/alert-rules", permanent: false },
       { source: "/alert-routing", destination: "/governance/alert-rules?tab=routing", permanent: false },
+      // Advisory scans under Governance (TB-1124).
+      { source: "/advisory", destination: "/governance/advisory-scans", permanent: true },
+      { source: "/advisory/:path*", destination: "/governance/advisory-scans/:path*", permanent: true },
       // Hub bookmark shims — HTTP redirects so standalone E2E/screenshot crawls do not depend on App Router `redirect()`.
-      { source: "/advisory-scheduling", destination: "/advisory?tab=schedules", permanent: true },
+      { source: "/advisory-scheduling", destination: "/governance/advisory-scans?tab=schedules", permanent: true },
       { source: "/settings/exec-digest", destination: "/digests?tab=schedule", permanent: true },
       { source: "/digest-subscriptions", destination: "/digests?tab=subscriptions", permanent: true },
       { source: "/composite-alert-rules", destination: "/governance/alert-rules?tab=composite", permanent: false },
