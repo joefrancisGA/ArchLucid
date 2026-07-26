@@ -41,7 +41,7 @@ Collect with [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PI
 | Third-party pen test | **Deferred** — not claimed as completed for V1 |
 | Live checkout / marketplace | **Deferred** — sales-led quote and order form |
 | AI output | **Decision support** — see [`AI_OUTPUT_DECISION_SUPPORT.md`](AI_OUTPUT_DECISION_SUPPORT.md) |
-| Audit trail | Example reviewer path — [`SECURITY_AUDIT_WALKTHROUGH.md`](SECURITY_AUDIT_WALKTHROUGH.md) |
+| Audit trail | Example reviewer path — [`SECURITY_REVIEWER_ONE_PAGER.md`](SECURITY_REVIEWER_ONE_PAGER.md#example-audit-walkthrough-one-finalized-review) |
 | Trust index | [`trust-center.md`](trust-center.md) |
 
 ## Explicitly deferred (not V1 requirements)

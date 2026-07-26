@@ -3,7 +3,7 @@
 > **Assessment date:** 2026-07-23
 > **Method:** Repository-wide evidence review (UI routes and static demo payloads, backend seed services, policy packs, tests, docs, GTM backlog). No live production click-through and no buyer interviews were performed; unproven items are labeled explicitly.
 >
-> **Related:** [`showcase_claims_intake_modernization_assessment_2026_07_19.md`](showcase_claims_intake_modernization_assessment_2026_07_19.md) ┬╖ [`ui_routes.md`](ui_routes.md) ┬╖ [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) ┬╖ [`POSITIONING.md`](../go-to-market/POSITIONING.md) ┬╖ [`IDEAL_CUSTOMER_PROFILE.md`](../go-to-market/IDEAL_CUSTOMER_PROFILE.md) ┬╖ [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) (**M-107**, **M-108**, **M-133**ΓÇô**M-137**) ┬╖ [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (**TB-887**ΓÇô**TB-891**, **TB-978**ΓÇô**TB-982**)
+> **Related:** [`showcase_claims_intake_modernization_assessment_2026_07_19.md`](showcase_claims_intake_modernization_assessment_2026_07_19.md) ┬╖ [`ui_routes.md`](ui_routes.md) ┬╖ [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) ┬╖ [`POSITIONING.md`](../go-to-market/POSITIONING.md) ┬╖ [`BUYER_PERSONAS.md`](../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) ┬╖ [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) (**M-107**, **M-108**, **M-133**ΓÇô**M-137**) ┬╖ [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (**TB-887**ΓÇô**TB-891**, **TB-978**ΓÇô**TB-982**)
 
 # Showcase scenario strategy assessment (2026-07-23)
 

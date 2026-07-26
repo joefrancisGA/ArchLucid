@@ -18,7 +18,7 @@ class TestAdoptionBatch5AT(unittest.TestCase):
     def test_tb_242_roi_model_date_updated(self) -> None:
         path = REPO_ROOT / "docs" / "go-to-market" / "ROI_MODEL.md"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("Last reviewed:** 2026-06-02", text)
+        self.assertIn("Last reviewed:** 2026-07-25", text)
         self.assertIn("PRICING_PHILOSOPHY.md", text)
 
     def test_tb_242_ci_wired(self) -> None:
