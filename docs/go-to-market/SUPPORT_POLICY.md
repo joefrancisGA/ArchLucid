@@ -11,7 +11,7 @@
 
 **Pricing source:** Subscription tiers and list prices live only in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md). This document describes **support and services posture**, not price figures.
 
-**Related:** [SLA_SUMMARY.md](SLA_SUMMARY.md) (availability targets) · [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) (contract framing) · [trust-center.md](trust-center.md) · [LEGAL_PROCUREMENT_TERMS_PACKET.md](LEGAL_PROCUREMENT_TERMS_PACKET.md)
+**Related:** [SLA_SUMMARY.md](SLA_SUMMARY.md) (availability targets) · [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) (contract framing) · [trust-center.md](trust-center.md) · [TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms](TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms)
 
 ---
 
@@ -309,4 +309,4 @@ See [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) for how o
 | [PROCUREMENT_OBJECTION_PLAYBOOK.md](PROCUREMENT_OBJECTION_PLAYBOOK.md) | Standard objection responses |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident notification |
 | [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Onboarding checklist |
-| [LEGAL_PROCUREMENT_TERMS_PACKET.md](LEGAL_PROCUREMENT_TERMS_PACKET.md) | Legal packet pointers into this support + pilot posture |
+| [TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms](TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms) | Legal packet pointers into this support + pilot posture |
