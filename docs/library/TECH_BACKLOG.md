@@ -2,17 +2,17 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
+**Updated:** 2026-07-25 (**TB-1216**–**TB-1220** opened — P0 `/settings/ai-usage` Administration wayfinding + zero-usage theater + PageHeading/help + budget CTA dedupe + highest-cost placeholder from owner screenshot ~51/100; see `## TB-1216`–`## TB-1220` below). Prior: 2026-07-25 (**TB-1038** Done — single Do-this-next empty-home card). Prior: 2026-07-25 (**TB-1210**–**TB-1215** opened — P0 `/settings/users` Users & roles (3 tabs): Operator/Architect vocab lie + principals empty copy + breadcrumb naming + API keys tab emptiness + invite empty composition + help chrome from owner screenshots ~49/100; see `## TB-1210`–`## TB-1215` below). Prior: 2026-07-25 (**TB-1204**–**TB-1205** opened — PA: post-strangler residual coupling hunt matrix + discipline-test retirement criteria + honesty CI; GTM **M-205**/**M-206**; complements **TB-1007**/**TB-1034** / Done **TB-919** / ADR 0030; does not reopen dual coordinator storage). Prior: 2026-07-25 (**TB-1037** Done — suppress Overview zero-theater: metrics / median-delta / savings until real data). Prior: 2026-07-25 (**TB-1198**–**TB-1203** opened — P0 `/settings` Administration settings hub: static empty-state lies + fake Last updated + recent-changes theater + PageHeading/help + section-nav links + meta density from owner review ~52/100; see `## TB-1198`–`## TB-1203` below). Prior: 2026-07-25 (**TB-1196**–**TB-1197** opened — PA: agent→decisioning Real-variance isolation contract + honesty CI so LLM variance cannot corrupt committed manifests; GTM **M-203**/**M-204**; complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**). Prior: 2026-07-25 (**TB-1191**–**TB-1195** opened — P0 `/integrations/webhooks` remove sibling-integration strip + StatusTag + help icon + density + empty zero-theater from owner screenshot ~56/100; see `## TB-1191`–`## TB-1195` below). Prior: 2026-07-25 (**TB-1185**–**TB-1190** opened — P0 `/integrations/slack` not-configured UX + remove Teams cross-link + help icon + CTA hierarchy + density + link dedupe from owner review ~57/100; see `## TB-1185`–`## TB-1190` below). Prior: 2026-07-25 (**TB-1184** opened — P0 `/integrations/teams` help as PageContextualHelpButton (icon + caption) near top; see `## TB-1184` below). Prior: 2026-07-25 (**TB-1183** opened — P0 `/integrations/teams` remove cross-product Slack notifications link; see `## TB-1183` below). Prior: 2026-07-25 (**TB-1179**–**TB-1182** opened — P0 Projects recycle bin: no UI path to delete a project (API DELETE exists, nothing calls it) + unnamed retention period + buried entry link + status presentation from owner review ~58/100; see `## TB-1179`–`## TB-1182` below). Prior: 2026-07-25 (**TB-1174**–**TB-1178** opened — P0 `/integrations/teams` not-configured UX + draft honesty + CTA hierarchy + density + help-link dedupe from owner screenshot ~60/100; see `## TB-1174`–`## TB-1178` below). Prior: 2026-07-25 (**TB-1039** Done — demo/seeded Overview lands on sample package). Prior: 2026-07-25 (**TB-1172**–**TB-1173** opened — PA: golden-cohort re-lock vs rubber-stamp boundary + never-re-lockable invariants + honesty CI; GTM **M-201**/**M-202**; complements **TB-1156**/**M-198**; does not reopen Done **TB-266**/**TB-307**). Prior: 2026-07-25 (**TB-1171** opened — P0 `/integrations/servicenow` page-title icon via PageHeading parity; see `## TB-1171` below). Prior: 2026-07-25 (**TB-1166**–**TB-1170** opened — P0 `/settings/billing` tier value-ladder inversion (Team beats Professional per-unit) + Enterprise 0-users + AI-usage unit collision + dead-end sales-led CTAs from owner screenshot ~64/100; GTM **M-200** owner repricing decision; see `## TB-1166`–`## TB-1170` below). Prior: 2026-07-25 (**TB-1161**–**TB-1165** opened — P0 `/integrations/servicenow` empty/not-configured UX from owner review ~50/100; see `## TB-1161`–`## TB-1165` below). Prior: 2026-07-25 (**TB-1156**–**TB-1157** opened — PA: dual GoldenManifest hasher / projection evolution failure modes + deliberate production hasher re-lock CI; GTM **M-198**/**M-199**; complements **TB-1003**/**M-154**; does not reopen Done **TB-307**/**TB-575**). Prior: 2026-07-25 (**TB-1151**–**TB-1155** opened — P0 `/integrations/azure-boards` Database Query Failed + empty UX from owner screenshot ~38/100; see `## TB-1151`–`## TB-1155` below). Prior: 2026-07-25 (**TB-1146**–**TB-1150** opened — P0 `/integrations/jira` empty/not-configured UX from owner screenshot ~46/100; see `## TB-1146`–`## TB-1150` below). Prior: 2026-07-25 (**TB-1144**–**TB-1145** opened — PA Q17 SOC 2 / pen-test honest procurement talk-track + honesty CI; GTM **M-196**/**M-197**; complements **TB-1112**/**M-190**; does not reopen Done **TB-135**/**TB-136**). Prior: 2026-07-25 (**TB-1139**–**TB-1143** opened — P0 Cloud connections UX + stale GCP Preview + scope filter bug from owner review ~49/100; see `## TB-1139`–`## TB-1143` below). Prior: 2026-07-25 (**TB-1122**–**TB-1123** re-landed — PA Q18 isolation claims too strong vs INV-001 / ADR 0037 + honesty CI; GTM **M-194**/**M-195**; also **TB-1112**–**TB-1113** / **TB-1120**–**TB-1121**). Prior: 2026-07-25 (**TB-1134**–**TB-1138** opened — P0 Governance setup UX + route rename from owner screenshot ~52/100; see `## TB-1134`–`## TB-1138` below). Prior: 2026-07-25 (**TB-1129**–**TB-1133** opened — P0 Recurrence schedules empty-layout professionalism from owner screenshot ~47/100; see `## TB-1129`–`## TB-1133` below). Prior: 2026-07-25 (**TB-1124**–**TB-1128** opened — P0 Advisory scans UX + route rename from owner screenshot ~51/100; see `## TB-1124`–`## TB-1128` below). Prior: 2026-07-25 (**TB-1040**–**TB-1047** opened — P0 `/help/core-pilot` + Help drawer UX from owner screenshot reviews ~64/100 and ~61/100; see `## TB-1040`–`## TB-1047` below). Prior: 2026-07-25 (**TB-1036** Done — Overview next-best-action hierarchy: findings CTA gated on openFindings>0; empty workspace sample/start). Prior: 2026-07-25 (**TB-1028**–**TB-1029** / **M-178**/**M-179** / **M-107**/**M-134** enriched — PA Q21: minimum change to stop Claims/Contoso dual universe on one funnel = `/see-it` Option A or B end-to-end (welcome→see-it→CTA); Northwind off-funnel; no Contoso SQL rename / Option D required for that bar; no new IDs). Prior: 2026-07-25 (**TB-1036**–**TB-1039** opened — P0 operator Overview empty-state UX: next-best-action hierarchy, suppress zero-theater, single Do-this-next card, demo workspace lands on sample package; owner screenshot review 2026-07-25; complements Done **TB-345**–**TB-353** / **TB-739** / **TB-349**; see `## TB-1036`–`## TB-1039` below). Prior: 2026-07-25 (**TB-1034**–**TB-1035** opened — PA Q20: strangler next slice — Authority product-default freeze + `POST …/result` sunset ADR + honesty CI; GTM **M-184**/**M-185**; complements open **TB-1007**–**TB-1008** / Done **TB-919** / ADR 0042 without reopening storage strangler; see `## TB-1034`–`## TB-1035` below). Prior: 2026-07-25 (**TB-1032**–**TB-1033** opened — PA Q19: launch-load hot-path failure order (HTTP vs SQL vs AOAI 429 vs worker) + graceful degradation matrix + honesty CI; GTM **M-182**/**M-183**; complements open **TB-915**/**TB-946**/**TB-947**/**TB-905** and owner **G-SCALE-01**/**G-SCALE-02** without substituting measured drill evidence; see `## TB-1032`–`## TB-1033` below). Prior: 2026-07-25 (**TB-1030**–**TB-1031** opened — PA Q18: first-15 PA completion (decision signal) + narration-free package-spine IA unlock + honesty CI; GTM **M-180**/**M-181**; complements Done **TB-739** / open **TB-1026** / **M-107**; does **not** reopen GTM V1.1 **M-44**/**M-47**/**M-48** live cohorts; see `## TB-1030`–`## TB-1031` below). Prior: 2026-07-25 (**TB-1028**–**TB-1029** opened — PA Q17: marketing static vs anonymous-live vs tenant-data boundary so `/see-it` never Claims-banners Contoso; fail-closed universe match + honesty CI; GTM **M-178**/**M-179**; complements **M-107**/**M-134** / **TB-978**–**TB-981** without reopening Option D; see `## TB-1028`–`## TB-1029` below). Prior: 2026-07-25 (**TB-1026**–**TB-1027** opened — PA Q16: operator primary object = architecture package; nav/route collapse matrix + honesty CI; GTM **M-176**/**M-177**; complements Done **TB-738**–**TB-747** without reopening full vocab rewrite; see `## TB-1026`–`## TB-1027` below). Prior: 2026-07-25 (**TB-978**–**TB-982** / **M-133**–**M-134** enriched — PA Q15: showcase/static vs live SQL seed — sample-package universe+ID alignment so marketing and trial never disagree; no new IDs — owned by showcase portfolio Option D cluster).
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 16 |
-| Testability | 29 |
+| Testability | 30 |
 | Reliability | 19 |
 | Deployability | 18 |
 | AI/Agent readiness | 11 |
-| Architectural integrity | 12 |
-| Adoption friction | 181 |
+| Architectural integrity | 13 |
+| Adoption friction | 180 |
 | Commercial / marketability | 14 |
 | Data consistency | 7 |
 | Cutting-edge AI | 9 |
@@ -28,7 +28,7 @@
 | Cost-effectiveness | 10 |
 | Supportability | 15 |
 | Code hygiene | 11 |
-| **Total (unique)** | **~424** |
+| **Total (unique)** | **~426** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1ΓåÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ┬º6/┬º6a); **TB-599ΓÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ΓÇö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -216,6 +216,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 **TB-1161 — TB-1165** were added 2026-07-25 from an **owner review of ServiceNow** at `/integrations/servicenow` (scored ~50/100). Note: dedicated `ServiceNowIntegrationPageClient` (not shared Jira `ItsmProductIntegrationPageClient`). Findings: amber admin-must-configure banner + status next-step with **no primary CTA** (admin ITSM link buried in collapsed Platform operator notes); `Promise.all` load wipe; `loadError` pasted into Connection status; Incident creation Save stays primary while credentials missing; Setup Progress + three sections empty theater. **TB-1161** (P0) guided admin CTA. **TB-1162** (P0) isolate load failures. **TB-1163** (P0) sanitize status errors. **TB-1164** (P0) demote incident settings. **TB-1165** (P0) empty composition. No new GTM IDs.
 
 **TB-1156 — TB-1157** were added 2026-07-25 from the owner / PA question: *Commit path projects agent proposals into authority GoldenManifest via a single projection builder and hashes a canonical content subset for drift — what fails when canonical projection and persisted manifest evolve independently, and how do we make hasher changes impossible without deliberate baseline re-lock?* Finding: **two** hashers — production `ManifestHashService` over authority `ManifestDocument` (excludes `CreatedUtc`; no hasher version) vs cohort `GoldenManifestFingerprint.ComputeContentSha256Hex` over contract projection (excludes `RunId` / `CreatedUtc` / `DecisionTraceIds`; has lock-baseline ritual). Gaps: (1) no PA dual-hasher / lossy-projection failure-mode matrix, (2) production hasher subset changes can ship without deliberate re-lock (cohort has `lock-baseline` + env approval; production does not). **TB-1156** (P1) contract. **TB-1157** (P1) re-lock CI. GTM: **M-198**/**M-199**. Does **not** reopen Done **TB-307**/**TB-575**.
+
+**TB-1204 — TB-1205** were added 2026-07-25 from the owner / PA question: *We completed a strangler migration from Coordinator to Authority (dual repositories, allow-listed legacy references, reflection-based discipline tests) — what residual coupling should we hunt after a strangler “completes,” and how do we know when to delete the discipline tests themselves?* Finding: **storage strangler is Done** (ADR 0030 + **TB-919**); dual coordinator repos/orchestrators gone. Residuals are not dual storage — they are Contracts↔Authority DTO/projection soft bridges, AgentTask `execute`/`result`/`commit` mental model (**TB-1007**/**TB-1034**), dual hasher (**TB-1156**), UI/docs “coordinator” vocabulary, string-token ceilings / comment allowlists, and the temptation to delete anti-resurrection pins because inventory says complete. Gaps: (1) PA residual-coupling hunt matrix + discipline-test retirement gates, (2) honesty CI against “delete pins = complete” / soft-bridge-as-dual-storage. **TB-1204** (P1) contract. **TB-1205** (P1) honesty CI. GTM: **M-205**/**M-206**. Complements **TB-1007**/**TB-1034**/**TB-1156**; does not reopen Done **TB-919**.
 
 **TB-1196 — TB-1197** were added 2026-07-25 from the owner / PA question: *Multi-agent execution (Topology, Compliance, Cost, Critic) is deterministic in Simulator but non-deterministic against real LLMs — how should the contract between agent output and downstream decisioning be designed so Real-mode variance cannot corrupt committed manifests?* Finding: authority decide already uses typed finding engines + `RuleBasedDecisionEngine`; Real variance mainly enters via **topology proposal overlay** at commit (`AgentTopologyProposalGraphMerge`) and legacy prose→governance paths; quality gate can be WarnOnly. Gaps: (1) PA contract — structured proposals only, validate-before-overlay, decide from typed findings/graph, fail-closed quality on commit-eligible Real, mode-labeled persistence, (2) honesty CI against “LLM text is the package” / unvalidated overlay. **TB-1196** (P1) contract. **TB-1197** (P1) honesty CI. GTM: **M-203**/**M-204**. Complements **TB-1003**/**TB-1007**/**M-166**; does not reopen Done **TB-684**.
 
@@ -426,7 +428,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1035 | Anti-dual-default-run-lifecycle / result-as-finalize / legacy-coordinator-storage honesty CI; see `## TB-1035` below | Testability P1 — **V1**; after **TB-1034**; pairs **M-184** | S |
 | TB-1036 | **Done** (2026-07-25) — Operator Overview empty-state next-best-action hierarchy — never lead with Review open findings when findings=0; see `## TB-1036` below | Adoption friction P0 — **V1**; owner Overview empty-state review 2026-07-25; complements Done **TB-739** / `resolvePilotNextBestAction` | S |
 | TB-1037 | **Done** (2026-07-25) — Suppress Overview zero-theater — metrics / median-delta / savings until real data; see `## TB-1037` below | Adoption friction P0 — **V1**; after or with **TB-1036**; extends Done **TB-349** (ROI baseline only) | S |
-| TB-1038 | Single Do-this-next empty-home card from setup readiness; see `## TB-1038` below | Adoption friction P0 — **V1**; after **TB-1036**; demotes competing Learn how / View workflow | S |
+| TB-1038 | **Done** (2026-07-25) — Single Do-this-next empty-home card from setup readiness; see `## TB-1038` below | Adoption friction P0 — **V1**; after **TB-1036**; demotes competing Learn how / View workflow | S |
 | TB-1039 | **Done** (2026-07-25) — Demo/seeded workspace Overview lands on sample package (not empty shell); see `## TB-1039` below | Adoption friction P0 — **V1**; after **TB-1036**; pairs `DEMO_WORKSPACES.md` / showcase pins | M |
 | TB-1040 | `/help/core-pilot` single primary CTA + remove recursive View pilot guide; see `## TB-1040` below | Adoption friction P0 — **V1**; owner help-page review 2026-07-25 (~64/100) | S |
 | TB-1041 | `/help/core-pilot` breadcrumb/title + buyer subtitle (no Core-pilot jargon); see `## TB-1041` below | Adoption friction P0 — **V1**; with **TB-1040** | XS |
@@ -505,6 +507,19 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1201 | Settings hub — PageHeading icon + PageContextualHelpButton; see ## TB-1201 below | Adoption friction P0 — **V1**; with **TB-1198**; parity **TB-1184** | S |
 | TB-1202 | Settings hub — section nav same-page jumps as links; see ## TB-1202 below | Adoption friction P0 — **V1**; a11y baseline; with **TB-1201** | XS |
 | TB-1203 | Settings hub — demote Scope/Source/Status meta density on destination cards; see ## TB-1203 below | Adoption friction P0 — **V1**; with **TB-1198** | S |
+| TB-1204 | Post-strangler residual coupling hunt matrix + discipline-test retirement criteria; see `## TB-1204` below | Architectural integrity P1 — **V1**; PA Q4 strangler residual; GTM **M-205**/**M-206** | S |
+| TB-1205 | Anti-delete-pins-as-complete / soft-bridge-as-dual-storage honesty CI; see `## TB-1205` below | Testability P1 — **V1**; after **TB-1204**; pairs **M-205** | S |
+| TB-1210 | Users & roles — Operator vs Architect vocabulary honesty; see ## TB-1210 below | Trustworthiness P0 — **V1**; owner `/settings/users` ~49/100 2026-07-25 | S |
+| TB-1211 | Users & roles — tab-specific empty copy (no principals jargon); see ## TB-1211 below | Trustworthiness P0 — **V1**; with **TB-1210** | S |
+| TB-1212 | Users & roles — breadcrumb/nav title consistency; see ## TB-1212 below | Adoption friction P0 — **V1**; with **TB-1210** | XS |
+| TB-1213 | Users & roles API keys tab — dedicated empty + primary CTA; see ## TB-1213 below | Adoption friction P0 — **V1**; with **TB-1211** | S |
+| TB-1214 | Users & invitations — empty composition / guided next step; see ## TB-1214 below | Adoption friction P0 — **V1**; with **TB-1211** | S |
+| TB-1215 | Users & roles — PageContextualHelpButton at top; see ## TB-1215 below | Adoption friction P0 — **V1**; with **TB-1210**; parity **TB-1184** | XS |
+| TB-1216 | AI usage — Administration vs Settings wayfinding (breadcrumb / URL honesty); see ## TB-1216 below | Adoption friction P0 — **V1**; owner `/settings/ai-usage` ~51/100 2026-07-25; TB-404 | S |
+| TB-1217 | AI usage — suppress zero-usage KPI/budget/filter theater; see ## TB-1217 below | Trustworthiness P0 — **V1**; with **TB-1216**; cf. **TB-1037** | S |
+| TB-1218 | AI usage — PageHeading icon + PageContextualHelpButton; see ## TB-1218 below | Adoption friction P0 — **V1**; with **TB-1216**; parity **TB-1184** | S |
+| TB-1219 | AI usage — dedupe Edit budget / budget-control CTAs; see ## TB-1219 below | Adoption friction P0 — **V1**; with **TB-1216** | S |
+| TB-1220 | AI usage — hide Highest-cost project when no usage; see ## TB-1220 below | Trustworthiness P0 — **V1**; with **TB-1217** | XS |
 | TB-1196 | Agent→decisioning Real-variance isolation contract (typed proposals only); see `## TB-1196` below | AI/Agent readiness P1 — **V1**; PA Q3 agent/decisioning; GTM **M-203**/**M-204** | S |
 | TB-1197 | Anti-unvalidated-proposal-overlay / prose-into-governance honesty CI; see `## TB-1197` below | Testability P1 — **V1**; after **TB-1196**; pairs **M-203** | S |
 | TB-1179 | Project deletion has no UI — governed delete affordance; see ## TB-1179 below | Adoption friction P0 — **V1**; owner recycle bin ~58/100 2026-07-25; API DELETE exists | M |
@@ -26050,7 +26065,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
    - **Do not reopen:** Done ADR 0030 / ADR 0042 / **TB-305** / **TB-919**.
    - **Next delete/freeze slice (PA Q20 → **TB-1034**):** product-default freeze on Authority A0; rename “legacy coordinator” → AgentTask extension loop; owner ADR to sunset `POST …/result` (deferred here).
 2. Explicit non-goals: deleting public routes in this item; changing async default; renaming HTTP verbs.
-3. Name CI anchors for **TB-1008**; GTM **M-158**/**M-159**; cross-link **TB-1034**/**TB-1035**.
+3. Name CI anchors for **TB-1008**; GTM **M-158**/**M-159**; cross-link **TB-1034**/**TB-1035**; residual soft-bridge / discipline-test retirement is **TB-1204**/**TB-1205** (do not duplicate pin-retirement gates here).
 
 **Acceptance:** Contract published; GTM can cite “Authority canonical; execute not required after every create”; forbid matrix matches Flow A1.
 
@@ -26706,7 +26721,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-07-25) — empty Overview single Do-this-next primary CTA; Learn how / View workflow secondary (`8d5bc54e1f`).
 
 **Priority:** P0.
 
@@ -29131,4 +29146,371 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 **Out of scope:** Changing destination page headers.
 
 **Size estimate:** S.
+
+---
+
+## TB-1210 — Users & roles — Operator vs Architect vocabulary honesty (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/users?tab=roles` screenshot 2026-07-25 (~49/100 overall Users & roles).
+
+**Problem:** Built-in role cards and matrix columns say **Operator**. `CUSTOM_ROLE_START_FROM_OPTIONS` labels the same role **Architect** (`roles-matrix-constants.ts`: `{ value: "Operator", label: "Architect" }`). Operators see “Start from role: Architect” while no Architect card exists — looks like a missing fifth built-in role or a product lie.
+
+**Approach:**
+
+1. Use one customer-facing name everywhere on this page (prefer **Operator** to match matrix columns and invite role list, unless product intentionally renames Operator→Architect globally — then rename cards + matrix headers too).
+2. Vitest: Start-from options do not introduce a label absent from built-in summaries.
+
+**Acceptance:** No Operator/Architect split on `/settings/users` Roles tab.
+
+**Depends on:** None.
+
+**Out of scope:** Renaming ArchLucidAppRole enums / billing “Architect” plan tier.
+
+**Size estimate:** S.
+
+---
+
+## TB-1211 — Users & roles — tab-specific empty copy (no principals jargon) (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshots of Users and API keys tabs 2026-07-25.
+
+**Problem:** `settingsRolesEmptyStateTitle/Description` for `empty_response` says **“No principals found”** / **“No users or API keys were returned for this tenant.”** That engineering jargon appears on the **Users** tab and is reused on the **API keys** tab (`SettingsRolesPageView`), so the keys tab talks about users and “principals.”
+
+**Approach:**
+
+1. Replace “principals” with operator vocabulary (“users”, “API keys”).
+2. Split empty copy by tab/kind: Users empty ≠ API keys empty ≠ directory unavailable.
+3. Vitest: Users tab never says “API keys were returned”; keys tab never says “No principals.”
+
+**Acceptance:** Each tab’s empty state names only the entity that tab manages.
+
+**Depends on:** Prefer with **TB-1213**.
+
+**Out of scope:** Fixing the directory API itself when it wrongly returns empty.
+
+**Size estimate:** S.
+
+---
+
+## TB-1212 — Users & roles — breadcrumb/nav title consistency (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshots 2026-07-25 — breadcrumb **Settings / Users** vs sidebar **Users & roles** vs H1 **Users and roles**.
+
+**Problem:** Three names for one surface. Path-segment breadcrumbs likely emit “Users” from `/settings/users` while nav/H1 use “Users & roles” / “Users and roles.”
+
+**Approach:**
+
+1. Add an explicit breadcrumb map entry for `/settings/users` (and `?tab=*` variants) using the same label as nav (`Users & roles` or `Users and roles` — pick one spelling).
+2. Align ampersand vs “and” with `OPERATOR_NAV_LINK_LABELS` if present.
+3. Vitest: breadcrumb final segment matches the nav label for `/settings/users`.
+
+**Acceptance:** Breadcrumb, sidebar, and page title use one consistent product name.
+
+**Depends on:** None.
+
+**Out of scope:** Renaming the URL segment.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1213 — Users & roles API keys tab — dedicated empty + primary CTA (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/users?tab=keys` screenshot 2026-07-25.
+
+**Problem:** API keys tab shows the shared directory empty (“No principals found…”) plus a prose link to `/settings/api-keys` for lifecycle. There is no primary create/manage CTA; admins land on a dead empty box that sounds like a users-directory failure.
+
+**Approach:**
+
+1. When there are no API-key principals: show keys-specific empty copy (**TB-1211**) and a primary button/link to **Open API keys** (`/settings/api-keys`) for create/rotate.
+2. Do not render users-directory empty wording on the keys tab.
+3. Vitest: keys empty path exposes navigation CTA to `/settings/api-keys`.
+
+**Acceptance:** API keys tab empty state is actionable and keys-specific.
+
+**Depends on:** Prefer with **TB-1211**.
+
+**Out of scope:** Moving credential create UI into this tab (lifecycle stays on `/settings/api-keys` unless owner expands scope).
+
+**Size estimate:** S.
+
+---
+
+## TB-1214 — Users & invitations — empty composition / guided next step (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner Users tab screenshot 2026-07-25.
+
+**Problem:** Empty workspace stacks Invite form + “No pending invitations” + “No principals found” Users card. No page-level StatusTag / next-step; invite is the right primary job but the two empty panels below are zero theater.
+
+**Approach:**
+
+1. When no users and no pending invites: keep Invite as the primary story; collapse or soften pending/users empty panels (single quiet line or hide until first invite/user exists).
+2. Optional StatusTag: “No users yet — send an invite below.”
+3. Vitest: empty users tab does not triple-announce emptiness with principals jargon.
+
+**Acceptance:** Empty Users tab has one clear create path without stacked empty cards.
+
+**Depends on:** Prefer with **TB-1211**.
+
+**Out of scope:** Changing invitation email templates.
+
+**Size estimate:** S.
+
+---
+
+## TB-1215 — Users & roles — PageContextualHelpButton at top (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshots 2026-07-25 — same help-chrome pattern as **TB-1184** / **TB-1201**.
+
+**Problem:** Page has `PageHeading` + icon but no `actions={<PageContextualHelpButton />}` / caption. Help docs exist (`/help/users-and-roles`) but are not wired on the page.
+
+**Approach:**
+
+1. Register `/settings/users` in `page-help-topic-map.ts` (slug `users-and-roles` or equivalent) with caption e.g. **Users and roles help**.
+2. Pass `actions={<PageContextualHelpButton />}` on the `PageHeading`.
+3. Vitest: page exposes `page-contextual-help-button`.
+
+**Acceptance:** Users & roles shows standard top-of-page help icon + caption.
+
+**Depends on:** Prefer with **TB-1212**.
+
+**Out of scope:** Rewriting the help article body.
+
+**Size estimate:** XS.
+
+---
+
+## TB-1204 — Post-strangler residual coupling hunt + discipline-test retirement criteria (P1)
+
+**Window:** V1 — Architectural integrity.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-25: *We completed a strangler migration from a Coordinator pipeline to an Authority pipeline (dual repositories, allow-listed legacy references, reflection-based discipline tests). What residual coupling should we hunt for after a strangler "completes," and how do we know when to delete the discipline tests themselves?*
+
+**Problem:** Storage strangler is **Done** (ADR 0030 + **TB-919**; coordinator repo families / legacy commit path / `dbo.GoldenManifestVersions` removed). Inventory “none outstanding” is easy to misread as “delete the pins.” Residual risk is **not** dual storage — it is soft bridges, AgentTask mental model, vocabulary, and allowlist/ceiling hygiene. No published hunt matrix or retirement gates yet (**TB-1007**/**TB-1034** cover path/forbid and next delete slice; they do not own pin-retirement criteria).
+
+**Approach:**
+
+1. Author `docs/library/POST_STRANGLER_RESIDUAL_COUPLING_AND_DISCIPLINE_TEST_RETIREMENT_CONTRACT.md` (or ADR 0030 appendix) with tables:
+   - **Hunt matrix (post-storage-complete):** Contracts↔Authority DTO bleed (`ContractGoldenManifestMapper`, `AuthorityCommitProjectionBuilder`, `ContractGoldenManifestPersistence`); AgentTask `execute`/`result`/`commit` dual mental model (**TB-1007**/**TB-1034**); dual hasher (**TB-1156**); UI/docs “coordinator” vocabulary; string-token ceilings / comment-inflated baselines (`assert_coordinator_reference_ceiling.py`); MVC `[FromServices]` blind spots; host file naming residue (`ServiceCollectionExtensions.CoordinatorAndArtifacts.cs`).
+   - **Keep vs retire discipline tests:** default **keep** `DualPipelineRegistrationDisciplineTests`, `CoordinatorStranglerCompletionArchitectureTests`, `MvcControllerCoordinatorRepositoryFamilyGuardTests`, ceiling scripts as anti-resurrection pins.
+   - **Retirement gates (all required):** (a) superseding forbidden-type / NetArch coverage with **zero** coordinator-specific exceptions, **or** gated artifact proven vacuous (**TB-919** pattern); (b) allowlist/bypass/ceiling tokens → 0 after comment cleanup; (c) **TB-1007** + **TB-1034** Done (or explicit ADR keep for `/result`); (d) honesty CI (**TB-1008**/**TB-1035**/**TB-1205**) green; (e) optional soft-bridge collapse ADR before retiring projection known-empty CI.
+   - **Never:** delete pins solely because inventory says complete.
+2. Cross-link **TB-1007**/**TB-1034**/**TB-1156**, Done **TB-919**, GTM **M-205**/**M-206**.
+3. Name CI anchors for **TB-1205**.
+
+**Acceptance:** Contract published; GTM can cite hunt list + “discipline tests stay until supersession/vacuous gates”; no reopen of dual coordinator storage.
+
+**Depends on:** None (docs). Soft-bridge deletion and `/result` sunset remain **TB-1034** / future ADRs.
+
+**Out of scope:** Reintroducing `ICoordinator*` repos; implementing `/result` sunset; unifying dual hashers (**TB-1156**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1205 — Anti-delete-pins-as-complete / soft-bridge-as-dual-storage honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1204**; hardens GTM **M-205**.
+
+**Problem:** Docs/PRs can claim the strangler is “fully done so delete DualPipeline/CoordinatorStrangler tests,” or treat Contracts↔Authority mappers / AgentTask verbs as proof dual **storage** still ships — both corrupt buyer and contributor trust.
+
+**Approach:**
+
+1. Doc/CI guard: fail stubs that justify deleting strangler discipline tests solely via inventory-complete / **TB-919** Done language without **TB-1204** retirement gates.
+2. Fail claims that soft bridges or `execute`/`result`/`commit` equal a live dual coordinator/authority **storage** pipeline (pair **TB-1008**/**TB-1035**; do not duplicate their matrices).
+3. Pair **M-205**; Verification points at `DualPipelineRegistrationDisciplineTests`, `CoordinatorStranglerCompletionArchitectureTests`, `COORDINATOR_STRANGLER_INVENTORY.md`, ceiling script.
+
+**Acceptance:** CI fails dishonest delete-pins / dual-storage-alive claims; pairs **M-205**.
+
+**Depends on:** **TB-1204**.
+
+**Out of scope:** Changing AgentTask runtime behavior; NetArch residual matrix (**TB-1005**).
+
+**Size estimate:** S.
+
+---
+
+## TB-1216 — AI usage — Administration vs Settings wayfinding (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner `/settings/ai-usage` screenshot 2026-07-25 (~51/100). Owner concern: route should be `administration/ai-usage`.
+
+**Problem:** Sidebar places **AI usage** under **Administration**, but the breadcrumb reads **Settings / AI usage** and the URL is `/settings/ai-usage`. That feels like the page lives in the wrong place. Product history (**TB-404** / **TB-408** Done): Administration nav group uses the **`/settings/*`** URL namespace; **`/admin/*`** is reserved for System Administration / platform internals. There is no `/administration/*` App Router prefix today — inventing a one-off `/administration/ai-usage` would break the nav-route namespace policy and collide with `/admin` mental models.
+
+**Approach (preferred path first):**
+
+1. **Wayfinding honesty (ship first):** Breadcrumb for `/settings/ai-usage` (and siblings under Administration) should read **Administration / AI usage** (or match the exact nav group label), not **Settings / …**, while keeping canonical href `/settings/ai-usage`.
+2. Document in nav/breadcrumb contract: Administration = nav label; `/settings` = URL prefix (same pattern as Users & roles **TB-1212**).
+3. **Optional owner decision (separate, larger):** Rename the entire Administration URL namespace `/settings` → `/administration` with redirects — only if owner explicitly wants that product-wide change. Do **not** move only AI usage under a new prefix.
+4. Vitest: AI usage breadcrumb final parent is Administration (not Settings); `AI_USAGE_SETTINGS_PATH` remains `/settings/ai-usage` unless the whole-namespace rename is approved.
+
+**Acceptance:** Operators no longer see Administration in the nav and Settings in the breadcrumb for this page; URL policy stays consistent with TB-404 unless owner approves a full rename.
+
+**Depends on:** None. Coordinate with **TB-1212** breadcrumb patterns.
+
+**Out of scope:** Moving AI usage under `/admin/*` (system-admin); inventing a single-route `/administration/ai-usage` without namespace policy update.
+
+**Size estimate:** S (breadcrumb/docs); L if owner later approves full `/settings` → `/administration` rename.
+
+---
+
+## TB-1217 — AI usage — suppress zero-usage KPI/budget/filter theater (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot 2026-07-25 — $0.00 KPIs, On track, empty charts, full filter bar, and a footer zero-state all at once.
+
+**Problem:** With no AI usage this period, the page still renders a full dashboard: Used $0.00, Remaining $75, Budget used 0%, Projected ~$0.00, On track progress bar, filter dropdowns, and empty chart/breakdown/activity panels. A quiet zero-state line exists at the bottom (`ai-usage-period-zero-state`), but the theater above it dominates. Same class as Overview **TB-1037**.
+
+**Approach:**
+
+1. When `!hasAnyUsage` for the billing period: lead with one empty/orientation story (budget cap + how to get usage + link to billing if needed).
+2. Demote or hide zero KPI strip, empty chart tabs, filter bar, and redundant empty panels until real activity exists (keep budget governance summary if useful).
+3. Vitest: zero-usage path does not show a full “On track / 0% / empty charts” dashboard as the primary story.
+
+**Acceptance:** Empty AI usage period is honest and quiet — not a zeroed-out analytics cockpit.
+
+**Depends on:** Prefer with **TB-1220**.
+
+**Out of scope:** Changing budget math / hard-stop behavior.
+
+**Size estimate:** S.
+
+---
+
+## TB-1218 — AI usage — PageHeading icon + PageContextualHelpButton (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot 2026-07-25 — raw H1; only global shell help.
+
+**Problem:** `CostReportingSettingsPageView` uses a raw `<h1>` (no `PageHeading` / nav icon). No `PageContextualHelpButton`. Nav already maps AI usage to an icon.
+
+**Approach:**
+
+1. Switch to `PageHeading` with `navHref={AI_USAGE_SETTINGS_PATH}` (or Administration AI usage href).
+2. Register `/settings/ai-usage` in `page-help-topic-map.ts` with an appropriate caption; pass `actions={<PageContextualHelpButton />}`.
+3. Vitest: page exposes heading icon + contextual help control.
+
+**Acceptance:** AI usage matches operator title + help chrome used on other Administration pages.
+
+**Depends on:** Prefer with **TB-1216**.
+
+**Out of scope:** Rewriting cost-methodology help body (accordion can stay).
+
+**Size estimate:** S.
+
+---
+
+## TB-1219 — AI usage — dedupe Edit budget / budget-control CTAs (P0)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot 2026-07-25.
+
+**Problem:** **Edit budget** / **Review limit behavior** appear on the Monthly AI budget card (`AiUsageMonthlyBudgetPanel`), then **Budget controls** repeats **Edit monthly budget**, **Set warning threshold**, **Configure hard-stop behavior**, **Pause scheduled AI operations** — mostly links into `/settings/billing` anchors. Duplicate primaries and a second control strip without a distinct job.
+
+**Approach:**
+
+1. Keep one budget-actions cluster (prefer the monthly budget card or a single Budget controls section — not both).
+2. Ensure link vs button semantics match destination (billing anchors = links).
+3. Vitest: at most one “Edit … budget” affordance in the first viewport / page chrome.
+
+**Acceptance:** Budget management has a single clear CTA path into billing settings.
+
+**Depends on:** Prefer with **TB-1217** (empty layout may hide controls until needed).
+
+**Out of scope:** Building in-page budget editors that bypass billing settings.
+
+**Size estimate:** S.
+
+---
+
+## TB-1220 — AI usage — hide Highest-cost project when no usage (P0)
+
+**Window:** V1 — Trustworthiness.
+
+**Status:** Not started.
+
+**Priority:** P0.
+
+**Source:** Owner screenshot 2026-07-25 — Highest-cost project shows **Current project** while Used this month is $0.00.
+
+**Problem:** KPI row renders `highestCostProjectName` whenever non-null (`AiUsageKpiRow`). With zero usage that label is placeholder theater (scope name, not a cost ranking).
+
+**Approach:**
+
+1. Only show Highest-cost project/operation KPIs when there is real attributed usage (cost > 0 or event count > 0) for the period.
+2. Vitest: zero-usage fixture does not render Highest-cost project.
+
+**Acceptance:** Highest-cost KPIs never appear without real cost attribution.
+
+**Depends on:** Prefer with **TB-1217**.
+
+**Out of scope:** Changing top-project ranking algorithm when usage exists.
+
+**Size estimate:** XS.
 
