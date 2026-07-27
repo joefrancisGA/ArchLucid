@@ -6,7 +6,7 @@ import {
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
+import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import {
@@ -189,17 +189,18 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
+  // Before the `/governance` catch-all — canonical audit lives at `/governance/audit` (legacy `/audit` redirects).
+  if (pathMatchesGovernanceAudit(path)) {
+    return {
+      label: "Audit Trail",
+      line: `Immutable audit events correlated to reviews such as ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
+    };
+  }
+
   if (path.startsWith("/governance")) {
     return {
       label: "Governance",
       line: GOVERNANCE_OVERVIEW_PAGE_LEAD,
-    };
-  }
-
-  if (path.startsWith("/audit")) {
-    return {
-      label: "Audit Trail",
-      line: `Immutable audit events correlated to reviews such as ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
     };
   }
 
