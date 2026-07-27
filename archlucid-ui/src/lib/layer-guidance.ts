@@ -28,7 +28,7 @@ export type LayerGuidancePageKey =
   | "webhooks"
   | "governance-dashboard"
   | "governance-findings"
-  | "governance-first-30-days"
+  | "governance-setup"
   | "governance-resolution"
   | "governance-workflow"
   | "recurrence-schedules"
@@ -126,7 +126,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "Each risk should remain traceable to the review, evidence, policy rule, and signed review record that produced it.",
     omitReviewPackageScopeHelp: true,
   },
-  "governance-first-30-days": {
+  "governance-setup": {
     layerBadge: "Governance",
     headline: "Preset operating checklist after Core Pilot.",
     useWhen:
