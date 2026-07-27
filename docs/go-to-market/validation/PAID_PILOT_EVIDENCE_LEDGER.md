@@ -150,7 +150,7 @@ Single current status per row (update when it changes):
 | `annual-order-signed` | Annual order executed |
 | `lost-deferred` | No conversion; buyer deferred or declined |
 
-Map close-out steps from [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../COMMERCIAL_CONVERSION_CHECKLIST.md) §2–3.
+Map close-out steps from [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) §2–3.
 
 ### 6. Expansion signal
 
@@ -353,7 +353,7 @@ Former standalone: `docs/go-to-market/validation/DECISION_CHANGE_ADDENDUM.md` �
 
 | Asset | Role |
 | --- | --- |
-| [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../COMMERCIAL_CONVERSION_CHECKLIST.md) | Sponsor close-out sequence — feeds `conversionStatus` |
+| [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) | Sponsor close-out sequence — feeds `conversionStatus` |
 | [`templates/paid-pilot-baseline.template.json`](../templates/paid-pilot-baseline.template.json) | ROI baseline capture — feeds `baselineSourceConfidence` |
 | [`#decision-change-addendum`](#decision-change-addendum) | Proof-packet addendum format from interview outcomes |
 | [`templates/decision-change-addendum.template.md`](templates/decision-change-addendum.template.md) | Fillable addendum copy per handoff |

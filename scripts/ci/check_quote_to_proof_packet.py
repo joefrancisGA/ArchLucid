@@ -19,10 +19,10 @@ REQUIRED_HEADINGS = (
     "# Quote-to-proof packet",
     "## Packet checklist (first proof → quote)",
     "## Annual order readiness vs deferred scope",
+    "## Commercial conversion checklist",
 )
 
 REQUIRED_LINK_TARGETS = (
-    "COMMERCIAL_CONVERSION_CHECKLIST.md",
     "ORDER_FORM_TEMPLATE.md",
     "PRICING_PHILOSOPHY.md",
     "PILOT_SUCCESS_SCORECARD.md",

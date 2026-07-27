@@ -55,7 +55,7 @@ This page has **three choices only**. Detailed procedures stay in linked runbook
 
 **Evidence bundle:** [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md)
 
-**Commercial conversion:** [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md)
+**Commercial conversion:** [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist)
 
 ---
 

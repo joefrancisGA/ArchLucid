@@ -10,7 +10,7 @@
 
 **Last reviewed:** 2026-07-26
 
-**Related:** [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md), [`#legal-and-procurement-terms`](#legal-and-procurement-terms), [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md).
+**Related:** [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist), [`#legal-and-procurement-terms`](#legal-and-procurement-terms), [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md).
 
 **Approval path:** Owner must review before sending legal/commercial commitments to any buyer. Items marked **"owner/legal review required"** must not be committed verbally or in product copy without that review.
 
@@ -152,7 +152,7 @@ The following phrases or UI elements in any buyer-facing material must be review
 
 ## 5. HOLD reasons for commercial closeout
 
-If the commercial closeout in [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) reaches the purchase step and no available path fits, record as HOLD or DEFERRED_SCOPE:
+If the commercial closeout in [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) reaches the purchase step and no available path fits, record as HOLD or DEFERRED_SCOPE:
 
 | Scenario | Commercial state | Record |
 | --- | --- | --- |
@@ -260,7 +260,7 @@ Former standalone: `docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md` → thi
 | [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) | Pricing posture and band guidance |
 | [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) | Order form template |
 | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | SOW and quote template |
-| [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial close-out checklist |
+| [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) | Commercial close-out checklist |
 | [`#legal-and-procurement-terms`](#legal-and-procurement-terms) | Legal terms and approval guidance |
 | [`MSA_TEMPLATE.md`](MSA_TEMPLATE.md) | Master Services Agreement template |
 | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Data Processing Addendum template |

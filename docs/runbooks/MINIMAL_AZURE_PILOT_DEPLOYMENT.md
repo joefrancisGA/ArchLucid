@@ -67,4 +67,4 @@
 - [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md)
 - [`RELEASE_SMOKE.md`](../library/RELEASE_SMOKE.md)
 - [`DATA_CONSISTENCY_READINESS.md`](DATA_CONSISTENCY_READINESS.md)
-- [`../go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`](../go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md)
+- [`../go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist)

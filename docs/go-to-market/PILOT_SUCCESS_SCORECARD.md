@@ -265,7 +265,7 @@ After successful pilot conversion:
 
 Use this structure when presenting pilot results to leadership for a purchase decision.
 
-Before presenting, run through [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md). It distinguishes send, hold, and deferred cases so the sponsor narrative does not outrun the evidence.
+Before presenting, run through [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist). It distinguishes send, hold, and deferred cases so the sponsor narrative does not outrun the evidence.
 
 ### Executive summary (1 paragraph)
 

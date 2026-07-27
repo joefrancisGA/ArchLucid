@@ -126,6 +126,6 @@ First-party **Jira**, **ServiceNow**, **Confluence**, **Slack**, **Teams**, **Cl
 - [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md)
 - [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) (Phase D5)
 - [`../go-to-market/QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md)
-- [`../go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`](../go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md)
+- [`../go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist)
 - [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md)
 - [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md)

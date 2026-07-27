@@ -118,7 +118,7 @@ All of the following must use simulator-only language when the override is activ
 
 - Release notes
 - First-pilot proof packet (`first-value-report.md`, `go-no-go-summary.md`)
-- Commercial closeout state in [`docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`](../go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md)
+- Commercial closeout state in [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist)
 - AI readiness posture artifact (see [`docs/go-to-market/AI_READINESS_POSTURE.md`](../go-to-market/AI_READINESS_POSTURE.md))
 - Buyer-facing proof packets
 

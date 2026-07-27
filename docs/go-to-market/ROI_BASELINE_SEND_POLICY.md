@@ -145,7 +145,7 @@ Collect the **minimum** buyer-provided baselines so ROI narratives can use **PAS
 
 ## Related
 
-- [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md)
+- [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist)
 - [`ROI_MODEL.md`](ROI_MODEL.md)
 - [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md#readiness-checklist)
 - [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md)

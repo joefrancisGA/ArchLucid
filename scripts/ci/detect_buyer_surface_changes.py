@@ -27,7 +27,6 @@ BUYER_SURFACE_EXACT_FILES: frozenset[str] = frozenset(
         "docs/go-to-market/PRICING_PHILOSOPHY.md",
         "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
         "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md",
-        "docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md",
     }
 )
 

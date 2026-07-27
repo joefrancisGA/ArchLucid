@@ -263,7 +263,7 @@ These targets apply to V1 controlled pilots. They are not a published GA SLA.
 | **Weekly check-in** | Review run results; address open issues; adjust configuration if needed | Meeting notes in agreed channel |
 | **Midpoint review (week 3)** | Qualitative interviews per [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) §3; scorecard midpoint fill | Midpoint qualitative scores captured |
 | **End-of-pilot review (week 6)** | Final scorecard; ROI calculation; sponsor packet preparation | Proof bundle, `go-no-go-summary.md`, `first-value-report.md` |
-| **Commercial close conversation** | Walk through [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial state recorded (SEND / HOLD / DEFERRED_SCOPE) |
+| **Commercial close conversation** | Walk through [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) | Commercial state recorded (SEND / HOLD / DEFERRED_SCOPE) |
 
 ### Self-serve resources (before founder escalate)
 

@@ -46,7 +46,7 @@
   "notes": [
     "Buyer-safe only — no customer names, subscription IDs, or raw infrastructure identifiers.",
     "Populate decisionChanged from PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots within 7 days of sponsor handoff.",
-    "Populate baselineSourceConfidence from paid-pilot-baseline.template.json or COMMERCIAL_CONVERSION_CHECKLIST.md §1.",
+    "Populate baselineSourceConfidence from paid-pilot-baseline.template.json or QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist §1.",
     "Store full rows locally; commit only sanitized aggregates per validation-runs/README.md."
   ]
 }

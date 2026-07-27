@@ -241,7 +241,7 @@ python scripts/build_procurement_pack.py --dry-run --deal-ready
 
 ### Pilot close-out gate
 
-Before a Readiness Review close-out or annual conversion ask, use **deal-ready** mode rather than a plain dry run. This is the procurement input named in [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md). It checks source presence, freshness, buyer-unsafe placeholders, and assurance wording coherence. It does **not** change the assurance posture: SOC 2 CPA attestation, public third-party pen-test results, public reference customers, live marketplace checkout, MCP, and V1.1 connectors remain deferred unless separately shipped.
+Before a Readiness Review close-out or annual conversion ask, use **deal-ready** mode rather than a plain dry run. This is the procurement input named in [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist). It checks source presence, freshness, buyer-unsafe placeholders, and assurance wording coherence. It does **not** change the assurance posture: SOC 2 CPA attestation, public third-party pen-test results, public reference customers, live marketplace checkout, MCP, and V1.1 connectors remain deferred unless separately shipped.
 
 ### Trust Center index
 

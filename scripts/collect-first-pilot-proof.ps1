@@ -1227,7 +1227,7 @@ function Write-QuoteToProofPacketMarkdown {
     $lines = [System.Collections.Generic.List[string]]::new()
     $lines.Add('# Quote-to-proof packet index (generated)')
     $lines.Add('')
-    $lines.Add('> Canonical checklists: [`QUOTE_TO_PROOF_PACKET.md`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md) · [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../../docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md). Pricing and order terms live only in [`PRICING_PHILOSOPHY.md`](../../docs/go-to-market/PRICING_PHILOSOPHY.md) and [`ORDER_FORM_TEMPLATE.md`](../../docs/go-to-market/ORDER_FORM_TEMPLATE.md).')
+    $lines.Add('> Canonical checklists: [`QUOTE_TO_PROOF_PACKET.md`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md) · [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist). Pricing and order terms live only in [`PRICING_PHILOSOPHY.md`](../../docs/go-to-market/PRICING_PHILOSOPHY.md) and [`ORDER_FORM_TEMPLATE.md`](../../docs/go-to-market/ORDER_FORM_TEMPLATE.md).')
     $lines.Add('')
     $lines.Add("| Field | Value |")
     $lines.Add("| --- | --- |")
@@ -1252,7 +1252,7 @@ function Write-QuoteToProofPacketMarkdown {
     if ($commercialDisposition -eq 'PASS') {
         $lines.Add('## After PASS proof (commercial conversion)')
         $lines.Add('')
-        $lines.Add('- Follow [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../../docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md): request quote, guided pilot conversion, Professional/Enterprise evaluation, or procurement pack — **not** live Stripe checkout or marketplace publication (deferred).')
+        $lines.Add('- Follow [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist): request quote, guided pilot conversion, Professional/Enterprise evaluation, or procurement pack — **not** live Stripe checkout or marketplace publication (deferred).')
         $lines.Add('- Map artifacts with [`QUOTE_TO_PROOF_PACKET.md`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#pre-pilot-quote-pack) when moving to a paid pilot pack.')
         $lines.Add('')
     }
@@ -1285,7 +1285,7 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("| Consolidated AI readiness gate | $(Resolve-FindingDisposition -Name 'ai-readiness-gate') | ``ai-readiness-gate.json`` · ``go-no-go-summary.json`` · ``aiReadinessGate`` |")
     $lines.Add("| AI readiness posture (TB-167) | $(Resolve-FindingDisposition -Name 'ai-readiness-posture') | ``ai-readiness-posture.json`` · ``ai-readiness-posture.md`` |")
     $lines.Add("| Live UI-SQL parity | $(Resolve-FindingDisposition -Name 'live-ui-sql-parity') | ``live-ui-sql-parity-result.json`` (when supplied) |")
-    $lines.Add("| Commercial conversion checklist | MANUAL | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../../docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md) after PASS disposition |")
+    $lines.Add("| Commercial conversion checklist | MANUAL | [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) after PASS disposition |")
     $lines.Add("| Selected tier + order form | MANUAL | [`ORDER_FORM_TEMPLATE.md`](../../docs/go-to-market/ORDER_FORM_TEMPLATE.md) after tier is agreed |")
     $lines.Add("| Demo workspace validation | $(Resolve-FindingDisposition -Name 'demo-workspace-validation') | ``demo-workspace-validation.txt`` |")
     $lines.Add("| Trial-to-paid test-mode evidence | $(Resolve-FindingDisposition -Name 'trial-to-paid-test-mode-evidence') | ``trial-to-paid-test-mode-evidence.md`` |")

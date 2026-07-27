@@ -57,7 +57,7 @@ function Get-FirstPilotRemediationDocLink {
         'mutating-route-audit-matrix'         = 'docs/library/AUDIT_MATRIX.md'
         'committed-real-llm-fixtures'         = 'docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md'
         'llm-cost-envelope'                   = 'docs/runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md'
-        'commercial-handoff-checks'           = 'docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md'
+        'commercial-handoff-checks'           = 'docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist'
 
     }
 

@@ -70,5 +70,5 @@ Use this when you are unsure which document or UI surface to open next. Each bra
 ## Related
 
 - [`../library/PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md)
-- [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md)
+- [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist)
 - [`PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack`](PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack)

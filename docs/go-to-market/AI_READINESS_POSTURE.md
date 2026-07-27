@@ -164,7 +164,7 @@ The `sponsorSafeSummary` paragraph must:
 | --- | --- |
 | Sponsor proof packet | Include `ai-readiness-posture.md` in the proof ZIP; link from cover page |
 | Release evidence collection | Include JSON at `artifacts/release/ai-readiness-posture.json` |
-| Commercial closeout (`COMMERCIAL_CONVERSION_CHECKLIST.md`) | Reference `overallReadinessLevel` and `qualityGate.outcome` in quality-posture row |
+| Commercial closeout (`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`) | Reference `overallReadinessLevel` and `qualityGate.outcome` in quality-posture row |
 | Procurement/security packet (`BUYER_SECURITY_PROCUREMENT_PACKET.md`) | Link to `ai-readiness-posture.md` under AI/LLM control evidence |
 | Release notes | Quote `sponsorSafeSummary` under "AI evidence posture" section |
 

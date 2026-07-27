@@ -1,14 +1,14 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-27
 
-> **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness. Not legal advice, pricing authority, or procurement attestation.
+> **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness, plus the commercial conversion checklist and decision-cycle telemetry (formerly `COMMERCIAL_CONVERSION_CHECKLIST.md`). Not legal advice, pricing authority, or procurement attestation.
 
 # Quote-to-proof packet
 
 **Audience:** founders, sales engineers, and sponsor owners after a guided Readiness Review when the buyer is ready to discuss **Evidence Pack**, **ARB Report**, or an **annual Professional / Enterprise order form**.
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-27
 
-**Canonical conversion checklist:** [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) (send/hold/defer rules).  
+**Canonical conversion checklist:** [`#commercial-conversion-checklist`](#commercial-conversion-checklist) (send/hold/defer rules).  
 **Pre-pilot quote motion:** See **Pre-pilot quote pack** below (quote → pilot start).
 
 **Prices:** link to [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) — do not duplicate list prices here unless already published.
@@ -123,7 +123,7 @@ Follow up within **7 days** of quote request. PASS schedules a 30-minute sponsor
 | Pilot scorecard baseline + close-out | Joint | [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) |
 | Buyer-safe evidence bundle | ArchLucid | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 
-Before work starts, agree the SQL/auth or hosted-staging shape, Tier 1 Azure extractor ZIP or explicit demo acceptance, named architect and sponsor, and architect-hours baseline. The conversion route remains **Readiness Review → Evidence Pack or ARB Report → annual Professional / Enterprise order form**. Pricing is canonical in [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md); use [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) after the first finalized review.
+Before work starts, agree the SQL/auth or hosted-staging shape, Tier 1 Azure extractor ZIP or explicit demo acceptance, named architect and sponsor, and architect-hours baseline. The conversion route remains **Readiness Review → Evidence Pack or ARB Report → annual Professional / Enterprise order form**. Pricing is canonical in [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md); use the [commercial conversion checklist](#commercial-conversion-checklist) after the first finalized review.
 
 ---
 
@@ -198,10 +198,124 @@ Market-execution (real authorized run + human mock review + [`validation/PAID_PI
 
 ---
 
+## Commercial conversion checklist {#commercial-conversion-checklist}
+
+Former standalone: `docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md` → this section (including [decision-cycle telemetry](#6-decision-cycle-telemetry-local-learning)).
+
+**Audience:** founders, sales engineers, pilot champions, and sponsor owners moving from a guided Readiness Review to an Evidence Pack, ARB Report, or annual Professional / Enterprise order form. Use after first-pilot evidence exists; do not treat this as legal, pricing, or procurement attestation.
+
+### Conversion rule
+
+Do not ask for annual conversion from a vague demo. Ask after the buyer can point to one defensible architecture package built from their evidence or an explicitly accepted demo workspace.
+
+### 1. Inputs confirmed before sponsor send
+
+| Input | Required evidence | Owner |
+| --- | --- | --- |
+| Buyer evidence source | Tier 1 Azure extractor ZIP, uploaded evidence, or explicit demo-workspace acceptance | Buyer + ArchLucid |
+| Finalized review | `runId`, architecture package id, and finalize timestamp in the first-pilot evidence bundle | ArchLucid |
+| ROI baseline | Review-cycle hours, architect prep hours, and evidence assembly effort, or `not collected` labels | Buyer |
+| Quality posture | PilotStrict sponsor-evidence disposition or documented quality-gate caveat | ArchLucid |
+| Proof package | `go-no-go-summary.md`, `first-value-report.md`, `pilot-observability-summary.md`, and sponsor proof ZIP | ArchLucid |
+| Procurement posture | `python scripts/build_procurement_pack.py --deal-ready` output or explicit note that SOC 2 CPA / third-party pen test are deferred | ArchLucid |
+| Enterprise boundary posture | `python scripts/ci/assert_route_tier_policy_nav.py` passes after any route, tier, policy, or nav change | ArchLucid |
+| Deployment readiness | Minimal Azure pilot checklist and data-consistency readiness are captured when this is a hosted pilot | ArchLucid |
+
+### 2. Sponsor close-out sequence
+
+1. Send the sponsor proof pack and first-value report.
+2. Review ROI baseline labels first; do not lead with projected dollars if baselines are defaulted or demo-derived.
+3. Walk through the top finding evidence chain and PilotStrict disposition.
+4. Ask the sponsor to choose one next step:
+   - **Evidence Pack** when procurement needs a formal artifact set.
+   - **ARB Report** when the architecture review board needs a polished narrative.
+   - **Annual Professional / Enterprise order form** when the pilot already met the scorecard target.
+5. Record buyer blockers as evidence gaps, not sales objections.
+
+### 3. Send / hold criteria
+
+| Status | Criteria | Action |
+| --- | --- | --- |
+| Send | Buyer evidence or accepted demo is clear; quality gate is passing or caveated; **baseline completeness COMPLETE** (or approved [`ROI_BASELINE_SEND_POLICY.md`](ROI_BASELINE_SEND_POLICY.md) override); ROI basis is labeled and sponsor-safe; sponsor package exists; `roi-baseline-send-evaluation.json` → `sendEligible: true`; `-SponsorHandoff` proof run exits 0 with `-FailOnHold` | Send sponsor packet and ask for the selected next step |
+| Hold | Missing `runId`, unresolved PilotStrict signals, absent proof ZIP, unlabeled or unsafe ROI basis, data-consistency HOLD, stale procurement pack, or failed route/tier/policy/nav guard | Re-run the relevant proof, procurement, or drift guard before sponsor send |
+| Defer | Buyer requires SOC 2 CPA attestation, public reference customer, marketplace checkout, MCP, or V1.1 connectors before purchase | Mark as deferred scope (`DEFERRED_SCOPE` when V1 proof otherwise passes); do not imply those items are V1 prerequisites |
+
+#### Proof disposition → next commercial action
+
+| `sponsorPacketDisposition` / proof state | Next action | Owner |
+| --- | --- | --- |
+| **SEND** + `roiSponsorSafe` + procurement PASS | **ARB Report** or **Annual Enterprise order** (tier-dependent) | Sales + sponsor |
+| **SEND** + procurement HOLD | **Evidence Pack** — refresh procurement pack | Procurement owner |
+| **HOLD** (any BLOCK row) | **Evidence Pack** — fix remediation column in `first-pilot-command-center.md` | Pilot operator |
+| **DEFERRED_SCOPE** | **Deferred buyer requirement** — record V1.1/V2/(B) ask; do not treat as V1 failure | Executive owner |
+| ROI not sponsor-safe | **Evidence Pack** — collect baselines per scorecard | Buyer + ArchLucid |
+
+Generated mapping: `commercial-next-step.json` in the proof folder (from `FirstPilotCommercialNextStep.ps1`).
+
+### 4. Annual conversion handoff
+
+Use [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) only after the sponsor has accepted the evidence packet and the commercial tier is clear. Map proof outputs with this packet. The guided pilot credit remains governed by [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4; this checklist does not change pricing.
+
+### 5. Enterprise operations preflight
+
+Run these before a security/procurement reviewer receives the close-out packet:
+
+```powershell
+python scripts/build_procurement_pack.py --deal-ready
+python scripts/ci/assert_route_tier_policy_nav.py
+./scripts/collect-data-consistency-readiness.ps1 -BaseUrl https://your-api.example
+```
+
+For hosted Azure pilots, also follow [`../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md). These checks are evidence collection and drift detection; they do not create SOC 2 CPA attestation, third-party pen-test publication, or marketplace availability.
+
+### 6. Decision-cycle telemetry (local learning) {#6-decision-cycle-telemetry-local-learning}
+
+Track milestone timestamps from **demo complete** through **next-step decision** without CRM integration. Summaries expose cohort medians and outlier thresholds to prioritize roadmap work that improves deal motion. Local artifacts only — no PII required.
+
+Former standalone runbook: `docs/go-to-market/DECISION_CYCLE_TELEMETRY.md` → this subsection.
+
+#### Canonical milestones
+
+| Event type | Meaning |
+| --- | --- |
+| `demo_complete` | Curated demo or CTO walkthrough finished |
+| `pilot_start` | Tenant/environment provisioned for pilot work |
+| `first_committed_run` | First architecture-package finalize captured (API: golden manifest commit; event name unchanged) |
+| `sponsor_packet_sent` | Sponsor-facing packet shared (only when SEND-eligible) |
+| `next_step_decision` | Commercial outcome recorded (`advance`, `hold`, `decline`, `unknown`) |
+
+**Template:** [`templates/decision-cycle-events.template.json`](templates/decision-cycle-events.template.json)  
+**Schema:** `archlucid.decision-cycle-telemetry.v1`  
+**Storage:** one JSON file per account under `artifacts/decision-cycle/<account>/events.json` (or a combined log). Use pseudonymous `accountLabel` values.
+
+#### Build summary report
+
+```powershell
+python scripts/ci/build_decision_cycle_telemetry.py `
+  --events-json docs/go-to-market/templates/decision-cycle-events.template.json `
+  --json-out artifacts/decision-cycle/sample-summary.json `
+  --markdown-out artifacts/decision-cycle/sample-summary.md
+```
+
+#### Interpreting delay hotspots
+
+- Compare per-account segment durations to cohort medians in the summary JSON.
+- Segments above **2× median** are flagged as outlier thresholds in `outlierThresholdsHours`.
+- Missing milestones mean the journey is incomplete — do not infer velocity from partial data.
+
+| Hotspot segment | Typical remediation focus |
+| --- | --- |
+| Demo → pilot start | Procurement / environment prerequisites |
+| Pilot start → first finalize | First-hour architect friction (see [`FIRST_HOUR_OPERATOR_PATH.md`](../library/FIRST_HOUR_OPERATOR_PATH.md)) |
+| First commit → sponsor send | Proof packet / ROI baseline SEND gates ([§3](#commercial-conversion-checklist)) |
+| Sponsor send → decision | Executive value narrative and faithfulness guardrails |
+
+---
+
 ## Related
 
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
-- [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md)
+- [`#commercial-conversion-checklist`](#commercial-conversion-checklist)
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
 - [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md)
 - [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md)

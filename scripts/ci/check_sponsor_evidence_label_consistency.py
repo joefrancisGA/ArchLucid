@@ -11,14 +11,12 @@ from check_proof_summary_promise_language import scan_text
 
 # Procurement / conversion docs — label discipline for sponsor send rules.
 _REQUIRED_PROCUREMENT_ANCHORS: dict[str, tuple[str, ...]] = {
-    "docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md": (
-        "baseline completeness",
-        "PilotStrict",
-        "DEFERRED_SCOPE",
-    ),
     "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md": (
         "roi basis",
         "send rule",
+        "baseline completeness",
+        "PilotStrict",
+        "DEFERRED_SCOPE",
     ),
     "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md": (
         "do not",

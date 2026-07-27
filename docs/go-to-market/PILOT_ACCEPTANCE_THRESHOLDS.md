@@ -12,7 +12,7 @@
 
 **Grounding rule:** Thresholds reference shipped V1 capabilities per [`docs/library/V1_SCOPE.md`](../library/V1_SCOPE.md). Owner must review and sign off on any threshold before it is quoted in a customer-facing commitment or sponsor packet.
 
-**Related:** [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md), [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md).
+**Related:** [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md), [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist), [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md).
 
 ---
 
@@ -28,7 +28,7 @@ PASS does not mean "ready for unlimited expansion." It means the pilot evidence 
 
 | Outcome | Meaning | Next action |
 | --- | --- | --- |
-| **PASS** | All required gates met; pilot evidence supports the agreed commercial next step | Proceed to sponsor packet send per [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) |
+| **PASS** | All required gates met; pilot evidence supports the agreed commercial next step | Proceed to sponsor packet send per [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) |
 | **HOLD** | One or more required gates are unmet; evidence is weak, absent, or unsupported | Identify specific gate gap; remediate or negotiate revised scope before claiming success |
 | **DEFERRED_SCOPE** | Buyer requirement is not a V1 deliverable (SOC 2 CPA, public reference, live Marketplace, etc.) | Record as V1.1 / V2 item; do not treat as a V1 pilot failure |
 

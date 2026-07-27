@@ -12,7 +12,7 @@
 
 **Last reviewed:** 2026-07-26
 
-**Related:** [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md), [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md), [`reference-customers/README.md`](reference-customers/README.md).
+**Related:** [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md), [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist), [`reference-customers/README.md`](reference-customers/README.md).
 
 ---
 
@@ -186,6 +186,6 @@ Until at least one reference record has been completed and signed off:
 | [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) | PASS/HOLD criteria for pilot proof |
 | [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md) | Proof-permission capture during intake |
 | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) | GTM overclaim guardrails |
-| [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md) | Commercial close-out checklist |
+| [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) | Commercial close-out checklist |
 | [`reference-customers/README.md`](reference-customers/README.md) | Status table + a–h tracking checklist |
 | [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) | V1.1 GTM backlog context (TB-164) |
