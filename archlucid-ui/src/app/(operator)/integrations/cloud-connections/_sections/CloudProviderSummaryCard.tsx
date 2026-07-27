@@ -8,6 +8,8 @@ import { cloudProviderDetailPath } from "@/lib/cloud-connections-paths";
 import type { CloudProviderId } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { resolveCloudProviderSummaryPrimaryCtaLabel } from "./resolve-cloud-provider-summary-primary-cta-label";
+
 export type CloudProviderSummaryCardProps = {
   readonly provider: CloudProviderId;
   readonly status: string;
@@ -31,6 +33,7 @@ const PROVIDER_OVERVIEW: Readonly<Record<CloudProviderId, string>> = {
 export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
   const { provider, status, lastValidation, evidenceCollected, maturityLabel } = props;
   const detailHref = cloudProviderDetailPath(provider);
+  const primaryCtaLabel = resolveCloudProviderSummaryPrimaryCtaLabel(status);
 
   return (
     <Card data-testid={`cloud-connection-card-${provider}`} className="flex h-full flex-col">
@@ -38,7 +41,12 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
         <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
           {PROVIDER_TITLES[provider]}
           {maturityLabel !== null && maturityLabel !== undefined && maturityLabel.length > 0 ? (
-            <span className={cn("ms-2 align-middle font-medium uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span
+              className={cn(
+                "ms-2 align-middle font-medium uppercase tracking-wide text-al-text-secondary",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
               {maturityLabel}
             </span>
           ) : null}
@@ -53,7 +61,9 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
           </div>
           <div className="flex justify-between gap-2">
             <dt className="text-al-text-secondary">Authentication model</dt>
-            <dd className="max-w-[14rem] text-right font-medium">{CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL[provider]}</dd>
+            <dd className="max-w-[14rem] text-right font-medium">
+              {CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL[provider]}
+            </dd>
           </div>
           <div className="flex justify-between gap-2">
             <dt className="text-al-text-secondary">Last validation</dt>
@@ -65,12 +75,15 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
           </div>
         </dl>
       </CardContent>
-      <CardFooter className="mt-auto flex-col gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-700">
-        <Button type="button" variant="primary" className="w-full" asChild>
-          <Link href={detailHref}>Configure</Link>
-        </Button>
-        <Button type="button" variant="outline" className="w-full" asChild>
-          <Link href={detailHref}>View details</Link>
+      <CardFooter className="mt-auto border-t border-neutral-200 pt-4 dark:border-neutral-700">
+        <Button
+          type="button"
+          variant="primary"
+          className="w-full"
+          asChild
+          data-testid={`cloud-connection-card-${provider}-primary-cta`}
+        >
+          <Link href={detailHref}>{primaryCtaLabel}</Link>
         </Button>
       </CardFooter>
     </Card>

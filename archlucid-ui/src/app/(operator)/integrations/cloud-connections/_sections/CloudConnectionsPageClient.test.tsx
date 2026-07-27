@@ -60,6 +60,13 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("aws-account-id")).not.toBeInTheDocument();
     expect(screen.queryByTestId("gcp-project-id")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws").querySelector('a[href="/integrations/cloud-connections/aws"]')).toBeTruthy();
+    // TB-1141: one primary CTA per provider card — no duplicate View details twin.
+    for (const provider of ["aws", "azure", "gcp"] as const) {
+      const card = screen.getByTestId(`cloud-connection-card-${provider}`);
+      expect(screen.getByTestId(`cloud-connection-card-${provider}-primary-cta`)).toHaveTextContent("Configure");
+      expect(card.querySelectorAll("a[href^='/integrations/cloud-connections/']")).toHaveLength(1);
+      expect(card).not.toHaveTextContent("View details");
+    }
   });
 
   it("hides provider cards when platform scope is narrowed", async () => {
@@ -86,6 +93,28 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("cloud-connection-card-azure")).not.toBeInTheDocument();
     expect(screen.queryByTestId("cloud-connection-card-gcp")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
+  });
+
+  it("uses Open connection as the sole primary CTA when a provider is configured (TB-1141)", async () => {
+    listAwsTier2Connections.mockResolvedValueOnce([
+      {
+        connectionId: "aws-1",
+        status: "Configured",
+        updatedUtc: "2026-07-01T00:00:00Z",
+        lastPolledUtc: "2026-07-01T00:00:00Z",
+      },
+    ]);
+
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-connection-card-aws-primary-cta")).toHaveTextContent("Open connection");
+    });
+
+    const awsCard = screen.getByTestId("cloud-connection-card-aws");
+    expect(awsCard.querySelectorAll("a[href='/integrations/cloud-connections/aws']")).toHaveLength(1);
+    expect(awsCard).not.toHaveTextContent("View details");
+    expect(screen.getByTestId("cloud-connection-card-azure-primary-cta")).toHaveTextContent("Configure");
   });
 
   it("hides GCP card when unchecked without operator workspace scope (TB-1139)", async () => {
