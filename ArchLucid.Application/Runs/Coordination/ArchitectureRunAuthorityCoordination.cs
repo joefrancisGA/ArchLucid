@@ -172,7 +172,11 @@ public sealed class ArchitectureRunAuthorityCoordination(
         }
 
         header.ArchitectureRequestId = request.RequestId;
-        header.LegacyRunStatus = _runStateTransitionService.GetCoordinationLegacyStatusAfterCreate(deferred);
+        string targetLegacyRunStatus = _runStateTransitionService.GetCoordinationLegacyStatusAfterCreate(deferred);
+
+        if (_runStateTransitionService.ShouldApplyCoordinationLegacyStatusPatch(header.LegacyRunStatus, targetLegacyRunStatus))
+            header.LegacyRunStatus = targetLegacyRunStatus;
+
         header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
         await _runRepository.UpdateAsync(header, cancellationToken);
     }

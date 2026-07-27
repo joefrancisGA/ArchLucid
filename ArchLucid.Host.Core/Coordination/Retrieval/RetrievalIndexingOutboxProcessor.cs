@@ -97,6 +97,8 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
 
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
         RunDetailDto? detail = await query.GetRunDetailAsync(scopeContext, entry.RunId, ct);
 
         if (detail?.GoldenManifest is null ||

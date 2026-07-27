@@ -134,6 +134,52 @@ public sealed class RunStateTransitionServiceTests
         _sut.ShouldSetTasksGeneratedAfterDeferredMaterialize(status).Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("Created")]
+    public void ShouldApplyCoordinationLegacyStatusPatch_allows_tasks_generated_target_on_created_or_unset(string? status)
+    {
+        _sut.ShouldApplyCoordinationLegacyStatusPatch(status, nameof(ArchitectureRunStatus.TasksGenerated)).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("TasksGenerated")]
+    [InlineData("ReadyForCommit")]
+    [InlineData("WaitingForResults")]
+    [InlineData("Committed")]
+    [InlineData("PartiallyCompleted")]
+    public void ShouldApplyCoordinationLegacyStatusPatch_rejects_tasks_generated_downgrade(string status)
+    {
+        _sut.ShouldApplyCoordinationLegacyStatusPatch(status, nameof(ArchitectureRunStatus.TasksGenerated)).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShouldApplyCoordinationLegacyStatusPatch_skips_when_target_equals_current()
+    {
+        _sut.ShouldApplyCoordinationLegacyStatusPatch(
+            nameof(ArchitectureRunStatus.TasksGenerated),
+            nameof(ArchitectureRunStatus.TasksGenerated)).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("Created")]
+    public void ShouldApplyCoordinationLegacyStatusPatch_allows_created_target_on_created_or_unset(string? status)
+    {
+        _sut.ShouldApplyCoordinationLegacyStatusPatch(status, nameof(ArchitectureRunStatus.Created)).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("Committed")]
+    [InlineData("ReadyForCommit")]
+    [InlineData("TasksGenerated")]
+    public void ShouldApplyCoordinationLegacyStatusPatch_rejects_created_downgrade(string status)
+    {
+        _sut.ShouldApplyCoordinationLegacyStatusPatch(status, nameof(ArchitectureRunStatus.Created)).Should().BeFalse();
+    }
+
     // TB-305 / ADR 0042 (decision C): the POST /result extension point is append-only-to-in-progress and cannot finalize.
     [Theory]
     [InlineData(ArchitectureRunStatus.TasksGenerated)]

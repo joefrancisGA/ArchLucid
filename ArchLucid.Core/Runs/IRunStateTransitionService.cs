@@ -46,6 +46,13 @@ public interface IRunStateTransitionService
 
     string GetCoordinationLegacyStatusAfterCreate(bool deferredAuthorityPipeline);
 
+    /// <summary>
+    ///     Coordination header patch may set <see cref="ArchitectureRunStatus.TasksGenerated"/> or
+    ///     <see cref="ArchitectureRunStatus.Created"/> after create, but must not demote a row the inline authority
+    ///     pipeline already advanced (e.g. simulator finalize → Committed before k6 seed/commit).
+    /// </summary>
+    bool ShouldApplyCoordinationLegacyStatusPatch(string? currentLegacyRunStatus, string targetLegacyRunStatus);
+
     /// <summary>Queued authority work may skip stage execution when context snapshot already exists.</summary>
     bool ShouldSkipQueuedAuthorityPipelineCompletion(Guid? contextSnapshotId);
 }

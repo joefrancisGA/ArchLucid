@@ -181,5 +181,26 @@ public sealed class RunStateTransitionService : IRunStateTransitionService
     }
 
     /// <inheritdoc/>
+    public bool ShouldApplyCoordinationLegacyStatusPatch(string? currentLegacyRunStatus, string targetLegacyRunStatus)
+    {
+        if (string.Equals(currentLegacyRunStatus, targetLegacyRunStatus, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (string.Equals(targetLegacyRunStatus, nameof(ArchitectureRunStatus.TasksGenerated), StringComparison.OrdinalIgnoreCase))
+            return ShouldSetTasksGeneratedAfterDeferredMaterialize(currentLegacyRunStatus);
+
+        if (string.Equals(targetLegacyRunStatus, nameof(ArchitectureRunStatus.Created), StringComparison.OrdinalIgnoreCase))
+        {
+            return string.IsNullOrWhiteSpace(currentLegacyRunStatus)
+                || string.Equals(
+                    currentLegacyRunStatus,
+                    nameof(ArchitectureRunStatus.Created),
+                    StringComparison.OrdinalIgnoreCase);
+        }
+
+        return true;
+    }
+
+    /// <inheritdoc/>
     public bool ShouldSkipQueuedAuthorityPipelineCompletion(Guid? contextSnapshotId) => contextSnapshotId is not null;
 }
