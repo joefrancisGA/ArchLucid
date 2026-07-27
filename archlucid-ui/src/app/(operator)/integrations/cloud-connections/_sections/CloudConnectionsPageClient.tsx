@@ -160,7 +160,6 @@ export function CloudConnectionsPageClient() {
                 status={summary.status}
                 lastValidation={summary.lastValidation}
                 evidenceCollected={summary.evidenceCollected}
-                maturityLabel={platformId === "gcp" ? "Preview" : null}
               />
             );
           })}

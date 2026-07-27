@@ -54,6 +54,8 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
+    // TB-1140: GCP Tier 2 shipped (TB-403) — landing card must not show a stale Preview chip.
+    expect(screen.getByTestId("cloud-connection-card-gcp")).not.toHaveTextContent(/Preview/i);
     expect(screen.queryByTestId("tier2-connection-wizard")).not.toBeInTheDocument();
     expect(screen.queryByTestId("aws-account-id")).not.toBeInTheDocument();
     expect(screen.queryByTestId("gcp-project-id")).not.toBeInTheDocument();
