@@ -39,6 +39,7 @@ public sealed class ScimTokensAdminController(
 
     [HttpPost]
     [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> IssueAsync(CancellationToken cancellationToken)
     {
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;

@@ -6,23 +6,22 @@ using ArchLucid.Core.Identity;
 namespace ArchLucid.Application.Identity;
 
 /// <summary>DNS-over-HTTPS TXT lookup via Cloudflare public resolver.</summary>
-public sealed class CloudflareDnsTxtRecordLookup(IHttpClientFactory httpClientFactory) : IDnsTxtRecordLookup
+public sealed class CloudflareDnsTxtRecordLookup(HttpClient httpClient) : IDnsTxtRecordLookup
 {
-    private readonly IHttpClientFactory _httpClientFactory =
-        httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+    private readonly HttpClient _httpClient =
+        httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
     public async Task<IReadOnlyList<string>> GetTxtRecordsAsync(string domain, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(domain);
 
-        HttpClient client = _httpClientFactory.CreateClient(nameof(CloudflareDnsTxtRecordLookup));
         string requestUri =
             $"https://cloudflare-dns.com/dns-query?name={Uri.EscapeDataString(domain)}&type=TXT";
 
         using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
         request.Headers.TryAddWithoutValidation("Accept", "application/dns-json");
 
-        using HttpResponseMessage response = await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         CloudflareDnsResponse? payload =

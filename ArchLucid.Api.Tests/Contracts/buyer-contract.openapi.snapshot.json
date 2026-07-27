@@ -11239,10 +11239,19 @@
         "type": "object"
       },
       "FindingClassification": {
-        "type": "integer"
+        "enum": [
+          "DecisionGradeFinding",
+          "ChecklistCoverage"
+        ],
+        "type": "string"
       },
       "FindingConfidenceLevel": {
-        "type": "integer"
+        "enum": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "type": "string"
       },
       "FindingDisposition": {
         "type": "integer"

@@ -84,6 +84,13 @@ public sealed class MarketingQuickScanController(
         [FromBody] ArchitectureQuickScanRequest? request,
         CancellationToken cancellationToken)
     {
+        if (request is null)
+        {
+            return QuickScanHttpResultMapper.Map(
+                this,
+                QuickScanExecutionResult.ValidationFailed("Request body is required."));
+        }
+
         QuickScanSafetyOperationalSnapshot operational =
             await quickScanSafetyOperationalStateProvider.GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
 

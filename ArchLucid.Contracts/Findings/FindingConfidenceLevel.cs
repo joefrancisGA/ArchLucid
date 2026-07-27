@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
 ///     Operator-facing coarse bucket derived from gate + reference-case + trace completeness scoring.
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum FindingConfidenceLevel
 {
     High = 0,
