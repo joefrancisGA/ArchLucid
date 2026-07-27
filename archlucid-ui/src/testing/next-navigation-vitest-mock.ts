@@ -4,14 +4,16 @@ type NextNavigationModule = typeof import("next/navigation");
 
 /** Default `next/navigation` stubs for unit tests (includes server `redirect`). */
 export const nextNavigationVitestStubs: Partial<NextNavigationModule> = {
-  useRouter: () => ({
-    back: vi.fn(),
-    forward: vi.fn(),
-    prefetch: vi.fn(),
-    push: vi.fn(),
-    refresh: vi.fn(),
-    replace: vi.fn(),
-  }),
+  useRouter: () =>
+    ({
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+      push: vi.fn(),
+      refresh: vi.fn(),
+      replace: vi.fn(),
+      bfcacheId: null,
+    }) as ReturnType<NextNavigationModule["useRouter"]>,
   usePathname: () => "/",
   // Match Next readonly params API shape expected by TS
   useSearchParams: () =>
