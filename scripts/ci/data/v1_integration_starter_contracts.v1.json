@@ -183,7 +183,7 @@
           "path": "/v1/architecture/run/{runId}/roi",
           "expectedSuccessStatuses": [200],
           "responseShape": "RunRoiSummaryResponse",
-          "claimBoundary": "Estimates only — not invoiced Azure OpenAI spend; sponsor-safe SEND requires baselineCompletenessStatus per ROI_BASELINE_SEND_POLICY.md"
+          "claimBoundary": "Estimates only — not invoiced Azure OpenAI spend; sponsor-safe SEND requires baselineCompletenessStatus per QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy"
         },
         {
           "id": "analytics-roi",
