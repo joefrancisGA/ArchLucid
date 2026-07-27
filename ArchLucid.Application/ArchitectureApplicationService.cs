@@ -91,32 +91,42 @@ public sealed class ArchitectureApplicationService(
     {
         if (result is null)
             return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);
+
         if (string.IsNullOrWhiteSpace(runId))
             return new SubmitResultResult(false, null, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
+
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
         if (detail is null)
             return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
+
         ArchitectureRun run = detail.Run;
         List<AgentTask> tasks = detail.Tasks;
         List<AgentResult> existingResults = detail.Results;
         RunStateTransitionCheck submissionCheck = _runStateTransitionService.ValidateResultSubmissionAllowed(run.Status);
+
         if (!submissionCheck.IsAllowed)
             return new SubmitResultResult(false, null, submissionCheck.Message!, ApplicationServiceFailureKind.BadRequest);
 
         if (!string.Equals(result.RunId, runId, StringComparison.OrdinalIgnoreCase))
             return new SubmitResultResult(false, null, $"Result RunId '{result.RunId}' does not match route runId '{runId}'.",
                 ApplicationServiceFailureKind.BadRequest);
+
         AgentTask? task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
+
         if (task is null)
             return new SubmitResultResult(false, null, $"Task '{result.TaskId}' was not found for run '{runId}'.",
                 ApplicationServiceFailureKind.ResourceNotFound);
+
         if (task.AgentType != result.AgentType)
             return new SubmitResultResult(false, null,
                 $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.",
                 ApplicationServiceFailureKind.BadRequest);
+
         if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
             return new SubmitResultResult(false, null, $"A result for task '{result.TaskId}' has already been submitted for this run.",
                 ApplicationServiceFailureKind.BadRequest);
+
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
         try
         {
@@ -171,23 +181,32 @@ public sealed class ArchitectureApplicationService(
     {
         if (string.IsNullOrWhiteSpace(runId))
             return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
+
         if (pilotOptions?.MarkRealModeFellBackToSimulator == true)
             await TryMarkPilotRealModeFellBackAsync(runId, cancellationToken);
+
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
         if (detail is null)
             return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
+
         ArchitectureRun run = detail.Run;
         RunStateTransitionCheck seedSubmissionCheck = _runStateTransitionService.ValidateResultSubmissionAllowed(run.Status);
+
         if (!seedSubmissionCheck.IsAllowed)
             return new SeedFakeResultsResult(false, 0, seedSubmissionCheck.Message!, ApplicationServiceFailureKind.BadRequest);
 
         ArchitectureRequest? architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
+
         if (architectureRequest is null)
             return new SeedFakeResultsResult(false, 0, $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.",
                 ApplicationServiceFailureKind.ResourceNotFound);
+
         List<AgentTask> tasks = detail.Tasks;
+
         if (tasks.Count == 0)
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
+
         List<AgentResult> existingResults = detail.Results;
 
         if (existingResults.Count > 0)
@@ -296,9 +315,11 @@ public sealed class ArchitectureApplicationService(
         // CommitRunAsync requires a persisted evidence package (normally written during ExecuteRun). Dev-only seed
         // skips execute, so create the package here when missing.
         AgentEvidencePackage? existingPackage = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+
         if (existingPackage is null)
         {
             AgentEvidencePackage package = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+
             if (uow.SupportsExternalTransaction)
                 await agentEvidencePackageRepository.CreateAsync(package, cancellationToken, uow.Connection, uow.Transaction);
             else
@@ -315,8 +336,10 @@ public sealed class ArchitectureApplicationService(
     {
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return;
+
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
         if (header is null)
             return;
         header.RealModeFellBackToSimulator = true;
