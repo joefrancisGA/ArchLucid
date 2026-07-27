@@ -1,13 +1,21 @@
 /** Page copy and navigation targets for governance recurrence schedules. */
 
+/** Single above-the-fold lead under the page title (TB-1130 — no wall of governance prose). */
 export const RECURRENCE_SCHEDULES_PAGE_SUBTITLE =
-  "Automate follow-up reviews for architecture reviews that require periodic governance, control validation, remediation tracking, or policy re-review.";
+  "Automate follow-up review cadences for governed architecture reviews.";
+
+export const RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE = "How recurrence schedules work";
+
+/** Folded value + trust copy — shown only inside How-it-works disclosure (TB-1130). */
+export const RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY =
+  "Define repeatable review cadences for committed architecture records — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints. Schedules help ensure that accepted risks, policy exceptions, and governed architecture decisions are reviewed on time instead of being forgotten after approval.";
 
 export const RECURRENCE_SCHEDULES_EMPTY_TITLE = "No recurrence schedules yet";
 
 export const RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION =
-  "Create a recurrence schedule when an architecture review needs periodic review, such as quarterly control validation, annual policy review, post-remediation follow-up, or recurring architecture board review.";
+  "Create a schedule when a governed review needs periodic re-review.";
 
+/** @deprecated Prefer `RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY` — folded under How-it-works (TB-1130). */
 export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
   "Schedules help ensure that accepted risks, policy exceptions, and governed architecture decisions are reviewed on time instead of being forgotten after approval.";
 

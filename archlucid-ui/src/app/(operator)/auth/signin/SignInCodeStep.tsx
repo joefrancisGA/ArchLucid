@@ -50,7 +50,7 @@ export function SignInCodeStep({
   const resendDisabled = pending || resendPending || resendSecondsRemaining > 0;
 
   return (
-    <div className="max-w-[560px]" data-testid="sign-in-code-step">
+    <div data-testid="sign-in-code-step">
       <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SIGN_IN_PAGE_COPY.codeTitle}</h1>
       <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {SIGN_IN_PAGE_COPY.codeLeadPrefix}{" "}

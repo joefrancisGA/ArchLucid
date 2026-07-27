@@ -30,6 +30,9 @@ def test_discover_tab_paths_includes_architecture_workspace_tabs() -> None:
     assert "/reviews/[runId]?archTab=evidence" in tab_paths
     assert "/settings/users?tab=roles" in tab_paths
     assert "/reviews/new?path=guided-intake" in tab_paths
+    assert "/governance/advisory-scans?tab=scans" in tab_paths
+    assert "/governance/advisory-scans?tab=schedules" in tab_paths
+    assert "/advisory?tab=scans" not in tab_paths
 
 
 def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
@@ -40,6 +43,9 @@ def test_build_catalog_excludes_redirect_only_legacy_paths() -> None:
     assert "/help/cloud-connections-azure" not in catalog
     assert "/help/cloud-connections/aws" in catalog
     assert "/help/cloud-connections-aws" not in catalog
+    assert "/advisory" not in catalog
+    assert "/advisory-scheduling" not in catalog
+    assert "/governance/advisory-scans" in catalog
 
 
 def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> None:
@@ -50,6 +56,13 @@ def test_migrate_workbook_path_maps_retired_cloud_connection_help_slugs() -> Non
 
 def test_migrate_workbook_path_maps_legacy_alerts() -> None:
     assert migrate_workbook_path("/alerts") == "/governance/alerts"
+
+
+def test_migrate_workbook_path_maps_legacy_advisory_routes() -> None:
+    assert migrate_workbook_path("/advisory") == "/governance/advisory-scans"
+    assert migrate_workbook_path("/advisory?tab=scans") == "/governance/advisory-scans?tab=scans"
+    assert migrate_workbook_path("/advisory?tab=schedules") == "/governance/advisory-scans?tab=schedules"
+    assert migrate_workbook_path("/advisory-scheduling") == "/governance/advisory-scans?tab=schedules"
 
 
 def test_suggest_row_id_is_unique_and_three_chars() -> None:

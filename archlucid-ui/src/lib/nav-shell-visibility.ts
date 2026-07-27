@@ -34,7 +34,6 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/search",
   "/compare",
   "/governance/advisory-scans",
-  "/advisory-scheduling",
   "/demo/explain",
   "/admin/health",
   "/admin/configuration",

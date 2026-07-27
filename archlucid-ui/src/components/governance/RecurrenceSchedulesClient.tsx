@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
@@ -34,8 +35,9 @@ import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-control
 import { formatRecurrenceScheduleUtcLabel } from "@/lib/recurrence-schedule-utc-format";
 import {
   RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,
-  RECURRENCE_SCHEDULES_EMPTY_SUPPORTING,
   RECURRENCE_SCHEDULES_EMPTY_TITLE,
+  RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY,
+  RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE,
   RECURRENCE_SCHEDULES_PAGE_SUBTITLE,
   RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
@@ -267,6 +269,15 @@ export default function RecurrenceSchedulesClient() {
             }
           />
 
+          <CollapsibleSection
+            title={RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE}
+            sectionTestId="recurrence-schedules-how-it-works"
+          >
+            <p className={cn("m-0 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+              {RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY}
+            </p>
+          </CollapsibleSection>
+
           <div className="flex flex-wrap gap-2">
             {secondaryActions.map((action) => (
               <Button key={action.href} asChild size="sm" variant="outline">
@@ -294,7 +305,7 @@ export default function RecurrenceSchedulesClient() {
               <EnterpriseCompactEmptyState
                 testId="recurrence-schedules-empty-state"
                 title={RECURRENCE_SCHEDULES_EMPTY_TITLE}
-                description={`${RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION} ${RECURRENCE_SCHEDULES_EMPTY_SUPPORTING}`}
+                description={RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION}
                 actions={[
                   {
                     label: "View governed reviews",

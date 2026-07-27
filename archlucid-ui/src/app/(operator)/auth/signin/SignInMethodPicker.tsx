@@ -23,28 +23,16 @@ export function SignInMethodPicker({
   onSupplemental,
 }: SignInMethodPickerProps) {
   return (
-    <div className="max-w-[560px]" data-testid="sign-in-method-picker">
+    <div data-testid="sign-in-method-picker">
       <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{SIGN_IN_PAGE_COPY.optionsTitle}</h1>
-      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SIGN_IN_PAGE_COPY.optionsLead}</p>
+      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        {SIGN_IN_PAGE_COPY.optionsLead}
+      </p>
       <div className="mt-6 flex flex-col gap-3">
-        {options.workSchool ? (
-          <Button
-            type="button"
-            variant="primary"
-            className="w-full justify-center"
-            data-testid="sign-in-work-school"
-            onClick={() => {
-              recordEmailOtpAuthAnalytics("auth_method_selected", { method: "work_school" });
-              onWorkSchool();
-            }}
-          >
-            {SIGN_IN_PAGE_COPY.workSchoolPrimary}
-          </Button>
-        ) : null}
         {options.emailCode ? (
           <Button
             type="button"
-            variant={options.workSchool ? "outline" : "primary"}
+            variant="primary"
             className="w-full justify-center"
             data-testid="sign-in-email-code"
             onClick={() => {
@@ -53,6 +41,20 @@ export function SignInMethodPicker({
             }}
           >
             {SIGN_IN_PAGE_COPY.emailCodeSecondary}
+          </Button>
+        ) : null}
+        {options.workSchool ? (
+          <Button
+            type="button"
+            variant={options.emailCode ? "outline" : "primary"}
+            className="w-full justify-center"
+            data-testid="sign-in-work-school"
+            onClick={() => {
+              recordEmailOtpAuthAnalytics("auth_method_selected", { method: "work_school" });
+              onWorkSchool();
+            }}
+          >
+            {SIGN_IN_PAGE_COPY.workSchoolPrimary}
           </Button>
         ) : null}
         {options.supplementalProviders.map((provider) => (
@@ -73,7 +75,13 @@ export function SignInMethodPicker({
           </Button>
         ))}
       </div>
-      <p className={cn("mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+      <p
+        className={cn("mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="sign-in-non-sso-orientation"
+      >
+        {SIGN_IN_PAGE_COPY.optionsOrientation}
+      </p>
+      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link className={OPERATOR_LINK.nav} href="/help/authentication-sign-in">
           Need help signing in?
         </Link>

@@ -4,17 +4,37 @@ import { describe, expect, it } from "vitest";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 
 describe("AuthFlowShell", () => {
-  it("renders children inside a full-width mobile-friendly container", () => {
+  it("renders a branded full-page shell with panel and passwordless footer", () => {
     render(
       <AuthFlowShell>
         <p>Sign-in content</p>
       </AuthFlowShell>,
     );
 
+    expect(screen.getByTestId("auth-flow-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("auth-flow-panel")).toBeInTheDocument();
     expect(screen.getByText("Sign-in content")).toBeInTheDocument();
-    const shell = screen.getByText("Sign-in content").parentElement;
-    expect(shell?.className).toMatch(/max-w-\[560px]/);
-    expect(shell?.className).toMatch(/px-4/);
-    expect(shell?.className).toMatch(/sm:px-6/);
+    expect(screen.getByLabelText("ArchLucid — welcome")).toBeInTheDocument();
+    expect(screen.getByText(/Architecture review workspace/i)).toBeInTheDocument();
+    expect(screen.getByText(/does not use a product password/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Start an evaluation/i })).toHaveAttribute(
+      "href",
+      "/signup",
+    );
+    expect(screen.getByRole("link", { name: /Authentication help/i })).toHaveAttribute(
+      "href",
+      "/help/authentication-sign-in",
+    );
+  });
+
+  it("hides evaluation signup when requested", () => {
+    render(
+      <AuthFlowShell showEvaluationSignupLink={false}>
+        <p>Invite flow</p>
+      </AuthFlowShell>,
+    );
+
+    expect(screen.queryByRole("link", { name: /Start an evaluation/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Authentication help/i })).toBeInTheDocument();
   });
 });

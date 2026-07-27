@@ -5,7 +5,11 @@
 
 /** When both sign-in methods are shown on one screen. */
 export const CUSTOMER_AUTH_DUAL_METHOD_LEAD =
-  "Sign in with your work account or use a one-time code sent to any email address.";
+  "Architect plan and other individual accounts sign in with a work account or a one-time code sent to any email address. Company SSO applies only when your organization has configured it.";
+
+/** Short orientation under the method buttons for non-SSO audiences. */
+export const CUSTOMER_AUTH_NON_SSO_ORIENTATION =
+  "If your organization uses company SSO, choose work or school account — or enter your work email for an email code and ArchLucid will route you when SSO is required.";
 
 export const CUSTOMER_AUTH_WORK_SCHOOL_ACTION = "Continue with work or school account";
 

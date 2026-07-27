@@ -266,4 +266,4 @@ This is a **capture brief**: what to show on screen, data state, annotations, an
 |-----|-----|
 | [CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md) | All Docker workflows including demo overlay |
 | [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) | Technical demo seed and HTTP verification |
-| [`#screenshot-capture-brief`](#screenshot-capture-brief) | Marketing/demo PN
+| [`#screenshot-capture-brief`](#screenshot-capture-brief) | Marketing/demo PNG capture brief (10 shots) |

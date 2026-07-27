@@ -29,6 +29,11 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/manifests/[manifestId]": "/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": "/signed-records/[manifestId]/artifacts/[artifactId]",
     "/settings/cost-reporting": "/settings/ai-usage",
+    # TB-1124: Advisory scans hub under Governance (next.config permanent redirects only).
+    "/advisory": "/governance/advisory-scans",
+    "/advisory?tab=scans": "/governance/advisory-scans?tab=scans",
+    "/advisory?tab=schedules": "/governance/advisory-scans?tab=schedules",
+    "/advisory-scheduling": "/governance/advisory-scans?tab=schedules",
 }
 
 DEFAULT_NEW_HIT_PCT = "0.02%"
@@ -123,7 +128,7 @@ def discover_tab_paths() -> list[str]:
 
     paths: list[str] = []
     for tab_id in advisory_tabs:
-        paths.append(_tab_path("/advisory", "tab", tab_id))
+        paths.append(_tab_path("/governance/advisory-scans", "tab", tab_id))
     for tab_id in digests_tabs:
         paths.append(_tab_path("/digests", "tab", tab_id))
     for tab_id in alert_rules_tabs:
@@ -177,6 +182,8 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Core review"
     if path in ("/", "/dashboard", "/ask"):
         return "Core review"
+    if path.startswith("/governance/advisory-scans") or path.startswith("/operate"):
+        return "Advisory"
     if path.startswith("/governance") or path.startswith("/alert"):
         return "Alerts/gov"
     if path.startswith("/settings"):
@@ -191,8 +198,6 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
         return "Help topic"
     if path.startswith("/executive"):
         return "Executive"
-    if path.startswith("/advisory") or path.startswith("/operate") or path == "/advisory-scheduling":
-        return "Advisory"
     if path.startswith("/digests") or path == "/digest-subscriptions":
         return "Digests"
     if path.startswith("/onboard") or path.startswith("/getting-started") or path == "/product-learning":

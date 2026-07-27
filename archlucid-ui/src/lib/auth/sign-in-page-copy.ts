@@ -2,19 +2,21 @@ import type { EmailOtpApiFailureCategory } from "@/lib/auth/email-otp-api";
 import {
   CUSTOMER_AUTH_DUAL_METHOD_LEAD,
   CUSTOMER_AUTH_EMAIL_CODE_ACTION,
+  CUSTOMER_AUTH_NON_SSO_ORIENTATION,
   CUSTOMER_AUTH_WORK_SCHOOL_ACTION,
 } from "@/lib/auth/customer-auth-messaging";
 
 export const SIGN_IN_PAGE_COPY = {
   optionsTitle: "Sign in to ArchLucid",
   optionsLead: CUSTOMER_AUTH_DUAL_METHOD_LEAD,
+  optionsOrientation: CUSTOMER_AUTH_NON_SSO_ORIENTATION,
   workSchoolPrimary: CUSTOMER_AUTH_WORK_SCHOOL_ACTION,
   emailCodeSecondary: CUSTOMER_AUTH_EMAIL_CODE_ACTION,
   microsoftSupplemental: "Continue with Microsoft",
   googleSupplemental: "Continue with Google",
   emailTitle: "Sign in with email",
   emailLead:
-    "Enter your email address and ArchLucid will send you a one-time sign-in code. No password is required.",
+    "Enter your email address and ArchLucid will send you a one-time sign-in code. No password is required. Use this path for Architect plan and other accounts that do not use company SSO.",
   emailLabel: "Email address",
   sendCode: "Send code",
   backToOptions: "Back to sign-in options",

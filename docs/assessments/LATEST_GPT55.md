@@ -339,7 +339,7 @@ _Added 2026-07-05, post-pass, at owner request — code-verified against the sam
 > - At least one committed `*.real.json` exemplar is updated to carry a realistic `retrievalHits` array (including at least one `KnowledgeGraphNodeNeighbor`-sourced hit) as a worked example / fixture for the new code path.
 > - `run_rag_live_model_faithfulness_signal.py` and `eval_agent_corpus.py` unit/contract tests continue to pass unmodified for exemplars without `retrievalHits`.
 >
-> **Tests to add/update:** extend whatever test module already covers `run_rag_live_model_faithfulness_signal.py` (add a case with and without `retrievalHits`); update `docs/quality/faithfulness-report.md`/`rag-live-model-faithfulness-summary.md` generation tests if a golden-file assertion exists on their exact contents; note the new capability in `docs/go-to-market/DEEPER_RAG_QUALITY_PROGRAM.md` Phase B row.
+> **Tests to add/update:** extend whatever test module already covers `run_rag_live_model_faithfulness_signal.py` (add a case with and without `retrievalHits`); update `docs/quality/faithfulness-report.md`/`rag-live-model-faithfulness-summary.md` generation tests if a golden-file assertion exists on their exact contents; note the new capability in `docs/go-to-market/AI_READINESS_POSTURE.md#deeper-rag-quality-program` Phase B row.
 
 #### Closed — Community summarization Graph-RAG (RAG-V2-001) scope decision
 

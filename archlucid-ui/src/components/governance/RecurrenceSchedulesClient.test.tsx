@@ -12,9 +12,12 @@ import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import RecurrenceSchedulesClient from "@/components/governance/RecurrenceSchedulesClient";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import {
+  RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,
+  RECURRENCE_SCHEDULES_EMPTY_SUPPORTING,
   RECURRENCE_SCHEDULES_HELPER_BODY,
   RECURRENCE_SCHEDULES_HELPER_NEXT_STEP,
   RECURRENCE_SCHEDULES_HELPER_TITLE,
+  RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY,
   RECURRENCE_SCHEDULES_PAGE_SUBTITLE,
   RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
@@ -52,22 +55,37 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByText(RECURRENCE_SCHEDULES_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.queryByText(/Workspace governance status, pending approvals/i)).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(/Define repeatable review cadences for committed architecture records/i),
-    ).not.toBeInTheDocument();
+  });
+
+  it("keeps one short lead and folds longer prose into How-it-works (TB-1130)", async () => {
+    render(<RecurrenceSchedulesClient />);
+
+    expect(await screen.findByTestId("recurrence-schedules-page")).toBeInTheDocument();
+    expect(screen.getByText(RECURRENCE_SCHEDULES_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("recurrence-schedules-create-action")).toBeInTheDocument();
+
+    const howItWorks = screen.getByTestId("recurrence-schedules-how-it-works");
+
+    expect(howItWorks).toBeInTheDocument();
+    expect(howItWorks).not.toHaveAttribute("open");
+    expect(screen.getByText(RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY)).toBeInTheDocument();
+
+    const emptyState = await screen.findByTestId("recurrence-schedules-empty-state");
+
+    expect(emptyState).toHaveTextContent(RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION);
+    // Supporting sentence is folded into How-it-works — not repeated in the empty card.
+    expect(emptyState).not.toHaveTextContent(RECURRENCE_SCHEDULES_EMPTY_SUPPORTING);
   });
 
   it("renders helpful empty state copy and create action", async () => {
     render(<RecurrenceSchedulesClient />);
 
-    expect(await screen.findByTestId("recurrence-schedules-empty-state")).toBeInTheDocument();
+    const emptyState = await screen.findByTestId("recurrence-schedules-empty-state");
+
+    expect(emptyState).toBeInTheDocument();
     expect(screen.getByText("No recurrence schedules yet")).toBeInTheDocument();
-    expect(
-      screen.getByText(/quarterly control validation, annual policy review, post-remediation follow-up/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/accepted risks, policy exceptions, and governed architecture decisions/i),
-    ).toBeInTheDocument();
+    expect(emptyState).toHaveTextContent(RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION);
+    expect(emptyState).not.toHaveTextContent(RECURRENCE_SCHEDULES_EMPTY_SUPPORTING);
     expect(screen.getByTestId("recurrence-schedules-create-action")).toBeInTheDocument();
     expect(screen.getByTestId("recurrence-schedules-empty-create")).toBeInTheDocument();
     expect(screen.getByTestId("recurrence-schedule-examples")).toBeInTheDocument();

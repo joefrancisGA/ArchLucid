@@ -33,7 +33,7 @@ export function SessionExpiredView({
   const copy = getSessionMessageCopy(reason);
 
   return (
-    <div className="max-w-[560px]">
+    <div data-testid="session-expired-view">
       <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)} data-testid="session-expired-heading">
         {copy.title}
       </h2>

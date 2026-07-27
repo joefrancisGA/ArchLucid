@@ -130,10 +130,6 @@ vi.mock("@/app/(operator)/governance/advisory-scans/page", () => ({
   },
 }));
 
-vi.mock("@/components/advisory/AdvisorySchedulingClient", () => ({
-  AdvisorySchedulingClient: () => <div data-testid="stub-advisory-scheduling">Scheduling</div>,
-}));
-
 vi.mock("@/components/digests/DigestsHubClient", () => ({
   DigestsHubClient: () => <div data-testid="stub-digests-hub">Digests</div>,
 }));
@@ -200,7 +196,6 @@ vi.mock("@/app/(operator)/value-report/_sections/load-value-report-page-data", (
 
 import SponsorReportExecutiveSummaryPage from "@/app/(operator)/sponsor-report/executive-summary/page";
 import AdvisoryScansPage from "@/app/(operator)/governance/advisory-scans/page";
-import AdvisorySchedulingPage from "@/app/(operator)/advisory-scheduling/page";
 import DigestsPage from "@/app/(operator)/digests/page";
 import DigestSubscriptionsPage from "@/app/(operator)/digest-subscriptions/page";
 import PlanningPage from "@/app/(operator)/planning/page";
@@ -223,16 +218,6 @@ describe("operator value + advisory pages — axe (Vitest)", () => {
     "AdvisoryScansPage has no serious axe violations",
     async () => {
       const { container } = render(<AdvisoryScansPage />);
-
-      expect(await axe(container)).toHaveNoViolations();
-    },
-    20_000,
-  );
-
-  it(
-    "AdvisorySchedulingPage has no serious axe violations",
-    async () => {
-      const { container } = render(<AdvisorySchedulingPage />);
 
       expect(await axe(container)).toHaveNoViolations();
     },

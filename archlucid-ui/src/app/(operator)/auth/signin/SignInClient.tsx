@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
 import { SignInFlowClient } from "@/app/(operator)/auth/signin/SignInFlowClient";
@@ -20,13 +21,15 @@ export function SignInClient() {
 
   if (showsSessionMessage && !sessionAcknowledged) {
     return (
-      <SessionExpiredView
-        reason={reason}
-        onSignIn={() => {
-          setSessionAcknowledged(true);
-        }}
-        hasReturnDestination={hasReturnDestination}
-      />
+      <AuthFlowShell>
+        <SessionExpiredView
+          reason={reason}
+          onSignIn={() => {
+            setSessionAcknowledged(true);
+          }}
+          hasReturnDestination={hasReturnDestination}
+        />
+      </AuthFlowShell>
     );
   }
 

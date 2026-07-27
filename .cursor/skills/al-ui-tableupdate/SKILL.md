@@ -100,8 +100,12 @@ Defined in `scripts/ci/archlucid_ui_route_catalog.py` (`WORKBOOK_PATH_MIGRATIONS
 - `/admin/support` → `/settings/support`
 - `/workspace/security-trust` → `/settings/security-trust`
 - `/governance-resolution` → `/governance/resolution`
+- `/advisory` → `/governance/advisory-scans`
+- `/advisory?tab=scans` → `/governance/advisory-scans?tab=scans`
+- `/advisory?tab=schedules` → `/governance/advisory-scans?tab=schedules`
+- `/advisory-scheduling` → `/governance/advisory-scans?tab=schedules`
 
-Physical pages that also redirect (e.g. `/alert-routing`, `/integrations/itsm`) stay as separate rows.
+Physical pages that also redirect (e.g. `/alert-routing`, `/integrations/itsm`) stay as separate rows. Legacy `/advisory` and `/advisory-scheduling` are **next.config-only** redirects (no App Router stubs).
 
 ## Guardrails
 
