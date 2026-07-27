@@ -340,8 +340,12 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1478 | Digests schedule — empty/form+readiness-rail whitespace | Adoption friction P0 **V1** — with **TB-1477** |
 | TB-1479 | Alert rules Rules tab — empty `gap-8` list+create+preview two-col | Adoption friction P0 **V1** — with **TB-1477**; pairs **TB-936** |
 | TB-1480 | Digests browse — empty checklist+preview+empty stack composition | Adoption friction P0 **V1** — with **TB-1477** |
+| TB-1570 | Paying-tenant / API-key LLM spend-storm + metering-vs-AOAI-billing dispute claim map | Cost-effectiveness P1 **V1** — PA spend-storm / dispute Q; GTM **M-294**/**M-295**; see `PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md` |
+| TB-1571 | Anti-unbounded-key-spend / anti-product-meter-equals-Azure-invoice honesty CI | Testability P1 **V1** — after **TB-1570**; pairs **M-294** |
+| TB-1577 | Shared-CA / shared-AOAI-TPM noisy-neighbor + per-tenant fairness claim map | Scalability P1 **V1** — PA noisy-neighbor Q; GTM **M-296**/**M-297**; see `SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`; orchestrates **TB-1336** |
+| TB-1578 | Anti-fair-share-TPM / anti-replicas-isolate-LLM / anti-silent-starvation honesty CI | Testability P1 **V1** — after **TB-1577**; pairs **M-296** |
 | TB-1481 | Alert routing — empty destinations+GettingStarted+create-card first viewport | Adoption friction P0 **V1** — with **TB-1477**; pairs **TB-1441** |
-| TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory | Testability P0 **V1** — after **TB-1477**–**TB-1481**; orchestrates **TB-1133**/**TB-1177**/**TB-1194** |
+| TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory | Testability P0 **V1** — after **TB-1477**–**TB-1481**; pairs Done **TB-1133** / empty **TB-1556** / side-rail **TB-1576** / **TB-1177**/**TB-1194** |
 | TB-1483 | `/compliance-journey` — MarketingPageShell + marketing tokens (parity `/trust`) | Adoption friction P0 **V1** — owner COM ~54/100; traffic **COM** |
 | TB-1484 | Compliance journey — ISR `revalidate=300` + surface test id | Performance/testability P0 **V1** — with **TB-1483**; pairs **TB-567** |
 | TB-1485 | Compliance journey — staged structure + primary Trust Center CTA (not flat link dump) | Adoption friction P0 **V1** — with **TB-1483** |
@@ -438,10 +442,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1289 | Recycle bin — Administration wayfinding + PageHeading/help | Adoption friction P0 **V1** — owner STR re-review ~58/100; complements **TB-1179**–**TB-1182**; pairs **TB-1223** |
 | TB-1290 | Recycle bin — Dialog confirm before Restore | Adoption friction P0 **V1** — with **TB-1289** |
 | TB-1291 | Recycle bin — OperatorEmptyState + loading notice | Adoption friction P0 **V1** — with **TB-1182** |
-| TB-1130 | Recurrence schedules collapse dense intro prose | Adoption friction P0 **V1** — with Done **TB-1129** |
-| TB-1131 | Recurrence schedules single primary CTA + dedupe secondary links | Adoption friction P0 **V1** — with **TB-1130** |
-| TB-1132 | Recurrence schedule examples use human cadence (not raw cron first) | Adoption friction P0 **V1** — with **TB-1131** |
-| TB-1133 | Recurrence schedules empty first-viewport composition | Adoption friction P0 **V1** — with **TB-1130**–**TB-1132** |
 | TB-1134 | Rename Governance setup → /governance/setup | Adoption friction P0 **V1** — owner governance setup ~52/100 |
 | TB-1135 | Governance setup naming consistency (drop First 30 days chip) | Adoption friction P0 **V1** — with **TB-1134** |
 | TB-1136 | Governance setup orientation (not generic Governance overview) | Adoption friction P0 **V1** — with **TB-1134**; cf. **TB-1129** |

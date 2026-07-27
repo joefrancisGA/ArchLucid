@@ -94,6 +94,8 @@ Open `http://localhost:8080` and load **`workspace.dsl`** from this directory.
 - **Pilot UX backlog (2026-06-15)** — [`PILOT_UX_BACKLOG_2026_06_15.md`](../archive/assessments/PILOT_UX_BACKLOG_2026_06_15.md) — P0/P1/P2 items absorbed into **TECH_BACKLOG** (archived)
 - **Overview page first-use IA audit (2026-07-05)** — [`OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md`](OVERVIEW_PAGE_FIRST_USE_IA_AUDIT_2026_07_05.md) — decision memo on streamlining the Overview page's overlapping "first review" / onboarding elements to one dominant path; recommended IA, naming cleanup, and phased implementation plan
 - **Overview page first-use IA implementation prompts (2026-07-05)** — [`OVERVIEW_PAGE_FIRST_USE_IA_IMPLEMENTATION_PROMPTS_2026_07_05.md`](../archive/assessments/OVERVIEW_PAGE_FIRST_USE_IA_IMPLEMENTATION_PROMPTS_2026_07_05.md) — completed / archived one-shot prompts
+- **Grok top-20 external-skeptic Q&A + backlog (2026-07-27)** — [`GROK_TOP20_QUESTIONS_QA_BACKLOG_2026_07_27.md`](GROK_TOP20_QUESTIONS_QA_BACKLOG_2026_07_27.md) — 20 adversarial questions with grounded answers, existing-row dispositions, and proposed items **GQ-01**–**GQ-07** pending TB/M transcription
+- **Grok Q21–40 external-skeptic Q&A + backlog (2026-07-27)** — [`GROK_Q21_40_QUESTIONS_QA_BACKLOG_2026_07_27.md`](GROK_Q21_40_QUESTIONS_QA_BACKLOG_2026_07_27.md) — second batch: unit economics, hyperscaler dependency, liability/IP, channels, agentic future, solo-vendor ops; proposed items **GQ-09**–**GQ-18** pending TB/M transcription
 
 ### API and contracts
 - **HTTP contracts** — `../library/API_CONTRACTS.md`

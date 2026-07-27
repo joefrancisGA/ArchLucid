@@ -4,6 +4,7 @@ import type { Page } from "@playwright/test";
 export const SCREENSHOT_LEGACY_REDIRECT_URL_PATTERNS: Readonly<Record<string, RegExp>> = {
   "/advisory": /\/governance\/advisory-scans(?:\?[^#]*)?(?:$|#)/,
   "/advisory-scheduling": /\/governance\/advisory-scans\?tab=schedules(?:&[^#]*)?(?:$|#)/,
+  "/governance/first-30-days": /\/governance\/setup(?:\?[^#]*)?(?:$|#)/,
   "/settings/exec-digest": /\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/,
   "/digest-subscriptions": /\/digests\?tab=subscriptions(?:&[^#]*)?(?:$|#)/,
   "/audit": /\/governance\/audit(?:\?|$|#)/,
