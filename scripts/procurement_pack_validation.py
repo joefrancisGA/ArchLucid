@@ -451,7 +451,7 @@ PROCUREMENT_DEFERRED_REALISM_NOTES: tuple[str, ...] = (
     "SOC 2 Type II CPA report: not currently issued — procurement realism deferral "
     "(see docs/go-to-market/SOC2_STATUS_PROCUREMENT.md).",
     "Third-party penetration test against V1: deferred — not a V1 product gate "
-    "(see docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md).",
+    "(see docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md#current-assurance-posture-evidence).",
 )
 
 

@@ -1,6 +1,6 @@
 ﻿> **Reviewed:** 2026-07-26
 
-> **Scope:** Canonical assurance status source for procurement-facing language — current status, deferred windows, allowed wording, evidence links — plus procurement documentation review cadence (formerly `REVIEW_CADENCE.md`) and the SOC 2 readiness roadmap (formerly `SOC2_ROADMAP.md`).
+> **Scope:** Canonical assurance status source for procurement-facing language — current status, deferred windows, allowed wording, evidence links — plus procurement documentation review cadence (formerly `REVIEW_CADENCE.md`), the SOC 2 readiness roadmap (formerly `SOC2_ROADMAP.md`), and the repository-linked current assurance posture evidence snapshot (formerly the body of `CURRENT_ASSURANCE_POSTURE.md`; that filename remains a path-stable pack alias).
 
 # Assurance Status Canonical
 
@@ -8,10 +8,10 @@
 
 **Last reviewed:** 2026-07-26
 
-This document is the single source of truth for assurance status wording used by:
+This document is the single source of truth for assurance status wording and the buyer-facing evidence snapshot used by:
 
 - `trust-center.md`
-- `CURRENT_ASSURANCE_POSTURE.md`
+- `CURRENT_ASSURANCE_POSTURE.md` (path-stable pack alias → [`#current-assurance-posture-evidence`](#current-assurance-posture-evidence))
 - `BUYER_SECURITY_PROCUREMENT_PACKET.md` ([procurement FAQ Q&A](BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq))
 - `PROCUREMENT_RESPONSE_ACCELERATOR.md`
 - `SOC2_STATUS_PROCUREMENT.md`
@@ -34,7 +34,7 @@ Cadence: [`#procurement-documentation-review-cadence`](#procurement-documentatio
 
 ## Authoring rules
 
-- [`SOC2_STATUS_PROCUREMENT.md`](SOC2_STATUS_PROCUREMENT.md) is a path-stable procurement-pack alias; this document is the wording source of truth.
+- [`SOC2_STATUS_PROCUREMENT.md`](SOC2_STATUS_PROCUREMENT.md) and [`CURRENT_ASSURANCE_POSTURE.md`](CURRENT_ASSURANCE_POSTURE.md) are path-stable procurement-pack aliases; this document is the wording and evidence-snapshot source of truth.
 - Do not use "in flight" for third-party pen-test or SOC2 attestation items while status remains deferred.
 - Do not imply issuance of external attestations when evidence is self-assessment or template-only.
 - If status changes, update this file first, then update all listed downstream docs in the same change.
@@ -105,6 +105,114 @@ Dates are **placeholders** until leadership and an auditor confirm.
 
 ---
 
+## Current assurance posture (evidence snapshot) {#current-assurance-posture-evidence}
+
+Former body of `docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md` → this section. The filename [`CURRENT_ASSURANCE_POSTURE.md`](CURRENT_ASSURANCE_POSTURE.md) remains a **path-stable procurement-pack alias**.
+
+**Classification:** Buyer-facing (include alias in procurement pack ZIP). This section summarizes security, compliance, and assurance evidence ArchLucid provides today. Every claim links to a source artifact in the repository. Status wording must match the [canonical status table](#canonical-status-table) above — do not introduce different assurance wording here.
+
+### Continuous security testing in CI
+
+ArchLucid runs automated security checks on every pull request and merge to main. These are **merge-blocking** unless noted.
+
+| Check | Tool | What it catches | CI status |
+|-------|------|----------------|-----------|
+| Secret scanning | [Gitleaks](https://github.com/gitleaks/gitleaks) (`.gitleaks.toml`) | Leaked API keys, connection strings, tokens in committed code | **Merge-blocking** (Tier 0) |
+| Static analysis (security-extended) | [CodeQL](https://codeql.github.com/) (`.github/workflows/codeql.yml`) | SQL injection, XSS, insecure deserialization, tainted data flows | **Merge-blocking** |
+| DAST baseline | [OWASP ZAP](https://www.zaproxy.org/) (`infra/zap/`) | Common web vulnerabilities (OWASP Top 10) against running API image | **Scheduled** (strict variant: `zap-baseline-strict-scheduled.yml`) |
+| API contract fuzz | [Schemathesis](https://schemathesis.readthedocs.io/) (`.github/workflows/schemathesis-scheduled.yml`) | Invalid inputs, unexpected status codes, OpenAPI contract violations | **Scheduled** |
+| Container image scan | [Trivy](https://aquasecurity.github.io/trivy/) (in `ci.yml`) | Known CVEs in OS packages and .NET dependencies | **Merge-blocking** |
+| IaC misconfiguration scan | [Trivy](https://aquasecurity.github.io/trivy/) (Terraform config check in `ci.yml`) | Public exposure, encryption gaps, IAM misconfigurations in Terraform | **Merge-blocking** |
+| Dependency audit | [Dependabot](https://docs.github.com/en/code-security/dependabot) (`.github/dependabot.yml`) | Known vulnerabilities in NuGet and npm dependencies | **Automated PRs** |
+| SBOM generation | CycloneDX (in `ci.yml`) | Software Bill of Materials for .NET and npm packages | **Per-build artifact** |
+
+**Evidence:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml), [`.github/workflows/codeql.yml`](../../.github/workflows/codeql.yml)
+
+### Data isolation model
+
+| Layer | Mechanism | Evidence |
+|-------|-----------|---------|
+| **Identity** | Microsoft Entra ID (OIDC / JWT) with app roles (Admin, Operator, Reader, Auditor); optional API keys for automation | [`docs/library/contributor-reference/SECURITY.md`](../library/contributor-reference/SECURITY.md) |
+| **Application** | RBAC policies (`ReadAuthority`, `ExecuteAuthority`, `AdminAuthority`); request-scoped tenant/workspace/project context | [`ArchLucid.Api/Auth/`](../../ArchLucid.Api/Auth/) |
+| **Database** | **Database-per-tenant** SQL catalogs via `TenantDatabaseBindings`; application scope predicates within each catalog — **SQL RLS is not used in production** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)) | [`docs/go-to-market/TENANT_ISOLATION.md`](TENANT_ISOLATION.md) |
+| **Network** | Optional Azure Front Door + WAF; private endpoints for Azure SQL and Blob; no public SMB (port 445) | [`docs/library/CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
+| **Secrets** | Azure Key Vault references for application configuration in hosted deployments | [`docs/library/CONFIGURATION_KEY_VAULT.md`](../library/CONFIGURATION_KEY_VAULT.md) |
+
+**Evidence:** [`docs/go-to-market/TENANT_ISOLATION.md`](TENANT_ISOLATION.md)
+
+### Audit trail
+
+| Capability | Detail |
+|-----------|--------|
+| Event catalog | 117 typed audit event constants with CI guard on count |
+| Storage | Append-only SQL table (`dbo.AuditEvents`) with `DENY UPDATE` / `DENY DELETE` at database level |
+| Search | Paginated API with keyset cursor, filtered by event type, actor, run ID, correlation ID, time window |
+| Export | JSON and CSV bulk export (`GET /v1/audit/export`); 90-day window per request; max 10,000 rows per call |
+| Retention | Tiered (hot 0-90 days, warm 90-365 days, cold 365+ days via operator-scheduled blob exports) |
+
+**Evidence:** [`docs/library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md), [`docs/library/AUDIT_RETENTION_POLICY.md`](../library/AUDIT_RETENTION_POLICY.md)
+
+### Threat modeling
+
+| Artifact | Scope | Evidence |
+|----------|-------|---------|
+| STRIDE system threat model | Full product boundary (API, SQL, LLM, Blob, Service Bus, billing webhooks, trial lifecycle) | [`docs/security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) |
+| ASK/RAG threat model | Natural-language query surface (prompt injection, data exfiltration, context poisoning) | [`docs/security/ASK_RAG_THREAT_MODEL.md`](../security/ASK_RAG_THREAT_MODEL.md) |
+| LLM prompt redaction | Configurable deny-list redaction before Azure OpenAI; aligned trace persistence redaction | [`docs/runbooks/LLM_PROMPT_REDACTION.md`](../runbooks/LLM_PROMPT_REDACTION.md) |
+
+### Compliance and privacy
+
+| Artifact | Status | Evidence |
+|----------|--------|---------|
+| SOC 2 self-assessment (Security + Availability) | **Completed** (internal; not CPA attestation) | [`docs/security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) |
+| SOC 2 Type I scoping | **Deferred (funding-gated)** | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md), [canonical status table](#canonical-status-table) |
+| CAIQ Lite pre-fill (CSA STAR) | **Completed** | [`docs/security/CAIQ_LITE_2026.md`](../security/CAIQ_LITE_2026.md) |
+| SIG Core pre-fill (Shared Assessments) | **Completed** | [`docs/security/SIG_CORE_2026.md`](../security/SIG_CORE_2026.md) |
+| Compliance control matrix | **Completed** | [`docs/security/COMPLIANCE_MATRIX.md`](../security/COMPLIANCE_MATRIX.md) |
+| VPAT® 2.5–style WCAG 2.1 A/AA Accessibility Conformance Report | **Completed** (honest, evidence-based; not legal certification) | [`docs/security/VPAT_2_5_WCAG_2_1_AA.md`](../security/VPAT_2_5_WCAG_2_1_AA.md); evidence map: [`docs/security/VPAT_EVIDENCE_MAP.md`](../security/VPAT_EVIDENCE_MAP.md) |
+| Data Processing Agreement template | **Completed** (requires legal review) | [`docs/go-to-market/DPA_TEMPLATE.md`](DPA_TEMPLATE.md) |
+| GDPR DSAR process | **Completed** | [`docs/security/DSAR_PROCESS.md`](../security/DSAR_PROCESS.md) |
+| Subprocessors register | **Completed** | [`docs/go-to-market/SUBPROCESSORS.md`](SUBPROCESSORS.md) |
+
+### Penetration testing
+
+| Engagement | Status | Detail |
+|-----------|--------|--------|
+| Third-party pen test (external vendor) | **Deferred to V2** — no vendor awarded for V1; templates at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md) | Typical scope: API, architect workspace, hosted SaaS data plane — confirm in executed SoW |
+| Owner-conducted penetration-style assessment | **Active V1 control** (owner-led) | [`docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) |
+| Owner-conducted security self-assessment | **Completed** (interim posture) | [`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) |
+
+**Access to pen-test results:** Redacted summaries are available **under NDA only**. Contact `security@archlucid.net`.
+
+### Infrastructure as Code
+
+All infrastructure is defined in Terraform across 14 modules:
+
+| Module | Purpose |
+|--------|---------|
+| `infra/terraform/` | Core Azure resources (resource group, app config) |
+| `infra/terraform-sql-failover/` | Azure SQL with auto-failover groups, automatic tuning, consumption budgets |
+| `infra/terraform-container-apps/` | Container Apps environment, jobs, secondary region |
+| `infra/terraform-edge/` | Azure Front Door, WAF, marketing routes |
+| `infra/terraform-monitoring/` | Application Insights, Grafana dashboards, Prometheus SLO rules |
+| `infra/terraform-storage/` | Azure Blob Storage |
+| `infra/terraform-keyvault/` | Azure Key Vault |
+| `infra/terraform-servicebus/` | Azure Service Bus with IAM |
+| `infra/terraform-entra/` | Entra ID app registrations, External ID |
+| `infra/terraform-openai/` | Azure OpenAI |
+| `infra/terraform-private/` | Private endpoints, App Service, network |
+| `infra/terraform-otel-collector/` | OpenTelemetry collector |
+| `infra/terraform-pilot/` | Pilot-sized deployment |
+| `infra/terraform-orchestrator/` | Orchestrator resources |
+
+**Evidence:** [`infra/`](../../infra/), [`docs/library/DEPLOYMENT_TERRAFORM.md`](../library/DEPLOYMENT_TERRAFORM.md)
+
+### Contact
+
+For security inquiries, procurement pack requests, or NDA-gated materials: **`security@archlucid.net`**
+
+---
+
 ## Procurement documentation review cadence
 
 **Audience:** Maintainers of procurement/trust documents and release managers.  
@@ -116,7 +224,7 @@ Includes stale-document escalation expectations.
 |---|---|---|---|
 | `ASSURANCE_STATUS_CANONICAL.md` (this file) | Security lead | Every 30 days | Update first, then refresh all downstream assurance surfaces in the same change |
 | `trust-center.md` | Security lead | Every 30 days | Raise in release checklist and update before procurement pack release |
-| `CURRENT_ASSURANCE_POSTURE.md` | Security lead | Every 30 days | Block procurement deal-ready mode until refreshed |
+| `CURRENT_ASSURANCE_POSTURE.md` (pack alias) + [`#current-assurance-posture-evidence`](#current-assurance-posture-evidence) | Security lead | Every 30 days | Block procurement deal-ready mode until this file (evidence section) is refreshed |
 | `BUYER_SECURITY_PROCUREMENT_PACKET.md` | Security lead | Every 30 days | Re-validate isolation / evidence routing before principal-architect or security reviews |
 | `CLAIM_READINESS_STATUS.md` | Founder / GTM owner | After each pilot or release review | Hold outbound claim stage advances until gates refreshed |
 | `SLA_SUMMARY.md` | Platform lead | Every 45 days | Escalate to product + ops owner for confirmation |
@@ -137,5 +245,6 @@ Includes stale-document escalation expectations.
 - Trust-center links / posture: `scripts/ci/check_trust_center_links.py`, `scripts/ci/check_trust_center_posture_freshness.py`
 
 Former standalone: `docs/go-to-market/REVIEW_CADENCE.md` → this section.  
-Former standalone: `docs/go-to-market/SOC2_ROADMAP.md` → [`#soc-2-readiness-roadmap`](#soc-2-readiness-roadmap).
+Former standalone: `docs/go-to-market/SOC2_ROADMAP.md` → [`#soc-2-readiness-roadmap`](#soc-2-readiness-roadmap).  
+Former body: `docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md` → [`#current-assurance-posture-evidence`](#current-assurance-posture-evidence) (filename kept as pack alias).
 

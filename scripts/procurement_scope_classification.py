@@ -45,7 +45,7 @@ PROCUREMENT_SCOPE_CATALOG: tuple[dict[str, str], ...] = (
             "External assessor deliverables and Trust Center publication are V2; V1 relies on "
             "owner-conducted testing documented in assurance materials."
         ),
-        "source_doc": "docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md",
+        "source_doc": "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
     },
     {
         "id": "public-reference-customer",
