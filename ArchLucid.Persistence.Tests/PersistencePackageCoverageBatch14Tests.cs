@@ -33,7 +33,7 @@ public sealed class PersistencePackageCoverageBatch14Tests
     public async Task SqlPrimaryMirroredReadReplicaConnectionFactory_delegates_to_primary_factory()
     {
         Mock<ISqlConnectionFactory> primary = new();
-        SqlConnection expected = new("Server=.;Database=test;Encrypt=False;");
+        SqlConnection expected = new("Server=.;Database=test;Encrypt=True;TrustServerCertificate=True;");
         primary.Setup(p => p.CreateOpenConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(expected);
 
         SqlPrimaryMirroredReadReplicaConnectionFactory sut = new(primary.Object);

@@ -11,6 +11,8 @@ export const nextNavigationVitestStubs: Partial<NextNavigationModule> = {
     push: vi.fn(),
     refresh: vi.fn(),
     replace: vi.fn(),
+    // Next AppRouterInstance requires bfcacheId for segment-scoped remount keys.
+    bfcacheId: "vitest-bfcache",
   }),
   usePathname: () => "/",
   // Match Next readonly params API shape expected by TS
