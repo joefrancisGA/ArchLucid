@@ -49,8 +49,8 @@ describe("privacy-policy-content", () => {
 
     expect(metadata.sourcePath).toBe(PRIVACY_POLICY_CONTROLLED_SOURCE_PATH);
     expect(metadata.effectiveDate).toBe("2026-04-26");
-    expect(metadata.lastReviewedUtc).toBe("2026-05-10");
-    expect(metadata.documentVersion).toBe("2026-05-10");
+    expect(metadata.lastReviewedUtc).toBe("2026-07-25");
+    expect(metadata.documentVersion).toBe("2026-07-25");
   });
 
   it("parses effective and reviewed dates from sample markdown", () => {

@@ -29,9 +29,17 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/manifests/[manifestId]": "/signed-records/[manifestId]",
     "/manifests/[manifestId]/artifacts/[artifactId]": "/signed-records/[manifestId]/artifacts/[artifactId]",
     "/settings/cost-reporting": "/settings/ai-usage",
+    "/advisory": "/governance/advisory-scans",
+    "/advisory-scheduling": "/governance/advisory-scans?tab=schedules",
 }
 
-DEFAULT_NEW_HIT_PCT = "0.02%"
+# Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
+REDIRECT_ONLY_APP_PATHS = frozenset(
+    {
+        "/advisory",
+        "/advisory-scheduling",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -123,7 +131,7 @@ def discover_tab_paths() -> list[str]:
 
     paths: list[str] = []
     for tab_id in advisory_tabs:
-        paths.append(_tab_path("/advisory", "tab", tab_id))
+        paths.append(_tab_path("/governance/advisory-scans", "tab", tab_id))
     for tab_id in digests_tabs:
         paths.append(_tab_path("/digests", "tab", tab_id))
     for tab_id in alert_rules_tabs:
@@ -209,6 +217,9 @@ def build_catalog() -> dict[str, CatalogEntry]:
     catalog: dict[str, CatalogEntry] = {}
 
     for path in discover_app_router_paths():
+        if path in REDIRECT_ONLY_APP_PATHS:
+            continue
+
         catalog[path] = CatalogEntry(path=path, section=infer_section(path, help_alias_paths=help_alias_paths), source="app_router")
 
     for path in help_paths:

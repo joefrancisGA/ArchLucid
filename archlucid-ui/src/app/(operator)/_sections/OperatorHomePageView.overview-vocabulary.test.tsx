@@ -6,9 +6,9 @@ import { OperatorHomePageView } from "@/app/(operator)/_sections/OperatorHomePag
 import type { OperatorHomePageViewModel } from "@/app/(operator)/_sections/operator-home-page-view-model";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
-  OPERATOR_HOME_RECENT_REVIEWS_HEADING,
+  OPERATOR_HOME_DO_THIS_NEXT_HEADING,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
-  OPERATOR_HOME_READY_TO_BEGIN_TITLE,
+  OPERATOR_HOME_RECENT_REVIEWS_HEADING,
 } from "@/lib/buyer-polish-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
@@ -102,6 +102,26 @@ vi.mock("@/components/dev-testing/DevTestingQuickSwitchPanel", () => ({
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
   useNavCallerAuthorityRank: () => 3,
+}));
+
+vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
+  useFeaturedCompletedSampleQuery: () => ({
+    isPending: false,
+    isError: false,
+    data: {
+      selectedRunId: "claims-intake-modernization",
+      isConfigured: true,
+      isAvailable: true,
+      reviewTitle: "Claims intake modernization",
+      architectureName: "Claims intake modernization",
+      completedUtc: "2026-01-01T00:00:00.000Z",
+      isSampleApproved: true,
+    },
+  }),
+}));
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
 }));
 
 vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
@@ -225,8 +245,8 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
     });
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-readiness-strip")).toBeInTheDocument();
-    expect(screen.getByText(OPERATOR_HOME_READY_TO_BEGIN_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();
@@ -243,8 +263,8 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
     });
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-readiness-strip")).toBeInTheDocument();
-    expect(screen.getByText(OPERATOR_HOME_READY_TO_BEGIN_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: OPERATOR_HOME_DO_THIS_NEXT_HEADING })).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE })).toBeInTheDocument();

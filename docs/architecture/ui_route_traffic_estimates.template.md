@@ -100,7 +100,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | VXX | `/value-report` | 0.2% | 0 | 0 | 20 | Marketing | None |
 | FI | `/help/first-review` | 0.18% | 0 | 0 | 18 | Help topic | None |
 | AHX | `/admin/health` | 0.15% | 0 | 0 | 15 | Admin | None |
-| ADV | `/advisory` | 0.15% | 0 | 0 | 15 | Advisory | None |
+| GAS | `/governance/advisory-scans` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | GAI | `/governance/approval-requests/[id]/lineage` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | GRS | `/governance/resolution` | 0.15% | 0 | 0 | 15 | Alerts/gov | None |
 | HCE | `/help/cloud-connections` | 0.15% | 0 | 0 | 15 | Help topic | None |
@@ -159,9 +159,9 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AFX | `/admin/fleet-llm-cogs` | 0.05% | 0 | 0 | 5 | Admin | None |
 | APX | `/admin/pricing-quote-aging` | 0.05% | 0 | 0 | 5 | Admin | None |
 | ATD | `/admin/trial-funnel` | 0.05% | 0 | 0 | 5 | Admin | None |
-| AD | `/advisory-scheduling` | 0.05% | 0 | 0 | 5 | Advisory | None |
 | DIG | `/digest-subscriptions` | 0.05% | 0 | 0 | 5 | Digests | None |
 | GXX | `/get-started` | 0.05% | 0 | 0 | 5 | Marketing | None |
+| AD | `/governance/advisory-scans?tab=schedules` | 0.05% | 0 | 0 | 5 | Tab surface | None |
 | HSX | `/help/scope` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HSE | `/help/security-trust` | 0.05% | 0 | 0 | 5 | Help topic | None |
 | HUX | `/help/users-and-roles` | 0.05% | 0 | 0 | 5 | Help alias | None |
@@ -204,8 +204,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | AXX | `/accessibility` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
-| ADS | `/advisory?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| ADX | `/advisory?tab=schedules` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARN | `/architectures/new` | 0.02% | 0 | 0 | 2 | Core review | None |
@@ -217,6 +215,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | DIX | `/digests?tab=subscriptions` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | EXA | `/example-roi-bulletin` | 0.02% | 0 | 0 | 2 | Marketing | None |
 | EXD | `/executive/dashboard` | 0.02% | 0 | 0 | 2 | Executive | None |
+| GDS | `/governance/advisory-scans?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOA | `/governance/alert-rules` | 0.02% | 0 | 0 | 2 | Alerts/gov | None |
 | GOC | `/governance/alert-rules?tab=composite` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOR | `/governance/alert-rules?tab=routing` | 0.02% | 0 | 0 | 2 | Tab surface | None |

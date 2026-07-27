@@ -127,7 +127,9 @@ describe("DigestSubscriptionsContent", () => {
     fireEvent.change(emailField, { target: { value: "ops@example.com" } });
     fireEvent.blur(emailField);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(/already has an active subscription/i);
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(/already has an active subscription/i);
+    });
     expect(screen.getByTestId("digest-subscription-create-button")).toBeDisabled();
   });
 

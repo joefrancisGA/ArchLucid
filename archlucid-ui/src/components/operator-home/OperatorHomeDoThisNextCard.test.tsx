@@ -57,7 +57,7 @@ describe("OperatorHomeDoThisNextCard", () => {
     });
   });
 
-  it("shows Open sample package on demo-seeded empty Overview (TB-1039)", async () => {
+  it("shows Open sample review on demo-seeded empty Overview (TB-1039)", async () => {
     shouldInjectDemoSeededOverviewSample.mockReturnValue(true);
     vi.mocked(useFinishSetupReadinessContext).mockReturnValue({
       phase: "ready",
