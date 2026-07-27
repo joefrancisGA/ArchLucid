@@ -1,33 +1,33 @@
-> **Reviewed:** 2026-07-24
+> **Reviewed:** 2026-07-27
 
-> **Scope:** Operational G1–G6 status for proof-gated GTM stages. Update after each pilot or release review; not a public marketing page.
+> **Scope:** Operational G1–G6 status for proof-gated GTM stages, plus the G4 proof-packet run log and operating checklist (formerly `PROOF_PACKET_RUN_LOG.md`). Update after each pilot or release review; not a public marketing page.
 
 # Claim readiness status
 
 **Current authorized stage:** Stage 0 — Controlled pilots
 
-**Last reviewed:** 2026-07-24
+**Last reviewed:** 2026-07-27
 
-## Gate table
+## Gate table {#gate-table}
 
 | Gate | Signal | Current status | Evidence link | Blocking dependency | Who unblocks |
 | --- | --- | --- | --- | --- | --- |
 | **G1** | Execution-mode honesty | **PASS** | [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md); `ExecutionModeCrossSurfaceInvariantTests`; pending harden **TB-951** (sponsor-export mode-label CI) | Spot-check one new committed run after each export formatter change; land **TB-951** before relying on formatter-only discipline | Engineering — re-run audit checklist; complete **TB-951** |
 | **G2** | ROI source integrity | **PASS** | [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md), proof-packet ROI table | — | — |
 | **G3** | Tenant isolation provable | **PASS** | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md); [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114) (**M-114**); **TB-925** Done; pending attachable harness **TB-948** + production-like reject **TB-949** | Attach **TB-948** artifact to security packet when available; confirm **TB-949** on staging/demo hosts before PA reviews | Engineering — **TB-948**/**TB-949**; owner — run Claim 1 in [`BUYER_SECURITY_PROCUREMENT_PACKET.md#principal-architect-falsification-script-m-113`](BUYER_SECURITY_PROCUREMENT_PACKET.md#principal-architect-falsification-script-m-113) (**M-113**) |
-| **G4** | Repeatable proof packet | **HOLD** | [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md) | 0 of 3 qualifying real runs logged (**G-REAL-06** / **G-REAL-07** / **M-39**) | Founder/operator — run `collect-first-pilot-proof.ps1` per real pilot |
+| **G4** | Repeatable proof packet | **HOLD** | [`#proof-packet-run-log`](#proof-packet-run-log) | 0 of 3 qualifying real runs logged (**G-REAL-06** / **G-REAL-07** / **M-39**) | Founder/operator — run `collect-first-pilot-proof.ps1` per real pilot |
 | **G5** | Live AI evidence | **PASS** | [`artifacts/release/real-llm-evidence-gate.json`](../../artifacts/release/real-llm-evidence-gate.json) (PASS, 2026-06-25, v2 schema, 4/4 agent paths, `executionMode=real`) | RC bundle attach (**G-REAL-08**) before external full-real-mode claim on a cut | **Owner** — attach gate to next RC per [`RELEASE_CLAIM_GATE.md`](../quality/RELEASE_CLAIM_GATE.md) |
 | **G6** | Procurement posture honest | **PASS** | `python scripts/build_procurement_pack.py --dry-run --deal-ready`; deferred items stated in trust pack | — | — |
 
 ## Stage exit criteria
 
-- **Stage 1 — Evidence-backed selling** is authorized when **G1–G4** are all **PASS** for **≥3** distinct real pilot runs (see [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md)).
+- **Stage 1 — Evidence-backed selling** is authorized when **G1–G4** are all **PASS** for **≥3** distinct real pilot runs (see [`#proof-packet-run-log`](#proof-packet-run-log)).
 - **Stage 2 — Broad GTM / scale claims** requires **G1–G6** all **PASS** plus ≥1 permissioned public reference (owner-deferred per `V1_DEFERRED.md`).
 - **Founder signoff required:** Movement from Stage 0 → Stage 1 requires explicit dated approval by the **founder / release owner** even when technical gates are green. Until approved, status is **HOLD_FOR_OWNER_SIGNOFF**.
 
 ## Session workflow
 
-1. After each **real** pilot commit, complete the [operating checklist](PROOF_PACKET_RUN_LOG.md#operating-checklist) and append a row to [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md).
+1. After each **real** pilot commit, complete the [operating checklist](#operating-checklist) and append a row to the [proof packet run log](#proof-packet-run-log).
 2. Score gates using the readiness checklist appendix below or pilot review notes.
 3. Update this table and the proof run log in the same PR or ops note.
 4. Run weekly cadence when reviewing G4/G5 posture: [`../runbooks/WEEKLY_PROOF_CADENCE.md`](../runbooks/WEEKLY_PROOF_CADENCE.md) (`.\scripts\Invoke-WeeklyProofCadence.ps1`).
@@ -52,6 +52,100 @@
 
 ---
 
+## Proof packet run log {#proof-packet-run-log}
+
+Former standalone: `docs/go-to-market/PROOF_PACKET_RUN_LOG.md` → this section (and [operating checklist](#operating-checklist) below).
+
+**G4 target:** ≥3 rows with **Mode = Real**, **Proof packet generated? = Yes**, **Clean = Yes**.
+
+**Weekly rollup:** [`../runbooks/WEEKLY_PROOF_CADENCE.md`](../runbooks/WEEKLY_PROOF_CADENCE.md)
+
+| Run date (UTC) | Tenant | Run ID | Mode (Real/Simulator) | Proof packet generated? | Clean (no manual surgery)? | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| _example_ | contoso-demo | `00000000-0000-0000-0000-000000000001` | Simulator | Yes | Yes | Format reference only — replace with first real pilot row |
+
+### Operating checklist {#operating-checklist}
+
+#### Role ownership
+
+| Role | Responsibility |
+| --- | --- |
+| **Pilot operator** | Run proof pipeline after commit; verify buyer-safe artifacts |
+| **Founder / release owner** | Append log row; update G4 in the [gate table](#gate-table) |
+| **Sales owner** | Block sponsor send when disposition is HOLD or log row missing |
+| **Owner** | G5 real-LLM evidence (separate from G4 row discipline) |
+
+#### Per-run checklist (real pilots only)
+
+Complete **within 24 hours** of a committed **Real**-mode review used for GTM evidence.
+
+##### 1. Generate proof packet
+
+```powershell
+.\scripts\collect-first-pilot-proof.ps1 `
+  -RunId '<committed-run-guid>' `
+  -SponsorHandoff `
+  -FailOnHold
+```
+
+**Stop if:** exit code ≠ 0 or `go-no-go-summary.json` disposition = `HOLD`.
+
+##### 2. Pre-send gates (all required for **Clean = Yes**)
+
+| Gate | Pass when | HOLD trigger |
+| --- | --- | --- |
+| **Execution mode** | Exports label **Real** (not Simulator-only for real claim) | Unlabeled or simulator presented as live proof |
+| **ROI basis** | `roiSponsorSafe = true` in go-no-go summary | Unlabeled dollar figures |
+| **Sponsor disposition** | `disposition = SEND` when sponsor handoff intended | `HOLD` or missing go-no-go |
+| **Manual surgery** | Proof folder usable without hand-editing findings/ROI | Required edits to make packet credible |
+| **Redaction** | No customer PII, subscription IDs, or raw secrets | Identifying content present |
+
+##### 3. Qualifying row criteria (G4)
+
+| Column | Required value |
+| --- | --- |
+| Mode | **Real** |
+| Proof packet generated? | **Yes** |
+| Clean (no manual surgery)? | **Yes** |
+| Run ID | Valid committed-run GUID |
+
+**Does not qualify:** Simulator rows, demo-only Contoso runs, rows without proof packet, rows requiring manual surgery.
+
+##### 4. Append log row
+
+Add a row to the [run log table](#proof-packet-run-log) above. Keep the `_example_` simulator row only as format reference — do not count it toward G4.
+
+##### 5. Update G4 gate
+
+In the [gate table](#gate-table): 0–2 qualifying rows → **HOLD**; ≥3 → **PASS** (link three run IDs). Update **Last reviewed** when G4 changes.
+
+#### Sponsor-send gate
+
+Do **not** email sponsor PDF/ZIP until per-run checklist complete, log row appended, `go-no-go-summary.md` = **SEND**, and execution mode visible on first-value report / proof index.
+
+#### Weekly review cadence
+
+**When:** Same weekday each week during active pilots (recommended: Monday UTC). **Owner:** Founder / release owner.
+
+```powershell
+.\scripts\Invoke-WeeklyProofCadence.ps1
+python scripts/ci/validate_weekly_proof_cadence.py --cadence-json artifacts/weekly-proof-cadence/<stamp>/weekly-proof-cadence.json
+```
+
+| Step | Action |
+| --- | --- |
+| 1 | Count qualifying rows (Real + Yes + Yes) |
+| 2 | Reconcile with `weekly-proof-cadence.json` G4 row |
+| 3 | Update G4 PASS/HOLD in the [gate table](#gate-table) |
+| 4 | If G4 still HOLD, schedule next real pilot proof run |
+| 5 | Record session in the [claim readiness appendix](#appendix-session-record-template) |
+
+**Stage 1 — Evidence-backed selling** requires G1–G4 **PASS**, ≥3 qualifying rows, and founder dated signoff.
+
+**Cross-refs:** [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
+
+---
+
 ## Appendix: Gate PASS/HOLD criteria
 
 | Gate | Signal | PASS when | HOLD when | Evidence / remediation pointer |
@@ -63,7 +157,7 @@
 | **G5** | Live AI evidence | Credentialed real-LLM golden-cohort run archived with faithfulness floor | Simulator-only or missing real-mode evidence for AI claims | [`GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) — owner-run, non-CI-gating |
 | **G6** | Procurement posture honest | Trust pack current; deferred items stated as deferred | Placeholder tokens, stale review dates, or implied third-party attestation | `python scripts/build_procurement_pack.py --dry-run --deal-ready` |
 
-## Appendix: Session record template
+## Appendix: Session record template {#appendix-session-record-template}
 
 ```text
 Date (UTC):

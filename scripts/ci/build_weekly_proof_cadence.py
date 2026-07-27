@@ -78,12 +78,12 @@ def _gate_row(
     if gate_id == "G4":
         if real_run_count >= 3:
             status = "PASS"
-            reason = f"{real_run_count} qualifying real runs logged in PROOF_PACKET_RUN_LOG.md."
+            reason = f"{real_run_count} qualifying real runs logged in CLAIM_READINESS_STATUS.md#proof-packet-run-log."
         else:
             status = "HOLD"
             reason = f"{real_run_count} of 3 qualifying real runs logged — append rows after each real pilot commit."
 
-        evidence_ref = "docs/go-to-market/PROOF_PACKET_RUN_LOG.md"
+        evidence_ref = "docs/go-to-market/CLAIM_READINESS_STATUS.md#proof-packet-run-log"
 
     if gate_id == "G5":
         normalized = (real_mode_status or "MISSING").upper()
@@ -241,7 +241,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
             "",
             "## Closing G4 / G5 from HOLD",
             "",
-            "- **G4:** Append three **Real** rows to `PROOF_PACKET_RUN_LOG.md` using `collect-first-pilot-proof.ps1 -RunId <guid>` after each committed pilot.",
+            "- **G4:** Append three **Real** rows to `CLAIM_READINESS_STATUS.md#proof-packet-run-log` using `collect-first-pilot-proof.ps1 -RunId <guid>` after each committed pilot.",
             "- **G5:** Run `Invoke-RealLlmEvidenceGate.ps1` with owner credentials, archive `real-llm-evidence-gate.json`, then re-run this cadence.",
             "",
             "Runbook: `docs/runbooks/WEEKLY_PROOF_CADENCE.md`",
@@ -257,7 +257,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cadence-id", required=True)
     parser.add_argument("--release-bundle-dir", type=Path, required=True)
     parser.add_argument("--pilot-summary", type=Path, default=None)
-    parser.add_argument("--proof-log", type=Path, default=_GATE_DOC.parent / "PROOF_PACKET_RUN_LOG.md")
+    parser.add_argument("--proof-log", type=Path, default=_GATE_DOC)
     parser.add_argument("--claim-status", type=Path, default=_GATE_DOC)
     parser.add_argument("--json-out", type=Path, required=True)
     parser.add_argument("--markdown-out", type=Path, default=None)

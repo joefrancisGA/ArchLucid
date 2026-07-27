@@ -60,11 +60,11 @@ python scripts/ci/validate_weekly_proof_cadence.py --cadence-json artifacts/week
 
 ## Closing G4 from HOLD → PASS
 
-Follow [`PROOF_PACKET_RUN_LOG.md`](../go-to-market/PROOF_PACKET_RUN_LOG.md#operating-checklist):
+Follow [`CLAIM_READINESS_STATUS.md#operating-checklist`](../go-to-market/CLAIM_READINESS_STATUS.md#operating-checklist):
 
 1. Complete a real pilot commit (not simulator-only if claiming real-mode proof).
 2. Run `.\scripts\collect-first-pilot-proof.ps1 -RunId <guid> -SponsorHandoff -FailOnHold`.
-3. Pass pre-send gates; append a row to [`PROOF_PACKET_RUN_LOG.md`](../go-to-market/PROOF_PACKET_RUN_LOG.md) with **Mode = Real**, **Proof packet generated? = Yes**, **Clean = Yes**.
+3. Pass pre-send gates; append a row to [`CLAIM_READINESS_STATUS.md#proof-packet-run-log`](../go-to-market/CLAIM_READINESS_STATUS.md#proof-packet-run-log) with **Mode = Real**, **Proof packet generated? = Yes**, **Clean = Yes**.
 4. Repeat until **≥3** qualifying real rows exist.
 5. Re-run weekly cadence and update G4 in `CLAIM_READINESS_STATUS.md`.
 
@@ -79,6 +79,6 @@ Follow [`PROOF_PACKET_RUN_LOG.md`](../go-to-market/PROOF_PACKET_RUN_LOG.md#opera
 
 - [`CLAIM_READINESS_STATUS.md`](../go-to-market/CLAIM_READINESS_STATUS.md)
 - [`CLAIM_READINESS_STATUS.md`](../go-to-market/CLAIM_READINESS_STATUS.md#appendix-gate-passhold-criteria)
-- [`PROOF_PACKET_RUN_LOG.md`](../go-to-market/PROOF_PACKET_RUN_LOG.md)
-- [`PROOF_PACKET_RUN_LOG.md`](../go-to-market/PROOF_PACKET_RUN_LOG.md#operating-checklist)
+- [`CLAIM_READINESS_STATUS.md#proof-packet-run-log`](../go-to-market/CLAIM_READINESS_STATUS.md#proof-packet-run-log)
+- [`CLAIM_READINESS_STATUS.md#operating-checklist`](../go-to-market/CLAIM_READINESS_STATUS.md#operating-checklist)
 - [`CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md)

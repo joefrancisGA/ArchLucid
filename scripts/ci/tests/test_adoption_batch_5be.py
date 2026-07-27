@@ -17,8 +17,9 @@ class TestAdoptionBatch5BE(unittest.TestCase):
         self.assertIn("≥3", text)
 
     def test_tb_231_proof_packet_run_log(self) -> None:
-        path = REPO_ROOT / "docs" / "go-to-market" / "PROOF_PACKET_RUN_LOG.md"
+        path = REPO_ROOT / "docs" / "go-to-market" / "CLAIM_READINESS_STATUS.md"
         text = path.read_text(encoding="utf-8")
+        self.assertIn("proof-packet-run-log", text)
         self.assertIn("Run ID", text)
         self.assertIn("Clean", text)
 

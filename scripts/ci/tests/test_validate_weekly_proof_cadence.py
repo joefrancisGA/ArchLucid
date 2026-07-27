@@ -49,7 +49,7 @@ class WeeklyProofCadenceTests(unittest.TestCase):
                     "--claim-status",
                     str(REPO_ROOT / "docs" / "go-to-market" / "CLAIM_READINESS_STATUS.md"),
                     "--proof-log",
-                    str(REPO_ROOT / "docs" / "go-to-market" / "PROOF_PACKET_RUN_LOG.md"),
+                    str(REPO_ROOT / "docs" / "go-to-market" / "CLAIM_READINESS_STATUS.md"),
                     "--json-out",
                     str(cadence_json),
                 ],
