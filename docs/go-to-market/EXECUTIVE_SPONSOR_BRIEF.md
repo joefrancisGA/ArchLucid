@@ -150,7 +150,7 @@ Founder-led "20 warm contacts" campaign (GTM **M-18**). Companion to **M-17** (l
 #### Framing rules
 
 - Ask for feedback, not a sale; personalize every send; one send + one bump only.
-- Ground claims in shipped V1; no mass BCC; skip disqualified segments per [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md).
+- Ground claims in shipped V1; no mass BCC; skip disqualified segments per [`BUYER_PERSONAS.md#pilot-recruiting-pipeline`](BUYER_PERSONAS.md#pilot-recruiting-pipeline).
 
 #### LinkedIn connection-request note (≤300 characters)
 
@@ -190,9 +190,9 @@ Hi <<FIRST_NAME>> — following up in case this got buried. No pressure at all; 
 | GRC / Compliance | "It adds a pre-commit governance gate and a structured audit trail aligned to policy packs — built for exactly the gap you flagged." |
 | Cloud consultant | "I built it as delivery infrastructure — bring your own evidence, produce a whitelabel report — thought it might be relevant to how you deliver review engagements." |
 
-Track 20 sends privately (contact, channel, date, response, outcome). Hand positives to **M-19** via [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md).
+Track 20 sends privately (contact, channel, date, response, outcome). Hand positives to **M-19** via [`BUYER_PERSONAS.md#pilot-recruiting-pipeline`](BUYER_PERSONAS.md#pilot-recruiting-pipeline).
 
-**Talk-track companions:** [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) · [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) · [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md)
+**Talk-track companions:** [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) · [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) · [`BUYER_PERSONAS.md#pilot-recruiting-pipeline`](BUYER_PERSONAS.md#pilot-recruiting-pipeline)
 
 ---
 
