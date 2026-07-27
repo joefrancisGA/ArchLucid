@@ -22,6 +22,7 @@ import {
   ADVISORY_SCANS_DISPOSITION_REJECT,
   ADVISORY_SCANS_DISPOSITION_REJECT_HINT,
 } from "@/lib/advisory-copy";
+import { advisoryDispositionButtonVariant } from "@/lib/advisory-disposition-button-variant";
 import { OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildRecommendationEvidenceLinkViews } from "@/lib/recommendation-source-evidence-links";
 import type { RecommendationRecord } from "@/types/advisory";
@@ -143,14 +144,20 @@ export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProp
         </p>
       ) : null}
 
-      <div className="flex flex-wrap gap-2 pt-1">
+      <div
+        className="flex flex-wrap gap-2 pt-1"
+        data-testid="advisory-disposition-actions"
+        role="group"
+        aria-label={ADVISORY_SCANS_CARD_DISPOSITION_LABEL}
+      >
         {DISPOSITION_ACTIONS.map((item) => (
           <Button
             key={item.action}
             type="button"
             size="sm"
-            variant="outline"
+            variant={advisoryDispositionButtonVariant(item.action)}
             title={item.hint}
+            data-testid={`advisory-disposition-${item.action}`}
             onClick={() => {
               onAction(recommendation.recommendationId, item.action);
             }}

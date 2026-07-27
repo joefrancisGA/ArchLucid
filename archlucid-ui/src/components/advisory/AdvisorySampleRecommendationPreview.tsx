@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   ADVISORY_SCANS_DISPOSITION_ACCEPT,
   ADVISORY_SCANS_DISPOSITION_ACCEPT_HINT,
@@ -78,21 +77,23 @@ export function AdvisorySampleRecommendationPreview(): React.JSX.Element {
           >
             {ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY}
           </summary>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <ul
+            className="mt-3 m-0 flex list-none flex-wrap gap-2 p-0"
+            data-testid="advisory-sample-disposition-chips"
+            aria-label={ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY}
+          >
             {SAMPLE_DISPOSITION_ACTIONS.map((action) => (
-              <Button
-                key={action.label}
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled
-                title={action.hint}
-                className="pointer-events-none opacity-80"
-              >
-                {action.label}
-              </Button>
+              <li key={action.label}>
+                <Badge
+                  variant="secondary"
+                  title={action.hint}
+                  className="border border-neutral-300 bg-neutral-200 px-3 py-1 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-50"
+                >
+                  {action.label}
+                </Badge>
+              </li>
             ))}
-          </div>
+          </ul>
         </details>
       </div>
     </section>

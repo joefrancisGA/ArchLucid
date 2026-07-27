@@ -67,6 +67,10 @@ describe("AdvisoryScansContent", () => {
 
     expect(dispositionDisclosure).not.toHaveAttribute("open");
     expect(screen.getByText(ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY)).toBeInTheDocument();
+    expect(screen.getByTestId("advisory-sample-disposition-chips")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Accept|Defer|Reject|Mark implemented/i }),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("advisory-empty-open-reviews-link")).toHaveAttribute(
       "href",
       "/reviews?projectId=default",
