@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-27
 
-> **Scope:** Operational runbook for moving a real customer reference from internal drafting to a **Published** row in [`README.md`](README.md), including computed-ROI evidence extraction and the CI discount re-rate gate.
+> **Scope:** Operational runbook for moving a real customer reference from internal drafting to a **Published** row in [`README.md`](README.md), including computed-ROI evidence extraction, the CI discount re-rate gate, and the one-page reference evidence pack template (formerly the body of `REFERENCE_EVIDENCE_PACK_TEMPLATE.md`; that filename remains a path-stable alias).
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
@@ -9,9 +9,9 @@
 
 **Audience:** Product marketing, customer success, sales engineering, and the owner who signs legal agreements.
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-27
 
-**Related:** [`PRICING_PHILOSOPHY.md` § 5.4](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down) · [`scripts/ci/check_reference_customer_status.py`](../../../scripts/ci/check_reference_customer_status.py) · [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md) · [`../REFERENCE_NARRATIVE_TEMPLATE.md`](../REFERENCE_NARRATIVE_TEMPLATE.md)
+**Related:** [`PRICING_PHILOSOPHY.md` § 5.4](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down) · [`scripts/ci/check_reference_customer_status.py`](../../../scripts/ci/check_reference_customer_status.py) · [`#reference-evidence-pack-template`](#reference-evidence-pack-template) · [`../REFERENCE_NARRATIVE_TEMPLATE.md`](../REFERENCE_NARRATIVE_TEMPLATE.md)
 
 ---
 
@@ -101,7 +101,7 @@ Artifacts:
 
 ### Step 3 — Fill the narrative
 
-1. Open [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md).
+1. Open the [reference evidence pack template](#reference-evidence-pack-template) (path-stable alias: [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md)).
 2. Copy measured fields from `pilot-run-deltas.json` into the template (each field cites the JSON property — see template).
 3. For long-form prose, start from [`../REFERENCE_NARRATIVE_TEMPLATE.md`](../REFERENCE_NARRATIVE_TEMPLATE.md) archetypes and replace fictional names with the customer’s.
 
@@ -140,3 +140,71 @@ Artifacts:
 
 - Discount-for-reference percent (default narrative: **15%** per § 5.4).
 - Whether the first **Published** row is **PLG first paying tenant** vs **named design partner** (drives which case-study file graduates first).
+
+---
+
+## Reference evidence pack template {#reference-evidence-pack-template}
+
+Former standalone body: `docs/go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_TEMPLATE.md` → this section (filename kept as a path-stable alias).
+
+One-page **template** for a single customer reference pack. Replace `<<…>>` placeholders. Every **computed** line must map to `pilot-run-deltas.json` produced by `archlucid reference-evidence` (or the admin ZIP).
+
+# Reference evidence pack — `<<CUSTOMER_NAME>>`
+
+**Status:** Draft — internal only until legal sign-off.
+
+### Logo
+
+`<<LOGO_URI_OR_ATTACH>>`
+
+### Problem statement (before ArchLucid)
+
+`<<2_4_SENTENCES_CUSTOMER_VOICE>>`
+
+### Measured deltas (from `pilot-run-deltas.json`)
+
+> Fill from the CLI export. Property names refer to **camelCase** JSON from `GET /v1/pilots/runs/{runId}/pilot-run-deltas`. **Internal format-only sample:** [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) (must remain **demo tenant — replace before publishing** until a customer export replaces it).
+
+| Metric | Value | JSON field |
+|--------|------:|------------|
+| Wall-clock request → committed manifest | `<<HH:MM:SS>>` | `timeToCommittedManifestTotalSeconds` (convert from seconds) |
+| Manifest committed at (UTC) | `<<ISO8601>>` | `manifestCommittedUtc` |
+| Run created at (UTC) | `<<ISO8601>>` | `runCreatedUtc` |
+| Findings by severity | `<<TABLE_OR_BULLETS>>` | `findingsBySeverity[]` → `{ severity, count }` |
+| Audit rows (run scope) | `<<N>>` (`<<lower bound if truncated>>`) | `auditRowCount`, `auditRowCountTruncated` |
+| LLM completion calls (run scope) | `<<N>>` | `llmCallCount` |
+| Top finding id / severity | `<<id>>` / `<<severity>>` | `topFindingId`, `topFindingSeverity` |
+| Demo flag | `<<Yes/No>>` | `isDemoTenant` — **must be No** for external publication |
+
+**Review-cycle hours saved** (if captured at signup): derive per [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) § 3.1 using tenant baseline fields — not duplicated in `pilot-run-deltas.json`; cite `GET /v1/tenant/trial-status` internally.
+
+### Customer quote
+
+> `<<ONE_SENTENCE_QUOTE>>`  
+> — `<<NAME, TITLE>>`, `<<DATE>>`
+
+**Redaction:** remove internal project codenames unless approved in Step 4 above.
+
+### Screenshot
+
+`<<SCREENSHOT_URI>>` — run detail or committed manifest view (no demo banner unless intentionally demo).
+
+### Links
+
+- Case study file: `<<PATH_TO_CASE_STUDY_MD>>`
+- Evidence folder / ZIP on secure share: `<<INTERNAL_LINK>>`
+
+### Demo-tenant scaffold (internal shape only) {#demo-tenant-scaffold-internal-shape-only}
+
+**Not** a publishable customer artefact. Until a paying customer export exists, you may copy **shape only** from [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) — keep the literal banner **demo tenant — replace before publishing** on every ArchLucid-side artifact. Every numeric and narrative cell in a real pack must come from **customer-approved** sources per this runbook.
+
+| Template metric row | JSON / API field |
+|---------------------|------------------|
+| Wall-clock request → finalized architecture package | `timeToCommittedManifestTotalSeconds` (convert to `HH:MM:SS` in the template; metric key unchanged) |
+| Manifest committed at | `manifestCommittedUtc` |
+| Run created at | `runCreatedUtc` |
+| Findings by severity | `findingsBySeverity[]` |
+| Audit rows | `auditRowCount`, `auditRowCountTruncated` |
+| LLM completion calls | `llmCallCount` |
+| Top finding | `topFindingId`, `topFindingSeverity` |
+| Demo flag | `isDemoTenant` — must be **false** before external publication |

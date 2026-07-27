@@ -84,7 +84,7 @@ Operational checklist from pilot-complete to **Published** (owner, sales, CS). C
 |-----|-----|
 | [`REFERENCE_PUBLICATION_RUNBOOK.md`](REFERENCE_PUBLICATION_RUNBOOK.md) | Publish gates, evidence extraction, CI discount re-rate |
 | [`REFERENCE_PUBLICATION_RUNBOOK.md`](REFERENCE_PUBLICATION_RUNBOOK.md) | Drafting → customer review → Published steps + CLI evidence extraction |
-| [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md) | One-page measured-delta template tied to `pilot-run-deltas.json` |
+| [`REFERENCE_PUBLICATION_RUNBOOK.md#reference-evidence-pack-template`](REFERENCE_PUBLICATION_RUNBOOK.md#reference-evidence-pack-template) · [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md) (alias) | One-page measured-delta template tied to `pilot-run-deltas.json` |
 | [`PRICING_PHILOSOPHY.md` § 5.1](../PRICING_PHILOSOPHY.md#51-derivation-50-of-fair-value-basis) | Discount stack derivation (`−25%` trust, `−15%` reference, `−10%` self-serve = `−50%` total) |
 | [`PRICING_PHILOSOPHY.md` § 5.3](../PRICING_PHILOSOPHY.md#53-re-rate-plan) | Re-rate gates that retire each discount line |
 | [`PRICING_PHILOSOPHY.md` § 5.4](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down) | Operational tracker — owner, target close, evidence link, re-rate trigger per discount line |
