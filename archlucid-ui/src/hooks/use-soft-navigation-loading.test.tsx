@@ -21,6 +21,7 @@ vi.mock("next/navigation", () => ({
     refresh,
     replace: vi.fn(),
   }),
+  usePathname: () => "/",
 }));
 
 import {
@@ -69,6 +70,30 @@ describe("useSoftNavigationLoading", () => {
     expect(result.current.isNavigating).toBe(false);
     expect(assign).toHaveBeenCalledWith("/reviews/claims-intake-modernization");
     expect(result.current.error).toBeNull();
+  });
+
+  it("keeps the timeout armed when startTransition settles without a URL commit", async () => {
+    const { result } = renderHook(() => useSoftNavigationLoading());
+
+    act(() => {
+      expect(result.current.navigate("/reviews/new")).toBe(true);
+    });
+
+    // Transition callback runs synchronously under the mock; URL still "/".
+    expect(result.current.isNavigating).toBe(true);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(SOFT_NAVIGATION_TIMEOUT_MS - 1);
+    });
+
+    expect(assign).not.toHaveBeenCalled();
+    expect(result.current.isNavigating).toBe(true);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+
+    expect(assign).toHaveBeenCalledWith("/reviews/new");
   });
 
   it("sets timeout error when hard-nav fallback is disabled", async () => {

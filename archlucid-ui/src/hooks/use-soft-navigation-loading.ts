@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { softNavigationTargetPathname } from "@/lib/soft-navigation-target-pathname";
@@ -25,8 +25,8 @@ export type UseSoftNavigationLoadingOptions = {
 
 /**
  * Owns depressed-CTA state for client soft navigation.
- * Clears on transition settle or wall-clock timeout (refs alone never re-render).
- * When App Router fetches RSC but never commits the URL, falls back to a full navigation.
+ * Clears only when the App Router commits the target pathname (or on wall-clock timeout).
+ * Do not clear on useTransition settle — Next may drop isPending before the URL commits.
  */
 export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOptions = {}) {
   const timeoutMs = options.timeoutMs ?? SOFT_NAVIGATION_TIMEOUT_MS;
@@ -35,11 +35,11 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
   const hardNavigateOnTimeout = options.hardNavigateOnTimeout !== false;
 
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const pathname = usePathname();
+  const [, startTransition] = useTransition();
   const [isNavigating, setIsNavigating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const timeoutIdRef = useRef<number | null>(null);
-  const wasPendingRef = useRef(false);
   const pendingHrefRef = useRef<string | null>(null);
   const pendingModeRef = useRef<SoftNavigationMode>("push");
 
@@ -61,18 +61,27 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
     setError(null);
   }, [releaseNavigation]);
 
+  // Release only after the URL actually commits — not when startTransition's isPending flickers.
   useEffect(() => {
-    if (isPending) {
-      wasPendingRef.current = true;
-
+    if (!isNavigating || pendingHrefRef.current === null) {
       return;
     }
 
-    if (wasPendingRef.current && isNavigating) {
-      wasPendingRef.current = false;
+    const pendingMode = pendingModeRef.current;
+
+    if (pendingMode === "refresh") {
+      return;
+    }
+
+    const targetPathname = softNavigationTargetPathname(
+      pendingHrefRef.current,
+      typeof window !== "undefined" ? window.location.origin : "http://localhost",
+    );
+
+    if (targetPathname.length > 0 && pathname === targetPathname) {
       releaseNavigation();
     }
-  }, [isNavigating, isPending, releaseNavigation]);
+  }, [isNavigating, pathname, releaseNavigation]);
 
   useEffect(() => {
     return () => {
@@ -82,13 +91,12 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
 
   const navigate = useCallback(
     (href: string, mode: SoftNavigationMode = "push") => {
-      if (isPending || isNavigating) {
+      if (isNavigating) {
         return false;
       }
 
       setIsNavigating(true);
       setError(null);
-      wasPendingRef.current = false;
       pendingHrefRef.current = href;
       pendingModeRef.current = mode;
       clearNavigationTimeout();
@@ -155,7 +163,6 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
       clearNavigationTimeout,
       hardNavigateOnTimeout,
       isNavigating,
-      isPending,
       onTimeout,
       releaseNavigation,
       router,
@@ -169,7 +176,7 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
     reset,
     releaseNavigation,
     isNavigating,
-    isPending,
+    isPending: isNavigating,
     error,
     setError,
   };
