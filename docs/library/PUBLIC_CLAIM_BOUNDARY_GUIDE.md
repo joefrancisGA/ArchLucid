@@ -20,7 +20,7 @@
 | HIPAA / PCI / ISO **certification** from ArchLucid | Policy packs are advisory | Architecture-review input, not attestation |
 | Simulator-only output equals production AI guarantee | G-REAL evidence required | Label execution mode and limitations |
 
-## GTM do-not-promise (sales / proof packets / sponsor email)
+## GTM do-not-promise (sales / proof packets / sponsor email) {#gtm-do-not-promise}
 
 Separates `(A)` product readiness from `(B)` procurement realism. Use in sales, proof packets, and sponsor email.
 
@@ -56,5 +56,5 @@ See [`CLAIM_EVIDENCE_CONSISTENCY_GATE.md`](../quality/CLAIM_EVIDENCE_CONSISTENCY
 ## Linked artifacts
 
 - [`../go-to-market/SERVICE_LED_OFFERS.md`](../go-to-market/SERVICE_LED_OFFERS.md#readiness-review-engagement-pack-tb-133)
-- [`QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist)
+- [`../go-to-market/QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist)
 - [`tier_fit_validation_matrix.v1.json`](../../scripts/ci/data/tier_fit_validation_matrix.v1.json)

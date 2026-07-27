@@ -32,7 +32,7 @@
 
 Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/src/lib/buyer-surface-vocabulary.ts). Brand voice: [`BRAND_SYSTEM.md`](../brand/BRAND_SYSTEM.md) §1.
 
-### Create vs review — adversarial evaluation (closed)
+### Create vs review — adversarial evaluation (closed) {#create-vs-review--adversarial-evaluation-closed}
 
 **Status:** Closed — findings shipped as **TB-738**–**TB-747** (all **Done**). Implement detail lives in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (`## TB-738` through `## TB-747`). This subsection is the durable assessment pointer for product, UI, and GTM authors updating `/reviews/new`, home dual-path cards, billing meter nouns, and marketing CTAs.
 

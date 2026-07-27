@@ -164,7 +164,7 @@ If the commercial closeout in [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_
 
 ---
 
-## 6. Legal and procurement terms
+## 6. Legal and procurement terms {#legal-and-procurement-terms}
 
 **Audience:** Founder / operator preparing for a first paid-pilot procurement conversation; buyers' legal or procurement teams reviewing commercial terms.  
 Maps common term questions to current source documents (or marks draft / not yet available) and identifies owner or legal review before commitment.

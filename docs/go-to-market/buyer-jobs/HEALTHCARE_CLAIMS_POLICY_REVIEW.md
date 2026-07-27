@@ -121,7 +121,7 @@ ArchLucid helps teams produce **reviewable architecture manifests, findings, and
 
 ---
 
-## Demo proof shape (Demo-derived only)
+## Demo proof shape (Demo-derived only) {#demo-proof-shape-demo-derived-only}
 
 **Evidence basis:** **Demo-derived** · **Deferred scope** for production PHI environments. Synthetic/demo evidence only — no production PHI.
 

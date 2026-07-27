@@ -211,7 +211,7 @@ No per-pilot quotes or names in the rollup.
 
 ---
 
-## Decision-delta interview (paid pilots)
+## Decision-delta interview (paid pilots) {#decision-delta-interview-paid-pilots}
 
 Founder-led interview template after a committed real-mode or labeled simulator review. Feeds `decisionChanged` on the ledger row (**M-45**).
 

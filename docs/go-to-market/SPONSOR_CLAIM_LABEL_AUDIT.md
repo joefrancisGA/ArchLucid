@@ -121,7 +121,7 @@ Dominant claim types present and the labels that keep them honest. Disposition i
 
 ### Superlative regression guard
 
-`scripts/ci/check_proof_language_superlatives.py` scans the surfaces in `scripts/ci/data/proof_language_audit_scope.v1.json` for a **tight** list of unsupported superlatives (best-in-class, world-class, industry-leading, unmatched, guaranteed savings/ROI, never fails, always beats, 100% accurate, fully compliant, …). A term is flagged **only** when the line carries no caveat/backing marker (do not / without / illustrative / estimate / roadmap / source-labeled / …), and markdown emphasis is normalized first so bolded caveats still count. Common, legitimate terms (e.g. "enterprise-grade", "fastest path") are deliberately excluded to keep the guard trustworthy.
+`scripts/ci/check_proof_language_superlatives.py` scans the surfaces in `scripts/ci/data/proof_language_audit_scope.v1.json` for a **tight** list of unsupported superlatives (best-in-class, world-class, industry-leading, unmatched, savings/ROI guarantees, never fails, always beats, 100% accurate, fully compliant, …). A term is flagged **only** when the line carries no caveat/backing marker (do not / without / illustrative / estimate / roadmap / source-labeled / …), and markdown emphasis is normalized first so bolded caveats still count. Common, legitimate terms (e.g. "enterprise-grade", "fastest path") are deliberately excluded to keep the guard trustworthy.
 
 Wired into the buyer-surface bundle (`scripts/ci/run_buyer_surface_strict_guards.py`) and unit-tested in `scripts/ci/tests/test_check_proof_language_superlatives.py`.
 

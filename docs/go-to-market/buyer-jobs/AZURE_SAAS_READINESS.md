@@ -105,7 +105,7 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): finalized arc
 
 ---
 
-## Demo proof shape (Demo-derived only)
+## Demo proof shape (Demo-derived only) {#demo-proof-shape-demo-derived-only}
 
 **Evidence basis:** **Demo-derived** · **Manual review required** for AI narrative. Not a verified customer deployment.
 

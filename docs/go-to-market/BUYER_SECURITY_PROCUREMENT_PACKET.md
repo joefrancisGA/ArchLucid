@@ -36,7 +36,7 @@ Reviewer check: authenticate as Tenant A on a JwtBearer or ApiKey host, submit a
 
 Full technical narrative: [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md). Live review: [principal architect falsification script](#principal-architect-falsification-script-m-113) below.
 
-## Principal architect falsification script (M-113)
+## Principal architect falsification script (M-113) {#principal-architect-falsification-script-m-113}
 
 **Audience:** Founder / SE running a procurement technical review with a skeptical principal architect (or security reviewer).  
 **Duration:** 30–45 minutes.  

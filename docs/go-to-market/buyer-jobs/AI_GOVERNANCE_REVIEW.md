@@ -107,7 +107,7 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): `ai-gov-*` fi
 
 ---
 
-## Demo proof shape (Demo-derived only)
+## Demo proof shape (Demo-derived only) {#demo-proof-shape-demo-derived-only}
 
 **Evidence basis:** **Demo-derived** · **Estimate** for ROI rows without buyer baselines. Not a verified customer outcome or production attestation.
 

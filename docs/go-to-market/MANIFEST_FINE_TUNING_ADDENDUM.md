@@ -65,5 +65,5 @@ The feature is **optional**, **OFF by default**, and **separate** from core tena
 | Document | Role |
 |----------|------|
 | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Master DPA — link this addendum for manifest fine-tuning |
-| [`CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md`](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) | Separate optional cross-tenant aggregates |
+| [`CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md`](DPA_TEMPLATE.md#10-cross-tenant-patterns-opt-in) | Separate optional cross-tenant aggregates |
 | [ADR 0056](../architecture/adrs/0056-manifest-online-fine-tuning-governance.md) | Engineering governance |

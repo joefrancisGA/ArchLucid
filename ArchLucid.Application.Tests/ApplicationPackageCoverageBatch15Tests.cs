@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -116,11 +117,11 @@ public sealed class ApplicationPackageCoverageBatch15Tests
             }
             """;
 
-        CloudflareDnsTxtRecordLookup sut = new(new HttpClient(new StubHttpMessageHandler(_ =>
+        CloudflareDnsTxtRecordLookup sut = new(new StubHttpClientFactory(_ =>
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(payload, Encoding.UTF8, "application/dns-json"),
-            })));
+            }));
 
         IReadOnlyList<string> records = await sut.GetTxtRecordsAsync("example.com", CancellationToken.None);
 
@@ -130,11 +131,11 @@ public sealed class ApplicationPackageCoverageBatch15Tests
     [Fact]
     public async Task CloudflareDnsTxtRecordLookup_returns_empty_when_answer_missing()
     {
-        CloudflareDnsTxtRecordLookup sut = new(new HttpClient(new StubHttpMessageHandler(_ =>
+        CloudflareDnsTxtRecordLookup sut = new(new StubHttpClientFactory(_ =>
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = JsonContent.Create(new { Answer = Array.Empty<object>() }),
-            })));
+            }));
 
         IReadOnlyList<string> records = await sut.GetTxtRecordsAsync("example.com", CancellationToken.None);
 
@@ -144,11 +145,21 @@ public sealed class ApplicationPackageCoverageBatch15Tests
     [Fact]
     public async Task CloudflareDnsTxtRecordLookup_rejects_blank_domain()
     {
-        CloudflareDnsTxtRecordLookup sut = new(new HttpClient(new StubHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK))));
+        CloudflareDnsTxtRecordLookup sut = new(new StubHttpClientFactory(_ => new HttpResponseMessage(HttpStatusCode.OK)));
 
         Func<Task> act = async () => await sut.GetTxtRecordsAsync("   ", CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    private sealed class StubHttpClientFactory(Func<HttpRequestMessage, HttpResponseMessage> handler) : IHttpClientFactory
+    {
+        public HttpClient CreateClient(string name)
+        {
+            _ = name;
+
+            return new HttpClient(new StubHttpMessageHandler(handler));
+        }
     }
 
     private sealed class StubHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) : HttpMessageHandler

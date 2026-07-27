@@ -38,8 +38,9 @@ def resolve_link(root: Path, href: str) -> Path | None:
     if href.startswith("http://") or href.startswith("https://") or href.startswith("#"):
         return None
 
+    path_part = href.split("#", 1)[0]
     base = root / "docs" / "go-to-market"
-    target = (base / href).resolve()
+    target = (base / path_part).resolve()
 
     if target.is_file():
         return target

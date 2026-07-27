@@ -213,7 +213,7 @@ For security inquiries, procurement pack requests, or NDA-gated materials: **`se
 
 ---
 
-## Procurement documentation review cadence
+## Procurement documentation review cadence {#procurement-documentation-review-cadence}
 
 **Audience:** Maintainers of procurement/trust documents and release managers.  
 Includes stale-document escalation expectations.

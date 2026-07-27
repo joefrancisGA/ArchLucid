@@ -308,5 +308,5 @@ See [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) for how o
 | [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Subscription and SLA exhibit framing |
 | [PROCUREMENT_OBJECTION_PLAYBOOK.md](PROCUREMENT_OBJECTION_PLAYBOOK.md) | Standard objection responses |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident notification |
-| [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Onboarding checklist |
+| [CUSTOMER_ONBOARDING_PLAYBOOK.md](PILOT_SUCCESS_SCORECARD.md#customer-onboarding-operating-playbook) | Onboarding checklist |
 | [TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms](TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms) | Legal packet pointers into this support + pilot posture |

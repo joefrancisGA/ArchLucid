@@ -531,7 +531,7 @@ Former standalone: `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_S
 - [`#session-scorecard`](#session-scorecard) (fillable worksheet)
 - [`../templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json)
 - [`../templates/blind-validation-exec-summary.template.md`](../templates/blind-validation-exec-summary.template.md)
-- [`../PILOT_ROI_MODEL.md`](../PILOT_ROI_MODEL.md)
+- [`../../library/PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md)
 - [`../GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md)
 - [`../GTM_BACKLOG.md`](../GTM_BACKLOG.md) § Proof-gated rollout
 
