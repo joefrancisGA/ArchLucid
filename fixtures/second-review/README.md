@@ -1,6 +1,6 @@
 # Second-review habit-loop fixtures
 
-Copy templates into `artifacts/second-review/<cohort-label>/` before running [`docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md`](../../docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md#6-week-execution-board).
+Copy templates into `artifacts/second-review/<cohort-label>/` before running [`docs/library/REPEAT_REVIEW_LOOP.md#6-week-execution-board`](../../docs/library/REPEAT_REVIEW_LOOP.md#6-week-execution-board) (`SECOND_REVIEW_HABIT_LOOP_VALIDATION.md` alias).
 
 **Do not commit** customer-identifying content under `artifacts/`.
 
