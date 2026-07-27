@@ -87,8 +87,28 @@ describe("RecurrenceSchedulesClient", () => {
     expect(emptyState).toHaveTextContent(RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION);
     expect(emptyState).not.toHaveTextContent(RECURRENCE_SCHEDULES_EMPTY_SUPPORTING);
     expect(screen.getByTestId("recurrence-schedules-create-action")).toBeInTheDocument();
-    expect(screen.getByTestId("recurrence-schedules-empty-create")).toBeInTheDocument();
     expect(screen.getByTestId("recurrence-schedule-examples")).toBeInTheDocument();
+  });
+
+  it("keeps one primary Create and one of each secondary link when empty (TB-1131)", async () => {
+    render(<RecurrenceSchedulesClient />);
+
+    await screen.findByTestId("recurrence-schedules-empty-state");
+
+    const createButtons = screen.getAllByRole("button", { name: "Create recurrence schedule" });
+
+    expect(createButtons).toHaveLength(1);
+    expect(createButtons[0]?.className).toContain("al-primary-action-bg");
+    expect(screen.getByTestId("recurrence-schedules-create-action")).toBe(createButtons[0]);
+
+    expect(screen.getAllByRole("link", { name: "View governed reviews" })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: "View pending approvals" })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: "Open risk register" })).toHaveLength(1);
+
+    const secondaryNav = screen.getByTestId("recurrence-schedules-secondary-links");
+
+    expect(secondaryNav).toContainElement(screen.getByRole("link", { name: "View governed reviews" }));
+    expect(secondaryNav.querySelector("button")).toBeNull();
   });
 
   it("renders helper card with updated governance workflow guidance", async () => {
@@ -105,12 +125,14 @@ describe("RecurrenceSchedulesClient", () => {
 
     await screen.findByTestId("recurrence-schedules-empty-state");
 
-    const reviewPackageLinks = screen.getAllByRole("link", { name: "View governed reviews" });
-    expect(reviewPackageLinks.some((link) => link.getAttribute("href") === RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF)).toBe(true);
-
-    const pendingApprovalLinks = screen.getAllByRole("link", { name: "View pending approvals" });
-    expect(pendingApprovalLinks.some((link) => link.getAttribute("href") === RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF)).toBe(true);
-
+    expect(screen.getByRole("link", { name: "View governed reviews" })).toHaveAttribute(
+      "href",
+      RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
+    );
+    expect(screen.getByRole("link", { name: "View pending approvals" })).toHaveAttribute(
+      "href",
+      RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
+    );
     expect(screen.getByRole("link", { name: "Open risk register" })).toHaveAttribute(
       "href",
       RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
@@ -143,13 +165,28 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByRole("button", { name: "Enable" })).toBeInTheDocument();
   });
 
-  it("opens create panel from header action", async () => {
+  it("opens create panel from the sole primary Create action", async () => {
     render(<RecurrenceSchedulesClient />);
 
     await screen.findByTestId("recurrence-schedules-empty-state");
     fireEvent.click(screen.getByTestId("recurrence-schedules-create-action"));
 
     expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("recurrence-schedules-create-action")).not.toBeInTheDocument();
+  });
+
+  it("moves Create to the header when schedules exist (TB-1131)", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
+
+    render(<RecurrenceSchedulesClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("recurrence-schedules-empty-state")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Create recurrence schedule" })).toHaveLength(1);
+    expect(screen.getByTestId("recurrence-schedules-create-action").className).toContain("al-primary-action-bg");
   });
 
   it("keeps an active schedule enabled when saving metadata changes", async () => {

@@ -248,6 +248,23 @@ export default function RecurrenceSchedulesClient() {
     { label: "Open risk register", href: RECURRENCE_SCHEDULES_RISK_REGISTER_HREF },
   ] as const;
 
+  const isEmpty = schedules.length === 0;
+
+  // Open-only + hide while panel is open so Create never toggles away in-progress fields (TB-1131).
+  const createScheduleButton = showCreatePanel ? null : (
+    <Button
+      type="button"
+      size="sm"
+      variant="primary"
+      data-testid="recurrence-schedules-create-action"
+      disabled={!canMutate}
+      title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+      onClick={() => setShowCreatePanel(true)}
+    >
+      Create recurrence schedule
+    </Button>
+  );
+
   return (
     <div className="w-full max-w-[1440px] space-y-4" data-testid="recurrence-schedules-page">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
@@ -255,18 +272,7 @@ export default function RecurrenceSchedulesClient() {
           <OperatorPageHeader
             title="Recurrence schedules"
             subtitle={RECURRENCE_SCHEDULES_PAGE_SUBTITLE}
-            actions={
-              <Button
-                type="button"
-                size="sm"
-                data-testid="recurrence-schedules-create-action"
-                disabled={!canMutate}
-                title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                onClick={() => setShowCreatePanel((open) => !open)}
-              >
-                Create recurrence schedule
-              </Button>
-            }
+            actions={isEmpty ? undefined : createScheduleButton}
           />
 
           <CollapsibleSection
@@ -278,13 +284,24 @@ export default function RecurrenceSchedulesClient() {
             </p>
           </CollapsibleSection>
 
-          <div className="flex flex-wrap gap-2">
+          <nav
+            aria-label="Related governance links"
+            className="flex flex-wrap gap-x-4 gap-y-1"
+            data-testid="recurrence-schedules-secondary-links"
+          >
             {secondaryActions.map((action) => (
-              <Button key={action.href} asChild size="sm" variant="outline">
-                <Link href={action.href}>{action.label}</Link>
-              </Button>
+              <Link
+                key={action.href}
+                href={action.href}
+                className={cn(
+                  "text-neutral-600 underline-offset-4 hover:underline dark:text-neutral-400",
+                  OPERATOR_TYPOGRAPHY.helper,
+                )}
+              >
+                {action.label}
+              </Link>
             ))}
-          </div>
+          </nav>
 
           {loadError ? (
             <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>
@@ -300,36 +317,13 @@ export default function RecurrenceSchedulesClient() {
             />
           ) : null}
 
-          {schedules.length === 0 ? (
+          {isEmpty ? (
             <>
               <EnterpriseCompactEmptyState
                 testId="recurrence-schedules-empty-state"
                 title={RECURRENCE_SCHEDULES_EMPTY_TITLE}
                 description={RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION}
-                actions={[
-                  {
-                    label: "View governed reviews",
-                    href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
-                    variant: "primary",
-                  },
-                  {
-                    label: "View pending approvals",
-                    href: RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
-                    variant: "outline",
-                  },
-                ]}
-                footer={
-                  <Button
-                    type="button"
-                    size="sm"
-                    data-testid="recurrence-schedules-empty-create"
-                    disabled={!canMutate}
-                    title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-                    onClick={() => setShowCreatePanel(true)}
-                  >
-                    Create recurrence schedule
-                  </Button>
-                }
+                footer={createScheduleButton}
               />
               <RecurrenceScheduleExamplesSection />
             </>
