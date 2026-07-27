@@ -40,7 +40,7 @@ Do **not** confuse product `ArchLucid.Provenance` (decision/evidence lineage) wi
 | Same file Dependabot “Automated PRs” | Correct as written | Partial | Explicit OK — readers often upgrade to “vulns blocked” |
 | [`CAIQ_LITE_2026.md`](../security/CAIQ_LITE_2026.md) / [`BUILD.md`](../engineering/BUILD.md) NuGet `--vulnerable` merge-blocking | Documents wired CI step | Yes | **Doc/CI drift** — script unwired |
 | [`trust-center.md`](../go-to-market/trust-center.md) “V1 assurance … plus **CI**” next to owner pen-test | CI = secure SDLC | Yes | **Implicit** full supply-chain maturity |
-| [`SECURITY_REVIEWER_ONE_PAGER.md`](../go-to-market/SECURITY_REVIEWER_ONE_PAGER.md) “Vulnerability scanning (CI) … Implemented” | Scanning exists | Yes | Explicit existence; **implicit** PR completeness |
+| [`BUYER_SECURITY_PROCUREMENT_PACKET.md#control-to-evidence-map`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#control-to-evidence-map) “Vulnerability scanning (CI) … Implemented” | Scanning exists | Yes | Explicit existence; **implicit** PR completeness |
 | Evidence-packet template “supply-chain … from release bundle” | SBOM/signing in bundle | Yes | **Implicit** packaged SBOM/signing |
 | Policy pack **“Software Supply Chain & SBOM”** | Reviews *customer* architectures | Conflation risk | **Implicit** that ArchLucid has a published SBOM program |
 | `/trust` UI (`trust-center-*.ts`) | SOC / pen-test honesty ladder | Indirect | Explicit on CPA/3P; **silent** on SBOM/SLSA (good — keep silent until real) |
