@@ -258,13 +258,18 @@ export default function RecurrenceSchedulesClient() {
     }
   }
 
-  const secondaryActions = [
+  const populatedSecondaryActions = [
     { label: "View governed reviews", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF },
     { label: "View pending approvals", href: RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF },
     { label: "Open risk register", href: RECURRENCE_SCHEDULES_RISK_REGISTER_HREF },
   ] as const;
 
   const isEmpty = schedules.length === 0;
+
+  // Empty first viewport keeps one optional secondary link (TB-1133); populated keeps the full set.
+  const secondaryActions = isEmpty
+    ? ([{ label: "View governed reviews", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF }] as const)
+    : populatedSecondaryActions;
 
   // Open-only + hide while panel is open so Create never toggles away in-progress fields (TB-1131).
   const createScheduleButton = showCreatePanel ? null : (
@@ -285,8 +290,18 @@ export default function RecurrenceSchedulesClient() {
   );
 
   return (
-    <div className="w-full max-w-[1440px] space-y-4" data-testid="recurrence-schedules-page">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
+    <div
+      className="w-full max-w-[1440px] space-y-4"
+      data-testid="recurrence-schedules-page"
+      data-empty-composition={isEmpty ? "true" : "false"}
+    >
+      <div
+        className={cn(
+          "grid gap-4",
+          // Hide the right-rail column when empty so the page is one composition (TB-1133).
+          isEmpty ? "grid-cols-1" : "lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]",
+        )}
+      >
         <div className="space-y-4">
           <OperatorPageHeader
             title="Recurrence schedules"
@@ -352,6 +367,7 @@ export default function RecurrenceSchedulesClient() {
                 footer={createScheduleButton}
               />
               <RecurrenceScheduleExamplesSection
+                variant="compact"
                 disabled={!canMutate}
                 onApplyExample={openCreateFromExample}
               />
@@ -491,7 +507,7 @@ export default function RecurrenceSchedulesClient() {
           )}
         </div>
 
-        <RecurrenceSchedulesWorkflowHelperCard />
+        {isEmpty ? null : <RecurrenceSchedulesWorkflowHelperCard />}
       </div>
     </div>
   );

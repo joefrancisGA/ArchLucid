@@ -91,7 +91,7 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByTestId("recurrence-schedule-examples")).toBeInTheDocument();
   });
 
-  it("keeps one primary Create and one of each secondary link when empty (TB-1131)", async () => {
+  it("keeps one primary Create and one secondary link when empty (TB-1131 / TB-1133)", async () => {
     render(<RecurrenceSchedulesClient />);
 
     await screen.findByTestId("recurrence-schedules-empty-state");
@@ -103,8 +103,8 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByTestId("recurrence-schedules-create-action")).toBe(createButtons[0]);
 
     expect(screen.getAllByRole("link", { name: "View governed reviews" })).toHaveLength(1);
-    expect(screen.getAllByRole("link", { name: "View pending approvals" })).toHaveLength(1);
-    expect(screen.getAllByRole("link", { name: "Open risk register" })).toHaveLength(1);
+    expect(screen.queryByRole("link", { name: "View pending approvals" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open risk register" })).not.toBeInTheDocument();
 
     const secondaryNav = screen.getByTestId("recurrence-schedules-secondary-links");
 
@@ -112,19 +112,61 @@ describe("RecurrenceSchedulesClient", () => {
     expect(secondaryNav.querySelector("button")).toBeNull();
   });
 
-  it("renders helper card with updated governance workflow guidance", async () => {
-    render(<RecurrenceSchedulesClient />);
-
-    expect(await screen.findByTestId("recurrence-schedules-helper-card")).toBeInTheDocument();
-    expect(screen.getByText(RECURRENCE_SCHEDULES_HELPER_TITLE)).toBeInTheDocument();
-    expect(screen.getByText(RECURRENCE_SCHEDULES_HELPER_BODY)).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(RECURRENCE_SCHEDULES_HELPER_NEXT_STEP))).toBeInTheDocument();
-  });
-
-  it("links secondary actions to existing governance routes", async () => {
+  it("hides the workflow helper rail when empty (TB-1133)", async () => {
     render(<RecurrenceSchedulesClient />);
 
     await screen.findByTestId("recurrence-schedules-empty-state");
+    expect(screen.queryByTestId("recurrence-schedules-helper-card")).not.toBeInTheDocument();
+    expect(screen.getByTestId("recurrence-schedules-page")).toHaveAttribute("data-empty-composition", "true");
+  });
+
+  it("shows the workflow helper rail when schedules exist (TB-1133)", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
+
+    render(<RecurrenceSchedulesClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("recurrence-schedules-helper-card")).toBeInTheDocument();
+    expect(screen.getByText(RECURRENCE_SCHEDULES_HELPER_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(RECURRENCE_SCHEDULES_HELPER_BODY)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(RECURRENCE_SCHEDULES_HELPER_NEXT_STEP))).toBeInTheDocument();
+    expect(screen.getByTestId("recurrence-schedules-page")).toHaveAttribute("data-empty-composition", "false");
+  });
+
+  it("uses a compact examples chooser under Create when empty (TB-1133)", async () => {
+    render(<RecurrenceSchedulesClient />);
+
+    await screen.findByTestId("recurrence-schedules-empty-state");
+
+    const examples = screen.getByTestId("recurrence-schedule-examples");
+
+    expect(examples).toHaveAttribute("data-variant", "compact");
+    expect(screen.getByText("Start from a common cadence")).toBeInTheDocument();
+    expect(screen.queryByText(RECURRENCE_SCHEDULE_EXAMPLES[0]!.whenToUse)).not.toBeInTheDocument();
+  });
+
+  it("links the empty secondary action to governed reviews", async () => {
+    render(<RecurrenceSchedulesClient />);
+
+    await screen.findByTestId("recurrence-schedules-empty-state");
+
+    expect(screen.getByRole("link", { name: "View governed reviews" })).toHaveAttribute(
+      "href",
+      RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
+    );
+  });
+
+  it("restores full secondary links when schedules exist", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([sampleSchedule]);
+
+    render(<RecurrenceSchedulesClient />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
+    });
 
     expect(screen.getByRole("link", { name: "View governed reviews" })).toHaveAttribute(
       "href",

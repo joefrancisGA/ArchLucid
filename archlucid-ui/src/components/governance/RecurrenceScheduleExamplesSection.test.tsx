@@ -25,6 +25,15 @@ describe("RecurrenceScheduleExamplesSection (TB-1132)", () => {
     }
   });
 
+  it("renders compact chooser without when-to-use card body (TB-1133)", () => {
+    render(<RecurrenceScheduleExamplesSection variant="compact" />);
+
+    expect(screen.getByTestId("recurrence-schedule-examples")).toHaveAttribute("data-variant", "compact");
+    expect(screen.getByText("Start from a common cadence")).toBeInTheDocument();
+    expect(screen.queryByText(RECURRENCE_SCHEDULE_EXAMPLES[0]!.whenToUse)).not.toBeInTheDocument();
+    expect(screen.getByText(RECURRENCE_SCHEDULE_EXAMPLES[0]!.humanCadence)).toBeInTheDocument();
+  });
+
   it("invokes onApplyExample with cron when an example is clicked", () => {
     const onApplyExample = vi.fn();
     const first = RECURRENCE_SCHEDULE_EXAMPLES[0]!;
