@@ -47,4 +47,12 @@ public sealed class ChecklistCoverageJsonCodecTests
         ChecklistCoverageJsonCodec.Deserialize(null).Should().BeEmpty();
         ChecklistCoverageJsonCodec.Deserialize("   ").Should().BeEmpty();
     }
+
+    [Theory]
+    [InlineData("{ not valid json ]")]
+    [InlineData("{\"findings\":")]
+    public void Deserialize_returns_empty_for_corrupt_json(string corruptJson)
+    {
+        ChecklistCoverageJsonCodec.Deserialize(corruptJson).Should().BeEmpty();
+    }
 }
