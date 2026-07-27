@@ -131,7 +131,7 @@ Before work starts, agree the SQL/auth or hosted-staging shape, Tier 1 Azure ext
 
 Use when the buyer needs a labeled path from sample request → finalized architecture package → explainability without a live session:
 
-- [`buyer-jobs/AI_GOVERNANCE_REVIEW.md`](buyer-jobs/AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only)
+- [`../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only`](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only)
 - [`../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#demo-proof-shape-demo-derived-only`](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#demo-proof-shape-demo-derived-only)
 - [`buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md#demo-proof-shape-demo-derived-only)
 - [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) (decision explainability + trust posture)

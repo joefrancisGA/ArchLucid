@@ -56,7 +56,7 @@ Use this table for **first-pilot and procurement “day one”** integrations. D
 | Agent tool access (MCP server membrane) | **Not V1-required** | V1.1 §5.1 — [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](../library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) · [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6d |
 | Outbound MCP client (call external tool servers) | **Not V1-required** | Default **V2** unless separately promoted — same backlog |
 
-**Buyer-job packaging (outcome-led, V1-only):** [Azure SaaS readiness](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#buyer-job-packaging) (`buyer-jobs/AZURE_SAAS_READINESS.md` alias) · [AI governance](buyer-jobs/AI_GOVERNANCE_REVIEW.md) · [Healthcare claims policy](buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md).
+**Buyer-job packaging (outcome-led, V1-only):** [Azure SaaS readiness](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#buyer-job-packaging) (`buyer-jobs/AZURE_SAAS_READINESS.md` alias) · [AI governance](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging) (`buyer-jobs/AI_GOVERNANCE_REVIEW.md` alias) · [Healthcare claims policy](buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md).
 
 **Operator walkthroughs (step-by-step):** index [`library/walkthroughs/README.md`](../library/walkthroughs/README.md) · [Azure SaaS readiness](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) · [AI governance](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) · [Healthcare claims pilot](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md).
 
@@ -188,5 +188,5 @@ Contact your **ArchLucid account team** or the address on your **order form** wi
 | [`../library/SIEM_EXPORT.md`](../library/SIEM_EXPORT.md) · [`SIEM_EXPORT.md`](SIEM_EXPORT.md) (alias) | Audit export for SIEM |
 | [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) | CI/CD pipeline examples |
 | [`../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#buyer-job-packaging`](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#buyer-job-packaging) · [buyer-jobs/AZURE_SAAS_READINESS.md](buyer-jobs/AZURE_SAAS_READINESS.md) (alias) | Outcome-led Azure SaaS pilot packaging |
-| [buyer-jobs/AI_GOVERNANCE_REVIEW.md](buyer-jobs/AI_GOVERNANCE_REVIEW.md) | Outcome-led Responsible AI pilot packaging |
+| [`../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging`](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging) · [buyer-jobs/AI_GOVERNANCE_REVIEW.md](buyer-jobs/AI_GOVERNANCE_REVIEW.md) (alias) | Outcome-led Responsible AI pilot packaging |
 | [buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md](buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) | Outcome-led healthcare claims pilot packaging |

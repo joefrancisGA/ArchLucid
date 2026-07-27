@@ -1,7 +1,7 @@
 > **Scope:** Strategic assessment of AI initiative readiness and governance as an adoption wedge while preserving ArchLucid as a general architecture creation, review, and governance platform. Audience: product, architecture, and GTM owners; not buyer-facing copy.
 >
 > **Assessment date:** 2026-07-12  
-> **Related:** [`docs/go-to-market/POSITIONING.md`](../go-to-market/POSITIONING.md), [`docs/go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md`](../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md), [`docs/library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md), [`docs/library/ai-pack-design-specs/README.md`](../library/ai-pack-design-specs/README.md), [`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md)
+> **Related:** [`docs/go-to-market/POSITIONING.md`](../go-to-market/POSITIONING.md), [`docs/library/walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging`](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging), [`docs/library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md), [`docs/library/ai-pack-design-specs/README.md`](../library/ai-pack-design-specs/README.md), [`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md)
 
 # AI initiative governance — strategic assessment
 
