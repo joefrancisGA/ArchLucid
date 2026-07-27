@@ -12,8 +12,7 @@ This document is the single source of truth for assurance status wording and the
 
 - `trust-center.md`
 - `CURRENT_ASSURANCE_POSTURE.md` (path-stable pack alias → [`#current-assurance-posture-evidence`](#current-assurance-posture-evidence))
-- `BUYER_SECURITY_PROCUREMENT_PACKET.md` ([procurement FAQ Q&A](BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq))
-- `PROCUREMENT_RESPONSE_ACCELERATOR.md`
+- `BUYER_SECURITY_PROCUREMENT_PACKET.md` ([procurement FAQ](BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq); [accelerator](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-response-accelerator); `PROCUREMENT_RESPONSE_ACCELERATOR.md` path-stable alias)
 - `SOC2_STATUS_PROCUREMENT.md`
 
 Cadence: [`#procurement-documentation-review-cadence`](#procurement-documentation-review-cadence).

@@ -116,7 +116,7 @@
 
 - **Short answer:** Yes, with the status labels and evidence links preserved.
 - **Long answer:** Accelerator answers are evidence-linked and labeled to prevent over-claiming; they must not be rewritten as external attestations.
-- **Evidence:** [PROCUREMENT_RESPONSE_ACCELERATOR.md](PROCUREMENT_RESPONSE_ACCELERATOR.md), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
+- **Evidence:** [BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-response-accelerator](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-response-accelerator), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 - **Escalate when:** Buyer asks for signed legal representation beyond provided terms.
 
 ### 15) "What if your statements conflict across docs?"

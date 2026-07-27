@@ -20,7 +20,7 @@ This page is the **single buyer-facing index** for security questionnaires, self
 
 **Canonical artefact/status table:** [PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md) (`scripts/ci/check_procurement_pack_index.py` validates paths, **90-day** freshness on **Implemented** and **Self-asserted** canonical rows, buyer-placeholder strictness, forbidden false-assurance wording, and **Procurement artifact status map** status tokens).
 
-For spreadsheets (SIG-, CAIQ-style rows), use **[Procurement FAQ](/help/procurement)** and the in-repo **[PROCUREMENT_RESPONSE_ACCELERATOR.md](PROCUREMENT_RESPONSE_ACCELERATOR.md)** — **50** prompts grouped like SIG themes, each row pointing **only** to existing repository evidence (**no fabricated SOC 2 Type II issuance**).
+For spreadsheets (SIG-, CAIQ-style rows), use **[Procurement FAQ](/help/procurement)** and the in-repo **[procurement response accelerator](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-response-accelerator)** (`PROCUREMENT_RESPONSE_ACCELERATOR.md` alias) — **50** prompts grouped like SIG themes, each row pointing **only** to existing repository evidence (**no fabricated SOC 2 Type II issuance**).
 
 ---
 
