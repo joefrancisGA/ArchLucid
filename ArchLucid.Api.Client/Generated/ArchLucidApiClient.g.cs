@@ -893,12 +893,12 @@ namespace ArchLucid.Api.Client.Generated
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task TokensGETAsync(System.Threading.CancellationToken cancellationToken);
 
-        /// <returns>OK</returns>
+        /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task TokensPOSTAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task TokensPOSTAsync(System.Threading.CancellationToken cancellationToken);
 
@@ -22168,7 +22168,7 @@ namespace ArchLucid.Api.Client.Generated
             }
         }
 
-        /// <returns>OK</returns>
+        /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task TokensPOSTAsync()
         {
@@ -22176,7 +22176,7 @@ namespace ArchLucid.Api.Client.Generated
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
+        /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task TokensPOSTAsync(System.Threading.CancellationToken cancellationToken)
         {
@@ -22218,7 +22218,7 @@ namespace ArchLucid.Api.Client.Generated
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
+                        if (status_ == 201)
                         {
                             return;
                         }
@@ -117311,10 +117311,10 @@ namespace ArchLucid.Api.Client.Generated
         public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("classification")]
-        public int? Classification { get; set; } = default!;
+        public Classification? Classification { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
-        public int? ConfidenceLevel { get; set; } = default!;
+        public ConfidenceLevel? ConfidenceLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
@@ -117513,7 +117513,7 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
-        public int? ConfidenceLevel { get; set; } = default!;
+        public ConfidenceLevel2? ConfidenceLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
@@ -125368,10 +125368,10 @@ namespace ArchLucid.Api.Client.Generated
         public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("classification")]
-        public int? Classification { get; set; } = default!;
+        public Classification2? Classification { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
-        public int? ConfidenceLevel { get; set; } = default!;
+        public ConfidenceLevel3? ConfidenceLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
@@ -125521,6 +125521,33 @@ namespace ArchLucid.Api.Client.Generated
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum FindingClassification
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"DecisionGradeFinding")]
+        DecisionGradeFinding = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ChecklistCoverage")]
+        ChecklistCoverage = 1,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum FindingConfidenceLevel
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"High")]
+        High = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Medium")]
+        Medium = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Low")]
+        Low = 2,
 
     }
 
@@ -125715,7 +125742,7 @@ namespace ArchLucid.Api.Client.Generated
         public System.Collections.Generic.ICollection<string>? AlternativePathsConsidered { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
-        public int? ConfidenceLevel { get; set; } = default!;
+        public ConfidenceLevel4? ConfidenceLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionsTaken")]
         public System.Collections.Generic.ICollection<string>? DecisionsTaken { get; set; } = default!;
@@ -125910,7 +125937,7 @@ namespace ArchLucid.Api.Client.Generated
         public System.Guid? AuditRowId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
-        public int? ConfidenceLevel { get; set; } = default!;
+        public ConfidenceLevel5? ConfidenceLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
@@ -126217,10 +126244,10 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("classification")]
-        public int? Classification { get; set; } = default!;
+        public Classification3? Classification { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
-        public int? ConfidenceLevel { get; set; } = default!;
+        public ConfidenceLevel6? ConfidenceLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluationConfidenceScore")]
         public int? EvaluationConfidenceScore { get; set; } = default!;
@@ -142349,6 +142376,141 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("profile")]
         public string? Profile { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Classification
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ConfidenceLevel
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ConfidenceLevel2
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Classification2
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ConfidenceLevel3
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ConfidenceLevel4
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ConfidenceLevel5
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Classification3
+    {
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ConfidenceLevel6
+    {
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

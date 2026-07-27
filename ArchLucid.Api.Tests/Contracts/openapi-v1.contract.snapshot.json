@@ -11241,17 +11241,17 @@
       "FindingClassification": {
         "enum": [
           "DecisionGradeFinding",
-          "ChecklistCoverage"
-        ],
-        "type": "string"
+          "ChecklistCoverage",
+          null
+        ]
       },
       "FindingConfidenceLevel": {
         "enum": [
           "High",
           "Medium",
-          "Low"
-        ],
-        "type": "string"
+          "Low",
+          null
+        ]
       },
       "FindingDisposition": {
         "type": "integer"
@@ -41056,13 +41056,10 @@
       },
       "post": {
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {}
             },
-            "description": "OK"
-          },
-          "201": {
             "description": "Created"
           },
           "400": {

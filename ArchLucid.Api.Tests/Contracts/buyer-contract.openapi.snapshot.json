@@ -11241,17 +11241,17 @@
       "FindingClassification": {
         "enum": [
           "DecisionGradeFinding",
-          "ChecklistCoverage"
-        ],
-        "type": "string"
+          "ChecklistCoverage",
+          null
+        ]
       },
       "FindingConfidenceLevel": {
         "enum": [
           "High",
           "Medium",
-          "Low"
-        ],
-        "type": "string"
+          "Low",
+          null
+        ]
       },
       "FindingDisposition": {
         "type": "integer"
