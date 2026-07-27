@@ -136,7 +136,7 @@ Broader recipe hub: [ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPE
 | **ITSM** | Azure DevOps Work Items | Native work-item connector (distinct from shipped PR decoration). | [Planned] — [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_DEFERRED](../library/V1_DEFERRED.md) |
 | **Chat-ops** | Microsoft Teams | **V1 GA** first-party incoming webhook notifications (§2.14). | **[V1 GA — first-party]** — [§1](#1-available-today-code--v1-ga-buyer-contract), [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_SCOPE §2.14](../library/V1_SCOPE.md) |
 | **Chat-ops** | Slack | **V1 GA** first-party chat-ops (§2.14). | **[V1 GA — first-party]** — [§1](#1-available-today-code--v1-ga-buyer-contract), [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_SCOPE §2.14](../library/V1_SCOPE.md) |
-| **Observability** | SIEM export (CEF/syslog) | Native audit log export in SIEM-friendly formats | [Planned] — see [SIEM_EXPORT.md](SIEM_EXPORT.md) for current methods |
+| **Observability** | SIEM export (CEF/syslog) | Native audit log export in SIEM-friendly formats | Partial — see [`../library/SIEM_EXPORT.md`](../library/SIEM_EXPORT.md) (`SIEM_EXPORT.md` pack alias) for current methods |
 | **CI/CD** | GitHub Actions | Architecture review as a PR check | [Example available] — see [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) |
 | **CI/CD** | Azure DevOps Pipelines | Architecture review as a pipeline task | [Example available] — see [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) |
 | **CI/CD** | Azure DevOps Repos (pipelines) | Same `GET /v1/compare` Markdown as GitHub Actions — job summary + sticky PR thread (`integrations/azure-devops-task-manifest-delta*`) | [Shipped] — see [../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md](../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md) · [ADR 0024](../architecture/adrs/0024-azure-devops-pipeline-task-parity-with-github-action.md) |
@@ -185,7 +185,7 @@ Contact your **ArchLucid account team** or the address on your **order form** wi
 | [trust-center.md](trust-center.md) | Trust index |
 | [POSITIONING.md](POSITIONING.md) | Product positioning |
 | [../API_CONTRACTS.md](../library/API_CONTRACTS.md) | API surface detail |
-| [SIEM_EXPORT.md](SIEM_EXPORT.md) | Audit export for SIEM |
+| [`../library/SIEM_EXPORT.md`](../library/SIEM_EXPORT.md) · [`SIEM_EXPORT.md`](SIEM_EXPORT.md) (alias) | Audit export for SIEM |
 | [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) | CI/CD pipeline examples |
 | [buyer-jobs/AZURE_SAAS_READINESS.md](buyer-jobs/AZURE_SAAS_READINESS.md) | Outcome-led Azure SaaS pilot packaging |
 | [buyer-jobs/AI_GOVERNANCE_REVIEW.md](buyer-jobs/AI_GOVERNANCE_REVIEW.md) | Outcome-led Responsible AI pilot packaging |

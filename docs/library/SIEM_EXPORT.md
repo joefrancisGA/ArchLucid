@@ -1,15 +1,17 @@
-> **Scope:** Contributor-reference — ArchLucid — Audit log export for SIEM integration - full detail, payload examples for Splunk HEC and Microsoft Sentinel, and links in the sections below.
+> **Reviewed:** 2026-07-27
+
+> **Scope:** Canonical ArchLucid audit log export for SIEM integration — buyer summary fields, export methods, Splunk HEC / Microsoft Sentinel payload examples, retention, and roadmap (formerly duplicated in the body of `docs/go-to-market/SIEM_EXPORT.md`; that filename remains a path-stable pack alias).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
-> **Buyer-facing index:** [../go-to-market/SIEM_EXPORT.md](../go-to-market/SIEM_EXPORT.md) (short summary and trust links).
+> **Pack path alias:** [`../go-to-market/SIEM_EXPORT.md`](../go-to-market/SIEM_EXPORT.md) → this document.
 
 
 # ArchLucid — Audit log export for SIEM integration
 
 **Audience:** Security engineers and SOC teams evaluating ArchLucid's audit data for SIEM ingestion.
 
-**Last reviewed:** 2026-07-23
+**Last reviewed:** 2026-07-27
 
 ---
 
