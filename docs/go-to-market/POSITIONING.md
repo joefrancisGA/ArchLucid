@@ -120,7 +120,7 @@ The unauthenticated proof route **`/demo/explain`** (architect workspace / marke
 
 ## 3. Elevator pitches
 
-*The elevator pitches have been consolidated into the [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md#4-elevator-pitches). Use the brief as the single source of truth for narrative.*
+*The elevator pitches (including M-18 outreach templates) live in the [Executive Sponsor Brief §4](EXECUTIVE_SPONSOR_BRIEF.md#elevator-pitches). Use the brief as the single source of truth for narrative and talk-track.*
 
 ---
 

@@ -14,7 +14,7 @@
 
 **Posting cadence:** One short post per week for the V1 batch (article after the fifth post). Builder articles every two to three weeks after M-15 has had time to breathe — publish from personal profile, not company page. Calendar: [publishing schedule](#publishing-schedule-m-10m-15).
 
-**Related:** [`POSITIONING.md`](POSITIONING.md), [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md), [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (M-10–M-15, M-77–M-88), [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md), [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), [`SCREENSHOT_GALLERY.md`](SCREENSHOT_GALLERY.md).
+**Related:** [`POSITIONING.md`](POSITIONING.md), [`EXECUTIVE_SPONSOR_BRIEF.md#elevator-pitches`](EXECUTIVE_SPONSOR_BRIEF.md#elevator-pitches), [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (M-10–M-15, M-77–M-88), [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md), [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise), [`SCREENSHOT_GALLERY.md`](SCREENSHOT_GALLERY.md).
 
 ---
 

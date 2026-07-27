@@ -105,7 +105,7 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | ID | Task | Priority | Source status | Decision | Horizon | Notes |
 |----|------|----------|---------------|----------|---------|-------|
 | CPB-M01 | Positioning tagline → `POSITIONING.md` | P0 | Done | **Keep** (done) | — | Already complete. |
-| CPB-M02 | One-minute elevator pitch | P0 | Done | **Keep** (done) | — | `ELEVATOR_PITCH.md` written 2026-05-21: 30-sec, 1-min, 2-min, consulting-line variants. |
+| CPB-M02 | One-minute elevator pitch | P0 | Done | **Keep** (done) | — | Elevator scripts live in `EXECUTIVE_SPONSOR_BRIEF.md#elevator-pitches` (formerly `ELEVATOR_PITCH.md`). |
 | CPB-M03 | Five-minute demo script | P0 | Done | **Keep** (done) | — | Five-minute live-call script added to `DEMO_VIDEO_SCRIPT.md` 2026-05-21; includes Q&A prompts. |
 | CPB-M04 | Workspace A Playwright smoke sign-off | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. QA sign-off only; #30 shipped. |
 | CPB-M05 | Workspace B Playwright smoke sign-off | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. |

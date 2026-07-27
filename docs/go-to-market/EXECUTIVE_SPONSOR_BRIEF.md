@@ -1,12 +1,12 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-27
 
-> **Scope:** ArchLucid Executive Sponsor Brief - full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid Executive Sponsor Brief — sponsor story of record, plus verbal elevator pitches and M-18 outreach templates (formerly `ELEVATOR_PITCH.md`). Full detail, tables, and links in the sections below.
 
 # ArchLucid Executive Sponsor Brief
 
-**Audience:** CIOs, CTOs, chief architects, architecture review sponsors, governance leaders, and pilot sponsors who need a concise explanation of what ArchLucid does and why a pilot matters.
+**Audience:** CIOs, CTOs, chief architects, architecture review sponsors, governance leaders, and pilot sponsors who need a concise explanation of what ArchLucid does and why a pilot matters. Founders also use §4 for talk-track and warm outreach.
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-07-27
 
 **Status:** Sponsor-facing V1 summary. This brief is grounded in what the current product supports today. It is not a pricing sheet and it does not claim enterprise-wide transformation.
 
@@ -95,19 +95,104 @@ Architecture decisions in ArchLucid are not just analyzed — they are governed.
 
 ## 4. Elevator Pitches {#elevator-pitches}
 
+Former standalone: `docs/go-to-market/ELEVATOR_PITCH.md` → this section (including [M-18 outreach templates](#m-18-outreach-message-templates)).
+
+**Relationship:** [`POSITIONING.md`](POSITIONING.md) owns the canonical tagline and positioning statement. This brief is the sponsor story **and** the verbal delivery SoT — edit talk-track here when outreach drifts.
+
+**Rule:** Every claim maps to a shipped V1 capability. Do not imply real-time cloud connectivity, self-serve checkout, or third-party connector availability unless those milestones have shipped per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md). Do **not** use absolute calendar claims such as “two weeks → two hours” without a measured pilot baseline (open **M-245**).
+
 ### 30-second pitch
 
-"ArchLucid turns architecture evidence into a defensible architecture package. Upload the buyer's materials, and ArchLucid identifies the top risks across topology, cost, compliance, and design quality. Every sponsor-facing finding is tied to evidence and confidence labels, with exports a CTO or architecture review board can read."
+> "Architecture review is one of the slowest, most manual parts of the engineering process. ArchLucid turns a structured request into an evidence-backed architecture package — findings prioritized, decisions recorded, audit trail complete. I use it to deliver architecture reviews that ARBs and security partners can actually follow. Happy to show you a sample report."
 
-### 60-second pitch
+**When to use:** cold outreach, conference introduction, LinkedIn connection request follow-up.
 
-"Architecture review is a bottleneck in every enterprise I talk to. A small team of senior architects reviews every major design proposal. Reviews take weeks. Different architects apply different standards. Decisions are captured in email threads no one can find six months later. And compliance gaps surface in production — not during design.
+### One-minute pitch (M-02)
 
-ArchLucid solves this with evidence-linked architecture risk reviews.
+> "Architecture review is a bottleneck for almost every engineering team I talk to. A small group of senior architects reviews every major proposal. Reviews take weeks. Different reviewers apply different standards. And decisions end up in email threads nobody can find six months later — or worse, compliance gaps surface in production instead of during design.
+>
+> ArchLucid gives teams a structured way out of that.
+>
+> You bring your architecture materials — topology, requirements, constraints, existing evidence. ArchLucid runs a governed multi-agent analysis: topology, cost, compliance, design quality. It surfaces a prioritized findings board where every risk is severity-ranked, evidence-cited, and paired with a concrete recommended action.
+>
+> The output is a defensible architecture package: a signed review record anchored to a full audit chain, a findings register, and an exportable report your ARB, your CTO, and your auditors can follow — not a chat transcript.
+>
+> I offer this as a service-led engagement — we run the review together on your real architecture context and you walk away with the report. Want to see what that looks like for a system like yours?"
 
-You upload your architecture materials. ArchLucid runs a multi-agent analysis — topology, cost, compliance, design quality — and surfaces a prioritized findings board: each risk ranked by severity, confidence-rated, evidence-cited, and accompanied by a concrete recommended action.
+**When to use:** outreach email body, initial discovery call opening, Upwork proposal narrative.
 
-The result: your architects get a defensible architecture package. Your CTO gets a clear executive summary. Your audit trail is complete. Reviews that took two weeks now take two hours."
+**Timing:** Aim for 55–65 seconds delivered at natural pace (~150 wpm).
+
+### Two-minute pitch (sponsor / CTO)
+
+> "Here is the problem as I see it. Enterprise architecture review relies on manual effort from a small pool of senior architects. Reviews are slow, inconsistent, and poorly documented. Decisions are made in meetings and reconstructed months later when an auditor asks what happened. And AI tools built for chat — Copilot, ChatGPT — do not help here because they produce fluent prose with no evidence links, no policy context, and no governance trail.
+>
+> ArchLucid is built specifically for this gap. It coordinates a multi-agent pipeline — four specialized AI agents cover topology, cost, compliance, and design quality — against a structured architecture request. Every finding it surfaces carries an explainability trace: what was examined, which rules applied, what was concluded, and why. Every decision recorded against that finding is auditable and replayable.
+>
+> The output is what I call an architecture package: a signed review record anchored to a full audit chain, structured findings, stated limits where the system does not conclude, and an executive summary your sponsor can read in five minutes. Exportable as DOCX or PDF, whitelabeled if needed.
+>
+> I offer this as a productized service — an ArchLucid AI and Cloud Architecture Readiness Review — where I run the workflow on your real architecture context and deliver the package. The cost is in the range of a few days of senior architect time at a fraction of the calendar delay.
+>
+> I would rather show you a sample report than pitch slides. Do you have 30 minutes to walk through what the output looks like for a cloud-based system?"
+
+**When to use:** 30-minute discovery call, sponsor introductions, written proposal opening.
+
+### Founder-led consulting line (outreach / LinkedIn)
+
+> "I use ArchLucid to deliver evidence-backed AI and cloud architecture reviews for teams that need defensible decisions, not just diagrams."
+
+**When to use:** LinkedIn headline or summary, outreach signature, Upwork bio.
+
+### M-18 outreach message templates {#m-18-outreach-message-templates}
+
+Founder-led "20 warm contacts" campaign (GTM **M-18**). Companion to **M-17** (list) and **M-19** (demos). Claims trace to this section and [`POSITIONING.md`](POSITIONING.md); guardrails in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise). **Not a sales pitch** — ask for professional opinion / 10-minute reaction.
+
+#### Framing rules
+
+- Ask for feedback, not a sale; personalize every send; one send + one bump only.
+- Ground claims in shipped V1; no mass BCC; skip disqualified segments per [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md).
+
+#### LinkedIn connection-request note (≤300 characters)
+
+```
+Hi <<FIRST_NAME>> — <<SHARED_CONTEXT>>. I built a tool for evidence-backed architecture reviews and would value 10 minutes of your take. Would love to connect.
+```
+
+#### Warm outreach (1st-degree / former colleagues)
+
+```
+Hi <<FIRST_NAME>>,
+
+<<PERSONALIZED_OPENER>>
+
+I've been heads-down building ArchLucid — it turns architecture review from scattered opinion into an evidence-backed decision package: findings prioritized, evidence cited, decisions recorded, with an exportable report your ARB or auditor can actually follow. Not another chat-with-your-docs tool.
+
+I'm not trying to sell you anything — I'd genuinely value your take as someone who has sat through real architecture reviews. Would you be open to 10 minutes for me to show you what it does and hear whether it would have helped on <<RELEVANT PAST CONTEXT>>? Happy to work around your schedule.
+
+Thanks either way,
+<<SENDER_NAME>>
+```
+
+#### Follow-up bump (once, after 5–7 business days)
+
+```
+Hi <<FIRST_NAME>> — following up in case this got buried. No pressure at all; if a 10-minute look isn't useful right now, no worries. If it is, here's a link to grab time: <<CALENDAR_LINK>>.
+
+<<SENDER_NAME>>
+```
+
+#### Persona-flavored openers (optional)
+
+| Persona | Opener swap |
+| --- | --- |
+| Architecture lead | "It replaces ad hoc review documentation with a structured, defensible package built from evidence you already have." |
+| CTO / VP Engineering | "It gets you evidence-backed reviews in a fraction of the time, with an audit trail your board and auditors can actually read." |
+| GRC / Compliance | "It adds a pre-commit governance gate and a structured audit trail aligned to policy packs — built for exactly the gap you flagged." |
+| Cloud consultant | "I built it as delivery infrastructure — bring your own evidence, produce a whitelabel report — thought it might be relevant to how you deliver review engagements." |
+
+Track 20 sends privately (contact, channel, date, response, outcome). Hand positives to **M-19** via [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md).
+
+**Talk-track companions:** [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) · [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) · [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md)
 
 ---
 
