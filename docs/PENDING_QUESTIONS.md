@@ -149,7 +149,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 | Sub-decision | Decision | Affects |
 |---|---|---|
-| **SOC 2 CPA attestation program (assessment #23)** | **V1.1 backlog** — track as **TB-135** in [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (Done — tech tracking closed; owner GTM work open as **G-REAL-05**). Not a V1 assessment implementation batch; pick up only when owner directs. ARR/procurement trigger unchanged (*Resolved 2026-05-05*). | [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c, [`SOC2_ROADMAP.md`](go-to-market/SOC2_ROADMAP.md) |
+| **SOC 2 CPA attestation program (assessment #23)** | **V1.1 backlog** — track as **TB-135** in [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (Done — tech tracking closed; owner GTM work open as **G-REAL-05**). Not a V1 assessment implementation batch; pick up only when owner directs. ARR/procurement trigger unchanged (*Resolved 2026-05-05*). | [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c, [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) |
 | **Third-party pen-test program (assessment #25)** | **V1.1 backlog** — track as **TB-136** (Done — tech tracking closed; owner GTM work open as **G-ASSURANCE-02**). Supersedes prior **V2** framing for external vendor engagement. V1 remains owner-conducted (**TB-005**). Not a V1 assessment implementation batch. | [`pen-test-summaries/`](security/pen-test-summaries/) templates |
 
 ---
@@ -215,7 +215,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 | Sub-decision | Decision | Affects |
 |---|---|---|
-| **Trust Center timing language** | **Yes, continue citing the ARR/procurement trigger** for SOC 2 Type I engagement: **$250K ARR** or the first binding procurement requirement from a contracted customer, whichever is earlier. | `trust-center.md`, `SOC2_ROADMAP.md`, procurement responses |
+| **Trust Center timing language** | **Yes, continue citing the ARR/procurement trigger** for SOC 2 Type I engagement: **$250K ARR** or the first binding procurement requirement from a contracted customer, whichever is earlier. | `trust-center.md`, `ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`, procurement responses |
 | **Wording guardrail** | Keep the language directional and non-contractual; do not imply a CPA report is issued, scheduled, or committed before the trigger is met and an assessor engagement is executed. | Trust Center and SOC 2 roadmap |
 
 ---
@@ -305,7 +305,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 | Sub-decision | Decision | Affects |
 |---|---|---|
-| **SOC 2 Type I engagement trigger** | **$250K ARR** OR **first binding procurement requirement from a contracted customer**, whichever is earlier. Below that threshold: self-assessment + Trust Center honesty posture unchanged. | [`docs/go-to-market/trust-center.md`](go-to-market/trust-center.md) compliance table, [`docs/go-to-market/SOC2_ROADMAP.md`](go-to-market/SOC2_ROADMAP.md), [`docs/security/SOC2_SELF_ASSESSMENT_2026.md`](security/SOC2_SELF_ASSESSMENT_2026.md) G-001 resumption checklist |
+| **SOC 2 Type I engagement trigger** | **$250K ARR** OR **first binding procurement requirement from a contracted customer**, whichever is earlier. Below that threshold: self-assessment + Trust Center honesty posture unchanged. | [`docs/go-to-market/trust-center.md`](go-to-market/trust-center.md) compliance table, [`docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap), [`docs/security/SOC2_SELF_ASSESSMENT_2026.md`](security/SOC2_SELF_ASSESSMENT_2026.md) G-001 resumption checklist |
 | **Rationale** | Type I all-in cost ($20K–$45K) is ~10–18% of $250K ARR — manageable. Procurement-blocking request is the other hard signal regardless of ARR. Starting at $250K puts a Type II report in reach (~$500K–$750K ARR) — the range where enterprise buyers get serious. | Sales narrative; do not imply SOC 2 is imminent or contractually committed below the trigger |
 
 ---

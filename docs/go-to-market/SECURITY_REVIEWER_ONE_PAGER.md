@@ -70,5 +70,5 @@ Assume review id `runId` and tenant scope already established. Uses existing rou
 
 - `docs/go-to-market/trust-center.md` (Trust center narrative) — present
 - `docs/security/SOC2_SELF_ASSESSMENT_2026.md` (SOC 2 self-assessment (not CPA attestation)) — present
-- `docs/go-to-market/SOC2_ROADMAP.md` (SOC 2 roadmap (deferred CPA program)) — present
+- `docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap` (SOC 2 roadmap (deferred CPA program)) — present
 - `docs/library/V1_DEFERRED.md` (Explicit V1 deferrals) — present

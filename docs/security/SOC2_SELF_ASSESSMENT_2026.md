@@ -50,6 +50,6 @@
 ## Related
 
 - [`COMPLIANCE_MATRIX.md`](COMPLIANCE_MATRIX.md)
-- [`../go-to-market/SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md)
+- [`../go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap)
 - [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md)
 - [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md)

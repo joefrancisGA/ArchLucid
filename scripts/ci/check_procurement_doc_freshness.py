@@ -38,7 +38,6 @@ def main() -> int:
         (root / "docs" / "go-to-market" / "SUPPORT_POLICY.md", 45),
         (root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md", 45),
         (root / "docs" / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md", 45),
-        (root / "docs" / "go-to-market" / "SOC2_ROADMAP.md", 120),
         (root / "docs" / "security" / "SOC2_SELF_ASSESSMENT_2026.md", 120),
     ]
 

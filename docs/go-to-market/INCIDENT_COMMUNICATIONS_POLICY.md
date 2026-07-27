@@ -70,7 +70,7 @@ Internal technical response may reference **[../runbooks/](../runbooks/)**; thos
 
 ## 6. Post-incident review (internal)
 
-Blameless review covers: **timeline**, **customer impact**, **root cause**, **remediation**, **preventive actions**. Outputs may feed **SOC 2** evidence ([SOC2_ROADMAP.md](SOC2_ROADMAP.md)).
+Blameless review covers: **timeline**, **customer impact**, **root cause**, **remediation**, **preventive actions**. Outputs may feed **SOC 2** evidence ([ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap)).
 
 ---
 

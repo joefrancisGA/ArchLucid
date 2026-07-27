@@ -135,4 +135,4 @@ Answers are pointers only; pull quotations from targets during diligence.
 | [trust-center.md](trust-center.md) | Canonical buyer index |
 | [BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq](BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq) | Narrative FAQs |
 | [PROCUREMENT_PACK_COVER.md](PROCUREMENT_PACK_COVER.md) | Pack framing |
-| [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | Roadmap (**not an auditor opinion**) |
+| [ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | Roadmap (**not an auditor opinion**) |

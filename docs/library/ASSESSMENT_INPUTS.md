@@ -30,7 +30,7 @@ Read these **before** grepping broadly or opening large code regions. For scorin
 | 3 | [`V1_DEFERRED.md`](V1_DEFERRED.md) | Explicit deferrals (what is **not** a headline gate) |
 | 4 | [`../go-to-market/trust-center.md`](../go-to-market/trust-center.md) | Trust / buyer-facing commitments |
 | 5 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment posture (narrate CPA gap under `(B)` only) |
-| 6 | [`../go-to-market/SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md) | SOC 2 roadmap narrative |
+| 6 | [`../go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | SOC 2 roadmap narrative |
 | 7 | [`ARCHITECTURE_COMPONENTS.md`](ARCHITECTURE_COMPONENTS.md) | Component map |
 | 8 | [`SYSTEM_MAP.md`](SYSTEM_MAP.md) | System flows |
 | 9 | [`API_CONTRACTS.md`](API_CONTRACTS.md) | HTTP / OpenAPI contract of record |

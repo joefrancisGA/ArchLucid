@@ -441,7 +441,7 @@ Run before each new buyer send:
 | --- | --- |
 | [`trust-center.md`](trust-center.md) | Master trust and assurance index |
 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment narrative |
-| [`SOC2_ROADMAP.md`](SOC2_ROADMAP.md) | SOC 2 CPA roadmap (V1.1) |
+| [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | SOC 2 CPA roadmap (V1.1) |
 | [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) | CAIQ / SIG question-answer map |
 | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Data Processing Addendum template |
 | [`SUBPROCESSORS.md`](SUBPROCESSORS.md) | Sub-processor list |

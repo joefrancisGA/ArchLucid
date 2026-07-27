@@ -16,7 +16,7 @@ _LAST_REVIEWED = re.compile(r"\*\*Last reviewed:\*\*\s*(\d{4}-\d{2}-\d{2})", re.
 
 _DEFERRED_SCOPE_DOCS = frozenset(
     {
-        "docs/go-to-market/SOC2_ROADMAP.md",
+        "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
         "docs/security/SOC2_SELF_ASSESSMENT_2026.md",
     }
 )
@@ -27,7 +27,7 @@ _TARGETS: tuple[tuple[str, int, str], ...] = (
     ("docs/go-to-market/SUBPROCESSORS.md", 90, "required"),
     ("docs/go-to-market/SLA_SUMMARY.md", 45, "required"),
     ("docs/go-to-market/SUPPORT_POLICY.md", 45, "required"),
-    ("docs/go-to-market/SOC2_ROADMAP.md", 120, "deferred-scope"),
+    ("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md", 120, "deferred-scope"),
     ("docs/security/SOC2_SELF_ASSESSMENT_2026.md", 120, "deferred-scope"),
 )
 

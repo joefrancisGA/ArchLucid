@@ -102,7 +102,7 @@ Read in this order (per `docs/library/ASSESSMENT_INPUTS.md`) before grepping bro
 2. `docs/library/V1_SCOPE.md` — in-contract V1 / V1.1 boundaries
 3. `docs/library/V1_DEFERRED.md` — explicit deferrals
 4. `docs/go-to-market/trust-center.md` — trust / buyer commitments
-5. `docs/security/SOC2_SELF_ASSESSMENT_2026.md` + `docs/go-to-market/SOC2_ROADMAP.md` — SOC posture (CPA gap is `(B)` only)
+5. `docs/security/SOC2_SELF_ASSESSMENT_2026.md` + `docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap` — SOC posture (CPA gap is `(B)` only)
 6. `docs/library/ARCHITECTURE_COMPONENTS.md`, `docs/library/SYSTEM_MAP.md`
 7. `docs/library/API_CONTRACTS.md` — HTTP/OpenAPI contract of record
 8. `docs/library/CONFIGURATION_REFERENCE.md`

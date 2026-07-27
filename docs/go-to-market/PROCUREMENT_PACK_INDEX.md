@@ -21,8 +21,8 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | SIG Core pre-fill | Self-attested | [../security/SIG_CORE_2026.md](../security/SIG_CORE_2026.md) | Questionnaire-aligned draft. |
 | SOC 2 self-assessment (CC mapping) | Self-attested | [../security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Internal narrative — **not** a CPA opinion. |
 | SOC 2 procurement status statement | Self-attested | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) | Honest posture; confirms **no** CPA Type II issued today. |
-| SOC 2 programme roadmap | Deferred | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | Planning only; CPA examination **not** V1/V1.1 headline gate — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) section 6c. |
-| SOC 2 Type I / II examination report (CPA-issued) | Deferred | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | **No issued report** in-repo; timing owner-driven — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) section 6c. |
+| SOC 2 programme roadmap | Deferred | [ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | Planning only; CPA examination **not** V1/V1.1 headline gate — see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) section 6c. |
+| SOC 2 Type I / II examination report (CPA-issued) | Deferred | [ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | **No issued report** in-repo; timing owner-driven — [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) section 6c. |
 | Owner-conducted penetration-style assessment | Self-attested | [../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) | Not third-party attestation; V1-appropriate. |
 | Third-party penetration test (vendor-led programme) | Deferred | [../library/V1_DEFERRED.md](../library/V1_DEFERRED.md) | **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) section 6c; no V1 vendor commitment. |
 | Third-party pen-test SoW (planning template) | Template | [../security/pen-test-summaries/2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) | For use when a vendor is selected. |
@@ -43,7 +43,7 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | Tenant isolation (database-per-tenant) | Implemented | 2026-06-06 | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) | Database-per-tenant catalogs + app-layer scope predicates per ADR 0037. SQL RLS was evaluated and not adopted. |
 | SOC 2 procurement statement | Self-asserted | 2026-07-23 | [docs/go-to-market/SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) | States Type II issuance not yet claimed; directs to roadmap and self-assessment. |
 | SOC 2 self-assessment narrative | Self-asserted | 2026-07-23 | [docs/security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Internal CC mapping narrative — explicitly not a CPA audit opinion. |
-| SOC 2 roadmap | Deferred V1.1 | 2026-04-24 | [docs/go-to-market/SOC2_ROADMAP.md](SOC2_ROADMAP.md) | Planned programme timing only; confirms no SOC 2 report yet. |
+| SOC 2 roadmap | Deferred V1.1 | 2026-04-24 | [docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | Planned programme timing only; confirms no SOC 2 report yet. |
 | CAIQ-lite pre-fill | Self-asserted | 2026-05-01 | [docs/security/CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md) | Questionnaire-aligned draft sourced from documented controls posture. |
 | SIG Core pre-fill | Self-asserted | 2026-05-01 | [docs/security/SIG_CORE_2026.md](../security/SIG_CORE_2026.md) | Questionnaire-aligned draft referencing library evidence pointers. |
 | SCIM + Entra ID provisioning recipe | Self-asserted | 2026-05-03 | [docs/integrations/SCIM_ENTRA_ID_SETUP.md](../integrations/SCIM_ENTRA_ID_SETUP.md) | Documents `/scim/v2` URLs, bearer secret issuance (`POST /v1/admin/scim/tokens`), automated Api.Tests Entra-shaped fixtures (no Entra tenant in CI), and parser guardrails for common Entra filter literals. |
@@ -61,7 +61,7 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | Tenant isolation (database-per-tenant) | Implemented | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
 | SOC 2 procurement wording (status, not issuance) | Self-asserted | [Assurance status canonical](ASSURANCE_STATUS_CANONICAL.md) |
 | SOC 2 self-assessment (not CPA audit) | Self-asserted | [SOC 2 self-assessment](../security/SOC2_SELF_ASSESSMENT_2026.md) |
-| SOC 2 roadmap / timing | Deferred V1.1 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) |
+| SOC 2 roadmap / timing | Deferred V1.1 | [ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) |
 | CAIQ / SIG pre-fills | Self-asserted | [CAIQ](../security/CAIQ_LITE_2026.md) · [SIG](../security/SIG_CORE_2026.md) |
 | DPA / subprocessors | Template / self-asserted | [DPA](DPA_TEMPLATE.md) · [Subprocessors](SUBPROCESSORS.md) |
 | **Route ↔ tier ↔ policy ↔ nav crosswalk** | Engineering-maintained | [ROUTE_TIER_POLICY_NAV_MATRIX.md](../library/ROUTE_TIER_POLICY_NAV_MATRIX.md) |
@@ -253,4 +253,4 @@ Former standalone: `docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md` → th
 
 - [MSA outline](MSA_TEMPLATE.md) and [incident communications](INCIDENT_COMMUNICATIONS_POLICY.md) are available for legal and operational diligence.
 - [API SLO narrative](../library/API_SLOS.md) describes service targets; contractual commitments require an executed MSA or order form.
-- Intentionally not bundled: an independent SOC 2 report and live third-party pen-test deliverables. See [SOC2_ROADMAP.md](SOC2_ROADMAP.md) and [pen-test summaries](../security/pen-test-summaries/README.md).
+- Intentionally not bundled: an independent SOC 2 report and live third-party pen-test deliverables. See [ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) and [pen-test summaries](../security/pen-test-summaries/README.md).

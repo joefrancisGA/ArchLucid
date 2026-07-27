@@ -81,7 +81,7 @@ Processing continues for the **subscription term** and until deletion or return 
 
 6.6 **Deletion / return:** At end of contract, Processor deletes or returns Personal Data per §9.
 
-6.7 **Audit:** Processor makes available **SOC 2** reports when available ([SOC2_ROADMAP.md](SOC2_ROADMAP.md)) and reasonable information necessary to demonstrate compliance.
+6.7 **Audit:** Processor makes available **SOC 2** reports when available ([ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap)) and reasonable information necessary to demonstrate compliance.
 
 ---
 

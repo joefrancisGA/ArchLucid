@@ -66,7 +66,7 @@ Production tenant data is isolated with a **database-per-tenant** model (`System
 
 | Control | Status | Evidence | Last reviewed |
 |---------|--------|----------|---------------|
-| SOC 2 Common Criteria mapping (self-assessment, not attestation) | Self-asserted | [SOC 2 self-assessment](/help/soc2-self-assessment), [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | 2026-07-24 |
+| SOC 2 Common Criteria mapping (self-assessment, not attestation) | Self-asserted | [SOC 2 self-assessment](/help/soc2-self-assessment), [ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | 2026-07-24 |
 | Independent penetration test programme (third-party vendor-led) | Planned, not yet scheduled — no vendor committed | [V1_DEFERRED.md §6c](../library/V1_DEFERRED.md), [PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | 2026-07-24 |
 | 2026-Q2 owner-conducted penetration-style assessment | Active V1 control | [2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) | 2026-07-24 |
 | Third-party pen-test SoW template (no awarded vendor) | Template only — use when a vendor engagement is scheduled | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) | 2026-07-24 |
