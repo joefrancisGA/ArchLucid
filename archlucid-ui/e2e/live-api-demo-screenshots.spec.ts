@@ -71,7 +71,10 @@ test.describe("live-api-demo-screenshots", () => {
     fs.mkdirSync(outDir, { recursive: true });
 
     for (const routePath of DEMO_SCREENSHOT_ROUTES) {
-      if (routePath.startsWith("/alerts") && !preflight.alertsDemoReady) {
+      if (
+        (routePath.startsWith("/alerts") || routePath.startsWith("/governance/alerts"))
+        && !preflight.alertsDemoReady
+      ) {
         routes.push({
           route: routePath,
           path: routePath,

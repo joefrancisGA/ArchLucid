@@ -161,6 +161,18 @@ public sealed class RunStateTransitionService : IRunStateTransitionService
     }
 
     /// <inheritdoc/>
+    public bool ShouldSetTasksGeneratedAfterDeferredMaterialize(string? currentLegacyRunStatus)
+    {
+        if (string.IsNullOrWhiteSpace(currentLegacyRunStatus))
+            return true;
+
+        return string.Equals(
+            currentLegacyRunStatus,
+            nameof(ArchitectureRunStatus.Created),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <inheritdoc/>
     public string GetCoordinationLegacyStatusAfterCreate(bool deferredAuthorityPipeline)
     {
         return deferredAuthorityPipeline

@@ -28,6 +28,13 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     ).toBe(2);
     expect(resolveBuyerGoldenJourneyNav(`/governance?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(3);
     expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(4);
+    expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${showcaseRunEnc}`)?.currentStepIndex).toBe(4);
+  });
+
+  it("uses canonical /governance/audit for audit trail step href", () => {
+    const auditStep = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.find((def) => def.step === 5);
+
+    expect(auditStep?.href).toBe(`/governance/audit?runId=${showcaseRunEnc}`);
   });
 
   it("recognizes live demo workspace A product tour run ids on the buyer golden spine", () => {
@@ -39,6 +46,7 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(resolveBuyerGoldenJourneyNav(`/graph?runId=${liveRunEnc}`)?.currentStepIndex).toBe(2);
     expect(resolveBuyerGoldenJourneyNav(`/governance?runId=${liveRunEnc}`)?.currentStepIndex).toBe(3);
     expect(resolveBuyerGoldenJourneyNav(`/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
+    expect(resolveBuyerGoldenJourneyNav(`/governance/audit?runId=${liveRunEnc}`)?.currentStepIndex).toBe(4);
   });
 
   it("recognizes live SQL golden manifest detail under /signed-records/{guid}", () => {

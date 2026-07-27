@@ -22,6 +22,7 @@ vi.mock("next/navigation", () => ({
     push,
     prefetch,
   }),
+  usePathname: () => "/",
 }));
 
 vi.mock("@/lib/architecture-creation-init", () => ({

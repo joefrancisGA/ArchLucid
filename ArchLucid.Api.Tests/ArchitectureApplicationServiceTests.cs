@@ -632,6 +632,54 @@ public sealed class ArchitectureApplicationServiceTests
     }
 
     [SkippableFact]
+    public async Task SeedFakeResultsAsync_WhenValidGuidRun_PromotesLegacyStatusToReadyForCommit()
+    {
+        Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string runId = runGuid.ToString("N");
+        ArchitectureRun run = ValidRun(runId);
+        ArchitectureRequest request = ValidRequest();
+        List<AgentTask> tasks =
+        [
+            ValidTask(runId),
+            ValidTask(runId, AgentType.Cost),
+            ValidTask(runId, AgentType.Compliance),
+            ValidTask(runId, AgentType.Critic)
+        ];
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailFor(run, tasks, []));
+        _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
+        _resultRepository.Setup(r =>
+                r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ProjectId = "p",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated)
+        };
+
+        _runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(header);
+
+        SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync(runId);
+
+        result.Success.Should().BeTrue();
+        _runRepository.Verify(
+            r => r.UpdateAsync(
+                It.Is<RunRecord>(h =>
+                    string.Equals(h.LegacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenEvidencePackageAlreadyExists_DoesNotCreatePackageAgain()
     {
         ArchitectureRun run = ValidRun();
@@ -795,7 +843,13 @@ public sealed class ArchitectureApplicationServiceTests
             r => r.UpdateAsync(
                 It.Is<RunRecord>(h => h.RealModeFellBackToSimulator && h.PilotAoaiDeploymentSnapshot == "gpt-test"),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.AtLeastOnce);
+        _runRepository.Verify(
+            r => r.UpdateAsync(
+                It.Is<RunRecord>(h =>
+                    string.Equals(h.LegacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
         _auditService.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>

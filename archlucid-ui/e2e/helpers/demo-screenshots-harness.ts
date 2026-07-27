@@ -6,6 +6,10 @@ import * as path from "node:path";
 
 import type { APIRequestContext, Page } from "@playwright/test";
 
+import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
+
+import { waitForAuditSearchSummaryNonEmpty } from "../screenshot-demo-quality-gates";
+import { screenshotEffectiveHref, waitForScreenshotLegacyRedirects } from "../screenshot-legacy-redirects";
 import {
   getGraphForRunRaw,
   liveAcceptHeaders,
@@ -25,7 +29,10 @@ export const DEMO_SCREENSHOT_FAILURE_SUBSTRINGS: readonly string[] = [
   "Registered packs 0",
   "Effective layers 0",
   "Selected pack —",
-  "No audit events",
+  // Prefer exact empty-state titles — broad "No audit events" false-positives scorecard copy.
+  "No audit events found",
+  "No audit events in this view",
+  "Showing 0 events",
   "No matching alerts",
   "Platform services: Healthy on an error page",
   "NEXT_PUBLIC_",
@@ -54,9 +61,9 @@ export const DEMO_SCREENSHOT_ROUTES: readonly string[] = [
   "/graph",
   "/ask",
   "/governance",
-  "/audit",
-  "/alerts",
-  "/policy-packs",
+  "/governance/audit",
+  "/governance/alerts",
+  "/governance/policy-packs",
   "/see-it",
   "/demo/preview",
 ];
@@ -296,12 +303,23 @@ export async function waitForShellReady(page: Page, timeoutMs: number): Promise<
 
 /** Best-effort: dynamic routes often show these loaders; wait before scanning/snapshotting. */
 export async function settleDemoRoute(page: Page, routePath: string): Promise<void> {
-  const p = routePath.split("?")[0] ?? routePath;
+  // Legacy bookmarks (`/audit`, `/alerts`) permanently redirect — settle against the landed URL.
+  await waitForScreenshotLegacyRedirects(page, routePath);
+
+  const effectiveHref = screenshotEffectiveHref(page.url());
+  const p = (effectiveHref.split("?")[0] ?? effectiveHref).trim() || "/";
 
   if (p === "/graph" || p.startsWith("/graph")) {
     const graphLoading = page.getByText(/loading graph viewer/i).first();
     if ((await graphLoading.count()) > 0)
       await graphLoading.waitFor({ state: "hidden", timeout: 120_000 });
+
+    return;
+  }
+
+  // Must run before the `/governance` catch-all — `/governance/audit` is not the workflow hub.
+  if (pathMatchesGovernanceAudit(p)) {
+    await waitForAuditSearchSummaryNonEmpty(page, effectiveHref);
 
     return;
   }
@@ -314,7 +332,7 @@ export async function settleDemoRoute(page: Page, routePath: string): Promise<vo
     return;
   }
 
-  if (p === "/alerts" || p.startsWith("/alerts")) {
+  if (pathMatchesGovernanceAlerts(p) || p === "/alerts" || p.startsWith("/alerts")) {
     const alertsLoading = page.getByText(/loading alerts/i).first();
     if ((await alertsLoading.count()) > 0)
       await alertsLoading.waitFor({ state: "hidden", timeout: 120_000 });

@@ -68,17 +68,18 @@ public sealed class MarketingPricingQuoteRequestController(
         if (string.IsNullOrWhiteSpace(body.TierInterest))
             return this.BadRequestProblem("Tier interest is required.", ProblemTypes.ValidationFailed);
 
-        if (body.Message.Length > MaxMessageChars)
+        if ((body.Message ?? string.Empty).Length > MaxMessageChars)
             return this.BadRequestProblem($"Message must be at most {MaxMessageChars} characters.",
                 ProblemTypes.ValidationFailed);
 
         byte[]? ipHash = TryHashRemoteIp(HttpContext);
+        string message = (body.Message ?? string.Empty).Trim();
 
         MarketingPricingQuoteRequestInsertResult? insert = await _quoteRepository.AppendAsync(
             body.WorkEmail.Trim(),
             body.CompanyName.Trim(),
             body.TierInterest.Trim(),
-            body.Message.Trim(),
+            message,
             ipHash,
             cancellationToken);
 
@@ -92,7 +93,7 @@ public sealed class MarketingPricingQuoteRequestController(
                 body.WorkEmail.Trim(),
                 body.CompanyName.Trim(),
                 body.TierInterest.Trim(),
-                body.Message.Trim(),
+                message,
                 cancellationToken);
         }
         else if (_logger.IsEnabled(LogLevel.Information))

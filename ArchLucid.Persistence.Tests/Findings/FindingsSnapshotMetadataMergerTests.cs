@@ -88,9 +88,10 @@ public sealed class FindingsSnapshotMetadataMergerTests
             ChecklistCoverage = [new Finding { Category = "Prior", FindingType = "Prior" }],
         };
 
+        // Entity JSON uses numeric enums (no JsonStringEnumConverter on EntityJsonOptions).
         FindingsSnapshotMetadataMerger.MergeFromFindingsJson(
             snapshot,
-            """{"engineFailures":null,"checklistCoverage":null,"generationStatus":"Complete"}""");
+            """{"engineFailures":null,"checklistCoverage":null,"generationStatus":2}""");
 
         snapshot.EngineFailures.Should().BeEmpty();
         snapshot.ChecklistCoverage.Should().BeEmpty();

@@ -65,6 +65,7 @@ vi.mock("next/navigation", () => ({
     push: vi.fn(),
     prefetch: vi.fn(),
   }),
+  usePathname: () => "/",
 }));
 
 describe("PilotCommandCenterCard", () => {

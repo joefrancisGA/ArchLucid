@@ -48,7 +48,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           </span>
           <span
             aria-hidden="true"
-            class="dark:text-neutral-500 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             →
           </span>
@@ -63,7 +63,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           </span>
           <span
             aria-hidden="true"
-            class="dark:text-neutral-500 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             →
           </span>
@@ -78,7 +78,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           </span>
           <span
             aria-hidden="true"
-            class="dark:text-neutral-500 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             →
           </span>
@@ -93,7 +93,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           </span>
           <span
             aria-hidden="true"
-            class="dark:text-neutral-500 text-xs font-normal leading-[18px] text-al-text-secondary"
+            class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             →
           </span>

@@ -13,6 +13,7 @@ using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
@@ -255,22 +256,27 @@ public sealed class AuthorityPipelineWorkProcessor(
             entry.OutboxId.ToString());
 
         RunRecord? statusPatch = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken);
+        IRunStateTransitionService runStateTransitions =
+            scope.ServiceProvider.GetRequiredService<IRunStateTransitionService>();
 
         string nextAfterMaterialize;
 
         if (statusPatch is null)
             nextAfterMaterialize = "run_legacy_status_patch_skipped";
-        else if (!string.Equals(
+        else if (string.Equals(
                      statusPatch.LegacyRunStatus,
                      nameof(ArchitectureRunStatus.TasksGenerated),
                      StringComparison.Ordinal))
+            nextAfterMaterialize = "run_legacy_status_already_tasks_generated";
+        else if (runStateTransitions.ShouldSetTasksGeneratedAfterDeferredMaterialize(statusPatch.LegacyRunStatus))
         {
+            // Only Created (or unset) → TasksGenerated. Never demote ReadyForCommit after seed/execute raced ahead.
             statusPatch.LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated);
             await runRepository.UpdateAsync(statusPatch, cancellationToken);
             nextAfterMaterialize = "run_legacy_status_tasks_generated";
         }
         else
-            nextAfterMaterialize = "run_legacy_status_already_tasks_generated";
+            nextAfterMaterialize = "run_legacy_status_left_advanced";
 
         _logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
             entry.RunId,

@@ -39,12 +39,40 @@ test.describe("live-api-marketing-pricing-quote", () => {
     await page.goto("/pricing#pricing-quote-request", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-    await page.getByLabel(/Work email/i).fill(`e2e-quote-ui-${Date.now()}@example.com`);
-    await page.getByLabel(/^Company$/i).fill("E2E Quote UI Co");
-    await page.getByLabel(/Message/i).fill("Playwright quote path via UI proxy.");
+    const section = page.getByTestId("pricing-quote-request-section");
+    await expect(section).toBeVisible({ timeout: 60_000 });
 
-    await page.getByRole("button", { name: /Submit quote request/i }).click();
+    const submit = section.getByRole("button", { name: /Submit quote request/i });
 
-    await expect(page.getByText("Thanks — your request was received.")).toBeVisible({ timeout: 60_000 });
+    // Hash auto-open is client-only; expand manually when the collapsed CTA is still showing.
+    if ((await submit.count()) === 0) {
+      await section.getByRole("button", { name: /^Request quote$/i }).click();
+    }
+
+    await expect(submit).toBeVisible({ timeout: 30_000 });
+
+    await section.getByLabel(/Work email/i).fill(`e2e-quote-ui-${Date.now()}@example.com`);
+    await section.getByLabel(/^Company$/i).fill("E2E Quote UI Co");
+    await section.getByLabel(/^Message$/i).fill("Playwright quote path via UI proxy.");
+
+    const quoteResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/proxy/v1/marketing/pricing/quote-request")
+        && response.request().method() === "POST",
+      { timeout: 60_000 },
+    );
+
+    await submit.click();
+
+    const quoteResponse = await quoteResponsePromise;
+    expect(
+      quoteResponse.status(),
+      `quote-request proxy status ${quoteResponse.status()}: ${(await quoteResponse.text()).slice(0, 400)}`,
+    ).toBe(204);
+
+    await expect(page.getByTestId("pricing-quote-request-confirmation")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("pricing-quote-request-confirmation")).toContainText(
+      "Thanks — your request was received.",
+    );
   });
 });

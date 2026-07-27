@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 GOVERNANCE_NEGATIVE_SCENARIOS = (
     "Self_approval_returns_governance_self_approval_problem_and_audit_tb297",
-    "Reject_after_approve_returns_bad_request_tb297",
+    "Reject_after_approve_returns_conflict_tb297",
     "Double_promote_to_prod_with_same_approval_returns_bad_request_tb297",
     "Promote_with_stale_manifest_version_returns_bad_request_tb297",
 )

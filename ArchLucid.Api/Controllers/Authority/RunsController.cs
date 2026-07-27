@@ -320,6 +320,7 @@ public sealed partial class RunsController(
         // Here we just use the key and a hash of the serialized requests.
         // We will store it in the idempotency table using a special prefix.
         CreateRunIdempotencyState? idempotency = null;
+
         if (Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) && !string.IsNullOrWhiteSpace(raw.ToString()))
         {
             string trimmed = raw.ToString().Trim();
@@ -342,7 +343,8 @@ public sealed partial class RunsController(
         // Let's implement batch idempotency properly.
 
         bool isReplay = false;
-        if (idempotency != null)
+
+        if (idempotency is not null)
         {
             // Check if batch was already processed
             // We can reuse the commitRunIdempotencyRepository or create a new one.
@@ -354,7 +356,7 @@ public sealed partial class RunsController(
             CommitRunIdempotencyLookup? lookup = await commitRunIdempotencyRepository
                 .TryGetAsync(idempotency.TenantId, idempotency.WorkspaceId, idempotency.ProjectId, batchKey, idempotency.IdempotencyKeyHash, cancellationToken);
             
-            if (lookup != null)
+            if (lookup is not null)
             {
                 if (!CryptographicOperations.FixedTimeEquals(lookup.RequestFingerprint, idempotency.RequestFingerprint))
                     return this.ConflictProblem("Idempotency-Key was reused with a different request payload.", ProblemTypes.Conflict);
@@ -413,7 +415,7 @@ public sealed partial class RunsController(
             }
         }
 
-        if (idempotency != null && !isReplay)
+        if (idempotency is not null && !isReplay)
         {
             string batchKey = "batch_" + Convert.ToBase64String(idempotency.IdempotencyKeyHash).Substring(0, 16);
             await commitRunIdempotencyRepository.TryInsertAsync(
@@ -547,6 +549,7 @@ public sealed partial class RunsController(
     ///     TB-938: re-execute selected agents/tasks for <paramref name="runId" />, keeping successful results and
     ///     invalidating Critic when upstream inputs change.
     /// </summary>
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("run/{runId}/execute/selective")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
@@ -974,6 +977,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
         ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -997,6 +1001,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
         ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -1023,6 +1028,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
         ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -1066,6 +1072,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
         ArchitectureRequest? request = await requestRepository.GetByIdAsync(requestId, cancellationToken);
+
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 

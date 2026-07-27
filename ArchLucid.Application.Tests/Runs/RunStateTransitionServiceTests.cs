@@ -114,6 +114,26 @@ public sealed class RunStateTransitionServiceTests
         _sut.ShouldSkipQueuedAuthorityPipelineCompletion(null).Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("Created")]
+    public void ShouldSetTasksGeneratedAfterDeferredMaterialize_allows_created_or_unset(string? status)
+    {
+        _sut.ShouldSetTasksGeneratedAfterDeferredMaterialize(status).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("TasksGenerated")]
+    [InlineData("ReadyForCommit")]
+    [InlineData("WaitingForResults")]
+    [InlineData("Committed")]
+    [InlineData("PartiallyCompleted")]
+    public void ShouldSetTasksGeneratedAfterDeferredMaterialize_rejects_advanced_or_terminal(string status)
+    {
+        _sut.ShouldSetTasksGeneratedAfterDeferredMaterialize(status).Should().BeFalse();
+    }
+
     // TB-305 / ADR 0042 (decision C): the POST /result extension point is append-only-to-in-progress and cannot finalize.
     [Theory]
     [InlineData(ArchitectureRunStatus.TasksGenerated)]

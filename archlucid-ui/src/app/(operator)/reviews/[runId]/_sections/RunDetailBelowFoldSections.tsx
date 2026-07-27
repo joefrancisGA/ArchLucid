@@ -26,7 +26,6 @@ import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard
 import { RunDetailRetrievalGroundingSection } from "./RunDetailRetrievalGroundingSection";
 import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
-import { RunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
 import { loadRunDetailBelowFoldDeferredModel } from "./load-run-detail-deferred-model";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
@@ -203,18 +202,6 @@ export async function RunDetailBelowFoldSections(
             typeof m.explanationSummary?.faithfulnessWarning === "string"
             && m.explanationSummary.faithfulnessWarning.trim().length > 0
           }
-        />
-      ) : null}
-
-      {m.showPilotScorecardPackageCta && m.manifestId ? (
-        <RunDetailSponsorBriefingSection
-          runId={m.routeRunId}
-          manifestId={m.manifestId}
-          curatedSampleRun={m.usedStaticDemoRun}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-          sponsorDocxAvailable={m.artifacts.some(
-            (artifact) => artifact.artifactId === "architecture-review-board",
-          )}
         />
       ) : null}
 
