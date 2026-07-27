@@ -27,6 +27,14 @@ public static class ProblemErrorCodes
 
     public const string ResourceNotFound = "RESOURCE_NOT_FOUND";
 
+    public const string Unauthorized = "UNAUTHORIZED";
+
+    public const string Forbidden = "FORBIDDEN";
+
+    public const string MethodNotAllowed = "METHOD_NOT_ALLOWED";
+
+    public const string RateLimited = "RATE_LIMITED";
+
     public const string InvalidRunState = "INVALID_RUN_STATE";
 
     public const string DeterminismFailed = "DETERMINISM_FAILED";
@@ -110,6 +118,18 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.ResourceNotFound)
             return ResourceNotFound;
+
+        if (problemTypeUri == ProblemTypes.Unauthorized)
+            return Unauthorized;
+
+        if (problemTypeUri == ProblemTypes.Forbidden)
+            return Forbidden;
+
+        if (problemTypeUri == ProblemTypes.MethodNotAllowed)
+            return MethodNotAllowed;
+
+        if (problemTypeUri == ProblemTypes.RateLimited)
+            return RateLimited;
 
         if (problemTypeUri == ProblemTypes.InvalidRunState)
             return InvalidRunState;

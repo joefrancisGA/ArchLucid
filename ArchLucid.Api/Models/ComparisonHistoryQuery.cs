@@ -103,16 +103,18 @@ public sealed class ComparisonHistoryQuery
     public static List<string> NormalizeTagList(string? tag, string[]? tags)
     {
         List<string> normalizedTags = (tags ?? [])
-            .SelectMany(t => t.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Where(static t => t is not null)
+            .SelectMany(static t => t.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Where(static t => !string.IsNullOrWhiteSpace(t))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+
         if (string.IsNullOrWhiteSpace(tag))
             return normalizedTags;
 
         normalizedTags.AddRange(tag.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
         normalizedTags = normalizedTags
-            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Where(static t => !string.IsNullOrWhiteSpace(t))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 

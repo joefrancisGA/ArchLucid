@@ -85,10 +85,14 @@ internal static class PipelineExtensions
                 }
 
                 context.Response.StatusCode = problem.Status ?? 500;
-                context.Response.ContentType = "application/problem+json";
-                await context.Response.WriteAsJsonAsync(problem);
+                await context.Response.WriteAsJsonAsync(
+                    problem,
+                    options: null,
+                    contentType: ApplicationProblemMapper.ProblemJsonMediaType);
             });
         });
+
+        app.UseMiddleware<ProblemJsonContentTypeMiddleware>();
 
         // Canonical contract for APIM, CD smoke, and client codegen — always mapped (not gated on the explorer UI).
         app.MapOpenApi().AllowAnonymous();
@@ -144,6 +148,7 @@ internal static class PipelineExtensions
         app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseMiddleware<TenantErasureQuarantineMiddleware>();
         app.UseAuthorization();
+        app.UseMiddleware<EmptyErrorResponseNormalizationMiddleware>();
         app.UseMiddleware<LlmTokenUsageResponseMiddleware>();
         app.UseMiddleware<ApiRequestMeteringMiddleware>();
         app.MapHealthChecks("/health/live",

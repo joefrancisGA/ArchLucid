@@ -3,6 +3,7 @@ using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Authorization;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
@@ -95,6 +96,31 @@ public sealed class TrialLimitAuthorizationResultHandler : IAuthorizationMiddlew
             return;
         }
 
-        await _defaultHandler.HandleAsync(next, context, policy, authorizeResult);
+        // Default ASP.NET challenge/forbid returns an empty body; emit problem+json for OpenAPI parity.
+        bool isAuthenticated = context.User?.Identities.Any(static identity => identity.IsAuthenticated) == true;
+        int statusCode = isAuthenticated
+            ? StatusCodes.Status403Forbidden
+            : StatusCodes.Status401Unauthorized;
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = isAuthenticated ? ProblemTypes.Forbidden : ProblemTypes.Unauthorized,
+            Title = isAuthenticated ? "Forbidden" : "Unauthorized",
+            Status = statusCode,
+            Detail = isAuthenticated
+                ? "You are not allowed to perform this action."
+                : "Authentication is required for this resource.",
+            Instance = context.Request.Path.Value
+        };
+
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, context);
+
+        context.Response.StatusCode = statusCode;
+        await context.Response.WriteAsJsonAsync(
+            problem,
+            options: null,
+            contentType: ApplicationProblemMapper.ProblemJsonMediaType);
     }
 }

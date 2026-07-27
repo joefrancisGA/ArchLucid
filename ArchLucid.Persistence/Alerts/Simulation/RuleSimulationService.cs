@@ -66,7 +66,7 @@ public sealed class RuleSimulationService(
 
         foreach (AlertEvaluationContext context in contexts)
 
-            if (request.RuleKind.Equals(RuleKindSimple, StringComparison.OrdinalIgnoreCase) &&
+            if (string.Equals(request.RuleKind, RuleKindSimple, StringComparison.OrdinalIgnoreCase) &&
                 request.SimpleRule is not null)
             {
                 AlertRule rule = CloneSimpleForSimulation(request.SimpleRule);
@@ -114,7 +114,7 @@ public sealed class RuleSimulationService(
                         });
 
             }
-            else if (request.RuleKind.Equals(RuleKindComposite, StringComparison.OrdinalIgnoreCase) &&
+            else if (string.Equals(request.RuleKind, RuleKindComposite, StringComparison.OrdinalIgnoreCase) &&
                      request.CompositeRule is not null)
             {
                 CompositeAlertRule compositeRule = CloneCompositeForSimulation(request.CompositeRule);
@@ -191,7 +191,7 @@ public sealed class RuleSimulationService(
         RuleSimulationResult candidateA;
         RuleSimulationResult candidateB;
 
-        if (request.RuleKind.Equals(RuleKindSimple, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(request.RuleKind, RuleKindSimple, StringComparison.OrdinalIgnoreCase))
         {
             candidateA = await SimulateAsync(
                     tenantId,

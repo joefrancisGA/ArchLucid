@@ -87,6 +87,24 @@ public sealed class TrialLimitAuthorizationPipelineTests
     }
 
     [SkippableFact]
+    public async Task Authorization_result_handler_writes_401_problem_json_when_unauthenticated()
+    {
+        DefaultHttpContext http = new() { Response = { Body = new MemoryStream() } };
+
+        TrialLimitAuthorizationResultHandler handler = new();
+        RequestDelegate next = _ => Task.CompletedTask;
+        AuthorizationPolicy policy = new AuthorizationPolicyBuilder()
+            .AddRequirements(new TrialActiveRequirement())
+            .Build();
+        PolicyAuthorizationResult failed = PolicyAuthorizationResult.Challenge();
+
+        await handler.HandleAsync(next, http, policy, failed);
+
+        http.Response.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+        http.Response.ContentType.Should().StartWith("application/problem+json");
+    }
+
+    [SkippableFact]
     public async Task Exceeded_audit_filter_logs_when_mvc_action_throws_trial_limit()
     {
         DefaultHttpContext http = BuildHttpContextWithAudit();

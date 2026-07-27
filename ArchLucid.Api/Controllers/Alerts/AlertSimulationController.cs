@@ -50,6 +50,19 @@ public sealed class AlertSimulationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (string.IsNullOrWhiteSpace(request.RuleKind))
+            return this.BadRequestProblem("RuleKind is required (Simple or Composite).", ProblemTypes.ValidationFailed);
+
+        bool isSimple = request.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase);
+
+        if (isSimple && request.SimpleRule is null)
+            return this.BadRequestProblem("SimpleRule is required when RuleKind is Simple.", ProblemTypes.ValidationFailed);
+
+        if (!isSimple && request.CompositeRule is null)
+            return this.BadRequestProblem(
+                "CompositeRule is required when RuleKind is Composite.",
+                ProblemTypes.ValidationFailed);
+
         ScopeContext scope = scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
 
@@ -92,6 +105,23 @@ public sealed class AlertSimulationController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(request.RuleKind))
+            return this.BadRequestProblem("RuleKind is required (Simple or Composite).", ProblemTypes.ValidationFailed);
+
+        bool isSimple = request.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase);
+
+        if (isSimple &&
+            (request.CandidateASimpleRule is null || request.CandidateBSimpleRule is null))
+            return this.BadRequestProblem(
+                "CandidateASimpleRule and CandidateBSimpleRule are required when RuleKind is Simple.",
+                ProblemTypes.ValidationFailed);
+
+        if (!isSimple &&
+            (request.CandidateACompositeRule is null || request.CandidateBCompositeRule is null))
+            return this.BadRequestProblem(
+                "CandidateACompositeRule and CandidateBCompositeRule are required when RuleKind is Composite.",
+                ProblemTypes.ValidationFailed);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         StampComparisonScope(scope, request);

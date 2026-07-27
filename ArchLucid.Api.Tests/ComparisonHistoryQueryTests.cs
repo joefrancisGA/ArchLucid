@@ -25,4 +25,12 @@ public sealed class ComparisonHistoryQueryTests
 
         list.Should().BeEquivalentTo(["x", "y", "z"], opts => opts.WithoutStrictOrdering());
     }
+
+    [SkippableFact]
+    public void NormalizeTagList_ignores_null_and_empty_tag_entries()
+    {
+        List<string> list = ComparisonHistoryQuery.NormalizeTagList(null, [null!, "", "alpha"]);
+
+        list.Should().BeEquivalentTo(["alpha"]);
+    }
 }

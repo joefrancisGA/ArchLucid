@@ -59,6 +59,7 @@ public sealed class ValueReportController(
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("generate")]
     [HttpPost("{tenantId:guid}/generate")]
+    [Produces("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/json")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

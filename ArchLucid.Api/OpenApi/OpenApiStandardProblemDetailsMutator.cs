@@ -15,6 +15,7 @@ internal static class OpenApiStandardProblemDetailsMutator
         "401",
         "403",
         "404",
+        "405",
         "409",
         "422",
         "429",
@@ -28,6 +29,20 @@ internal static class OpenApiStandardProblemDetailsMutator
 
         foreach (string statusCode in StandardErrorStatusCodes)
             EnsureProblemDetailsResponse(operation.Responses, statusCode);
+
+        ClearNoContentMediaTypes(operation.Responses);
+    }
+
+    private static void ClearNoContentMediaTypes(OpenApiResponses responses)
+    {
+        if (!responses.TryGetValue("204", out IOpenApiResponse? existing))
+            return;
+
+        if (existing is not OpenApiResponse mutable)
+            return;
+
+        // HTTP 204 must not declare a response body; media types cause Schemathesis Missing Content-Type noise.
+        mutable.Content = null;
     }
 
     private static void EnsureProblemDetailsResponse(OpenApiResponses responses, string statusCode)
@@ -74,6 +89,7 @@ internal static class OpenApiStandardProblemDetailsMutator
             "401" => "Unauthorized.",
             "403" => "Forbidden.",
             "404" => "Not Found.",
+            "405" => "Method Not Allowed.",
             "409" => "Conflict.",
             "422" => "Unprocessable Entity.",
             "429" => "Too Many Requests.",

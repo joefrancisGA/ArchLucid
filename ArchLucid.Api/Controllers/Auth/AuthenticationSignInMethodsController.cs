@@ -321,9 +321,7 @@ public sealed class AuthenticationSignInMethodsController(
             await _userResolver.ResolveAsync(User, cancellationToken).ConfigureAwait(false);
 
         if (user is null)
-        {
-            throw new UnauthorizedAccessException();
-        }
+            throw new UnauthorizedAccessException("Authenticated platform user is required.");
 
         return user;
     }

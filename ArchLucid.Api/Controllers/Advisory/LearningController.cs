@@ -204,6 +204,7 @@ public sealed class LearningController(
 
     /// <summary>Same payload as <see cref="GetPlanningReport" /> as a downloadable <c>.md</c> or <c>.json</c> file.</summary>
     [HttpGet("report/file")]
+    [Produces("text/markdown", "application/json")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DownloadPlanningReport(

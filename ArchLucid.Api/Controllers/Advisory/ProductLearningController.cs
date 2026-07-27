@@ -295,6 +295,7 @@ public sealed class ProductLearningController(
 
     /// <summary>Same body as <see cref="GetTriageReport" /> as a downloadable file (<c>.md</c> or <c>.json</c>).</summary>
     [HttpGet("report/file")]
+    [Produces("text/markdown", "application/json")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DownloadTriageReport(

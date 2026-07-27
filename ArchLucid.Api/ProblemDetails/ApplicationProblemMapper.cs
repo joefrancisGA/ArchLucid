@@ -54,6 +54,20 @@ public static class ApplicationProblemMapper
             return true;
         }
 
+        if (ex is UnauthorizedAccessException unauthorized)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status401Unauthorized,
+                "Unauthorized",
+                string.IsNullOrWhiteSpace(unauthorized.Message)
+                    ? "Authentication is required for this resource."
+                    : unauthorized.Message,
+                ProblemTypes.Unauthorized,
+                instance,
+                httpContext);
+            return true;
+        }
+
         if (ex is ComparisonVerificationFailedException cvf)
         {
             result = MapComparisonVerificationFailed(cvf, instance, httpContext);

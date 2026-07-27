@@ -25,6 +25,18 @@ public static class ProblemTypes
 
     public const string ResourceNotFound = Base + "#resource-not-found";
 
+    /// <summary>Caller is not authenticated (HTTP 401).</summary>
+    public const string Unauthorized = Base + "#unauthorized";
+
+    /// <summary>Caller is authenticated but not permitted (HTTP 403).</summary>
+    public const string Forbidden = Base + "#forbidden";
+
+    /// <summary>HTTP method is not allowed for the resource (HTTP 405).</summary>
+    public const string MethodNotAllowed = Base + "#method-not-allowed";
+
+    /// <summary>Client exceeded a configured rate limit (HTTP 429).</summary>
+    public const string RateLimited = Base + "#rate-limited";
+
     /// <summary>59R learning plan not found for the current scope.</summary>
     public const string LearningImprovementPlanNotFound = Base + "#learning-improvement-plan-not-found";
 
