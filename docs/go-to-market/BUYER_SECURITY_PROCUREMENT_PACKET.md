@@ -260,7 +260,7 @@ When extractor schema, RBAC posture, or trust-center rows change, update this pr
 | Third-party penetration test | **Not available — V1.1 backlog** | Owner-conducted security posture review exists. Third-party vendor program is V1.1 (TB-136). |
 | ISO 27001 | **Not available** | Not in current roadmap. |
 | CAIQ / SIG answers | **Self-assessed — available on request** | [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) |
-| DPA (Data Processing Addendum) | **Template available — owner signature required** | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md), [`CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md`](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) |
+| DPA (Data Processing Addendum) | **Template available — owner signature required** | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) (incl. [`§10 cross-tenant opt-in`](DPA_TEMPLATE.md#10-cross-tenant-patterns-opt-in)) |
 | Sub-processor list | **Available** | [`SUBPROCESSORS.md`](SUBPROCESSORS.md) |
 | Owner-conducted security assessment | **Available (redacted)** | [`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`](OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md) |
 | SOC 2 self-assessment | **Self-assessed** | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) |

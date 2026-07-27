@@ -1,6 +1,6 @@
 ﻿> **Reviewed:** 2026-07-25
 
-> **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid) - full detail, tables, and links in the sections below.
+> **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid), including operational controls for optional cross-tenant patterns (formerly `CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md`). Full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -109,17 +109,56 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 **Purpose (product):** Where the Services offer **anonymised industry guidance** (patterns derived from multiple customers’ committed architecture manifests, surfaced only when a statistical privacy floor is met), that processing is **optional** and **separate** from core tenant-private processing.
 
+Former standalone operational addendum: `docs/go-to-market/CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md` → this section.
+
 10.1 **Default:** Cross-tenant pattern participation is **OFF** unless Controller **explicitly** enables it in the product controls and, where required, documents that choice in the subscription or order form.
 
-10.2 **What is processed:** only non-identifying structural fingerprints and coarse aggregates, as documented in [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) and [ADR 0031 — Cross-tenant pattern library](../architecture/adrs/0031-cross-tenant-pattern-library.md); **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
+10.2 **What is processed:** only non-identifying structural fingerprints and coarse aggregates, as documented below and in [ADR 0031 — Cross-tenant pattern library](../architecture/adrs/0031-cross-tenant-pattern-library.md); **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
 
 10.3 **Privacy mechanism:** Processor applies a minimum cohort size (**k >= 5** distinct contributing tenants per published bucket, unless a stricter value is agreed in writing) before showing any pattern to other tenants.
 
 10.4 **Withdrawal:** When Controller disables the feature, Processor removes Controller’s contributions from publishable aggregates within **24** hours, subject to documented backup and rebuild windows.
 
-10.5 **Processor role:** For this optional feature, Processor processes only the data classes listed in [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) solely to compute aggregate patterns. Controller warrants it has lawful basis and authority for any Personal Data included in opted-in processing.
+10.5 **Processor role:** For this optional feature, Processor processes only the data classes listed in this section solely to compute aggregate patterns. Controller warrants it has lawful basis and authority for any Personal Data included in opted-in processing.
 
-**Important:** Qualified legal counsel must review this section for jurisdiction-specific language and reconcile it with Controller’s DPIA, industry rules, and the main agreement.
+**Important:** Qualified legal counsel must review this section for jurisdiction-specific language and reconcile it with Controller’s DPIA, industry rules, and the main agreement. This section is operational guidance for negotiation and does not replace legal review.
+
+### Operational controls (data classes, privacy floor, audit)
+
+**Included (when opt-in is enabled)**
+
+- Non-identifying structural architecture fingerprints.
+- Coarse-grained aggregate counters used to generate generalized guidance.
+- Event metadata required to enforce minimum cohort thresholds and audit setting changes.
+
+**Explicitly excluded**
+
+- Free-text architecture descriptions.
+- URLs, hostnames, and endpoint strings.
+- User names, email addresses, and identity claims.
+- Tenant names, workspace names, project names, and customer labels.
+- Raw run artifacts and export document content.
+
+**Privacy floor and publication**
+
+- Cross-tenant outputs are only published when at least **k >= 5** distinct contributing tenants are present in a bucket (unless a stricter value is agreed in writing — see 10.3).
+- If a bucket drops below threshold after withdrawal or data hygiene events, that bucket is removed from publishable output.
+- Threshold is enforced before output rendering, not after rendering.
+
+**Opt-in and withdrawal (product)**
+
+- **Enablement:** Explicit tenant admin action in product controls plus contractual acknowledgment where required (see 10.1).
+- **Withdrawal:** Tenant admin can disable at any time; publishable-aggregate removal target is **24 hours** (see 10.4).
+
+**Audit evidence**
+
+The system should emit auditable records for:
+
+- Feature opt-in enabled.
+- Feature opt-in disabled.
+- Privacy-floor enforcement decision for each publishable bucket class.
+
+These records support procurement and compliance evidence requests and should map to typed audit events in the standard audit pipeline.
 
 ---
 

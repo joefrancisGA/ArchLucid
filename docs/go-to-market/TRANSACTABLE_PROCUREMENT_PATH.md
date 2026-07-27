@@ -177,7 +177,7 @@ Maps common term questions to current source documents (or marks draft / not yet
 | SOW / quote template | Available | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | Owner review per engagement |
 | Order form template | Available | [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) | Owner review per engagement |
 | Data Processing Addendum (DPA) | Template available | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Owner + buyer legal review before execution |
-| Cross-tenant data processing addendum | Template available | [`CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md`](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) | Owner review before execution |
+| Cross-tenant patterns opt-in (DPA §10) | Template available | [`DPA_TEMPLATE.md` §10](DPA_TEMPLATE.md#10-cross-tenant-patterns-opt-in) | Owner review before execution |
 | Redline owner | Founder / owner | — | Owner is the redline contact for V1 pilots |
 | Legal counsel engaged | Owner decision required | — | Owner must confirm before complex enterprise redlines |
 

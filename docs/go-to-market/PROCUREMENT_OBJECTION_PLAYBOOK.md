@@ -39,7 +39,7 @@
 
 - **Short answer:** The template is negotiation-ready but still requires legal review before execution.
 - **Long answer:** Core obligations are defined; negotiable variables are consolidated in the template checklist. Cross-tenant optional processing references a dedicated addendum.
-- **Evidence:** [DPA_TEMPLATE.md](DPA_TEMPLATE.md), [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md)
+- **Evidence:** [DPA_TEMPLATE.md §10](DPA_TEMPLATE.md#10-cross-tenant-patterns-opt-in)
 - **Escalate when:** Buyer requests custom clauses or regional legal amendments.
 
 ### 4) "How do we know incident communication is real?"
@@ -88,7 +88,7 @@
 
 - **Short answer:** No. It is OFF by default and requires explicit tenant opt-in.
 - **Long answer:** Optional processing only uses non-identifying aggregates and enforces minimum cohort thresholds; tenant can withdraw.
-- **Evidence:** [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md), [DPA_TEMPLATE.md](DPA_TEMPLATE.md)
+- **Evidence:** [DPA_TEMPLATE.md §10](DPA_TEMPLATE.md#10-cross-tenant-patterns-opt-in)
 - **Escalate when:** Buyer requests tenant-specific opt-in contract riders.
 
 ### 11) "Are SLA numbers contractual?"

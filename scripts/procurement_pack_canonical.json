@@ -43,12 +43,6 @@
       "artifact_status": "Template"
     },
     {
-      "pack_path": "CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md",
-      "source_repo_path": "docs/go-to-market/CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md",
-      "description": "Operational addendum for optional cross-tenant processing controls",
-      "artifact_status": "Evidence"
-    },
-    {
       "pack_path": "INTEGRATION_CATALOG.md",
       "source_repo_path": "docs/go-to-market/INTEGRATION_CATALOG.md",
       "description": "Third-party integrations touching tenant data",
