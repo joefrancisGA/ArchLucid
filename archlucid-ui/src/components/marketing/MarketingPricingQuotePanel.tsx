@@ -150,7 +150,11 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
         next steps — most teams consolidate requirements over email before workspace provisioning begins.
       </p>
       {done ? (
-        <p className={cn("text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)} role="status">
+        <p
+          className={cn("text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)}
+          role="status"
+          data-testid="pricing-quote-request-confirmation"
+        >
           Thanks — your request was received. A member of our team will reach out within one business day.
         </p>
       ) : !panelOpen ? (
