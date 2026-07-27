@@ -3,6 +3,7 @@
     "project": "ArchLucid.Application/ArchLucid.Application.csproj",
     "test-projects": ["ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj"],
     "mutate": ["**/Governance/**/*.cs"],
+    "test-case-filter": "(FullyQualifiedName~ArchLucid.Application.Tests.Governance)&Category!=Integration&Category!=Slow&Category!=SqlServerContainer&Category!=GoldenCorpusRecord",
     "reporters": ["progress", "html", "json"],
     "thresholds": {
       "high": 80,

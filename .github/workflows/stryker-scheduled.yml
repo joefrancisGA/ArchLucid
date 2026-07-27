@@ -2,6 +2,8 @@
 # PersistenceCoordination, Api, DecisioningMerge, ApplicationGovernance, ApplicationCommitCriticalPaths —
 # see docs/library/MUTATION_TESTING_STRYKER.md (Stryker configs table).
 # Api and scoped Application configs use honest 55.0 baseline floors where mutation density is high.
+# Scoped targets (DecisioningMerge, PersistenceCoordination) use honest measured floors — see stryker-baselines.json.
+# All configs exclude Integration/Slow/SqlServerContainer/GoldenCorpusRecord tests (no SQL on ubuntu-latest).
 name: Stryker (scheduled)
 
 on:
@@ -16,6 +18,7 @@ jobs:
   stryker:
     name: "Stryker.NET — ${{ matrix.label }}"
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
