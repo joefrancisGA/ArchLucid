@@ -48,7 +48,7 @@ class TestAdoptionBatch5AG(unittest.TestCase):
         self.assertIn("CustomerWebApp", text)
 
     def test_tb_219_should_you_evaluate_links_pilot_preset(self) -> None:
-        path = REPO_ROOT / "docs" / "go-to-market" / "SHOULD_YOU_EVALUATE.md"
+        path = REPO_ROOT / "docs" / "go-to-market" / "BUYER_PERSONAS.md"
         text = path.read_text(encoding="utf-8")
         self.assertIn("/reviews/new?preset=greenfield", text)
         self.assertIn("pre-fills greenfield preset", text)

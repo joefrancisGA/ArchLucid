@@ -16,7 +16,7 @@ class TestAdoptionBatch5BD(unittest.TestCase):
         self.assertNotIn("[placeholder", text)
 
     def test_tb_230_should_you_evaluate_q2_link(self) -> None:
-        path = REPO_ROOT / "docs" / "go-to-market" / "SHOULD_YOU_EVALUATE.md"
+        path = REPO_ROOT / "docs" / "go-to-market" / "BUYER_PERSONAS.md"
         text = path.read_text(encoding="utf-8")
         self.assertIn("archlucid.net/contact", text)
         self.assertIn("AWS or GCP", text)

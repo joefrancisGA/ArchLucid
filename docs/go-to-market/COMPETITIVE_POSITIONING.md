@@ -40,10 +40,10 @@ ArchLucid is a **vendor-operated service** that accepts a structured **architect
 
 Honest qualification avoids downstream distrust.
 
-- **Wiki-first teams:** If the goal is only a **read-write knowledge base** or drawing repository with **no** intent to run a **request → execute → commit manifest** loop, lighter wiki or portal investments may suffice. See also [SHOULD_YOU_EVALUATE.md](SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit).
+- **Wiki-first teams:** If the goal is only a **read-write knowledge base** or drawing repository with **no** intent to run a **request → execute → commit manifest** loop, lighter wiki or portal investments may suffice. See also [BUYER_PERSONAS.md#when-archlucid-is-not-a-fit](BUYER_PERSONAS.md#when-archlucid-is-not-a-fit).
 - **Real-time infrastructure monitoring:** ArchLucid is **not** a replacement for metrics, APM, or live incident radar; it produces **architecture proof and governance artifacts**, not sub-second operational telemetry.
 - **System-of-record CMDB:** ArchLucid does **not** try to be the enterprise CMDB; it may **reference** external IDs (for example in ITSM flows per [V1_SCOPE.md](../library/V1_SCOPE.md) ITSM connector scope) but **inventory completeness** and CMDB governance live in tools built for that role.
-- **Non-Azure-hard-blockers:** Organizations that **cannot** accept **Azure-aligned** hosting or identity for evaluation should resolve that **before** a pilot; see [SHOULD_YOU_EVALUATE.md](SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit) and [FIRST_AZURE_DEPLOYMENT.md](../library/FIRST_AZURE_DEPLOYMENT.md).
+- **Non-Azure-hard-blockers:** Organizations that **cannot** accept **Azure-aligned** hosting or identity for evaluation should resolve that **before** a pilot; see [BUYER_PERSONAS.md#when-archlucid-is-not-a-fit](BUYER_PERSONAS.md#when-archlucid-is-not-a-fit) and [FIRST_AZURE_DEPLOYMENT.md](../library/FIRST_AZURE_DEPLOYMENT.md).
 - **Fully automated compliance sign-off:** The product produces **evidence and structured outputs**; **human accountability** for approval remains (see [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)).
 
 ---

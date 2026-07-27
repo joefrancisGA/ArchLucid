@@ -88,7 +88,7 @@ Score each dimension 1–3 before advancing to intake.
 | Stage | Artifact | Notes |
 | --- | --- | --- |
 | Cold/warm outreach | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) one-pager | Link or attach; do not attach full procurement pack unsolicited |
-| Discovery call follow-up | [`SHOULD_YOU_EVALUATE.md`](SHOULD_YOU_EVALUATE.md) | Helps prospect self-qualify |
+| Discovery call follow-up | [`BUYER_PERSONAS.md#should-you-evaluate`](BUYER_PERSONAS.md#should-you-evaluate) | Helps prospect self-qualify |
 | Qualification confirmed | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) SKU summary | Name the offer; do not just say "ArchLucid platform" |
 | Pilot proposal | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | Owner reviews each SOW before sending |
 
@@ -181,7 +181,7 @@ Maintain a simple record for each active prospect:
 | [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) | Pilot measurement framework |
 | [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) | PASS/HOLD criteria |
 | [`NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](NAMED_REFERENCE_CUSTOMER_CAPTURE.md) | Public reference permission process |
-| [`SHOULD_YOU_EVALUATE.md`](SHOULD_YOU_EVALUATE.md) | Prospect self-qualification guide |
+| [`BUYER_PERSONAS.md#should-you-evaluate`](BUYER_PERSONAS.md#should-you-evaluate) | Prospect self-qualification guide |
 | [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md) | Detailed buyer persona profiles |
 | [`BUYER_PERSONAS.md`](BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP detail |
 | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) | GTM overclaim guardrails |

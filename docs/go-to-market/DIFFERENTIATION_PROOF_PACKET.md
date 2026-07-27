@@ -155,7 +155,7 @@ Stop or pivot when the sponsor's need matches these — **model seats are the ri
 | --- | --- | --- |
 | "We only need faster first drafts" | L1 loss mode territory; ArchLucid is not optimized for ad-hoc speed | Acknowledge; offer bakeoff only if they also have formal review pain |
 | "We won't run a finalized review" | Value is in the defensible architecture package, not chat ([§ When ArchLucid is not a fit yet](#when-archlucid-is-not-a-fit-yet)) | Qualify out or propose service-led single review deliverable |
-| "Azure-native hosting is a hard blocker" | [`SHOULD_YOU_EVALUATE.md`](SHOULD_YOU_EVALUATE.md#when-archlucid-is-not-a-fit) · [`COMPETITIVE_POSITIONING.md`](COMPETITIVE_POSITIONING.md) | Resolve platform fit before pilot |
+| "Azure-native hosting is a hard blocker" | [`BUYER_PERSONAS.md#when-archlucid-is-not-a-fit`](BUYER_PERSONAS.md#when-archlucid-is-not-a-fit) · [`COMPETITIVE_POSITIONING.md`](COMPETITIVE_POSITIONING.md) | Resolve platform fit before pilot |
 | "We need CPA SOC 2 / external pen test before any pilot" | V1.1 backlog; self-assessment only ([`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)) | Trust Center + defer; GTM **G-REAL-05** / **G-ASSURANCE-02** remain owner work |
 | "Copilot is $20/mo unlimited — prove cheaper TCO" | [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md) §4.4 — cost per interaction favors chat | Reframe to risk-of-undocumented-decisions, not seat price |
 | "We need native Jira/ServiceNow/Slack day one" | V1.1 connectors per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) | REST/CLI/export handoff only |
