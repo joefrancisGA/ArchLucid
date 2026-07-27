@@ -94,6 +94,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/governance/advisory-scans?tab=schedules")).toBeNull();
   });
 
+  it("returns null for recurrence schedules — not governance overview pending-approvals blurb (TB-1129)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/recurrence-schedules")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/recurrence-schedules/")).toBeNull();
+  });
+
   it("orients the operator security-trust route for procurement reviewers", () => {
     const canonical = buyerPolishedRouteOrientation("/settings/security-trust");
     const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");

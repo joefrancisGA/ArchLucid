@@ -170,6 +170,12 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  // Recurrence schedules carries its own OperatorPageHeader subtitle (TB-1129) — do not inherit
+  // the generic `/governance` overview lead (pending approvals / workspace status).
+  if (path === "/governance/recurrence-schedules" || path.startsWith("/governance/recurrence-schedules/")) {
+    return null;
+  }
+
   if (path === "/governance") {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 

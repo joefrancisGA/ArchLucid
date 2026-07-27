@@ -10,6 +10,7 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import RecurrenceSchedulesClient from "@/components/governance/RecurrenceSchedulesClient";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import {
   RECURRENCE_SCHEDULES_HELPER_BODY,
   RECURRENCE_SCHEDULES_HELPER_NEXT_STEP,
@@ -43,15 +44,16 @@ describe("RecurrenceSchedulesClient", () => {
     });
   });
 
-  it("renders page subtitle and recurrence-specific layer guidance", async () => {
+  it("orients with OperatorPageHeader subtitle — not governance overview LayerHeader (TB-1129)", async () => {
     render(<RecurrenceSchedulesClient />);
 
-    expect(await screen.findByText(RECURRENCE_SCHEDULES_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(await screen.findByTestId("recurrence-schedules-page")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recurrence schedules" })).toBeInTheDocument();
+    expect(screen.getByText(RECURRENCE_SCHEDULES_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Workspace governance status, pending approvals/i)).not.toBeInTheDocument();
     expect(
-      screen.getByText(/Define repeatable review cadences for committed architecture records/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText("Submit finalized architecture outputs for governance review and promotion."),
+      screen.queryByText(/Define repeatable review cadences for committed architecture records/i),
     ).not.toBeInTheDocument();
   });
 

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { RecurrenceScheduleActivationActions } from "@/components/governance/RecurrenceScheduleActivationActions";
 import { RecurrenceScheduleCreatePanel } from "@/components/governance/RecurrenceScheduleCreatePanel";
@@ -248,9 +247,7 @@ export default function RecurrenceSchedulesClient() {
   ] as const;
 
   return (
-    <div className="w-full max-w-[1440px] space-y-4">
-      <LayerHeader pageKey="recurrence-schedules" />
-
+    <div className="w-full max-w-[1440px] space-y-4" data-testid="recurrence-schedules-page">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
         <div className="space-y-4">
           <OperatorPageHeader
