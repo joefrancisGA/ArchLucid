@@ -217,4 +217,5 @@ Interim IDs pending owner transcription into `TECH_BACKLOG.md` / `GTM_BACKLOG.md
 - [`../go-to-market/POSITIONING.md`](../go-to-market/POSITIONING.md) — evidence-package-first vocabulary (§0) underpinning Q1/Q3/Q4.
 - [`../assessments/ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md) — the principal-architect skeptic persona these questions mirror; Grok answers can be diffed against prior GPT-based assessment output.
 - [`../CORE_PILOT.md`](../CORE_PILOT.md), [`../go-to-market/PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) — pilot measurement (Q18).
+- [`GROK_Q21_40_QUESTIONS_QA_BACKLOG_2026_07_27.md`](GROK_Q21_40_QUESTIONS_QA_BACKLOG_2026_07_27.md) — second batch (Q21–Q40) + GQ-09–GQ-18.
 - `docs/library/TECH_BACKLOG.md` / [`../go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) — canonical destinations for GQ-01…GQ-07 once transcribed.
