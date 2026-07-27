@@ -36,6 +36,8 @@ import {
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY,
   ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE,
   ADVISORY_SCANS_REFRESH_SAVED_LABEL,
+  ADVISORY_SCANS_SAMPLE_ANCHOR_HREF,
+  ADVISORY_SCANS_VIEW_SAMPLE_LABEL,
 } from "@/lib/advisory-copy";
 import { buildAdvisoryScanSummary } from "@/lib/advisory-scan-summary";
 import { getImprovementPlan } from "@/lib/api";
@@ -232,7 +234,7 @@ export function AdvisoryScansContent(): React.JSX.Element {
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
-                className="bg-teal-600 text-white hover:bg-teal-700"
+                variant={reviewSelected ? "primary" : "outline"}
                 onClick={() => {
                   void loadAdvice();
                 }}
@@ -353,16 +355,27 @@ export function AdvisoryScansContent(): React.JSX.Element {
               {ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD}
             </p>
 
-            <AdvisorySampleRecommendationPreview />
+            <div
+              className="flex flex-wrap items-center gap-2"
+              data-testid="advisory-empty-cta-row"
+            >
+              {!reviewSelected ? (
+                <Button asChild size="sm" variant="primary" data-testid="advisory-empty-primary-cta">
+                  <a href={ADVISORY_SCANS_SAMPLE_ANCHOR_HREF}>{ADVISORY_SCANS_VIEW_SAMPLE_LABEL}</a>
+                </Button>
+              ) : null}
 
-            <Button asChild size="sm" variant="outline">
-              <Link
-                href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}
-                data-testid="advisory-empty-open-reviews-link"
-              >
-                {ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}
-              </Link>
-            </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link
+                  href={ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_HREF}
+                  data-testid="advisory-empty-open-reviews-link"
+                >
+                  {ADVISORY_SCANS_OPEN_REVIEW_PACKAGES_LABEL}
+                </Link>
+              </Button>
+            </div>
+
+            <AdvisorySampleRecommendationPreview />
           </div>
         ) : null}
       </DocumentLayout>

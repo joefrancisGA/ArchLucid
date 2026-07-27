@@ -61,7 +61,6 @@ describe("AdvisoryScansContent", () => {
     expect(screen.getByText(ADVISORY_SCANS_SAMPLE_SECTION_TITLE)).toBeInTheDocument();
     expect(screen.queryByTestId("advisory-scan-empty-state")).not.toBeInTheDocument();
     expect(screen.queryByText(ADVISORY_SCANS_EMPTY_TITLE)).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: ADVISORY_SCANS_VIEW_SAMPLE_LABEL })).not.toBeInTheDocument();
 
     const dispositionDisclosure = screen.getByTestId("advisory-sample-disposition-disclosure");
 
@@ -74,6 +73,44 @@ describe("AdvisoryScansContent", () => {
     expect(screen.getByTestId("advisory-empty-open-reviews-link")).toHaveAttribute(
       "href",
       "/reviews?projectId=default",
+    );
+  });
+
+  it("keeps exactly one primary CTA in empty/demo state (TB-1128)", () => {
+    render(<AdvisoryScansContent />);
+
+    const primaryCta = screen.getByTestId("advisory-empty-primary-cta");
+
+    expect(primaryCta).toHaveAttribute("href", "#advisory-sample-recommendation");
+    expect(primaryCta).toHaveTextContent(ADVISORY_SCANS_VIEW_SAMPLE_LABEL);
+    expect(primaryCta.className).toContain("al-primary-action-bg");
+
+    const generate = screen.getByTestId("advisory-generate-scan-button");
+
+    expect(generate).toBeDisabled();
+    expect(generate.className).toContain("bg-white");
+    expect(generate.className).not.toContain("al-primary-action-bg");
+
+    const openReviews = screen.getByTestId("advisory-empty-open-reviews-link");
+
+    expect(openReviews.className).not.toContain("al-primary-action-bg");
+    expect(screen.getAllByTestId("advisory-empty-primary-cta")).toHaveLength(1);
+  });
+
+  it("promotes Generate to primary after a review is selected (TB-1128)", () => {
+    render(<AdvisoryScansContent />);
+
+    fireEvent.change(screen.getByLabelText("Finalized review"), {
+      target: { value: "run-finalized-1" },
+    });
+
+    const generate = screen.getByTestId("advisory-generate-scan-button");
+
+    expect(generate).not.toBeDisabled();
+    expect(generate.className).toContain("al-primary-action-bg");
+    expect(screen.queryByTestId("advisory-empty-primary-cta")).not.toBeInTheDocument();
+    expect(screen.getByTestId("advisory-empty-open-reviews-link").className).not.toContain(
+      "al-primary-action-bg",
     );
   });
 

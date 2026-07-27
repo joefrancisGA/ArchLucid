@@ -66,6 +66,9 @@ export const ADVISORY_SCANS_EMPTY_NEXT_STORY_LEAD =
 
 export const ADVISORY_SCANS_VIEW_SAMPLE_LABEL = "View sample advisory scan";
 
+/** In-page anchor for the sample recommendation card (TB-1128 empty/demo primary). */
+export const ADVISORY_SCANS_SAMPLE_ANCHOR_HREF = "#advisory-sample-recommendation";
+
 export const ADVISORY_SCANS_SAMPLE_SECTION_TITLE = "Sample advisory recommendation";
 
 export const ADVISORY_SCANS_SAMPLE_BADGE_LABEL = "Sample recommendation";
