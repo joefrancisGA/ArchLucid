@@ -273,13 +273,21 @@ test.describe("live-api-trial-end-to-end", () => {
       ? trialJson.trialSampleRunId!
       : `${trialJson.trialSampleRunId!.slice(0, 8)}-${trialJson.trialSampleRunId!.slice(8, 12)}-${trialJson.trialSampleRunId!.slice(12, 16)}-${trialJson.trialSampleRunId!.slice(16, 20)}-${trialJson.trialSampleRunId!.slice(20, 32)}`;
 
-    await page.goto(`/reviews/new?sampleRunId=${encodeURIComponent(sampleRunId)}`);
+    // Templates wizard (NewRunWizardClient) only mounts on the detailed path — default tab is Quick start.
+    await page.goto(
+      `/reviews/new?path=detailed&sampleRunId=${encodeURIComponent(sampleRunId)}`,
+      { waitUntil: "domcontentloaded" },
+    );
 
     await expect(page.getByRole("heading", { name: START_REVIEW_LABEL, level: 2 })).toBeVisible({
       timeout: 60_000,
     });
+    await expect(page.getByTestId("reviews-new-path-detailed")).toHaveAttribute("aria-selected", "true", {
+      timeout: 30_000,
+    });
 
-    await page.getByRole("button", { name: "Use defaults" }).click();
+    // Renamed from "Use defaults" — advances off the starting-point step via onStartingPointCommitted.
+    await page.getByTestId("wizard-start-blank").click();
 
     for (let step = 0; step < 5; step += 1) {
       await page.getByRole("button", { name: "Next" }).click();

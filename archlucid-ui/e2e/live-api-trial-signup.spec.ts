@@ -291,12 +291,13 @@ test.describe("live-api-trial-signup", () => {
     expect(provisioned.defaultWorkspaceId).toBeTruthy();
     expect(provisioned.defaultProjectId).toBeTruthy();
 
+    // Same organization name → 409 Conflict (org slug). Same email + different org → 400 abuse/email-cap.
     await expect.poll(async () => {
       const response = await request.post(`${liveApiBase}/v1/register`, {
         headers: { Accept: "application/json", "Content-Type": "application/json" },
         data: {
-          organizationName: `${orgName} duplicate`,
-          adminEmail,
+          organizationName: orgName,
+          adminEmail: uniqueTrialWorkEmail("metrics-funnel-dup", suffix),
           adminDisplayName: "Metrics Funnel Admin",
         },
       });

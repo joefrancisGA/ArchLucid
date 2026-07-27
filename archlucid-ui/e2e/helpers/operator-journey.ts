@@ -8,7 +8,7 @@ import {
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { getAppMain } from "./app-main";
 import { waitForLiveManifestDetailHydration } from "./live-page-readiness";
-import { normalizeRunIdForCompare } from "./live-api-client";
+import { normalizeRunIdForCompare, toRunGuidPathSegment } from "./live-api-client";
 
 import {
   ASK_PAGE_PRIMARY_HEADING_PATTERN,
@@ -474,17 +474,24 @@ export async function openReviewDetailWorkspaceTab(
 ): Promise<void> {
   const href = buildReviewDetailTabHref(runId, tab);
   const url = new URL(page.url());
-  const onRunDetail = url.pathname === `/reviews/${encodeURIComponent(runId.trim())}`;
-  const activeTab = url.searchParams.get("reviewTab");
+  const trimmedRunId = runId.trim();
+  const encodedRunId = encodeURIComponent(trimmedRunId);
+  const encodedGuidRunId = encodeURIComponent(toRunGuidPathSegment(trimmedRunId));
+  const onRunDetail =
+    url.pathname === `/reviews/${encodedRunId}`
+    || url.pathname === `/reviews/${encodedGuidRunId}`
+    || url.pathname.toLowerCase() === `/reviews/${encodedRunId}`.toLowerCase()
+    || url.pathname.toLowerCase() === `/reviews/${encodedGuidRunId}`.toLowerCase();
 
-  if (!onRunDetail || activeTab !== tab) {
-    await page.goto(href);
-  } else {
-    const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+  const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
 
+  // Prefer in-place tab activation — full page.goto drops cold-start scope races on demo/tenant shells.
+  if (onRunDetail && (await trigger.count()) > 0) {
     if ((await trigger.getAttribute("data-state")) !== "active") {
       await trigger.click();
     }
+  } else {
+    await page.goto(href);
   }
 
   await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
