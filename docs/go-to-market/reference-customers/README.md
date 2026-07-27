@@ -37,7 +37,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 | Customer | Tier | Pilot start | Case-study link | Reference-call cadence | Status |
 |----------|------|-------------|-----------------|------------------------|--------|
 | EXAMPLE_DESIGN_PARTNER | Professional (design-partner −50%) | TBD | [EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) | TBD (target: quarterly) | Placeholder — copy to `<slug>_CASE_STUDY.md` when a named design partner is authorized |
-| First paying tenant (PLG) | `<<TIER>>` (at conversion) | TBD | [TRIAL_FIRST_REFERENCE_CASE_STUDY.md](TRIAL_FIRST_REFERENCE_CASE_STUDY.md) | TBD | Placeholder — populate after first self-serve trial converts to paid; see [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) |
+| First paying tenant (PLG) | `<<TIER>>` (at conversion) | TBD | [EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md#plg-first-paying-tenant-variant](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md#plg-first-paying-tenant-variant) · [TRIAL_FIRST_REFERENCE_CASE_STUDY.md](TRIAL_FIRST_REFERENCE_CASE_STUDY.md) (alias) | TBD | Placeholder — populate after first self-serve trial converts to paid; see [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) |
 | **[DRAFT]** `[CUSTOMER]` · `[INDUSTRY]` | `[TIER]` | TBD | TBD — add `<slug>_CASE_STUDY.md` when entering Drafting | TBD — `[CONTACT]` | Draft — **DRAFT template row** (fabricated names forbidden here); replace placeholders and move to **Drafting** before naming a real customer |
 
 > **Published requires human approval.** Do not set **`Status: Published`** on any row based on assistant or unilateral documentation edits. Eligibility, logo use, case study copy, and reference-call commitments must follow **[`PRICING_PHILOSOPHY.md` §4.1](../PRICING_PHILOSOPHY.md#41-reference-customer-discount-standardized-2026-04-21)**. Use **[`REFERENCE_PUBLICATION_RUNBOOK.md` §0](REFERENCE_PUBLICATION_RUNBOOK.md#0-publication-checklist-human-gates)** before publication.
@@ -55,7 +55,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 4. **Move through the lifecycle** (Drafting → Customer review → Published) as approvals come in. Each transition gets a one-line entry in [`docs/CHANGELOG.md`](../../CHANGELOG.md) so finance/sales can re-rate the discount stack on a known cadence.
 5. **When the first row reaches `Published`,** CI **auto-flips** to a merge-blocking re-check of the same script (see `.github/workflows/ci.yml` — *Guard — reference-customer status (auto-flip: strict once any Published row exists)*). You do **not** need to edit `continue-on-error` by hand. This is the moment that authorizes a pricing-review trigger per [`PRICING_PHILOSOPHY.md` § 5.3](../PRICING_PHILOSOPHY.md#53-re-rate-plan).
 
-**PLG path:** If you are **not** waiting on a named design partner, use the **First paying tenant (PLG)** row and [`TRIAL_FIRST_REFERENCE_CASE_STUDY.md`](TRIAL_FIRST_REFERENCE_CASE_STUDY.md) as the first publishable reference once a trial converts and the customer approves copy.
+**PLG path:** If you are **not** waiting on a named design partner, use the **First paying tenant (PLG)** row and [`EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md#plg-first-paying-tenant-variant`](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md#plg-first-paying-tenant-variant) as the first publishable reference once a trial converts and the customer approves copy.
 
 ---
 
