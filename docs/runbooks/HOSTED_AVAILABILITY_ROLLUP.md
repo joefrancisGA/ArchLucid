@@ -46,7 +46,7 @@ python3 scripts/ops/summarize_hosted_probe_artifacts.py --csv path/to/probes.csv
 python3 scripts/ops/summarize_hosted_probe_artifacts.py --format text path/to/run-001.json
 ```
 
-The script **does not** call GitHub or Azure APIs; it only reads local files. It labels **environment** (staging / production / unknown) from `baseUrl` heuristics, separates **published SLO target** (from `docs/library/API_SLOS.md` / `docs/library/SLA_TARGETS.md`) from **achieved probe uptime**, and includes standard **“not a contractual SLA”** wording.
+The script **does not** call GitHub or Azure APIs; it only reads local files. It labels **environment** (staging / production / unknown) from `baseUrl` heuristics, separates **published SLO target** (from `docs/library/API_SLOS.md` / `docs/go-to-market/SLA_SUMMARY.md#hosted-saas-availability-target`; `docs/library/SLA_TARGETS.md` alias) from **achieved probe uptime**, and includes standard **“not a contractual SLA”** wording.
 
 **Fixture examples** checked into the repo: `scripts/fixtures/hosted_probe_rollup/` (used by `scripts/ci/tests/test_summarize_hosted_probe_artifacts.py`).
 

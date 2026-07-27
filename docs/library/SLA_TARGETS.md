@@ -1,50 +1,13 @@
-> **Scope:** Buyer — Hosted SaaS service availability target (API + architect workspace) — pre-contractual engineering posture.
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Reviewed:** 2026-07-27
 
-# Hosted SaaS availability target
+> **Scope:** Path-stable alias for the hosted SaaS availability target. Not an independent buyer SLO summary.
 
-**Audience:** Buyers, procurement, and operators evaluating ArchLucid as a **vendor-hosted** service.
+# Hosted SaaS availability target (alias)
 
-**Status:** Pre-GA — **target**, not a contractual SLA until negotiated per customer.
+**Last reviewed:** 2026-07-27
 
----
+**Canonical target + probe measurement:** [`../go-to-market/SLA_SUMMARY.md#hosted-saas-availability-target`](../go-to-market/SLA_SUMMARY.md#hosted-saas-availability-target).
 
-## Service availability target
+99.9% API + architect workspace narrative, minute-based downtime definition (`/health/live` 5+ minutes), synthetic probe workflow references, exclusions (72h maintenance notice), and monitoring evidence live only in the buyer SLA summary. This file keeps the historical library path stable for packaging, runbook, and tier-fit callers.
 
-| Surface | Monthly target | Notes |
-|---------|----------------|--------|
-| **ArchLucid API** + **operator web UI** | **99.9%** | Reflects Azure Container Apps + Azure SQL high-availability posture for the hosted stack. |
-
-**Meaning:** For each calendar month, we target at least **99.9%** uptime for API and architect workspace together, measured as described below.
-
-**Relationship to other docs:** The **HTTP** rolling objective in [`API_SLOS.md`](API_SLOS.md) and [`SLA_SUMMARY.md`](../go-to-market/SLA_SUMMARY.md) is aligned to **99.9%** availability (non-5xx / all requests) with tiered latency; this document states the **full hosted product** (API + UI) narrative **also** at **99.9%** for packaging and Trust Center (minute-based signal differs — see *Measurement* below).
-
----
-
-## Measurement
-
-**Availability** = (total minutes − downtime minutes) ÷ total minutes × 100.
-
-**Downtime:** `/health/live` on the API returns **non-200** for **5+ consecutive minutes** from an **external** synthetic probe (same class of signal as [`.github/workflows/api-synthetic-probe.yml`](../../.github/workflows/api-synthetic-probe.yml)). Architect workspace availability uses the **production Front Door / UI hostname** with an equivalent **HTTP 2xx** check on a configured health or shell route as exercised by [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml).
-
----
-
-## Exclusions
-
-Targets **do not** apply during:
-
-- **Scheduled maintenance** communicated with at least **48 hours** notice (see [`SLA_SUMMARY.md`](../go-to-market/SLA_SUMMARY.md) for related buyer wording).
-- **Force majeure** and **third-party cloud outages** outside ArchLucid’s direct control.
-- **Customer-caused** outages (blocked networks, invalid configuration, abuse).
-
----
-
-## Disaster recovery
-
-For **RTO/RPO** estimates and backup posture, see [`RTO_RPO_TARGETS.md`](RTO_RPO_TARGETS.md) and [`../go-to-market/SLA_SUMMARY.md#9-backup-disaster-recovery-and-data-lifecycle`](../go-to-market/SLA_SUMMARY.md#9-backup-disaster-recovery-and-data-lifecycle).
-
----
-
-## Monitoring evidence
-
-Synthetic and operational probes (including scheduled GitHub Actions workflows above) demonstrate ongoing measurement investment; they are **canaries**, not by themselves a monthly percentage.
+**Full buyer SLO summary (latency, credits, backup/DR):** [`../go-to-market/SLA_SUMMARY.md`](../go-to-market/SLA_SUMMARY.md).

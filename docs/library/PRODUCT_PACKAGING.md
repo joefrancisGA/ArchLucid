@@ -21,7 +21,7 @@
 
 ## Hosted SaaS reliability (packaging)
 
-Buyer-facing materials for **Professional** and **Enterprise** tiers cite a **99.9% monthly availability target** for the **hosted API and architect workspace** (pre-contractual target, not a guarantee until a customer-specific SLA is signed). Full definitions, exclusions, and measurement notes: **[SLA_TARGETS.md](SLA_TARGETS.md)**.
+Buyer-facing materials for **Professional** and **Enterprise** tiers cite a **99.9% monthly availability target** for the **hosted API and architect workspace** (pre-contractual target, not a guarantee until a customer-specific SLA is signed). Full definitions, exclusions, and measurement notes: **[SLA_SUMMARY.md#hosted-saas-availability-target](../go-to-market/SLA_SUMMARY.md#hosted-saas-availability-target)** (`SLA_TARGETS.md` alias).
 
 ---
 

@@ -1,6 +1,6 @@
-﻿> **Reviewed:** 2026-07-26
+﻿> **Reviewed:** 2026-07-27
 
-> **Scope:** ArchLucid — Service level objectives (buyer summary) plus backup, disaster recovery, and data lifecycle (formerly `BACKUP_AND_DR.md`). Full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid — Service level objectives (buyer summary) plus backup, disaster recovery, and data lifecycle (formerly `BACKUP_AND_DR.md`), plus the hosted SaaS API+UI availability target / probe measurement narrative (formerly the body of `docs/library/SLA_TARGETS.md`; that filename remains a path-stable alias). Full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,9 +9,11 @@
 
 **Audience:** Procurement, security reviewers, and technical evaluators assessing ArchLucid's reliability commitments.
 
-**Last reviewed:** 2026-07-26
+**Last reviewed:** 2026-07-27
 
 ArchLucid targets **high availability and low latency** for the production API. This document translates internal engineering objectives into buyer-readable commitments and states backup / DR / data-lifecycle posture honestly. For engineering depth (Prometheus rules, OTel metrics, burn-rate math), see [../API_SLOS.md](../library/API_SLOS.md).
+
+**Hosted SaaS API + UI target (probe measurement):** [`#hosted-saas-availability-target`](#hosted-saas-availability-target) (`docs/library/SLA_TARGETS.md` alias).
 
 **Support entitlements:** [SUPPORT_POLICY.md](SUPPORT_POLICY.md) — per-tier support, severity definitions, professional services, and feature-commitment posture (owner terms resolved 2026-05-30).
 
@@ -93,8 +95,46 @@ The availability target does **not** apply to:
 ## 6. How we measure
 
 - **Internal monitoring:** Continuous server-side metrics collected via OpenTelemetry, aggregated into availability ratios and latency percentiles. Burn-rate alerts detect budget consumption before it becomes visible to customers.
-- **External probes:** Periodic synthetic checks from outside the cluster verify reachability and basic response correctness of health and version endpoints.
+- **External probes:** Periodic synthetic checks from outside the cluster verify reachability and basic response correctness of health and version endpoints — see [`#hosted-saas-availability-target`](#hosted-saas-availability-target) for minute-based hosted product measurement.
 - **Engineering detail:** [../API_SLOS.md](../library/API_SLOS.md).
+
+---
+
+## Hosted SaaS availability target {#hosted-saas-availability-target}
+
+Former standalone body: `docs/library/SLA_TARGETS.md` → this section (filename kept as a path-stable alias). Pre-GA **target**, not a contractual SLA until negotiated per customer.
+
+### Service availability target (API + architect workspace)
+
+| Surface | Monthly target | Notes |
+|---------|----------------|--------|
+| **ArchLucid API** + **operator web UI** | **99.9%** | Reflects Azure Container Apps + Azure SQL high-availability posture for the hosted stack. |
+
+**Meaning:** For each calendar month, we target at least **99.9%** uptime for API and architect workspace together, measured as described below.
+
+**Relationship to HTTP SLOs:** The **HTTP** rolling objective in [`../library/API_SLOS.md`](../library/API_SLOS.md) and §1 above is aligned to **99.9%** availability (non-5xx / all requests) with tiered latency; this section states the **full hosted product** (API + UI) narrative **also** at **99.9%** for packaging and Trust Center. Minute-based probe signal differs from the request-ratio SLI — both are engineering targets.
+
+### Probe measurement
+
+**Availability** = (total minutes − downtime minutes) ÷ total minutes × 100.
+
+**Downtime:** `/health/live` on the API returns **non-200** for **5+ consecutive minutes** from an **external** synthetic probe (same class of signal as [`.github/workflows/api-synthetic-probe.yml`](../../.github/workflows/api-synthetic-probe.yml)). Architect workspace availability uses the **production Front Door / UI hostname** with an equivalent **HTTP 2xx** check on a configured health or shell route as exercised by [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml).
+
+### Exclusions (hosted product narrative)
+
+Targets **do not** apply during:
+
+- **Scheduled maintenance** communicated with at least **72 hours** notice (same buyer commitment as §3 — previously a 48h draft in `SLA_TARGETS.md`; **72h** is the SoT shared with MSA / order-form wording).
+- **Force majeure** and **third-party cloud outages** outside ArchLucid’s direct control.
+- **Customer-caused** outages (blocked networks, invalid configuration, abuse).
+
+### Disaster recovery pointer
+
+For **RTO/RPO** estimates and backup posture, see [`../library/RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md) and [#9-backup-disaster-recovery-and-data-lifecycle](#9-backup-disaster-recovery-and-data-lifecycle).
+
+### Monitoring evidence
+
+Synthetic and operational probes (including scheduled GitHub Actions workflows above) demonstrate ongoing measurement investment; they are **canaries**, not by themselves a monthly percentage.
 
 ---
 
@@ -211,6 +251,7 @@ Do not invent stronger DR/attestation claims here — align wording with [ASSURA
 | [trust-center.md](trust-center.md) | Trust index |
 | [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | Canonical assurance wording |
 | [../API_SLOS.md](../library/API_SLOS.md) | Engineering SLO detail |
+| [`#hosted-saas-availability-target`](#hosted-saas-availability-target) · [`../library/SLA_TARGETS.md`](../library/SLA_TARGETS.md) (alias) | Hosted API+UI probe measurement |
 | [../library/RTO_RPO_TARGETS.md](../library/RTO_RPO_TARGETS.md) | Engineering RTO/RPO targets |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident classification and comms |
 | [SUPPORT_POLICY.md](SUPPORT_POLICY.md) | Support entitlements and professional services |

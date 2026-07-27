@@ -463,7 +463,7 @@ Former standalone: `docs/go-to-market/PROCUREMENT_FAQ.md` → this section (Ente
 
 ### 5. What **SLA** do you publish?
 
-**Answer:** Targets are documented (**[SLA_TARGETS.md](../library/SLA_TARGETS.md)**, **[SLA_SUMMARY.md](SLA_SUMMARY.md)**). Contractual SLA language is finalized per **Order Form** (**[ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md)**)—pre-contract **targets**, not unconditional guarantees until executed.
+**Answer:** Targets are documented (**[SLA_SUMMARY.md](SLA_SUMMARY.md)** · [#hosted-saas-availability-target](SLA_SUMMARY.md#hosted-saas-availability-target); `SLA_TARGETS.md` alias). Contractual SLA language is finalized per **Order Form** (**[ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md)**)—pre-contract **targets**, not unconditional guarantees until executed.
 
 ### 6. Can we execute the **Data Processing Agreement**?
 
@@ -617,7 +617,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 |31 | Audit event coverage matrix (catalog of auditable domains)? | Self-asserted | [AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) |
 |32 | Incident / customer communications policy draft? | Self-asserted | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) |
 |33 | Data Subject Access Request (DSAR) operator process? | Self-asserted | [DSAR_PROCESS.md](../security/DSAR_PROCESS.md) |
-|34 | SLA **targets** (pre-contract narrative)? | Self-asserted | [SLA_TARGETS.md](../library/SLA_TARGETS.md) · [SLA_SUMMARY.md](SLA_SUMMARY.md) |
+|34 | SLA **targets** (pre-contract narrative)? | Self-asserted | [SLA_SUMMARY.md#hosted-saas-availability-target](SLA_SUMMARY.md#hosted-saas-availability-target) (`SLA_TARGETS.md` alias) |
 |35 | API SLO framing? | Self-asserted | [API_SLOS.md](../library/API_SLOS.md) |
 |36 | Scalability / load-test narrative for buyers? | Self-asserted | [BUYER_SCALABILITY_FAQ.md](../library/BUYER_SCALABILITY_FAQ.md) |
 | 37 | Dynamic application security scanning (baseline rules narrative)? | Implemented | [ZAP_BASELINE_RULES.md](../security/ZAP_BASELINE_RULES.md) · [`infra/zap/README.md`](../security/ZAP_BASELINE_RULES.md) |

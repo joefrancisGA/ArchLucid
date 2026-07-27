@@ -175,7 +175,7 @@ See **[MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)**.
 
 **Resolution:** Inspect JSON **`entries[]`** ordering = priority; remedy each failing **`description`** (**SQL** reachable? **Redis** TLS? Blob permissions? disk space?).
 
-**Prevention:** Synthetic monitors and the scheduled **`hosted-saas-probe`** workflow (`.github/workflows/hosted-saas-probe.yml`) for production SaaS (**[SLA_TARGETS.md](../library/SLA_TARGETS.md)**).
+**Prevention:** Synthetic monitors and the scheduled **`hosted-saas-probe`** workflow (`.github/workflows/hosted-saas-probe.yml`) for production SaaS (**[SLA_SUMMARY.md#hosted-saas-availability-target](../go-to-market/SLA_SUMMARY.md#hosted-saas-availability-target)**; `SLA_TARGETS.md` alias).
 
 
 ---
