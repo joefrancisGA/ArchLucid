@@ -97,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
     if not targets:
         targets = [
             root / "docs" / "library" / "PUBLIC_CLAIM_BOUNDARY_GUIDE.md",
-            root / "docs" / "go-to-market" / "PROCUREMENT_FAQ.md",
+            root / "docs" / "go-to-market" / "BUYER_SECURITY_PROCUREMENT_PACKET.md",
             root / "docs" / "go-to-market" / "QUOTE_TO_PROOF_PACKET.md",
         ]
 

@@ -39,7 +39,7 @@ DOCS_TO_SCAN: tuple[Path, ...] = (
     Path("docs/go-to-market/INTEGRATION_CATALOG.md"),
     Path("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md"),
     Path("docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md"),
-    Path("docs/go-to-market/PROCUREMENT_FAQ.md"),
+    Path("docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md"),
     Path("docs/go-to-market/SOC2_STATUS_PROCUREMENT.md"),
     Path("docs/go-to-market/AI_READINESS_POSTURE.md"),
 )

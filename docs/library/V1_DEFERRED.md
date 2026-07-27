@@ -253,7 +253,7 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 - Quality assessments **must not** treat “no generic OIDC” as a V1 defect — it is a **committed V1 integration surface** alongside Entra.
 - **`(A)` V1 headline readiness** after **`V1_SCOPE.md` §2.12** SAML promotion (**owner 2026-05-15**) **must not** claim **broker-free SAML-direct GA** until SAML SP ships — track in **`PENDING_QUESTIONS.md`** / engineering backlog until closed.
-- Claim-mapping and issuer allowlisting discipline stays **documented operator responsibility** — capture buyer IdP specifics in questionnaires ([PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)).
+- Claim-mapping and issuer allowlisting discipline stays **documented operator responsibility** — capture buyer IdP specifics in questionnaires ([BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq)).
 
 ---
 

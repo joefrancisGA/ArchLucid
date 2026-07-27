@@ -123,7 +123,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 |46 | Accessibility conformance evidence map? | Self-asserted | [VPAT_EVIDENCE_MAP.md](../security/VPAT_EVIDENCE_MAP.md) · [VPAT_2_5_WCAG_2_1_AA.md](../security/VPAT_2_5_WCAG_2_1_AA.md) · [ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) |
 |47 | Redacted pen-test summary **publication** posture? | Deferred V2 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) · [trust-center.md](trust-center.md) |
 |48 | What is intentionally **not** in the default evidence ZIP? | Self-asserted | [trust-center.md](trust-center.md) · [PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md#additional-navigation) |
-|49 | How buyers request procurement materials / pen-test artefacts? | Self-asserted | [PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack) · [PROCUREMENT_FAQ.md](PROCUREMENT_FAQ.md) |
+|49 | How buyers request procurement materials / pen-test artefacts? | Self-asserted | [PROCUREMENT_PACK_INDEX.md](PROCUREMENT_PACK_INDEX.md#how-to-request-and-build-the-pack) · [BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq](BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq) |
 |50 | Formal deferrals register beyond trust-center summary? | Deferred V1.1 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) |
 
 ---
@@ -133,6 +133,6 @@ Answers are pointers only; pull quotations from targets during diligence.
 | Doc | Role |
 |-----|------|
 | [trust-center.md](trust-center.md) | Canonical buyer index |
-| [PROCUREMENT_FAQ.md](PROCUREMENT_FAQ.md) | Narrative FAQs |
+| [BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq](BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq) | Narrative FAQs |
 | [PROCUREMENT_PACK_COVER.md](PROCUREMENT_PACK_COVER.md) | Pack framing |
 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | Roadmap (**not an auditor opinion**) |

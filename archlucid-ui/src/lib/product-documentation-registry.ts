@@ -408,7 +408,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     title: "Procurement FAQ",
     summary: "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
     audience: "buyer",
-    sourcePaths: ["docs/go-to-market/PROCUREMENT_FAQ.md"],
+    sourcePaths: ["docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md"],
+    sectionAnchors: ["enterprise-procurement-faq"],
+    includeIntroWithSections: true,
   },
   {
     slug: "billing-and-plans",

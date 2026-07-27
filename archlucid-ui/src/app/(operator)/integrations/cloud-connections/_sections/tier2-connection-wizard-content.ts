@@ -43,7 +43,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const TIER2_WIZARD_DOC_PATHS = {
   hostedEnterpriseChecklist: "/docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md",
-  procurementFaq: "/docs/go-to-market/PROCUREMENT_FAQ.md",
+  procurementFaq: "/docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq",
   trustCenter: "/docs/go-to-market/trust-center.md",
   azureExtractor: "/docs/library/AZURE_EXTRACTOR.md",
   customerTrustAndAccess: "/docs/library/CUSTOMER_TRUST_AND_ACCESS.md",

@@ -321,108 +321,332 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "excerpt": "- [Start architecture review](/reviews/new) - [Open sample review](/reviews/claims-intake-modernization)"
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "",
-    "sectionHeading": "Procurement FAQ (Enterprise) — overview",
-    "excerpt": "Audience: procurement, InfoSec questionnaires, resilience reviews preparing SOC 2 / SIG / CAIQ spreadsheets."
+    "sectionHeading": "Buyer security and procurement packet — overview",
+    "excerpt": "Audience: Procurement reviewers, security reviewers, GRC teams, CISOs, and enterprise buyers evaluating ArchLucid for a controlled pilot."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
-    "sectionSlug": "q-a",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "isolation-one-pager-m-114",
+    "sectionHeading": "Isolation one-pager (M-114)",
+    "excerpt": "Claim (G3): Authenticated identity binds tenant/workspace scope; client-supplied scope headers cannot override that binding on production-like hosts."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "principal-architect-falsification-script-m-113",
+    "sectionHeading": "Principal architect falsification script (M-113)",
+    "excerpt": "Audience: Founder / SE running a procurement technical review with a skeptical principal architect (or security reviewer). Duration: 30–45 minutes. Goal: Let them try to break three highest-stakes V1 claims; walk out with pass/fail notes and artifact links. Spine: [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "preflight-5-min",
+    "sectionHeading": "Preflight (5 min)",
+    "excerpt": "Preflight (5 min)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-1-tenant-isolation-identity-wins",
+    "sectionHeading": "Claim 1 — Tenant isolation (identity wins)",
+    "excerpt": "Claim: Forged `x-tenant-id` / workspace headers cannot steer scope away from the JWT tenant."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-2-audit-chain-hash-verified-manifest",
+    "sectionHeading": "Claim 2 — Audit chain + hash-verified manifest",
+    "excerpt": "Claim: Findings are evidence-linked; committed package hash can be verified (application-layer lineage, not WORM/PKI)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "claim-3-real-vs-simulator-honesty",
+    "sectionHeading": "Claim 3 — Real vs Simulator honesty",
+    "excerpt": "Claim: Sponsor-facing surfaces label execution mode; PilotStrict does not forward Simulator as enterprise proof."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "close-out",
+    "sectionHeading": "Close-out",
+    "excerpt": "1. Record pass/fail per claim in the deal notes or defect log (M-101). 2. If Claim 1 failed → stop the deal path until TB-948/TB-949 green on that host. 3. If Claim 2/3 weak → schedule TB-886/TB-950 or a Real run before the next PA review. 4. Update [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) evidence l…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "azure-extractor-infosec-pre-read",
+    "sectionHeading": "Azure extractor — InfoSec pre-read",
+    "excerpt": "Audience: Customer security, cloud platform, and procurement reviewers who must approve running `Get-ArchLucidAzurePackage.ps1` or uploading its ZIP output to ArchLucid. Status: V1 GA — aligns with [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.16 and [`trust-center.md`](trust-center.md) Azure connectivity posture. Rela…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "decision-summary-30-seconds",
+    "sectionHeading": "Decision summary (30 seconds)",
+    "excerpt": "Decision summary (30 seconds)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tier-1-customer-run-collector-default-v1-path",
+    "sectionHeading": "Tier 1 — customer-run collector (default V1 path)",
+    "excerpt": "1. Your team downloads and reviews `scripts/azure/Get-ArchLucidAzurePackage.ps1` from the ArchLucid distribution you received (or repository tag aligned to your pilot build). 2. An authorized operator runs the script inside your Azure context (Azure PowerShell / Cloud Shell / approved automation runner). 3. The arch…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "upload-and-audit-trail-archlucid-side",
+    "sectionHeading": "Upload and audit trail (ArchLucid side)",
+    "excerpt": "- Package stored in tenant-scoped SQL/blob per deployment ([`trust-center.md`](trust-center.md) data residency table). - Durable audit events include `AzureExtractorPackage.Uploaded`, `AzureExtractorPackage.IngestSucceeded`, and rejection events when schema validation fails — see [`AUDIT_COVERAGE_MATRIX.md`](../libr…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tier-2-optional-hosted-collection-separate-approval",
+    "sectionHeading": "Tier 2 — optional hosted collection (separate approval)",
+    "excerpt": "Tier 2 is opt-in and not required for V1 pilots. If enabled later: customer provisions a dedicated read-only service principal with `Reader` + `Cost Management Reader` only; federated workload identity preferred; ArchLucid stores only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` — never custome…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "alternative-when-the-script-is-blocked",
+    "sectionHeading": "Alternative when the script is blocked",
+    "excerpt": "1. Run an evidence-only review (`CloudProvider.None`). 2. Use demo evidence for internal evaluator dry-runs only (label demo-derived; do not quote externally). 3. Revisit Tier 1 after sandbox approval or use a narrow resource-group scope on a non-production subscription."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "reviewer-checklist",
+    "sectionHeading": "Reviewer checklist",
+    "excerpt": "Reviewer checklist"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "faq-security-reviewers",
+    "sectionHeading": "FAQ (security reviewers)",
+    "excerpt": "Can ArchLucid call back into our tenant after upload? Tier 1: No standing access from upload alone. Tier 2: only if you separately configure hosted extractor (opt-in)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "change-control",
+    "sectionHeading": "Change control",
+    "excerpt": "When extractor schema, RBAC posture, or trust-center rows change, update this pre-read and [`trust-center.md`](trust-center.md) § Azure connectivity in the same change."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "evidence-routing-map",
+    "sectionHeading": "Evidence routing map",
+    "excerpt": "Evidence routing map"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "1-how-to-use-this-packet",
+    "sectionHeading": "1. How to use this packet",
+    "excerpt": "1. Send this packet to the buyer's security or procurement contact. 2. Before sending, run through Section 7 (staleness and accuracy checklist) to confirm no dates or status fields are outdated. 3. Mark items that are draft / not yet available clearly rather than leaving them blank. 4. Do not add or remove assurance…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "2-company-and-product-summary",
+    "sectionHeading": "2. Company and product summary",
+    "excerpt": "2. Company and product summary"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "3-security-controls-shipped-v1",
+    "sectionHeading": "3. Security controls (shipped V1)",
+    "excerpt": "3. Security controls (shipped V1)"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "4-assurance-status-explicit",
+    "sectionHeading": "4. Assurance status — explicit",
+    "excerpt": "> Reading this table: Status values are Shipped, Self-assessed, Roadmap / V1.1, or Not available. Do not treat Roadmap items as current capabilities."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "5-approved-security-questionnaire-answers",
+    "sectionHeading": "5. Approved security questionnaire answers",
+    "excerpt": "Use these answers verbatim or adapted in buyer questionnaires. Do not deviate from the assurance scope without owner approval."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "51-authentication-and-access-control",
+    "sectionHeading": "5.1 Authentication and access control",
+    "excerpt": "Q: How does ArchLucid authenticate users? A: ArchLucid uses Azure Entra ID via OIDC/SAML for human authentication. Machine clients use service principals or API keys. App-level JWT validation is enforced on all API paths."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "52-data-isolation-and-tenant-boundaries",
+    "sectionHeading": "5.2 Data isolation and tenant boundaries",
+    "excerpt": "Q: Is customer data isolated from other customers? A: Yes. Tenant-scoped row-level filtering is applied to all data queries. Tenants cannot access each other's reviews, architecture reviews, findings, or evidence. See [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "53-data-handling-and-retention",
+    "sectionHeading": "5.3 Data handling and retention",
+    "excerpt": "Q: How long is customer data retained? A: Retention posture is documented and configurable. A formal data-retention schedule is a draft artifact pending owner review. See [`trust-center.md`](trust-center.md)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "54-encryption",
+    "sectionHeading": "5.4 Encryption",
+    "excerpt": "Q: Is data encrypted at rest? A: Yes. Azure SQL Transparent Data Encryption (TDE) and Azure Blob Storage encryption are enabled by default."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "55-audit-and-logging",
+    "sectionHeading": "5.5 Audit and logging",
+    "excerpt": "Q: Does ArchLucid produce an audit trail? A: Yes. All material user and system actions produce structured audit events in an append-only audit log. The audit coverage model is documented in [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "56-incident-response",
+    "sectionHeading": "5.6 Incident response",
+    "excerpt": "Q: Does ArchLucid have an incident response plan? A: An incident communications policy is documented at [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md). A formal IR plan is a draft artifact pending owner review. Pilot buyers will be contacted within 24 hours of a confirmed incident affecting…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "57-vendor-and-sub-processor-risk",
+    "sectionHeading": "5.7 Vendor and sub-processor risk",
+    "excerpt": "Q: What third-party sub-processors does ArchLucid use? A: Current sub-processors are listed in [`SUBPROCESSORS.md`](SUBPROCESSORS.md). Material additions will be communicated per the DPA template."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "6-buyer-risk-questions-and-honest-answers",
+    "sectionHeading": "6. Buyer-risk questions and honest answers",
+    "excerpt": "6. Buyer-risk questions and honest answers"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "enterprise-procurement-faq",
     "sectionHeading": "Q & A",
-    "excerpt": "Q & A"
+    "excerpt": "Former standalone: `docs/go-to-market/PROCUREMENT_FAQ.md` → this section (Enterprise procurement FAQ)."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "1-do-you-have-soc-2-type-ii",
     "sectionHeading": "1. Do you have SOC 2 Type II?",
     "excerpt": "Answer: Today we publish a SOC 2 self-assessment and control mapping—SOC 2 Type II CPA attestation is not currently issued ([SOC 2 self-assessment](/help/soc2-self-assessment)). Type I followed by Type II is the typical SaaS roadmap once operating evidence exists alongside budget."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "2-can-we-see-the-latest-penetration-test-report",
     "sectionHeading": "2. Can we see the latest penetration-test report?",
     "excerpt": "Answer: V1 uses owner-conducted penetration-style testing and internal assessments (see [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). A third-party vendor engagement is planned, not yet scheduled; when funded, it follows an SoW shaped like [2026-Q2-SOW.md](../security/pe…"
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "3-where-is-customer-data-processed-stored",
     "sectionHeading": "3. Where is customer data processed / stored?",
     "excerpt": "Answer: Vendor-hosted Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Architectural networking guidance: [CUSTOMER_TRUST_AND_ACCESS.m…"
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "4-can-we-authenticate-with-okta-ping-auth0-instead-of-microsoft-entra-id",
     "sectionHeading": "4. Can we authenticate with Okta / Ping / Auth0 instead of Microsoft Entra ID?",
     "excerpt": "Answer: Yes — V1 GA. [V1_SCOPE.md](../library/V1_SCOPE.md) §2.12 commits `JwtBearer` against configurable OIDC issuers (metadata discovery + JWKS), including non-Microsoft IdPs; `ArchLucidAuth:Authority` / audience and role claim mapping are documented in [SECURITY.md](../library/contributor-reference/SECURITY.md) a…"
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "5-what-sla-do-you-publish",
     "sectionHeading": "5. What SLA do you publish?",
     "excerpt": "Answer: Targets are documented ([SLA_TARGETS.md](../library/SLA_TARGETS.md), [SLA_SUMMARY.md](SLA_SUMMARY.md)). Contractual SLA language is finalized per Order Form ([ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md))—pre-contract targets, not unconditional guarantees until executed."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "6-can-we-execute-the-data-processing-agreement",
     "sectionHeading": "6. Can we execute the Data Processing Agreement?",
     "excerpt": "Answer: Yes — start from the in-app [DPA template](/help/dpa-template) (negotiation template, not a countersigned agreement) and [Subprocessors](/help/subprocessors)."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "7-what-subprocessors-apply",
     "sectionHeading": "7. What subprocessors apply?",
     "excerpt": "Answer: See [Subprocessors](/help/subprocessors) (maintained quarterly); aligns with contractual notification windows in the [DPA template](/help/dpa-template)."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "8-what-happens-if-archlucid-ceases-trading",
     "sectionHeading": "8. What happens if ArchLucid ceases trading?",
     "excerpt": "Answer: Operational continuity hinges on contractual termination assistance, export rights, negotiated escrow arrangements, and staged migration timelines—explicit source-code escrow is negotiable rather than universally bundled in starter paper. Start from [MSA_TEMPLATE.md](MSA_TEMPLATE.md) / Order Form playbook."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "9-do-you-maintain-cyber-insurance",
     "sectionHeading": "9. Do you maintain cyber insurance?",
     "excerpt": "Answer: Procurement should request current coverage limits, carrier, renewal date, and claims history directly from Vendor during diligence—figures change year to year (do not cite an unsigned MD as proof)."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "10-can-we-speak-with-reference-customers",
     "sectionHeading": "10. Can we speak with reference customers?",
     "excerpt": "Answer: Public Published references are tracked ([reference-customers/README.md](reference-customers/README.md)) with Status placeholders until V1.1-program approvals—coordinate via sales for permissioned pilots."
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "11-how-do-we-get-extended-audit-retention-eg-7-years",
     "sectionHeading": "11. How do we get extended audit retention (e.g. 7 years)?",
     "excerpt": "Answer: Per-tier defaults are 90 days (Team), 1 year (Professional), and custom (Enterprise) — see [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md). Extended retention is an Enterprise-negotiated add-on documented in [`AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md): scheduled CSV exports to …"
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "12-can-we-commission-custom-policy-packs-beyond-bundled-defaults",
     "sectionHeading": "12. Can we commission custom policy packs beyond bundled defaults?",
     "excerpt": "Answer: Yes — V1 professional services. ArchLucid ships productized Custom Policy Pack Authoring SKUs (Starter / Standard / Program) with customer-exclusive or ArchLucid-owned IP tiers. Scope, delivery windows, and canonical USD list prices are in [PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-p…"
   },
   {
-    "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",
-    "docTitle": "Procurement FAQ (Enterprise)",
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "trust-progression-timeline-informal",
     "sectionHeading": "Trust progression timeline (informal)",
-    "excerpt": "Note: Dates are illustrative—bind via executed Order Form milestones when procuring regulated workloads."
+    "excerpt": "Note: Dates are illustrative—bind via executed Order Form milestones when procuring regulated workloads. Stripped from `/help/procurement` buyer presentation (internal enablement)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "7-staleness-and-accuracy-checklist",
+    "sectionHeading": "7. Staleness and accuracy checklist",
+    "excerpt": "Run before each new buyer send:"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "8-references",
+    "sectionHeading": "8. References",
+    "excerpt": "Former standalone script: `docs/go-to-market/PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md` → [falsification script](#principal-architect-falsification-script-m-113). Former standalone pre-read: `docs/go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md` → [Azure extractor InfoSec pre-read](#azure-extractor--infosec-pre-re…"
   }
 ] as const;

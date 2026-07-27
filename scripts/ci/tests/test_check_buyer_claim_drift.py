@@ -102,7 +102,7 @@ class TestBuyerClaimDrift(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("Safe default text.\n", encoding="utf-8")
 
-            bad = root / "docs/go-to-market/PROCUREMENT_FAQ.md"
+            bad = root / "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md"
             bad.write_text("The third-party pen-test report is available under NDA.\n", encoding="utf-8")
 
             violations = G.buyer_claim_drift_violations(root)

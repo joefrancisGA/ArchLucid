@@ -12,7 +12,7 @@ This document is the single source of truth for assurance status wording used by
 
 - `trust-center.md`
 - `CURRENT_ASSURANCE_POSTURE.md`
-- `PROCUREMENT_FAQ.md`
+- `BUYER_SECURITY_PROCUREMENT_PACKET.md` ([procurement FAQ Q&A](BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq))
 - `PROCUREMENT_RESPONSE_ACCELERATOR.md`
 - `SOC2_STATUS_PROCUREMENT.md`
 

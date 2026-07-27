@@ -34,7 +34,7 @@ describe("searchHelpDocumentation", () => {
   it("returns procurement FAQ entries for procurement keywords", () => {
     const hits = searchHelpDocumentation("SOC 2 procurement", 30);
 
-    expect(hits.some((h) => h.docPath.includes("PROCUREMENT_FAQ"))).toBe(true);
+    expect(hits.some((h) => h.docPath.includes("BUYER_SECURITY_PROCUREMENT_PACKET"))).toBe(true);
   });
 
   it("generated search excerpts avoid legacy manifest/run-primary help copy", () => {

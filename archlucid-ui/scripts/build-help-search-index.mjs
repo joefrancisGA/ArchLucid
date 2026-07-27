@@ -55,7 +55,7 @@ const CURATED_DOC_PATHS = [
   "docs/runbooks/TROUBLESHOOTING.md",
   "docs/library/CONFIGURATION_REFERENCE.md",
   "docs/CORE_PILOT.md",
-  "docs/go-to-market/PROCUREMENT_FAQ.md",
+  "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
 ];
 
 /** @typedef {{ docPath: string; docTitle: string; sectionSlug: string; sectionHeading: string; excerpt: string }} HelpDocSearchRecord */

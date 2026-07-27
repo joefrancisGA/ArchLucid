@@ -10,7 +10,7 @@ import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
-const PROCUREMENT_SOURCE = "docs/go-to-market/PROCUREMENT_FAQ.md";
+const PROCUREMENT_SOURCE = "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md";
 
 const EXPECTED_TOC_LABELS = [
   "Q & A",
