@@ -3,8 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
+import { softNavigationTargetPathname } from "@/lib/soft-navigation-target-pathname";
+
 /** Soft-nav / RSC refresh can stall without rejecting; recover CTAs instead of leaving them depressed. */
 export const SOFT_NAVIGATION_TIMEOUT_MS = 20_000;
+
+/**
+ * Home Open Review and similar CTAs: align with client `navigation-stuck` (8s) and hard-nav if App Router never commits.
+ */
+export const SOFT_NAVIGATION_HARD_FALLBACK_TIMEOUT_MS = 8_000;
 
 export type SoftNavigationMode = "push" | "replace" | "refresh";
 
@@ -12,16 +19,20 @@ export type UseSoftNavigationLoadingOptions = {
   readonly timeoutMs?: number;
   readonly timeoutErrorMessage?: string;
   readonly onTimeout?: () => void;
+  /** When true (default), push/replace timeouts hard-navigate if the URL never committed. */
+  readonly hardNavigateOnTimeout?: boolean;
 };
 
 /**
  * Owns depressed-CTA state for client soft navigation.
  * Clears on transition settle or wall-clock timeout (refs alone never re-render).
+ * When App Router fetches RSC but never commits the URL, falls back to a full navigation.
  */
 export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOptions = {}) {
   const timeoutMs = options.timeoutMs ?? SOFT_NAVIGATION_TIMEOUT_MS;
   const timeoutErrorMessage = options.timeoutErrorMessage;
   const onTimeout = options.onTimeout;
+  const hardNavigateOnTimeout = options.hardNavigateOnTimeout !== false;
 
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -29,6 +40,8 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
   const [error, setError] = useState<string | null>(null);
   const timeoutIdRef = useRef<number | null>(null);
   const wasPendingRef = useRef(false);
+  const pendingHrefRef = useRef<string | null>(null);
+  const pendingModeRef = useRef<SoftNavigationMode>("push");
 
   const clearNavigationTimeout = useCallback(() => {
     if (timeoutIdRef.current !== null) {
@@ -39,6 +52,7 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
 
   const releaseNavigation = useCallback(() => {
     clearNavigationTimeout();
+    pendingHrefRef.current = null;
     setIsNavigating(false);
   }, [clearNavigationTimeout]);
 
@@ -75,11 +89,34 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
       setIsNavigating(true);
       setError(null);
       wasPendingRef.current = false;
+      pendingHrefRef.current = href;
+      pendingModeRef.current = mode;
       clearNavigationTimeout();
 
       timeoutIdRef.current = window.setTimeout(() => {
-        setIsNavigating(false);
+        const pendingHref = pendingHrefRef.current;
+        const pendingMode = pendingModeRef.current;
         timeoutIdRef.current = null;
+        setIsNavigating(false);
+
+        if (
+          hardNavigateOnTimeout &&
+          pendingMode !== "refresh" &&
+          typeof pendingHref === "string" &&
+          pendingHref.length > 0
+        ) {
+          const targetPathname = softNavigationTargetPathname(pendingHref, window.location.origin);
+
+          if (targetPathname.length > 0 && window.location.pathname !== targetPathname) {
+            pendingHrefRef.current = null;
+            window.location.assign(pendingHref);
+            onTimeout?.();
+
+            return;
+          }
+        }
+
+        pendingHrefRef.current = null;
 
         if (timeoutErrorMessage !== undefined) {
           setError(timeoutErrorMessage);
@@ -116,6 +153,7 @@ export function useSoftNavigationLoading(options: UseSoftNavigationLoadingOption
     },
     [
       clearNavigationTimeout,
+      hardNavigateOnTimeout,
       isNavigating,
       isPending,
       onTimeout,

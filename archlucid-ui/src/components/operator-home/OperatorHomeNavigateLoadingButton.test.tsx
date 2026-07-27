@@ -26,17 +26,27 @@ import {
 } from "./OperatorHomeNavigateLoadingButton";
 
 describe("OperatorHomeNavigateLoadingButton", () => {
+  const assign = vi.fn();
+
   beforeEach(() => {
     vi.useFakeTimers();
     push.mockReset();
     prefetch.mockReset();
+    assign.mockReset();
+    vi.stubGlobal("location", {
+      ...window.location,
+      pathname: "/",
+      origin: "http://localhost",
+      assign,
+    });
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
-  it("recovers from a stalled soft navigation instead of staying depressed", async () => {
+  it("hard-navigates when soft navigation stalls on the home CTA", async () => {
     render(
       <OperatorHomeNavigateLoadingButton
         href="/integrations/cloud-connections"
@@ -55,6 +65,7 @@ describe("OperatorHomeNavigateLoadingButton", () => {
       await vi.advanceTimersByTimeAsync(OPERATOR_HOME_NAVIGATE_LOADING_TIMEOUT_MS);
     });
 
+    expect(assign).toHaveBeenCalledWith("/integrations/cloud-connections");
     expect(screen.getByTestId("operator-home-connect-cloud")).toHaveAttribute("data-loading", "false");
     expect(screen.getByText("Have cloud evidence? Connect…")).toBeInTheDocument();
   });

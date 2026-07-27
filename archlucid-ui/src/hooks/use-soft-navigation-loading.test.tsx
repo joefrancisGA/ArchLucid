@@ -29,34 +29,65 @@ import {
 } from "./use-soft-navigation-loading";
 
 describe("useSoftNavigationLoading", () => {
+  const assign = vi.fn();
+
   beforeEach(() => {
     vi.useFakeTimers();
     push.mockReset();
     prefetch.mockReset();
     refresh.mockReset();
+    assign.mockReset();
+    vi.stubGlobal("location", {
+      ...window.location,
+      pathname: "/",
+      origin: "http://localhost",
+      assign,
+    });
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
-  it("releases a depressed CTA after the soft-nav timeout", async () => {
+  it("hard-navigates when soft push never commits the URL", async () => {
     const { result } = renderHook(() =>
       useSoftNavigationLoading({ timeoutErrorMessage: "Navigation timed out." }),
     );
 
     act(() => {
-      expect(result.current.navigate("/reviews/new")).toBe(true);
+      expect(result.current.navigate("/reviews/claims-intake-modernization")).toBe(true);
     });
 
     expect(result.current.isNavigating).toBe(true);
-    expect(push).toHaveBeenCalledWith("/reviews/new");
+    expect(push).toHaveBeenCalledWith("/reviews/claims-intake-modernization");
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(SOFT_NAVIGATION_TIMEOUT_MS);
     });
 
     expect(result.current.isNavigating).toBe(false);
+    expect(assign).toHaveBeenCalledWith("/reviews/claims-intake-modernization");
+    expect(result.current.error).toBeNull();
+  });
+
+  it("sets timeout error when hard-nav fallback is disabled", async () => {
+    const { result } = renderHook(() =>
+      useSoftNavigationLoading({
+        timeoutErrorMessage: "Navigation timed out.",
+        hardNavigateOnTimeout: false,
+      }),
+    );
+
+    act(() => {
+      expect(result.current.navigate("/reviews/new")).toBe(true);
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(SOFT_NAVIGATION_TIMEOUT_MS);
+    });
+
+    expect(assign).not.toHaveBeenCalled();
     expect(result.current.error).toBe("Navigation timed out.");
   });
 

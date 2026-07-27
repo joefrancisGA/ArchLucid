@@ -5,13 +5,13 @@ import Link from "next/link";
 import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import {
-  SOFT_NAVIGATION_TIMEOUT_MS,
+  SOFT_NAVIGATION_HARD_FALLBACK_TIMEOUT_MS,
   useSoftNavigationLoading,
 } from "@/hooks/use-soft-navigation-loading";
 import { cn } from "@/lib/utils";
 
-/** @deprecated Prefer SOFT_NAVIGATION_TIMEOUT_MS — kept for existing test imports. */
-export const OPERATOR_HOME_NAVIGATE_LOADING_TIMEOUT_MS = SOFT_NAVIGATION_TIMEOUT_MS;
+/** Home CTAs use the hard-nav fallback window (matches client navigation-stuck probe). */
+export const OPERATOR_HOME_NAVIGATE_LOADING_TIMEOUT_MS = SOFT_NAVIGATION_HARD_FALLBACK_TIMEOUT_MS;
 
 type OperatorHomeNavigateLoadingButtonProps = Omit<ButtonProps, "children" | "onClick"> & {
   readonly href: string;
@@ -25,7 +25,9 @@ export function OperatorHomeNavigateLoadingButton(
   props: OperatorHomeNavigateLoadingButtonProps,
 ): React.JSX.Element {
   const { href, idleLabel, loadingLabel, disabled, className, variant, size, onNavigate, ...buttonProps } = props;
-  const { navigate, isNavigating } = useSoftNavigationLoading();
+  const { navigate, isNavigating } = useSoftNavigationLoading({
+    timeoutMs: OPERATOR_HOME_NAVIGATE_LOADING_TIMEOUT_MS,
+  });
 
   const onClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (disabled === true || isNavigating) {
