@@ -225,7 +225,7 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 | `/alerts` | Alerts hub (inbox + tabs) | T1 inbox; tabs: `?tab=rules`, `routing`, `composite`, `simulation` |
 | `/alert-routing` | Alert routing (standalone) | Same as `/alerts?tab=routing` |
 | `/governance/dashboard` | Executive Workspace Health | T1/T3 tiles |
-| `/governance/first-30-days` | Post-pilot 30-day checklist | T1 deep links (read-only) |
+| `/governance/setup` | Governance setup guide (legacy `/governance/first-30-days` redirects) | T1 deep links (read-only) |
 | `/governance/recurrence-schedules` | Recurrence schedules | T3 mock or T2 |
 | `/value-report` | Sponsor value DOCX export | T2 finalized reviews + Execute role |
 | `/workspace/security-trust` | Operator Security & trust | T1/T2; distinct from public `/security-trust` |
