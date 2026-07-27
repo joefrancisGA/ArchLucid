@@ -172,6 +172,6 @@ If a customer churns:
 | [ROI_MODEL.md](ROI_MODEL.md) | ROI for expansion justification |
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | Tiers and expansion levers |
 | [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Subscription order form |
-| [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Onboarding (feeds renewal readiness) |
+| [PILOT_SUCCESS_SCORECARD.md#customer-onboarding-operating-playbook](PILOT_SUCCESS_SCORECARD.md#customer-onboarding-operating-playbook) | Onboarding (feeds renewal readiness) |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Pilot measurement (feeds initial health data) |
 | [../library/PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | Product learning signals |

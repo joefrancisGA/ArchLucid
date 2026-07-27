@@ -366,7 +366,7 @@ Use this when first deals produce signal about price tolerance. Do not change li
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor pricing context |
 | [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md) | Self-serve trial design and trial parameters |
 | [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Subscription order template (prices link back here) |
-| [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Post-conversion onboarding (6-week pilot) |
+| [PILOT_SUCCESS_SCORECARD.md#customer-onboarding-operating-playbook](PILOT_SUCCESS_SCORECARD.md#customer-onboarding-operating-playbook) | Post-conversion onboarding (6-week pilot) |
 | [POSITIONING.md](POSITIONING.md) | Positioning narrative and proof points |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Guided pilot success criteria |
 | [../CHANGELOG.md](../CHANGELOG.md) | Release history including pricing freeze entry |

@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-26
 
-> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`).
+> **Scope:** ArchLucid pilot success scorecard — full detail, tables, and links below — plus the steering / ARB decision memo template (formerly `STEERING_DECISION_MEMO_TEMPLATE.md`) and the customer onboarding operating playbook (formerly `CUSTOMER_ONBOARDING_PLAYBOOK.md`).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -118,6 +118,110 @@ Collect via stakeholder interviews at pilot midpoint and end. Score each on a 1�
 | **6 (end)** | Conduct end-of-pilot stakeholder interviews. Compile all metrics. Calculate ROI using [ROI_MODEL.md](ROI_MODEL.md). Prepare leadership presentation. | Final qualitative scores, complete scorecard |
 
 **Total runs during pilot:** 12–18 (enough to establish patterns without overwhelming the team).
+
+---
+
+## Customer onboarding operating playbook
+
+Former standalone: `docs/go-to-market/CUSTOMER_ONBOARDING_PLAYBOOK.md` → this section.
+
+**Audience:** Customer success, sales engineering, and account management teams onboarding new SaaS customers.
+
+This playbook aligns with the six-week pilot timeline above and the technical quickstart in [../OPERATOR_QUICKSTART.md](../library/customer-facing/OPERATOR_QUICKSTART.md).
+
+**Pricing:** Current tier pricing, pilot fee, and design-partner terms are in [PRICING_PHILOSOPHY.md §4–§5](PRICING_PHILOSOPHY.md). Do not restate prices here.
+
+**Enterprise hosted SaaS:** Use the step-by-step checklist in [`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md) for SCIM, SAML/OIDC, policy packs, governance, and audit export wiring (ArchLucid-hosted only — not self-hosted V2). For SAML workforce SSO, complete **[§2.1 claim-mapping tables](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md#saml-claim-mapping-reference)** (Entra, Okta, Ping) and pre-flight with **`archlucid auth validate-saml`** before cutover.
+
+**Custom policy pack authoring (PS):** After the Customer's **first committed manifest**, review whether recurring finding themes or governance gaps indicate a need for customer-specific packs beyond bundled **`PlatformDefault`** packs. When gaps are consistent across runs, position the productized SKUs from the public **`/pricing`** page (Custom Policy Pack Authoring section), [PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services), and the SoW template [`CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md`](CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md). Prefer **ArchLucid-owned (shared)** tier when Customer accepts generalized pattern reuse; use **customer-exclusive** when confidentiality dominates. Do not quote PS fees outside the canonical pricing files.
+
+### Onboarding phases
+
+#### Week 0 — Pre-launch
+
+| Item | Owner | Definition of done |
+|------|-------|--------------------|
+| Tenant provisioned in ArchLucid SaaS | ArchLucid | Tenant ID confirmed, workspace created |
+| SSO configured (Entra / OIDC) | Joint | Admin can sign in with corporate identity |
+| Admin account active with Admin role | ArchLucid | Admin sees first-run wizard on login |
+| Welcome email sent with getting-started links | ArchLucid | Email delivered, links verified |
+| Kickoff call scheduled | ArchLucid CSM | Calendar invite sent to champion + team |
+| Success criteria agreed (from scorecard) | Joint | Minimum / target / stretch documented |
+
+**Common blockers:** Entra app registration delays (coordinate with customer IT), firewall rules blocking API access (provide IP ranges or use private connectivity).
+
+#### Week 1 — Foundation
+
+| Item | Owner | Definition of done |
+|------|-------|--------------------|
+| Kickoff call completed | Joint | Team introduced, goals reviewed, questions answered |
+| Admin completes first-run wizard | Customer | Sample preset selected, first run visible |
+| Team members invited (2–5 operators) | Customer admin | Users can sign in and view runs |
+| First sample run executed and reviewed | Joint | Champion can navigate findings, manifest, explainability traces |
+| Scorecard metrics baseline captured | Joint | Pre-pilot values recorded per §2 |
+
+**Common blockers:** Team availability, confusion about presets (provide preset selection guidance).
+
+#### Weeks 2–3 — Adoption
+
+| Item | Owner | Definition of done |
+|------|-------|--------------------|
+| First **real** architecture review submitted | Customer | Run with actual system description, not sample |
+| Governance workflow configured | Customer (guided) | At least one approval workflow active |
+| Team completes 3+ runs | Customer | Visible in run list |
+| Findings reviewed and discussed in team meeting | Customer | Architecture decisions informed by findings |
+| Mid-pilot check-in call | ArchLucid CSM | Adoption signals reviewed, blockers addressed |
+
+**Common blockers:** "We don't have a review coming up" (suggest running against a recent completed design), governance setup confusion (provide walkthrough).
+
+#### Weeks 4–5 — Expansion
+
+| Item | Owner | Definition of done |
+|------|-------|--------------------|
+| Comparison run executed (two reviews compared) | Customer | Drift or evolution visible in comparison view |
+| Policy packs explored | Customer | At least one policy pack reviewed or configured |
+| Governance approvals used in production | Customer | Real approval request submitted and resolved |
+| Export features tested (DOCX, audit CSV) | Customer | Champion has a sample artifact for leadership |
+
+#### Week 6 — Review
+
+| Item | Owner | Definition of done |
+|------|-------|--------------------|
+| Pilot scorecard completed | Joint | All metrics captured per this scorecard |
+| Results presented to leadership | Customer champion | ROI model populated with actual data per [ROI_MODEL.md](ROI_MODEL.md) |
+| Renewal / expansion discussion | ArchLucid + champion | Go/no-go decision; commercial terms if proceeding |
+
+### Touchpoint schedule
+
+| Timing | Type | Purpose |
+|--------|------|---------|
+| Week 0 | Kickoff call (60 min) | Introductions, goals, success criteria, technical setup review |
+| Week 1 | Check-in (30 min) | First review debrief, team readiness, early blockers |
+| Week 3 | Mid-pilot review (45 min) | Adoption metrics, governance setup, course correction |
+| Week 6 | Scorecard review (60 min) | Results, ROI calculation, renewal/expansion conversation |
+| Ad hoc | Support / Slack / email | As needed for technical issues |
+
+### Health signals during onboarding
+
+| Signal | Green | Yellow | Red |
+|--------|-------|--------|-----|
+| **Review frequency** | Increasing week-over-week | Flat after week 2 | No reviews after week 2 |
+| **Active operators** | 3+ unique users | 1 user only | Zero logins after week 1 |
+| **Governance** | Approval workflow active | Configured but unused | Not configured by week 4 |
+| **Support** | No critical tickets | Questions but engaged | Unresolved tickets, disengaged |
+| **Champion engagement** | Attends all touchpoints | Misses one touchpoint | No-shows repeatedly |
+
+**Action on Yellow:** Proactive outreach — offer training session, feature walkthrough, or adjusted timeline.
+
+**Action on Red:** Escalate internally; engage executive sponsor on customer side if accessible; assess whether pilot extension or scope change is needed.
+
+### Handoff to steady-state
+
+After successful pilot conversion:
+
+- Transition from pilot CSM touchpoints to **steady-state** cadence (quarterly business review).
+- Activate health scoring per [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md#1-customer-health-scoring).
+- Enter renewal timeline per [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md).
 
 ---
 
@@ -291,6 +395,7 @@ Former standalone: `docs/go-to-market/STEERING_DECISION_MEMO_TEMPLATE.md` → th
 | [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI (includes operational cost guide) |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which persona presents the report (Section 6) and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars to reference in the executive summary |
+| [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md) | Health scoring + renewal after pilot conversion |
 | [../PILOT_GUIDE.md](../library/customer-facing/PILOT_GUIDE.md) | Technical setup for the pilot environment |
 | [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | How pilot feedback signals are captured and analyzed |
 | [../OBSERVABILITY.md](../library/OBSERVABILITY.md) | OTel metric names referenced in this scorecard |

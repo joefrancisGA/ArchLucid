@@ -192,7 +192,7 @@ Baseline fields live on the **tenant row** (`dbo.Tenants`) with the same access 
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | Tier features and limits |
 | [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md) | Seller-led Docker demo |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who signs up |
-| [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Post-conversion onboarding |
+| [PILOT_SUCCESS_SCORECARD.md#customer-onboarding-operating-playbook](PILOT_SUCCESS_SCORECARD.md#customer-onboarding-operating-playbook) | Post-conversion onboarding |
 | [PER_TENANT_COST_MODEL.md](../library/PER_TENANT_COST_MODEL.md) | AOAI estimation methodology (`GET /v1/agent-execution/cost-preview` wizard bound) |
 | **[`CAPACITY_AND_COST_PLAYBOOK.md`](../library/CAPACITY_AND_COST_PLAYBOOK.md)** | Hosted capacity + **`LlmMonthlyTenantDollarBudget`** posture |
 
