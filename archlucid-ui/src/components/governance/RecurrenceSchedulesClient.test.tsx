@@ -12,6 +12,7 @@ import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import RecurrenceSchedulesClient from "@/components/governance/RecurrenceSchedulesClient";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import {
+  RECURRENCE_SCHEDULE_EXAMPLES,
   RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION,
   RECURRENCE_SCHEDULES_EMPTY_SUPPORTING,
   RECURRENCE_SCHEDULES_HELPER_BODY,
@@ -173,6 +174,20 @@ describe("RecurrenceSchedulesClient", () => {
 
     expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
     expect(screen.queryByTestId("recurrence-schedules-create-action")).not.toBeInTheDocument();
+  });
+
+  it("applies example human cadence click into create panel cron (TB-1132)", async () => {
+    const example = RECURRENCE_SCHEDULE_EXAMPLES[0]!;
+
+    render(<RecurrenceSchedulesClient />);
+
+    await screen.findByTestId("recurrence-schedules-empty-state");
+    fireEvent.click(screen.getByTestId(`recurrence-schedule-example-${example.cronExpression}`));
+
+    expect(screen.getByTestId("recurrence-schedule-create-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("recurrence-schedule-name")).toHaveValue(example.title);
+    expect(screen.getByTestId("cron-expression-input")).toHaveValue(example.cronExpression);
+    expect(screen.getByText(example.humanCadence)).toBeInTheDocument();
   });
 
   it("moves Create to the header when schedules exist (TB-1131)", async () => {

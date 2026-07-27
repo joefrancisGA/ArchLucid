@@ -17,15 +17,18 @@ const DEFAULT_NAME = "Quarterly control validation";
 export type RecurrenceScheduleCreatePanelProps = {
   readonly onCreated: () => Promise<void>;
   readonly onCancel?: () => void;
+  /** Optional seed from a Common schedule example click (TB-1132). */
+  readonly initialName?: string;
+  readonly initialCronExpression?: string;
 };
 
 /** Inline create panel wired to the governance recurrence schedule API. */
 export function RecurrenceScheduleCreatePanel(props: RecurrenceScheduleCreatePanelProps) {
-  const { onCreated, onCancel } = props;
+  const { onCreated, onCancel, initialName, initialCronExpression } = props;
   const canMutate = useOperateCapability();
   const [sourceRunId, setSourceRunId] = useState("");
-  const [name, setName] = useState(DEFAULT_NAME);
-  const [cronExpression, setCronExpression] = useState(DEFAULT_CRON);
+  const [name, setName] = useState(initialName?.trim() || DEFAULT_NAME);
+  const [cronExpression, setCronExpression] = useState(initialCronExpression?.trim() || DEFAULT_CRON);
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

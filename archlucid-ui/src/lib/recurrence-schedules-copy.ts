@@ -29,31 +29,37 @@ export const RECURRENCE_SCHEDULES_HELPER_NEXT_STEP =
 
 export const RECURRENCE_SCHEDULES_EXAMPLES_HEADING = "Common schedule examples";
 
+/** TB-1132 — human cadence leads; cron is secondary data for create population. */
 export type RecurrenceScheduleExample = {
   readonly title: string;
-  readonly cadence: string;
+  readonly humanCadence: string;
+  readonly cronExpression: string;
   readonly whenToUse: string;
 };
 
 export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] = [
   {
     title: "Quarterly control validation",
-    cadence: "0 8 1 */3 *",
+    humanCadence: "Quarterly on the 1st at 08:00 UTC",
+    cronExpression: "0 8 1 */3 *",
     whenToUse: "Re-run control checks on a committed architecture review after each quarter closes.",
   },
   {
     title: "Annual policy attestation",
-    cadence: "0 8 1 1 *",
+    humanCadence: "Annually on January 1 at 08:00 UTC",
+    cronExpression: "0 8 1 1 *",
     whenToUse: "Confirm policy alignment and attestations once per year for governed systems.",
   },
   {
     title: "Post-remediation follow-up",
-    cadence: "0 8 * * 1",
+    humanCadence: "Weekly on Monday at 08:00 UTC",
+    cronExpression: "0 8 * * 1",
     whenToUse: "Verify remediation evidence and residual risk after a finding is marked remediated.",
   },
   {
     title: "Architecture board review cadence",
-    cadence: "0 8 1 * *",
+    humanCadence: "Monthly on the 1st at 08:00 UTC",
+    cronExpression: "0 8 1 * *",
     whenToUse: "Bring recurring architecture board checkpoints back on schedule for active programs.",
   },
 ] as const;

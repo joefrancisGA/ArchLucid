@@ -42,6 +42,7 @@ import {
   RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
+  type RecurrenceScheduleExample,
 } from "@/lib/recurrence-schedules-copy";
 
 function truncateRunId(runId: string): string {
@@ -149,8 +150,23 @@ export default function RecurrenceSchedulesClient() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [showCreatePanel, setShowCreatePanel] = useState(false);
+  const [createSeed, setCreateSeed] = useState<RecurrenceScheduleExample | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editorState, setEditorState] = useState<RecurrenceScheduleRowEditorState | null>(null);
+
+  function openCreateFromExample(example: RecurrenceScheduleExample): void {
+    if (!canMutate) {
+      return;
+    }
+
+    setCreateSeed(example);
+    setShowCreatePanel(true);
+  }
+
+  function closeCreatePanel(): void {
+    setShowCreatePanel(false);
+    setCreateSeed(null);
+  }
 
   const reload = useCallback(async (): Promise<void> => {
     const rows = await listArchitectureReviewRecurrenceSchedules();
@@ -259,7 +275,10 @@ export default function RecurrenceSchedulesClient() {
       data-testid="recurrence-schedules-create-action"
       disabled={!canMutate}
       title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
-      onClick={() => setShowCreatePanel(true)}
+      onClick={() => {
+        setCreateSeed(null);
+        setShowCreatePanel(true);
+      }}
     >
       Create recurrence schedule
     </Button>
@@ -309,11 +328,18 @@ export default function RecurrenceSchedulesClient() {
 
           {showCreatePanel ? (
             <RecurrenceScheduleCreatePanel
+              key={
+                createSeed === null
+                  ? "create-default"
+                  : `create-${createSeed.cronExpression}-${createSeed.title}`
+              }
+              initialName={createSeed?.title}
+              initialCronExpression={createSeed?.cronExpression}
               onCreated={async () => {
-                setShowCreatePanel(false);
+                closeCreatePanel();
                 await reload();
               }}
-              onCancel={() => setShowCreatePanel(false)}
+              onCancel={closeCreatePanel}
             />
           ) : null}
 
@@ -325,7 +351,10 @@ export default function RecurrenceSchedulesClient() {
                 description={RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION}
                 footer={createScheduleButton}
               />
-              <RecurrenceScheduleExamplesSection />
+              <RecurrenceScheduleExamplesSection
+                disabled={!canMutate}
+                onApplyExample={openCreateFromExample}
+              />
             </>
           ) : (
             <EnterpriseTable ariaLabel="Architecture review recurrence schedules">
