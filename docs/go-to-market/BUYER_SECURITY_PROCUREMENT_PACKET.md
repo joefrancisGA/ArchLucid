@@ -627,7 +627,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 
 | # | Prompt | Status | Evidence |
 |---|--------|--------|----------|
-|39 | PHI / healthcare positioning (what **not** to upload)? | Self-asserted | [trust-center.md](trust-center.md) § Healthcare · [HEALTHCARE_CLAIMS_POLICY_REVIEW.md](buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md#healthcare-vertical-positioning-sales--architecture) |
+|39 | PHI / healthcare positioning (what **not** to upload)? | Self-asserted | [trust-center.md](trust-center.md) § Healthcare · [POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#healthcare-vertical-positioning-sales--architecture) |
 |40 | Trial limits (abuse / cost guardrails)? | Self-asserted | [TRIAL_LIMITS.md](../security/TRIAL_LIMITS.md) |
 |41 | Privacy note (internal-facing)? | Self-asserted | [PRIVACY_NOTE.md](../security/PRIVACY_NOTE.md) |
 |42 | Email / PII handling notes? | Self-asserted | [PII_EMAIL.md](../security/PII_EMAIL.md) |

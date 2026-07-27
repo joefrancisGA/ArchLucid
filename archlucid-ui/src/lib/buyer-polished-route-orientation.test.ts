@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import { buyerPolishedRouteOrientation } from "./buyer-polished-route-orientation";
@@ -97,6 +98,13 @@ describe("buyerPolishedRouteOrientation", () => {
   it("returns null for recurrence schedules — not governance overview pending-approvals blurb (TB-1129)", () => {
     expect(buyerPolishedRouteOrientation("/governance/recurrence-schedules")).toBeNull();
     expect(buyerPolishedRouteOrientation("/governance/recurrence-schedules/")).toBeNull();
+  });
+
+  it("returns null for governance setup — not pending-approvals overview blurb (TB-1136)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/setup")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/setup/")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/first-30-days")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/setup")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
   it("orients the operator security-trust route for procurement reviewers", () => {

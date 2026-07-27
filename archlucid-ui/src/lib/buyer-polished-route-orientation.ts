@@ -176,6 +176,16 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  // Governance setup carries its own OperatorPageHeader (TB-1136) — not overview vocabulary.
+  if (
+    path === "/governance/setup" ||
+    path.startsWith("/governance/setup/") ||
+    path === "/governance/first-30-days" ||
+    path.startsWith("/governance/first-30-days/")
+  ) {
+    return null;
+  }
+
   if (path === "/governance") {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 

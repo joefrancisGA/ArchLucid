@@ -128,12 +128,12 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-setup": {
     layerBadge: "Governance",
-    headline: "Preset operating checklist after Core Pilot.",
+    headline: "Establish policies, alerts, approvals, and reporting for this workspace.",
     useWhen:
-      "Follow inspect-first links to policy packs, alert routing, approvals, and dashboards—no mutations initiated from this page.",
+      "Work the checklist in order—each step opens the configuration surface where changes are made and audited.",
     firstPilotNote:
-      "Optional rhythm after first Pilot proof when sponsors want a minimal enterprise cadence anchored on one baseline each.",
-    enterpriseFootnote: "Deep links only; configuration changes happen on the linked surfaces.",
+      "Optional after first Pilot proof when sponsors want a minimal enterprise cadence on one baseline.",
+    enterpriseFootnote: "Configuration changes happen on the linked surfaces, not on this checklist page.",
   },
   alerts: {
     layerBadge: "Governance",

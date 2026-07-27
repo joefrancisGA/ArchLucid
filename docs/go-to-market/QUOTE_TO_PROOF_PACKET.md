@@ -133,7 +133,7 @@ Use when the buyer needs a labeled path from sample request → finalized archit
 
 - [`../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only`](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only)
 - [`../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#demo-proof-shape-demo-derived-only`](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#demo-proof-shape-demo-derived-only)
-- [`buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md#demo-proof-shape-demo-derived-only)
+- [`POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#demo-proof-shape-demo-derived-only`](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#demo-proof-shape-demo-derived-only) (`buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md` alias)
 - [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) (decision explainability + trust posture)
 
 ---
