@@ -189,7 +189,7 @@ SOC 2 CPA / third-party pen-test publication; production SLA unless MSA exhibit;
 
 ### Customer inputs
 
-Up to **200 files** per multipart upload (ZIP counts as one file); optional Azure extractor ZIP or demo-workspace acceptance; named sponsor + technical contact; IdP/access per [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md).
+Up to **200 files** per multipart upload (ZIP counts as one file); optional Azure extractor ZIP or demo-workspace acceptance; named sponsor + technical contact; IdP/access per [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview).
 
 ### Acceptance
 

@@ -71,7 +71,7 @@ Processing continues for the **subscription term** and until deletion or return 
 
 6.1 **Confidentiality:** Personnel authorized to process Personal Data are bound by confidentiality obligations.
 
-6.2 **Security:** Processor implements appropriate technical and organizational measures, including those described in [trust-center.md](trust-center.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md), and [SECURITY.md](../library/contributor-reference/SECURITY.md).
+6.2 **Security:** Processor implements appropriate technical and organizational measures, including those described in [trust-center.md](trust-center.md), [BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview), and [SECURITY.md](../library/contributor-reference/SECURITY.md).
 
 6.3 **Sub-processors:** Processor may engage Sub-processors listed in [SUBPROCESSORS.md](SUBPROCESSORS.md). Processor will impose data protection terms on Sub-processors. Controller may object to a **new** Sub-processor in accordance with the notification commitment in [SUBPROCESSORS.md](SUBPROCESSORS.md).
 

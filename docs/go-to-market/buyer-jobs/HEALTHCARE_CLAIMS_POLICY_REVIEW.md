@@ -117,7 +117,7 @@ ArchLucid helps teams produce **reviewable architecture manifests, findings, and
 | **PII/PHI separation** | As explicit non-goals in the brief and policy packs | Drift and governance rules against “no PHI in context” team norms |
 | **Audit trail** | As operational requirement | Append-only audit and run history ([`AUDIT_COVERAGE_MATRIX.md`](../../library/AUDIT_COVERAGE_MATRIX.md)) |
 
-**Illustrative HIPAA *program* themes** (not HITRUST/SOC mapping): access control → app RBAC + tenant catalog routing ([`TENANT_ISOLATION.md`](../TENANT_ISOLATION.md)); audit controls → [`AUDIT_COVERAGE_MATRIX.md`](../../library/AUDIT_COVERAGE_MATRIX.md); transmission/integrity → Azure patterns in [`MANAGED_IDENTITY_SQL_BLOB.md`](../../security/MANAGED_IDENTITY_SQL_BLOB.md). A **BAA** (if required) is a **legal** instrument, not a feature flag — default product positioning is **architecture evidence only, no clinical PHI in scope** unless a separate agreement says otherwise.
+**Illustrative HIPAA *program* themes** (not HITRUST/SOC mapping): access control → app RBAC + tenant catalog routing ([`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](../BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview)); audit controls → [`AUDIT_COVERAGE_MATRIX.md`](../../library/AUDIT_COVERAGE_MATRIX.md); transmission/integrity → Azure patterns in [`MANAGED_IDENTITY_SQL_BLOB.md`](../../security/MANAGED_IDENTITY_SQL_BLOB.md). A **BAA** (if required) is a **legal** instrument, not a feature flag — default product positioning is **architecture evidence only, no clinical PHI in scope** unless a separate agreement says otherwise.
 
 ---
 

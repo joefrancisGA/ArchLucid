@@ -103,7 +103,7 @@ Ships **V1 GA** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13, supe
 
 | Method | Use case | Reference |
 |--------|----------|-----------|
-| **Entra ID (JWT)** | Production integrations, CI/CD pipelines with service principals | [SECURITY.md](../library/contributor-reference/SECURITY.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
+| **Entra ID (JWT)** | Production integrations, CI/CD pipelines with service principals | [SECURITY.md](../library/contributor-reference/SECURITY.md), [tenant isolation](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview) |
 | **API keys** | Automation, scripts, lightweight integrations | [SECURITY.md](../library/contributor-reference/SECURITY.md) (RBAC, key rotation) |
 
 ---

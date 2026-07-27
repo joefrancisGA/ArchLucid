@@ -130,7 +130,7 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
     ClaimPattern(
         re.compile(r"RLS[-\s]isolated\s+tenancy", re.IGNORECASE),
         "RLS-isolated tenancy must not be claimed; production uses database-per-tenant catalogs.",
-        "docs/go-to-market/TENANT_ISOLATION.md",
+        "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview",
     ),
     ClaimPattern(
         re.compile(r"SQL\s+RLS\s+for\s+multi[-\s]tenant\s+isolation", re.IGNORECASE),

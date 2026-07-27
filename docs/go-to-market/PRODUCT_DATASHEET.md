@@ -85,7 +85,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 | Area | Capability |
 |------|-----------|
 | **Identity** | Microsoft Entra ID (JWT), API key, RBAC (Admin / Operator / Reader / Auditor) |
-| **Data isolation** | **Database-per-tenant** SQL catalogs (`SystemWithPerTenantCatalogs`) plus application-layer scope predicates — **SQL RLS is not the production isolation boundary** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md)) |
+| **Data isolation** | **Database-per-tenant** SQL catalogs (`SystemWithPerTenantCatalogs`) plus application-layer scope predicates — **SQL RLS is not the production isolation boundary** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview)) |
 | **Network** | Private endpoints for SQL and blob storage; Azure Front Door with WAF |
 | **Audit** | Append-only event store with `DENY UPDATE/DELETE`; export for compliance evidence |
 | **Scanning** | OWASP ZAP baseline in CI, Schemathesis API fuzzing, CodeQL, Gitleaks, Trivy |

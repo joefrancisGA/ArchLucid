@@ -59,7 +59,7 @@ The following are **observable** in the codebase and documentation (non-exhausti
 |------|---------------------|
 | **Access control** | JWT / Entra roles, API keys, policy-based authorization; [SECURITY.md](../library/contributor-reference/SECURITY.md) |
 | **Network & edge** | Front Door / WAF, optional APIM, private endpoints; [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
-| **Data protection** | Database-per-tenant catalogs + parameterized data access; [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
+| **Data protection** | Database-per-tenant catalogs + parameterized data access; [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview) |
 | **Logging & audit** | Append-only `dbo.AuditEvents`, typed event catalog (CI-tracked count in [../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md)); correlation IDs |
 | **Reliability measurement** | HTTP SLOs (e.g. **99.9%** / 30 days, tiered latency), Prometheus rules, synthetic probes; [../API_SLOS.md](../library/API_SLOS.md) |
 | **Secure SDLC** | OWASP ZAP + Schemathesis in CI; [SECURITY.md](../library/contributor-reference/SECURITY.md) |
@@ -95,7 +95,7 @@ Dates are **placeholders** until leadership and an auditor confirm.
 
 ### What customers can request today
 
-- **Security architecture:** [trust-center.md](trust-center.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md)
+- **Security architecture:** [trust-center.md](trust-center.md), [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md)
 - **Subprocessors:** [SUBPROCESSORS.md](SUBPROCESSORS.md)
 - **DPA:** [DPA_TEMPLATE.md](DPA_TEMPLATE.md) (legal review required)
 - **Incident process:** [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md)
@@ -134,11 +134,11 @@ ArchLucid runs automated security checks on every pull request and merge to main
 |-------|-----------|---------|
 | **Identity** | Microsoft Entra ID (OIDC / JWT) with app roles (Admin, Operator, Reader, Auditor); optional API keys for automation | [`docs/library/contributor-reference/SECURITY.md`](../library/contributor-reference/SECURITY.md) |
 | **Application** | RBAC policies (`ReadAuthority`, `ExecuteAuthority`, `AdminAuthority`); request-scoped tenant/workspace/project context | [`ArchLucid.Api/Auth/`](../../ArchLucid.Api/Auth/) |
-| **Database** | **Database-per-tenant** SQL catalogs via `TenantDatabaseBindings`; application scope predicates within each catalog — **SQL RLS is not used in production** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)) | [`docs/go-to-market/TENANT_ISOLATION.md`](TENANT_ISOLATION.md) |
+| **Database** | **Database-per-tenant** SQL catalogs via `TenantDatabaseBindings`; application scope predicates within each catalog — **SQL RLS is not used in production** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)) | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview) · pack alias [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md) |
 | **Network** | Optional Azure Front Door + WAF; private endpoints for Azure SQL and Blob; no public SMB (port 445) | [`docs/library/CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
 | **Secrets** | Azure Key Vault references for application configuration in hosted deployments | [`docs/library/CONFIGURATION_KEY_VAULT.md`](../library/CONFIGURATION_KEY_VAULT.md) |
 
-**Evidence:** [`docs/go-to-market/TENANT_ISOLATION.md`](TENANT_ISOLATION.md)
+**Evidence:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview) · pack alias [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md)
 
 ### Audit trail
 

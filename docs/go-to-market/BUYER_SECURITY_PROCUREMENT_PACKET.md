@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-26
+> **Reviewed:** 2026-07-27
 
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), and the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), and the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -8,13 +8,13 @@
 
 **Audience:** Procurement reviewers, security reviewers, GRC teams, CISOs, and enterprise buyers evaluating ArchLucid for a controlled pilot.
 
-**Last reviewed:** 2026-07-26
+**Last reviewed:** 2026-07-27
 
 **Review checklist owner:** Founder / ArchLucid operator. Re-validate before each new buyer conversation.
 
 ---
 
-## Isolation one-pager (M-114)
+## Isolation one-pager (M-114) {#isolation-one-pager-m-114}
 
 **Claim (G3):** Authenticated identity binds tenant/workspace scope; client-supplied scope headers cannot override that binding on production-like hosts.
 
@@ -34,7 +34,95 @@ Reviewer check: authenticate as Tenant A on a JwtBearer or ApiKey host, submit a
 | Reliability | Mismatches fail closed rather than serving mixed scope |
 | Cost | Middleware and catalog routing; no third-party isolation SaaS required for this V1 claim |
 
-Full technical narrative: [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md). Live review: [principal architect falsification script](#principal-architect-falsification-script-m-113) below.
+Full technical narrative: [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview). Live review: [principal architect falsification script](#principal-architect-falsification-script-m-113) below.
+
+## Tenant isolation (buyer overview) {#tenant-isolation-buyer-overview}
+
+Former standalone body: `docs/go-to-market/TENANT_ISOLATION.md` → this section (`TENANT_ISOLATION.md` remains a path-stable procurement-pack alias).
+
+**Audience:** Security reviewers who need a **short** explanation before diving into engineering docs.
+
+**Headline:** Your data is **logically isolated** at **identity**, **application**, and **database** layers when ArchLucid is deployed with the recommended Azure posture. This section summarizes; deep references are linked below.
+
+**Healthcare / PHI:** ArchLucid is for **architecture and governance evidence** about systems you describe; **do not upload PHI** into product briefs or unstructured context fields. Posture and contractual questions (including BAA) are summarized under **[`trust-center.md`](trust-center.md)** (**Healthcare and PHI**); inquiries → **`sales@archlucid.net`**.
+
+### Three layers {#tenant-isolation-three-layers}
+
+```mermaid
+flowchart TB
+  subgraph L1["Layer 1 — Identity"]
+    E[Microsoft Entra ID]
+    R[App roles Admin Operator Reader Auditor]
+    K[Optional API keys mapped to roles]
+  end
+  subgraph L2["Layer 2 — Application"]
+    P[Authorization policies ArchLucidPolicies]
+    S[Scope context tenant workspace project]
+  end
+  subgraph L3["Layer 3 — Database"]
+    CAT[Per-tenant SQL catalog routing]
+    BIND[TenantDatabaseBindings]
+  end
+  E --> P
+  R --> P
+  K --> P
+  P --> S
+  S --> CAT
+  BIND --> CAT
+```
+
+- **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([SECURITY.md](../library/contributor-reference/SECURITY.md)).
+- **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) §5).
+- **Layer 3 — Database:** In `SystemWithPerTenantCatalogs` (production) mode each tenant organization receives a **dedicated product SQL catalog** resolved via `TenantDatabaseBindings`. **SQL RLS is not used** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)). Application repositories still apply scope predicates within the catalog. Deep reference: [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
+
+### Encryption {#tenant-isolation-encryption}
+
+- **In transit:** TLS to the API; TLS to Azure services per Microsoft’s stack.
+- **At rest:** Azure SQL (TDE) and blob encryption are standard Azure controls; see [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md).
+- **Secrets:** Prefer **Key Vault** references in hosted configs ([../CONFIGURATION_KEY_VAULT.md](../library/CONFIGURATION_KEY_VAULT.md)).
+
+### Network {#tenant-isolation-network}
+
+Optional **Front Door + WAF**, optional **APIM**, and **private endpoints** for SQL and blob reduce exposure ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)). **SMB (445)** is not used for tenant data at the API boundary (workspace security rule).
+
+### Audit and accountability {#tenant-isolation-audit-and-accountability}
+
+Durable **append-only** audit events and correlation IDs support forensic review ([../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md), [SECURITY.md](../library/contributor-reference/SECURITY.md)).
+
+### What we do not claim here {#tenant-isolation-what-we-do-not-claim}
+
+Hosted **trial** tenants and **commercial** pilots use ArchLucid's **single supported multitenant data-plane model**: **`SystemWithPerTenantCatalogs`** (**database-per-tenant** routing via **`TenantDatabaseBindings`** — one product catalog per tenant organization). `SingleCatalog` may exist only for narrow **developer/CI convenience** and is **not** the hosted SaaS posture; deep detail: **[`../library/TENANT_DATABASE_TOPOLOGY.md`](../library/TENANT_DATABASE_TOPOLOGY.md)**, **[`trust-center.md`](trust-center.md)** (*Data isolation*).
+
+Unless separately contracted and documented:
+
+- **Dedicated compute / silo SKU per tenant** — not implied for standard SaaS.
+- **Customer-managed keys (BYOK)** — not stated; confirm in roadmap or security pack if offered.
+
+Be explicit in sales and security packs to avoid over-claiming.
+
+### Verification pack (generated) {#tenant-isolation-verification-pack}
+
+Generate a buyer-safe metadata pack (no tenant data, no secrets):
+
+```bash
+python scripts/generate_tenant_isolation_verification_pack.py
+```
+
+Outputs under `dist/tenant-isolation-verification-pack/`:
+
+- `tenant-isolation-verification.json` — topology, layer summary, test inventory, redaction notes
+- `tenant-isolation-verification.md` — human-readable mirror for procurement/support bundles
+
+CI validates references with `--dry-run`.
+
+### Deep dives {#tenant-isolation-deep-dives}
+
+| Doc | Content |
+|-----|---------|
+| [../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) | Defense-in-depth architecture per ADR 0037; database-per-tenant + app-layer scope predicates |
+| [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | STRIDE, trust boundaries |
+| [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Edge, identity, private connectivity |
+| [SECURITY.md](../library/contributor-reference/SECURITY.md) | RBAC, rate limiting, CI security tests, PII |
 
 ## Principal architect falsification script (M-113)
 
@@ -226,7 +314,7 @@ When extractor schema, RBAC posture, or trust-center rows change, update this pr
 | Product name | ArchLucid |
 | Product category | AI-assisted architecture workflow system (decision-support, not autonomous infrastructure change) |
 | Deployment model | V1: single-region Azure deployment (customer tenant or ArchLucid-hosted controlled pilot) |
-| Customer data boundary | Each tenant is logically isolated. See [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md). |
+| Customer data boundary | Each tenant is logically isolated. See [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview). |
 | Architecture at a glance | See [`../ARCHITECTURE_ON_ONE_PAGE.md`](../ARCHITECTURE_ON_ONE_PAGE.md) |
 | V1 scope and deferred items | [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md), [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) |
 
@@ -237,7 +325,7 @@ When extractor schema, RBAC posture, or trust-center rows change, update this pr
 | Control area | Status | Evidence |
 | --- | --- | --- |
 | Authentication | Shipped — Azure Entra ID OIDC/SAML; app-level JWT validation | [`../library/contributor-reference/SECURITY.md`](../library/contributor-reference/SECURITY.md) |
-| Tenant isolation | Shipped — row-level tenant filtering on all data queries | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md) |
+| Tenant isolation | Shipped — **database-per-tenant** catalogs plus application-layer scope predicates (SQL RLS is not the production boundary; ADR 0037) | [`#tenant-isolation-buyer-overview`](#tenant-isolation-buyer-overview) |
 | Audit trail | Shipped — structured audit events, append-only audit log | [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) |
 | Encryption at rest | Shipped — Azure SQL TDE, Azure Blob encryption enabled | [`trust-center.md`](trust-center.md) |
 | Encryption in transit | Shipped — TLS 1.2+ enforced on all API endpoints | [`trust-center.md`](trust-center.md) |
@@ -286,7 +374,7 @@ A: Role-based access controls govern which users can run reviews, approve archit
 ### 5.2 Data isolation and tenant boundaries
 
 **Q: Is customer data isolated from other customers?**
-A: Yes. Tenant-scoped row-level filtering is applied to all data queries. Tenants cannot access each other's reviews, architecture packages, findings, or evidence. See [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md).
+A: Yes. Hosted posture uses **database-per-tenant** product catalogs with identity-bound scope and application-layer predicates. Tenants cannot access each other's reviews, architecture packages, findings, or evidence. See [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview).
 
 **Q: Where is customer data stored?**
 A: In Azure SQL and Azure Blob Storage within the designated Azure region. Data does not leave the configured region boundary except for Azure OpenAI calls (configurable endpoint).
@@ -445,7 +533,7 @@ Run before each new buyer send:
 | [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) | CAIQ / SIG question-answer map |
 | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Data Processing Addendum template |
 | [`SUBPROCESSORS.md`](SUBPROCESSORS.md) | Sub-processor list |
-| [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md) | Tenant isolation model |
+| [`#tenant-isolation-buyer-overview`](#tenant-isolation-buyer-overview) · [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md) (pack alias) | Tenant isolation model |
 | [`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`](OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md) | Owner-conducted security assessment (redacted) |
 | [`PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md) | Pen test interim procurement summary |
 | [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident communications posture |
@@ -454,4 +542,5 @@ Run before each new buyer send:
 
 Former standalone script: `docs/go-to-market/PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md` → [falsification script](#principal-architect-falsification-script-m-113).  
 Former standalone pre-read: `docs/go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md` → [Azure extractor InfoSec pre-read](#azure-extractor--infosec-pre-read).  
-Former standalone FAQ: `docs/go-to-market/PROCUREMENT_FAQ.md` → [Q & A / enterprise procurement FAQ](#enterprise-procurement-faq).
+Former standalone FAQ: `docs/go-to-market/PROCUREMENT_FAQ.md` → [Q & A / enterprise procurement FAQ](#enterprise-procurement-faq).  
+Former standalone body: `docs/go-to-market/TENANT_ISOLATION.md` → [tenant isolation buyer overview](#tenant-isolation-buyer-overview) (filename kept as pack alias).

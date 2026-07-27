@@ -215,5 +215,5 @@ Do not invent stronger DR/attestation claims here — align wording with [ASSURA
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident classification and comms |
 | [SUPPORT_POLICY.md](SUPPORT_POLICY.md) | Support entitlements and professional services |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data deletion on termination (§9) |
-| [TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Data isolation architecture |
+| [Tenant isolation (buyer overview)](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview) | Data isolation architecture |
 | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Azure services and data residency |
