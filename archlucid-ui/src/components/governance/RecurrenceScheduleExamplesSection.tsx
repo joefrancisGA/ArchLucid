@@ -20,10 +20,11 @@ export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamp
   const { onApplyExample, disabled = false, variant = "cards" } = props;
   const isInteractive = onApplyExample !== undefined && !disabled;
   const isCompact = variant === "compact";
+  const heading = isCompact ? "Start from a common cadence" : RECURRENCE_SCHEDULES_EXAMPLES_HEADING;
 
   return (
     <section
-      aria-label={RECURRENCE_SCHEDULES_EXAMPLES_HEADING}
+      aria-label={heading}
       className={cn(
         "rounded-md border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
         isCompact ? "p-3" : "p-4",
@@ -32,7 +33,7 @@ export function RecurrenceScheduleExamplesSection(props: RecurrenceScheduleExamp
       data-variant={variant}
     >
       <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-        {isCompact ? "Start from a common cadence" : RECURRENCE_SCHEDULES_EXAMPLES_HEADING}
+        {heading}
       </h3>
       <ul
         className={cn(
