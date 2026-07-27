@@ -1,17 +1,18 @@
-﻿> **Reviewed:** 2026-07-26
+﻿> **Reviewed:** 2026-07-27
 
-> **Scope:** Canonical assurance status source for procurement-facing language — current status, deferred windows, allowed wording, evidence links — plus procurement documentation review cadence (formerly `REVIEW_CADENCE.md`), the SOC 2 readiness roadmap (formerly `SOC2_ROADMAP.md`), and the repository-linked current assurance posture evidence snapshot (formerly the body of `CURRENT_ASSURANCE_POSTURE.md`; that filename remains a path-stable pack alias).
+> **Scope:** Canonical assurance status source for procurement-facing language — current status, deferred windows, allowed wording, evidence links — plus procurement documentation review cadence (formerly `REVIEW_CADENCE.md`), the SOC 2 readiness roadmap (formerly `SOC2_ROADMAP.md`), the repository-linked current assurance posture evidence snapshot (formerly the body of `CURRENT_ASSURANCE_POSTURE.md`; that filename remains a path-stable pack alias), and the owner-conducted security assessment procurement excerpt (formerly the body of `OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`; that filename remains a path-stable pack alias).
 
 # Assurance Status Canonical
 
 **Audience:** Procurement, security reviewers, and internal authors updating buyer-facing artifacts (including maintainers and release managers for review cadence).
 
-**Last reviewed:** 2026-07-26
+**Last reviewed:** 2026-07-27
 
 This document is the single source of truth for assurance status wording and the buyer-facing evidence snapshot used by:
 
 - `trust-center.md`
 - `CURRENT_ASSURANCE_POSTURE.md` (path-stable pack alias → [`#current-assurance-posture-evidence`](#current-assurance-posture-evidence))
+- `OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md` (path-stable pack alias → [`#owner-security-assessment-procurement-excerpt`](#owner-security-assessment-procurement-excerpt))
 - `BUYER_SECURITY_PROCUREMENT_PACKET.md` ([procurement FAQ](BUYER_SECURITY_PROCUREMENT_PACKET.md#enterprise-procurement-faq); [accelerator](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-response-accelerator); `PROCUREMENT_RESPONSE_ACCELERATOR.md` path-stable alias)
 - `SOC2_STATUS_PROCUREMENT.md`
 
@@ -33,7 +34,7 @@ Cadence: [`#procurement-documentation-review-cadence`](#procurement-documentatio
 
 ## Authoring rules
 
-- [`SOC2_STATUS_PROCUREMENT.md`](SOC2_STATUS_PROCUREMENT.md) and [`CURRENT_ASSURANCE_POSTURE.md`](CURRENT_ASSURANCE_POSTURE.md) are path-stable procurement-pack aliases; this document is the wording and evidence-snapshot source of truth.
+- [`SOC2_STATUS_PROCUREMENT.md`](SOC2_STATUS_PROCUREMENT.md), [`CURRENT_ASSURANCE_POSTURE.md`](CURRENT_ASSURANCE_POSTURE.md), and [`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`](OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md) are path-stable procurement-pack aliases; this document is the wording and evidence-snapshot source of truth.
 - Do not use "in flight" for third-party pen-test or SOC2 attestation items while status remains deferred.
 - Do not imply issuance of external attestations when evidence is self-assessment or template-only.
 - If status changes, update this file first, then update all listed downstream docs in the same change.
@@ -212,6 +213,29 @@ For security inquiries, procurement pack requests, or NDA-gated materials: **`se
 
 ---
 
+## Owner-conducted security assessment — procurement excerpt {#owner-security-assessment-procurement-excerpt}
+
+Former body of `docs/go-to-market/OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md` → this section. The filename [`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`](OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md) remains a **path-stable procurement-pack alias** (pack ZIP name `OWNER_SECURITY_ASSESSMENT_REDACTED.md`).
+
+**Classification:** Buyer-facing (include alias in procurement pack ZIP). Buyer-shareable excerpt for procurement bundles. It summarizes the **same programme** as the in-repo canonical file [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) but **must not** be edited with customer-specific names in the pack — use `PROCUREMENT_PACK_COVER.md` for deal context only.
+
+### What this is (and is not)
+
+- **Is:** Internal **owner / engineering** security self-assessment structured for transparency until third-party artefacts exist.
+- **Is not:** A SOC 2 report, ISO certificate, or third-party penetration-test result.
+
+### Method (summary)
+
+1. **Automated CI gates** — SAST, dependency and container scanning, contract testing, secret scanning, and documented API abuse paths (see [`SECURITY.md`](../library/contributor-reference/SECURITY.md) and [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md)).
+2. **Manual checklist** — ASVS-oriented review of authentication, authorization, tenant isolation (database-per-tenant catalogs + JWT / app RBAC; SQL RLS is not the production boundary — [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)), rate limits, and LLM prompt / trace handling (see [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md)).
+3. **Findings register** — tracked internally with severity, owner, and remediation dates (the full assessment tables are finalized after the assessment window closes; this excerpt omits environment-specific rows).
+
+### Full draft under NDA
+
+Detailed tables, environment-specific links, and sign-off names live in the repository draft linked above. Procurement teams requiring **assessor-grade** evidence should request the **separate** pen-test and SOC 2 roadmap items referenced from [`trust-center.md`](trust-center.md). Status wording for those deferred items must match the [canonical status table](#canonical-status-table).
+
+---
+
 ## Procurement documentation review cadence
 
 **Audience:** Maintainers of procurement/trust documents and release managers.  
@@ -224,6 +248,7 @@ Includes stale-document escalation expectations.
 | `ASSURANCE_STATUS_CANONICAL.md` (this file) | Security lead | Every 30 days | Update first, then refresh all downstream assurance surfaces in the same change |
 | `trust-center.md` | Security lead | Every 30 days | Raise in release checklist and update before procurement pack release |
 | `CURRENT_ASSURANCE_POSTURE.md` (pack alias) + [`#current-assurance-posture-evidence`](#current-assurance-posture-evidence) | Security lead | Every 30 days | Block procurement deal-ready mode until this file (evidence section) is refreshed |
+| `OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md` (pack alias) + [`#owner-security-assessment-procurement-excerpt`](#owner-security-assessment-procurement-excerpt) | Security lead | Every 30 days | Refresh excerpt when Q2 assessment draft status changes; keep pack alias deal-ready |
 | `BUYER_SECURITY_PROCUREMENT_PACKET.md` | Security lead | Every 30 days | Re-validate isolation / evidence routing before principal-architect or security reviews |
 | `CLAIM_READINESS_STATUS.md` | Founder / GTM owner | After each pilot or release review | Hold outbound claim stage advances until gates refreshed |
 | `SLA_SUMMARY.md` | Platform lead | Every 45 days | Escalate to product + ops owner for confirmation |
@@ -245,5 +270,6 @@ Includes stale-document escalation expectations.
 
 Former standalone: `docs/go-to-market/REVIEW_CADENCE.md` → this section.  
 Former standalone: `docs/go-to-market/SOC2_ROADMAP.md` → [`#soc-2-readiness-roadmap`](#soc-2-readiness-roadmap).  
-Former body: `docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md` → [`#current-assurance-posture-evidence`](#current-assurance-posture-evidence) (filename kept as pack alias).
+Former body: `docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md` → [`#current-assurance-posture-evidence`](#current-assurance-posture-evidence) (filename kept as pack alias).  
+Former body: `docs/go-to-market/OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md` → [`#owner-security-assessment-procurement-excerpt`](#owner-security-assessment-procurement-excerpt) (filename kept as pack alias).
 

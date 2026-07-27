@@ -1,26 +1,15 @@
-﻿> **Reviewed:** 2026-07-25
+﻿> **Reviewed:** 2026-07-27
 
-> **Scope:** Owner security self-assessment — procurement pack excerpt (no customer names).
+> **Scope:** Path-stable procurement-pack alias. Not an independent assurance statement.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+# Owner-conducted security assessment — procurement excerpt (alias)
 
-# Owner-conducted security assessment — procurement excerpt
+**Last reviewed:** 2026-07-27
 
-**Last reviewed:** 2026-07-25
+**Classification:** Buyer-facing (include in procurement pack ZIP)
 
-This document is the **buyer-shareable excerpt** for procurement bundles. It summarizes the **same programme** as the in-repo canonical file [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) but **must not** be edited with customer-specific names in the pack — use `PROCUREMENT_PACK_COVER.md` for deal context only.
+**Canonical procurement excerpt:** [`ASSURANCE_STATUS_CANONICAL.md#owner-security-assessment-procurement-excerpt`](ASSURANCE_STATUS_CANONICAL.md#owner-security-assessment-procurement-excerpt).
 
-## What this is (and is not)
+**Canonical status wording:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md).
 
-- **Is:** Internal **owner / engineering** security self-assessment structured for transparency until third-party artefacts exist.
-- **Is not:** A SOC 2 report, ISO certificate, or third-party penetration-test result.
-
-## Method (summary)
-
-1. **Automated CI gates** — SAST, dependency and container scanning, contract testing, secret scanning, and documented API abuse paths (see [`SECURITY.md`](../library/contributor-reference/SECURITY.md) and [`../AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md)).
-2. **Manual checklist** — ASVS-oriented review of authentication, authorization, tenant isolation (RLS + JWT), rate limits, and LLM prompt / trace handling (see [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md)).
-3. **Findings register** — tracked internally with severity, owner, and remediation dates (the full assessment tables are finalized after the assessment window closes; this excerpt omits environment-specific rows).
-
-## Full draft under NDA
-
-Detailed tables, environment-specific links, and sign-off names live in the repository draft linked above. Procurement teams requiring **assessor-grade** evidence should request the **separate** pen-test and SOC 2 roadmap items referenced from [`trust-center.md`](trust-center.md).
+What this assessment is/is not, method summary (CI gates, ASVS checklist, findings register), and NDA pointer to the full Q2 draft live only in the canonical assurance document. This file keeps the historical procurement-pack path stable for buyer ZIP checklists (`OWNER_SECURITY_ASSESSMENT_REDACTED.md` in the pack).

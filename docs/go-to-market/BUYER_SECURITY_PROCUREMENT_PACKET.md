@@ -350,7 +350,7 @@ When extractor schema, RBAC posture, or trust-center rows change, update this pr
 | CAIQ / SIG answers | **Self-assessed — available on request** | [`#procurement-response-accelerator`](#procurement-response-accelerator) |
 | DPA (Data Processing Addendum) | **Template available — owner signature required** | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) (incl. [`§10 cross-tenant opt-in`](DPA_TEMPLATE.md#10-cross-tenant-patterns-opt-in)) |
 | Sub-processor list | **Available** | [`SUBPROCESSORS.md`](SUBPROCESSORS.md) |
-| Owner-conducted security assessment | **Available (redacted)** | [`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`](OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md) |
+| Owner-conducted security assessment | **Available (redacted)** | [`ASSURANCE_STATUS_CANONICAL.md#owner-security-assessment-procurement-excerpt`](ASSURANCE_STATUS_CANONICAL.md#owner-security-assessment-procurement-excerpt) (`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md` alias) |
 | SOC 2 self-assessment | **Self-assessed** | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) |
 | Trust Center | **Published** | [`trust-center.md`](trust-center.md) |
 
@@ -888,7 +888,7 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Data Processing Addendum template |
 | [`SUBPROCESSORS.md`](SUBPROCESSORS.md) | Sub-processor list |
 | [`#tenant-isolation-buyer-overview`](#tenant-isolation-buyer-overview) · [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md) (pack alias) | Tenant isolation model |
-| [`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md`](OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md) | Owner-conducted security assessment (redacted) |
+| [`ASSURANCE_STATUS_CANONICAL.md#owner-security-assessment-procurement-excerpt`](ASSURANCE_STATUS_CANONICAL.md#owner-security-assessment-procurement-excerpt) (`OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md` alias) | Owner-conducted security assessment (redacted) |
 | [`PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md`](PEN_TEST_SUMMARY_PROCUREMENT_INTERIM.md) | Pen test interim procurement summary |
 | [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident communications posture |
 | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) | GTM overclaim guardrails |
