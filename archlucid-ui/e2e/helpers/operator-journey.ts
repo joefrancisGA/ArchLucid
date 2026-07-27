@@ -648,17 +648,24 @@ export async function expectBuyerPipelineTimelineSectionVisible(
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
 export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?: string): Promise<void> {
+  // `#artifacts-exports` lives on the Evidence workspace tab (see LEGACY_HASH_TO_TAB), not Activity.
   const artifactsSection = page.locator("#artifacts-exports");
+  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  if ((await artifactsSection.count()) === 0 || !(await artifactsSection.isVisible())) {
+  if ((await sectionNav.count()) > 0) {
+    await buyerPolishedReviewDetailSectionNavLink(sectionNav, "artifacts-exports").click();
+  } else if ((await artifactsSection.count()) === 0 || !(await artifactsSection.isVisible())) {
     if (runId !== undefined && runId.trim().length > 0) {
-      await openReviewDetailWorkspaceTab(page, runId, "activity");
+      await openReviewDetailWorkspaceTab(page, runId, "evidence");
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
-      await page.getByTestId("review-detail-workspace-tab-activity").click();
-      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+      await page.getByTestId("review-detail-workspace-tab-evidence").click();
+      await expect(reviewDetailWorkspacePanel(page, "evidence")).toBeVisible({ timeout: 60_000 });
     }
   }
 
+  // Wait for the section (and golden-manifest gate) before scroll — scrollIntoViewIfNeeded alone
+  // absorbs the full test timeout when the wrong tab left the node unmounted.
+  await expect(artifactsSection).toBeVisible({ timeout: 90_000 });
   await artifactsSection.scrollIntoViewIfNeeded();
 
   const deliverablesDetails = artifactsSection.locator("details").first();
