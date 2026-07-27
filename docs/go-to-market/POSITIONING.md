@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-26
+> **Reviewed:** 2026-07-27
 
-> **Scope:** ArchLucid positioning — full detail, tables, and links below — plus the closed create/review adversarial evaluation (formerly `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`; Done **TB-738**–**TB-747**).
+> **Scope:** ArchLucid positioning — full detail, tables, and links below — plus the closed create/review adversarial evaluation (formerly `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`; Done **TB-738**–**TB-747**) and the product datasheet (formerly the body of `PRODUCT_DATASHEET.md`; that filename remains a path-stable alias for PDF/CI callers).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **Audience:** Anyone who needs to explain what ArchLucid is and why it matters — in a sentence, a paragraph, or a two-minute conversation.
 
-**Last reviewed:** 2026-07-26 — evidence-package-first alignment (**TB-746**); engineering canonical copy in §0–§1; **owner external-publish sign-off** still required before treating §1 as frozen for paid media.
+**Last reviewed:** 2026-07-27 — evidence-package-first alignment (**TB-746**); engineering canonical copy in §0–§1; **owner external-publish sign-off** still required before treating §1 as frozen for paid media.
 
 **Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../library/V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
@@ -229,10 +229,116 @@ Used as the homepage H1, lead promise, and one-sentence positioning tagline acro
 
 ---
 
+## Product datasheet {#product-datasheet}
+
+Former standalone body: `docs/go-to-market/PRODUCT_DATASHEET.md` → this section (`PRODUCT_DATASHEET.md` remains a path-stable alias for PDF export / CI callers).
+
+<!-- Layout: designed for PDF export at US Letter or A4. Keep under 2 pages rendered. -->
+
+**ArchLucid** | Architecture Proof Engine
+
+*Defensible architecture, on demand — evidence-linked reviews your architects can defend and your CTO can act on.*
+
+### The problem
+
+Architecture review in most enterprises is **slow, inconsistent, and undocumented**.
+
+Reviews depend on a small team of senior architects who apply different standards across projects. Decisions happen in meetings and emails with no durable record. Compliance gaps surface in production — or during audits — long after the design was approved. When regulators ask "who reviewed this design and what did they find?", the answer is often "we are not sure."
+
+### The solution
+
+ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review you can show without narration** — complete with recommended actions, confidence ratings, limits where the model did not conclude, and an exportable executive summary.
+
+Upload your architecture materials. ArchLucid's multi-agent analysis covers topology, cost, compliance, and design quality — and surfaces a findings board where every risk is ranked by severity, traced to evidence, and accompanied by a concrete recommended action. Architects get a defensible architecture package. CTOs get a clear executive summary. What used to take weeks now takes minutes, with a full audit trail.
+
+### Key capabilities
+
+| Capability | What it does |
+|-----------|-------------|
+| **AI Architecture Analysis** | Four specialized agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline. 10 finding engines run in parallel. Multi-vendor LLM with automatic fallback. |
+| **Explainable Decisions** | Every finding includes a structured `ExplainabilityTrace` — what was examined, what rules applied, what decisions were taken, and why. Provenance graph links evidence to decisions to artifacts. |
+| **Enterprise Governance** | Policy packs define compliance rules. Pre-finalize gates block architecture packages when findings exceed severity thresholds. Approval workflows enforce segregation of duties. SLA tracking with escalation. |
+| **Architecture Drift Detection** | Compare two architecture iterations with structured deltas. Replay and verify mode detects drift between stored and regenerated outputs. Compliance drift trending over time. |
+| **Export and Reporting** | Consulting-grade DOCX reports with embedded architecture diagrams. Markdown export. ZIP artifact bundles. Comparison replay in multiple formats. Sanitized **architecture review board** DOCX/PDF samples: [`docs/go-to-market/samples/`](samples/) — see [`samples/README.md#architecture-review-board-export`](samples/README.md#architecture-review-board-export). |
+| **Durable Audit Trail** | 78 typed audit event types in an append-only SQL store. Paginated search, filtered export (JSON/CSV). CI-enforced event count guard. |
+
+### Architecture (datasheet)
+
+```
+┌──────────┐     ┌──────────────┐     ┌─────────────────────────────────┐
+│ Architect│────▶│ ArchLucid    │────▶│ AI Agent Pipeline               │
+│ (UI/CLI/ │     │ API          │     │                                 │
+│  CI/CD)  │◀────│ (.NET 10)    │     │ Context ─▶ Graph ─▶ Findings   │
+└──────────┘     └──────┬───────┘     │ ─▶ Decisioning ─▶ Artifacts   │
+                        │             └─────────────────────────────────┘
+                        │
+                 ┌──────┴───────┐
+                 │ Azure SQL    │     ┌─────────────────┐
+                 │ (per-tenant  │     │ Azure OpenAI    │
+                 │  catalogs)   │     │ (multi-vendor)  │
+                 └──────────────┘     └─────────────────┘
+```
+
+**Architect workspace** — Next.js console for the **architecture review** lifecycle (reviews and legacy **runs** routes, architecture packages, governance, graph, audit), aligned with [CORE_PILOT.md](../CORE_PILOT.md).
+**CLI** — `archlucid new`, **`run`** (CLI verb; creates a **review** session — APIs still use `run` / `runId`), `commit` (finalize), `artifacts`, `doctor`, `support-bundle`, `trace`.
+
+### Deployment options
+
+| Option | Best for |
+|--------|---------|
+| **Vendor-hosted SaaS (Azure)** | Production for customers — service operated by ArchLucid on Azure (Entra, private endpoints, **database-per-tenant** catalog isolation per [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)); customers integrate via **web**, **CLI**, and **API clients** |
+| **Azure Container Apps** | How **we** run the service — Terraform modules for API, worker, SQL, blob, and identity in **our** subscriptions |
+| **Docker Compose** | **Optional** local development and evaluation on a prospect’s or engineer’s machine — full-stack profile with SQL, Redis, Azurite (**not** a standard customer deliverable) |
+
+**Not offered as a V1 customer deliverable:** shipping **production** Docker images, customer-managed Kubernetes/Helm bundles, or “install ArchLucid from containers in your data center” packages. See **`docs/PENDING_QUESTIONS.md`** (Resolved, 2026-04-21) and **`docs/CONTAINERIZATION.md`**.
+
+### Security and compliance (datasheet)
+
+| Area | Capability |
+|------|-----------|
+| **Identity** | Microsoft Entra ID (JWT), API key, RBAC (Admin / Operator / Reader / Auditor) |
+| **Data isolation** | **Database-per-tenant** SQL catalogs (`SystemWithPerTenantCatalogs`) plus application-layer scope predicates — **SQL RLS is not the production isolation boundary** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview)) |
+| **Network** | Private endpoints for SQL and blob storage; Azure Front Door with WAF |
+| **Audit** | Append-only event store with `DENY UPDATE/DELETE`; export for compliance evidence |
+| **Scanning** | OWASP ZAP baseline in CI, Schemathesis API fuzzing, CodeQL, Gitleaks, Trivy |
+| **Threat model** | STRIDE threat model documented (`SYSTEM_THREAT_MODEL.md`) |
+
+### Integration points
+
+| Channel | Details |
+|---------|---------|
+| **REST API** | OpenAPI v1 spec with versioned routes (`/v1/...`), rate limiting, correlation ID |
+| **CLI** | .NET global tool or `dotnet run` — full **review** lifecycle (`run` CLI verb; APIs retain `runId`) and diagnostics |
+| **Webhooks** | HMAC-signed delivery with optional CloudEvents envelope |
+| **Service Bus** | Azure Service Bus with transactional outbox for lifecycle events |
+| **Events** | `com.archlucid.*` canonical event types with JSON Schema |
+| **API Client** | .NET client library (`ArchLucid.Api.Client`) — SDKs for other languages on roadmap |
+
+### Observability (datasheet)
+
+30+ custom OpenTelemetry metrics, 8 activity sources, W3C trace propagation. Grafana dashboards committed in the repo (authority pipeline, SLO, LLM usage, run lifecycle). Business KPI metrics: runs created, findings by severity, agent quality scores, explanation cache effectiveness.
+
+### Get started (datasheet)
+
+1. **Quickest local evaluation (Docker on your machine):** Run `.\scripts\demo-start.ps1` (Windows) or `./scripts/demo-start.sh` (macOS/Linux), or `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build` — see [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md) for a five-minute walkthrough. This path is an **optional engineering / seller-led demo** artifact, not something ArchLucid **ships to customers** as the product.
+2. **Full-stack without demo overlay:** `docker compose --profile full-stack up -d --build` — same stack without automatic Contoso demo seed (see [CONTAINERIZATION.md](../engineering/CONTAINERIZATION.md)).
+3. **First run:** Open `http://localhost:3000/reviews/new` — seven-step guided wizard (legacy `/runs/new` may redirect).
+4. **See it live, not on a slide:** open `http://localhost:3000/why-archlucid` — the in-product proof page renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the run explanation + citations against the seeded Contoso Retail demo tenant.
+5. **Record a buyer demo video:** follow [`DEMO_QUICKSTART.md#two-minute--under-3-minute-video-storyboard`](DEMO_QUICKSTART.md#two-minute--under-3-minute-video-storyboard) (live-call scripts + shot table).
+6. **Pilot:** Follow the [Pilot Guide](../library/customer-facing/PILOT_GUIDE.md) for production-style deployment.
+7. **Learn more:** [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) · this positioning page.
+
+**ArchLucid** — *Defensible architecture, on demand. Every recommendation traced. Every decision governed.*
+
+**Get started:** [archlucid.net](https://archlucid.net) · [Request a demo or quote](https://archlucid.net/contact)
+
+---
+
 ## 8. Related documents
 
 | Doc | Use |
 |-----|-----|
+| [`#product-datasheet`](#product-datasheet) · [`PRODUCT_DATASHEET.md`](PRODUCT_DATASHEET.md) (alias) | Two-page datasheet narrative (body lives here) |
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor-by-competitor analysis and differentiation |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who buys, why, and how to demo to them |
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | **Locked list prices (2026)**, pilot pricing, re-rate gates, and sensitivity playbook — single source of truth for all price numbers |
