@@ -38,7 +38,7 @@ Hypothesis (not measured frequency): status-quo / manual packaging kills deals m
 | **12–14** | Explicit non-claim: EA/portfolio is SoR; ArchLucid is system of insight that feeds it | EA out of bake-off |
 | **14–15** | Close ask + defer CPA SOC 2 / 3P pen test (**G-REAL-05** / **G-ASSURANCE-02**) | Honesty close |
 
-Aligns with [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md) § Demo script (15-minute executive slice) and [`FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`](FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md) decision-signal objective — this contract **fuses** competitive kill-order with the timed demo click path.
+Aligns with [`DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol`](../go-to-market/DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol) § Demo script (15-minute executive slice) and [`FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`](FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md) decision-signal objective — this contract **fuses** competitive kill-order with the timed demo click path.
 
 ## Orchestration (do not duplicate)
 
@@ -47,7 +47,7 @@ Aligns with [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../go-to-market/GENERIC_AI_BAKEOF
 | Deal-loss kill-order heuristic (manual > diagram > GRC) | **TB-1055**, **M-186**/**M-187** |
 | Why-not-ChatGPT 2-min anchors | **TB-1365**–**TB-1366**, **M-243**/**M-244** |
 | First-15 package spine | **TB-1030**–**TB-1031**, **M-180**/**M-181** |
-| Full frontier bakeoff protocol / scoreboard | **M-40**, **M-43** (V1.1 live), `GENERIC_AI_BAKEOFF_PROTOCOL.md` |
+| Full frontier bakeoff protocol / scoreboard | **M-40**, **M-43** (V1.1 live), `DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol` (`GENERIC_AI_BAKEOFF_PROTOCOL.md` alias) |
 | Seats message cohort | **M-42** |
 | Measured kill frequency | **M-20** |
 | Fused 15-min loser + sequence + honesty CI | **TB-1456**, **TB-1457** |
