@@ -10,7 +10,7 @@
 
 **Last reviewed:** 2026-07-26
 
-**Related:** [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist), [`#legal-and-procurement-terms`](#legal-and-procurement-terms), [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md).
+**Related:** [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist), [`#legal-and-procurement-terms`](#legal-and-procurement-terms), [`BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook`](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook) (`PROCUREMENT_OBJECTION_PLAYBOOK.md` alias).
 
 **Approval path:** Owner must review before sending legal/commercial commitments to any buyer. Items marked **"owner/legal review required"** must not be committed verbally or in product copy without that review.
 

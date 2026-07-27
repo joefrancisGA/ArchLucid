@@ -226,7 +226,7 @@ Copy-Item fixtures/model-seats-counter-positioning/cohort-synthesis.template.md 
 | Output | Use |
 | --- | --- |
 | Best-performing script (A/B/C) | Default for next 5 sponsor calls |
-| Top disqualifying objection | Update [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md) private notes |
+| Top disqualifying objection | Update [`BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook`](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook) private notes |
 | Phrases that resonated (verbatim) | Feed [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md#12-one-email-sponsor--procurement-kit) — no repo commit of buyer quotes without clearance |
 | Phrases that failed | Remove from outreach |
 | Recommended external claim posture | Conservative / pilot-only / hold |

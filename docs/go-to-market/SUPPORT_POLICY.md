@@ -306,7 +306,7 @@ See [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) for how o
 |-----|-----|
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Buyer SLO summary |
 | [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Subscription and SLA exhibit framing |
-| [PROCUREMENT_OBJECTION_PLAYBOOK.md](PROCUREMENT_OBJECTION_PLAYBOOK.md) | Standard objection responses |
+| [BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook) (`PROCUREMENT_OBJECTION_PLAYBOOK.md` alias) | Standard objection responses |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident notification |
 | [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Onboarding checklist |
 | [TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms](TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms) | Legal packet pointers into this support + pilot posture |

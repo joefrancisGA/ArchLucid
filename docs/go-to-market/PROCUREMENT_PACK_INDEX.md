@@ -131,7 +131,7 @@ Full pack request: [`#how-to-request-and-build-the-pack`](#how-to-request-and-bu
 | Named public reference | Not in repo | **DEFERRED / (B)** |
 | Live commerce / Marketplace transact | Sales-led order form | **DEFERRED / (B)** |
 
-Objection handling: [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREMENT_OBJECTION_PLAYBOOK.md)
+Objection handling: [`BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook`](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook) (`PROCUREMENT_OBJECTION_PLAYBOOK.md` alias)
 
 ### How to request the full pack
 

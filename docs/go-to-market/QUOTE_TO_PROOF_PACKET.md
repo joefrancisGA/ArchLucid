@@ -183,7 +183,7 @@ Stop if exit code ≠ 0 or disposition = `HOLD`.
 **4 — Mock procurement review**
 
 1. Hand the packet to an internal reviewer playing procurement/security.
-2. Run the [controlled pilot drill](PROCUREMENT_OBJECTION_PLAYBOOK.md#controlled-pilot-drill) focused on objections **#1**, **#2**, **#8**, and real-mode AI evidence boundaries.
+2. Run the [controlled pilot drill](BUYER_SECURITY_PROCUREMENT_PACKET.md#controlled-pilot-drill) focused on objections **#1**, **#2**, **#8**, and real-mode AI evidence boundaries (`PROCUREMENT_OBJECTION_PLAYBOOK.md` alias).
 3. Walk the six elements against the [evidence routing map](BUYER_SECURITY_PROCUREMENT_PACKET.md#evidence-routing-map).
 4. Record every objection the packet could **not** answer from existing evidence.
 
