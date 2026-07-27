@@ -59,6 +59,8 @@ const nextConfig: NextConfig = {
   typescript: {
     tsconfigPath: "tsconfig.build.json",
   },
+  // Soft-nav from heavy Overview was stuck on Next 16.2.x (RSC OK, URL never commits) under
+  // loading.tsx — React reconciler fix ships in 16.3.0-preview+ (vercel/next.js#86151). Pin that line until 16.3 stable.
   reactStrictMode: true,
   devIndicators: false,
   // Standalone output copies only required node_modules into .next/standalone,
@@ -145,6 +147,9 @@ const nextConfig: NextConfig = {
       { source: "/advisory", destination: "/governance/advisory-scans", permanent: true },
       { source: "/advisory/:path*", destination: "/governance/advisory-scans/:path*", permanent: true },
       { source: "/advisory-scheduling", destination: "/governance/advisory-scans?tab=schedules", permanent: true },
+      // Governance setup (TB-1134) — next.config-only; no App Router stub pages.
+      { source: "/governance/first-30-days", destination: "/governance/setup", permanent: true },
+      { source: "/governance/first-30-days/:path*", destination: "/governance/setup/:path*", permanent: true },
       { source: "/settings/exec-digest", destination: "/digests?tab=schedule", permanent: true },
       { source: "/digest-subscriptions", destination: "/digests?tab=subscriptions", permanent: true },
       { source: "/composite-alert-rules", destination: "/governance/alert-rules?tab=composite", permanent: false },

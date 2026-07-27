@@ -27701,7 +27701,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-07-27) — App Router `/governance/setup`; permanent redirects from `/governance/first-30-days`; nav/breadcrumbs/alerts/route-readiness updated.
 
 **Priority:** P0.
 

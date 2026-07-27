@@ -23,8 +23,9 @@ const trialWelcomeHomeRedirectSessionKey = "archlucid_trial_welcome_home_redirec
 const trialWelcomeHomeRedirectSuppressValue = "__suppress__";
 
 /**
- * Stable non-home operator surface with the full sidebar. Avoids `TrialWelcomeRunDeepLink` on `/`,
- * which can leave an in-flight `router.replace` that swallows the Reviews client navigation.
+ * Stable non-home operator surface with the full sidebar. Home (`/`) remains a separate regression
+ * case (heavy Overview + `loading.tsx` soft-nav stall on Next 16.2.x); prefer `/onboarding` for
+ * focus/announcer soft-nav checks that must stay reliable across framework versions.
  */
 const clientNavigationStartPath = "/onboarding";
 
@@ -172,6 +173,30 @@ test.describe("route focus and announcements", () => {
     await navigateToReviewsViaOperatorShell(page);
 
     await expect(page.locator("#main-content")).toBeFocused({ timeout: 10_000 });
+  });
+
+  test("soft navigation from Overview commits Reviews without hard reload", async ({ page }) => {
+    await installTrialWelcomeRedirectSuppress(page);
+    await page.goto("/", { waitUntil: "load" });
+    await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+    await waitForOperatorShellReady(page);
+
+    // Document navigations mean hard assign/reload recovered; App Router soft-nav must win instead.
+    let sawReviewsDocumentNavigation = false;
+    page.on("request", (request) => {
+      if (!request.isNavigationRequest()) {
+        return;
+      }
+
+      if (reviewsRouteUrlPattern.test(request.url())) {
+        sawReviewsDocumentNavigation = true;
+      }
+    });
+
+    await navigateToReviewsViaOperatorShell(page);
+
+    await expect(page).toHaveURL(reviewsRouteUrlPattern);
+    expect(sawReviewsDocumentNavigation).toBe(false);
   });
 
   test("route announcer updates after navigation", async ({ page }) => {

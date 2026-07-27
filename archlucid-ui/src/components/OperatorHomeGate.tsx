@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { OperatorShellAccessGateLoading } from "@/components/OperatorShellAccessGateLoading";
@@ -12,9 +11,11 @@ import { isLikelySignedIn } from "@/lib/oidc/session";
 /**
  * When OIDC JWT mode is enabled and the browser has no session, the operator home (`/`)
  * redirects buyers to the public marketing welcome page.
+ *
+ * Uses `window.location.replace` so an unsigned visit never starts a soft App Router transition
+ * that can wedge later client navigations from Overview.
  */
 export function OperatorHomeGate({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const [allow, setAllow] = useState(operatorHomeGateAllowsInitialPaint);
 
   useEffect(() => {
@@ -25,13 +26,13 @@ export function OperatorHomeGate({ children }: { children: ReactNode }) {
     }
 
     if (!isLikelySignedIn()) {
-      router.replace("/welcome");
+      window.location.replace("/welcome");
 
       return;
     }
 
     setAllow(true);
-  }, [router]);
+  }, []);
 
   if (!allow) {
     return <OperatorShellAccessGateLoading />;
