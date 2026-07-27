@@ -28,15 +28,21 @@ describe("GovernanceSetupGuidePageView", () => {
     );
     expect(screen.queryByText(/inspect-first/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/deep links only/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-setup-step-track")).toBeInTheDocument();
     expect(screen.getByTestId("governance-setup-recommended-step")).toHaveTextContent("Set the policy baseline");
     expect(screen.getByRole("link", { name: "Configure policy packs" })).toHaveAttribute(
       "href",
       "/governance/policy-packs",
     );
+    // TB-1137: only recommended-next carries primary CTA weight; future steps are outline.
+    expect(screen.getByTestId("governance-setup-step-1-cta")).toHaveAttribute("data-cta-variant", "primary");
+    expect(screen.getByTestId("governance-setup-step-2-cta")).toHaveAttribute("data-cta-variant", "outline");
+    expect(screen.getByTestId("governance-setup-step-5-cta")).toHaveAttribute("data-cta-variant", "outline");
+    expect(screen.getAllByText("Not started")).toHaveLength(1);
     expect(screen.getByTestId("governance-setup-foundation-panel")).toBeInTheDocument();
   });
 
-  it("shows status badges and primary actions on every step", () => {
+  it("keeps status badges on active steps and demotes non-recommended CTAs", () => {
     render(
       <GovernanceSetupGuidePageView
         model={{
@@ -48,9 +54,12 @@ describe("GovernanceSetupGuidePageView", () => {
     );
 
     expect(screen.getByTestId("governance-setup-progress-summary")).toHaveTextContent("1 of 5 completed");
+    // Step row + foundation indicator for the completed baseline step.
     expect(screen.getAllByText("Complete")).toHaveLength(2);
-    expect(screen.getAllByText("Not started")).toHaveLength(3);
     expect(screen.getByText("In progress")).toBeInTheDocument();
+    expect(screen.queryByText("Not started")).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-setup-step-1-cta")).toHaveAttribute("data-cta-variant", "outline");
+    expect(screen.getByTestId("governance-setup-step-2-cta")).toHaveAttribute("data-cta-variant", "primary");
     expect(screen.getByRole("link", { name: "Check connector readiness" })).toHaveAttribute(
       "href",
       "/integrations/readiness",

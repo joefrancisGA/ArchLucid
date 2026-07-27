@@ -18,7 +18,7 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
 
   return (
     <div
-      className="w-full max-w-[68rem] space-y-5 px-1 py-4 sm:px-0"
+      className="w-full max-w-3xl space-y-5 px-1 py-4 sm:px-0"
       data-testid="governance-setup-guide-page"
     >
       <OperatorPageHeader
@@ -31,7 +31,7 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
 
       <p
         className={cn(
-          "m-0 max-w-3xl text-neutral-600 dark:text-neutral-400",
+          "m-0 text-neutral-600 dark:text-neutral-400",
           OPERATOR_TYPOGRAPHY.helper,
         )}
         data-testid="governance-setup-configuration-note"
@@ -40,13 +40,18 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
         workspaces.
       </p>
 
-      <ol className="m-0 list-none space-y-3 p-0" aria-label="Governance setup steps">
+      <ol
+        className="m-0 list-none p-0"
+        aria-label="Governance setup steps"
+        data-testid="governance-setup-step-track"
+      >
         {model.steps.map((step, index) => (
           <GovernanceSetupGuideStepRow
             key={step.stepNumber}
             step={step}
             status={model.stepStatuses[index] ?? "not-started"}
             recommendedNext={progress.firstIncompleteIndex === index}
+            isLast={index === model.steps.length - 1}
           />
         ))}
       </ol>
