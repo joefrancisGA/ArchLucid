@@ -30,12 +30,15 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
   triggerGcpTier2HostedRun: vi.fn(),
 }));
 
+import { resetCloudPlatformScopeSessionStateForTests } from "@/lib/cloud-platform-scope-storage";
+
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
 
 describe("CloudConnectionsPageClient", () => {
   afterEach(() => {
     vi.clearAllMocks();
     window.localStorage.clear();
+    resetCloudPlatformScopeSessionStateForTests();
   });
 
   it("renders cloud-neutral landing cards without inline provider setup forms", async () => {
@@ -81,5 +84,19 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("cloud-connection-card-azure")).not.toBeInTheDocument();
     expect(screen.queryByTestId("cloud-connection-card-gcp")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
+  });
+
+  it("hides GCP card when unchecked without operator workspace scope (TB-1139)", async () => {
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("cloud-platform-scope-gcp"));
+
+    expect(screen.queryByTestId("cloud-connection-card-gcp")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
   });
 });

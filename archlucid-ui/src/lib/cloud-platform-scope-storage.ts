@@ -20,6 +20,12 @@ const DEFAULT_CLOUD_PLATFORM_SCOPE: CloudPlatformScope = {
   gcp: true,
 };
 
+/**
+ * When operator workspace is missing, localStorage persistence is deferred.
+ * Keep a session copy so checkbox toggles still drive the landing card grid (TB-1139).
+ */
+let deferredScopeWithoutWorkspace: CloudPlatformScope | null = null;
+
 function scopeStorageKey(workspaceId: string): string {
   return `archlucid.cloud-platform-scope.v1.${workspaceId.trim()}`;
 }
@@ -36,6 +42,10 @@ function readWorkspaceIdForScope(): string | null {
   return workspaceId.length > 0 ? workspaceId : null;
 }
 
+function dispatchCloudPlatformScopeChanged(): void {
+  window.dispatchEvent(new CustomEvent(CLOUD_PLATFORM_SCOPE_CHANGED_EVENT));
+}
+
 export function readCloudPlatformScopeFromStorage(): CloudPlatformScope {
   if (typeof window === "undefined") {
     return DEFAULT_CLOUD_PLATFORM_SCOPE;
@@ -44,7 +54,21 @@ export function readCloudPlatformScopeFromStorage(): CloudPlatformScope {
   const workspaceId = readWorkspaceIdForScope();
 
   if (workspaceId === null) {
-    return DEFAULT_CLOUD_PLATFORM_SCOPE;
+    return deferredScopeWithoutWorkspace ?? DEFAULT_CLOUD_PLATFORM_SCOPE;
+  }
+
+  // Workspace just became available: seed empty storage from session toggles, then drop deferred
+  // so logout cannot resurrect a stale filter (TB-1139 / Bugbot).
+  if (deferredScopeWithoutWorkspace !== null) {
+    const flushed = deferredScopeWithoutWorkspace;
+    deferredScopeWithoutWorkspace = null;
+    const existingRaw = window.localStorage.getItem(scopeStorageKey(workspaceId));
+
+    if (existingRaw === null || existingRaw.length === 0) {
+      window.localStorage.setItem(scopeStorageKey(workspaceId), JSON.stringify(flushed));
+
+      return flushed;
+    }
   }
 
   try {
@@ -75,11 +99,21 @@ export function writeCloudPlatformScopeToStorage(scope: CloudPlatformScope): voi
   const workspaceId = readWorkspaceIdForScope();
 
   if (workspaceId === null) {
+    // Persist in session memory and notify subscribers — never silent no-op (TB-1139).
+    deferredScopeWithoutWorkspace = scope;
+    dispatchCloudPlatformScopeChanged();
+
     return;
   }
 
+  deferredScopeWithoutWorkspace = null;
   window.localStorage.setItem(scopeStorageKey(workspaceId), JSON.stringify(scope));
-  window.dispatchEvent(new CustomEvent(CLOUD_PLATFORM_SCOPE_CHANGED_EVENT));
+  dispatchCloudPlatformScopeChanged();
+}
+
+/** Clears deferred no-workspace scope between Vitest cases. */
+export function resetCloudPlatformScopeSessionStateForTests(): void {
+  deferredScopeWithoutWorkspace = null;
 }
 
 export function visibleCloudProviders(scope: CloudPlatformScope): CloudProviderId[] {
