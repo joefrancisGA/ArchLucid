@@ -71,7 +71,7 @@ export function GovernanceInteractiveQuickstartCard({
       {hideFirst30DaysLink ? null : (
         <p className={cn("m-0 px-6 pb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Onboarding preset (optional):{" "}
-          <Link href="/governance/first-30-days" className="font-medium text-teal-800 underline dark:text-teal-300">
+          <Link href="/governance/setup" className="font-medium text-teal-800 underline dark:text-teal-300">
             Governance setup guide
           </Link>
         </p>

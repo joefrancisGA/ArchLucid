@@ -195,7 +195,7 @@ describe("nav-config structure", () => {
       "/governance/alerts",
       "/governance/alert-rules",
       "/governance/recurrence-schedules",
-      "/governance/first-30-days",
+      "/governance/setup",
     ]);
     expect(reportsHrefs).toEqual([
       "/sponsor-report/executive-summary",

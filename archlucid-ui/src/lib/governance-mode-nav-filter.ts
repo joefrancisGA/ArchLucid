@@ -22,7 +22,7 @@ export const GOVERNANCE_MODE_HIDDEN_NAV_HREFS = new Set<string>([
   "/governance/risk-exceptions",
   "/governance/decision-register",
   "/governance/recurrence-schedules",
-  "/governance/first-30-days",
+  "/governance/setup",
   GOVERNANCE_AUDIT_PATH,
   LEGACY_AUDIT_PATH,
   GOVERNANCE_ALERTS_PATH,

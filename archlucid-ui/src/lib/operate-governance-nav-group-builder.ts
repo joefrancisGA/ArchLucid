@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
@@ -132,7 +133,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/governance/first-30-days",
+          href: GOVERNANCE_SETUP_HREF,
           label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
           title: "Governance setup guide — operating rhythm for approvals, audit, and policy packs",
           icon: CalendarCheck,

@@ -53,7 +53,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/policy-packs",
   "/governance-resolution",
   "/governance",
-  "/governance/first-30-days",
+  "/governance/setup",
   "/audit",
   "/integrations/readiness",
   "/integrations/operations",

@@ -54,7 +54,7 @@ export const ALERTS_ACTION_OPEN_STANDARDS_AND_RULES = ALERTS_ACTION_CONFIGURE_AL
 export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF = "/reviews?projectId=default";
 export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF = "/reviews/new";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW_HREF = "/governance";
-export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF = "/governance/first-30-days";
+export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF = "/governance/setup";
 
 /** @deprecated Inbox-only alerts surface — configuration tabs removed. */
 export const ALERTS_HUB_TAB_STANDARDS_AND_RULES = "Alert rules";

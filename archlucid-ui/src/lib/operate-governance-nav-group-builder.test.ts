@@ -14,7 +14,7 @@ describe("OperateGovernanceNavGroupBuilder", () => {
 
   it("includes Governance setup guide in governance nav (TB-520)", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
-    const setupGuide = group.links.find((link) => link.href === "/governance/first-30-days");
+    const setupGuide = group.links.find((link) => link.href === "/governance/setup");
 
     expect(setupGuide).toBeDefined();
     expect(setupGuide?.label).toBe("Governance setup guide");
@@ -24,10 +24,10 @@ describe("OperateGovernanceNavGroupBuilder", () => {
 });
 
 describe("OperateReportsNavGroupBuilder", () => {
-  it("omits first-30-days governance link from reports nav (TB-520)", () => {
+  it("omits governance setup link from reports nav (TB-520)", () => {
     const group = new OperateReportsNavGroupBuilder().build();
 
-    expect(group.links.some((link) => link.href === "/governance/first-30-days")).toBe(false);
+    expect(group.links.some((link) => link.href === "/governance/setup")).toBe(false);
     expect(group.links.map((link) => link.label)).not.toContain("First 30 days (governance)");
   });
 

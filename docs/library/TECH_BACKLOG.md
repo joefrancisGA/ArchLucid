@@ -975,6 +975,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1574 | Live preview/readiness rails — hide or stack when empty/sparse; see ## TB-1574 below | Adoption friction P0 — **V1**; with **TB-1572**; coordinate **TB-1478**/**TB-1479** (do not reopen) | S |
 | TB-1575 | Key operator hubs — side-rail inventory (allow working-object / master-detail / TOC; demote integration about); see ## TB-1575 below | Adoption friction P0 — **V1**; after **TB-1572**; pairs Teams/Slack aside density rows | M |
 | TB-1576 | Vitest — side-rail kind allowlist + ban teaching/static two-col on empty; see ## TB-1576 below | Testability P0 — **V1**; after **TB-1573**–**TB-1575**; pairs **TB-1572** / **TB-1482** / **TB-1556** | S |
+| TB-1577 | Shared-CA / shared-AOAI-TPM noisy-neighbor + per-tenant fairness claim map; see `## TB-1577` below | Scalability P1 — **V1**; PA noisy-neighbor / TPM fairness Q; GTM **M-296**/**M-297**; see `SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`; orchestrates **TB-1336**/**TB-1299**/**TB-947** | S |
+| TB-1578 | Anti-fair-share-TPM / anti-replicas-isolate-LLM / anti-silent-starvation honesty CI; see `## TB-1578` below | Testability P1 — **V1**; after **TB-1577**; pairs **M-296** | S |
 | TB-1565 | Advisory Scans tab — keep `?tab=scans` deep-link stable; see ## TB-1565 below | Adoption friction P0 — **V1**; owner review ~52/100 2026-07-27; traffic **ADS**; pairs **TB-1505** | XS |
 | TB-1566 | Advisory recommendation disposition — replace `window.prompt` with on-system dialog; see ## TB-1566 below | Adoption friction P0 — **V1**; with **TB-1565**; after Done **TB-1127** affordance | S |
 | TB-1567 | Advisory Scans tab — empty/form first-viewport composition (one next story); see ## TB-1567 below | Adoption friction P0 — **V1**; with **TB-1565**; pairs **TB-1552**/**TB-1477**; after Done **TB-1126**/**TB-1128** | S |
@@ -39188,6 +39190,65 @@ Operators must read three intros before reaching the Trust Center link list.
 **Depends on:** **TB-1570**.
 
 **Out of scope:** Implementing FinOps plane (**TB-1287**) or invoice reconcile pipeline.
+
+**Size estimate:** S.
+
+---
+
+## TB-1577 — Shared-CA / shared-AOAI-TPM noisy-neighbor + per-tenant fairness claim map (P1)
+
+**Window:** V1 — Scalability / Reliability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner / PA question 2026-07-27: *Shared Container Apps plus a shared Azure OpenAI TPM quota means noisy neighbors. What is the per-tenant fairness design — token budgets, queue priority, admission control — and what does tenant B experience while tenant A saturates the quota?*
+
+**Problem:** Easy to sell “per-tenant fairness,” “token budgets isolate AOAI load,” or “more CA replicas fix noisy neighbors.” Reality: spend/HTTP caps only; no WFQ; shared TPM + shared breaker couples A→B into Partial/Failed; TPM-aware admission still open (**TB-1336**). Distinct from spend-storm **TB-1570**. IDs skip side-rail **TB-1572**–**TB-1576**.
+
+**Approach:**
+
+1. Keep/author `docs/library/SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`.
+2. Pin spend-cap vs fair-share vs breaker-coupling matrix; tenant-B experience under A saturation.
+3. Orchestrate **TB-1336**/**TB-1299**/**TB-947** without duplicating capacity/execute plane builds.
+4. Cross-link **M-296**/**M-297**.
+
+**Acceptance:** PA can state fairness gaps and tenant-B experience in one page.
+
+**Depends on:** None (docs/orchestration).
+
+**Out of scope:** Shipping TPM-aware admission / WFQ / per-tenant AOAI deployments.
+
+**Size estimate:** S.
+
+---
+
+## TB-1578 — Anti-fair-share-TPM / anti-replicas-isolate-LLM / anti-silent-starvation honesty CI (P1)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Follow-on to **TB-1577**; hardens GTM **M-296**.
+
+**Problem:** Docs/capacity/trust copy can claim per-tenant fair share of TPM, that token budgets isolate tenants from each other’s AOAI load, that more CA replicas fix noisy-neighbor LLM, that 429 yields graceful Real success or queued Real, that authority per-tenant slots equal LLM fairness, or that tenant B silently starves while looking healthy.
+
+**Approach:**
+
+1. Fail “per-tenant fair share of shared AOAI TPM” / “WFQ across tenants.”
+2. Fail “token budgets isolate tenants from each other’s AOAI load.”
+3. Fail “more CA replicas fix noisy-neighbor LLM” / “replicas = more TPM.”
+4. Fail “silent starvation” / “429 → queued Real success” / “authority slots = LLM fairness.”
+5. Pair **M-296**; Verification cites `SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`, `## TB-1577`, **TB-1336**, **TB-1299**, **TB-947**.
+
+**Acceptance:** CI fails overclaim class reintroductions; pairs **M-296**.
+
+**Depends on:** **TB-1577**.
+
+**Out of scope:** Implementing **TB-1336** admission.
 
 **Size estimate:** S.
 
