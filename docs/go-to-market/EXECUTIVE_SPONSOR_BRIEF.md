@@ -28,7 +28,7 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 - **[START_HERE.md](../START_HERE.md)** — decision-tree entry (buyer vs contributor vs security vs architecture)
 - **[README.md](../REPOSITORY_README.md)** — repo entry and deeper platform material
 - **[One-email kit](#12-one-email-sponsor--procurement-kit)** — copy-paste sponsor/procurement blocks
-- **[DEMO_VIDEO_SCRIPT.md](DEMO_VIDEO_SCRIPT.md#two-minute--under-3-minute-video-storyboard)** — demo scripts + shot-by-shot storyboard
+- **[DEMO_QUICKSTART.md](DEMO_QUICKSTART.md#two-minute--under-3-minute-video-storyboard)** — demo scripts + shot-by-shot storyboard
 - **[PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
 - **[FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** — SE/ops end-to-end pilot path
 - **[INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)** — V1 vs V1.1 integration boundaries

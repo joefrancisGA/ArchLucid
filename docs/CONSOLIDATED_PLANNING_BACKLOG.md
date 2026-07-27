@@ -106,7 +106,7 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 |----|------|----------|---------------|----------|---------|-------|
 | CPB-M01 | Positioning tagline → `POSITIONING.md` | P0 | Done | **Keep** (done) | — | Already complete. |
 | CPB-M02 | One-minute elevator pitch | P0 | Done | **Keep** (done) | — | Elevator scripts live in `EXECUTIVE_SPONSOR_BRIEF.md#elevator-pitches` (formerly `ELEVATOR_PITCH.md`). |
-| CPB-M03 | Five-minute demo script | P0 | Done | **Keep** (done) | — | Five-minute live-call script added to `DEMO_VIDEO_SCRIPT.md` 2026-05-21; includes Q&A prompts. |
+| CPB-M03 | Five-minute demo script | P0 | Done | **Keep** (done) | — | Five-minute live-call script in `DEMO_QUICKSTART.md#demo-scripts` (formerly `DEMO_VIDEO_SCRIPT.md`); includes Q&A prompts. |
 | CPB-M04 | Workspace A Playwright smoke sign-off | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. QA sign-off only; #30 shipped. |
 | CPB-M05 | Workspace B Playwright smoke sign-off | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. |
 | CPB-M06 | Review sample report from Workspace B | P0 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Content review; #28 done. |
@@ -118,7 +118,7 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | CPB-M16 | Short demo video (Workspace A) | P1 | Not started | **Defer** | GTM-only | Confirmed 2026-05-21. Record after M-04 smoke sign-off + M-07 screenshots; async outreach (M-18) can use live demo or landing page until then. |
 | CPB-M17 | Outreach list (20 contacts) | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Owner builds list; avoid employer/NDA conflicts. Feeds M-18/M-19. |
 | CPB-M18 | 20 outreach messages | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. 10-min demo + feedback (not hard pitch). Needs M-09 deploy + M-17 list; M-16 video optional until recorded (live demo OK). |
-| CPB-M19 | 5–10 live demos | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Workspace A/B; `DEMO_VIDEO_SCRIPT.md` live script done. Recommend M-04/M-05 sign-off before external calls. Feeds M-20/M-21. |
+| CPB-M19 | 5–10 live demos | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Workspace A/B; live script in `DEMO_QUICKSTART.md#demo-scripts`. Recommend M-04/M-05 sign-off before external calls. Feeds M-20/M-21. |
 | CPB-M20 | Refine positioning from demo objections | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. After M-19; update `POSITIONING.md` + pitch/demo scripts from real objections. |
 | CPB-M21 | Identify strongest buyer segment | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. After M-20; narrows CPB-P02 ICP from demo evidence. Feeds M-22+ monetization focus. |
 | CPB-M34 | SOWs / talk track → `SERVICE_LED_OFFERS.md` | P2 | Not started | **Keep** | GTM-only | Confirmed 2026-05-21. Align `ORDER_FORM_TEMPLATE.md` + outreach to named SKUs; recommended before M-22/M-23 paid signature. |

@@ -110,7 +110,7 @@ Dominant claim types present and the labels that keep them honest. Disposition i
 | `GENERIC_AI_BAKEOFF_PROTOCOL.md` (evidence pack sections) | review-backed, illustrative | bakeoff honesty ("where each wins") |
 | `POLICY_PACK_DELTA_DEMO_SCRIPT.md` (pilot run-sheet) | review-backed, illustrative | "review evidence, not certification" |
 | `POLICY_PACK_DELTA_DEMO_SCRIPT.md` | review-backed, illustrative | governance-evidence-not-certification grounding rule |
-| `DEMO_VIDEO_SCRIPT.md`, `DEMO_QUICKSTART.md` | illustrative | demo/sample framing |
+| `DEMO_QUICKSTART.md` (incl. demo scripts) | illustrative | demo/sample framing |
 | `GENERIC_AI_BAKEOFF_PROTOCOL.md` | review-backed, illustrative | honest "where each wins" |
 | `PROCUREMENT_OBJECTION_PLAYBOOK.md` (incl. controlled pilot drill) | self-assessed, roadmap | honest-posture answers |
 | `DIFFERENTIATION_PROOF_PACKET.md` (model-seats message test) | review-backed, self-assessed | grounding rule: "do **not** claim ArchLucid always beats frontier AI" |

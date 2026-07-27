@@ -28,7 +28,7 @@
 | **One noun** | **Architecture package** — the governed unit buyers receive: findings, confidence limits, signed manifest, exports. Reviewed and created packages share the same pipeline outputs. |
 | **Two verbs** | **Create** and **review** — symmetric **workflows**, not symmetric **headline** positioning. |
 | **Verbs never in the hero** | Marketing heroes, demo openers, and homepage cards lead with **package outcomes** (evidence-backed, defensible, exportable), not "create architecture," generation speed, or "beats ChatGPT" framing. |
-| **Trust ladder** | **Review-led** first (sample, intake, evidence-backed review), then a **creation bridge** on the same outputs ([TB-739](GTM_BACKLOG.md) home copy, [TB-742](../library/TECH_BACKLOG.md) created sample, [TB-745](DEMO_VIDEO_SCRIPT.md) demo scripts). |
+| **Trust ladder** | **Review-led** first (sample, intake, evidence-backed review), then a **creation bridge** on the same outputs ([TB-739](GTM_BACKLOG.md) home copy, [TB-742](../library/TECH_BACKLOG.md) created sample, [TB-745](DEMO_QUICKSTART.md#demo-scripts) demo scripts). |
 
 Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/src/lib/buyer-surface-vocabulary.ts). Brand voice: [`BRAND_SYSTEM.md`](../brand/BRAND_SYSTEM.md) §1.
 
