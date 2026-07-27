@@ -68,7 +68,7 @@ function Write-FirstPilotCommercialCloseoutArtifacts {
     $lines.Add('')
     $lines.Add($reason)
     $lines.Add('')
-    $lines.Add('- Baseline SEND policy: [`ROI_BASELINE_SEND_POLICY.md`](../../docs/go-to-market/ROI_BASELINE_SEND_POLICY.md).')
+    $lines.Add('- Baseline SEND policy: [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy).')
     $lines.Add('')
 
     if ($SendBlockReasons.Count -gt 0) {

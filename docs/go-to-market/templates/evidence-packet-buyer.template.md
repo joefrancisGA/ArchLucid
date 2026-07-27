@@ -1,7 +1,7 @@
 > **Reviewed:** 2026-07-25
 
 > **Scope:** Buyer-facing evidence packet template — map artifacts to sponsor decision needs with strict claim boundaries.
-> **Canonical sources:** Do not restate policy here; link to [`PROCUREMENT_PACK_INDEX.md`](../PROCUREMENT_PACK_INDEX.md) and [`ROI_BASELINE_SEND_POLICY.md`](../ROI_BASELINE_SEND_POLICY.md).
+> **Canonical sources:** Do not restate policy here; link to [`PROCUREMENT_PACK_INDEX.md`](../PROCUREMENT_PACK_INDEX.md) and [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](../QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy).
 
 # Evidence packet — buyer / executive sponsor (template)
 
@@ -48,7 +48,7 @@ Use [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) § G
 
 - **May claim:** finalized review artifact exists; governance audit trail; PilotStrict signals when `aiQualityProof.disposition=PASS`; Staging live probes when attached.
 - **May not claim:** production SLA, invoiced Azure savings, SOC 2 certification, or real-mode AI quality when simulator-only or `roiSponsorSafe=false`.
-- **SEND gate:** see [`ROI_BASELINE_SEND_POLICY.md`](../ROI_BASELINE_SEND_POLICY.md) — override requires `executive-owner` or `cfo-delegate` with template on file.
+- **SEND gate:** see [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](../QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy) — override requires `executive-owner` or `cfo-delegate` with template on file.
 
 ## Collection command (reference)
 

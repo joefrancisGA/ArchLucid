@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness, plus the commercial conversion checklist and decision-cycle telemetry (formerly `COMMERCIAL_CONVERSION_CHECKLIST.md`). Not legal advice, pricing authority, or procurement attestation.
+> **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness, plus the commercial conversion checklist / decision-cycle telemetry (formerly `COMMERCIAL_CONVERSION_CHECKLIST.md`) and the ROI baseline SEND policy / baseline-capture checklist (formerly `ROI_BASELINE_SEND_POLICY.md`). Not legal advice, pricing authority, or procurement attestation.
 
 # Quote-to-proof packet
 
@@ -149,7 +149,7 @@ Use when the buyer needs a labeled path from sample request → finalized archit
 | # | Required element | Canonical source / command | Claim boundary |
 | --- | --- | --- | --- |
 | 1 | **ROI assumptions** | `executive-summary.json` + [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) + [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) | Lead with dollars only when `roiSponsorSafe=true` |
-| 2 | **Freshness labels** | `go-no-go-summary.json` → `roiBasisStatus`; [`ROI_BASELINE_SEND_POLICY.md`](ROI_BASELINE_SEND_POLICY.md) | Demo-derived values must not read as buyer outcomes |
+| 2 | **Freshness labels** | `go-no-go-summary.json` → `roiBasisStatus`; [`#roi-baseline-send-policy`](#roi-baseline-send-policy) | Demo-derived values must not read as buyer outcomes |
 | 3 | **Cited evidence** | `provenance-references.json` + [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) | Evidence-linked claims only |
 | 4 | **Disposition basis** | `go-no-go-summary.json` → `sponsorPacketDisposition` | Do not upgrade `HOLD`/`WARN` |
 | 5 | **Audit timeline** | `provenance-references.json` + [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) | Ids only, no payloads or PII |
@@ -236,7 +236,7 @@ Do not ask for annual conversion from a vague demo. Ask after the buyer can poin
 
 | Status | Criteria | Action |
 | --- | --- | --- |
-| Send | Buyer evidence or accepted demo is clear; quality gate is passing or caveated; **baseline completeness COMPLETE** (or approved [`ROI_BASELINE_SEND_POLICY.md`](ROI_BASELINE_SEND_POLICY.md) override); ROI basis is labeled and sponsor-safe; sponsor package exists; `roi-baseline-send-evaluation.json` → `sendEligible: true`; `-SponsorHandoff` proof run exits 0 with `-FailOnHold` | Send sponsor packet and ask for the selected next step |
+| Send | Buyer evidence or accepted demo is clear; quality gate is passing or caveated; **baseline completeness COMPLETE** (or approved [`#roi-baseline-send-policy`](#roi-baseline-send-policy) override); ROI basis is labeled and sponsor-safe; sponsor package exists; `roi-baseline-send-evaluation.json` → `sendEligible: true`; `-SponsorHandoff` proof run exits 0 with `-FailOnHold` | Send sponsor packet and ask for the selected next step |
 | Hold | Missing `runId`, unresolved PilotStrict signals, absent proof ZIP, unlabeled or unsafe ROI basis, data-consistency HOLD, stale procurement pack, or failed route/tier/policy/nav guard | Re-run the relevant proof, procurement, or drift guard before sponsor send |
 | Defer | Buyer requires SOC 2 CPA attestation, public reference customer, marketplace checkout, MCP, or V1.1 connectors before purchase | Mark as deferred scope (`DEFERRED_SCOPE` when V1 proof otherwise passes); do not imply those items are V1 prerequisites |
 
@@ -312,10 +312,152 @@ python scripts/ci/build_decision_cycle_telemetry.py `
 
 ---
 
+## ROI baseline SEND policy (V1) {#roi-baseline-send-policy}
+
+Former standalone: `docs/go-to-market/ROI_BASELINE_SEND_POLICY.md` → this section (including [pre-pilot baseline capture](#pre-pilot-baseline-capture-operator-checklist)).
+
+**Owner decision (2026-06-07):** Commercial **SEND** requires **COMPLETE** baseline completeness unless an approved override artifact is attached.
+
+Machine-readable policy: [`scripts/ci/data/roi_baseline_send_policy.v1.json`](../../scripts/ci/data/roi_baseline_send_policy.v1.json).
+
+**Human capture (kickoff):** [`#pre-pilot-baseline-capture-operator-checklist`](#pre-pilot-baseline-capture-operator-checklist).
+
+### Baseline completeness statuses
+
+| Status | Meaning | SEND allowed? |
+| --- | --- | :---: |
+| **COMPLETE** | Required baselines are sponsor-safe and non-defaulted | Yes (if other proof gates pass) |
+| **PARTIAL** | Weak labels (e.g. `labeled-other`, `stale`) | No — override required |
+| **DEFAULTED** | Scorecard/model defaults used | No — override required |
+| **NOT_COLLECTED** | Missing, demo-derived, or explicit not-collected | No — override required |
+
+### Minimum fields for SEND (non-defaulted)
+
+These align with [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) §2 core metrics:
+
+1. **Review cycle hours (baseline)** — wall-clock hours per review cycle.
+2. **Architect hours per review (baseline)** — person-hours per review.
+3. **ROI basis source** — `roiBasisStatus` must be one of:
+   - `buyer-provided`
+   - `uploaded-actual-or-amortized`
+   - `azure-retail`
+   - `classified`
+
+**Documentation hours (baseline)** is recommended for ARB/annual conversations but **not blocking** for SEND.
+
+When `roiBasisStatus` is in the complete set above, the proof pipeline treats required numeric baselines as collected via scorecard/proof posture (see `collect-first-pilot-proof.ps1`).
+
+### Override authority and template
+
+| Role | May approve override? |
+| --- | :---: |
+| **executive-owner** | Yes |
+| **cfo-delegate** | Yes |
+| **sales** / **pilot-operator** | Record only — cannot self-approve |
+
+Place `roi-baseline-send-override.json` in the proof folder next to `go-no-go-summary.json`. Template: [`templates/roi-baseline-send-override.template.json`](templates/roi-baseline-send-override.template.json).
+
+Required override fields:
+
+- `approvedByRole` — `executive-owner` or `cfo-delegate`
+- `recordedBy` — `sales` or `pilot-operator`
+- `validForRunId` — must match proof `runId` when supplied
+- `rationale` — at least 24 characters
+- `acceptedRisk` — explicit claim boundary (e.g. no projected dollar ROI until baselines collected)
+
+**Override does not clear:** proof `BLOCK` rows, `DEFERRED_SCOPE`, or procurement HOLD.
+
+### Artifacts
+
+| Artifact | Purpose |
+| --- | --- |
+| `roi-baseline-send-evaluation.json` | Machine-checked completeness + `sendEligible` |
+| `quote-to-proof-readiness.json` | Includes `baselineCompletenessStatus` |
+| `commercial-closeout.json` | Includes completeness + overrideApplied |
+
+### Evaluate locally
+
+```powershell
+python scripts/ci/evaluate_roi_baseline_send.py `
+  --go-no-go-summary artifacts/proof/go-no-go-summary.json `
+  --json-out artifacts/proof/roi-baseline-send-evaluation.json `
+  --strict-send
+```
+
+With override:
+
+```powershell
+python scripts/ci/evaluate_roi_baseline_send.py `
+  --go-no-go-summary artifacts/proof/go-no-go-summary.json `
+  --override-json artifacts/proof/roi-baseline-send-override.json `
+  --json-out artifacts/proof/roi-baseline-send-evaluation.json
+```
+
+### Pre-pilot baseline capture (operator checklist) {#pre-pilot-baseline-capture-operator-checklist}
+
+Collect the **minimum** buyer-provided baselines so ROI narratives can use **PASS/WARN** disposition instead of **HOLD**. Defaults are allowed but must be labeled **low-confidence estimates**.
+
+**When to use:** Complete **before first sponsor export** when projected hours-saved or dollar ROI will appear in materials. Skip only when the sponsor packet stays qualitative with **HOLD** ROI gate accepted.
+
+#### Pre-pilot questions (smallest set)
+
+| # | Question | Field / store | Wording for sponsor materials |
+| --- | --- | --- | --- |
+| 1 | Median hours from architecture request to reviewable package today? | `reviewCycleHours` + source | "Buyer-reported baseline" or "Not collected — HOLD on % savings" |
+| 2 | Architect prep hours per review (documentation, diagrams, narrative)? | `architectPrepHoursPerReview` | Label **defaulted** if team estimate |
+| 3 | People involved per review cycle (optional)? | `peoplePerReview` | Context only — not a savings claim |
+| 4 | Hours spent assembling evidence for ARB/governance last cycle? | `evidenceAssemblyEffort` | Strongest ROI lever when buyer-reported |
+| 5 | Fully loaded architect hourly cost (optional for dollars)? | `architectHourlyCost` | Required for **projectedDollarClaimsSponsorSafe** |
+| 6 | Baseline source | `buyer-reported` / `team-estimate` / `not-collected` | Always show source |
+| 7 | Baseline freshness | Date captured | Stale >90d → WARN |
+
+**Electronic capture:** Trial signup optional `baselineReviewCycleHours`; scorecard UI for full set — see [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) §3.1 and [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) §2.
+
+#### Sponsor-safe wording templates
+
+**Buyer-reported (strongest)**
+
+> "Review-cycle baseline (**X hours**) was reported by the buyer on **YYYY-MM-DD**. Comparative figures below are directional planning estimates — not audited outcomes."
+
+**Team estimate (partial)**
+
+> "Baseline hours (**X**) are an internal team estimate, not measured cycle time. Use qualitative time-saved language only unless ROI gate shows WARN with caveats."
+
+**Defaulted / not collected (HOLD on dollars)**
+
+> "ROI baseline inputs were **not collected** or use product defaults. **Do not quote** hours-saved percentages, annualized ROI, or USD savings in sponsor materials."
+
+#### Operator steps
+
+| Step | Action | Done |
+| --- | --- | --- |
+| 1 | Schedule 15-min baseline call at pilot kickoff | ☐ |
+| 2 | Copy [`paid-pilot-baseline.template.json`](templates/paid-pilot-baseline.template.json) to `artifacts/paid-pilot-baseline/<label>/baseline.json` | ☐ |
+| 3 | Run `.\scripts\validate-paid-pilot-baseline-readiness.ps1 -BaselinePath <path> -StrictPaidPilot` | ☐ |
+| 4 | Record answers in scorecard (`/scorecard`) when electronic capture is available | ☐ |
+| 5 | Confirm `projectedDollarClaimsSponsorSafe` only when buyer cost + hours are buyer-reported or approved estimate | ☐ |
+| 6 | Re-run proof collection after baselines entered | ☐ |
+| 7 | Verify first-value report ROI narrative gate ≠ HOLD before sponsor send | ☐ |
+
+```powershell
+.\scripts\collect-first-pilot-proof.ps1 -RunId '<run-id>' -SponsorHandoff -FailOnHold
+```
+
+#### Disposition quick reference
+
+| Baseline posture | ROI narrative gate | Projected dollars |
+| --- | --- | --- |
+| All buyer-reported + strong confidence | PASS possible | Allowed with redaction |
+| Mixed / defaulted fields | WARN | Directional only |
+| Demo tenant or not collected | HOLD | **Not sponsor-safe** |
+
+---
+
 ## Related
 
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
 - [`#commercial-conversion-checklist`](#commercial-conversion-checklist)
+- [`#roi-baseline-send-policy`](#roi-baseline-send-policy)
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
 - [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md)
 - [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md)

@@ -137,7 +137,7 @@ curl -sS "$BASE/v1/analytics/roi" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-**Claim boundary:** ROI figures are estimates — not invoiced Azure OpenAI spend. Sponsor-safe SEND requires baseline completeness per [`ROI_BASELINE_SEND_POLICY.md`](../go-to-market/ROI_BASELINE_SEND_POLICY.md).
+**Claim boundary:** ROI figures are estimates — not invoiced Azure OpenAI spend. Sponsor-safe SEND requires baseline completeness per [`QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy).
 
 ---
 

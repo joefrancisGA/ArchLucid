@@ -2633,7 +2633,7 @@ function Add-PaidPilotBaselineReadinessFinding {
         $detail = 'No paid-pilot baseline JSON found. Copy docs/go-to-market/templates/paid-pilot-baseline.template.json to artifacts/paid-pilot-baseline/<runId>/baseline.json and record baselineReviewCycleHours + baselineReviewCycleSource before kickoff.'
 
         if ($strictPaidPilot) {
-            Add-ProofFinding -Disposition 'BLOCK' -Name 'paid-pilot-baseline-readiness' -Detail $detail -Remediation 'Capture buyer baselines per docs/go-to-market/ROI_BASELINE_SEND_POLICY.md#pre-pilot-baseline-capture-operator-checklist or document waiver rationale.' -TriageCard 'FP-T025'
+            Add-ProofFinding -Disposition 'BLOCK' -Name 'paid-pilot-baseline-readiness' -Detail $detail -Remediation 'Capture buyer baselines per docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#pre-pilot-baseline-capture-operator-checklist or document waiver rationale.' -TriageCard 'FP-T025'
             return
         }
 
@@ -3723,7 +3723,7 @@ if ($SponsorHandoff -and -not [bool]$baselineSendEval.sendEligible) {
         -Disposition 'BLOCK' `
         -Name 'roi-baseline-send-eligibility' `
         -Detail "Sponsor SEND blocked: $sendBlockDetail (missing: $missingFields)." `
-        -Remediation 'Collect buyer ROI baselines per ROI_BASELINE_SEND_POLICY.md or attach an approved override JSON before sponsor handoff.' `
+        -Remediation 'Collect buyer ROI baselines per QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy or attach an approved override JSON before sponsor handoff.' `
         -TriageCard 'FP-T015'
 
     $blockCount = @($findings | Where-Object { $_.disposition -eq 'BLOCK' }).Count
@@ -3848,7 +3848,7 @@ $summary = [ordered]@{
     roiBaselineSendOverrideAudit = if ([bool]$baselineSendEval.overrideApplied -and (Test-Path -LiteralPath (Join-Path $proofDir 'roi-baseline-send-override.json'))) {
         [ordered]@{
             overridePath = 'roi-baseline-send-override.json'
-            policyRef    = 'docs/go-to-market/ROI_BASELINE_SEND_POLICY.md'
+            policyRef    = 'docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy'
         }
     }
     else {

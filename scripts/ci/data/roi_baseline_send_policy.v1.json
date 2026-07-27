@@ -77,7 +77,6 @@
     "notes": "Override permits SEND when baselineCompletenessStatus is not COMPLETE. Does not clear proof BLOCK rows or DEFERRED_SCOPE."
   },
   "docOwners": [
-    "docs/go-to-market/ROI_BASELINE_SEND_POLICY.md",
     "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md",
     "docs/go-to-market/ROI_MODEL.md"
   ]

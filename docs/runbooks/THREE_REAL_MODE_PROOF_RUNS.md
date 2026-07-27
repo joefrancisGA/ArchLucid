@@ -19,7 +19,7 @@
 | PilotStrict host | Agent execution mode **Real** on pilot stack (not simulator-only demo) |
 | Approved scenarios | Three distinct architecture briefs — internal or sanitized buyer packets (no PII in repo) |
 | Budget awareness | Golden cohort cap **$15** MTD — see [`GOLDEN_COHORT_BUDGET.md`](GOLDEN_COHORT_BUDGET.md) |
-| Baseline discipline | Buyer ROI baselines captured or explicitly labeled defaulted — [`ROI_BASELINE_SEND_POLICY.md`](../go-to-market/ROI_BASELINE_SEND_POLICY.md#pre-pilot-baseline-capture-operator-checklist) |
+| Baseline discipline | Buyer ROI baselines captured or explicitly labeled defaulted — [`QUOTE_TO_PROOF_PACKET.md#pre-pilot-baseline-capture-operator-checklist`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#pre-pilot-baseline-capture-operator-checklist) |
 
 **Explicitly out of scope:** SOC 2 CPA attestation, third-party pen-test publication, marketplace checkout.
 

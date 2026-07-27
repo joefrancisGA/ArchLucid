@@ -11,7 +11,7 @@
 | Api.Tests integration shard 3/6 (75-min blame-hang) | Unbounded `AlertLifecycleWebAppFactory` **host start** on Ask tests (`factory.Services` / `CreateClient()` before bounded start) | `AlertLifecycleIntegrationHost.EnsureStartedAsync` shared helper; migrated `AskThreadIntegrationTests`, `ArchitectureFindingAskControllerIntegrationTests`, and `RetrievalQuerySmokeIntegrationTests` |
 | Operator UI: lint / build / Vitest / Playwright / axe / Docker smoke | Missing import: `AuditBuyerHeaderMetrics` used in `AuditPageView.tsx` without import | Added `import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics"` |
 | Operator UI: unit (Vitest) — `GlobalSearchBar.test.tsx` | Stale placeholder assertion after UX copy change | Updated test to `"Search or jump to…"` (matches `GlobalSearchBar.tsx`) |
-| CI: guards pre-corset (text) — `check_doc_links` | Broken relative link in `V1_AUTOMATION_HANDOFF_PACK.md` | Fixed path to `../go-to-market/ROI_BASELINE_SEND_POLICY.md` |
+| CI: guards pre-corset (text) — `check_doc_links` | Broken relative link in `V1_AUTOMATION_HANDOFF_PACK.md` | Fixed path to quote-to-proof ROI SEND section (now `QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy`) |
 | (local compile) `FinalizedEvidenceImmutabilityIntegrationTests` | `AgentResult.ResultJson` removed from contract | Use `Claims = [...]` on forged result |
 
 ## Acceptance criteria

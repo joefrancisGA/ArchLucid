@@ -100,7 +100,7 @@ def build_payload(
         "followUpSlaDays": 7,
         "deferredScopeReasons": deferred,
         "checklistDoc": "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md",
-        "baselineSendPolicyDoc": "docs/go-to-market/ROI_BASELINE_SEND_POLICY.md",
+        "baselineSendPolicyDoc": "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy",
     }
 
 

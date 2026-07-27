@@ -15,7 +15,7 @@
 
 **Grounding rule:** Value claims are mapped to shipped V1 capabilities per [V1_SCOPE.md](../library/V1_SCOPE.md). Estimates are conservative. Adjust all numbers to your organization's actuals.
 
-**Commercial SEND:** Before sponsor send with projected ROI, baselines must reach **COMPLETE** per [ROI_BASELINE_SEND_POLICY.md](ROI_BASELINE_SEND_POLICY.md) or ship with an approved `roi-baseline-send-override.json`.
+**Commercial SEND:** Before sponsor send with projected ROI, baselines must reach **COMPLETE** per [QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy](QUOTE_TO_PROOF_PACKET.md#roi-baseline-send-policy) or ship with an approved `roi-baseline-send-override.json`.
 
 **Pricing:** Current list prices (seat, platform fee, run overage, pilot) are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — the single source of truth. The value model in this document is the input that justifies those prices; the prices themselves live only in that file.
 
