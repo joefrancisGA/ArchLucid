@@ -13,21 +13,6 @@ vi.mock("@/lib/oidc/session", () => ({
   isLikelySignedIn: () => true,
 }));
 
-const { routerReplace } = vi.hoisted(() => ({
-  routerReplace: vi.fn(),
-}));
-
-vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
-  return {
-    ...actual,
-  useRouter: () => ({ replace: routerReplace }),
-  redirect: vi.fn(),
-    permanentRedirect: vi.fn(),
-    notFound: vi.fn(),
-  };
-});
-
 import {
   TrialWelcomeRunDeepLink,
   TRIAL_WELCOME_HOME_REDIRECT_SUPPRESS_VALUE,
@@ -35,8 +20,12 @@ import {
 
 describe("TrialWelcomeRunDeepLink", () => {
   beforeEach(() => {
-    routerReplace.mockClear();
     window.sessionStorage.clear();
+    vi.stubGlobal("location", {
+      assign: vi.fn(),
+      replace: vi.fn(),
+      href: "http://localhost/",
+    });
   });
 
   afterEach(() => {
@@ -45,7 +34,7 @@ describe("TrialWelcomeRunDeepLink", () => {
     window.sessionStorage.clear();
   });
 
-  it("redirects once to /runs/{id} when trialWelcomeRunId is present", async () => {
+  it("hard-redirects once to /reviews/{id} when trialWelcomeRunId is present", async () => {
     const welcomeId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
 
     vi.stubGlobal(
@@ -61,7 +50,7 @@ describe("TrialWelcomeRunDeepLink", () => {
     render(<TrialWelcomeRunDeepLink />);
 
     await waitFor(() => {
-      expect(routerReplace).toHaveBeenCalledWith(`/reviews/${welcomeId}`);
+      expect(window.location.replace).toHaveBeenCalledWith(`/reviews/${welcomeId}`);
     });
 
     expect(window.sessionStorage.getItem("archlucid_trial_welcome_home_redirect_v1")).toBe(welcomeId);
@@ -86,7 +75,7 @@ describe("TrialWelcomeRunDeepLink", () => {
       expect(fetchMock).toHaveBeenCalled();
     });
 
-    expect(routerReplace).not.toHaveBeenCalled();
+    expect(window.location.replace).not.toHaveBeenCalled();
   });
 
   it("does not redirect when session carries the e2e suppress sentinel", async () => {
@@ -111,6 +100,6 @@ describe("TrialWelcomeRunDeepLink", () => {
       expect(fetchMock).toHaveBeenCalled();
     });
 
-    expect(routerReplace).not.toHaveBeenCalled();
+    expect(window.location.replace).not.toHaveBeenCalled();
   });
 });

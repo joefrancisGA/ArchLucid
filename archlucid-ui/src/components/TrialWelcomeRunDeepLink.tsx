@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { AUTH_MODE } from "@/lib/auth-config";
@@ -21,10 +20,11 @@ type TrialStatusPayload = {
 /**
  * One-time redirect from operator home (`/`) to `/reviews/{trialWelcomeRunId}` when the API exposes a pre-seeded
  * welcome run (self-service trial). Uses sessionStorage so returning to home does not loop.
+ *
+ * Uses `window.location.replace` (not App Router `router.replace`) so this deep-link cannot leave an
+ * in-flight soft transition that wedges later Link navigations from Overview (Next 16.2 / loading.tsx stall).
  */
 export function TrialWelcomeRunDeepLink() {
-  const router = useRouter();
-
   useEffect(() => {
     if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
       return;
@@ -56,7 +56,7 @@ export function TrialWelcomeRunDeepLink() {
 
         const already = window.sessionStorage.getItem(SESSION_KEY);
 
-        // Same welcome id (returning home) or explicit e2e suppress — never start a competing transition.
+        // Same welcome id (returning home) or explicit e2e suppress — never start a competing navigation.
         if (
           already === welcomeId ||
           already === TRIAL_WELCOME_HOME_REDIRECT_SUPPRESS_VALUE
@@ -65,7 +65,8 @@ export function TrialWelcomeRunDeepLink() {
         }
 
         window.sessionStorage.setItem(SESSION_KEY, welcomeId);
-        router.replace(`/reviews/${encodeURIComponent(welcomeId)}`);
+        // Full navigation: hard commit, no App Router action-queue contention with sidebar Links.
+        window.location.replace(`/reviews/${encodeURIComponent(welcomeId)}`);
       } catch {
         /* ignore */
       }
@@ -74,7 +75,7 @@ export function TrialWelcomeRunDeepLink() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, []);
 
   return null;
 }
