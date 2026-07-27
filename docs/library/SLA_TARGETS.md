@@ -41,7 +41,7 @@ Targets **do not** apply during:
 
 ## Disaster recovery
 
-For **RTO/RPO** estimates and backup posture, see [`RTO_RPO_TARGETS.md`](RTO_RPO_TARGETS.md) and [`../go-to-market/BACKUP_AND_DR.md`](../go-to-market/BACKUP_AND_DR.md).
+For **RTO/RPO** estimates and backup posture, see [`RTO_RPO_TARGETS.md`](RTO_RPO_TARGETS.md) and [`../go-to-market/SLA_SUMMARY.md#9-backup-disaster-recovery-and-data-lifecycle`](../go-to-market/SLA_SUMMARY.md#9-backup-disaster-recovery-and-data-lifecycle).
 
 ---
 
