@@ -31,7 +31,8 @@ internal static class ChecklistCoverageJsonCodec
 
             return parsed ?? [];
         }
-        catch (JsonException)
+        // JsonEntitySerializer wraps JsonException as InvalidOperationException for corrupt payloads.
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException)
         {
             return [];
         }

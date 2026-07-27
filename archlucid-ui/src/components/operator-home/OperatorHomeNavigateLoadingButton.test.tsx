@@ -18,6 +18,7 @@ vi.mock("next/navigation", () => ({
     push,
     prefetch,
   }),
+  usePathname: () => "/",
 }));
 
 import {

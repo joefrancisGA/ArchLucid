@@ -21,6 +21,7 @@ vi.mock("next/navigation", () => ({
     push,
     prefetch,
   }),
+  usePathname: () => "/",
 }));
 
 import { useReviewIntakeNavigation } from "./use-review-intake-navigation";
