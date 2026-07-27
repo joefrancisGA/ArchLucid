@@ -1,5 +1,5 @@
-# Validates docs/go-to-market/DEMO_WORKSPACES.md still cites the same stable GUID anchors as the pinned fixture manifest.
-# See fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json and docs/go-to-market/DEMO_WORKSPACES.md (fixture update procedure).
+﻿# Validates docs/go-to-market/DEMO_WORKSPACES.md (path-stable alias) still cites pinned fixture GUID anchors.
+# Canon narrative: docs/go-to-market/DEMO_QUICKSTART.md#demo-workspaces. Manifest: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json.
 param(
     [string] $RepoRoot = ''
 )
