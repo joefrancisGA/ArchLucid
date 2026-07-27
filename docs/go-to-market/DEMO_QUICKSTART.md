@@ -91,7 +91,7 @@ One narrow buyer scenario using **Simulator** execution — not a customer outco
 1. Seed demo data: `dotnet run --project ArchLucid.Cli -- seed-demo-data` (when enabled).
 2. Open operator **Home** → complete Core Pilot checklist through commit.
 3. Export proof shape: `dotnet run --project ArchLucid.Cli -- pilot proof-packet <demo-run-id> --out artifacts/demo-proof/`
-4. Show static packet shape: [`buyer-jobs/AZURE_SAAS_READINESS.md`](buyer-jobs/AZURE_SAAS_READINESS.md#demo-proof-shape-demo-derived-only)
+4. Show static packet shape: [`../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#demo-proof-shape-demo-derived-only`](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#demo-proof-shape-demo-derived-only)
 
 **Expected narrative:** Findings reference policy packs and manifest provenance; banner **demo tenant — replace before publishing**; structural execution mode **Simulator** unless real-mode configured. Failure fallback: use buyer-job demo proof shapes (no live tenant). Never invent customer logos, savings percentages, or reference names.
 

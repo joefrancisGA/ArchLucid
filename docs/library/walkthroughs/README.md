@@ -14,7 +14,7 @@ Each Specialty template follows the same shipped sequence — **capture → evid
 
 | Template | Buyer question (one line) | Outcome page | Architect walkthrough | Sponsor artifact |
 |------|---------------------------|--------------|----------------------|------------------|
-| **Azure SaaS readiness** | Does our Azure SaaS posture hold up on WAF and security-baseline themes? | [AZURE_SAAS_READINESS.md](../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md) | [AZURE_SAAS_READINESS_REVIEW.md](AZURE_SAAS_READINESS_REVIEW.md) | Architecture package + signed review record |
+| **Azure SaaS readiness** | Does our Azure SaaS posture hold up on WAF and security-baseline themes? | [AZURE_SAAS_READINESS.md](../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md) (alias) · [#buyer-job-packaging](AZURE_SAAS_READINESS_REVIEW.md#buyer-job-packaging) | [AZURE_SAAS_READINESS_REVIEW.md](AZURE_SAAS_READINESS_REVIEW.md) | Architecture package + signed review record |
 | **AI governance** | Can we show Responsible AI governance on a real architecture package? | [AI_GOVERNANCE_REVIEW.md](../../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md) | [AI_GOVERNANCE_REVIEW.md](AI_GOVERNANCE_REVIEW.md) | Responsible AI review export + governance disposition |
 | **Healthcare claims (demo)** | How does PHI-minimization policy land on findings before finalize? | [HEALTHCARE_CLAIMS_POLICY_REVIEW.md](../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) | [POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md](POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) | Policy-backed architecture package + audit trail |
 
