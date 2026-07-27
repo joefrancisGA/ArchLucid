@@ -204,8 +204,6 @@ Columns:
 | `/compare` | Compare two finalized reviews | T1 compare URL; T2 Contoso pair |
 | `/ask` | Ask questions about a review | T1: `/ask`; T2: `/ask?runId=<seeded-run>` |
 | `/search` | Search review evidence | T1/T3: `/search` + run `claims-intake-modernization` |
-| `/advisory` | Advisory scans (Scans tab) | T3 mock or T2 API; blocked in strict T1 nav |
-| `/advisory-scheduling` | Advisory scans (Schedules tab; legacy redirect) | T3 mock |
 
 Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightRunId` (technical) — see `compare-url-query-params.ts`.
 
@@ -213,6 +211,7 @@ Query keys for compare: `priorRunId`/`laterRunId` (buyer) or `leftRunId`/`rightR
 
 | URL | Purpose | How to view |
 |-----|---------|-------------|
+| `/governance/advisory-scans` | Advisory scans hub (Scans + Schedules tabs) | T3 mock or T2 API; blocked in strict T1 nav; legacy `/advisory` + `/advisory-scheduling` → next.config redirects here |
 | `/governance/findings` | Architecture risk register | T1 static; T2: `?runId=<seeded-run>` for review context |
 | `/governance/risk-exceptions` | Risk exceptions / waivers | T3 mock or T2 seed |
 | `/policy-packs` | Policy pack inventory | T1 static list |
@@ -336,4 +335,4 @@ When adding or moving a route:
 - [NAV_CONFIG_CONTRACT.md](../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md) — sidebar and authority contract  
 - [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) — Docker demo stack  
 - [DEMO_WORKSPACES.md](../go-to-market/DEMO_WORKSPACES.md) — Workspace A/B stable GUIDs  
-- [SCREENSHOT_GALLERY.md](../go-to-market/SCREENSHOT_GALLERY.md) — capture brief for marketing PNGs  
+- [DEMO_QUICKSTART.md#screenshot-capture-brief](../go-to-market/DEMO_QUICKSTART.md#screenshot-capture-brief) — capture brief for marketing PNGs  

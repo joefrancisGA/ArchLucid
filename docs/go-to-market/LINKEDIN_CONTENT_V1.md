@@ -423,7 +423,7 @@ We stopped improvising and wrote a capture brief — one section per screenshot,
 | **Caption** | One sentence tying the image to a buyer outcome |
 | **Dark mode variant** | Yes or no — decided upfront, not discovered at export time |
 
-That brief lives in our repo as [`SCREENSHOT_GALLERY.md`](SCREENSHOT_GALLERY.md). It defines ten shots across the operator workflow — wizard preset selection, review step validation, run detail with completed pipeline, provenance graph, structured comparison deltas, governance dashboard, audit log, knowledge graph, live pipeline tracking, and artifact export.
+That brief lives in our repo as [`DEMO_QUICKSTART.md#screenshot-capture-brief`](DEMO_QUICKSTART.md#screenshot-capture-brief). It defines ten shots across the operator workflow — wizard preset selection, review step validation, run detail with completed pipeline, provenance graph, structured comparison deltas, governance dashboard, audit log, knowledge graph, live pipeline tracking, and artifact export.
 
 Ten sounds manageable until you multiply by two themes and optional annotated overlays. Suddenly you are running a small photo studio for your own product.
 
