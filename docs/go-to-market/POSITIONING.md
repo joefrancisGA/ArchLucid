@@ -79,7 +79,7 @@ Related: [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](../library/CONCEPT_VOCABULARY.
 - **Pain-led one-liner:** *ArchLucid turns architecture evidence into governed architecture packages your sponsors can defend — review-led first, creation on the same pipeline.*
 - **Founder-led service line (outreach / LinkedIn):** *I use ArchLucid to deliver evidence-backed architecture packages for teams that need defensible decisions, not just diagrams.*
 
-Use these where the buyer is evaluating **a review and report**, not self-serve platform signup. Category tagline and sponsor brief remain authoritative for **product** framing. Named service SKUs and bands: [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md). Execution tasks: [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
+Use these where the buyer is evaluating **a review and report**, not self-serve platform signup. Category tagline and sponsor brief remain authoritative for **product** framing. Named service SKUs and bands: [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) (`SERVICE_LED_OFFERS.md` alias). Execution tasks: [`GTM_BACKLOG.md`](GTM_BACKLOG.md).
 
 ---
 
@@ -351,4 +351,4 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates (3 fictional narratives) |
 | [SEO_AND_PAID_ACQUISITION.md](SEO_AND_PAID_ACQUISITION.md) | Organic SEO + disciplined web-paid acquisition playbook (apex, ICP-aligned channels, measurement stance) |
 | [GTM_BACKLOG.md](GTM_BACKLOG.md) | Internal service-led sequencing, outreach, and monetization tasks |
-| [SERVICE_LED_OFFERS.md](SERVICE_LED_OFFERS.md) | Named productized consulting SKUs and indicative private bands |
+| [QUOTE_TO_PROOF_PACKET.md#productized-service-offers](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) · [SERVICE_LED_OFFERS.md](SERVICE_LED_OFFERS.md) (alias) | Named productized consulting SKUs and indicative private bands |

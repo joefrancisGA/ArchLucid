@@ -192,7 +192,7 @@ Hi <<FIRST_NAME>> — following up in case this got buried. No pressure at all; 
 
 Track 20 sends privately (contact, channel, date, response, outcome). Hand positives to **M-19** via [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md).
 
-**Talk-track companions:** [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) · [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) · [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md)
+**Talk-track companions:** [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) · [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) · [`PILOT_RECRUITING_PIPELINE.md`](PILOT_RECRUITING_PIPELINE.md)
 
 ---
 

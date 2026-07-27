@@ -29,7 +29,8 @@ LATEST_AS_SHIPPING_TRUTH = re.compile(
 )
 
 ACTIVE_GTM_PATHS = (
-    REPO_ROOT / "docs/go-to-market/SERVICE_LED_OFFERS.md",
+    REPO_ROOT / "docs/go-to-market/SERVICE_LED_OFFERS.md",  # path-stable alias; body lives in quote-to-proof
+    REPO_ROOT / "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md",
     REPO_ROOT / "docs/go-to-market/GTM_BACKLOG.md",
     REPO_ROOT / "docs/go-to-market/trust-center.md",
     REPO_ROOT / "docs/REPOSITORY_README.md",

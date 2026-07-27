@@ -11,7 +11,7 @@
 **Last reviewed:** 2026-07-25
 
 
-**Related:** [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md), [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md), [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md).
+**Related:** [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers), [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md), [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md).
 
 ---
 
@@ -89,8 +89,8 @@ Score each dimension 1–3 before advancing to intake.
 | --- | --- | --- |
 | Cold/warm outreach | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) one-pager | Link or attach; do not attach full procurement pack unsolicited |
 | Discovery call follow-up | [`BUYER_PERSONAS.md#should-you-evaluate`](BUYER_PERSONAS.md#should-you-evaluate) | Helps prospect self-qualify |
-| Qualification confirmed | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) SKU summary | Name the offer; do not just say "ArchLucid platform" |
-| Pilot proposal | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | Owner reviews each SOW before sending |
+| Qualification confirmed | [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) SKU summary | Name the offer; do not just say "ArchLucid platform" |
+| Pilot proposal | [`QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template`](QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template) | Owner reviews each SOW before sending |
 
 ---
 
@@ -109,7 +109,7 @@ Collect all of the following before confirming a pilot start date.
 
 ### 6.2 Offer and scope
 
-- Selected offer SKU (from [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md)):
+- Selected offer SKU (from [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers)):
 - Agreed scope summary (3–5 sentences):
 - Planned start date:
 - Planned end date:
@@ -176,7 +176,7 @@ Maintain a simple record for each active prospect:
 
 | Document | Purpose |
 | --- | --- |
-| [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) | Named offer SKUs |
+| [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) · [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) (alias) | Named offer SKUs |
 | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) | Outreach one-pager |
 | [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) | Pilot measurement framework |
 | [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) | PASS/HOLD criteria |

@@ -90,7 +90,7 @@ Cross-check [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) for conserv
 | `pilotLabel` | Sanitized label — workload + quarter; no customer name |
 | `runId` | Committed review run id (internal reference) |
 | `executionMode` | `real`, `simulator`, or `mixed` — required on any external excerpt |
-| `pilotContext.sku` | Align to [`SERVICE_LED_OFFERS.md`](../SERVICE_LED_OFFERS.md) SKU names |
+| `pilotContext.sku` | Align to [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](../QUOTE_TO_PROOF_PACKET.md#productized-service-offers) SKU names |
 | `pilotContext.workloadCategory` | e.g. `healthcare-claims`, `iot-edge` — category only |
 | `pilotContext.evidenceBasis` | `buyer-azure`, `uploaded-evidence`, or `demo-workspace-accepted` |
 | `pilotContext.sponsorRole` | Role title only (e.g. `VP Architecture`) — no name |
@@ -215,7 +215,7 @@ No per-pilot quotes or names in the rollup.
 
 Founder-led interview template after a committed real-mode or labeled simulator review. Feeds `decisionChanged` on the ledger row (**M-45**).
 
-**Also used by:** bakeoff sessions ([`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md)), service-led engagements ([`SERVICE_LED_OFFERS.md`](../SERVICE_LED_OFFERS.md)), dismissal interview reuse ([`PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md#dismissal-interview-script-head-to-head`](PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md#dismissal-interview-script-head-to-head)).
+**Also used by:** bakeoff sessions ([`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md)), service-led engagements ([`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](../QUOTE_TO_PROOF_PACKET.md#productized-service-offers)), dismissal interview reuse ([`PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md#dismissal-interview-script-head-to-head`](PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md#dismissal-interview-script-head-to-head)).
 
 ### When to run
 

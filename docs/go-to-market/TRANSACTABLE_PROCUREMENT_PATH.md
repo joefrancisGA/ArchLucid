@@ -65,7 +65,7 @@ Start: Buyer wants to purchase
 | --- | --- |
 | Status | **Available** |
 | Mechanism | Founder-executed SOW or service order; invoice via agreed payment method |
-| Template | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) |
+| Template | [`SERVICE_LED_OFFERS.md`](QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template) |
 | Payment terms | Net 30 standard; negotiable for enterprise buyers |
 | Legal readiness | Draft MSA + DPA templates available; owner/legal review before execution |
 | Tax readiness | Owner to confirm applicable tax registration before invoicing |
@@ -174,7 +174,7 @@ Maps common term questions to current source documents (or marks draft / not yet
 | Term area | Current status | Source | Owner action required |
 | --- | --- | --- | --- |
 | Master Services Agreement (MSA) template | Available — draft | [`MSA_TEMPLATE.md`](MSA_TEMPLATE.md) | Owner + buyer legal review before execution |
-| SOW / quote template | Available | [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | Owner review per engagement |
+| SOW / quote template | Available | [`SERVICE_LED_OFFERS.md`](QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template) | Owner review per engagement |
 | Order form template | Available | [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) | Owner review per engagement |
 | Data Processing Addendum (DPA) | Template available | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) | Owner + buyer legal review before execution |
 | Cross-tenant patterns opt-in (DPA §10) | Template available | [`DPA_TEMPLATE.md` §10](DPA_TEMPLATE.md#10-cross-tenant-patterns-opt-in) | Owner review before execution |
@@ -259,7 +259,7 @@ Former standalone: `docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md` → thi
 | --- | --- |
 | [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) | Pricing posture and band guidance |
 | [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) | Order form template |
-| [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md#private-quote--sow-template) | SOW and quote template |
+| [`SERVICE_LED_OFFERS.md`](QUOTE_TO_PROOF_PACKET.md#private-quote--sow-template) | SOW and quote template |
 | [`QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist`](QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist) | Commercial close-out checklist |
 | [`#legal-and-procurement-terms`](#legal-and-procurement-terms) | Legal terms and approval guidance |
 | [`MSA_TEMPLATE.md`](MSA_TEMPLATE.md) | Master Services Agreement template |

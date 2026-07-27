@@ -73,7 +73,11 @@ def matrix_violations(root: Path) -> list[str]:
             if "archive" in path.parts:
                 continue
 
-            if path.name in {"PUBLIC_CLAIM_BOUNDARY_GUIDE.md", "SERVICE_LED_OFFERS.md"}:
+            if path.name in {
+                "PUBLIC_CLAIM_BOUNDARY_GUIDE.md",
+                "SERVICE_LED_OFFERS.md",  # path-stable alias
+                "QUOTE_TO_PROOF_PACKET.md",  # holds productized SKU / private-band copy
+            }:
                 continue
 
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
