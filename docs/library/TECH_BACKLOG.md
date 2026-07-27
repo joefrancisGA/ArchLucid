@@ -12,7 +12,7 @@
 | Deployability | 19 |
 | AI/Agent readiness | 15 |
 | Architectural integrity | 15 |
-| Adoption friction | 225 |
+| Adoption friction | 224 |
 | Commercial / marketability | 16 |
 | Data consistency | 9 |
 | Cutting-edge AI | 9 |
