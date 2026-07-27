@@ -10,7 +10,8 @@ import {
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
-import { pathMatchesGovernanceAlerts } from "@/lib/governance-route-paths";
+import { auditTrailNavHref } from "@/lib/audit-nav-paths";
+import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
 
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 
@@ -46,7 +47,8 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
     step: 5,
     label: BUYER_SURFACE_VOCABULARY.auditTrail,
-    href: `/audit?runId=${showcaseRunEnc}`,
+    // Canonical TB-405 path; legacy `/audit` permanently redirects here.
+    href: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
     chipTooltip: "Chronological audit trail of review events for compliance and operational follow-up.",
   },
 ] as const;
@@ -143,6 +145,9 @@ export function resolveBuyerGoldenJourneyNav(
       return null;
     } else if (pathMatchesGovernanceAlerts(path)) {
       return null;
+    } else if (pathMatchesGovernanceAudit(path)) {
+      // Must run before the `/governance` catch-all — `/audit` permanently redirects to `/governance/audit`.
+      stepIdx = 4;
     } else if (path === "/governance") {
       const governanceRunId =
         options?.searchRunId?.trim() ??
@@ -160,8 +165,6 @@ export function resolveBuyerGoldenJourneyNav(
       stepIdx = 3;
     } else if (path.startsWith("/governance")) {
       return null;
-    } else if (path.startsWith("/audit")) {
-      stepIdx = 4;
     } else {
       const findingInspect = /^\/reviews\/([^/]+)\/findings\/[^/]+\/(?:inspect|evidence-trace)\b/.exec(path);
 

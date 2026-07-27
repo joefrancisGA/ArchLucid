@@ -8,7 +8,7 @@ import {
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { getAppMain } from "./app-main";
 import { waitForLiveManifestDetailHydration } from "./live-page-readiness";
-import { normalizeRunIdForCompare } from "./live-api-client";
+import { normalizeRunIdForCompare, toRunGuidPathSegment } from "./live-api-client";
 
 import {
   ASK_PAGE_PRIMARY_HEADING_PATTERN,
@@ -474,17 +474,24 @@ export async function openReviewDetailWorkspaceTab(
 ): Promise<void> {
   const href = buildReviewDetailTabHref(runId, tab);
   const url = new URL(page.url());
-  const onRunDetail = url.pathname === `/reviews/${encodeURIComponent(runId.trim())}`;
-  const activeTab = url.searchParams.get("reviewTab");
+  const trimmedRunId = runId.trim();
+  const encodedRunId = encodeURIComponent(trimmedRunId);
+  const encodedGuidRunId = encodeURIComponent(toRunGuidPathSegment(trimmedRunId));
+  const onRunDetail =
+    url.pathname === `/reviews/${encodedRunId}`
+    || url.pathname === `/reviews/${encodedGuidRunId}`
+    || url.pathname.toLowerCase() === `/reviews/${encodedRunId}`.toLowerCase()
+    || url.pathname.toLowerCase() === `/reviews/${encodedGuidRunId}`.toLowerCase();
 
-  if (!onRunDetail || activeTab !== tab) {
-    await page.goto(href);
-  } else {
-    const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
+  const trigger = page.getByTestId(`review-detail-workspace-tab-${tab}`);
 
+  // Prefer in-place tab activation — full page.goto drops cold-start scope races on demo/tenant shells.
+  if (onRunDetail && (await trigger.count()) > 0) {
     if ((await trigger.getAttribute("data-state")) !== "active") {
       await trigger.click();
     }
+  } else {
+    await page.goto(href);
   }
 
   await expect(reviewDetailWorkspacePanel(page, tab)).toBeVisible({ timeout: 60_000 });
@@ -648,17 +655,24 @@ export async function expectBuyerPipelineTimelineSectionVisible(
 
 /** Buyer-polished run detail collapses `#artifacts-exports` deliverables by default — expand before export assertions. */
 export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?: string): Promise<void> {
+  // `#artifacts-exports` lives on the Evidence workspace tab (see LEGACY_HASH_TO_TAB), not Activity.
   const artifactsSection = page.locator("#artifacts-exports");
+  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  if ((await artifactsSection.count()) === 0 || !(await artifactsSection.isVisible())) {
+  if ((await sectionNav.count()) > 0) {
+    await buyerPolishedReviewDetailSectionNavLink(sectionNav, "artifacts-exports").click();
+  } else if ((await artifactsSection.count()) === 0 || !(await artifactsSection.isVisible())) {
     if (runId !== undefined && runId.trim().length > 0) {
-      await openReviewDetailWorkspaceTab(page, runId, "activity");
+      await openReviewDetailWorkspaceTab(page, runId, "evidence");
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
-      await page.getByTestId("review-detail-workspace-tab-activity").click();
-      await expect(reviewDetailWorkspacePanel(page, "activity")).toBeVisible({ timeout: 60_000 });
+      await page.getByTestId("review-detail-workspace-tab-evidence").click();
+      await expect(reviewDetailWorkspacePanel(page, "evidence")).toBeVisible({ timeout: 60_000 });
     }
   }
 
+  // Wait for the section (and golden-manifest gate) before scroll — scrollIntoViewIfNeeded alone
+  // absorbs the full test timeout when the wrong tab left the node unmounted.
+  await expect(artifactsSection).toBeVisible({ timeout: 90_000 });
   await artifactsSection.scrollIntoViewIfNeeded();
 
   const deliverablesDetails = artifactsSection.locator("details").first();
@@ -677,9 +691,19 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */
 export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
-  let sponsorHandoff = page.locator("#sponsor-handoff").first();
+  // `#sponsor-handoff` lives on the Activity workspace tab (see LEGACY_HASH_TO_TAB).
+  const sponsorHandoff = page.locator("#sponsor-handoff").first();
+  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  if ((await sponsorHandoff.count()) === 0 || !(await sponsorHandoff.isVisible())) {
+  if ((await sectionNav.count()) > 0) {
+    const sponsorNavLink = buyerPolishedReviewDetailSectionNavLink(sectionNav, "sponsor-handoff");
+
+    if ((await sponsorNavLink.count()) > 0) {
+      await sponsorNavLink.click();
+    } else if (runId !== undefined && runId.trim().length > 0) {
+      await openReviewDetailWorkspaceTab(page, runId, "activity");
+    }
+  } else if ((await sponsorHandoff.count()) === 0 || !(await sponsorHandoff.isVisible())) {
     if (runId !== undefined && runId.trim().length > 0) {
       await openReviewDetailWorkspaceTab(page, runId, "activity");
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
@@ -688,9 +712,10 @@ export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, ru
     }
   }
 
-  sponsorHandoff = page.locator("#sponsor-handoff").first();
+  // Wait before scroll — scrollIntoViewIfNeeded alone absorbs the full test timeout when the
+  // node is still unmounted (wrong tab or below-fold deferred gate).
+  await expect(sponsorHandoff).toBeVisible({ timeout: 90_000 });
   await sponsorHandoff.scrollIntoViewIfNeeded();
-  await expect(sponsorHandoff).toBeVisible({ timeout: 60_000 });
 
   const briefingDetails = page.locator("details:has(#sponsor-handoff)").first();
 

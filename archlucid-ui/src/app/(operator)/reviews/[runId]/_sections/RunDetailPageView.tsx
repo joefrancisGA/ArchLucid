@@ -97,6 +97,7 @@ import {
   RunDetailWhatIfBranchCompareBannerDeferred,
 } from "./run-detail-page-view-deferred-chunks";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
+import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import {
@@ -587,6 +588,8 @@ export function RunDetailPageView(props: {
                   runDetailTraceId={m.runDetailTraceId}
                 />
               ) : null}
+              {/* Outside below-fold deferred await — sponsor CTA must mount with the Activity tab. */}
+              {resolveRunDetailSponsorBriefingSection(m)}
               <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
                 <RunDetailBelowFoldSections
                   model={m}
@@ -991,6 +994,8 @@ export function RunDetailPageView(props: {
           ) : null}
 
           {buyerFinalizedPackage ? null : sectionNavEl}
+
+          {resolveRunDetailSponsorBriefingSection(m)}
 
           <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
             <RunDetailBelowFoldSections model={m} context={deferredContext} />

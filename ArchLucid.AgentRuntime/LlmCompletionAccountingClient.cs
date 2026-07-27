@@ -421,6 +421,49 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
             outboundUser = userOutcome.Text;
         }
 
+        // Non-streaming inners: call CompleteJsonAsync on this async method (not a nested
+        // IAsyncEnumerable). AsyncLocal token seeds from the inner client are otherwise lost
+        // across AgentCompletionStreamingBridge yields and never reach metering/quota settle.
+
+        if (_inner is not IAgentStreamingCompletionClient)
+        {
+            string full;
+
+            try
+            {
+                full = await _inner
+                    .CompleteJsonAsync(outboundSystem, outboundUser, maxTokens, temperature, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                await SettleStreamUsageAccountingAsync(
+                        scope,
+                        providerKind,
+                        dailyReserved,
+                        monthlyReserved,
+                        overageActive)
+                    .ConfigureAwait(false);
+
+                throw;
+            }
+
+            await SettleStreamUsageAccountingAsync(
+                    scope,
+                    providerKind,
+                    dailyReserved,
+                    monthlyReserved,
+                    overageActive)
+                .ConfigureAwait(false);
+
+            foreach (string chunk in AgentCompletionStreamingBridge.SimulateChunks(full))
+            {
+                yield return chunk;
+            }
+
+            yield break;
+        }
+
         try
         {
             await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
@@ -436,82 +479,104 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         }
         finally
         {
-            // Peek (do not consume): schema remediation trace recording and CostGuardrailInterceptor
-            // read the same ambient usage after this decorator returns.
-            bool usageAvailable = AzureOpenAiCompletionClient.TryPeekLastCompletionTokenUsage(out int promptTok,
-                out int completionTok,
-                out int reasoningTok,
-                out int cachedPromptTok);
-
-            if (!usageAvailable)
-            {
-                await _dailyTenantBudgetTracker
-                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, dailyReserved, CancellationToken.None)
-                    .ConfigureAwait(false);
-
-                await _monthlyDollarBudgetTracker
-                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, monthlyReserved, overageActive, CancellationToken.None)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                _ = reasoningTok;
-
-                _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
-
-                await _dailyTenantBudgetTracker
-                    .RecordUsageAndMaybeWarnAsync(
-                        scope.TenantId,
-                        providerKind,
-                        _scopeProvider,
-                        _auditService,
-                        promptTok,
-                        completionTok,
-                        dailyReserved,
-                        CancellationToken.None)
-                    .ConfigureAwait(false);
-
-                await _monthlyDollarBudgetTracker
-                    .RecordUsageAndMaybeWarnAsync(
-                        scope.TenantId,
-                        providerKind,
-                        _scopeProvider,
-                        _auditService,
-                        promptTok,
-                        completionTok,
-                        monthlyReserved,
-                        overageActive,
-                        CancellationToken.None)
-                    .ConfigureAwait(false);
-
-                bool perTenant = _telemetryOptions.CurrentValue.RecordPerTenantTokens;
-                string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;
-
-                LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
-                LlmAccountingInvocationScope? invocationScope = LlmAccountingInvocationScope.GetCurrent();
-
-                ArchLucidInstrumentation.RecordLlmTokenUsage(
-                    promptTok,
-                    completionTok,
-                    perTenant,
-                    tenantKey,
-                    labels.ProviderId,
-                    labels.ModelDeploymentLabel,
-                    invocationScope?.ResolveConsumeRoleLabel(),
-                    invocationScope?.ResolveInvokeKindLabel(),
-                    cachedPromptTok);
-
-                LlmCompletionCostDeltaLogger.LogIfEnabled(
-                    _logger,
-                    _costEstimator,
-                    _monthlyDollarBudgetOptions,
-                    promptTok,
-                    completionTok);
-
-                await TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None)
-                    .ConfigureAwait(false);
-            }
+            await SettleStreamUsageAccountingAsync(
+                    scope,
+                    providerKind,
+                    dailyReserved,
+                    monthlyReserved,
+                    overageActive)
+                .ConfigureAwait(false);
         }
+    }
+
+    private async Task SettleStreamUsageAccountingAsync(
+        ScopeContext scope,
+        string providerKind,
+        long? dailyReserved,
+        decimal? monthlyReserved,
+        bool overageActive)
+    {
+        // Peek (do not consume): schema remediation trace recording and CostGuardrailInterceptor
+        // read the same ambient usage after this decorator returns.
+        bool usageAvailable = AzureOpenAiCompletionClient.TryPeekLastCompletionTokenUsage(
+            out int promptTok,
+            out int completionTok,
+            out int reasoningTok,
+            out int cachedPromptTok);
+
+        if (!usageAvailable)
+        {
+            await _dailyTenantBudgetTracker
+                .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, dailyReserved, CancellationToken.None)
+                .ConfigureAwait(false);
+
+            await _monthlyDollarBudgetTracker
+                .ReleasePendingReservationIfAnyAsync(
+                    scope.TenantId,
+                    providerKind,
+                    monthlyReserved,
+                    overageActive,
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+
+            return;
+        }
+
+        _ = reasoningTok;
+
+        _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
+
+        await _dailyTenantBudgetTracker
+            .RecordUsageAndMaybeWarnAsync(
+                scope.TenantId,
+                providerKind,
+                _scopeProvider,
+                _auditService,
+                promptTok,
+                completionTok,
+                dailyReserved,
+                CancellationToken.None)
+            .ConfigureAwait(false);
+
+        await _monthlyDollarBudgetTracker
+            .RecordUsageAndMaybeWarnAsync(
+                scope.TenantId,
+                providerKind,
+                _scopeProvider,
+                _auditService,
+                promptTok,
+                completionTok,
+                monthlyReserved,
+                overageActive,
+                CancellationToken.None)
+            .ConfigureAwait(false);
+
+        bool perTenant = _telemetryOptions.CurrentValue.RecordPerTenantTokens;
+        string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;
+
+        LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
+        LlmAccountingInvocationScope? invocationScope = LlmAccountingInvocationScope.GetCurrent();
+
+        ArchLucidInstrumentation.RecordLlmTokenUsage(
+            promptTok,
+            completionTok,
+            perTenant,
+            tenantKey,
+            labels.ProviderId,
+            labels.ModelDeploymentLabel,
+            invocationScope?.ResolveConsumeRoleLabel(),
+            invocationScope?.ResolveInvokeKindLabel(),
+            cachedPromptTok);
+
+        LlmCompletionCostDeltaLogger.LogIfEnabled(
+            _logger,
+            _costEstimator,
+            _monthlyDollarBudgetOptions,
+            promptTok,
+            completionTok);
+
+        await TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None)
+            .ConfigureAwait(false);
     }
 
     private async Task TryRecordLlmUsageMeteringAsync(

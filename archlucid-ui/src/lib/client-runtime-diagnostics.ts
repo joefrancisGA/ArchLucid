@@ -1,3 +1,5 @@
+import { resolveSoftNavigationHardFallbackAssignUrl } from "@/lib/soft-navigation-hard-fallback";
+
 export type ClientDiagnosticsFinding = {
   readonly kind: "error" | "rejection" | "navigation-stuck" | "blocking-overlay" | "main-thread-stall";
   readonly message: string;
@@ -6,6 +8,14 @@ export type ClientDiagnosticsFinding = {
 };
 
 export type ClientDiagnosticsReporter = (finding: ClientDiagnosticsFinding) => void;
+
+export type InstallClientRuntimeDiagnosticsOptions = {
+  /**
+   * When soft-nav never commits, perform a same-origin full navigation after reporting.
+   * Default true — App Router can wedge on Overview with zero RSC traffic; banner-only is not enough.
+   */
+  readonly hardNavigateOnStuck?: boolean;
+};
 
 const NAV_STUCK_MS = 8_000;
 const HEARTBEAT_MS = 2_000;
@@ -84,10 +94,13 @@ export type ClientRuntimeDiagnosticsHandle = {
 
 /**
  * Installs window + navigation + overlay + main-thread probes.
+ * On navigation-stuck, recovers with a full navigation when soft-nav never commits.
  */
 export function installClientRuntimeDiagnostics(
   report: ClientDiagnosticsReporter,
+  options: InstallClientRuntimeDiagnosticsOptions = {},
 ): ClientRuntimeDiagnosticsHandle {
+  const hardNavigateOnStuck = options.hardNavigateOnStuck !== false;
   let disposed = false;
   let pendingNavHref: string | null = null;
   let pendingNavTimer: ReturnType<typeof setTimeout> | null = null;
@@ -184,12 +197,29 @@ export function installClientRuntimeDiagnostics(
 
       const stuckHref = pendingNavHref;
       clearPendingNav();
+
+      const assignUrl = hardNavigateOnStuck
+        ? resolveSoftNavigationHardFallbackAssignUrl(
+            stuckHref,
+            window.location.pathname,
+            window.location.search,
+            window.location.origin,
+          )
+        : null;
+
       report({
         kind: "navigation-stuck",
         message: `Client navigation did not complete within ${NAV_STUCK_MS}ms`,
         href: stuckHref,
-        detail: `pathnameStill=${window.location.pathname}`,
+        detail:
+          assignUrl !== null
+            ? `pathnameStill=${window.location.pathname};hardFallback=${assignUrl}`
+            : `pathnameStill=${window.location.pathname}`,
       });
+
+      if (assignUrl !== null) {
+        window.location.assign(assignUrl);
+      }
     }, NAV_STUCK_MS);
   };
 

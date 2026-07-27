@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   findBlockingOverlayElement,
@@ -6,9 +6,23 @@ import {
 } from "@/lib/client-runtime-diagnostics";
 
 describe("client-runtime-diagnostics", () => {
+  const assign = vi.fn();
+
+  beforeEach(() => {
+    assign.mockReset();
+    vi.stubGlobal("location", {
+      ...window.location,
+      pathname: "/",
+      search: "",
+      origin: "http://localhost",
+      assign,
+    });
+  });
+
   afterEach(() => {
     document.body.innerHTML = "";
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it("findBlockingOverlayElement returns a high-z full-viewport fixed layer", () => {
@@ -40,10 +54,34 @@ describe("client-runtime-diagnostics", () => {
     expect(findBlockingOverlayElement()?.getAttribute("data-testid")).toBe("stuck-overlay");
   });
 
-  it("reports navigation-stuck when an internal link click does not commit", () => {
+  it("reports navigation-stuck and hard-navigates when soft-nav never commits", () => {
     vi.useFakeTimers();
     const report = vi.fn();
     const handle = installClientRuntimeDiagnostics(report);
+
+    const anchor = document.createElement("a");
+    anchor.setAttribute("href", "/reviews/claims-intake-modernization");
+    document.body.appendChild(anchor);
+    anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+
+    vi.advanceTimersByTime(8_000);
+
+    expect(report).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: "navigation-stuck",
+        href: "/reviews/claims-intake-modernization",
+        detail: expect.stringContaining("hardFallback=/reviews/claims-intake-modernization"),
+      }),
+    );
+    expect(assign).toHaveBeenCalledWith("/reviews/claims-intake-modernization");
+
+    handle.dispose();
+  });
+
+  it("can disable hard-nav recovery while still reporting stuck", () => {
+    vi.useFakeTimers();
+    const report = vi.fn();
+    const handle = installClientRuntimeDiagnostics(report, { hardNavigateOnStuck: false });
 
     const anchor = document.createElement("a");
     anchor.setAttribute("href", "/help/core-pilot");
@@ -58,6 +96,7 @@ describe("client-runtime-diagnostics", () => {
         href: "/help/core-pilot",
       }),
     );
+    expect(assign).not.toHaveBeenCalled();
 
     handle.dispose();
   });
@@ -76,6 +115,7 @@ describe("client-runtime-diagnostics", () => {
     vi.advanceTimersByTime(8_000);
 
     expect(report).not.toHaveBeenCalled();
+    expect(assign).not.toHaveBeenCalled();
     handle.dispose();
   });
 });

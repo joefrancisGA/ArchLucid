@@ -83,7 +83,10 @@ public sealed class SealedEvidenceImmutabilityArchitectureTests
     {
         MethodInfo[] methods = typeof(IAgentResultRepository).GetMethods();
 
+        // TB-938 selective re-execute: task-scoped DeleteForRunTaskAsync is allowed before finalize.
+        // Broad Update/Patch/Delete/MarkEvidence mutation APIs remain forbidden.
         methods.Select(static m => m.Name)
+            .Where(static name => !string.Equals(name, "DeleteForRunTaskAsync", StringComparison.Ordinal))
             .Should()
             .NotContain(static name =>
                 name.Contains("Update", StringComparison.OrdinalIgnoreCase)

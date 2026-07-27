@@ -6,9 +6,6 @@ export const TEAMS_INTEGRATION_PAGE_SUBTITLE =
 export const TEAMS_INTEGRATION_SECURITY_NOTE =
   "ArchLucid stores a secret reference instead of the Teams webhook URL in the workspace database. The webhook remains in your organization's approved secret store and is read only when a notification is sent.";
 
-export const TEAMS_INTEGRATION_HOSTED_SECRET_STORE_FOOTNOTE =
-  "On ArchLucid-hosted deployments, the supported secret store is Azure Key Vault. AWS Secrets Manager and Google Secret Manager support is on the roadmap for customer-operated deployments.";
-
 export const TEAMS_INTEGRATION_CONNECT_SECTION_TITLE = "Connect a Teams channel";
 
 export const TEAMS_INTEGRATION_CONNECT_SECTION_LEAD =

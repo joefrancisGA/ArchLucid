@@ -20,7 +20,8 @@ public sealed class ArchitectureRunStatusTransitionPropertyTests
         ArchitectureRunStatus status = (ArchitectureRunStatus)raw;
         int v = (int)status;
 
-        v.Should().BeInRange(1, 8);
+        // Includes TB-937 terminal/partial states: PartiallyCompleted=9, FailedPartial=10.
+        v.Should().BeInRange(1, 10);
     }
 
     [SkippableFact]

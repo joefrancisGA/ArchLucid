@@ -10,6 +10,7 @@ vi.mock("next/navigation", () => ({
     push,
     prefetch,
   }),
+  usePathname: () => "/",
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({

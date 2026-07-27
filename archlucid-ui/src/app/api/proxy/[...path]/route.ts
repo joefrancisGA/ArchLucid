@@ -376,12 +376,19 @@ async function forward(
   return passThrough(res, authMePrivateCacheSeconds);
 }
 
+/** HTTP statuses that must not carry a body (undici/Next throw if a stream is attached). */
+function isNullBodyStatus(status: number): boolean {
+  return status === 204 || status === 205 || status === 304;
+}
+
 /**
  * Passes the upstream response body and key headers (Content-Type, Content-Disposition) to the browser.
  * Optional **private** cache hints apply only to successful GET responses when callers opt in (e.g. `/api/auth/me`).
  */
 function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: number): NextResponse {
-  const out = new NextResponse(res.body, { status: res.status });
+  // Upstream 204 (e.g. marketing quote-request) may expose an empty ReadableStream; attaching it
+  // to NextResponse throws and surfaces as 500 to the browser form.
+  const out = new NextResponse(isNullBodyStatus(res.status) ? null : res.body, { status: res.status });
 
   const contentType = res.headers.get("content-type");
 

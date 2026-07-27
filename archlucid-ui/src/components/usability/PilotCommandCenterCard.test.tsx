@@ -68,6 +68,7 @@ vi.mock("next/navigation", () => ({
     push: vi.fn(),
     prefetch: vi.fn(),
   }),
+  usePathname: () => "/",
 }));
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {

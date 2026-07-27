@@ -48,7 +48,7 @@ class TestAdoptionBatch5AH(unittest.TestCase):
     def test_tb_220_pilot_scorecard_operational_metric(self) -> None:
         path = REPO_ROOT / "docs" / "go-to-market" / "PILOT_SUCCESS_SCORECARD.md"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("Wizard-to-committed wall-clock", text)
+        self.assertIn("Wizard-to-finalize wall-clock", text)
         self.assertIn("archlucid.pilot.wizard_to_committed_minutes", text)
 
 

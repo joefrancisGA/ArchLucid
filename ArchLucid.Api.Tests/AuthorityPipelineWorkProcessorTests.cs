@@ -3,6 +3,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
@@ -316,6 +317,7 @@ public sealed class AuthorityPipelineWorkProcessorTests
         services.AddSingleton(outbox.Object);
         services.AddSingleton(orchestrator.Object);
         services.AddSingleton(runRepository?.Object ?? new Mock<IRunRepository>().Object);
+        services.AddSingleton<IRunStateTransitionService, RunStateTransitionService>();
         return services.BuildServiceProvider();
     }
 

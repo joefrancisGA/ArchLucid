@@ -239,14 +239,16 @@ test.describe("live-api-private-beta-access", () => {
 
     const reviewPath = `/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
-    await page.goto("/reviews", { waitUntil: "domcontentloaded" });
+    // Buyer-polished hub rows expose `reviews-hub-row-{runId}` — link accessible names are titles, not GUID prefixes.
+    await page.goto(`/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
     await expect(
       page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible({ timeout: 90_000 });
-    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000 });
-    await expect(page.getByRole("link", { name: new RegExp(runId.slice(0, 8), "i") }).first()).toBeVisible({
-      timeout: 90_000,
-    });
+    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
+    const reviewsHubRow = page.locator(
+      `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
+    );
+    await expect(reviewsHubRow.first()).toBeVisible({ timeout: 90_000 });
 
     await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
     await expectLiveRunDetailPageReady(page, 120_000);

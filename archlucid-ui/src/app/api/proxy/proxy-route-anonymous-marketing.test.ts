@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GET } from "./[...path]/route";
+import { GET, POST } from "./[...path]/route";
 import { resetProxyRateLimitStateForTests } from "@/lib/proxy-rate-limit";
 
 describe("proxy route anonymous marketing paths", () => {
@@ -43,5 +43,26 @@ describe("proxy route anonymous marketing paths", () => {
     const init = fetchMock.mock.calls[0]![1] as RequestInit;
     const headers = init.headers as Headers;
     expect(headers.get("authorization")).toBe("Bearer configured-proxy-bearer");
+  });
+
+  it("forwards pricing quote-request 204 with a null body (no NextResponse throw)", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/marketing/pricing/quote-request", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": "12" },
+      body: '{"ok":true}',
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "marketing", "pricing", "quote-request"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(await res.text()).toBe("");
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get("authorization")).toBeNull();
   });
 });

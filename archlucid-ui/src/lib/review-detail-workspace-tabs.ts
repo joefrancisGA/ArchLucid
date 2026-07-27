@@ -39,6 +39,7 @@ const LEGACY_HASH_TO_TAB: Readonly<Record<string, ReviewDetailTabId>> = {
   "architecture-assessment-progress": "activity",
   "architecture-graph": "activity",
   "authority-chain": "activity",
+  "sponsor-handoff": "activity",
   "run-actions": "review-package",
 };
 
