@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-26
+> **Reviewed:** 2026-07-27
 
-> **Scope:** TB-167 — Sponsor AI readiness posture artifact plus buyer-safe AI evidence inventory (formerly `AI_EVIDENCE_APPENDIX.md`) and the deeper RAG quality program (formerly `DEEPER_RAG_QUALITY_PROGRAM.md`). Composes execution mode, quality-gate results, retrieval posture, and budget posture into one sponsor-safe summary. This document describes the artifact schema and how to produce it; the actual per-release artifact lives in `artifacts/release/ai-readiness-posture.md` (and `.json`).
+> **Scope:** TB-167 — Sponsor AI readiness posture artifact plus buyer-safe AI evidence inventory (formerly `AI_EVIDENCE_APPENDIX.md`), the deeper RAG quality program (formerly `DEEPER_RAG_QUALITY_PROGRAM.md`), and the buyer-facing AI decision-support limits brief (formerly the body of `AI_OUTPUT_DECISION_SUPPORT.md`; that filename remains a path-stable pack alias). Composes execution mode, quality-gate results, retrieval posture, and budget posture into one sponsor-safe summary. This document describes the artifact schema and how to produce it; the actual per-release artifact lives in `artifacts/release/ai-readiness-posture.md` (and `.json`).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -8,9 +8,9 @@
 
 **Audience:** Pilot sponsors, executive buyers, and proof-packet reviewers who need a single artifact summarizing ArchLucid's AI evidence quality, retrieval posture, and budget posture without reading multiple technical evidence files.
 
-**Last reviewed:** 2026-07-26
+**Last reviewed:** 2026-07-27
 
-**Related:** [`#buyer-safe-evidence-inventory`](#buyer-safe-evidence-inventory), [`#deeper-rag-quality-program`](#deeper-rag-quality-program), `docs/quality/RELEASE_CLAIM_GATE.md`, `scripts/Invoke-RealLlmEvidenceGate.ps1`, `scripts/collect-first-pilot-proof.ps1`, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`, `docs/library/AGENT_OUTPUT_EVALUATION.md`.
+**Related:** [`#ai-output-is-decision-support`](#ai-output-is-decision-support), [`#buyer-safe-evidence-inventory`](#buyer-safe-evidence-inventory), [`#deeper-rag-quality-program`](#deeper-rag-quality-program), [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md), `docs/quality/RELEASE_CLAIM_GATE.md`, `scripts/Invoke-RealLlmEvidenceGate.ps1`, `scripts/collect-first-pilot-proof.ps1`, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`, `docs/library/AGENT_OUTPUT_EVALUATION.md`.
 
 ---
 
@@ -226,7 +226,61 @@ The `sponsorSafeSummary` paragraph must:
 
 ---
 
-## 8. Buyer-safe evidence inventory
+## AI output is decision support {#ai-output-is-decision-support}
+
+Former standalone body: `docs/go-to-market/AI_OUTPUT_DECISION_SUPPORT.md` → this section (filename kept as a path-stable pack alias).
+
+**Audience:** Sponsors, procurement, and security reviewers evaluating ArchLucid outputs.
+
+ArchLucid uses AI to accelerate architecture review. **AI-generated text is decision support.** Your team approves final decisions using persisted evidence, not model prose alone.
+
+### What you can rely on
+
+| Evidence type | Role |
+| --- | --- |
+| Finalized architecture package | Frozen package identity and timestamps (API: golden manifest) |
+| Findings and severity | Structured outputs tied to evidence references |
+| Execution traces and audit rows | Durable, exportable activity with correlation ids |
+| Evidence-chain pointers | Links from findings back to snapshots and manifests |
+| Governance records | Policy packs, approvals, and pre-finalize gates when enabled |
+
+### What requires human judgment
+
+- Whether a recommendation fits your organizational standards
+- Whether projected ROI or cycle-time savings apply to your estate
+- Whether demo or simulator runs represent customer outcomes
+
+### Evidence-basis labels (on exports)
+
+Sponsor and operator surfaces use shared labels from [`../library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md):
+
+| Label | Meaning |
+| --- | --- |
+| **Evidence-backed** | Persisted citations or complete proof fields support the narrative |
+| **Estimate** | Fallback ROI, defaulted baselines, or heuristic context |
+| **Low support** | Faithfulness or PilotStrict evidence below sponsor-safe threshold |
+| **Demo-derived** | Sample/demo workspace — illustrative only |
+| **Manual review required** | Incomplete evidence or simulator substitution must be disclosed |
+| **Deferred scope** | Buyer ask is outside current V1 readiness |
+
+These labels describe **product evidence posture**, not legal, compliance, or audit attestation.
+
+### Limits we do not claim
+
+- Formal verification of AI recommendations
+- Guaranteed correctness in all enterprise contexts
+- SOC 2 CPA attestation or completed third-party penetration testing (see [`trust-center.md`](trust-center.md) and [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md))
+
+### Deeper technical evidence
+
+- [`../library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)
+- [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) — Limits of AI explanations
+- [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
+- [`#buyer-safe-evidence-inventory`](#buyer-safe-evidence-inventory) — repository AI evidence index
+
+---
+
+## 8. Buyer-safe evidence inventory {#buyer-safe-evidence-inventory}
 
 > Index of **current** AI evidence in the repository. Does **not** claim third-party validation or fresh live-model proof unless explicitly noted. Former standalone: `AI_EVIDENCE_APPENDIX.md`.
 
@@ -356,8 +410,10 @@ Former standalone: `docs/go-to-market/DEEPER_RAG_QUALITY_PROGRAM.md` → this se
 | `docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md` | Template for real-mode run evidence |
 | `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` | Golden cohort gate runbook |
 | `docs/library/AGENT_OUTPUT_EVALUATION.md` | Agent output evaluation framework |
+| [`#ai-output-is-decision-support`](#ai-output-is-decision-support) · [`AI_OUTPUT_DECISION_SUPPORT.md`](AI_OUTPUT_DECISION_SUPPORT.md) (alias) | Buyer-facing AI decision-support limits |
 | [`#buyer-safe-evidence-inventory`](#buyer-safe-evidence-inventory) | Buyer-safe AI evidence index (sponsor packets) |
 | [`#deeper-rag-quality-program`](#deeper-rag-quality-program) | Offline RAG quality program (phases + runner) |
+| [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) | Canonical assurance wording |
 | `scripts/Invoke-RealLlmEvidenceGate.ps1` | Generates real-mode evidence artifact |
 | `scripts/collect-first-pilot-proof.ps1` | Assembles first-pilot proof bundle |
 | `PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise` | GTM overclaim guardrails |
