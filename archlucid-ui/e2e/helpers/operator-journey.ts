@@ -684,9 +684,19 @@ export async function ensureBuyerDeliverablesSectionExpanded(page: Page, runId?:
 
 /** Buyer-polished run detail collapses `#sponsor-handoff` (Time-to-Value banner) by default — expand before sponsor PDF assertions. */
 export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, runId?: string): Promise<void> {
-  let sponsorHandoff = page.locator("#sponsor-handoff").first();
+  // `#sponsor-handoff` lives on the Activity workspace tab (see LEGACY_HASH_TO_TAB).
+  const sponsorHandoff = page.locator("#sponsor-handoff").first();
+  const sectionNav = buyerPolishedReviewDetailSectionNav(page);
 
-  if ((await sponsorHandoff.count()) === 0 || !(await sponsorHandoff.isVisible())) {
+  if ((await sectionNav.count()) > 0) {
+    const sponsorNavLink = buyerPolishedReviewDetailSectionNavLink(sectionNav, "sponsor-handoff");
+
+    if ((await sponsorNavLink.count()) > 0) {
+      await sponsorNavLink.click();
+    } else if (runId !== undefined && runId.trim().length > 0) {
+      await openReviewDetailWorkspaceTab(page, runId, "activity");
+    }
+  } else if ((await sponsorHandoff.count()) === 0 || !(await sponsorHandoff.isVisible())) {
     if (runId !== undefined && runId.trim().length > 0) {
       await openReviewDetailWorkspaceTab(page, runId, "activity");
     } else if ((await buyerPolishedReviewDetailWorkspace(page).count()) > 0) {
@@ -695,9 +705,10 @@ export async function ensureBuyerExecutiveBriefingSectionExpanded(page: Page, ru
     }
   }
 
-  sponsorHandoff = page.locator("#sponsor-handoff").first();
+  // Wait before scroll — scrollIntoViewIfNeeded alone absorbs the full test timeout when the
+  // node is still unmounted (wrong tab or below-fold deferred gate).
+  await expect(sponsorHandoff).toBeVisible({ timeout: 90_000 });
   await sponsorHandoff.scrollIntoViewIfNeeded();
-  await expect(sponsorHandoff).toBeVisible({ timeout: 60_000 });
 
   const briefingDetails = page.locator("details:has(#sponsor-handoff)").first();
 

@@ -48,6 +48,42 @@ type RunDetailSponsorBriefingSectionProps = {
   readonly sponsorDocxAvailable: boolean;
 };
 
+/** Inputs already on the first-screen run-detail model — no below-fold deferred fetch required. */
+export type RunDetailSponsorBriefingModelSlice = {
+  readonly showPilotScorecardPackageCta: boolean;
+  readonly manifestId: string | null | undefined;
+  readonly routeRunId: string;
+  readonly usedStaticDemoRun: boolean;
+  readonly buyerPolishedArtifactTable: boolean;
+  readonly artifacts: readonly { readonly artifactId?: string | null }[];
+};
+
+/**
+ * Time-to-Value / sponsor PDF CTA. Kept outside {@link RunDetailBelowFoldSections}' deferred await
+ * so `#sponsor-handoff` mounts when the Activity tab opens even if pipeline timeline fetch is slow.
+ */
+export function resolveRunDetailSponsorBriefingSection(
+  model: RunDetailSponsorBriefingModelSlice,
+): ReactElement | null {
+  const manifestId = model.manifestId?.trim() ?? "";
+
+  if (!model.showPilotScorecardPackageCta || manifestId.length === 0) {
+    return null;
+  }
+
+  return (
+    <RunDetailSponsorBriefingSection
+      runId={model.routeRunId}
+      manifestId={manifestId}
+      curatedSampleRun={model.usedStaticDemoRun}
+      buyerPolishedArtifactTable={model.buyerPolishedArtifactTable}
+      sponsorDocxAvailable={model.artifacts.some(
+        (artifact) => artifact.artifactId === "architecture-review-board",
+      )}
+    />
+  );
+}
+
 export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingSectionProps): ReactElement {
   const { runId, manifestId, curatedSampleRun, buyerPolishedArtifactTable, sponsorDocxAvailable } = props;
 
