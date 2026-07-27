@@ -9,6 +9,7 @@ import type {
   GovernanceSetupFoundationIndicator,
   GovernanceSetupStepStatus,
 } from "./governance-setup-guide-types";
+import { shouldShowGovernanceSetupFoundationPanel } from "./should-show-governance-setup-foundation-panel";
 
 type GovernanceSetupFoundationPanelProps = {
   readonly indicators: readonly GovernanceSetupFoundationIndicator[];
@@ -19,6 +20,10 @@ export function GovernanceSetupFoundationPanel({
   indicators,
   stepStatuses,
 }: GovernanceSetupFoundationPanelProps) {
+  if (!shouldShowGovernanceSetupFoundationPanel(indicators, stepStatuses)) {
+    return null;
+  }
+
   return (
     <section
       aria-labelledby="governance-foundation-heading"

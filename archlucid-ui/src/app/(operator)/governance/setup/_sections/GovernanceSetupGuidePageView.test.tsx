@@ -39,7 +39,10 @@ describe("GovernanceSetupGuidePageView", () => {
     expect(screen.getByTestId("governance-setup-step-2-cta")).toHaveAttribute("data-cta-variant", "outline");
     expect(screen.getByTestId("governance-setup-step-5-cta")).toHaveAttribute("data-cta-variant", "outline");
     expect(screen.getAllByText("Not started")).toHaveLength(1);
-    expect(screen.getByTestId("governance-setup-foundation-panel")).toBeInTheDocument();
+    // TB-1138: no all-Pending foundation theater under an untouched checklist.
+    expect(screen.queryByTestId("governance-setup-foundation-panel")).not.toBeInTheDocument();
+    expect(screen.queryByText("Governance foundation")).not.toBeInTheDocument();
+    expect(screen.queryByText("Pending")).not.toBeInTheDocument();
   });
 
   it("keeps status badges on active steps and demotes non-recommended CTAs", () => {
@@ -64,5 +67,7 @@ describe("GovernanceSetupGuidePageView", () => {
       "href",
       "/integrations/readiness",
     );
+    // TB-1138: foundation panel appears once a mapped indicator is complete.
+    expect(screen.getByTestId("governance-setup-foundation-panel")).toBeInTheDocument();
   });
 });
