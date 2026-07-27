@@ -187,9 +187,6 @@ def rules_for_file(path: Path) -> list[tuple[str, str]]:
             ("](AZURE_MARKETPLACE_SAAS_OFFER.md)", "](../../AZURE_MARKETPLACE_SAAS_OFFER.md)"),
         ])
 
-    if rel == "docs/go-to-market/UI_GLOSSARY_V1.md":
-        rules.append(("](../../library/", "](../library/"))
-
     if rel == "docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md":
         rules.append(("](ARCHITECTURE_ON_ONE_PAGE.md)", "](../ARCHITECTURE_ON_ONE_PAGE.md)"))
 

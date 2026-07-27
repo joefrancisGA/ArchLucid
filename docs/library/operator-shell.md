@@ -25,7 +25,7 @@ A read-focused **workspace** for the three ArchLucid product layers:
 
 It is not a replacement for Swagger or the CLI. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full capability inventory.
 
-**Related guides:** [First-review guide](FIRST_HOUR_OPERATOR_PATH.md), [Core Pilot walkthrough](../CORE_PILOT.md), [Pilot guide](customer-facing/PILOT_GUIDE.md). Keep wording aligned with [Concept vocabulary](CONCEPT_VOCABULARY.md) and [UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md).
+**Related guides:** [First-review guide](FIRST_HOUR_OPERATOR_PATH.md), [Core Pilot walkthrough](../CORE_PILOT.md), [Pilot guide](customer-facing/PILOT_GUIDE.md). Keep wording aligned with [Concept vocabulary](CONCEPT_VOCABULARY.md) and [UI Glossary V1](CONCEPT_VOCABULARY.md#ui-glossary-v1).
 
 ---
 
@@ -50,7 +50,7 @@ Long-form “when to expand” tables remain in the deployment decision guide; t
 
 These four steps cover the complete first-review journey. They map directly to the **first-review checklist** on the Home page.
 
-1. **Start** — Open the app root (`/`). First-time users: use the **first-review checklist** on Home for step-by-step links (start a review → pipeline → finalize → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Review work** group shows **Home**, **Onboarding**, **New request** (wizard), and **Reviews** by default (labels in the live UI follow **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**). The wizard lives at **`/reviews/new`** (legacy **`/runs/new`** may redirect; same **`POST /v1/architecture/request`** body shape as the API — see **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)**).
+1. **Start** — Open the app root (`/`). First-time users: use the **first-review checklist** on Home for step-by-step links (start a review → pipeline → finalize → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Review work** group shows **Home**, **Onboarding**, **New request** (wizard), and **Reviews** by default (labels in the live UI follow **[UI Glossary V1](CONCEPT_VOCABULARY.md#ui-glossary-v1)**). The wizard lives at **`/reviews/new`** (legacy **`/runs/new`** may redirect; same **`POST /v1/architecture/request`** body shape as the API — see **[`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)**).
 2. **Reviews** — Open **Reviews** → pick a project (default `default`) → **Open review** on a row (empty list shows a create flow CTA).
 3. **Review detail** — **Pipeline timeline** lists review-scoped audit events (oldest first) from **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. After you **finalize** the review, you see architecture snapshot summary, **Artifacts** (table with **Review** / **Download**).
 4. **Architecture snapshot / artifact** — From the architecture snapshot link or **Review**, you land on snapshot-scoped or artifact review pages: metadata, in-workspace preview (when available), raw disclosure, sibling artifact list.
@@ -139,14 +139,14 @@ Filter durable `IAuditService` rows (event type, local **from/to** window, corre
 
 ## For contributors: buyer ↔ technical vocabulary
 
-Canonical buyer ↔ technical mapping (REST paths and type names unchanged): **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**. Summary:
+Canonical buyer ↔ technical mapping (REST paths and type names unchanged): **[UI Glossary V1](CONCEPT_VOCABULARY.md#ui-glossary-v1)**. Summary:
 
 - **Review** ↔ run / `ArchitectureRun` / run-scoped APIs under `/v1/...`.
 - **Finalize (review)** ↔ commit and golden **architecture snapshot** persistence.
 - **Architecture snapshot** / **Snapshot** ↔ manifest / `GoldenManifest`.
 - **Evidence graph** ↔ internal knowledge-graph projections; route **`/graph`** is unchanged.
 
-Onboarding pointers: **[`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** (single V1 pilot path), **[`CORE_PILOT.md`](../CORE_PILOT.md)**, **[`customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md)**. Keep wording aligned with **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** and **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**.
+Onboarding pointers: **[`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** (single V1 pilot path), **[`CORE_PILOT.md`](../CORE_PILOT.md)**, **[`customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md)**. Keep wording aligned with **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** and **[UI Glossary V1](CONCEPT_VOCABULARY.md#ui-glossary-v1)**.
 
 ---
 

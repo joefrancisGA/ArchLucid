@@ -4,7 +4,7 @@
 
 # Go-to-market samples
 
-Sanitized artifacts for procurement, landing pages, and format previews. Buyer-facing vocabulary follows [`UI_GLOSSARY_V1.md`](../UI_GLOSSARY_V1.md) (improvement #27).
+Sanitized artifacts for procurement, landing pages, and format previews. Buyer-facing vocabulary follows [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](../../library/CONCEPT_VOCABULARY.md#ui-glossary-v1) (improvement #27).
 
 ## Architecture review board packet (DOCX/PDF) {#architecture-review-board-export}
 
@@ -27,7 +27,7 @@ Former standalone: `docs/go-to-market/ARCHITECTURE_REVIEW_BOARD_EXPORT.md` → t
 4. **Consulting DOCX:** use **Export to DOCX** when your principal includes `export:consulting-docx` — this uses the consulting analysis template, not the architecture review board packet described here.
 5. **Architecture review board packet (DOCX/PDF):** generation is implemented in application code (`IArchitectureReviewExportService`). Dedicated UI controls and a versioned HTTP download mirroring consulting exports may ship in a follow-on; hosts with internal composition can invoke the service directly (see below).
 
-Vocabulary for labels and headings aligns with [`UI_GLOSSARY_V1.md`](../UI_GLOSSARY_V1.md): **Review**, **Finalize review**, **Architecture snapshot**, **Evidence graph** (UI) vs run/commit/manifest/knowledge graph (technical).
+Vocabulary for labels and headings aligns with [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](../../library/CONCEPT_VOCABULARY.md#ui-glossary-v1): **Review**, **Finalize review**, **Architecture snapshot**, **Evidence graph** (UI) vs run/commit/manifest/knowledge graph (technical).
 
 #### API (consulting DOCX — live surface)
 
@@ -123,4 +123,4 @@ Optional: **`ARCHLUCID_REPO_ROOT`** when the test cannot walk to a directory con
 - [x] Tests exercise DOCX/PDF **with whitelabel plus logo** (`ArchitectureReviewBoardExportDocxStructureTests`, `ArchitectureReviewBoardExportPdfStructureTests`, pipeline integration tests).
 - [x] Sample **DOCX** and **PDF** exist under **`docs/go-to-market/samples/`** for marketing links.
 - [x] Logo handling security checklist documented (this page).
-- [x] Export copy uses glossary-aligned terms (**architecture snapshot**, **finalize/finalized review**, **review** context) per **#27** and [`UI_GLOSSARY_V1.md`](../UI_GLOSSARY_V1.md).
+- [x] Export copy uses glossary-aligned terms (**architecture snapshot**, **finalize/finalized review**, **review** context) per **#27** and [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](../../library/CONCEPT_VOCABULARY.md#ui-glossary-v1).

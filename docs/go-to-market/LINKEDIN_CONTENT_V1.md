@@ -1841,7 +1841,7 @@ Our answer is not dumbing down analysis. It is **disciplined layering**: plain l
 
 **What we banned (slowly, with grep)**
 
-We ratified product language in the UI design standard and **`UI_GLOSSARY_V1.md`**:
+We ratified product language in the UI design standard and **`CONCEPT_VOCABULARY.md#ui-glossary-v1`**:
 
 | Prefer | Avoid (on normal surfaces) |
 | --- | --- |
@@ -1898,7 +1898,7 @@ Big words without evidence are noise. Plain sentences with citations are governa
 
 **Building the glossary was cheaper than rebuilding trust**
 
-We maintain **`UI_GLOSSARY_V1.md`** as the single vocabulary table for architect workspace, GTM, and demo scripts — buyer-facing term on the left, technical truth on the right.
+We maintain **`CONCEPT_VOCABULARY.md#ui-glossary-v1`** as the single vocabulary table for architect workspace, GTM, and demo scripts — buyer-facing term on the left, technical truth on the right.
 
 That file exists because drift is automatic:
 
@@ -1971,7 +1971,7 @@ Your sponsor should not need aspirin.
 >
 > [Link]"
 
-**Format:** Short link post. Plain tone; no quantified customer claims. Point readers to [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) only in comments if asked — not as a raw repo link in the post unless you use a public-facing URL.
+**Format:** Short link post. Plain tone; no quantified customer claims. Point readers to [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](../library/CONCEPT_VOCABULARY.md#ui-glossary-v1) only in comments if asked — not as a raw repo link in the post unless you use a public-facing URL.
 
 ---
 

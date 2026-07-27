@@ -62,7 +62,7 @@ Canonical in-product labels: [`buyer-surface-vocabulary.ts`](../../archlucid-ui/
 | Positioning one-noun-two-verbs | **TB-746** | This document’s §0 alignment |
 | Create intake feels like drafting | **TB-747** | Create wizard differentiated from evidence-only review intake |
 
-Related: [`UI_GLOSSARY_V1.md`](UI_GLOSSARY_V1.md) (**Architecture package**) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+Related: [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](../library/CONCEPT_VOCABULARY.md#ui-glossary-v1) (**Architecture package**) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
 ---
 

@@ -64,7 +64,7 @@ These tables define the canonical fields on each authoritative record type. They
 
 ## Related canonical reads
 
-- **UI term mapping:** [`../go-to-market/UI_GLOSSARY_V1.md`](../../go-to-market/UI_GLOSSARY_V1.md) — label-level alignment for public shell copy.
+- **UI term mapping:** [`../CONCEPT_VOCABULARY.md#ui-glossary-v1`](../CONCEPT_VOCABULARY.md#ui-glossary-v1) — label-level alignment for public shell copy.
 - **Authority and traces:** [`../architecture/README.md`](../../architecture/README.md) · ADR **`0012`**, **`0010`**.
 - **Audit event model:** [`AUDIT_EVENT_MODEL.md`](../AUDIT_EVENT_MODEL.md) — canonical audit event fields and immutability rules.
 - **Customer glossary:** in-app `/help/glossary` (`archlucid-ui/src/lib/customer-glossary-manifest.ts`).

@@ -13,7 +13,7 @@ ArchLucid docs intentionally separate:
 
 **Rule of thumb:** hosted-SaaS pilots use the product UI and Trust Center paths; engineers live under `engineering/`, `runbooks/`, and `library/` references. If a change touches HTTP JSON or operator-visible behavior, refresh **customer-facing** summaries only when behavior is customer-visible; otherwise prefer **operator** or **contributor** libraries.
 
-**Persona copy vs doc audience:** The **Operator / tenant admin** row names a legitimate **internal** documentation reader (runbooks, diagnostics, tenancy ops). When writing **customer-visible** UI strings, help, or GTM, do **not** default to "operator" voice — use persona terms from [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) § Persona terms (**Architect**, **Executive**, **Admin**, **Reviewer**, **Approver**, **Governance lead**, **Sponsor**). Reserve **Operator** for internal-only surfaces and contributor docs unless you are explicitly documenting diagnostics or the `(operator)` implementation shell.
+**Persona copy vs doc audience:** The **Operator / tenant admin** row names a legitimate **internal** documentation reader (runbooks, diagnostics, tenancy ops). When writing **customer-visible** UI strings, help, or GTM, do **not** default to "operator" voice — use persona terms from [`CONCEPT_VOCABULARY.md#persona-terms`](CONCEPT_VOCABULARY.md#persona-terms) (**Architect**, **Executive**, **Admin**, **Reviewer**, **Approver**, **Governance lead**, **Sponsor**). Reserve **Operator** for internal-only surfaces and contributor docs unless you are explicitly documenting diagnostics or the `(operator)` implementation shell.
 
 ## Quick route by role (TB-013)
 
@@ -100,6 +100,6 @@ Default **depth-first** material belongs under **`docs/library/`** or a topic su
 ## Related
 
 - [`docs/architecture/INFORMATION_ARCHITECTURE.md`](../architecture/INFORMATION_ARCHITECTURE.md) — five-category in-app and public-surface content taxonomy (`contentKind` on `/help` registry)
-- [`docs/go-to-market/UI_GLOSSARY_V1.md`](../go-to-market/UI_GLOSSARY_V1.md) — persona terms for customer-visible copy
+- [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](CONCEPT_VOCABULARY.md#ui-glossary-v1) — persona terms for customer-visible copy
 - [`docs/library/customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md)
 - [`docs/CONTRIBUTOR_ON_ONE_PAGE.md`](../CONTRIBUTOR_ON_ONE_PAGE.md)

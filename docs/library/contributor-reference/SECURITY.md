@@ -31,4 +31,4 @@ This index points contributors to security-relevant behavior and gates. It is no
 
 - **API key rotation:** [`../../runbooks/API_KEY_ROTATION.md`](../../runbooks/API_KEY_ROTATION.md)
 - **System-wide STRIDE summary:** [`../../security/SYSTEM_THREAT_MODEL.md`](../../security/SYSTEM_THREAT_MODEL.md)
-- **UI term mapping:** [`../../go-to-market/UI_GLOSSARY_V1.md`](../../go-to-market/UI_GLOSSARY_V1.md)
+- **UI term mapping:** [`../CONCEPT_VOCABULARY.md#ui-glossary-v1`](../CONCEPT_VOCABULARY.md#ui-glossary-v1)
