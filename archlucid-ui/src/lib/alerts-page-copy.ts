@@ -45,7 +45,7 @@ export const ALERTS_EMPTY_FILTERED_BODY =
 export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES = "Open reviews";
 export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW = "Start architecture review";
 export const ALERTS_ACTION_CONFIGURE_ALERT_RULES = "Configure alerts";
-export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open governance setup guide";
+export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open governance setup";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW = "Open governance workflow";
 
 /** @deprecated Use {@link ALERTS_ACTION_CONFIGURE_ALERT_RULES}. */

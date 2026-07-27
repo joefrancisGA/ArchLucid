@@ -51,7 +51,7 @@ describe("buildAlertsInboxEmptyStateProps", () => {
     expect(props.title).toBe(ALERTS_EMPTY_NO_RULES_TITLE);
     expect(props.actions?.[0]?.label).toBe(ALERTS_ACTION_CONFIGURE_ALERT_RULES);
     expect(props.actions?.[0]?.href).toBe("/governance/alert-rules");
-    expect(props.actions?.[1]?.label).toBe("Open governance setup guide");
+    expect(props.actions?.[1]?.label).toBe("Open governance setup");
   });
 
   it("maps no_reviews to start architecture review CTA", () => {

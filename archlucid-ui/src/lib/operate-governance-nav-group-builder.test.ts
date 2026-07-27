@@ -12,12 +12,12 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     expect(workflowLink?.label).toBe("Approval queue");
   });
 
-  it("includes Governance setup guide in governance nav (TB-520)", () => {
+  it("includes Governance setup in governance nav (TB-520 / TB-1135)", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
     const setupGuide = group.links.find((link) => link.href === "/governance/setup");
 
     expect(setupGuide).toBeDefined();
-    expect(setupGuide?.label).toBe("Governance setup guide");
+    expect(setupGuide?.label).toBe("Governance setup");
     expect(setupGuide?.title?.toLowerCase()).not.toContain("evaluation");
     expect(setupGuide?.title?.toLowerCase()).not.toContain("pilot");
   });

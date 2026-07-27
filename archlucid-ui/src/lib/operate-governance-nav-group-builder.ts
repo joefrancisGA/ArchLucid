@@ -135,7 +135,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: GOVERNANCE_SETUP_HREF,
           label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
-          title: "Governance setup guide — operating rhythm for approvals, audit, and policy packs",
+          title: "Governance setup — operating rhythm for approvals, audit, and policy packs",
           icon: CalendarCheck,
           tier: "extended",
           requiredAuthority: "ReadAuthority",

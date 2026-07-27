@@ -25,16 +25,6 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
         title="Governance setup"
         titleTestId="governance-setup-page-title"
         subtitle="Establish the core policies, alerts, approvals, and reporting your workspace needs."
-        metadata={
-          <span
-            className={cn(
-              "inline-flex items-center rounded-md border border-neutral-300 bg-neutral-100 px-2 py-0.5 font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-300",
-              OPERATOR_TYPOGRAPHY.micro,
-            )}
-          >
-            First 30 days
-          </span>
-        }
       >
         <GovernanceSetupGuideProgressSummary summary={progress} />
       </OperatorPageHeader>

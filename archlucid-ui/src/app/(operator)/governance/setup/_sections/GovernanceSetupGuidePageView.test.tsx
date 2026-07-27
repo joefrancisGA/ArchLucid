@@ -20,7 +20,8 @@ describe("GovernanceSetupGuidePageView", () => {
     );
 
     expect(screen.getByTestId("governance-setup-page-title")).toHaveTextContent("Governance setup");
-    expect(screen.getByText("First 30 days")).toBeInTheDocument();
+    // TB-1135: no orphan program chip competing with the H1 product name.
+    expect(screen.queryByText("First 30 days")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-setup-progress-summary")).toHaveTextContent("0 of 5 completed");
     expect(screen.getByTestId("governance-setup-configuration-note")).toHaveTextContent(
       "This guide links to the existing ArchLucid configuration areas.",
