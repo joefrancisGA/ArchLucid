@@ -12,7 +12,7 @@
 | **SAQ-007** | **Hold for evidence** (controlled pilot OK) | ≥1 reference real-mode run via `Invoke-RealLlmEvidenceGate.ps1`; sponsor handoff HOLD without real-mode proof | Sponsor packet claims real AI without `realModeEvidenceStatus=PASS` | **Founder** signs Stage 0→1; engineering attaches CI/AOAI evidence |
 | **SAQ-008** | **Act now** (thresholds locked) | `simulator-live-divergence-summary.json` in RC bundle | Schema-valid divergence >15% on golden cohort OR >2 consecutive real runs with faithfulness HOLD | Engineering — narrow claims or block RC strict mode |
 | **SAQ-010** | **Act now** (selective enforcement) | `architecture-invariant-rc-summary.json` with P0 invariants enforced or explicitly waived | Any P0 invariant convention-only without documented waiver | Engineering — `report_architecture_invariant_enforcement.py` |
-| **SAQ-011** | **Act now** (audit complete) | [`SPONSOR_CLAIM_LABEL_AUDIT.md`](../go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md) checklist green | Any sponsor export missing execution mode or evidence-basis labels | Engineering — formatter/UI copy fix |
+| **SAQ-011** | **Act now** (audit complete) | [`CLAIM_READINESS_STATUS.md#sponsor-claim-and-execution-mode-label-audit`](../go-to-market/CLAIM_READINESS_STATUS.md#sponsor-claim-and-execution-mode-label-audit) checklist green (`SPONSOR_CLAIM_LABEL_AUDIT.md` alias) | Any sponsor export missing execution mode or evidence-basis labels | Engineering — formatter/UI copy fix |
 
 ## SAQ-007 — Minimum real-mode evidence
 
@@ -65,7 +65,7 @@
 
 **Current assumption:** No sponsor surface may imply production-grade AI or availability without execution mode + evidence basis labels.
 
-**Audit reference:** [`SPONSOR_CLAIM_LABEL_AUDIT.md`](../go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md)
+**Audit reference:** [`CLAIM_READINESS_STATUS.md#sponsor-claim-and-execution-mode-label-audit`](../go-to-market/CLAIM_READINESS_STATUS.md#sponsor-claim-and-execution-mode-label-audit) (`SPONSOR_CLAIM_LABEL_AUDIT.md` alias)
 
 **RC requirement:** G1 **PASS**; spot-check one committed run after formatter changes.
 

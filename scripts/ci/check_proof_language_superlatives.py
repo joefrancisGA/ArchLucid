@@ -4,7 +4,7 @@
 Implements the regression guard for the proof-language claim audit
 (assessment LATEST_GPT55 §17 #7). A superlative term is reported only when the
 line carries no caveat/backing marker, so honest "do not promise" rows and
-source-labeled estimates pass. See docs/go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md#proof-language-claim-audit-static-buyer-docs.
+source-labeled estimates pass. See docs/go-to-market/CLAIM_READINESS_STATUS.md#proof-language-claim-audit-static-buyer-docs.
 """
 
 from __future__ import annotations

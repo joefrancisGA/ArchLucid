@@ -105,5 +105,5 @@ The existing `real-llm-evidence-gate.json` (quad-agent path) and per-run templat
 - [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md) — run matrix, PASS/WARN/HOLD, sponsor-send stop conditions
 - [`faithfulness-report.md`](faithfulness-report.md) — offline retrieval support ratio (parity signal only)
 - [`RELEASE_CLAIM_GATE.md`](RELEASE_CLAIM_GATE.md) — where the rollup attaches at RC
-- [`SPONSOR_CLAIM_LABEL_AUDIT.md`](../go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md#appendix--sendno-send-hardening-review-2026-06-16) — sponsor-surface send/no-send audit
+- [`CLAIM_READINESS_STATUS.md#appendix--sendno-send-hardening-review-2026-06-16`](../go-to-market/CLAIM_READINESS_STATUS.md#appendix--sendno-send-hardening-review-2026-06-16) — sponsor-surface send/no-send audit (`SPONSOR_CLAIM_LABEL_AUDIT.md` alias)
 - [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) — agent quality vocabulary

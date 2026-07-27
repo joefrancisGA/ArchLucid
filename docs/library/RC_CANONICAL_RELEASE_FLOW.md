@@ -94,4 +94,4 @@ Runbook: [`WEEKLY_PROOF_CADENCE.md`](../runbooks/WEEKLY_PROOF_CADENCE.md).
 | [`V1_RELEASE_CHECKLIST.md`](V1_RELEASE_CHECKLIST.md) | Human checklist (boxes) |
 | [`RELEASE_LOCAL.md`](RELEASE_LOCAL.md) | Script reference |
 | [`RC_RELEASE_GATE.md`](../runbooks/RC_RELEASE_GATE.md) | CI workflow policy |
-| [`SPONSOR_CLAIM_LABEL_AUDIT.md`](../go-to-market/SPONSOR_CLAIM_LABEL_AUDIT.md) | Sponsor export label guards |
+| [`CLAIM_READINESS_STATUS.md#sponsor-claim-and-execution-mode-label-audit`](../go-to-market/CLAIM_READINESS_STATUS.md#sponsor-claim-and-execution-mode-label-audit) (`SPONSOR_CLAIM_LABEL_AUDIT.md` alias) | Sponsor export label guards |

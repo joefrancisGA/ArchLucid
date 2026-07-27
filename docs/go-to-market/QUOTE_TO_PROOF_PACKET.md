@@ -178,7 +178,7 @@ Stop if exit code ≠ 0 or disposition = `HOLD`.
 **3 — Pre-send gate**
 
 - [`CLAIM_READINESS_STATUS.md#operating-checklist`](CLAIM_READINESS_STATUS.md#operating-checklist)
-- [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md#appendix--sendno-send-hardening-review-2026-06-16)
+- [`CLAIM_READINESS_STATUS.md#appendix--sendno-send-hardening-review-2026-06-16`](CLAIM_READINESS_STATUS.md#appendix--sendno-send-hardening-review-2026-06-16) (`SPONSOR_CLAIM_LABEL_AUDIT.md` alias)
 
 **4 — Mock procurement review**
 
