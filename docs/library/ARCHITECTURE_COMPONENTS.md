@@ -142,7 +142,7 @@ Manifest and decision-trace persistence use a single contract family under **`Ar
 - **`IArchitectureReviewExportService` / `ArchitectureReviewExportService`**: DOCX/PDF export for a **finalized review** (committed architecture snapshot). Hydrates **`ArchitectureRunDetail`** via **`IRunDetailQueryService`**, builds **`ArchitectureAnalysisReport`** via **`IArchitectureAnalysisService`**, then renders through board builders. Throws **`RunNotFoundException`** / **`ConflictException`** when the review is missing, not finalized, or references a broken snapshot load.
 - **`ArchitectureReviewBoardExportDocumentFactory`**: Maps run detail + analysis report → **`ArchitectureReviewBoardExportDocumentModel`**. Cover and section copy use buyer-facing glossary terms (for example **architecture snapshot**, **Review ID**) aligned with **`docs/library/CONCEPT_VOCABULARY.md#ui-glossary-v1`**.
 - **`ArchitectureReviewDocxBuilder`** / **`ArchitectureReviewPdfBuilder`**: Nine-section packet (executive summary through recommended actions). Optional **`WhitelabelConfiguration`** and embedded cover logo (PNG/JPEG magic-byte validation via **`ArchitectureReviewBoardCoverLogoValidator`**).
-- **`ArchitectureReviewBoardExportProfile.Token`**: Stable wire slug **`architecture-review-board`** for audit/export metadata. Operator-facing overview: **`docs/go-to-market/samples/README.md#architecture-review-board-export`**.
+- **`ArchitectureReviewBoardExportProfile.Token`**: Stable wire slug **`architecture-review-board`** for audit/export metadata. Operator-facing overview: **`docs/go-to-market/DEMO_QUICKSTART.md#architecture-review-board-export`** (`samples/README.md` alias).
 
 ---
 
