@@ -3,12 +3,19 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS,
+  architectureIntelligenceReviewTierLabel,
+  isArchitectureIntelligenceReviewTier,
+  type ArchitectureIntelligenceReviewTier,
+} from "@/lib/architecture-intelligence-review-tier";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -196,6 +203,7 @@ function buildRequest(
     continueFromExistingRun?: boolean;
     publishToProduct?: boolean;
     hydratedSourceTexts?: ClosedLoopReasoningSourceText[];
+    reviewTier?: ArchitectureIntelligenceReviewTier;
   },
 ) {
   const trimmedDescription = architectureDescription.trim();
@@ -232,6 +240,7 @@ function buildRequest(
     runId: options?.runId ?? undefined,
     continueFromExistingRun: options?.continueFromExistingRun ?? false,
     publishToProduct: options?.publishToProduct ?? false,
+    reviewTier: options?.reviewTier ?? "Standard",
   };
 }
 
@@ -256,11 +265,17 @@ export function ArchitectureIntelligencePageClient() {
     "idle" | "loading" | "loaded" | "empty" | "error"
   >("idle");
   const [publishToProduct, setPublishToProduct] = useState(false);
+  const [reviewTier, setReviewTier] = useState<ArchitectureIntelligenceReviewTier>("Standard");
   const [loadingAction, setLoadingAction] = useState<
-    "reasoning" | "golden" | "fixture" | "continue" | "publish" | "product-context" | null
+    "reasoning" | "analyze" | "golden" | "fixture" | "continue" | "publish" | "product-context" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [runState, setRunState] = useState<RunState | null>(null);
+
+  const canAnalyzeHydratedReview =
+    productContextStatus === "loaded" &&
+    (activeRunId?.trim().length ?? 0) > 0 &&
+    architectureDescription.trim().length > 0;
 
   useEffect(() => {
     if (inboundRunId.length === 0) {
@@ -376,34 +391,63 @@ export function ArchitectureIntelligencePageClient() {
     return [...framing, ...evidence];
   }, [runState]);
 
-  const runReasoning = useCallback(async () => {
-    if (architectureDescription.trim().length === 0) {
-      setError("Architecture description is required (or load the golden fixture).");
+  const runReasoning = useCallback(
+    async (options?: { publish?: boolean; action?: "reasoning" | "analyze" }) => {
+      if (architectureDescription.trim().length === 0) {
+        setError("Architecture description is required (or load the golden fixture).");
+
+        return;
+      }
+
+      const shouldPublish = options?.publish ?? publishToProduct;
+      const action = options?.action ?? "reasoning";
+
+      setLoadingAction(action);
+      setError(null);
+
+      if (shouldPublish) {
+        setPublishToProduct(true);
+      }
+
+      try {
+        const result = await postJson<ClosedLoopReasoningResult>(
+          "/api/proxy/v1/architecture-intelligence/run",
+          buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, {
+            publishToProduct: shouldPublish,
+            runId: activeRunId,
+            hydratedSourceTexts,
+            reviewTier,
+          }),
+        );
+
+        setActiveRunId(result.runId ?? null);
+        setRunState({ kind: "reasoning", result });
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : String(cause));
+      } finally {
+        setLoadingAction(null);
+      }
+    },
+    [
+      architectureDescription,
+      prioritiesRaw,
+      interviewAnswers,
+      publishToProduct,
+      activeRunId,
+      hydratedSourceTexts,
+      reviewTier,
+    ],
+  );
+
+  const analyzeThisReview = useCallback(async () => {
+    if (!canAnalyzeHydratedReview) {
+      setError("Load a product review intake before analyzing this review.");
 
       return;
     }
 
-    setLoadingAction("reasoning");
-    setError(null);
-
-    try {
-      const result = await postJson<ClosedLoopReasoningResult>(
-        "/api/proxy/v1/architecture-intelligence/run",
-        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, {
-          publishToProduct,
-          runId: activeRunId,
-          hydratedSourceTexts,
-        }),
-      );
-
-      setActiveRunId(result.runId ?? null);
-      setRunState({ kind: "reasoning", result });
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
-    } finally {
-      setLoadingAction(null);
-    }
-  }, [architectureDescription, prioritiesRaw, interviewAnswers, publishToProduct, activeRunId, hydratedSourceTexts]);
+    await runReasoning({ publish: true, action: "analyze" });
+  }, [canAnalyzeHydratedReview, runReasoning]);
 
   const continueWithAnswers = useCallback(async () => {
     if (!activeRunId) {
@@ -423,6 +467,7 @@ export function ArchitectureIntelligencePageClient() {
           continueFromExistingRun: true,
           publishToProduct,
           hydratedSourceTexts,
+          reviewTier,
         }),
       );
 
@@ -433,7 +478,15 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers, publishToProduct, hydratedSourceTexts]);
+  }, [
+    activeRunId,
+    architectureDescription,
+    prioritiesRaw,
+    interviewAnswers,
+    publishToProduct,
+    hydratedSourceTexts,
+    reviewTier,
+  ]);
 
   const publishRun = useCallback(async () => {
     if (!activeRunId) {
@@ -453,6 +506,7 @@ export function ArchitectureIntelligencePageClient() {
           continueFromExistingRun: true,
           publishToProduct: true,
           hydratedSourceTexts,
+          reviewTier,
         }),
       );
 
@@ -462,7 +516,7 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers, hydratedSourceTexts]);
+  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers, hydratedSourceTexts, reviewTier]);
 
   const runGoldenTest = useCallback(async () => {
     const useFixture = architectureDescription.trim().length === 0 && hydratedSourceTexts.length === 0;
@@ -477,6 +531,7 @@ export function ArchitectureIntelligencePageClient() {
           useGoldenFixture: useFixture,
           hydratedSourceTexts,
           runId: activeRunId,
+          reviewTier,
         }),
       );
 
@@ -486,7 +541,7 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [architectureDescription, prioritiesRaw, interviewAnswers, hydratedSourceTexts, activeRunId]);
+  }, [architectureDescription, prioritiesRaw, interviewAnswers, hydratedSourceTexts, activeRunId, reviewTier]);
 
   const loadGoldenFixture = useCallback(async () => {
     setLoadingAction("fixture");
@@ -567,9 +622,46 @@ export function ArchitectureIntelligencePageClient() {
           />
         </div>
 
+        <div className="space-y-2">
+          <Label htmlFor="architecture-review-tier">Review tier (token budget)</Label>
+          <select
+            id="architecture-review-tier"
+            data-testid="architecture-intelligence-review-tier"
+            className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            value={reviewTier}
+            disabled={isBusy}
+            onChange={(event) => {
+              const next = event.target.value;
+
+              if (isArchitectureIntelligenceReviewTier(next)) {
+                setReviewTier(next);
+              }
+            }}
+          >
+            {ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS.map((tier) => (
+              <option key={tier} value={tier}>
+                {architectureIntelligenceReviewTierLabel(tier)}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="flex flex-wrap gap-2">
+          {canAnalyzeHydratedReview ? (
+            <Button
+              type="button"
+              data-testid="architecture-intelligence-analyze-review-button"
+              disabled={isBusy}
+              onClick={() => void analyzeThisReview()}
+            >
+              {loadingAction === "analyze"
+                ? "Analyzing and publishing…"
+                : "Analyze this review"}
+            </Button>
+          ) : null}
           <Button
             type="button"
+            variant={canAnalyzeHydratedReview ? "outline" : "primary"}
             data-testid="architecture-intelligence-run-button"
             disabled={isBusy}
             onClick={() => void runReasoning()}
@@ -615,6 +707,12 @@ export function ArchitectureIntelligencePageClient() {
           />
           Publish gated findings/recommendations into product stores on run
         </label>
+        {canAnalyzeHydratedReview ? (
+          <p className={cn(OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-analyze-hint">
+            Analyze this review runs closed-loop reasoning for the hydrated product run and publishes gated
+            output into findings/advisory.
+          </p>
+        ) : null}
 
         {activeRunId ? (
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-run-id">
@@ -714,21 +812,16 @@ function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenc
           : ""}
       </p>
 
-      {props.result.publishedToProduct ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-published">
-          Published to product stores
-          {props.result.publishedFindingsSnapshotId
-            ? ` · findings snapshot ${props.result.publishedFindingsSnapshotId}`
-            : ""}
-          {typeof props.result.publishedRecommendationCount === "number"
-            ? ` · ${props.result.publishedRecommendationCount} recommendations`
-            : ""}
-        </p>
-      ) : null}
+      <ArchitectureIntelligenceProductRoundTrip
+        runId={props.result.runId}
+        publishedToProduct={props.result.publishedToProduct === true}
+        publishedRecommendationCount={props.result.publishedRecommendationCount}
+        publishSkipReason={props.result.publishSkipReason}
+      />
 
-      {props.result.publishSkipReason ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-publish-skip">
-          Publish skipped: {props.result.publishSkipReason}
+      {props.result.publishedToProduct && props.result.publishedFindingsSnapshotId ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-published">
+          Findings snapshot {props.result.publishedFindingsSnapshotId}
         </p>
       ) : null}
 

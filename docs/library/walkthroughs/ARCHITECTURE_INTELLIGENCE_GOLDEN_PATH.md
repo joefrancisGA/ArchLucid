@@ -34,14 +34,16 @@ Direct URL: `/architecture-intelligence` (or load the golden fixture for a canne
 
 ### 3. Run closed-loop reasoning
 
-1. Click **Run architecture reasoning** (keeps the product `runId` so publish lands on the same review).
-2. Point out:
+1. Choose a **Review tier** (Trial / Standard / Deep) to show unit-economics tradeoffs.
+2. From a hydrated product run: click **Analyze this review** (runs + publishes gated output in one step).
+   Otherwise: **Run architecture reasoning** (optionally with publish-on-run), then **Publish to findings/advisory**.
+3. Point out:
    - Model elements extracted (or heuristic fallback)
    - Specialist findings with conclusion / evidence-condition / disposition
    - Interview framing + evidence-driven questions
    - Trust / publish gate (integrity-passed ids, block reasons)
    - Economics line: cache hit/miss + estimated tokens vs tier budget
-3. Note the **Active run** id for continue/publish.
+4. After publish: use **Open findings** / **Open review** / **Open advisory** to prove the product round-trip.
 
 ### 4. Answer and continue
 

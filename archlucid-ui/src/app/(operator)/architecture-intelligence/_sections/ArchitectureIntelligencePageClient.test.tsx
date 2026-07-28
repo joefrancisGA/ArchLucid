@@ -48,6 +48,8 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByRole("button", { name: "Load golden fixture" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Publish to findings/advisory" })).toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-review-tier")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-analyze-review-button")).not.toBeInTheDocument();
   });
 
   it("hydrates architecture description from product run source-context", async () => {
@@ -103,6 +105,36 @@ describe("ArchitectureIntelligencePageClient", () => {
 
     expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
       "Loaded product intake from review",
+    );
+    expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
+  });
+});
+
+describe("ArchitectureIntelligenceProductRoundTrip", () => {
+  it("renders product deep links after publish", async () => {
+    const { ArchitectureIntelligenceProductRoundTrip } = await import(
+      "./ArchitectureIntelligenceProductRoundTrip"
+    );
+
+    render(
+      <ArchitectureIntelligenceProductRoundTrip
+        runId="run-abc"
+        publishedToProduct
+        publishedRecommendationCount={2}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-intelligence-open-findings")).toHaveAttribute(
+      "href",
+      "/governance/findings?runId=run-abc",
+    );
+    expect(screen.getByTestId("architecture-intelligence-open-review")).toHaveAttribute(
+      "href",
+      "/reviews/run-abc",
+    );
+    expect(screen.getByTestId("architecture-intelligence-open-advisory")).toHaveAttribute(
+      "href",
+      "/governance/advisory-scans?runId=run-abc",
     );
   });
 });
