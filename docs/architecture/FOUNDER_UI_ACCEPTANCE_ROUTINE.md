@@ -201,7 +201,10 @@ ACCEPTANCE_BASE_URL=https://your-host.example \
 
 **Rule:** every time you catch a defect twice by hand, file it as a tagged test before the next beta.
 
-## Lane 3 — unscripted customer-like use (M-102)
+## Lane 3 — unscripted customer-like use (M-102 — shipped)
+
+Canonical process (timebox, questions, exit criteria, defect → absorb):  
+[`FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md`](../go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md) (**M-100** + **M-102**).
 
 After lane 2 passes, spend **15–30 minutes** (trend toward the low end as automation grows) without a script:
 
@@ -214,7 +217,24 @@ After lane 2 passes, spend **15–30 minutes** (trend toward the low end as auto
 - Does anything look technically or commercially embarrassing?
 - Would I feel comfortable demonstrating this screen to a buyer?
 
-Log accepted defects explicitly (M-101). Promote repeatable checks into M-100.
+Log accepted defects explicitly (M-101). Promote repeatable checks into **M-100** (rule of two). Owner cadence: **G-QA-03**.
+
+### Absorption process (M-100 — shipped)
+
+Any click-path or “page broken?” check caught **twice** → tagged `@founder` / `@critical` before the next controlled beta. Suite growth ledger + promotion template live in the doc above.
+
+### Scheduled founder CI (M-103 — shipped)
+
+Warn-only workflow: [`.github/workflows/founder-ui-acceptance.yml`](../../.github/workflows/founder-ui-acceptance.yml).
+
+| Setting | Role |
+|---------|------|
+| `ARCHLUCID_FOUNDER_ACCEPTANCE_ENABLED=true` | Required for the **schedule** |
+| `ARCHLUCID_STAGING_UI_BASE_URL` (or `ARCHLUCID_STAGING_BASE_URL`) | Target UI origin |
+| `workflow_dispatch` | Manual run; optional Lighthouse |
+| Merge / PR | **Not** blocked — failures annotate + upload artifacts only |
+
+Scheduled job runs **public** `@release-smoke` + founder console/network + axe (`FOUNDER_PUBLIC_ONLY=1`). Full authenticated `@founder` remains local until **G-QA-01** wires secrets.
 
 ## Recommended routines
 
@@ -235,10 +255,12 @@ Log accepted defects explicitly (M-101). Promote repeatable checks into M-100.
 1. Full CI suite passes.
 2. Founder Playwright suite passes against the chosen deployed URL.
 3. Lighthouse (median) on representative public + authenticated routes.
-4. Console / network automation clean on founder routes (when M-104 ships).
-5. One personal end-to-end review + one first-time-user journey (lane 3).
-6. Accepted defects documented; no silent “we’ll live with it.”
+4. Console / network automation clean on founder routes (`npm run test:e2e:founder:console-network`).
+5. One personal end-to-end review + one first-time-user journey (lane 3 / **M-102**).
+6. Accepted defects documented; no silent “we’ll live with it.” Absorb twice-seen click-paths (**M-100**).
 ```
+
+Optional: confirm warn-only [`founder-ui-acceptance.yml`](../../.github/workflows/founder-ui-acceptance.yml) is green or reviewed if enabled (**M-103**).
 
 ## Lighthouse caution (unchanged)
 
@@ -261,10 +283,10 @@ Do **not** invent gates like “every page ≥ 95 in every category.” Scores v
 | **M-97** | Tag `@founder` / `@critical` / `@buyer-journey` / `@release-smoke` suite — **Done** |
 | **M-98** | npm scripts: founder / headed / ui against chosen URL — **Done** |
 | **M-99** | Remote Lighthouse against chosen URL (auth + median) — **Done** |
-| **M-100** | Gradual absorption: convert manual regression into tagged tests |
+| **M-100** | Gradual absorption: convert manual regression into tagged tests — **Done** |
 | **M-101** | Controlled-beta acceptance checklist + defect log template |
-| **M-102** | Unscripted exploratory cadence (owner-executed) |
-| **M-103** | Optional scheduled/pre-release CI job for founder suite on staging |
+| **M-102** | Unscripted exploratory cadence (owner-executed) — **Done** |
+| **M-103** | Optional scheduled/pre-release CI job for founder suite on staging — **Done** |
 | **M-104** | Console + failed-network automation on founder routes — **Done** |
 | **M-105** | axe a11y on founder routes against chosen URL — **Done** |
 | **M-106** | First full dry-run; baseline manual minutes; prove shrinkage |
@@ -276,6 +298,7 @@ Do **not** invent gates like “every page ≥ 95 in every category.” Scores v
 
 | Doc | Role |
 |-----|------|
+| [`FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md`](../go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md) | **M-100** / **M-102** process |
 | [`TEST_EXECUTION_MODEL.md`](../library/TEST_EXECUTION_MODEL.md) | Automated test tiers / CI jobs |
 | [`LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) | Live Playwright happy-path gate |
 | [`UI_LIGHTHOUSE_CI.md`](UI_LIGHTHOUSE_CI.md) | Lab Lighthouse CI (mock-backed) |
