@@ -1,4 +1,4 @@
-**Updated:** 2026-07-28 (**TB-1151** **Done** — Azure Boards settings use tenant-scoped ISqlConnectionFactory (TB-867 parity)). Prior: 2026-07-28 (**TB-1146** **Done** — Jira/ServiceNow not-configured: guided admin or Integration readiness next step).
+**Updated:** 2026-07-28 (**TB-1139** **Done** — cloud platform-scope checkboxes hide cards or disable with workspace helper). Prior: 2026-07-28 (**TB-1151** **Done** — Azure Boards settings use tenant-scoped ISqlConnectionFactory (TB-867 parity)). Prior: 2026-07-28 (**TB-1146** **Done** — Jira/ServiceNow not-configured: guided admin or Integration readiness next step).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -9,12 +9,12 @@
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 17 |
-| Testability | 72 |
+| Testability | 74 |
 | Reliability | 22 |
 | Deployability | 19 |
 | AI/Agent readiness | 15 |
 | Architectural integrity | 16 |
-| Adoption friction | 234 |
+| Adoption friction | 238 |
 | Commercial / marketability | 16 |
 | Data consistency | 9 |
 | Cutting-edge AI | 9 |
@@ -30,7 +30,7 @@
 | Cost-effectiveness | 12 |
 | Supportability | 15 |
 | Code hygiene | 11 |
-| **Total (unique)** | **~553** |
+| **Total (unique)** | **~559** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?397 Done** (2026-06-22 through 2026-06-27). **First-party connector V1.1ΓåÆV1 GA promotion (2026-07-03):** Jira/ServiceNow/Confluence/Slack/Microsoft Teams moved to **V1 GA** (`V1_DEFERRED.md` ┬º6/┬º6a); **TB-599ΓÇôTB-602** track the resulting tightening work (native-create default posture, OAuth upgrade, live-validation parity, buyer-copy sweep). **Next recommended batch:** **TB-398** (full enterprise ITSM connector ΓÇö **V2** ITSM cluster; out of V1/V1.1 unless owner promotes) remains separate and unaffected by the promotion. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -489,6 +489,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-1971 — TB-1975** were added 2026-07-27 from an **owner review of ROI summary** at `/sponsor-report/roi-summary` (scored ~45/100; traffic **SPR**). Strengths: canonical path; directional disclaimer; methodology help; basis-of-estimate; sample pilot-outcomes handoff; ValueReportOutcomesNav. Residual: traffic files SPR under Marketing; zero primary still “Start review” vs buyer Start architecture review CTA; no `PageContextualHelpButton`; LayerHeader + subtitle stack on open **TB-1437**. Do not reopen **TB-1437**/**TB-1668**. Completes sponsor-report score-0 cluster (SPA/SPE/SPP/SPR). IDs skip SPP **TB-1966**–**TB-1970**. No new GTM IDs.
 
+**TB-1994 — TB-1995** were added 2026-07-28 from an **owner screenshot review of authenticated operator Overview** (Claims Intake Demo — empty workspace). Finding: Done **TB-1038** correctly put one primary under **Do this next**, but secondary help still stacks **Learn how reviews work** + **View workflow** both to `inAppHelpHref("core-pilot")`, and the bottom collapsed **Learn the architecture workflow** section repeats **View workflow** (plus title link) to the same `/help/core-pilot`. Sidebar **First review guide** → `/onboarding` is a different destination (keep). Already tracked elsewhere: **TB-1383**, **TB-1331**, **TB-1335**, **TB-1340**. **TB-1994** (P1) collapse Overview core-pilot educational links. **TB-1995** (P2) Vitest above-fold guard. No new GTM IDs.
+
+**TB-1996 — TB-1999** were added 2026-07-28 from an **owner screenshot review of Overview Recent reviews buyer proof summary** (Claims Intake Demo — small helper text **Audit trail: Complete** / **Evidence trail: Ready** / **Governance approval: …** with no label emphasis). Finding: inline metadata `Label: value` lines render at flat `OPERATOR_TYPOGRAPHY.helper` weight so the key does not scan. Same unbolded cluster in `RunInspectorPreview` showcase block; non-showcase inspector already uses `<dt className="font-medium">`. No design-system rule yet (precedents: AcceleratorChooser `Inputs:`/`Outputs:`, Done **TB-619** `Recommended action:` / `Owner:`, `InlineGuidanceLabel` for guidance only). Nuances: do **not** bold every colon in prose, headings, code/config keys, legal chrome, or whole-line title rows already semibold (e.g. **Decision: Package finalized**). No customer-facing `Label, value` status pattern found — separator in product metadata is **colon**. **TB-1996** (P1) design-system contract. **TB-1997** (P1) buyer proof surface fix. **TB-1998** (P2) Vitest. **TB-1999** (P2) follow-up inventory. No new GTM IDs.
+
 **TB-1572 — TB-1576** were added 2026-07-27 from an **owner side-rail convention pass** (Recurrence teaching helper vs Advisory Schedule scope vs Digests/Alert live readiness vs Digests browse master-detail vs run-detail sticky package rail vs Teams/Slack about asides vs Help TOC). Finding: design system mentions Carbon side panels but never defines when a page may open a persistent right column. Competing kinds: (1) teaching/workflow helper that restates Next step (Recurrence — hidden empty per Done **TB-1133**, still present when populated), (2) static scope/metadata column (Advisory Schedules — thin void; **TB-1477**), (3) live preview/readiness always-on two-col when empty (**TB-1478**/**TB-1479**), (4) valid master-detail / working-object sticky / TOC/wizard. Recommended standard: single-column default; name rail kind; allow working-object, master-detail, live preview/readiness (only when live), TOC/wizard; ban teaching and static-scope as persistent rails; hide rail when empty/sparse; shared ~17.5–18rem sticky shell; no second primary in rail. **TB-1572** (P1) design-system contract. **TB-1573** (P1) ban teaching/static rails (Recurrence + Advisory exemplars). **TB-1574** (P1) live-rail empty-hide policy. **TB-1575** (P1) hub/integration rail inventory. **TB-1576** (P2) Vitest guard. No new GTM IDs. (IDs **TB-1572**–**TB-1576**; skip PA **TB-1570**–**TB-1571** / ADS **TB-1565**–**TB-1569**; pairs empty **TB-1552**–**TB-1556** / whitespace **TB-1477**–**TB-1482** / CTA **TB-1539**; do not reopen those surface rows.)
 
 **TB-1552 — TB-1556** were added 2026-07-27 from an **owner empty-state convention pass** (Recurrence Compact vs Digests browse stack vs Reviews hand-rolled dashed vs Advisory Schedules form+rail+empty vs centered `EmptyState`). Finding: no design-system page-empty contract — only “no playful empties.” Competing patterns: (1) `EnterpriseCompactEmptyState` (Carbon dashed, left-aligned — Recurrence/home/presets), (2) hand-rolled dashed boxes (Reviews, Advisory Schedules list), (3) empty theater stacks (Digests checklist+preview+empty; form+rail+empty — **TB-1477**–**TB-1482**), (4) centered Card `EmptyState` with optional large icon, (5) not-configured / filtered / error conflated with “No X yet.” Recommended standard: name empty **kind** first (collection / hub-zone / filtered / prerequisite / permission / error); default collection+hub-zone to Compact under header; first viewport = header + Compact (+ optional collapsed How-it-works) — ban form+rail+empty and checklist+preview+empty stacks; CTAs follow **TB-1539**–**TB-1544**; loading/error never paint as empty. **TB-1552** (P1) design-system contract. **TB-1553** (P1) Reviews Compact migrate. **TB-1554** (P1) EmptyState→Compact inventory. **TB-1555** (P1) kind presets/helpers. **TB-1556** (P2) Vitest guard. No new GTM IDs. (IDs **TB-1552**–**TB-1556** — prior concurrent buffer; pairs Done **TB-1133** / open **TB-1477**–**TB-1482** / **TB-1539**–**TB-1544**; do not reopen surface whitespace/CTA rows.)
@@ -757,7 +761,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1136 | Governance setup orientation (not generic Governance overview) — **Done** (2026-07-27); see ## TB-1136 below | Adoption friction P0 — **V1**; with **TB-1134**; cf. **TB-1129** | S |
 | TB-1137 | Governance setup checklist visual design (not five identical cards); see ## TB-1137 below | Adoption friction P1 — **V1**; with **TB-1135** | M |
 | TB-1138 | Governance setup foundation panel vs progress merge/dedupe; see ## TB-1138 below | Adoption friction P1 — **V1**; with **TB-1137** | S |
-| TB-1139 | Cloud connections platform-scope checkbox must hide provider cards (fix silent no-op); see ## TB-1139 below | Correctness P0 — **V1**; owner cloud-connections ~49/100 2026-07-25 | S |
+| TB-1139 | Cloud connections platform-scope checkbox must hide provider cards (fix silent no-op) — **Done** (2026-07-28); see ## TB-1139 below | Correctness P0 — **V1**; owner cloud-connections ~49/100 2026-07-25 | S |
 | TB-1140 | Remove stale GCP Preview maturity label (Tier 2 Done TB-403); see ## TB-1140 below | Trustworthiness P0 — **V1**; with **TB-1139** | XS |
 | TB-1141 | Cloud provider summary cards — single primary CTA (dedupe Configure / View details); see ## TB-1141 below | Adoption friction P1 — **V1**; with **TB-1139** | S |
 | TB-1142 | Cloud platform scope panel — fail closed when workspace missing + shared filter state; see ## TB-1142 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
@@ -1534,6 +1538,12 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1973 | ROI summary — mount PageContextualHelp with **TB-1668**; see ## TB-1973 below | Adoption friction P1 — **V1**; with **TB-1971**; do not reopen **TB-1668** | S |
 | TB-1974 | ROI summary — collapse strip + LayerHeader + subtitle with **TB-1437**; see ## TB-1974 below | Adoption friction P1 — **V1**; with **TB-1971**; do not reopen **TB-1437** | S |
 | TB-1975 | ROI summary — Vitest traffic + zero CTA + help mount; see ## TB-1975 below | Testability P2 — **V1**; with **TB-1971** | S |
+| TB-1994 | Overview empty — collapse duplicate Learn how / View workflow (same `/help/core-pilot`); see ## TB-1994 below | Adoption friction P1 — **V1**; owner screenshot 2026-07-28; residual after Done **TB-1038** | S |
+| TB-1995 | Overview empty — Vitest ≤1 above-fold secondary to `/help/core-pilot`; see ## TB-1995 below | Testability P2 — **V1**; with **TB-1994** | S |
+| TB-1996 | Design-system — inline metadata `Label: value` label emphasis contract; see ## TB-1996 below | Adoption friction P1 — **V1**; owner Overview Audit trail screenshot 2026-07-28; pairs **TB-119** / **TB-619** | S |
+| TB-1997 | Buyer proof summary — bold metadata labels (home Recent + RunInspectorPreview showcase); see ## TB-1997 below | Adoption friction P1 — **V1**; with **TB-1996**; owner Audit trail: Complete | S |
+| TB-1998 | Buyer proof summary — Vitest label emphasis on `Label: value` rows; see ## TB-1998 below | Testability P2 — **V1**; with **TB-1997** | S |
+| TB-1999 | Follow-up inventory — remaining flat `Label: value` metadata surfaces; see ## TB-1999 below | Adoption friction P2 — **V1**; after **TB-1996**/**TB-1997** | M |
 | TB-1565 | Advisory Scans tab — keep `?tab=scans` deep-link stable; see ## TB-1565 below | Adoption friction P1 — **V1**; owner review ~52/100 2026-07-27; traffic **ADS**; pairs **TB-1505** | XS |
 | TB-1566 | Advisory recommendation disposition — replace `window.prompt` with on-system dialog; see ## TB-1566 below | Adoption friction P1 — **V1**; with **TB-1565**; after Done **TB-1127** affordance | S |
 | TB-1567 | Advisory Scans tab — empty/form first-viewport composition (one next story); see ## TB-1567 below | Adoption friction P1 — **V1**; with **TB-1565**; pairs **TB-1552**/**TB-1477**; after Done **TB-1126**/**TB-1128** | S |
@@ -28399,7 +28409,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Correctness.
 
-**Status:** Not started.
+**Status:** **Done** (2026-07-28) — session/localStorage scope + card filter; no-workspace disables with helper (pairs TB-1142).
 
 **Priority:** P0.
 
@@ -45776,5 +45786,171 @@ Operators must read three intros before reaching the Trust Center link list.
 **Approach:** Ownership classes — managed (fully round-trippable, controlled interfaces), imported (extract-only, never rewritten), hybrid (regeneration only inside managed section boundaries). A manual edit alters the canonical model only when the semantic change is identified and the user approves the resulting model diff.
 
 **Acceptance:** Regeneration never overwrites human-owned sections; approved diffs update the model. **Size estimate:** L.
+
+---
+
+## TB-1994 — Overview empty — collapse duplicate Learn how / View workflow (same `/help/core-pilot`) (P1)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner screenshot review of authenticated operator Overview (Claims Intake Demo empty workspace) 2026-07-28.
+
+**Problem:** Empty Overview **Do this next** exposes two secondary links — **Learn how reviews work** and **View workflow** — both to `inAppHelpHref("core-pilot")` (`OperatorHomeDoThisNextCard.tsx` `SECONDARY_HELP_LINKS`). The bottom collapsed **Learn the architecture workflow** section (`OperatorHomeAdvancedGuidanceSection` + `ExploreArchLucidWalkthroughRow`) again offers **View workflow** (and a title link) to the same destination. Done **TB-1038** demoted these under one primary but did not require collapsing same-href duplicates.
+
+**Approach:**
+
+1. Keep **at most one** secondary help link under Do-this-next to `/help/core-pilot`.
+2. Bottom advanced-guidance: keep collapsed progressive disclosure (title → core-pilot OK per Done **TB-866**), but do not restack a competing visible **View workflow** body CTA when the above-fold secondary already exists.
+3. Do not remove sidebar **First review guide** → `/onboarding`.
+4. Update tests that assert both secondaries.
+
+**Acceptance:** Empty Overview has ≤1 above-fold secondary link to `/help/core-pilot`; primary sample/setup CTA unchanged.
+
+**Depends on:** None. Residual after Done **TB-1038**.
+
+**Out of scope:** **TB-1383** / **TB-1331** / **TB-1335** / **TB-1340**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1995 — Overview empty — Vitest ≤1 above-fold secondary to `/help/core-pilot` (P2)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P2.
+
+**Source:** With **TB-1994**.
+
+**Problem:** `OperatorHomeDoThisNextCard.test.tsx` currently asserts both Learn how and View workflow secondaries — locking in the duplicate.
+
+**Approach:** After **TB-1994**, assert Do-this-next secondary nav has ≤1 link to `/help/core-pilot`; optional page-level count of visible (non-collapsed) core-pilot links ≤1.
+
+**Acceptance:** Vitest fails if empty Overview ships two same-href educational secondaries again.
+
+**Depends on:** **TB-1994**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1996 — Design-system — inline metadata `Label: value` label emphasis contract (P1)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner screenshot review of Overview Recent reviews buyer proof helper lines (**Audit trail: Complete**) 2026-07-28.
+
+**Problem:** No `UI_DESIGN_SYSTEM.md` rule for emphasizing the key in inline metadata `Label: value` rows. Flat `OPERATOR_TYPOGRAPHY.helper` makes **Audit trail** and **Complete** the same weight. Precedents exist but are ad hoc (`AcceleratorChooserCard` `font-medium` on `Inputs:`/`Outputs:`; Done **TB-619** on `Recommended action:` / `Owner:`; `InlineGuidanceLabel` for guidance prefixes only).
+
+**Approach:**
+
+1. Document in `UI_DESIGN_SYSTEM.md` (+ token/helper note if useful): for **inline metadata** rows `Label: value`, emphasize the label (`font-medium` / `font-semibold` or shared `InlineMetadataLabel` / `<dt>`), leave the value at helper/body weight.
+2. Prefer `<dl>` / `<dt>`/`<dd>` when several rows stack (align with non-showcase `RunInspectorPreview`).
+3. Explicit **do not** list: prose sentences with colons; section/card titles that use a colon as part of a heading; code/config keys; legal/document chrome; guidance prefixes (`InlineGuidanceLabel`); whole-line title rows already intended as one semibold phrase (e.g. **Decision: Package finalized** as a card title — either keep whole-line title weight or split per the metadata rule, but do not double-bold).
+4. Note product metadata separator is **colon**; no `Label, value` status pattern required.
+
+**Acceptance:** Design system states when to emphasize the label before `:` and when not to; agents/contributors have a clear default.
+
+**Depends on:** None. Complements **TB-119** / **TB-619**.
+
+**Out of scope:** Sweeping every colon in the UI tree (**TB-1999** inventory).
+
+**Size estimate:** S.
+
+---
+
+## TB-1997 — Buyer proof summary — bold metadata labels (home Recent + RunInspectorPreview showcase) (P1)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P1.
+
+**Source:** Owner Overview screenshot 2026-07-28 — **Audit trail: Complete** (and siblings) in Recent reviews featured summary.
+
+**Problem:** `RunsDashboardRecentTab.tsx` (`runs-dashboard-buyer-proof-summary`) and `RunInspectorPreview.tsx` showcase block render flat helper paragraphs: `Governance approval: …`, `Evidence trail: Ready`, `Audit trail: Complete`, `Remaining monitored risk: …`. Same weight on key and value. Non-showcase inspector path already uses emphasized `<dt>` rows.
+
+**Approach:**
+
+1. Apply **TB-1996** pattern to the showcase/buyer proof rows (shared component or local `<dt>`/`<span className="font-medium">` label).
+2. Keep **Decision: Package finalized** as a title-weight line (or split consistently — document choice).
+3. Align home Recent and reviews-list inspector showcase copy presentation.
+
+**Acceptance:** Buyer-visible proof summary metadata keys are visually heavier than values; values remain readable helper text.
+
+**Depends on:** Prefer land with or immediately after **TB-1996**.
+
+**Out of scope:** Broader inventory (**TB-1999**); BDA-008 “audit trail complete” claim wording (different issue).
+
+**Size estimate:** S.
+
+---
+
+## TB-1998 — Buyer proof summary — Vitest label emphasis on `Label: value` rows (P2)
+
+**Window:** V1 — Testability.
+
+**Status:** Not started.
+
+**Priority:** P2.
+
+**Source:** With **TB-1997**.
+
+**Problem:** Without a guard, flat helper paragraphs can regress after the bold-label pass.
+
+**Approach:** Vitest on buyer proof summary / showcase inspector: each metadata key (`Governance approval`, `Evidence trail`, `Audit trail`, monitored-risk label) is in an emphasized element (`font-medium`/`font-semibold`/`dt`), distinct from the value text node.
+
+**Acceptance:** Regression fails if **Audit trail: Complete** returns to a single unweighted text node.
+
+**Depends on:** **TB-1997**.
+
+**Size estimate:** S.
+
+---
+
+## TB-1999 — Follow-up inventory — remaining flat `Label: value` metadata surfaces (P2)
+
+**Window:** V1 — Adoption friction.
+
+**Status:** Not started.
+
+**Priority:** P2.
+
+**Source:** UI scan with **TB-1996** / owner Overview bold-label ask 2026-07-28.
+
+**Problem:** After the high-traffic buyer proof fix, other flat metadata rows remain (lower first-session impact).
+
+**Inventory (candidates — apply **TB-1996** only where rows are true metadata, not prose):**
+
+| Surface | Examples |
+|---|---|
+| `/value-report/pilot` (`PilotValueReportPageView`) | `Approved:`, `Rejected:`, `Pending:`, `Policy packs applied:`, … |
+| `/governance/policy-packs/[id]` (`PolicyPackGenericDetail`) | `Last updated:`, `Pack type:` |
+| `/architecture-intelligence` finding cards | `Severity:`, `Conclusion:`, `Integrity:`, … |
+| `/reviews/new` Socratic confirm (`SocraticIntakeWizard`) | `Intent:`, `Outcome:`, `System:` |
+| Architectures sponsor share (`ArchitectureSponsorSharingPanel`) | `Known gaps:`, `Confidentiality:` |
+| Finding evidence (`FindingInspectEvidenceSection`) | `Lines:`, `Artifact id:` |
+| Alerts admin simulation/tuning | Mixed — some already `<strong>` |
+
+**Approach:** Prioritize buyer/sponsor-facing lists first; skip or demote admin-only / mono-ID forensic lines unless they share a component. Prefer shared helper from **TB-1996**.
+
+**Acceptance:** Inventory filed against **TB-1996** contract; highest-traffic remaining buyer surfaces fixed or explicitly deferred with reason.
+
+**Depends on:** **TB-1996**; prefer after **TB-1997**.
+
+**Out of scope:** Prose/heading/code/legal nuance cases listed in **TB-1996**.
+
+**Size estimate:** M.
 
 ---
