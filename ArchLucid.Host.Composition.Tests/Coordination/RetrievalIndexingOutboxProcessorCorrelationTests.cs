@@ -130,16 +130,26 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
             RuleSetHash = "hash-rules",
         };
 
+        Guid graphSnapshotId = Guid.NewGuid();
+        string projectSlug = "retrieval-index-test";
+
         RunDetailDto detail = new()
         {
             Run = new RunRecord
             {
                 RunId = runId,
-                ProjectId = projectId,
+                ScopeProjectId = projectId,
+                ProjectId = projectSlug,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             GoldenManifest = manifest,
-            GraphSnapshot = new GraphSnapshot { SnapshotId = Guid.NewGuid(), RunId = runId },
+            GraphSnapshot = new GraphSnapshot
+            {
+                GraphSnapshotId = graphSnapshotId,
+                ContextSnapshotId = Guid.NewGuid(),
+                RunId = runId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
             FindingsSnapshot = new FindingsSnapshot { FindingsSnapshotId = Guid.NewGuid(), RunId = runId, Findings = [] },
             AuthorityTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload()),
         };

@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:357 -->
+<!-- audit-core-const-count:359 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -707,6 +707,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `IntegrationOutboxDeadLetterRetried` | `Integration.OutboxDeadLetterRetried` | `AdminDiagnosticsService` (single `POST …/admin/integration-outbox/dead-letters/{outboxId}/retry`; bulk `POST …/admin/integrations/outbox/retry-dead-letter` when `retriedCount > 0`) |
 | `IntegrationOutboxDeadLetterSuppressed` | `Integration.OutboxDeadLetterSuppressed` | `AdminDiagnosticsService` (`POST …/admin/integration-outbox/dead-letters/{outboxId}/suppress`) |
 | `IntegrationConfluenceFirstValueReportPublished` | `Integration.ConfluenceFirstValueReportPublished` | `ConfluencePublishingAdminController` (`POST …/admin/integrations/confluence/first-value-report`) |
+| `ArchitectureIntelligenceRunCompleted` | `ArchitectureIntelligence.RunCompleted` | `ArchitectureIntelligenceController` (architecture intelligence run / golden paths) |
+| `ArchitectureIntelligenceGoldenTestCompleted` | `ArchitectureIntelligence.GoldenTestCompleted` | `ArchitectureIntelligenceController` (golden test completion) |
 | `PilotScorecardValueMetricsSubmitted` | `PilotScorecardValueMetricsSubmitted` | `PilotsController` |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
