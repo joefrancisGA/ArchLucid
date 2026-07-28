@@ -47,6 +47,6 @@
     "Buyer-safe only — no customer names, subscription IDs, or raw infrastructure identifiers.",
     "Populate decisionChanged from QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots (PAID_PILOT_EVIDENCE_LEDGER.md alias) within 7 days of sponsor handoff.",
     "Populate baselineSourceConfidence from paid-pilot-baseline.template.json or QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist §1.",
-    "Store full rows locally; commit only sanitized aggregates per validation-runs/README.md."
+    "Store full rows locally; commit only sanitized aggregates per FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#validation-runs-folder (validation-runs/README.md alias)."
   ]
 }

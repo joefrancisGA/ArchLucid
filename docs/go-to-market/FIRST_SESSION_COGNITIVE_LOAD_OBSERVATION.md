@@ -472,7 +472,7 @@ Select **at most two** recurring triggers to act on this week:
 
 1. Update the cohort synthesis or private weekly notes with: top-2 codes, session IDs, confidence mix, walkthrough-shift count.
 2. If a promoted trigger cleared the product decision gate as **Justified now**, route to engineering via existing batch gate — do not open ad-hoc UI work.
-3. File a **sanitized** weekly aggregate under [`validation-runs/`](validation-runs/) only when committing summary stats (counts and codes — no quotes). See [`validation-runs/README.md`](validation-runs/README.md).
+3. File a **sanitized** weekly aggregate under [`validation-runs/`](validation-runs/) only when committing summary stats (counts and codes — no quotes). See [`#validation-runs-folder`](#validation-runs-folder).
 
 #### Anti-patterns (do not)
 
@@ -1166,6 +1166,50 @@ python scripts/ci/aggregate_blind_insight_sessions.py `
 
 Tracker: [`#blind-decision-delta-cohort-tracker`](#blind-decision-delta-cohort-tracker) · GTM **M-50** (alias: [`validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`](validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md)).
 
+Folder landing / sanitize rules: [`#validation-runs-folder`](#validation-runs-folder) (alias: [`validation-runs/README.md`](validation-runs/README.md)).
+
+---
+
+## Validation runs folder {#validation-runs-folder}
+
+Former standalone body: `docs/go-to-market/validation-runs/README.md` → this section (filename kept as a path-stable folder landing alias). Commit-safe home for **sanitized** summaries of validation activity that reduces *market* uncertainty (not design uncertainty) — not product claims, not customer proof.
+
+**Path-stable alias:** [`validation-runs/README.md`](validation-runs/README.md).
+
+What belongs under [`validation-runs/`](validation-runs/):
+
+- Blind principal-architect cohort rollups.
+- Decision-delta interview summaries from paid pilots.
+- Paid-pilot conversion evidence ledger rollups (monthly aggregates).
+- First-non-obvious-moment and dismissal-trigger aggregates.
+
+It exists because [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) and the cohort playbook point here for stored summaries.
+
+### What belongs here
+
+| Allowed (commit) | Not allowed (store outside repo) |
+| --- | --- |
+| Aggregate N/X/reuse counts, means, pass/fail verdicts | Customer names, subscription IDs, raw infrastructure identifiers |
+| Execution-mode and evidence-basis labels | Participant identities and verbatim quotes (unless permissioned) |
+| Pre-registered thresholds and session slot status | Any demo-derived number presented as customer proof |
+
+### How to run a cohort
+
+Do **not** re-create protocol assets — they already exist:
+
+- Operating checklist: [`#blind-cohort-operating-checklist`](#blind-cohort-operating-checklist)
+- Scorecard: [`#session-scorecard`](#session-scorecard)
+- Blind protocol: [`#blind-insight-validation`](#blind-insight-validation)
+- Pre-registered tracker: [`#blind-decision-delta-cohort-tracker`](#blind-decision-delta-cohort-tracker)
+- Per-session dismissal capture + weekly triage: [`#principal-architect-dismissal-log`](#principal-architect-dismissal-log)
+- Paid-pilot conversion ledger: [`QUOTE_TO_PROOF_PACKET.md#paid-pilot-evidence-ledger`](QUOTE_TO_PROOF_PACKET.md#paid-pilot-evidence-ledger)
+- Decision-change addendum: [`QUOTE_TO_PROOF_PACKET.md#decision-change-addendum`](QUOTE_TO_PROOF_PACKET.md#decision-change-addendum)
+- Frontier-AI counterfactual cadence: [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md#maintenance-cadence`](FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md#maintenance-cadence)
+
+### Guardrail
+
+A summary may be committed under [`validation-runs/`](validation-runs/) **only after** it has been sanitized per the table above. When in doubt, keep it in private founder storage and commit only the aggregate verdict.
+
 ---
 
 ## Blind decision-delta cohort tracker {#blind-decision-delta-cohort-tracker}
@@ -1208,7 +1252,7 @@ These mirror the conservative thresholds already in the cohort checklist and sco
 
 ### Session slots
 
-Fill one row per session. Keep names/quotes out of this file; store them privately per [`validation-runs/README.md`](validation-runs/README.md).
+Fill one row per session. Keep names/quotes out of this file; store them privately per [`#validation-runs-folder`](#validation-runs-folder).
 
 | # | Date (UTC) | Packet (label only) | ArchLucid mode (sim/real/mixed) | Evidence basis | N-rate | Critical X | Max decision impact | Reuse intent | Summary link |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -1399,4 +1443,5 @@ Do not declare victory because architects like the demo. Declare progress only w
 - [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed)
 - [Principal-architect insight validation protocol](#principal-architect-insight-validation) — live sessions, blind comparison, cohort checklist, session scorecard (alias: [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md); pins: [`#blind-insight-validation`](#blind-insight-validation), [`#blind-cohort-operating-checklist`](#blind-cohort-operating-checklist), [`#session-scorecard`](#session-scorecard))
 - [Blind decision-delta cohort tracker](#blind-decision-delta-cohort-tracker) — pre-registered thresholds + session slots (alias: [`validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`](validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md); GTM **M-50**)
+- [Validation runs folder](#validation-runs-folder) — sanitize rules + cohort links (alias: [`validation-runs/README.md`](validation-runs/README.md))
 - [Principal-architect evaluation packet set](#principal-architect-evaluation-packet-set) — scenario list + use steps (alias: [`Architect_Evaluation/Packets/README.md`](Architect_Evaluation/Packets/README.md))

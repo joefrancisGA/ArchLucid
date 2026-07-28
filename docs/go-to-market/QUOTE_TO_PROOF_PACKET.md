@@ -1151,7 +1151,7 @@ Copy the template per handoff. **Do not** attach externally until sponsor-safe r
 4. Merge `decisionDeltaOutcome` into the ledger row when the pilot is paid.
 5. For external use: strip customer names, subscription IDs, and unauthorized dollar figures.
 
-Store full addenda locally. Commit only sanitized aggregates per [`validation-runs/README.md`](validation-runs/README.md).
+Store full addenda locally. Commit only sanitized aggregates per [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#validation-runs-folder`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#validation-runs-folder) (`validation-runs/README.md` alias).
 
 Former standalone: `docs/go-to-market/validation/DECISION_CHANGE_ADDENDUM.md` → this section.  
 Former standalone runbook: `docs/go-to-market/validation/PILOT_ROI_VALIDATION_SESSION.md` → [Pilot ROI validation session](#pilot-roi-validation-session).

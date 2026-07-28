@@ -8,4 +8,4 @@
 
 **Canonical tracker (hypothesis, thresholds, session slots, verdict, honesty checklist):** [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-decision-delta-cohort-tracker`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-decision-delta-cohort-tracker).
 
-Fill the canon before session 1. This file keeps the historical path stable for GTM backlog **M-50** and [`validation-runs/README.md`](README.md).
+Fill the canon before session 1. This file keeps the historical path stable for GTM backlog **M-50**. Folder sanitize rules: [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#validation-runs-folder`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#validation-runs-folder) (`README.md` alias).
