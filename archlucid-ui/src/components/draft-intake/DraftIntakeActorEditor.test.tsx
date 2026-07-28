@@ -168,5 +168,9 @@ describe("DraftIntakeActorEditor", () => {
     );
 
     expect(screen.getByText(/Add people and systems manually/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Suggest from architecture overview/i })).toBeDisabled();
+    expect(screen.getByTestId("draft-intake-actor-suggest-hint")).toHaveTextContent(
+      /Enter an architecture overview to generate suggestions/i,
+    );
   });
 });

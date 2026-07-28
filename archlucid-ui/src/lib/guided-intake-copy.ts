@@ -75,9 +75,17 @@ export const GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT =
 
 export const GUIDED_INTAKE_ACTORS_EMPTY_STATE = "No people or systems added yet.";
 
-export const GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON = "Suggest from overview";
+/** Start review guided intake — field label is Architecture intent. */
+export const GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON = "Suggest from architecture intent";
 
-export const GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT = "Enter an architecture overview to generate suggestions.";
+export const GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT =
+  "Enter an architecture intent to generate suggestions.";
+
+/** Create-architecture guided intake — field label is Architecture overview. */
+export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON = "Suggest from architecture overview";
+
+export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT =
+  "Enter an architecture overview to generate suggestions.";
 
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 

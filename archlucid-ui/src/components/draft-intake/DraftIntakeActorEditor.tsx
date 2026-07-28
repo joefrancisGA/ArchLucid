@@ -37,6 +37,8 @@ import {
   GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON,
   GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON,
   GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT,
+  GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON,
+  GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT,
   GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
@@ -170,9 +172,16 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
       ? GUIDED_INTAKE_ADD_ACTOR_BUTTON
       : GUIDED_INTAKE_ADD_ANOTHER_ACTOR_BUTTON;
 
-  const sectionHint = props.creationFlow === true
+  const isCreationFlow = props.creationFlow === true;
+  const sectionHint = isCreationFlow
     ? GUIDED_INTAKE_CREATION_PEOPLE_SYSTEMS_HINT
     : GUIDED_INTAKE_TRUST_BOUNDARY_HINT;
+  const suggestActorsButtonLabel = isCreationFlow
+    ? GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON
+    : GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON;
+  const suggestActorsDisabledHint = isCreationFlow
+    ? GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT
+    : GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT;
 
   return (
     <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
@@ -191,7 +200,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               openSuggestionPanel();
             }}
           >
-            {GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON}
+            {suggestActorsButtonLabel}
           </Button>
         </div>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -199,7 +208,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
         </p>
         {!canSuggestFromIntent ? (
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)} data-testid="draft-intake-actor-suggest-hint">
-            {GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT}
+            {suggestActorsDisabledHint}
           </p>
         ) : null}
       </div>
