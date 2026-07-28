@@ -33,7 +33,8 @@ const SUMMARY_PATH =
 const CONSTRAINT_COUNT = Number(__ENV.K6_LARGE_EVIDENCE_CONSTRAINTS || 50);
 const CAPABILITY_COUNT = Number(__ENV.K6_LARGE_EVIDENCE_CAPABILITIES || 50);
 
-const DESCRIPTION_PREFIX = "k6 large evidence package — ";
+// LlmSemanticAdmissionGate requires an architecture-domain term in Description (see post-commit-operator-path.js).
+const DESCRIPTION_PREFIX = "k6 large evidence architecture package — ";
 const MAX_DESCRIPTION_LENGTH = 10000;
 const DESCRIPTION_REPEAT = Math.floor(MAX_DESCRIPTION_LENGTH / DESCRIPTION_PREFIX.length);
 
