@@ -3,11 +3,16 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL } from "@/lib/cloud-connections-copy";
+import { StatusTag } from "@/components/StatusTag";
+import {
+  CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL,
+  CLOUD_CONNECTIONS_PROVIDER_NOT_CONNECTED,
+} from "@/lib/cloud-connections-copy";
 import { cloudProviderDetailPath } from "@/lib/cloud-connections-paths";
 import type { CloudProviderId } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
 import { resolveCloudProviderSummaryPrimaryCtaLabel } from "./resolve-cloud-provider-summary-primary-cta-label";
 
 export type CloudProviderSummaryCardProps = {
@@ -33,6 +38,7 @@ const PROVIDER_OVERVIEW: Readonly<Record<CloudProviderId, string>> = {
 export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
   const { provider, status, lastValidation, evidenceCollected, maturityLabel } = props;
   const detailHref = cloudProviderDetailPath(provider);
+  const configured = isCloudProviderSummaryConfigured(status);
   const primaryCtaLabel = resolveCloudProviderSummaryPrimaryCtaLabel(status);
 
   return (
@@ -54,31 +60,43 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
         <CardDescription>{PROVIDER_OVERVIEW[provider]}</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 space-y-2 pt-0">
-        <dl className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
-          <div className="flex justify-between gap-2">
-            <dt className="text-al-text-secondary">Status</dt>
-            <dd className="font-medium text-right">{status}</dd>
-          </div>
-          <div className="flex justify-between gap-2">
-            <dt className="text-al-text-secondary">Authentication model</dt>
-            <dd className="max-w-[14rem] text-right font-medium">
+        {configured ? (
+          <dl className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
+            <div className="flex justify-between gap-2">
+              <dt className="text-al-text-secondary">Status</dt>
+              <dd className="font-medium text-right">{status}</dd>
+            </div>
+            <div className="flex justify-between gap-2">
+              <dt className="text-al-text-secondary">Authentication model</dt>
+              <dd className="max-w-[14rem] text-right font-medium">
+                {CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL[provider]}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-2">
+              <dt className="text-al-text-secondary">Last validation</dt>
+              <dd className="font-medium text-right">{lastValidation}</dd>
+            </div>
+            <div className="flex justify-between gap-2">
+              <dt className="text-al-text-secondary">Evidence collected</dt>
+              <dd className="max-w-[14rem] text-right font-medium">{evidenceCollected}</dd>
+            </div>
+          </dl>
+        ) : (
+          <div
+            className="space-y-2"
+            data-testid={`cloud-connection-card-${provider}-not-connected`}
+          >
+            <StatusTag kind="neutral" label={CLOUD_CONNECTIONS_PROVIDER_NOT_CONNECTED} />
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               {CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL[provider]}
-            </dd>
+            </p>
           </div>
-          <div className="flex justify-between gap-2">
-            <dt className="text-al-text-secondary">Last validation</dt>
-            <dd className="font-medium text-right">{lastValidation}</dd>
-          </div>
-          <div className="flex justify-between gap-2">
-            <dt className="text-al-text-secondary">Evidence collected</dt>
-            <dd className="max-w-[14rem] text-right font-medium">{evidenceCollected}</dd>
-          </div>
-        </dl>
+        )}
       </CardContent>
       <CardFooter className="mt-auto border-t border-neutral-200 pt-4 dark:border-neutral-700">
         <Button
           type="button"
-          variant="primary"
+          variant={configured ? "primary" : "outline"}
           className="w-full"
           asChild
           data-testid={`cloud-connection-card-${provider}-primary-cta`}

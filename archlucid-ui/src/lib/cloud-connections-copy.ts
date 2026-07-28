@@ -17,6 +17,9 @@ export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD =
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED =
   "Choose a workspace in the header scope switcher before changing which platforms appear here. Platform filters are saved per workspace.";
 
+/** Compact empty-state line for unconfigured provider landing cards (TB-1143). */
+export const CLOUD_CONNECTIONS_PROVIDER_NOT_CONNECTED = "Not connected";
+
 export const CLOUD_CONNECTIONS_EVIDENCE_ONLY_TITLE = "Evidence-only upload";
 
 export const CLOUD_CONNECTIONS_EVIDENCE_ONLY_SUMMARY =

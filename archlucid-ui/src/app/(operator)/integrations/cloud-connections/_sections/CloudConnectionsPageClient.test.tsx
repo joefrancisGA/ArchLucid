@@ -61,12 +61,30 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("gcp-project-id")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws").querySelector('a[href="/integrations/cloud-connections/aws"]')).toBeTruthy();
     // TB-1141: one primary CTA per provider card — no duplicate View details twin.
+    // TB-1143: unconfigured cards collapse zero-theater metric rows.
     for (const provider of ["aws", "azure", "gcp"] as const) {
       const card = screen.getByTestId(`cloud-connection-card-${provider}`);
       expect(screen.getByTestId(`cloud-connection-card-${provider}-primary-cta`)).toHaveTextContent("Configure");
       expect(card.querySelectorAll("a[href^='/integrations/cloud-connections/']")).toHaveLength(1);
       expect(card).not.toHaveTextContent("View details");
+      expect(screen.getByTestId(`cloud-connection-card-${provider}-not-connected`)).toBeInTheDocument();
+      expect(card).not.toHaveTextContent("Not configured");
+      expect(card).not.toHaveTextContent("Not validated yet");
+      expect(card).not.toHaveTextContent("No packages collected");
     }
+  });
+
+  it("suppresses zero-theater rows on unconfigured provider cards (TB-1143)", async () => {
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-connection-card-aws-not-connected")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("cloud-connection-card-evidence-only")).toHaveTextContent("Always available");
+    expect(screen.queryByText("Not configured")).not.toBeInTheDocument();
+    expect(screen.queryByText("Not validated yet")).not.toBeInTheDocument();
+    expect(screen.queryByText("No packages collected")).not.toBeInTheDocument();
   });
 
   it("hides provider cards when platform scope is narrowed", async () => {
@@ -114,7 +132,11 @@ describe("CloudConnectionsPageClient", () => {
     const awsCard = screen.getByTestId("cloud-connection-card-aws");
     expect(awsCard.querySelectorAll("a[href='/integrations/cloud-connections/aws']")).toHaveLength(1);
     expect(awsCard).not.toHaveTextContent("View details");
+    expect(screen.queryByTestId("cloud-connection-card-aws-not-connected")).not.toBeInTheDocument();
+    expect(awsCard).toHaveTextContent("Last validation");
+    expect(awsCard).toHaveTextContent("Evidence collected");
     expect(screen.getByTestId("cloud-connection-card-azure-primary-cta")).toHaveTextContent("Configure");
+    expect(screen.getByTestId("cloud-connection-card-azure-not-connected")).toBeInTheDocument();
   });
 
   it("disables platform scope and keeps all cards when workspace is missing (TB-1142)", async () => {
