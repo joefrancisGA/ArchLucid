@@ -22,7 +22,7 @@ This page has **three choices only**. Detailed procedures stay in linked runbook
 | --- | --- |
 | **Inputs** | Web browser only; optional seeded demo workspace |
 | **Path** | [`CORE_PILOT.md`](../CORE_PILOT.md) narrative → marketing demo or operator demo workspace |
-| **Expected artifact** | Walkthrough of review create → execute → commit; static demo proof shape in [`buyer-jobs/README.md`](../go-to-market/buyer-jobs/README.md) |
+| **Expected artifact** | Walkthrough of review create → execute → commit; static demo proof shape in [`walkthroughs/README.md#buyer-jobs-specialty-index`](../library/walkthroughs/README.md#buyer-jobs-specialty-index) (`buyer-jobs/README.md` alias) |
 | **Stop when** | You need sponsor-safe real-mode wording, production-like auth, or procurement evidence — switch to Choice B or C |
 
 **Not required for this path:** SQL install, Azure extractor upload, real Azure OpenAI, SOC 2 CPA, third-party pen test, live Marketplace checkout, V1.1 ITSM/chat connectors.
