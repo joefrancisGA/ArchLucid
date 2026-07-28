@@ -3,7 +3,6 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Marketing;
 using ArchLucid.Contracts.Persistence.Agents;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Audit;
