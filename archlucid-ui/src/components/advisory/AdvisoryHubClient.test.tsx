@@ -13,7 +13,9 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 }));
 
 vi.mock("./AdvisoryScansContent", () => ({
-  AdvisoryScansContent: () => <div>Scans panel</div>,
+  AdvisoryScansContent: (props: { initialRunId?: string | null }) => (
+    <div>Scans panel{props.initialRunId ? ` (${props.initialRunId})` : ""}</div>
+  ),
 }));
 
 vi.mock("./AdvisorySchedulesContent", () => ({
@@ -65,5 +67,15 @@ describe("AdvisoryHubClient (TB-670)", () => {
     });
 
     expect(scansTab).toHaveFocus();
+  });
+
+  it("preserves runId when switching advisory tabs", () => {
+    render(<AdvisoryHubClient initialTab="scans" initialRunId="run-abc" />);
+
+    expect(screen.getByText("Scans panel (run-abc)")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Schedules" }));
+
+    expect(pushMock).toHaveBeenCalledWith("/governance/advisory-scans?tab=schedules&runId=run-abc");
   });
 });

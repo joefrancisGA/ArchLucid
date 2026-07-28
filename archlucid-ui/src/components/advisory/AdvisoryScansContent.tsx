@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
@@ -48,22 +48,62 @@ import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { ImprovementPlan, RecommendationRecord } from "@/types/advisory";
 
+export type AdvisoryScansContentProps = {
+  /** Optional product-run scope from `?runId=` deep links. */
+  readonly initialRunId?: string | null;
+};
+
 /**
  * Scans tab: governance follow-up workspace for advisory recommendations.
  */
-export function AdvisoryScansContent(): React.JSX.Element {
+export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): React.JSX.Element {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const isAdminCaller = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const bootstrappedRunId = (props.initialRunId ?? "").trim();
 
-  const [runId, setRunId] = useState("");
+  const [runId, setRunId] = useState(bootstrappedRunId);
   const [compareToRunId, setCompareToRunId] = useState("");
   const [planSummary, setPlanSummary] = useState<ImprovementPlan | null>(null);
   const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const didAutoLoadRef = useRef(false);
 
   const reviewSelected = runId.trim().length > 0;
   const hasResults = planSummary !== null || recommendations.length > 0;
+
+  useEffect(() => {
+    const next = (props.initialRunId ?? "").trim();
+
+    if (next.length === 0) {
+      return;
+    }
+
+    setRunId(next);
+  }, [props.initialRunId]);
+
+  useEffect(() => {
+    const rid = bootstrappedRunId;
+
+    if (rid.length === 0 || didAutoLoadRef.current) {
+      return;
+    }
+
+    didAutoLoadRef.current = true;
+    setLoading(true);
+    setFailure(null);
+
+    void (async () => {
+      try {
+        const persisted = await listRecommendations(rid);
+        setRecommendations(persisted);
+      } catch (error) {
+        setFailure(toApiLoadFailure(error));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [bootstrappedRunId]);
 
   const scanSummary = useMemo(
     () => buildAdvisoryScanSummary(recommendations, planSummary, compareToRunId),
@@ -149,6 +189,16 @@ export function AdvisoryScansContent(): React.JSX.Element {
               {ADVISORY_SCANS_FORM_SECTION_TITLE}
             </h2>
           </div>
+
+          {bootstrappedRunId.length > 0 ? (
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="advisory-scans-run-scope-banner"
+            >
+              Scoped to review <span className="font-mono text-al-text-primary">{bootstrappedRunId}</span>.
+              Persisted recommendations load automatically; generate a scan if you need a fresh plan.
+            </p>
+          ) : null}
 
           <div className="grid gap-4">
             <RunIdPicker

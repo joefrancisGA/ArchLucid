@@ -43,7 +43,7 @@ Direct URL: `/architecture-intelligence` (or load the golden fixture for a canne
    - Interview framing + evidence-driven questions
    - Trust / publish gate (integrity-passed ids, block reasons)
    - Economics line: cache hit/miss + estimated tokens vs tier budget
-4. After publish: use **Open findings** / **Open review** / **Open advisory** to prove the product round-trip.
+4. After publish: use **Open findings** / **Open review** / **Open advisory** — those links carry `?runId=` so findings/advisory open scoped to this review. Individual published findings also link to evidence trace.
 
 ### 4. Answer and continue
 

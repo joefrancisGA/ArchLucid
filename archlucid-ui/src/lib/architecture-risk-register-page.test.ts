@@ -4,8 +4,10 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import {
   computeArchitectureRiskRegisterSummary,
   governanceQueueDispositionLabel,
+  matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
   riskRegisterFilterFromQuery,
+  scopedRunIdFromQuery,
 } from "@/lib/architecture-risk-register-page";
 
 function sampleRow(overrides: Partial<GovernanceFindingQueueRow> = {}): GovernanceFindingQueueRow {
@@ -28,6 +30,14 @@ describe("architecture-risk-register-page", () => {
   it("maps legacy waiver-expiring query param to expiring-soon filter", () => {
     expect(riskRegisterFilterFromQuery("waiver-expiring")).toBe("expiring-soon");
     expect(riskRegisterFilterFromQuery("no-owner")).toBe("no-owner");
+  });
+
+  it("scopes findings queue rows by runId query", () => {
+    expect(scopedRunIdFromQuery("  run-abc  ")).toBe("run-abc");
+    expect(scopedRunIdFromQuery("")).toBeNull();
+    expect(matchesGovernanceFindingsRunScope(sampleRow({ runId: "run-1" }), "run-1")).toBe(true);
+    expect(matchesGovernanceFindingsRunScope(sampleRow({ runId: "run-1" }), "run-2")).toBe(false);
+    expect(matchesGovernanceFindingsRunScope(sampleRow({ runId: "run-1" }), null)).toBe(true);
   });
 
   it("computes summary metrics from register rows", () => {

@@ -105,6 +105,27 @@ export const ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF = GOVERNANCE_POLICY_PA
 
 const WAIVER_EXPIRING_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
+/** Reads an optional product-run scope from governance findings / advisory deep links. */
+export function scopedRunIdFromQuery(raw: string | null | undefined): string | null {
+  const trimmed = raw?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/** When a run scope is active, keep only queue rows for that review. */
+export function matchesGovernanceFindingsRunScope(
+  row: GovernanceFindingQueueRow,
+  scopedRunId: string | null | undefined,
+): boolean {
+  const scope = scopedRunIdFromQuery(scopedRunId);
+
+  if (scope === null) {
+    return true;
+  }
+
+  return row.runId.trim().toLowerCase() === scope.toLowerCase();
+}
+
 export function riskRegisterFilterFromQuery(raw: string | null): RiskRegisterFilter {
   if (raw === "stale") {
     return "stale";

@@ -9,6 +9,7 @@ import {
 } from "@/lib/governance-findings-group-by-resource-storage";
 import {
   riskRegisterFilterFromQuery,
+  scopedRunIdFromQuery,
   type RiskRegisterFilter,
 } from "@/lib/architecture-risk-register-page";
 
@@ -24,6 +25,9 @@ export function useGovernanceFindingsFilter() {
   const [registerFilter, setRegisterFilter] = useState<RiskRegisterFilter>(() =>
     riskRegisterFilterFromQuery(searchParams.get("filter")),
   );
+  const [scopedRunId, setScopedRunId] = useState<string | null>(() =>
+    scopedRunIdFromQuery(searchParams.get("runId")),
+  );
   const [savedPresets, setSavedPresets] = useState<GovernanceFindingsFilterPreset[]>(() =>
     loadGovernanceFindingsFilterPresets(),
   );
@@ -35,6 +39,7 @@ export function useGovernanceFindingsFilter() {
 
   useEffect(() => {
     setRegisterFilter(riskRegisterFilterFromQuery(searchParams.get("filter")));
+    setScopedRunId(scopedRunIdFromQuery(searchParams.get("runId")));
   }, [searchParams]);
 
   const saveCurrentFilterAsPreset = useCallback((): void => {
@@ -83,6 +88,7 @@ export function useGovernanceFindingsFilter() {
   return {
     registerFilter,
     setRegisterFilter,
+    scopedRunId,
     savedPresets,
     saveCurrentFilterAsPreset,
     removePreset,

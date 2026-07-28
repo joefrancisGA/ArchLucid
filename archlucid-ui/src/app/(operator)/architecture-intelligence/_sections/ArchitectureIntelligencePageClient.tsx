@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
+import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +18,7 @@ import {
   isArchitectureIntelligenceReviewTier,
   type ArchitectureIntelligenceReviewTier,
 } from "@/lib/architecture-intelligence-review-tier";
-import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type ClosedLoopReasoningSourceText = {
@@ -866,6 +868,12 @@ function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenc
               const product = props.result.productFindings?.find((item) => item.findingId === findingId);
               const provenanceBucket = product?.properties?.["architectureIntelligence.provenancePresentation"];
               const integrityPassed = finding.findingId ? integritySet.has(finding.findingId) : validation?.overallPassedIntegrity;
+              const publishedInspectHref =
+                props.result.publishedToProduct === true &&
+                (props.result.runId?.trim().length ?? 0) > 0 &&
+                (finding.findingId?.trim().length ?? 0) > 0
+                  ? governanceFindingInspectHref(props.result.runId!, finding.findingId!)
+                  : null;
 
               return (
                 <li key={findingId}>
@@ -880,6 +888,17 @@ function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenc
                       {provenanceBucket ? <p className="m-0">Provenance: {provenanceBucket}</p> : null}
                       {validation?.semanticAssessment ? (
                         <p className="m-0">Semantic assessment: {validation.semanticAssessment}</p>
+                      ) : null}
+                      {publishedInspectHref ? (
+                        <p className="m-0">
+                          <Link
+                            className={OPERATOR_LINK.inline}
+                            href={publishedInspectHref}
+                            data-testid={`architecture-intelligence-finding-inspect-${finding.findingId}`}
+                          >
+                            Open evidence trace
+                          </Link>
+                        </p>
                       ) : null}
                     </CardContent>
                   </Card>

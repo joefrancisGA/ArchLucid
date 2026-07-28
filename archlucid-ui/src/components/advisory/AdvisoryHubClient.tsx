@@ -15,7 +15,9 @@ import {
   ADVISORY_SCANS_HOW_IT_WORKS_TITLE,
   ADVISORY_SCANS_PAGE_LEAD,
 } from "@/lib/advisory-copy";
+import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
+import { scopedRunIdFromQuery } from "@/lib/architecture-risk-register-page";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -34,17 +36,20 @@ const SCHEDULES_TAB_READER_TITLE =
 
 export type AdvisoryHubClientProps = {
   readonly initialTab: AdvisoryHubTabId;
+  /** Optional product-run scope from `?runId=` (ArchitectureIntelligence publish round-trip). */
+  readonly initialRunId?: string | null;
 };
 
 /**
  * Advisory scans hub under `/governance/advisory-scans`: **Scans** and **Schedules** tabs.
- * Tab state in `?tab=` for deep links. `initialTab` comes from the server (no `useSearchParams` Suspense).
+ * Tab state in `?tab=` for deep links. `initialTab` / `initialRunId` come from the server (no `useSearchParams` Suspense).
  */
-export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React.JSX.Element {
+export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryHubClientProps): React.JSX.Element {
   const router: ReturnType<typeof useRouter> = useRouter();
   const pathname: string = usePathname();
   const canMutate: boolean = useOperateCapability();
   const [activeTab, setActiveTab] = useState<AdvisoryHubTabId>(initialTab);
+  const scopedRunId = scopedRunIdFromQuery(initialRunId);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -67,16 +72,9 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
     (id: string) => {
       const tabId = advisoryHubTabFromSearchParam(id);
       setActiveTab(tabId);
-
-      if (tabId === "scans") {
-        router.push(pathname);
-
-        return;
-      }
-
-      router.push(`${pathname}?${TAB_PARAM}=${encodeURIComponent(tabId)}`);
+      router.push(buildAdvisoryHubHref({ pathname, tab: tabId, runId: scopedRunId }));
     },
-    [pathname, router],
+    [pathname, router, scopedRunId],
   );
 
   return (
@@ -131,7 +129,7 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps): React
         </TabsList>
 
         <TabsContent value="scans" className="mt-4 min-w-0" data-testid="advisory-hub-panel">
-          <AdvisoryScansContent />
+          <AdvisoryScansContent initialRunId={scopedRunId} />
         </TabsContent>
         <TabsContent value="schedules" className="mt-4 min-w-0">
           <AdvisorySchedulesContent />

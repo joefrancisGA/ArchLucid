@@ -20,6 +20,7 @@ import {
   ARCHITECTURE_RISK_REGISTER_PAGE_TITLE,
   ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF,
   computeArchitectureRiskRegisterSummary,
+  matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
 } from "@/lib/architecture-risk-register-page";
 import {
@@ -45,6 +46,7 @@ export default function GovernanceFindingsQueueClient() {
   const {
     registerFilter,
     setRegisterFilter,
+    scopedRunId,
     savedPresets,
     saveCurrentFilterAsPreset,
     removePreset,
@@ -54,8 +56,13 @@ export default function GovernanceFindingsQueueClient() {
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const displayedRows = useMemo(
-    () => rows.filter((row) => matchesRiskRegisterFilter(row, registerFilter)),
-    [rows, registerFilter],
+    () =>
+      rows.filter(
+        (row) =>
+          matchesGovernanceFindingsRunScope(row, scopedRunId) &&
+          matchesRiskRegisterFilter(row, registerFilter),
+      ),
+    [rows, registerFilter, scopedRunId],
   );
   const registerSummary = useMemo(() => computeArchitectureRiskRegisterSummary(rows), [rows]);
   const pageTitle = buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : ARCHITECTURE_RISK_REGISTER_PAGE_TITLE;
@@ -97,6 +104,24 @@ export default function GovernanceFindingsQueueClient() {
       />
 
       <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
+        {scopedRunId ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="governance-findings-run-scope-banner"
+          >
+            Showing risks for review{" "}
+            <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/governance/findings">
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={`/reviews/${encodeURIComponent(scopedRunId)}`}>
+              Open review
+            </Link>
+          </p>
+        ) : null}
+
         {!buyerPolishedShell && !loading && rows.length > 0 ? (
           <GovernanceFindingsFilterBar
             registerFilter={registerFilter}
