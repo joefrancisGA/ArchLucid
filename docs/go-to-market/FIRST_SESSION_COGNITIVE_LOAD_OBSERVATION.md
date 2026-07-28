@@ -1,11 +1,11 @@
 > **Reviewed:** 2026-07-28
 
-> **Scope:** 45-minute first-session usability observation for Core Pilot, plus founder 3-session dismissal cohort operations (formerly `FIRST_SESSION_DISMISSAL_PLAYBOOK.md`), the sponsor-export discovery micro-test (formerly `SPONSOR_EXPORT_DISCOVERY_TEST.md`), per-session dismissal log / weekly triage plus head-to-head dismissal interview (formerly the body of `validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`; that filename remains a path-stable alias for CLI / M-44 callers), principal-architect insight validation / blind cohort / session scorecard (formerly the body of `Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`; that filename remains a path-stable alias for CLI / blind-validation callers (`#blind-insight-validation`, `#blind-cohort-operating-checklist`, `#session-scorecard`)), and the pre-registered blind decision-delta cohort tracker (formerly the body of `validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`; that filename remains a path-stable alias for GTM **M-50**). No UI implementation until bottlenecks are observed and clear the product decision gate.
+> **Scope:** 45-minute first-session usability observation for Core Pilot, plus founder 3-session dismissal cohort operations (formerly `FIRST_SESSION_DISMISSAL_PLAYBOOK.md`), the sponsor-export discovery micro-test (formerly `SPONSOR_EXPORT_DISCOVERY_TEST.md`), per-session dismissal log / weekly triage plus head-to-head dismissal interview (formerly the body of `validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`; that filename remains a path-stable alias for CLI / M-44 callers), principal-architect insight validation / blind cohort / session scorecard (formerly the body of `Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`; that filename remains a path-stable alias for CLI / blind-validation callers (`#blind-insight-validation`, `#blind-cohort-operating-checklist`, `#session-scorecard`)), the pre-registered blind decision-delta cohort tracker (formerly the body of `validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`; that filename remains a path-stable alias for GTM **M-50**), and the principal-architect evaluation packet-set index (formerly the body of `Architect_Evaluation/Packets/README.md`; that filename remains a path-stable alias beside packet binaries). No UI implementation until bottlenecks are observed and clear the product decision gate.
 
 # First-session cognitive load observation
 
 **Audience:** Founder / facilitator, principal-architect participant, product observer.  
-**Last reviewed:** 2026-07-27
+**Last reviewed:** 2026-07-28
 
 **Purpose:** Determine whether a competent principal architect reaches a **sponsor-ready architecture package** on first use **without feature-tour narration**. Measure first-session completion, export discovery, and dismissal triggers so ArchLucid can quantify **30-day voluntary usage risk** before investing in UI changes.
 
@@ -1322,6 +1322,40 @@ Store completed scorecards and transcripts outside the repository. Summarize agg
 
 Former standalone: `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md` → this section.
 
+## Principal-architect evaluation packet set {#principal-architect-evaluation-packet-set}
+
+Former standalone body: `docs/go-to-market/Architect_Evaluation/Packets/README.md` → this section (filename kept as a path-stable alias beside the packet binaries).
+
+**Path-stable alias:** [`Architect_Evaluation/Packets/README.md`](Architect_Evaluation/Packets/README.md).
+
+Synthetic sanitized raw architecture packets for principal-architect validation sessions.
+
+### Packet files
+
+Each scenario has:
+
+- `*_PARTICIPANT.md` — give this to architects (under [`Architect_Evaluation/Packets/`](Architect_Evaluation/Packets/)).
+- `*_EVALUATOR.md` — includes hidden answer key and scoring guidance (under [`Architect_Evaluation/Packets/Answers/`](Architect_Evaluation/Packets/Answers/)).
+
+### Scenarios
+
+1. Healthcare Claims Intake Modernization
+2. Retail Checkout and Loyalty API
+3. Enterprise Analytics Modernization
+4. Manufacturing IoT Edge Telemetry Platform
+5. B2B SaaS Tenant Migration Platform
+
+### How to use each packet
+
+Run each packet through:
+
+1. Principal architect cold read.
+2. ArchLucid architecture package.
+3. Frontier-AI baseline.
+4. Scoring interview.
+
+These packets are deliberately imperfect and include injected traps. Pair with [`#principal-architect-insight-validation`](#principal-architect-insight-validation) / [`#blind-insight-validation`](#blind-insight-validation).
+
 ## Related files (insight protocol)
 
 - [`#session-scorecard`](#session-scorecard) (fillable worksheet)
@@ -1365,3 +1399,4 @@ Do not declare victory because architects like the demo. Declare progress only w
 - [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed)
 - [Principal-architect insight validation protocol](#principal-architect-insight-validation) — live sessions, blind comparison, cohort checklist, session scorecard (alias: [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md); pins: [`#blind-insight-validation`](#blind-insight-validation), [`#blind-cohort-operating-checklist`](#blind-cohort-operating-checklist), [`#session-scorecard`](#session-scorecard))
 - [Blind decision-delta cohort tracker](#blind-decision-delta-cohort-tracker) — pre-registered thresholds + session slots (alias: [`validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`](validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md); GTM **M-50**)
+- [Principal-architect evaluation packet set](#principal-architect-evaluation-packet-set) — scenario list + use steps (alias: [`Architect_Evaluation/Packets/README.md`](Architect_Evaluation/Packets/README.md))

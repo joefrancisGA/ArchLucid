@@ -1,31 +1,14 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-28
 
-# ArchLucid Principal Architect Evaluation Packet Set
+> **Scope:** Path-stable alias for the principal-architect evaluation packet set index. Packet DOCX/MD binaries remain in this folder.
 
-Synthetic sanitized raw architecture packets for principal-architect validation sessions.
+# ArchLucid Principal Architect Evaluation Packet Set (alias)
 
-## Files
+**Last reviewed:** 2026-07-28
 
-Each scenario has:
+**Canonical packet-set index (scenarios + use steps):** [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-evaluation-packet-set`](../../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-evaluation-packet-set).
 
-- `*_PARTICIPANT.md` — give this to architects.
-- `*_EVALUATOR.md` — includes hidden answer key and scoring guidance.
-
-## Scenarios
-
-1. Healthcare Claims Intake Modernization
-2. Retail Checkout and Loyalty API
-3. Enterprise Analytics Modernization
-4. Manufacturing IoT Edge Telemetry Platform
-5. B2B SaaS Tenant Migration Platform
-
-## Use
-
-Run each packet through:
-
-1. Principal architect cold read.
-2. ArchLucid architecture package.
-3. Frontier-AI baseline.
-4. Scoring interview.
-
-These packets are deliberately imperfect and include injected traps.
+| Kind | Location |
+|------|----------|
+| Participant packets | `*_PARTICIPANT.md` in this folder |
+| Evaluator keys | `Answers/*_EVALUATOR.md` |
