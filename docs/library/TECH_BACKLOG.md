@@ -1,3 +1,5 @@
+**Updated:** 2026-07-28 (**TB-1146** **Done** — Jira/ServiceNow not-configured: guided admin or Integration readiness next step).
+
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -760,7 +762,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1141 | Cloud provider summary cards — single primary CTA (dedupe Configure / View details); see ## TB-1141 below | Adoption friction P1 — **V1**; with **TB-1139** | S |
 | TB-1142 | Cloud platform scope panel — fail closed when workspace missing + shared filter state; see ## TB-1142 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
 | TB-1143 | Cloud connections empty/not-configured composition — suppress zero theater; see ## TB-1143 below | Adoption friction P1 — **V1**; with **TB-1141** | S |
-| TB-1146 | Jira integration not-configured dead end — guided next step; see ## TB-1146 below | Adoption friction P1 — **V1**; owner `/integrations/jira` ~46/100 2026-07-25 | S |
+| TB-1146 | Jira integration not-configured dead end — guided next step — **Done** (2026-07-28); see ## TB-1146 below | Adoption friction P0 — **V1**; owner `/integrations/jira` ~46/100 2026-07-25 | S |
 | TB-1147 | Jira page copy honesty — do not claim Set connection details; see ## TB-1147 below | Adoption friction P1 — **V1**; with **TB-1146** | XS |
 | TB-1148 | Jira not-configured message dedupe (status vs connection test); see ## TB-1148 below | Adoption friction P1 — **V1**; with **TB-1146** | XS |
 | TB-1149 | Jira issue type by severity — structured UI (no raw JSON); see ## TB-1149 below | Adoption friction P1 — **V1**; with **TB-1146** | M |
@@ -28537,7 +28539,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-07-28) — shared ITSM page shows admin Configure or Integration readiness CTA when credentials missing; operator notes open by default.
 
 **Priority:** P0.
 

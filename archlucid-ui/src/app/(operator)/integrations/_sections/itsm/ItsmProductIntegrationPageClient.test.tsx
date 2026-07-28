@@ -1,11 +1,16 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockFetchHealth = vi.fn();
 const mockFetchSettings = vi.fn();
+const mockCallerAuthorityRank = vi.fn(() => 3);
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
+}));
+
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: () => mockCallerAuthorityRank(),
 }));
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({
@@ -19,6 +24,9 @@ import {
   ITSM_PRODUCT_PAGE_COPY,
   type ItsmProductId,
 } from "@/lib/itsm-product-integration-page-copy";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 
 const BANNED_PATTERNS = [
   /Integrations:ItsmOutbound/i,
@@ -68,6 +76,7 @@ function baseSettings() {
 describe("ItsmProductIntegrationPageClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCallerAuthorityRank.mockReturnValue(AUTHORITY_RANK.AdminAuthority);
     mockFetchHealth.mockImplementation(async () => baseHealth("jira"));
     mockFetchSettings.mockResolvedValue(baseSettings());
   });
@@ -94,4 +103,63 @@ describe("ItsmProductIntegrationPageClient", () => {
       }
     },
   );
+
+  it.each<ItsmProductId>(["jira", "servicenow"])(
+    "offers admin ITSM configure CTA when %s is not configured (TB-1146)",
+    async (product) => {
+      mockFetchHealth.mockResolvedValue(baseHealth(product));
+      mockCallerAuthorityRank.mockReturnValue(AUTHORITY_RANK.AdminAuthority);
+
+      render(<ItsmProductIntegrationPageClient product={product} />);
+
+      expect(await screen.findByTestId(`integrations-${product}-not-configured-next-step`)).toBeInTheDocument();
+      const configureLink = screen.getByTestId(`integrations-${product}-configure-admin-cta`);
+      expect(configureLink).toHaveAttribute("href", ITSM_CONNECTORS_ADMIN_PATH);
+      expect(configureLink).toHaveTextContent("Configure ITSM connectors");
+      await waitFor(() => {
+        expect(screen.getByTestId(`integrations-${product}-operator-notes`)).toHaveAttribute("open");
+      });
+    },
+  );
+
+  it.each<ItsmProductId>(["jira", "servicenow"])(
+    "offers Integration readiness CTA when %s is not configured for non-admin (TB-1146)",
+    async (product) => {
+      mockFetchHealth.mockResolvedValue(baseHealth(product));
+      mockCallerAuthorityRank.mockReturnValue(AUTHORITY_RANK.ExecuteAuthority);
+
+      render(<ItsmProductIntegrationPageClient product={product} />);
+
+      expect(await screen.findByTestId(`integrations-${product}-not-configured-next-step`)).toBeInTheDocument();
+      const readinessLink = screen.getByTestId(`integrations-${product}-readiness-cta`);
+      expect(readinessLink).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
+      expect(screen.queryByTestId(`integrations-${product}-configure-admin-cta`)).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId(`integrations-${product}-operator-notes`)).toHaveAttribute("open");
+      });
+    },
+  );
+
+  it("hides the not-configured next step when the connector is locally configured", async () => {
+    mockFetchHealth.mockResolvedValue({
+      nativeEnabled: true,
+      jira: { locallyConfigured: true, reachable: true, summary: "ready" },
+      serviceNow: { locallyConfigured: false, summary: "skip" },
+    });
+
+    render(<ItsmProductIntegrationPageClient product="jira" />);
+
+    expect(await screen.findByTestId("integrations-jira-health")).toBeInTheDocument();
+    expect(screen.queryByTestId("integrations-jira-not-configured-next-step")).not.toBeInTheDocument();
+    expect(screen.getByTestId("integrations-jira-operator-notes")).not.toHaveAttribute("open");
+  });
+
+  it("does not claim not-configured when health load fails (TB-1146)", async () => {
+    mockFetchHealth.mockRejectedValue(new Error("network down"));
+
+    render(<ItsmProductIntegrationPageClient product="jira" />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/network down|Could not load/i);
+    expect(screen.queryByTestId("integrations-jira-not-configured-next-step")).not.toBeInTheDocument();
+  });
 });

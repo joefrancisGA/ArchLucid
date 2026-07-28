@@ -13,6 +13,16 @@ export const ITSM_PLATFORM_OPERATOR_NOTES_SUMMARY = "Platform operator notes";
 export const ITSM_PLATFORM_OPERATOR_NOTES_BODY =
   "Native ticket creation may require credentials configured by your platform team. Contact your administrator if connection checks fail.";
 
+/** Shown above the primary CTA when credentials are missing and the caller can open admin ITSM (TB-1146). */
+export const ITSM_NOT_CONFIGURED_ADMIN_LEAD =
+  "{vendor} credentials are not configured for this workspace. Configure the connector in ITSM administration, then return here for tenant routing overrides.";
+
+/** Shown when credentials are missing and the caller cannot open admin ITSM (TB-1146). */
+export const ITSM_NOT_CONFIGURED_OPERATOR_LEAD =
+  "{vendor} credentials are not configured for this workspace. Ask a platform administrator to configure the connector, or check Integration readiness for status across outbound integrations.";
+
+export const ITSM_NOT_CONFIGURED_READINESS_CTA = "Open Integration readiness";
+
 export const ITSM_NATIVE_CREATE_READY_MESSAGE =
   "Connection validation passed — finding surfaces can offer one-click {vendor} sync when outbound creation is enabled.";
 

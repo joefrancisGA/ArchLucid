@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import {
   type ItsmIntegrationHealthResponse,
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
@@ -30,9 +31,11 @@ import {
   type ItsmProductId,
 } from "@/lib/itsm-product-integration-page-copy";
 import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm-native-create-readiness";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 
 import { ItsmConnectorProbeCard } from "./ItsmConnectorProbeCard";
+import { ItsmNotConfiguredNextStep } from "./ItsmNotConfiguredNextStep";
 
 type Props = {
   readonly product: ItsmProductId;
@@ -40,6 +43,8 @@ type Props = {
 
 export function ItsmProductIntegrationPageClient(props: Props): React.ReactElement {
   const canMutate = useOperateCapability();
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const canConfigureAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const copy = ITSM_PRODUCT_PAGE_COPY[props.product];
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
   const [, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
@@ -53,6 +58,8 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
   const [jiraSendInfo, setJiraSendInfo] = useState(false);
   const [issueTypeJson, setIssueTypeJson] = useState("");
   const [snowAutoCmdb, setSnowAutoCmdb] = useState(false);
+  const [operatorNotesOpen, setOperatorNotesOpen] = useState(false);
+  const operatorNotesSeededRef = useRef(false);
 
   const applySettings = useCallback((loaded: TenantItsmOutboundSettingsResponse | null) => {
     setSettings(loaded);
@@ -134,6 +141,25 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
           ...rawProbe,
           summary: sanitizeItsmCustomerFacingProbeSummary(rawProbe.summary, props.product),
         };
+  const locallyConfigured = probe?.locallyConfigured === true;
+  // Only claim "not configured" after a successful health load (TB-1146 / Bugbot).
+  const showNotConfiguredNextStep = health !== null && !locallyConfigured;
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
+    if (health === null) {
+      operatorNotesSeededRef.current = false;
+      return;
+    }
+
+    if (!operatorNotesSeededRef.current) {
+      setOperatorNotesOpen(showNotConfiguredNextStep);
+      operatorNotesSeededRef.current = true;
+    }
+  }, [health, isLoading, showNotConfiguredNextStep]);
 
   return (
     <div
@@ -171,6 +197,14 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
             testId={`integrations-${props.product}-health`}
           />
 
+          {showNotConfiguredNextStep ? (
+            <ItsmNotConfiguredNextStep
+              product={props.product}
+              productTitle={copy.pageTitle}
+              canConfigureAdmin={canConfigureAdmin}
+            />
+          ) : null}
+
           {defaultPathReady ? (
             <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               {formatItsmNativeCreateReadyMessage(copy.pageTitle)}
@@ -180,6 +214,8 @@ export function ItsmProductIntegrationPageClient(props: Props): React.ReactEleme
           <details
             className="max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40"
             data-testid={`integrations-${props.product}-operator-notes`}
+            open={operatorNotesOpen}
+            onToggle={(event) => setOperatorNotesOpen(event.currentTarget.open)}
           >
             <summary
               className={cn(
