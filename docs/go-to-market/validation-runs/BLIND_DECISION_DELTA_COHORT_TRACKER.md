@@ -1,72 +1,11 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-28
 
-> **Scope:** Pre-registered tracker for one blind decision-delta cohort. Lock the plan and thresholds **before** collecting data so results cannot be threshold-gamed after the fact. Market-validation only.
+> **Scope:** Path-stable alias for the pre-registered blind decision-delta cohort tracker (GTM **M-50**). Market-validation only.
 
-# Blind decision-delta cohort tracker
+# Blind decision-delta cohort tracker (alias)
 
-**Cohort label:** _(e.g. regulated-workload-2026Q3)_
-**Pre-registered (UTC):** _(date the thresholds below were frozen — set once, do not edit after first session)_
-**Facilitator:** _(name kept in private notes; leave initials only here)_
-**Status:** `pre-registered` → `in-progress` → `complete`
-**Execution tracked as:** GTM backlog **M-50** (V1.1) — running the live sessions is founder/market work, not coding-agent work.
+**Last reviewed:** 2026-07-28
 
-This tracker does **not** replace the protocol assets — it is the single launch + capture surface that points at them:
+**Canonical tracker (hypothesis, thresholds, session slots, verdict, honesty checklist):** [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-decision-delta-cohort-tracker`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-decision-delta-cohort-tracker).
 
-- Operating checklist: [`../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-cohort-operating-checklist`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-cohort-operating-checklist) (alias: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-cohort-operating-checklist))
-- Scorecard: [`../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#session-scorecard`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#session-scorecard) (alias: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#session-scorecard`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#session-scorecard))
-- Per-session JSON: [`../templates/principal-architect-session.template.json`](../templates/principal-architect-session.template.json)
-- Scoring sheet JSON: [`../templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json)
-- Cohort rollup template: [`../templates/blind-validation-exec-summary.template.md`](../templates/blind-validation-exec-summary.template.md)
-
----
-
-## 1. Pre-registered hypothesis (lock before session 1)
-
-> ArchLucid produces a materially higher rate of **non-obvious, correct, decision-changing** findings than a competent principal architect using frontier AI manually on the **same** sanitized packet, with **zero critical wrong** findings.
-
-## 2. Pre-registered thresholds (do not edit after session 1)
-
-These mirror the conservative thresholds already in the cohort checklist and scorecard. They are frozen here so the verdict is decided by the plan, not by the data.
-
-| Metric | Pass | Fail |
-| --- | --- | --- |
-| Non-obvious (**N**) share of material ArchLucid findings | ≥ 25% | < 15% |
-| Critical wrong / unsupported (**X**) | 0 | any critical **X** |
-| Decision-changing (**D** / decision impact ≥ 4) | ≥ 1 per session, or ≥ 3 across cohort | 0 across cohort |
-| Reuse intent | ≥ 2 of 3 (or ≥ 3 of 5) would run review #2 | majority would not return |
-| Evidence-trail advantage vs manual AI | majority say ArchLucid stronger | majority say manual AI sufficient |
-
-**Minimum cohort size before any messaging change:** 3 independent sessions. Target 5.
-
-## 3. Session slots
-
-Fill one row per session. Keep names/quotes out of this file; store them privately per the README.
-
-| # | Date (UTC) | Packet (label only) | ArchLucid mode (sim/real/mixed) | Evidence basis | N-rate | Critical X | Max decision impact | Reuse intent | Summary link |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | | | | | | | | | |
-| 2 | | | | | | | | | |
-| 3 | | | | | | | | | |
-| 4 | | | | | | | | | |
-| 5 | | | | | | | | | |
-
-## 4. Cohort verdict (fill after ≥ 3 sessions)
-
-| Threshold | Result | Pass / Fail |
-| --- | --- | --- |
-| N-rate ≥ 25% | | |
-| 0 critical X | | |
-| ≥ 3 decision-changing across cohort | | |
-| Reuse intent majority | | |
-| Evidence-trail advantage | | |
-
-**Overall verdict:** `pass` / `mixed` / `fail`
-**Action taken (cite the rule, not improvisation):** _(map to the roadmap-guidance table in the scorecard / cohort checklist — e.g. "fail on N-rate, pass on evidence → reposition around durability/audit, do not add features")_
-
-## 5. Honesty checklist (block commit until all true)
-
-- [ ] Thresholds in §2 were frozen before session 1 and not edited afterward.
-- [ ] Source mapping revealed to reviewers only after blind scoring.
-- [ ] No demo-derived session is cited as customer proof.
-- [ ] Participant identities/quotes are stored outside the repository.
-- [ ] Verdict in §4 follows §2 thresholds, not a post-hoc rationale.
+Fill the canon before session 1. This file keeps the historical path stable for GTM backlog **M-50** and [`validation-runs/README.md`](README.md).

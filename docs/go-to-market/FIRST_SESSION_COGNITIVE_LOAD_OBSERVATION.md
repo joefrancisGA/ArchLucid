@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-27
+> **Reviewed:** 2026-07-28
 
-> **Scope:** 45-minute first-session usability observation for Core Pilot, plus founder 3-session dismissal cohort operations (formerly `FIRST_SESSION_DISMISSAL_PLAYBOOK.md`), the sponsor-export discovery micro-test (formerly `SPONSOR_EXPORT_DISCOVERY_TEST.md`), per-session dismissal log / weekly triage plus head-to-head dismissal interview (formerly the body of `validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`; that filename remains a path-stable alias for CLI / M-44 callers), and principal-architect insight validation / blind cohort / session scorecard (formerly the body of `Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`; that filename remains a path-stable alias for CLI / blind-validation callers (`#blind-insight-validation`, `#blind-cohort-operating-checklist`, `#session-scorecard`)). No UI implementation until bottlenecks are observed and clear the product decision gate.
+> **Scope:** 45-minute first-session usability observation for Core Pilot, plus founder 3-session dismissal cohort operations (formerly `FIRST_SESSION_DISMISSAL_PLAYBOOK.md`), the sponsor-export discovery micro-test (formerly `SPONSOR_EXPORT_DISCOVERY_TEST.md`), per-session dismissal log / weekly triage plus head-to-head dismissal interview (formerly the body of `validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`; that filename remains a path-stable alias for CLI / M-44 callers), principal-architect insight validation / blind cohort / session scorecard (formerly the body of `Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`; that filename remains a path-stable alias for CLI / blind-validation callers (`#blind-insight-validation`, `#blind-cohort-operating-checklist`, `#session-scorecard`)), and the pre-registered blind decision-delta cohort tracker (formerly the body of `validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`; that filename remains a path-stable alias for GTM **M-50**). No UI implementation until bottlenecks are observed and clear the product decision gate.
 
 # First-session cognitive load observation
 
@@ -1164,7 +1164,80 @@ python scripts/ci/aggregate_blind_insight_sessions.py `
   --markdown-out artifacts/blind-validation/cohort-summary.md
 ```
 
-Tracker: [`validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`](validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md) · GTM **M-50**.
+Tracker: [`#blind-decision-delta-cohort-tracker`](#blind-decision-delta-cohort-tracker) · GTM **M-50** (alias: [`validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`](validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md)).
+
+---
+
+## Blind decision-delta cohort tracker {#blind-decision-delta-cohort-tracker}
+
+Former standalone body: `docs/go-to-market/validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md` → this section (filename kept as a path-stable alias for GTM **M-50**). Pre-register the plan and thresholds **before** collecting data so results cannot be threshold-gamed after the fact. Market-validation only.
+
+**Path-stable alias:** [`validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`](validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md).
+
+**Cohort label:** _(e.g. regulated-workload-2026Q3)_  
+**Pre-registered (UTC):** _(date the thresholds below were frozen — set once, do not edit after first session)_  
+**Facilitator:** _(name kept in private notes; leave initials only here)_  
+**Status:** `pre-registered` → `in-progress` → `complete`  
+**Execution tracked as:** GTM backlog **M-50** (V1.1) — running the live sessions is founder/market work, not coding-agent work.
+
+This tracker does **not** replace the protocol assets — it is the single launch + capture surface that points at them:
+
+- Operating checklist: [`#blind-cohort-operating-checklist`](#blind-cohort-operating-checklist)
+- Scorecard: [`#session-scorecard`](#session-scorecard)
+- Per-session JSON: [`templates/principal-architect-session.template.json`](templates/principal-architect-session.template.json)
+- Scoring sheet JSON: [`templates/blind-validation-scoring-sheet.template.json`](templates/blind-validation-scoring-sheet.template.json)
+- Cohort rollup template: [`templates/blind-validation-exec-summary.template.md`](templates/blind-validation-exec-summary.template.md)
+
+### Pre-registered hypothesis (lock before session 1)
+
+> ArchLucid produces a materially higher rate of **non-obvious, correct, decision-changing** findings than a competent principal architect using frontier AI manually on the **same** sanitized packet, with **zero critical wrong** findings.
+
+### Pre-registered thresholds (do not edit after session 1)
+
+These mirror the conservative thresholds already in the cohort checklist and scorecard. They are frozen here so the verdict is decided by the plan, not by the data.
+
+| Metric | Pass | Fail |
+| --- | --- | --- |
+| Non-obvious (**N**) share of material ArchLucid findings | ≥ 25% | < 15% |
+| Critical wrong / unsupported (**X**) | 0 | any critical **X** |
+| Decision-changing (**D** / decision impact ≥ 4) | ≥ 1 per session, or ≥ 3 across cohort | 0 across cohort |
+| Reuse intent | ≥ 2 of 3 (or ≥ 3 of 5) would run review #2 | majority would not return |
+| Evidence-trail advantage vs manual AI | majority say ArchLucid stronger | majority say manual AI sufficient |
+
+**Minimum cohort size before any messaging change:** 3 independent sessions. Target 5.
+
+### Session slots
+
+Fill one row per session. Keep names/quotes out of this file; store them privately per [`validation-runs/README.md`](validation-runs/README.md).
+
+| # | Date (UTC) | Packet (label only) | ArchLucid mode (sim/real/mixed) | Evidence basis | N-rate | Critical X | Max decision impact | Reuse intent | Summary link |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | | | | | | | | | |
+| 2 | | | | | | | | | |
+| 3 | | | | | | | | | |
+| 4 | | | | | | | | | |
+| 5 | | | | | | | | | |
+
+### Cohort verdict (fill after ≥ 3 sessions)
+
+| Threshold | Result | Pass / Fail |
+| --- | --- | --- |
+| N-rate ≥ 25% | | |
+| 0 critical X | | |
+| ≥ 3 decision-changing across cohort | | |
+| Reuse intent majority | | |
+| Evidence-trail advantage | | |
+
+**Overall verdict:** `pass` / `mixed` / `fail`  
+**Action taken (cite the rule, not improvisation):** _(map to the roadmap-guidance table in the scorecard / cohort checklist — e.g. "fail on N-rate, pass on evidence → reposition around durability/audit, do not add features")_
+
+### Honesty checklist (block commit until all true)
+
+- [ ] Thresholds above were frozen before session 1 and not edited afterward.
+- [ ] Source mapping revealed to reviewers only after blind scoring.
+- [ ] No demo-derived session is cited as customer proof.
+- [ ] Participant identities/quotes are stored outside the repository.
+- [ ] Verdict follows the pre-registered thresholds, not a post-hoc rationale.
 
 ---
 
@@ -1291,3 +1364,4 @@ Do not declare victory because architects like the demo. Declare progress only w
 - [Dismissal interview script (head-to-head)](#dismissal-interview-script-head-to-head)
 - [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed)
 - [Principal-architect insight validation protocol](#principal-architect-insight-validation) — live sessions, blind comparison, cohort checklist, session scorecard (alias: [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md); pins: [`#blind-insight-validation`](#blind-insight-validation), [`#blind-cohort-operating-checklist`](#blind-cohort-operating-checklist), [`#session-scorecard`](#session-scorecard))
+- [Blind decision-delta cohort tracker](#blind-decision-delta-cohort-tracker) — pre-registered thresholds + session slots (alias: [`validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md`](validation-runs/BLIND_DECISION_DELTA_COHORT_TRACKER.md); GTM **M-50**)
