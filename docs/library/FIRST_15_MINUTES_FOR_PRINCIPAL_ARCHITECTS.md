@@ -65,7 +65,7 @@ This checkpoint prevents ceremony completion without value signal — the most c
 
 | Topic | Doc |
 | --- | --- |
-| Evidence trail / audit rows for one finding | [`../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) |
+| Evidence trail / audit rows for one finding | [`../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-insight-validation`](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-insight-validation) (alias: [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md)) |
 | Governance gates and policy packs | [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md) · [`../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 | Sponsor packet and export labels | [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 | Full seven-step canonical pilot | [`CANONICAL_FIRST_RUN_PATH.md`](CANONICAL_FIRST_RUN_PATH.md) |

@@ -375,7 +375,7 @@ Constraints:
 
 After manual and ArchLucid arms complete, run blind scoring so reviewers do not know which arm is which.
 
-**Protocol:** [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation)
+**Protocol:** [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-insight-validation`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-insight-validation) (alias: [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation))
 
 ```powershell
 # Demo / internal dry-run on regulated fixture
@@ -477,7 +477,7 @@ Omit `--archlucid-minutes` / `--manual-minutes` when not measured — summary wi
 
 - [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) — end-to-end five-step bakeoff runbook
 - [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md) — rolling scoreboard (**Done 2026-06-17**)
-- [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation) — blind packet assembly + cohort checklist
+- [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-insight-validation`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-insight-validation) — blind packet assembly + cohort checklist (alias: [`Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation))
 - [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) — post-bakeoff decision scoring
 - [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#dismissal-interview-script-head-to-head`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#dismissal-interview-script-head-to-head) — randomized two-arm dismissal interview (30-day reuse + pay-to-avoid)
 - [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md)

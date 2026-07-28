@@ -27,4 +27,4 @@
 - Evidence basis: **demo-derived**
 - Do not convert demo-derived fixture output into customer outcomes.
 
-Protocol: `docs/go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md` (#blind-insight-validation)
+Protocol: `docs/go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md` (#blind-insight-validation; alias: `Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`)

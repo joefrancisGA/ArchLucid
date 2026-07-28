@@ -89,7 +89,7 @@ Use `Simulator` or `Mixed` when applicable — never present simulator as live c
 
 **Goal:** Score insight quality without arm bias.
 
-**Protocol:** [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation)
+**Protocol:** [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-insight-validation`](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#blind-insight-validation) (alias: [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation))
 
 **Option A — Fixture demo (internal dry-run)**
 
@@ -186,6 +186,6 @@ Add `--archlucid-minutes` / `--manual-minutes` only when measured.
 ## Related
 
 - [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md)
-- [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md)
+- [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-insight-validation`](../go-to-market/FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-insight-validation) (alias: [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../go-to-market/Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md))
 - [`SPONSOR_PACKET.md`](SPONSOR_PACKET.md)
 - [`REAL_MODE_EVIDENCE_COHORT.md`](REAL_MODE_EVIDENCE_COHORT.md)
