@@ -1,4 +1,4 @@
-**Updated:** 2026-07-28 (**TB-1140** **Done** — remove stale GCP Preview maturity / detail preview copy). Prior: 2026-07-28 (**TB-2000**–**TB-2004** opened — operator form/helper breathing-room contract + Guided intake / Start review apply + Vitest + follow-up inventory; owner Start review cramped-text screenshot; see `## TB-2000`–`## TB-2004` below). Prior: 2026-07-28 (**TB-1994**–**TB-1999** opened — Overview duplicate Learn how / View workflow; inline metadata `Label: value` bold-label contract + buyer proof fix; see `## TB-1994`–`## TB-1999` below). Prior: 2026-07-28 (**TB-1139** **Done** — cloud platform-scope checkboxes hide cards or disable with workspace helper).
+**Updated:** 2026-07-28 (**TB-1142** **Done** — cloud platform-scope fail-closed without workspace + shared filter state). Prior: 2026-07-28 (**TB-1140** **Done** — remove stale GCP Preview maturity / detail preview copy). Prior: 2026-07-28 (**TB-2000**–**TB-2004** opened — operator form/helper breathing-room contract + Guided intake / Start review apply + Vitest + follow-up inventory; owner Start review cramped-text screenshot; see `## TB-2000`–`## TB-2004` below). Prior: 2026-07-28 (**TB-1994**–**TB-1999** opened — Overview duplicate Learn how / View workflow; inline metadata `Label: value` bold-label contract + buyer proof fix; see `## TB-1994`–`## TB-1999` below). Prior: 2026-07-28 (**TB-1139** **Done** — cloud platform-scope checkboxes hide cards or disable with workspace helper).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -766,7 +766,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1139 | Cloud connections platform-scope checkbox must hide provider cards (fix silent no-op) — **Done** (2026-07-28); see ## TB-1139 below | Correctness P0 — **V1**; owner cloud-connections ~49/100 2026-07-25 | S |
 | TB-1140 | Remove stale GCP Preview maturity label (Tier 2 Done TB-403) — **Done** (2026-07-28); see ## TB-1140 below | Trustworthiness P0 — **V1**; with **TB-1139** | XS |
 | TB-1141 | Cloud provider summary cards — single primary CTA (dedupe Configure / View details); see ## TB-1141 below | Adoption friction P1 — **V1**; with **TB-1139** | S |
-| TB-1142 | Cloud platform scope panel — fail closed when workspace missing + shared filter state; see ## TB-1142 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
+| TB-1142 | Cloud platform scope panel — fail closed when workspace missing + shared filter state — **Done** (2026-07-28); see ## TB-1142 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
 | TB-1143 | Cloud connections empty/not-configured composition — suppress zero theater; see ## TB-1143 below | Adoption friction P1 — **V1**; with **TB-1141** | S |
 | TB-1146 | Jira integration not-configured dead end — guided next step — **Done** (2026-07-28); see ## TB-1146 below | Adoption friction P0 — **V1**; owner `/integrations/jira` ~46/100 2026-07-25 | S |
 | TB-1147 | Jira page copy honesty — do not claim Set connection details; see ## TB-1147 below | Adoption friction P1 — **V1**; with **TB-1146** | XS |
@@ -28500,7 +28500,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-07-28) — shared landing scope state; disable checkboxes + workspace-required helper when persist unavailable; fail-closed all-platforms landing scope.
 
 **Priority:** P0.
 
