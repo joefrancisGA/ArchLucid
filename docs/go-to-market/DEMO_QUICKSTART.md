@@ -103,7 +103,7 @@ One narrow buyer scenario using **Simulator** execution â€” not a customer 
 - **Business case:** [ROI_MODEL.md](ROI_MODEL.md) and [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)
 - **Developer / detailed demo seed:** [demo-quickstart.md](../archive/onboarding/demo-quickstart.md)
 - **Hosted GA workspaces (anchors + Smoke):** [`#demo-workspaces`](#demo-workspaces) (`DEMO_WORKSPACES.md` alias)
-- **Specialty buyer jobs (demo proof shapes):** [`buyer-jobs/README.md`](buyer-jobs/README.md)
+- **Specialty buyer jobs (demo proof shapes):** [`docs/library/walkthroughs/README.md#buyer-jobs-specialty-index`](../library/walkthroughs/README.md#buyer-jobs-specialty-index) (`buyer-jobs/README.md` alias)
 
 ---
 
