@@ -64,7 +64,7 @@ Use these in internal decks and emails; buyers can be pointed to the same paths 
 
 ## Narrative competitor contrasts
 
-**Audience note:** Sales engineers and architects pitching sponsors. **Not** an RFP feature-checkbox matrix (use the capability table above for that shape). Procurement-facing comparison stays in [`COMPETITIVE_COMPARISON.md`](COMPETITIVE_COMPARISON.md).
+**Audience note:** Sales engineers and architects pitching sponsors. **Not** an RFP feature-checkbox matrix (use the capability table above for that shape). Procurement-facing comparison: [`COMPETITIVE_LANDSCAPE.md#procurement-facing-category-comparison`](COMPETITIVE_LANDSCAPE.md#procurement-facing-category-comparison) (`COMPETITIVE_COMPARISON.md` alias).
 
 ### Homegrown EA (Confluence + ADRs + spreadsheets)
 
@@ -97,6 +97,6 @@ Use these in internal decks and emails; buyers can be pointed to the same paths 
 ## Related
 
 - [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) — category and longer-form competitor context (includes pricing in places; **do not** copy pricing into customer decks from this internal page without verification).
-- [COMPETITIVE_COMPARISON.md](COMPETITIVE_COMPARISON.md) — procurement-facing comparison surface.
+- [`COMPETITIVE_LANDSCAPE.md#procurement-facing-category-comparison`](COMPETITIVE_LANDSCAPE.md#procurement-facing-category-comparison) — procurement-facing comparison (`COMPETITIVE_COMPARISON.md` alias).
 - [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md#procurement-documentation-review-cadence) — ownership and refresh expectations for procurement/trust docs.
 
