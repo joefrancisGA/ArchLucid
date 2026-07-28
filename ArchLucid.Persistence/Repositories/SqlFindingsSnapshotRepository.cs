@@ -80,14 +80,12 @@ public sealed class SqlFindingsSnapshotRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        string sql = """
-                     SELECT
-                         FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                         SchemaVersion, GenerationStatus, FindingsJson,
-                         ChecklistCoverageJson, InsightDensityDemotedCount, InsightDensityRetainedCount
-                     FROM dbo.FindingsSnapshots
-                     WHERE FindingsSnapshotId = @FindingsSnapshotId
-                     """ + RepositoryScopePredicate.AndProjectIdTripleWhere(scope) + ";";
+        string sql = $"""
+                      SELECT
+                          {FindingsSnapshotReadSql.SelectHeaderColumns}
+                      FROM dbo.FindingsSnapshots
+                      WHERE FindingsSnapshotId = @FindingsSnapshotId
+                      """ + RepositoryScopePredicate.AndProjectIdTripleWhere(scope) + ";";
 
         DynamicParameters parameters = new();
         parameters.Add("FindingsSnapshotId", findingsSnapshotId);
