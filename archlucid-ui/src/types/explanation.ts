@@ -29,15 +29,15 @@ export type StructuredExplanation = {
   caveats?: string[] | null;
 };
 
-/** API string enum for coarse evaluation-backed confidence (JSON via JsonStringEnumConverter). */
+/** OpenAPI string enum for coarse evaluation-backed confidence (JSON via JsonStringEnumConverter). */
 export type FindingConfidenceLevel = "High" | "Medium" | "Low";
 
-/** OpenAPI wire enum (numeric JSON) for the same coarse buckets. */
+/** OpenAPI wire enum for the same coarse buckets (string JSON; legacy numeric wire still normalized at runtime). */
 export type FindingConfidenceLevelWire = components["schemas"]["FindingConfidenceLevel"];
 
 /** Normalizes numeric or string API confidence to operator-facing labels. */
 export function normalizeFindingConfidenceLevel(
-  level: FindingConfidenceLevelWire | FindingConfidenceLevel | string | null | undefined,
+  level: FindingConfidenceLevelWire | FindingConfidenceLevel | number | string | null | undefined,
 ): FindingConfidenceLevel | null {
   if (level === "High" || level === 0) {
     return "High";
