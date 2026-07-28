@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-28
 
-> **Scope:** Collect buyer-safe evidence after the first successful commit on a staging or customer pilot tenant, plus the operator / pilot-lead evidence packet checklist (formerly the body of `docs/go-to-market/templates/evidence-packet-operator.template.md`; that filename remains a path-stable alias).
+> **Scope:** Collect buyer-safe evidence after the first successful commit on a staging or customer pilot tenant, plus the operator / pilot-lead evidence packet checklist (formerly the body of `docs/go-to-market/templates/evidence-packet-operator.template.md`; that filename remains a path-stable alias) and the security-reviewer evidence packet (formerly the body of `docs/security/templates/evidence-packet-security-reviewer.template.md`; that filename remains a path-stable alias).
 
 # First-pilot evidence bundle
 
@@ -18,7 +18,7 @@ Use these when assembling handoff folders — they map artifacts to decision nee
 | --- | --- |
 | Buyer / executive sponsor | [`evidence-packet-buyer.template.md`](../go-to-market/templates/evidence-packet-buyer.template.md) |
 | Operator / pilot lead | [`#operator-pilot-lead-evidence-packet`](#operator-pilot-lead-evidence-packet) · [`evidence-packet-operator.template.md`](../go-to-market/templates/evidence-packet-operator.template.md) (alias) |
-| Security reviewer | [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md) |
+| Security reviewer | [`#security-reviewer-evidence-packet`](#security-reviewer-evidence-packet) · [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md) (alias) |
 
 Minimum doc routing: [`ROLE_INDEX.md`](ROLE_INDEX.md#v1-critical-path-mandatory-docs) · **First path choice:** [`FIRST_EVALUATOR_DECISION.md`](FIRST_EVALUATOR_DECISION.md).
 
@@ -88,6 +88,59 @@ $env:ARCHLUCID_BEARER_TOKEN = '<jwt>'
 
 - This evidence-bundle runbook (canon)
 - [`ROLE_INDEX.md`](ROLE_INDEX.md#v1-critical-path-mandatory-docs)
+
+## Security reviewer evidence packet {#security-reviewer-evidence-packet}
+
+Former standalone body: `docs/security/templates/evidence-packet-security-reviewer.template.md` → this section (filename kept as a path-stable alias). Controls map and honest attestation boundaries.
+
+**Path-stable alias:** [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md).
+
+**Audience:** Customer security champion, vendor assessor, procurement security questionnaire responder.
+
+**Assessment posture:** Self-assessment and architecture evidence — **not** third-party attestation unless explicitly attached and labeled.
+
+**Canonical sources:** [`trust-center.md`](../go-to-market/trust-center.md), [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md), [`SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md).
+
+### Required review artifacts
+
+| Artifact | What it proves | Honest boundary |
+| --- | --- | --- |
+| [`trust-center.md`](../go-to-market/trust-center.md) | Data handling, subprocessors, control narrative | Self-attested |
+| [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | Control mapping readiness | **Not** CPA SOC 2 report — roadmap only |
+| [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) | Database-per-tenant + optional RLS (ADR 0037) | Design intent — verify deployed config |
+| [`SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) | STRIDE coverage | Living document |
+| OpenAPI buyer snapshot | API surface boundary | `buyer-contract.openapi.snapshot.json` — excludes `/v1/internal/*` |
+| Staging readiness capture | Live auth/TLS/health posture | **Staging** environment — Bearer default |
+
+### Optional (deep dive)
+
+| Artifact | When to request |
+| --- | --- |
+| `production-profile-preflight.md` | Hosted production-like config review |
+| `azure-iac-parity-proof.json` | Azure deployment alignment |
+| `managed-identity-verification.json` | Managed identity posture |
+| CodeQL / Trivy / Gitleaks CI artifacts | Supply-chain and SAST evidence from release bundle |
+| Support bundle (redacted) | Incident or config triage — operator-supplied |
+
+### Strict claim language
+
+- **May claim:** JWT/API key auth modes; SQL tenant isolation design; audit immutability (`DENY UPDATE/DELETE` on audit); webhook HMAC option; private endpoint Terraform modules documented.
+- **May not claim:** SOC 2 Type II certification, published third-party pen test, or production pen-test scope without explicit attachment.
+- **Live environment:** Contract-authoritative live evidence is **Staging**, not repo-local config lint — [`RC_TARGET_ENVIRONMENT_MATRIX.md`](../library/RC_TARGET_ENVIRONMENT_MATRIX.md).
+
+### Questionnaire accelerators
+
+| Standard ask | Primary doc |
+| --- | --- |
+| CAIQ / SIG | Procurement pack build + Trust Center |
+| Tenant isolation | `TENANT_ISOLATION_DEFENSE_IN_DEPTH.md` |
+| API auth | [`SECURITY.md`](../library/contributor-reference/SECURITY.md), [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
+| Subprocessors | Trust Center subprocessor table |
+
+### Security packet related
+
+- [`PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager`](../go-to-market/PROCUREMENT_PACK_INDEX.md#deal-ready-one-pager)
+- [`evidence-packet-buyer.template.md`](../go-to-market/templates/evidence-packet-buyer.template.md)
 
 ## When to run
 
