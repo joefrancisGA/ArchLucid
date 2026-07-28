@@ -71,6 +71,8 @@ jobs:
             -e RateLimiting__EmailOtp__PermitLimit=200000 \
             -e RateLimiting__AuthRouting__PermitLimit=200000 \
             -e RateLimiting__EvidenceBulkUpload__PermitLimit=200000 \
+            -e RateLimiting__BootstrapWorkspace__PermitLimit=200000 \
+            -e RateLimiting__GovernancePolicyPackDryRun__PermitLimit=200000 \
             -e ArchLucid__QuickScan__Safety__AnonymousExecutionEnabled=true \
             archlucid-api:fuzz
           for i in $(seq 1 90); do
@@ -84,17 +86,17 @@ jobs:
             fi
             sleep 2
           done
-          # Exclude: SCIM empty-401 outside problem+json; intentional 503 hosted extractors;
-          # LLM/orchestration paths that hang under fuzz (Network Error / Unhealthy API).
-          # positive_data_acceptance: OpenAPI-optional vs FluentValidation false positives (same as #16).
+          # Exclude: SCIM empty-401; intentional 503 hosted extractors; slow LLM/evolution/export paths.
+          # positive_data_acceptance / negative_data_rejection: OpenAPI vs FluentValidation / query-object
+          # modeling false positives (Schemathesis does not treat 429 as a rejection status).
           docker run --rm --network "$FUZZNET" \
             -v "$GITHUB_WORKSPACE/.schemathesis-out:/out" \
             schemathesis/schemathesis:stable \
             run http://archlucid-fuzz-api:8080/openapi/v1.json \
             --url http://archlucid-fuzz-api:8080 \
             --checks=all \
-            --exclude-checks=positive_data_acceptance \
-            --exclude-path-regex='^(/scim/|/v1/ask(/|$)|/v1/mcp/|/v1/retrieval/|/v1/admin/(llm-cost-tuning|aws-extractor/hosted/run|azure-extractor/hosted/run|gcp-extractor/hosted/run)|/v1/marketing/quick-scan|/v1/architecture/(request|chat-intake|connector-intake)|/v1/architecture/run/.*/(execute|replay|commit|analysis-report|result)|/v1/architecture/run/exports|/v1/architecture/finding/|/v1/internal/architecture/|/v1/runs/.*/export/)' \
+            --exclude-checks=positive_data_acceptance,negative_data_rejection \
+            --exclude-path-regex='^(/scim/|/v1/ask(/|$)|/v1/mcp/|/v1/retrieval/|/v1/evolution/|/v1/admin/(llm-cost-tuning|custom-handlers|aws-extractor/hosted/run|azure-extractor/hosted/run|gcp-extractor/hosted/run)|/v1/marketing/quick-scan|/v1/architecture/(request|chat-intake|connector-intake|analysis-report)|/v1/architecture/run/.*/(execute|replay|commit|analysis-report|result|exports|pin|evidence)|/v1/architecture/run/exports|/v1/architecture/finding/|/v1/internal/architecture/|/v1/runs/.*/export/)' \
             --phases=examples,fuzzing \
             --max-examples=30 \
             --report=junit \

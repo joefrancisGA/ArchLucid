@@ -500,16 +500,25 @@ public sealed class GovernanceController(
         if (fromUtc >= toUtc)
             return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.BadRequest);
 
+        // Reject year-1 / unspecified defaults — OpenAPI date-time + Schemathesis reject "0001-01-01T00:00:00".
+        if (fromUtc.Year < 1970 || toUtc.Year < 1970)
+            return this.BadRequestProblem(
+                "fromUtc and toUtc must be on or after 1970-01-01.",
+                ProblemTypes.BadRequest);
+
         if (bucketMinutes is < 60 or > 43_200)
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
 
+        DateTime fromUtcNormalized = DateTime.SpecifyKind(fromUtc, DateTimeKind.Utc);
+        DateTime toUtcNormalized = DateTime.SpecifyKind(toUtc, DateTimeKind.Utc);
+
         IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
             scope.TenantId,
-            fromUtc,
-            toUtc,
+            fromUtcNormalized,
+            toUtcNormalized,
             bucketSize,
             cancellationToken);
 

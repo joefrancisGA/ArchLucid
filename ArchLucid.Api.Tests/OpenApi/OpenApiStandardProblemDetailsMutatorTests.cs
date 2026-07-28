@@ -76,5 +76,7 @@ public sealed class OpenApiStandardProblemDetailsMutatorTests
         operation.Responses["204"].Content.Should().BeNull();
         operation.Responses.Should().ContainKey("405");
         operation.Responses["405"].Content.Should().ContainKey("application/problem+json");
+        operation.Responses.Should().ContainKey("415");
+        operation.Responses["415"].Content.Should().ContainKey("application/problem+json");
     }
 }

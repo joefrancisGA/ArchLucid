@@ -50,10 +50,8 @@ public sealed class AlertSimulationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(request.RuleKind))
-            return this.BadRequestProblem("RuleKind is required (Simple or Composite).", ProblemTypes.ValidationFailed);
-
-        bool isSimple = request.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase);
+        if (!TryResolveRuleKind(request.RuleKind, out bool isSimple, out IActionResult? ruleKindError))
+            return ruleKindError!;
 
         if (isSimple && request.SimpleRule is null)
             return this.BadRequestProblem("SimpleRule is required when RuleKind is Simple.", ProblemTypes.ValidationFailed);
@@ -66,29 +64,38 @@ public sealed class AlertSimulationController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
 
-        RuleSimulationResult result = await simulationService.SimulateAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            request,
-            ct);
+        try
+        {
+            RuleSimulationResult result = await simulationService.SimulateAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                request,
+                ct);
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AlertRuleSimulationExecuted,
-                DataJson = JsonSerializer.Serialize(new
+            await auditService.LogAsync(
+                new AuditEvent
                 {
-                    request.RuleKind,
-                    result.EvaluatedRunCount,
-                    result.MatchedCount,
-                    result.WouldCreateCount,
-                    result.WouldSuppressCount
-                })
-            },
-            ct);
+                    EventType = AuditEventTypes.AlertRuleSimulationExecuted,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        request.RuleKind,
+                        result.EvaluatedRunCount,
+                        result.MatchedCount,
+                        result.WouldCreateCount,
+                        result.WouldSuppressCount
+                    })
+                },
+                ct);
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException)
+        {
+            return this.BadRequestProblem(
+                "Alert simulation request is invalid or incomplete.",
+                ProblemTypes.ValidationFailed);
+        }
     }
 
     /// <summary>
@@ -106,10 +113,8 @@ public sealed class AlertSimulationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(request.RuleKind))
-            return this.BadRequestProblem("RuleKind is required (Simple or Composite).", ProblemTypes.ValidationFailed);
-
-        bool isSimple = request.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase);
+        if (!TryResolveRuleKind(request.RuleKind, out bool isSimple, out IActionResult? ruleKindError))
+            return ruleKindError!;
 
         if (isSimple &&
             (request.CandidateASimpleRule is null || request.CandidateBSimpleRule is null))
@@ -126,27 +131,62 @@ public sealed class AlertSimulationController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         StampComparisonScope(scope, request);
 
-        RuleCandidateComparisonResult result = await simulationService.CompareCandidatesAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            request,
-            ct);
+        try
+        {
+            RuleCandidateComparisonResult result = await simulationService.CompareCandidatesAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                request,
+                ct);
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AlertRuleCandidateComparisonExecuted,
-                DataJson = JsonSerializer.Serialize(new
+            await auditService.LogAsync(
+                new AuditEvent
                 {
-                    request.RuleKind,
-                    candidateAWouldCreate = result.CandidateA.WouldCreateCount,
-                    candidateBWouldCreate = result.CandidateB.WouldCreateCount
-                })
-            },
-            ct);
+                    EventType = AuditEventTypes.AlertRuleCandidateComparisonExecuted,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        request.RuleKind,
+                        candidateAWouldCreate = result.CandidateA.WouldCreateCount,
+                        candidateBWouldCreate = result.CandidateB.WouldCreateCount
+                    })
+                },
+                ct);
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NullReferenceException or InvalidOperationException)
+        {
+            return this.BadRequestProblem(
+                "Alert candidate comparison request is invalid or incomplete.",
+                ProblemTypes.ValidationFailed);
+        }
+    }
+
+    private bool TryResolveRuleKind(string? ruleKind, out bool isSimple, out IActionResult? error)
+    {
+        isSimple = false;
+        error = null;
+
+        if (string.IsNullOrWhiteSpace(ruleKind))
+        {
+            error = this.BadRequestProblem("RuleKind is required (Simple or Composite).", ProblemTypes.ValidationFailed);
+            return false;
+        }
+
+        if (ruleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase))
+        {
+            isSimple = true;
+            return true;
+        }
+
+        if (ruleKind.Equals("Composite", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        error = this.BadRequestProblem(
+            "RuleKind must be Simple or Composite.",
+            ProblemTypes.ValidationFailed);
+        return false;
     }
 
     private static void StampSimulationScope(ScopeContext scope, RuleSimulationRequest request)

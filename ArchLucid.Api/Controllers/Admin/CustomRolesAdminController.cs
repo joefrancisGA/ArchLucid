@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
@@ -59,6 +60,11 @@ public sealed class CustomRolesAdminController(
     {
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (!IsValidUnicodeText(body.Name) || !IsValidUnicodeText(body.Description))
+            return this.BadRequestProblem(
+                "Role name and description must be valid Unicode text.",
+                ProblemTypes.ValidationFailed);
 
         try
         {
@@ -187,6 +193,14 @@ public sealed class CustomRolesAdminController(
                 $"Custom role '{roleId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
+    }
+
+    private static bool IsValidUnicodeText(string? value)
+    {
+        if (value is null)
+            return true;
+
+        return Rune.EnumerateRunes(value).All(static rune => !rune.Value.Equals(0xFFFD) || value.Contains('\uFFFD', StringComparison.Ordinal));
     }
 }
 
