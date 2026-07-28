@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-26
+> **Reviewed:** 2026-07-25
 
 > **Scope:** ArchLucid ROI model — full detail, tables, and links below — plus the operational cost guide for Azure/LLM footprint (formerly `COST_GUIDE.md`), the synthetic Contoso Retail case study (formerly `SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md`), and the Contoso worked-example ROI value-report mirror (formerly `WORKED_EXAMPLE_ROI.md`).
 
@@ -9,7 +9,7 @@
 
 **Audience:** Pilot champions, enterprise architects, and engineering leaders who need to justify an ArchLucid purchase to their CFO or procurement team.
 
-**Last reviewed:** 2026-07-26
+**Last reviewed:** 2026-07-25
 
 **Pricing reference:** [`PRICING_PHILOSOPHY.md` §5](PRICING_PHILOSOPHY.md) — verify §8–9 inline numbers match before any sponsor conversation.
 

@@ -123,7 +123,7 @@ Collect via stakeholder interviews at pilot midpoint and end. Score each on a 1â
 
 ---
 
-## Customer onboarding operating playbook
+## Customer onboarding operating playbook {#customer-onboarding-operating-playbook}
 
 Former standalone: `docs/go-to-market/CUSTOMER_ONBOARDING_PLAYBOOK.md` â†’ this section.
 

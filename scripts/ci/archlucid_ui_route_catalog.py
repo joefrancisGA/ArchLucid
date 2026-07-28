@@ -36,7 +36,13 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/advisory-scheduling": "/governance/advisory-scans?tab=schedules",
 }
 
-DEFAULT_NEW_HIT_PCT = "0.02%"
+# Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).
+REDIRECT_ONLY_APP_PATHS = frozenset(
+    {
+        "/advisory",
+        "/advisory-scheduling",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -214,6 +220,9 @@ def build_catalog() -> dict[str, CatalogEntry]:
     catalog: dict[str, CatalogEntry] = {}
 
     for path in discover_app_router_paths():
+        if path in REDIRECT_ONLY_APP_PATHS:
+            continue
+
         catalog[path] = CatalogEntry(path=path, section=infer_section(path, help_alias_paths=help_alias_paths), source="app_router")
 
     for path in help_paths:

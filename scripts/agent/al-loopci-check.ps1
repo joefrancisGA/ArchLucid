@@ -2,6 +2,10 @@
 <#
 .SYNOPSIS
   Returns JSON for the latest ci.yml run on a branch (for /al-loopci polling).
+
+.NOTES
+  needsTriage is true when the run completed with any conclusion other than success
+  (failure, timed_out, cancelled, etc.). Agents must enter fix/redispatch triage then.
 #>
 [CmdletBinding()]
 param(
@@ -28,9 +32,10 @@ if ($LASTEXITCODE -ne 0) {
 $run = $raw | ConvertFrom-Json | Select-Object -First 1
 if ($null -eq $run) {
     $payload = [ordered]@{
-        branch     = $Branch
-        found      = $false
-        checkedAt  = (Get-Date).ToString('o')
+        branch      = $Branch
+        found       = $false
+        needsTriage = $false
+        checkedAt   = (Get-Date).ToString('o')
     }
     $json = $payload | ConvertTo-Json -Compress
     Add-Content -LiteralPath $logPath -Value ("[{0}] {1}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $json)
@@ -38,17 +43,23 @@ if ($null -eq $run) {
     exit 0
 }
 
+$status = [string]$run.status
+$conclusion = [string]$run.conclusion
+# Any completed run that is not green is actionable (failure, timed_out, cancelled, …).
+$needsTriage = ($status -eq 'completed') -and ($conclusion -ne 'success')
+
 $payload = [ordered]@{
-    branch     = $Branch
-    found      = $true
-    databaseId = [string]$run.databaseId
-    status     = [string]$run.status
-    conclusion = [string]$run.conclusion
-    headSha    = [string]$run.headSha
-    url        = [string]$run.url
-    createdAt  = [string]$run.createdAt
-    updatedAt  = [string]$run.updatedAt
-    checkedAt  = (Get-Date).ToString('o')
+    branch      = $Branch
+    found       = $true
+    databaseId  = [string]$run.databaseId
+    status      = $status
+    conclusion  = $conclusion
+    needsTriage = $needsTriage
+    headSha     = [string]$run.headSha
+    url         = [string]$run.url
+    createdAt   = [string]$run.createdAt
+    updatedAt   = [string]$run.updatedAt
+    checkedAt   = (Get-Date).ToString('o')
 }
 
 $json = $payload | ConvertTo-Json -Compress

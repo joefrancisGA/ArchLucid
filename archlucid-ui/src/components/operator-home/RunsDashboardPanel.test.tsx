@@ -30,6 +30,15 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/lib/demo-seeded-overview", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-seeded-overview")>();
+
+  return {
+    ...actual,
+    shouldInjectDemoSeededOverviewSample: vi.fn(() => false),
+  };
+});
+
 import { listRunsByProjectPaged } from "@/lib/api";
 import { BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA, OPERATOR_HOME_WORKSPACE_EMPTY_BODY, OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";

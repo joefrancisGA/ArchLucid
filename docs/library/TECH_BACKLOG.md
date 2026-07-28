@@ -578,7 +578,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-399** was added 2026-06-23 as the **V1.1 follow-on** to the manifest terminology copy sweep (global guard **TB-355** / **TB-366**). V1 removed "manifest" from on-page labels, help, compare copy, and error strings; **browser URLs still expose** `/manifests/` and `/reviews/{runId}/manifest`, which buyers see in the address bar, bookmarks, and shared links. **TB-399** adds **buyer-facing route aliases + permanent redirects** (same pattern as `/runs` ? `/reviews` in `next.config.ts`) without renaming API contracts, persistence, or internal `manifestId` fields. **Out of scope:** `/manifest.webmanifest` (PWA platform convention); backend `/v1/authority/manifests/*` paths. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) ?9, **TB-273** (BDA manifest terminology cluster), `buyer-safe-review-navigation.ts`, `NAV_CONFIG_CONTRACT.md`.
 
-**TB-738 ΓÇö TB-747** were added 2026-07-10 from the adversarial **create-vs-review positioning evaluation** ([`CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`](../go-to-market/CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md)). **Verdict:** symmetric create/review as **workflows** yes; symmetric create/review as **headline positioning** no ΓÇö subordinate both verbs to the **architecture package** noun (evidence-package-first, review-led trust ladder). **TB-738** (P1) is the highest-leverage vocabulary pass: rename Review packages ΓåÆ Architecture packages, fix review-only empty states, update nav captions, and add a drift guard. **TB-739** (P1) updates authenticated home tagline, dual-path card copy (born-governed creation promise), and marks the sample/review path **Recommended first**. **TB-740** (P2) adds Created/Reviewed origin badges on workspace list rows. **TB-741** (P1) audits and closes any gap where creation output lacks the same findings/confidence/explicit-non-conclusion surfaces as review output. **TB-742** (P1) seeds one inspectable **created** sample package (findings + manifest) alongside existing Contoso reviewed samples. **TB-743** (P2) renames the Architect-plan meter from reviews/month to **packages/month** in pricing UI, billing copy, and usage surfaces. **TB-744** (P2) renames Review scorecard ΓåÆ Scorecard (or Architecture scorecard) in nav and related buyer copy. **TB-745** (P2) realigns `DEMO_QUICKSTART.md` / `DEMO_VIDEO_SCRIPT.md` to finished-package-first (5 min) and Compare-created-vs-reviewed (30 min principal-architect path). **TB-746** (P2) aligns `POSITIONING.md` with the one-noun-two-verbs rule and the evaluation's one-sentence positioning (owner sign-off). **TB-747** (P2) differentiates the create intake wizard from evidence-only review intake so creation feels like drafting, not filing. Does not duplicate **TB-337ΓÇô344** (Azure-first drift ΓÇö different axis), **TB-606** (sidebar Reviews/Runs governance vocabulary ΓÇö superseded at hub noun by **TB-738**), **TB-134** (overclaim guard ΓÇö pair with **TB-746**), or **TB-215** (evidence upload mechanic). Cross-ref **TB-273** BDA-034/BDA-041 (mixed review-package vocabulary), `buyer-polish-copy.ts`, `pilot-nav-group-builder.ts`, `SHOWCASE_SAMPLE_REVIEW_REGISTRY`, `pricing.json`.
+**TB-738 ΓÇö TB-747** were added 2026-07-10 from the adversarial **create-vs-review positioning evaluation** ([CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md](../go-to-market/POSITIONING.md#create-vs-review--adversarial-evaluation-closed)). **Verdict:** symmetric create/review as **workflows** yes; symmetric create/review as **headline positioning** no ΓÇö subordinate both verbs to the **architecture package** noun (evidence-package-first, review-led trust ladder). **TB-738** (P1) is the highest-leverage vocabulary pass: rename Review packages ΓåÆ Architecture packages, fix review-only empty states, update nav captions, and add a drift guard. **TB-739** (P1) updates authenticated home tagline, dual-path card copy (born-governed creation promise), and marks the sample/review path **Recommended first**. **TB-740** (P2) adds Created/Reviewed origin badges on workspace list rows. **TB-741** (P1) audits and closes any gap where creation output lacks the same findings/confidence/explicit-non-conclusion surfaces as review output. **TB-742** (P1) seeds one inspectable **created** sample package (findings + manifest) alongside existing Contoso reviewed samples. **TB-743** (P2) renames the Architect-plan meter from reviews/month to **packages/month** in pricing UI, billing copy, and usage surfaces. **TB-744** (P2) renames Review scorecard ΓåÆ Scorecard (or Architecture scorecard) in nav and related buyer copy. **TB-745** (P2) realigns `DEMO_QUICKSTART.md` / `DEMO_VIDEO_SCRIPT.md` to finished-package-first (5 min) and Compare-created-vs-reviewed (30 min principal-architect path). **TB-746** (P2) aligns `POSITIONING.md` with the one-noun-two-verbs rule and the evaluation's one-sentence positioning (owner sign-off). **TB-747** (P2) differentiates the create intake wizard from evidence-only review intake so creation feels like drafting, not filing. Does not duplicate **TB-337ΓÇô344** (Azure-first drift ΓÇö different axis), **TB-606** (sidebar Reviews/Runs governance vocabulary ΓÇö superseded at hub noun by **TB-738**), **TB-134** (overclaim guard ΓÇö pair with **TB-746**), or **TB-215** (evidence upload mechanic). Cross-ref **TB-273** BDA-034/BDA-041 (mixed review-package vocabulary), `buyer-polish-copy.ts`, `pilot-nav-group-builder.ts`, `SHOWCASE_SAMPLE_REVIEW_REGISTRY`, `pricing.json`.
 
 **TB-877** was added 2026-07-19 for **community summarization Graph-RAG (RAG-V2-001 remainder)** after the owner overrode [ADR 0057](../architecture/adrs/0057-graph-rag-community-summarization-scope-decision.md)'s defer recommendation in favor of option (a) (implement now). Bounded multi-hop already shipped (**TB-597**). This item adds Leiden/Louvain community detection over `GraphSnapshot` plus hierarchical LLM summarization per community, cached/re-embedded on the ADR 0004 outbox cadence, with derived summaries excluded from `GraphSnapshotCanonicalFingerprint`. Default **off** for buyer-facing posture claims until a TB-595-style ablation exists; spend must hit `LlmMonthlyTenantDollarBudgetTracker`. Does not replace **TB-595**/**TB-596** (ablation / production posture for bounded multi-hop).
 
@@ -1723,7 +1723,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-735 | **Done** (2026-07-11) ΓÇö Internal-runbook gating hardening ΓÇö confirmed unconditional `/help` loader; `getServerCurrentPrincipal` + `principalCanAccessHelpTopic` on page/API; `HelpTopicAuthorityGate` for JWT sessions; excluded internal-runbook slugs from `generateStaticParams`; removed `pre-commit-ci-gate` from in-app registry; see `## TB-735` below | Trustworthiness P1 ΓÇö **V1**; depends on **TB-732**; cursor prompt `.cursor/prompts/ia-taxonomy-04-internal-runbook-gating-hardening.md` | M |
 | TB-736 | **Done** (2026-07-18) — Marketing first-run consolidation: `/quick-start` 301 → `/get-started`; guided-trial CTAs → `/onboarding` + Getting started help learn-more; `marketing-surface-hygiene.ts` leak guard; procurement FAQ `/help/procurement` link; see `## TB-736` below | Adoption friction P2 — **V1**; cursor prompt `.cursor/prompts/ia-taxonomy-05-marketing-surface-hygiene.md` | M |
 | TB-737 | **Done** (2026-07-18) — Security & trust consolidation: public assurance downloads on `/trust`; `/trust` vs `/security-trust` differentiation; `trust-center.md` canonical; pointer stubs for duplicate markdown; `trust-center-public-assurance.ts` + Vitest; see `## TB-737` below | Trustworthiness P2 — **V1**; depends on **TB-732**; coordinate with **TB-721**–**TB-728** PDF cluster; cursor prompt `.cursor/prompts/ia-taxonomy-06-security-trust-consolidation.md` | M |
-| TB-738 | **Done** (2026-07-11) ΓÇö Architecture package vocabulary unification ΓÇö sidebar/hub/home empty states use **Architecture packages** list noun; Architecture nav caption updated; `reviews-hub-copy.test.ts` + TB-738 terminology drift guards; `UI_GLOSSARY_V1.md` **Architecture package** row; see `## TB-738` below | Adoption friction P1 ΓÇö **V1**; prerequisite for **TB-740**/**TB-744**; cluster root per `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` | M |
+| TB-738 | **Done** (2026-07-11) ΓÇö Architecture package vocabulary unification ΓÇö sidebar/hub/home empty states use **Architecture packages** list noun; Architecture nav caption updated; `reviews-hub-copy.test.ts` + TB-738 terminology drift guards; `UI_GLOSSARY_V1.md` **Architecture package** row; see `## TB-738` below | Adoption friction P1 ΓÇö **V1**; prerequisite for **TB-740**/**TB-744**; cluster root per CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md | M |
 | TB-739 | **Done** (2026-07-11) ΓÇö Home evidence-package-first copy + trust ladder ΓÇö evaluation tagline; create card promises born-governed output; review card **Recommended first** badge + sample-first recommended-next; `OperatorHomeDualPathCards.test.tsx`; see `## TB-739` below | Adoption friction P1 ΓÇö **V1**; pair with **TB-738**; depends on evaluation copy in `buyer-polish-copy.ts` | S |
 | TB-740 | Architecture package origin badges ΓÇö show **Created** vs **Reviewed** on workspace activity / packages list rows from durable intake metadata; see `## TB-740` below | **Done** (2026-07-11) ΓÇö Adoption friction P2 **V1** | M |
 | TB-741 | **Done** (2026-07-11) ΓÇö Born-governed creation output parity ΓÇö guided-intake deep link from home Create card; path switcher honors `?path=guided-intake`; `CreationOutputPipelineParityTests` + projector transparency-trail regression; see `## TB-741` below | Explainability P1 ΓÇö **V1**; backs the Create card promise in **TB-739** | M |
@@ -2792,7 +2792,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 ## TB-160 ? Legal/procurement terms packet
 
-**Status (2026-06-01):** **Done** ? [`docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md`](../go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md).
+**Status (2026-06-01):** **Done** ? [`docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md`](../go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms).
 
 **Objective:** Make the first legal/procurement conversation concrete enough for paid pilots without inventing legal commitments in product copy.
 
@@ -20300,7 +20300,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** [`CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`](../go-to-market/CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md) deliverables E, J.1, J.8.
+**Assessment source:** [CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md](../go-to-market/POSITIONING.md#create-vs-review--adversarial-evaluation-closed) deliverables E, J.1, J.8.
 
 **Problem:** The product's master noun is inconsistently **review package** / **reviews** / **Create architecture** depending on surface. Both home cards route to `/reviews/new`, but hub copy, empty states, and nav captions still teach review-only vocabulary ΓÇö the exact inconsistency flagged in UI assessments and `reviews-hub-copy.test.ts`. Buyers cannot repeat a pitch that uses three nouns for the same artifact.
 
@@ -20336,7 +20336,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` deliverables C, D, J.5.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md deliverables C, D, J.5.
 
 **Problem:** Authenticated home tagline (`OPERATOR_HOME_COMMAND_CENTER_TAGLINE`) and dual-path card bodies still frame creation as generic AI generation ("Generate or refineΓÇª") without promising born-governed output. Neither card signals the recommended first action (open completed sample / start review), inverting the trust ladder.
 
@@ -20368,7 +20368,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` ┬º4 workspace activity, J.1.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md ┬º4 workspace activity, J.1.
 
 **Problem:** Workspace activity lists packages with no signal whether the operator created or reviewed the architecture ΓÇö undermining symmetric workflow credibility once vocabulary unifies on **architecture package**.
 
@@ -20398,7 +20398,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` ┬º3, J.2, J.7, risk ┬ºI.5.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md ┬º3, J.2, J.7, risk ┬ºI.5.
 
 **Problem:** Marketing/copy will claim creation output is "already reviewed" (**TB-739**), but the evaluation found creation is a thin intake path (~15 files) feeding the same pipeline as review. Any gap where created packages omit confidence ratings, explicit non-conclusions, or evidence-linked findings on first commit is a trust-breaking demo failure.
 
@@ -20425,7 +20425,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1. **Done** (2026-07-11).
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` ┬º7, J.3.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md ┬º7, J.3.
 
 **Shipped:** `CreatedSampleWorkspaceSeed` + `DemoCreatedSampleWorkspaceIds` seed a born-governed Northwind Copilot RAG platform (`RequestSource = draft-intake`) on `POST /v1/demo/seed`. Static showcase slug `northwind-copilot-rag-platform` via `showcase-created-static-demo.ts` and `SHOWCASE_SAMPLE_CREATED_REGISTRY`; home **Open created sample** CTA beside reviewed sample. Regression: `DemoSeedServiceTests.SeedAsync_seeds_created_architecture_package_sample_with_draft_intake_request_source`, `showcase-sample-created-registry.test.ts`, `OperatorHomeExploreSampleSection.test.tsx`.
 
@@ -20455,7 +20455,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` §6, J.4, risk §I.6.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md §6, J.4, risk §I.6.
 
 **Shipped:** Buyer-facing billing meter noun is **architecture package** (not review). `billing-meter-vocabulary.ts` centralizes labels; `pricing-catalog-display.ts` shows **Included architecture packages** and **Additional architecture packages** with `/ architecture package` overage units; `formatIncludedArchitecturePackagesPerMonth` surfaces allowance on public pricing tier cards; `billing-plan-tier-features.ts` bullets updated; quote panel placeholder aligned; `PRICING_PHILOSOPHY.md` unit-definition rows updated. Internal `pricing.json` keys (`includedReviewsPerMonth`, `overageReviewUsd`) unchanged. Vitest: `billing-meter-vocabulary.test.ts`, `pricing-catalog-display.test.ts`, `operator-billing-pricing-lines.test.ts`.
 
@@ -20484,7 +20484,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` §5, J.8.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md §5, J.8.
 
 **Shipped:** Renamed buyer-facing **Review scorecard** → **Architecture scorecard** via `BUYER_TERMINOLOGY.reviewScorecard` (`buyer-surface-vocabulary.ts`); wired through `OPERATOR_NAV_LINK_LABELS.scorecard`, Insights nav tooltip, `/scorecard` page title/subtitle (`pilot-scorecard-present.ts`), value-report outcomes tab (`value-report-outcomes-nav-tabs.ts`), and value-report help copy (`buyer-polish-copy.ts`). Route `/scorecard` unchanged. Vitest: `operate-analysis-nav-group-builder.test.ts`, `PilotScorecardPageView.test.tsx`, `ValueReportOutcomesNav.test.tsx`, `buyer-surface-vocabulary.test.ts`.
 
@@ -20513,7 +20513,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` §7, deliverable F.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md §7, deliverable F.
 
 **Shipped:** `docs/go-to-market/DEMO_QUICKSTART.md` five-minute path opens on a finalized architecture package (Contoso hardened seed or `claims-intake-modernization` showcase) — findings, explicit limits, manifest, export — with one-line **TB-742** creation bridge to `/reviews/northwind-copilot-rag-platform`. `docs/go-to-market/DEMO_VIDEO_SCRIPT.md` rewritten: five-minute live call finished-package-first; new **30-minute principal-architect** script with Graph, Ask, created sample, and **Compare** `claims-intake-modernization` (Reviewed) vs `northwind-copilot-rag-platform` (Created); two-minute storyboard aligned. Acceptance checklist requires never opening on `/reviews/new` generation.
 
@@ -20542,7 +20542,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` deliverables A, B, J.10.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md deliverables A, B, J.10.
 
 **Problem:** Canonical `POSITIONING.md` still leads with "prioritized, evidence-linked **risk review**" while product/home copy claims symmetric create/review. Missing written rule: *one noun (architecture package), two verbs (create, review), verbs never in the hero.*
 
@@ -20566,7 +20566,7 @@ on **TB-732**; coordinate with **TB-721ΓÇôTB-728**.
 
 **Window:** V1.
 
-**Assessment source:** `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md` §I.5, J.9, risk product-claim gap.
+**Assessment source:** CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md §I.5, J.9, risk product-claim gap.
 
 **Shipped (2026-07-18):**
 
@@ -27403,7 +27403,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
    - **Canonical spine:** `/reviews` list → `/reviews/{runId}` package detail (+ nested findings, signed-record, evidence).
    - **Collapse surfaces:** `/governance/findings` as default home without package links; sidebar **Reviews**/**Runs** without package subordination in buyer-facing product claims; peer **Create architecture** + **Start review** pitched as two products; bare `run`/`/runs` in buyer copy; approval/decision UI without package breadcrumb.
    - **Allowed:** Risk register / cross-package finding views when clearly “across packages” with package deep links; list noun **Reviews** as work-unit label if package noun appears in hub/help/positioning.
-   - **Cross-links:** Done **TB-738**–**TB-747**, **TB-1003**, `CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md`, `POSITIONING.md`.
+   - **Cross-links:** Done **TB-738**–**TB-747**, **TB-1003**, CREATE_REVIEW_POSITIONING_ADVERSARIAL_EVALUATION.md, `POSITIONING.md`.
 2. Explicit non-goals: wholesale rename of every Reviews label; deleting `/governance/findings`; changing API `runId`.
 3. Name CI anchors for **TB-1027**; GTM **M-176**/**M-177**.
 
@@ -28972,7 +28972,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Approach:**
 
-1. Author `docs/library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md` (or a PA appendix under [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](../go-to-market/EXECUTIVE_PAID_PILOT_PROOF_PACKET.md) + [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md)) with tables:
+1. Author `docs/library/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_CONTRACT.md` (or a PA appendix under [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#executive-paid-pilot-proof-packet-assembly--mock-procurement-review) + [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md)) with tables:
    - **Include (minimum bar):** six-element Real SEND executive packet + labeled self-attested assurance substitutes (Trust Center honesty, SOC self-assessment, owner-conducted pen-style summary per V1 **TB-005** posture — not CPA/3P).
    - **Drop / defer from single-pilot bar:** CPA-issued SOC 2 report; published third-party pen test; Stage 1 “evidence-backed selling”; G4 ≥3 pilots as a first-pilot gate.
    - **Mock-review PASS:** deferred `(B)` procurement realism items (CPA/3P) accepted as scope when the include matrix is complete.
@@ -29032,7 +29032,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Approach:**
 
-1. Author `docs/library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md` (or a section under [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md) / [`REVIEW_CADENCE.md`](../go-to-market/REVIEW_CADENCE.md)) with tables:
+1. Author `docs/library/FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_CONTRACT.md` (or a section under [`BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md) / [`REVIEW_CADENCE.md`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md#procurement-documentation-review-cadence)) with tables:
    - **Already:** **M-114** (Done).
    - **Must before first security review:** **M-151** + **M-118**.
    - **Should if AI trust in scope:** **M-124**.

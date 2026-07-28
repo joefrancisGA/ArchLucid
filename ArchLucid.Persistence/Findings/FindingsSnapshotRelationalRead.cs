@@ -22,20 +22,10 @@ internal static class FindingsSnapshotRelationalRead
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        string recordsSql = """
-                              SELECT
-                                  FindingRecordId, SortOrder, FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                                  Severity, Title, Rationale, PayloadType, PayloadJson,
-                                  RequestInputRef, RunIdRef, AgentExecutionTraceId,
-                                  ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
-                                  ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
-                                  HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
-                                  IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256,
-                                  InsightDensityScore, Treatment, Classification,
-                                  WhyThisIsNotGeneric, PrincipalArchitectValue, DecisionConsequence
-                              FROM dbo.FindingRecords
-                              WHERE FindingsSnapshotId = @FindingsSnapshotId
-                              """ + RepositoryScopePredicate.AndTripleWhere(scope) + " ORDER BY SortOrder;";
+        bool hasInsightDensityColumns =
+            await FindingRecordsSchemaCapabilities.HasInsightDensityColumnsAsync(connection, ct);
+
+        string recordsSql = BuildFindingRecordsSelectSql(scope, hasInsightDensityColumns);
 
         DynamicParameters parameters = new();
         parameters.Add("FindingsSnapshotId", row.FindingsSnapshotId);
@@ -83,7 +73,9 @@ internal static class FindingsSnapshotRelationalRead
         Dictionary<Guid, List<string>> tracePathsByRecord = slices.TraceAlternativePaths;
 
         Dictionary<Guid, List<string>> traceNotesByRecord = slices.TraceNotes;
+
         List<Finding> findings = [];
+
         foreach (FindingRecordRow rec in records)
         {
             Finding finding = new()
@@ -143,6 +135,9 @@ internal static class FindingsSnapshotRelationalRead
             findings.Add(finding);
         }
 
+        if (!hasInsightDensityColumns)
+            FindingInsightDensityJsonMerger.MergeFromFindingsJson(findings, row.FindingsJson);
+
         return ApplyChecklistHeaderFields(new FindingsSnapshot
         {
             FindingsSnapshotId = row.FindingsSnapshotId,
@@ -154,6 +149,33 @@ internal static class FindingsSnapshotRelationalRead
             GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
             Findings = findings
         }, row);
+    }
+
+    private static string BuildFindingRecordsSelectSql(ScopeContext scope, bool includeInsightDensityColumns)
+    {
+        string baseColumns = """
+                             SELECT
+                                 FindingRecordId, SortOrder, FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
+                                 Severity, Title, Rationale, PayloadType, PayloadJson,
+                                 RequestInputRef, RunIdRef, AgentExecutionTraceId,
+                                 ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
+                                 ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
+                                 HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
+                                 IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256
+                             """;
+
+        string insightDensityColumns = includeInsightDensityColumns
+            ? """
+              ,
+                                  InsightDensityScore, Treatment, Classification,
+                                  WhyThisIsNotGeneric, PrincipalArchitectValue, DecisionConsequence
+              """
+            : string.Empty;
+
+        return baseColumns + insightDensityColumns + """
+                                                     FROM dbo.FindingRecords
+                                                     WHERE FindingsSnapshotId = @FindingsSnapshotId
+                                                     """ + RepositoryScopePredicate.AndTripleWhere(scope) + " ORDER BY SortOrder;";
     }
 
     private static FindingsSnapshot ApplyChecklistHeaderFields(FindingsSnapshot snapshot, FindingsSnapshotStorageRow row)

@@ -178,7 +178,7 @@ Run **≥3** sessions before UI implementation batching. Implement only bottlene
 
 ---
 
-## 3-session dismissal cohort (founder operations)
+## 3-session dismissal cohort (founder operations) {#3-session-dismissal-cohort-founder-operations}
 
 Measure dismissal rate across a cohort before any first-session UI batch. **Cohort minimum:** **3** sessions. **UI implementation gate:** only bottlenecks seen in **≥2** sessions that clear the [product decision gate](#product-decision-gate).
 

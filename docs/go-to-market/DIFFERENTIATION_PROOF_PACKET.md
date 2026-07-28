@@ -97,7 +97,7 @@ Use this when an evaluator asks: *"Why not Claude/GPT/Gemini with a good prompt?
 
 This is **validation guidance**, not a claim that ArchLucid always beats frontier AI. Do not publish benchmark superiority without data. See [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
-### Model-seats counter-positioning message test
+### Model-seats counter-positioning message test {#model-seats-counter-positioning-message-test}
 
 Founder-led sponsor message test — three concise scripts answering "Why ArchLucid instead of more Claude/GPT/Gemini seats?" Market validation only; no product changes. Execution: **GTM M-42**.
 

@@ -138,7 +138,7 @@ Use when the buyer needs a labeled path from sample request → finalized archit
 
 ---
 
-## Executive paid-pilot proof packet (assembly + mock procurement review)
+## Executive paid-pilot proof packet (assembly + mock procurement review) {#executive-paid-pilot-proof-packet-assembly--mock-procurement-review}
 
 **Audience:** Founder / pilot operator / sales engineer preparing a **paid** executive sponsor packet and rehearsing it before a real procurement call.
 

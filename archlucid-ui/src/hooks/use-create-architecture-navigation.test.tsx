@@ -1,8 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE } from "@/lib/review-start-progress-copy";
-
 const push = vi.fn();
 const prefetch = vi.fn();
 const initializeArchitectureCreation = vi.fn();
@@ -43,16 +41,26 @@ import {
 } from "./use-create-architecture-navigation";
 
 describe("useCreateArchitectureNavigation", () => {
+  const assign = vi.fn();
+
   beforeEach(() => {
     vi.useFakeTimers();
     push.mockReset();
     prefetch.mockReset();
+    assign.mockReset();
     initializeArchitectureCreation.mockReset();
     initializeArchitectureCreation.mockResolvedValue({ draftId: "draft-1" });
+    vi.stubGlobal("location", {
+      ...window.location,
+      pathname: "/",
+      origin: "http://localhost",
+      assign,
+    });
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it("releases a depressed CTA after the soft-nav timeout", async () => {
@@ -70,6 +78,7 @@ describe("useCreateArchitectureNavigation", () => {
     });
 
     expect(result.current.isNavigating).toBe(false);
-    expect(result.current.error).toBe(CREATE_ARCHITECTURE_NAVIGATION_FAILED_MESSAGE);
+    expect(assign).toHaveBeenCalledWith("/architectures/new");
+    expect(result.current.error).toBeNull();
   });
 });

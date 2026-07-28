@@ -124,7 +124,7 @@ CI validates references with `--dry-run`.
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Edge, identity, private connectivity |
 | [SECURITY.md](../library/contributor-reference/SECURITY.md) | RBAC, rate limiting, CI security tests, PII |
 
-## Principal architect falsification script (M-113)
+## Principal architect falsification script (M-113) {#principal-architect-falsification-script-m-113}
 
 **Audience:** Founder / SE running a procurement technical review with a skeptical principal architect (or security reviewer).  
 **Duration:** 30–45 minutes.  

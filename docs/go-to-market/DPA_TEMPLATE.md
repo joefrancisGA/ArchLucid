@@ -105,7 +105,7 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 ---
 
-## 10. Cross-tenant patterns opt-in
+## 10. Cross-tenant patterns opt-in {#10-cross-tenant-patterns-opt-in}
 
 **Purpose (product):** Where the Services offer **anonymised industry guidance** (patterns derived from multiple customers’ committed architecture manifests, surfaced only when a statistical privacy floor is met), that processing is **optional** and **separate** from core tenant-private processing.
 

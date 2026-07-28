@@ -186,7 +186,7 @@ python scripts/build_procurement_pack.py --dry-run
 
 ### Release / buyer drop — marker strictness
 
-For a **release** or **procurement** drop, run the builder with **`--strict`** (or set environment variable **`PROCUREMENT_PACK_STRICT=1`**) so **Evidence** and **Self-assessment** text files are scanned for buyer-unsafe markers (`TODO`, `TBD`, `placeholder-replace-before-launch`). **`Template`** and **`Deferred`** pack rows are excluded from this scan by design.
+For a **release** or **procurement** drop, run the builder with **`--strict`** (or set environment variable **`PROCUREMENT_PACK_STRICT=1`**) so **Evidence** and **Self-assessment** text files are scanned for buyer-unsafe stub markers (work-in-progress tokens and pre-launch placeholder strings per the procurement pack validator). **`Template`** and **`Deferred`** pack rows are excluded from this scan by design.
 
 ```bash
 python scripts/build_procurement_pack.py --strict
