@@ -146,7 +146,7 @@ Use this variant when the first publishable reference is a **self-serve trial �
 | `<<LOGO_RIGHTS>>`, `<<LOGO_LIMIT>>`, `<<REFERENCE_CALL_LIMIT>>` | Reference program terms | Legal / partnership |
 | `<<REVIEW_DATE_1>>`, `<<REVIEWER_1>>`, `<<ACTION_1>>` | Internal review trail | GTM + customer success notes |
 
-**Evidence pack:** use [`REFERENCE_PUBLICATION_RUNBOOK.md#reference-evidence-pack-template`](REFERENCE_PUBLICATION_RUNBOOK.md#reference-evidence-pack-template) with measured lines filled from committed `pilot-run-deltas` JSON — start from the **demo tenant** sample under [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) only as a **format scaffold** (every published cell must be replaced with customer-backed values; banner: **demo tenant — replace before publishing**).
+**Evidence pack:** use [`README.md#reference-evidence-pack-template`](README.md#reference-evidence-pack-template) (`REFERENCE_PUBLICATION_RUNBOOK.md` alias) with measured lines filled from committed `pilot-run-deltas` JSON — start from the **demo tenant** sample under [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) only as a **format scaffold** (every published cell must be replaced with customer-backed values; banner: **demo tenant — replace before publishing**).
 
 ### `<<CUSTOMER_NAME>>` — First self-serve paying tenant (PLG reference)
 

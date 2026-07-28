@@ -1,13 +1,13 @@
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Path-stable alias for the one-page reference evidence pack template. Not an independent publication process.
+> **Scope:** Path-stable alias for the one-page reference evidence pack template. Not an independent publication runbook.
 
-# Reference evidence pack — template (alias)
+# Reference evidence pack template (alias)
 
 **Last reviewed:** 2026-07-27
 
-**Canonical template:** [`REFERENCE_PUBLICATION_RUNBOOK.md#reference-evidence-pack-template`](REFERENCE_PUBLICATION_RUNBOOK.md#reference-evidence-pack-template).
+**Canonical template:** [`README.md#reference-evidence-pack-template`](README.md#reference-evidence-pack-template).
 
-**Demo-tenant scaffold:** [`REFERENCE_PUBLICATION_RUNBOOK.md#demo-tenant-scaffold-internal-shape-only`](REFERENCE_PUBLICATION_RUNBOOK.md#demo-tenant-scaffold-internal-shape-only).
+**Demo-tenant scaffold:** [`README.md#demo-tenant-scaffold-internal-shape-only`](README.md#demo-tenant-scaffold-internal-shape-only).
 
-Placeholder skeleton, `pilot-run-deltas.json` field map, and publish guards live only in the publication runbook. This file keeps the historical path stable for Step 3 links, case-study pointers, and redirects.
+Measured-delta table, quote/screenshot slots, and demo-tenant shape mapping live only in the reference-customers index. This file keeps the historical path stable for case-study and CHANGELOG callers.

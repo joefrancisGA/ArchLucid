@@ -541,10 +541,10 @@ Collect all of the following before confirming a pilot start date.
 - [ ] **Proof-capture permission scope confirmed:**
   - [ ] Proof can be used internally (ArchLucid operations only)
   - [ ] Proof can be used in anonymized/synthetic form for ArchLucid marketing
-  - [ ] Proof can be used as a named case study (requires separate signed release — see [`REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture`](reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture))
+  - [ ] Proof can be used as a named case study (requires separate signed release — see [`REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture`](reference-customers/README.md#named-reference-customer-capture))
   - [ ] Proof **cannot** be used outside this engagement (restrict to operations only)
 - [ ] **Public / private reference expectation settled:**
-  - [ ] Buyer may be a public reference in the future (subject to separate permission — see [`REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture`](reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture))
+  - [ ] Buyer may be a public reference in the future (subject to separate permission — see [`REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture`](reference-customers/README.md#named-reference-customer-capture))
   - [ ] Buyer prefers to remain anonymous; any proof used in external materials must be anonymized
   - [ ] Buyer does not consent to any external reference use
 
@@ -566,7 +566,7 @@ Record the buyer's stated success criteria so pilot results can be evaluated aga
 
 If a prospect asks to become a public reference, or if you want to request reference permission:
 
-1. Do not make an informal commitment. Route to [`REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture`](reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture) for the formal checklist.
+1. Do not make an informal commitment. Route to [`REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture`](reference-customers/README.md#named-reference-customer-capture) for the formal checklist.
 2. Record the request in the intake form under proof-capture permissions.
 3. Public references are a V1.1 GTM item — they do not affect the V1 pilot score or release headline readiness.
 
@@ -592,7 +592,7 @@ Maintain a simple record for each active prospect:
 | [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) | Outreach one-pager |
 | [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md) | Pilot measurement framework |
 | [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) | PASS/HOLD criteria |
-| [`REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture`](reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture) | Public reference permission process |
+| [`REFERENCE_PUBLICATION_RUNBOOK.md#named-reference-customer-capture`](reference-customers/README.md#named-reference-customer-capture) | Public reference permission process |
 | [`#should-you-evaluate`](#should-you-evaluate) | Prospect self-qualification guide |
 | [`#ideal-customer-profile-icp`](#ideal-customer-profile-icp) | ICP detail |
 | [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) | GTM overclaim guardrails |

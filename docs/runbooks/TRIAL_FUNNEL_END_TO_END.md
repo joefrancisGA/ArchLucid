@@ -40,7 +40,7 @@ Document the **single happy path** a prospect takes through the funnel, with **f
 ## 3. Constraints
 
 - **Do not** bypass feature flags that exist for safety (`Trial:SignupEnabled`, `Billing:LiveKeysEnabled`, etc.).
-- **Do not** flip `Status: Published` on any reference customer row to "validate" the funnel — the publication runbook is owner-only ([`docs/go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md`](../go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md)).
+- **Do not** flip `Status: Published` on any reference customer row to "validate" the funnel — the publication runbook is owner-only ([`docs/go-to-market/reference-customers/README.md#reference-publication-runbook`](../go-to-market/reference-customers/README.md#reference-publication-runbook)).
 - **Do not** disable trial write limits in production via configuration (`TrialLimitGate` is intentional).
 
 ---

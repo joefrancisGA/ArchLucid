@@ -1,276 +1,38 @@
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Operational runbook for moving a real customer reference from internal drafting to a **Published** row in [`README.md`](README.md), including named-reference capture / first-contact email (formerly the body of `NAMED_REFERENCE_CUSTOMER_CAPTURE.md`; that filename remains a path-stable alias), computed-ROI evidence extraction, the CI discount re-rate gate, and the one-page reference evidence pack template (formerly the body of `REFERENCE_EVIDENCE_PACK_TEMPLATE.md`; that filename remains a path-stable alias).
+> **Scope:** Path-stable alias for the reference publication runbook. Not an independent status-table index. CI Batch 5BC pins first-contact template strings on this filename.
 
-> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
-
-
-# Reference customer — publication runbook
-
-**Audience:** Product marketing, customer success, sales engineering, and the owner who signs legal agreements.
+# Reference customer — publication runbook (alias)
 
 **Last reviewed:** 2026-07-27
 
-**Related:** [`PRICING_PHILOSOPHY.md` § 5.4](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down) · [`scripts/ci/check_reference_customer_status.py`](../../../scripts/ci/check_reference_customer_status.py) · [`#named-reference-customer-capture`](#named-reference-customer-capture) · [`#reference-evidence-pack-template`](#reference-evidence-pack-template) · [`../REFERENCE_NARRATIVE_TEMPLATE.md`](../REFERENCE_NARRATIVE_TEMPLATE.md)
+**Canonical publication runbook + capture + evidence pack:** [`README.md#reference-publication-runbook`](README.md#reference-publication-runbook).
 
----
+Publish gates, Drafting → Published steps, CLI evidence extraction, named-reference capture, and the evidence pack template live only in the reference-customers index. This file keeps the historical path stable for CI (`test_adoption_batch_5bc.py`), redirects, and GTM callers.
 
-## 0. Publication checklist (human gates)
+## 0. Publication checklist (human gates) {#0-publication-checklist-human-gates}
 
-Complete these gates **before** changing any [`README.md`](README.md) table row to **`Status: Published`**. This list does not replace counsel.
-
-- **Logo permission** — Written approval for the customer’s logo (and associated brand marks) on the marketing site, decks, Marketplace copy, and any other surfaces named in the reference agreement.
-- **Quote approval** — Every attributable quote, metric, or endorsement in the case study is approved for **public** use under the same agreement.
-- **Case study legal review** — Customer legal / brand review of the **final** case-study document is complete; internal drafts stay out of public indexes until then.
-- **CI / pricing gate** — Understand how merge-time automation behaves when the first **Published** row lands: **[`PRICING_PHILOSOPHY.md` §5.4 — Discount-stack work-down](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down)** (link only — do not restate discounts here).
-
-## 1. Objective
-
-Ship **one** publishable reference backed by **measured** pilot deltas (time-to-commit, findings, audit rows, LLM calls) so finance can re-rate the **−15% reference discount** when the table first reaches `Status: Published` (CI auto-flip — see README § *How to add a real reference*).
-
----
-
-## 2. Assumptions
-
-- The customer has at least one **finalized** architecture package (API: golden manifest) in production or pilot SQL.
-- You have an **API key** with `ReadAuthority` for tenant-scoped CLI export, or **AdminAuthority** for `--tenant` ZIP export.
-- **Owner-blocked:** a countersigned **reference / logo / quote** agreement exists before anything is published externally.
-
----
-
-## 3. Constraints
-
-- **Never** publish Contoso demo numbers as a customer outcome. The CLI refuses demo runs unless `--include-demo` is explicit; JSON includes `isDemoTenant` for double-checks.
-- Do **not** restate list prices outside [`PRICING_PHILOSOPHY.md`](../PRICING_PHILOSOPHY.md) — link instead.
-- Historical SQL migrations **001–028** are immutable; evidence export is API/CLI-only.
-
----
-
-## 4. Architecture overview (evidence flow)
-
-```mermaid
-flowchart LR
-  CLI[archlucid reference-evidence]
-  API[Pilots + Admin APIs]
-  Delta[IPilotRunDeltaComputer]
-  SQL[(dbo.Runs / audit / traces)]
-  ZIP[ZIP / folder on disk]
-  CS[Case study Markdown]
-  RC[README table row]
-
-  CLI --> API
-  API --> Delta
-  Delta --> SQL
-  CLI --> ZIP
-  ZIP --> CS
-  CS --> RC
-```
-
----
-
-## 5. Step-by-step — Drafting → Customer review → Published
-
-### Step 1 — Confirm legal sign-off (owner-blocked)
-
-- [ ] Executed reference / logo / quote agreement (template: *owner legal template path TBD*).
-- [ ] Customer named contact for approvals recorded.
-
-### Step 2 — Extract computed evidence
-
-**Tenant-scoped run (operator / sales engineer key):**
-
-```bash
-archlucid reference-evidence --run <runId> [--out ./reference-evidence/<runId>] [--include-demo]
-```
-
-**Admin ZIP (global admin key, entire tenant anchor run auto-picked):**
-
-```bash
-archlucid reference-evidence --tenant <tenantId> [--out ./reference-evidence/tenant-<tenantId>] [--include-demo]
-```
-
-Artifacts:
-
-| Artifact | Source |
-|----------|--------|
-| `pilot-run-deltas.json` | `GET /v1/pilots/runs/{runId}/pilot-run-deltas` |
-| `first-value-report.md` | `GET /v1/pilots/runs/{runId}/first-value-report` |
-| `first-value-report.pdf` | `POST /v1/pilots/runs/{runId}/first-value-report.pdf` |
-| `sponsor-one-pager.pdf` | `POST /v1/pilots/runs/{runId}/sponsor-one-pager` (Standard tier; may be absent) |
-| ZIP (tenant path) | `GET /v1/admin/tenants/{tenantId}/reference-evidence` |
-
-### Step 3 — Fill the narrative
-
-1. Open the [reference evidence pack template](#reference-evidence-pack-template) (path-stable alias: [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md)).
-2. Copy measured fields from `pilot-run-deltas.json` into the template (each field cites the JSON property — see template).
-3. For long-form prose, start from [`../REFERENCE_NARRATIVE_TEMPLATE.md`](../REFERENCE_NARRATIVE_TEMPLATE.md) archetypes and replace fictional names with the customer’s.
-
-### Step 4 — Customer review checklist
-
-- [ ] **Quote accuracy** — every quote matches an email or signed doc; attach redacted source link internally.
-- [ ] **Screenshots** — no third-party logos or unreleased product UI without permission; blur tenant-specific hostnames if required.
-- [ ] **Numbers** — every numeric claim maps to `pilot-run-deltas.json` or [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) formula inputs the customer approved.
-- [ ] **Demo banner** — if any screenshot accidentally includes demo data, ensure the “demo tenant — replace before publishing” banner is visible or delete the screenshot.
-
-### Step 5 — README row + CI flip
-
-1. Add or update the customer row in [`README.md`](README.md) with `Status: Drafting` → `Customer review` → `Published` per the lifecycle table.
-2. The CI guard [`check_reference_customer_status.py`](../../../scripts/ci/check_reference_customer_status.py) parses **only** that table. When **any** row’s normalized `Status` token is `published`, the **warn** step exits `0` and the follow-on strict step in `.github/workflows/ci.yml` becomes merge-blocking (auto-flip — no YAML hand-edit).
-3. Add a one-line entry to [`../../CHANGELOG.md`](../../CHANGELOG.md) on each transition so finance can trace discount re-rate timing ([`PRICING_PHILOSOPHY.md` § 5.3](../PRICING_PHILOSOPHY.md#53-re-rate-plan)).
-
----
-
-## 6. Security model
-
-- API keys with **only** `ReadAuthority` cannot call `--tenant` admin export (403).
-- Evidence ZIPs may contain **run metadata** — treat as **confidential** until the customer publishes.
-- Do not attach ZIPs to public tickets; use NDA-gated storage.
-
----
-
-## 7. Operational considerations
-
-- **404 on tenant export:** no finalized review for that tenant after demo filtering — seed a real pilot review or pass `--include-demo` for internal-only rehearsal.
-- **402 on sponsor PDF:** tenant below Standard — omit from pack; Markdown + first-value PDF still tell the story.
-- **Re-run evidence** after each material pilot week so the case study stays fresh.
-
----
-
-## 8. Owner decisions (defer to [`../../PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md))
-
-- Discount-for-reference percent (default narrative: **15%** per § 5.4).
-- Whether the first **Published** row is **PLG first paying tenant** vs **named design partner** (drives which case-study file graduates first).
-
----
+**Canonical checklist:** [`README.md#0-publication-checklist-human-gates`](README.md#0-publication-checklist-human-gates).
 
 ## Named reference customer capture {#named-reference-customer-capture}
 
-Former standalone body: `docs/go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md` → this section (filename kept as a path-stable alias).
+**Canonical capture:** [`README.md#named-reference-customer-capture`](README.md#named-reference-customer-capture).
 
-**Window:** V1.1 GTM backlog (TB-164) — do not treat as a V1 release requirement or headline-readiness factor.
+## First-contact email template {#5-first-contact-email-template}
 
-**Audience:** Founder and GTM lead managing the transition from controlled pilot to public-reference customer.
-
-Using a named reference without completing this checklist is not permitted.
-
-### Context and guardrails
-
-ArchLucid V1 has no approved named public references. This is not a product defect. Current materials can accurately state "no named public reference yet."
-
-Before any named reference, logo, case study, or reference call is used externally:
-
-1. This checklist must be completed and signed off by the owner.
-2. The claim must be scoped to exactly what the reference record permits.
-3. The claim must pass the copy guard in [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
-
-### Permission requirements by reference type
-
-| Reference use | Permission required | Legal approval required | Revalidation cadence |
-| --- | --- | --- | --- |
-| Customer logo on website / marketing materials | Written permission (email or signed release); customer legal may require | Owner + customer legal review | Annual or on contract change |
-| Public case study with company name | Signed reference agreement or case-study release | Owner + customer legal review | On content update |
-| Anonymized case study (no name, no logo) | Verbal or written consent; anonymization reviewed by owner | Owner review | On content update |
-| Reference call (customer speaks to prospect) | Written agreement naming scope and topics | Owner + customer review | Per call |
-| Third-party review site quote (G2, TrustRadius, etc.) | Customer consent to the quote as written | Owner review | On quote update |
-| ROI figure with attribution | Customer approval of specific numbers; source label applied | Owner review | On figure update |
-
-### Reference-readiness checklist
-
-Complete one record per customer reference candidate.
-
-#### Proof packet quality gate
-
-- [ ] The pilot completed with PASS outcome per [`PILOT_ACCEPTANCE_THRESHOLDS.md`](../PILOT_ACCEPTANCE_THRESHOLDS.md).
-- [ ] At least one committed run with buyer-provided or buyer-accepted evidence exists.
-- [ ] ROI figures are labeled by source (buyer-provided, defaulted, demo-derived).
-- [ ] No HOLD rows in the final pilot scorecard remain unresolved.
-
-#### Buyer approval gate
-
-- [ ] Customer key contact name and title confirmed:
-- [ ] Customer executive sponsor confirmed:
-- [ ] Reference permission scope agreed (choose all that apply):
-  - [ ] Internal use only (no public claim)
-  - [ ] Anonymized case study (no name, no logo)
-  - [ ] Named logo use on ArchLucid website
-  - [ ] Named case study with ROI data
-  - [ ] Named reference call availability
-  - [ ] Third-party review quote
-- [ ] What can be said (approved claim language):
-- [ ] Where it can be used (channels, materials, URLs):
-- [ ] What cannot be said (exclusions or caveats):
-
-#### Legal approval gate
-
-- [ ] Reference agreement or signed release obtained (attach reference or file location):
-- [ ] Customer legal has reviewed and approved the specific claim language:
-- [ ] Revocation process agreed (customer can withdraw reference by: _____________________):
-- [ ] Owner has signed off on legal gate completion: _______ Date: _______
-
-#### Claim boundary review
-
-- [ ] Every external use of this reference has been reviewed against [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
-- [ ] The claim does not imply SOC 2 CPA, third-party pen test, guaranteed ROI, or other unavailable assurance.
-- [ ] If ROI figures are used, they include source labels and the claim scope matches what the customer approved.
-- [ ] Claim has passed the commercial copy overclaim check.
-
-### Reference record template
-
-Maintain one completed record per approved reference:
-
-```
-Customer reference record
-=========================
-Customer name (legal):
-Trade name / brand:
-Industry:
-Reference contact (name, title, email):
-Executive sponsor (name, title):
-Pilot dates:
-Offer SKU:
-PASS outcome confirmed: Yes / No
-Proof packet location:
-
-Approved reference scope:
-  Logo use: Yes / No / Conditions:
-  Named case study: Yes / No / Conditions:
-  Anonymized case study: Yes / No / Conditions:
-  Reference calls: Yes / No / Topics permitted:
-  ROI figures permitted: Yes / No / Approved language:
-
-Approved claim language (verbatim):
-
-Channels / materials where approved:
-
-Exclusions and caveats:
-
-Revocation contact and process:
-
-Legal gate completed: Yes / No
-Legal gate document location:
-
-Owner sign-off:
-  Name:
-  Date:
-
-Revalidation due date:
-
-Notes:
-```
-
-### First-contact email template {#5-first-contact-email-template}
+**Canonical copy also lives in** [`README.md#5-first-contact-email-template`](README.md#5-first-contact-email-template). The body below is retained on this path for CI Batch 5BC string pins.
 
 Copy-paste after a successful pilot for founder, sales, and customer success. Not a legal commitment or published case study.
 
 **Pricing context:** Reference participation unlocks the standing **−15% reference discount** described in [PRICING_PHILOSOPHY.md §4.1](../PRICING_PHILOSOPHY.md#41-reference-customer-discount-standardized-2026-04-21). Do not promise publication until written approval is on file.
 
-#### Subject line variants
+### Subject line variants
 
 **Short:** ArchLucid pilot wrap-up — reference request?
 
 **Long:** Thank you for the ArchLucid pilot — optional reference participation (15% ongoing discount)
 
-#### Body template
+### Body template
 
 Hello <<CUSTOMER_NAME>> team,
 
@@ -290,84 +52,10 @@ Thank you,
 <<SENDER_NAME>>  
 ArchLucid
 
-#### Objection-handling postscript
-
-**If your policy blocks customer references:** We can still document an **internal success summary** without public logo use. The −15% reference discount applies only after a **Published** row in [README.md](README.md) — not from this email alone.
-
-**If legal needs more time:** We will keep your row in **Customer review** status until written approval arrives; nothing is published without your sign-off.
-
-### Routing for current V1 materials
-
-Until at least one reference record has been completed and signed off:
-
-- Current materials should say: "ArchLucid is currently conducting controlled pilots. Named public references are not yet approved."
-- Do not use "a leading healthcare company" or similar implied-real language without an anonymized-case-study release.
-- Route public-reference asks from prospects to this checklist, not to an informal commitment.
-
----
-
 ## Reference evidence pack template {#reference-evidence-pack-template}
 
-Former standalone body: `docs/go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_TEMPLATE.md` → this section (filename kept as a path-stable alias).
+**Canonical template:** [`README.md#reference-evidence-pack-template`](README.md#reference-evidence-pack-template).
 
-One-page **template** for a single customer reference pack. Replace `<<…>>` placeholders. Every **computed** line must map to `pilot-run-deltas.json` produced by `archlucid reference-evidence` (or the admin ZIP).
+## Demo-tenant scaffold (internal shape only) {#demo-tenant-scaffold-internal-shape-only}
 
-# Reference evidence pack — `<<CUSTOMER_NAME>>`
-
-**Status:** Draft — internal only until legal sign-off.
-
-### Logo
-
-`<<LOGO_URI_OR_ATTACH>>`
-
-### Problem statement (before ArchLucid)
-
-`<<2_4_SENTENCES_CUSTOMER_VOICE>>`
-
-### Measured deltas (from `pilot-run-deltas.json`)
-
-> Fill from the CLI export. Property names refer to **camelCase** JSON from `GET /v1/pilots/runs/{runId}/pilot-run-deltas`. **Internal format-only sample:** [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) (must remain **demo tenant — replace before publishing** until a customer export replaces it).
-
-| Metric | Value | JSON field |
-|--------|------:|------------|
-| Wall-clock request → committed manifest | `<<HH:MM:SS>>` | `timeToCommittedManifestTotalSeconds` (convert from seconds) |
-| Manifest committed at (UTC) | `<<ISO8601>>` | `manifestCommittedUtc` |
-| Run created at (UTC) | `<<ISO8601>>` | `runCreatedUtc` |
-| Findings by severity | `<<TABLE_OR_BULLETS>>` | `findingsBySeverity[]` → `{ severity, count }` |
-| Audit rows (run scope) | `<<N>>` (`<<lower bound if truncated>>`) | `auditRowCount`, `auditRowCountTruncated` |
-| LLM completion calls (run scope) | `<<N>>` | `llmCallCount` |
-| Top finding id / severity | `<<id>>` / `<<severity>>` | `topFindingId`, `topFindingSeverity` |
-| Demo flag | `<<Yes/No>>` | `isDemoTenant` — **must be No** for external publication |
-
-**Review-cycle hours saved** (if captured at signup): derive per [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) § 3.1 using tenant baseline fields — not duplicated in `pilot-run-deltas.json`; cite `GET /v1/tenant/trial-status` internally.
-
-### Customer quote
-
-> `<<ONE_SENTENCE_QUOTE>>`  
-> — `<<NAME, TITLE>>`, `<<DATE>>`
-
-**Redaction:** remove internal project codenames unless approved in Step 4 above.
-
-### Screenshot
-
-`<<SCREENSHOT_URI>>` — run detail or committed manifest view (no demo banner unless intentionally demo).
-
-### Links
-
-- Case study file: `<<PATH_TO_CASE_STUDY_MD>>`
-- Evidence folder / ZIP on secure share: `<<INTERNAL_LINK>>`
-
-### Demo-tenant scaffold (internal shape only) {#demo-tenant-scaffold-internal-shape-only}
-
-**Not** a publishable customer artefact. Until a paying customer export exists, you may copy **shape only** from [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) — keep the literal banner **demo tenant — replace before publishing** on every ArchLucid-side artifact. Every numeric and narrative cell in a real pack must come from **customer-approved** sources per this runbook.
-
-| Template metric row | JSON / API field |
-|---------------------|------------------|
-| Wall-clock request → finalized architecture package | `timeToCommittedManifestTotalSeconds` (convert to `HH:MM:SS` in the template; metric key unchanged) |
-| Manifest committed at | `manifestCommittedUtc` |
-| Run created at | `runCreatedUtc` |
-| Findings by severity | `findingsBySeverity[]` |
-| Audit rows | `auditRowCount`, `auditRowCountTruncated` |
-| LLM completion calls | `llmCallCount` |
-| Top finding | `topFindingId`, `topFindingSeverity` |
-| Demo flag | `isDemoTenant` — must be **false** before external publication |
+**Canonical scaffold:** [`README.md#demo-tenant-scaffold-internal-shape-only`](README.md#demo-tenant-scaffold-internal-shape-only).
