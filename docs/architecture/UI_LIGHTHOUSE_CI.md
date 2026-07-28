@@ -49,8 +49,28 @@ Tighten to merge-blocking **`error`** assertions only after two weeks of green w
 
 Workflow job **`ui-lighthouse-ci`** in `.github/workflows/ci.yml` — **warn-only** (`continue-on-error: true`), runs on `master` pushes after `gitleaks`, uploads `.lighthouseci` artifacts for trend review.
 
+## Remote / chosen-site acceptance (GTM M-99)
+
+Lab CI above stays mock-backed and merge-adjacent. For founder acceptance against an owner-chosen origin:
+
+```bash
+cd archlucid-ui
+ACCEPTANCE_BASE_URL=https://your-host.example npm run lighthouse:acceptance
+```
+
+| Piece | Path |
+| --- | --- |
+| Routes | `performance/lighthouse-acceptance-routes.v1.json` |
+| LHCI config | `lighthouserc.acceptance.cjs` |
+| Runner | `scripts/run-lighthouse-acceptance.mjs` |
+| Auth cookies | `ACCEPTANCE_STORAGE_STATE` → `scripts/lighthouse-acceptance-puppeteer.cjs` |
+| Reports | `.lighthouseci-acceptance/` |
+
+Category assertions remain **warn-only** (same numeric floors as lab). Hard fails are limited to material defects (severe CLS, huge `total-byte-weight`, HTTPS on remote hosts). Axe founder suite (**M-105**) owns the AA bar. Guidance: [`FOUNDER_UI_ACCEPTANCE_ROUTINE.md`](FOUNDER_UI_ACCEPTANCE_ROUTINE.md).
+
 ## Related
 
 - **TB-573** / **TB-691** — First Load JS bundle regression (`check:first-load-js`)
 - **TB-692** — field `WebVitalsMetric` App Insights events
 - `archlucid-ui/playwright.mock.config.ts` — mock server contract
+- **GTM M-99** — remote acceptance LHCI (`lighthouse:acceptance`)

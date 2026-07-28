@@ -11,7 +11,7 @@ import {
   liveE2eApiContractPlaywrightTimeoutMs,
 } from "./helpers/live-api-client";
 
-test.describe("live-api-executive-board-pack", () => {
+test.describe("live-api-executive-board-pack", { tag: ["@founder"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 

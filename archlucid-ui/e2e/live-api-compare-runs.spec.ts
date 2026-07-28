@@ -33,7 +33,7 @@ function buildCreateBody(suffix: string): Record<string, unknown> {
   };
 }
 
-test.describe("live-api-compare-runs", () => {
+test.describe("live-api-compare-runs", { tag: ["@founder"] }, () => {
   const tenantScope = freshIsolatedTenantScope();
 
   test.beforeAll(async ({ request }) => {

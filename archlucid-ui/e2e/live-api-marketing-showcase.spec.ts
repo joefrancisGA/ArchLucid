@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 
 import { liveApiBase, liveJsonHeaders } from "./helpers/live-api-client";
 
-test.describe("live-api-marketing-showcase", () => {
+test.describe("live-api-marketing-showcase", { tag: ["@founder", "@release-smoke"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 

@@ -11,7 +11,11 @@ async function expectShowcaseMarketingBodyPresent(page: Page): Promise<void> {
   await expect(page.getByText(/live preview/i)).toHaveCount(0);
 }
 
-test.describe("Showcase production availability @release-smoke", () => {
+test.describe(
+  "Showcase production availability @release-smoke",
+  { tag: ["@founder", "@release-smoke"] },
+  () => {
+
   test("static-first slug serves marketing body without unavailable shell", async ({ page }) => {
     await page.goto(claimsShowcasePath);
 

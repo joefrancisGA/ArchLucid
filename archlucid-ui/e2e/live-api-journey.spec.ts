@@ -49,7 +49,7 @@ import {
 
 const liveE2eForensics: { runId?: string; approvalRequestId?: string; auditCorrelationId?: string } = {};
 
-test.describe("live-api-journey", () => {
+test.describe("live-api-journey", { tag: ["@founder", "@critical"] }, () => {
   test.afterAll(() => {
     if (liveE2eForensics.runId) {
       console.log(

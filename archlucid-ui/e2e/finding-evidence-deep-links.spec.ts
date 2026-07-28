@@ -7,7 +7,11 @@ import { waitForAppReady } from "./helpers/waits";
 
 const showcaseFindingId = "phi-minimization-risk";
 
-test.describe("finding evidence deep-links @demo-readiness", () => {
+test.describe(
+  "finding evidence deep-links @demo-readiness",
+  { tag: ["@founder", "@critical"] },
+  () => {
+
   test("inspect panel links first evidence row to manifest summary section", async ({ page }) => {
     await page.goto(
       `/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}/findings/${encodeURIComponent(showcaseFindingId)}/inspect`,

@@ -104,7 +104,11 @@ function extractWhitelabelFirmDisplayNameFromExportBlobs(blobs: readonly string[
   return null;
 }
 
-test.describe(`demo-workspace-b-smoke (${releaseGateTag})`, { tag: [releaseGateTag] }, () => {
+test.describe(
+  `demo-workspace-b-smoke (${releaseGateTag})`,
+  { tag: [releaseGateTag, "@founder", "@critical"] },
+  () => {
+
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });
 

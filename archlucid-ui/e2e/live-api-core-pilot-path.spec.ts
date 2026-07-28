@@ -28,7 +28,7 @@ import {
 const liveProductTourRunEnc = encodeURIComponent(DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID);
 const liveReviewsListHref = `/reviews?projectId=${encodeURIComponent(DEMO_WORKSPACE_A_LIVE_IDS.projectId)}`;
 
-test.describe("live-api-core-pilot-path", () => {
+test.describe("live-api-core-pilot-path", { tag: ["@founder", "@buyer-journey"] }, () => {
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
 

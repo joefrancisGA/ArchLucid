@@ -15,7 +15,7 @@ import {
   liveJsonHeaders,
 } from "./helpers/live-api-client";
 
-test.describe("live-api-jwt-auth", () => {
+test.describe("live-api-jwt-auth", { tag: ["@founder", "@critical"] }, () => {
   test.skip(!resolveLiveJwtMode(), "Set LIVE_JWT_TOKEN to run JWT auth production-like gates.");
 
   test.beforeAll(async ({ request }) => {

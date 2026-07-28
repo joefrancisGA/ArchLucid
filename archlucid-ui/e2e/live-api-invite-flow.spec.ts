@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 
 import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
 
-test.describe("live-api-invite-flow", () => {
+test.describe("live-api-invite-flow", { tag: ["@founder"] }, () => {
   test.describe.configure({ timeout: 180_000 });
 
   test.beforeAll(async ({ request }) => {

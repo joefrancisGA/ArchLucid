@@ -27,7 +27,7 @@ const NAV_BACK_TO_REVIEW_FROM_MANIFEST = /^Open review$|^Claims Intake Moderniza
 
 const productTourRunId = DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID;
 
-test.describe("live-api-review-manifest-roundtrip", () => {
+test.describe("live-api-review-manifest-roundtrip", { tag: ["@founder"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 

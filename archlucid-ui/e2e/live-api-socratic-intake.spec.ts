@@ -26,7 +26,7 @@ const INTENT =
   "Design a multi-tenant Azure API platform with private SQL, Redis cache, and Entra ID authentication.";
 const OUTCOME = "Reduce enterprise tenant onboarding time while preserving auditability.";
 
-test.describe("live-api-socratic-intake", () => {
+test.describe("live-api-socratic-intake", { tag: ["@founder", "@buyer-journey"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 

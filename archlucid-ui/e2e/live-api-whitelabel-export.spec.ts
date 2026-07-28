@@ -20,7 +20,7 @@ import {
 } from "./helpers/live-api-client";
 import { ensureBuyerDeliverablesSectionExpanded } from "./helpers/operator-journey";
 
-test.describe("live-api-whitelabel-export", () => {
+test.describe("live-api-whitelabel-export", { tag: ["@founder"] }, () => {
   test.describe.configure({ timeout: 180_000 });
 
   test.beforeAll(async ({ request }) => {

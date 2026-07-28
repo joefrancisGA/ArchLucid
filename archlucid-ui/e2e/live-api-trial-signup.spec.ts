@@ -58,7 +58,7 @@ function expectPrometheusTextContainsTrialFunnelMetrics(text: string): void {
   // archlucid_trial_expirations_total is emitted by TrialLifecycleTransitionEngine (Worker); see docs/runbooks/TRIAL_FUNNEL.md.
 }
 
-test.describe("live-api-trial-signup", () => {
+test.describe("live-api-trial-signup", { tag: ["@founder", "@buyer-journey"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 

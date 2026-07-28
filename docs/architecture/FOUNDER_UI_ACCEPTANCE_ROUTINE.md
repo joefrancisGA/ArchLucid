@@ -51,15 +51,18 @@ Owner picks the site per run. Examples:
 | Production / production-like host | Post-deploy smoke (careful with data) |
 | `http://127.0.0.1:3000` + local API | Diagnosis while iterating |
 
-**Env contract (to implement under M-96):**
+**Env contract (M-96 — shipped):**
 
 | Variable | Role |
 |----------|------|
-| `ACCEPTANCE_BASE_URL` | UI origin under test (canonical for this routine) |
-| `STAGING_BASE_URL` | Existing trial-funnel override — keep compatible or alias |
-| Auth secrets / storage state | How Playwright signs in on the chosen site (API key, JWT, or saved `storageState`) — **never commit** |
+| `ACCEPTANCE_BASE_URL` | UI origin under test (canonical). Resolved in `archlucid-ui/e2e/helpers/acceptance-base-url.ts` |
+| `STAGING_BASE_URL` | Alias when `ACCEPTANCE_BASE_URL` is unset (trial-funnel / hosted probes) |
+| `ACCEPTANCE_STORAGE_STATE` | Optional path to Playwright `storageState` JSON for authenticated routes — **never commit** |
+| `LIVE_API_URL` / `LIVE_API_KEY` / JWT env | Same as live E2E for API-backed `@founder` specs |
+| `ACCEPTANCE_SKIP_LIVE_INFRA=1` | Skip SQL/API readiness probe (public / marketing-only runs against a remote UI) |
+| `ACCEPTANCE_NO_WEBSERVER=1` | On loopback, do not start Next — reuse an already-running UI |
 
-All founder npm scripts should require or default `ACCEPTANCE_BASE_URL` so “run against my chosen website” is one command, not a config hunt.
+Default when neither acceptance nor staging URL is set: `http://127.0.0.1:3000` (same as live Playwright). Config: `archlucid-ui/playwright.founder.config.ts`. Owner picks the standing default under **G-QA-01**.
 
 ## Lane 1 — leave exhaustive coverage in GitHub
 
@@ -78,7 +81,7 @@ Lane 1 remains the merge/release regression authority. Lane 2 does **not** repla
 
 ## Lane 2 — target-site Playwright + Lighthouse
 
-### Tags (M-97)
+### Tags (M-97 — shipped)
 
 Organize a **small** set (~20–40 tests, grow as manual checks are absorbed):
 
@@ -106,11 +109,11 @@ Suggested coverage (tag or add until covered):
 - Help, feedback, billing, privacy, and support
 - One complete first-time-user journey
 
-### Commands (M-98 — target shape)
+### Commands (M-98 — shipped)
 
 ```bash
 cd archlucid-ui
-# Acceptance against chosen site (headless CI-friendly)
+# Acceptance against chosen site (headless; greps @founder)
 ACCEPTANCE_BASE_URL=https://your-host.example npm run test:e2e:founder
 
 # Visible diagnosis
@@ -119,17 +122,19 @@ ACCEPTANCE_BASE_URL=https://your-host.example npm run test:e2e:founder:headed
 # Step-through UI Mode
 ACCEPTANCE_BASE_URL=https://your-host.example npm run test:e2e:founder:ui
 
+# Must-pass subset before controlled beta
+ACCEPTANCE_BASE_URL=https://your-host.example npm run test:e2e:founder:critical
+
+# Post-deploy smoke only
+ACCEPTANCE_BASE_URL=https://your-host.example ACCEPTANCE_SKIP_LIVE_INFRA=1 npm run test:e2e:founder:release-smoke
+
 # Single failure
-npx playwright test path/to/test.spec.ts:42 --debug
+npx playwright test -c playwright.founder.config.ts path/to/test.spec.ts:42 --debug
 ```
 
-Until scripts exist, use:
+PowerShell: `$env:ACCEPTANCE_BASE_URL="https://your-host.example"; npm run test:e2e:founder`
 
-```bash
-npx playwright test --grep @founder --project=chromium --headed
-```
-
-against a config whose `baseURL` is the chosen site.
+**Tags (M-97):** existing live/demo/marketing/journey specs carry Playwright `{ tag: [...] }`. Prefer growing via **M-100**. Help/billing/privacy dedicated specs are still thin; absorb from exploratory (**G-QA-03**).
 
 **Showcase availability (`TB-889`, GTM **G-QA-04**):**
 
@@ -139,32 +144,50 @@ cd archlucid-ui
 npm run test:e2e:mock:functional -- --grep @release-smoke
 
 # Post-deploy against staging/production UI (requires reachable site)
-ACCEPTANCE_BASE_URL=https://staging.archlucid.net npx playwright test e2e/showcase-production-availability.spec.ts --grep @release-smoke
+ACCEPTANCE_BASE_URL=https://staging.archlucid.net ACCEPTANCE_SKIP_LIVE_INFRA=1 npm run test:e2e:founder:release-smoke
 ```
 
 Scheduled hosted probe: [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml) records `showcase_ok` for `GET /showcase/claims-intake-modernization` (HTTP 200, `demo-preview-marketing-body`, no `demo-preview-not-available` shell).
 
-### Lighthouse against the chosen site (M-99)
+### Console + network guards (M-104 — shipped)
 
-Keep lab CI as-is ([`UI_LIGHTHOUSE_CI.md`](UI_LIGHTHOUSE_CI.md)). Additionally:
+```bash
+cd archlucid-ui
+ACCEPTANCE_BASE_URL=https://your-host.example ACCEPTANCE_SKIP_LIVE_INFRA=1 FOUNDER_PUBLIC_ONLY=1 \
+  npm run test:e2e:founder:console-network
+```
 
-1. Run LHCI (or a thin wrapper) against `ACCEPTANCE_BASE_URL` + the representative route list.
-2. Support **authenticated** routes via Playwright `storageState` (or equivalent), not only public marketing pages.
-3. Prefer **median of 3–5 runs** for pages that matter; single-run scores are directional only.
-4. Keep assertions **warn-only** for category scores; use hard fails only for **material** defects (severe a11y, broken nav, huge payload regression, unusable mobile layout, insecure/deprecated patterns, severe CLS).
+Walks founder routes with `pageerror` / `console.error` / `requestfailed` / HTTP 5xx listeners. Benign noise: `e2e/helpers/founder-page-noise-allowlist.ts`. Soft mode: `FOUNDER_PAGE_GUARDS_WARN_ONLY=1`.
 
-Representative route set (adjust to real IA):
+### axe on founder routes (M-105 — shipped)
 
-1. Public home  
-2. Sign-up / entry  
-3. Authenticated home / dashboard  
-4. Reviews list  
-5. Review detail / findings  
-6. Architecture detail  
-7. Evidence or graph  
-8. Settings / integrations  
-9. Help / docs  
-10. One especially complex page  
+```bash
+cd archlucid-ui
+ACCEPTANCE_BASE_URL=https://your-host.example ACCEPTANCE_SKIP_LIVE_INFRA=1 FOUNDER_PUBLIC_ONLY=1 \
+  npm run test:e2e:founder:a11y
+```
+
+Reuses `e2e/helpers/axe-helper.ts` (WCAG 2.2 AA tags); fails on critical/serious. Does **not** replace mock `test:a11y` or live `live-api-accessibility.spec.ts`.
+
+Shared route list: `e2e/helpers/founder-acceptance-routes.ts` (public by default on remote; authenticated when `ACCEPTANCE_STORAGE_STATE`, `FOUNDER_INCLUDE_AUTH_ROUTES=1`, or loopback).
+
+### Lighthouse against the chosen site (M-99 — shipped)
+
+Keep lab CI as-is ([`UI_LIGHTHOUSE_CI.md`](UI_LIGHTHOUSE_CI.md)). Remote / chosen-site:
+
+```bash
+cd archlucid-ui
+ACCEPTANCE_BASE_URL=https://your-host.example npm run lighthouse:acceptance
+# Optional authenticated routes + cookies from Playwright storageState:
+ACCEPTANCE_BASE_URL=https://your-host.example \
+  ACCEPTANCE_STORAGE_STATE=./.local/acceptance-storage.json \
+  npm run lighthouse:acceptance
+```
+
+- Config: `lighthouserc.acceptance.cjs` + `performance/lighthouse-acceptance-routes.v1.json`
+- Default **3 runs** (LHCI median); override with `LIGHTHOUSE_ACCEPTANCE_RUNS`
+- Category scores **warn-only**; hard-fail on severe CLS (>0.25), huge payload (`total-byte-weight`), and `is-on-https` for `https://` targets
+- Reports: `archlucid-ui/.lighthouseci-acceptance/` — do not commit authenticated dumps with PII
 
 ### Automating what you used to do by hand (M-100, M-104, M-105)
 
@@ -234,16 +257,16 @@ Do **not** invent gates like “every page ≥ 95 in every category.” Scores v
 
 | ID | Summary |
 |----|---------|
-| **M-96** | Target-site harness (`ACCEPTANCE_BASE_URL`, auth, docs) |
-| **M-97** | Tag `@founder` / `@critical` / `@buyer-journey` / `@release-smoke` suite |
-| **M-98** | npm scripts: founder / headed / ui against chosen URL |
-| **M-99** | Remote Lighthouse against chosen URL (auth + median) |
+| **M-96** | Target-site harness (`ACCEPTANCE_BASE_URL`, auth, docs) — **Done** |
+| **M-97** | Tag `@founder` / `@critical` / `@buyer-journey` / `@release-smoke` suite — **Done** |
+| **M-98** | npm scripts: founder / headed / ui against chosen URL — **Done** |
+| **M-99** | Remote Lighthouse against chosen URL (auth + median) — **Done** |
 | **M-100** | Gradual absorption: convert manual regression into tagged tests |
 | **M-101** | Controlled-beta acceptance checklist + defect log template |
 | **M-102** | Unscripted exploratory cadence (owner-executed) |
 | **M-103** | Optional scheduled/pre-release CI job for founder suite on staging |
-| **M-104** | Console + failed-network automation on founder routes |
-| **M-105** | axe a11y on founder routes against chosen URL |
+| **M-104** | Console + failed-network automation on founder routes — **Done** |
+| **M-105** | axe a11y on founder routes against chosen URL — **Done** |
 | **M-106** | First full dry-run; baseline manual minutes; prove shrinkage |
 | **G-QA-01** | Owner: pick default `ACCEPTANCE_BASE_URL` + auth method |
 | **G-QA-02** | Owner: run pre-beta checklist each controlled cut |

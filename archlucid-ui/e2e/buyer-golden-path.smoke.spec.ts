@@ -19,7 +19,11 @@ import {
 import { getAppMain } from "./helpers/app-main";
 import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 
-test.describe("buyer golden path — Claims Intake spine", () => {
+test.describe(
+  "buyer golden path — Claims Intake spine",
+  { tag: ["@founder", "@buyer-journey"] },
+  () => {
+
   test("walks five-step diligence spine and satellite surfaces without generic error @smoke @smoke-golden-path", async ({
     page,
   }) => {

@@ -119,7 +119,7 @@ async function waitForSealedFindings(
   throw new Error(`Timed out after ${timeoutMs}ms waiting for sealed findings on run ${runId}`);
 }
 
-test.describe("live-api-smoke", () => {
+test.describe("live-api-smoke", { tag: ["@founder", "@critical", "@release-smoke"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });
 

@@ -22,7 +22,11 @@ import { ensureDemoWorkspaceSeedReady } from "./helpers/ensure-demo-workspace-se
 
 const releaseGateTag = "@release-gate";
 
-test.describe(`demo-workspace-a-smoke (${releaseGateTag})`, { tag: [releaseGateTag] }, () => {
+test.describe(
+  `demo-workspace-a-smoke (${releaseGateTag})`,
+  { tag: [releaseGateTag, "@founder", "@critical", "@buyer-journey"] },
+  () => {
+
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });
 

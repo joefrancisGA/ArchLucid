@@ -52,7 +52,11 @@ function liveSignedManifestHref(manifestId: string): string {
   return `/signed-records/${encodeURIComponent(manifestId)}`;
 }
 
-test.describe("live-api-buyer-golden-path", () => {
+test.describe(
+  "live-api-buyer-golden-path",
+  { tag: ["@founder", "@critical", "@buyer-journey"] },
+  () => {
+
   test.beforeAll(async ({ request }) => {
     await waitForLiveApiReady(request);
 

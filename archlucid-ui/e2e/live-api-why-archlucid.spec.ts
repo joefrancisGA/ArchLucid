@@ -24,7 +24,7 @@ import {
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
 
-test.describe("live-api-why-archlucid", () => {
+test.describe("live-api-why-archlucid", { tag: ["@founder", "@buyer-journey"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 

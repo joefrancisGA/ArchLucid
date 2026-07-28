@@ -15,7 +15,7 @@ import {
   waitForReadyForCommit,
 } from "./helpers/live-api-client";
 
-test.describe("live-api-auth-parity-spine", () => {
+test.describe("live-api-auth-parity-spine", { tag: ["@founder", "@critical"] }, () => {
   test.skip(resolveLiveAuthMode() === "bypass", "Requires LIVE_API_KEY or LIVE_JWT_TOKEN (ApiKey/JWT CI lanes).");
 
   test.beforeAll(async ({ request }) => {

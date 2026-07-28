@@ -15,7 +15,7 @@ import {
   liveJsonHeaders,
 } from "./helpers/live-api-client";
 
-test.describe("live-api-apikey-auth", () => {
+test.describe("live-api-apikey-auth", { tag: ["@founder", "@critical"] }, () => {
   test.skip(!resolveLiveApiKeyMode(), "Set LIVE_API_KEY to run ApiKey auth production-like gates.");
 
   test.beforeAll(async ({ request }) => {

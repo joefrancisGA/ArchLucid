@@ -11,7 +11,7 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-test.describe("marketing-accessibility-public", () => {
+test.describe("marketing-accessibility-public", { tag: ["@founder"] }, () => {
   test("/accessibility shows Last reviewed from ACCESSIBILITY.md and stays within annual cadence", async ({ page }) => {
     const mdPath = path.join(process.cwd(), "..", "ACCESSIBILITY.md");
     const md = fs.readFileSync(mdPath, "utf8");

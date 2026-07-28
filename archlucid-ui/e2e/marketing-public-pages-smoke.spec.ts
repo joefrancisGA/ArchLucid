@@ -4,7 +4,11 @@
  */
 import { expect, test } from "@playwright/test";
 
-test.describe.parallel("marketing public pages smoke @marketing-public-smoke", () => {
+test.describe.parallel(
+  "marketing public pages smoke @marketing-public-smoke",
+  { tag: ["@founder", "@buyer-journey", "@release-smoke"] },
+  () => {
+
   test("welcome, why, and trust surfaces render primary hero headings", async ({ page }) => {
     await page.goto("/welcome", { waitUntil: "load" });
     await expect(page.getByRole("heading", { name: /Defensible architecture, on demand/i })).toBeVisible({

@@ -13,7 +13,7 @@ import {
   minimalPolicyPackContentJson,
 } from "./helpers/live-api-client";
 
-test.describe("live-api-policy-pack-lifecycle", () => {
+test.describe("live-api-policy-pack-lifecycle", { tag: ["@founder"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 

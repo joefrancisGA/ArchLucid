@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { START_REVIEW_PAGE_HEADING_PATTERN } from "./fixtures";
 
-test.describe("first-run wizard", () => {
+test.describe("first-run wizard", { tag: ["@founder", "@buyer-journey"] }, () => {
   test("new run page renders wizard shell", async ({ page }) => {
     await page.goto("/reviews/new");
 

@@ -21,7 +21,7 @@ import {
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
 
-test.describe("live-api-search-ask-graph", () => {
+test.describe("live-api-search-ask-graph", { tag: ["@founder"] }, () => {
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 
