@@ -9,7 +9,7 @@ This document describes the classes and methods excluded from code coverage via 
 
 ## Enforced CI coverage gates
 
-After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cobertura.xml`**; **`scripts/ci/assert_merged_line_coverage_min.py`** enforces the floors below in **`.github/workflows/ci.yml`** job **`.NET: full regression (SQL)`** (`dotnet-full-regression`). Parsing and the product filter are in **`scripts/ci/coverage_cobertura.py`**. **`is_product_archlucid_package()`** applies the per-package gate only to production **`ArchLucid.*`** assemblies (excludes test projects and **`ArchLucid.TestSupport`**); packages with zero coverable `<line/>` rows are skipped.
+After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cobertura.xml`**; **`scripts/ci/assert_merged_line_coverage_min.py`** enforces the floors below in **`.github/workflows/ci.yml`** job **`.NET: merge coverage + gates`** (`dotnet-coverage-merge`). That job unions **corset fast-core** Cobertura (`coverage-fast-core-*` artifacts) with **full-regression** unit/libs/slow shards. Parsing and the product filter are in **`scripts/ci/coverage_cobertura.py`**. **`is_product_archlucid_package()`** applies the per-package gate only to production **`ArchLucid.*`** assemblies (excludes test projects and **`ArchLucid.TestSupport`**); packages with zero coverable `<line/>` rows are skipped.
 
 | Metric | Threshold | Script | CI job | Failure behavior |
 |--------|-----------|--------|--------|------------------|

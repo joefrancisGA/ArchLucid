@@ -2738,6 +2738,7 @@ jobs:
     # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
     continue-on-error: true
     needs:
+      - dotnet-fast-core
       - dotnet-full-regression-core-api-integration
       - dotnet-full-regression-core-api-unit
       - dotnet-full-regression-core-libs
@@ -2760,7 +2761,14 @@ jobs:
             global.json
             **/*.csproj
 
-      # Integration shards skip Coverlet (test.runsettings); merged coverage uses unit/libs/slow shards only.
+      # Integration shards skip Coverlet (test.runsettings). Merge unions corset fast-core Cobertura with
+      # full-regression unit/libs/slow shards (ReportGenerator max-hit union per line).
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: coverage-fast-core-*
+          merge-multiple: true
+          path: merge-cov/fast-core
+
       - uses: actions/download-artifact@v7
         with:
           name: coverage-full-regression-core-api-unit
