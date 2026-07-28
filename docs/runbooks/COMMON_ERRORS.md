@@ -111,15 +111,15 @@ See **[MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)**.
 
 ---
 
-## 7c. **Database Query Failed** — ServiceNow / ITSM settings + health (wrong SQL catalog)
+## 7c. **Database Query Failed** — ServiceNow / ITSM / Azure Boards settings + health (wrong SQL catalog)
 
-**Symptom:** Opening **ServiceNow** (or Jira) under Integrations shows a server / **Database Query Failed** toast. Live probes: **`GET /v1/integrations/itsm/settings`** and **`GET /v1/integrations/itsm/health`** return **500**; **`GET /v1/integrations/itsm/connections/servicenow`** may still return **200**.
+**Symptom:** Opening **ServiceNow**, **Jira**, or **Azure Boards** under Integrations shows a server / **Database Query Failed** toast. Live probes: **`GET /v1/integrations/itsm/settings`**, **`GET /v1/integrations/itsm/health`**, or **`GET /v1/integrations/azure-boards/settings`** return **500**; connection endpoints may still return **200**.
 
-**Cause:** `SqlTenantItsmOutboundSettingsRepository` queried the **primary/system** catalog via `IBackgroundWorkerSqlConnectionFactory` while `dbo.TenantItsmOutboundSettings` lives in the **tenant** catalog under `SystemWithPerTenantCatalogs` (**SQL 208** invalid object). Connections correctly use scoped `ISqlConnectionFactory`.
+**Cause:** Tenant outbound settings repositories queried the **primary/system** catalog via `IBackgroundWorkerSqlConnectionFactory` while tables such as `dbo.TenantItsmOutboundSettings` and `dbo.TenantAzureBoardsOutboundSettings` live in the **tenant** catalog under `SystemWithPerTenantCatalogs` (**SQL 208** invalid object). Connections correctly use scoped `ISqlConnectionFactory`.
 
-**Resolution:** Use tenant-scoped `ISqlConnectionFactory` in that repository (**TB-867** / **PD-002**). Redeploy API after the fix. Confirm settings/health return **200** (empty overrides are fine).
+**Resolution:** Use tenant-scoped `ISqlConnectionFactory` in those repositories (**TB-867** / **PD-002** for ITSM; **TB-1151** for Azure Boards). Redeploy API after the fix. Confirm settings/health return **200** (empty overrides are fine).
 
-**Prevention:** Tenant-scoped tables must not inject `IBackgroundWorkerSqlConnectionFactory` (reserved for primary-catalog / no-session workers such as inbound webhook correlation). Regression: `SqlTenantItsmOutboundSettingsRepositoryConnectionFactoryContractTests`.
+**Prevention:** Tenant-scoped tables must not inject `IBackgroundWorkerSqlConnectionFactory` (reserved for primary-catalog / no-session workers such as inbound webhook correlation). Regression: `SqlTenantItsmOutboundSettingsRepositoryConnectionFactoryContractTests`, `SqlTenantAzureBoardsOutboundSettingsRepositoryConnectionFactoryContractTests`.
 
 ---
 

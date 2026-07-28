@@ -9,12 +9,17 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Integrations;
 
+/// <summary>
+///     Tenant-catalog Azure Boards outbound overrides. Must use <see cref="ISqlConnectionFactory"/> (scoped tenant routing),
+///     not <see cref="IBackgroundWorkerSqlConnectionFactory"/> (primary/system catalog) — otherwise
+///     <c>SystemWithPerTenantCatalogs</c> hosts return SQL 208 / “Database Query Failed” on settings GET/PUT (TB-1151 / TB-867 / PD-002 class).
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL integration; covered via API integration tests.")]
 public sealed class SqlTenantAzureBoardsOutboundSettingsRepository(
-    IBackgroundWorkerSqlConnectionFactory connectionFactory,
+    ISqlConnectionFactory connectionFactory,
     SqlResilientOperationExecutor sqlOperations) : ITenantAzureBoardsOutboundSettingsRepository
 {
-    private readonly IBackgroundWorkerSqlConnectionFactory _connectionFactory =
+    private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     private readonly SqlResilientOperationExecutor _sqlOperations =

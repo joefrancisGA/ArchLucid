@@ -1,26 +1,19 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-07-28
 
-> **Scope:** Index of outcome-led Specialty buyer-job pages (including demo proof shapes) linked from accelerator walkthroughs; not the Core first-pilot operator path.
+> **Scope:** Path-stable alias for the Specialty buyer-job / demo-proof index (including TB-114 job→accelerator map). Not the Core first-pilot operator path.
 
-# Buyer jobs (Specialty accelerators)
+# Buyer jobs (Specialty accelerators) (alias)
 
-| Buyer job | Doc | Demo proof shape |
+**Last reviewed:** 2026-07-28
+
+**Canonical Specialty buyer-job index:** [`docs/library/walkthroughs/README.md#buyer-jobs-specialty-index`](../../library/walkthroughs/README.md#buyer-jobs-specialty-index).
+
+**Job → accelerator map (TB-114):** [`#job-accelerator-map`](../../library/walkthroughs/README.md#job-accelerator-map).
+
+Per-job packaging and demo-proof shapes live on the walkthrough pages. This file keeps the historical path stable for `demo-proof-packets/README` redirects and GTM callers.
+
+| Buyer job | Alias | Walkthrough packaging |
 | --- | --- | --- |
-| Azure SaaS readiness | [AZURE_SAAS_READINESS.md](AZURE_SAAS_READINESS.md) (alias) · [walkthrough packaging](../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#buyer-job-packaging) | [#demo-proof-shape-demo-derived-only](../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#demo-proof-shape-demo-derived-only) |
-| AI governance | [AI_GOVERNANCE_REVIEW.md](AI_GOVERNANCE_REVIEW.md) (alias) · [walkthrough packaging](../../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging) | [#demo-proof-shape-demo-derived-only](../../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only) |
-| Healthcare claims (demo) | [HEALTHCARE_CLAIMS_POLICY_REVIEW.md](HEALTHCARE_CLAIMS_POLICY_REVIEW.md) (alias) · [walkthrough packaging](../../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#buyer-job-packaging) | [#demo-proof-shape-demo-derived-only](../../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#demo-proof-shape-demo-derived-only) |
-
-**Core path:** [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · accelerator catalog [`docs/library/walkthroughs/README.md`](../../library/walkthroughs/README.md) · first-run simulator script [`DEMO_QUICKSTART.md`](../DEMO_QUICKSTART.md#first-run-demo-script-simulator)
-
-Use demo proof shapes **before** a buyer runs their own tenant to show package shape, evidence labels, and deferred boundaries (**Demo-derived** only — not customer outcomes). Formerly under `demo-proof-packets/`.
-
-## Job → accelerator map (TB-114)
-
-| Buyer job | Accelerator / proof shape | Prerequisites | Limitations |
-| --- | --- | --- | --- |
-| First sponsor artifact in 20 minutes | [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md#first-value-in-20-minutes-time-boxed) + `archlucid pilot proof-packet` | API + SQL + auth mode; one committed run | Simulator vs real must be labeled; see [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) |
-| Azure SaaS procurement questions | [walkthrough demo proof](../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#demo-proof-shape-demo-derived-only) | Hosted pilot profile lint PASS/HOLD snapshot | Not a CPA SOC 2 report |
-| Responsible AI / governance review | [walkthrough demo proof](../../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#demo-proof-shape-demo-derived-only) | Policy pack + PilotStrict posture on run | Not third-party model audit |
-| Healthcare claims (demo only) | [walkthrough demo proof](../../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#demo-proof-shape-demo-derived-only) | Demo workspace only | **Demo-derived** — not a customer outcome |
-| Differentiation vs generic copilots | [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) | Committed run + audit sample | Does not replace live reference customer |
-| Full first-pilot rollup | `scripts/collect-first-pilot-proof.ps1 -RunId <id>` | RunId after commit; optional `-ProductionLikeHostedPilot` | Secrets never written into proof folder |
+| Azure SaaS readiness | [AZURE_SAAS_READINESS.md](AZURE_SAAS_READINESS.md) | [AZURE_SAAS_READINESS_REVIEW.md#buyer-job-packaging](../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md#buyer-job-packaging) |
+| AI governance | [AI_GOVERNANCE_REVIEW.md](AI_GOVERNANCE_REVIEW.md) | [AI_GOVERNANCE_REVIEW.md#buyer-job-packaging](../../library/walkthroughs/AI_GOVERNANCE_REVIEW.md#buyer-job-packaging) |
+| Healthcare claims (demo) | [HEALTHCARE_CLAIMS_POLICY_REVIEW.md](HEALTHCARE_CLAIMS_POLICY_REVIEW.md) | [POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#buyer-job-packaging](../../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md#buyer-job-packaging) |
