@@ -15,7 +15,7 @@
 
 **Service level objectives + backup/DR:** [`#service-level-objectives`](#service-level-objectives) (`SLA_SUMMARY.md` alias; hosted target [`#hosted-saas-availability-target`](#hosted-saas-availability-target)).
 
-**Related:** [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) (contract framing) · [trust-center.md](trust-center.md) · [TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms](TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms)
+**Related:** [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) (contract framing) · [trust-center.md](trust-center.md) · [QUOTE_TO_PROOF_PACKET.md#legal-and-procurement-terms](QUOTE_TO_PROOF_PACKET.md#legal-and-procurement-terms) (`TRANSACTABLE_PROCUREMENT_PATH.md` alias)
 
 ---
 
@@ -598,4 +598,4 @@ Former standalone plan: `docs/go-to-market/OPERATIONAL_TRANSPARENCY.md` → [`#8
 | [BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook) (`PROCUREMENT_OBJECTION_PLAYBOOK.md` alias) | Standard objection responses |
 | [`#incident-communications-and-status-page`](#incident-communications-and-status-page) · [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md) (alias) | Incident notification + status-page plan |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Onboarding / scorecard (customer onboarding playbook folded there) |
-| [TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms](TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms) | Legal packet pointers into this support + pilot posture |
+| [QUOTE_TO_PROOF_PACKET.md#legal-and-procurement-terms](QUOTE_TO_PROOF_PACKET.md#legal-and-procurement-terms) · [TRANSACTABLE_PROCUREMENT_PATH.md](TRANSACTABLE_PROCUREMENT_PATH.md) (alias) | Legal packet pointers into this support + pilot posture |

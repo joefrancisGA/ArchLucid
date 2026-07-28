@@ -376,7 +376,7 @@ One-page steering / ARB memo aligned to this scorecard’s language. **Audience:
 ### Commercial / procurement notes (optional)
 
 - Trust index: [`trust-center.md`](trust-center.md)
-- Fast lane: [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md#0-pilot-vs-procurement-fast-lane)
+- Fast lane: [`QUOTE_TO_PROOF_PACKET.md#0-pilot-vs-procurement-fast-lane`](QUOTE_TO_PROOF_PACKET.md#0-pilot-vs-procurement-fast-lane) (`TRANSACTABLE_PROCUREMENT_PATH.md` alias)
 
 ### Sign-off
 
