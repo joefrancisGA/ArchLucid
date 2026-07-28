@@ -2,7 +2,7 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-07-27 (added **TB-1976**–**TB-1993** — V1.1 closed-loop architecture reasoning system; `generation_quality_analysis.md` Second Revision; GTM **M-300**–**M-304**). Prior: 2026-07-27 (added **TB-1971**–**TB-1975** — P0/P1 `/sponsor-report/roi-summary` SPR ~45/100). Prior: 2026-07-27 (added **TB-1966**–**TB-1970** — P0/P1 `/sponsor-report/pilot-outcomes` SPP ~46/100). Prior: 2026-07-27 (added **TB-1961**–**TB-1965** — P0/P1 `/sponsor-report/executive-summary` SPE ~50/100). Prior: 2026-07-27 (added **TB-1956**–**TB-1960** — P0/P1 `/sponsor-report/architecture-scorecard` SPA ~48/100). Prior: 2026-07-27 (added **TB-1951**–**TB-1955** — P0/P1 `/snapshot/[runId]` SNU ~30/100). Prior: 2026-07-27 (added **TB-1946**–**TB-1950** — P0 `/signed-records/.../artifacts/...` MAM ~10/100). Prior: 2026-07-27 (added **TB-1941**–**TB-1945** — P0/P1 `/signed-records` SI ~50/100). Prior: 2026-07-27 (added **TB-1936**–**TB-1940** — P0/P1 `/settings/users?tab=users` SSU ~46/100). Prior: 2026-07-27 (added **TB-1931**–**TB-1935** — P0/P1 `/settings/users?tab=keys` SEU ~45/100). Prior: 2026-07-27 (added **TB-1926**–**TB-1930** — P0/P1 `/settings/model-governance` SEM ~48/100). Prior: 2026-07-27 (added **TB-1921**–**TB-1925** — P0/P1 `/settings/identity-providers/saml` SSA ~52/100). Prior: 2026-07-27 (added **TB-1916**–**TB-1920** — P0/P1 `/settings/identity-providers/role-mapping` SEO ~43/100). Prior: 2026-07-27 (added **TB-1911**–**TB-1915** — P0/P1 `/settings/identity-providers/oidc` SOI ~44/100). Prior: 2026-07-27 (added **TB-1906**–**TB-1910** — P0/P1 `/settings/identity-providers/diagnostics` SEI ~47/100). Prior: 2026-07-27 (added **TB-1901**–**TB-1905** — P0/P1 `/settings/exec-digest` SEX ~12/100). Prior: 2026-07-27 (added **TB-1896**–**TB-1900** — P0/P1 `/settings/developer` SED ~42/100). Prior: 2026-07-27 (added **TB-1891**–**TB-1895** — P0/P1 `/settings/auth-domains` SAU ~48/100). Prior: 2026-07-27 (added **TB-1886**–**TB-1890** — P0/P1 `/settings/alerts` SEL ~12/100). Prior: 2026-07-27 (P0 recheck demotion pass)
+> **Updated:** 2026-07-28 (P0 priority resync — restored 2026-07-27 demotion pass in this file from `TECH_BACKLOG.md` canonical table + policy: keep correctness/reliability/security/cost/release-gate/eng-leak/broken-route P0s; demote adoption/testability/maintainability/redirect-hygiene to P1/P2; drop Done rows from shippable section). Prior: 2026-07-27 (added **TB-1976**–**TB-1993** — V1.1 closed-loop architecture reasoning system; `generation_quality_analysis.md` Second Revision; GTM **M-300**–**M-304**). Prior: 2026-07-27 (added **TB-1971**–**TB-1975** — P0/P1 `/sponsor-report/roi-summary` SPR ~45/100). Prior: 2026-07-27 (added **TB-1966**–**TB-1970** — P0/P1 `/sponsor-report/pilot-outcomes` SPP ~46/100). Prior: 2026-07-27 (added **TB-1961**–**TB-1965** — P0/P1 `/sponsor-report/executive-summary` SPE ~50/100). Prior: 2026-07-27 (added **TB-1956**–**TB-1960** — P0/P1 `/sponsor-report/architecture-scorecard` SPA ~48/100). Prior: 2026-07-27 (added **TB-1951**–**TB-1955** — P0/P1 `/snapshot/[runId]` SNU ~30/100). Prior: 2026-07-27 (added **TB-1946**–**TB-1950** — P0 `/signed-records/.../artifacts/...` MAM ~10/100). Prior: 2026-07-27 (added **TB-1941**–**TB-1945** — P0/P1 `/signed-records` SI ~50/100). Prior: 2026-07-27 (added **TB-1936**–**TB-1940** — P0/P1 `/settings/users?tab=users` SSU ~46/100). Prior: 2026-07-27 (added **TB-1931**–**TB-1935** — P0/P1 `/settings/users?tab=keys` SEU ~45/100). Prior: 2026-07-27 (added **TB-1926**–**TB-1930** — P0/P1 `/settings/model-governance` SEM ~48/100). Prior: 2026-07-27 (added **TB-1921**–**TB-1925** — P0/P1 `/settings/identity-providers/saml` SSA ~52/100). Prior: 2026-07-27 (added **TB-1916**–**TB-1920** — P0/P1 `/settings/identity-providers/role-mapping` SEO ~43/100). Prior: 2026-07-27 (added **TB-1911**–**TB-1915** — P0/P1 `/settings/identity-providers/oidc` SOI ~44/100). Prior: 2026-07-27 (added **TB-1906**–**TB-1910** — P0/P1 `/settings/identity-providers/diagnostics` SEI ~47/100). Prior: 2026-07-27 (added **TB-1901**–**TB-1905** — P0/P1 `/settings/exec-digest` SEX ~12/100). Prior: 2026-07-27 (added **TB-1896**–**TB-1900** — P0/P1 `/settings/developer` SED ~42/100). Prior: 2026-07-27 (added **TB-1891**–**TB-1895** — P0/P1 `/settings/auth-domains` SAU ~48/100). Prior: 2026-07-27 (added **TB-1886**–**TB-1890** — P0/P1 `/settings/alerts` SEL ~12/100). Prior: 2026-07-27 (P0 recheck demotion pass)
 
 ## Ordering convention
 
@@ -26,22 +26,22 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Recurrence schedules empty-layout UX | **TB-1129**–**TB-1133** (**Done**) | Orientation + intro collapse + single primary + human cadence + empty Compact / hide workflow rail shipped; owner screenshot ~47/100 2026-07-25; pairs empty **TB-1552**–**TB-1556** / side-rail **TB-1572**–**TB-1576** |
 | Redundant page-description chrome (strip × header) | **TB-1434**–**TB-1440** (open P1/P2 **V1**) | LayerContextStrip orientation duplicates OperatorPageHeader lead: `/governance`, audit/alert-rules fallthrough, `/search`, `/value-report*`, `/product-learning`, `/dashboard`, Vitest guard; owner pass 2026-07-27; pairs Done **TB-1125**/**TB-1129** / open **TB-1136**/**TB-1224** |
 | Governance setup UX + route rename | **TB-1134**–**TB-1138** (open P1 **V1**) | Route → /governance/setup; naming consistency; orientation; checklist visual design; foundation vs progress dedupe; owner screenshot ~52/100 2026-07-25 |
-| Cloud connections UX + honesty | **TB-1139**–**TB-1143** (open P0/P1 **V1**) | Fix platform-scope checkbox↔card sync; remove stale GCP Preview; single primary CTA; scope fail-closed; suppress not-configured zero theater; owner review ~49/100 2026-07-25 |
+| Cloud connections UX + honesty | **TB-1139**–**TB-1143** (open P1 **V1**) | Fix platform-scope checkbox↔card sync; remove stale GCP Preview; single primary CTA; scope fail-closed; suppress not-configured zero theater; owner review ~49/100 2026-07-25 |
 | Jira integration empty/not-configured UX | **TB-1146**–**TB-1150** (open P1 **V1**) | Guided next step; copy honesty; message dedupe; structured issue-type UI; gate connection test / demote overrides; owner screenshot ~46/100 2026-07-25 |
-| Azure Boards Database Query Failed + empty UX | **TB-1151**–**TB-1155** (open P0/P1 **V1**) | Fix settings SQL catalog (TB-867 parity); isolate Promise.all failures; sanitize status errors; feature-off honesty; demote forms until connectable; owner screenshot ~38/100 2026-07-25 |
+| Azure Boards Database Query Failed + empty UX | **TB-1151**–**TB-1155** (open P1 **V1**) | Fix settings SQL catalog (TB-867 parity); isolate Promise.all failures; sanitize status errors; feature-off honesty; demote forms until connectable; owner screenshot ~38/100 2026-07-25 |
 | ServiceNow empty/not-configured UX | **TB-1161**–**TB-1165** (open P1 **V1**) | Guided admin CTA; isolate Promise.all; sanitize status errors; demote incident settings; setup-progress composition; dedicated ServiceNow client; owner review ~50/100 2026-07-25 |
-| Billing tier value-ladder + page UX | **TB-1166**–**TB-1170** (open P0/P1 **V1**) | Implement owner repricing (GTM **M-200**) + catalog coherence guard; Enterprise 0-users fix; AI-usage unit vocabulary; sales-led CTA navigation; composition / accessibility baseline; owner screenshot ~64/100 2026-07-25 |
+| Billing tier value-ladder + page UX | **TB-1166**–**TB-1170** (open P1 **V1**) | Implement owner repricing (GTM **M-200**) + catalog coherence guard; Enterprise 0-users fix; AI-usage unit vocabulary; sales-led CTA navigation; composition / accessibility baseline; owner screenshot ~64/100 2026-07-25 |
 | ServiceNow page-title icon | **TB-1171** (open P1 **V1**) | Use PageHeading + navHref so Workflow icon appears beside H1 (parity with Azure Boards) |
 | Teams notifications not-configured UX | **TB-1174**–**TB-1178**, **TB-1183**–**TB-1184** (open P1 **V1**) | StatusTag + next step; draft vs saved honesty; Validate→Test→Save hierarchy; operator density; help-link dedupe; remove Slack cross-link; PageContextualHelpButton icon + caption; owner screenshot ~60/100 2026-07-25 |
 | Slack notifications not-configured UX | **TB-1185**–**TB-1190** (open P1 **V1**) | Remove Teams cross-link; StatusTag + next step; PageContextualHelpButton; readiness link dedupe; operator density; Test→Save CTA hierarchy; owner review ~57/100 2026-07-25 |
 | Webhooks not-configured UX | **TB-1191**–**TB-1195** (open P1 **V1**) | Remove Jira/SN/Teams/Slack strip; StatusTag + next step; PageContextualHelpButton; operator density; suppress empty zero theater; owner screenshot ~56/100 2026-07-25 |
-| Administration settings hub (`/settings`) | **TB-1198**–**TB-1203** (open P0/P1 **V1**) | Gate emptyStateHint on truth; remove fake Last updated + Recent changes theater; PageHeading + help icon; section-nav links; demote Scope/Source/Status meta; owner review ~52/100 2026-07-25 |
+| Administration settings hub (`/settings`) | **TB-1198**–**TB-1203** (open P1 **V1**) | Gate emptyStateHint on truth; remove fake Last updated + Recent changes theater; PageHeading + help icon; section-nav links; demote Scope/Source/Status meta; owner review ~52/100 2026-07-25 |
 | Users & roles (3 tabs) | **TB-1210**–**TB-1215** (open P1 **V1**) | Operator vs Architect honesty; tab-specific empty copy; breadcrumb/nav title; API keys empty + CTA; invite empty composition; PageContextualHelpButton; owner screenshots ~49/100 2026-07-25 |
 | Users API keys tab (`/settings/users?tab=keys`) | **TB-1931**–**TB-1935** (open **V1**) | Job honesty; execute **TB-1213** CTA; keys empty/error; columns; Vitest; ~45/100; traffic **SEU**; pairs **TB-1210**–**TB-1215**; sibling **SSU** |
 | Users invitations tab (`/settings/users?tab=users`) | **TB-1936**–**TB-1940** (open **V1**) | URL sync; execute **TB-1214**; principals purge; density; Vitest; ~46/100; traffic **SSU**; pairs **TB-1210**–**TB-1215**; sibling **SEU** |
 | Signed review records (`/signed-records`) | **TB-1941**–**TB-1945** (open **V1**) | Traffic section; empty projectId; href honesty; CTA/pagination/enrich; Vitest; ~50/100; traffic **SI**; sibling **MAM** via **TB-1824** |
-| AI usage (`/settings/ai-usage`) | **TB-1216**–**TB-1220** (open P0/P1 **V1**) | Administration breadcrumb honesty; suppress zero-usage theater; PageHeading/help; budget CTA dedupe; hide Highest-cost when $0; owner screenshot ~51/100 2026-07-25 |
-| Security & trust (`/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1284**–**TB-1286** (open P0/P1 **V1**) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; soft isolation copy; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
+| AI usage (`/settings/ai-usage`) | **TB-1216**–**TB-1220** (open P1 **V1**) | Administration breadcrumb honesty; suppress zero-usage theater; PageHeading/help; budget CTA dedupe; hide Highest-cost when $0; owner screenshot ~51/100 2026-07-25 |
+| Security & trust (`/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1284**–**TB-1286** (open P1 **V1**) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; soft isolation copy; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
 | Account security (`/settings/account-security`) | **TB-1881**–**TB-1885** (open **V1**) | Scope honesty; busy disables; in-page remove; empty/help; Vitest; ~52/100; traffic **SEA**; pairs **TB-1614** |
 | Settings alerts redirect (`/settings/alerts`) | **TB-1886**–**TB-1890** (open **V1**) | Redirect-only traffic; next.config; readiness; docs destination; Vitest; ~12/100; traffic **SEL**; pairs **TB-1441**/**TB-1443**; product on alert-rules |
 | Sign-in domains (`/settings/auth-domains`) | **TB-1891**–**TB-1895** (open **V1**) | Enum labels; busy disables; in-page confirms; checklist/help; Vitest; ~48/100; traffic **SAU**; pairs **TB-1614**/**TB-1883** |
@@ -54,15 +54,15 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | AI and model governance (`/settings/model-governance`) | **TB-1926**–**TB-1930** (open **V1**) | Error honesty; enum labels; title/back; isolate fetch; Vitest; ~48/100; traffic **SEM**; after Done **TB-871** |
 | Connect AWS securely help (`/help/cloud-connections/aws`) | **TB-1234**–**TB-1238** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; IAM + Resource Explorer actionability; OIDC trust-policy template; workflow CTAs + classification sections; owner review ~52/100 2026-07-26 |
 | Connect GCP securely help (`/help/cloud-connections/gcp`) | **TB-1239**–**TB-1243** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; Cloud Asset roles + WIF enablement; WIF pool-provider template; workflow CTAs + classification sections; owner review ~51/100 2026-07-26 |
-| Engineering troubleshooting help exposure | **TB-1246**–**TB-1250** (open P0 **V1**) | Reclassify as internal-runbook + Admin gate; de-index from product search; align route with “Engineering troubleshooting runbook”; remove customer Troubleshooting deep-link; audit sibling technical-documentation exposure; owner review ~32/100 2026-07-26 |
+| Engineering troubleshooting help exposure | **TB-1246**–**TB-1250** (open P1 **V1**) | Reclassify as internal-runbook + Admin gate; de-index from product search; align route with “Engineering troubleshooting runbook”; remove customer Troubleshooting deep-link; audit sibling technical-documentation exposure; owner review ~32/100 2026-07-26 |
 | Procurement FAQ help (`/help/procurement`) | **TB-1253**–**TB-1257** (open P1 **V1**) | Specialty buyer FAQ guide; purge contributor/repo leakage; buyer-safe residency (no appsettings); diligence CTAs (trust/pack/DPA); in-app-only links + shorten SSO; owner review ~49/100 2026-07-26 |
 | Starting reviews help (`/help/starting-reviews`) | **TB-1258**–**TB-1262** (open P1 **V1**) | Canonicalize into `/help/review-guide`; wizard CTA to `/reviews/new`; single title; unify empty-state/alias/search; trim Related guides; owner review ~52/100 2026-07-26; traffic **HER** |
 | Live demo marketing (`/live-demo`) | **TB-1265**–**TB-1269** (open P1 **V1**) | Honest sample-walkthrough title; first-viewport hero budget; see-it journey ladder; compact stepper + early CTA; continuous-mode density; owner review ~61/100 2026-07-26; traffic **LXX** |
-| Integration dead letters (`/operate/integration-events/dlq`) | **TB-1272**–**TB-1276** (open P0/P1 **V1**) | Fix tenant-scoped lie; align Failed integration messages naming; EnterpriseTable + review links; empty/error density; mutation CTA hierarchy + Dialog + filters; owner review ~49/100 2026-07-26; traffic **OID** |
-| See it marketing (`/see-it`) | **TB-1279**–**TB-1283** (open P0/P1 **V1**) | Universe fail-closed banner; honest time copy; hero budget; single CTA + `/live-demo` ladder + purge manifest jargon; download label honesty; owner review ~55/100 2026-07-26; traffic **SEE**; elevates UI ship of **TB-1028** |
+| Integration dead letters (`/operate/integration-events/dlq`) | **TB-1272**–**TB-1276** (open P1 **V1**) | Fix tenant-scoped lie; align Failed integration messages naming; EnterpriseTable + review links; empty/error density; mutation CTA hierarchy + Dialog + filters; owner review ~49/100 2026-07-26; traffic **OID** |
+| See it marketing (`/see-it`) | **TB-1279**–**TB-1283** (open P1 **V1**) | Universe fail-closed banner; honest time copy; hero budget; single CTA + `/live-demo` ladder + purge manifest jargon; download label honesty; owner review ~55/100 2026-07-26; traffic **SEE**; elevates UI ship of **TB-1028** |
 | Welcome marketing (`/welcome`) | **TB-1294**–**TB-1298** (open P1 **V1**) | Hero budget; single conversion path; proof CTA ladder; purge contributor Verify docs; honest see-it time copy; owner review ~50/100 2026-07-26; traffic **WXX**; pairs **TB-1280**/**TB-1028**/**M-09**/**M-107** |
 | Why marketing (`/why`) | **TB-1301**–**TB-1305** (open P1 **V1**) | Hero budget + primary CTA; proof ladder vs Contoso iframe; comparison density collapse; purge contributor Verify column; honest pack/embed labels + closing CTA; owner review ~51/100 2026-07-26; traffic **WHY**; pairs **TB-1296**/**TB-1282**/**TB-1283**/**TB-1028**/**M-107** |
-| Why ArchLucid operator proof (`/why-archlucid`) | **TB-1306**–**TB-1310** (open P0/P1 **V1**) | Claims≠Contoso universe honesty; disambiguate from marketing `/why`; purge eng/repo chrome; sample-package CTA; PageHeading/help; owner review ~46/100 2026-07-26; traffic **WH**; pairs **TB-1028**/**TB-1279**/**TB-1302**/**M-107** |
+| Why ArchLucid operator proof (`/why-archlucid`) | **TB-1306**–**TB-1310** (open P1 **V1**) | Claims≠Contoso universe honesty; disambiguate from marketing `/why`; purge eng/repo chrome; sample-package CTA; PageHeading/help; owner review ~46/100 2026-07-26; traffic **WH**; pairs **TB-1028**/**TB-1279**/**TB-1302**/**M-107** |
 | Session expired auth (`/auth/session-expired`) | **TB-1313**–**TB-1316** (open P1 **V1**) | Brand + h1/metadata; Suspense parity; safe secondary exit; AuthErrorPanel recovery honesty; owner review ~59/100 2026-07-26; traffic **ASU** |
 | Demo explain (`/demo/explain`) | **TB-1319**–**TB-1323** (open P1 **V1**) | Buyer vocab; status-banner honesty; empty next-step ladder; IA gate/ladder (IA-014); conversion auth honesty; owner review ~51/100 2026-07-26; traffic **DEX**; pairs **TB-1251**/**TB-1028** |
 | Configuration reference help (`/help/configuration-reference`) | **TB-1326**–**TB-1330** (open P1 **V1**) | Operator specialty guide + catalog split; contributor/RC/ADR leak purge; SSO/identity/API-keys CTAs; Admin gate/tier honesty; in-app-only links; owner review ~39/100 2026-07-26; traffic **CON**; pairs **TB-1246**/**TB-1250**/**TB-1253**/**TB-734** |
@@ -70,11 +70,11 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Enterprise onboarding help (`/help/enterprise-onboarding`) | **TB-1338**–**TB-1342** (open P1 **V1**) | Specialty checklist + SSO CTA; purge ArchLucid-internal/CLI; hub dedupe; title/tier honesty; core-pilot + settings CTAs; owner review ~51/100 2026-07-26; traffic **HEX**; pairs **TB-1253**/**TB-1326**/**TB-1335** |
 | Evaluator workbook help (`/help/evaluator-workbook`) | **TB-1345**–**TB-1349** (open P1 **V1**) | Specialty evaluator guide + Start CTA; purge CLI/runbook/repo-.md + jargon; help-center tier honesty (not buried internal); session CTA + core-pilot canonicalize; Depth collapse / in-app-only links; owner review ~42/100 2026-07-26; traffic **HEE**; pairs **TB-1253**/**TB-1326**/**TB-1335**/**TB-1319** |
 | Evidence intake / Start a review help (`/help/evidence-intake`) | **TB-1350**–**TB-1354** (open P1 **V1**) | Specialty wizard companion + Start CTA; path `?path=` deep-links + admission jargon; Related → core-pilot; Cloud connections CTA; verify-intake actionability; owner review ~55/100 2026-07-26; traffic **EVI**; after Done **TB-761**; pairs **TB-1258**/**TB-1335**/**TB-1259** |
-| Core Pilot product happy path (home spine) | **TB-1355**–**TB-1357** (open P0 **V1**) + **TB-1358**–**TB-1359** (P1) | Checkpoint honesty; 4/5/7 spine unify; first-session CLI purge; stick/empty matrix + honesty CI; GTM **M-241**/**M-242**; complements help **TB-1331**–**TB-1335** / **TB-1030** / **TB-1007** / Done **TB-1036**–**TB-1039** |
+| Core Pilot product happy path (home spine) | **TB-1355**–**TB-1357** (open P1 **V1**) + **TB-1358**–**TB-1359** (P1) | Checkpoint honesty; 4/5/7 spine unify; first-session CLI purge; stick/empty matrix + honesty CI; GTM **M-241**/**M-242**; complements help **TB-1331**–**TB-1335** / **TB-1030** / **TB-1007** / Done **TB-1036**–**TB-1039** |
 | Evidence trail / Evidence graph help (`/help/evidence-trail`) | **TB-1360**–**TB-1364** (open P1 **V1**) | Specialty companion + Open `/graph` CTA; finding deep-link/`mode=` honesty; Related density; sample universe honesty; Load/sample CTA chrome; owner review ~58/100 2026-07-26; traffic **EV**; after Done **TB-762**; pairs **TB-1350**/**TB-1028** |
 | First-review guide help (`/help/first-hour-operator-path`) | **TB-1374**–**TB-1378** (open P1/P2 **V1**) | Canonicalize into `/help/core-pilot`; purge Pilot/operator-path jargon; inbound first-review pointers; discovery/search twin collapse; Vitest guard; owner review ~46/100 2026-07-26; traffic **HFE**; pairs **TB-1335**/**TB-1352**/**TB-1258** |
 | Complete review workflow help (`/help/first-pilot-path`) | **TB-1379**–**TB-1383** (open P1 **V1**) | Specialty companion + Start CTA; slug/Pilot honesty; step deep-link CTAs; Related density; inbound FAQ/checklist label honesty; owner review ~52/100 2026-07-26; traffic **FIR**; pairs **TB-1335**/**TB-1374**/**TB-1258** |
-| Governance API contracts help (`/help/governance-api-contracts`) | **TB-1384**–**TB-1388** (open P0 **V1**) | Reclassify internal-runbook + Admin gate; de-index search; title/slug honesty; remove buyer Findings/Governance deep-links; contributor leak purge or docs-only split; owner review ~33/100 2026-07-26; traffic **HG**; pairs **TB-1246**–**TB-1250**/**TB-1326** |
+| Governance API contracts help (`/help/governance-api-contracts`) | **TB-1384**–**TB-1388** (open P1 **V1**) | Reclassify internal-runbook + Admin gate; de-index search; title/slug honesty; remove buyer Findings/Governance deep-links; contributor leak purge or docs-only split; owner review ~33/100 2026-07-26; traffic **HG**; pairs **TB-1246**–**TB-1250**/**TB-1326** |
 | Pilot ROI model help (`/help/pilot-roi-model`) | **TB-1389**–**TB-1393** (open P1 **V1**) | Specialty sponsor ROI methodology + baseline CTAs; purge contributor spine/.md links; Pilot/commit vocab softener; first-viewport density; baseline wizard eng-path honesty; owner review ~42/100 2026-07-26; traffic **PI**; pairs **TB-1345**/**TB-1380**/**TB-1254**/**TB-1367** |
 | Repeat-review loop help (`/help/repeat-review-loop`) | **TB-1394**–**TB-1398** (open P1 **V1**) | Specialty second-review companion + Compare CTA; drop stickiness + tier honesty; purge .md/CLI/TB leaks; Related density; loop-step CTAs; owner review ~40/100 2026-07-26; traffic **HRX**; pairs **TB-1335**/**TB-1390**/**TB-1346** |
 | Architecture packages / Reviews help (`/help/review-packages`) | **TB-1399**–**TB-1403** (open P1 **V1**) | Specialty companion + Open `/reviews` CTA; Reviews vs Architecture packages title hierarchy; TOC/anchor honesty; Related density; export jargon + sample/empty CTA; owner review ~58/100 2026-07-26; traffic **REV**; after Done **TB-761**; pairs **TB-1350**/**TB-738**/**TB-1026** |
@@ -119,10 +119,10 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | AI model chooser | **TB-872** open (**TB-869**–**TB-871** Done) | Customer Azure OpenAI BYO |
 | RC12 registration race (CI/test) | **TB-881** (**Done** 2026-07-21) | Was CI env-pin + parallel xUnit race — **not** V1 pilot ship blocker; PA class **TB-1371**/**TB-1372** / GTM **M-249**/**M-250** |
 | Tier 3 hold (assessment) | **TB-882**–**TB-886** (open; **Hold for reassessment**) | Nav guard; Graph-RAG live ablation; pack attribution; compounding ledger; manifest-verify docs |
-| Public showcase (`claims-intake-modernization`) | **TB-887**–**TB-891** (open P0/P1/P2 **V1**) | Static-first SSR; disclosure copy; prod smoke; QuickNav anonymous contract; telemetry — assessment 2026-07-19 |
-| Anonymous Quick Scan public safety | **TB-892**–**TB-902** (open P0/P1 **V1**) | Config → pricing → global budgets → anonymous endpoint → concurrency → abuse → kill switch → telemetry → sample UX → adversarial → release gate; assessment **SAFE TO EXPOSE: NO** until **TB-902** |
+| Public showcase (`claims-intake-modernization`) | **TB-887**–**TB-891** (open P1/P2 **V1**) | Static-first SSR; disclosure copy; prod smoke; QuickNav anonymous contract; telemetry — assessment 2026-07-19 |
+| Anonymous Quick Scan public safety | **TB-892**–**TB-902** (open P1 **V1**) | Config → pricing → global budgets → anonymous endpoint → concurrency → abuse → kill switch → telemetry → sample UX → adversarial → release gate; assessment **SAFE TO EXPOSE: NO** until **TB-902** |
 | JSON payload-shape (H2 remainder) | **TB-929**–**TB-931** open P2 **V1**; **TB-932** **V2** | List `*Json` projection audit; run-detail lazy-load; typed scalars; blob offload when measured |
-| Alerts Conditions tab UX | **TB-936** (open P0 **V1**) | `/governance/alert-rules?tab=rules` — rule builder, terminology, preview, sample guards |
+| Alerts Conditions tab UX | **TB-936** (open P1 **V1**) | `/governance/alert-rules?tab=rules` — rule builder, terminology, preview, sample guards |
 | Polly vs run-level matrix (PA Q7) | **TB-995**–**TB-996** (open P1 **V1**) | Transport vs run-level surface matrix + honesty CI; GTM **M-146**/**M-147** |
 | LLM trust boundary (PA Q11) | **TB-997**–**TB-998** (open P1 **V1**) | Ingress vs structurally-impossible matrix + honesty CI; GTM **M-148**/**M-149** |
 | INV-001 single-derivation (PA Q1) | **TB-999**–**TB-1000** (open P1 **V1**) | Host-boundary decide-once vs forbidden-layer matrix + honesty CI; GTM **M-150**/**M-151**; complements Done **TB-010**/**TB-304**/**TB-925** / ARCH001 |
@@ -142,7 +142,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Faithfulness/support-ratio scoring lanes (PA Q6) | **TB-1228**–**TB-1229** (open P1 **V1**) | Inline vs async vs model-promotion trade-offs + honesty CI; GTM **M-209**/**M-210**; complements **TB-1221**/**M-166**; Done **TB-684**/**TB-021** stay closed |
 | Shared hallucination defense plane / anti mode-fork (PA Q7) | **TB-1230**–**TB-1231** (open P1 **V1**) | One post-agent defense plane; mode varies thresholds/optional judges only; honesty CI vs Simulator=Real-safe; GTM **M-211**/**M-212**; complements **TB-1196**/**TB-1221**/**TB-1228**/**M-166**; Done **TB-684** stay closed |
 | Tenant DiD erosion + beyond-predicates (PA Q8) | **TB-1232**–**TB-1233** (open P1 **V1**) | Erosion-mode matrix + compile/test/CI beyond `WHERE` predicates; honesty CI vs WHERE-TenantId=/ARCH-alone=/RLS-as-beyond-predicate; GTM **M-213**/**M-214**; complements **TB-999**/**TB-1001**/**TB-1005**/**TB-1122**/**M-150**/**M-194**; Done **TB-010**/**TB-071**/**TB-925** stay closed; RLS non-control |
-| Azure workload PE seam CA+SQL+AOAI (PA Q9) | **TB-1244**–**TB-1245** (open P0/P1 **V1**) | Ranked Azure PE seams; headline = SQL bootstrap MI on API request path; honesty CI vs least-privilege-while-colocated / PE-equals-private / AOAI-Contributor; GTM **M-215**/**M-216**; complements **TB-903**/**TB-906**/**TB-1232**; Done **TB-080**/**TB-091**/**TB-092**/**TB-656** stay closed |
+| Azure workload PE seam CA+SQL+AOAI (PA Q9) | **TB-1244**–**TB-1245** (open P1 **V1**) | Ranked Azure PE seams; headline = SQL bootstrap MI on API request path; honesty CI vs least-privilege-while-colocated / PE-equals-private / AOAI-Contributor; GTM **M-215**/**M-216**; complements **TB-903**/**TB-906**/**TB-1232**; Done **TB-080**/**TB-091**/**TB-092**/**TB-656** stay closed |
 | Demo/anonymous read plane vs tenant (PA Q10) | **TB-1251**–**TB-1252** (open P1 **V1**) | Structural demo plane (factory/catalog or static-only) vs filter/DemoScopes convention; honesty CI vs AllowAnonymous=safe / pin=catalog / empty=no-data; GTM **M-217**/**M-218**; complements **TB-1028**/**TB-1232**/**M-168**/**M-178**; Done showcase/Quick Scan safety stay closed |
 | Dapper/DDL/satellite breakdown + pre-ORM ladder (PA Q11) | **TB-1263**–**TB-1264** (open P1 **V1**) | Breakdown signals + strategy ladder before ORM under duress; honesty CI vs EF-fixes-tenancy/immutability/perf; GTM **M-219**/**M-220**; complements **TB-931**/**TB-1003**/**TB-1009**/**TB-1156**/**M-69**; Done **TB-929**/**TB-930** stay closed |
 | Concurrent execute + commit race (PA Q12) | **TB-1270**–**TB-1271** (open P1 **V1**) | First-wins commit CAS + execute process-idempotency-after-persist race matrix; honesty CI vs exactly-once / silent double package / retry-never-spends; GTM **M-221**/**M-222**; complements **TB-1009**/**TB-1011**/**TB-943**/**M-160**/**M-162**/**M-170**; Done **TB-039**/**TB-201**/**TB-303**/**TB-310** stay closed |
@@ -162,7 +162,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 
 | ID | Title | Cluster |
 | --- | --- | --- |
-| TB-874 | Terraform AWS/GCP → CanonicalObject classification + illustrative cost/service labels | Multi-cloud P1 **V1** |
 | TB-876 | Customer-controlled Tier 1 AWS/GCP inventory ZIP | Multi-cloud P1 **V1** |
 | TB-877 | Community summarization Graph-RAG (RAG-V2-001 remainder) | AI/Agent P1 **V1** |
 | TB-878 | Iterative retrieve-critique-retry loop (RAG-V2-002 remainder) | AI/Agent P2 **V1** |
@@ -172,26 +171,10 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-655 | Terraform root consolidation | Deployability P2 **V1** |
 | TB-872 | Customer-provided Azure OpenAI connection (first BYO path) | AI model chooser P2 **V1.1** |
 | TB-881 | ~~RC12 registration duplicate-organization conflict~~ **Done** (2026-07-21) — CI serialize Api.Tests; not pilot ship blocker | Correctness P1 **RC12** — closed; see PA **TB-1371**/**TB-1372** |
-| TB-887 | Public showcase static-first SSR for `claims-intake-modernization` | Commercial P0 **V1** — blocks public exposure when API-connected |
-| TB-888 | Public showcase illustrative-sample disclosure copy | Trustworthiness P0 **V1** — ship with **TB-887** |
-| TB-889 | Production showcase availability gate | Reliability P1 **V1** — pairs with GTM **G-QA-04** |
-| TB-890 | Showcase QuickNav anonymous read contract | Adoption friction P1 **V1** |
-| TB-891 | Showcase render-mode telemetry | Traceability P2 **V1** |
-| TB-892 | Quick Scan safety configuration (`QuickScanSafetyOptions`) | Cost safety P0 **V1** — Prompt 2 |
-| TB-893 | Quick Scan pricing catalog + pre-exec cost estimate | Cost safety P0 **V1** — after **TB-892** |
-| TB-894 | Atomic global hourly/daily Quick Scan budget reservations | Cost safety P0 **V1** — release-blocking |
-| TB-895 | Anonymous marketing Quick Scan endpoint + per-request bounds | Cost safety P0 **V1** — after **TB-892**–**TB-894** |
-| TB-896 | Distributed Quick Scan concurrency + bounded queue | Cost safety P0 **V1** — after **TB-894**/**TB-895** |
+| TB-891 | Showcase render-mode telemetry | Traceability P1 **V1** |
 | TB-897 | Layered Quick Scan identity rate limits + duplicate abuse | Abuse P1 **V1** — not a spend substitute |
-| TB-898 | Quick Scan emergency kill switch + fail-closed boot | Cost safety P0 **V1** |
 | TB-899 | Quick Scan cost telemetry, dashboards, reconciliation, alerts | Operability P1 **V1** |
-| TB-900 | Quick Scan sample fallback + public capacity UX | Marketability P0 **V1** — pairs **M-109** |
-| TB-901 | Quick Scan adversarial cost/abuse test suite | Cost safety P0 **V1** — after core controls |
-| TB-902 | Quick Scan public release gate assessment (GREEN/YELLOW/RED) | Release gate P0 **V1** — assessment-only; **M-110**, **G-QA-05** |
-| TB-929 | Hot-path list SQL projection audit (omit fat `*Json`) | Performance P1 **V1** — H2 after **TB-577** |
-| TB-930 | Run-detail summary + lazy-load JSON blobs | Performance P1 **V1** — pairs **TB-929** |
 | TB-931 | Typed columns for hot scalars from JSON | Performance P2 **V1** — after **TB-929** inventory |
-| TB-936 | Refine `/governance/alert-rules` Conditions tab | Adoption friction P0 **V1** — rule builder + preview + sample guards |
 | TB-995 | Polly/CB transport vs run-level surface matrix | Trustworthiness P1 **V1** — PA Q7; GTM **M-146**/**M-147** |
 | TB-996 | Polly ≠ run-completeness honesty CI | Testability P1 **V1** — after **TB-995** |
 | TB-997 | LLM trust-boundary ingress vs structurally-impossible matrix | Trustworthiness P1 **V1** — PA Q11; GTM **M-148**/**M-149** |
@@ -232,16 +215,16 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1233 | Anti-WHERE-TenantId-equals-isolation / ARCH-alone-proves / RLS-as-beyond-predicate honesty CI | Testability P1 **V1** — after **TB-1232**; pairs **M-213** |
 | TB-1244 | Azure workload privilege-escalation seam matrix (SQL bootstrap vs runtime MI) | Trustworthiness P1 **V1** — PA Q9; GTM **M-215**/**M-216** |
 | TB-1245 | Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI | Testability P1 **V1** — after **TB-1244**; pairs **M-215** |
-| TB-1234 | `/help/cloud-connections/aws` specialty guide view (Azure parity) | Adoption friction P0 **V1** — owner AWS help ~52/100; complements Done **TB-720** |
-| TB-1235 | AWS help — purge Tier/hosted-pull jargon from primary copy | Trustworthiness P0 **V1** — with **TB-1234**; Azure banned-copy parity |
-| TB-1236 | AWS help — manifest-driven IAM permissions + Resource Explorer enablement | Trustworthiness P0 **V1** — with **TB-1234** |
-| TB-1237 | AWS help — copyable OIDC trust-policy template + federation identifiers | Trustworthiness P0 **V1** — with **TB-1234**; pairs **TB-1236** |
-| TB-1238 | AWS help — workflow CTAs + classified data sections (Azure chrome parity) | Adoption friction P0 **V1** — with **TB-1234** |
-| TB-1239 | `/help/cloud-connections/gcp` specialty guide view (Azure parity) | Adoption friction P0 **V1** — owner GCP help ~51/100; complements Done **TB-720** / **TB-1234** |
-| TB-1240 | GCP help — purge Tier/hosted-pull jargon from primary copy | Trustworthiness P0 **V1** — with **TB-1239**; Azure/AWS banned-copy parity |
-| TB-1241 | GCP help — manifest-driven roles + Cloud Asset Inventory enablement | Trustworthiness P0 **V1** — with **TB-1239** |
-| TB-1242 | GCP help — copyable WIF pool-provider template + federation identifiers | Trustworthiness P0 **V1** — with **TB-1239**; pairs **TB-1241** |
-| TB-1243 | GCP help — workflow CTAs + classified data sections (Azure chrome parity) | Adoption friction P0 **V1** — with **TB-1239** |
+| TB-1234 | `/help/cloud-connections/aws` specialty guide view (Azure parity) | Adoption friction P1 **V1** — owner AWS help ~52/100; complements Done **TB-720** |
+| TB-1235 | AWS help — purge Tier/hosted-pull jargon from primary copy | Trustworthiness P1 **V1** — with **TB-1234**; Azure banned-copy parity |
+| TB-1236 | AWS help — manifest-driven IAM permissions + Resource Explorer enablement | Trustworthiness P1 **V1** — with **TB-1234** |
+| TB-1237 | AWS help — copyable OIDC trust-policy template + federation identifiers | Trustworthiness P1 **V1** — with **TB-1234**; pairs **TB-1236** |
+| TB-1238 | AWS help — workflow CTAs + classified data sections (Azure chrome parity) | Adoption friction P1 **V1** — with **TB-1234** |
+| TB-1239 | `/help/cloud-connections/gcp` specialty guide view (Azure parity) | Adoption friction P1 **V1** — owner GCP help ~51/100; complements Done **TB-720** / **TB-1234** |
+| TB-1240 | GCP help — purge Tier/hosted-pull jargon from primary copy | Trustworthiness P1 **V1** — with **TB-1239**; Azure/AWS banned-copy parity |
+| TB-1241 | GCP help — manifest-driven roles + Cloud Asset Inventory enablement | Trustworthiness P1 **V1** — with **TB-1239** |
+| TB-1242 | GCP help — copyable WIF pool-provider template + federation identifiers | Trustworthiness P1 **V1** — with **TB-1239**; pairs **TB-1241** |
+| TB-1243 | GCP help — workflow CTAs + classified data sections (Azure chrome parity) | Adoption friction P1 **V1** — with **TB-1239** |
 | TB-1244 | Azure workload privilege-escalation seam matrix (SQL bootstrap vs runtime MI) | Trustworthiness P1 **V1** — PA Q9; GTM **M-215**/**M-216** |
 | TB-1245 | Anti-least-privilege-while-db_owner-colocated / PE-equals-private / AOAI-Contributor honesty CI | Testability P1 **V1** — after **TB-1244**; pairs **M-215** |
 | TB-1251 | Demo/anonymous read plane vs paying-tenant structural isolation contract | Trustworthiness P1 **V1** — PA Q10; GTM **M-217**/**M-218** |
@@ -268,398 +251,398 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1337 | Anti-SQL-fails-first-at-100x / premature-blob-or-DTF / replicas-fix-TPM honesty CI | Testability P1 **V1** — after **TB-1336**; pairs **M-237** |
 | TB-1343 | WHAT_NOT_TO_PROMISE → UI/copy over-promise + highest buyer-risk page matrix | Commercial P1 **V1** — PA WNTP UI risk; GTM **M-239**/**M-240**; canonical table in `PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise` |
 | TB-1344 | Anti-WNTP-forbidden-phrase-in-buyer-UI / billing-checkout-theater honesty CI | Testability P1 **V1** — after **TB-1343**; pairs **M-239** |
-| TB-1355 | Core Pilot home checkpoint strip honesty | Trustworthiness P0 **V1** — PA Core Pilot happy path; GTM **M-241**/**M-242** |
-| TB-1356 | Core Pilot first-session spine vocabulary unify (4/5/7) | Adoption friction P0 **V1** — with **TB-1355**; pairs **TB-1331**/**TB-1007** |
-| TB-1357 | Purge first-session CLI / PowerShell proof theater (home + reviews/new) | Trustworthiness P0 **V1** — with **TB-1355**; parity **TB-1346** |
+| TB-1355 | Core Pilot home checkpoint strip honesty | Trustworthiness P1 **V1** — PA Core Pilot happy path; GTM **M-241**/**M-242** |
+| TB-1356 | Core Pilot first-session spine vocabulary unify (4/5/7) | Adoption friction P1 **V1** — with **TB-1355**; pairs **TB-1331**/**TB-1007** |
+| TB-1357 | Purge first-session CLI / PowerShell proof theater (home + reviews/new) | Trustworthiness P1 **V1** — with **TB-1355**; parity **TB-1346** |
 | TB-1358 | Core Pilot happy-path stick + dishonest empty-state matrix contract | Adoption friction P1 **V1** — PA walkthrough; GTM **M-241**/**M-242** |
-| TB-1359 | Anti-Core-Pilot-path-dishonesty honesty CI | Testability P1 **V1** — after **TB-1358**; pairs **M-241** |
+| TB-1359 | Anti-Core-Pilot-path-dishonesty honesty CI | Testability P2 **V1** — after **TB-1358**; pairs **M-241** |
 | TB-1365 | Why-not-ChatGPT/Copilot 2-min talk track + live anchors contract | Commercial P1 **V1** — PA differentiation; GTM **M-243**/**M-244** |
-| TB-1366 | Anti-beats-ChatGPT / cheaper-TCO-than-seats honesty CI | Testability P1 **V1** — after **TB-1365**; pairs **M-243** |
-| TB-1360 | `/help/evidence-trail` — specialty Evidence graph companion + Open `/graph` CTA | Adoption friction P0 **V1** — owner evidence-trail ~58/100; traffic **EV**; after Done **TB-762** |
-| TB-1361 | Evidence trail help — finding deep-link / `mode=` honesty | Trustworthiness P0 **V1** — with **TB-1360** |
-| TB-1362 | Evidence trail help — Related guides density | Adoption friction P0 **V1** — with **TB-1360**; pairs **TB-1258** |
+| TB-1366 | Anti-beats-ChatGPT / cheaper-TCO-than-seats honesty CI | Testability P2 **V1** — after **TB-1365**; pairs **M-243** |
+| TB-1360 | `/help/evidence-trail` — specialty Evidence graph companion + Open `/graph` CTA | Adoption friction P1 **V1** — owner evidence-trail ~58/100; traffic **EV**; after Done **TB-762** |
+| TB-1361 | Evidence trail help — finding deep-link / `mode=` honesty | Trustworthiness P1 **V1** — with **TB-1360** |
+| TB-1362 | Evidence trail help — Related guides density | Adoption friction P1 **V1** — with **TB-1360**; pairs **TB-1258** |
 | TB-1363 | Evidence trail help — sample evidence graph universe honesty | Trustworthiness P0 **V1** — with **TB-1360**; pairs **TB-1028** |
-| TB-1364 | Evidence trail help — Open sample / Load CTA chrome parity | Adoption friction P0 **V1** — with **TB-1360** |
-| TB-1374 | `/help/first-hour-operator-path` — canonicalize into `/help/core-pilot` | Adoption friction P0 **V1** — owner first-hour ~46/100; traffic **HFE**; pairs **TB-1335**/**TB-1352** |
-| TB-1375 | First-hour help — purge Pilot / operator-path jargon + slug honesty | Trustworthiness P0 **V1** — with **TB-1374** |
-| TB-1376 | First-hour help — inbound first-review pointers → core-pilot | Adoption friction P0 **V1** — with **TB-1374**; pairs **TB-1352**/**TB-1335** |
-| TB-1377 | First-hour help — discovery / featured / search twin collapse | Adoption friction P0 **V1** — with **TB-1374** |
-| TB-1378 | First-hour help — Vitest guard against product first-review CTA to first-hour | Testability P0 **V1** — with **TB-1374** |
-| TB-1379 | `/help/first-pilot-path` — specialty Complete review workflow companion + Start CTA | Adoption friction P0 **V1** — owner first-pilot-path ~52/100; traffic **FIR** |
-| TB-1380 | Complete review workflow — slug/title + Pilot jargon honesty | Trustworthiness P0 **V1** — with **TB-1379** |
-| TB-1381 | Complete review workflow — step deep-link CTA chrome | Adoption friction P0 **V1** — with **TB-1379** |
-| TB-1382 | Complete review workflow — Related help density | Adoption friction P0 **V1** — with **TB-1379**; pairs **TB-1258** |
-| TB-1383 | Complete review workflow — inbound label honesty (FAQ / checklist dupes) | Adoption friction P0 **V1** — with **TB-1379**; pairs **TB-1380** |
+| TB-1364 | Evidence trail help — Open sample / Load CTA chrome parity | Adoption friction P1 **V1** — with **TB-1360** |
+| TB-1374 | `/help/first-hour-operator-path` — canonicalize into `/help/core-pilot` | Adoption friction P1 **V1** — owner first-hour ~46/100; traffic **HFE**; pairs **TB-1335**/**TB-1352** |
+| TB-1375 | First-hour help — purge Pilot / operator-path jargon + slug honesty | Trustworthiness P1 **V1** — with **TB-1374** |
+| TB-1376 | First-hour help — inbound first-review pointers → core-pilot | Adoption friction P1 **V1** — with **TB-1374**; pairs **TB-1352**/**TB-1335** |
+| TB-1377 | First-hour help — discovery / featured / search twin collapse | Adoption friction P1 **V1** — with **TB-1374** |
+| TB-1378 | First-hour help — Vitest guard against product first-review CTA to first-hour | Testability P2 **V1** — with **TB-1374** |
+| TB-1379 | `/help/first-pilot-path` — specialty Complete review workflow companion + Start CTA | Adoption friction P1 **V1** — owner first-pilot-path ~52/100; traffic **FIR** |
+| TB-1380 | Complete review workflow — slug/title + Pilot jargon honesty | Trustworthiness P1 **V1** — with **TB-1379** |
+| TB-1381 | Complete review workflow — step deep-link CTA chrome | Adoption friction P1 **V1** — with **TB-1379** |
+| TB-1382 | Complete review workflow — Related help density | Adoption friction P1 **V1** — with **TB-1379**; pairs **TB-1258** |
+| TB-1383 | Complete review workflow — inbound label honesty (FAQ / checklist dupes) | Adoption friction P1 **V1** — with **TB-1379**; pairs **TB-1380** |
 | TB-1384 | `/help/governance-api-contracts` — reclassify as internal-runbook + Admin gate | Trustworthiness P0 **V1** — owner HG ~33/100; traffic **HG**; TB-1246 parity |
 | TB-1385 | Governance API contracts — de-index from product help search / static params | Trustworthiness P0 **V1** — with **TB-1384**; pairs **TB-1247** |
-| TB-1386 | Governance API contracts — title/slug honesty (not buyer governance FAQ) | Adoption friction P0 **V1** — with **TB-1384**; pairs **TB-1248** |
+| TB-1386 | Governance API contracts — title/slug honesty (not buyer governance FAQ) | Adoption friction P1 **V1** — with **TB-1384**; pairs **TB-1248** |
 | TB-1387 | Buyer Findings/Governance help — remove eng API-contracts deep link | Trustworthiness P0 **V1** — with **TB-1384**; pairs **TB-1249** |
 | TB-1388 | Governance API contracts — contributor leak purge or docs-only split | Trustworthiness P0 **V1** — with **TB-1384**; pairs **TB-1250**/**TB-1327** |
-| TB-1389 | `/help/pilot-roi-model` — specialty sponsor ROI methodology companion + CTAs | Adoption friction P0 **V1** — owner PI ~42/100; traffic **PI** |
+| TB-1389 | `/help/pilot-roi-model` — specialty sponsor ROI methodology companion + CTAs | Adoption friction P1 **V1** — owner PI ~42/100; traffic **PI** |
 | TB-1390 | Pilot ROI help — purge contributor/repo/.md spine leakage | Trustworthiness P0 **V1** — with **TB-1389**; pairs **TB-1254**/**TB-1327** |
-| TB-1391 | Pilot ROI help — title/Pilot jargon + commit/execute vocab softener | Trustworthiness P0 **V1** — with **TB-1389**; pairs **TB-1380**/**TB-1367** |
-| TB-1392 | Pilot ROI help — first-viewport density (action before measurement wall) | Adoption friction P0 **V1** — with **TB-1389** |
-| TB-1393 | Pilot ROI help — inbound chrome honesty (baseline wizard eng path) | Trustworthiness P0 **V1** — with **TB-1389**; pairs **TB-1390** |
-| TB-1394 | `/help/repeat-review-loop` — specialty second-review companion + Compare CTA | Adoption friction P0 **V1** — owner HRX ~40/100; traffic **HRX** |
-| TB-1395 | Repeat-review help — title/tier honesty (drop stickiness; product vs internal) | Trustworthiness P0 **V1** — with **TB-1394**; pairs **TB-1347**/**TB-1329** |
+| TB-1391 | Pilot ROI help — title/Pilot jargon + commit/execute vocab softener | Trustworthiness P1 **V1** — with **TB-1389**; pairs **TB-1380**/**TB-1367** |
+| TB-1392 | Pilot ROI help — first-viewport density (action before measurement wall) | Adoption friction P1 **V1** — with **TB-1389** |
+| TB-1393 | Pilot ROI help — inbound chrome honesty (baseline wizard eng path) | Trustworthiness P1 **V1** — with **TB-1389**; pairs **TB-1390** |
+| TB-1394 | `/help/repeat-review-loop` — specialty second-review companion + Compare CTA | Adoption friction P1 **V1** — owner HRX ~40/100; traffic **HRX** |
+| TB-1395 | Repeat-review help — title/tier honesty (drop stickiness; product vs internal) | Trustworthiness P1 **V1** — with **TB-1394**; pairs **TB-1347**/**TB-1329** |
 | TB-1396 | Repeat-review help — purge contributor/.md/CLI/TB leakage | Trustworthiness P0 **V1** — with **TB-1394**; pairs **TB-1390**/**TB-1346** |
-| TB-1397 | Repeat-review help — Related density + accelerator-chooser honesty | Adoption friction P0 **V1** — with **TB-1394**; pairs **TB-1258** |
-| TB-1398 | Repeat-review help — loop-step deep-link CTA chrome | Adoption friction P0 **V1** — with **TB-1394** |
-| TB-1399 | `/help/review-packages` — specialty Architecture packages companion + Open `/reviews` CTA | Adoption friction P0 **V1** — owner REV ~58/100; traffic **REV**; after Done **TB-761** |
-| TB-1400 | Review packages help — title/H1/slug/page-help label hierarchy | Trustworthiness P0 **V1** — with **TB-1399**; pairs **TB-1026**/**TB-1260** |
-| TB-1401 | Review packages help — TOC/anchor review-package → architecture-package honesty | Trustworthiness P0 **V1** — with **TB-1399** |
-| TB-1402 | Review packages help — Related guides density | Adoption friction P0 **V1** — with **TB-1399**; pairs **TB-1258** |
-| TB-1403 | Review packages help — export jargon softener + sample/empty next-step CTA | Adoption friction P0 **V1** — with **TB-1399**; pairs **TB-1028** |
-| TB-1404 | `/admin/ai-usage-cost` — delete dead App Router page behind permanent redirect | Maintainability P0 **V1** — owner ADA ~48/100; traffic **ADA**; after Done **TB-753**; IA-014 |
-| TB-1405 | Legacy AI usage admin path — drop live-page assumptions from route-readiness / nav-shell | Maintainability P0 **V1** — with **TB-1404** |
-| TB-1406 | Owner traffic workbook — mark ADA redirect-only (inherit canonical AI) | Adoption friction P0 **V1** — with **TB-1404**; pairs **TB-748** |
-| TB-1407 | CI drift — permanent-redirect AI usage sources must not ship product `page.tsx` | Testability P0 **V1** — after **TB-1404**; pairs **TB-748** |
-| TB-1408 | Legacy AI usage admin path — audit remaining docs/template hrefs → canonicalize | Trustworthiness P0 **V1** — with **TB-1404** |
-| TB-1409 | `/admin/demo-readiness` — Internal Ops PageHeading + dedupe Demo readiness H1/H2 | Adoption friction P0 **V1** — owner ADD ~47/100; traffic **ADD** |
-| TB-1410 | Demo readiness admin — purge CTO-demo aria/download buyer-confusable chrome | Trustworthiness P0 **V1** — with **TB-1409**; pairs Done **TB-471** |
-| TB-1411 | Demo readiness admin — tooling-disabled empty state next steps | Adoption friction P0 **V1** — with **TB-1409** |
-| TB-1412 | Demo readiness admin — CTA hierarchy + loading polish | Adoption friction P0 **V1** — with **TB-1409** |
-| TB-1413 | Demo readiness admin — check-row StatusTag status vs label honesty | Trustworthiness P0 **V1** — with **TB-1409**; pairs **TB-116** |
-| TB-1422 | `/admin/deployment-status` — Internal Ops PageHeading + help | Adoption friction P0 **V1** — owner ADE ~52/100; traffic **ADE** |
-| TB-1423 | Deployment status — StatusTag/overall pill honesty (StatusPill → design-system) | Trustworthiness P0 **V1** — with **TB-1422**; pairs **TB-116**/**TB-1285** |
-| TB-1424 | Deployment status — Refresh primary CTA + empty/loading polish | Adoption friction P0 **V1** — with **TB-1422**; pairs **TB-1412** |
-| TB-1425 | Deployment status — OperatorPageContainer + Internal Ops wayfinding | Adoption friction P0 **V1** — with **TB-1422** |
-| TB-1426 | Deployment status — related-links external honesty + BUILD_ID chrome soften | Trustworthiness P0 **V1** — with **TB-1422** |
-| TB-1429 | `/admin/integrations/itsm` — Internal Ops PageHeading + title hierarchy (ITSM vs connectors) | Adoption friction P0 **V1** — owner ADT ~41/100; traffic **ADT** |
+| TB-1397 | Repeat-review help — Related density + accelerator-chooser honesty | Adoption friction P1 **V1** — with **TB-1394**; pairs **TB-1258** |
+| TB-1398 | Repeat-review help — loop-step deep-link CTA chrome | Adoption friction P1 **V1** — with **TB-1394** |
+| TB-1399 | `/help/review-packages` — specialty Architecture packages companion + Open `/reviews` CTA | Adoption friction P1 **V1** — owner REV ~58/100; traffic **REV**; after Done **TB-761** |
+| TB-1400 | Review packages help — title/H1/slug/page-help label hierarchy | Trustworthiness P1 **V1** — with **TB-1399**; pairs **TB-1026**/**TB-1260** |
+| TB-1401 | Review packages help — TOC/anchor review-package → architecture-package honesty | Trustworthiness P1 **V1** — with **TB-1399** |
+| TB-1402 | Review packages help — Related guides density | Adoption friction P1 **V1** — with **TB-1399**; pairs **TB-1258** |
+| TB-1403 | Review packages help — export jargon softener + sample/empty next-step CTA | Adoption friction P1 **V1** — with **TB-1399**; pairs **TB-1028** |
+| TB-1404 | `/admin/ai-usage-cost` — delete dead App Router page behind permanent redirect | Maintainability P2 **V1** — owner ADA ~48/100; traffic **ADA**; after Done **TB-753**; IA-014 |
+| TB-1405 | Legacy AI usage admin path — drop live-page assumptions from route-readiness / nav-shell | Maintainability P2 **V1** — with **TB-1404** |
+| TB-1406 | Owner traffic workbook — mark ADA redirect-only (inherit canonical AI) | Adoption friction P2 **V1** — with **TB-1404**; pairs **TB-748** |
+| TB-1407 | CI drift — permanent-redirect AI usage sources must not ship product `page.tsx` | Testability P2 **V1** — after **TB-1404**; pairs **TB-748** |
+| TB-1408 | Legacy AI usage admin path — audit remaining docs/template hrefs → canonicalize | Trustworthiness P1 **V1** — with **TB-1404** |
+| TB-1409 | `/admin/demo-readiness` — Internal Ops PageHeading + dedupe Demo readiness H1/H2 | Adoption friction P1 **V1** — owner ADD ~47/100; traffic **ADD** |
+| TB-1410 | Demo readiness admin — purge CTO-demo aria/download buyer-confusable chrome | Trustworthiness P1 **V1** — with **TB-1409**; pairs Done **TB-471** |
+| TB-1411 | Demo readiness admin — tooling-disabled empty state next steps | Adoption friction P1 **V1** — with **TB-1409** |
+| TB-1412 | Demo readiness admin — CTA hierarchy + loading polish | Adoption friction P1 **V1** — with **TB-1409** |
+| TB-1413 | Demo readiness admin — check-row StatusTag status vs label honesty | Trustworthiness P1 **V1** — with **TB-1409**; pairs **TB-116** |
+| TB-1422 | `/admin/deployment-status` — Internal Ops PageHeading + help | Adoption friction P1 **V1** — owner ADE ~52/100; traffic **ADE** |
+| TB-1423 | Deployment status — StatusTag/overall pill honesty (StatusPill → design-system) | Trustworthiness P1 **V1** — with **TB-1422**; pairs **TB-116**/**TB-1285** |
+| TB-1424 | Deployment status — Refresh primary CTA + empty/loading polish | Adoption friction P1 **V1** — with **TB-1422**; pairs **TB-1412** |
+| TB-1425 | Deployment status — OperatorPageContainer + Internal Ops wayfinding | Adoption friction P1 **V1** — with **TB-1422** |
+| TB-1426 | Deployment status — related-links external honesty + BUILD_ID chrome soften | Trustworthiness P1 **V1** — with **TB-1422** |
+| TB-1429 | `/admin/integrations/itsm` — Internal Ops PageHeading + title hierarchy (ITSM vs connectors) | Adoption friction P1 **V1** — owner ADT ~41/100; traffic **ADT** |
 | TB-1430 | ITSM connectors admin — purge appsettings / V1-scope / System Administration leak chrome | Trustworthiness P0 **V1** — with **TB-1429**; pairs **TB-1254** |
 | TB-1431 | ITSM connectors admin — isolate Promise.all health/settings load failures | Reliability P0 **V1** — with **TB-1429**; pairs **TB-1162**/**TB-1152** |
-| TB-1432 | ITSM connectors admin — loading/empty/error composition + primary CTA hierarchy | Adoption friction P0 **V1** — with **TB-1429**; pairs **TB-1424** |
-| TB-1433 | ITSM connectors admin — smoke-help + product deep-links honesty | Trustworthiness P0 **V1** — with **TB-1429**; pairs **TB-1146**/**TB-1161** |
-| TB-1434 | `/governance` — drop LayerContextStrip lead that duplicates OperatorPageHeader | Adoption friction P0 **V1** — owner redundant-description pass 2026-07-27 |
-| TB-1435 | `/governance/audit` + `/governance/alert-rules` — skip wrong Governance overview orientation | Adoption friction P0 **V1** — with **TB-1434**; cf. **TB-1136** |
-| TB-1436 | `/search` — drop orientation line equal to SEARCH_PAGE_SUBTITLE | Adoption friction P0 **V1** — with **TB-1434** |
-| TB-1437 | `/value-report*` — collapse strip + LayerHeader + page subtitle to one hero | Adoption friction P0 **V1** — with **TB-1434**; cf. **TB-1224** |
-| TB-1438 | `/product-learning` — drop near-duplicate LayerContextStrip vs pageLead | Adoption friction P0 **V1** — with **TB-1434** |
-| TB-1439 | `/dashboard` — drop near-duplicate orientation vs portfolioPageLead | Adoption friction P0 **V1** — with **TB-1434** |
-| TB-1440 | Vitest: buyer orientation.line must not equal OperatorPageHeader lead (inventory guard) | Testability P0 **V1** — after **TB-1434**–**TB-1439**; hardens **TB-1125** |
-| TB-1441 | `/alert-routing` — single redirect shim (drop dual next.config + page redirect / dead layout) | Maintainability P0 **V1** — owner AL2 ~49/100; traffic **AL2**; IA-014 |
-| TB-1442 | `/alert-routing` — promote next.config redirect to permanent | Trustworthiness P0 **V1** — with **TB-1441** |
-| TB-1443 | Owner traffic workbook — mark AL2 redirect-only (inherit alert-rules Routing tab) | Adoption friction P0 **V1** — with **TB-1441**; pairs **TB-1406** |
-| TB-1444 | CI drift — `/alert-routing` must stay redirect-only (no product UI reintro) | Testability P0 **V1** — after **TB-1441**; pairs **TB-1407** |
-| TB-1445 | Legacy `/alert-routing` — canonicalize docs/help/nav/comments to alert-rules Routing tab | Trustworthiness P0 **V1** — with **TB-1441**; pairs **TB-1408** |
-| TB-1446 | `/architectures` — PageHeading H1 + primary Create architecture CTA | Adoption friction P0 **V1** — owner AR ~53/100; traffic **AR**; after Done **TB-766** |
-| TB-1447 | Architectures list — drafts vs packages title hierarchy honesty | Trustworthiness P0 **V1** — with **TB-1446**; pairs **TB-1026**/**TB-1400** |
-| TB-1448 | Architectures list — browser-local registry honesty (not tenant inventory theater) | Trustworthiness P0 **V1** — with **TB-1446** |
-| TB-1449 | Architectures list — first-viewport density (disclosure + helper + empty) | Adoption friction P0 **V1** — with **TB-1446** |
-| TB-1450 | Architectures list — loading hydrate + row density (EnterpriseTable / scan) | Adoption friction P0 **V1** — with **TB-1446**; pairs **TB-117** |
-| TB-1451 | `/architectures/[id]` — PageHeading H1 + fix metadata title (not Create architecture) | Adoption friction P0 **V1** — owner ARA ~55/100; traffic **ARA** |
-| TB-1452 | Architecture draft workspace — StatusTag honesty (not always Status: draft) | Trustworthiness P0 **V1** — with **TB-1451**; pairs **TB-116** |
-| TB-1453 | Architecture draft workspace — loading/error polish + Architectures list wayfinding | Adoption friction P0 **V1** — with **TB-1451**; pairs **TB-1450** |
-| TB-1454 | Architecture draft workspace — first-viewport density (lead + disclosure + alternatives) | Adoption friction P0 **V1** — with **TB-1451**; pairs **TB-1449** |
-| TB-1455 | Architecture draft workspace — Save vs autosave CTA hierarchy honesty | Trustworthiness P0 **V1** — with **TB-1451** |
-| TB-1458 | `/architectures/new` — PageHeading H1 + PageContextualHelpButton | Adoption friction P0 **V1** — owner ARN ~58/100; traffic **ARN** |
-| TB-1459 | Architecture creation bootstrap — browser-local recent-drafts honesty | Trustworthiness P0 **V1** — with **TB-1458**; pairs **TB-1448** |
-| TB-1460 | Architecture creation bootstrap — autosave reassurance only when true | Trustworthiness P0 **V1** — with **TB-1458** |
-| TB-1461 | Architecture creation bootstrap — Create vs Start new / resume title hierarchy | Adoption friction P0 **V1** — with **TB-1458**; pairs **TB-1447** |
-| TB-1462 | Architecture creation bootstrap — resume-first viewport when drafts exist | Adoption friction P0 **V1** — with **TB-1458** |
-| TB-1465 | `/auth/bootstrap` — brand + document metadata + Suspense (session-expired parity) | Adoption friction P0 **V1** — owner AUB ~52/100; traffic **AUB**; pairs **TB-1313**/**TB-1314** |
-| TB-1466 | Post-auth bootstrap — loading skeleton (not prose-only Preparing…) | Adoption friction P0 **V1** — with **TB-1465** |
-| TB-1467 | Create workspace form — design-system fields + dataRegion honesty | Trustworthiness P0 **V1** — with **TB-1465** |
-| TB-1468 | Bootstrap select-workspace / no-access — CTA hierarchy + denialReason sanitize | Trustworthiness P0 **V1** — with **TB-1465**; pairs **TB-1316** |
-| TB-1469 | Bootstrap auth chrome — safe secondary exit / sign-in again path | Adoption friction P0 **V1** — with **TB-1465**; pairs **TB-1315** |
-| TB-1472 | `/auth/invite` — brand + document metadata + Suspense (auth parity) | Adoption friction P0 **V1** — owner AUI ~51/100; traffic **AUI**; pairs **TB-1465**/**TB-1313**/**TB-1314** |
-| TB-1473 | Invitation accept — loading skeleton (not prose-only Validating…) | Adoption friction P0 **V1** — with **TB-1472** |
-| TB-1474 | Invitation invalid/expired/revoked/accepted — recovery CTAs (not alert-only) | Adoption friction P0 **V1** — with **TB-1472** |
-| TB-1475 | Valid invitation panel — design-system chrome + role/SSO honesty + defer token store | Trustworthiness P0 **V1** — with **TB-1472** |
-| TB-1476 | Invite auth chrome — safe secondary exit / help when stuck | Adoption friction P0 **V1** — with **TB-1472**; pairs **TB-1469**/**TB-1315** |
-| TB-1477 | Advisory schedules — empty form+scope-rail first-viewport whitespace | Adoption friction P0 **V1** — owner whitespace pass 2026-07-27; pairs **TB-1133** |
-| TB-1478 | Digests schedule — empty/form+readiness-rail whitespace | Adoption friction P0 **V1** — with **TB-1477** |
-| TB-1479 | Alert rules Rules tab — empty `gap-8` list+create+preview two-col | Adoption friction P0 **V1** — with **TB-1477**; pairs **TB-936** |
-| TB-1480 | Digests browse — empty checklist+preview+empty stack composition | Adoption friction P0 **V1** — with **TB-1477** |
+| TB-1432 | ITSM connectors admin — loading/empty/error composition + primary CTA hierarchy | Adoption friction P1 **V1** — with **TB-1429**; pairs **TB-1424** |
+| TB-1433 | ITSM connectors admin — smoke-help + product deep-links honesty | Trustworthiness P1 **V1** — with **TB-1429**; pairs **TB-1146**/**TB-1161** |
+| TB-1434 | `/governance` — drop LayerContextStrip lead that duplicates OperatorPageHeader | Adoption friction P1 **V1** — owner redundant-description pass 2026-07-27 |
+| TB-1435 | `/governance/audit` + `/governance/alert-rules` — skip wrong Governance overview orientation | Adoption friction P1 **V1** — with **TB-1434**; cf. **TB-1136** |
+| TB-1436 | `/search` — drop orientation line equal to SEARCH_PAGE_SUBTITLE | Adoption friction P1 **V1** — with **TB-1434** |
+| TB-1437 | `/value-report*` — collapse strip + LayerHeader + page subtitle to one hero | Adoption friction P1 **V1** — with **TB-1434**; cf. **TB-1224** |
+| TB-1438 | `/product-learning` — drop near-duplicate LayerContextStrip vs pageLead | Adoption friction P1 **V1** — with **TB-1434** |
+| TB-1439 | `/dashboard` — drop near-duplicate orientation vs portfolioPageLead | Adoption friction P1 **V1** — with **TB-1434** |
+| TB-1440 | Vitest: buyer orientation.line must not equal OperatorPageHeader lead (inventory guard) | Testability P2 **V1** — after **TB-1434**–**TB-1439**; hardens **TB-1125** |
+| TB-1441 | `/alert-routing` — single redirect shim (drop dual next.config + page redirect / dead layout) | Maintainability P2 **V1** — owner AL2 ~49/100; traffic **AL2**; IA-014 |
+| TB-1442 | `/alert-routing` — promote next.config redirect to permanent | Trustworthiness P1 **V1** — with **TB-1441** |
+| TB-1443 | Owner traffic workbook — mark AL2 redirect-only (inherit alert-rules Routing tab) | Adoption friction P2 **V1** — with **TB-1441**; pairs **TB-1406** |
+| TB-1444 | CI drift — `/alert-routing` must stay redirect-only (no product UI reintro) | Testability P2 **V1** — after **TB-1441**; pairs **TB-1407** |
+| TB-1445 | Legacy `/alert-routing` — canonicalize docs/help/nav/comments to alert-rules Routing tab | Trustworthiness P1 **V1** — with **TB-1441**; pairs **TB-1408** |
+| TB-1446 | `/architectures` — PageHeading H1 + primary Create architecture CTA | Adoption friction P1 **V1** — owner AR ~53/100; traffic **AR**; after Done **TB-766** |
+| TB-1447 | Architectures list — drafts vs packages title hierarchy honesty | Trustworthiness P1 **V1** — with **TB-1446**; pairs **TB-1026**/**TB-1400** |
+| TB-1448 | Architectures list — browser-local registry honesty (not tenant inventory theater) | Trustworthiness P1 **V1** — with **TB-1446** |
+| TB-1449 | Architectures list — first-viewport density (disclosure + helper + empty) | Adoption friction P1 **V1** — with **TB-1446** |
+| TB-1450 | Architectures list — loading hydrate + row density (EnterpriseTable / scan) | Adoption friction P1 **V1** — with **TB-1446**; pairs **TB-117** |
+| TB-1451 | `/architectures/[id]` — PageHeading H1 + fix metadata title (not Create architecture) | Adoption friction P1 **V1** — owner ARA ~55/100; traffic **ARA** |
+| TB-1452 | Architecture draft workspace — StatusTag honesty (not always Status: draft) | Trustworthiness P1 **V1** — with **TB-1451**; pairs **TB-116** |
+| TB-1453 | Architecture draft workspace — loading/error polish + Architectures list wayfinding | Adoption friction P1 **V1** — with **TB-1451**; pairs **TB-1450** |
+| TB-1454 | Architecture draft workspace — first-viewport density (lead + disclosure + alternatives) | Adoption friction P1 **V1** — with **TB-1451**; pairs **TB-1449** |
+| TB-1455 | Architecture draft workspace — Save vs autosave CTA hierarchy honesty | Trustworthiness P1 **V1** — with **TB-1451** |
+| TB-1458 | `/architectures/new` — PageHeading H1 + PageContextualHelpButton | Adoption friction P1 **V1** — owner ARN ~58/100; traffic **ARN** |
+| TB-1459 | Architecture creation bootstrap — browser-local recent-drafts honesty | Trustworthiness P1 **V1** — with **TB-1458**; pairs **TB-1448** |
+| TB-1460 | Architecture creation bootstrap — autosave reassurance only when true | Trustworthiness P1 **V1** — with **TB-1458** |
+| TB-1461 | Architecture creation bootstrap — Create vs Start new / resume title hierarchy | Adoption friction P1 **V1** — with **TB-1458**; pairs **TB-1447** |
+| TB-1462 | Architecture creation bootstrap — resume-first viewport when drafts exist | Adoption friction P1 **V1** — with **TB-1458** |
+| TB-1465 | `/auth/bootstrap` — brand + document metadata + Suspense (session-expired parity) | Adoption friction P1 **V1** — owner AUB ~52/100; traffic **AUB**; pairs **TB-1313**/**TB-1314** |
+| TB-1466 | Post-auth bootstrap — loading skeleton (not prose-only Preparing…) | Adoption friction P1 **V1** — with **TB-1465** |
+| TB-1467 | Create workspace form — design-system fields + dataRegion honesty | Trustworthiness P1 **V1** — with **TB-1465** |
+| TB-1468 | Bootstrap select-workspace / no-access — CTA hierarchy + denialReason sanitize | Trustworthiness P1 **V1** — with **TB-1465**; pairs **TB-1316** |
+| TB-1469 | Bootstrap auth chrome — safe secondary exit / sign-in again path | Adoption friction P1 **V1** — with **TB-1465**; pairs **TB-1315** |
+| TB-1472 | `/auth/invite` — brand + document metadata + Suspense (auth parity) | Adoption friction P1 **V1** — owner AUI ~51/100; traffic **AUI**; pairs **TB-1465**/**TB-1313**/**TB-1314** |
+| TB-1473 | Invitation accept — loading skeleton (not prose-only Validating…) | Adoption friction P1 **V1** — with **TB-1472** |
+| TB-1474 | Invitation invalid/expired/revoked/accepted — recovery CTAs (not alert-only) | Adoption friction P1 **V1** — with **TB-1472** |
+| TB-1475 | Valid invitation panel — design-system chrome + role/SSO honesty + defer token store | Trustworthiness P1 **V1** — with **TB-1472** |
+| TB-1476 | Invite auth chrome — safe secondary exit / help when stuck | Adoption friction P1 **V1** — with **TB-1472**; pairs **TB-1469**/**TB-1315** |
+| TB-1477 | Advisory schedules — empty form+scope-rail first-viewport whitespace | Adoption friction P1 **V1** — owner whitespace pass 2026-07-27; pairs **TB-1133** |
+| TB-1478 | Digests schedule — empty/form+readiness-rail whitespace | Adoption friction P1 **V1** — with **TB-1477** |
+| TB-1479 | Alert rules Rules tab — empty `gap-8` list+create+preview two-col | Adoption friction P1 **V1** — with **TB-1477**; pairs **TB-936** |
+| TB-1480 | Digests browse — empty checklist+preview+empty stack composition | Adoption friction P1 **V1** — with **TB-1477** |
 | TB-1570 | Paying-tenant / API-key LLM spend-storm + metering-vs-AOAI-billing dispute claim map | Cost-effectiveness P1 **V1** — PA spend-storm / dispute Q; GTM **M-294**/**M-295**; see `PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md` |
 | TB-1571 | Anti-unbounded-key-spend / anti-product-meter-equals-Azure-invoice honesty CI | Testability P1 **V1** — after **TB-1570**; pairs **M-294** |
 | TB-1577 | Shared-CA / shared-AOAI-TPM noisy-neighbor + per-tenant fairness claim map | Scalability P1 **V1** — PA noisy-neighbor Q; GTM **M-296**/**M-297**; see `SHARED_AOAI_TPM_NOISY_NEIGHBOR_FAIRNESS_CLAIM_MAP.md`; orchestrates **TB-1336** |
 | TB-1578 | Anti-fair-share-TPM / anti-replicas-isolate-LLM / anti-silent-starvation honesty CI | Testability P1 **V1** — after **TB-1577**; pairs **M-296** |
-| TB-1579 | Alert rules Composite tab — demote secondary h2 under hub | Adoption friction P0 **V1** — GOC ~43/100 |
-| TB-1580 | Composite alert rules — design-system fields + Create Button | Adoption friction P0 **V1** — with **TB-1579** |
-| TB-1581 | Composite alert rules — enum/join/enabled honesty | Trustworthiness P0 **V1** — with **TB-1579** |
-| TB-1582 | Composite alert rules — empty/form first-viewport | Adoption friction P0 **V1** — with **TB-1579** |
-| TB-1583 | Composite alert rules — hide reserved reopen-delta + loading skeleton | Trustworthiness/adoption P0 **V1** — with **TB-1579** |
-| TB-1584 | Alert rules Conditions tab — demote secondary h2 under hub | Adoption friction P0 **V1** — GLR ~50/100 |
-| TB-1585 | Alert rules Conditions — collapse dual lead | Adoption friction P0 **V1** — with **TB-1584** |
-| TB-1586 | Alert rules Conditions — Create `variant="primary"` + one primary CTA locus | Adoption friction P0 **V1** — with **TB-1584** |
-| TB-1587 | Alert rules Conditions — scope preview `projectId=default` honesty | Trustworthiness P0 **V1** — with **TB-1584** |
-| TB-1588 | Alert rules Conditions — design-system Select + list loading skeleton | Adoption friction P0 **V1** — with **TB-1584** |
-| TB-1589 | Alert rules Test tab — demote dual Simulate/Tune h2 under hub | Adoption friction P0 **V1** — GOS ~47/100 |
-| TB-1590 | Alert simulation/tuning — design-system fields + primary Simulate/Recommend | Adoption friction P0 **V1** — with **TB-1589** |
-| TB-1591 | Alert simulation — human nested sub-tab labels | Adoption friction P0 **V1** — with **TB-1589** |
-| TB-1592 | Alert simulation/tuning — GUID placeholder + default slug honesty | Trustworthiness P0 **V1** — with **TB-1589** |
-| TB-1593 | Alert tuning — score-breakdown operator honesty + dual lead/rank density | Trustworthiness/adoption P0 **V1** — with **TB-1589** |
-| TB-1594 | Alerts inbox — canonicalize `?tab=inbox` → `/governance/alerts` | Adoption friction P0 **V1** — GOI ~53/100 |
-| TB-1595 | Alerts inbox tab twin — traffic redirect-only + nav/docs canonicalize | Adoption friction P0 **V1** — with **TB-1594** |
-| TB-1596 | Alerts inbox — CI/Vitest guard against stale `?tab=inbox` deep links | Adoption friction P0 **V1** — with **TB-1594** |
-| TB-1597 | Alerts inbox — suppress summary zero-theater when empty/no rules | Trustworthiness P0 **V1** — with **TB-1594** |
-| TB-1598 | Alerts inbox — empty CTA `projectId=default` honesty + list loading skeleton | Trustworthiness/adoption P0 **V1** — with **TB-1594** |
-| TB-1599 | Help catch-all — unknown slug → HelpTopicNotFoundView | Adoption friction P0 **V1** — HE. ~49/100 |
-| TB-1600 | Help catch-all — topic loading skeleton + dynamic/static honesty | Adoption friction P0 **V1** — with **TB-1599** |
-| TB-1601 | Help catch-all — default markdown fallthrough specialty-or-gated hook | Adoption friction P0 **V1** — with **TB-1599**; pairs **TB-1414** |
-| TB-1602 | Help catch-all — traffic HE. router-meta / no double-count | Adoption friction P0 **V1** — with **TB-1599** |
-| TB-1603 | Help catch-all — specialty dispatch inventory CI | Testability P0 **V1** — with **TB-1599** |
-| TB-1604 | `/help/accelerator-chooser` specialty starter-pack companion + Start CTAs | Adoption friction P0 **V1** — HAX ~42/100 |
-| TB-1605 | Accelerator chooser help — title/tier honesty | Trustworthiness P0 **V1** — with **TB-1604** |
+| TB-1579 | Alert rules Composite tab — demote secondary h2 under hub | Adoption friction P1 **V1** — GOC ~43/100 |
+| TB-1580 | Composite alert rules — design-system fields + Create Button | Adoption friction P1 **V1** — with **TB-1579** |
+| TB-1581 | Composite alert rules — enum/join/enabled honesty | Trustworthiness P1 **V1** — with **TB-1579** |
+| TB-1582 | Composite alert rules — empty/form first-viewport | Adoption friction P1 **V1** — with **TB-1579** |
+| TB-1583 | Composite alert rules — hide reserved reopen-delta + loading skeleton | Trustworthiness/adoption P1 **V1** — with **TB-1579** |
+| TB-1584 | Alert rules Conditions tab — demote secondary h2 under hub | Adoption friction P1 **V1** — GLR ~50/100 |
+| TB-1585 | Alert rules Conditions — collapse dual lead | Adoption friction P1 **V1** — with **TB-1584** |
+| TB-1586 | Alert rules Conditions — Create `variant="primary"` + one primary CTA locus | Adoption friction P1 **V1** — with **TB-1584** |
+| TB-1587 | Alert rules Conditions — scope preview `projectId=default` honesty | Trustworthiness P1 **V1** — with **TB-1584** |
+| TB-1588 | Alert rules Conditions — design-system Select + list loading skeleton | Adoption friction P1 **V1** — with **TB-1584** |
+| TB-1589 | Alert rules Test tab — demote dual Simulate/Tune h2 under hub | Adoption friction P1 **V1** — GOS ~47/100 |
+| TB-1590 | Alert simulation/tuning — design-system fields + primary Simulate/Recommend | Adoption friction P1 **V1** — with **TB-1589** |
+| TB-1591 | Alert simulation — human nested sub-tab labels | Adoption friction P1 **V1** — with **TB-1589** |
+| TB-1592 | Alert simulation/tuning — GUID placeholder + default slug honesty | Trustworthiness P1 **V1** — with **TB-1589** |
+| TB-1593 | Alert tuning — score-breakdown operator honesty + dual lead/rank density | Trustworthiness/adoption P1 **V1** — with **TB-1589** |
+| TB-1594 | Alerts inbox — canonicalize `?tab=inbox` → `/governance/alerts` | Adoption friction P1 **V1** — GOI ~53/100 |
+| TB-1595 | Alerts inbox tab twin — traffic redirect-only + nav/docs canonicalize | Adoption friction P1 **V1** — with **TB-1594** |
+| TB-1596 | Alerts inbox — CI/Vitest guard against stale `?tab=inbox` deep links | Adoption friction P2 **V1** — with **TB-1594** |
+| TB-1597 | Alerts inbox — suppress summary zero-theater when empty/no rules | Trustworthiness P1 **V1** — with **TB-1594** |
+| TB-1598 | Alerts inbox — empty CTA `projectId=default` honesty + list loading skeleton | Trustworthiness/adoption P1 **V1** — with **TB-1594** |
+| TB-1599 | Help catch-all — unknown slug → HelpTopicNotFoundView | Adoption friction P1 **V1** — HE. ~49/100 |
+| TB-1600 | Help catch-all — topic loading skeleton + dynamic/static honesty | Adoption friction P1 **V1** — with **TB-1599** |
+| TB-1601 | Help catch-all — default markdown fallthrough specialty-or-gated hook | Adoption friction P1 **V1** — with **TB-1599**; pairs **TB-1414** |
+| TB-1602 | Help catch-all — traffic HE. router-meta / no double-count | Adoption friction P1 **V1** — with **TB-1599** |
+| TB-1603 | Help catch-all — specialty dispatch inventory CI | Testability P2 **V1** — with **TB-1599** |
+| TB-1604 | `/help/accelerator-chooser` specialty starter-pack companion + Start CTAs | Adoption friction P1 **V1** — HAX ~42/100 |
+| TB-1605 | Accelerator chooser help — title/tier honesty | Trustworthiness P1 **V1** — with **TB-1604** |
 | TB-1606 | Accelerator chooser help — contributor leak purge | Trustworthiness P0 **V1** — with **TB-1604** |
-| TB-1607 | Accelerator chooser help — single SoT with ACCELERATOR_CHOOSER_ENTRIES | Adoption friction P0 **V1** — with **TB-1604** |
-| TB-1608 | Accelerator chooser — home inbound jargon + repo honesty | Adoption friction P0 **V1** — with **TB-1604** |
-| TB-1609 | `/help/admin-diagnostics` specialty platform-health companion + Open `/health` CTA | Adoption friction P0 **V1** — HAE ~48/100 |
-| TB-1610 | Admin diagnostics help — title honesty | Adoption friction P0 **V1** — with **TB-1609** |
-| TB-1611 | Admin diagnostics help — contentKind/tier honesty | Trustworthiness P0 **V1** — with **TB-1609**; pairs **TB-1250** |
-| TB-1612 | Admin diagnostics help — Related eng deep-link demote | Trustworthiness P0 **V1** — with **TB-1609** |
-| TB-1613 | Admin diagnostics — inbound label honesty + doc-href map | Adoption friction P0 **V1** — with **TB-1609** |
-| TB-1614 | `/help/authentication-sign-in` specialty sign-in companion + Sign in CTA | Adoption friction P0 **V1** — HEU ~55/100 |
-| TB-1615 | Authentication help — Start evaluation / invite secondary CTAs | Adoption friction P0 **V1** — with **TB-1614** |
-| TB-1616 | Authentication help — first-viewport density (SSO/recovery disclosure) | Adoption friction P0 **V1** — with **TB-1614** |
-| TB-1617 | Authentication help — Related density + enterprise-onboarding honesty | Trustworthiness P0 **V1** — with **TB-1614** |
-| TB-1618 | Authentication help — auth-shell inbound label align | Adoption friction P0 **V1** — with **TB-1614** |
-| TB-1619 | `/help/azure-boards` specialty integration companion + Open Azure Boards CTA | Adoption friction P0 **V1** — HAZ ~51/100 |
-| TB-1620 | Azure Boards help — setup-step deep links | Adoption friction P0 **V1** — with **TB-1619** |
+| TB-1607 | Accelerator chooser help — single SoT with ACCELERATOR_CHOOSER_ENTRIES | Adoption friction P1 **V1** — with **TB-1604** |
+| TB-1608 | Accelerator chooser — home inbound jargon + repo honesty | Adoption friction P1 **V1** — with **TB-1604** |
+| TB-1609 | `/help/admin-diagnostics` specialty platform-health companion + Open `/health` CTA | Adoption friction P1 **V1** — HAE ~48/100 |
+| TB-1610 | Admin diagnostics help — title honesty | Adoption friction P1 **V1** — with **TB-1609** |
+| TB-1611 | Admin diagnostics help — contentKind/tier honesty | Trustworthiness P1 **V1** — with **TB-1609**; pairs **TB-1250** |
+| TB-1612 | Admin diagnostics help — Related eng deep-link demote | Trustworthiness P1 **V1** — with **TB-1609** |
+| TB-1613 | Admin diagnostics — inbound label honesty + doc-href map | Adoption friction P1 **V1** — with **TB-1609** |
+| TB-1614 | `/help/authentication-sign-in` specialty sign-in companion + Sign in CTA | Adoption friction P1 **V1** — HEU ~55/100 |
+| TB-1615 | Authentication help — Start evaluation / invite secondary CTAs | Adoption friction P1 **V1** — with **TB-1614** |
+| TB-1616 | Authentication help — first-viewport density (SSO/recovery disclosure) | Adoption friction P1 **V1** — with **TB-1614** |
+| TB-1617 | Authentication help — Related density + enterprise-onboarding honesty | Trustworthiness P1 **V1** — with **TB-1614** |
+| TB-1618 | Authentication help — auth-shell inbound label align | Adoption friction P1 **V1** — with **TB-1614** |
+| TB-1619 | `/help/azure-boards` specialty integration companion + Open Azure Boards CTA | Adoption friction P1 **V1** — HAZ ~51/100 |
+| TB-1620 | Azure Boards help — setup-step deep links | Adoption friction P1 **V1** — with **TB-1619** |
 | TB-1621 | Azure Boards help — contributor smoke-path leak purge | Trustworthiness P0 **V1** — with **TB-1619** |
-| TB-1622 | Azure Boards help — Phase 1 / eng limitation jargon honesty | Trustworthiness P0 **V1** — with **TB-1619** |
-| TB-1623 | Azure Boards help — alias `/help/integrations/azure-boards` canonicalize (HEZ) | Adoption friction P0 **V1** — with **TB-1619** |
+| TB-1622 | Azure Boards help — Phase 1 / eng limitation jargon honesty | Trustworthiness P1 **V1** — with **TB-1619** |
+| TB-1623 | Azure Boards help — alias `/help/integrations/azure-boards` canonicalize (HEZ) | Adoption friction P1 **V1** — with **TB-1619** |
 | TB-1624 | Customer policy-pack rule sandbox / commit pin / blast-radius claim map | Architectural integrity P1 **V1** — PA pack extensibility Q; GTM **M-298**/**M-299**; see `POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`; orchestrates **TB-1324** |
 | TB-1625 | Anti-WASM-rule-sandbox / anti-pack-RCE / anti-platform-wide-degrade honesty CI | Testability P1 **V1** — after **TB-1624**; pairs **M-298** |
-| TB-1626 | `/help/azure-permissions` first-viewport Configure/Verify primary CTA | Adoption friction P0 **V1** — HEA ~63/100 |
-| TB-1627 | Azure permissions help — first-viewport density | Adoption friction P0 **V1** — with **TB-1626** |
-| TB-1628 | Azure permissions help — Tier-1 / contract-version jargon honesty | Trustworthiness P0 **V1** — with **TB-1626** |
-| TB-1629 | Azure permissions help — IA dual with Connect Azure securely | Adoption friction P0 **V1** — with **TB-1626** |
-| TB-1630 | Azure permissions help — connection-context loading skeleton | Adoption friction P0 **V1** — with **TB-1626** |
-| TB-1631 | `/help/caiq-sig-response` specialty buyer questionnaire guide | Adoption friction P0 **V1** — HCA ~41 |
+| TB-1626 | `/help/azure-permissions` first-viewport Configure/Verify primary CTA | Adoption friction P1 **V1** — HEA ~63/100 |
+| TB-1627 | Azure permissions help — first-viewport density | Adoption friction P1 **V1** — with **TB-1626** |
+| TB-1628 | Azure permissions help — Tier-1 / contract-version jargon honesty | Trustworthiness P1 **V1** — with **TB-1626** |
+| TB-1629 | Azure permissions help — IA dual with Connect Azure securely | Adoption friction P1 **V1** — with **TB-1626** |
+| TB-1630 | Azure permissions help — connection-context loading skeleton | Adoption friction P1 **V1** — with **TB-1626** |
+| TB-1631 | `/help/caiq-sig-response` specialty buyer questionnaire guide | Adoption friction P1 **V1** — HCA ~41 |
 | TB-1632 | CAIQ/SIG help — contributor / repo-path leakage strip | Trustworthiness P0 **V1** — with **TB-1631** |
 | TB-1633 | CAIQ/SIG help — pen-test / SOC honesty alignment | Trustworthiness P0 **V1** — with **TB-1631** |
-| TB-1634 | CAIQ/SIG help — dual-doc dump / first-viewport density | Adoption friction P0 **V1** — with **TB-1631** |
-| TB-1635 | CAIQ/SIG help — Help Center + Trust / compliance-journey discovery IA | Adoption friction P0 **V1** — with **TB-1631** |
-| TB-1636 | `/help/comparison-replay` specialty guide + Open Compare CTA | Adoption friction P0 **V1** — CO ~48 |
-| TB-1637 | Compare/replay help — Help Center tier honesty | Trustworthiness P0 **V1** — with **TB-1636** |
-| TB-1638 | Compare/replay help — IA dual with repeat-review-loop | Adoption friction P0 **V1** — with **TB-1636** |
-| TB-1639 | Compare/replay help — compare vs replay first-viewport job chrome | Adoption friction P0 **V1** — with **TB-1636** |
-| TB-1640 | Compare/replay help — Related density + inbound labels | Adoption friction P0 **V1** — with **TB-1636** |
-| TB-1641 | `/help/creating-runs` permanent redirect to canonical review guide | Adoption friction P0 **V1** — HCR ~46 |
-| TB-1642 | creating-runs alias — “runs” URL jargon honesty | Trustworthiness P0 **V1** — with **TB-1641** |
-| TB-1643 | creating-runs alias — chain to same slug as TB-1258 | Adoption friction P0 **V1** — with **TB-1641** |
-| TB-1644 | creating-runs alias — traffic workbook fold HCR→HER/HR | Adoption friction P0 **V1** — with **TB-1641** |
-| TB-1645 | creating-runs alias — anti-reintro product deep-link CI | Testability P0 **V1** — after **TB-1641** |
-| TB-1481 | Alert routing — empty destinations+GettingStarted+create-card first viewport | Adoption friction P0 **V1** — with **TB-1477**; pairs **TB-1441** |
-| TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory | Testability P0 **V1** — after **TB-1477**–**TB-1481**; pairs Done **TB-1133** / empty **TB-1556** / side-rail **TB-1576** / **TB-1177**/**TB-1194** |
-| TB-1483 | `/compliance-journey` — MarketingPageShell + marketing tokens (parity `/trust`) | Adoption friction P0 **V1** — owner COM ~54/100; traffic **COM** |
-| TB-1484 | Compliance journey — ISR `revalidate=300` + surface test id | Performance/testability P0 **V1** — with **TB-1483**; pairs **TB-567** |
-| TB-1485 | Compliance journey — staged structure + primary Trust Center CTA (not flat link dump) | Adoption friction P0 **V1** — with **TB-1483** |
-| TB-1486 | Compliance journey — doc-link honesty (help vs downloads) + buyer labels | Trustworthiness P0 **V1** — with **TB-1483** |
-| TB-1487 | Compliance journey — CTA hierarchy + Verify dedupe | Adoption friction P0 **V1** — with **TB-1483** |
-| TB-1492 | `/digest-subscriptions` — single redirect shim (drop dual config+page / dead layout) | Maintainability P0 **V1** — owner IXX ~50/100; traffic **IXX**; pairs **TB-1441**/**TB-1404** |
-| TB-1493 | Owner traffic workbook — mark IXX redirect-only (inherit Digests Subscriptions tab) | Adoption friction P0 **V1** — with **TB-1492**; pairs **TB-1443**/**TB-1406** |
-| TB-1494 | CI drift — `/digest-subscriptions` must stay redirect-only | Testability P0 **V1** — after **TB-1492**; pairs **TB-1444**/**TB-1407** |
-| TB-1495 | Legacy `/digest-subscriptions` — canonicalize nav/seo/breadcrumb/readiness/axe | Trustworthiness P0 **V1** — with **TB-1492**; pairs **TB-1445** |
-| TB-1496 | `/digest-subscriptions` — permanent redirect inventory + trailing-slash SEO hygiene | Trustworthiness P0 **V1** — with **TB-1492** |
-| TB-1552 | Operator empty-state contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P0 **V1** — owner empty-state convention pass 2026-07-27; pairs **TB-1477**–**TB-1482** / **TB-1539** |
-| TB-1553 | Reviews hub empty — migrate hand-rolled dashed box → EnterpriseCompactEmptyState | Adoption friction P0 **V1** — with **TB-1552**; coordinate **TB-1541** |
-| TB-1554 | Operator EmptyState → Compact migration inventory (dense hubs) | Adoption friction P0 **V1** — after **TB-1552** |
-| TB-1555 | Empty-kind presets/helpers — collection / hub-zone / filtered / permission | Adoption friction P0 **V1** — after **TB-1552** |
-| TB-1556 | Vitest — Compact empty on allowlist + ban empty-theater stacks | Testability P0 **V1** — after **TB-1553**–**TB-1555**; pairs **TB-1482** |
-| TB-1572 | Operator side-rail contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P0 **V1** — owner side-rail convention pass 2026-07-27; pairs **TB-1552**–**TB-1556** / **TB-1477**–**TB-1482** |
-| TB-1573 | Ban teaching/static side rails — Recurrence helper demote + Advisory scope → inline | Adoption friction P0 **V1** — with **TB-1572**; pairs Done **TB-1133** / open **TB-1477** |
-| TB-1574 | Live preview/readiness rails — hide or stack when empty/sparse | Adoption friction P0 **V1** — with **TB-1572**; coordinate **TB-1478**/**TB-1479** |
-| TB-1575 | Key operator hubs — side-rail inventory (allow working-object / master-detail / TOC; demote about) | Adoption friction P0 **V1** — after **TB-1572** |
-| TB-1576 | Vitest — side-rail kind allowlist + ban teaching/static two-col on empty | Testability P0 **V1** — after **TB-1573**–**TB-1575**; pairs **TB-1482** / **TB-1556** |
-| TB-1646 | Operator populated-list contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P0 **V1** — owner populated-list convention pass 2026-07-27; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1539** |
-| TB-1647 | Advisory schedules + Alert rules — card stacks → EnterpriseTable (or justified entity-summary) | Adoption friction P0 **V1** — with **TB-1646**; pairs **TB-1477**/**TB-1479** |
-| TB-1648 | Slack + Webhooks — unify destination inventory on EnterpriseTable | Adoption friction P0 **V1** — with **TB-1646**; pairs **TB-1185**/**TB-1191** |
-| TB-1649 | Inventory honesty + action budget + raw-table migrate inventory | Adoption friction P0 **V1** — after **TB-1646**; Recurrence/Digests/Reviews/artifacts/users |
-| TB-1650 | Vitest — EnterpriseTable allowlist + ban inventing card/raw inventory | Testability P0 **V1** — after **TB-1647**–**TB-1649**; pairs **TB-1556** / **TB-1576** |
-| TB-1651 | `/help/data-handling` specialty buyer guide + Trust/security CTA | Adoption friction P0 **V1** — HED ~52 |
-| TB-1652 | Data-handling help — IA dual with data-handling-tenant-isolation | Adoption friction P0 **V1** — with **TB-1651** |
+| TB-1634 | CAIQ/SIG help — dual-doc dump / first-viewport density | Adoption friction P1 **V1** — with **TB-1631** |
+| TB-1635 | CAIQ/SIG help — Help Center + Trust / compliance-journey discovery IA | Adoption friction P1 **V1** — with **TB-1631** |
+| TB-1636 | `/help/comparison-replay` specialty guide + Open Compare CTA | Adoption friction P1 **V1** — CO ~48 |
+| TB-1637 | Compare/replay help — Help Center tier honesty | Trustworthiness P1 **V1** — with **TB-1636** |
+| TB-1638 | Compare/replay help — IA dual with repeat-review-loop | Adoption friction P1 **V1** — with **TB-1636** |
+| TB-1639 | Compare/replay help — compare vs replay first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1636** |
+| TB-1640 | Compare/replay help — Related density + inbound labels | Adoption friction P1 **V1** — with **TB-1636** |
+| TB-1641 | `/help/creating-runs` permanent redirect to canonical review guide | Adoption friction P1 **V1** — HCR ~46 |
+| TB-1642 | creating-runs alias — “runs” URL jargon honesty | Trustworthiness P1 **V1** — with **TB-1641** |
+| TB-1643 | creating-runs alias — chain to same slug as TB-1258 | Adoption friction P1 **V1** — with **TB-1641** |
+| TB-1644 | creating-runs alias — traffic workbook fold HCR→HER/HR | Adoption friction P2 **V1** — with **TB-1641** |
+| TB-1645 | creating-runs alias — anti-reintro product deep-link CI | Testability P2 **V1** — after **TB-1641** |
+| TB-1481 | Alert routing — empty destinations+GettingStarted+create-card first viewport | Adoption friction P1 **V1** — with **TB-1477**; pairs **TB-1441** |
+| TB-1482 | Shared empty form+rail whitespace contract + Vitest inventory | Testability P2 **V1** — after **TB-1477**–**TB-1481**; pairs Done **TB-1133** / empty **TB-1556** / side-rail **TB-1576** / **TB-1177**/**TB-1194** |
+| TB-1483 | `/compliance-journey` — MarketingPageShell + marketing tokens (parity `/trust`) | Adoption friction P1 **V1** — owner COM ~54/100; traffic **COM** |
+| TB-1484 | Compliance journey — ISR `revalidate=300` + surface test id | Performance/testability P2 **V1** — with **TB-1483**; pairs **TB-567** |
+| TB-1485 | Compliance journey — staged structure + primary Trust Center CTA (not flat link dump) | Adoption friction P1 **V1** — with **TB-1483** |
+| TB-1486 | Compliance journey — doc-link honesty (help vs downloads) + buyer labels | Trustworthiness P1 **V1** — with **TB-1483** |
+| TB-1487 | Compliance journey — CTA hierarchy + Verify dedupe | Adoption friction P1 **V1** — with **TB-1483** |
+| TB-1492 | `/digest-subscriptions` — single redirect shim (drop dual config+page / dead layout) | Maintainability P2 **V1** — owner IXX ~50/100; traffic **IXX**; pairs **TB-1441**/**TB-1404** |
+| TB-1493 | Owner traffic workbook — mark IXX redirect-only (inherit Digests Subscriptions tab) | Adoption friction P2 **V1** — with **TB-1492**; pairs **TB-1443**/**TB-1406** |
+| TB-1494 | CI drift — `/digest-subscriptions` must stay redirect-only | Testability P2 **V1** — after **TB-1492**; pairs **TB-1444**/**TB-1407** |
+| TB-1495 | Legacy `/digest-subscriptions` — canonicalize nav/seo/breadcrumb/readiness/axe | Trustworthiness P1 **V1** — with **TB-1492**; pairs **TB-1445** |
+| TB-1496 | `/digest-subscriptions` — permanent redirect inventory + trailing-slash SEO hygiene | Trustworthiness P1 **V1** — with **TB-1492** |
+| TB-1552 | Operator empty-state contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner empty-state convention pass 2026-07-27; pairs **TB-1477**–**TB-1482** / **TB-1539** |
+| TB-1553 | Reviews hub empty — migrate hand-rolled dashed box → EnterpriseCompactEmptyState | Adoption friction P1 **V1** — with **TB-1552**; coordinate **TB-1541** |
+| TB-1554 | Operator EmptyState → Compact migration inventory (dense hubs) | Adoption friction P1 **V1** — after **TB-1552** |
+| TB-1555 | Empty-kind presets/helpers — collection / hub-zone / filtered / permission | Adoption friction P1 **V1** — after **TB-1552** |
+| TB-1556 | Vitest — Compact empty on allowlist + ban empty-theater stacks | Testability P2 **V1** — after **TB-1553**–**TB-1555**; pairs **TB-1482** |
+| TB-1572 | Operator side-rail contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner side-rail convention pass 2026-07-27; pairs **TB-1552**–**TB-1556** / **TB-1477**–**TB-1482** |
+| TB-1573 | Ban teaching/static side rails — Recurrence helper demote + Advisory scope → inline | Adoption friction P1 **V1** — with **TB-1572**; pairs Done **TB-1133** / open **TB-1477** |
+| TB-1574 | Live preview/readiness rails — hide or stack when empty/sparse | Adoption friction P1 **V1** — with **TB-1572**; coordinate **TB-1478**/**TB-1479** |
+| TB-1575 | Key operator hubs — side-rail inventory (allow working-object / master-detail / TOC; demote about) | Adoption friction P1 **V1** — after **TB-1572** |
+| TB-1576 | Vitest — side-rail kind allowlist + ban teaching/static two-col on empty | Testability P2 **V1** — after **TB-1573**–**TB-1575**; pairs **TB-1482** / **TB-1556** |
+| TB-1646 | Operator populated-list contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner populated-list convention pass 2026-07-27; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1539** |
+| TB-1647 | Advisory schedules + Alert rules — card stacks → EnterpriseTable (or justified entity-summary) | Adoption friction P1 **V1** — with **TB-1646**; pairs **TB-1477**/**TB-1479** |
+| TB-1648 | Slack + Webhooks — unify destination inventory on EnterpriseTable | Adoption friction P1 **V1** — with **TB-1646**; pairs **TB-1185**/**TB-1191** |
+| TB-1649 | Inventory honesty + action budget + raw-table migrate inventory | Adoption friction P1 **V1** — after **TB-1646**; Recurrence/Digests/Reviews/artifacts/users |
+| TB-1650 | Vitest — EnterpriseTable allowlist + ban inventing card/raw inventory | Testability P2 **V1** — after **TB-1647**–**TB-1649**; pairs **TB-1556** / **TB-1576** |
+| TB-1651 | `/help/data-handling` specialty buyer guide + Trust/security CTA | Adoption friction P1 **V1** — HED ~52 |
+| TB-1652 | Data-handling help — IA dual with data-handling-tenant-isolation | Adoption friction P1 **V1** — with **TB-1651** |
 | TB-1653 | Data-handling help — isolation absolute-claim honesty | Trustworthiness P0 **V1** — with **TB-1651** |
-| TB-1654 | Data-handling help — leaves/stays first-viewport job chrome | Adoption friction P0 **V1** — with **TB-1651** |
-| TB-1655 | Data-handling help — Related + security-trust / Trust Center discovery | Adoption friction P0 **V1** — with **TB-1651** |
-| TB-1656 | `/help/data-handling-tenant-isolation` retarget SoT after TENANT_ISOLATION stub | Trustworthiness P0 **V1** — HDA ~38 |
-| TB-1657 | Tenant-isolation help — specialty guide + Trust/HED CTA | Adoption friction P0 **V1** — with **TB-1656** |
-| TB-1658 | Tenant-isolation help — IA dual with `/help/data-handling` | Adoption friction P0 **V1** — with **TB-1656** |
+| TB-1654 | Data-handling help — leaves/stays first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1651** |
+| TB-1655 | Data-handling help — Related + security-trust / Trust Center discovery | Adoption friction P1 **V1** — with **TB-1651** |
+| TB-1656 | `/help/data-handling-tenant-isolation` retarget SoT after TENANT_ISOLATION stub | Trustworthiness P1 **V1** — HDA ~38 |
+| TB-1657 | Tenant-isolation help — specialty guide + Trust/HED CTA | Adoption friction P1 **V1** — with **TB-1656** |
+| TB-1658 | Tenant-isolation help — IA dual with `/help/data-handling` | Adoption friction P1 **V1** — with **TB-1656** |
 | TB-1659 | Tenant-isolation help — pack-alias / eng-path leakage strip | Trustworthiness P0 **V1** — with **TB-1656** |
-| TB-1660 | Tenant-isolation help — Vitest Three-layers load + anti-stub-only | Testability P0 **V1** — after **TB-1656** |
-| TB-1666 | Operator page contextual-help contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P0 **V1** — owner OPH inventory 2026-07-27; traffic **OPH**; pairs **TB-1184**/**TB-1458** (do not reopen) |
-| TB-1667 | Pilot + analysis — mount PageContextualHelpButton on mapped-but-unmounted hubs | Adoption friction P0 **V1** — with **TB-1666** |
-| TB-1668 | Governance + sponsor-report — mount help icon + fix alerts topic mapping | Adoption friction P0 **V1** — with **TB-1666**; pairs **TB-1134**/**TB-1434** |
-| TB-1669 | Integrations + topic-map/registry completeness for remaining nav surfaces | Adoption friction P0 **V1** — with **TB-1666**; coordinate **TB-1139**/**TB-1184**–**TB-1195** |
-| TB-1670 | Vitest — PageContextualHelpButton allowlist + non-null topic guard | Testability P0 **V1** — after **TB-1667**–**TB-1669** |
-| TB-1671 | Operator inline-link affordance contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P0 **V1** — owner OLA unstyled-link pass 2026-07-27; traffic **OLA**; pairs a11y baseline / **TB-1539** |
-| TB-1672 | Compare + provenance — bare body/outline links → OPERATOR_LINK | Accessibility P0 **V1** — with **TB-1671** |
-| TB-1673 | Home + Reviews hub + marketing/core-pilot — resting link affordance | Adoption friction P0 **V1** — with **TB-1671**; pairs **TB-1539** |
-| TB-1674 | Finding badges + secondary surfaces — StatusTag-as-link cue + export/ID/pinned inventory | Adoption friction P0 **V1** — with **TB-1671** |
-| TB-1675 | Vitest — bare navigational `<a>`/`<Link>` affordance allowlist + ban inherit-only body links | Testability P0 **V1** — after **TB-1672**–**TB-1674**; pairs **TB-1671** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** / **TB-1670** |
-| TB-1676 | `/help/dpa-template` specialty buyer DPA guide + request/download CTA | Adoption friction P0 **V1** — HDP ~40 |
+| TB-1660 | Tenant-isolation help — Vitest Three-layers load + anti-stub-only | Testability P2 **V1** — after **TB-1656** |
+| TB-1666 | Operator page contextual-help contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner OPH inventory 2026-07-27; traffic **OPH**; pairs **TB-1184**/**TB-1458** (do not reopen) |
+| TB-1667 | Pilot + analysis — mount PageContextualHelpButton on mapped-but-unmounted hubs | Adoption friction P1 **V1** — with **TB-1666** |
+| TB-1668 | Governance + sponsor-report — mount help icon + fix alerts topic mapping | Adoption friction P1 **V1** — with **TB-1666**; pairs **TB-1134**/**TB-1434** |
+| TB-1669 | Integrations + topic-map/registry completeness for remaining nav surfaces | Adoption friction P1 **V1** — with **TB-1666**; coordinate **TB-1139**/**TB-1184**–**TB-1195** |
+| TB-1670 | Vitest — PageContextualHelpButton allowlist + non-null topic guard | Testability P2 **V1** — after **TB-1667**–**TB-1669** |
+| TB-1671 | Operator inline-link affordance contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner OLA unstyled-link pass 2026-07-27; traffic **OLA**; pairs a11y baseline / **TB-1539** |
+| TB-1672 | Compare + provenance — bare body/outline links → OPERATOR_LINK | Accessibility P1 **V1** — with **TB-1671** |
+| TB-1673 | Home + Reviews hub + marketing/core-pilot — resting link affordance | Adoption friction P1 **V1** — with **TB-1671**; pairs **TB-1539** |
+| TB-1674 | Finding badges + secondary surfaces — StatusTag-as-link cue + export/ID/pinned inventory | Adoption friction P1 **V1** — with **TB-1671** |
+| TB-1675 | Vitest — bare navigational `<a>`/`<Link>` affordance allowlist + ban inherit-only body links | Testability P2 **V1** — after **TB-1672**–**TB-1674**; pairs **TB-1671** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** / **TB-1670** |
+| TB-1676 | `/help/dpa-template` specialty buyer DPA guide + request/download CTA | Adoption friction P1 **V1** — HDP ~40 |
 | TB-1677 | DPA help — contributor / .md path leakage strip | Trustworthiness P0 **V1** — with **TB-1676** |
-| TB-1678 | DPA help — placeholder / negotiation-template first-viewport honesty | Trustworthiness P0 **V1** — with **TB-1676** |
-| TB-1679 | DPA help — Help Center discovery + Trust/subprocessors IA | Adoption friction P0 **V1** — with **TB-1676** |
-| TB-1680 | DPA help — runs jargon + dense clause dump defer | Adoption friction P0 **V1** — with **TB-1676** |
-| TB-1681 | `/help/evidence-only-review` specialty guide + Start review CTA | Adoption friction P0 **V1** — HEV ~42 |
-| TB-1682 | Evidence-only help — stop CORE_PILOT intro dump | Adoption friction P0 **V1** — with **TB-1681** |
-| TB-1683 | Evidence-only help — IA dual with `/help/core-pilot` | Adoption friction P0 **V1** — with **TB-1681** |
-| TB-1684 | Evidence-only help — extract-upload vs `/reviews/new` CTA honesty | Trustworthiness P0 **V1** — with **TB-1681** |
-| TB-1685 | Evidence-only help — first-viewport job chrome | Adoption friction P0 **V1** — with **TB-1681** |
-| TB-1686 | `/help/executive-summary` retarget SoT off FAQ dump → sponsor brief | Trustworthiness P0 **V1** — EXE ~30 |
-| TB-1687 | Executive-summary help — specialty guide + Open ROI/sponsor CTA | Adoption friction P0 **V1** — with **TB-1686** |
+| TB-1678 | DPA help — placeholder / negotiation-template first-viewport honesty | Trustworthiness P1 **V1** — with **TB-1676** |
+| TB-1679 | DPA help — Help Center discovery + Trust/subprocessors IA | Adoption friction P1 **V1** — with **TB-1676** |
+| TB-1680 | DPA help — runs jargon + dense clause dump defer | Adoption friction P1 **V1** — with **TB-1676** |
+| TB-1681 | `/help/evidence-only-review` specialty guide + Start review CTA | Adoption friction P1 **V1** — HEV ~42 |
+| TB-1682 | Evidence-only help — stop CORE_PILOT intro dump | Adoption friction P1 **V1** — with **TB-1681** |
+| TB-1683 | Evidence-only help — IA dual with `/help/core-pilot` | Adoption friction P1 **V1** — with **TB-1681** |
+| TB-1684 | Evidence-only help — extract-upload vs `/reviews/new` CTA honesty | Trustworthiness P1 **V1** — with **TB-1681** |
+| TB-1685 | Evidence-only help — first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1681** |
+| TB-1686 | `/help/executive-summary` retarget SoT off FAQ dump → sponsor brief | Trustworthiness P1 **V1** — EXE ~30 |
+| TB-1687 | Executive-summary help — specialty guide + Open ROI/sponsor CTA | Adoption friction P1 **V1** — with **TB-1686** |
 | TB-1688 | Executive-summary help — contributor FAQ / .md leakage strip | Trustworthiness P0 **V1** — with **TB-1686** |
-| TB-1689 | Executive-summary help — fix in-app-doc-href catch-all mappings | Trustworthiness P0 **V1** — with **TB-1686** |
-| TB-1690 | Executive-summary help — title/body honesty | Trustworthiness P0 **V1** — with **TB-1686** |
-| TB-1691 | `/help/first-value-20-minutes` retarget body to 20-min section | Adoption friction P0 **V1** — HEF ~40 |
-| TB-1692 | First-value-20 help — specialty Admin chrome + customer-path CTA | Adoption friction P0 **V1** — with **TB-1691** |
+| TB-1689 | Executive-summary help — fix in-app-doc-href catch-all mappings | Trustworthiness P1 **V1** — with **TB-1686** |
+| TB-1690 | Executive-summary help — title/body honesty | Trustworthiness P1 **V1** — with **TB-1686** |
+| TB-1691 | `/help/first-value-20-minutes` retarget body to 20-min section | Adoption friction P1 **V1** — HEF ~40 |
+| TB-1692 | First-value-20 help — specialty Admin chrome + customer-path CTA | Adoption friction P1 **V1** — with **TB-1691** |
 | TB-1693 | First-value-20 help — CLI/dotnet / runbook-path leakage strip | Trustworthiness P0 **V1** — with **TB-1691** |
-| TB-1694 | First-value-20 help — IA dual with core-pilot / first-pilot-path / first-run | Adoption friction P0 **V1** — with **TB-1691** |
-| TB-1695 | First-value-20 help — slug/title vs FIRST_PILOT_OPERATOR_PATH honesty | Trustworthiness P0 **V1** — with **TB-1691** |
-| TB-1696 | `/help/integration-readiness` specialty guide + Open readiness CTA | Adoption friction P0 **V1** — HEI ~50 |
-| TB-1697 | Integration-readiness help — Help Center tier honesty | Trustworthiness P0 **V1** — with **TB-1696** |
-| TB-1698 | Integration-readiness help — digests/advisory configure-href honesty | Trustworthiness P0 **V1** — with **TB-1696** |
-| TB-1699 | Integration-readiness help — status-label first-viewport density | Adoption friction P0 **V1** — with **TB-1696** |
-| TB-1700 | Integration-readiness help — Related + Integrations hub IA | Adoption friction P0 **V1** — with **TB-1696** |
-| TB-1701 | `/help/integrations/azure-boards` permanent redirect (execute TB-1623) | Adoption friction P0 **V1** — HEZ ~48 |
-| TB-1702 | HEZ alias — traffic workbook fold → HAZ | Adoption friction P0 **V1** — with **TB-1701** |
-| TB-1703 | HEZ alias — anti-reintro product deep-link CI | Testability P0 **V1** — after **TB-1701** |
-| TB-1704 | HEZ alias — soft-normalize URL honesty | Trustworthiness P0 **V1** — with **TB-1701** |
-| TB-1705 | HEZ alias — Vitest/e2e alias→`/help/azure-boards` | Testability P0 **V1** — after **TB-1701** |
-| TB-1706 | `/help/operator-auth-roles` permanent redirect to users-and-roles | Adoption friction P0 **V1** — HEO ~47 |
-| TB-1707 | HEO alias — “operator-auth” URL jargon honesty | Trustworthiness P0 **V1** — with **TB-1706** |
-| TB-1708 | HEO alias — traffic workbook fold → HOE | Adoption friction P0 **V1** — with **TB-1706** |
-| TB-1709 | HEO alias — anti-reintro product deep-link CI | Testability P0 **V1** — after **TB-1706** |
-| TB-1710 | HEO alias — Vitest/e2e alias→`/help/users-and-roles` | Testability P0 **V1** — after **TB-1706** |
-| TB-1711 | `/help/path-chooser` specialty next-step chooser | Adoption friction P0 **V1** — HPX ~35 |
+| TB-1694 | First-value-20 help — IA dual with core-pilot / first-pilot-path / first-run | Adoption friction P1 **V1** — with **TB-1691** |
+| TB-1695 | First-value-20 help — slug/title vs FIRST_PILOT_OPERATOR_PATH honesty | Trustworthiness P1 **V1** — with **TB-1691** |
+| TB-1696 | `/help/integration-readiness` specialty guide + Open readiness CTA | Adoption friction P1 **V1** — HEI ~50 |
+| TB-1697 | Integration-readiness help — Help Center tier honesty | Trustworthiness P1 **V1** — with **TB-1696** |
+| TB-1698 | Integration-readiness help — digests/advisory configure-href honesty | Trustworthiness P1 **V1** — with **TB-1696** |
+| TB-1699 | Integration-readiness help — status-label first-viewport density | Adoption friction P1 **V1** — with **TB-1696** |
+| TB-1700 | Integration-readiness help — Related + Integrations hub IA | Adoption friction P1 **V1** — with **TB-1696** |
+| TB-1701 | `/help/integrations/azure-boards` permanent redirect (execute TB-1623) | Adoption friction P1 **V1** — HEZ ~48 |
+| TB-1702 | HEZ alias — traffic workbook fold → HAZ | Adoption friction P2 **V1** — with **TB-1701** |
+| TB-1703 | HEZ alias — anti-reintro product deep-link CI | Testability P2 **V1** — after **TB-1701** |
+| TB-1704 | HEZ alias — soft-normalize URL honesty | Trustworthiness P1 **V1** — with **TB-1701** |
+| TB-1705 | HEZ alias — Vitest/e2e alias→`/help/azure-boards` | Testability P2 **V1** — after **TB-1701** |
+| TB-1706 | `/help/operator-auth-roles` permanent redirect to users-and-roles | Adoption friction P1 **V1** — HEO ~47 |
+| TB-1707 | HEO alias — “operator-auth” URL jargon honesty | Trustworthiness P1 **V1** — with **TB-1706** |
+| TB-1708 | HEO alias — traffic workbook fold → HOE | Adoption friction P2 **V1** — with **TB-1706** |
+| TB-1709 | HEO alias — anti-reintro product deep-link CI | Testability P2 **V1** — after **TB-1706** |
+| TB-1710 | HEO alias — Vitest/e2e alias→`/help/users-and-roles` | Testability P2 **V1** — after **TB-1706** |
+| TB-1711 | `/help/path-chooser` specialty next-step chooser | Adoption friction P1 **V1** — HPX ~35 |
 | TB-1712 | Path-chooser help — GTM/runbook .md leakage strip | Trustworthiness P0 **V1** — with **TB-1711** |
-| TB-1713 | Path-chooser help — branch primary CTAs | Adoption friction P0 **V1** — with **TB-1711** |
-| TB-1714 | Path-chooser help — deferred ITSM + eng-help link honesty | Trustworthiness P0 **V1** — with **TB-1711** |
-| TB-1715 | Path-chooser help — slug/title honesty + Related density | Adoption friction P0 **V1** — with **TB-1711** |
-| TB-1716 | `/help/pilot-feedback` specialty Admin guide + Open Pilot feedback CTA | Adoption friction P0 **V1** — HPE ~45 |
+| TB-1713 | Path-chooser help — branch primary CTAs | Adoption friction P1 **V1** — with **TB-1711** |
+| TB-1714 | Path-chooser help — deferred ITSM + eng-help link honesty | Trustworthiness P1 **V1** — with **TB-1711** |
+| TB-1715 | Path-chooser help — slug/title honesty + Related density | Adoption friction P1 **V1** — with **TB-1711** |
+| TB-1716 | `/help/pilot-feedback` specialty Admin guide + Open Pilot feedback CTA | Adoption friction P1 **V1** — HPE ~45 |
 | TB-1717 | Pilot-feedback help — API/SQL/StorageProvider leakage strip | Trustworthiness P0 **V1** — with **TB-1716** |
-| TB-1718 | Pilot-feedback help — title honesty (drop 58R / Product learning H1 dual) | Trustworthiness P0 **V1** — with **TB-1716** |
-| TB-1719 | Pilot-feedback help — IA dual with recommendation learning / pilot-nav | Adoption friction P0 **V1** — with **TB-1716** |
-| TB-1720 | Pilot-feedback help — first-viewport job chrome | Adoption friction P0 **V1** — with **TB-1716** |
-| TB-1721 | `/help/pilot-nav-profile` specialty nav guide + Open Home CTA | Adoption friction P0 **V1** — PIL ~52 |
-| TB-1722 | Workspace-nav help — slug/pilot-nav jargon honesty | Trustworthiness P0 **V1** — with **TB-1721** |
-| TB-1723 | Workspace-nav help — Help Center catalog discovery | Adoption friction P0 **V1** — with **TB-1721** |
-| TB-1724 | Workspace-nav help — IA dual with core-pilot / first-hour | Adoption friction P0 **V1** — with **TB-1721** |
-| TB-1725 | Workspace-nav help — Related density + executive-shell copy honesty | Adoption friction P0 **V1** — with **TB-1721** |
-| TB-1726 | `/help/policy-pack-delta-demo` specialty Admin demo guide + Open policy-packs CTA | Adoption friction P0 **V1** — POL ~38 |
+| TB-1718 | Pilot-feedback help — title honesty (drop 58R / Product learning H1 dual) | Trustworthiness P1 **V1** — with **TB-1716** |
+| TB-1719 | Pilot-feedback help — IA dual with recommendation learning / pilot-nav | Adoption friction P1 **V1** — with **TB-1716** |
+| TB-1720 | Pilot-feedback help — first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1716** |
+| TB-1721 | `/help/pilot-nav-profile` specialty nav guide + Open Home CTA | Adoption friction P1 **V1** — PIL ~52 |
+| TB-1722 | Workspace-nav help — slug/pilot-nav jargon honesty | Trustworthiness P1 **V1** — with **TB-1721** |
+| TB-1723 | Workspace-nav help — Help Center catalog discovery | Adoption friction P1 **V1** — with **TB-1721** |
+| TB-1724 | Workspace-nav help — IA dual with core-pilot / first-hour | Adoption friction P1 **V1** — with **TB-1721** |
+| TB-1725 | Workspace-nav help — Related density + executive-shell copy honesty | Adoption friction P1 **V1** — with **TB-1721** |
+| TB-1726 | `/help/policy-pack-delta-demo` specialty Admin demo guide + Open policy-packs CTA | Adoption friction P1 **V1** — POL ~38 |
 | TB-1727 | Policy-pack-delta help — HTTP/config/script/GUID leakage strip | Trustworthiness P0 **V1** — with **TB-1726** |
-| TB-1728 | Policy-pack-delta help — title honesty | Trustworthiness P0 **V1** — with **TB-1726** |
-| TB-1729 | Policy-pack-delta help — IA dual with governance-approval / alerts | Adoption friction P0 **V1** — with **TB-1726** |
-| TB-1730 | Policy-pack-delta help — 5-min arc first-viewport before Phase dump | Adoption friction P0 **V1** — with **TB-1726** |
-| TB-1731 | `/help/prior-manifest-retrieval` specialty Ask-memory guide + Open Ask CTA | Adoption friction P0 **V1** — HEP ~50 |
-| TB-1732 | Prior-manifest help — manifest/retrieval jargon honesty | Trustworthiness P0 **V1** — with **TB-1731** |
+| TB-1728 | Policy-pack-delta help — title honesty | Trustworthiness P1 **V1** — with **TB-1726** |
+| TB-1729 | Policy-pack-delta help — IA dual with governance-approval / alerts | Adoption friction P1 **V1** — with **TB-1726** |
+| TB-1730 | Policy-pack-delta help — 5-min arc first-viewport before Phase dump | Adoption friction P1 **V1** — with **TB-1726** |
+| TB-1731 | `/help/prior-manifest-retrieval` specialty Ask-memory guide + Open Ask CTA | Adoption friction P1 **V1** — HEP ~50 |
+| TB-1732 | Prior-manifest help — manifest/retrieval jargon honesty | Trustworthiness P1 **V1** — with **TB-1731** |
 | TB-1733 | Prior-manifest help — host config key leakage strip | Trustworthiness P0 **V1** — with **TB-1731** |
-| TB-1734 | Prior-manifest help — IA dual with repeat-review / compare | Adoption friction P0 **V1** — with **TB-1731** |
-| TB-1735 | Prior-manifest help — Related + finalize-success inbound copy | Adoption friction P0 **V1** — with **TB-1731** |
-| TB-1736 | `/help/product-overview` specialty buyer overview + Start CTA | Adoption friction P0 **V1** — HPR ~42 |
-| TB-1737 | Product-overview help — title honesty (sponsor brief vs product overview) | Trustworthiness P0 **V1** — with **TB-1736** |
+| TB-1734 | Prior-manifest help — IA dual with repeat-review / compare | Adoption friction P1 **V1** — with **TB-1731** |
+| TB-1735 | Prior-manifest help — Related + finalize-success inbound copy | Adoption friction P1 **V1** — with **TB-1731** |
+| TB-1736 | `/help/product-overview` specialty buyer overview + Start CTA | Adoption friction P1 **V1** — HPR ~42 |
+| TB-1737 | Product-overview help — title honesty (sponsor brief vs product overview) | Trustworthiness P1 **V1** — with **TB-1736** |
 | TB-1738 | Product-overview help — eng/GTM path + type leakage strip | Trustworthiness P0 **V1** — with **TB-1736** |
-| TB-1739 | Product-overview help — IA dual with executive-summary / path-chooser | Adoption friction P0 **V1** — with **TB-1736** |
-| TB-1740 | Product-overview help — elevator/M-18 outreach dump vs overview job | Adoption friction P0 **V1** — with **TB-1736** |
-| TB-1741 | `/help/report-a-problem` specialty support guide + Open Settings Support CTA | Adoption friction P0 **V1** — HRE ~55 |
-| TB-1742 | Report-a-problem help — dead-end when Report button absent | Adoption friction P0 **V1** — with **TB-1741** |
-| TB-1743 | Report-a-problem help — IA dual with troubleshooting | Adoption friction P0 **V1** — with **TB-1741** |
-| TB-1744 | Report-a-problem help — first-viewport where-it-appears before field dump | Adoption friction P0 **V1** — with **TB-1741** |
-| TB-1745 | Report-a-problem help — Related density + email fallback CTA | Adoption friction P0 **V1** — with **TB-1741** |
-| TB-1746 | `/help/soc2-self-assessment` specialty buyer guide + Trust CTA | Adoption friction P0 **V1** — HES ~40 |
+| TB-1739 | Product-overview help — IA dual with executive-summary / path-chooser | Adoption friction P1 **V1** — with **TB-1736** |
+| TB-1740 | Product-overview help — elevator/M-18 outreach dump vs overview job | Adoption friction P1 **V1** — with **TB-1736** |
+| TB-1741 | `/help/report-a-problem` specialty support guide + Open Settings Support CTA | Adoption friction P1 **V1** — HRE ~55 |
+| TB-1742 | Report-a-problem help — dead-end when Report button absent | Adoption friction P1 **V1** — with **TB-1741** |
+| TB-1743 | Report-a-problem help — IA dual with troubleshooting | Adoption friction P1 **V1** — with **TB-1741** |
+| TB-1744 | Report-a-problem help — first-viewport where-it-appears before field dump | Adoption friction P1 **V1** — with **TB-1741** |
+| TB-1745 | Report-a-problem help — Related density + email fallback CTA | Adoption friction P1 **V1** — with **TB-1741** |
+| TB-1746 | `/help/soc2-self-assessment` specialty buyer guide + Trust CTA | Adoption friction P1 **V1** — HES ~40 |
 | TB-1747 | SOC2 self-assessment help — contributor / repo-path leakage strip | Trustworthiness P0 **V1** — with **TB-1746** |
 | TB-1748 | SOC2 self-assessment help — Type I calendar / roadmap commitment honesty | Trustworthiness P0 **V1** — with **TB-1746** |
-| TB-1749 | SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement | Adoption friction P0 **V1** — with **TB-1746** |
-| TB-1750 | SOC2 self-assessment help — title + Help Center discovery | Adoption friction P0 **V1** — with **TB-1746** |
-| TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA | Adoption friction P0 **V1** — HSU ~44 |
+| TB-1749 | SOC2 self-assessment help — IA dual with CAIQ / Trust / procurement | Adoption friction P1 **V1** — with **TB-1746** |
+| TB-1750 | SOC2 self-assessment help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1746** |
+| TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA | Adoption friction P1 **V1** — HSU ~44 |
 | TB-1752 | Subprocessors help — contributor / repo-path leakage strip | Trustworthiness P0 **V1** — with **TB-1751** |
-| TB-1753 | Subprocessors help — IA dual with DPA / Trust | Adoption friction P0 **V1** — with **TB-1751** |
-| TB-1754 | Subprocessors help — title + Help Center discovery | Adoption friction P0 **V1** — with **TB-1751** |
+| TB-1753 | Subprocessors help — IA dual with DPA / Trust | Adoption friction P1 **V1** — with **TB-1751** |
+| TB-1754 | Subprocessors help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1751** |
 | TB-1755 | Subprocessors help — residency / contributor-note honesty | Trustworthiness P0 **V1** — with **TB-1751** |
-| TB-1756 | `/integrations/azure-boards` operator density / whitespace after TB-1151 pack | Adoption friction P0 **V1** — IAZ ~38 |
-| TB-1757 | Azure Boards aside — setup chip StatusTag parity | Adoption friction P0 **V1** — with **TB-1756** |
-| TB-1758 | Azure Boards — load skeleton / partial-refresh honesty | Adoption friction P0 **V1** — with **TB-1756** |
-| TB-1759 | Azure Boards page-help inbound → canonical `/help/azure-boards` | Adoption friction P0 **V1** — with **TB-1756** |
-| TB-1760 | Azure Boards Vitest — Promise.all isolation + loadError sanitize guard | Testability P0 **V1** — with **TB-1756** |
-| TB-1761 | `/integrations/cloud-connections/aws` Azure-parity guided connect wizard | Adoption friction P0 **V1** — INC ~44 |
-| TB-1762 | AWS cloud detail — live Validate + Recent activity (replace stubs) | Trustworthiness P0 **V1** — with **TB-1761** |
-| TB-1763 | AWS cloud detail — Tier 2 / hosted-poll jargon purge in errors | Trustworthiness P0 **V1** — with **TB-1761** |
-| TB-1764 | AWS cloud detail — empty/connected single primary CTA | Adoption friction P0 **V1** — with **TB-1761** |
-| TB-1765 | AWS cloud detail — copyable federation trust-policy starter | Trustworthiness P0 **V1** — with **TB-1761** |
-| TB-1766 | `/integrations/cloud-connections/azure` Tier/hosted-pull jargon purge | Trustworthiness P0 **V1** — INZ ~72 |
-| TB-1767 | Azure cloud detail — collapse or wire Validate + Recent activity stubs | Trustworthiness P0 **V1** — with **TB-1766** |
-| TB-1768 | Azure cloud detail — page-help → `/help/cloud-connections/azure` | Adoption friction P0 **V1** — with **TB-1766** |
-| TB-1769 | Azure cloud detail — hydrate saved connection + disconnect/re-validate CTA | Adoption friction P0 **V1** — with **TB-1766** |
-| TB-1770 | Azure cloud detail — Vitest banned jargon + no stub Validate/Activity | Testability P0 **V1** — with **TB-1766** |
+| TB-1756 | `/integrations/azure-boards` operator density / whitespace after TB-1151 pack | Adoption friction P1 **V1** — IAZ ~38 |
+| TB-1757 | Azure Boards aside — setup chip StatusTag parity | Adoption friction P1 **V1** — with **TB-1756** |
+| TB-1758 | Azure Boards — load skeleton / partial-refresh honesty | Adoption friction P1 **V1** — with **TB-1756** |
+| TB-1759 | Azure Boards page-help inbound → canonical `/help/azure-boards` | Adoption friction P1 **V1** — with **TB-1756** |
+| TB-1760 | Azure Boards Vitest — Promise.all isolation + loadError sanitize guard | Testability P2 **V1** — with **TB-1756** |
+| TB-1761 | `/integrations/cloud-connections/aws` Azure-parity guided connect wizard | Adoption friction P1 **V1** — INC ~44 |
+| TB-1762 | AWS cloud detail — live Validate + Recent activity (replace stubs) | Trustworthiness P1 **V1** — with **TB-1761** |
+| TB-1763 | AWS cloud detail — Tier 2 / hosted-poll jargon purge in errors | Trustworthiness P1 **V1** — with **TB-1761** |
+| TB-1764 | AWS cloud detail — empty/connected single primary CTA | Adoption friction P1 **V1** — with **TB-1761** |
+| TB-1765 | AWS cloud detail — copyable federation trust-policy starter | Trustworthiness P1 **V1** — with **TB-1761** |
+| TB-1766 | `/integrations/cloud-connections/azure` Tier/hosted-pull jargon purge | Trustworthiness P1 **V1** — INZ ~72 |
+| TB-1767 | Azure cloud detail — collapse or wire Validate + Recent activity stubs | Trustworthiness P1 **V1** — with **TB-1766** |
+| TB-1768 | Azure cloud detail — page-help → `/help/cloud-connections/azure` | Adoption friction P1 **V1** — with **TB-1766** |
+| TB-1769 | Azure cloud detail — hydrate saved connection + disconnect/re-validate CTA | Adoption friction P1 **V1** — with **TB-1766** |
+| TB-1770 | Azure cloud detail — Vitest banned jargon + no stub Validate/Activity | Testability P2 **V1** — with **TB-1766** |
 | TB-1771 | `/integrations/cloud-connections/gcp` purge Preview maturity copy | Trustworthiness P0 **V1** — IGC ~44 |
-| TB-1772 | GCP cloud detail — Azure-parity guided connect wizard | Adoption friction P0 **V1** — with **TB-1771** |
-| TB-1773 | GCP cloud detail — live Validate + Recent activity (or collapse stubs) | Trustworthiness P0 **V1** — with **TB-1771** |
-| TB-1774 | GCP cloud detail — Tier 2 / hosted-poll jargon purge | Trustworthiness P0 **V1** — with **TB-1771** |
-| TB-1775 | GCP cloud detail — copyable WIF pool-provider starter | Trustworthiness P0 **V1** — with **TB-1771** |
+| TB-1772 | GCP cloud detail — Azure-parity guided connect wizard | Adoption friction P1 **V1** — with **TB-1771** |
+| TB-1773 | GCP cloud detail — live Validate + Recent activity (or collapse stubs) | Trustworthiness P1 **V1** — with **TB-1771** |
+| TB-1774 | GCP cloud detail — Tier 2 / hosted-poll jargon purge | Trustworthiness P1 **V1** — with **TB-1771** |
+| TB-1775 | GCP cloud detail — copyable WIF pool-provider starter | Trustworthiness P1 **V1** — with **TB-1771** |
 | TB-1776 | `/integrations/itsm` redirect shim — carve OAuth callback from wildcard | Correctness P0 **V1** — INT ~12 |
-| TB-1777 | ITSM legacy path — Vitest next.config + OAuth redirect URI reachability | Testability P0 **V1** — with **TB-1776** |
-| TB-1778 | ITSM legacy path — retire or quarantine dead ItsmIntegrationPageClient | Maintainability P0 **V1** — with **TB-1776** |
-| TB-1779 | ITSM legacy traffic — mark INT redirect-only + fold workbook notes | Adoption friction P0 **V1** — with **TB-1776** |
-| TB-1780 | ITSM legacy — canonicalize product deep-links to readiness / jira / servicenow | Trustworthiness P0 **V1** — with **TB-1776** |
+| TB-1777 | ITSM legacy path — Vitest next.config + OAuth redirect URI reachability | Testability P2 **V1** — with **TB-1776** |
+| TB-1778 | ITSM legacy path — retire or quarantine dead ItsmIntegrationPageClient | Maintainability P2 **V1** — with **TB-1776** |
+| TB-1779 | ITSM legacy traffic — mark INT redirect-only + fold workbook notes | Adoption friction P1 **V1** — with **TB-1776** |
+| TB-1780 | ITSM legacy — canonicalize product deep-links to readiness / jira / servicenow | Trustworthiness P1 **V1** — with **TB-1776** |
 | TB-1781 | INA OAuth callback — blocked until TB-1776 carve; traffic honesty | Correctness P0 **V1** — INA ~10 |
-| TB-1782 | Atlassian OAuth callback — brand shell + loading honesty | Adoption friction P0 **V1** — with **TB-1781** |
-| TB-1783 | Atlassian OAuth callback — success copy + primary Open Jira CTA | Adoption friction P0 **V1** — with **TB-1781** |
-| TB-1784 | Atlassian OAuth callback — error copy honesty (no raw IdP/engine dump) | Trustworthiness P0 **V1** — with **TB-1781** |
-| TB-1785 | Atlassian OAuth callback — Vitest success/fail/cancel states | Testability P0 **V1** — with **TB-1781** |
-| TB-1786 | INR traffic/SEO honesty — Internal Ops not Marketing | Trustworthiness P0 **V1** — INR ~52 |
-| TB-1787 | Recommendation-learning ops — single surface (retire orphan polished UI) | Maintainability P0 **V1** — with **TB-1786** |
-| TB-1788 | Recommendation-learning ops — Load persisted vs Refresh toolbar honesty | Adoption friction P0 **V1** — with **TB-1786** |
-| TB-1789 | Recommendation-learning ops — enterprise chrome (header/StatusTag/EnterpriseTable) | Adoption friction P0 **V1** — with **TB-1786** |
-| TB-1790 | Recommendation-learning ops — Vitest preview/rebuild/rollback + Execute gate | Testability P0 **V1** — with **TB-1786** |
-| TB-1791 | `/login` Vitest redirect matrix (signin + idle-timeout) | Testability P0 **V1** — LOX ~12 |
+| TB-1782 | Atlassian OAuth callback — brand shell + loading honesty | Adoption friction P1 **V1** — with **TB-1781** |
+| TB-1783 | Atlassian OAuth callback — success copy + primary Open Jira CTA | Adoption friction P1 **V1** — with **TB-1781** |
+| TB-1784 | Atlassian OAuth callback — error copy honesty (no raw IdP/engine dump) | Trustworthiness P1 **V1** — with **TB-1781** |
+| TB-1785 | Atlassian OAuth callback — Vitest success/fail/cancel states | Testability P2 **V1** — with **TB-1781** |
+| TB-1786 | INR traffic/SEO honesty — Internal Ops not Marketing | Trustworthiness P1 **V1** — INR ~52 |
+| TB-1787 | Recommendation-learning ops — single surface (retire orphan polished UI) | Maintainability P2 **V1** — with **TB-1786** |
+| TB-1788 | Recommendation-learning ops — Load persisted vs Refresh toolbar honesty | Adoption friction P1 **V1** — with **TB-1786** |
+| TB-1789 | Recommendation-learning ops — enterprise chrome (header/StatusTag/EnterpriseTable) | Adoption friction P1 **V1** — with **TB-1786** |
+| TB-1790 | Recommendation-learning ops — Vitest preview/rebuild/rollback + Execute gate | Testability P2 **V1** — with **TB-1786** |
+| TB-1791 | `/login` Vitest redirect matrix (signin + idle-timeout) | Testability P2 **V1** — LOX ~12 |
 | TB-1792 | `/login` — multi-value searchParams fidelity | Correctness P0 **V1** — with **TB-1791** |
-| TB-1793 | `/login` — robots/noindex + metadata honesty (shim not a page) | Trustworthiness P0 **V1** — with **TB-1791** |
-| TB-1794 | `/login` — traffic redirect-only + canonicalize inbound links | Adoption friction P0 **V1** — with **TB-1791** |
-| TB-1795 | Docs/help — login language → `/auth/signin` (keep shim) | Trustworthiness P0 **V1** — with **TB-1791** |
-| TB-1796 | `/onboard` Vitest multi-value searchParams (parity ONS) | Testability P0 **V1** — ON ~12 |
-| TB-1797 | `/onboard` — robots/noindex + metadata honesty (shim not a page) | Trustworthiness P0 **V1** — with **TB-1796** |
-| TB-1798 | `/onboard` — traffic redirect-only workbook honesty | Adoption friction P0 **V1** — with **TB-1796** |
-| TB-1799 | Canonicalize inbound `/onboard` → `/onboarding` (nav/docs) | Trustworthiness P0 **V1** — with **TB-1796** |
-| TB-1800 | Drop `/onboard` from marketing SEO path inventory (keep shim) | Trustworthiness P0 **V1** — with **TB-1796** |
-| TB-1801 | `/onboarding/start` traffic redirect-only workbook honesty | Adoption friction P0 **V1** — ONS ~12 |
-| TB-1802 | `/onboarding/start` — robots/noindex + metadata honesty | Trustworthiness P0 **V1** — with **TB-1801** |
-| TB-1803 | Canonicalize inbound `/onboarding/start` → `/onboarding` | Trustworthiness P0 **V1** — with **TB-1801** |
-| TB-1804 | Drop `/onboarding/start` from marketing SEO inventory (keep shim) | Trustworthiness P0 **V1** — with **TB-1801** |
-| TB-1805 | `/onboarding/start` — Vitest anti-reintro (redirect-only, no UI) | Testability P0 **V1** — with **TB-1801** |
-| TB-1806 | `/operate/architecture-graph` traffic redirect-only workbook honesty | Adoption friction P0 **V1** — OPR ~12 |
-| TB-1807 | `/operate/architecture-graph` — robots/noindex + metadata honesty | Trustworthiness P0 **V1** — with **TB-1806** |
-| TB-1808 | Preserve query on `/operate/architecture-graph` → `/graph` redirect | Adoption friction P0 **V1** — with **TB-1806** |
-| TB-1809 | Canonicalize inbound `/operate/architecture-graph` → `/graph` | Trustworthiness P0 **V1** — with **TB-1806** |
-| TB-1810 | `/operate/architecture-graph` — Vitest anti-reintro (redirect-only + query) | Testability P0 **V1** — with **TB-1806** |
-| TB-1811 | `/patterns/[patternKey]` detail provenance parity with library hub | Trustworthiness P0 **V1** — PAP ~48 |
-| TB-1812 | `/patterns/[patternKey]` — contextual peer-compare (not hard-coded BFF) | Adoption friction P0 **V1** — with **TB-1811** |
-| TB-1813 | `/patterns/[patternKey]` — related policy rules honesty / deep links | Trustworthiness P0 **V1** — with **TB-1811** |
-| TB-1814 | `/patterns` + detail — page-help topic map + contextual help mount | Adoption friction P0 **V1** — with **TB-1811** |
-| TB-1815 | `/patterns/[patternKey]` — CTA hierarchy + Vitest anti-regress | Adoption friction P0 **V1** — with **TB-1811** |
-| TB-1816 | `/quick-start` traffic redirect-only workbook honesty | Adoption friction P0 **V1** — QUI ~12 |
-| TB-1817 | Retire orphan `(marketing)/quick-start` page module (keep 301) | Maintainability P0 **V1** — with **TB-1816** |
-| TB-1818 | `/quick-start` — robots/noindex honesty if shim page retained | Trustworthiness P0 **V1** — with **TB-1816** |
-| TB-1819 | Drop residual `/quick-start` product/docs pointers (API demos OK) | Trustworthiness P0 **V1** — with **TB-1816** |
-| TB-1820 | `/quick-start` — Vitest anti-reintro (301 + no competing marketing UI) | Testability P0 **V1** — with **TB-1816** |
+| TB-1793 | `/login` — robots/noindex + metadata honesty (shim not a page) | Trustworthiness P1 **V1** — with **TB-1791** |
+| TB-1794 | `/login` — traffic redirect-only + canonicalize inbound links | Adoption friction P1 **V1** — with **TB-1791** |
+| TB-1795 | Docs/help — login language → `/auth/signin` (keep shim) | Trustworthiness P1 **V1** — with **TB-1791** |
+| TB-1796 | `/onboard` Vitest multi-value searchParams (parity ONS) | Testability P2 **V1** — ON ~12 |
+| TB-1797 | `/onboard` — robots/noindex + metadata honesty (shim not a page) | Trustworthiness P1 **V1** — with **TB-1796** |
+| TB-1798 | `/onboard` — traffic redirect-only workbook honesty | Adoption friction P1 **V1** — with **TB-1796** |
+| TB-1799 | Canonicalize inbound `/onboard` → `/onboarding` (nav/docs) | Trustworthiness P1 **V1** — with **TB-1796** |
+| TB-1800 | Drop `/onboard` from marketing SEO path inventory (keep shim) | Trustworthiness P1 **V1** — with **TB-1796** |
+| TB-1801 | `/onboarding/start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — ONS ~12 |
+| TB-1802 | `/onboarding/start` — robots/noindex + metadata honesty | Trustworthiness P1 **V1** — with **TB-1801** |
+| TB-1803 | Canonicalize inbound `/onboarding/start` → `/onboarding` | Trustworthiness P1 **V1** — with **TB-1801** |
+| TB-1804 | Drop `/onboarding/start` from marketing SEO inventory (keep shim) | Trustworthiness P1 **V1** — with **TB-1801** |
+| TB-1805 | `/onboarding/start` — Vitest anti-reintro (redirect-only, no UI) | Testability P2 **V1** — with **TB-1801** |
+| TB-1806 | `/operate/architecture-graph` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — OPR ~12 |
+| TB-1807 | `/operate/architecture-graph` — robots/noindex + metadata honesty | Trustworthiness P1 **V1** — with **TB-1806** |
+| TB-1808 | Preserve query on `/operate/architecture-graph` → `/graph` redirect | Adoption friction P1 **V1** — with **TB-1806** |
+| TB-1809 | Canonicalize inbound `/operate/architecture-graph` → `/graph` | Trustworthiness P1 **V1** — with **TB-1806** |
+| TB-1810 | `/operate/architecture-graph` — Vitest anti-reintro (redirect-only + query) | Testability P2 **V1** — with **TB-1806** |
+| TB-1811 | `/patterns/[patternKey]` detail provenance parity with library hub | Trustworthiness P1 **V1** — PAP ~48 |
+| TB-1812 | `/patterns/[patternKey]` — contextual peer-compare (not hard-coded BFF) | Adoption friction P1 **V1** — with **TB-1811** |
+| TB-1813 | `/patterns/[patternKey]` — related policy rules honesty / deep links | Trustworthiness P1 **V1** — with **TB-1811** |
+| TB-1814 | `/patterns` + detail — page-help topic map + contextual help mount | Adoption friction P1 **V1** — with **TB-1811** |
+| TB-1815 | `/patterns/[patternKey]` — CTA hierarchy + Vitest anti-regress | Adoption friction P2 **V1** — with **TB-1811** |
+| TB-1816 | `/quick-start` traffic redirect-only workbook honesty | Adoption friction P1 **V1** — QUI ~12 |
+| TB-1817 | Retire orphan `(marketing)/quick-start` page module (keep 301) | Maintainability P2 **V1** — with **TB-1816** |
+| TB-1818 | `/quick-start` — robots/noindex honesty if shim page retained | Trustworthiness P1 **V1** — with **TB-1816** |
+| TB-1819 | Drop residual `/quick-start` product/docs pointers (API demos OK) | Trustworthiness P1 **V1** — with **TB-1816** |
+| TB-1820 | `/quick-start` — Vitest anti-reintro (301 + no competing marketing UI) | Testability P2 **V1** — with **TB-1816** |
 | TB-1821 | Restore or redirect `/reviews/[runId]/artifacts/[artifactId]` preview | Adoption friction P0 **V1** — RER ~10 |
 | TB-1822 | `ArtifactListTable` Preview hrefs must resolve to a live App Router page | Trustworthiness P0 **V1** — with **TB-1821** |
-| TB-1823 | `/reviews/.../artifacts/...` traffic ghost-route workbook honesty | Adoption friction P0 **V1** — with **TB-1821** |
-| TB-1824 | Pair MAM `/signed-records/.../artifacts/...` with RER restore (no orphan sibling) | Architectural integrity P0 **V1** — with **TB-1821** |
-| TB-1825 | Artifact preview route — Vitest/CI App Router existence guard | Testability P0 **V1** — with **TB-1821** |
-| TB-1826 | `/…/evidence-trace` buyer H1 + eyebrow vocabulary (finding-first) | Adoption friction P0 **V1** — ERU ~54 |
-| TB-1827 | Evidence-trace footer must not self-link Inspect/Trace | Adoption friction P0 **V1** — with **TB-1826** |
-| TB-1828 | Evidence-trace → finding detail primary wayfinding | Adoption friction P0 **V1** — with **TB-1826** |
-| TB-1829 | Evidence-trace heading hierarchy + region density | Accessibility P0 **V1** — with **TB-1826** |
-| TB-1830 | Evidence-trace Vitest anti-regress + pair **TB-987** stickiness honesty | Testability P0 **V1** — with **TB-1826** |
-| TB-1831 | Traffic honesty — `archTab=activity` is create-home only (not `reviewTab`) | Trustworthiness P0 **V1** — REA ~42 |
-| TB-1832 | Activity tab orientation when progress tracker absent / all sections collapsed | Adoption friction P0 **V1** — with **TB-1831** |
-| TB-1833 | `buildArchitectureWorkspaceTabHref` must not force create-intent query | Trustworthiness P0 **V1** — with **TB-1831** |
-| TB-1834 | Activity tab density — primary timeline vs deferred forensics | Adoption friction P0 **V1** — with **TB-1831** |
-| TB-1835 | archTab Activity — Vitest dual-param + panel orientation guards | Testability P0 **V1** — with **TB-1831** |
-| TB-1836 | Traffic honesty — `archTab=clarifications` create-home only | Trustworthiness P0 **V1** — REC ~44 |
-| TB-1837 | Clarifications CTAs must use run-scoped correction (not bare new create) | Adoption friction P0 **V1** — with **TB-1836** |
+| TB-1823 | `/reviews/.../artifacts/...` traffic ghost-route workbook honesty | Adoption friction P1 **V1** — with **TB-1821** |
+| TB-1824 | Pair MAM `/signed-records/.../artifacts/...` with RER restore (no orphan sibling) | Architectural integrity P1 **V1** — with **TB-1821** |
+| TB-1825 | Artifact preview route — Vitest/CI App Router existence guard | Testability P2 **V1** — with **TB-1821** |
+| TB-1826 | `/…/evidence-trace` buyer H1 + eyebrow vocabulary (finding-first) | Adoption friction P1 **V1** — ERU ~54 |
+| TB-1827 | Evidence-trace footer must not self-link Inspect/Trace | Adoption friction P1 **V1** — with **TB-1826** |
+| TB-1828 | Evidence-trace → finding detail primary wayfinding | Adoption friction P1 **V1** — with **TB-1826** |
+| TB-1829 | Evidence-trace heading hierarchy + region density | Accessibility P1 **V1** — with **TB-1826** |
+| TB-1830 | Evidence-trace Vitest anti-regress + pair **TB-987** stickiness honesty | Testability P2 **V1** — with **TB-1826** |
+| TB-1831 | Traffic honesty — `archTab=activity` is create-home only (not `reviewTab`) | Trustworthiness P1 **V1** — REA ~42 |
+| TB-1832 | Activity tab orientation when progress tracker absent / all sections collapsed | Adoption friction P1 **V1** — with **TB-1831** |
+| TB-1833 | `buildArchitectureWorkspaceTabHref` must not force create-intent query | Trustworthiness P1 **V1** — with **TB-1831** |
+| TB-1834 | Activity tab density — primary timeline vs deferred forensics | Adoption friction P1 **V1** — with **TB-1831** |
+| TB-1835 | archTab Activity — Vitest dual-param + panel orientation guards | Testability P2 **V1** — with **TB-1831** |
+| TB-1836 | Traffic honesty — `archTab=clarifications` create-home only | Trustworthiness P1 **V1** — REC ~44 |
+| TB-1837 | Clarifications CTAs must use run-scoped correction (not bare new create) | Adoption friction P1 **V1** — with **TB-1836** |
 | TB-1838 | Clarifications tab badge must count open questions | Correctness P0 **V1** — with **TB-1836** |
-| TB-1839 | Clarifications empty/zero-gap composition (demote confidence theater) | Adoption friction P0 **V1** — with **TB-1836** |
-| TB-1840 | Clarifications tab — Vitest CTA + badge + traffic honesty | Testability P0 **V1** — with **TB-1836** |
-| TB-1841 | Traffic honesty — `archTab=diagram` create-home only | Trustworthiness P0 **V1** — RED ~50 |
-| TB-1842 | Diagram tab clarify CTA must be run-scoped (not bare new create) | Adoption friction P0 **V1** — with **TB-1841** |
-| TB-1843 | Diagram insufficient/empty orientation + next clarify step | Adoption friction P0 **V1** — with **TB-1841** |
-| TB-1844 | Diagram Mermaid/source disclosure honesty for buyer shell | Trustworthiness P0 **V1** — with **TB-1841** |
-| TB-1845 | Diagram tab — Vitest CTA + insufficient + traffic honesty | Testability P0 **V1** — with **TB-1841** |
-| TB-1846 | Traffic honesty — `archTab=evidence` create-home only | Trustworthiness P0 **V1** — REE ~46 |
+| TB-1839 | Clarifications empty/zero-gap composition (demote confidence theater) | Adoption friction P1 **V1** — with **TB-1836** |
+| TB-1840 | Clarifications tab — Vitest CTA + badge + traffic honesty | Testability P2 **V1** — with **TB-1836** |
+| TB-1841 | Traffic honesty — `archTab=diagram` create-home only | Trustworthiness P1 **V1** — RED ~50 |
+| TB-1842 | Diagram tab clarify CTA must be run-scoped (not bare new create) | Adoption friction P1 **V1** — with **TB-1841** |
+| TB-1843 | Diagram insufficient/empty orientation + next clarify step | Adoption friction P1 **V1** — with **TB-1841** |
+| TB-1844 | Diagram Mermaid/source disclosure honesty for buyer shell | Trustworthiness P1 **V1** — with **TB-1841** |
+| TB-1845 | Diagram tab — Vitest CTA + insufficient + traffic honesty | Testability P2 **V1** — with **TB-1841** |
+| TB-1846 | Traffic honesty — `archTab=evidence` create-home only | Trustworthiness P1 **V1** — REE ~46 |
 | TB-1847 | Create-home Evidence — orientation + uploaded inventory (not upload-only) | Adoption friction P1 **V1** — with **TB-1846** |
 | Create-home Findings (`archTab=findings`) | **TB-1851**–**TB-1855** (open **V1**) | Traffic honesty; pre-commit orientation; empty state; demote work items; Vitest; ~48/100; traffic **REF**; pairs **TB-1831** |
 | Create-home Governance (`archTab=governance`) | **TB-1856**–**TB-1860** (open **V1**) | Traffic honesty; pre-commit honesty; demote sponsor/work items; density; Vitest; ~40/100; traffic **REG**; pairs **TB-1831** |
@@ -670,287 +653,280 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1848 | Create-home Evidence — cross-link Diagram as supporting evidence | Adoption friction P1 **V1** — with **TB-1846** |
 | TB-1849 | Evidence tab chrome — Capture/Add naming + card density | Adoption friction P1 **V1** — with **TB-1846** |
 | TB-1850 | Evidence tab — Vitest orientation + traffic honesty | Testability P2 **V1** — with **TB-1846** |
-| TB-1851 | Traffic honesty — `archTab=findings` create-home only | Trustworthiness P0 **V1** — REF ~48 |
+| TB-1851 | Traffic honesty — `archTab=findings` create-home only | Trustworthiness P1 **V1** — REF ~48 |
 | TB-1852 | Create-home Findings — pre-commit assessment orientation | Adoption friction P1 **V1** — with **TB-1851** |
 | TB-1853 | Create-home Findings empty when assessment incomplete | Adoption friction P1 **V1** — with **TB-1851** |
 | TB-1854 | Create-home Findings — demote work-item chrome before commit | Trustworthiness P0 **V1** — with **TB-1851** |
 | TB-1855 | Findings tab — Vitest orientation + traffic honesty | Testability P2 **V1** — with **TB-1851** |
-| TB-1856 | Traffic honesty — `archTab=governance` create-home only | Trustworthiness P0 **V1** — REG ~40 |
+| TB-1856 | Traffic honesty — `archTab=governance` create-home only | Trustworthiness P1 **V1** — REG ~40 |
 | TB-1857 | Create-home Governance — pre-commit honesty (not approval theater) | Trustworthiness P0 **V1** — with **TB-1856** |
 | TB-1858 | Create-home Governance — demote sponsor share / work items before commit | Trustworthiness P0 **V1** — with **TB-1856** |
 | TB-1859 | Create-home Governance density — one primary next step | Adoption friction P1 **V1** — with **TB-1856** |
 | TB-1860 | Governance tab — Vitest pre-commit honesty + traffic | Testability P2 **V1** — with **TB-1856** |
-| TB-1861 | Traffic honesty — `archTab=overview` create-home only | Trustworthiness P0 **V1** — REO ~55 |
+| TB-1861 | Traffic honesty — `archTab=overview` create-home only | Trustworthiness P1 **V1** — REO ~55 |
 | TB-1862 | Overview Continue clarifying must be run-scoped | Trustworthiness P0 **V1** — with **TB-1861** |
 | TB-1863 | Overview vs Clarifications — Still needed dedupe | Adoption friction P1 **V1** — with **TB-1861** |
 | TB-1864 | Overview empty structured-sections orientation | Adoption friction P1 **V1** — with **TB-1861** |
 | TB-1865 | Overview tab — Vitest CTA + traffic honesty | Testability P2 **V1** — with **TB-1861** |
-| TB-1866 | Traffic honesty — `path=detailed` is Templates and imports tab | Trustworthiness P0 **V1** — REN ~48 |
-| TB-1867 | `/reviews/new` path tabs must sync `?path=` in the URL | Trustworthiness P0 **V1** — with **TB-1866** |
+| TB-1866 | Traffic honesty — `path=detailed` is Templates and imports tab | Trustworthiness P1 **V1** — REN ~48 |
+| TB-1867 | `/reviews/new` path tabs must sync `?path=` in the URL | Trustworthiness P1 **V1** — with **TB-1866** |
 | TB-1868 | Detailed path — label/hint vs full-wizard density honesty | Adoption friction P1 **V1** — with **TB-1866** |
 | TB-1869 | Detailed path — nested page-container / dual-chrome cleanup | Adoption friction P1 **V1** — with **TB-1866** |
 | TB-1870 | Detailed path — Vitest URL sync + traffic honesty | Testability P2 **V1** — with **TB-1866** |
-| TB-1871 | Traffic honesty — `path=quick-review` is Quick start tab | Trustworthiness P0 **V1** — REQ ~58 |
-| TB-1872 | Quick start — execute URL `path` sync with **TB-1867** | Trustworthiness P0 **V1** — with **TB-1871** |
+| TB-1871 | Traffic honesty — `path=quick-review` is Quick start tab | Trustworthiness P1 **V1** — REQ ~58 |
+| TB-1872 | Quick start — execute URL `path` sync with **TB-1867** | Trustworthiness P1 **V1** — with **TB-1871** |
 | TB-1873 | Quick start vs legacy `QuickReviewWizard` dual-surface honesty | Maintainability P1 **V1** — with **TB-1871** |
 | TB-1874 | Quick start Card chrome / first-viewport density | Adoption friction P1 **V1** — with **TB-1871** |
 | TB-1875 | Quick start — Vitest URL sync + traffic honesty | Testability P2 **V1** — with **TB-1871** |
-| TB-1876 | Traffic honesty — `path=guided-intake` is Guided intake tab | Trustworthiness P0 **V1** — ENE ~56 |
-| TB-1877 | Guided intake — execute URL `path` sync with **TB-1867** | Trustworthiness P0 **V1** — with **TB-1876** |
-| TB-1878 | Guided intake — purge admission-gate / Socratic jargon from buyer chrome | Trustworthiness P0 **V1** — with **TB-1876** |
+| TB-1876 | Traffic honesty — `path=guided-intake` is Guided intake tab | Trustworthiness P1 **V1** — ENE ~56 |
+| TB-1877 | Guided intake — execute URL `path` sync with **TB-1867** | Trustworthiness P1 **V1** — with **TB-1876** |
+| TB-1878 | Guided intake — purge admission-gate / Socratic jargon from buyer chrome | Trustworthiness P1 **V1** — with **TB-1876** |
 | TB-1879 | Guided intake Card / colored-banner density | Adoption friction P1 **V1** — with **TB-1876** |
 | TB-1880 | Guided intake — Vitest URL sync + jargon + traffic honesty | Testability P2 **V1** — with **TB-1876** |
-| TB-1881 | Account security — title/scope honesty (sign-in methods, not SSO suite) | Trustworthiness P0 **V1** — SEA ~52 |
+| TB-1881 | Account security — title/scope honesty (sign-in methods, not SSO suite) | Trustworthiness P1 **V1** — SEA ~52 |
 | TB-1882 | Account security — in-flight disable on challenge/verify/confirm/remove | Correctness P0 **V1** — with **TB-1881** |
-| TB-1883 | Account security — in-page remove confirm + blocked-remove reason | Trustworthiness P0 **V1** — with **TB-1881** |
+| TB-1883 | Account security — in-page remove confirm + blocked-remove reason | Trustworthiness P1 **V1** — with **TB-1881** |
 | TB-1884 | Account security — empty/inactive honesty + auth-help CTA | Adoption friction P1 **V1** — with **TB-1881**; pairs **TB-1614** |
 | TB-1885 | Account security — Vitest scope + busy + remove + empty | Testability P2 **V1** — with **TB-1881** |
-| TB-1886 | `/settings/alerts` traffic redirect-only workbook honesty | Trustworthiness P0 **V1** — SEL ~12 |
+| TB-1886 | `/settings/alerts` traffic redirect-only workbook honesty | Trustworthiness P1 **V1** — SEL ~12 |
 | TB-1887 | `/settings/alerts` — permanent next.config shim + drop dual page-only redirect | Maintainability P1 **V1** — with **TB-1886** |
-| TB-1888 | `/settings/alerts` — route-readiness / nav not “advanced-only” live page | Trustworthiness P0 **V1** — with **TB-1886** |
-| TB-1889 | Canonicalize `/settings/alerts` docs to `/governance/alert-rules` | Trustworthiness P0 **V1** — with **TB-1886** |
+| TB-1888 | `/settings/alerts` — route-readiness / nav not “advanced-only” live page | Trustworthiness P1 **V1** — with **TB-1886** |
+| TB-1889 | Canonicalize `/settings/alerts` docs to `/governance/alert-rules` | Trustworthiness P1 **V1** — with **TB-1886** |
 | TB-1890 | `/settings/alerts` — Vitest redirect + docs destination | Testability P2 **V1** — with **TB-1886** |
-| TB-1891 | Sign-in domains — humanize verificationStatus / enforcementMode enums | Trustworthiness P0 **V1** — SAU ~48 |
+| TB-1891 | Sign-in domains — humanize verificationStatus / enforcementMode enums | Trustworthiness P1 **V1** — SAU ~48 |
 | TB-1892 | Sign-in domains — in-flight disable on propose/verify/routing/enforcement | Correctness P0 **V1** — with **TB-1891** |
-| TB-1893 | Sign-in domains — in-page confirm for enable enforcement + recovery remove | Trustworthiness P0 **V1** — with **TB-1891** |
+| TB-1893 | Sign-in domains — in-page confirm for enable enforcement + recovery remove | Trustworthiness P1 **V1** — with **TB-1891** |
 | TB-1894 | Sign-in domains — checklist/StatusTag + settings wayfinding + auth-help CTA | Adoption friction P1 **V1** — with **TB-1891** |
 | TB-1895 | Sign-in domains — Vitest enum labels + busy + confirms + empty | Testability P2 **V1** — with **TB-1891** |
-| TB-1896 | Internal developer tools — traffic honesty (gated / not buyer Settings) | Trustworthiness P0 **V1** — SED ~42 |
+| TB-1896 | Internal developer tools — traffic honesty (gated / not buyer Settings) | Trustworthiness P1 **V1** — SED ~42 |
 | TB-1897 | Internal developer tools — catalog/diagnostics overclaim vs theme+CLI only | Trustworthiness P0 **V1** — with **TB-1896** |
 | TB-1898 | Internal developer tools — demote TryCliDemoCard localhost CLI theater | Trustworthiness P0 **V1** — with **TB-1896**; pairs **TB-1357** |
 | TB-1899 | Internal developer tools — Authority/ReadAuthority + internal-shell discovery honesty | Adoption friction P1 **V1** — with **TB-1896** |
 | TB-1900 | Internal developer tools — Vitest gate + catalog + CLI copy | Testability P2 **V1** — with **TB-1896** |
-| TB-1901 | `/settings/exec-digest` traffic redirect-only workbook honesty | Trustworthiness P0 **V1** — SEX ~12 |
+| TB-1901 | `/settings/exec-digest` traffic redirect-only workbook honesty | Trustworthiness P1 **V1** — SEX ~12 |
 | TB-1902 | `/settings/exec-digest` — single redirect shim (drop dual config+page) | Maintainability P1 **V1** — with **TB-1901** |
-| TB-1903 | `/settings/exec-digest` — readiness/nav-shell not live advanced Settings | Trustworthiness P0 **V1** — with **TB-1901** |
-| TB-1904 | Canonicalize `/settings/exec-digest` docs (not T3 mock / live settings) | Trustworthiness P0 **V1** — with **TB-1901** |
+| TB-1903 | `/settings/exec-digest` — readiness/nav-shell not live advanced Settings | Trustworthiness P1 **V1** — with **TB-1901** |
+| TB-1904 | Canonicalize `/settings/exec-digest` docs (not T3 mock / live settings) | Trustworthiness P1 **V1** — with **TB-1901** |
 | TB-1905 | `/settings/exec-digest` — Vitest/CI anti-reintro + destination | Testability P2 **V1** — with **TB-1901** |
-| TB-1906 | Identity diagnostics — shell subtitle/intro not Configure job | Trustworthiness P0 **V1** — SEI ~47 |
-| TB-1907 | Identity diagnostics — StatusTag + humanize probe statuses | Trustworthiness P0 **V1** — with **TB-1906**; pairs **TB-116** |
+| TB-1906 | Identity diagnostics — shell subtitle/intro not Configure job | Trustworthiness P1 **V1** — SEI ~47 |
+| TB-1907 | Identity diagnostics — StatusTag + humanize probe statuses | Trustworthiness P1 **V1** — with **TB-1906**; pairs **TB-116** |
 | TB-1908 | Identity diagnostics — collapse triple intro + strip Card density | Adoption friction P1 **V1** — with **TB-1906** |
 | TB-1909 | Identity diagnostics — loading/empty when strips not yet loaded | Adoption friction P1 **V1** — with **TB-1906** |
 | TB-1910 | Identity diagnostics — Vitest shell honesty + StatusTag + loading | Testability P2 **V1** — with **TB-1906** |
-| TB-1911 | OIDC/JWT tab — title honesty (status/review, not in-page configuration) | Trustworthiness P0 **V1** — SOI ~44 |
-| TB-1912 | OIDC/JWT tab — shell Configure subtitle override with **TB-1906** | Trustworthiness P0 **V1** — with **TB-1911** |
-| TB-1913 | OIDC/JWT tab — StatusTag for discovery status | Trustworthiness P0 **V1** — with **TB-1911** |
+| TB-1911 | OIDC/JWT tab — title honesty (status/review, not in-page configuration) | Trustworthiness P1 **V1** — SOI ~44 |
+| TB-1912 | OIDC/JWT tab — shell Configure subtitle override with **TB-1906** | Trustworthiness P1 **V1** — with **TB-1911** |
+| TB-1913 | OIDC/JWT tab — StatusTag for discovery status | Trustworthiness P1 **V1** — with **TB-1911** |
 | TB-1914 | OIDC/JWT tab — loading/empty + CTA hierarchy (wizard vs diagnostics) | Adoption friction P1 **V1** — with **TB-1911** |
 | TB-1915 | OIDC/JWT tab — Vitest title + shell + StatusTag + loading | Testability P2 **V1** — with **TB-1911** |
-| TB-1916 | Role mapping tab — status-hub honesty (not in-page editor) | Trustworthiness P0 **V1** — SEO ~43 |
-| TB-1917 | Role mapping tab — shell Configure + duplicate intro/helper with **TB-1906** | Trustworthiness P0 **V1** — with **TB-1916** |
-| TB-1918 | Role mapping tab — StatusTag + illustrative example-group honesty | Trustworthiness P0 **V1** — with **TB-1916** |
+| TB-1916 | Role mapping tab — status-hub honesty (not in-page editor) | Trustworthiness P1 **V1** — SEO ~43 |
+| TB-1917 | Role mapping tab — shell Configure + duplicate intro/helper with **TB-1906** | Trustworthiness P1 **V1** — with **TB-1916** |
+| TB-1918 | Role mapping tab — StatusTag + illustrative example-group honesty | Trustworthiness P1 **V1** — with **TB-1916** |
 | TB-1919 | Role mapping tab — protocol-aware CTAs (SAML vs OIDC) + loading | Adoption friction P1 **V1** — with **TB-1916** |
 | TB-1920 | Role mapping tab — Vitest hub honesty + StatusTag + CTAs | Testability P2 **V1** — with **TB-1916** |
-| TB-1921 | SAML tab — Validate CTA is metadata fetch (label honesty) | Trustworthiness P0 **V1** — SSA ~52 |
-| TB-1922 | SAML tab — in-page save confirm (drop window.confirm) | Trustworthiness P0 **V1** — with **TB-1921** |
-| TB-1923 | SAML tab — shell Configure override + Card title density with **TB-1906** | Trustworthiness P0 **V1** — with **TB-1921** |
+| TB-1921 | SAML tab — Validate CTA is metadata fetch (label honesty) | Trustworthiness P1 **V1** — SSA ~52 |
+| TB-1922 | SAML tab — in-page save confirm (drop window.confirm) | Trustworthiness P1 **V1** — with **TB-1921** |
+| TB-1923 | SAML tab — shell Configure override + Card title density with **TB-1906** | Trustworthiness P1 **V1** — with **TB-1921** |
 | TB-1924 | SAML tab — DS Select + advanced regex disclosure + optional health strip | Adoption friction P1 **V1** — with **TB-1921** |
 | TB-1925 | SAML tab — Vitest fetch label + confirm + shell | Testability P2 **V1** — with **TB-1921** |
 | TB-1926 | Model governance — purge AdminAuthority / HTTP status from buyer errors | Trustworthiness P0 **V1** — SEM ~48 |
-| TB-1927 | Model governance — humanize effectiveProfile + agentType enums | Trustworthiness P0 **V1** — with **TB-1926** |
-| TB-1928 | Model governance — demote duplicate H1/CardTitle + Settings back link | Trustworthiness P0 **V1** — with **TB-1926** |
+| TB-1927 | Model governance — humanize effectiveProfile + agentType enums | Trustworthiness P1 **V1** — with **TB-1926** |
+| TB-1928 | Model governance — demote duplicate H1/CardTitle + Settings back link | Trustworthiness P1 **V1** — with **TB-1926** |
 | TB-1929 | Model governance — isolate catalog/profile fetch + empty registry | Adoption friction P1 **V1** — with **TB-1926** |
 | TB-1930 | Model governance — Vitest error honesty + labels + chrome | Testability P2 **V1** — with **TB-1926** |
-| TB-1931 | Users API keys tab — job honesty (roles vs credential lifecycle) | Trustworthiness P0 **V1** — SEU ~45 |
-| TB-1932 | Users API keys tab — execute primary Open API keys CTA with **TB-1213** | Adoption friction P0 **V1** — with **TB-1931** |
-| TB-1933 | Users API keys tab — keys-specific error/empty (no principals / user-directory) | Trustworthiness P0 **V1** — with **TB-1931** |
+| TB-1931 | Users API keys tab — job honesty (roles vs credential lifecycle) | Trustworthiness P1 **V1** — SEU ~45 |
+| TB-1932 | Users API keys tab — execute primary Open API keys CTA with **TB-1213** | Adoption friction P1 **V1** — with **TB-1931** |
+| TB-1933 | Users API keys tab — keys-specific error/empty (no principals / user-directory) | Trustworthiness P1 **V1** — with **TB-1931** |
 | TB-1934 | Users API keys tab — column headers for automation keys + Link/Button | Adoption friction P1 **V1** — with **TB-1931** |
 | TB-1935 | Users API keys tab — Vitest SEU deep-link + CTA + empty | Testability P2 **V1** — with **TB-1931** |
-| TB-1936 | Users tab — keep `?tab=users` URL sync (SSU deep-link) | Trustworthiness P0 **V1** — SSU ~46 |
-| TB-1937 | Users tab — execute empty composition with **TB-1214** | Adoption friction P0 **V1** — with **TB-1936** |
-| TB-1938 | Users tab — purge principals jargon from error/empty with **TB-1211** | Trustworthiness P0 **V1** — with **TB-1936** |
+| TB-1936 | Users tab — keep `?tab=users` URL sync (SSU deep-link) | Trustworthiness P1 **V1** — SSU ~46 |
+| TB-1937 | Users tab — execute empty composition with **TB-1214** | Adoption friction P1 **V1** — with **TB-1936** |
+| TB-1938 | Users tab — purge principals jargon from error/empty with **TB-1211** | Trustworthiness P1 **V1** — with **TB-1936** |
 | TB-1939 | Users tab — Invite primary + demote pending/users empty Cards | Adoption friction P1 **V1** — with **TB-1936** |
 | TB-1940 | Users tab — Vitest URL sync + empty composition | Testability P2 **V1** — with **TB-1936** |
-| TB-1941 | Signed records list — traffic section honesty (not Marketing) | Trustworthiness P0 **V1** — SI ~50 |
-| TB-1942 | Signed records list — empty Browse reviews drop `projectId=default` | Trustworthiness P0 **V1** — with **TB-1941** |
+| TB-1941 | Signed records list — traffic section honesty (not Marketing) | Trustworthiness P1 **V1** — SI ~50 |
+| TB-1942 | Signed records list — empty Browse reviews drop `projectId=default` | Trustworthiness P1 **V1** — with **TB-1941** |
 | TB-1943 | Signed records list — rows without signedRecordHref honesty | Trustworthiness P0 **V1** — with **TB-1941** |
 | TB-1944 | Signed records list — dedupe Open review CTAs + page-1/100 + N+1 enrich | Adoption friction P1 **V1** — with **TB-1941** |
 | TB-1945 | Signed records list — Vitest empty href + row honesty + traffic note | Testability P2 **V1** — with **TB-1941** |
-| TB-1946 | MAM artifact preview — traffic ghost-route workbook honesty | Trustworthiness P0 **V1** — MAM ~10 |
+| TB-1946 | MAM artifact preview — traffic ghost-route workbook honesty | Trustworthiness P1 **V1** — MAM ~10 |
 | TB-1947 | Execute **TB-1824** — restore signed-records artifact preview page | Adoption friction P0 **V1** — with **TB-1946** |
 | TB-1948 | Manifest-scoped Preview hrefs must resolve (signedRecordArtifactPath) | Trustworthiness P0 **V1** — with **TB-1946** |
-| TB-1949 | MAM — section/docs honesty (not live Marketing UI) | Trustworthiness P0 **V1** — with **TB-1946** |
+| TB-1949 | MAM — section/docs honesty (not live Marketing UI) | Trustworthiness P1 **V1** — with **TB-1946** |
 | TB-1950 | MAM — Vitest App Router existence with **TB-1825** | Testability P2 **V1** — with **TB-1946** |
-| TB-1951 | `/snapshot/[runId]` traffic leave-behind redirect honesty | Trustworthiness P0 **V1** — SNU ~30 |
-| TB-1952 | Snapshot redirect destination honesty (executive vs review) | Trustworthiness P0 **V1** — with **TB-1951** |
+| TB-1951 | `/snapshot/[runId]` traffic leave-behind redirect honesty | Trustworthiness P1 **V1** — SNU ~30 |
+| TB-1952 | Snapshot redirect destination honesty (executive vs review) | Trustworthiness P1 **V1** — with **TB-1951** |
 | TB-1953 | Snapshot — permanent next.config + query preserve (`v=demo`) | Maintainability P1 **V1** — with **TB-1951** |
-| TB-1954 | Canonicalize `/snapshot/[runId]` docs (leave-behind redirect, not T1 page) | Trustworthiness P0 **V1** — with **TB-1951** |
+| TB-1954 | Canonicalize `/snapshot/[runId]` docs (leave-behind redirect, not T1 page) | Trustworthiness P1 **V1** — with **TB-1951** |
 | TB-1955 | Snapshot — Vitest redirect matrix (showcase + runId) | Testability P2 **V1** — with **TB-1951** |
-| TB-1956 | Architecture scorecard — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P0 **V1** — SPA ~48 |
-| TB-1957 | Scorecard sample mode — canonical SPA href + preserve `?sample=1` | Trustworthiness P0 **V1** — with **TB-1956** |
-| TB-1958 | Scorecard empty CTA buyer vocabulary (Create review → Start…) | Trustworthiness P0 **V1** — with **TB-1956** |
+| TB-1956 | Architecture scorecard — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P1 **V1** — SPA ~48 |
+| TB-1957 | Scorecard sample mode — canonical SPA href + preserve `?sample=1` | Trustworthiness P1 **V1** — with **TB-1956** |
+| TB-1958 | Scorecard empty CTA buyer vocabulary (Create review → Start…) | Trustworthiness P1 **V1** — with **TB-1956** |
 | TB-1959 | Scorecard — mount PageContextualHelp with **TB-1668** | Adoption friction P1 **V1** — with **TB-1956** |
 | TB-1960 | Scorecard — Vitest sample href + traffic + empty CTA | Testability P2 **V1** — with **TB-1956** |
-| TB-1961 | Executive summary — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P0 **V1** — SPE ~50 |
-| TB-1962 | Executive summary — metadata vs H1 vocabulary (Executive summary vs Executive value report) | Trustworthiness P0 **V1** — with **TB-1961** |
-| TB-1963 | Executive summary — command palette / deep-links use canonical SPE path | Trustworthiness P0 **V1** — with **TB-1961** |
+| TB-1961 | Executive summary — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P1 **V1** — SPE ~50 |
+| TB-1962 | Executive summary — metadata vs H1 vocabulary (Executive summary vs Executive value report) | Trustworthiness P1 **V1** — with **TB-1961** |
+| TB-1963 | Executive summary — command palette / deep-links use canonical SPE path | Trustworthiness P1 **V1** — with **TB-1961** |
 | TB-1964 | Executive summary — collapse strip + LayerHeader + subtitle stack with **TB-1437** | Adoption friction P1 **V1** — with **TB-1961** |
 | TB-1965 | Executive summary — Vitest traffic + vocabulary + canonical hrefs | Testability P2 **V1** — with **TB-1961** |
-| TB-1966 | Pilot outcomes — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P0 **V1** — SPP ~46 |
+| TB-1966 | Pilot outcomes — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P1 **V1** — SPP ~46 |
 | TB-1967 | Pilot outcomes empty — “Open most recent finalized review” must deep-link the run | Correctness P0 **V1** — with **TB-1966** |
 | TB-1968 | Pilot outcomes — mount PageContextualHelp with **TB-1668** | Adoption friction P1 **V1** — with **TB-1966** |
 | TB-1969 | Pilot outcomes — collapse strip + LayerHeader + subtitle with **TB-1437** | Adoption friction P1 **V1** — with **TB-1966** |
 | TB-1970 | Pilot outcomes — Vitest traffic + empty deep-link + help mount | Testability P2 **V1** — with **TB-1966** |
-| TB-1971 | ROI summary — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P0 **V1** — SPR ~45 |
-| TB-1972 | ROI summary zero CTA — Start review → buyer Start architecture review | Trustworthiness P0 **V1** — with **TB-1971** |
+| TB-1971 | ROI summary — traffic section honesty (Sponsor report, not Marketing) | Trustworthiness P1 **V1** — SPR ~45 |
+| TB-1972 | ROI summary zero CTA — Start review → buyer Start architecture review | Trustworthiness P1 **V1** — with **TB-1971** |
 | TB-1973 | ROI summary — mount PageContextualHelp with **TB-1668** | Adoption friction P1 **V1** — with **TB-1971** |
 | TB-1974 | ROI summary — collapse strip + LayerHeader + subtitle with **TB-1437** | Adoption friction P1 **V1** — with **TB-1971** |
 | TB-1975 | ROI summary — Vitest traffic + zero CTA + help mount | Testability P2 **V1** — with **TB-1971** |
-| TB-1661 | Operator line-tabs visual contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P0 **V1** — owner tabs consistency pass 2026-07-27; after Done **TB-665**; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1646**–**TB-1650** |
-| TB-1662 | Strip TabsList/TabsTrigger chrome overrides (Advisory, Help×2, Deliverables, buyer RunsDashboard) | Adoption friction P0 **V1** — with **TB-1661**; after Done **TB-667**/**TB-670** |
-| TB-1663 | Alert rules hub — migrate hand-rolled folder tabs onto shared Tabs | Adoption friction P0 **V1** — with **TB-1661**; pairs **TB-1584**/**TB-1589** (do not reopen content UX) |
-| TB-1664 | Fake tab ARIA cleanup — Value report outcomes nav + AlertSimulation custom strip | Accessibility P0 **V1** — with **TB-1661**; after Done **TB-671**/**TB-672** pattern |
-| TB-1665 | Vitest — line-tabs allowlist + ban pill/folder/segmented-tray overrides | Testability P0 **V1** — after **TB-1662**–**TB-1664**; pairs **TB-1661** / Done **TB-665** drift guard |
-| TB-1414 | Specialty help chrome contract (shared root for ≤~50 HelpTopicMarkdownView surfaces) | Adoption friction P0 **V1** — PA owner scoreboard ≤~50; GTM **M-251**/**M-252** |
+| TB-1661 | Operator line-tabs visual contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner tabs consistency pass 2026-07-27; after Done **TB-665**; pairs **TB-1552**–**TB-1556** / **TB-1572**–**TB-1576** / **TB-1646**–**TB-1650** |
+| TB-1662 | Strip TabsList/TabsTrigger chrome overrides (Advisory, Help×2, Deliverables, buyer RunsDashboard) | Adoption friction P1 **V1** — with **TB-1661**; after Done **TB-667**/**TB-670** |
+| TB-1663 | Alert rules hub — migrate hand-rolled folder tabs onto shared Tabs | Adoption friction P1 **V1** — with **TB-1661**; pairs **TB-1584**/**TB-1589** (do not reopen content UX) |
+| TB-1664 | Fake tab ARIA cleanup — Value report outcomes nav + AlertSimulation custom strip | Accessibility P1 **V1** — with **TB-1661**; after Done **TB-671**/**TB-672** pattern |
+| TB-1665 | Vitest — line-tabs allowlist + ban pill/folder/segmented-tray overrides | Testability P2 **V1** — after **TB-1662**–**TB-1664**; pairs **TB-1661** / Done **TB-665** drift guard |
+| TB-1414 | Specialty help chrome contract (shared root for ≤~50 HelpTopicMarkdownView surfaces) | Adoption friction P1 **V1** — PA owner scoreboard ≤~50; GTM **M-251**/**M-252** |
 | TB-1415 | Anti-bare-HelpTopicMarkdownView / ungated-technical-doc honesty CI + ≤~50 inventory | Testability P1 **V1** — after **TB-1414**; pairs **M-251** |
 | TB-1416 | INV-001 / decide-once / committed-manifest PA triad challenge matrix | Trustworthiness P1 **V1** — PA decide triad; GTM **M-253**/**M-254** |
 | TB-1417 | Anti-decide-once-equals-package-truth / triad-closed honesty CI | Testability P1 **V1** — after **TB-1416**; pairs **M-253** |
 | TB-1418 | Tenant isolation DiD structural vs convention vs too-strong map (ADR 0037 / RLS non-control) | Trustworthiness P1 **V1** — PA DiD class map; GTM **M-255**/**M-256** |
-| TB-1419 | Anti-convention-as-structural / RLS-as-control / WHERE-equals-boundary honesty CI | Testability P1 **V1** — after **TB-1418**; pairs **M-255** |
+| TB-1419 | Anti-convention-as-structural / RLS-as-control / WHERE-equals-boundary honesty CI | Testability P2 **V1** — after **TB-1418**; pairs **M-255** |
 | TB-1246 | `/help/developer-troubleshooting` — reclassify as internal-runbook + Admin gate | Trustworthiness P0 **V1** — owner review ~32/100; TB-735 parity |
 | TB-1247 | Engineering troubleshooting — de-index from product help search / static params | Trustworthiness P0 **V1** — with **TB-1246** |
-| TB-1248 | Engineering troubleshooting — align route slug with page title | Adoption friction P0 **V1** — with **TB-1246** |
+| TB-1248 | Engineering troubleshooting — align route slug with page title | Adoption friction P1 **V1** — with **TB-1246** |
 | TB-1249 | Customer Troubleshooting — remove eng-runbook deep link | Trustworthiness P0 **V1** — with **TB-1246** |
 | TB-1250 | Audit sibling technical-documentation help for consumer exposure | Trustworthiness P0 **V1** — after **TB-1246**; includes `cli-usage` |
-| TB-1253 | `/help/procurement` specialty buyer FAQ guide view | Adoption friction P0 **V1** — owner procurement help ~49/100; complements Done **TB-159**/**TB-736** |
+| TB-1253 | `/help/procurement` specialty buyer FAQ guide view | Adoption friction P1 **V1** — owner procurement help ~49/100; complements Done **TB-159**/**TB-736** |
 | TB-1254 | Procurement FAQ — purge contributor/repo leakage from rendered help | Trustworthiness P0 **V1** — with **TB-1253**; banned-copy parity |
 | TB-1255 | Procurement FAQ — buyer-safe data residency (no appsettings keys) | Trustworthiness P0 **V1** — with **TB-1253** |
-| TB-1256 | Procurement FAQ — diligence CTA chrome (trust / pack / DPA) | Adoption friction P0 **V1** — with **TB-1253** |
-| TB-1257 | Procurement FAQ — in-app-only link map + shorten SSO answer | Trustworthiness P0 **V1** — with **TB-1253**; pairs **TB-1254** |
-| TB-1258 | `/help/starting-reviews` — canonicalize into `/help/review-guide` | Adoption friction P0 **V1** — owner starting-reviews ~52/100; traffic **HER** |
-| TB-1259 | Starting/review guide — wizard companion CTA to `/reviews/new` | Adoption friction P0 **V1** — with **TB-1258** |
-| TB-1260 | Starting/review guide — single title hierarchy (no dual H1) | Adoption friction P0 **V1** — with **TB-1258** |
-| TB-1261 | Starting/review guide — unify empty-state / alias / search discovery | Adoption friction P0 **V1** — with **TB-1258** |
-| TB-1262 | Starting/review guide — collapse Related guides density | Adoption friction P0 **V1** — with **TB-1259** |
-| TB-1265 | `/live-demo` — honest sample-walkthrough title (not “Live demo”) | Trustworthiness P0 **V1** — owner live-demo ~61/100; traffic **LXX** |
-| TB-1266 | `/live-demo` — first-viewport hero budget (start before disclosure wall) | Adoption friction P0 **V1** — with **TB-1265** |
-| TB-1267 | `/live-demo` — clarify journey vs `/see-it` (entry ladder) | Adoption friction P0 **V1** — with **TB-1265**; pairs **TB-1028** |
-| TB-1268 | `/live-demo` — compact stepper + early conversion CTA | Adoption friction P0 **V1** — with **TB-1266** |
-| TB-1269 | `/live-demo` — continuous-mode density (no five-panel dump) | Adoption friction P0 **V1** — with **TB-1268** |
+| TB-1256 | Procurement FAQ — diligence CTA chrome (trust / pack / DPA) | Adoption friction P1 **V1** — with **TB-1253** |
+| TB-1257 | Procurement FAQ — in-app-only link map + shorten SSO answer | Trustworthiness P1 **V1** — with **TB-1253**; pairs **TB-1254** |
+| TB-1258 | `/help/starting-reviews` — canonicalize into `/help/review-guide` | Adoption friction P1 **V1** — owner starting-reviews ~52/100; traffic **HER** |
+| TB-1259 | Starting/review guide — wizard companion CTA to `/reviews/new` | Adoption friction P1 **V1** — with **TB-1258** |
+| TB-1260 | Starting/review guide — single title hierarchy (no dual H1) | Adoption friction P1 **V1** — with **TB-1258** |
+| TB-1261 | Starting/review guide — unify empty-state / alias / search discovery | Adoption friction P1 **V1** — with **TB-1258** |
+| TB-1262 | Starting/review guide — collapse Related guides density | Adoption friction P1 **V1** — with **TB-1259** |
+| TB-1265 | `/live-demo` — honest sample-walkthrough title (not “Live demo”) | Trustworthiness P1 **V1** — owner live-demo ~61/100; traffic **LXX** |
+| TB-1266 | `/live-demo` — first-viewport hero budget (start before disclosure wall) | Adoption friction P1 **V1** — with **TB-1265** |
+| TB-1267 | `/live-demo` — clarify journey vs `/see-it` (entry ladder) | Adoption friction P1 **V1** — with **TB-1265**; pairs **TB-1028** |
+| TB-1268 | `/live-demo` — compact stepper + early conversion CTA | Adoption friction P1 **V1** — with **TB-1266** |
+| TB-1269 | `/live-demo` — continuous-mode density (no five-panel dump) | Adoption friction P1 **V1** — with **TB-1268** |
 | TB-1272 | Integration DLQ — fix “tenant-scoped” lie; state cross-tenant clearly | Trustworthiness P0 **V1** — owner DLQ ~49/100; traffic **OID**; complements Done **TB-632** |
-| TB-1273 | Integration DLQ — align H1/nav to Failed integration messages | Adoption friction P0 **V1** — with **TB-1272** |
-| TB-1274 | Integration DLQ — EnterpriseTable + review deep links; quiet UUIDs | Adoption friction P0 **V1** — with **TB-1272**; TB-117 parity |
-| TB-1275 | Integration DLQ — empty/error/loading polish + operator density | Adoption friction P0 **V1** — with **TB-1274** |
-| TB-1276 | Integration DLQ — mutation CTA hierarchy + Dialog confirm + filters | Adoption friction P0 **V1** — with **TB-1272** |
+| TB-1273 | Integration DLQ — align H1/nav to Failed integration messages | Adoption friction P1 **V1** — with **TB-1272** |
+| TB-1274 | Integration DLQ — EnterpriseTable + review deep links; quiet UUIDs | Adoption friction P1 **V1** — with **TB-1272**; TB-117 parity |
+| TB-1275 | Integration DLQ — empty/error/loading polish + operator density | Adoption friction P1 **V1** — with **TB-1274** |
+| TB-1276 | Integration DLQ — mutation CTA hierarchy + Dialog confirm + filters | Adoption friction P1 **V1** — with **TB-1272** |
 | TB-1279 | `/see-it` — universe fail-closed banner (Claims chrome ≠ Contoso payload) | Trustworthiness P0 **V1** — owner see-it ~55/100; traffic **SEE**; elevates UI ship of **TB-1028** |
-| TB-1280 | `/see-it` — honest time copy (not “30 seconds” for long page) | Trustworthiness P0 **V1** — with **TB-1279** |
-| TB-1281 | `/see-it` — first-viewport hero budget | Adoption friction P0 **V1** — with **TB-1279** |
-| TB-1282 | `/see-it` — single CTA path + `/live-demo` ladder + purge manifest jargon | Adoption friction P0 **V1** — with **TB-1279**; pairs **TB-1267** |
-| TB-1283 | `/see-it` — download label honesty (not “evidence bundle” for marketing PDF) | Trustworthiness P0 **V1** — with **TB-1279** |
+| TB-1280 | `/see-it` — honest time copy (not “30 seconds” for long page) | Trustworthiness P1 **V1** — with **TB-1279** |
+| TB-1281 | `/see-it` — first-viewport hero budget | Adoption friction P1 **V1** — with **TB-1279** |
+| TB-1282 | `/see-it` — single CTA path + `/live-demo` ladder + purge manifest jargon | Adoption friction P1 **V1** — with **TB-1279**; pairs **TB-1267** |
+| TB-1283 | `/see-it` — download label honesty (not “evidence bundle” for marketing PDF) | Trustworthiness P1 **V1** — with **TB-1279** |
 | TB-1284 | Security & trust — soft tenant-isolation copy (no absolute “no cross-tenant”) | Trustworthiness P0 **V1** — owner WSX re-review ~53/100; complements **TB-1223**–**TB-1227** + **TB-1122** |
-| TB-1285 | Security & trust — StatusTag for Available now / Under NDA / Roadmap | Adoption friction P0 **V1** — with **TB-1284**; TB-116 parity |
-| TB-1286 | Security & trust — operator density + badge-legend StatusTag samples | Adoption friction P0 **V1** — with **TB-1285** |
-| TB-1294 | `/welcome` — first-viewport hero budget | Adoption friction P0 **V1** — owner welcome ~50/100; traffic **WXX**; complements **M-09** |
-| TB-1295 | `/welcome` — single primary conversion path (demote CTA stack) | Adoption friction P0 **V1** — with **TB-1294** |
-| TB-1296 | `/welcome` — canonical proof CTA ladder (see-it vs demo/preview) | Adoption friction P0 **V1** — with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** |
+| TB-1285 | Security & trust — StatusTag for Available now / Under NDA / Roadmap | Adoption friction P1 **V1** — with **TB-1284**; TB-116 parity |
+| TB-1286 | Security & trust — operator density + badge-legend StatusTag samples | Adoption friction P1 **V1** — with **TB-1285** |
+| TB-1294 | `/welcome` — first-viewport hero budget | Adoption friction P1 **V1** — owner welcome ~50/100; traffic **WXX**; complements **M-09** |
+| TB-1295 | `/welcome` — single primary conversion path (demote CTA stack) | Adoption friction P1 **V1** — with **TB-1294** |
+| TB-1296 | `/welcome` — canonical proof CTA ladder (see-it vs demo/preview) | Adoption friction P1 **V1** — with **TB-1294**; pairs **TB-1028**/**TB-1282**/**M-107** |
 | TB-1297 | `/welcome` — purge contributor library docs from Verify links | Trustworthiness P0 **V1** — with **TB-1294**; parity **TB-1254** |
-| TB-1298 | `/welcome` — honest see-it time copy (not “30 seconds”) | Trustworthiness P0 **V1** — with **TB-1294**; pairs **TB-1280** |
-| TB-1301 | `/why` — first-viewport hero budget + primary conversion CTA | Adoption friction P0 **V1** — owner why ~51/100; traffic **WHY** |
-| TB-1302 | `/why` — canonical proof ladder (`/see-it` vs Contoso `/demo/preview`) | Adoption friction P0 **V1** — with **TB-1301**; pairs **TB-1296**/**TB-1282**/**TB-1028**/**M-107** |
-| TB-1303 | `/why` — collapse triple comparison density | Adoption friction P0 **V1** — with **TB-1301** |
+| TB-1298 | `/welcome` — honest see-it time copy (not “30 seconds”) | Trustworthiness P1 **V1** — with **TB-1294**; pairs **TB-1280** |
+| TB-1301 | `/why` — first-viewport hero budget + primary conversion CTA | Adoption friction P1 **V1** — owner why ~51/100; traffic **WHY** |
+| TB-1302 | `/why` — canonical proof ladder (`/see-it` vs Contoso `/demo/preview`) | Adoption friction P1 **V1** — with **TB-1301**; pairs **TB-1296**/**TB-1282**/**TB-1028**/**M-107** |
+| TB-1303 | `/why` — collapse triple comparison density | Adoption friction P1 **V1** — with **TB-1301** |
 | TB-1304 | `/why` — purge contributor library docs from Verify column | Trustworthiness P0 **V1** — with **TB-1301**; parity **TB-1297**/**TB-1254** |
-| TB-1305 | `/why` — honest pack/embed labels + closing conversion CTA | Trustworthiness P0 **V1** — with **TB-1301**; pairs **TB-1283** |
+| TB-1305 | `/why` — honest pack/embed labels + closing conversion CTA | Trustworthiness P1 **V1** — with **TB-1301**; pairs **TB-1283** |
 | TB-1306 | `/why-archlucid` — Claims≠Contoso universe honesty (fail-closed) | Trustworthiness P0 **V1** — owner why-archlucid ~46/100; traffic **WH**; pairs **TB-1028**/**TB-1279**/**M-107** |
-| TB-1307 | `/why-archlucid` — disambiguate title/IA from marketing `/why` | Adoption friction P0 **V1** — with **TB-1306**; IA-014 |
-| TB-1308 | `/why-archlucid` — purge eng metric hints + repo doc footer | Trustworthiness P0 **V1** — with **TB-1306**; parity **TB-1297**/**TB-1254** |
-| TB-1309 | `/why-archlucid` — primary CTA to sample architecture package | Adoption friction P0 **V1** — with **TB-1306** |
-| TB-1310 | `/why-archlucid` — PageHeading/help + pilot proof orientation | Adoption friction P0 **V1** — with **TB-1307** |
-| TB-1313 | `/auth/session-expired` — brand + h1 + document title | Adoption friction P0 **V1** — owner session-expired ~59/100; traffic **ASU** |
-| TB-1314 | `/auth/session-expired` — Suspense + loading fallback (callback parity) | Adoption friction P0 **V1** — with **TB-1313** |
-| TB-1315 | `/auth/session-expired` — safe secondary exit (no auth-bounce `/`) | Trustworthiness P0 **V1** — with **TB-1313** |
-| TB-1316 | `/auth/session-expired` — AuthErrorPanel recovery honesty | Trustworthiness P0 **V1** — with **TB-1313** |
-| TB-1319 | `/demo/explain` — buyer vocabulary (purge provenance/eng chrome) | Adoption friction P0 **V1** — owner demo-explain ~51/100; traffic **DEX** |
-| TB-1320 | `/demo/explain` — status banner honesty + quiet IDs | Trustworthiness P0 **V1** — with **TB-1319** |
-| TB-1321 | `/demo/explain` — empty/not-available next-step ladder | Adoption friction P0 **V1** — with **TB-1319** |
-| TB-1322 | `/demo/explain` — IA gate or public proof ladder (IA-014) | Adoption friction P0 **V1** — with **TB-1319**; pairs **TB-1307**/**TB-1251** |
-| TB-1323 | `/demo/explain` — conversion CTA auth honesty | Trustworthiness P0 **V1** — with **TB-1319** |
-| TB-1326 | `/help/configuration-reference` — operator specialty guide + catalog split | Adoption friction P0 **V1** — owner configuration-reference ~39/100; traffic **CON**; pairs **TB-1253**/**TB-1246** |
+| TB-1307 | `/why-archlucid` — disambiguate title/IA from marketing `/why` | Adoption friction P1 **V1** — with **TB-1306**; IA-014 |
+| TB-1308 | `/why-archlucid` — purge eng metric hints + repo doc footer | Trustworthiness P1 **V1** — with **TB-1306**; parity **TB-1297**/**TB-1254** |
+| TB-1309 | `/why-archlucid` — primary CTA to sample architecture package | Adoption friction P1 **V1** — with **TB-1306** |
+| TB-1310 | `/why-archlucid` — PageHeading/help + pilot proof orientation | Adoption friction P1 **V1** — with **TB-1307** |
+| TB-1313 | `/auth/session-expired` — brand + h1 + document title | Adoption friction P1 **V1** — owner session-expired ~59/100; traffic **ASU** |
+| TB-1314 | `/auth/session-expired` — Suspense + loading fallback (callback parity) | Adoption friction P1 **V1** — with **TB-1313** |
+| TB-1315 | `/auth/session-expired` — safe secondary exit (no auth-bounce `/`) | Trustworthiness P1 **V1** — with **TB-1313** |
+| TB-1316 | `/auth/session-expired` — AuthErrorPanel recovery honesty | Trustworthiness P1 **V1** — with **TB-1313** |
+| TB-1319 | `/demo/explain` — buyer vocabulary (purge provenance/eng chrome) | Adoption friction P1 **V1** — owner demo-explain ~51/100; traffic **DEX** |
+| TB-1320 | `/demo/explain` — status banner honesty + quiet IDs | Trustworthiness P1 **V1** — with **TB-1319** |
+| TB-1321 | `/demo/explain` — empty/not-available next-step ladder | Adoption friction P1 **V1** — with **TB-1319** |
+| TB-1322 | `/demo/explain` — IA gate or public proof ladder (IA-014) | Adoption friction P1 **V1** — with **TB-1319**; pairs **TB-1307**/**TB-1251** |
+| TB-1323 | `/demo/explain` — conversion CTA auth honesty | Trustworthiness P1 **V1** — with **TB-1319** |
+| TB-1326 | `/help/configuration-reference` — operator specialty guide + catalog split | Adoption friction P1 **V1** — owner configuration-reference ~39/100; traffic **CON**; pairs **TB-1253**/**TB-1246** |
 | TB-1327 | Configuration reference — purge contributor/RC/ADR/TB leakage | Trustworthiness P0 **V1** — with **TB-1326**; parity **TB-1254**/**TB-1246** |
-| TB-1328 | Configuration reference — operator task CTA chrome | Adoption friction P0 **V1** — with **TB-1326** |
+| TB-1328 | Configuration reference — operator task CTA chrome | Adoption friction P1 **V1** — with **TB-1326** |
 | TB-1329 | Configuration reference — Admin gate / tier / audience honesty | Trustworthiness P0 **V1** — with **TB-1326**; pairs **TB-1250**/**TB-735**/**TB-734** |
-| TB-1330 | Configuration reference — in-app-only link map | Trustworthiness P0 **V1** — with **TB-1327**; parity **TB-1257** |
-| TB-1331 | `/help/core-pilot` — step 2 Add evidence CTA honesty | Trustworthiness P0 **V1** — owner core-pilot re-review ~70/100; traffic **COR**; after Done **TB-1040**–**TB-1043** |
-| TB-1332 | `/help/core-pilot` — sample review CTA Claims/universe label honesty | Trustworthiness P0 **V1** — with **TB-1331**; pairs **TB-1028**/**TB-1283** |
-| TB-1333 | `/help/core-pilot` — stepper pending chrome | Adoption friction P0 **V1** — with **TB-1331**; extends **TB-1042** |
-| TB-1334 | `/help/core-pilot` — post-stepper density | Adoption friction P0 **V1** — with **TB-1331**; extends **TB-1043** |
-| TB-1335 | `/help/core-pilot` — related-guides IA canonicalize | Adoption friction P0 **V1** — with **TB-1331**; pairs **TB-1258** |
-| TB-1289 | Recycle bin — Administration wayfinding + PageHeading/help | Adoption friction P0 **V1** — owner STR re-review ~58/100; complements **TB-1179**–**TB-1182**; pairs **TB-1223** |
-| TB-1290 | Recycle bin — Dialog confirm before Restore | Adoption friction P0 **V1** — with **TB-1289** |
-| TB-1291 | Recycle bin — OperatorEmptyState + loading notice | Adoption friction P0 **V1** — with **TB-1182** |
-| TB-1134 | Rename Governance setup → /governance/setup | Adoption friction P0 **V1** — owner governance setup ~52/100 |
-| TB-1135 | Governance setup naming consistency (drop First 30 days chip) | Adoption friction P0 **V1** — with **TB-1134** |
-| TB-1136 | Governance setup orientation (not generic Governance overview) | Adoption friction P0 **V1** — with **TB-1134**; cf. **TB-1129** |
-| TB-1137 | Governance setup checklist visual design | Adoption friction P0 **V1** — with **TB-1135** |
-| TB-1138 | Governance setup foundation panel vs progress dedupe | Adoption friction P0 **V1** — with **TB-1137** |
-| TB-1139 | Cloud connections platform-scope checkbox must hide provider cards | Correctness P0 **V1** — owner cloud-connections ~49/100 |
-| TB-1140 | Remove stale GCP Preview maturity label (TB-403 Done) | Trustworthiness P0 **V1** — with **TB-1139** |
-| TB-1141 | Cloud provider summary cards — single primary CTA | Adoption friction P0 **V1** — with **TB-1139** |
+| TB-1330 | Configuration reference — in-app-only link map | Trustworthiness P1 **V1** — with **TB-1327**; parity **TB-1257** |
+| TB-1331 | `/help/core-pilot` — step 2 Add evidence CTA honesty | Trustworthiness P1 **V1** — owner core-pilot re-review ~70/100; traffic **COR**; after Done **TB-1040**–**TB-1043** |
+| TB-1332 | `/help/core-pilot` — sample review CTA Claims/universe label honesty | Trustworthiness P1 **V1** — with **TB-1331**; pairs **TB-1028**/**TB-1283** |
+| TB-1333 | `/help/core-pilot` — stepper pending chrome | Adoption friction P1 **V1** — with **TB-1331**; extends **TB-1042** |
+| TB-1334 | `/help/core-pilot` — post-stepper density | Adoption friction P1 **V1** — with **TB-1331**; extends **TB-1043** |
+| TB-1335 | `/help/core-pilot` — related-guides IA canonicalize | Adoption friction P1 **V1** — with **TB-1331**; pairs **TB-1258** |
+| TB-1289 | Recycle bin — Administration wayfinding + PageHeading/help | Adoption friction P1 **V1** — owner STR re-review ~58/100; complements **TB-1179**–**TB-1182**; pairs **TB-1223** |
+| TB-1290 | Recycle bin — Dialog confirm before Restore | Adoption friction P1 **V1** — with **TB-1289** |
+| TB-1291 | Recycle bin — OperatorEmptyState + loading notice | Adoption friction P1 **V1** — with **TB-1182** |
+| TB-1137 | Governance setup checklist visual design | Adoption friction P1 **V1** — with **TB-1135** |
+| TB-1138 | Governance setup foundation panel vs progress dedupe | Adoption friction P1 **V1** — with **TB-1137** |
+| TB-1141 | Cloud provider summary cards — single primary CTA | Adoption friction P1 **V1** — with **TB-1139** |
 | TB-1142 | Cloud platform scope panel — fail closed + shared filter state | Adoption friction P0 **V1** — with **TB-1139** |
-| TB-1143 | Cloud connections empty/not-configured — suppress zero theater | Adoption friction P0 **V1** — with **TB-1141** |
-| TB-1146 | Jira not-configured dead end — guided next step | Adoption friction P0 **V1** — owner `/integrations/jira` ~46/100 |
-| TB-1147 | Jira page copy honesty — do not claim Set connection details | Adoption friction P0 **V1** — with **TB-1146** |
-| TB-1148 | Jira not-configured message dedupe | Adoption friction P0 **V1** — with **TB-1146** |
-| TB-1149 | Jira issue type by severity — structured UI (no raw JSON) | Adoption friction P0 **V1** — with **TB-1146** |
-| TB-1150 | Jira empty composition — gate connection test + demote overrides | Adoption friction P0 **V1** — with **TB-1146**/**TB-1148** |
-| TB-1151 | Azure Boards settings wrong SQL catalog (Database Query Failed) | Correctness P0 **V1** — owner azure-boards ~38/100; TB-867 parity |
+| TB-1143 | Cloud connections empty/not-configured — suppress zero theater | Adoption friction P1 **V1** — with **TB-1141** |
+| TB-1147 | Jira page copy honesty — do not claim Set connection details | Adoption friction P1 **V1** — with **TB-1146** |
+| TB-1148 | Jira not-configured message dedupe | Adoption friction P1 **V1** — with **TB-1146** |
+| TB-1149 | Jira issue type by severity — structured UI (no raw JSON) | Adoption friction P1 **V1** — with **TB-1146** |
+| TB-1150 | Jira empty composition — gate connection test + demote overrides | Adoption friction P1 **V1** — with **TB-1146**/**TB-1148** |
 | TB-1152 | Azure Boards page load — isolate failures (no Promise.all wipe) | Reliability P0 **V1** — with **TB-1151** |
 | TB-1153 | Azure Boards — never show raw Database Query Failed as status | Trustworthiness P0 **V1** — with **TB-1151** |
-| TB-1154 | Azure Boards feature-off / load-error empty path honesty | Adoption friction P0 **V1** — with **TB-1151** |
-| TB-1155 | Azure Boards empty composition — demote forms until connectable | Adoption friction P0 **V1** — with **TB-1154** |
-| TB-1161 | ServiceNow not-configured dead end — guided admin CTA | Adoption friction P0 **V1** — owner `/integrations/servicenow` ~50/100 |
+| TB-1154 | Azure Boards feature-off / load-error empty path honesty | Adoption friction P1 **V1** — with **TB-1151** |
+| TB-1155 | Azure Boards empty composition — demote forms until connectable | Adoption friction P1 **V1** — with **TB-1154** |
+| TB-1161 | ServiceNow not-configured dead end — guided admin CTA | Adoption friction P1 **V1** — owner `/integrations/servicenow` ~50/100 |
 | TB-1162 | ServiceNow page load — isolate failures (no Promise.all wipe) | Reliability P0 **V1** — with **TB-1161**; cf. **TB-1152** |
 | TB-1163 | ServiceNow — never show raw API/problem titles as connection status | Trustworthiness P0 **V1** — with **TB-1162**; cf. **TB-1153** |
-| TB-1164 | ServiceNow demote incident settings until credentials ready | Adoption friction P0 **V1** — with **TB-1161** |
-| TB-1165 | ServiceNow empty composition — setup progress drives primary story | Adoption friction P0 **V1** — with **TB-1161**/**TB-1164** |
-| TB-1171 | ServiceNow page title — show nav icon via PageHeading | Adoption friction P0 **V1** — owner ServiceNow icon gap 2026-07-25 |
-| TB-1174 | Teams not-configured — StatusTag + guided next step | Adoption friction P0 **V1** — owner `/integrations/teams` ~60/100 |
+| TB-1164 | ServiceNow demote incident settings until credentials ready | Adoption friction P1 **V1** — with **TB-1161** |
+| TB-1165 | ServiceNow empty composition — setup progress drives primary story | Adoption friction P1 **V1** — with **TB-1161**/**TB-1164** |
+| TB-1171 | ServiceNow page title — show nav icon via PageHeading | Adoption friction P1 **V1** — owner ServiceNow icon gap 2026-07-25 |
+| TB-1174 | Teams not-configured — StatusTag + guided next step | Adoption friction P1 **V1** — owner `/integrations/teams` ~60/100 |
 | TB-1175 | Teams draft vs saved honesty (prefilled recommended + example fields) | Trustworthiness P0 **V1** — with **TB-1174** |
-| TB-1176 | Teams CTA hierarchy — Validate → Test → Save + disabled-test reason | Adoption friction P0 **V1** — with **TB-1174** |
-| TB-1177 | Teams operator spacing density | Adoption friction P0 **V1** — with **TB-1174**; cf. **TB-1170** |
-| TB-1178 | Teams help-link dedupe (header vs aside footer) | Adoption friction P0 **V1** — with **TB-1174**; after **TB-1183** |
-| TB-1183 | Teams page — remove Slack notifications cross-link | Adoption friction P0 **V1** — owner `/integrations/teams` 2026-07-25; with **TB-1178** |
-| TB-1184 | Teams page — help as icon + caption in PageHeading actions | Adoption friction P0 **V1** — owner `/integrations/teams` 2026-07-25; with **TB-1178**/**TB-1183** |
-| TB-1185 | Slack page — remove Teams notifications cross-link | Adoption friction P0 **V1** — owner `/integrations/slack` ~57/100; parity **TB-1183** |
-| TB-1186 | Slack not-configured — StatusTag + guided next step | Adoption friction P0 **V1** — with **TB-1185** |
-| TB-1187 | Slack page — help as icon + caption in PageHeading actions | Adoption friction P0 **V1** — with **TB-1185**; parity **TB-1184** |
-| TB-1188 | Slack help/readiness link dedupe (header vs aside) | Adoption friction P0 **V1** — with **TB-1185**/**TB-1187** |
-| TB-1189 | Slack operator spacing density | Adoption friction P0 **V1** — with **TB-1185**; cf. **TB-1177** |
-| TB-1190 | Slack CTA hierarchy — Test → Save on add form | Adoption friction P0 **V1** — with **TB-1186** |
-| TB-1191 | Webhooks page — remove Jira/ServiceNow/Teams/Slack cross-link strip | Adoption friction P0 **V1** — owner `/integrations/webhooks` ~56/100; parity **TB-1183**/**TB-1185** |
-| TB-1192 | Webhooks not-configured — StatusTag + guided next step | Adoption friction P0 **V1** — with **TB-1191** |
-| TB-1193 | Webhooks page — help as icon + caption in PageHeading actions | Adoption friction P0 **V1** — with **TB-1191**; parity **TB-1184**/**TB-1187** |
-| TB-1194 | Webhooks operator spacing density | Adoption friction P0 **V1** — with **TB-1191**; cf. **TB-1177**/**TB-1189** |
-| TB-1195 | Webhooks empty composition — suppress zero theater | Adoption friction P0 **V1** — with **TB-1192** |
+| TB-1176 | Teams CTA hierarchy — Validate → Test → Save + disabled-test reason | Adoption friction P1 **V1** — with **TB-1174** |
+| TB-1177 | Teams operator spacing density | Adoption friction P1 **V1** — with **TB-1174**; cf. **TB-1170** |
+| TB-1178 | Teams help-link dedupe (header vs aside footer) | Adoption friction P1 **V1** — with **TB-1174**; after **TB-1183** |
+| TB-1183 | Teams page — remove Slack notifications cross-link | Adoption friction P1 **V1** — owner `/integrations/teams` 2026-07-25; with **TB-1178** |
+| TB-1184 | Teams page — help as icon + caption in PageHeading actions | Adoption friction P1 **V1** — owner `/integrations/teams` 2026-07-25; with **TB-1178**/**TB-1183** |
+| TB-1185 | Slack page — remove Teams notifications cross-link | Adoption friction P1 **V1** — owner `/integrations/slack` ~57/100; parity **TB-1183** |
+| TB-1186 | Slack not-configured — StatusTag + guided next step | Adoption friction P1 **V1** — with **TB-1185** |
+| TB-1187 | Slack page — help as icon + caption in PageHeading actions | Adoption friction P1 **V1** — with **TB-1185**; parity **TB-1184** |
+| TB-1188 | Slack help/readiness link dedupe (header vs aside) | Adoption friction P1 **V1** — with **TB-1185**/**TB-1187** |
+| TB-1189 | Slack operator spacing density | Adoption friction P1 **V1** — with **TB-1185**; cf. **TB-1177** |
+| TB-1190 | Slack CTA hierarchy — Test → Save on add form | Adoption friction P1 **V1** — with **TB-1186** |
+| TB-1191 | Webhooks page — remove Jira/ServiceNow/Teams/Slack cross-link strip | Adoption friction P1 **V1** — owner `/integrations/webhooks` ~56/100; parity **TB-1183**/**TB-1185** |
+| TB-1192 | Webhooks not-configured — StatusTag + guided next step | Adoption friction P1 **V1** — with **TB-1191** |
+| TB-1193 | Webhooks page — help as icon + caption in PageHeading actions | Adoption friction P1 **V1** — with **TB-1191**; parity **TB-1184**/**TB-1187** |
+| TB-1194 | Webhooks operator spacing density | Adoption friction P1 **V1** — with **TB-1191**; cf. **TB-1177**/**TB-1189** |
+| TB-1195 | Webhooks empty composition — suppress zero theater | Adoption friction P1 **V1** — with **TB-1192** |
 | TB-1198 | Settings hub — emptyStateHint only when actually empty | Trustworthiness P0 **V1** — owner `/settings` ~52/100 |
 | TB-1199 | Settings hub — remove fake Last updated chip | Trustworthiness P0 **V1** — with **TB-1198** |
-| TB-1200 | Settings hub — remove Recent changes empty theater | Adoption friction P0 **V1** — with **TB-1199** |
-| TB-1201 | Settings hub — PageHeading icon + PageContextualHelpButton | Adoption friction P0 **V1** — with **TB-1198**; parity **TB-1184** |
-| TB-1202 | Settings hub — section nav same-page jumps as links | Adoption friction P0 **V1** — a11y baseline; with **TB-1201** |
-| TB-1203 | Settings hub — demote Scope/Source/Status meta density | Adoption friction P0 **V1** — with **TB-1198** |
-| TB-1210 | Users & roles — Operator vs Architect vocabulary honesty | Trustworthiness P0 **V1** — owner `/settings/users` ~49/100 |
-| TB-1211 | Users & roles — tab-specific empty copy (no principals jargon) | Trustworthiness P0 **V1** — with **TB-1210** |
-| TB-1212 | Users & roles — breadcrumb/nav title consistency | Adoption friction P0 **V1** — with **TB-1210** |
-| TB-1213 | Users & roles API keys tab — dedicated empty + primary CTA | Adoption friction P0 **V1** — with **TB-1211** |
-| TB-1214 | Users & invitations — empty composition / guided next step | Adoption friction P0 **V1** — with **TB-1211** |
-| TB-1215 | Users & roles — PageContextualHelpButton at top | Adoption friction P0 **V1** — with **TB-1210**; parity **TB-1184** |
-| TB-1216 | AI usage — Administration vs Settings wayfinding (breadcrumb / URL honesty) | Adoption friction P0 **V1** — owner `/settings/ai-usage` ~51/100; TB-404 |
+| TB-1200 | Settings hub — remove Recent changes empty theater | Adoption friction P1 **V1** — with **TB-1199** |
+| TB-1201 | Settings hub — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1198**; parity **TB-1184** |
+| TB-1202 | Settings hub — section nav same-page jumps as links | Adoption friction P1 **V1** — a11y baseline; with **TB-1201** |
+| TB-1203 | Settings hub — demote Scope/Source/Status meta density | Adoption friction P1 **V1** — with **TB-1198** |
+| TB-1210 | Users & roles — Operator vs Architect vocabulary honesty | Trustworthiness P1 **V1** — owner `/settings/users` ~49/100 |
+| TB-1211 | Users & roles — tab-specific empty copy (no principals jargon) | Trustworthiness P1 **V1** — with **TB-1210** |
+| TB-1212 | Users & roles — breadcrumb/nav title consistency | Adoption friction P1 **V1** — with **TB-1210** |
+| TB-1213 | Users & roles API keys tab — dedicated empty + primary CTA | Adoption friction P1 **V1** — with **TB-1211** |
+| TB-1214 | Users & invitations — empty composition / guided next step | Adoption friction P1 **V1** — with **TB-1211** |
+| TB-1215 | Users & roles — PageContextualHelpButton at top | Adoption friction P1 **V1** — with **TB-1210**; parity **TB-1184** |
+| TB-1216 | AI usage — Administration vs Settings wayfinding (breadcrumb / URL honesty) | Adoption friction P1 **V1** — owner `/settings/ai-usage` ~51/100; TB-404 |
 | TB-1217 | AI usage — suppress zero-usage KPI/budget/filter theater | Trustworthiness P0 **V1** — with **TB-1216**; cf. **TB-1037** |
-| TB-1218 | AI usage — PageHeading icon + PageContextualHelpButton | Adoption friction P0 **V1** — with **TB-1216**; parity **TB-1184** |
-| TB-1219 | AI usage — dedupe Edit budget / budget-control CTAs | Adoption friction P0 **V1** — with **TB-1216** |
+| TB-1218 | AI usage — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1216**; parity **TB-1184** |
+| TB-1219 | AI usage — dedupe Edit budget / budget-control CTAs | Adoption friction P1 **V1** — with **TB-1216** |
 | TB-1220 | AI usage — hide Highest-cost project when no usage | Trustworthiness P0 **V1** — with **TB-1217** |
-| TB-1223 | Security & trust — Administration vs Settings wayfinding (breadcrumb / URL honesty) | Adoption friction P0 **V1** — owner `/settings/security-trust` ~53/100; TB-404; with **TB-1216** |
-| TB-1224 | Security & trust — collapse triple intro into one hero | Adoption friction P0 **V1** — with **TB-1223** |
-| TB-1225 | Security & trust — PageHeading icon + PageContextualHelpButton | Adoption friction P0 **V1** — with **TB-1224**; parity **TB-1184** |
-| TB-1226 | Security & trust — Available-now primary CTA hierarchy | Adoption friction P0 **V1** — with **TB-1224** |
-| TB-1227 | Security & trust — dedupe security@ contact CTAs | Adoption friction P0 **V1** — with **TB-1223** |
-| TB-1179 | Project deletion has no UI — governed delete affordance | Adoption friction P0 **V1** — owner recycle bin ~58/100; API DELETE exists |
-| TB-1180 | Recycle bin retention transparency — actual window + purge date | Trustworthiness P0 **V1** — with **TB-1179**; API + UI |
-| TB-1181 | Recycle bin discoverability — unbury entry from Technical details | Adoption friction P0 **V1** — after **TB-1179** |
-| TB-1182 | Recycle bin status presentation + operator density | Adoption friction P0 **V1** — with **TB-1180** |
+| TB-1223 | Security & trust — Administration vs Settings wayfinding (breadcrumb / URL honesty) | Adoption friction P1 **V1** — owner `/settings/security-trust` ~53/100; TB-404; with **TB-1216** |
+| TB-1224 | Security & trust — collapse triple intro into one hero | Adoption friction P1 **V1** — with **TB-1223** |
+| TB-1225 | Security & trust — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1224**; parity **TB-1184** |
+| TB-1226 | Security & trust — Available-now primary CTA hierarchy | Adoption friction P1 **V1** — with **TB-1224** |
+| TB-1227 | Security & trust — dedupe security@ contact CTAs | Adoption friction P1 **V1** — with **TB-1223** |
+| TB-1179 | Project deletion has no UI — governed delete affordance | Adoption friction P1 **V1** — owner recycle bin ~58/100; API DELETE exists |
+| TB-1180 | Recycle bin retention transparency — actual window + purge date | Trustworthiness P1 **V1** — with **TB-1179**; API + UI |
+| TB-1181 | Recycle bin discoverability — unbury entry from Technical details | Adoption friction P1 **V1** — after **TB-1179** |
+| TB-1182 | Recycle bin status presentation + operator density | Adoption friction P1 **V1** — with **TB-1180** |
 | TB-1166 | Billing tier value-ladder coherence — implement owner repricing decision | Commercial / trustworthiness P0 **V1** — owner `/settings/billing` ~64/100; after GTM **M-200** |
 | TB-1167 | Enterprise billing card shows Included 0 users | Correctness P0 **V1** — with **TB-1166** |
 | TB-1168 | Billing Included AI usage unit collision (dollars vs credits) | Trustworthiness P0 **V1** — with **TB-1166** |
-| TB-1169 | Billing sales-led CTAs dead-end into toasts — navigate instead | Adoption friction P0 **V1** — with **TB-1170** |
-| TB-1170 | Billing composition — anchor-jump buttons, duplicate primary, operator spacing | Adoption friction P0 **V1** — with **TB-1169** |
+| TB-1169 | Billing sales-led CTAs dead-end into toasts — navigate instead | Adoption friction P1 **V1** — with **TB-1170** |
+| TB-1170 | Billing composition — anchor-jump buttons, duplicate primary, operator spacing | Adoption friction P1 **V1** — with **TB-1169** |
 
 ## Hold for reassessment (not Cursor-shippable until owner promotes / G-REAL-06)
 
@@ -998,13 +974,13 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Product overview (`/help/product-overview`) | **TB-1736**–**TB-1740** (open P1 **V1**) | Specialty + Start CTA; title dual; eng/GTM leakage; vs EXE/path-chooser IA; M-18 pitch dump; ~42/100; traffic **HPR** |
 | Report a problem (`/help/report-a-problem`) | **TB-1741**–**TB-1745** (open P1 **V1**) | Specialty + Support CTA; button-absent dead-end; vs troubleshooting IA; first-viewport; Related/email; ~55/100; traffic **HRE**; after Done **TB-790** |
 | SOC 2 self-assessment (`/help/soc2-self-assessment`) | **TB-1746**–**TB-1750** (open P1 **V1**) | Specialty + Trust CTA; repo leakage; Type I calendar honesty; vs CAIQ/Trust IA; title/Help Center; ~40/100; traffic **HES**; do not reopen **TB-135**/**TB-136** |
-| Subprocessors (`/help/subprocessors`) | **TB-1751**–**TB-1755** (open P0/P1 **V1**) | Specialty + Trust CTA; repo leakage; vs DPA/Trust IA; title/Help Center; residency honesty; ~44/100; traffic **HSU** |
-| Azure Boards product (`/integrations/azure-boards`) | **TB-1756**–**TB-1760** (open P0/P1 **V1** incremental) + ship open **TB-1151**–**TB-1155** first | Density; aside chips; skeleton; help canonical; Vitest guards; ~38/100; traffic **IAZ** |
+| Subprocessors (`/help/subprocessors`) | **TB-1751**–**TB-1755** (open P1 **V1**) | Specialty + Trust CTA; repo leakage; vs DPA/Trust IA; title/Help Center; residency honesty; ~44/100; traffic **HSU** |
+| Azure Boards product (`/integrations/azure-boards`) | **TB-1756**–**TB-1760** (open P1 **V1** incremental) + ship open **TB-1151**–**TB-1155** first | Density; aside chips; skeleton; help canonical; Vitest guards; ~38/100; traffic **IAZ** |
 | AWS cloud connection detail (`/integrations/cloud-connections/aws`) | **TB-1761**–**TB-1765** (open P1 **V1**) | Wizard parity; Validate/Activity stubs; Tier jargon; CTA; trust-policy starter; ~44/100; traffic **INC**; hub **TB-1139**–**TB-1143** / help **TB-1234**–**TB-1238** stay open |
 | Azure cloud connection detail (`/integrations/cloud-connections/azure`) | **TB-1766**–**TB-1770** (open P1/P2 **V1**) | Tier jargon; Validate/Activity stubs; help IA; connected CTA; Vitest; ~72/100; traffic **INZ**; reference for AWS **TB-1761** |
-| GCP cloud connection detail (`/integrations/cloud-connections/gcp`) | **TB-1771**–**TB-1775** (open P0/P1 **V1**) | Preview honesty; wizard parity; Validate/Activity stubs; Tier jargon; WIF starter; ~44/100; traffic **IGC**; pairs hub **TB-1140** / AWS **TB-1761** / help **TB-1239**–**TB-1243** |
-| Legacy ITSM hub (`/integrations/itsm`) | **TB-1776**–**TB-1780** (open P0/P1 **V1**) | OAuth carve-out; CI; retire dead client; traffic redirect-only; canonicalize links; ~12/100; traffic **INT**/**INA**; do not reopen **TB-1146**/**TB-1161**/**TB-1429** |
-| Atlassian OAuth callback (`/integrations/itsm/oauth/callback`) | **TB-1781**–**TB-1785** (open P0/P1 **V1**) | Blocked by **TB-1776** redirect; brand/loading; success CTA copy; error honesty; Vitest; ~10/100; traffic **INA**; do not reopen **TB-600** |
+| GCP cloud connection detail (`/integrations/cloud-connections/gcp`) | **TB-1771**–**TB-1775** (open P1 **V1**) | Preview honesty; wizard parity; Validate/Activity stubs; Tier jargon; WIF starter; ~44/100; traffic **IGC**; pairs hub **TB-1140** / AWS **TB-1761** / help **TB-1239**–**TB-1243** |
+| Legacy ITSM hub (`/integrations/itsm`) | **TB-1776**–**TB-1780** (open P1 **V1**) | OAuth carve-out; CI; retire dead client; traffic redirect-only; canonicalize links; ~12/100; traffic **INT**/**INA**; do not reopen **TB-1146**/**TB-1161**/**TB-1429** |
+| Atlassian OAuth callback (`/integrations/itsm/oauth/callback`) | **TB-1781**–**TB-1785** (open P1 **V1**) | Blocked by **TB-1776** redirect; brand/loading; success CTA copy; error honesty; Vitest; ~10/100; traffic **INA**; do not reopen **TB-600** |
 | Recommendation-learning ops (`/internal-operations/recommendation-learning`) | **TB-1786**–**TB-1790** (open P1/P2 **V1**) | Traffic/SEO Internal Ops; retire orphan UI; toolbar honesty; enterprise chrome; Vitest; ~52/100; traffic **INR** |
 | Legacy `/login` | **TB-1791**–**TB-1795** (open P1/P2 **V1**) | Vitest redirect; query fidelity; noindex; traffic redirect-only; docs canonicalize; ~12/100; traffic **LOX**; real UX on `/auth/signin` |
 | Legacy `/onboard` | **TB-1796**–**TB-1800** (open P1/P2 **V1**) | Query Vitest; noindex; traffic redirect-only; canonicalize; SEO drop; ~12/100; traffic **ON**; peer ONS; hub Done **TB-674**–**TB-680** |
@@ -1012,8 +988,8 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Legacy `/operate/architecture-graph` | **TB-1806**–**TB-1810** (open P1/P2 **V1**) | Traffic redirect-only; noindex; query preserve to `/graph`; canonicalize; anti-reintro Vitest; ~12/100; traffic **OPR**; product stays on `/graph` |
 | Pattern library detail (`/patterns/[patternKey]`) | **TB-1811**–**TB-1815** (open P1/P2 **V1**) | Provenance parity; peer compare; policy honesty; help map+mount; CTA/Vitest; ~48/100; traffic **PAP**; do not reopen **TB-880** |
 | Retired marketing `/quick-start` | **TB-1816**–**TB-1820** (open P1/P2 **V1**) | Traffic redirect-only; retire orphan page; noindex; canonicalize; anti-reintro Vitest; ~12/100; traffic **QUI**; after Done **TB-736** |
-| Ghost artifact preview (`/reviews/.../artifacts/...`) | **TB-1821**–**TB-1825** (open P0/P1 **V1**) | Restore/redirect Preview; fix ArtifactListTable hrefs; traffic honesty; pair MAM; CI existence guard; ~10/100; traffic **RER**; after Done **TB-752** |
-| Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1946**–**TB-1950** (open **V1**) | Traffic ghost; execute **TB-1824**; hrefs; docs; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
+| Ghost artifact preview (`/reviews/.../artifacts/...`) | **TB-1821**–**TB-1825** (open P1 **V1**) | Restore/redirect Preview; fix ArtifactListTable hrefs; traffic honesty; pair MAM; CI existence guard; ~10/100; traffic **RER**; after Done **TB-752** |
+| Ghost signed-record artifact preview (`/signed-records/.../artifacts/...`) | **TB-1946**–**TB-1950** (open P1 **V1**) | Traffic ghost; execute **TB-1824**; hrefs; docs; Vitest with **TB-1825**; ~10/100; traffic **MAM**; peer **RER** |
 | Snapshot leave-behind (`/snapshot/[runId]`) | **TB-1951**–**TB-1955** (open **V1**) | Redirect traffic; destination honesty; next.config/query; docs; Vitest; ~30/100; traffic **SNU** |
 | Architecture scorecard (`/sponsor-report/architecture-scorecard`) | **TB-1956**–**TB-1960** (open **V1**) | Traffic section; sample href; empty CTA; help with **TB-1668**; Vitest; ~48/100; traffic **SPA**; siblings SPE/SPP/SPR |
 | Executive summary (`/sponsor-report/executive-summary`) | **TB-1961**–**TB-1965** (open **V1**) | Traffic section; title vocabulary; canonical deep-links; chrome with **TB-1437**; Vitest; ~50/100; traffic **SPE**; siblings SPP/SPR |
@@ -1021,8 +997,8 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | ROI summary (`/sponsor-report/roi-summary`) | **TB-1971**–**TB-1975** (open **V1**) | Traffic section; zero CTA; help with **TB-1668**; chrome with **TB-1437**; Vitest; ~45/100; traffic **SPR**; completes SPA/SPE/SPP/SPR |
 | Finding evidence-trace (`/…/evidence-trace`) | **TB-1826**–**TB-1830** (open P1/P2 **V1**) | Finding-first H1; no footer self-link; back to finding detail; heading hierarchy; Vitest + **TB-987**; ~54/100; traffic **ERU** |
 | Create-home Activity (`archTab=activity`) | **TB-1831**–**TB-1835** (open P1/P2 **V1**) | Traffic dual-param honesty; orientation; no forced create-intent; density; Vitest; ~42/100; traffic **REA**; siblings **REC**–**REO** |
-| Create-home Clarifications (`archTab=clarifications`) | **TB-1836**–**TB-1840** (open P0/P1 **V1**) | Traffic honesty; run-scoped CTAs; badge count; empty composition; Vitest; ~44/100; traffic **REC**; pairs **TB-1831**/**TB-1833** |
-| Create-home Diagram (`archTab=diagram`) | **TB-1841**–**TB-1845** (open P0/P1 **V1**) | Traffic honesty; run-scoped clarify; insufficient CTA; buyer Mermaid honesty; Vitest; ~50/100; traffic **RED**; pairs **TB-1831**/**TB-1837** |
+| Create-home Clarifications (`archTab=clarifications`) | **TB-1836**–**TB-1840** (open P1 **V1**) | Traffic honesty; run-scoped CTAs; badge count; empty composition; Vitest; ~44/100; traffic **REC**; pairs **TB-1831**/**TB-1833** |
+| Create-home Diagram (`archTab=diagram`) | **TB-1841**–**TB-1845** (open P1 **V1**) | Traffic honesty; run-scoped clarify; insufficient CTA; buyer Mermaid honesty; Vitest; ~50/100; traffic **RED**; pairs **TB-1831**/**TB-1837** |
 | Create-home Evidence (`archTab=evidence`) | **TB-1846**–**TB-1850** (open **V1**) | Traffic honesty; inventory; diagram cross-link; naming/chrome; Vitest; ~46/100; traffic **REE**; pairs **TB-1831** |
 | Operator page contextual-help standard | **TB-1666**–**TB-1670** (open P1/P2 **V1**) | PageContextualHelpButton contract + mount waves + alerts topic fix + map/registry + Vitest; traffic **OPH**; IDs skip line-tabs **TB-1661**–**TB-1665** |
 | Operator/marketing clickable-link affordance | **TB-1671**–**TB-1675** (open P1/P2 **V1**) | `OPERATOR_LINK` contract + bare/hover-only fix waves + finding-badge/secondary + Vitest; traffic **OLA**; IDs skip OPH **TB-1666**–**TB-1670** / line-tabs **TB-1661**–**TB-1665** |
