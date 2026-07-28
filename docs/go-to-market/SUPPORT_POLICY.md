@@ -1,6 +1,6 @@
 ﻿> **Reviewed:** 2026-07-27
 
-> **Scope:** ArchLucid — Support and professional services (buyer summary), plus V1 controlled-pilot operating model (formerly `SUPPORT_AND_PILOT_OPERATING_MODEL.md`), plus incident communications policy and status-page plan (formerly the body of `INCIDENT_COMMUNICATIONS_POLICY.md`; that filename remains a path-stable deal-ready alias).  
+> **Scope:** ArchLucid — Support and professional services (buyer summary), plus V1 controlled-pilot operating model (formerly `SUPPORT_AND_PILOT_OPERATING_MODEL.md`), plus incident communications policy and status-page plan (formerly the body of `INCIDENT_COMMUNICATIONS_POLICY.md`; that filename remains a path-stable deal-ready alias), plus buyer service-level objectives / hosted SaaS availability target / backup-DR (formerly the body of `SLA_SUMMARY.md`; that filename remains a path-stable deal-ready alias).  
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 # ArchLucid — Support and professional services
@@ -13,7 +13,9 @@
 
 **Incident communications + status-page plan:** [`#incident-communications-and-status-page`](#incident-communications-and-status-page) (`INCIDENT_COMMUNICATIONS_POLICY.md` alias).
 
-**Related:** [SLA_SUMMARY.md](SLA_SUMMARY.md) (availability targets) · [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) (contract framing) · [trust-center.md](trust-center.md) · [TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms](TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms)
+**Service level objectives + backup/DR:** [`#service-level-objectives`](#service-level-objectives) (`SLA_SUMMARY.md` alias; hosted target [`#hosted-saas-availability-target`](#hosted-saas-availability-target)).
+
+**Related:** [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) (contract framing) · [trust-center.md](trust-center.md) · [TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms](TRANSACTABLE_PROCUREMENT_PATH.md#legal-and-procurement-terms)
 
 ---
 
@@ -100,44 +102,210 @@ Include **`X-Correlation-ID`** on API requests when reporting API-related issues
 
 ---
 
-## Availability and maintenance
+## Service level objectives {#service-level-objectives}
 
-### Availability target
+Former standalone body: `docs/go-to-market/SLA_SUMMARY.md` → this section (filename kept as a path-stable deal-ready alias). For engineering depth (Prometheus rules, OTel metrics, burn-rate math), see [`../library/API_SLOS.md`](../library/API_SLOS.md).
 
-| Tier | Hosted API + architect workspace monthly target | Contractual SLA / credits |
-|------|----------------------------------------|---------------------------|
-| Team | **99.9%** engineering target | No credits — target only |
-| Professional | **99.9%** engineering target | No credits — target only |
-| Enterprise | **99.9%** monthly | Availability-based **service credits** in executed agreement (monthly capped, sole remedy) |
-
-**Measurement:** Successful API responses (non-5xx) over a 30-day rolling window for the hosted API; architect workspace availability aligned to the same deployment. Detail: [SLA_SUMMARY.md](SLA_SUMMARY.md), [API_SLOS.md](../library/API_SLOS.md).
-
-### Exclusions (availability)
-
-- Planned maintenance (see below)
-- Customer misconfiguration, blocked network paths, or excess load beyond agreed limits
-- Preview / beta features explicitly marked as such
-- Third-party cloud outages outside ArchLucid control
-- Force majeure
-
-### Planned maintenance
-
-- Performed in a **published Sunday early-morning maintenance window** in the customer's primary region/time zone.
-- **≥ 72 hours' notice** for planned maintenance expected to affect availability.
-- **Emergency security maintenance** may occur with shorter notice.
-
----
-
-## Service credits (Enterprise only)
-
-When included in an executed Enterprise agreement:
-
-- **Availability-based** credits only — not support response-time credits.
-- **Monthly capped**; credits are the customer's **sole remedy** for availability shortfalls.
-- Percentage schedule and cap are defined in the **order form / SLA exhibit** (finalized at contract).
-- Standard exclusions in § Availability and maintenance apply.
+**Important:** Team and Professional tiers receive **engineering SLO targets** below. **Contractual SLA terms and service credits apply to Enterprise only** when included in the executed commercial agreement. See [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md).
 
 ArchLucid does **not** assert production SLA compliance without production probe evidence and owner-approved contractual terms.
+
+### 1. Availability
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| **Monthly availability** | **99.9%** | Ratio of successful API responses (**non-5xx**) to total requests, measured over a **30-day rolling window** (same SLI as Prometheus burn-rate rules in `infra/prometheus/archlucid-slo-rules.yml`). |
+
+**Tier posture:**
+
+| Tier | Target | Contractual SLA / credits |
+|------|--------|---------------------------|
+| Team | 99.9% engineering target | No credits |
+| Professional | 99.9% engineering target | No credits |
+| Enterprise | 99.9% monthly (hosted API + architect workspace) | Availability-based service credits when included in executed agreement |
+
+**What counts as downtime:** Periods where the API fails to meet the availability target above. **5xx rate** is the same signal: a **99.9%** target implies at most **0.1%** of requests may be **5xx** over the window for that measurement. Planned maintenance windows that are communicated in advance are **excluded** from the availability calculation.
+
+#### Error rate (5xx)
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| **HTTP 5xx** | ≤ **0.1%** of requests | 30-day rolling window; server-side counts (pairs with availability SLI above). |
+
+**LLM provider carve-out:** Contract may define a **separate** sub-budget for documented upstream model unavailability; see [`../library/API_SLOS.md`](../library/API_SLOS.md).
+
+### 2. Latency
+
+Latency is **tiered** so infrastructure probes, standard API traffic, and **AI-augmented** routes each have credible targets. Full table: [`../library/API_SLOS.md`](../library/API_SLOS.md) § *Latency tiers (customer-visible)*.
+
+| Tier | Examples | **p95** (customer-visible) | **p99** (customer-visible) |
+|------|----------|----------------------------|---------------------------|
+| **1 — Infrastructure** | `GET /health/live`, `GET /version` | **< 300 ms** | **< 500 ms** |
+| **2 — Synchronous API** | Typical reads/writes without LLM in the hot path | **< 800 ms** | **< 1.5 s** |
+| **3 — AI-augmented** | Documented LLM-backed request paths | **< 8 s** | *tracked internally until pilot proof* |
+
+**Async work:** Operations that return **202** + polling are measured on **polling** latency (Tier **2**), not end-to-end job duration.
+
+### 3. Planned maintenance
+
+| Commitment | Detail |
+|------------|--------|
+| **Advance notice** | **72 hours** minimum for scheduled maintenance that may affect availability. |
+| **Maintenance windows** | **Sunday early-morning** window in the customer's primary region/time zone. |
+| **Zero-downtime target** | Rolling deployments are the default; maintenance requiring downtime is exceptional and always communicated. |
+| **Emergency security maintenance** | May occur with shorter notice. |
+
+### 4. Service credits (Enterprise only)
+
+**Enterprise only:** When included in an executed Enterprise agreement, availability-based service credits are **monthly capped** and the customer's **sole remedy** for availability shortfalls. Credits do **not** apply to support response-time targets. Percentage schedule is defined in the order form / SLA exhibit.
+
+Team and Professional receive **no service credits** — 99.9% remains an engineering target only.
+
+### 5. Exclusions
+
+The availability target does **not** apply to:
+
+- **Scheduled maintenance** communicated per §3.
+- **Force majeure** events (natural disasters, widespread infrastructure outages beyond ArchLucid's control).
+- **Customer-caused issues** (misconfigured API keys, blocked network paths, excessive request volumes beyond agreed limits).
+- **Beta or preview features** explicitly marked as such.
+- **Third-party cloud outages** outside ArchLucid control.
+
+### 6. How we measure
+
+- **Internal monitoring:** Continuous server-side metrics collected via OpenTelemetry, aggregated into availability ratios and latency percentiles. Burn-rate alerts detect budget consumption before it becomes visible to customers.
+- **External probes:** Periodic synthetic checks from outside the cluster verify reachability and basic response correctness of health and version endpoints — see [`#hosted-saas-availability-target`](#hosted-saas-availability-target) for minute-based hosted product measurement.
+- **Engineering detail:** [`../library/API_SLOS.md`](../library/API_SLOS.md).
+
+### Hosted SaaS availability target {#hosted-saas-availability-target}
+
+Former standalone body: `docs/library/SLA_TARGETS.md` → this section (filename kept as a path-stable alias). Pre-GA **target**, not a contractual SLA until negotiated per customer.
+
+#### Service availability target (API + architect workspace)
+
+| Surface | Monthly target | Notes |
+|---------|----------------|--------|
+| **ArchLucid API** + **operator web UI** | **99.9%** | Reflects Azure Container Apps + Azure SQL high-availability posture for the hosted stack. |
+
+**Meaning:** For each calendar month, we target at least **99.9%** uptime for API and architect workspace together, measured as described below.
+
+**Relationship to HTTP SLOs:** The **HTTP** rolling objective in [`../library/API_SLOS.md`](../library/API_SLOS.md) and §1 above is aligned to **99.9%** availability (non-5xx / all requests) with tiered latency; this section states the **full hosted product** (API + UI) narrative **also** at **99.9%** for packaging and Trust Center. Minute-based probe signal differs from the request-ratio SLI — both are engineering targets.
+
+#### Probe measurement
+
+**Availability** = (total minutes − downtime minutes) ÷ total minutes × 100.
+
+**Downtime:** `/health/live` on the API returns **non-200** for **5+ consecutive minutes** from an **external** synthetic probe (same class of signal as [`.github/workflows/api-synthetic-probe.yml`](../../.github/workflows/api-synthetic-probe.yml)). Architect workspace availability uses the **production Front Door / UI hostname** with an equivalent **HTTP 2xx** check on a configured health or shell route as exercised by [`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml).
+
+#### Exclusions (hosted product narrative)
+
+Targets **do not** apply during:
+
+- **Scheduled maintenance** communicated with at least **72 hours** notice (same buyer commitment as §3 — previously a 48h draft in `SLA_TARGETS.md`; **72h** is the SoT shared with MSA / order-form wording).
+- **Force majeure** and **third-party cloud outages** outside ArchLucid’s direct control.
+- **Customer-caused** outages (blocked networks, invalid configuration, abuse).
+
+#### Disaster recovery pointer
+
+For **RTO/RPO** estimates and backup posture, see [`../library/RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md) and [#9-backup-disaster-recovery-and-data-lifecycle](#9-backup-disaster-recovery-and-data-lifecycle).
+
+#### Monitoring evidence
+
+Synthetic and operational probes (including scheduled GitHub Actions workflows above) demonstrate ongoing measurement investment; they are **canaries**, not by themselves a monthly percentage.
+
+### 7. Incident response (SLO pointer)
+
+When availability or latency targets are at risk, the [incident communications](#incident-communications-and-status-page) section governs customer notification (SEV-1–4 timelines). Support severity-1–4 above is a separate ticket taxonomy.
+
+### 8. Status page (SLO pointer)
+
+Public status URL is published in [trust-center.md](trust-center.md). Until a dedicated URL is live, incident updates are routed through [incident communications channels](#incident-communications-and-status-page). Implementation plan: [`#8-operational-transparency--status-page-plan`](#8-operational-transparency--status-page-plan).
+
+### 9. Backup, disaster recovery, and data lifecycle {#9-backup-disaster-recovery-and-data-lifecycle}
+
+Former standalone: `docs/go-to-market/BACKUP_AND_DR.md` → this section.
+
+This section describes ArchLucid's backup, disaster recovery, and data lifecycle posture **honestly** — stating what is in place, what uses Azure platform defaults, and what is roadmap. Engineering RTO/RPO depth: [`../library/RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md).
+
+#### Backup
+
+##### Azure SQL Database
+
+| Property | Value |
+|----------|-------|
+| **Backup type** | Azure SQL automated backups (full, differential, transaction log) |
+| **Point-in-time restore** | Azure SQL default retention window (7–35 days depending on service tier; standard default is **7 days**) |
+| **Geo-redundant backup** | Available when configured via Terraform (`infra/terraform-sql-failover/`); enables restore to a paired region |
+| **Encryption** | Backups are encrypted at rest via Transparent Data Encryption (TDE) — Azure platform default |
+
+Operators should confirm the configured retention window in their Azure subscription and adjust if business requirements exceed the default.
+
+##### Blob storage
+
+| Property | Value |
+|----------|-------|
+| **Soft delete** | Not configured by default in the current Terraform modules; **roadmap** item |
+| **Versioning** | Not configured by default; **roadmap** item |
+| **Geo-replication** | Available at the storage account level (GRS/RA-GRS); not enforced by default |
+
+Blob storage holds optional agent execution traces and export artifacts. Operators deploying in production should enable soft delete and consider versioning based on data classification requirements.
+
+#### Disaster recovery
+
+##### SQL failover group
+
+ArchLucid's infrastructure includes a Terraform module for **Azure SQL failover groups** (`infra/terraform-sql-failover/`), enabling automatic failover to a secondary region.
+
+| Property | Estimate |
+|----------|----------|
+| **RPO** (Recovery Point Objective) | **< 5 minutes** (Azure SQL async geo-replication; actual depends on replication lag) |
+| **RTO** (Recovery Time Objective) | **< 1 hour** (includes DNS propagation, application reconnection, and verification) |
+
+These are **current best estimates**, not contractual commitments. Formalized RTO/RPO targets will be documented in the commercial SLA when available. See also [`../library/RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md).
+
+##### Geo-failover drill
+
+An internal drill runbook exists and is exercised periodically to validate failover procedures, measure actual RTO/RPO, and identify gaps. Drill results inform infrastructure improvements.
+
+##### Application resilience
+
+- **Connection resiliency:** `ResilientSqlConnectionFactory` with retry and circuit-breaker patterns.
+- **Worker recovery:** Background services recover from transient failures; integration event outbox ensures at-least-once delivery.
+- **Multi-host:** API and Worker can be deployed on separate compute instances for independent scaling and failure isolation.
+
+#### Data lifecycle
+
+##### Retention defaults
+
+ArchLucid retains customer data **until archived or deleted by operator workflows**. There is no automatic purge on a fixed schedule — operators control data lifecycle through:
+
+- **Run archival:** Reviews, architecture packages (API: golden manifests), and findings snapshots carry `ArchivedUtc` columns; archived data is excluded from active queries.
+- **Audit events:** Append-only in SQL with export capabilities (CSV via `GET /v1/audit/export`). Retention is operator-managed.
+- **Agent traces:** Optional full-prompt persistence in blob storage; lifecycle follows blob retention configuration.
+
+##### Data deletion on termination
+
+On contract termination, ArchLucid deletes customer data per the timeline agreed in the [DPA](DPA_TEMPLATE.md) (§9). Customers may export data prior to termination using product export features (DOCX/ZIP exports, audit CSV).
+
+##### Data export
+
+| Method | Scope | Access |
+|--------|-------|--------|
+| DOCX / ZIP export | Architecture artifacts, manifests | Operator or Admin role |
+| Audit CSV | Typed audit events | Auditor or Admin role |
+| API (JSON) | All data accessible via REST API | Per endpoint RBAC |
+
+#### What we do NOT claim (yet)
+
+| Capability | Status |
+|------------|--------|
+| Cross-region **active-active** | Not available; failover is active-passive |
+| Customer-controlled **backup schedules** | Uses Azure platform defaults; not exposed to customers |
+| Blob **geo-replication** enforcement | Available but not enforced by default |
+| Customer-managed **encryption keys** (BYOK) | Not available; uses Azure-managed keys |
+| Guaranteed **RTO/RPO** in SLA | Estimates only; formalization pending |
+
+Do not invent stronger DR/attestation claims here — align wording with [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md).
 
 ---
 
@@ -399,7 +567,7 @@ SaaS buyers — especially in enterprise and regulated environments — need con
 | **Degraded performance** | SEV-3 | Minor impact, workaround available |
 | **Partial outage** | SEV-2 | Subset of tenants or features impaired |
 | **Major outage** | SEV-1 | Service unavailable for all or most tenants |
-| **Under maintenance** | Planned | Scheduled maintenance window per [`SLA_SUMMARY.md`](SLA_SUMMARY.md) §3 |
+| **Under maintenance** | Planned | Scheduled maintenance window per [planned maintenance](#3-planned-maintenance) |
 
 #### Integration points
 
@@ -411,11 +579,11 @@ SaaS buyers — especially in enterprise and regulated environments — need con
 
 | Phase | Scope | Timeline target |
 |-------|-------|---------------------|
-| **Phase 1** | Choose provider, create page with 5 components, add URL to [`trust-center.md`](trust-center.md), [`SLA_SUMMARY.md`](SLA_SUMMARY.md), and channels above | Near-term |
+| **Phase 1** | Choose provider, create page with 5 components, add URL to [`trust-center.md`](trust-center.md), this support policy (status-page + SLO sections), and channels above | Near-term |
 | **Phase 2** | Manual incident updates aligned with this policy; team trained on update workflow | With first production customer |
 | **Phase 3** | Automated uptime checks feeding the page; alert-to-incident webhook integration | Post Phase 2 stabilization |
 
-When a dedicated status URL is published, keep [`SLA_SUMMARY.md`](SLA_SUMMARY.md) §8 and the channels language above aligned in the same change.
+When a dedicated status URL is published, keep [status page (SLO pointer)](#8-status-page-slo-pointer) and the channels language above aligned in the same change.
 
 Former standalone plan: `docs/go-to-market/OPERATIONAL_TRANSPARENCY.md` → [`#8-operational-transparency--status-page-plan`](#8-operational-transparency--status-page-plan).
 
@@ -425,7 +593,7 @@ Former standalone plan: `docs/go-to-market/OPERATIONAL_TRANSPARENCY.md` → [`#8
 
 | Doc | Use |
 |-----|-----|
-| [SLA_SUMMARY.md](SLA_SUMMARY.md) | Buyer SLO summary |
+| [`#service-level-objectives`](#service-level-objectives) · [`SLA_SUMMARY.md`](SLA_SUMMARY.md) (alias) | Buyer SLO summary + hosted target + backup/DR |
 | [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Subscription and SLA exhibit framing |
 | [BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook](BUYER_SECURITY_PROCUREMENT_PACKET.md#procurement-objection-playbook) (`PROCUREMENT_OBJECTION_PLAYBOOK.md` alias) | Standard objection responses |
 | [`#incident-communications-and-status-page`](#incident-communications-and-status-page) · [`INCIDENT_COMMUNICATIONS_POLICY.md`](INCIDENT_COMMUNICATIONS_POLICY.md) (alias) | Incident notification + status-page plan |
