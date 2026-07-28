@@ -119,7 +119,7 @@ Each profile may declare `docOwners` — canonical docs that must stay aligned w
 
 **Shared CI helpers:** Release-evidence Python scripts should reuse [`scripts/ci/release_evidence_common.py`](../../scripts/ci/release_evidence_common.py) for JSON loading, strict RC evaluation, and RC environment matrix lookups.
 
-**Role-specific packet templates:** [`evidence-packet-buyer.template.md`](../go-to-market/templates/evidence-packet-buyer.template.md), [`evidence-packet-operator.template.md`](../go-to-market/templates/evidence-packet-operator.template.md), [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md).
+**Role-specific packet templates:** [`evidence-packet-buyer.template.md`](../go-to-market/templates/evidence-packet-buyer.template.md), [`FIRST_PILOT_EVIDENCE_BUNDLE.md#operator-pilot-lead-evidence-packet`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md#operator-pilot-lead-evidence-packet) (`evidence-packet-operator.template.md` alias), [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md).
 
 ## Real-mode AI evidence status
 
