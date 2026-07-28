@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
@@ -94,12 +93,6 @@ public sealed class CustomRolesAdminController(
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
-        }
-        catch (EncoderFallbackException)
-        {
-            return this.BadRequestProblem(
-                "Role name contains invalid characters.",
-                ProblemTypes.ValidationFailed);
         }
         catch (JsonException)
         {
