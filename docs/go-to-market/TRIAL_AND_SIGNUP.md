@@ -171,7 +171,7 @@ When you stay on **“Use model default (modeled estimate)”**, we **do not** s
 ### How we use it
 
 - **Delta computation only** — we compare your supplied baseline (or the model default) to **measured** time-to-commit derived from your tenant’s committed runs (`PilotRunDeltaComputer` / pilot-run-deltas surface). This powers in-product copy such as the **Review-cycle delta (before vs measured)** panel and sponsor-facing value-report sections (`ValueReportReviewCycleSectionFormatter`).
-- **Never published per-tenant in aggregate bulletins** — quarterly aggregate ROI bulletins (see [`AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](AGGREGATE_ROI_BULLETIN_TEMPLATE.md)) intentionally **exclude per-tenant rows** and require a **minimum tenant count** plus **owner sign-off** before any external publication.
+- **Never published per-tenant in aggregate bulletins** — quarterly aggregate ROI bulletins (see [`ROI_MODEL.md#aggregate-roi-bulletin-template`](ROI_MODEL.md#aggregate-roi-bulletin-template); `AGGREGATE_ROI_BULLETIN_TEMPLATE.md` alias) intentionally **exclude per-tenant rows** and require a **minimum tenant count** plus **owner sign-off** before any external publication.
 
 ### What we do not do
 

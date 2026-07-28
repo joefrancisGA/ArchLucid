@@ -1,4 +1,4 @@
-> **Scope:** Synthetic aggregate ROI bulletin sample. **FORBIDDEN (repository hygiene):** Do not append this document to `docs/CHANGELOG.md`. Do not add a `## YYYY-MM-DD — ROI bulletin signed:` section for this synthetic artefact. Sign-off audit format applies only to real published bulletins (see `docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md`).
+> **Scope:** Synthetic aggregate ROI bulletin sample. **FORBIDDEN (repository hygiene):** Do not append this document to `docs/CHANGELOG.md`. Do not add a `## YYYY-MM-DD — ROI bulletin signed:` section for this synthetic artefact. Sign-off audit format applies only to real published bulletins (see `docs/go-to-market/ROI_MODEL.md#aggregate-roi-bulletin-template`; `AGGREGATE_ROI_BULLETIN_TEMPLATE.md` alias).
 
 > **Reviewed:** 2026-07-25
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -26,6 +26,6 @@
 
 ## Related
 
-- [`AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](AGGREGATE_ROI_BULLETIN_TEMPLATE.md)
+- [`ROI_MODEL.md#aggregate-roi-bulletin-template`](ROI_MODEL.md#aggregate-roi-bulletin-template) (`AGGREGATE_ROI_BULLETIN_TEMPLATE.md` alias)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 - [`ROI_MODEL.md#synthetic-contoso-retail-case-study`](ROI_MODEL.md#synthetic-contoso-retail-case-study) — single-tenant synthetic sponsor narrative (DOCX-shaped metrics via `SyntheticCaseStudyDataProvider`)
