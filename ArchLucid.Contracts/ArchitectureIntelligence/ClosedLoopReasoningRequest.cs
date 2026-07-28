@@ -74,4 +74,13 @@ public class ClosedLoopReasoningRequest
         get;
         set;
     }
+
+    /// <summary>
+    /// Review depth for TB-1992 per-tier estimated-token budgets. Defaults to <see cref="ArchitectureIntelligenceReviewTier.Standard"/>.
+    /// </summary>
+    public ArchitectureIntelligenceReviewTier ReviewTier
+    {
+        get;
+        set;
+    } = ArchitectureIntelligenceReviewTier.Standard;
 }

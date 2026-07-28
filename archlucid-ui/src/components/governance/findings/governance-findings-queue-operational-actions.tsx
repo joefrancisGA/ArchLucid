@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
+import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture-intelligence-run-href";
 
 export type GovernanceQueueRiskExceptionAction = {
   readonly href: string;
@@ -51,6 +52,18 @@ export function GovernanceFindingsQueueOperationalActions(
       </Button>
       <Button asChild variant="outline" size="sm" className="h-8">
         <Link href={`/reviews/${encodeURIComponent(row.runId)}`}>Open source review</Link>
+      </Button>
+      <Button asChild variant="outline" size="sm" className="h-8">
+        <Link
+          href={buildArchitectureIntelligenceRunHref({ runId: row.runId, from: "findings" })}
+          data-testid={
+            testIdPrefix !== undefined
+              ? `${testIdPrefix}-architecture-intelligence`
+              : "governance-findings-architecture-intelligence"
+          }
+        >
+          Architecture intelligence
+        </Link>
       </Button>
       {row.recordKind === "finding" ? (
         <>

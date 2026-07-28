@@ -22,11 +22,20 @@ Each Specialty template follows the same shipped sequence — **capture → evid
 
 ---
 
+## Architecture intelligence (closed-loop demo)
+
+| Template | Buyer question (one line) | Walkthrough |
+|------|---------------------------|-------------|
+| **Architecture intelligence golden path** | Can we show evidence-gated architecture reasoning end-to-end before Core finalize? | [ARCHITECTURE_INTELLIGENCE_GOLDEN_PATH.md](ARCHITECTURE_INTELLIGENCE_GOLDEN_PATH.md) |
+
+---
+
 ## When to use which doc
 
 | Need | Read |
 |------|------|
 | **Core** path from zero to first finalized package | [Your first architecture review](../../CORE_PILOT.md) · [`CORE_PILOT.md`](../../CORE_PILOT.md) |
+| ArchitectureIntelligence demo (fixture → interview → publish) | [ARCHITECTURE_INTELLIGENCE_GOLDEN_PATH.md](ARCHITECTURE_INTELLIGENCE_GOLDEN_PATH.md) |
 | Choose a **Specialty** buyer-job narrative (after first value or when job is clear) | Buyer-job pages under [`go-to-market/buyer-jobs/README.md`](../../go-to-market/buyer-jobs/README.md) · [Specialty review templates](README.md) (this catalog) |
 | Static demo proof packet shape (before tenant setup) | [`go-to-market/buyer-jobs/README.md`](../../go-to-market/buyer-jobs/README.md) |
 | Printable evidence checklist before a sponsor demo | [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](../../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) |

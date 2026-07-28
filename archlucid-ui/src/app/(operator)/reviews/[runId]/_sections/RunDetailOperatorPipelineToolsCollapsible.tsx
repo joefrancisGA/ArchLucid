@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
+import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture-intelligence-run-href";
 
 type RunDetailOperatorPipelineToolsCollapsibleProps = {
   readonly runId: string;
@@ -18,6 +19,14 @@ export function RunDetailOperatorPipelineToolsCollapsible(
       <div className="flex flex-wrap gap-3">
         <Button variant="outline" size="sm" asChild>
           <Link href={`/replay?runId=${encodeURIComponent(runId)}`}>Validate review</Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link
+            href={buildArchitectureIntelligenceRunHref({ runId, from: "reviews" })}
+            data-testid="run-detail-architecture-intelligence-link"
+          >
+            Architecture intelligence
+          </Link>
         </Button>
       </div>
     </CollapsibleSection>

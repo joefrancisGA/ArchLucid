@@ -246,6 +246,13 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  if (path === "/architecture-intelligence" || path.startsWith("/architecture-intelligence/")) {
+    return {
+      label: "Architecture intelligence",
+      line: "Closed-loop reasoning — interview, evidence-gated findings, and publish into product findings.",
+    };
+  }
+
   if (path.startsWith("/search")) {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 

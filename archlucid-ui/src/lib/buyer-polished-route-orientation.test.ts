@@ -56,6 +56,13 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/ask")).toBeNull();
   });
 
+  it("orients architecture intelligence", () => {
+    const o = buyerPolishedRouteOrientation("/architecture-intelligence");
+
+    expect(o?.label).toBe("Architecture intelligence");
+    expect(o?.line).toContain("Closed-loop reasoning");
+  });
+
   it("returns null for risk register — the page carries its own governance banner", () => {
     expect(buyerPolishedRouteOrientation("/governance/findings")).toBeNull();
   });

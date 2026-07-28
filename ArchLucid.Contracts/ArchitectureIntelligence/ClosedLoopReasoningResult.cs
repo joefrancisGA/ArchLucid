@@ -143,4 +143,42 @@ public class ClosedLoopReasoningResult
         get;
         set;
     }
+
+    /// <summary>True when this result was served from <c>IReviewResultCache</c> (TB-1992).</summary>
+    public bool CacheHit
+    {
+        get;
+        set;
+    }
+
+    public string? CacheReuseReason
+    {
+        get;
+        set;
+    }
+
+    /// <summary>True when the pre-flight per-tier token budget rejected the run.</summary>
+    public bool BudgetRejected
+    {
+        get;
+        set;
+    }
+
+    public string? BudgetRejectReason
+    {
+        get;
+        set;
+    }
+
+    public int BudgetEstimatedTokens
+    {
+        get;
+        set;
+    }
+
+    public int BudgetMaxTokens
+    {
+        get;
+        set;
+    }
 }

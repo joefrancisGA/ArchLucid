@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -212,6 +213,10 @@ function buildRequest(
 }
 
 export function ArchitectureIntelligencePageClient() {
+  const searchParams = useSearchParams();
+  const inboundRunId = searchParams.get("runId")?.trim() ?? "";
+  const inboundFrom = searchParams.get("from")?.trim() ?? "";
+
   const [architectureDescription, setArchitectureDescription] = useState("");
   const [prioritiesRaw, setPrioritiesRaw] = useState("");
   const [interviewAnswers, setInterviewAnswers] = useState<Record<string, string>>({});
@@ -222,6 +227,30 @@ export function ArchitectureIntelligencePageClient() {
   );
   const [error, setError] = useState<string | null>(null);
   const [runState, setRunState] = useState<RunState | null>(null);
+
+  useEffect(() => {
+    if (inboundRunId.length === 0) {
+      return;
+    }
+
+    setActiveRunId(inboundRunId);
+  }, [inboundRunId]);
+
+  const inboundContextLine = useMemo(() => {
+    if (inboundRunId.length === 0) {
+      return null;
+    }
+
+    if (inboundFrom === "findings") {
+      return `Opened from governance findings for run ${inboundRunId}. Continue with interview answers or load the golden fixture to demo the closed loop.`;
+    }
+
+    if (inboundFrom === "reviews") {
+      return `Opened from review ${inboundRunId}. Run closed-loop reasoning, then publish gated findings into the product path.`;
+    }
+
+    return `Scoped to run ${inboundRunId}.`;
+  }, [inboundFrom, inboundRunId]);
 
   const findings = useMemo(() => {
     if (runState?.kind !== "reasoning") {
@@ -381,6 +410,24 @@ export function ArchitectureIntelligencePageClient() {
         subtitle="Run closed-loop architecture reasoning or the golden regression harness against a free-form description."
         titleTestId="architecture-intelligence-page-title"
       />
+
+      {inboundContextLine ? (
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.body, "text-muted-foreground")}
+          data-testid="architecture-intelligence-inbound-context"
+        >
+          {inboundContextLine}
+        </p>
+      ) : null}
+
+      {activeRunId ? (
+        <p
+          className={cn(OPERATOR_TYPOGRAPHY.helper, "font-mono")}
+          data-testid="architecture-intelligence-active-run"
+        >
+          Active run: {activeRunId}
+        </p>
+      ) : null}
 
       <div className="space-y-4">
         <div className="space-y-2">

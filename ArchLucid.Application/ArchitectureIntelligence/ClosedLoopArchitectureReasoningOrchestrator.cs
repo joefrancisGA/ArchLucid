@@ -20,6 +20,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly IMustNotFailEnforcer _mustNotFailEnforcer;
     private readonly ITrustPublishGate _trustPublishGate;
     private readonly IArchitectureIntelligenceProductPublishService _productPublishService;
+    private readonly IReviewResultCache _reviewResultCache;
+    private readonly IArchitectureIntelligenceReviewTierBudgetGuard _tierBudgetGuard;
     private readonly IArchitectureIntelligencePersistence? _persistence;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
@@ -38,6 +40,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IMustNotFailEnforcer mustNotFailEnforcer,
         ITrustPublishGate trustPublishGate,
         IArchitectureIntelligenceProductPublishService productPublishService,
+        IReviewResultCache reviewResultCache,
+        IArchitectureIntelligenceReviewTierBudgetGuard tierBudgetGuard,
         IArchitectureIntelligencePersistence? persistence = null)
     {
         _sourceStore = sourceStore ?? throw new ArgumentNullException(nameof(sourceStore));
@@ -56,6 +60,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _mustNotFailEnforcer = mustNotFailEnforcer ?? throw new ArgumentNullException(nameof(mustNotFailEnforcer));
         _trustPublishGate = trustPublishGate ?? throw new ArgumentNullException(nameof(trustPublishGate));
         _productPublishService = productPublishService ?? throw new ArgumentNullException(nameof(productPublishService));
+        _reviewResultCache = reviewResultCache ?? throw new ArgumentNullException(nameof(reviewResultCache));
+        _tierBudgetGuard = tierBudgetGuard ?? throw new ArgumentNullException(nameof(tierBudgetGuard));
         _persistence = persistence;
     }
 
@@ -75,6 +81,45 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         if (string.IsNullOrWhiteSpace(request.RunId))
         {
             request.RunId = Guid.NewGuid().ToString("N");
+        }
+
+        ArchitectureIntelligenceBudgetDecision budget = _tierBudgetGuard.Evaluate(request);
+
+        if (!budget.Permitted)
+        {
+            return new ClosedLoopReasoningResult
+            {
+                RunId = request.RunId,
+                BudgetRejected = true,
+                BudgetRejectReason = budget.RejectReason,
+                BudgetEstimatedTokens = budget.EstimatedTokens,
+                BudgetMaxTokens = budget.MaxTokens,
+                PublishBlocked = true,
+                PublishBlockReasons = [budget.RejectReason ?? "Review tier token budget exceeded."],
+            };
+        }
+
+        ReviewCacheDependencyManifest? cacheManifest = null;
+
+        if (!request.ContinueFromExistingRun)
+        {
+            cacheManifest = ReviewCacheManifestBuilder.Build(request);
+
+            if (_reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
+                && cached is not null)
+            {
+                cached.CacheHit = true;
+                cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
+                cached.BudgetEstimatedTokens = budget.EstimatedTokens;
+                cached.BudgetMaxTokens = budget.MaxTokens;
+
+                if (request.PublishToProduct && !cached.PublishedToProduct)
+                {
+                    await ApplyProductPublishAsync(request, cached, cancellationToken);
+                }
+
+                return cached;
+            }
         }
 
         ArchitectureKnowledgeModel model;
@@ -236,6 +281,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds.ToList(),
             RunId = request.RunId,
             ModelId = model.ModelId,
+            BudgetEstimatedTokens = budget.EstimatedTokens,
+            BudgetMaxTokens = budget.MaxTokens,
             ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings(
                 publishDecision.PublishableFindings,
                 validationByFindingId),
@@ -250,21 +297,37 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         if (request.PublishToProduct)
         {
-            ArchitectureIntelligencePublishResult publishResult = await _productPublishService.PublishAsync(
-                result,
-                request.TenantId,
-                workspaceId,
-                projectId,
-                request.RunId!,
-                cancellationToken);
+            await ApplyProductPublishAsync(request, result, cancellationToken);
+        }
 
-            result.PublishedToProduct = publishResult.Published;
-            result.PublishedFindingsSnapshotId = publishResult.FindingsSnapshotId;
-            result.PublishedRecommendationCount = publishResult.RecommendationCount;
-            result.PublishSkipReason = publishResult.SkipReason;
+        if (cacheManifest is not null)
+        {
+            _reviewResultCache.Set(cacheManifest, result);
         }
 
         return result;
+    }
+
+    private async Task ApplyProductPublishAsync(
+        ClosedLoopReasoningRequest request,
+        ClosedLoopReasoningResult result,
+        CancellationToken cancellationToken)
+    {
+        string workspaceId = request.WorkspaceId ?? request.TenantId;
+        string projectId = request.ProjectId ?? request.TenantId;
+
+        ArchitectureIntelligencePublishResult publishResult = await _productPublishService.PublishAsync(
+            result,
+            request.TenantId,
+            workspaceId,
+            projectId,
+            request.RunId!,
+            cancellationToken);
+
+        result.PublishedToProduct = publishResult.Published;
+        result.PublishedFindingsSnapshotId = publishResult.FindingsSnapshotId;
+        result.PublishedRecommendationCount = publishResult.RecommendationCount;
+        result.PublishSkipReason = publishResult.SkipReason;
     }
 
     private async Task<List<string>> StoreSourcesAsync(

@@ -70,6 +70,7 @@ public static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<ITrustPublishGate, TrustPublishGate>();
         services.AddScoped<IArchitectureIntelligenceProductPublishService, ArchitectureIntelligenceProductPublishService>();
         services.AddScoped<IReviewResultCache, ReviewResultCache>();
+        services.AddScoped<IArchitectureIntelligenceReviewTierBudgetGuard, ArchitectureIntelligenceReviewTierBudgetGuard>();
         services.AddScoped<IArtifactRoundTripService, ArtifactRoundTripService>();
         services.AddScoped<IClosedLoopArchitectureReasoningOrchestrator, ClosedLoopArchitectureReasoningOrchestrator>();
         services.AddScoped<IGoldenArchitectureTestRunner, GoldenArchitectureTestRunner>();
