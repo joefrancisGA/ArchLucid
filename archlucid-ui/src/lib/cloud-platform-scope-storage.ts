@@ -13,7 +13,7 @@ export const CLOUD_PROVIDER_NEUTRAL_ORDER: readonly CloudProviderId[] = ["aws", 
 
 export const CLOUD_PLATFORM_SCOPE_CHANGED_EVENT = "archlucid:cloud-platform-scope-changed";
 
-const DEFAULT_CLOUD_PLATFORM_SCOPE: CloudPlatformScope = {
+export const DEFAULT_CLOUD_PLATFORM_SCOPE: CloudPlatformScope = {
   "evidence-only": true,
   azure: true,
   aws: true,
@@ -40,6 +40,27 @@ function readWorkspaceIdForScope(): string | null {
   const workspaceId = scope.workspaceId.trim();
 
   return workspaceId.length > 0 ? workspaceId : null;
+}
+
+/** True when platform-scope preferences can be persisted for the current operator workspace. */
+export function hasCloudPlatformScopeWorkspace(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return readWorkspaceIdForScope() !== null;
+}
+
+/**
+ * Landing filter scope: fail closed to all platforms when no workspace is selected (TB-1142).
+ * Session-deferred writes (TB-1139) still flush when a workspace appears.
+ */
+export function resolveLandingCloudPlatformScope(): CloudPlatformScope {
+  if (!hasCloudPlatformScopeWorkspace()) {
+    return DEFAULT_CLOUD_PLATFORM_SCOPE;
+  }
+
+  return readCloudPlatformScopeFromStorage();
 }
 
 function dispatchCloudPlatformScopeChanged(): void {

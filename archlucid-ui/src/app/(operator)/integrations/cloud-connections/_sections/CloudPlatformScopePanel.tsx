@@ -1,18 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 
 import {
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_HEADING,
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD,
+  CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED,
 } from "@/lib/cloud-connections-copy";
 import {
   type CloudPlatformId,
   type CloudPlatformScope,
-  readCloudPlatformScopeFromStorage,
-  subscribeCloudPlatformScopeChanges,
-  writeCloudPlatformScopeToStorage,
 } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -23,19 +20,27 @@ const PLATFORM_LABELS: Readonly<Record<CloudPlatformId, string>> = {
   gcp: "GCP",
 };
 
-export function CloudPlatformScopePanel() {
-  const [scope, setScope] = useState<CloudPlatformScope>(() => readCloudPlatformScopeFromStorage());
+export type CloudPlatformScopePanelProps = {
+  readonly scope: CloudPlatformScope;
+  readonly onScopeChange: (nextScope: CloudPlatformScope) => void;
+  /** When false, checkboxes are disabled and the workspace-required message is shown (TB-1142). */
+  readonly persistAvailable: boolean;
+};
 
-  useEffect(() => subscribeCloudPlatformScopeChanges(() => setScope(readCloudPlatformScopeFromStorage())), []);
-
+export function CloudPlatformScopePanel({
+  scope,
+  onScopeChange,
+  persistAvailable,
+}: CloudPlatformScopePanelProps) {
   const togglePlatform = (platformId: CloudPlatformId) => {
-    const nextScope: CloudPlatformScope = {
+    if (!persistAvailable) {
+      return;
+    }
+
+    onScopeChange({
       ...scope,
       [platformId]: !scope[platformId],
-    };
-
-    setScope(nextScope);
-    writeCloudPlatformScopeToStorage(nextScope);
+    });
   };
 
   return (
@@ -48,12 +53,29 @@ export function CloudPlatformScopePanel() {
         {CLOUD_CONNECTIONS_PLATFORM_SCOPE_HEADING}
       </h2>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD}</p>
+      {!persistAvailable ? (
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+          data-testid="cloud-platform-scope-workspace-required"
+        >
+          {CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED}
+        </p>
+      ) : null}
       <div className="mt-3 flex flex-wrap gap-4">
         {(Object.keys(PLATFORM_LABELS) as CloudPlatformId[]).map((platformId) => (
-          <label key={platformId} className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
+          <label
+            key={platformId}
+            className={cn(
+              "flex items-center gap-2",
+              OPERATOR_TYPOGRAPHY.body,
+              !persistAvailable ? "cursor-not-allowed opacity-60" : null,
+            )}
+          >
             <input
               type="checkbox"
               checked={scope[platformId]}
+              disabled={!persistAvailable}
               onChange={() => togglePlatform(platformId)}
               data-testid={`cloud-platform-scope-${platformId}`}
             />

@@ -117,17 +117,47 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByTestId("cloud-connection-card-azure-primary-cta")).toHaveTextContent("Configure");
   });
 
-  it("hides GCP card when unchecked without operator workspace scope (TB-1139)", async () => {
+  it("disables platform scope and keeps all cards when workspace is missing (TB-1142)", async () => {
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
       expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("cloud-platform-scope-workspace-required")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-platform-scope-gcp")).toBeDisabled();
+
     fireEvent.click(screen.getByTestId("cloud-platform-scope-gcp"));
 
-    expect(screen.queryByTestId("cloud-connection-card-gcp")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
+  });
+
+  it("keeps panel and cards on the same scope when a workspace is present (TB-1142)", async () => {
+    window.localStorage.setItem(
+      "archlucid_operator_scope_v1",
+      JSON.stringify({
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        workspaceLabel: "Pilot workspace",
+        projectLabel: "Default",
+      }),
+    );
+
+    render(<CloudConnectionsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("cloud-platform-scope-workspace-required")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-platform-scope-azure")).not.toBeDisabled();
+
+    fireEvent.click(screen.getByTestId("cloud-platform-scope-azure"));
+
+    expect(screen.queryByTestId("cloud-connection-card-azure")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-platform-scope-azure")).not.toBeChecked();
   });
 });

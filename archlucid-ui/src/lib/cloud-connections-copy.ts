@@ -13,6 +13,10 @@ export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_HEADING = "Cloud platforms shown";
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_LEAD =
   "Only show the platforms used by this workspace.";
 
+/** Shown when operator scope has no workspace — panel is disabled (TB-1142). */
+export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_WORKSPACE_REQUIRED =
+  "Choose a workspace in the header scope switcher before changing which platforms appear here. Platform filters are saved per workspace.";
+
 export const CLOUD_CONNECTIONS_EVIDENCE_ONLY_TITLE = "Evidence-only upload";
 
 export const CLOUD_CONNECTIONS_EVIDENCE_ONLY_SUMMARY =

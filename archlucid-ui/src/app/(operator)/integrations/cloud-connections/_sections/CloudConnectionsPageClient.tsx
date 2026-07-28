@@ -14,10 +14,13 @@ import {
 } from "@/lib/cloud-connections-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
-  readCloudPlatformScopeFromStorage,
+  hasCloudPlatformScopeWorkspace,
+  resolveLandingCloudPlatformScope,
   subscribeCloudPlatformScopeChanges,
   visibleLandingPlatformCards,
+  writeCloudPlatformScopeToStorage,
   type CloudPlatformId,
+  type CloudPlatformScope,
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -54,7 +57,8 @@ const DEFAULT_PROVIDER_SUMMARY: ProviderSummaryState = {
 };
 
 export function CloudConnectionsPageClient() {
-  const [platformScope, setPlatformScope] = useState(() => readCloudPlatformScopeFromStorage());
+  const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
+  const [persistAvailable, setPersistAvailable] = useState(() => hasCloudPlatformScopeWorkspace());
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [providerSummaries, setProviderSummaries] = useState<Record<CloudProviderId, ProviderSummaryState>>({
@@ -112,7 +116,19 @@ export function CloudConnectionsPageClient() {
     })();
   }, [refreshSummaries]);
 
-  useEffect(() => subscribeCloudPlatformScopeChanges(() => setPlatformScope(readCloudPlatformScopeFromStorage())), []);
+  useEffect(
+    () =>
+      subscribeCloudPlatformScopeChanges(() => {
+        setPlatformScope(resolveLandingCloudPlatformScope());
+        setPersistAvailable(hasCloudPlatformScopeWorkspace());
+      }),
+    [],
+  );
+
+  const handlePlatformScopeChange = useCallback((nextScope: CloudPlatformScope) => {
+    setPlatformScope(nextScope);
+    writeCloudPlatformScopeToStorage(nextScope);
+  }, []);
 
   const visibleCards = useMemo(() => visibleLandingPlatformCards(platformScope), [platformScope]);
 
@@ -130,7 +146,11 @@ export function CloudConnectionsPageClient() {
         }
       />
 
-      <CloudPlatformScopePanel />
+      <CloudPlatformScopePanel
+        scope={platformScope}
+        onScopeChange={handlePlatformScopeChange}
+        persistAvailable={persistAvailable}
+      />
 
       <section className="space-y-4" aria-labelledby="cloud-connections-options-heading">
         <h2 id="cloud-connections-options-heading" className={OPERATOR_NAV_GROUP_LABEL}>

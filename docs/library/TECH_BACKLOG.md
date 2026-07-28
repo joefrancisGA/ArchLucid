@@ -1,3 +1,5 @@
+**Updated:** 2026-07-27 (**TB-1142** **Done** — Cloud connections: shared platform-scope state; fail-closed panel when workspace missing).
+
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
 ## Cursor-actionable backlog ? remaining by architectural quality
@@ -642,7 +644,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1139 | Cloud connections platform-scope checkbox must hide provider cards (fix silent no-op) — **Done** (2026-07-27); see ## TB-1139 below | Correctness P0 — **V1**; owner cloud-connections ~49/100 2026-07-25 | S |
 | TB-1140 | Remove stale GCP Preview maturity label (Tier 2 Done TB-403) — **Done** (2026-07-27); see ## TB-1140 below | Trustworthiness P0 — **V1**; with **TB-1139** | XS |
 | TB-1141 | Cloud provider summary cards — single primary CTA (dedupe Configure / View details) — **Done** (2026-07-27); see ## TB-1141 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
-| TB-1142 | Cloud platform scope panel — fail closed when workspace missing + shared filter state; see ## TB-1142 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
+| TB-1142 | Cloud platform scope panel — fail closed when workspace missing + shared filter state — **Done** (2026-07-27); see ## TB-1142 below | Adoption friction P0 — **V1**; with **TB-1139** | S |
 | TB-1143 | Cloud connections empty/not-configured composition — suppress zero theater; see ## TB-1143 below | Adoption friction P0 — **V1**; with **TB-1141** | S |
 | TB-1146 | Jira integration not-configured dead end — guided next step; see ## TB-1146 below | Adoption friction P0 — **V1**; owner `/integrations/jira` ~46/100 2026-07-25 | S |
 | TB-1147 | Jira page copy honesty — do not claim Set connection details; see ## TB-1147 below | Adoption friction P0 — **V1**; with **TB-1146** | XS |
@@ -28075,7 +28077,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** **Done** (2026-07-27) — page owns shared scope; panel presentational; disabled + explained when workspace missing.
 
 **Priority:** P0.
 

@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  hasCloudPlatformScopeWorkspace,
   readCloudPlatformScopeFromStorage,
   resetCloudPlatformScopeSessionStateForTests,
+  resolveLandingCloudPlatformScope,
   visibleCloudProviders,
   visibleLandingPlatformCards,
   writeCloudPlatformScopeToStorage,
@@ -94,5 +96,41 @@ describe("cloud-platform-scope-storage", () => {
 
     window.localStorage.removeItem("archlucid_operator_scope_v1");
     expect(readCloudPlatformScopeFromStorage().gcp).toBe(true);
+  });
+
+  it("fail-closes landing scope to all platforms when workspace is missing (TB-1142)", () => {
+    writeCloudPlatformScopeToStorage({
+      "evidence-only": true,
+      azure: true,
+      aws: true,
+      gcp: false,
+    });
+
+    expect(hasCloudPlatformScopeWorkspace()).toBe(false);
+    expect(readCloudPlatformScopeFromStorage().gcp).toBe(false);
+    expect(resolveLandingCloudPlatformScope().gcp).toBe(true);
+  });
+
+  it("resolves landing scope from storage when workspace is present (TB-1142)", () => {
+    window.localStorage.setItem(
+      "archlucid_operator_scope_v1",
+      JSON.stringify({
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        projectId: "project-1",
+        workspaceLabel: "Pilot",
+        projectLabel: "Default",
+      }),
+    );
+
+    writeCloudPlatformScopeToStorage({
+      "evidence-only": true,
+      azure: false,
+      aws: true,
+      gcp: true,
+    });
+
+    expect(hasCloudPlatformScopeWorkspace()).toBe(true);
+    expect(resolveLandingCloudPlatformScope().azure).toBe(false);
   });
 });
