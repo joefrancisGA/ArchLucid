@@ -95,6 +95,18 @@ public sealed class CustomRolesAdminController(
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+        catch (EncoderFallbackException)
+        {
+            return this.BadRequestProblem(
+                "Role name contains invalid characters.",
+                ProblemTypes.ValidationFailed);
+        }
+        catch (JsonException)
+        {
+            return this.BadRequestProblem(
+                "Role name or description is not valid JSON-safe text.",
+                ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpPut("{roleId:guid}")]
@@ -197,10 +209,21 @@ public sealed class CustomRolesAdminController(
 
     private static bool IsValidUnicodeText(string? value)
     {
-        if (value is null)
+        if (string.IsNullOrEmpty(value))
             return true;
 
-        return Rune.EnumerateRunes(value).All(static rune => !rune.Value.Equals(0xFFFD) || value.Contains('\uFFFD', StringComparison.Ordinal));
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (!char.IsSurrogate(value[i]))
+                continue;
+
+            if (i + 1 >= value.Length || !char.IsSurrogatePair(value[i], value[i + 1]))
+                return false;
+
+            i++;
+        }
+
+        return true;
     }
 }
 
