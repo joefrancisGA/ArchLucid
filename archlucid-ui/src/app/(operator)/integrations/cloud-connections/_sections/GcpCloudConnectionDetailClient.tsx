@@ -19,15 +19,15 @@ export function GcpCloudConnectionDetailClient() {
     <div className="w-full max-w-3xl space-y-6" data-testid="cloud-connection-detail-gcp">
       <CloudConnectionsProviderHeader
         providerLabel="GCP"
-        overview="Read-only Cloud Asset Inventory through Workload Identity Federation. Preview connector."
+        overview="Read-only Cloud Asset Inventory through Workload Identity Federation."
       />
 
       <CloudProviderDetailLayout
         providerLabel="GCP"
         overview={
           <p className={OPERATOR_TYPOGRAPHY.body}>
-            Connect a GCP project for scheduled read-only inventory collection. This connector is in preview — validate
-            in a non-production project first.
+            Connect a GCP project for scheduled read-only inventory collection. ArchLucid stores connection metadata
+            only — no downloadable service-account JSON keys.
           </p>
         }
         securityPreflight={<CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("gcp")} providerLabel="GCP" />}
