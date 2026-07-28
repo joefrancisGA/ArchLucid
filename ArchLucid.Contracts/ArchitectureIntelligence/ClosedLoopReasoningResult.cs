@@ -1,3 +1,6 @@
+using ArchLucid.Contracts.Advisory.Workflow;
+using ArchLucid.Contracts.Findings;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ClosedLoopReasoningResult
@@ -57,6 +60,20 @@ public class ClosedLoopReasoningResult
     } = [];
 
     public List<EvidenceValidationResult> ValidationResults
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Product-shaped findings for reuse with existing Finding pipelines/UI.</summary>
+    public List<Finding> ProductFindings
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Product-shaped recommendation records (Proposed) for advisory workflow reuse.</summary>
+    public List<RecommendationRecord> ProductRecommendations
     {
         get;
         set;

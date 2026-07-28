@@ -247,6 +247,12 @@ public static class AuditEventTypes
     /// </summary>
     public const string ArchitectureAnalysisReportGenerated = "ArchitectureAnalysisReportGenerated";
 
+    /// <summary>Closed-loop Architecture Intelligence reasoning run completed (additive lane).</summary>
+    public const string ArchitectureIntelligenceRunCompleted = "ArchitectureIntelligence.RunCompleted";
+
+    /// <summary>Architecture Intelligence golden harness executed (additive lane).</summary>
+    public const string ArchitectureIntelligenceGoldenTestCompleted = "ArchitectureIntelligence.GoldenTestCompleted";
+
     /// <summary>
     ///     Emitted when <c>POST /v1/architecture/quick-scan</c> completes successfully (single-pass LLM; ephemeral result).
     /// </summary>

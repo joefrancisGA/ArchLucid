@@ -117,19 +117,11 @@ public sealed class ApplicationPackageCoverageBatch15Tests
             }
             """;
 
-<<<<<<< HEAD
         CloudflareDnsTxtRecordLookup sut = new(new HttpClient(new StubHttpMessageHandler(_ =>
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(payload, Encoding.UTF8, "application/dns-json"),
             })));
-=======
-        CloudflareDnsTxtRecordLookup sut = new(new StubHttpClientFactory(_ =>
-            new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(payload, Encoding.UTF8, "application/dns-json"),
-            }));
->>>>>>> origin/RC17
 
         IReadOnlyList<string> records = await sut.GetTxtRecordsAsync("example.com", CancellationToken.None);
 
@@ -139,19 +131,11 @@ public sealed class ApplicationPackageCoverageBatch15Tests
     [Fact]
     public async Task CloudflareDnsTxtRecordLookup_returns_empty_when_answer_missing()
     {
-<<<<<<< HEAD
         CloudflareDnsTxtRecordLookup sut = new(new HttpClient(new StubHttpMessageHandler(_ =>
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = JsonContent.Create(new { Answer = Array.Empty<object>() }),
             })));
-=======
-        CloudflareDnsTxtRecordLookup sut = new(new StubHttpClientFactory(_ =>
-            new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = JsonContent.Create(new { Answer = Array.Empty<object>() }),
-            }));
->>>>>>> origin/RC17
 
         IReadOnlyList<string> records = await sut.GetTxtRecordsAsync("example.com", CancellationToken.None);
 
@@ -161,30 +145,13 @@ public sealed class ApplicationPackageCoverageBatch15Tests
     [Fact]
     public async Task CloudflareDnsTxtRecordLookup_rejects_blank_domain()
     {
-<<<<<<< HEAD
         CloudflareDnsTxtRecordLookup sut = new(new HttpClient(new StubHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK))));
-=======
-        CloudflareDnsTxtRecordLookup sut = new(new StubHttpClientFactory(_ => new HttpResponseMessage(HttpStatusCode.OK)));
->>>>>>> origin/RC17
 
         Func<Task> act = async () => await sut.GetTxtRecordsAsync("   ", CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-<<<<<<< HEAD
-=======
-    private sealed class StubHttpClientFactory(Func<HttpRequestMessage, HttpResponseMessage> handler) : IHttpClientFactory
-    {
-        public HttpClient CreateClient(string name)
-        {
-            _ = name;
-
-            return new HttpClient(new StubHttpMessageHandler(handler));
-        }
-    }
-
->>>>>>> origin/RC17
     private sealed class StubHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

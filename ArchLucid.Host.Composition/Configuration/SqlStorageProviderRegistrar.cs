@@ -1,5 +1,6 @@
 using Polly;
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Analytics;
@@ -64,6 +65,7 @@ using ArchLucid.Persistence.AdminNotifications;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Analytics;
+using ArchLucid.Persistence.ArchitectureIntelligence;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Authorization;
 using ArchLucid.Persistence.AzureExtractor;
@@ -539,6 +541,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantAiBudgetPolicyRepository, Persistence.AiUsage.SqlTenantAiBudgetPolicyRepository>();
         services.AddScoped<ILlmTenantWalletRepository, SqlLlmTenantWalletRepository>();
         services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
+        services.AddScoped<IArchitectureIntelligencePersistence, DapperArchitectureIntelligencePersistence>();
+        services.AddArchitectureIntelligenceSqlPersistence();
     }
 
     private static void RegisterBackgroundWorkerSqlResilience(IServiceCollection services)

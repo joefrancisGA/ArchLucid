@@ -181,6 +181,7 @@ describe("nav-config structure", () => {
     expect(architectAdvancedHrefs).toEqual([
       "/product-learning",
       "/planning",
+      "/architecture-intelligence",
     ]);
     expect(governanceHrefs).toEqual([
       "/governance",

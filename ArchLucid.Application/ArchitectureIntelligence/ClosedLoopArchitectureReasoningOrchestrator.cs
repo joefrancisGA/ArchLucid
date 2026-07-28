@@ -7,43 +7,50 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 {
     private readonly IImmutableSourceStore _sourceStore;
     private readonly IArchitectureOntologyService _ontologyService;
-    private readonly IDifficultyBasedExtractionRouter _extractionRouter;
+    private readonly IAsyncArchitectureExtractionService _extractionService;
     private readonly IProgressiveInterviewService _interviewService;
-    private readonly ISpecialistReviewService _specialistReviewService;
+    private readonly IAsyncSpecialistReviewService _specialistReviewService;
+    private readonly ISpecialistReviewService _heuristicSpecialistReviewService;
     private readonly IEvidenceValidationPipeline _evidenceValidationPipeline;
     private readonly IAdversarialReviewService _adversarialReviewService;
-    private readonly IArchitectureRecommendationEngine _recommendationEngine;
+    private readonly IAsyncArchitectureRecommendationEngine _recommendationEngine;
     private readonly IChangeImpactAnalyzer _changeImpactAnalyzer;
     private readonly IIncrementalReReviewService _incrementalReReviewService;
     private readonly IMustNotFailEnforcer _mustNotFailEnforcer;
+    private readonly IArchitectureIntelligencePersistence? _persistence;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
         IImmutableSourceStore sourceStore,
         IArchitectureOntologyService ontologyService,
-        IDifficultyBasedExtractionRouter extractionRouter,
+        IAsyncArchitectureExtractionService extractionService,
         IProgressiveInterviewService interviewService,
-        ISpecialistReviewService specialistReviewService,
+        IAsyncSpecialistReviewService specialistReviewService,
+        ISpecialistReviewService heuristicSpecialistReviewService,
         IEvidenceValidationPipeline evidenceValidationPipeline,
         IAdversarialReviewService adversarialReviewService,
-        IArchitectureRecommendationEngine recommendationEngine,
+        IAsyncArchitectureRecommendationEngine recommendationEngine,
         IChangeImpactAnalyzer changeImpactAnalyzer,
         IIncrementalReReviewService incrementalReReviewService,
-        IMustNotFailEnforcer mustNotFailEnforcer)
+        IMustNotFailEnforcer mustNotFailEnforcer,
+        IArchitectureIntelligencePersistence? persistence = null)
     {
         _sourceStore = sourceStore ?? throw new ArgumentNullException(nameof(sourceStore));
         _ontologyService = ontologyService ?? throw new ArgumentNullException(nameof(ontologyService));
-        _extractionRouter = extractionRouter ?? throw new ArgumentNullException(nameof(extractionRouter));
+        _extractionService = extractionService ?? throw new ArgumentNullException(nameof(extractionService));
         _interviewService = interviewService ?? throw new ArgumentNullException(nameof(interviewService));
         _specialistReviewService = specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
+        _heuristicSpecialistReviewService = heuristicSpecialistReviewService
+            ?? throw new ArgumentNullException(nameof(heuristicSpecialistReviewService));
         _evidenceValidationPipeline = evidenceValidationPipeline ?? throw new ArgumentNullException(nameof(evidenceValidationPipeline));
         _adversarialReviewService = adversarialReviewService ?? throw new ArgumentNullException(nameof(adversarialReviewService));
         _recommendationEngine = recommendationEngine ?? throw new ArgumentNullException(nameof(recommendationEngine));
         _changeImpactAnalyzer = changeImpactAnalyzer ?? throw new ArgumentNullException(nameof(changeImpactAnalyzer));
         _incrementalReReviewService = incrementalReReviewService ?? throw new ArgumentNullException(nameof(incrementalReReviewService));
         _mustNotFailEnforcer = mustNotFailEnforcer ?? throw new ArgumentNullException(nameof(mustNotFailEnforcer));
+        _persistence = persistence;
     }
 
-    public Task<ClosedLoopReasoningResult> RunAsync(
+    public async Task<ClosedLoopReasoningResult> RunAsync(
         ClosedLoopReasoningRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -56,8 +63,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<string> storedArtifactIds = StoreSources(request);
-        ArchitectureKnowledgeModel model = BuildModel(request, storedArtifactIds);
+        List<string> storedArtifactIds = await StoreSourcesAsync(request, cancellationToken);
+        ArchitectureKnowledgeModel model = await BuildModelAsync(request, storedArtifactIds, cancellationToken);
         model.DeclaredPriorities.AddRange(request.DeclaredPriorities);
 
         ProgressiveInterviewState interview = _interviewService.BuildFramingState(model, request.SourceTexts);
@@ -65,7 +72,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             .DeriveEvidenceDrivenQuestions([])
             .ToList();
 
-        List<SpecialistReviewResult> specialistReviews = RunSpecialistReviews(model);
+        List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(model, cancellationToken);
         List<SpecialistReviewFinding> allFindings = specialistReviews
             .SelectMany(review => review.Findings)
             .ToList();
@@ -76,8 +83,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         List<EvidenceValidationResult> validationResults = ValidateFindings(allFindings, storedArtifactIds, request.SourceTexts);
         AdversarialReviewResult adversarial = _adversarialReviewService.Review(allFindings);
-        List<ArchitectureRecommendation> recommendations = _recommendationEngine
-            .BuildRecommendations(model, allFindings, request.DeclaredPriorities)
+        List<ArchitectureRecommendation> recommendations = (await _recommendationEngine
+            .BuildRecommendationsAsync(model, allFindings, request.DeclaredPriorities, cancellationToken))
             .ToList();
 
         List<ChangeImpactResult> impactResults = [];
@@ -97,12 +104,20 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 Trigger = impact.RequiresFullReReview ? ReReviewTrigger.MajorTopologyChange : null,
             };
 
-            reReview = _incrementalReReviewService.ReReview(model, scope, _specialistReviewService);
+            reReview = _incrementalReReviewService.ReReview(model, scope, _heuristicSpecialistReviewService);
         }
 
         List<MustNotFailViolation> mustNotFailViolations = _mustNotFailEnforcer
             .Evaluate(allFindings, recommendations)
             .ToList();
+
+        if (_persistence is not null)
+        {
+            await _persistence.SaveModelAsync(model, cancellationToken);
+        }
+
+        string workspaceId = request.WorkspaceId ?? request.TenantId;
+        string projectId = request.ProjectId ?? request.TenantId;
 
         ClosedLoopReasoningResult result = new()
         {
@@ -115,12 +130,22 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             ReReview = reReview,
             MustNotFailViolations = mustNotFailViolations,
             ValidationResults = validationResults,
+            ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings(allFindings),
+            ProductRecommendations = ArchitectureIntelligenceProductBridge.ToRecommendationRecords(
+                recommendations,
+                allFindings,
+                request.TenantId,
+                workspaceId,
+                projectId,
+                request.RunId),
         };
 
-        return Task.FromResult(result);
+        return result;
     }
 
-    private List<string> StoreSources(ClosedLoopReasoningRequest request)
+    private async Task<List<string>> StoreSourcesAsync(
+        ClosedLoopReasoningRequest request,
+        CancellationToken cancellationToken)
     {
         List<string> artifactIds = [];
 
@@ -139,14 +164,17 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             };
 
             byte[] content = Encoding.UTF8.GetBytes(sourceText.Content ?? string.Empty);
-            _sourceStore.Store(artifact, content);
+            await _sourceStore.StoreAsync(artifact, content, cancellationToken);
             artifactIds.Add(artifactId);
         }
 
         return artifactIds;
     }
 
-    private ArchitectureKnowledgeModel BuildModel(ClosedLoopReasoningRequest request, List<string> artifactIds)
+    private async Task<ArchitectureKnowledgeModel> BuildModelAsync(
+        ClosedLoopReasoningRequest request,
+        List<string> artifactIds,
+        CancellationToken cancellationToken)
     {
         ArchitectureKnowledgeModel model = _ontologyService.CreateEmptyModel(request.TenantId, request.RunId);
 
@@ -154,7 +182,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         {
             ClosedLoopReasoningSourceText sourceText = request.SourceTexts[index];
             string artifactId = artifactIds[index];
-            IReadOnlyList<ArchitectureModelElement> extracted = _extractionRouter.Extract(sourceText.Content, artifactId);
+            IReadOnlyList<ArchitectureModelElement> extracted = await _extractionService.ExtractAsync(
+                sourceText.Content,
+                artifactId,
+                cancellationToken);
 
             foreach (ArchitectureModelElement element in extracted)
             {
@@ -165,7 +196,9 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         return model;
     }
 
-    private List<SpecialistReviewResult> RunSpecialistReviews(ArchitectureKnowledgeModel model)
+    private async Task<List<SpecialistReviewResult>> RunSpecialistReviewsAsync(
+        ArchitectureKnowledgeModel model,
+        CancellationToken cancellationToken)
     {
         QualityDimension[] dimensions =
         [
@@ -178,7 +211,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         foreach (QualityDimension dimension in dimensions)
         {
-            SpecialistReviewResult dimensionResult = _specialistReviewService.Review(model, [dimension]);
+            SpecialistReviewResult dimensionResult = await _specialistReviewService.ReviewAsync(
+                model,
+                [dimension],
+                cancellationToken);
             dimensionResult.Dimension = dimension;
             reviews.Add(dimensionResult);
         }

@@ -14,6 +14,18 @@ public class ClosedLoopReasoningRequest
         set;
     }
 
+    public string? WorkspaceId
+    {
+        get;
+        set;
+    }
+
+    public string? ProjectId
+    {
+        get;
+        set;
+    }
+
     public List<ClosedLoopReasoningSourceText> SourceTexts
     {
         get;

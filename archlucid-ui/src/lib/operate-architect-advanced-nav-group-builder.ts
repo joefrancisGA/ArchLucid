@@ -1,4 +1,5 @@
 import {
+  Brain,
   Kanban,
   MessageSquareText,
 } from "lucide-react";
@@ -36,6 +37,14 @@ export class OperateArchitectAdvancedNavGroupBuilder extends NavGroupBuilderBase
           // [Authorize(ReadAuthority)] default. The page has no mutation controls; "Create draft plans" lives on the
           // Pilot feedback page and is Execute-gated there.
           requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/architecture-intelligence",
+          label: "Architecture intelligence",
+          title: "Architecture intelligence — closed-loop reasoning and golden regression checks",
+          icon: Brain,
+          tier: "advanced",
+          requiredAuthority: "ExecuteAuthority",
         },
       ],
     };

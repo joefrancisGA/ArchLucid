@@ -13,6 +13,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
     {
         ServiceCollection services = new();
         services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
         ServiceProvider provider = services.BuildServiceProvider();
         IClosedLoopArchitectureReasoningOrchestrator orchestrator =
             provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();

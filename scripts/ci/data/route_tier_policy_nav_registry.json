@@ -642,6 +642,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "ArchitectureIntelligence/ArchitectureIntelligenceController.cs",
+      "class_name": "ArchitectureIntelligenceController",
+      "route_template": "v{version:apiVersion}/architecture-intelligence",
+      "normalized_prefix": "/v1/architecture-intelligence",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Auth/AuthenticationSignInMethodsController.cs",
       "class_name": "AuthenticationSignInMethodsController",
       "route_template": "v{version:apiVersion}/auth/sign-in-methods",

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Analytics;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Analytics;
@@ -345,5 +346,6 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
 
             services.AddHostedService<DataConsistencyOrphanProbeHostedService>();
 
+        services.AddArchitectureIntelligenceInMemoryPersistence();
     }
 }

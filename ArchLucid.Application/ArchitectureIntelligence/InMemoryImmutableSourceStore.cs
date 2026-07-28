@@ -86,6 +86,29 @@ public sealed class InMemoryImmutableSourceStore : IImmutableSourceStore
         return contentText.Contains(expectedQuote, StringComparison.OrdinalIgnoreCase);
     }
 
+    public Task<ImmutableSourceArtifact> StoreAsync(
+        ImmutableSourceArtifact artifact,
+        byte[] content,
+        CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(Store(artifact, content));
+    }
+
+    public Task<ImmutableSourceArtifact?> GetByIdAsync(string artifactId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(GetById(artifactId));
+    }
+
+    public Task<bool> VerifyIntegrityAsync(
+        string artifactId,
+        string? expectedQuote = null,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(VerifyIntegrity(artifactId, expectedQuote));
+    }
+
     internal byte[]? GetContent(string artifactId)
     {
         if (string.IsNullOrWhiteSpace(artifactId))
