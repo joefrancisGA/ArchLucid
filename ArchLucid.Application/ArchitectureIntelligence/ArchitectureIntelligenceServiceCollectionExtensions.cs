@@ -71,6 +71,8 @@ public static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IArchitectureIntelligenceProductPublishService, ArchitectureIntelligenceProductPublishService>();
         services.AddScoped<IReviewResultCache, ReviewResultCache>();
         services.AddScoped<IArchitectureIntelligenceReviewTierBudgetGuard, ArchitectureIntelligenceReviewTierBudgetGuard>();
+        services.AddScoped<IArchitectureIntelligenceProductRunSourceContextLoader,
+            ArchitectureIntelligenceProductRunSourceContextLoader>();
         services.AddScoped<IArtifactRoundTripService, ArtifactRoundTripService>();
         services.AddScoped<IClosedLoopArchitectureReasoningOrchestrator, ClosedLoopArchitectureReasoningOrchestrator>();
         services.AddScoped<IGoldenArchitectureTestRunner, GoldenArchitectureTestRunner>();

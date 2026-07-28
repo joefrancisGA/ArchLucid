@@ -87,6 +87,12 @@ type ClosedLoopReasoningResult = {
   publishedFindingsSnapshotId?: string | null;
   publishedRecommendationCount?: number;
   publishSkipReason?: string | null;
+  cacheHit?: boolean;
+  cacheReuseReason?: string | null;
+  budgetRejected?: boolean;
+  budgetRejectReason?: string | null;
+  budgetEstimatedTokens?: number;
+  budgetMaxTokens?: number;
   productFindings?: Array<{
     findingId: string;
     title: string;
@@ -189,17 +195,34 @@ function buildRequest(
     runId?: string | null;
     continueFromExistingRun?: boolean;
     publishToProduct?: boolean;
+    hydratedSourceTexts?: ClosedLoopReasoningSourceText[];
   },
 ) {
-  const sourceTexts: ClosedLoopReasoningSourceText[] = architectureDescription.trim().length
-    ? [
-        {
-          fileName: DEFAULT_ARCHITECTURE_FILE_NAME,
-          contentType: DEFAULT_CONTENT_TYPE,
-          content: architectureDescription.trim(),
-        },
-      ]
-    : [];
+  const trimmedDescription = architectureDescription.trim();
+  const hydrated = options?.hydratedSourceTexts ?? [];
+
+  let sourceTexts: ClosedLoopReasoningSourceText[] = [];
+
+  if (hydrated.length > 0) {
+    sourceTexts = hydrated.map((source, index) => {
+      if (index === 0) {
+        return {
+          ...source,
+          content: trimmedDescription.length > 0 ? trimmedDescription : source.content,
+        };
+      }
+
+      return source;
+    });
+  } else if (trimmedDescription.length > 0) {
+    sourceTexts = [
+      {
+        fileName: DEFAULT_ARCHITECTURE_FILE_NAME,
+        contentType: DEFAULT_CONTENT_TYPE,
+        content: trimmedDescription,
+      },
+    ];
+  }
 
   return {
     sourceTexts,
@@ -212,6 +235,13 @@ function buildRequest(
   };
 }
 
+function primaryDescriptionFromSources(sources: ClosedLoopReasoningSourceText[]): string {
+  const descriptionSource =
+    sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME) ?? sources[0];
+
+  return descriptionSource?.content?.trim() ?? "";
+}
+
 export function ArchitectureIntelligencePageClient() {
   const searchParams = useSearchParams();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
@@ -221,10 +251,14 @@ export function ArchitectureIntelligencePageClient() {
   const [prioritiesRaw, setPrioritiesRaw] = useState("");
   const [interviewAnswers, setInterviewAnswers] = useState<Record<string, string>>({});
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [hydratedSourceTexts, setHydratedSourceTexts] = useState<ClosedLoopReasoningSourceText[]>([]);
+  const [productContextStatus, setProductContextStatus] = useState<
+    "idle" | "loading" | "loaded" | "empty" | "error"
+  >("idle");
   const [publishToProduct, setPublishToProduct] = useState(false);
-  const [loadingAction, setLoadingAction] = useState<"reasoning" | "golden" | "fixture" | "continue" | "publish" | null>(
-    null,
-  );
+  const [loadingAction, setLoadingAction] = useState<
+    "reasoning" | "golden" | "fixture" | "continue" | "publish" | "product-context" | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
   const [runState, setRunState] = useState<RunState | null>(null);
 
@@ -234,6 +268,57 @@ export function ArchitectureIntelligencePageClient() {
     }
 
     setActiveRunId(inboundRunId);
+    setProductContextStatus("loading");
+    setLoadingAction("product-context");
+    setError(null);
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const context = await getJson<{
+          runId?: string | null;
+          sourceTexts?: ClosedLoopReasoningSourceText[];
+          declaredPriorities?: string[];
+        }>(
+          `/api/proxy/v1/architecture-intelligence/product-runs/${encodeURIComponent(inboundRunId)}/source-context`,
+        );
+
+        if (cancelled) {
+          return;
+        }
+
+        const sources = context.sourceTexts ?? [];
+        setHydratedSourceTexts(sources);
+        setArchitectureDescription(primaryDescriptionFromSources(sources));
+        setActiveRunId(context.runId?.trim() || inboundRunId);
+
+        if ((context.declaredPriorities?.length ?? 0) > 0) {
+          setPrioritiesRaw((context.declaredPriorities ?? []).join(", "));
+        }
+
+        setProductContextStatus(sources.length > 0 ? "loaded" : "empty");
+      } catch (cause) {
+        if (cancelled) {
+          return;
+        }
+
+        setProductContextStatus("error");
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "Could not load product run source context. Paste a description or load the golden fixture.",
+        );
+      } finally {
+        if (!cancelled) {
+          setLoadingAction(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [inboundRunId]);
 
   const inboundContextLine = useMemo(() => {
@@ -241,16 +326,36 @@ export function ArchitectureIntelligencePageClient() {
       return null;
     }
 
+    if (productContextStatus === "loading") {
+      return `Loading architecture intake for run ${inboundRunId}…`;
+    }
+
+    if (productContextStatus === "loaded") {
+      const extraCount = Math.max(0, hydratedSourceTexts.length - 1);
+      const extra =
+        extraCount > 0 ? ` plus ${extraCount} attached document${extraCount === 1 ? "" : "s"}` : "";
+
+      if (inboundFrom === "findings") {
+        return `Loaded product intake from governance findings for run ${inboundRunId}${extra}. Run reasoning, then publish gated findings back to this review.`;
+      }
+
+      if (inboundFrom === "reviews") {
+        return `Loaded product intake from review ${inboundRunId}${extra}. Run closed-loop reasoning, then publish gated findings into the product path.`;
+      }
+
+      return `Loaded product intake for run ${inboundRunId}${extra}.`;
+    }
+
     if (inboundFrom === "findings") {
-      return `Opened from governance findings for run ${inboundRunId}. Continue with interview answers or load the golden fixture to demo the closed loop.`;
+      return `Opened from governance findings for run ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
     }
 
     if (inboundFrom === "reviews") {
-      return `Opened from review ${inboundRunId}. Run closed-loop reasoning, then publish gated findings into the product path.`;
+      return `Opened from review ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
     }
 
     return `Scoped to run ${inboundRunId}.`;
-  }, [inboundFrom, inboundRunId]);
+  }, [inboundFrom, inboundRunId, productContextStatus, hydratedSourceTexts.length]);
 
   const findings = useMemo(() => {
     if (runState?.kind !== "reasoning") {
@@ -287,6 +392,7 @@ export function ArchitectureIntelligencePageClient() {
         buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, {
           publishToProduct,
           runId: activeRunId,
+          hydratedSourceTexts,
         }),
       );
 
@@ -297,7 +403,7 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [architectureDescription, prioritiesRaw, interviewAnswers, publishToProduct, activeRunId]);
+  }, [architectureDescription, prioritiesRaw, interviewAnswers, publishToProduct, activeRunId, hydratedSourceTexts]);
 
   const continueWithAnswers = useCallback(async () => {
     if (!activeRunId) {
@@ -316,6 +422,7 @@ export function ArchitectureIntelligencePageClient() {
           runId: activeRunId,
           continueFromExistingRun: true,
           publishToProduct,
+          hydratedSourceTexts,
         }),
       );
 
@@ -326,7 +433,7 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers, publishToProduct]);
+  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers, publishToProduct, hydratedSourceTexts]);
 
   const publishRun = useCallback(async () => {
     if (!activeRunId) {
@@ -345,6 +452,7 @@ export function ArchitectureIntelligencePageClient() {
           runId: activeRunId,
           continueFromExistingRun: true,
           publishToProduct: true,
+          hydratedSourceTexts,
         }),
       );
 
@@ -354,10 +462,10 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers]);
+  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers, hydratedSourceTexts]);
 
   const runGoldenTest = useCallback(async () => {
-    const useFixture = architectureDescription.trim().length === 0;
+    const useFixture = architectureDescription.trim().length === 0 && hydratedSourceTexts.length === 0;
 
     setLoadingAction("golden");
     setError(null);
@@ -367,6 +475,8 @@ export function ArchitectureIntelligencePageClient() {
         "/api/proxy/v1/architecture-intelligence/golden-test",
         buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, {
           useGoldenFixture: useFixture,
+          hydratedSourceTexts,
+          runId: activeRunId,
         }),
       );
 
@@ -376,7 +486,7 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [architectureDescription, prioritiesRaw, interviewAnswers]);
+  }, [architectureDescription, prioritiesRaw, interviewAnswers, hydratedSourceTexts, activeRunId]);
 
   const loadGoldenFixture = useCallback(async () => {
     setLoadingAction("fixture");
@@ -388,9 +498,11 @@ export function ArchitectureIntelligencePageClient() {
         declaredPriorities?: string[];
       }>("/api/proxy/v1/architecture-intelligence/golden-fixture");
 
-      const content = fixture.sourceTexts?.[0]?.content ?? "";
-      setArchitectureDescription(content);
+      const sources = fixture.sourceTexts ?? [];
+      setHydratedSourceTexts(sources);
+      setArchitectureDescription(primaryDescriptionFromSources(sources));
       setPrioritiesRaw((fixture.declaredPriorities ?? []).join(", "));
+      setProductContextStatus("idle");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -574,10 +686,32 @@ function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenc
         </p>
       ) : null}
 
+      {props.result.budgetRejected ? (
+        <p
+          role="alert"
+          data-testid="architecture-intelligence-budget-rejected"
+          className={cn(
+            "rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-al-text-primary",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+        >
+          Token budget rejected: {props.result.budgetRejectReason ?? "Review tier estimated-token budget exceeded."}
+        </p>
+      ) : null}
+
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-element-count">
         Model elements: {props.result.model?.elements?.length ?? 0} · Integrity-passed findings:{" "}
         {props.result.integrityPassedFindingIds?.length ?? 0}
         {props.result.runId ? ` · Run: ${props.result.runId}` : ""}
+      </p>
+
+      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-economics">
+        {props.result.cacheHit
+          ? `Cache hit${props.result.cacheReuseReason ? ` (${props.result.cacheReuseReason})` : ""}`
+          : "Cache miss"}
+        {typeof props.result.budgetEstimatedTokens === "number" && typeof props.result.budgetMaxTokens === "number"
+          ? ` · Est. tokens ${props.result.budgetEstimatedTokens}/${props.result.budgetMaxTokens}`
+          : ""}
       </p>
 
       {props.result.publishedToProduct ? (

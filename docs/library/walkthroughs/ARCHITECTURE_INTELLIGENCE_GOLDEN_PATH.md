@@ -21,25 +21,26 @@
 
 1. Open any finalized review (`/reviews/{runId}`).
 2. Expand **Pipeline tools (operator)** → **Architecture intelligence**.
-3. Confirm the inbound banner shows the scoped `runId` (`from=reviews`).
+3. Confirm the inbound banner shows the scoped `runId` (`from=reviews`) and that **product intake auto-loads** (description + attached documents).
 
 Alternate: from `/governance/findings`, use **Architecture intelligence** on a queue row (`from=findings`).
 
-Direct URL: `/architecture-intelligence`.
+Direct URL: `/architecture-intelligence` (or load the golden fixture for a canned demo without a product run).
 
-### 2. Load the golden incomplete fixture
+### 2. Confirm intake (or load golden fixture)
 
-1. Click **Load golden fixture**.
-2. Confirm the description and priorities populate (incomplete auth / ownership gaps).
+1. If opened from a product run: description textarea should already be filled; extra docs are included on run.
+2. If demoting without a product run: click **Load golden fixture** (incomplete auth / ownership gaps).
 
 ### 3. Run closed-loop reasoning
 
-1. Click **Run architecture reasoning**.
+1. Click **Run architecture reasoning** (keeps the product `runId` so publish lands on the same review).
 2. Point out:
    - Model elements extracted (or heuristic fallback)
    - Specialist findings with conclusion / evidence-condition / disposition
    - Interview framing + evidence-driven questions
    - Trust / publish gate (integrity-passed ids, block reasons)
+   - Economics line: cache hit/miss + estimated tokens vs tier budget
 3. Note the **Active run** id for continue/publish.
 
 ### 4. Answer and continue

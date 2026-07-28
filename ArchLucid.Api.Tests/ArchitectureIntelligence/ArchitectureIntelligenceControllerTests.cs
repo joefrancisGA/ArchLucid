@@ -83,9 +83,61 @@ public sealed class ArchitectureIntelligenceControllerTests
         captured!.TenantId.Should().Be(tenantId.ToString("D"));
     }
 
+    [Fact]
+    public async Task GetProductRunSourceContextAsync_returns_mapped_request()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Mock<IArchitectureIntelligenceProductRunSourceContextLoader> loader = new();
+        loader
+            .Setup(l => l.LoadAsync(runId.ToString("D"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureIntelligenceProductRunSourceContextLoadResult.Success(
+                new ClosedLoopReasoningRequest
+                {
+                    TenantId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                    RunId = runId.ToString("D"),
+                    SourceTexts =
+                    [
+                        new ClosedLoopReasoningSourceText
+                        {
+                            FileName = "architecture-description.txt",
+                            ContentType = "text/plain",
+                            Content = "API without auth.",
+                        },
+                    ],
+                }));
+
+        ArchitectureIntelligenceController controller = CreateController(productRunSourceContextLoader: loader.Object);
+
+        IActionResult action = await controller.GetProductRunSourceContextAsync(runId.ToString("D"), CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ClosedLoopReasoningRequest body = ok.Value.Should().BeOfType<ClosedLoopReasoningRequest>().Subject;
+        body.RunId.Should().Be(runId.ToString("D"));
+        body.SourceTexts.Should().ContainSingle(source => source.Content.Contains("API without auth"));
+    }
+
+    [Fact]
+    public async Task GetProductRunSourceContextAsync_returns_404_when_run_missing()
+    {
+        Mock<IArchitectureIntelligenceProductRunSourceContextLoader> loader = new();
+        loader
+            .Setup(l => l.LoadAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureIntelligenceProductRunSourceContextLoadResult.NotFound("missing"));
+
+        ArchitectureIntelligenceController controller = CreateController(productRunSourceContextLoader: loader.Object);
+
+        IActionResult action = await controller.GetProductRunSourceContextAsync(
+            Guid.NewGuid().ToString("D"),
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
     private static ArchitectureIntelligenceController CreateController(
         IClosedLoopArchitectureReasoningOrchestrator? reasoningOrchestrator = null,
         IGoldenArchitectureTestRunner? goldenArchitectureTestRunner = null,
+        IArchitectureIntelligenceProductRunSourceContextLoader? productRunSourceContextLoader = null,
         Guid? tenantId = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -106,6 +158,7 @@ public sealed class ArchitectureIntelligenceControllerTests
             goldenArchitectureTestRunner ?? Mock.Of<IGoldenArchitectureTestRunner>(),
             architectureIntelligencePersistence: null,
             productPublishService: Mock.Of<IArchitectureIntelligenceProductPublishService>(),
+            productRunSourceContextLoader ?? Mock.Of<IArchitectureIntelligenceProductRunSourceContextLoader>(),
             scopeProvider.Object,
             auditService.Object);
     }
