@@ -13,7 +13,7 @@ export const nextNavigationVitestStubs: Partial<NextNavigationModule> = {
       refresh: vi.fn(),
       replace: vi.fn(),
       bfcacheId: null,
-    }) as ReturnType<NextNavigationModule["useRouter"]>,
+    }) as unknown as ReturnType<NextNavigationModule["useRouter"]>,
   usePathname: () => "/",
   // Match Next readonly params API shape expected by TS
   useSearchParams: () =>
