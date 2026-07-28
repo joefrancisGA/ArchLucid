@@ -1,6 +1,7 @@
+> **Scope:** Canonical ArchLucid audit log export for SIEM integration — buyer summary fields, export methods, Splunk HEC / Microsoft Sentinel payload examples, retention, and roadmap (formerly duplicated in the body of `docs/go-to-market/SIEM_EXPORT.md`; that filename remains a path-stable pack alias).
+
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Canonical ArchLucid audit log export for SIEM integration — buyer summary fields, export methods, Splunk HEC / Microsoft Sentinel payload examples, retention, and roadmap (formerly duplicated in the body of `docs/go-to-market/SIEM_EXPORT.md`; that filename remains a path-stable pack alias).
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -1151,6 +1151,75 @@
         },
         "type": "object"
       },
+      "AdversarialChallenge": {
+        "properties": {
+          "challengeId": {
+            "type": "string"
+          },
+          "confidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "falsificationEvidenceNeeded": {
+            "type": "string"
+          },
+          "hypothesis": {
+            "type": "string"
+          },
+          "lane": {
+            "$ref": "#/components/schemas/AdversarialLane"
+          },
+          "suppressed": {
+            "type": "boolean"
+          },
+          "suppressionReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "AdversarialLane": {
+        "enum": [
+          "SubstantiatedFinding",
+          "AdversarialChallenge"
+        ],
+        "type": "string"
+      },
+      "AdversarialReviewResult": {
+        "properties": {
+          "challenges": {
+            "items": {
+              "$ref": "#/components/schemas/AdversarialChallenge"
+            },
+            "type": "array"
+          },
+          "falsePositiveRateByLane": {
+            "additionalProperties": {
+              "format": "double",
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+              "type": [
+                "number",
+                "string"
+              ]
+            },
+            "type": "object"
+          },
+          "substantiatedFindings": {
+            "items": {
+              "$ref": "#/components/schemas/SpecialistReviewFinding"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "AdvisoryScanExecution": {
         "properties": {
           "completedUtc": {
@@ -3243,6 +3312,35 @@
         },
         "type": "object"
       },
+      "ArchitectureElementKind": {
+        "enum": [
+          "BusinessObjective",
+          "Stakeholder",
+          "FunctionalRequirement",
+          "QualityAttribute",
+          "Constraint",
+          "Assumption",
+          "Decision",
+          "Alternative",
+          "Component",
+          "Interface",
+          "DataFlow",
+          "TrustBoundary",
+          "DeploymentTopology",
+          "FailureMode",
+          "RecoveryObjective",
+          "CapacityExpectation",
+          "CostDriver",
+          "OperationalOwnership",
+          "ComplianceObligation",
+          "Evidence",
+          "Risk",
+          "Recommendation",
+          "UnresolvedQuestion",
+          "TradeOff"
+        ],
+        "type": "string"
+      },
       "ArchitectureFinding": {
         "properties": {
           "category": {
@@ -3417,6 +3515,86 @@
         },
         "type": "object"
       },
+      "ArchitectureIntelligencePublishResult": {
+        "properties": {
+          "findingsSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "published": {
+            "type": "boolean"
+          },
+          "recommendationCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "skipReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureIntelligenceReviewTier": {
+        "enum": [
+          "Trial",
+          "Standard",
+          "Deep"
+        ],
+        "type": "string"
+      },
+      "ArchitectureKnowledgeModel": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "declaredPriorities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "elements": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureModelElement"
+            },
+            "type": "array"
+          },
+          "framingAnswers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "modelId": {
+            "type": "string"
+          },
+          "runId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "schemaVersion": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureLinkageEdge": {
         "properties": {
           "fromNodeId": {
@@ -3473,6 +3651,92 @@
           "referenceId",
           "type"
         ],
+        "type": "object"
+      },
+      "ArchitectureModelDiff": {
+        "properties": {
+          "afterModel": {
+            "$ref": "#/components/schemas/ArchitectureKnowledgeModel"
+          },
+          "beforeModel": {
+            "$ref": "#/components/schemas/ArchitectureKnowledgeModel"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureModelDiffEntry"
+            },
+            "type": "array"
+          },
+          "recommendationId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureModelDiffEntry": {
+        "properties": {
+          "changeKind": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "elementId": {
+            "type": "string"
+          },
+          "elementKind": {
+            "$ref": "#/components/schemas/ArchitectureElementKind"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureModelElement": {
+        "properties": {
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "elementId": {
+            "type": "string"
+          },
+          "extractionConfidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ArchitectureElementKind"
+          },
+          "name": {
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ClaimProvenance"
+          },
+          "relatedElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sourcePassageIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
         "type": "object"
       },
       "ArchitectureQuickScanFindingItem": {
@@ -3599,6 +3863,70 @@
           "summary",
           "systemName"
         ],
+        "type": "object"
+      },
+      "ArchitectureRecommendation": {
+        "properties": {
+          "affectedRequirementOrQualityAttribute": {
+            "type": "string"
+          },
+          "alternatives": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "confidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "consequenceOfInaction": {
+            "type": "string"
+          },
+          "dependencies": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "effort": {
+            "$ref": "#/components/schemas/EffortEstimate"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "problem": {
+            "type": "string"
+          },
+          "proposedChange": {
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ClaimProvenance"
+          },
+          "recommendationId": {
+            "type": "string"
+          },
+          "requiresHumanApproval": {
+            "type": "boolean"
+          },
+          "riskReduction": {
+            "$ref": "#/components/schemas/RiskReductionEstimate"
+          },
+          "tradeOffs": {
+            "items": {
+              "$ref": "#/components/schemas/TradeOffObject"
+            },
+            "type": "array"
+          },
+          "validationMethod": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "ArchitectureRequest": {
@@ -5111,6 +5439,15 @@
         },
         "type": "object"
       },
+      "BenchmarkScoreCategory": {
+        "enum": [
+          "Extraction",
+          "Construction",
+          "Review",
+          "Enhancement"
+        ],
+        "type": "string"
+      },
       "BillingCheckoutPostRequest": {
         "properties": {
           "billingEmail": {
@@ -5585,6 +5922,59 @@
         },
         "type": "object"
       },
+      "CategoryBenchmarkScore": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/BenchmarkScoreCategory"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "score": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ChangeImpactItem": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "elementId": {
+            "type": "string"
+          },
+          "impactKind": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ChangeImpactResult": {
+        "properties": {
+          "graphCompletenessCaveat": {
+            "type": "string"
+          },
+          "impactedItems": {
+            "items": {
+              "$ref": "#/components/schemas/ChangeImpactItem"
+            },
+            "type": "array"
+          },
+          "recommendationId": {
+            "type": "string"
+          },
+          "requiresFullReReview": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ChatIntakeRequest": {
         "properties": {
           "rawText": {
@@ -5647,6 +6037,58 @@
         ],
         "type": "object"
       },
+      "ClaimOrigin": {
+        "enum": [
+          "DirectlyExtracted",
+          "UserAsserted",
+          "ModelInferred",
+          "ExternallySourced",
+          "SystemProposed",
+          "HumanApproved"
+        ],
+        "type": "string"
+      },
+      "ClaimProvenance": {
+        "properties": {
+          "confidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "origin": {
+            "$ref": "#/components/schemas/ClaimOrigin"
+          },
+          "passageLocator": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SourcePassageLocator"
+              }
+            ]
+          },
+          "sourceArtifactId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "supportStatus": {
+            "$ref": "#/components/schemas/SupportStatus"
+          }
+        },
+        "type": "object"
+      },
       "ClientErrorReport": {
         "properties": {
           "context": {
@@ -5684,6 +6126,231 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "ClosedLoopReasoningRequest": {
+        "properties": {
+          "continueFromExistingRun": {
+            "type": "boolean"
+          },
+          "declaredPriorities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "framingAnswers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "projectId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "publishToProduct": {
+            "type": "boolean"
+          },
+          "reviewTier": {
+            "$ref": "#/components/schemas/ArchitectureIntelligenceReviewTier"
+          },
+          "runId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sourceTexts": {
+            "items": {
+              "$ref": "#/components/schemas/ClosedLoopReasoningSourceText"
+            },
+            "type": "array"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "useGoldenFixture": {
+            "type": "boolean"
+          },
+          "workspaceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ClosedLoopReasoningResult": {
+        "properties": {
+          "adversarial": {
+            "$ref": "#/components/schemas/AdversarialReviewResult"
+          },
+          "budgetEstimatedTokens": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "budgetMaxTokens": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "budgetRejectReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "budgetRejected": {
+            "type": "boolean"
+          },
+          "cacheHit": {
+            "type": "boolean"
+          },
+          "cacheReuseReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "goldenMetrics": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/GoldenArchitectureTestResult"
+              }
+            ]
+          },
+          "impactResults": {
+            "items": {
+              "$ref": "#/components/schemas/ChangeImpactResult"
+            },
+            "type": "array"
+          },
+          "integrityPassedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "interview": {
+            "$ref": "#/components/schemas/ProgressiveInterviewState"
+          },
+          "model": {
+            "$ref": "#/components/schemas/ArchitectureKnowledgeModel"
+          },
+          "modelDiffs": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureModelDiff"
+            },
+            "type": "array"
+          },
+          "modelId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mustNotFailViolations": {
+            "items": {
+              "$ref": "#/components/schemas/MustNotFailViolation"
+            },
+            "type": "array"
+          },
+          "productFindings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
+          "productRecommendations": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationRecord"
+            },
+            "type": "array"
+          },
+          "publishBlockReasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "publishBlocked": {
+            "type": "boolean"
+          },
+          "publishSkipReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "publishedFindingsSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "publishedRecommendationCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "publishedToProduct": {
+            "type": "boolean"
+          },
+          "reReview": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/IncrementalReReviewResult"
+              }
+            ]
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureRecommendation"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "specialistReviews": {
+            "items": {
+              "$ref": "#/components/schemas/SpecialistReviewResult"
+            },
+            "type": "array"
+          },
+          "validationResults": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceValidationResult"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ClosedLoopReasoningSourceText": {
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -9022,6 +9689,20 @@
         },
         "type": "object"
       },
+      "EffortEstimate": {
+        "properties": {
+          "band": {
+            "type": "string"
+          },
+          "basisNotes": {
+            "type": "string"
+          },
+          "implementationEstimateAvailable": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "ElicitationAnswerKind": {
         "enum": [
           "Text",
@@ -9405,6 +10086,16 @@
         },
         "type": "object"
       },
+      "EvidenceCondition": {
+        "enum": [
+          "Sufficient",
+          "Insufficient",
+          "Conflicting",
+          "Stale",
+          "Unverified"
+        ],
+        "type": "string"
+      },
       "EvidenceNote": {
         "properties": {
           "message": {
@@ -9445,6 +10136,72 @@
           "catalogEntryId": {
             "format": "uuid",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "EvidenceValidationResult": {
+        "properties": {
+          "completenessNotes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "escalated": {
+            "type": "boolean"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "overallPassedIntegrity": {
+            "type": "boolean"
+          },
+          "semanticAssessment": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SemanticSupportAssessment"
+              }
+            ]
+          },
+          "stageResults": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceValidationStageOutcome"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "EvidenceValidationStage": {
+        "enum": [
+          "DeterministicIntegrity",
+          "ClaimAlignment",
+          "SemanticSupport",
+          "Completeness",
+          "Escalation"
+        ],
+        "type": "string"
+      },
+      "EvidenceValidationStageOutcome": {
+        "properties": {
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isDeterministic": {
+            "type": "boolean"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/EvidenceValidationStage"
           }
         },
         "type": "object"
@@ -12093,6 +12850,42 @@
         },
         "type": "object"
       },
+      "FramingQuestion": {
+        "properties": {
+          "confirmedAnswer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "inferredAnswer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isAnswered": {
+            "type": "boolean"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "questionId": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/FramingQuestionSource"
+          }
+        },
+        "type": "object"
+      },
+      "FramingQuestionSource": {
+        "enum": [
+          "Framing",
+          "EvidenceDriven"
+        ],
+        "type": "string"
+      },
       "GcpTier2ConnectionConfigureBody": {
         "properties": {
           "projectId": {
@@ -12183,6 +12976,23 @@
         },
         "type": "object"
       },
+      "GlobalInvariantCheckResult": {
+        "properties": {
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "invariantId": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "GlobalSearchFindingResponse": {
         "properties": {
           "findingId": {
@@ -12260,6 +13070,77 @@
           "runId": {
             "format": "uuid",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GoldenArchitectureTestResult": {
+        "properties": {
+          "afterCounts": {
+            "additionalProperties": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "beforeCounts": {
+            "additionalProperties": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "categoryScores": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryBenchmarkScore"
+            },
+            "type": "array"
+          },
+          "deltaCounts": {
+            "additionalProperties": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "falsePositiveCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mutationChangedFindings": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "plantedDefectRecall": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "plantedDefectsDetected": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "plantedDefectsMissed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reReviewTriggered": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -12574,6 +13455,17 @@
           }
         },
         "type": "object"
+      },
+      "GovernanceDisposition": {
+        "enum": [
+          "Open",
+          "Accepted",
+          "RemediationPlanned",
+          "Deferred",
+          "ExceptionGranted",
+          "HumanDecisionRequired"
+        ],
+        "type": "string"
       },
       "GovernanceEnvironmentActivation": {
         "properties": {
@@ -13822,6 +14714,35 @@
           },
           "urgency": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "IncrementalReReviewResult": {
+        "properties": {
+          "fullReReviewTriggered": {
+            "type": "boolean"
+          },
+          "globalInvariantResults": {
+            "items": {
+              "$ref": "#/components/schemas/GlobalInvariantCheckResult"
+            },
+            "type": "array"
+          },
+          "partialScopeDisclaimer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ReReviewScope"
+          },
+          "specialistResults": {
+            "items": {
+              "$ref": "#/components/schemas/SpecialistReviewResult"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -16031,6 +16952,31 @@
             "type": "array"
           },
           "profile": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "MustNotFailClass": {
+        "enum": [
+          "FabricatedCitation",
+          "UnlabeledCloudSpecificRecommendation",
+          "InventedRegulation",
+          "AbsenceTreatedAsDefect",
+          "SilentOverrideOfApprovedDecision",
+          "ContradictoryArtifacts"
+        ],
+        "type": "string"
+      },
+      "MustNotFailViolation": {
+        "properties": {
+          "blocked": {
+            "type": "boolean"
+          },
+          "class": {
+            "$ref": "#/components/schemas/MustNotFailClass"
+          },
+          "message": {
             "type": "string"
           }
         },
@@ -19246,6 +20192,29 @@
         },
         "type": "object"
       },
+      "ProgressiveInterviewState": {
+        "properties": {
+          "evidenceDrivenQuestions": {
+            "items": {
+              "$ref": "#/components/schemas/FramingQuestion"
+            },
+            "type": "array"
+          },
+          "framingQuestions": {
+            "items": {
+              "$ref": "#/components/schemas/FramingQuestion"
+            },
+            "type": "array"
+          },
+          "isFramingComplete": {
+            "type": "boolean"
+          },
+          "modelId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PromotePolicyPackCatalogEntryRequest": {
         "properties": {
           "sourcePolicyPackId": {
@@ -19560,6 +20529,36 @@
           }
         },
         "type": "object"
+      },
+      "ReReviewScope": {
+        "properties": {
+          "affectedElementIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "fullReReview": {
+            "type": "boolean"
+          },
+          "includeGlobalInvariantChecks": {
+            "type": "boolean"
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReReviewTrigger"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ReReviewTrigger": {
+        "type": "integer"
       },
       "RealizedValueAttestationResponse": {
         "properties": {
@@ -20261,6 +21260,107 @@
               "number",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "RecommendationRecord": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "comparedToRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expectedImpact": {
+            "type": "string"
+          },
+          "lastUpdatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "priorityScore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "recommendationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "resolutionRationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewComment": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewedByUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewedByUserName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sourceEvidenceLinksJson": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "suggestedAction": {
+            "type": "string"
+          },
+          "supportingArtifactIdsJson": {
+            "type": "string"
+          },
+          "supportingDecisionIdsJson": {
+            "type": "string"
+          },
+          "supportingFindingIdsJson": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "urgency": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"
@@ -21278,6 +22378,15 @@
         },
         "type": "object"
       },
+      "ReviewConclusion": {
+        "enum": [
+          "Pass",
+          "Fail",
+          "Indeterminate",
+          "NotApplicable"
+        ],
+        "type": "string"
+      },
       "ReviewRunEngineProvenance": {
         "properties": {
           "deploymentOrModelId": {
@@ -21430,6 +22539,20 @@
           "Expired"
         ],
         "type": "string"
+      },
+      "RiskReductionEstimate": {
+        "properties": {
+          "level": {
+            "type": "string"
+          },
+          "scenarioNotes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
       },
       "RoiBulletinPreviewResponse": {
         "properties": {
@@ -23909,6 +25032,9 @@
         },
         "type": "object"
       },
+      "SemanticSupportAssessment": {
+        "type": "integer"
+      },
       "ServiceCatalogEvidence": {
         "properties": {
           "category": {
@@ -24098,6 +25224,106 @@
           },
           "softAssumption": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SourcePassageLocator": {
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "endOffset": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "quote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sectionPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "startOffset": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SpecialistReviewFinding": {
+        "properties": {
+          "conclusion": {
+            "$ref": "#/components/schemas/ReviewConclusion"
+          },
+          "confidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "dimension": {
+            "$ref": "#/components/schemas/QualityDimension"
+          },
+          "evidenceArtifactIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "evidenceCondition": {
+            "$ref": "#/components/schemas/EvidenceCondition"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "governanceDisposition": {
+            "$ref": "#/components/schemas/GovernanceDisposition"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ClaimProvenance"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SpecialistReviewResult": {
+        "properties": {
+          "dimension": {
+            "$ref": "#/components/schemas/QualityDimension"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/SpecialistReviewFinding"
+            },
+            "type": "array"
+          },
+          "openQuestions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -24425,6 +25651,18 @@
           }
         },
         "type": "object"
+      },
+      "SupportStatus": {
+        "enum": [
+          "DirectlyEstablished",
+          "IndirectlySupported",
+          "PartiallySupported",
+          "Unsupported",
+          "Contradicted",
+          "Conflicting",
+          "NotYetEvaluated"
+        ],
+        "type": "string"
       },
       "SynthesisTrace": {
         "properties": {
@@ -26746,6 +27984,44 @@
               "$ref": "#/components/schemas/ManifestService"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "TradeOffObject": {
+        "properties": {
+          "benefit": {
+            "type": "string"
+          },
+          "competingPositions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "costOrRisk": {
+            "type": "string"
+          },
+          "proposedDecision": {
+            "type": "string"
+          },
+          "recommendedResolution": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiresHumanApproval": {
+            "type": "boolean"
+          },
+          "resolutionRationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tradeOffId": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -33646,6 +34922,9 @@
     },
     {
       "name": "ArchitectureFindingAsk"
+    },
+    {
+      "name": "ArchitectureIntelligence"
     },
     {
       "name": "ArchitectureQuickScan"

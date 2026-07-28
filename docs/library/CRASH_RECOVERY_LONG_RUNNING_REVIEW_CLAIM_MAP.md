@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Crash recovery — long-running review / AgentTasks in flight
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.

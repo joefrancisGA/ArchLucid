@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Evidence backup/restore vs append-only / commit invariants
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.

@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Project recycle bin vs sealed evidence — residue map
 
 **Audience:** Engineering, privacy/procurement, principal-architect diligence. Not a buyer brochure.
