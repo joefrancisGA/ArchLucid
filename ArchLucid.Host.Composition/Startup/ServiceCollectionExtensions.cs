@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.AzureBoards;
@@ -125,6 +126,7 @@ public static partial class ServiceCollectionExtensions
         RegisterAgentExecution(services, configuration);
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services, configuration);
+        services.AddArchitectureIntelligence();
         services.Configure<AuthorityPipelineWorkProcessorOptions>(
             configuration.GetSection(AuthorityPipelineWorkProcessorOptions.SectionName));
         services.Configure<RetrievalIndexingOutboxProcessorOptions>(

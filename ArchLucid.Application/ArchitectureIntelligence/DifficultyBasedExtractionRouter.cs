@@ -1,0 +1,264 @@
+using System.Text.RegularExpressions;
+using ArchLucid.Contracts.ArchitectureIntelligence;
+
+namespace ArchLucid.Application.ArchitectureIntelligence;
+
+public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedExtractionRouter
+{
+    private const int AmbiguousLengthThreshold = 8000;
+
+    public ExtractionDifficulty Classify(string sourceText)
+    {
+        if (string.IsNullOrWhiteSpace(sourceText))
+        {
+            return ExtractionDifficulty.ClearExtraction;
+        }
+
+        if (LooksStructured(sourceText))
+        {
+            return ExtractionDifficulty.StructuredParse;
+        }
+
+        if (RequiresHumanReview(sourceText))
+        {
+            return ExtractionDifficulty.HumanReviewRequired;
+        }
+
+        if (LooksAmbiguous(sourceText))
+        {
+            return ExtractionDifficulty.AmbiguousExtraction;
+        }
+
+        return ExtractionDifficulty.ClearExtraction;
+    }
+
+    public IReadOnlyList<ArchitectureModelElement> Extract(string sourceText, string artifactId)
+    {
+        if (string.IsNullOrWhiteSpace(sourceText))
+        {
+            return [];
+        }
+
+        if (string.IsNullOrWhiteSpace(artifactId))
+        {
+            throw new ArgumentException("ArtifactId is required.", nameof(artifactId));
+        }
+
+        ExtractionDifficulty difficulty = Classify(sourceText);
+        (SupportStatus supportStatus, double confidence) = MapDifficultyToProvenance(difficulty);
+        List<ArchitectureModelElement> elements = [];
+
+        foreach (Match match in ComponentLinePattern().Matches(sourceText))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Component,
+                match.Groups["name"].Value.Trim(),
+                artifactId,
+                supportStatus,
+                confidence,
+                "Component mention extracted from source text."));
+        }
+
+        foreach (Match match in RequirementLinePattern().Matches(sourceText))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.FunctionalRequirement,
+                match.Groups["name"].Value.Trim(),
+                artifactId,
+                supportStatus,
+                confidence,
+                "Functional requirement extracted from source text."));
+        }
+
+        if (sourceText.Contains("RTO", StringComparison.OrdinalIgnoreCase)
+            || sourceText.Contains("RPO", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.RecoveryObjective,
+                "Recovery objective",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Recovery objective signal detected."));
+        }
+
+        if (sourceText.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.TrustBoundary,
+                "Trust boundary",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Trust boundary mention detected."));
+        }
+
+        if (sourceText.Contains("public endpoint", StringComparison.OrdinalIgnoreCase)
+            || sourceText.Contains("public api", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Interface,
+                "Public endpoint",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Public endpoint mention detected."));
+        }
+
+        if (sourceText.Contains("owner", StringComparison.OrdinalIgnoreCase)
+            && sourceText.Contains("unowned", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.OperationalOwnership,
+                "Unowned component",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Operational ownership gap detected."));
+        }
+
+        if (sourceText.Contains("current state", StringComparison.OrdinalIgnoreCase)
+            && sourceText.Contains("target state", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Assumption,
+                "Current vs target state",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Current and target state markers detected."));
+        }
+
+        if (sourceText.Contains("contradict", StringComparison.OrdinalIgnoreCase))
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.UnresolvedQuestion,
+                "Diagram vs prose contradiction",
+                artifactId,
+                supportStatus,
+                confidence,
+                "Contradiction marker detected."));
+        }
+
+        if (elements.Count == 0)
+        {
+            elements.Add(CreateElement(
+                ArchitectureElementKind.Assumption,
+                "Unclassified architecture content",
+                artifactId,
+                SupportStatus.NotYetEvaluated,
+                Math.Min(confidence, 0.4),
+                "No structured architecture elements were confidently extracted."));
+        }
+
+        return elements;
+    }
+
+    private static bool LooksStructured(string sourceText)
+    {
+        string trimmed = sourceText.TrimStart();
+
+        if (trimmed.StartsWith("{", StringComparison.Ordinal)
+            || trimmed.StartsWith("[", StringComparison.Ordinal)
+            || trimmed.StartsWith("---", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        string[] lines = sourceText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (lines.Length < 2)
+        {
+            return false;
+        }
+
+        int pipeLines = lines.Count(line => line.Contains('|', StringComparison.Ordinal));
+
+        return pipeLines >= 2;
+    }
+
+    private static bool RequiresHumanReview(string sourceText)
+    {
+        bool mentionsSensitive = ContainsAny(
+            sourceText,
+            "regulation",
+            "compliance",
+            "pii",
+            "gdpr",
+            "hipaa");
+
+        if (!mentionsSensitive)
+        {
+            return false;
+        }
+
+        bool lowClarity = sourceText.Length < 200
+            || !sourceText.Contains(':', StringComparison.Ordinal);
+
+        return lowClarity;
+    }
+
+    private static bool LooksAmbiguous(string sourceText)
+    {
+        if (sourceText.Length > AmbiguousLengthThreshold)
+        {
+            return true;
+        }
+
+        return ContainsAny(
+            sourceText,
+            "target state",
+            "current state",
+            "trust boundary",
+            "contradict");
+    }
+
+    private static bool ContainsAny(string sourceText, params string[] needles)
+    {
+        return needles.Any(needle => sourceText.Contains(needle, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static (SupportStatus SupportStatus, double Confidence) MapDifficultyToProvenance(ExtractionDifficulty difficulty)
+    {
+        return difficulty switch
+        {
+            ExtractionDifficulty.StructuredParse => (SupportStatus.DirectlyEstablished, 0.9),
+            ExtractionDifficulty.ClearExtraction => (SupportStatus.DirectlyEstablished, 0.8),
+            ExtractionDifficulty.AmbiguousExtraction => (SupportStatus.IndirectlySupported, 0.55),
+            ExtractionDifficulty.HumanReviewRequired => (SupportStatus.NotYetEvaluated, 0.35),
+            _ => (SupportStatus.NotYetEvaluated, 0.4),
+        };
+    }
+
+    private static ArchitectureModelElement CreateElement(
+        ArchitectureElementKind kind,
+        string name,
+        string artifactId,
+        SupportStatus supportStatus,
+        double confidence,
+        string notes)
+    {
+        return new ArchitectureModelElement
+        {
+            ElementId = Guid.NewGuid().ToString("N"),
+            Kind = kind,
+            Name = name,
+            ExtractionConfidence = confidence,
+            SourcePassageIds = [artifactId],
+            Provenance = new ClaimProvenance
+            {
+                Origin = ClaimOrigin.DirectlyExtracted,
+                SupportStatus = supportStatus,
+                Confidence = confidence,
+                SourceArtifactId = artifactId,
+                Notes = notes,
+            },
+        };
+    }
+
+    [GeneratedRegex(@"(?im)^(?:component|service)\s*[:\-]\s*(?<name>.+)$")]
+    private static partial Regex ComponentLinePattern();
+
+    [GeneratedRegex(@"(?im)^(?:requirement|req)\s*[:\-]\s*(?<name>.+)$")]
+    private static partial Regex RequirementLinePattern();
+}
