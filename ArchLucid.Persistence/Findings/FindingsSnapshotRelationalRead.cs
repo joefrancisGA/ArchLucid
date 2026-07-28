@@ -73,7 +73,9 @@ internal static class FindingsSnapshotRelationalRead
         Dictionary<Guid, List<string>> tracePathsByRecord = slices.TraceAlternativePaths;
 
         Dictionary<Guid, List<string>> traceNotesByRecord = slices.TraceNotes;
+
         List<Finding> findings = [];
+
         foreach (FindingRecordRow rec in records)
         {
             Finding finding = new()

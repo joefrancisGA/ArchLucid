@@ -29,7 +29,7 @@ public sealed class FindingInsightDensityJsonMergerTests
             RunId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             GraphSnapshotId = Guid.NewGuid(),
-            CreatedUtc = DateTimeOffset.UtcNow,
+            CreatedUtc = DateTime.UtcNow,
             SchemaVersion = 1,
             Findings = [
                 new Finding
