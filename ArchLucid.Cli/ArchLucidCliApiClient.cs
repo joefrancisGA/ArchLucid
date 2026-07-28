@@ -315,7 +315,8 @@ public sealed class ArchLucidApiClient
                 return await CreateRunWithIdempotencyHeaderAsync(body, idempotencyKey.Trim(), ct);
             }
 
-            Gen.CreateArchitectureRunResponse created = await _api.RequestPOSTAsync(body, ct);
+            Gen.CreateArchitectureRunResponse created =
+                await _api.RequestPOSTAsync(MapToOpenApiBody<Gen.Body45>(body), ct);
             CreateRunResponse? mapped = DeserializeRoundTrip<CreateRunResponse>(created);
 
             return CreateRunResult.Ok(mapped);
@@ -366,7 +367,8 @@ public sealed class ArchLucidApiClient
         try
         {
             Gen.CreateDraftRequest body = new() { FreeTextIntent = freeTextIntent };
-            Gen.DraftRequestResponse created = await _api.DraftPOSTAsync(body, ct);
+            Gen.DraftRequestResponse created =
+                await _api.DraftPOSTAsync(MapToOpenApiBody<Gen.Body35>(body), ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(created);
 
             if (mapped is null)
@@ -397,7 +399,8 @@ public sealed class ArchLucidApiClient
         try
         {
             Gen.PatchDraftRequest? genBody = MapContractToGenerated<Gen.PatchDraftRequest>(body);
-            Gen.DraftRequestResponse patched = await _api.DraftPATCHAsync(draftId, genBody, ct);
+            Gen.DraftRequestResponse patched =
+                await _api.DraftPATCHAsync(draftId, MapToOpenApiBody<Gen.Body36>(genBody), ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(patched);
 
             if (mapped is null)
@@ -484,7 +487,8 @@ public sealed class ArchLucidApiClient
         try
         {
             Gen.AnswerDraftQuestionRequest? genBody = MapContractToGenerated<Gen.AnswerDraftQuestionRequest>(body);
-            Gen.DraftRequestResponse answered = await _api.AnswerAsync(draftId, genBody, ct);
+            Gen.DraftRequestResponse answered =
+                await _api.AnswerAsync(draftId, MapToOpenApiBody<Gen.Body37>(genBody), ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(answered);
 
             if (mapped is null)
@@ -515,7 +519,8 @@ public sealed class ArchLucidApiClient
         try
         {
             Gen.SkipDraftQuestionRequest? genBody = MapContractToGenerated<Gen.SkipDraftQuestionRequest>(body);
-            Gen.DraftRequestResponse skipped = await _api.SkipAsync(draftId, genBody, ct);
+            Gen.DraftRequestResponse skipped =
+                await _api.SkipAsync(draftId, MapToOpenApiBody<Gen.Body40>(genBody), ct);
             DraftRequestResponse? mapped = MapGeneratedToContract<DraftRequestResponse>(skipped);
 
             if (mapped is null)
@@ -613,7 +618,8 @@ public sealed class ArchLucidApiClient
                 return new SubmitResultResult(false, null, "Invalid agent result payload.");
 
             Gen.SubmitAgentResultRequest req = new() { Result = genResult };
-            Gen.SubmitAgentResultResponse parsed = await _api.ResultAsync(runId, req, ct);
+            Gen.SubmitAgentResultResponse parsed =
+                await _api.ResultAsync(runId, MapToOpenApiBody<Gen.Body62>(req), ct);
 
             return new SubmitResultResult(true, parsed.ResultId, null);
         }
@@ -1177,7 +1183,10 @@ public sealed class ArchLucidApiClient
         {
             Gen.UpdateComparisonRecordRequest body = new() { Label = label, Tags = tags?.ToList() };
 
-            await _api.ComparisonsPATCHAsync(comparisonRecordId, body, ct);
+            await _api.ComparisonsPATCHAsync(
+                comparisonRecordId,
+                MapToOpenApiBody<Gen.Body31>(body),
+                ct);
 
             return true;
         }
@@ -1212,6 +1221,19 @@ public sealed class ArchLucidApiClient
         string json = JsonSerializer.Serialize(generated, generated.GetType(), ContractEnumAwareJson);
 
         return JsonSerializer.Deserialize<TOut>(json, ContractEnumAwareJson);
+    }
+
+    /// <summary>
+    ///     NSwag emits anonymous <c>Body*</c> request types for some operations; bridge typed payloads via JSON.
+    /// </summary>
+    private static TBody? MapToOpenApiBody<TBody>(object? payload)
+    {
+        if (payload is null)
+            return default;
+
+        string json = JsonSerializer.Serialize(payload, GenNumericEnumBridgeJson);
+
+        return JsonSerializer.Deserialize<TBody>(json, GenNumericEnumBridgeJson);
     }
 
     private static Gen.ArchitectureRequest? MapToGenerated(ArchitectureRequest request)
