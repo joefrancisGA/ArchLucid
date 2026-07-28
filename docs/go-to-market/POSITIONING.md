@@ -349,6 +349,6 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md#ideal-customer-profile-icp) | ICP definition, scoring matrix, disqualifiers |
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Available and planned integrations |
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates (3 fictional narratives) |
-| [SEO_AND_PAID_ACQUISITION.md](SEO_AND_PAID_ACQUISITION.md) | Organic SEO + disciplined web-paid acquisition playbook (apex, ICP-aligned channels, measurement stance) |
+| [`../library/PUBLIC_MARKETING_SITE_TOPOLOGY.md#seo-and-paid-web-acquisition`](../library/PUBLIC_MARKETING_SITE_TOPOLOGY.md#seo-and-paid-web-acquisition) · [SEO_AND_PAID_ACQUISITION.md](SEO_AND_PAID_ACQUISITION.md) (alias) | Organic SEO + disciplined web-paid acquisition playbook (apex, ICP-aligned channels, measurement stance) |
 | [GTM_BACKLOG.md](GTM_BACKLOG.md) | Internal service-led sequencing, outreach, and monetization tasks |
 | [QUOTE_TO_PROOF_PACKET.md#productized-service-offers](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) · [SERVICE_LED_OFFERS.md](SERVICE_LED_OFFERS.md) (alias) | Named productized consulting SKUs and indicative private bands |

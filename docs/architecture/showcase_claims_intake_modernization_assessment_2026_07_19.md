@@ -3,7 +3,7 @@
 > **Assessment date:** 2026-07-19  
 > **Method:** Repository-wide evidence review (route implementation, static demo payload, marketing API controller, migrations, E2E/CI harness, GTM and exposure docs). No live production click-through was performed; unproven items are labeled explicitly.
 >
-> **Related:** [`ui_routes.md`](ui_routes.md) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`LATEST_EXPOSURE.md`](../assessments/LATEST_EXPOSURE.md) · [`LAUNCH_LOAD_DRILL.md`](LAUNCH_LOAD_DRILL.md) · [`information_architecture_assessment_and_backlog.md`](information_architecture_assessment_and_backlog.md) · [`SEO_AND_PAID_ACQUISITION.md`](../go-to-market/SEO_AND_PAID_ACQUISITION.md) · [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (**TB-887**–**TB-891**) · [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) (**M-107**–**M-108**, **G-QA-04**)
+> **Related:** [`ui_routes.md`](ui_routes.md) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`LATEST_EXPOSURE.md`](../assessments/LATEST_EXPOSURE.md) · [`LAUNCH_LOAD_DRILL.md`](LAUNCH_LOAD_DRILL.md) · [`information_architecture_assessment_and_backlog.md`](information_architecture_assessment_and_backlog.md) · [`PUBLIC_MARKETING_SITE_TOPOLOGY.md#seo-and-paid-web-acquisition`](../library/PUBLIC_MARKETING_SITE_TOPOLOGY.md#seo-and-paid-web-acquisition) (`SEO_AND_PAID_ACQUISITION.md` alias) · [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (**TB-887**–**TB-891**) · [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) (**M-107**–**M-108**, **G-QA-04**)
 
 # Showcase route assessment — Claims Intake Modernization (2026-07-19)
 

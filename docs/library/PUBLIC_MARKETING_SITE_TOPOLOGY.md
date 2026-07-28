@@ -1,4 +1,4 @@
-> **Scope:** Buyer — Engineers and operators designing apex-domain routing (Front Door, Next.js) for public marketing alongside API and architect workspace; not a standalone CMS strategy doc or subdomain-only deployment guide.
+> **Scope:** Buyer — Engineers and operators designing apex-domain routing (Front Door, Next.js) for public marketing alongside API and architect workspace, plus organic SEO and disciplined web-paid acquisition (formerly the body of `docs/go-to-market/SEO_AND_PAID_ACQUISITION.md`; that filename remains a path-stable alias). Not a standalone CMS strategy doc or subdomain-only deployment guide.
 
 # Public marketing site topology (apex `archlucid.net`)
 
@@ -68,4 +68,124 @@ Marketing pages intentionally **avoid** **`/v1/*`** coupling; signup flows use *
    - Re-run infra plan for **`terraform-edge`**
 3. **Operator home indexing** (`/`) remains **eligible** unless `robots` / page **`metadata`** change — prioritize **`metadata.title`** uniqueness if duplicate-brand SERP becomes an issue; canonical tag work is backlog-level cosmetic SEO.
 4. **Health probes** — marketing origin health probe **`HEAD `/`** (**`frontdoor-marketing-routes.tf`**) differs from **`/health/ready`** on API origins; don’t unify without updating Terraform.
-5. **Paid/organic attribution** — UTM capture through anonymous signup into durable reporting + coarse OTel conversions is **`TECH_BACKLOG`** **TB-019** (**not** wired by default yet); **`TB-020`** covers JSON-LD + consent-gated third-party replay.
+5. **Paid/organic attribution** — UTM capture through anonymous signup into durable reporting + coarse OTel conversions is **`TECH_BACKLOG`** **TB-019** (**not** wired by default yet); **`TB-020`** covers JSON-LD + consent-gated third-party replay. Full SEO + paid channel playbook: [`#seo-and-paid-web-acquisition`](#seo-and-paid-web-acquisition).
+
+---
+
+## SEO and paid web acquisition {#seo-and-paid-web-acquisition}
+
+Former standalone body: `docs/go-to-market/SEO_AND_PAID_ACQUISITION.md` → this section (filename kept as a path-stable alias). Aligns with [`BUYER_PERSONAS.md` (ICP)](../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) and [`POSITIONING.md`](../go-to-market/POSITIONING.md). Not procurement legal advice.
+
+**Audience:** Founder, marketing, and product — deciding where to spend time vs money before measurable conversion exists.  
+**Path-stable alias:** [`../go-to-market/SEO_AND_PAID_ACQUISITION.md`](../go-to-market/SEO_AND_PAID_ACQUISITION.md).
+
+### SEO / paid objective
+
+Increase **qualified trial signups** (and eventual paid pilots) from people who fit the ICP by stacking **technical crawlability**, **problem-aware content**, **honest trust pages**, and **small, measurable paid experiments** — without fragmenting infra or drifting claims beyond **`POSITIONING.md`** and **`V1_SCOPE.md`**.
+
+### SEO / paid assumptions
+
+- Canonical public origin **`https://archlucid.net`** (`PublicSiteOptions`, `NEXT_PUBLIC_ARCHLUCID_SITE_URL`) aligns email deep links with the apex.
+- Marketing stays in the **`archlucid-ui`** App Router **`(marketing)`** group; edge routing for apex + Front Door paths is this topology document.
+- The **commercial category headline** shipped as **`Architecture Proof Engine`** (`archlucid-ui/src/lib/brand-category.ts`) has **near-zero naive search volume** vs generic phrases; keywords must chase **pain and outcome**, not the coined category alone early on.
+- Self-serve signup is the dominant conversion path ([`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md)). Ads and landing pages should optimize toward **successful tenant provision + first session**, not vanity engagement.
+- Lack of SOC 2 Type I/II CPA attestation does **not** block V1.1 headline product work; procurement friction still requires **explicit** trust narratives — [`trust-center.md`](../go-to-market/trust-center.md), [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](../go-to-market/ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap), `/compliance-journey`, `/trust`, `/security-trust` on the apex.
+
+### SEO / paid constraints
+
+- **Claims:** Messaging must reconcile with **`POSITIONING.md`**, **`COMPETITIVE_LANDSCAPE.md`**, and shipped scope — no multi-cloud posture, SOC 2 attestation, or integrations that **`V1_SCOPE.md`** denies.
+- **Robots correctness:** Apex **`robots.txt`** must **never** emit **`Disallow: /`** (see Constraints above).
+- **Front Door parity:** Any new anonymous marketing pathname must appear in **`marketing_site_route_patterns`** plus **`MARKETING_SITEMAP_PATHNAMES`** when indexable.
+- **Signup latency:** Burst paid traffic amplifies provisioning p95 — warm-catalog work is **`TECH_BACKLOG.md`** **TB-018**.
+- **Budget:** Modest pilot spend favors **LinkedIn + Bing + narrow Google Search** before display, programmatic, or broad awareness.
+
+### Acquisition architecture overview
+
+Three cooperating layers:
+
+1. **Crawl + index hygiene (technical SEO)** — sitemap, robots, per-page metadata, apex routing (sections above).
+2. **Content + internal linking** — problem-aware topics → proof pages → signup.
+3. **Paid amplification** — LinkedIn/Microsoft Ads → proof + trust → trial.
+
+Downstream instrumentation (conversion tags, funnel dashboards) belongs in engineering backlog when prioritized — this section records **intent and channel strategy**.
+
+### Technical SEO checklist
+
+| Artifact | Repo path / module | Responsibility |
+|---------|---------------------|----------------|
+| Marketing route group chrome | `archlucid-ui/src/app/(marketing)/layout.tsx` | Nav, trust links, signup CTA |
+| Canonical metadata defaults | `archlucid-ui/src/app/layout.tsx` | OG/twitter defaults |
+| `robots.txt` / `sitemap.xml` | `robots.ts` / `sitemap.ts` | Crawl + index |
+| Path + deny lists | `public-marketing-seo-paths.ts` | Drift prevention |
+| Edge path routing | `infra/terraform-edge` | Apex → marketing UI vs API |
+
+Operational checklist:
+
+1. Submit `https://archlucid.net/sitemap.xml` in Google Search Console + Bing Webmaster Tools.
+2. Enforce single canonical apex (apex vs `www`): one 301 in Front Door.
+3. Extend `marketing_site_route_patterns` when exposing new anonymous HTML routes.
+4. PageSpeed / Web Vitals on `/welcome`, `/pricing`, `/why` — fix regressions before scaling paid traffic.
+
+### Content SEO (discovery layer)
+
+Goal: rank for **pain and evaluation intent**, not the category string alone initially.
+
+| Intent stage | Example themes | Prefer landing surfaces |
+|---|---|---|
+| Problem-aware | architecture review bottleneck, undocumented decisions | Long-form (future `/blog`), linking to `/why`, `/see-it` |
+| Solution-aware | evidence-linked findings, governance + architecture | `/why`, `/showcase/{slug}` |
+| Vendor-aware | ArchLucid pricing, SOC 2, vs EA tools | `/pricing`, `/compliance-journey`, `/trust`, `/security-trust` |
+| Skeptical | accuracy, hallucination stance, PHI/residency honesty | `/privacy`, trust center docs, `/compliance-journey` |
+
+Off-page realism for a modest team: one high-quality quarterly technical article with `rel="canonical"` to `archlucid.net`; targeted podcasts/newsletters; credibility listings when applicable.
+
+### Paid acquisition
+
+Channel ordering by expected ICP ROI:
+
+| Priority | Channel | Why | First experiment |
+|:---:|:---|:---|:---|
+| 1 | **LinkedIn Ads** | Title + vertical fit | Single proof creative → `/showcase/` curated slug OR `/why` |
+| 2 | **Microsoft Advertising (Bing)** | Lower CPC, enterprise browser defaults | Exact/phrase branded + tightly scoped problem phrases |
+| 3 | **Google Search** | High intent | Phrase/exact only — comparison + competitor-adjacent; avoid generic broad-match |
+| 4 | **Reddit Ads** | Cheap tests for technical audiences | Sponsor one substantive article pointer |
+| Defer | YouTube display, programmatic, mass GDN | Thin budget + immature tagging | — |
+
+Budget shape (starting point — reallocate monthly on data):
+
+| Line | Months 1–2 learn | Months 3+ |
+|:---|---:|---:|
+| LinkedIn | $1500–2000/mo | scale winners |
+| Microsoft Ads | $400–600/mo | trim negatives |
+| Google Search | ≤ $500/mo | kill broad drift |
+| Experiments buffer | optional Reddit $300 | discretionary |
+
+CAC guardrail: reconcile against [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) pilot economics — halt channels absent conversion proof.
+
+### Tracking and attribution
+
+Tracked as engineering backlog: **TB-019** (UTM → provision success) plus **TB-020** (JSON-LD + consent-gated third-party replay / CSP) in [`TECH_BACKLOG.md`](TECH_BACKLOG.md).
+
+Targets until shipped:
+
+1. Stable UTM ingestion on signup.
+2. Server-side conversion on `TenantProvisioningService` success.
+3. Front Door logs for marketing path hits.
+4. Weekly human review: spend → provisional signup attribution → funnel stage.
+
+Until **TB-019** lands, defer non-essential client pixels.
+
+### Privacy + CSP (paid pixels)
+
+- Pixels widen CSP (`archlucid-ui/next.config.ts`) — consolidate allowed hosts per vendor and document in [`PRIVACY_POLICY.md`](../go-to-market/PRIVACY_POLICY.md) when live.
+- Avoid architect-workspace analytics leakage — session replay must not run on authenticated operator/executive surfaces until DPIA-aligned.
+- Cookie consent before non-essential marketing pixels under EU-facing traffic projections.
+- Trust honesty: keep SOC 2 / trust pages synchronized with factual posture (self-assessment + roadmap ≠ CPA attestation).
+
+### SEO / paid operational cadence
+
+1. Monthly review: Search Console crawl errors → sitemap deltas → broken links on top marketing URLs.
+2. New landing page playbook: page → metadata → sitemap (if indexed) → Front Door tfvars → SERP snippet QA.
+3. Creative refresh when LinkedIn frequency fatigues; keep one evergreen proof angle + one trust angle.
+4. Organic compounding: two excellent long-form pillars beat ten thin pages.
+5. Pair **TB-018** / **TB-019**: watch signup p95 and attributable conversions when paid experiments start.
