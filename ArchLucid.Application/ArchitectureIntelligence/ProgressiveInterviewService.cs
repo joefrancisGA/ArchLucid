@@ -96,6 +96,65 @@ public sealed class ProgressiveInterviewService : IProgressiveInterviewService
         return questions;
     }
 
+    public ProgressiveInterviewState ApplyAnswers(
+        ArchitectureKnowledgeModel model,
+        ProgressiveInterviewState state,
+        IReadOnlyDictionary<string, string> answers)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(state);
+        ArgumentNullException.ThrowIfNull(answers);
+
+        foreach (KeyValuePair<string, string> pair in answers)
+        {
+            if (string.IsNullOrWhiteSpace(pair.Key) || string.IsNullOrWhiteSpace(pair.Value))
+            {
+                continue;
+            }
+
+            model.FramingAnswers[pair.Key] = pair.Value.Trim();
+
+            FramingQuestion? framingQuestion = state.FramingQuestions
+                .FirstOrDefault(question => string.Equals(question.QuestionId, pair.Key, StringComparison.Ordinal));
+
+            if (framingQuestion is not null)
+            {
+                framingQuestion.ConfirmedAnswer = pair.Value.Trim();
+                framingQuestion.IsAnswered = true;
+            }
+
+            FramingQuestion? evidenceQuestion = state.EvidenceDrivenQuestions
+                .FirstOrDefault(question => string.Equals(question.QuestionId, pair.Key, StringComparison.Ordinal));
+
+            if (evidenceQuestion is not null)
+            {
+                evidenceQuestion.ConfirmedAnswer = pair.Value.Trim();
+                evidenceQuestion.IsAnswered = true;
+            }
+
+            // Persist answered evidence as user-asserted model elements for the next review pass.
+            model.Elements.Add(new ArchitectureModelElement
+            {
+                ElementId = Guid.NewGuid().ToString("N"),
+                Kind = ArchitectureElementKind.Evidence,
+                Name = $"Interview answer: {pair.Key}",
+                Description = pair.Value.Trim(),
+                ExtractionConfidence = 1.0,
+                Provenance = new ClaimProvenance
+                {
+                    Origin = ClaimOrigin.UserAsserted,
+                    SupportStatus = SupportStatus.DirectlyEstablished,
+                    Confidence = 1.0,
+                    Notes = "Operator interview answer.",
+                },
+            });
+        }
+
+        state.IsFramingComplete = state.FramingQuestions.All(question => question.IsAnswered);
+
+        return state;
+    }
+
     private static string? TryInferAnswer(
         string questionId,
         string combinedText,

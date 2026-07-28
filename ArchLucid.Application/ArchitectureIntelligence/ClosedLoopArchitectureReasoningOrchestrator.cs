@@ -75,6 +75,11 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         ProgressiveInterviewState interview = _interviewService.BuildFramingState(model, request.SourceTexts);
 
+        if (request.FramingAnswers.Count > 0)
+        {
+            interview = _interviewService.ApplyAnswers(model, interview, request.FramingAnswers);
+        }
+
         List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(model, cancellationToken);
         List<SpecialistReviewFinding> allFindings = specialistReviews
             .SelectMany(review => review.Findings)
@@ -84,8 +89,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             .DeriveEvidenceDrivenQuestions(specialistReviews)
             .ToList();
 
+        if (request.FramingAnswers.Count > 0)
+        {
+            interview = _interviewService.ApplyAnswers(model, interview, request.FramingAnswers);
+        }
+
         // No fallback artifact/quote injection — stage-1 must fail closed when citations are absent.
-        List<EvidenceValidationResult> validationResults = ValidateFindings(allFindings);
+        List<EvidenceValidationResult> validationResults = await ValidateFindingsAsync(allFindings, cancellationToken);
         HashSet<string> integrityPassedIds = validationResults
             .Where(result => result.OverallPassedIntegrity)
             .Select(result => result.FindingId)
@@ -280,7 +290,9 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         return reviews;
     }
 
-    private List<EvidenceValidationResult> ValidateFindings(IReadOnlyList<SpecialistReviewFinding> findings)
+    private async Task<List<EvidenceValidationResult>> ValidateFindingsAsync(
+        IReadOnlyList<SpecialistReviewFinding> findings,
+        CancellationToken cancellationToken)
     {
         List<EvidenceValidationResult> validationResults = [];
 
@@ -303,12 +315,13 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
             string claimedConclusion = $"{finding.Conclusion}:{finding.Severity}:{finding.Title}";
 
-            validationResults.Add(_evidenceValidationPipeline.Validate(
+            validationResults.Add(await _evidenceValidationPipeline.ValidateAsync(
                 finding.FindingId,
                 citedArtifactIds,
                 citedQuotes,
                 _sourceStore,
-                claimedConclusion));
+                claimedConclusion,
+                cancellationToken));
         }
 
         return validationResults;

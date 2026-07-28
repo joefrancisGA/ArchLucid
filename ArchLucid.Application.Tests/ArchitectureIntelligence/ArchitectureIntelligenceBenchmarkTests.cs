@@ -55,4 +55,48 @@ public sealed class ArchitectureIntelligenceBenchmarkTests
 
         changed.Should().BeTrue();
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void GetDeepCases_includes_golden_incomplete_fixture()
+    {
+        ArchitectureIntelligenceBenchmark sut = new(new ExtractionFidelityBenchmark());
+
+        IReadOnlyList<ArchitectureIntelligenceDeepCase> deepCases = sut.GetDeepCases();
+
+        deepCases.Should().ContainSingle(deepCase =>
+            deepCase.CaseId == GoldenIncompleteArchitectureFixture.DeepCaseId
+            && deepCase.PlantedDefects.Count >= 3);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ScoreCategories_returns_four_categories()
+    {
+        ArchitectureIntelligenceBenchmark sut = new(new ExtractionFidelityBenchmark());
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "m1",
+            TenantId = "t1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "c1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "api",
+                },
+            ],
+        };
+
+        IReadOnlyList<CategoryBenchmarkScore> scores = sut.ScoreCategories(
+            model,
+            findings: [],
+            recommendations: [],
+            plantedDefectRecall: 0.5,
+            mutationChangedFindings: true);
+
+        scores.Should().HaveCount(4);
+        scores.Select(score => score.Category).Should().Contain(BenchmarkScoreCategory.Review);
+    }
 }

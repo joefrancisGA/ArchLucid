@@ -12,5 +12,6 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-priorities")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run architecture reasoning" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run golden test" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Load golden fixture" })).toBeInTheDocument();
   });
 });

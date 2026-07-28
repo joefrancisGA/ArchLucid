@@ -18,9 +18,13 @@ type ClosedLoopReasoningSourceText = {
 };
 
 type SpecialistReviewFinding = {
+  findingId?: string;
   title: string;
   severity: string;
   conclusion: string;
+  evidenceCondition?: string;
+  governanceDisposition?: string;
+  rationale?: string;
 };
 
 type ArchitectureRecommendation = {
@@ -35,18 +39,72 @@ type MustNotFailViolation = {
   blocked: boolean;
 };
 
+type FramingQuestion = {
+  questionId: string;
+  prompt: string;
+  isAnswered: boolean;
+  confirmedAnswer?: string | null;
+  source?: string;
+};
+
+type EvidenceValidationResult = {
+  findingId: string;
+  overallPassedIntegrity: boolean;
+  escalated: boolean;
+  semanticAssessment?: string | null;
+  stageResults?: Array<{
+    stage: string;
+    passed: boolean;
+    isDeterministic: boolean;
+    detail?: string;
+  }>;
+};
+
+type AdversarialReviewResult = {
+  substantiatedFindings?: SpecialistReviewFinding[];
+  challenges?: Array<{ hypothesis: string; falsificationEvidenceNeeded: string; suppressed?: boolean }>;
+  falsePositiveRateByLane?: Record<string, number>;
+};
+
 type ClosedLoopReasoningResult = {
   model: { elements: unknown[] };
   specialistReviews: Array<{ findings: SpecialistReviewFinding[] }>;
   recommendations: ArchitectureRecommendation[];
   mustNotFailViolations: MustNotFailViolation[];
+  interview?: {
+    framingQuestions?: FramingQuestion[];
+    evidenceDrivenQuestions?: FramingQuestion[];
+  };
+  adversarial?: AdversarialReviewResult;
+  validationResults?: EvidenceValidationResult[];
+  publishBlocked?: boolean;
+  publishBlockReasons?: string[];
+  integrityPassedFindingIds?: string[];
+  productFindings?: Array<{
+    findingId: string;
+    title: string;
+    severity: string;
+    properties?: Record<string, string>;
+  }>;
+};
+
+type CategoryBenchmarkScore = {
+  category: string;
+  score: number;
+  detail: string;
 };
 
 type GoldenArchitectureTestResult = {
   beforeCounts: Record<string, number>;
   afterCounts: Record<string, number>;
+  deltaCounts?: Record<string, number>;
   plantedDefectRecall: number;
+  plantedDefectsDetected?: string[];
+  plantedDefectsMissed?: string[];
   falsePositiveCount: number;
+  categoryScores?: CategoryBenchmarkScore[];
+  mutationChangedFindings?: boolean;
+  reReviewTriggered?: boolean;
   passed: boolean;
   notes?: string | null;
 };
@@ -103,25 +161,47 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   return (await response.json()) as T;
 }
 
-function buildRequest(architectureDescription: string, prioritiesRaw: string) {
-  const sourceTexts: ClosedLoopReasoningSourceText[] = [
-    {
-      fileName: DEFAULT_ARCHITECTURE_FILE_NAME,
-      contentType: DEFAULT_CONTENT_TYPE,
-      content: architectureDescription.trim(),
-    },
-  ];
+async function getJson<T>(path: string): Promise<T> {
+  const response = await fetch(path, { method: "GET" });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+
+    throw new Error(`Request failed (HTTP ${response.status}). ${text.slice(0, 240)}`);
+  }
+
+  return (await response.json()) as T;
+}
+
+function buildRequest(
+  architectureDescription: string,
+  prioritiesRaw: string,
+  framingAnswers: Record<string, string>,
+  useGoldenFixture = false,
+) {
+  const sourceTexts: ClosedLoopReasoningSourceText[] = architectureDescription.trim().length
+    ? [
+        {
+          fileName: DEFAULT_ARCHITECTURE_FILE_NAME,
+          contentType: DEFAULT_CONTENT_TYPE,
+          content: architectureDescription.trim(),
+        },
+      ]
+    : [];
 
   return {
     sourceTexts,
     declaredPriorities: parsePriorities(prioritiesRaw),
+    framingAnswers,
+    useGoldenFixture,
   };
 }
 
 export function ArchitectureIntelligencePageClient() {
   const [architectureDescription, setArchitectureDescription] = useState("");
   const [prioritiesRaw, setPrioritiesRaw] = useState("");
-  const [loadingAction, setLoadingAction] = useState<"reasoning" | "golden" | null>(null);
+  const [interviewAnswers, setInterviewAnswers] = useState<Record<string, string>>({});
+  const [loadingAction, setLoadingAction] = useState<"reasoning" | "golden" | "fixture" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [runState, setRunState] = useState<RunState | null>(null);
 
@@ -133,9 +213,20 @@ export function ArchitectureIntelligencePageClient() {
     return flattenFindings(runState.result);
   }, [runState]);
 
+  const interviewQuestions = useMemo(() => {
+    if (runState?.kind !== "reasoning") {
+      return [] as FramingQuestion[];
+    }
+
+    const framing = runState.result.interview?.framingQuestions ?? [];
+    const evidence = runState.result.interview?.evidenceDrivenQuestions ?? [];
+
+    return [...framing, ...evidence];
+  }, [runState]);
+
   const runReasoning = useCallback(async () => {
     if (architectureDescription.trim().length === 0) {
-      setError("Architecture description is required.");
+      setError("Architecture description is required (or load the golden fixture).");
 
       return;
     }
@@ -146,7 +237,7 @@ export function ArchitectureIntelligencePageClient() {
     try {
       const result = await postJson<ClosedLoopReasoningResult>(
         "/api/proxy/v1/architecture-intelligence/run",
-        buildRequest(architectureDescription, prioritiesRaw),
+        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers),
       );
 
       setRunState({ kind: "reasoning", result });
@@ -155,14 +246,10 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [architectureDescription, prioritiesRaw]);
+  }, [architectureDescription, prioritiesRaw, interviewAnswers]);
 
   const runGoldenTest = useCallback(async () => {
-    if (architectureDescription.trim().length === 0) {
-      setError("Architecture description is required.");
-
-      return;
-    }
+    const useFixture = architectureDescription.trim().length === 0;
 
     setLoadingAction("golden");
     setError(null);
@@ -170,7 +257,7 @@ export function ArchitectureIntelligencePageClient() {
     try {
       const result = await postJson<GoldenArchitectureTestResult>(
         "/api/proxy/v1/architecture-intelligence/golden-test",
-        buildRequest(architectureDescription, prioritiesRaw),
+        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, useFixture),
       );
 
       setRunState({ kind: "golden", result });
@@ -179,7 +266,27 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [architectureDescription, prioritiesRaw]);
+  }, [architectureDescription, prioritiesRaw, interviewAnswers]);
+
+  const loadGoldenFixture = useCallback(async () => {
+    setLoadingAction("fixture");
+    setError(null);
+
+    try {
+      const fixture = await getJson<{
+        sourceTexts?: ClosedLoopReasoningSourceText[];
+        declaredPriorities?: string[];
+      }>("/api/proxy/v1/architecture-intelligence/golden-fixture");
+
+      const content = fixture.sourceTexts?.[0]?.content ?? "";
+      setArchitectureDescription(content);
+      setPrioritiesRaw((fixture.declaredPriorities ?? []).join(", "));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setLoadingAction(null);
+    }
+  }, []);
 
   const isBusy = loadingAction !== null;
 
@@ -238,6 +345,15 @@ export function ArchitectureIntelligencePageClient() {
           >
             {loadingAction === "golden" ? "Running golden test…" : "Run golden test"}
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            data-testid="architecture-intelligence-load-fixture-button"
+            disabled={isBusy}
+            onClick={() => void loadGoldenFixture()}
+          >
+            {loadingAction === "fixture" ? "Loading fixture…" : "Load golden fixture"}
+          </Button>
         </div>
       </div>
 
@@ -256,10 +372,15 @@ export function ArchitectureIntelligencePageClient() {
 
       {runState?.kind === "reasoning" ? (
         <ArchitectureIntelligenceReasoningResults
-          elementCount={runState.result.model?.elements?.length ?? 0}
+          result={runState.result}
           findings={findings}
-          recommendations={runState.result.recommendations ?? []}
-          violations={runState.result.mustNotFailViolations ?? []}
+          interviewQuestions={interviewQuestions}
+          interviewAnswers={interviewAnswers}
+          onInterviewAnswerChange={(questionId, value) =>
+            setInterviewAnswers((previous) => ({ ...previous, [questionId]: value }))
+          }
+          onResubmitAnswers={() => void runReasoning()}
+          isBusy={isBusy}
         />
       ) : null}
 
@@ -269,47 +390,130 @@ export function ArchitectureIntelligencePageClient() {
 }
 
 type ArchitectureIntelligenceReasoningResultsProps = {
-  elementCount: number;
+  result: ClosedLoopReasoningResult;
   findings: SpecialistReviewFinding[];
-  recommendations: ArchitectureRecommendation[];
-  violations: MustNotFailViolation[];
+  interviewQuestions: FramingQuestion[];
+  interviewAnswers: Record<string, string>;
+  onInterviewAnswerChange: (questionId: string, value: string) => void;
+  onResubmitAnswers: () => void;
+  isBusy: boolean;
 };
 
 function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenceReasoningResultsProps) {
+  const integritySet = new Set(props.result.integrityPassedFindingIds ?? []);
+  const validationById = new Map(
+    (props.result.validationResults ?? []).map((validation) => [validation.findingId, validation]),
+  );
+
   return (
     <div className="space-y-4" data-testid="architecture-intelligence-reasoning-results">
+      {props.result.publishBlocked ? (
+        <p
+          role="alert"
+          data-testid="architecture-intelligence-publish-blocked"
+          className={cn(
+            "rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-al-text-primary",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+        >
+          Publish blocked: {(props.result.publishBlockReasons ?? []).join(" · ") || "trust gate rejected publishable output."}
+        </p>
+      ) : null}
+
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-element-count">
-        Model elements: {props.elementCount}
+        Model elements: {props.result.model?.elements?.length ?? 0} · Integrity-passed findings:{" "}
+        {props.result.integrityPassedFindingIds?.length ?? 0}
       </p>
+
+      <ResultSection title="Interview questions" testId="architecture-intelligence-interview">
+        {props.interviewQuestions.length === 0 ? (
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No open interview questions.</p>
+        ) : (
+          <div className="space-y-3">
+            {props.interviewQuestions.map((question) => (
+              <div key={question.questionId} className="space-y-1">
+                <Label htmlFor={`interview-${question.questionId}`}>{question.prompt}</Label>
+                <Textarea
+                  id={`interview-${question.questionId}`}
+                  data-testid={`architecture-intelligence-interview-${question.questionId}`}
+                  value={props.interviewAnswers[question.questionId] ?? question.confirmedAnswer ?? ""}
+                  onChange={(event) => props.onInterviewAnswerChange(question.questionId, event.target.value)}
+                  rows={2}
+                  disabled={props.isBusy}
+                />
+              </div>
+            ))}
+            <Button
+              type="button"
+              data-testid="architecture-intelligence-resubmit-answers"
+              disabled={props.isBusy}
+              onClick={props.onResubmitAnswers}
+            >
+              Re-run with answers
+            </Button>
+          </div>
+        )}
+      </ResultSection>
 
       <ResultSection title="Findings" testId="architecture-intelligence-findings">
         {props.findings.length === 0 ? (
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No findings returned.</p>
         ) : (
           <ul className="m-0 list-none space-y-2 p-0">
-            {props.findings.map((finding, index) => (
-              <li key={`${finding.title}-${index}`}>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{finding.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className={cn("space-y-1 pt-0", OPERATOR_TYPOGRAPHY.body)}>
-                    <p className="m-0">Severity: {finding.severity}</p>
-                    <p className="m-0">Conclusion: {finding.conclusion}</p>
-                  </CardContent>
-                </Card>
-              </li>
-            ))}
+            {props.findings.map((finding, index) => {
+              const findingId = finding.findingId ?? `${finding.title}-${index}`;
+              const validation = validationById.get(findingId);
+              const product = props.result.productFindings?.find((item) => item.findingId === findingId);
+              const provenanceBucket = product?.properties?.["architectureIntelligence.provenancePresentation"];
+              const integrityPassed = finding.findingId ? integritySet.has(finding.findingId) : validation?.overallPassedIntegrity;
+
+              return (
+                <li key={findingId}>
+                  <Card data-integrity-passed={integrityPassed ? "true" : "false"}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{finding.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className={cn("space-y-1 pt-0", OPERATOR_TYPOGRAPHY.body)}>
+                      <p className="m-0">Severity: {finding.severity}</p>
+                      <p className="m-0">Conclusion: {finding.conclusion}</p>
+                      <p className="m-0">Integrity: {integrityPassed ? "passed" : "failed / not cited"}</p>
+                      {provenanceBucket ? <p className="m-0">Provenance: {provenanceBucket}</p> : null}
+                      {validation?.semanticAssessment ? (
+                        <p className="m-0">Semantic assessment: {validation.semanticAssessment}</p>
+                      ) : null}
+                    </CardContent>
+                  </Card>
+                </li>
+              );
+            })}
           </ul>
         )}
       </ResultSection>
 
+      <ResultSection title="Adversarial lanes" testId="architecture-intelligence-adversarial">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Substantiated: {props.result.adversarial?.substantiatedFindings?.length ?? 0} · Challenges:{" "}
+          {props.result.adversarial?.challenges?.length ?? 0}
+        </p>
+        {(props.result.adversarial?.challenges ?? []).length > 0 ? (
+          <ul className="m-0 list-disc space-y-1 pl-5">
+            {(props.result.adversarial?.challenges ?? []).map((challenge, index) => (
+              <li key={`${challenge.hypothesis}-${index}`} className={OPERATOR_TYPOGRAPHY.body}>
+                {challenge.hypothesis} — {challenge.falsificationEvidenceNeeded}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No active adversarial challenges.</p>
+        )}
+      </ResultSection>
+
       <ResultSection title="Recommendations" testId="architecture-intelligence-recommendations">
-        {props.recommendations.length === 0 ? (
+        {props.result.recommendations.length === 0 ? (
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No recommendations returned.</p>
         ) : (
           <ul className="m-0 list-none space-y-2 p-0">
-            {props.recommendations.map((recommendation) => (
+            {props.result.recommendations.map((recommendation) => (
               <li key={recommendation.recommendationId}>
                 <Card>
                   <CardHeader className="pb-2">
@@ -326,11 +530,11 @@ function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenc
       </ResultSection>
 
       <ResultSection title="Must-not-fail violations" testId="architecture-intelligence-violations">
-        {props.violations.length === 0 ? (
+        {props.result.mustNotFailViolations.length === 0 ? (
           <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No must-not-fail violations.</p>
         ) : (
           <ul className="m-0 list-disc space-y-1 pl-5">
-            {props.violations.map((violation, index) => (
+            {props.result.mustNotFailViolations.map((violation, index) => (
               <li key={`${violation.class}-${index}`} className={OPERATOR_TYPOGRAPHY.body}>
                 [{violation.class}] {violation.message}
                 {violation.blocked ? " (blocked)" : ""}
@@ -356,7 +560,8 @@ function ArchitectureIntelligenceGoldenResults(props: ArchitectureIntelligenceGo
         Passed: {result.passed ? "Yes" : "No"}
       </p>
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Planted defect recall: {result.plantedDefectRecall.toFixed(2)} · False positives: {result.falsePositiveCount}
+        Planted defect recall: {result.plantedDefectRecall.toFixed(2)} · False positives: {result.falsePositiveCount} ·
+        Mutation changed findings: {result.mutationChangedFindings ? "Yes" : "No"}
       </p>
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-before-counts">
         Before counts: {formatCountMap(result.beforeCounts ?? {})}
@@ -364,6 +569,18 @@ function ArchitectureIntelligenceGoldenResults(props: ArchitectureIntelligenceGo
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-after-counts">
         After counts: {formatCountMap(result.afterCounts ?? {})}
       </p>
+      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-delta-counts">
+        Delta counts: {formatCountMap(result.deltaCounts ?? {})}
+      </p>
+      {(result.categoryScores ?? []).length > 0 ? (
+        <ul className="m-0 list-disc space-y-1 pl-5" data-testid="architecture-intelligence-category-scores">
+          {result.categoryScores?.map((score) => (
+            <li key={score.category} className={OPERATOR_TYPOGRAPHY.body}>
+              {score.category}: {score.score.toFixed(2)} — {score.detail}
+            </li>
+          ))}
+        </ul>
+      ) : null}
       {result.notes ? (
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-golden-notes">
           Notes: {result.notes}

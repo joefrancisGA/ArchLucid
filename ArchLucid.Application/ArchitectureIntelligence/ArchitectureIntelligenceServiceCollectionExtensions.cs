@@ -58,7 +58,8 @@ public static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IExtractionFidelityBenchmark, ExtractionFidelityBenchmark>();
         services.AddScoped<IArchitectureIntelligenceBenchmark, ArchitectureIntelligenceBenchmark>();
         services.AddScoped<IProgressiveInterviewService, ProgressiveInterviewService>();
-        services.AddScoped<IEvidenceValidationPipeline, EvidenceValidationPipeline>();
+        services.AddScoped<IEvidenceValidationPipeline>(static sp =>
+            new EvidenceValidationPipeline(sp.GetService<IArchitectureIntelligenceLlmGateway>()));
         services.AddScoped<IAdversarialReviewService, AdversarialReviewService>();
         services.AddScoped<IChangeImpactAnalyzer, ChangeImpactAnalyzer>();
         services.AddScoped<IArchitectureModelDiffApplier, ArchitectureModelDiffApplier>();

@@ -3,11 +3,12 @@ using ArchLucid.Contracts.ArchitectureIntelligence;
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 /// <summary>
-/// Deliberately incomplete architecture used by the golden closed-loop test (TB-1988 / LLM follow-on).
+/// Deliberately incomplete architecture used by the golden closed-loop test (TB-1988).
 /// </summary>
 public static class GoldenIncompleteArchitectureFixture
 {
     public const string FileName = "golden-incomplete-architecture.md";
+    public const string DeepCaseId = "deep-golden-incomplete";
 
     public const string Content = """
         # Claims intake service (incomplete draft)
@@ -26,6 +27,38 @@ public static class GoldenIncompleteArchitectureFixture
         Deployment: single region, Azure App Service mentioned without labeling cloud-neutrality assumptions.
         Cost priority is secondary to security for this workload.
         """;
+
+    public static IReadOnlyList<PlantedDefectExpectation> ExpectedPlantedDefects { get; } =
+    [
+        new PlantedDefectExpectation
+        {
+            DefectId = "public-api-no-auth",
+            TitlePattern = "public",
+            Dimension = QualityDimension.Security,
+            MinSeverity = "High",
+        },
+        new PlantedDefectExpectation
+        {
+            DefectId = "missing-trust-boundary",
+            TitlePattern = "trust boundary",
+            Dimension = QualityDimension.Security,
+            MinSeverity = "High",
+        },
+        new PlantedDefectExpectation
+        {
+            DefectId = "unowned-billing-worker",
+            TitlePattern = "owner",
+            Dimension = QualityDimension.Cost,
+            MinSeverity = "Medium",
+        },
+        new PlantedDefectExpectation
+        {
+            DefectId = "rto-backup-mismatch",
+            TitlePattern = "recovery",
+            Dimension = QualityDimension.Reliability,
+            MinSeverity = "Medium",
+        },
+    ];
 
     public static ClosedLoopReasoningRequest CreateRequest(string tenantId)
     {

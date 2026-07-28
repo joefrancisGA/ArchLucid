@@ -23,4 +23,12 @@ public interface IArchitectureIntelligenceLlmGateway
         IReadOnlyList<SpecialistReviewFinding> findings,
         IReadOnlyList<string> declaredPriorities,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Stage-3 semantic support assessment. Returns null when the LLM client is unavailable or parsing fails.
+    /// </summary>
+    Task<SemanticSupportAssessment?> AssessSemanticSupportAsync(
+        string claimedConclusion,
+        IReadOnlyList<string> citedQuotes,
+        CancellationToken cancellationToken = default);
 }

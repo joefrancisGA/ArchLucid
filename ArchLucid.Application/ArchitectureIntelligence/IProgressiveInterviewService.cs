@@ -10,4 +10,12 @@ public interface IProgressiveInterviewService
 
     IReadOnlyList<FramingQuestion> DeriveEvidenceDrivenQuestions(
         IReadOnlyList<SpecialistReviewResult> specialistResults);
+
+    /// <summary>
+    /// Applies operator answers to interview state and model framing answers (round-trip).
+    /// </summary>
+    ProgressiveInterviewState ApplyAnswers(
+        ArchitectureKnowledgeModel model,
+        ProgressiveInterviewState state,
+        IReadOnlyDictionary<string, string> answers);
 }

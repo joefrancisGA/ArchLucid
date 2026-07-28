@@ -2,7 +2,7 @@ using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
-internal static class ArchitectureKnowledgeModelMetrics
+public static class ArchitectureKnowledgeModelMetrics
 {
     public const string CriticalUnsupportedAssumptions = "CriticalUnsupportedAssumptions";
     public const string RequirementsWithDesignCoverage = "RequirementsWithDesignCoverage";

@@ -2,13 +2,21 @@ namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class GoldenArchitectureTestResult
 {
+    /// <summary>Auditable counts on the pre-apply (post-review) model.</summary>
     public Dictionary<string, int> BeforeCounts
     {
         get;
         set;
     } = new();
 
+    /// <summary>Auditable counts after recommendation apply + re-review.</summary>
     public Dictionary<string, int> AfterCounts
+    {
+        get;
+        set;
+    } = new();
+
+    public Dictionary<string, int> DeltaCounts
     {
         get;
         set;
@@ -20,7 +28,37 @@ public class GoldenArchitectureTestResult
         set;
     }
 
+    public List<string> PlantedDefectsDetected
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> PlantedDefectsMissed
+    {
+        get;
+        set;
+    } = [];
+
     public int FalsePositiveCount
+    {
+        get;
+        set;
+    }
+
+    public List<CategoryBenchmarkScore> CategoryScores
+    {
+        get;
+        set;
+    } = [];
+
+    public bool MutationChangedFindings
+    {
+        get;
+        set;
+    }
+
+    public bool ReReviewTriggered
     {
         get;
         set;

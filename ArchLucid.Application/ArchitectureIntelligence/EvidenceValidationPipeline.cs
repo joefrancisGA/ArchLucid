@@ -4,12 +4,68 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
 {
+    private readonly IArchitectureIntelligenceLlmGateway? _llmGateway;
+
+    public EvidenceValidationPipeline()
+        : this(llmGateway: null)
+    {
+    }
+
+    public EvidenceValidationPipeline(IArchitectureIntelligenceLlmGateway? llmGateway)
+    {
+        _llmGateway = llmGateway;
+    }
+
     public EvidenceValidationResult Validate(
         string findingId,
         IReadOnlyList<string> citedArtifactIds,
         IReadOnlyList<string> citedQuotes,
         IImmutableSourceStore sourceStore,
         string claimedConclusion)
+    {
+        return BuildResult(
+            findingId,
+            citedArtifactIds,
+            citedQuotes,
+            sourceStore,
+            claimedConclusion,
+            llmSemanticAssessment: null);
+    }
+
+    public async Task<EvidenceValidationResult> ValidateAsync(
+        string findingId,
+        IReadOnlyList<string> citedArtifactIds,
+        IReadOnlyList<string> citedQuotes,
+        IImmutableSourceStore sourceStore,
+        string claimedConclusion,
+        CancellationToken cancellationToken = default)
+    {
+        SemanticSupportAssessment? llmAssessment = null;
+
+        if (_llmGateway is not null)
+        {
+            llmAssessment = await _llmGateway.AssessSemanticSupportAsync(
+                claimedConclusion,
+                citedQuotes,
+                cancellationToken);
+        }
+
+        return BuildResult(
+            findingId,
+            citedArtifactIds,
+            citedQuotes,
+            sourceStore,
+            claimedConclusion,
+            llmAssessment);
+    }
+
+    private static EvidenceValidationResult BuildResult(
+        string findingId,
+        IReadOnlyList<string> citedArtifactIds,
+        IReadOnlyList<string> citedQuotes,
+        IImmutableSourceStore sourceStore,
+        string claimedConclusion,
+        SemanticSupportAssessment? llmSemanticAssessment)
     {
         if (string.IsNullOrWhiteSpace(findingId))
         {
@@ -36,7 +92,6 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             IsDeterministic = true,
         };
 
-        // Stage 2: claim alignment — quotes must be non-empty and overlap claim tokens (model reasoning, not deterministic).
         bool claimAlignmentPassed = EvaluateClaimAlignment(citedQuotes, claimedConclusion);
         EvidenceValidationStageOutcome claimAlignmentStage = new()
         {
@@ -48,18 +103,19 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             IsDeterministic = false,
         };
 
-        SemanticSupportAssessment semanticAssessment = AssessSemanticSupport(
-            integrityPassed,
-            claimAlignmentPassed,
-            citedQuotes,
-            claimedConclusion);
+        SemanticSupportAssessment semanticAssessment = llmSemanticAssessment
+            ?? AssessSemanticSupportHeuristic(integrityPassed, claimAlignmentPassed, citedQuotes, claimedConclusion);
+
+        string semanticDetail = llmSemanticAssessment.HasValue
+            ? $"Semantic support assessed as {semanticAssessment} via LLM (model reasoning; not deterministic)."
+            : $"Semantic support assessed as {semanticAssessment} via heuristic fallback (model reasoning; not deterministic).";
 
         EvidenceValidationStageOutcome semanticStage = new()
         {
             Stage = EvidenceValidationStage.SemanticSupport,
             Passed = semanticAssessment is SemanticSupportAssessment.Supports
                 or SemanticSupportAssessment.PartiallySupports,
-            Detail = $"Semantic support assessed as {semanticAssessment} (model reasoning; not deterministic).",
+            Detail = semanticDetail,
             IsDeterministic = false,
         };
 
@@ -136,7 +192,6 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             string artifactId = citedArtifactIds[index];
             string? expectedQuote = index < citedQuotes.Count ? citedQuotes[index] : null;
 
-            // Empty quote still verifies artifact existence + hash; non-empty quote must appear in content.
             if (!sourceStore.VerifyIntegrity(artifactId, string.IsNullOrWhiteSpace(expectedQuote) ? null : expectedQuote))
             {
                 return false;
@@ -178,7 +233,7 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
         return false;
     }
 
-    private static SemanticSupportAssessment AssessSemanticSupport(
+    private static SemanticSupportAssessment AssessSemanticSupportHeuristic(
         bool integrityPassed,
         bool claimAlignmentPassed,
         IReadOnlyList<string> citedQuotes,

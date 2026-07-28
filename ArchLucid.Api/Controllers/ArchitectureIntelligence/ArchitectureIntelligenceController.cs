@@ -53,7 +53,7 @@ public sealed class ArchitectureIntelligenceController(
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (!TryPrepareRequest(request, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
         {
             if (bodyRequired)
                 return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
@@ -74,6 +74,7 @@ public sealed class ArchitectureIntelligenceController(
                     findingCount = result.ProductFindings.Count,
                     recommendationCount = result.ProductRecommendations.Count,
                     sourceCount = prepared.SourceTexts.Count,
+                    publishBlocked = result.PublishBlocked,
                 }),
             },
             cancellationToken);
@@ -90,7 +91,7 @@ public sealed class ArchitectureIntelligenceController(
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (!TryPrepareRequest(request, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: true, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
         {
             if (bodyRequired)
                 return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
@@ -109,6 +110,7 @@ public sealed class ArchitectureIntelligenceController(
                     passed = result.Passed,
                     plantedDefectRecall = result.PlantedDefectRecall,
                     falsePositiveCount = result.FalsePositiveCount,
+                    mutationChangedFindings = result.MutationChangedFindings,
                     sourceCount = prepared.SourceTexts.Count,
                 }),
             },
@@ -117,8 +119,23 @@ public sealed class ArchitectureIntelligenceController(
         return Ok(result);
     }
 
+    /// <summary>Returns the canonical golden incomplete-architecture fixture text for operator loading.</summary>
+    [HttpGet("golden-fixture")]
+    [ProducesResponseType(typeof(ClosedLoopReasoningRequest), StatusCodes.Status200OK)]
+    public IActionResult GetGoldenFixture()
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ClosedLoopReasoningRequest fixture = GoldenIncompleteArchitectureFixture.CreateRequest(scope.TenantId.ToString("D"));
+        fixture.WorkspaceId = scope.WorkspaceId.ToString("D");
+        fixture.ProjectId = scope.ProjectId.ToString("D");
+        fixture.UseGoldenFixture = true;
+
+        return Ok(fixture);
+    }
+
     private bool TryPrepareRequest(
         ClosedLoopReasoningRequest? request,
+        bool allowEmptySourcesForFixture,
         out ClosedLoopReasoningRequest prepared,
         out string? validationError,
         out bool bodyRequired)
@@ -134,28 +151,32 @@ public sealed class ArchitectureIntelligenceController(
             return false;
         }
 
-        if (request.SourceTexts is null || request.SourceTexts.Count == 0)
-        {
-            prepared = request;
-            validationError = "At least one source text is required.";
-
-            return false;
-        }
-
-        bool hasContent = request.SourceTexts.Any(source => !string.IsNullOrWhiteSpace(source.Content));
-
-        if (!hasContent)
-        {
-            prepared = request;
-            validationError = "Source text content is required.";
-
-            return false;
-        }
-
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         request.TenantId = scope.TenantId.ToString("D");
         request.WorkspaceId = scope.WorkspaceId.ToString("D");
         request.ProjectId = scope.ProjectId.ToString("D");
+
+        bool hasContent = request.SourceTexts is not null
+            && request.SourceTexts.Any(source => !string.IsNullOrWhiteSpace(source.Content));
+
+        if (!hasContent && allowEmptySourcesForFixture && request.UseGoldenFixture)
+        {
+            ClosedLoopReasoningRequest fixture = GoldenIncompleteArchitectureFixture.CreateRequest(request.TenantId);
+            request.SourceTexts = fixture.SourceTexts;
+            request.DeclaredPriorities = fixture.DeclaredPriorities.Count > 0
+                ? fixture.DeclaredPriorities
+                : request.DeclaredPriorities;
+            hasContent = true;
+        }
+
+        if (request.SourceTexts is null || request.SourceTexts.Count == 0 || !hasContent)
+        {
+            prepared = request;
+            validationError = "At least one source text with content is required (or set useGoldenFixture=true).";
+
+            return false;
+        }
+
         prepared = request;
         validationError = null;
 

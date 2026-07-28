@@ -187,6 +187,47 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
         return challenges.Count > 0 ? challenges : null;
     }
 
+    public async Task<SemanticSupportAssessment?> AssessSemanticSupportAsync(
+        string claimedConclusion,
+        IReadOnlyList<string> citedQuotes,
+        CancellationToken cancellationToken = default)
+    {
+        if (_completionClient is null || string.IsNullOrWhiteSpace(claimedConclusion))
+        {
+            return null;
+        }
+
+        string systemPrompt =
+            "You assess whether cited source quotes semantically support an architecture claim. " +
+            JsonOnlyInstruction + " " +
+            "Respond with JSON: {\"assessment\":\"Supports|PartiallySupports|Contradicts|DoesNotEstablish\", \"notes\":\"...\"}";
+
+        string userPrompt =
+            $"Claimed conclusion:\n{claimedConclusion}\n\nCited quotes:\n" +
+            JsonSerializer.Serialize(citedQuotes ?? [], JsonOptions);
+
+        string? responseJson = await TryCompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(responseJson))
+        {
+            return null;
+        }
+
+        SemanticAssessmentResponseShape? shape = TryDeserialize<SemanticAssessmentResponseShape>(responseJson);
+
+        if (shape?.Assessment is null)
+        {
+            return null;
+        }
+
+        if (Enum.TryParse(shape.Assessment, ignoreCase: true, out SemanticSupportAssessment assessment))
+        {
+            return assessment;
+        }
+
+        return null;
+    }
+
     public async Task<IReadOnlyList<ArchitectureRecommendation>?> DraftRecommendationsAsync(
         ArchitectureKnowledgeModel model,
         IReadOnlyList<SpecialistReviewFinding> findings,
@@ -734,6 +775,23 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
 
         [JsonPropertyName("riskReductionLevel")]
         public string? RiskReductionLevel
+        {
+            get;
+            init;
+        }
+
+        [JsonPropertyName("notes")]
+        public string? Notes
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class SemanticAssessmentResponseShape
+    {
+        [JsonPropertyName("assessment")]
+        public string? Assessment
         {
             get;
             init;

@@ -76,6 +76,64 @@ public sealed class EvidenceValidationPipelineTests
         result.OverallPassedIntegrity.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task ValidateAsync_uses_llm_semantic_assessment_when_gateway_returns_value()
+    {
+        ImmutableSourceArtifact artifact = StoreArtifact("quote appears in source for critical finding");
+        EvidenceValidationPipeline pipeline = new(new FixedSemanticGateway(SemanticSupportAssessment.Supports));
+
+        EvidenceValidationResult result = await pipeline.ValidateAsync(
+            "finding-llm",
+            [artifact.ArtifactId],
+            ["quote appears in source for critical finding"],
+            _store,
+            "Critical finding");
+
+        result.SemanticAssessment.Should().Be(SemanticSupportAssessment.Supports);
+        result.StageResults.Single(stage => stage.Stage == EvidenceValidationStage.SemanticSupport)
+            .Detail.Should().Contain("via LLM");
+    }
+
+    private sealed class FixedSemanticGateway : IArchitectureIntelligenceLlmGateway
+    {
+        private readonly SemanticSupportAssessment _assessment;
+
+        public FixedSemanticGateway(SemanticSupportAssessment assessment)
+        {
+            _assessment = assessment;
+        }
+
+        public Task<IReadOnlyList<ArchitectureModelElement>?> ExtractElementsAsync(
+            string sourceText,
+            string artifactId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<ArchitectureModelElement>?>(null);
+
+        public Task<SpecialistReviewResult?> ReviewDimensionAsync(
+            ArchitectureKnowledgeModel model,
+            QualityDimension dimension,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<SpecialistReviewResult?>(null);
+
+        public Task<IReadOnlyList<AdversarialChallenge>?> GenerateAdversarialChallengesAsync(
+            IReadOnlyList<SpecialistReviewFinding> findings,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<AdversarialChallenge>?>(null);
+
+        public Task<IReadOnlyList<ArchitectureRecommendation>?> DraftRecommendationsAsync(
+            ArchitectureKnowledgeModel model,
+            IReadOnlyList<SpecialistReviewFinding> findings,
+            IReadOnlyList<string> declaredPriorities,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<ArchitectureRecommendation>?>(null);
+
+        public Task<SemanticSupportAssessment?> AssessSemanticSupportAsync(
+            string claimedConclusion,
+            IReadOnlyList<string> citedQuotes,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<SemanticSupportAssessment?>(_assessment);
+    }
+
     private ImmutableSourceArtifact StoreArtifact(string content)
     {
         ImmutableSourceArtifact artifact = new()
