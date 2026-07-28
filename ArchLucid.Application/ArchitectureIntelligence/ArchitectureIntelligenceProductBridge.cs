@@ -13,13 +13,20 @@ public static class ArchitectureIntelligenceProductBridge
 
     public static List<Finding> ToFindings(IReadOnlyList<SpecialistReviewFinding> findings)
     {
+        return ToFindings(findings, validationByFindingId: null);
+    }
+
+    public static List<Finding> ToFindings(
+        IReadOnlyList<SpecialistReviewFinding> findings,
+        IReadOnlyDictionary<string, EvidenceValidationResult>? validationByFindingId)
+    {
         ArgumentNullException.ThrowIfNull(findings);
 
         List<Finding> mapped = [];
 
         foreach (SpecialistReviewFinding finding in findings)
         {
-            mapped.Add(MapFinding(finding));
+            mapped.Add(MapFinding(finding, validationByFindingId));
         }
 
         return mapped;
@@ -89,8 +96,12 @@ public static class ArchitectureIntelligenceProductBridge
         return records;
     }
 
-    private static Finding MapFinding(SpecialistReviewFinding finding)
+    private static Finding MapFinding(
+        SpecialistReviewFinding finding,
+        IReadOnlyDictionary<string, EvidenceValidationResult>? validationByFindingId)
     {
+        ProvenancePresentationBucket presentationBucket = ProvenancePresentationMapper.MapFinding(finding);
+
         Dictionary<string, string> properties = new()
         {
             ["architectureIntelligence.dimension"] = finding.Dimension.ToString(),
@@ -98,12 +109,31 @@ public static class ArchitectureIntelligenceProductBridge
             ["architectureIntelligence.evidenceCondition"] = finding.EvidenceCondition.ToString(),
             ["architectureIntelligence.governanceDisposition"] = finding.GovernanceDisposition.ToString(),
             ["architectureIntelligence.provenance"] = JsonSerializer.Serialize(finding.Provenance),
+            ["architectureIntelligence.provenancePresentation"] = presentationBucket.ToString(),
         };
 
         if (finding.EvidenceArtifactIds.Count > 0)
         {
             properties["architectureIntelligence.evidenceArtifactIds"] =
                 JsonSerializer.Serialize(finding.EvidenceArtifactIds);
+        }
+
+        if (validationByFindingId is not null
+            && validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation)
+            && validation is not null)
+        {
+            properties["architectureIntelligence.integrityPassed"] = validation.OverallPassedIntegrity.ToString();
+            properties["architectureIntelligence.escalated"] = validation.Escalated.ToString();
+            properties["architectureIntelligence.semanticAssessment"] =
+                validation.SemanticAssessment?.ToString() ?? string.Empty;
+            properties["architectureIntelligence.validationStages"] = JsonSerializer.Serialize(
+                validation.StageResults.Select(stage => new
+                {
+                    stage = stage.Stage.ToString(),
+                    passed = stage.Passed,
+                    isDeterministic = stage.IsDeterministic,
+                    detail = stage.Detail ?? string.Empty,
+                }));
         }
 
         return new Finding

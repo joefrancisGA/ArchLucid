@@ -25,4 +25,13 @@ public class IncrementalReReviewResult
         get;
         set;
     }
+
+    /// <summary>
+    /// Set when only the affected subgraph was re-reviewed (TB-1989).
+    /// </summary>
+    public string? PartialScopeDisclaimer
+    {
+        get;
+        set;
+    }
 }

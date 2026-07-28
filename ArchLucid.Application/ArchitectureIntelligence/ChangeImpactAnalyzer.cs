@@ -5,7 +5,8 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
 {
     private const string GraphCompletenessCaveat =
-        "Impact analysis is limited to elements linked in the knowledge model graph.";
+        "Impact analysis is limited to elements linked in the knowledge model graph. "
+        + "Uncaptured dependencies may exist; do not treat this list as exhaustive.";
 
     public ChangeImpactResult Analyze(
         ArchitectureKnowledgeModel model,
@@ -14,12 +15,50 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(recommendation);
 
+        return AnalyzeInternal(model, recommendation, diffEntries: null);
+    }
+
+    public ChangeImpactResult Analyze(
+        ArchitectureModelDiff diff,
+        ArchitectureRecommendation recommendation)
+    {
+        ArgumentNullException.ThrowIfNull(diff);
+        ArgumentNullException.ThrowIfNull(recommendation);
+
+        return AnalyzeInternal(diff.AfterModel, recommendation, diff.Entries);
+    }
+
+    private static ChangeImpactResult AnalyzeInternal(
+        ArchitectureKnowledgeModel model,
+        ArchitectureRecommendation recommendation,
+        IReadOnlyList<ArchitectureModelDiffEntry>? diffEntries)
+    {
         List<ChangeImpactItem> impactedItems = [];
         HashSet<string> visitedElementIds = new(StringComparer.Ordinal);
+
+        if (diffEntries is not null)
+        {
+            foreach (ArchitectureModelDiffEntry entry in diffEntries)
+            {
+                impactedItems.Add(new ChangeImpactItem
+                {
+                    ElementId = entry.ElementId,
+                    ImpactKind = entry.ElementKind.ToString(),
+                    Description = $"{entry.ChangeKind}: {entry.Description}",
+                });
+
+                visitedElementIds.Add(entry.ElementId);
+            }
+        }
 
         foreach (ArchitectureModelElement element in model.Elements)
         {
             if (!IsPotentiallyImpacted(element, recommendation))
+            {
+                continue;
+            }
+
+            if (!visitedElementIds.Add(element.ElementId))
             {
                 continue;
             }
@@ -30,15 +69,13 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                 ImpactKind = element.Kind.ToString(),
                 Description = $"Recommendation may affect {element.Name}.",
             });
-
-            visitedElementIds.Add(element.ElementId);
         }
 
         foreach (ArchitectureModelElement element in model.Elements)
         {
             foreach (string relatedElementId in element.RelatedElementIds)
             {
-                if (visitedElementIds.Contains(relatedElementId))
+                if (!visitedElementIds.Add(relatedElementId))
                 {
                     continue;
                 }
@@ -57,18 +94,10 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
                     ImpactKind = relatedElement.Kind.ToString(),
                     Description = $"Related element {relatedElement.Name} may be indirectly impacted.",
                 });
-
-                visitedElementIds.Add(relatedElement.ElementId);
             }
         }
 
-        bool requiresFullReReview = model.Elements.Any(element =>
-            element.Kind is ArchitectureElementKind.TrustBoundary
-                or ArchitectureElementKind.DeploymentTopology
-                or ArchitectureElementKind.ComplianceObligation)
-            || recommendation.ProposedChange.Contains("trust boundary", StringComparison.OrdinalIgnoreCase)
-            || recommendation.ProposedChange.Contains("deployment", StringComparison.OrdinalIgnoreCase)
-            || recommendation.ProposedChange.Contains("compliance", StringComparison.OrdinalIgnoreCase);
+        bool requiresFullReReview = RequiresFullReReview(model, recommendation, diffEntries);
 
         return new ChangeImpactResult
         {
@@ -79,11 +108,38 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
         };
     }
 
+    private static bool RequiresFullReReview(
+        ArchitectureKnowledgeModel model,
+        ArchitectureRecommendation recommendation,
+        IReadOnlyList<ArchitectureModelDiffEntry>? diffEntries)
+    {
+        if (diffEntries is not null
+            && diffEntries.Any(entry => entry.ElementKind is ArchitectureElementKind.TrustBoundary
+                or ArchitectureElementKind.DeploymentTopology
+                or ArchitectureElementKind.ComplianceObligation
+                or ArchitectureElementKind.DataFlow))
+        {
+            return true;
+        }
+
+        return model.Elements.Any(element =>
+                element.Kind is ArchitectureElementKind.TrustBoundary
+                    or ArchitectureElementKind.DeploymentTopology
+                    or ArchitectureElementKind.ComplianceObligation)
+            || recommendation.ProposedChange.Contains("trust boundary", StringComparison.OrdinalIgnoreCase)
+            || recommendation.ProposedChange.Contains("deployment", StringComparison.OrdinalIgnoreCase)
+            || recommendation.ProposedChange.Contains("compliance", StringComparison.OrdinalIgnoreCase)
+            || recommendation.ProposedChange.Contains("jurisdiction", StringComparison.OrdinalIgnoreCase)
+            || recommendation.ProposedChange.Contains("data classification", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static bool IsPotentiallyImpacted(
         ArchitectureModelElement element,
         ArchitectureRecommendation recommendation)
     {
-        if (recommendation.AffectedRequirementOrQualityAttribute.Contains(element.Kind.ToString(), StringComparison.OrdinalIgnoreCase))
+        if (recommendation.AffectedRequirementOrQualityAttribute.Contains(
+                element.Kind.ToString(),
+                StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
@@ -95,6 +151,8 @@ public sealed class ChangeImpactAnalyzer : IChangeImpactAnalyzer
 
         return element.Kind is ArchitectureElementKind.TrustBoundary
             or ArchitectureElementKind.DeploymentTopology
-            or ArchitectureElementKind.ComplianceObligation;
+            or ArchitectureElementKind.ComplianceObligation
+            or ArchitectureElementKind.Decision
+            or ArchitectureElementKind.Risk;
     }
 }

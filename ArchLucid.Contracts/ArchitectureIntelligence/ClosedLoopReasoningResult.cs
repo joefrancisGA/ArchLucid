@@ -78,4 +78,33 @@ public class ClosedLoopReasoningResult
         get;
         set;
     } = [];
+
+    /// <summary>
+    /// True when publishable output was emptied by integrity/must-not-fail gating (TB-1981 / TB-1991).
+    /// </summary>
+    public bool PublishBlocked
+    {
+        get;
+        set;
+    }
+
+    public List<string> PublishBlockReasons
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Finding ids that passed deterministic integrity (stage 1).</summary>
+    public List<string> IntegrityPassedFindingIds
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Explicit model diffs produced while evaluating recommendations.</summary>
+    public List<ArchitectureModelDiff> ModelDiffs
+    {
+        get;
+        set;
+    } = [];
 }

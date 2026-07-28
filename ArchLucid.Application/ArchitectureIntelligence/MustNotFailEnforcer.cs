@@ -17,6 +17,7 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
 
         violations.AddRange(findings.SelectMany(EvaluateFinding));
         violations.AddRange(recommendations.SelectMany(EvaluateRecommendation));
+        violations.AddRange(DetectContradictoryArtifacts(findings));
 
         return violations;
     }
@@ -28,7 +29,9 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
             foreach (string artifactId in finding.EvidenceArtifactIds)
             {
                 if (string.IsNullOrWhiteSpace(artifactId)
-                    || !artifactId.StartsWith(ArchitectureIntelligenceArtifactPrefixes.KnownArtifactIdPrefix, StringComparison.Ordinal))
+                    || !artifactId.StartsWith(
+                        ArchitectureIntelligenceArtifactPrefixes.KnownArtifactIdPrefix,
+                        StringComparison.Ordinal))
                 {
                     yield return new MustNotFailViolation
                     {
@@ -59,6 +62,28 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                 Blocked = true,
             };
         }
+
+        if (TreatsAbsenceAsDefect(finding))
+        {
+            yield return new MustNotFailViolation
+            {
+                Class = MustNotFailClass.AbsenceTreatedAsDefect,
+                Message =
+                    $"Finding '{finding.Title}' treats missing information as a confirmed defect without an Indeterminate/Insufficient state.",
+                Blocked = true,
+            };
+        }
+
+        if (SilentlyOverridesApprovedDecision(finding))
+        {
+            yield return new MustNotFailViolation
+            {
+                Class = MustNotFailClass.SilentOverrideOfApprovedDecision,
+                Message =
+                    $"Finding '{finding.Title}' appears to override an approved decision without an ExceptionGranted disposition.",
+                Blocked = true,
+            };
+        }
     }
 
     private static IEnumerable<MustNotFailViolation> EvaluateRecommendation(ArchitectureRecommendation recommendation)
@@ -69,7 +94,8 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
             yield return new MustNotFailViolation
             {
                 Class = MustNotFailClass.UnlabeledCloudSpecificRecommendation,
-                Message = $"Recommendation '{recommendation.Problem}' mentions a cloud provider without an explicit assumption note.",
+                Message =
+                    $"Recommendation '{recommendation.Problem}' mentions a cloud provider without an explicit assumption note.",
                 Blocked = true,
             };
         }
@@ -83,11 +109,118 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
                 Blocked = true,
             };
         }
+
+        if (SilentlyOverridesApprovedDecision(recommendation))
+        {
+            yield return new MustNotFailViolation
+            {
+                Class = MustNotFailClass.SilentOverrideOfApprovedDecision,
+                Message =
+                    $"Recommendation '{recommendation.Problem}' appears to override an approved decision without explicit approval.",
+                Blocked = true,
+            };
+        }
+    }
+
+    private static IEnumerable<MustNotFailViolation> DetectContradictoryArtifacts(
+        IReadOnlyList<SpecialistReviewFinding> findings)
+    {
+        List<SpecialistReviewFinding> withEvidence = findings
+            .Where(finding => finding.EvidenceArtifactIds.Count > 0)
+            .ToList();
+
+        for (int leftIndex = 0; leftIndex < withEvidence.Count; leftIndex++)
+        {
+            SpecialistReviewFinding left = withEvidence[leftIndex];
+
+            for (int rightIndex = leftIndex + 1; rightIndex < withEvidence.Count; rightIndex++)
+            {
+                SpecialistReviewFinding right = withEvidence[rightIndex];
+                bool sharesArtifact = left.EvidenceArtifactIds
+                    .Intersect(right.EvidenceArtifactIds, StringComparer.Ordinal)
+                    .Any();
+
+                if (!sharesArtifact)
+                {
+                    continue;
+                }
+
+                if (left.Conclusion == ReviewConclusion.Pass && right.Conclusion == ReviewConclusion.Fail
+                    || left.Conclusion == ReviewConclusion.Fail && right.Conclusion == ReviewConclusion.Pass)
+                {
+                    yield return new MustNotFailViolation
+                    {
+                        Class = MustNotFailClass.ContradictoryArtifacts,
+                        Message =
+                            $"Findings '{left.Title}' and '{right.Title}' reach opposite conclusions from overlapping evidence artifacts.",
+                        Blocked = true,
+                    };
+                }
+            }
+        }
+    }
+
+    private static bool TreatsAbsenceAsDefect(SpecialistReviewFinding finding)
+    {
+        if (finding.Conclusion is ReviewConclusion.Indeterminate or ReviewConclusion.Pass)
+        {
+            return false;
+        }
+
+        if (finding.EvidenceCondition is EvidenceCondition.Insufficient or EvidenceCondition.Unverified)
+        {
+            // Honest insufficient/absent evidence with Fail is the anti-pattern: absence as defect.
+            return finding.Conclusion == ReviewConclusion.Fail
+                && (finding.Rationale.Contains("no ", StringComparison.OrdinalIgnoreCase)
+                    || finding.Rationale.Contains("missing", StringComparison.OrdinalIgnoreCase)
+                    || finding.Rationale.Contains("not found", StringComparison.OrdinalIgnoreCase)
+                    || finding.Rationale.Contains("absent", StringComparison.OrdinalIgnoreCase));
+        }
+
+        return false;
+    }
+
+    private static bool SilentlyOverridesApprovedDecision(SpecialistReviewFinding finding)
+    {
+        bool mentionsApprovedDecision = finding.Rationale.Contains("approved decision", StringComparison.OrdinalIgnoreCase)
+            || finding.Title.Contains("override approved", StringComparison.OrdinalIgnoreCase);
+
+        if (!mentionsApprovedDecision)
+        {
+            return false;
+        }
+
+        return finding.GovernanceDisposition != GovernanceDisposition.ExceptionGranted;
+    }
+
+    private static bool SilentlyOverridesApprovedDecision(ArchitectureRecommendation recommendation)
+    {
+        bool mentionsApprovedDecision = recommendation.ProposedChange.Contains(
+                "override approved decision",
+                StringComparison.OrdinalIgnoreCase)
+            || recommendation.Problem.Contains("override approved", StringComparison.OrdinalIgnoreCase);
+
+        if (!mentionsApprovedDecision)
+        {
+            return false;
+        }
+
+        return recommendation.Provenance.Origin != ClaimOrigin.HumanApproved;
     }
 
     private static bool ContainsInventedRegulation(string text, ClaimProvenance provenance)
     {
-        if (!text.Contains("requires GDPR Article", StringComparison.OrdinalIgnoreCase))
+        if (!text.Contains("requires GDPR Article", StringComparison.OrdinalIgnoreCase)
+            && !text.Contains("HIPAA §", StringComparison.OrdinalIgnoreCase)
+            && !text.Contains("PCI-DSS Requirement", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        // Externally sourced with Unverified notes is allowed when explicitly labeled unverified.
+        if (provenance.Origin == ClaimOrigin.ExternallySourced
+            && provenance.Notes is not null
+            && provenance.Notes.Contains("unverified", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }

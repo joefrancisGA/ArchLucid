@@ -15,8 +15,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly IAdversarialReviewService _adversarialReviewService;
     private readonly IAsyncArchitectureRecommendationEngine _recommendationEngine;
     private readonly IChangeImpactAnalyzer _changeImpactAnalyzer;
+    private readonly IArchitectureModelDiffApplier _modelDiffApplier;
     private readonly IIncrementalReReviewService _incrementalReReviewService;
     private readonly IMustNotFailEnforcer _mustNotFailEnforcer;
+    private readonly ITrustPublishGate _trustPublishGate;
     private readonly IArchitectureIntelligencePersistence? _persistence;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
@@ -30,8 +32,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IAdversarialReviewService adversarialReviewService,
         IAsyncArchitectureRecommendationEngine recommendationEngine,
         IChangeImpactAnalyzer changeImpactAnalyzer,
+        IArchitectureModelDiffApplier modelDiffApplier,
         IIncrementalReReviewService incrementalReReviewService,
         IMustNotFailEnforcer mustNotFailEnforcer,
+        ITrustPublishGate trustPublishGate,
         IArchitectureIntelligencePersistence? persistence = null)
     {
         _sourceStore = sourceStore ?? throw new ArgumentNullException(nameof(sourceStore));
@@ -45,8 +49,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _adversarialReviewService = adversarialReviewService ?? throw new ArgumentNullException(nameof(adversarialReviewService));
         _recommendationEngine = recommendationEngine ?? throw new ArgumentNullException(nameof(recommendationEngine));
         _changeImpactAnalyzer = changeImpactAnalyzer ?? throw new ArgumentNullException(nameof(changeImpactAnalyzer));
+        _modelDiffApplier = modelDiffApplier ?? throw new ArgumentNullException(nameof(modelDiffApplier));
         _incrementalReReviewService = incrementalReReviewService ?? throw new ArgumentNullException(nameof(incrementalReReviewService));
         _mustNotFailEnforcer = mustNotFailEnforcer ?? throw new ArgumentNullException(nameof(mustNotFailEnforcer));
+        _trustPublishGate = trustPublishGate ?? throw new ArgumentNullException(nameof(trustPublishGate));
         _persistence = persistence;
     }
 
@@ -68,9 +74,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         model.DeclaredPriorities.AddRange(request.DeclaredPriorities);
 
         ProgressiveInterviewState interview = _interviewService.BuildFramingState(model, request.SourceTexts);
-        interview.EvidenceDrivenQuestions = _interviewService
-            .DeriveEvidenceDrivenQuestions([])
-            .ToList();
 
         List<SpecialistReviewResult> specialistReviews = await RunSpecialistReviewsAsync(model, cancellationToken);
         List<SpecialistReviewFinding> allFindings = specialistReviews
@@ -81,35 +84,82 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             .DeriveEvidenceDrivenQuestions(specialistReviews)
             .ToList();
 
-        List<EvidenceValidationResult> validationResults = ValidateFindings(allFindings, storedArtifactIds, request.SourceTexts);
-        AdversarialReviewResult adversarial = _adversarialReviewService.Review(allFindings);
+        // No fallback artifact/quote injection — stage-1 must fail closed when citations are absent.
+        List<EvidenceValidationResult> validationResults = ValidateFindings(allFindings);
+        HashSet<string> integrityPassedIds = validationResults
+            .Where(result => result.OverallPassedIntegrity)
+            .Select(result => result.FindingId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        AdversarialReviewResult adversarial = _adversarialReviewService.Review(allFindings, integrityPassedIds);
+
+        int challengeQuestionIndex = interview.EvidenceDrivenQuestions.Count;
+
+        foreach (string openQuestion in _adversarialReviewService.ToOpenQuestions(adversarial))
+        {
+            bool alreadyPresent = interview.EvidenceDrivenQuestions
+                .Any(question => string.Equals(question.Prompt, openQuestion, StringComparison.Ordinal));
+
+            if (alreadyPresent)
+            {
+                continue;
+            }
+
+            challengeQuestionIndex++;
+            interview.EvidenceDrivenQuestions.Add(new FramingQuestion
+            {
+                QuestionId = $"adversarial-{challengeQuestionIndex}",
+                Prompt = openQuestion,
+                IsAnswered = false,
+                Source = FramingQuestionSource.EvidenceDriven,
+            });
+        }
+
+        MergeAdversarialChallengesIntoModel(model, adversarial);
+
+        // Recommendations are built from integrity-passed substantiated findings when available.
+        IReadOnlyList<SpecialistReviewFinding> recommendationSourceFindings =
+            adversarial.SubstantiatedFindings.Count > 0
+                ? adversarial.SubstantiatedFindings
+                : allFindings;
+
         List<ArchitectureRecommendation> recommendations = (await _recommendationEngine
-            .BuildRecommendationsAsync(model, allFindings, request.DeclaredPriorities, cancellationToken))
+            .BuildRecommendationsAsync(model, recommendationSourceFindings, request.DeclaredPriorities, cancellationToken))
             .ToList();
 
         List<ChangeImpactResult> impactResults = [];
+        List<ArchitectureModelDiff> modelDiffs = [];
         IncrementalReReviewResult? reReview = null;
 
         if (recommendations.Count > 0)
         {
             ArchitectureRecommendation firstRecommendation = recommendations[0];
-            ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(model, firstRecommendation);
+            ArchitectureModelDiff diff = _modelDiffApplier.ApplyRecommendation(model, firstRecommendation);
+            modelDiffs.Add(diff);
+
+            ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, firstRecommendation);
             impactResults.Add(impact);
 
             ReReviewScope scope = new()
             {
-                AffectedElementIds = impact.ImpactedItems.Select(item => item.ElementId).ToList(),
+                AffectedElementIds = impact.ImpactedItems.Select(item => item.ElementId).Distinct(StringComparer.Ordinal).ToList(),
                 IncludeGlobalInvariantChecks = true,
                 FullReReview = impact.RequiresFullReReview,
-                Trigger = impact.RequiresFullReReview ? ReReviewTrigger.MajorTopologyChange : null,
+                Trigger = ResolveReReviewTrigger(impact, firstRecommendation),
             };
 
-            reReview = _incrementalReReviewService.ReReview(model, scope, _heuristicSpecialistReviewService);
+            reReview = _incrementalReReviewService.ReReview(diff.AfterModel, scope, _heuristicSpecialistReviewService);
         }
 
         List<MustNotFailViolation> mustNotFailViolations = _mustNotFailEnforcer
             .Evaluate(allFindings, recommendations)
             .ToList();
+
+        TrustPublishDecision publishDecision = _trustPublishGate.Decide(
+            allFindings,
+            recommendations,
+            validationResults,
+            mustNotFailViolations);
 
         if (_persistence is not null)
         {
@@ -118,6 +168,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         string workspaceId = request.WorkspaceId ?? request.TenantId;
         string projectId = request.ProjectId ?? request.TenantId;
+        Dictionary<string, EvidenceValidationResult> validationByFindingId = validationResults
+            .ToDictionary(result => result.FindingId, StringComparer.Ordinal);
 
         ClosedLoopReasoningResult result = new()
         {
@@ -127,13 +179,19 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             Adversarial = adversarial,
             Recommendations = recommendations,
             ImpactResults = impactResults,
+            ModelDiffs = modelDiffs,
             ReReview = reReview,
             MustNotFailViolations = mustNotFailViolations,
             ValidationResults = validationResults,
-            ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings(allFindings),
+            PublishBlocked = publishDecision.PublishBlocked,
+            PublishBlockReasons = publishDecision.BlockReasons,
+            IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds.ToList(),
+            ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings(
+                publishDecision.PublishableFindings,
+                validationByFindingId),
             ProductRecommendations = ArchitectureIntelligenceProductBridge.ToRecommendationRecords(
-                recommendations,
-                allFindings,
+                publishDecision.PublishableRecommendations,
+                publishDecision.PublishableFindings,
                 request.TenantId,
                 workspaceId,
                 projectId,
@@ -222,22 +280,28 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         return reviews;
     }
 
-    private List<EvidenceValidationResult> ValidateFindings(
-        IReadOnlyList<SpecialistReviewFinding> findings,
-        IReadOnlyList<string> artifactIds,
-        IReadOnlyList<ClosedLoopReasoningSourceText> sourceTexts)
+    private List<EvidenceValidationResult> ValidateFindings(IReadOnlyList<SpecialistReviewFinding> findings)
     {
         List<EvidenceValidationResult> validationResults = [];
-        string fallbackQuote = sourceTexts.FirstOrDefault()?.Content ?? string.Empty;
 
         foreach (SpecialistReviewFinding finding in findings)
         {
-            List<string> citedArtifactIds = finding.EvidenceArtifactIds.Count > 0
-                ? finding.EvidenceArtifactIds.ToList()
-                : artifactIds.Take(1).ToList();
+            List<string> citedArtifactIds = finding.EvidenceArtifactIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
 
-            List<string> citedQuotes = [fallbackQuote];
-            string claimedConclusion = $"{finding.Conclusion}:{finding.Severity}";
+            // Prefer an explicit passage quote when the provenance locator carries text; otherwise
+            // verify artifact existence + hash only (empty quote list → null expectedQuote per artifact).
+            List<string> citedQuotes = [];
+
+            if (finding.Provenance.PassageLocator is not null
+                && !string.IsNullOrWhiteSpace(finding.Provenance.PassageLocator.Quote))
+            {
+                citedQuotes.Add(finding.Provenance.PassageLocator.Quote);
+            }
+
+            string claimedConclusion = $"{finding.Conclusion}:{finding.Severity}:{finding.Title}";
 
             validationResults.Add(_evidenceValidationPipeline.Validate(
                 finding.FindingId,
@@ -248,5 +312,62 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         }
 
         return validationResults;
+    }
+
+    private static void MergeAdversarialChallengesIntoModel(
+        ArchitectureKnowledgeModel model,
+        AdversarialReviewResult adversarial)
+    {
+        foreach (AdversarialChallenge challenge in adversarial.Challenges)
+        {
+            if (challenge.Suppressed)
+            {
+                continue;
+            }
+
+            model.Elements.Add(new ArchitectureModelElement
+            {
+                ElementId = challenge.ChallengeId,
+                Kind = ArchitectureElementKind.UnresolvedQuestion,
+                Name = challenge.Hypothesis,
+                Description = challenge.FalsificationEvidenceNeeded,
+                ExtractionConfidence = challenge.Confidence,
+                Provenance = new ClaimProvenance
+                {
+                    Origin = ClaimOrigin.SystemProposed,
+                    SupportStatus = SupportStatus.NotYetEvaluated,
+                    Confidence = challenge.Confidence,
+                    Notes = "Adversarial challenge lane; not a substantiated finding.",
+                },
+            });
+        }
+    }
+
+    private static ReReviewTrigger? ResolveReReviewTrigger(
+        ChangeImpactResult impact,
+        ArchitectureRecommendation recommendation)
+    {
+        if (!impact.RequiresFullReReview)
+        {
+            return null;
+        }
+
+        if (recommendation.ProposedChange.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
+        {
+            return ReReviewTrigger.NewTrustBoundary;
+        }
+
+        if (recommendation.ProposedChange.Contains("jurisdiction", StringComparison.OrdinalIgnoreCase)
+            || recommendation.ProposedChange.Contains("residency", StringComparison.OrdinalIgnoreCase))
+        {
+            return ReReviewTrigger.NewJurisdiction;
+        }
+
+        if (recommendation.ProposedChange.Contains("data classification", StringComparison.OrdinalIgnoreCase))
+        {
+            return ReReviewTrigger.NewDataClassification;
+        }
+
+        return ReReviewTrigger.MajorTopologyChange;
     }
 }

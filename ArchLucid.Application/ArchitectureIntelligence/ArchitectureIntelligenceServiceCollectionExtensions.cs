@@ -61,8 +61,10 @@ public static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IEvidenceValidationPipeline, EvidenceValidationPipeline>();
         services.AddScoped<IAdversarialReviewService, AdversarialReviewService>();
         services.AddScoped<IChangeImpactAnalyzer, ChangeImpactAnalyzer>();
+        services.AddScoped<IArchitectureModelDiffApplier, ArchitectureModelDiffApplier>();
         services.AddScoped<IIncrementalReReviewService, IncrementalReReviewService>();
         services.AddScoped<IMustNotFailEnforcer, MustNotFailEnforcer>();
+        services.AddScoped<ITrustPublishGate, TrustPublishGate>();
         services.AddScoped<IReviewResultCache, ReviewResultCache>();
         services.AddScoped<IArtifactRoundTripService, ArtifactRoundTripService>();
         services.AddScoped<IClosedLoopArchitectureReasoningOrchestrator, ClosedLoopArchitectureReasoningOrchestrator>();

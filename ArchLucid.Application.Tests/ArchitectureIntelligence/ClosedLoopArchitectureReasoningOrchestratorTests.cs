@@ -44,5 +44,48 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
         result.ValidationResults.Should().NotBeEmpty();
         result.Recommendations.Should().NotBeEmpty();
         result.MustNotFailViolations.Should().NotBeNull();
+        result.IntegrityPassedFindingIds.Should().NotBeNull();
+        result.Adversarial.Should().NotBeNull();
+        result.ModelDiffs.Should().NotBeNull();
+
+        // Product findings are gated: only integrity-passed, non-blocked findings are published.
+        foreach (var productFinding in result.ProductFindings)
+        {
+            result.IntegrityPassedFindingIds.Should().Contain(productFinding.FindingId);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_does_not_inject_fallback_evidence_for_uncited_findings()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-gate",
+            RunId = "run-gate",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "empty-ish.md",
+                    ContentType = "text/markdown",
+                    Content = "A vague architecture note with no concrete controls.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult result = await orchestrator.RunAsync(request);
+
+        result.ValidationResults.Should().NotBeEmpty();
+        result.ValidationResults.Should().OnlyContain(validation =>
+            validation.StageResults.Any(stage =>
+                stage.Stage == EvidenceValidationStage.DeterministicIntegrity
+                && stage.IsDeterministic));
     }
 }

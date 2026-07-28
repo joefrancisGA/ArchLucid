@@ -22,12 +22,51 @@ public sealed class IncrementalReReviewServiceTests
 
         IncrementalReReviewResult result = _service.ReReview(model, scope, _specialistReviewService);
 
-        result.GlobalInvariantResults.Should().HaveCount(3);
+        result.GlobalInvariantResults.Should().HaveCount(5);
         result.GlobalInvariantResults.Select(check => check.InvariantId).Should().BeEquivalentTo(
         [
             "INV-TENANT-ISOLATION",
             "INV-DATA-RESIDENCY",
             "INV-AUTHENTICATION",
+            "INV-LATENCY-CEILING",
+            "INV-OPERATIONAL-OWNERSHIP",
         ]);
+    }
+
+    [Fact]
+    public void ReReview_scoped_path_sets_partial_scope_disclaimer()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Billing",
+                },
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-2",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Unrelated",
+                },
+            ],
+        };
+
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = ["el-1"],
+            FullReReview = false,
+        };
+
+        IncrementalReReviewResult result = _service.ReReview(model, scope, _specialistReviewService);
+
+        result.FullReReviewTriggered.Should().BeFalse();
+        result.PartialScopeDisclaimer.Should().Contain("Unreviewed remainder");
+        result.SpecialistResults.Should().NotBeEmpty();
     }
 }

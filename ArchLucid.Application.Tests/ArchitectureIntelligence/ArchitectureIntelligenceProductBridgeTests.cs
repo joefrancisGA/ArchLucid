@@ -36,6 +36,9 @@ public sealed class ArchitectureIntelligenceProductBridgeTests
         findings[0].Severity.Should().Be(FindingSeverity.Error);
         findings[0].Title.Should().Be(finding.Title);
         findings[0].Properties.Should().ContainKey("architectureIntelligence.provenance");
+        findings[0].Properties.Should().ContainKey("architectureIntelligence.provenancePresentation");
+        findings[0].Properties["architectureIntelligence.provenancePresentation"]
+            .Should().Be(ProvenancePresentationBucket.Unverified.ToString());
     }
 
     [Fact]

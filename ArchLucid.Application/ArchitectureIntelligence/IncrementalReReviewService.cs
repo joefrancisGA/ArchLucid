@@ -4,6 +4,10 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public sealed class IncrementalReReviewService : IIncrementalReReviewService
 {
+    private const string PartialScopeDisclaimer =
+        "Only the affected subgraph was re-reviewed. Unreviewed remainder of the model is not guaranteed safe; "
+        + "global invariant checks still apply.";
+
     public IncrementalReReviewResult ReReview(
         ArchitectureKnowledgeModel model,
         ReReviewScope scope,
@@ -16,6 +20,7 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
         List<GlobalInvariantCheckResult> globalInvariantResults = RunGlobalInvariantChecks(model);
         bool fullReReviewTriggered = scope.FullReReview || scope.Trigger.HasValue;
         List<SpecialistReviewResult> specialistResults = [];
+        string? partialScopeDisclaimer = null;
 
         if (fullReReviewTriggered)
         {
@@ -23,7 +28,9 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
         }
         else if (scope.AffectedElementIds.Count > 0)
         {
-            specialistResults.Add(specialistService.Review(model));
+            ArchitectureKnowledgeModel scopedModel = BuildScopedModel(model, scope.AffectedElementIds);
+            specialistResults.Add(specialistService.Review(scopedModel));
+            partialScopeDisclaimer = PartialScopeDisclaimer;
         }
 
         return new IncrementalReReviewResult
@@ -32,6 +39,51 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
             SpecialistResults = specialistResults,
             GlobalInvariantResults = globalInvariantResults,
             FullReReviewTriggered = fullReReviewTriggered,
+            PartialScopeDisclaimer = partialScopeDisclaimer,
+        };
+    }
+
+    private static ArchitectureKnowledgeModel BuildScopedModel(
+        ArchitectureKnowledgeModel model,
+        IReadOnlyList<string> affectedElementIds)
+    {
+        HashSet<string> includedIds = affectedElementIds.ToHashSet(StringComparer.Ordinal);
+
+        // One-hop expansion so related decisions/risks in the subgraph are included.
+        foreach (ArchitectureModelElement element in model.Elements)
+        {
+            if (!includedIds.Contains(element.ElementId))
+            {
+                continue;
+            }
+
+            foreach (string relatedId in element.RelatedElementIds)
+            {
+                includedIds.Add(relatedId);
+            }
+        }
+
+        foreach (ArchitectureModelElement element in model.Elements)
+        {
+            if (element.RelatedElementIds.Any(relatedId => includedIds.Contains(relatedId)))
+            {
+                includedIds.Add(element.ElementId);
+            }
+        }
+
+        return new ArchitectureKnowledgeModel
+        {
+            ModelId = model.ModelId,
+            TenantId = model.TenantId,
+            RunId = model.RunId,
+            SchemaVersion = model.SchemaVersion,
+            CreatedUtc = model.CreatedUtc,
+            UpdatedUtc = model.UpdatedUtc,
+            Elements = model.Elements
+                .Where(element => includedIds.Contains(element.ElementId))
+                .ToList(),
+            DeclaredPriorities = [.. model.DeclaredPriorities],
+            FramingAnswers = new Dictionary<string, string>(model.FramingAnswers),
         };
     }
 
@@ -42,6 +94,8 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
             EvaluateTenantIsolation(model),
             EvaluateDataResidency(model),
             EvaluateAuthentication(model),
+            EvaluateLatencyCeiling(model),
+            EvaluateOwnership(model),
         ];
     }
 
@@ -92,6 +146,46 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
             Detail = hasAuthenticationSignal
                 ? "Authentication or trust boundary elements are present."
                 : "No explicit authentication elements found; treated as indeterminate detail.",
+        };
+    }
+
+    private static GlobalInvariantCheckResult EvaluateLatencyCeiling(ArchitectureKnowledgeModel model)
+    {
+        bool hasLatencySignal = model.Elements.Any(element =>
+            element.Kind == ArchitectureElementKind.QualityAttribute
+            && (element.Name.Contains("latency", StringComparison.OrdinalIgnoreCase)
+                || element.Name.Contains("performance", StringComparison.OrdinalIgnoreCase))
+            || element.Properties.ContainsKey("latencyCeilingMs"));
+
+        return new GlobalInvariantCheckResult
+        {
+            InvariantId = "INV-LATENCY-CEILING",
+            Passed = hasLatencySignal || model.Elements.Count == 0,
+            Detail = hasLatencySignal
+                ? "Latency/performance quality attributes are present."
+                : "No explicit latency ceiling elements found; treated as indeterminate detail.",
+        };
+    }
+
+    private static GlobalInvariantCheckResult EvaluateOwnership(ArchitectureKnowledgeModel model)
+    {
+        bool hasOwnershipSignal = model.Elements.Any(element =>
+            element.Kind == ArchitectureElementKind.OperationalOwnership
+            || element.Name.Contains("owner", StringComparison.OrdinalIgnoreCase));
+
+        bool hasUnownedComponent = model.Elements.Any(element =>
+            element.Kind == ArchitectureElementKind.Component
+            && element.Name.Contains("unowned", StringComparison.OrdinalIgnoreCase));
+
+        return new GlobalInvariantCheckResult
+        {
+            InvariantId = "INV-OPERATIONAL-OWNERSHIP",
+            Passed = (hasOwnershipSignal || model.Elements.Count == 0) && !hasUnownedComponent,
+            Detail = hasUnownedComponent
+                ? "Unowned component detected; ownership invariant failed."
+                : hasOwnershipSignal
+                    ? "Operational ownership elements are present."
+                    : "No explicit ownership elements found; treated as indeterminate detail.",
         };
     }
 }

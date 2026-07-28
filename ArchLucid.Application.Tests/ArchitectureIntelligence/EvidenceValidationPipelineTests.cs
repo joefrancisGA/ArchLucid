@@ -13,11 +13,11 @@ public sealed class EvidenceValidationPipelineTests
     [Fact]
     public void Validate_marks_integrity_stage_as_deterministic()
     {
-        ImmutableSourceArtifact artifact = StoreArtifact("quote appears in source");
+        ImmutableSourceArtifact artifact = StoreArtifact("quote appears in source for critical finding");
         EvidenceValidationResult result = _pipeline.Validate(
             "finding-1",
             [artifact.ArtifactId],
-            ["quote appears in source"],
+            ["quote appears in source for critical finding"],
             _store,
             "Critical finding");
 
@@ -44,14 +44,43 @@ public sealed class EvidenceValidationPipelineTests
             .Single(stage => stage.Stage == EvidenceValidationStage.SemanticSupport);
 
         semanticStage.IsDeterministic.Should().BeFalse();
-        result.SemanticAssessment.Should().Be(SemanticSupportAssessment.PartiallySupports);
+        result.SemanticAssessment.Should().Be(SemanticSupportAssessment.DoesNotEstablish);
+    }
+
+    [Fact]
+    public void Validate_fails_integrity_when_no_artifacts_cited()
+    {
+        EvidenceValidationResult result = _pipeline.Validate(
+            "finding-3",
+            [],
+            [],
+            _store,
+            "Fail:High:Missing evidence");
+
+        result.OverallPassedIntegrity.Should().BeFalse();
+        result.StageResults.Single(stage => stage.Stage == EvidenceValidationStage.DeterministicIntegrity)
+            .Passed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Validate_fails_integrity_when_quoted_text_is_absent_from_source()
+    {
+        ImmutableSourceArtifact artifact = StoreArtifact("actual source text");
+        EvidenceValidationResult result = _pipeline.Validate(
+            "finding-4",
+            [artifact.ArtifactId],
+            ["text that is not in the artifact"],
+            _store,
+            "Fail:High:Fabricated quote");
+
+        result.OverallPassedIntegrity.Should().BeFalse();
     }
 
     private ImmutableSourceArtifact StoreArtifact(string content)
     {
         ImmutableSourceArtifact artifact = new()
         {
-            ArtifactId = $"{ArchitectureIntelligenceArtifactPrefixes.KnownArtifactIdPrefix}test",
+            ArtifactId = $"{ArchitectureIntelligenceArtifactPrefixes.KnownArtifactIdPrefix}{Guid.NewGuid():N}",
             TenantId = "tenant-1",
             ContentType = "text/plain",
             Version = "1",

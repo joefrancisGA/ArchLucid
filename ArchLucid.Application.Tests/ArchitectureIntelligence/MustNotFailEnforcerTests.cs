@@ -57,4 +57,49 @@ public sealed class MustNotFailEnforcerTests
         violations.Should().Contain(violation =>
             violation.Class == MustNotFailClass.InventedRegulation && violation.Blocked);
     }
+
+    [Fact]
+    public void Evaluate_blocks_absence_treated_as_defect()
+    {
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "finding-absence",
+            Dimension = QualityDimension.Reliability,
+            Title = "Missing backups",
+            Rationale = "Backups are missing from the architecture.",
+            Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Insufficient,
+            Severity = "High",
+        };
+
+        IReadOnlyList<MustNotFailViolation> violations = _enforcer.Evaluate([finding], []);
+
+        violations.Should().Contain(violation =>
+            violation.Class == MustNotFailClass.AbsenceTreatedAsDefect && violation.Blocked);
+    }
+
+    [Fact]
+    public void Evaluate_allows_externally_sourced_regulation_when_labeled_unverified()
+    {
+        ArchitectureRecommendation recommendation = new()
+        {
+            RecommendationId = "rec-2",
+            Problem = "Privacy controls",
+            Evidence = "This requires GDPR Article 32 controls.",
+            AffectedRequirementOrQualityAttribute = "Privacy",
+            ConsequenceOfInaction = "Risk remains.",
+            ProposedChange = "Add controls.",
+            ValidationMethod = "Audit.",
+            Provenance = new ClaimProvenance
+            {
+                Origin = ClaimOrigin.ExternallySourced,
+                Notes = "unverified citation pending counsel review",
+            },
+        };
+
+        IReadOnlyList<MustNotFailViolation> violations = _enforcer.Evaluate([], [recommendation]);
+
+        violations.Should().NotContain(violation => violation.Class == MustNotFailClass.InventedRegulation);
+    }
 }
+

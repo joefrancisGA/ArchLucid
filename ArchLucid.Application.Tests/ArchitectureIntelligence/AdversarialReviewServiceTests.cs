@@ -47,4 +47,40 @@ public sealed class AdversarialReviewServiceTests
         result.Challenges.Should().ContainSingle();
         result.Challenges[0].FalsificationEvidenceNeeded.Should().NotBeNullOrWhiteSpace();
     }
+
+    [Fact]
+    public void Review_uses_integrity_pass_set_for_substantiated_lane()
+    {
+        SpecialistReviewFinding withArtifactsButFailedIntegrity = new()
+        {
+            FindingId = "finding-fail-integrity",
+            Dimension = QualityDimension.Security,
+            Title = "Looks evidenced",
+            Rationale = "Has artifact ids but integrity failed.",
+            Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Severity = "High",
+            EvidenceArtifactIds = [$"{ArchitectureIntelligenceArtifactPrefixes.KnownArtifactIdPrefix}abc"],
+        };
+
+        SpecialistReviewFinding integrityPassed = new()
+        {
+            FindingId = "finding-pass-integrity",
+            Dimension = QualityDimension.Security,
+            Title = "Verified",
+            Rationale = "Integrity passed.",
+            Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Severity = "High",
+        };
+
+        AdversarialReviewResult result = _service.Review(
+            [withArtifactsButFailedIntegrity, integrityPassed],
+            new HashSet<string>(StringComparer.Ordinal) { "finding-pass-integrity" });
+
+        result.SubstantiatedFindings.Should().ContainSingle(finding => finding.FindingId == "finding-pass-integrity");
+        result.Challenges.Should().ContainSingle(challenge =>
+            challenge.Hypothesis.Contains("Looks evidenced", StringComparison.Ordinal));
+    }
 }
+
