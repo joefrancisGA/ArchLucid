@@ -497,7 +497,7 @@ This interview is a **head-to-head dismissal test**, not an unguided first-sessi
 | Per-session dismissal capture + weekly top-2 triage | [Principal architect dismissal log](#principal-architect-dismissal-log) | Interview is one `protocol: blind-bakeoff` source for the log |
 | Frontier-AI baseline prompt | [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) § Frontier-AI baseline prompt | The chat-style arm of the bakeoff |
 | Honest "where each wins" framing | [`DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol`](DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol) | Randomized arm order to remove order/polish bias |
-| Decision-delta + budget questions | [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) | Two decisive new questions (below) |
+| Decision-delta + budget questions | [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) | Two decisive new questions (below) |
 | Recruitment / disqualification profile | [Recruitment criteria](#recruitment-criteria) | Same profile — do not relax it |
 
 **The two decisive questions:**
@@ -595,11 +595,11 @@ Capture exactly **one** primary dismissal trigger (**D1–D8**). Then run the 3�
 
 #### Step 6 — Budget / buyer (4 min)
 
-Reuse [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) budget questions and the insight validation protocol § Buying-path questions. Minimum capture: `likelyBuyerOrSponsor`, `wouldSponsorPilot` (`yes|no|maybe`).
+Reuse [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) budget questions and the insight validation protocol § Buying-path questions. Minimum capture: `likelyBuyerOrSponsor`, `wouldSponsorPilot` (`yes|no|maybe`).
 
 ### Interview redaction rules
 
-Same as [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) § Redaction rules — never commit raw `evidenceQuotes` or price bands tied to a named participant.
+Same as [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) § Redaction rules — never commit raw `evidenceQuotes` or price bands tied to a named participant.
 
 ### Interview PASS / FAIL (per session)
 
@@ -616,7 +616,7 @@ Cohort dismissal rate = `(sessions with DISMISSAL) / (completed sessions)` — r
 - [ ] Complete the interview capture JSON (local; do not commit raw quotes).
 - [ ] File the per-session dismissal log ([principal architect dismissal log](#principal-architect-dismissal-log)) with `protocol: "blind-bakeoff"`.
 - [ ] Feed the weekly **top-2 triage** runbook above — do **not** open product/UI work off a single session.
-- [ ] When decision delta is material, attach a buyer-safe [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum) to the proof packet.
+- [ ] When decision delta is material, attach a buyer-safe [`QUOTE_TO_PROOF_PACKET.md#decision-change-addendum`](QUOTE_TO_PROOF_PACKET.md#decision-change-addendum) to the proof packet.
 
 Storage: `artifacts/principal-architect/<runId>/dismissal-interview.json` (local).
 
@@ -638,7 +638,7 @@ Storage: `artifacts/principal-architect/<runId>/dismissal-interview.json` (local
 | [`templates/pilot-dismissal-trigger.template.json`](templates/pilot-dismissal-trigger.template.json) | Paid-pilot adjunct |
 | [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) | Per-finding insight scoring + frontier-AI baseline prompt |
 | [`DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol`](DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol) | Honest "where each wins" comparison rubric |
-| [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) | Post-pilot decision-delta + budget questions |
+| [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) | Post-pilot decision-delta + budget questions |
 | [`GTM_BACKLOG.md`](GTM_BACKLOG.md) **M-44** | Live cohort execution (V1.1) |
 
 Former standalone body: `docs/go-to-market/validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md` → this section (filename kept as a path-stable alias for CLI / M-44).  

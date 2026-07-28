@@ -82,7 +82,7 @@ Use this matrix in sales conversations and sponsor briefings. Each row ties a bu
 2. **Execute** agents on uploaded Azure evidence or accepted demo workspace.
 3. **Commit** manifest — note manifest id and run id.
 4. **Collect proof** with `-RunId` — open **`first-pilot-command-center.md`** for SEND/HOLD/DEFERRED_SCOPE.
-5. **Attach decision-change addendum** when sponsor handoff includes material decision delta — [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum).
+5. **Attach decision-change addendum** when sponsor handoff includes material decision delta — [`QUOTE_TO_PROOF_PACKET.md#decision-change-addendum`](QUOTE_TO_PROOF_PACKET.md#decision-change-addendum).
 6. **Compare** to a generic copilot session: ArchLucid adds manifest, audit, governance, labeled ROI, and repeatable sponsor export.
 
 **Policy-pack moat demo (same run, different gate):** [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](POLICY_PACK_DELTA_DEMO_SCRIPT.md) · automation: `scripts/demo-policy-pack-delta.ps1` · in-app help: `/help/policy-pack-delta-demo`.
@@ -392,7 +392,7 @@ python scripts/assemble_blind_validation_packet.py assemble `
 
 ### Decision-delta scoring
 
-Within 7 days, complete [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) and save to `artifacts/bakeoff/<label>/decision-delta.md` (template: [`fixtures/bakeoff/session-template/decision-delta.template.md`](../../fixtures/bakeoff/session-template/decision-delta.template.md)).
+Within 7 days, complete [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) and save to `artifacts/bakeoff/<label>/decision-delta.md` (template: [`fixtures/bakeoff/session-template/decision-delta.template.md`](../../fixtures/bakeoff/session-template/decision-delta.template.md)).
 
 | Outcome | Criteria |
 | --- | --- |
@@ -478,7 +478,7 @@ Omit `--archlucid-minutes` / `--manual-minutes` when not measured — summary wi
 - [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) — end-to-end five-step bakeoff runbook
 - [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md) — rolling scoreboard (**Done 2026-06-17**)
 - [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation) — blind packet assembly + cohort checklist
-- [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) — post-bakeoff decision scoring
+- [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) — post-bakeoff decision scoring
 - [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#dismissal-interview-script-head-to-head`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#dismissal-interview-script-head-to-head) — randomized two-arm dismissal interview (30-day reuse + pay-to-avoid)
 - [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md)
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)

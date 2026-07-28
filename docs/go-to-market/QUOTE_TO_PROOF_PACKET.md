@@ -1,6 +1,6 @@
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness, plus the commercial conversion checklist / decision-cycle telemetry (formerly `COMMERCIAL_CONVERSION_CHECKLIST.md`), the ROI baseline SEND policy / baseline-capture checklist (formerly `ROI_BASELINE_SEND_POLICY.md`), productized service SKUs / SOW template (formerly the body of `SERVICE_LED_OFFERS.md`; that filename remains a path-stable alias for CI), and the transactable procurement path / legal terms packet (formerly the body of `TRANSACTABLE_PROCUREMENT_PATH.md`; that filename remains a path-stable alias). Not legal advice, pricing authority, or procurement attestation.
+> **Scope:** Sales-led packet index for moving from first-pilot proof to annual order readiness, plus the commercial conversion checklist / decision-cycle telemetry (formerly `COMMERCIAL_CONVERSION_CHECKLIST.md`), the ROI baseline SEND policy / baseline-capture checklist (formerly `ROI_BASELINE_SEND_POLICY.md`), productized service SKUs / SOW template (formerly the body of `SERVICE_LED_OFFERS.md`; that filename remains a path-stable alias for CI), the transactable procurement path / legal terms packet (formerly the body of `TRANSACTABLE_PROCUREMENT_PATH.md`; that filename remains a path-stable alias), and the paid-pilot evidence ledger / ROI session / decision-delta / addendum (formerly the body of `validation/PAID_PILOT_EVIDENCE_LEDGER.md`; that filename remains a path-stable alias for CLI/UI). Not legal advice, pricing authority, or procurement attestation.
 
 # Quote-to-proof packet
 
@@ -194,7 +194,7 @@ Stop if exit code ≠ 0 or disposition = `HOLD`.
 | **PASS** | All six elements present/labeled; send gate PASS; mock reviewer reaches a sponsor decision using only packet evidence; deferred `(B)` items accepted as scope |
 | **HOLD** | Required element missing/unlabeled, send gate HOLD, or an objection needs a new claim |
 
-Market-execution (real authorized run + human mock review + [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md)) remains **M-37**.
+Market-execution (real authorized run + human mock review + [paid pilot evidence ledger](#paid-pilot-evidence-ledger)) remains **M-37**.
 
 ---
 
@@ -542,7 +542,7 @@ Use `commercial-closeout.json` **recommendedNextAction** — typically schedule 
 3. AI-assisted analysis with **human** architecture judgment and sign-off framing in exports.
 4. Traceable findings and **exportable** DOCX/PDF.
 
-After each paid engagement, run the [**decision-delta interview**](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) within seven days to capture whether ArchLucid changed an approval outcome versus frontier AI alone.
+After each paid engagement, run the [**decision-delta interview**](#decision-delta-interview-paid-pilots) within seven days to capture whether ArchLucid changed an approval outcome versus frontier AI alone.
 
 ### Productization learnings (after paid engagements)
 
@@ -881,6 +881,283 @@ Former standalone: `docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md` → thi
 
 ---
 
+## Paid pilot evidence ledger {#paid-pilot-evidence-ledger}
+
+Former standalone body: `docs/go-to-market/validation/PAID_PILOT_EVIDENCE_LEDGER.md` → this section (filename kept as a path-stable alias for CLI/UI). Market-validation instrumentation only.
+
+**Audience:** Founder / delivery lead after each paid pilot handoff and at monthly conversion review.  
+**Companion JSON:** [`validation/templates/paid-pilot-evidence-ledger.template.json`](validation/templates/paid-pilot-evidence-ledger.template.json)  
+**Companion UI:** Pilot ROI validation handoff card on review detail and `/value-report/pilot`.  
+**ROI model:** [`PILOT_SUCCESS_SCORECARD.md#pilot-roi-measurement`](PILOT_SUCCESS_SCORECARD.md#pilot-roi-measurement) · [`../library/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) (alias)  
+**Execution tracked as:** GTM backlog **M-37** / **M-45 (V1.1)** — populating rows requires completed paid pilots; this template is the V1 design half.  
+**Path-stable alias:** [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md).
+
+This ledger converts the ROI narrative into **observable executive purchase proof**: did the pilot change a decision, what did the sponsor do next, and did conversion or expansion signals appear? It includes the [ROI validation session](#pilot-roi-validation-session), [decision-delta interview](#decision-delta-interview-paid-pilots), and [decision-change addendum](#decision-change-addendum), and complements the [commercial conversion checklist](#commercial-conversion-checklist) and [ROI baseline SEND policy](#roi-baseline-send-policy).
+
+### When to file (paid-pilot ledger)
+
+| Trigger | Action | Storage (local; sanitize before commit) |
+| --- | --- | --- |
+| Sponsor proof pack sent on a **paid** SKU | Open one ledger row within **7 days** | `artifacts/paid-pilot-ledger/<pilot-label>/ledger-row.json` |
+| ROI validation session complete | Populate ledger fields from handoff-card notes | Same folder |
+| Decision-delta interview complete | Merge interview outcome into `decisionChanged` | Same folder + `decision-delta.md` cross-ref |
+| Conversion status changes | Update row (new `recordedUtc`) | Append status history in private notes |
+| Monthly review | Roll up sanitized aggregates | Commit summary only under [`validation-runs/`](validation-runs/) |
+
+Copy the JSON template per pilot. Use a **sanitized `pilotLabel`** only (e.g. `regulated-analytics-2026Q3`) — never customer legal names in committed artifacts.
+
+### Pilot ROI validation session {#pilot-roi-validation-session}
+
+**Audience:** Operator or founder before external sponsor handoff on a paid pilot.  
+**Purpose:** Convert persisted proof signals into **observable purchase proof** — did the pilot change a decision, and can ROI claims be quoted externally without overreach? Market validation only — not new ROI math.
+
+#### 15-minute agenda
+
+| Minutes | Activity |
+| --- | --- |
+| 0–3 | Read persisted signals on the handoff card: ROI confidence, execution mode, sponsor-safe dollar gate, sendability |
+| 3–10 | Walk the six validation questions (card collapsible section) with the executive sponsor or proxy |
+| 10–13 | Decide verdict: external ROI quote vs internal directional vs hold sponsor PDF |
+| 13–15 | Copy validation notes to clipboard and populate one ledger row |
+
+#### When to use confidence tiers externally
+
+| `roiEvidenceConfidence` | External use |
+| --- | --- |
+| **Strong** | May quote ROI framing **only when** execution mode is Real, dollar claims are sponsor-safe, and sendability is Sendable |
+| **Partial** | Directional cycle-time / findings narrative only — no dollar savings unless buyer authorized |
+| **Low** | Internal steering only — do not send sponsor PDF or quote savings |
+
+Cross-check [`PILOT_SUCCESS_SCORECARD.md#pilot-roi-measurement`](PILOT_SUCCESS_SCORECARD.md#pilot-roi-measurement) for conservative assumptions before any external excerpt.
+
+#### Populating the evidence ledger from the session
+
+1. Copy [`validation/templates/paid-pilot-evidence-ledger.template.json`](validation/templates/paid-pilot-evidence-ledger.template.json) to `artifacts/paid-pilot-ledger/<pilot-label>/ledger-row.json` (local; sanitize before commit).
+2. Set `runId` and `executionMode` from the handoff card (Real / Simulator / Fallback / Mixed).
+3. Map interview answers to ledger fields below (`decisionChanged.*`, `baselineSourceConfidence.*`, `sponsorActionTaken.*`, `conversionSignal.status`).
+4. If a decision-delta interview was run, cross-ref [decision-delta interview](#decision-delta-interview-paid-pilots).
+
+#### Stop rules (non-negotiable)
+
+- **Do not quote USD savings** when `projectedDollarClaimsSponsorSafe` is **false**.
+- **Do not send sponsor PDF** when execution mode is not Real (unless curated demo sample with explicit internal-only labeling).
+- **Do not publish** when sponsor proof readiness is DemoOnly, Incomplete, or NotSendable.
+- **Do not invent dollar figures** in the ledger — record buyer authorization in private notes only.
+- When ROI confidence is **Low**, treat the pilot as **internal directional** regardless of findings count.
+
+#### Related surfaces (ROI session)
+
+- Review detail sponsor handoff (`RunDetailSponsorBriefingSection`)
+- [`/value-report/pilot`](../../archlucid-ui/src/app/(operator)/value-report/pilot/) aggregate window
+- First-run operator help: `/help/first-run`
+
+### Required fields (per pilot row)
+
+#### 1. Pilot context
+
+| Field | Rule |
+| --- | --- |
+| `pilotLabel` | Sanitized label — workload + quarter; no customer name |
+| `runId` | Committed review run id (internal reference) |
+| `executionMode` | `real`, `simulator`, or `mixed` — required on any external excerpt |
+| `pilotContext.sku` | Align to [`#productized-service-offers`](#productized-service-offers) SKU names |
+| `pilotContext.workloadCategory` | e.g. `healthcare-claims`, `iot-edge` — category only |
+| `pilotContext.evidenceBasis` | `buyer-azure`, `uploaded-evidence`, or `demo-workspace-accepted` |
+| `pilotContext.sponsorRole` | Role title only (e.g. `VP Architecture`) — no name |
+
+#### 2. Baseline source confidence
+
+| `level` | When to use |
+| --- | --- |
+| **high** | Buyer-reported hours with documented source note |
+| **medium** | Partial baseline (some fields buyer-reported, others estimated) |
+| **low** | Mostly model-default or demo-derived labels |
+| **not-collected** | Explicit waiver per [`templates/paid-pilot-baseline.template.json`](templates/paid-pilot-baseline.template.json) |
+
+| `sources[]` | Pick all that apply: `buyer-reported`, `time-study`, `model-default`, `waived` |
+
+Record `rationale` in one sentence. Do **not** commit dollar figures unless buyer authorized external use.
+
+#### 3. Decision changed (yes/no + why)
+
+| Field | Rule |
+| --- | --- |
+| `decisionChanged.changed` | `true` only when ≥1 sponsor decision differs from counterfactual without ArchLucid |
+| `decisionChanged.why` | One sentence — approval, deferral, scope change, or budget shift |
+| `decisionChanged.findingIds[]` | Finding IDs that drove the change (no internal employee names) |
+| `decisionChanged.decisionDeltaOutcome` | `pass`, `warn`, or `fail` per [decision-delta interview](#decision-delta-interview-paid-pilots) |
+| `decisionChanged.attributionNote` | PASS requires attribution to a finding **not** in participant's manual AI pass |
+
+#### 4. Sponsor action taken
+
+| `action` | Meaning |
+| --- | --- |
+| `none` | No observable action yet |
+| `approved-with-conditions` | Approved architecture path with named conditions |
+| `deferred-scope` | Deferred decision; scope parked |
+| `requested-evidence-pack` | Moved to Evidence Pack SKU |
+| `requested-arb-report` | Moved to ARB Report SKU |
+| `initiated-annual-order` | Annual Professional / Enterprise order form started |
+| `declined` | Explicit no-go |
+
+`description`: one redacted sentence. `actionUtc`: date of observable action.
+
+#### 5. Conversion status
+
+| Status | Meaning |
+| --- | --- |
+| `not-started` | Pilot not yet handed off |
+| `in-pilot` | Active pilot; no sponsor send |
+| `sponsor-sent` | Proof pack delivered; awaiting sponsor response |
+| `evidence-pack-ordered` | Buyer selected Evidence Pack next step |
+| `arb-report-ordered` | Buyer selected ARB Report next step |
+| `annual-order-signed` | Annual order executed |
+| `lost-deferred` | No conversion; buyer deferred or declined |
+
+Map close-out steps from [`#commercial-conversion-checklist`](#commercial-conversion-checklist) §2–3.
+
+#### 6. Expansion signal
+
+| `level` | Rule |
+| --- | --- |
+| **none** | No second workload, team, or budget discussion |
+| **watch** | Verbal interest only — no concrete next step |
+| **strong** | Named second workload, team expansion, or budget increase discussed with timeline |
+
+`signals[]`: `second-workload`, `team-expansion`, `budget-increase`, `reference-willing` (permissioned reference only).
+
+#### 7. Blockers
+
+`blockers[]` — record every blocker that prevented or delayed conversion. Empty array when none.
+
+| `category` | Examples |
+| --- | --- |
+| `procurement` | Security review, legal, vendor onboarding |
+| `soc2` | CPA attestation or trust-center gap (V1.1 backlog — do not score as V1 failure) |
+| `finding-quality` | Sponsor did not trust findings enough to act |
+| `pricing` | Price band mismatch |
+| `connector-gap` | Workflow handoff tool missing (capture per [`GTM_BACKLOG.md`](GTM_BACKLOG.md) closed hold decisions) |
+| `no-decision-change` | Outputs confirmatory only — no delta to act on |
+| `champion-loss` | Sponsor or champion left |
+| `other` | Named in `description` |
+
+`deferralScope`: `v1`, `v1.1`, `v2`, or `b-procurement` — honest scope label, not a product defect claim.
+
+### Redaction rules (mandatory)
+
+| Allowed in committed artifacts | Never commit |
+| --- | --- |
+| Sanitized `pilotLabel`, workload category, SKU | Customer legal name, DBA, domain |
+| Role titles, decision outcomes, status enums | Subscription IDs, tenant IDs, employee names |
+| Aggregate conversion counts and blocker distributions | Unauthorized ROI dollar figures |
+| Execution mode and evidence-basis labels | Raw infrastructure identifiers |
+
+When in doubt, keep the full row in private founder storage and commit only the monthly rollup below.
+
+### Monthly rollup (commit-safe)
+
+After each month with ≥1 paid pilot handoff, file a sanitized summary at `validation-runs/paid-pilot-ledger-<YYYY-MM>.md`:
+
+| Aggregate | Include |
+| --- | --- |
+| Pilots handed off | Count only |
+| Decision-changed rate | `changed=true` / total |
+| Conversion funnel | Count per `conversionStatus` |
+| Top blockers | Top 3 `category` counts |
+| Expansion signals | Count at `watch` + `strong` |
+| Baseline confidence mix | Count per `level` |
+
+No per-pilot quotes or names in the rollup.
+
+### Decision-delta interview (paid pilots) {#decision-delta-interview-paid-pilots}
+
+Founder-led interview template after a committed real-mode or labeled simulator review. Feeds `decisionChanged` on the ledger row (**M-45**).
+
+**Also used by:** bakeoff sessions ([`DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol`](DIFFERENTIATION_PROOF_PACKET.md#generic-ai-bakeoff-protocol)), service-led engagements ([`#productized-service-offers`](#productized-service-offers)), dismissal interview reuse ([`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#dismissal-interview-script-head-to-head`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#dismissal-interview-script-head-to-head)).
+
+#### When to run (decision-delta)
+
+Within **7 days** of sponsor PDF or proof-packet handoff on a **paid** Readiness Review / ARB Report SKU.
+
+#### Capture fields
+
+| Field | Value |
+| --- | --- |
+| `runId` | |
+| `findingIds[]` | Findings discussed |
+| `interviewer` | |
+| `participantTitle` | |
+| `interviewDateUtc` | |
+
+#### Questions
+
+1. **Counterfactual approval:** What would you have approved or deferred without ArchLucid on this packet?
+2. **Changed priority:** Which finding changed severity, scope, or timeline because of ArchLucid output?
+3. **Incorrect output:** Which finding was wrong or unsupported? (`findingId` + why)
+4. **Frontier AI substitute:** Could Claude/GPT/Gemini on the same packet have produced an equivalent decision record? What would be missing?
+5. **Repeat usage:** Will you run review #2 in ArchLucid? If no, what is the stop trigger?
+6. **Budget:** Would you spend your own budget or recommend team budget? At what price band?
+
+#### Redaction rules (buyer-safe case study)
+
+- Remove customer name, subscription IDs, and raw infrastructure identifiers unless permissioned.
+- Keep **finding category + severity + decision outcome**; drop internal employee names unless quoted with approval.
+- ROI numbers only when customer authorized external use.
+- Label execution mode (**Real / Simulator / Mixed**) on any exported excerpt.
+
+#### PASS / FAIL for decision advantage
+
+| Outcome | Criteria |
+| --- | --- |
+| **PASS** | ≥1 documented decision change attributable to an ArchLucid finding not present in participant's manual AI pass |
+| **WARN** | Outputs confirmatory only — still valuable for packaging/audit |
+| **FAIL** | Participant would not run review #2; primary reason recorded |
+
+Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit customer-identifying content without permission). Merge outcomes into the per-pilot row above. Attach a buyer-safe [decision-change addendum](#decision-change-addendum) to the proof packet when decision delta is material.
+
+### Decision-change addendum {#decision-change-addendum}
+
+**Audience:** Founder / delivery lead attaching decision-delta evidence to a sponsor proof packet or paid-pilot handoff.  
+**Companion template:** [`validation/templates/decision-change-addendum.template.md`](validation/templates/decision-change-addendum.template.md)  
+**Execution tracked as:** GTM backlog **M-45 (V1.1)** — populating with real sponsor interviews requires live handoffs; this format is the V1 design half.
+
+This addendum bridges **technical findings** to **executive decisions** without inventing outcomes. It complements the proof ZIP, first-value report, and [decision-delta interview](#decision-delta-interview-paid-pilots) — it does not replace them.
+
+#### When to attach
+
+| Trigger | Attach to |
+| --- | --- |
+| Sponsor proof pack sent on a **paid** or design-partner pilot | Proof folder alongside `first-value-report.md` |
+| Bakeoff session with decision-delta PASS or WARN | `artifacts/bakeoff/<label>/` next to `decision-delta.md` |
+| Paid-pilot ledger row filed | Cross-ref from this ledger’s `decisionChanged` |
+
+Copy the template per handoff. **Do not** attach externally until sponsor-safe redaction rules below are satisfied.
+
+#### Required sections (no fabricated data)
+
+**1. Original decision path (counterfactual)** — `counterfactualDecision`, `counterfactualBasis`, `manualAiPassSummary`. If unknown, write **`not captured`**.
+
+**2. ArchLucid-influenced delta** — `deltaSummary`, `findingIds[]`, `deltaCategory` (`approval-changed` \| `scope-changed` \| `timeline-changed` \| `budget-changed` \| `risk-elevated` \| `confirmatory-only`), `notInManualPass` (**Y** required for PASS).
+
+**3. Confidence and evidence references** — `confidenceLevel`, `confidenceRationale`, `evidenceRefs[]`, `executionMode`, `decisionDeltaOutcome`.
+
+**4. Sponsor-safe caveats (mandatory)** — execution mode, ROI basis, confirmatory-only, interview timing, external quote permission.
+
+#### Usage instructions
+
+1. Complete the [decision-delta interview](#decision-delta-interview-paid-pilots) within **7 days** of sponsor handoff.
+2. Copy [`validation/templates/decision-change-addendum.template.md`](validation/templates/decision-change-addendum.template.md) to `artifacts/paid-pilot-ledger/<pilot-label>/decision-change-addendum.md`.
+3. Fill placeholders from interview answers — **never** backfill a PASS without `notInManualPass: Y` and at least one `findingId`.
+4. Merge `decisionDeltaOutcome` into the ledger row when the pilot is paid.
+5. For external use: strip customer names, subscription IDs, and unauthorized dollar figures.
+
+Store full addenda locally. Commit only sanitized aggregates per [`validation-runs/README.md`](validation-runs/README.md).
+
+Former standalone: `docs/go-to-market/validation/DECISION_CHANGE_ADDENDUM.md` → this section.  
+Former standalone runbook: `docs/go-to-market/validation/PILOT_ROI_VALIDATION_SESSION.md` → [Pilot ROI validation session](#pilot-roi-validation-session).
+
+---
+
 ## Related
 
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
@@ -888,6 +1165,7 @@ Former standalone: `docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md` → thi
 - [`#roi-baseline-send-policy`](#roi-baseline-send-policy)
 - [`#productized-service-offers`](#productized-service-offers) · [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) (alias)
 - [`#transactable-procurement-path`](#transactable-procurement-path) · [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md) (alias)
+- [`#paid-pilot-evidence-ledger`](#paid-pilot-evidence-ledger) · [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md) (alias)
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
 - [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md)
 - [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md)

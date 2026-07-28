@@ -47,7 +47,7 @@ Complete within **48 hours** of the session. One row per session in the scoreboa
 | **Timing — manual AI (min)** | Number or `unknown` | Basis column required |
 | **Timing basis** | measured / self-reported / unknown | Unmeasured → **illustrative only** |
 | **Decision-change count** | 0–N | ArchLucid findings that changed a decision **not** in manual pass |
-| **Decision-delta outcome** | PASS / WARN / FAIL | Per [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) |
+| **Decision-delta outcome** | PASS / WARN / FAIL | Per [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) |
 | **Repeat-use intent (1–5)** | Participant answer | 1 = would not return; 5 = definite return |
 | **Strongest ArchLucid loss mode** | See taxonomy below | Honest primary loss; `none` when ArchLucid led |
 | **Strongest ArchLucid win** | packaging / traceability / repeatability / governance / none | One line |
@@ -152,5 +152,5 @@ Never publish win % without n ≥ 3 and anti-claims OK; never drop FAIL sessions
 ## Related
 
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — **M-40** scoreboard maintenance; **M-43** live bakeoffs
-- [`validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots`](validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots)
+- [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots)
 - [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md)

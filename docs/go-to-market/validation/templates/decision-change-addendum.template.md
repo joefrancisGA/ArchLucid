@@ -2,7 +2,7 @@
 
 # Decision-change addendum — {{pilotLabel}}
 
-> Copy this template per sponsor handoff. Replace `{{placeholders}}`. Do not fabricate outcomes. See [`PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum`](../PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum).
+> Copy this template per sponsor handoff. Replace `{{placeholders}}`. Do not fabricate outcomes. See [`QUOTE_TO_PROOF_PACKET.md#decision-change-addendum`](../../QUOTE_TO_PROOF_PACKET.md#decision-change-addendum) (`PAID_PILOT_EVIDENCE_LEDGER.md` alias).
 
 **Run id:** {{runId}}  
 **Handoff date (UTC):** {{handoffUtc}}  

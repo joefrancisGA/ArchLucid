@@ -126,7 +126,7 @@ Provide ArchLucid findings export + `manual/manual-findings.md` in the fixture l
 
 **Goal:** Document whether any finding **changed** approval, priority, scope, or sponsor action.
 
-1. Complete [`PAID_PILOT_EVIDENCE_LEDGER.md`](../go-to-market/validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) (decision-delta interview) within 7 days (same session if buyer is present).
+1. Complete [`QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) (decision-delta interview) within 7 days (same session if buyer is present).
 2. Save to `decision-delta.md` using [`fixtures/bakeoff/session-template/decision-delta.template.md`](../../fixtures/bakeoff/session-template/decision-delta.template.md).
 3. Apply PASS / WARN / FAIL from the interview doc:
 

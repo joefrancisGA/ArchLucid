@@ -11,7 +11,7 @@ This folder is the **commit-safe** home for **sanitized** summaries of validatio
 - Paid-pilot conversion evidence ledger rollups (monthly aggregates).
 - First-non-obvious-moment and dismissal-trigger aggregates.
 
-It exists because [`../validation/PAID_PILOT_EVIDENCE_LEDGER.md`](../validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-delta-interview-paid-pilots) and the cohort playbook point here for stored summaries.
+It exists because [`../QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots`](../QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots) and the cohort playbook point here for stored summaries.
 
 ## What belongs here
 
@@ -30,8 +30,8 @@ Do **not** re-create protocol assets — they already exist:
 - Blind protocol: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md#blind-insight-validation)
 - Pre-registered tracker (fill this before scoring): [`BLIND_DECISION_DELTA_COHORT_TRACKER.md`](BLIND_DECISION_DELTA_COHORT_TRACKER.md)
 - Per-session dismissal capture + weekly triage: [`../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-dismissal-log`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#principal-architect-dismissal-log) (alias: [`../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md))
-- Paid-pilot conversion ledger (per-row + monthly rollup): [`../validation/PAID_PILOT_EVIDENCE_LEDGER.md`](../validation/PAID_PILOT_EVIDENCE_LEDGER.md)
-- Decision-change addendum (sponsor handoff): [`../validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum`](../validation/PAID_PILOT_EVIDENCE_LEDGER.md#decision-change-addendum)
+- Paid-pilot conversion ledger (per-row + monthly rollup): [`../QUOTE_TO_PROOF_PACKET.md#paid-pilot-evidence-ledger`](../QUOTE_TO_PROOF_PACKET.md#paid-pilot-evidence-ledger) (alias: [`../validation/PAID_PILOT_EVIDENCE_LEDGER.md`](../validation/PAID_PILOT_EVIDENCE_LEDGER.md))
+- Decision-change addendum (sponsor handoff): [`../QUOTE_TO_PROOF_PACKET.md#decision-change-addendum`](../QUOTE_TO_PROOF_PACKET.md#decision-change-addendum)
 - Frontier-AI counterfactual cadence rollups: [`../FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](../FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md#maintenance-cadence)
 
 ## Guardrail
