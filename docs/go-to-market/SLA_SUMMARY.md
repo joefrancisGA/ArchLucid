@@ -144,15 +144,15 @@ When availability or latency targets are at risk, the incident communications po
 
 - **SEV-1 (service unavailable):** Customer notification within **1 hour**; updates every **30 minutes**.
 - **SEV-2 (degraded):** Notification within **4 hours**; updates every **2 hours**.
-- Full details: [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md).
+- Full details: [`SUPPORT_POLICY.md#incident-communications-and-status-page`](SUPPORT_POLICY.md#incident-communications-and-status-page) (`INCIDENT_COMMUNICATIONS_POLICY.md` alias).
 
 ---
 
 ## 8. Status page
 
-Public status URL is published in [trust-center.md](trust-center.md). Until a dedicated URL is live, incident updates are routed through [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) channels (`security@archlucid.net` fallback).
+Public status URL is published in [trust-center.md](trust-center.md). Until a dedicated URL is live, incident updates are routed through [`SUPPORT_POLICY.md#incident-communications-and-status-page`](SUPPORT_POLICY.md#incident-communications-and-status-page) channels (`security@archlucid.net` fallback; `INCIDENT_COMMUNICATIONS_POLICY.md` alias).
 
-See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md#8-operational-transparency--status-page-plan) for the status page implementation plan.
+See [`SUPPORT_POLICY.md#8-operational-transparency--status-page-plan`](SUPPORT_POLICY.md#8-operational-transparency--status-page-plan) for the status page implementation plan.
 
 ---
 
@@ -253,7 +253,7 @@ Do not invent stronger DR/attestation claims here — align wording with [ASSURA
 | [../API_SLOS.md](../library/API_SLOS.md) | Engineering SLO detail |
 | [`#hosted-saas-availability-target`](#hosted-saas-availability-target) · [`../library/SLA_TARGETS.md`](../library/SLA_TARGETS.md) (alias) | Hosted API+UI probe measurement |
 | [../library/RTO_RPO_TARGETS.md](../library/RTO_RPO_TARGETS.md) | Engineering RTO/RPO targets |
-| [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident classification and comms |
+| [`SUPPORT_POLICY.md#incident-communications-and-status-page`](SUPPORT_POLICY.md#incident-communications-and-status-page) (`INCIDENT_COMMUNICATIONS_POLICY.md` alias) | Incident classification and comms |
 | [SUPPORT_POLICY.md](SUPPORT_POLICY.md) | Support entitlements and professional services |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data deletion on termination (§9) |
 | [Tenant isolation (buyer overview)](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview) | Data isolation architecture |
