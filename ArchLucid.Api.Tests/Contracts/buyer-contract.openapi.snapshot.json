@@ -27721,6 +27721,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -27890,6 +27900,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -28061,6 +28081,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -28213,6 +28243,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -28400,6 +28440,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -28540,6 +28590,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -28670,6 +28730,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -28856,6 +28926,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -29034,6 +29114,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -29187,6 +29277,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -29358,6 +29458,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -29528,6 +29638,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -29662,6 +29782,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -29826,6 +29956,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -29982,6 +30122,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -30137,6 +30287,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -30301,6 +30461,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -30504,6 +30674,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -30667,6 +30847,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -30864,6 +31054,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -31032,6 +31232,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -31152,6 +31362,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -31320,6 +31540,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -31506,6 +31736,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -31675,6 +31915,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -31804,6 +32054,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -31940,6 +32200,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -32060,6 +32330,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -32183,6 +32463,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -32303,6 +32593,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -32443,6 +32743,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -32589,6 +32899,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -32718,6 +33038,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
@@ -32883,6 +33213,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -33013,6 +33353,16 @@
             },
             "description": "Conflict."
           },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
           "422": {
             "content": {
               "application/problem\u002Bjson": {
@@ -33142,6 +33492,16 @@
               }
             },
             "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
           },
           "422": {
             "content": {
