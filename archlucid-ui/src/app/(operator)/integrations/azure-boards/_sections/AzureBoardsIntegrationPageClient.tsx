@@ -33,6 +33,7 @@ import {
   upsertTenantItsmConnectorConnection,
   type TenantItsmConnectorConnectionResponse,
 } from "@/lib/api/itsm-outbound-api";
+import { buildAzureBoardsPageLoadResult } from "@/lib/azure-boards-page-load";
 import {
   formatAzureBoardsOrganizationUrl,
   isAzureBoardsCredentialsReady,
@@ -155,26 +156,39 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
     setIsLoading(true);
     setLoadError(null);
 
-    try {
-      const [healthResponse, itsmHealthResponse, settingsResponse, connectionResponse] = await Promise.all([
-        fetchAzureBoardsHealth(),
-        fetchItsmIntegrationHealth(),
-        fetchAzureBoardsSettings(),
-        fetchTenantItsmConnectorConnection("azureboards"),
-      ]);
-      setHealth(healthResponse);
-      setItsmHealth(itsmHealthResponse);
-      applySettings(settingsResponse);
-      applyConnection(connectionResponse);
-    } catch (error: unknown) {
-      setHealth(null);
-      setItsmHealth(null);
-      applySettings(null);
-      applyConnection(null);
-      setLoadError(error instanceof Error ? error.message : "Could not load Azure Boards configuration.");
-    } finally {
-      setIsLoading(false);
+    // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1152).
+    const [healthOutcome, itsmHealthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
+      fetchAzureBoardsHealth(),
+      fetchItsmIntegrationHealth(),
+      fetchAzureBoardsSettings(),
+      fetchTenantItsmConnectorConnection("azureboards"),
+    ]);
+
+    const loaded = buildAzureBoardsPageLoadResult({
+      health: healthOutcome,
+      itsmHealth: itsmHealthOutcome,
+      settings: settingsOutcome,
+      connection: connectionOutcome,
+    });
+
+    if (!loaded.health.failed) {
+      setHealth(loaded.health.value);
     }
+
+    if (!loaded.itsmHealth.failed) {
+      setItsmHealth(loaded.itsmHealth.value);
+    }
+
+    if (!loaded.settings.failed) {
+      applySettings(loaded.settings.value);
+    }
+
+    if (!loaded.connection.failed) {
+      applyConnection(loaded.connection.value);
+    }
+
+    setLoadError(loaded.loadError);
+    setIsLoading(false);
   }, [applyConnection, applySettings]);
 
   useEffect(() => {

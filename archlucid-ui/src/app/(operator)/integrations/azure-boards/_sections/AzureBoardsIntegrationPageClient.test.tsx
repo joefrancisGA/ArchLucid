@@ -222,4 +222,24 @@ describe("AzureBoardsIntegrationPageClient", () => {
     const status = await screen.findByTestId("azure-boards-connection-status");
     expect(within(status).getByText("Connection issue")).toBeInTheDocument();
   });
+
+  it("keeps connection fields when settings load fails (TB-1152)", async () => {
+    mockFetchAzureSettings.mockRejectedValue(new Error("Database Query Failed"));
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://dev.azure.com/example",
+        credentialKeyVaultSecretName: "kv-pat",
+      }),
+    );
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("azure-boards-organization-url")).toHaveValue("https://dev.azure.com/example");
+    });
+
+    expect(screen.getByTestId("azure-boards-connection-settings")).toBeInTheDocument();
+    expect(screen.getByTestId("azure-boards-credential-status")).toHaveTextContent("Secure reference saved");
+  });
 });
