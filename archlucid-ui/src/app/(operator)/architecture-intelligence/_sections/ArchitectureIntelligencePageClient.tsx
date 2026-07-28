@@ -67,7 +67,7 @@ type AdversarialReviewResult = {
 };
 
 type ClosedLoopReasoningResult = {
-  model: { elements: unknown[] };
+  model: { elements: unknown[]; modelId?: string };
   specialistReviews: Array<{ findings: SpecialistReviewFinding[] }>;
   recommendations: ArchitectureRecommendation[];
   mustNotFailViolations: MustNotFailViolation[];
@@ -80,6 +80,12 @@ type ClosedLoopReasoningResult = {
   publishBlocked?: boolean;
   publishBlockReasons?: string[];
   integrityPassedFindingIds?: string[];
+  runId?: string | null;
+  modelId?: string | null;
+  publishedToProduct?: boolean;
+  publishedFindingsSnapshotId?: string | null;
+  publishedRecommendationCount?: number;
+  publishSkipReason?: string | null;
   productFindings?: Array<{
     findingId: string;
     title: string;
@@ -177,7 +183,12 @@ function buildRequest(
   architectureDescription: string,
   prioritiesRaw: string,
   framingAnswers: Record<string, string>,
-  useGoldenFixture = false,
+  options?: {
+    useGoldenFixture?: boolean;
+    runId?: string | null;
+    continueFromExistingRun?: boolean;
+    publishToProduct?: boolean;
+  },
 ) {
   const sourceTexts: ClosedLoopReasoningSourceText[] = architectureDescription.trim().length
     ? [
@@ -193,7 +204,10 @@ function buildRequest(
     sourceTexts,
     declaredPriorities: parsePriorities(prioritiesRaw),
     framingAnswers,
-    useGoldenFixture,
+    useGoldenFixture: options?.useGoldenFixture ?? false,
+    runId: options?.runId ?? undefined,
+    continueFromExistingRun: options?.continueFromExistingRun ?? false,
+    publishToProduct: options?.publishToProduct ?? false,
   };
 }
 
@@ -201,7 +215,11 @@ export function ArchitectureIntelligencePageClient() {
   const [architectureDescription, setArchitectureDescription] = useState("");
   const [prioritiesRaw, setPrioritiesRaw] = useState("");
   const [interviewAnswers, setInterviewAnswers] = useState<Record<string, string>>({});
-  const [loadingAction, setLoadingAction] = useState<"reasoning" | "golden" | "fixture" | null>(null);
+  const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [publishToProduct, setPublishToProduct] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<"reasoning" | "golden" | "fixture" | "continue" | "publish" | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [runState, setRunState] = useState<RunState | null>(null);
 
@@ -237,7 +255,68 @@ export function ArchitectureIntelligencePageClient() {
     try {
       const result = await postJson<ClosedLoopReasoningResult>(
         "/api/proxy/v1/architecture-intelligence/run",
-        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers),
+        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, {
+          publishToProduct,
+          runId: activeRunId,
+        }),
+      );
+
+      setActiveRunId(result.runId ?? null);
+      setRunState({ kind: "reasoning", result });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setLoadingAction(null);
+    }
+  }, [architectureDescription, prioritiesRaw, interviewAnswers, publishToProduct, activeRunId]);
+
+  const continueWithAnswers = useCallback(async () => {
+    if (!activeRunId) {
+      setError("Run an architecture reasoning pass first to obtain a run id.");
+
+      return;
+    }
+
+    setLoadingAction("continue");
+    setError(null);
+
+    try {
+      const result = await postJson<ClosedLoopReasoningResult>(
+        `/api/proxy/v1/architecture-intelligence/runs/${encodeURIComponent(activeRunId)}/continue`,
+        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, {
+          runId: activeRunId,
+          continueFromExistingRun: true,
+          publishToProduct,
+        }),
+      );
+
+      setActiveRunId(result.runId ?? activeRunId);
+      setRunState({ kind: "reasoning", result });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setLoadingAction(null);
+    }
+  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers, publishToProduct]);
+
+  const publishRun = useCallback(async () => {
+    if (!activeRunId) {
+      setError("Run an architecture reasoning pass first to obtain a run id.");
+
+      return;
+    }
+
+    setLoadingAction("publish");
+    setError(null);
+
+    try {
+      const result = await postJson<ClosedLoopReasoningResult>(
+        `/api/proxy/v1/architecture-intelligence/runs/${encodeURIComponent(activeRunId)}/publish`,
+        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, {
+          runId: activeRunId,
+          continueFromExistingRun: true,
+          publishToProduct: true,
+        }),
       );
 
       setRunState({ kind: "reasoning", result });
@@ -246,7 +325,7 @@ export function ArchitectureIntelligencePageClient() {
     } finally {
       setLoadingAction(null);
     }
-  }, [architectureDescription, prioritiesRaw, interviewAnswers]);
+  }, [activeRunId, architectureDescription, prioritiesRaw, interviewAnswers]);
 
   const runGoldenTest = useCallback(async () => {
     const useFixture = architectureDescription.trim().length === 0;
@@ -257,7 +336,9 @@ export function ArchitectureIntelligencePageClient() {
     try {
       const result = await postJson<GoldenArchitectureTestResult>(
         "/api/proxy/v1/architecture-intelligence/golden-test",
-        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, useFixture),
+        buildRequest(architectureDescription, prioritiesRaw, interviewAnswers, {
+          useGoldenFixture: useFixture,
+        }),
       );
 
       setRunState({ kind: "golden", result });
@@ -354,7 +435,33 @@ export function ArchitectureIntelligencePageClient() {
           >
             {loadingAction === "fixture" ? "Loading fixture…" : "Load golden fixture"}
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            data-testid="architecture-intelligence-publish-button"
+            disabled={isBusy || activeRunId === null}
+            onClick={() => void publishRun()}
+          >
+            {loadingAction === "publish" ? "Publishing…" : "Publish to findings/advisory"}
+          </Button>
         </div>
+
+        <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
+          <input
+            type="checkbox"
+            data-testid="architecture-intelligence-publish-toggle"
+            checked={publishToProduct}
+            disabled={isBusy}
+            onChange={(event) => setPublishToProduct(event.target.checked)}
+          />
+          Publish gated findings/recommendations into product stores on run
+        </label>
+
+        {activeRunId ? (
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-run-id">
+            Active run: {activeRunId}
+          </p>
+        ) : null}
       </div>
 
       {error !== null ? (
@@ -379,7 +486,7 @@ export function ArchitectureIntelligencePageClient() {
           onInterviewAnswerChange={(questionId, value) =>
             setInterviewAnswers((previous) => ({ ...previous, [questionId]: value }))
           }
-          onResubmitAnswers={() => void runReasoning()}
+          onResubmitAnswers={() => void continueWithAnswers()}
           isBusy={isBusy}
         />
       ) : null}
@@ -423,7 +530,26 @@ function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenc
       <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-element-count">
         Model elements: {props.result.model?.elements?.length ?? 0} · Integrity-passed findings:{" "}
         {props.result.integrityPassedFindingIds?.length ?? 0}
+        {props.result.runId ? ` · Run: ${props.result.runId}` : ""}
       </p>
+
+      {props.result.publishedToProduct ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-published">
+          Published to product stores
+          {props.result.publishedFindingsSnapshotId
+            ? ` · findings snapshot ${props.result.publishedFindingsSnapshotId}`
+            : ""}
+          {typeof props.result.publishedRecommendationCount === "number"
+            ? ` · ${props.result.publishedRecommendationCount} recommendations`
+            : ""}
+        </p>
+      ) : null}
+
+      {props.result.publishSkipReason ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-intelligence-publish-skip">
+          Publish skipped: {props.result.publishSkipReason}
+        </p>
+      ) : null}
 
       <ResultSection title="Interview questions" testId="architecture-intelligence-interview">
         {props.interviewQuestions.length === 0 ? (

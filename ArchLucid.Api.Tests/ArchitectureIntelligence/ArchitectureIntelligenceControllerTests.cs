@@ -104,6 +104,8 @@ public sealed class ArchitectureIntelligenceControllerTests
         return new ArchitectureIntelligenceController(
             reasoningOrchestrator ?? Mock.Of<IClosedLoopArchitectureReasoningOrchestrator>(),
             goldenArchitectureTestRunner ?? Mock.Of<IGoldenArchitectureTestRunner>(),
+            architectureIntelligencePersistence: null,
+            productPublishService: Mock.Of<IArchitectureIntelligenceProductPublishService>(),
             scopeProvider.Object,
             auditService.Object);
     }

@@ -77,7 +77,7 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
 
     public IReadOnlyList<ArchitectureIntelligenceDeepCase> GetDeepCases()
     {
-        return
+        List<ArchitectureIntelligenceDeepCase> deepCases =
         [
             new ArchitectureIntelligenceDeepCase
             {
@@ -88,6 +88,10 @@ public sealed class ArchitectureIntelligenceBenchmark : IArchitectureIntelligenc
                 ExpectedMutationIds = ["mutate-rto-30m", "mutate-remove-trust-boundary"],
             },
         ];
+
+        deepCases.AddRange(ArchitectureIntelligenceDeepCaseCatalog.GetAdditionalDeepCases());
+
+        return deepCases;
     }
 
     public IReadOnlyList<CategoryBenchmarkScore> ScoreCategories(

@@ -56,4 +56,22 @@ public class ClosedLoopReasoningRequest
         get;
         set;
     }
+
+    /// <summary>
+    /// When true with <see cref="RunId"/>, load the latest persisted model for that run and skip re-extraction.
+    /// </summary>
+    public bool ContinueFromExistingRun
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// When true, publish gated product findings/recommendations into findings + advisory stores.
+    /// </summary>
+    public bool PublishToProduct
+    {
+        get;
+        set;
+    }
 }

@@ -12,13 +12,14 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly IAsyncSpecialistReviewService _specialistReviewService;
     private readonly ISpecialistReviewService _heuristicSpecialistReviewService;
     private readonly IEvidenceValidationPipeline _evidenceValidationPipeline;
-    private readonly IAdversarialReviewService _adversarialReviewService;
+    private readonly IAsyncAdversarialReviewService _adversarialReviewService;
     private readonly IAsyncArchitectureRecommendationEngine _recommendationEngine;
     private readonly IChangeImpactAnalyzer _changeImpactAnalyzer;
     private readonly IArchitectureModelDiffApplier _modelDiffApplier;
     private readonly IIncrementalReReviewService _incrementalReReviewService;
     private readonly IMustNotFailEnforcer _mustNotFailEnforcer;
     private readonly ITrustPublishGate _trustPublishGate;
+    private readonly IArchitectureIntelligenceProductPublishService _productPublishService;
     private readonly IArchitectureIntelligencePersistence? _persistence;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
@@ -29,13 +30,14 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IAsyncSpecialistReviewService specialistReviewService,
         ISpecialistReviewService heuristicSpecialistReviewService,
         IEvidenceValidationPipeline evidenceValidationPipeline,
-        IAdversarialReviewService adversarialReviewService,
+        IAsyncAdversarialReviewService adversarialReviewService,
         IAsyncArchitectureRecommendationEngine recommendationEngine,
         IChangeImpactAnalyzer changeImpactAnalyzer,
         IArchitectureModelDiffApplier modelDiffApplier,
         IIncrementalReReviewService incrementalReReviewService,
         IMustNotFailEnforcer mustNotFailEnforcer,
         ITrustPublishGate trustPublishGate,
+        IArchitectureIntelligenceProductPublishService productPublishService,
         IArchitectureIntelligencePersistence? persistence = null)
     {
         _sourceStore = sourceStore ?? throw new ArgumentNullException(nameof(sourceStore));
@@ -53,6 +55,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _incrementalReReviewService = incrementalReReviewService ?? throw new ArgumentNullException(nameof(incrementalReReviewService));
         _mustNotFailEnforcer = mustNotFailEnforcer ?? throw new ArgumentNullException(nameof(mustNotFailEnforcer));
         _trustPublishGate = trustPublishGate ?? throw new ArgumentNullException(nameof(trustPublishGate));
+        _productPublishService = productPublishService ?? throw new ArgumentNullException(nameof(productPublishService));
         _persistence = persistence;
     }
 
@@ -69,9 +72,41 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<string> storedArtifactIds = await StoreSourcesAsync(request, cancellationToken);
-        ArchitectureKnowledgeModel model = await BuildModelAsync(request, storedArtifactIds, cancellationToken);
-        model.DeclaredPriorities.AddRange(request.DeclaredPriorities);
+        if (string.IsNullOrWhiteSpace(request.RunId))
+        {
+            request.RunId = Guid.NewGuid().ToString("N");
+        }
+
+        ArchitectureKnowledgeModel model;
+        List<string> storedArtifactIds = [];
+
+        if (request.ContinueFromExistingRun
+            && _persistence is not null
+            && !string.IsNullOrWhiteSpace(request.RunId))
+        {
+            ArchitectureKnowledgeModel? existing = await _persistence.GetModelByRunIdAsync(
+                request.TenantId,
+                request.RunId,
+                cancellationToken);
+
+            if (existing is null)
+            {
+                throw new InvalidOperationException(
+                    $"No ArchitectureIntelligence model found for run '{request.RunId}'.");
+            }
+
+            model = existing;
+        }
+        else
+        {
+            storedArtifactIds = await StoreSourcesAsync(request, cancellationToken);
+            model = await BuildModelAsync(request, storedArtifactIds, cancellationToken);
+        }
+
+        model.RunId = request.RunId;
+        model.DeclaredPriorities = request.DeclaredPriorities.Count > 0
+            ? request.DeclaredPriorities.ToList()
+            : model.DeclaredPriorities;
 
         ProgressiveInterviewState interview = _interviewService.BuildFramingState(model, request.SourceTexts);
 
@@ -101,7 +136,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             .Select(result => result.FindingId)
             .ToHashSet(StringComparer.Ordinal);
 
-        AdversarialReviewResult adversarial = _adversarialReviewService.Review(allFindings, integrityPassedIds);
+        AdversarialReviewResult adversarial = await _adversarialReviewService.ReviewAsync(
+            allFindings,
+            integrityPassedIds,
+            cancellationToken);
 
         int challengeQuestionIndex = interview.EvidenceDrivenQuestions.Count;
 
@@ -196,6 +234,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             PublishBlocked = publishDecision.PublishBlocked,
             PublishBlockReasons = publishDecision.BlockReasons,
             IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds.ToList(),
+            RunId = request.RunId,
+            ModelId = model.ModelId,
             ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings(
                 publishDecision.PublishableFindings,
                 validationByFindingId),
@@ -207,6 +247,22 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 projectId,
                 request.RunId),
         };
+
+        if (request.PublishToProduct)
+        {
+            ArchitectureIntelligencePublishResult publishResult = await _productPublishService.PublishAsync(
+                result,
+                request.TenantId,
+                workspaceId,
+                projectId,
+                request.RunId!,
+                cancellationToken);
+
+            result.PublishedToProduct = publishResult.Published;
+            result.PublishedFindingsSnapshotId = publishResult.FindingsSnapshotId;
+            result.PublishedRecommendationCount = publishResult.RecommendationCount;
+            result.PublishSkipReason = publishResult.SkipReason;
+        }
 
         return result;
     }

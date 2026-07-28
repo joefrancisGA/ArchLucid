@@ -21,4 +21,10 @@ public interface IArchitectureIntelligencePersistence
         string tenantId,
         string modelId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Latest knowledge model for a run (multi-turn continue).</summary>
+    Task<ArchitectureKnowledgeModel?> GetModelByRunIdAsync(
+        string tenantId,
+        string runId,
+        CancellationToken cancellationToken = default);
 }

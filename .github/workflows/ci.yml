@@ -1562,6 +1562,12 @@ jobs:
             -c Release --no-build \
             --filter "FullyQualifiedName~TechnologyConsistencyArtifactGoldenCorpus"
 
+      - name: Architecture intelligence golden regression gate
+        run: |
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj \
+            -c Release --no-build \
+            --filter "FullyQualifiedName~ArchitectureIntelligenceGoldenRegression"
+
       - name: Upload agent eval scorecard
         if: always() && steps.eval_corpus.outcome != 'skipped'
         uses: actions/upload-artifact@v4

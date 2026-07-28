@@ -107,6 +107,27 @@ public sealed class InMemoryArchitectureIntelligencePersistence : IArchitectureI
         return Task.FromResult<ArchitectureKnowledgeModel?>(CloneModel(model));
     }
 
+    public Task<ArchitectureKnowledgeModel?> GetModelByRunIdAsync(
+        string tenantId,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(tenantId) || string.IsNullOrWhiteSpace(runId))
+        {
+            return Task.FromResult<ArchitectureKnowledgeModel?>(null);
+        }
+
+        ArchitectureKnowledgeModel? latest = _models.Values
+            .Where(model => string.Equals(model.TenantId, tenantId, StringComparison.Ordinal)
+                && string.Equals(model.RunId, runId, StringComparison.Ordinal))
+            .OrderByDescending(model => model.UpdatedUtc)
+            .FirstOrDefault();
+
+        return Task.FromResult(latest is null ? null : CloneModel(latest));
+    }
+
     private static string BuildSourceKey(string tenantId, string artifactId)
     {
         return $"{tenantId}:{artifactId}";

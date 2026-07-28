@@ -60,12 +60,15 @@ public static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IProgressiveInterviewService, ProgressiveInterviewService>();
         services.AddScoped<IEvidenceValidationPipeline>(static sp =>
             new EvidenceValidationPipeline(sp.GetService<IArchitectureIntelligenceLlmGateway>()));
-        services.AddScoped<IAdversarialReviewService, AdversarialReviewService>();
+        services.AddScoped<AdversarialReviewService>();
+        services.AddScoped<IAdversarialReviewService>(static sp => sp.GetRequiredService<AdversarialReviewService>());
+        services.AddScoped<IAsyncAdversarialReviewService, LlmBackedAdversarialReviewService>();
         services.AddScoped<IChangeImpactAnalyzer, ChangeImpactAnalyzer>();
         services.AddScoped<IArchitectureModelDiffApplier, ArchitectureModelDiffApplier>();
         services.AddScoped<IIncrementalReReviewService, IncrementalReReviewService>();
         services.AddScoped<IMustNotFailEnforcer, MustNotFailEnforcer>();
         services.AddScoped<ITrustPublishGate, TrustPublishGate>();
+        services.AddScoped<IArchitectureIntelligenceProductPublishService, ArchitectureIntelligenceProductPublishService>();
         services.AddScoped<IReviewResultCache, ReviewResultCache>();
         services.AddScoped<IArtifactRoundTripService, ArtifactRoundTripService>();
         services.AddScoped<IClosedLoopArchitectureReasoningOrchestrator, ClosedLoopArchitectureReasoningOrchestrator>();

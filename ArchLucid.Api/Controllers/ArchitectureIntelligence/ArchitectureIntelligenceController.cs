@@ -29,6 +29,8 @@ namespace ArchLucid.Api.Controllers.ArchitectureIntelligence;
 public sealed class ArchitectureIntelligenceController(
     IClosedLoopArchitectureReasoningOrchestrator reasoningOrchestrator,
     IGoldenArchitectureTestRunner goldenArchitectureTestRunner,
+    IArchitectureIntelligencePersistence? architectureIntelligencePersistence,
+    IArchitectureIntelligenceProductPublishService productPublishService,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService) : ControllerBase
 {
@@ -37,6 +39,12 @@ public sealed class ArchitectureIntelligenceController(
 
     private readonly IGoldenArchitectureTestRunner _goldenArchitectureTestRunner =
         goldenArchitectureTestRunner ?? throw new ArgumentNullException(nameof(goldenArchitectureTestRunner));
+
+    private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
+        architectureIntelligencePersistence;
+
+    private readonly IArchitectureIntelligenceProductPublishService _productPublishService =
+        productPublishService ?? throw new ArgumentNullException(nameof(productPublishService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -53,7 +61,7 @@ public sealed class ArchitectureIntelligenceController(
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: true, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
         {
             if (bodyRequired)
                 return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
@@ -70,16 +78,142 @@ public sealed class ArchitectureIntelligenceController(
                 DataJson = JsonSerializer.Serialize(new
                 {
                     modelId = result.Model.ModelId,
+                    runId = result.RunId,
                     elementCount = result.Model.Elements.Count,
                     findingCount = result.ProductFindings.Count,
                     recommendationCount = result.ProductRecommendations.Count,
                     sourceCount = prepared.SourceTexts.Count,
                     publishBlocked = result.PublishBlocked,
+                    publishedToProduct = result.PublishedToProduct,
                 }),
             },
             cancellationToken);
 
         return Ok(result);
+    }
+
+    /// <summary>Continues a prior run with interview answers (skips re-extraction).</summary>
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("runs/{runId}/continue")]
+    [ProducesResponseType(typeof(ClosedLoopReasoningResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PostContinueAsync(
+        [FromRoute] string runId,
+        [FromBody] ClosedLoopReasoningRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
+
+        request ??= new ClosedLoopReasoningRequest();
+        request.RunId = runId;
+        request.ContinueFromExistingRun = true;
+
+        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        {
+            if (bodyRequired)
+                return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+            return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
+        }
+
+        ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureIntelligenceRunCompleted,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    modelId = result.Model.ModelId,
+                    runId = result.RunId,
+                    continued = true,
+                    framingAnswerCount = prepared.FramingAnswers.Count,
+                    publishedToProduct = result.PublishedToProduct,
+                }),
+            },
+            cancellationToken);
+
+        return Ok(result);
+    }
+
+    /// <summary>Publishes the latest gated product findings/recommendations for a run into product stores.</summary>
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("runs/{runId}/publish")]
+    [ProducesResponseType(typeof(ArchitectureIntelligencePublishResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PostPublishAsync(
+        [FromRoute] string runId,
+        [FromBody] ClosedLoopReasoningRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
+
+        request ??= new ClosedLoopReasoningRequest();
+        request.RunId = runId;
+        request.ContinueFromExistingRun = true;
+        request.PublishToProduct = true;
+
+        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        {
+            if (bodyRequired)
+                return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+            return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
+        }
+
+        ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
+
+        ArchitectureIntelligencePublishResult publishResult = new()
+        {
+            Published = result.PublishedToProduct,
+            FindingsSnapshotId = result.PublishedFindingsSnapshotId,
+            RecommendationCount = result.PublishedRecommendationCount,
+            SkipReason = result.PublishSkipReason,
+        };
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureIntelligenceRunCompleted,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    runId,
+                    published = publishResult.Published,
+                    findingsSnapshotId = publishResult.FindingsSnapshotId,
+                    recommendationCount = publishResult.RecommendationCount,
+                }),
+            },
+            cancellationToken);
+
+        return Ok(publishResult);
+    }
+
+    /// <summary>Loads the latest persisted knowledge model for a run.</summary>
+    [HttpGet("runs/{runId}")]
+    [ProducesResponseType(typeof(ArchitectureKnowledgeModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunModelAsync(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
+
+        if (_architectureIntelligencePersistence is null)
+            return NotFound();
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ArchitectureKnowledgeModel? model = await _architectureIntelligencePersistence.GetModelByRunIdAsync(
+            scope.TenantId.ToString("D"),
+            runId,
+            cancellationToken);
+
+        if (model is null)
+            return NotFound();
+
+        return Ok(model);
     }
 
     /// <summary>Runs the golden architecture regression harness for the supplied source texts.</summary>
@@ -91,7 +225,7 @@ public sealed class ArchitectureIntelligenceController(
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: true, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
+        if (!TryPrepareRequest(request, allowEmptySourcesForFixture: true, requireSourcesUnlessContinue: true, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
         {
             if (bodyRequired)
                 return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
@@ -136,6 +270,7 @@ public sealed class ArchitectureIntelligenceController(
     private bool TryPrepareRequest(
         ClosedLoopReasoningRequest? request,
         bool allowEmptySourcesForFixture,
+        bool requireSourcesUnlessContinue,
         out ClosedLoopReasoningRequest prepared,
         out string? validationError,
         out bool bodyRequired)
@@ -169,10 +304,20 @@ public sealed class ArchitectureIntelligenceController(
             hasContent = true;
         }
 
-        if (request.SourceTexts is null || request.SourceTexts.Count == 0 || !hasContent)
+        bool continueWithoutSources = request.ContinueFromExistingRun && !string.IsNullOrWhiteSpace(request.RunId);
+
+        if (requireSourcesUnlessContinue && !continueWithoutSources && (request.SourceTexts is null || request.SourceTexts.Count == 0 || !hasContent))
         {
             prepared = request;
             validationError = "At least one source text with content is required (or set useGoldenFixture=true).";
+
+            return false;
+        }
+
+        if (!requireSourcesUnlessContinue && !continueWithoutSources)
+        {
+            prepared = request;
+            validationError = "Continue requests require a runId.";
 
             return false;
         }

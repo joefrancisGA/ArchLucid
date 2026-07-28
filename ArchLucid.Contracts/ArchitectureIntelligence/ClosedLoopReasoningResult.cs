@@ -107,4 +107,40 @@ public class ClosedLoopReasoningResult
         get;
         set;
     } = [];
+
+    public string? RunId
+    {
+        get;
+        set;
+    }
+
+    public string? ModelId
+    {
+        get;
+        set;
+    }
+
+    public bool PublishedToProduct
+    {
+        get;
+        set;
+    }
+
+    public Guid? PublishedFindingsSnapshotId
+    {
+        get;
+        set;
+    }
+
+    public int PublishedRecommendationCount
+    {
+        get;
+        set;
+    }
+
+    public string? PublishSkipReason
+    {
+        get;
+        set;
+    }
 }

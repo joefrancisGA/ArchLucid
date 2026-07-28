@@ -274,6 +274,53 @@ public sealed class DapperArchitectureIntelligencePersistence : IArchitectureInt
         return MapModelRow(row, tenantId);
     }
 
+    public async Task<ArchitectureKnowledgeModel?> GetModelByRunIdAsync(
+        string tenantId,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+        {
+            return null;
+        }
+
+        Guid tenantGuid = ArchitectureIntelligenceTenantIdMapper.ToStorageGuid(tenantId);
+
+        const string sql = """
+            SELECT TOP 1
+                ModelId,
+                TenantId,
+                RunId,
+                SchemaVersion,
+                ElementsJson,
+                DeclaredPrioritiesJson,
+                FramingAnswersJson,
+                CreatedUtc,
+                UpdatedUtc
+            FROM dbo.ArchitectureKnowledgeModels
+            WHERE TenantId = @TenantId AND RunId = @RunId
+            ORDER BY UpdatedUtc DESC;
+            """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        ModelRow? row = await connection.QueryFirstOrDefaultAsync<ModelRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantGuid,
+                    RunId = runId,
+                },
+                cancellationToken: cancellationToken));
+
+        if (row is null)
+        {
+            return null;
+        }
+
+        return MapModelRow(row, tenantId);
+    }
+
     private async Task<byte[]> ResolveContentAsync(SourceRow row, CancellationToken cancellationToken)
     {
         if (row.ContentVarBinary is { Length: > 0 })
