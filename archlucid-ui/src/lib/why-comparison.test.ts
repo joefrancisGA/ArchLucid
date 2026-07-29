@@ -82,6 +82,8 @@ describe("why-comparison (front-door table drift guards)", () => {
     expect(hrefs).toContain("/trust");
     expect(hrefs).toContain("/help/comparison-replay");
     expect(hrefs).toContain("/help/governance-approval");
+    expect(hrefs).toContain("/showcase/claims-intake-modernization");
+    expect(hrefs).not.toContain("/demo/preview");
   });
 });
 

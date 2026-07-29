@@ -145,7 +145,7 @@ Channel ordering by expected ICP ROI:
 
 | Priority | Channel | Why | First experiment |
 |:---:|:---|:---|:---|
-| 1 | **LinkedIn Ads** | Title + vertical fit | Single proof creative → `/showcase/` curated slug OR `/why` |
+| 1 | **LinkedIn Ads** | Title + vertical fit | Single proof creative → `/showcase/claims-intake-modernization` (**M-107** Option A canonical) OR `/why` — not Contoso `/demo/preview` as primary |
 | 2 | **Microsoft Advertising (Bing)** | Lower CPC, enterprise browser defaults | Exact/phrase branded + tightly scoped problem phrases |
 | 3 | **Google Search** | High intent | Phrase/exact only — comparison + competitor-adjacent; avoid generic broad-match |
 | 4 | **Reddit Ads** | Cheap tests for technical audiences | Sponsor one substantive article pointer |

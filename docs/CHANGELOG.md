@@ -9,6 +9,14 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-07-29 — GTM: **M-107** Option A — Claims-static canonical anonymous proof funnel
+
+Owner decision: primary cold proof = `/showcase/claims-intake-modernization`; welcome→`/see-it`→CTA + get-started + Why Verify use Claims (Contoso `/demo/preview` secondary). Matrix §1a + marketing UI alignment. Option D rename remains **M-133**.
+
+## 2026-07-29 — GTM: **M-134** sample-package funnel ID matrix + **M-24** Upwork listing draft
+
+Honest co-primary surface→package→IDs map ([`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](go-to-market/SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md)); Upwork **AI Architecture Governance Review** paste-ready copy ([`UPWORK_LISTINGS.md`](go-to-market/UPWORK_LISTINGS.md)).
+
 ## 2026-07-29 — GTM: **M-34** / **M-22** / **M-23** — named SKU talk track + paid pilot offer drafts
 
 **Outcome.** New [`PAID_PILOT_OFFERS.md`](go-to-market/PAID_PILOT_OFFERS.md) locks the four service SKU names for outreach/SOWs, drafts **Option A** (ArchLucid AI & Cloud Architecture Readiness Review package) and **Option B** (30–60 day pilot with SKU-mapped milestones), and points conversion at the subscription order form. [`ORDER_FORM_TEMPLATE.md`](go-to-market/ORDER_FORM_TEMPLATE.md) gains **Addendum D** (prior SOW / named SKU / closeout / pilot credit). Cross-links: [`SERVICE_LED_OFFERS.md`](go-to-market/SERVICE_LED_OFFERS.md), [`BUYER_PERSONAS.md`](go-to-market/BUYER_PERSONAS.md) outreach stage, [`QUOTE_TO_PROOF_PACKET.md`](go-to-market/QUOTE_TO_PROOF_PACKET.md) productized offers. Owner still personalizes fees and obtains counsel review before customer send; closing the first engagement remains **G-COMMERCE-02**.

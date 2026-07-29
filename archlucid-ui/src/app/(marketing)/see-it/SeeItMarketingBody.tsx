@@ -3,7 +3,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getArtifactBusinessLabel } from "@/lib/artifact-review-helpers";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
-import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
+import {
+  CANONICAL_ANONYMOUS_PROOF_HREF,
+  SHOWCASE_BUYER_REVIEW_TITLE,
+} from "@/lib/showcase-static-demo";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { SeeItPreviewSource } from "./load-see-it-demo-preview";
 import { resolveSeeItDemoUniverse, seeItUniverseBannerTitle } from "./see-it-demo-universe";
@@ -136,9 +139,9 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         <Link
           data-testid="see-it-full-preview-link"
           className="inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
-          href="/demo/preview"
+          href={CANONICAL_ANONYMOUS_PROOF_HREF}
         >
-          Open full demo preview
+          Open healthcare claims sample review
         </Link>
       </section>
       <p className="text-xs text-neutral-600 dark:text-neutral-400">

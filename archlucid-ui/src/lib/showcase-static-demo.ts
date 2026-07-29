@@ -7,6 +7,12 @@ import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 /** Public-marketing slug for demos and screenshots — no fixture-style token. */
 export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
 
+/**
+ * M-107 Option A — canonical anonymous public proof path (Claims-static showcase).
+ * Contoso `/demo/preview` stays a secondary, Contoso-labeled sample (self-demo / Product Tour).
+ */
+export const CANONICAL_ANONYMOUS_PROOF_HREF = `/showcase/${SHOWCASE_STATIC_DEMO_RUN_ID}` as const;
+
 /** Prior vs later finalized reviews for the Claims Intake compare walkthrough. */
 export const SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID = "claims-intake-run-v1";
 

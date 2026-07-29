@@ -10,6 +10,8 @@ import {
   MARKETING_SEE_IT_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
 } from "@/lib/marketing-open-graph";
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { normalizeSeeItMarketingPayload } from "./normalize-see-it-payload";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
@@ -65,8 +67,8 @@ export default async function SeeItMarketingPage() {
           on the executive summary and review pages.
         </p>
         <div className="mt-4">
-          <Button asChild variant="primary" data-testid="see-it-cta-demo-preview">
-            <Link href="/demo/preview">Open full demo preview</Link>
+          <Button asChild variant="primary" data-testid="see-it-cta-showcase">
+            <Link href={CANONICAL_ANONYMOUS_PROOF_HREF}>Open healthcare claims sample review</Link>
           </Button>
         </div>
       </div>

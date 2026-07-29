@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 type WelcomeVerifyLink = {
   readonly label: string;
@@ -74,7 +75,7 @@ const PILLARS: readonly WelcomePillar[] = [
     verify: [
       { label: "See it in 30 seconds", href: "/see-it" },
       { label: "Security & trust", href: "/security-trust" },
-      { label: "Demo preview", href: "/demo/preview" },
+      { label: "Claims sample review", href: CANONICAL_ANONYMOUS_PROOF_HREF },
       { label: "Product overview", href: "/help/product-overview" },
     ],
   },
@@ -82,7 +83,7 @@ const PILLARS: readonly WelcomePillar[] = [
     title: "Auditable decision trail",
     body: "Every recommendation ships with a chain of evidence: what was examined, which rules fired, what was decided, and why. Provenance and graph surfaces connect evidence to decisions for investigation — not an anonymous “AI said so” reply.",
     verify: [
-      { label: "Evidence trail demo", href: "/demo/preview" },
+      { label: "Claims sample review", href: CANONICAL_ANONYMOUS_PROOF_HREF },
       { label: "Evidence trail", href: "/help/evidence-trail" },
     ],
   },
@@ -182,13 +183,13 @@ export function WelcomeMarketingPage(props: { readonly serverStaticSections?: Re
 
         <div className="mt-6 text-center">
           <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Same finalized demo as{" "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
-              the demo preview page
+            Canonical public sample:{" "}
+            <Link className={MARKETING_SURFACES.inlineLink} href={CANONICAL_ANONYMOUS_PROOF_HREF}>
+              Healthcare Claims Intake Modernization
             </Link>{" "}
-            — full page, no signup.{" "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
-              See the evidence trail walkthrough
+            — illustrative sample review, no signup.{" "}
+            <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
+              See it in 30 seconds
             </Link>
             .
           </p>
@@ -196,7 +197,7 @@ export function WelcomeMarketingPage(props: { readonly serverStaticSections?: Re
             <Link className={MARKETING_SURFACES.inlineLink} href="/WORKED_EXAMPLE_ROI.pdf">
               See worked example (PDF)
             </Link>{" "}
-            — Contoso sample ROI (fictional tenant). Inspectable end to end; no sign-in or sales call required.
+            — fictional Contoso ROI numbers for illustration only (not the Claims showcase package).
           </p>
           <p className={cn("mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-semibold text-neutral-600 dark:text-neutral-300">Verify:</span>{" "}
@@ -208,8 +209,8 @@ export function WelcomeMarketingPage(props: { readonly serverStaticSections?: Re
               Trust center
             </Link>
             {" · "}
-            <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
-              Evidence trail demo
+            <Link className={MARKETING_SURFACES.inlineLink} href={CANONICAL_ANONYMOUS_PROOF_HREF}>
+              Claims sample review
             </Link>
           </p>
         </div>

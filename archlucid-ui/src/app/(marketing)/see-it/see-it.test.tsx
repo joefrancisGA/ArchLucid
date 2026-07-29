@@ -3,7 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  CANONICAL_ANONYMOUS_PROOF_HREF,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { createMinimalDemoPreviewPayload } from "./see-it.fixtures";
@@ -16,10 +19,12 @@ describe("loadSeeItDemoPreview", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns live payload when fetch returns 200 JSON", async () => {
+  it("returns live payload when fetch returns Claims-universe 200 JSON (M-107 Option A)", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_API_BASE", "https://demo-api.test");
 
     const livePayload = createMinimalDemoPreviewPayload();
+    livePayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    livePayload.run.description = "Claims Intake Modernization Review";
     const fetchFn = vi.fn().mockResolvedValue(
       new Response(JSON.stringify(livePayload), {
         status: 200,
@@ -30,17 +35,67 @@ describe("loadSeeItDemoPreview", () => {
     const result = await loadSeeItDemoPreview({
       fetchFn,
       readSnapshotFile: () => {
-        throw new Error("snapshot must not be read on success path");
+        throw new Error("snapshot must not be read on Claims live success path");
       },
     });
 
     expect(result.source).toBe("live");
     expect(result.etag).toBe('"fixture-etag"');
-    expect(result.payload.run.runId).toBe(livePayload.run.runId);
+    expect(result.payload.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
     expect(fetchFn).toHaveBeenCalledWith(
       "https://demo-api.test/v1/demo/preview",
       expect.objectContaining({ method: "GET" }),
     );
+  });
+
+  it("falls back to Claims snapshot when live payload is Contoso (M-107 Option A)", async () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_API_BASE", "https://demo-api.test");
+
+    const livePayload = createMinimalDemoPreviewPayload();
+    livePayload.run.runId = "6e8c4a102b1f4c9a9d3e10b2a4f0c501";
+    livePayload.run.description = "Contoso Retail modernization — migrate monolith checkout.";
+
+    const snapshotPayload = createMinimalDemoPreviewPayload();
+    snapshotPayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    snapshotPayload.run.description = "Claims Intake Modernization Review";
+
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(livePayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const result = await loadSeeItDemoPreview({
+      fetchFn,
+      readSnapshotFile: () => snapshotPayload,
+    });
+
+    expect(result.source).toBe("snapshot");
+    expect(result.payload.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+  });
+
+  it("falls back to Claims snapshot when live payload universe is unknown (M-107 Option A)", async () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_API_BASE", "https://demo-api.test");
+
+    const livePayload = createMinimalDemoPreviewPayload();
+    const snapshotPayload = createMinimalDemoPreviewPayload();
+    snapshotPayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(livePayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const result = await loadSeeItDemoPreview({
+      fetchFn,
+      readSnapshotFile: () => snapshotPayload,
+    });
+
+    expect(result.source).toBe("snapshot");
+    expect(result.payload.run.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
   });
 
   it("returns snapshot payload when fetch throws", async () => {
@@ -159,6 +214,10 @@ describe("SeeItMarketingBody", () => {
     expect(screen.getByTestId("see-it-demo-banner")).toHaveAttribute("data-see-it-universe", "claims");
     expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent(
       "Healthcare claims sample — public evaluation preview",
+    );
+    expect(screen.getByTestId("see-it-full-preview-link")).toHaveAttribute(
+      "href",
+      CANONICAL_ANONYMOUS_PROOF_HREF,
     );
   });
 

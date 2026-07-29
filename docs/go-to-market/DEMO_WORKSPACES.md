@@ -1,14 +1,16 @@
-﻿> **Reviewed:** 2026-07-27
+﻿> **Reviewed:** 2026-07-29
 
 > **Scope:** Path-stable alias for hosted GA demo workspaces and welcome-hero analytics. Not an independent quickstart.
 
 # Demo workspaces (alias)
 
-**Last reviewed:** 2026-07-27
+**Last reviewed:** 2026-07-29
 
 **Canonical workspaces + welcome hero:** [`DEMO_QUICKSTART.md#demo-workspaces`](DEMO_QUICKSTART.md#demo-workspaces).
 
 **Welcome hero (CTAs / Clarity / compliance):** [`DEMO_QUICKSTART.md#welcome-hero--ctas-analytics-and-compliance`](DEMO_QUICKSTART.md#welcome-hero--ctas-analytics-and-compliance).
+
+**Sample-package funnel ID matrix (M-134):** [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) — surface → package → IDs (Claims vs Product Tour Contoso vs Workspace B); do not mix universes on one CTA.
 
 Workspace A/B narrative, scope triplets, living-fixture PR discipline, and marketing hero analytics live only in the demo quickstart. This file keeps the historical path stable for `Validate-DemoWorkspacesDoc.ps1` and smoke callers.
 

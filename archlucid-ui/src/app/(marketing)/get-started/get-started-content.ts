@@ -5,6 +5,7 @@ import {
   CUSTOMER_AUTH_GUIDED_WORKSPACE_SIGN_IN,
   CUSTOMER_AUTH_PUBLIC_SAMPLE_NO_SIGN_IN,
 } from "@/lib/auth/customer-auth-messaging";
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
 import type { BuyerGetStartedVerticalSlug } from "./get-started-verticals";
 
@@ -111,7 +112,9 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "Financial services",
     scenario: "Digital account-opening modernization",
     icon: Building2,
-    publicSampleHref: "/demo/preview",
+    // M-107 Option A: all anonymous get-started samples share the Claims showcase package
+    // (vertical labels are framing; Contoso /demo/preview is secondary Product Tour only).
+    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
     publicSampleAccessibleName: "Open illustrative financial services sample review",
   },
   {
@@ -119,7 +122,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "Healthcare",
     scenario: "Claims intake modernization",
     icon: HeartPulse,
-    publicSampleHref: "/showcase/claims-intake-modernization",
+    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
     publicSampleAccessibleName: "Open healthcare claims illustrative sample review",
   },
   {
@@ -127,7 +130,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "Retail",
     scenario: "Omnichannel order-management modernization",
     icon: ShoppingCart,
-    publicSampleHref: "/demo/preview",
+    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
     publicSampleAccessibleName: "Open illustrative retail sample review",
   },
   {
@@ -135,7 +138,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "SaaS",
     scenario: "Enterprise platform scaling review",
     icon: Cloud,
-    publicSampleHref: "/demo/preview",
+    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
     publicSampleAccessibleName: "Open illustrative SaaS sample review",
   },
   {
@@ -143,7 +146,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "Public sector",
     scenario: "Digital service modernization",
     icon: Landmark,
-    publicSampleHref: "/demo/preview",
+    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
     publicSampleAccessibleName: "Open illustrative public sector sample review",
   },
   {
@@ -151,7 +154,7 @@ export const GET_STARTED_VERTICAL_PRESENTATIONS: readonly GetStartedVerticalPres
     label: "US government",
     scenario: "Government workload and control review",
     icon: Flag,
-    publicSampleHref: "/demo/preview",
+    publicSampleHref: CANONICAL_ANONYMOUS_PROOF_HREF,
     publicSampleAccessibleName: "Open illustrative US government sample review",
   },
 ] as const;

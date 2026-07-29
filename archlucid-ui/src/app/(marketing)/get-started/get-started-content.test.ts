@@ -7,12 +7,10 @@ import {
 } from "./get-started-content";
 
 describe("get-started-content", () => {
-  it("maps healthcare to the public showcase and keeps other verticals on demo preview", () => {
-    const healthcare = GET_STARTED_VERTICAL_PRESENTATIONS.find((entry) => entry.slug === "healthcare");
-    const financial = GET_STARTED_VERTICAL_PRESENTATIONS.find((entry) => entry.slug === "financial-services");
-
-    expect(healthcare?.publicSampleHref).toBe("/showcase/claims-intake-modernization");
-    expect(financial?.publicSampleHref).toBe("/demo/preview");
+  it("maps all vertical public samples to Claims showcase (M-107 Option A)", () => {
+    for (const entry of GET_STARTED_VERTICAL_PRESENTATIONS) {
+      expect(entry.publicSampleHref).toBe("/showcase/claims-intake-modernization");
+    }
   });
 
   it("builds guided trial links that hand off to onboarding", () => {
