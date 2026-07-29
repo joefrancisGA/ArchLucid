@@ -19,6 +19,8 @@ import {
   stripConfigurationReferenceContributorLeakage,
   stripConfigurationReferenceContributorSections,
   stripDocumentationMaintenanceMetadata,
+  stripEnterpriseOnboardingContributorLeakage,
+  stripEnterpriseOnboardingContributorSections,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -129,6 +131,55 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("public marketing site");
     expect(prepared).toContain("## Hosting roles");
     expect(prepared).not.toContain("SimulateLlmBudgetExhausted");
+  });
+
+  it("omits tenant provisioning from enterprise onboarding presentation (TB-1339)", () => {
+    const source = [
+      "## Tenant provisioning {#tenant-provisioning}",
+      "",
+      "| Create tenant row | ArchLucid | Tenant GUID |",
+      "",
+      "## Workforce SSO {#workforce-sso}",
+      "",
+      "Choose SAML or OIDC JwtBearer.",
+    ].join("\n");
+
+    const prepared = stripEnterpriseOnboardingContributorSections(source);
+
+    expect(prepared.toLowerCase()).not.toContain("tenant provisioning");
+    expect(prepared).not.toContain("Tenant GUID");
+    expect(prepared).toContain("## Workforce SSO");
+  });
+
+  it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {
+    const source = [
+      "Choose **OIDC JwtBearer**.",
+      "",
+      "Persist mapping in **`ClaimMappingJson`**.",
+      "",
+      "**Evidence tier:** cloud-connected (optional).",
+      "",
+      "<details>",
+      "<summary>Advanced: configuration keys (admin reference)</summary>",
+      "",
+      "**SAML helpers:** `archlucid auth sso-preflight` (appsettings)",
+      "",
+      "</details>",
+      "",
+      "Keep going.",
+    ].join("\n");
+
+    const prepared = stripEnterpriseOnboardingContributorLeakage(source);
+
+    expect(prepared).not.toContain("JwtBearer");
+    expect(prepared).toContain("OpenID Connect");
+    expect(prepared).not.toContain("ClaimMappingJson");
+    expect(prepared).toContain("role claim mapping");
+    expect(prepared).not.toContain("Evidence tier");
+    expect(prepared).not.toContain("archlucid auth");
+    expect(prepared).not.toContain("appsettings");
+    expect(prepared).not.toContain("configuration keys");
+    expect(prepared).toContain("Keep going.");
   });
 
   it("strips TB IDs, RC scripts, and contributor security anchors from configuration reference (TB-1327)", () => {

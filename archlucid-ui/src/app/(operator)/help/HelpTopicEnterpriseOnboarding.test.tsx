@@ -29,9 +29,9 @@ const ONBOARDING_HUB_LINKS: ReadonlyArray<{ readonly label: string; readonly hre
   { label: "Prepare procurement/trust review", href: "/help/procurement" },
 ];
 
+/** TB-1339 — tenant-provisioning is stripped from product presentation (ArchLucid CS theater). */
 const TOC_SECTION_IDS = [
   "onboarding-hub",
-  "tenant-provisioning",
   "workforce-sso",
   "saml-claim-mapping-reference",
   "scim-provisioning",
@@ -42,6 +42,21 @@ const TOC_SECTION_IDS = [
   "integration-bridges",
   "azure-cloud-evidence-connection",
   "sign-off",
+] as const;
+
+const ENTERPRISE_ONBOARDING_HELP_BANNED_SUBSTRINGS = [
+  "archlucid auth",
+  "archlucid saml",
+  "sso-preflight",
+  "test-config",
+  "validate-saml",
+  "appsettings",
+  "Evidence tier",
+  "JwtBearer",
+  "ClaimMappingJson",
+  "Tenant GUID",
+  "DataRegion",
+  "CRM / runbook",
 ] as const;
 
 describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
@@ -110,5 +125,38 @@ describe("HelpTopicMarkdownView enterprise onboarding checklist", () => {
 
     expect(azureHelpLinks.some((link) => link.getAttribute("href") === "/help/cloud-connections/azure")).toBe(true);
     expect(azureHelpLinks.some((link) => link.getAttribute("href") === "/help")).toBe(false);
+  });
+
+  it("presentation strip removes ArchLucid-internal + eng CLI leakage (TB-1339)", () => {
+    if (loaded === null) {
+      throw new Error("Expected enterprise onboarding documentation to load.");
+    }
+
+    const prepared = prepareHelpMarkdownForPresentation(loaded.markdown, ENTERPRISE_ONBOARDING_SOURCE);
+    const lower = prepared.toLowerCase();
+
+    expect(lower).not.toContain("tenant provisioning");
+
+    for (const banned of ENTERPRISE_ONBOARDING_HELP_BANNED_SUBSTRINGS) {
+      expect(prepared, `banned substring still present: ${banned}`).not.toContain(banned);
+    }
+  });
+
+  it("rendered help body stays free of eng CLI and Evidence-tier leakage (TB-1339)", () => {
+    if (loaded === null) {
+      throw new Error("Expected enterprise onboarding documentation to load.");
+    }
+
+    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByRole("article")).toBeInTheDocument();
+
+    const visible = document.body.textContent ?? "";
+
+    for (const banned of ENTERPRISE_ONBOARDING_HELP_BANNED_SUBSTRINGS) {
+      expect(visible, `banned substring still rendered: ${banned}`).not.toContain(banned);
+    }
+
+    expect(visible.toLowerCase()).not.toContain("tenant provisioning");
   });
 });

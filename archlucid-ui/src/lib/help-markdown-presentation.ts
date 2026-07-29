@@ -400,6 +400,116 @@ export function stripConfigurationReferenceContributorSections(markdown: string)
   return result.join("\n");
 }
 
+/** H2 sections omitted from in-app enterprise onboarding (ArchLucid CS / ops theater). */
+const ENTERPRISE_ONBOARDING_OMITTED_SECTION_PREFIXES = ["tenant provisioning"] as const;
+
+/**
+ * TB-1339 — drops ArchLucid-internal tenant provisioning from the product onboarding help view.
+ */
+export function stripEnterpriseOnboardingContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).replace(/\s*\{#[^}]+\}\s*$/, "").trim().toLowerCase();
+      omitSection = ENTERPRISE_ONBOARDING_OMITTED_SECTION_PREFIXES.some((prefix) =>
+        title.startsWith(prefix),
+      );
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/**
+ * TB-1339 — removes eng CLI/appsettings, Evidence-tier jargon, and demotes JwtBearer /
+ * ClaimMappingJson vocabulary from in-app enterprise onboarding presentation.
+ */
+export function stripEnterpriseOnboardingContributorLeakage(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let inFence = false;
+  let detailsBuffer: string[] | null = null;
+
+  const flushDetailsBuffer = (): void => {
+    if (detailsBuffer === null) {
+      return;
+    }
+
+    const block = detailsBuffer.join("\n");
+    detailsBuffer = null;
+
+    // Drop eng-only configuration-keys disclosure (CLI / appsettings helpers).
+    if (
+      /configuration keys/i.test(block) ||
+      /archlucid auth\b/i.test(block) ||
+      /archlucid saml\b/i.test(block) ||
+      /\bappsettings\b/i.test(block)
+    ) {
+      return;
+    }
+
+    for (const bufferedLine of block.split("\n")) {
+      result.push(bufferedLine);
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      inFence = !inFence;
+    }
+
+    if (!inFence && /^<details\b/i.test(trimmed)) {
+      detailsBuffer = [line];
+      continue;
+    }
+
+    if (detailsBuffer !== null) {
+      detailsBuffer.push(line);
+
+      if (/^<\/details>/i.test(trimmed)) {
+        flushDetailsBuffer();
+      }
+
+      continue;
+    }
+
+    if (!inFence && /^\*\*Evidence tier:\*\*/i.test(trimmed)) {
+      continue;
+    }
+
+    if (
+      !inFence &&
+      (/archlucid auth\b/i.test(line) || /archlucid saml\b/i.test(line) || /\bappsettings\b/i.test(line))
+    ) {
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  flushDetailsBuffer();
+
+  return result
+    .join("\n")
+    .replace(/\bOIDC JwtBearer\b/gi, "OpenID Connect (OIDC)")
+    .replace(/\bJwtBearer\b/g, "OpenID Connect")
+    .replace(/`ClaimMappingJson`/g, "role claim mapping")
+    .replace(/\bClaimMappingJson\b/g, "role claim mapping")
+    .replace(/`claim-mapping\.json`/gi, "role claim mapping file")
+    .replace(/\bclaim-mapping\.json\b/gi, "role claim mapping file")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /**
  * TB-1327 — removes backlog IDs, RC script/fixture paths, ADR deep links, and contributor
  * security/scope anchors from in-app configuration reference presentation.
@@ -593,9 +703,14 @@ export function prepareHelpMarkdownForPresentation(
   const withoutInlineReferences = stripInternalBuyerHelpInlineReferences(withoutInternalSections);
   const normalizedSourcePath = sourceDocPath.replace(/\\/g, "/").toLowerCase();
   const isConfigurationReference = normalizedSourcePath.includes("configuration_reference.md");
+  const isEnterpriseOnboarding = normalizedSourcePath.includes(
+    "hosted_enterprise_onboarding_checklist.md",
+  );
   const beforeLinkRewrite = isConfigurationReference
     ? stripConfigurationReferenceContributorSections(withoutInlineReferences)
-    : withoutInlineReferences;
+    : isEnterpriseOnboarding
+      ? stripEnterpriseOnboardingContributorSections(withoutInlineReferences)
+      : withoutInlineReferences;
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
@@ -605,6 +720,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripProcurementContributorLeakage(sanitized);
   } else if (isConfigurationReference) {
     afterAudienceStrip = stripConfigurationReferenceContributorLeakage(sanitized);
+  } else if (isEnterpriseOnboarding) {
+    afterAudienceStrip = stripEnterpriseOnboardingContributorLeakage(sanitized);
   }
 
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);
