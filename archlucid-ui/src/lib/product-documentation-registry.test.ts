@@ -211,6 +211,7 @@ describe("product-documentation-registry", () => {
       "first-review",
       "policy-pack-delta-demo",
       "pilot-feedback",
+      "developer-troubleshooting",
     ] as const;
 
     for (const slug of internalRunbookSlugs) {
@@ -225,7 +226,6 @@ describe("product-documentation-registry", () => {
       "cli-usage",
       "governance-api-contracts",
       "admin-diagnostics",
-      "developer-troubleshooting",
     ];
 
     for (const slug of technicalSlugs) {

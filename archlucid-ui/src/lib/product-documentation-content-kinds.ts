@@ -9,6 +9,7 @@ const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
   "first-review",
   "policy-pack-delta-demo",
   "pilot-feedback",
+  "developer-troubleshooting",
 ]);
 
 /** Canonical `contentKind` for every `product-documentation-registry.ts` slug. */
@@ -33,7 +34,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "core-pilot": "product-help",
   "data-handling": "product-help",
   "data-handling-tenant-isolation": "product-help",
-  "developer-troubleshooting": "technical-documentation",
+  "developer-troubleshooting": "internal-runbook",
   "enterprise-onboarding": "product-help",
   "evaluator-workbook": "product-help",
   "evidence-intake": "product-help",

@@ -12,6 +12,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("product-documentation-access", () => {
   it("treats internal-runbook slugs as admin-only", () => {
     expect(isInternalRunbookHelpSlug("first-value-20-minutes")).toBe(true);
+    expect(isInternalRunbookHelpSlug("developer-troubleshooting")).toBe(true);
     expect(isInternalRunbookHelpSlug("review-guide")).toBe(false);
     expect(isInternalRunbookHelpSlug("pre-commit-ci-gate")).toBe(false);
   });
@@ -23,6 +24,18 @@ describe("product-documentation-access", () => {
     expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ReadAuthority)).toBe(false);
     expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ExecuteAuthority)).toBe(false);
     expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.AdminAuthority)).toBe(true);
+  });
+
+  it("gates engineering troubleshooting as Admin-only (TB-1246)", () => {
+    const entry = getProductDocumentationEntry("developer-troubleshooting");
+
+    expect(entry).not.toBeNull();
+    expect(entry!.contentKind).toBe("internal-runbook");
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ReadAuthority)).toBe(false);
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ExecuteAuthority)).toBe(false);
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.AdminAuthority)).toBe(true);
+    expect(principalCanAccessHelpTopic(entry!, shellBootstrapReadPrincipal)).toBe(false);
+    expect(principalCanAccessHelpTopic(entry!, operatorNavOutsideProviderPrincipal)).toBe(true);
   });
 
   it("allows product-help topics for read-tier callers", () => {
