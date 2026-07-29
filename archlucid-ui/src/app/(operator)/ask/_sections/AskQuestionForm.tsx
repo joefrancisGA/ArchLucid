@@ -9,6 +9,7 @@ import {
   BUYER_ASK_CARD_TITLE,
   BUYER_ASK_INPUT_PLACEHOLDER,
   BUYER_ASK_SUGGESTED_QUESTIONS_HEADING,
+  BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -166,9 +167,9 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-prompts-sample-callout">
           Open the{" "}
           <Link className={OPERATOR_LINK.nav} href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
-            sample evidence graph
+            {BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL}
           </Link>{" "}
-          to try these questions.
+          (not your tenant workspace) to try these questions.
         </p>
       ) : null}
     </section>

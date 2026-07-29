@@ -17,6 +17,11 @@ import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { isShowcaseDemoRunId } from "@/lib/graph-page-state";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT,
+  BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL,
+  BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT,
+} from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -107,14 +112,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   const reviewsUnavailableHint = reviewsLoadErrorHint ?? "Check workspace setup or retry.";
   const syntheticSampleHintText =
     syntheticSampleHint ??
-    "No completed reviews are available yet. You can start a new review or explore the sample evidence graph.";
+    "No completed reviews are available yet. You can start a new review or explore the illustrative Claims Intake sample graph (not your tenant data).";
   const syntheticLoadErrorHintText =
-    syntheticLoadErrorHint ??
-    "Reviews could not be loaded. Showing the sample review for this page.";
+    syntheticLoadErrorHint ?? BUYER_EVIDENCE_GRAPH_SYNTHETIC_LOAD_ERROR_HINT;
   const emptyListPlaceholderText = emptyListPlaceholder ?? "No completed reviews yet";
-  const emptyListHintText =
-    emptyListHint ??
-    "No completed reviews yet. Start a new review or open the sample evidence graph.";
+  const emptyListHintText = emptyListHint ?? BUYER_EVIDENCE_GRAPH_EMPTY_LIST_HINT;
 
   const onListAvailabilityChangeRef = useRef(onListAvailabilityChange);
   onListAvailabilityChangeRef.current = onListAvailabilityChange;
@@ -375,7 +377,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
               className="font-medium text-teal-800 underline dark:text-teal-300"
               href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
             >
-              open the sample evidence graph
+              {BUYER_EVIDENCE_GRAPH_SAMPLE_LINK_LABEL}
             </Link>
             .
           </p>

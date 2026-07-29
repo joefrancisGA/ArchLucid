@@ -20,8 +20,8 @@ The **evidence graph** is the interactive view that shows how those pieces conne
 ## Open the Evidence graph {#open-the-evidence-graph}
 
 1. In the architect workspace, open **Insights** and choose **Evidence graph** (route `/graph`).
-2. Select a **finalized review** from the list, or choose **Open sample evidence graph** to explore a demo package.
-3. Select **Load evidence graph** when prompted.
+2. Select a **finalized review from your workspace**, or choose **Open Claims Intake sample graph** to explore the illustrative **Healthcare Claims Intake** demo package — that sample is **not** a review from your tenant.
+3. Select **Load evidence graph** when prompted. When the sample is loaded, the page banner states it is the Claims Intake sample, not your workspace.
 
 You can also jump from a finding:
 

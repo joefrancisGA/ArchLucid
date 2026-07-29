@@ -22,8 +22,9 @@ describe("AskQuestionForm", () => {
     );
 
     expect(screen.getByTestId("ask-select-review-helper")).toHaveTextContent("Select a review first.");
-    expect(screen.getByTestId("ask-prompts-sample-callout")).toHaveTextContent("sample evidence graph");
-    expect(screen.getByRole("link", { name: "sample evidence graph" })).toHaveAttribute(
+    expect(screen.getByTestId("ask-prompts-sample-callout")).toHaveTextContent("Claims Intake sample graph");
+    expect(screen.getByTestId("ask-prompts-sample-callout")).toHaveTextContent("not your tenant workspace");
+    expect(screen.getByRole("link", { name: "Claims Intake sample graph" })).toHaveAttribute(
       "href",
       `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
     );

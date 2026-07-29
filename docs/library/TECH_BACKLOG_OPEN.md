@@ -261,7 +261,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1360 | `/help/evidence-trail` — specialty Evidence graph companion + Open `/graph` CTA | Adoption friction P1 **V1** — owner evidence-trail ~58/100; traffic **EV**; after Done **TB-762** |
 | TB-1361 | Evidence trail help — finding deep-link / `mode=` honesty | Trustworthiness P1 **V1** — with **TB-1360** |
 | TB-1362 | Evidence trail help — Related guides density | Adoption friction P1 **V1** — with **TB-1360**; pairs **TB-1258** |
-| TB-1363 | Evidence trail help — sample evidence graph universe honesty | Trustworthiness P0 **V1** — with **TB-1360**; pairs **TB-1028** |
+| TB-1363 | ~~Evidence trail help — sample evidence graph universe honesty~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1360**; pairs **TB-1028** |
 | TB-1364 | Evidence trail help — Open sample / Load CTA chrome parity | Adoption friction P1 **V1** — with **TB-1360** |
 | TB-1374 | `/help/first-hour-operator-path` — canonicalize into `/help/core-pilot` | Adoption friction P1 **V1** — owner first-hour ~46/100; traffic **HFE**; pairs **TB-1335**/**TB-1352** |
 | TB-1375 | First-hour help — purge Pilot / operator-path jargon + slug honesty | Trustworthiness P1 **V1** — with **TB-1374** |
