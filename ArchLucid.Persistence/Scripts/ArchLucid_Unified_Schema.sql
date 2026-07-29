@@ -8177,6 +8177,7 @@ END;
 
 GO
 
+/* Self-service trial abuse tracking (DbUp 291 parity; renumbered from duplicate 287) */
 IF OBJECT_ID(N'dbo.PlatformSelfServiceTrialEmailClaims', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.PlatformSelfServiceTrialEmailClaims
