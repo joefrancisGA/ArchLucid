@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getDocHref } from "./help-topics";
+import { getDocHref, getHelpTopicHref, HELP_TOPICS } from "./help-topics";
 
 describe("getDocHref", () => {
   it("maps known repo paths to in-app help routes", () => {
@@ -30,5 +30,27 @@ describe("getDocHref", () => {
   it("returns null when docPath is empty or whitespace", () => {
     expect(getDocHref("")).toBeNull();
     expect(getDocHref("   ")).toBeNull();
+  });
+});
+
+describe("HELP_TOPICS buyer governance links (TB-1387)", () => {
+  it("routes governance golden-path topics to buyer help, not eng API contracts", () => {
+    const topicIds = ["governance-workflow", "policy-packs"] as const;
+
+    for (const topicId of topicIds) {
+      const topic = HELP_TOPICS.find((entry) => entry.id === topicId);
+
+      expect(topic, topicId).toBeDefined();
+      expect(topic!.docPath.toLowerCase()).not.toContain("api_contracts");
+
+      const href = getHelpTopicHref(topic!);
+
+      expect(href, topicId).not.toBeNull();
+      expect(href!).not.toContain("governance-api-contracts");
+    }
+
+    expect(getHelpTopicHref(HELP_TOPICS.find((entry) => entry.id === "governance-workflow")!)).toBe(
+      "/help/governance-approval",
+    );
   });
 });

@@ -34,9 +34,9 @@ const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
     blurb: "Schema and workflow for reusing a prepared request in the wizard or automation.",
   },
   {
-    title: "HTTP API contracts",
-    docPath: "docs/library/API_CONTRACTS.md",
-    blurb: "ArchitectureRequest-related types and versioning expectations for integrations.",
+    title: "Integration readiness",
+    docPath: "docs/library/customer-facing/INTEGRATION_READINESS.md",
+    blurb: "Connector health, programmatic client prerequisites, and where to download the OpenAPI contract.",
   },
 ];
 

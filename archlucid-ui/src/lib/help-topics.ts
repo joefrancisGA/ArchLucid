@@ -116,7 +116,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["approval", "promote", "staging", "production"],
     summary:
       "Submit → review → approve → promote: walk approvals for a finalized review when your workspace enables governance.",
-    docPath: "docs/library/API_CONTRACTS.md",
+    docPath: "docs/library/customer-facing/GOVERNANCE_APPROVAL_OPERATOR_GUIDE.md",
     routes: ["/governance"],
   },
   {
@@ -133,7 +133,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Policy packs",
     keywords: ["governance", "compliance", "pack"],
     summary: "Policy packs bundle rules and defaults; assign scope and inspect effective governance.",
-    docPath: "docs/library/API_CONTRACTS.md",
+    docPath: "docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md",
     routes: ["/policy-packs", "/governance-resolution"],
   },
   {

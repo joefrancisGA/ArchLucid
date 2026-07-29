@@ -40,7 +40,7 @@ describe("help-center internal + technical-documentation allowlist (TB-1250)", (
     }
   });
 
-  it("keeps buyer Findings/Governance related links off eng API contracts (TB-1250)", () => {
+  it("keeps buyer Findings/Governance related links off eng API contracts (TB-1250 / TB-1387)", () => {
     expect(FINDINGS_HELP_RELATED_PRODUCT_DOCS.href).not.toContain("governance-api-contracts");
     expect(GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS.href).not.toContain("governance-api-contracts");
     expect(FINDINGS_HELP_RELATED_PRODUCT_DOCS.href).toBe("/help/audit-trail");
