@@ -36,4 +36,4 @@ Use [`BUYER_SECURITY_PROCUREMENT_PACKET.md#principal-architect-falsification-scr
 | “Security review ready = SOC 2 / 3P pen tested” | Self-attested pack + these handouts; CPA/3P are separate owner rows |
 | “All PA one-pagers must ship before first conversation” | Must = **M-151** + **M-118** (+ **M-114**); others agenda-driven |
 
-**Related:** [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#minimum-pilot-trust-packet-m-191`](BUYER_SECURITY_PROCUREMENT_PACKET.md#minimum-pilot-trust-packet-m-191) (`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` alias) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).

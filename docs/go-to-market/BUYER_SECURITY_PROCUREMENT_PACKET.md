@@ -1,7 +1,7 @@
 > **Reviewed:** 2026-07-29
 
 
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), and the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**), and the minimum pilot trust packet without CPA/3P pen test (formerly the body of `MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-191**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -238,6 +238,48 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE
 
 **Related:** [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
+## Minimum pilot trust packet without CPA / 3P pen test (M-191) {#minimum-pilot-trust-packet-m-191}
+
+Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-191** / **TB-1112**). Does **not** reopen Done **TB-135**/**TB-136**. Complements [§4 Assurance status](#4-assurance-status--explicit). Not an assurance attestation.
+
+**Path-stable alias:** [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md).
+
+**Audience:** Procurement and security reviewers for a **controlled pilot**; founder assembling the packet.
+
+**Claim:** The Stage 0 pilot trust bar is a **six-element Real SEND executive packet** plus **labeled self-attested** assurance substitutes — not a CPA-issued SOC 2 report and not a published third-party pen-test summary.
+
+### Include (minimum bar)
+
+| Element | Meaning |
+| --- | --- |
+| Committed package | Golden manifest + `ManifestHash` on a Real (or honestly labeled) run |
+| Mode label | Execution mode on sponsor surfaces (**M-128**) |
+| Evidence-linked findings | Findings with evidence refs / provenance story (**M-207** when in scope) |
+| Mode-labeled export | Export/verify path; no silent Simulator-as-production |
+| Source-classified ROI | Estimates labeled; no Simulator-as-customer-savings (**M-138**/**M-139**) |
+| Self-attested assurance | Trust Center + SOC self-assessment + owner-conducted pen-style summary as labeled substitutes |
+
+### Drop / defer (not required for single-pilot Stage 0 bar)
+
+| Item | Where it lives |
+| --- | --- |
+| CPA-issued SOC 2 report | **G-REAL-05** (owner) |
+| Published third-party pen test | **G-ASSURANCE-02** (owner) |
+| Stage 1 / G4 ≥3 pilot proof rows | **G-REAL-06** / **G-REAL-07** (does not substitute this packet) |
+| Named public reference customer | GTM owner clearance |
+
+### Too strong vs safe
+
+| Too strong | Safe |
+| --- | --- |
+| “SOC 2 certified” / “third-party pen tested” | Self-attested / owner-conducted / program deferred |
+| “Trust Center equals CPA attestation” | Trust Center is honesty + evidence pointers |
+| Mock-review FAIL because CPA missing | Mock PASS may accept deferred `(B)` as scope |
+
+**Talk-track ladder:** [`SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md`](SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md) (**M-197**) · Stage 0 allowlist **M-188**/**M-189**.
+
+**Related:** [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md) · [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) · [§4 Assurance status](#4-assurance-status--explicit) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
 ## PA claim-honesty short rows (M-115+) {#pa-claim-honesty-short-rows}
 
 Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
@@ -251,7 +293,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Model vs quality (M-123) | HOLD ≠ outage | “Perfect AI quality” | [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) |
 | Interrupted review (M-121) | Skip persisted `(RunId,TaskId)` only | “Exactly-once LLM” | [`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`](INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md) |
 | Inbound webhooks (M-126) | Rate → size → verify → parse; signed ≠ hardened | “Signed webhooks are fully hardened” | [`#security-reviewer-inbound-webhook-m-126`](#security-reviewer-inbound-webhook-m-126) |
-| Pilot trust bar (M-190) | Six-element Real SEND + self-attested substitutes | “Requires CPA SOC 2 / published 3P pen test” | [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md) |
+| Pilot trust bar (M-190/M-191) | Six-element Real SEND + self-attested substitutes | “Requires CPA SOC 2 / published 3P pen test” | [`#minimum-pilot-trust-packet-m-191`](#minimum-pilot-trust-packet-m-191) |
 | First security review (M-192) | Must **M-114** + **M-151** + **M-118** | “Ready = CPA + all one-pagers” | [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`](FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md) |
 
 ## Tenant isolation (buyer overview) {#tenant-isolation-buyer-overview}
@@ -1090,6 +1132,7 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`#prompt-injection-resistance-m-115`](#prompt-injection-resistance-m-115) · [`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`](PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md) (alias) | Prompt-injection posture (M-115) |
 | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) · [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) (alias) | Audit Required vs informational (M-118) |
 | [`#tenant-identity-single-derivation-m-151`](#tenant-identity-single-derivation-m-151) · [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) (alias) | Tenant identity decide-once (M-151) |
+| [`#minimum-pilot-trust-packet-m-191`](#minimum-pilot-trust-packet-m-191) · [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md) (alias) | Stage 0 pilot trust bar without CPA/3P (M-191) |
 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment narrative |
 | [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | SOC 2 CPA roadmap (V1.1) |
 | [`#procurement-response-accelerator`](#procurement-response-accelerator) · [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) (alias) | CAIQ / SIG question-answer map |
@@ -1113,4 +1156,5 @@ Former standalone body: `docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md` �
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md` → [inbound webhook handout](#security-reviewer-inbound-webhook-m-126) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` → [prompt-injection resistance](#prompt-injection-resistance-m-115) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` → [audit trail handout](#security-reviewer-audit-trail-m-118) (filename kept as path-stable alias; duplicate body collapsed on fold).  
-Former standalone body: `docs/go-to-market/TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` → [tenant identity single derivation](#tenant-identity-single-derivation-m-151) (filename kept as path-stable alias; duplicate body collapsed on fold).
+Former standalone body: `docs/go-to-market/TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` → [tenant identity single derivation](#tenant-identity-single-derivation-m-151) (filename kept as path-stable alias; duplicate body collapsed on fold).  
+Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → [minimum pilot trust packet](#minimum-pilot-trust-packet-m-191) (filename kept as path-stable alias).
