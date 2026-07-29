@@ -151,8 +151,17 @@ internal static class FindingsSnapshotRelationalRead
         }, row);
     }
 
-    private static string BuildFindingRecordsSelectSql(ScopeContext scope, bool includeInsightDensityColumns)
+    /// <summary>
+    ///     Builds the FindingRecords SELECT used by relational snapshot load.
+    ///     Internal for unit coverage of the SELECT/FROM join — a missing separator once produced
+    ///     <c>...Sha256FROM dbo...</c> (SqlError 102) and failed Live E2E demo preview.
+    /// </summary>
+    internal static string BuildFindingRecordsSelectSql(ScopeContext scope, bool includeInsightDensityColumns)
     {
+        // Keep column lists as raw strings so SQL Server schema evolution stays reviewable in diffs.
+        // C# raw string literals drop the newline before the closing delimiter, so concatenating
+        // another raw string that starts with FROM would glue the last column to FROM
+        // (...Sha256FROM dbo.FindingRecords) unless we insert an explicit separator.
         string baseColumns = """
                              SELECT
                                  FindingRecordId, SortOrder, FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
@@ -172,10 +181,15 @@ internal static class FindingsSnapshotRelationalRead
               """
             : string.Empty;
 
-        return baseColumns + insightDensityColumns + """
-                                                     FROM dbo.FindingRecords
-                                                     WHERE FindingsSnapshotId = @FindingsSnapshotId
-                                                     """ + RepositoryScopePredicate.AndTripleWhere(scope) + " ORDER BY SortOrder;";
+        return baseColumns
+               + insightDensityColumns
+               + """
+
+                 FROM dbo.FindingRecords
+                 WHERE FindingsSnapshotId = @FindingsSnapshotId
+                 """
+               + RepositoryScopePredicate.AndTripleWhere(scope)
+               + " ORDER BY SortOrder;";
     }
 
     private static FindingsSnapshot ApplyChecklistHeaderFields(FindingsSnapshot snapshot, FindingsSnapshotStorageRow row)
