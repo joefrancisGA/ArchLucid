@@ -16,6 +16,8 @@ import {
   resolveRelativeRepoDocPath,
   rewriteHelpMarkdownDocLinks,
   sanitizeBareMarkdownFileReferences,
+  stripConfigurationReferenceContributorLeakage,
+  stripConfigurationReferenceContributorSections,
   stripDocumentationMaintenanceMetadata,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
@@ -104,6 +106,58 @@ describe("help-markdown-presentation", () => {
 
     expect(prepared).not.toMatch(/^---$/m);
     expect(prepared).toContain("## Section");
+  });
+
+  it("omits Testing and marketing sections from configuration reference presentation (TB-1327)", () => {
+    const source = [
+      "## Testing (non-production)",
+      "",
+      "| `ArchLucid:Testing:SimulateLlmBudgetExhausted` | demo |",
+      "",
+      "## Public marketing site (`archlucid-ui`, build-time)",
+      "",
+      "see **TB-019** / **TB-020**",
+      "",
+      "## Hosting roles",
+      "",
+      "Api / Worker / Combined",
+    ].join("\n");
+
+    const prepared = stripConfigurationReferenceContributorSections(source);
+
+    expect(prepared.toLowerCase()).not.toContain("testing (non-production)");
+    expect(prepared.toLowerCase()).not.toContain("public marketing site");
+    expect(prepared).toContain("## Hosting roles");
+    expect(prepared).not.toContain("SimulateLlmBudgetExhausted");
+  });
+
+  it("strips TB IDs, RC scripts, and contributor security anchors from configuration reference (TB-1327)", () => {
+    const source = [
+      "Prefer managed identity (TB-080).",
+      "",
+      "**Release-candidate gates (mandatory):** `scripts/ci/Invoke-ConfigLintProofStep.ps1` and `fixtures/release-candidate/appsettings.json`.",
+      "",
+      "See [SECURITY.md](contributor-reference/SECURITY.md) and [V1_SCOPE.md](V1_SCOPE.md).",
+      "",
+      "| ArchLucid | `ArchLucid:Persistence:AllowRlsBypass` | false | Dev-only |",
+      "| ArchLucid | `ArchLucid:InternalCrossTenantAnalytics:RollupJobEnabled` | true | Worker |",
+      "",
+      "Key Vault + managed identity ([ADR 0038](../architecture/adrs/0038-run-durability-multi-store-outbox-production-secrets.md)).",
+    ].join("\n");
+
+    const prepared = stripConfigurationReferenceContributorLeakage(source);
+
+    expect(prepared).not.toMatch(/\bTB-\d+\b/i);
+    expect(prepared).not.toContain("Invoke-ConfigLintProofStep");
+    expect(prepared).not.toContain("fixtures/release-candidate");
+    expect(prepared).not.toContain("scripts/ci/");
+    expect(prepared).not.toContain("contributor-reference");
+    expect(prepared).not.toContain("SECURITY.md");
+    expect(prepared).not.toContain("V1_SCOPE");
+    expect(prepared).not.toContain("AllowRlsBypass");
+    expect(prepared).not.toContain("InternalCrossTenantAnalytics");
+    expect(prepared).not.toContain("ADR 0038");
+    expect(prepared).toContain("production secrets guidance");
   });
 
   it("detects documentation maintenance metadata lines", () => {

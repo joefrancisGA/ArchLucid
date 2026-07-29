@@ -370,6 +370,99 @@ export function stripProcurementContributorLeakage(markdown: string): string {
     .replace(/SLA_TARGETS\.md/gi, "SLA targets");
 }
 
+/** H2 sections omitted from in-app configuration reference (contributor / marketing / test-only). */
+const CONFIGURATION_REFERENCE_OMITTED_SECTION_PREFIXES = [
+  "testing (non-production)",
+  "public marketing site",
+] as const;
+
+/**
+ * TB-1327 — drops Testing / marketing-build sections from the product configuration help view.
+ */
+export function stripConfigurationReferenceContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = CONFIGURATION_REFERENCE_OMITTED_SECTION_PREFIXES.some((prefix) =>
+        title.startsWith(prefix),
+      );
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/**
+ * TB-1327 — removes backlog IDs, RC script/fixture paths, ADR deep links, and contributor
+ * security/scope anchors from in-app configuration reference presentation.
+ */
+export function stripConfigurationReferenceContributorLeakage(markdown: string): string {
+  let inFence = false;
+
+  const withoutSensitiveRows = markdown
+    .split("\n")
+    .filter((line) => {
+      const trimmedStart = line.trimStart();
+
+      if (trimmedStart.startsWith("```")) {
+        inFence = !inFence;
+        return true;
+      }
+
+      if (inFence) {
+        return true;
+      }
+
+      if (/AllowRlsBypass/i.test(line)) {
+        return false;
+      }
+
+      if (/InternalCrossTenantAnalytics/i.test(line)) {
+        return false;
+      }
+
+      if (/\*\*Release-candidate gates/i.test(line)) {
+        return false;
+      }
+
+      return true;
+    })
+    .join("\n");
+
+  return withoutSensitiveRows
+    .replace(/\s*\(TB-\d+\)/gi, "")
+    .replace(/\bTB-\d+\b/gi, "")
+    .replace(/\[ADR\s+\d+\]\([^)]+\)/gi, "production secrets guidance")
+    .replace(/\bADR\s+\d+\b/gi, "production secrets guidance")
+    .replace(/docs\/architecture\/adrs\/[^\s)]+/gi, "architecture guidance")
+    .replace(/`?scripts\/[^`\s)]+`?/gi, "release readiness checks")
+    .replace(/\bscripts\/[^\s)]+/gi, "release readiness checks")
+    .replace(/`?fixtures\/release-candidate\/[^`\s)]*`?/gi, "release-candidate baseline config")
+    .replace(/fixtures\/release-candidate\/[^\s)]*/gi, "release-candidate baseline config")
+    .replace(/`?artifacts\/release-readiness\/[^`\s)]*`?/gi, "release readiness evidence")
+    .replace(/artifacts\/release-readiness\/[^\s)]*/gi, "release readiness evidence")
+    .replace(/\[([^\]]*)\]\(contributor-reference\/SECURITY\.md\)/gi, "security documentation")
+    .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
+    .replace(/contributor-reference\//gi, "")
+    .replace(/\[([^\]]*)\]\(V1_SCOPE\.md[^)]*\)/gi, "V1 product scope")
+    .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
+    .replace(/docs\/library\/V1_SCOPE\.md/gi, "V1 product scope")
+    .replace(/\[([^\]]*)\]\([^)]*SECURITY\.md\)/gi, "security documentation")
+    .replace(/`?SECURITY\.md`?/gi, "security documentation")
+    .replace(/PUBLIC_MARKETING_SITE_TOPOLOGY\.md/gi, "marketing site topology")
+    .replace(/`?\.\\scripts\\[^`\s]+`?/gi, "prerequisite validation")
+    .replace(/\.\\scripts\\[^\s)]+/gi, "prerequisite validation")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -498,13 +591,22 @@ export function prepareHelpMarkdownForPresentation(
   const withoutHtmlComments = stripHtmlComments(normalized);
   const withoutInternalSections = stripInternalBuyerHelpSections(withoutHtmlComments);
   const withoutInlineReferences = stripInternalBuyerHelpInlineReferences(withoutInternalSections);
-  const rewrittenLinks = rewriteHelpMarkdownDocLinks(withoutInlineReferences, sourceDocPath);
+  const normalizedSourcePath = sourceDocPath.replace(/\\/g, "/").toLowerCase();
+  const isConfigurationReference = normalizedSourcePath.includes("configuration_reference.md");
+  const beforeLinkRewrite = isConfigurationReference
+    ? stripConfigurationReferenceContributorSections(withoutInlineReferences)
+    : withoutInlineReferences;
+  const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
-  // Procurement FAQ only — do not rewrite CLI/infra strings on eng/admin help topics.
-  const afterAudienceStrip =
-    sourceDocPath.replace(/\\/g, "/").toLowerCase().includes("buyer_security_procurement_packet.md")
-      ? stripProcurementContributorLeakage(sanitized)
-      : sanitized;
+  // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
+  let afterAudienceStrip = sanitized;
+
+  if (normalizedSourcePath.includes("buyer_security_procurement_packet.md")) {
+    afterAudienceStrip = stripProcurementContributorLeakage(sanitized);
+  } else if (isConfigurationReference) {
+    afterAudienceStrip = stripConfigurationReferenceContributorLeakage(sanitized);
+  }
+
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);
   const presentationBody =
     options?.preserveMaintenanceMetadata === true
