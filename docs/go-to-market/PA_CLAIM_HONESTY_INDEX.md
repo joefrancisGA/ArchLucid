@@ -13,7 +13,7 @@
 | GTM | Role | Artifact |
 |-----|------|----------|
 | M-114 | Done one-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114`](BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114) |
-| M-115 | One-pager | [`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`](PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md) |
+| M-115 | One-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#prompt-injection-resistance-m-115`](BUYER_SECURITY_PROCUREMENT_PACKET.md#prompt-injection-resistance-m-115) (`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` alias) |
 | M-116 | Honesty | Public claim boundary guide + packet short row |
 | M-117 | Honesty | Public claim boundary guide + packet short row |
 | M-118 | One-pager | [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) |
