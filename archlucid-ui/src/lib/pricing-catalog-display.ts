@@ -55,7 +55,7 @@ export function formatIncludedUsersAndWorkspaces(pkg: PricingPackage): string | 
     return null;
   }
 
-  const userLabel = users === 1 ? "1 user" : users !== undefined ? `${users} users` : null;
+  const userLabel = users === 1 ? "1 user" : users !== undefined && users > 0 ? `${users} users` : null;
   const workspaceLabel =
     workspaces === 1 ? "1 workspace" : workspaces !== undefined && workspaces > 0 ? `${workspaces} workspaces` : null;
 

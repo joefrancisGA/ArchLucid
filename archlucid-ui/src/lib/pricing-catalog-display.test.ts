@@ -4,6 +4,7 @@ import {
   buildOperatorBillingAddonLines,
   buildOperatorBillingPlanSummaryLines,
   formatIncludedArchitecturePackagesPerMonth,
+  formatIncludedUsersAndWorkspaces,
   formatPlanPrice,
 } from "@/lib/pricing-catalog-display";
 import {
@@ -11,6 +12,7 @@ import {
   BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
 } from "@/lib/billing-meter-vocabulary";
 import type { PricingDoc } from "@/lib/pricing-types";
+import pricingJson from "../../public/pricing.json";
 
 const pricing: PricingDoc = {
   schemaVersion: 1,
@@ -41,6 +43,8 @@ describe("pricing-catalog-display", () => {
       title: "Enterprise",
       summary: "Custom contract",
       pricingDisplay: "custom",
+      includedUsers: 0,
+      includedWorkspaces: 0,
       annualCeilingUsd: 250000,
     });
 
@@ -48,7 +52,34 @@ describe("pricing-catalog-display", () => {
       { label: "Plan price", value: "Custom" },
       { label: "Included AI usage", value: "Custom AI allowance" },
     ]);
+    expect(lines.some((line) => line.value.includes("0 users"))).toBe(false);
     expect(lines.some((line) => line.value.includes("60,000"))).toBe(false);
+  });
+
+  it("omits zero-quantity included users and workspaces (TB-1167)", () => {
+    expect(
+      formatIncludedUsersAndWorkspaces({
+        id: "enterprise",
+        title: "Enterprise",
+        summary: "Custom contract",
+        pricingDisplay: "custom",
+        includedUsers: 0,
+        includedWorkspaces: 0,
+      }),
+    ).toBeNull();
+
+    const enterpriseFromCatalog = pricingJson.packages.find((pkg) => pkg.id === "enterprise");
+
+    if (enterpriseFromCatalog === undefined) {
+      throw new Error("Expected enterprise package in pricing.json.");
+    }
+
+    expect(formatIncludedUsersAndWorkspaces(enterpriseFromCatalog)).toBeNull();
+    expect(
+      buildOperatorBillingPlanSummaryLines(pricing, enterpriseFromCatalog).some((line) =>
+        line.value.includes("0 users"),
+      ),
+    ).toBe(false);
   });
 
   it("builds plan summary from catalog fields instead of workspace SKUs", () => {
