@@ -53,8 +53,23 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
 
             if (operation.RequestBody?.Content is not null)
             {
-                foreach (OpenApiMediaType mediaType in operation.RequestBody.Content.Values)
+                foreach (string contentType in operation.RequestBody.Content.Keys.ToList())
+                {
+                    OpenApiMediaType mediaType = operation.RequestBody.Content[contentType];
+
+                    if (TryCollapseNullableRefUnionToRef(mediaType.Schema, out OpenApiSchemaReference? schemaRef))
+                    {
+                        operation.RequestBody.Content[contentType] = new OpenApiMediaType
+                        {
+                            Schema = schemaRef
+                        };
+
+                        Visit(schemaRef, document, visited, visitedReferenceIds);
+                        continue;
+                    }
+
                     Visit(mediaType.Schema, document, visited, visitedReferenceIds);
+                }
             }
 
             if (operation.Responses is null)
@@ -178,6 +193,44 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
     ///     Schemathesis rejects response <c>null</c> when a property is <c>oneOf: [{type:null}, {$ref}]</c>
     ///     and the $ref target also admits null. <c>anyOf</c> allows the overlap.
     /// </summary>
+    /// <summary>
+    ///     NSwag emits anonymous <c>BodyN</c> DTOs for <c>anyOf/oneOf: [null, $ref]</c> request bodies.
+    ///     Collapse to a direct component reference so generated clients use the named schema type.
+    /// </summary>
+    private static bool TryCollapseNullableRefUnionToRef(
+        IOpenApiSchema? schema,
+        out OpenApiSchemaReference? schemaRef)
+    {
+        schemaRef = null;
+
+        if (schema is not OpenApiSchema mutable)
+            return false;
+
+        IList<IOpenApiSchema>? union = mutable.AnyOf ?? mutable.OneOf;
+
+        if (union is not { Count: 2 })
+            return false;
+
+        bool hasNull = false;
+
+        foreach (IOpenApiSchema entry in union)
+        {
+            if (entry is OpenApiSchemaReference reference)
+            {
+                schemaRef = reference;
+                continue;
+            }
+
+            if (entry is OpenApiSchema concrete &&
+                concrete.Type == JsonSchemaType.Null)
+            {
+                hasNull = true;
+            }
+        }
+
+        return hasNull && schemaRef is not null;
+    }
+
     private static void CollapseNullableRefOneOfToAnyOf(IOpenApiSchema schema)
     {
         if (schema is not OpenApiSchema mutable)
