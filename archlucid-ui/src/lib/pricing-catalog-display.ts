@@ -1,6 +1,8 @@
 import {
   BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
   BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL,
+  BILLING_CUSTOM_AI_ALLOWANCE_VALUE,
+  BILLING_INCLUDED_AI_CREDITS_LABEL,
   BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
 } from "@/lib/billing-meter-vocabulary";
 import {
@@ -76,7 +78,7 @@ export function formatIncludedUsersAndWorkspaces(pkg: PricingPackage): string | 
 
 export function formatMonthlyAiCredits(pkg: PricingPackage): string | null {
   if (pkg.pricingDisplay === "custom") {
-    return "Custom AI allowance";
+    return BILLING_CUSTOM_AI_ALLOWANCE_VALUE;
   }
 
   if (typeof pkg.monthlyAiCredits === "number" && pkg.monthlyAiCredits > 0) {
@@ -119,7 +121,7 @@ export function buildOperatorBillingPlanSummaryLines(
 
   if (aiCreditsLine !== null) {
     lines.push({
-      label: "Included AI usage",
+      label: BILLING_INCLUDED_AI_CREDITS_LABEL,
       value: aiCreditsLine,
     });
   }

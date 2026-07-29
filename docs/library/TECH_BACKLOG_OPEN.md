@@ -915,7 +915,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1182 | Recycle bin status presentation + operator density | Adoption friction P1 **V1** — with **TB-1180** |
 | TB-1166 | Billing tier value-ladder coherence — implement owner repricing decision | Commercial / trustworthiness P0 **V1** — owner `/settings/billing` ~64/100; after GTM **M-200** |
 | TB-1167 | ~~Enterprise billing card shows Included 0 users~~ **Done** 2026-07-29 | Correctness P0 **V1** — with **TB-1166** |
-| TB-1168 | Billing Included AI usage unit collision (dollars vs credits) | Trustworthiness P0 **V1** — with **TB-1166** |
+| TB-1168 | ~~Billing Included AI usage unit collision (dollars vs credits)~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1166** |
 | TB-1169 | Billing sales-led CTAs dead-end into toasts — navigate instead | Adoption friction P1 **V1** — with **TB-1170** |
 | TB-1170 | Billing composition — anchor-jump buttons, duplicate primary, operator spacing | Adoption friction P1 **V1** — with **TB-1169** |
 

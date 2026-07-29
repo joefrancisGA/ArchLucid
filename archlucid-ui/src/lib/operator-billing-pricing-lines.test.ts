@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
+  BILLING_INCLUDED_AI_CREDITS_LABEL,
   BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
 } from "./billing-meter-vocabulary";
 import {
@@ -37,7 +38,7 @@ describe("operator-billing-pricing-lines", () => {
     expect(lines.map((line) => line.label)).toEqual([
       "Plan price",
       "Included",
-      "Included AI usage",
+      BILLING_INCLUDED_AI_CREDITS_LABEL,
       BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
     ]);
   });

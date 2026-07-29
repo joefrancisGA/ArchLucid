@@ -181,6 +181,14 @@ describe("BillingSettingsPage", () => {
     expect(screen.getByText(/Manage your plan, AI usage credits/i)).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /View public pricing/i })[0]).toHaveAttribute("href", "/pricing");
     expect(screen.getByTestId("operator-billing-usage-section")).toBeInTheDocument();
+    expect(screen.getByText("Monthly AI budget allowance")).toBeInTheDocument();
+    expect(screen.getByText("$100 / month")).toBeInTheDocument();
+    const architectCard = screen.getByTestId("billing-tier-architect");
+    expect(within(architectCard).getByText("Included AI credits")).toBeInTheDocument();
+    expect(within(architectCard).getByText("500 AI credits / month")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("operator-billing-current-plan")).queryByText("Included AI credits"),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-billing-payment-method")).toBeInTheDocument();
     expect(screen.getByTestId("billing-tier-price-enterprise")).toHaveTextContent("Custom");
     expect(screen.queryByText(/Workspace platform/i)).not.toBeInTheDocument();
@@ -188,7 +196,6 @@ describe("BillingSettingsPage", () => {
     expect(screen.queryByLabelText(/Stripe customer id/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Advanced billing details/i)).not.toBeInTheDocument();
 
-    const architectCard = screen.getByTestId("billing-tier-architect");
     fireEvent.click(within(architectCard).getByRole("button", { name: /Start Architect plan/i }));
 
     await waitFor(() => {

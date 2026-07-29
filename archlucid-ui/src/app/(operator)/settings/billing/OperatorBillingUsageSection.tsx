@@ -7,7 +7,10 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
-import { OPERATOR_BILLING_AI_OVERAGE_NOTE } from "@/lib/marketing/marketing-public-pricing";
+import {
+  BILLING_AI_USAGE_SECTION_INTRO,
+  BILLING_MONTHLY_AI_USAGE_CARD_DESCRIPTION,
+} from "@/lib/billing-meter-vocabulary";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function OperatorBillingUsageSection() {
@@ -31,16 +34,12 @@ export function OperatorBillingUsageSection() {
     <section id="billing-usage" className="scroll-mt-24 space-y-3" data-testid="operator-billing-usage-section">
       <div>
         <h2 className={OPERATOR_NAV_GROUP_LABEL}>AI usage and credits</h2>
-        <p className={cn("mt-1 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
-          Track included AI usage for the current month, prepaid credit balance, and auto-replenish settings below.
-        </p>
+        <p className={cn("mt-1 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{BILLING_AI_USAGE_SECTION_INTRO}</p>
       </div>
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Monthly AI usage</CardTitle>
-          <CardDescription>
-            Included AI usage is part of your plan allowance. {OPERATOR_BILLING_AI_OVERAGE_NOTE}
-          </CardDescription>
+          <CardDescription>{BILLING_MONTHLY_AI_USAGE_CARD_DESCRIPTION}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-0">
           <LlmBudgetUtilizationMeter refreshToken={refreshToken} />

@@ -15,6 +15,7 @@ import {
   llmBudgetRemainingPercent,
   llmBudgetUtilizationPercent,
 } from "@/lib/llm-monthly-budget-status";
+import { BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL } from "@/lib/billing-meter-vocabulary";
 import { OPERATOR_BILLING_TIER_CTAS } from "@/lib/marketing/marketing-public-pricing";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
@@ -119,7 +120,7 @@ export function OperatorBillingCurrentPlanSummary() {
           </div>
           {includedAiBudgetUsd !== null ? (
             <div>
-              <dt className="text-neutral-500 dark:text-neutral-400">Included AI usage</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">{BILLING_MONTHLY_AI_BUDGET_ALLOWANCE_LABEL}</dt>
               <dd className="font-medium tabular-nums text-al-text-primary">${includedAiBudgetUsd.toFixed(0)} / month</dd>
             </div>
           ) : null}

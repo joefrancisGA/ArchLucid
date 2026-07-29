@@ -9,6 +9,8 @@ import {
 } from "@/lib/pricing-catalog-display";
 import {
   BILLING_ADDITIONAL_ARCHITECTURE_PACKAGES_LABEL,
+  BILLING_CUSTOM_AI_ALLOWANCE_VALUE,
+  BILLING_INCLUDED_AI_CREDITS_LABEL,
   BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
 } from "@/lib/billing-meter-vocabulary";
 import type { PricingDoc } from "@/lib/pricing-types";
@@ -50,7 +52,7 @@ describe("pricing-catalog-display", () => {
 
     expect(lines).toEqual([
       { label: "Plan price", value: "Custom" },
-      { label: "Included AI usage", value: "Custom AI allowance" },
+      { label: BILLING_INCLUDED_AI_CREDITS_LABEL, value: BILLING_CUSTOM_AI_ALLOWANCE_VALUE },
     ]);
     expect(lines.some((line) => line.value.includes("0 users"))).toBe(false);
     expect(lines.some((line) => line.value.includes("60,000"))).toBe(false);
@@ -100,7 +102,7 @@ describe("pricing-catalog-display", () => {
     expect(lines.map((line) => line.label)).toEqual([
       "Plan price",
       "Included",
-      "Included AI usage",
+      BILLING_INCLUDED_AI_CREDITS_LABEL,
       BILLING_INCLUDED_ARCHITECTURE_PACKAGES_LABEL,
     ]);
     expect(lines[0]?.value).toBe("$99 / mo");
