@@ -14,7 +14,9 @@ import { AiUsageDailyUsagePanel } from "./ai-usage/AiUsageDailyUsagePanel";
 import { AiUsageFiltersBar } from "./ai-usage/AiUsageFiltersBar";
 import { AiUsageKpiRow } from "./ai-usage/AiUsageKpiRow";
 import { AiUsageMonthlyBudgetPanel } from "./ai-usage/AiUsageMonthlyBudgetPanel";
+import { AiUsageQuietEmptyPeriodPanel } from "./ai-usage/AiUsageQuietEmptyPeriodPanel";
 import { AiUsageRecentActivityPanel } from "./ai-usage/AiUsageRecentActivityPanel";
+import { isAiUsageQuietEmptyPeriod } from "./ai-usage/is-ai-usage-quiet-empty-period";
 import { WorkspaceBudgetStatusCard } from "./ai-usage/WorkspaceBudgetStatusCard";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
 
@@ -65,6 +67,8 @@ export function CostReportingSettingsPageView(props: Props) {
 
   const data = m.data;
   const derived = m.derived;
+  // Quiet empty period: no zeroed KPI / On track / empty-chart cockpit (TB-1217).
+  const quietEmptyPeriod = isAiUsageQuietEmptyPeriod(derived, m.loading);
 
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
@@ -88,81 +92,95 @@ export function CostReportingSettingsPageView(props: Props) {
         </p>
       ) : null}
 
-      <AiUsageKpiRow kpi={derived.kpi} loading={m.loading} />
+      {quietEmptyPeriod ? (
+        <>
+          <AiUsageQuietEmptyPeriodPanel
+            budgetTotalUsd={derived.kpi.budgetTotalUsd}
+            currency={derived.kpi.currency}
+            canManageBudget={m.canManageBudget}
+          />
+          <WorkspaceBudgetStatusCard
+            governance={derived.governance}
+            state={derived.budgetState}
+            remainingBudgetUsd={derived.kpi.remainingBudgetUsd}
+            budgetTotalUsd={derived.kpi.budgetTotalUsd}
+            usedAmountUsd={derived.kpi.usedThisMonthUsd}
+          />
+          <AiUsageCostScopeHelp />
+          <AiUsageBudgetControlsPanel canManageBudget={m.canManageBudget} />
+        </>
+      ) : (
+        <>
+          <AiUsageKpiRow kpi={derived.kpi} loading={m.loading} />
 
-      <AiUsageMonthlyBudgetPanel
-        kpi={derived.kpi}
-        paceStatus={derived.budgetPaceStatus}
-        paceLabel={derived.budgetPaceLabel}
-        warningThresholdPercent={derived.governance?.warningThresholdPercent ?? null}
-        state={derived.budgetState}
-        canManageBudget={m.canManageBudget}
-        onRetry={() => void m.load()}
-      />
+          <AiUsageMonthlyBudgetPanel
+            kpi={derived.kpi}
+            paceStatus={derived.budgetPaceStatus}
+            paceLabel={derived.budgetPaceLabel}
+            warningThresholdPercent={derived.governance?.warningThresholdPercent ?? null}
+            state={derived.budgetState}
+            canManageBudget={m.canManageBudget}
+            onRetry={() => void m.load()}
+          />
 
-      <WorkspaceBudgetStatusCard
-        governance={derived.governance}
-        state={derived.budgetState}
-        remainingBudgetUsd={derived.kpi.remainingBudgetUsd}
-        budgetTotalUsd={derived.kpi.budgetTotalUsd}
-        usedAmountUsd={derived.kpi.usedThisMonthUsd}
-      />
+          <WorkspaceBudgetStatusCard
+            governance={derived.governance}
+            state={derived.budgetState}
+            remainingBudgetUsd={derived.kpi.remainingBudgetUsd}
+            budgetTotalUsd={derived.kpi.budgetTotalUsd}
+            usedAmountUsd={derived.kpi.usedThisMonthUsd}
+          />
 
-      <AiUsageCostScopeHelp />
+          <AiUsageCostScopeHelp />
 
-      {m.canViewBudgetDetails ? (
-        <AiUsageFiltersBar
-          filters={m.filters}
-          adminDashboard={m.adminDashboard}
-          onFiltersChange={(nextFilters) => {
-            m.setFilters({ ...nextFilters, groupBy: m.filters.groupBy });
-          }}
-        />
-      ) : null}
+          {m.canViewBudgetDetails ? (
+            <AiUsageFiltersBar
+              filters={m.filters}
+              adminDashboard={m.adminDashboard}
+              onFiltersChange={(nextFilters) => {
+                m.setFilters({ ...nextFilters, groupBy: m.filters.groupBy });
+              }}
+            />
+          ) : null}
 
-      <AiUsageDailyUsagePanel
-        daily={data?.daily ?? []}
-        currency={data?.currency ?? "USD"}
-        state={derived.costReportingState}
-        onRefresh={() => void m.load()}
-      />
+          <AiUsageDailyUsagePanel
+            daily={data?.daily ?? []}
+            currency={data?.currency ?? "USD"}
+            state={derived.costReportingState}
+            onRefresh={() => void m.load()}
+          />
 
-      <AiUsageCostBreakdownPanel
-        rows={derived.breakdownRows}
-        currency={derived.kpi.currency}
-        groupBy={m.filters.groupBy}
-        state={derived.costReportingState === "empty" && derived.breakdownRows.length === 0 ? "empty" : derived.costReportingState}
-        onGroupByChange={(groupBy) => m.setFilters({ ...m.filters, groupBy })}
-      />
+          <AiUsageCostBreakdownPanel
+            rows={derived.breakdownRows}
+            currency={derived.kpi.currency}
+            groupBy={m.filters.groupBy}
+            state={derived.costReportingState === "empty" && derived.breakdownRows.length === 0 ? "empty" : derived.costReportingState}
+            onGroupByChange={(groupBy) => m.setFilters({ ...m.filters, groupBy })}
+          />
 
-      <AiUsageRecentActivityPanel
-        rows={derived.activityRows}
-        currency={derived.kpi.currency}
-        state={derived.activityState}
-        canExport={m.canManageBudget}
-      />
+          <AiUsageRecentActivityPanel
+            rows={derived.activityRows}
+            currency={derived.kpi.currency}
+            state={derived.activityState}
+            canExport={m.canManageBudget}
+          />
 
-      <AiUsageBudgetControlsPanel canManageBudget={m.canManageBudget} />
+          <AiUsageBudgetControlsPanel canManageBudget={m.canManageBudget} />
 
-      {m.showDetailedActivityLink ? (
-        <details className="group" data-testid="ai-usage-detailed-activity-details">
-          <summary className="cursor-pointer list-none">
-            <span className={cn("font-medium text-al-text-secondary underline decoration-dotted underline-offset-2 hover:text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              View detailed AI activity
-            </span>
-          </summary>
-          <div className="mt-4">
-            <OperatorOutboxDiagnosticsCard />
-          </div>
-        </details>
-      ) : null}
-
-      {!derived.hasAnyUsage && derived.costReportingState === "empty" ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status" data-testid="ai-usage-period-zero-state">
-          No AI usage has been recorded for this billing period. Once reviews, evidence checks, or Q&amp;A workflows run,
-          this dashboard will show budget utilization, daily trends, and attributed activity.
-        </p>
-      ) : null}
+          {m.showDetailedActivityLink ? (
+            <details className="group" data-testid="ai-usage-detailed-activity-details">
+              <summary className="cursor-pointer list-none">
+                <span className={cn("font-medium text-al-text-secondary underline decoration-dotted underline-offset-2 hover:text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  View detailed AI activity
+                </span>
+              </summary>
+              <div className="mt-4">
+                <OperatorOutboxDiagnosticsCard />
+              </div>
+            </details>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }

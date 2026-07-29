@@ -909,7 +909,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1214 | Users & invitations — empty composition / guided next step | Adoption friction P1 **V1** — with **TB-1211** |
 | TB-1215 | Users & roles — PageContextualHelpButton at top | Adoption friction P1 **V1** — with **TB-1210**; parity **TB-1184** |
 | TB-1216 | AI usage — Administration vs Settings wayfinding (breadcrumb / URL honesty) | Adoption friction P1 **V1** — owner `/settings/ai-usage` ~51/100; TB-404 |
-| TB-1217 | AI usage — suppress zero-usage KPI/budget/filter theater | Trustworthiness P0 **V1** — with **TB-1216**; cf. **TB-1037** |
+| TB-1217 | ~~AI usage — suppress zero-usage KPI/budget/filter theater~~ **Done** 2026-07-28 | Trustworthiness P0 **V1** — with **TB-1216**; cf. **TB-1037** |
 | TB-1218 | AI usage — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1216**; parity **TB-1184** |
 | TB-1219 | AI usage — dedupe Edit budget / budget-control CTAs | Adoption friction P1 **V1** — with **TB-1216** |
 | TB-1220 | AI usage — hide Highest-cost project when no usage | Trustworthiness P0 **V1** — with **TB-1217** |
