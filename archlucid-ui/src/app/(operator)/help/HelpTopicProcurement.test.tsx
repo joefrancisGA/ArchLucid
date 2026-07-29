@@ -83,6 +83,40 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(screen.queryByText(/V1\.1-program/i)).toBeNull();
   });
 
+  it("keeps Q3 residency buyer-safe without appsettings keys (TB-1255)", () => {
+    if (loaded === null) {
+      throw new Error("Expected procurement documentation to load.");
+    }
+
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, PROCUREMENT_SOURCE);
+    const residencyHeadingIndex = preparedMarkdown.indexOf(
+      "### 3. Where is customer **data processed / stored**?",
+    );
+
+    expect(residencyHeadingIndex).toBeGreaterThanOrEqual(0);
+
+    const nextHeadingIndex = preparedMarkdown.indexOf("\n### 4.", residencyHeadingIndex);
+    const residencySection =
+      nextHeadingIndex >= 0
+        ? preparedMarkdown.slice(residencyHeadingIndex, nextHeadingIndex)
+        : preparedMarkdown.slice(residencyHeadingIndex);
+
+    expect(residencySection).toMatch(/data-handling-tenant-isolation/i);
+    expect(residencySection).toMatch(/Azure regions|contracted Azure regions/i);
+    expect(residencySection.toLowerCase()).not.toContain("artifactlargepayload");
+    expect(residencySection.toLowerCase()).not.toContain("tenantprovisioning");
+    expect(residencySection.toLowerCase()).not.toContain("dbo.tenants");
+    expect(residencySection.toLowerCase()).not.toContain("azureblobserviceuribyregion");
+    expect(residencySection.toLowerCase()).not.toContain("supporteddataregions");
+
+    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    expect(screen.getByRole("link", { name: /Data handling and tenant isolation/i })).toHaveAttribute(
+      "href",
+      "/help/data-handling-tenant-isolation",
+    );
+  });
+
   it("purges contributor path/CLI leakage from prepared and rendered procurement help (TB-1254)", () => {
     if (loaded === null) {
       throw new Error("Expected procurement documentation to load.");

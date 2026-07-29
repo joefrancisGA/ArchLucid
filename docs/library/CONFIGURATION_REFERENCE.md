@@ -10,6 +10,18 @@ This document lists operator-facing configuration **keys** (colon paths or envir
 |-----|---------|---------|
 | `ArchLucid:Testing:SimulateLlmBudgetExhausted` | `false` | When `true` and the host is **not** Production, monthly LLM dollar budget enforcement treats the tenant as hard-capped before real usage is evaluated — use to demo budget-exhaustion UX without SQL manipulation. Ignored in Production. See [`LLM_COST_ESTIMATION.md`](../runbooks/LLM_COST_ESTIMATION.md). |
 
+## Tenant data residency (administrator)
+
+Buyer-facing residency messaging lives in **[Data handling and tenant isolation](/help/data-handling-tenant-isolation)** and the Procurement FAQ — not here. Platform operators configure regional allowlists and blob service URIs at provision time:
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `TenantProvisioning:SupportedDataRegions` | *(code defaults when unset)* | Lowercase Azure region identifiers accepted on tenant provision requests. |
+| `ArtifactLargePayload:AzureBlobServiceUri` | *(empty)* | Default Azure Blob service URI used when the tenant `DataRegion` is `default` (or when no regional map entry applies). |
+| `ArtifactLargePayload:AzureBlobServiceUriByRegion` | *(empty map)* | Optional map of lowercase region key → Blob service URI for non-default `DataRegion` values. |
+
+Tenant row storage of the negotiated region uses the `DataRegion` column on `dbo.Tenants` (set during provisioning; not a procurement FAQ concern). Checklist step: [`HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md`](HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md) § Tenant provisioning.
+
 ## Public marketing site (`archlucid-ui`, build-time)
 
 These keys are **not** in `ConfigurationKeyCatalog` (Next.js `NEXT_PUBLIC_*` only). They apply to the **`(marketing)`** subtree and signup funnel — see **TB-019** / **TB-020** and [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md).

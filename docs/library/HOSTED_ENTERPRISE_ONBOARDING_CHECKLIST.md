@@ -41,7 +41,7 @@ Use this checklist to track hosted SaaS enterprise onboarding. For task-specific
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
 | Create tenant row in ArchLucid SaaS | ArchLucid | Tenant GUID confirmed; commercial tier = **Enterprise** |
-| Set negotiated **DataRegion** residency key | ArchLucid | Region matches order form; blob URI map configured when not `default` |
+| Set negotiated **DataRegion** residency key | ArchLucid | Region matches order form; regional blob storage configured when not `default` — administrator keys in [Configuration reference](/help/configuration-reference) § Tenant data residency |
 | Create default workspace + project | ArchLucid | Scope headers resolve for first admin login |
 | Record customer success + technical owner contacts | ArchLucid Customer Success | Contacts stored in CRM / runbook |
 
