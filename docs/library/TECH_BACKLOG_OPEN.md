@@ -35,7 +35,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Teams notifications not-configured UX | **TB-1174**–**TB-1178**, **TB-1183**–**TB-1184** (open P1 **V1**) | StatusTag + next step; draft vs saved honesty; Validate→Test→Save hierarchy; operator density; help-link dedupe; remove Slack cross-link; PageContextualHelpButton icon + caption; owner screenshot ~60/100 2026-07-25 |
 | Slack notifications not-configured UX | **TB-1185**–**TB-1190** (open P1 **V1**) | Remove Teams cross-link; StatusTag + next step; PageContextualHelpButton; readiness link dedupe; operator density; Test→Save CTA hierarchy; owner review ~57/100 2026-07-25 |
 | Webhooks not-configured UX | **TB-1191**–**TB-1195** (open P1 **V1**) | Remove Jira/SN/Teams/Slack strip; StatusTag + next step; PageContextualHelpButton; operator density; suppress empty zero theater; owner screenshot ~56/100 2026-07-25 |
-| Administration settings hub (`/settings`) | **TB-1198**–**TB-1203** (open P1 **V1**) | Gate emptyStateHint on truth; remove fake Last updated + Recent changes theater; PageHeading + help icon; section-nav links; demote Scope/Source/Status meta; owner review ~52/100 2026-07-25 |
+| Administration settings hub (`/settings`) | **TB-1199**–**TB-1203** (open; **TB-1198** Done) | Remove fake Last updated + Recent changes theater; PageHeading + help icon; section-nav links; demote Scope/Source/Status meta; owner review ~52/100 2026-07-25 |
 | Users & roles (3 tabs) | **TB-1210**–**TB-1215** (open P1 **V1**) | Operator vs Architect honesty; tab-specific empty copy; breadcrumb/nav title; API keys empty + CTA; invite empty composition; PageContextualHelpButton; owner screenshots ~49/100 2026-07-25 |
 | Users API keys tab (`/settings/users?tab=keys`) | **TB-1931**–**TB-1935** (open **V1**) | Job honesty; execute **TB-1213** CTA; keys empty/error; columns; Vitest; ~45/100; traffic **SEU**; pairs **TB-1210**–**TB-1215**; sibling **SSU** |
 | Users invitations tab (`/settings/users?tab=users`) | **TB-1936**–**TB-1940** (open **V1**) | URL sync; execute **TB-1214**; principals purge; density; Vitest; ~46/100; traffic **SSU**; pairs **TB-1210**–**TB-1215**; sibling **SEU** |
@@ -896,7 +896,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1193 | Webhooks page — help as icon + caption in PageHeading actions | Adoption friction P1 **V1** — with **TB-1191**; parity **TB-1184**/**TB-1187** |
 | TB-1194 | Webhooks operator spacing density | Adoption friction P1 **V1** — with **TB-1191**; cf. **TB-1177**/**TB-1189** |
 | TB-1195 | Webhooks empty composition — suppress zero theater | Adoption friction P1 **V1** — with **TB-1192** |
-| TB-1198 | Settings hub — emptyStateHint only when actually empty | Trustworthiness P0 **V1** — owner `/settings` ~52/100 |
+| TB-1198 | ~~Settings hub — emptyStateHint only when actually empty~~ **Done** 2026-07-28 | Trustworthiness P0 **V1** — owner `/settings` ~52/100 |
 | TB-1199 | Settings hub — remove fake Last updated chip | Trustworthiness P0 **V1** — with **TB-1198** |
 | TB-1200 | Settings hub — remove Recent changes empty theater | Adoption friction P1 **V1** — with **TB-1199** |
 | TB-1201 | Settings hub — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1198**; parity **TB-1184** |
