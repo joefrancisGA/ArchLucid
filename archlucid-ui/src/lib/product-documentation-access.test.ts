@@ -51,6 +51,19 @@ describe("product-documentation-access", () => {
     expect(principalCanAccessHelpTopic(entry!, operatorNavOutsideProviderPrincipal)).toBe(true);
   });
 
+  it("gates governance-api-contracts as Admin-only (TB-1384)", () => {
+    const entry = getProductDocumentationEntry("governance-api-contracts");
+
+    expect(entry).not.toBeNull();
+    expect(entry!.contentKind).toBe("internal-runbook");
+    expect(isInternalRunbookHelpSlug("governance-api-contracts")).toBe(true);
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ReadAuthority)).toBe(false);
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.ExecuteAuthority)).toBe(false);
+    expect(callerCanAccessHelpTopic(entry!, AUTHORITY_RANK.AdminAuthority)).toBe(true);
+    expect(principalCanAccessHelpTopic(entry!, shellBootstrapReadPrincipal)).toBe(false);
+    expect(principalCanAccessHelpTopic(entry!, operatorNavOutsideProviderPrincipal)).toBe(true);
+  });
+
   it("allows product-help topics for read-tier callers", () => {
     const entry = getProductDocumentationEntry("review-guide");
 
