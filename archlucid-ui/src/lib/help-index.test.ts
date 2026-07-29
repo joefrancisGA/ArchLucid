@@ -18,10 +18,13 @@ describe("searchHelpDocumentation", () => {
     expect(hits.some((h) => h.docPath.includes("CONFIGURATION_REFERENCE"))).toBe(false);
   });
 
-  it("includes developer docs when explicitly requested", () => {
-    const hits = searchHelpDocumentation("configuration", 30, { includeDeveloperDocs: true });
+  it("does not surface internal-runbook topics even when includeDeveloperDocs is true (TB-1329 / TB-1385)", () => {
+    const hits = searchHelpDocumentation("configuration reference API contracts openapi", 30, {
+      includeDeveloperDocs: true,
+    });
 
-    expect(hits.some((h) => h.docPath.includes("CONFIGURATION_REFERENCE"))).toBe(true);
+    expect(hits.some((h) => h.docPath.includes("CONFIGURATION_REFERENCE"))).toBe(false);
+    expect(hits.some((h) => h.docPath.toLowerCase().includes("api_contracts"))).toBe(false);
   });
 
   it("returns architect troubleshooting paths for troubleshooting queries", () => {
@@ -52,6 +55,28 @@ describe("searchHelpDocumentation", () => {
     expect(hits.some((h) => h.docPath.toLowerCase() === "docs/runbooks/troubleshooting.md")).toBe(false);
     expect(
       hits.some((h) => `${h.docTitle} ${h.excerpt}`.toLowerCase().includes("developer-troubleshooting")),
+    ).toBe(false);
+  });
+
+  it("omits governance API contracts from the generated product help index (TB-1385)", () => {
+    expect(
+      HELP_DOC_SEARCH_RECORDS.some((r) => r.docPath.toLowerCase().includes("api_contracts")),
+    ).toBe(false);
+
+    for (const record of HELP_DOC_SEARCH_RECORDS) {
+      const blob = `${record.docTitle}\n${record.sectionHeading}\n${record.excerpt}`.toLowerCase();
+
+      expect(blob, `${record.docPath}#${record.sectionSlug}`).not.toContain("/help/governance-api-contracts");
+      expect(blob, `${record.docPath}#${record.sectionSlug}`).not.toContain("governance and api contracts");
+    }
+  });
+
+  it("does not surface governance API contracts via default shell search (TB-1385)", () => {
+    const hits = searchHelpDocumentation("openapi contract snapshot API contracts governance", 40);
+
+    expect(hits.some((h) => h.docPath.toLowerCase().includes("api_contracts"))).toBe(false);
+    expect(
+      hits.some((h) => `${h.docTitle} ${h.excerpt}`.toLowerCase().includes("governance-api-contracts")),
     ).toBe(false);
   });
 

@@ -174,16 +174,100 @@
     "url": "/help"
   },
   {
+    "title": "ArchLucid product overview",
+    "summary": "What ArchLucid is, the problems it solves, core value pillars, and sponsor-ready elevator pitches.",
+    "category": "Go-to-Market",
+    "url": "/help/product-overview"
+  },
+  {
+    "title": "Audit trail",
+    "summary": "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
+    "category": "Go-to-Market",
+    "url": "/help/audit-trail"
+  },
+  {
+    "title": "Authentication and sign-in",
+    "summary": "Passwordless sign-in with work or school accounts or email one-time codes; invitations, SSO, and recovery.",
+    "category": "Go-to-Market",
+    "url": "/help/authentication-sign-in"
+  },
+  {
+    "title": "CAIQ / SIG questionnaire responses",
+    "summary": "CAIQ Lite and SIG Core pre-fills mapped to in-repo evidence for procurement reviewers.",
+    "category": "Go-to-Market",
+    "url": "/help/caiq-sig-response"
+  },
+  {
+    "title": "Choose your next step",
+    "summary": "Map your current goal \u2014 evaluate, pilot, procurement, sponsor output, or engineering support \u2014 to one primary next action.",
+    "category": "Go-to-Market",
+    "url": "/help/path-chooser"
+  },
+  {
+    "title": "Complete review workflow",
+    "summary": "End-to-end review lifecycle \u2014 create a review, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
+    "category": "Go-to-Market",
+    "url": "/help/first-pilot-path"
+  },
+  {
+    "title": "Data Processing Agreement (template)",
+    "summary": "DPA template for contractual data-processing terms \u2014 requires legal review before execution.",
+    "category": "Go-to-Market",
+    "url": "/help/dpa-template"
+  },
+  {
+    "title": "Data handling and tenant isolation",
+    "summary": "How review evidence flows through ArchLucid, what stays in your tenant, and how logical isolation is enforced.",
+    "category": "Go-to-Market",
+    "url": "/help/data-handling-tenant-isolation"
+  },
+  {
+    "title": "Enterprise onboarding checklist",
+    "summary": "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
+    "category": "Go-to-Market",
+    "url": "/help/enterprise-onboarding"
+  },
+  {
+    "title": "Evaluator workbook",
+    "summary": "Compact evaluator orientation \u2014 prerequisites, session flow, and pass/hold rules before deep configuration.",
+    "category": "Go-to-Market",
+    "url": "/help/evaluator-workbook"
+  },
+  {
+    "title": "Evidence-only review guide",
+    "summary": "Fast path when connector access is not approved yet \u2014 upload briefs, diagrams, or exports and finalize without cloud inventory.",
+    "category": "Go-to-Market",
+    "url": "/help/evidence-only-review"
+  },
+  {
     "title": "Executive sponsor brief",
     "summary": "Buyer-facing headline narrative for architecture and governance leaders.",
     "category": "Go-to-Market",
     "url": "/help"
   },
   {
+    "title": "Executive summary",
+    "summary": "Sponsor-safe summaries, ROI basis labels, and what executives should expect in exports.",
+    "category": "Go-to-Market",
+    "url": "/help/executive-summary"
+  },
+  {
+    "title": "First-review guide",
+    "summary": "Complete one review before opening deeper governance, reporting, or integration workflows.",
+    "category": "Go-to-Market",
+    "url": "/help/first-hour-operator-path"
+  },
+  {
     "title": "First-value Markdown report",
     "summary": "Pilot value report narrative generated from measured and baseline metrics.",
     "category": "Go-to-Market",
     "url": "/help"
+  },
+  {
+    "title": "How ArchLucid works",
+    "summary": "From architecture evidence to findings, decisions, governance records, and sponsor-ready outputs.",
+    "category": "Go-to-Market",
+    "url": "/help/how-it-works"
   },
   {
     "title": "Marketing showcase notes",
@@ -198,10 +282,58 @@
     "url": "/help"
   },
   {
+    "title": "Pilot ROI model",
+    "summary": "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
+    "category": "Go-to-Market",
+    "url": "/help/pilot-roi-model"
+  },
+  {
+    "title": "Pilot guide",
+    "summary": "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.",
+    "category": "Go-to-Market",
+    "url": "/help/pilot-guide"
+  },
+  {
+    "title": "Procurement FAQ",
+    "summary": "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
+    "category": "Go-to-Market",
+    "url": "/help/procurement"
+  },
+  {
+    "title": "Review guide",
+    "summary": "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
+    "category": "Go-to-Market",
+    "url": "/help/review-guide"
+  },
+  {
+    "title": "SOC 2 self-assessment",
+    "summary": "Internal readiness mapping aligned to SOC 2 Common Criteria \u2014 not a CPA attestation report.",
+    "category": "Go-to-Market",
+    "url": "/help/soc2-self-assessment"
+  },
+  {
     "title": "Sample aggregate ROI bulletin (synthetic)",
     "summary": "Illustrative bulletin table shape before N\u22655 paying tenants.",
     "category": "Go-to-Market",
     "url": "/help"
+  },
+  {
+    "title": "Security and trust",
+    "summary": "Assurance ladder, data handling, subprocessors, and diligence materials for procurement reviewers.",
+    "category": "Go-to-Market",
+    "url": "/help/security-trust"
+  },
+  {
+    "title": "Starting architecture reviews",
+    "summary": "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
+    "category": "Go-to-Market",
+    "url": "/help/starting-reviews"
+  },
+  {
+    "title": "Subprocessors",
+    "summary": "Third-party subprocessors register for hosted ArchLucid.",
+    "category": "Go-to-Market",
+    "url": "/help/subprocessors"
   },
   {
     "title": "Synthetic Contoso case study",
@@ -222,98 +354,20 @@
     "url": "/help"
   },
   {
-    "title": "Audit trail",
-    "summary": "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
-    "category": "Go-to-market",
-    "url": "/help/audit-trail"
-  },
-  {
-    "title": "Choose your next step",
-    "summary": "Map your current goal \u2014 evaluate, pilot, procurement, sponsor output, or engineering support \u2014 to one primary next action.",
-    "category": "Go-to-market",
-    "url": "/help/path-chooser"
-  },
-  {
-    "title": "Complete review workflow",
-    "summary": "End-to-end review lifecycle \u2014 create a package, attach evidence, review findings, finalize, and export sponsor-ready artifacts.",
-    "category": "Go-to-market",
-    "url": "/help/first-pilot-path"
-  },
-  {
-    "title": "Enterprise onboarding checklist",
-    "summary": "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
-    "category": "Go-to-market",
-    "url": "/help/enterprise-onboarding"
-  },
-  {
-    "title": "Evaluator workbook",
-    "summary": "Compact evaluator orientation \u2014 prerequisites, session flow, and pass/hold rules before deep configuration.",
-    "category": "Go-to-market",
-    "url": "/help/evaluator-workbook"
-  },
-  {
-    "title": "Executive summary",
-    "summary": "Sponsor-safe summaries, ROI basis labels, and what executives should expect in exports.",
-    "category": "Go-to-market",
-    "url": "/help/executive-summary"
-  },
-  {
-    "title": "First-review guide",
-    "summary": "Complete one review before opening deeper governance, reporting, or integration workflows.",
-    "category": "Go-to-market",
-    "url": "/help/first-hour-operator-path"
-  },
-  {
-    "title": "How ArchLucid works",
-    "summary": "From architecture evidence to findings, decisions, governance records, and sponsor-ready outputs.",
-    "category": "Go-to-market",
-    "url": "/help/how-it-works"
-  },
-  {
-    "title": "Pilot ROI model",
-    "summary": "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
-    "category": "Go-to-market",
-    "url": "/help/pilot-roi-model"
-  },
-  {
-    "title": "Pilot guide",
-    "summary": "Prepare for a pilot, run the first architecture review, interpret outputs, report issues, and get help.",
-    "category": "Go-to-market",
-    "url": "/help/pilot-guide"
-  },
-  {
-    "title": "Procurement FAQ",
-    "summary": "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
-    "category": "Go-to-market",
-    "url": "/help/procurement"
-  },
-  {
-    "title": "Review guide",
-    "summary": "Create an architecture review: name the review, upload evidence, add context, confirm scope, and finalize the review.",
-    "category": "Go-to-market",
-    "url": "/help/review-guide"
-  },
-  {
-    "title": "Security and trust",
-    "summary": "Assurance ladder, data handling, subprocessors, and diligence materials for procurement reviewers.",
-    "category": "Go-to-market",
-    "url": "/help/security-trust"
-  },
-  {
     "title": "What ArchLucid does with your data",
     "summary": "Data flow, tenant isolation, audit trail, and portability for architecture review evidence.",
-    "category": "Go-to-market",
+    "category": "Go-to-Market",
     "url": "/help/data-handling"
   },
   {
     "title": "Your first architecture review",
-    "summary": "Guided first-review checklist \u2014 evidence, optional cloud connectors, finalize, and sponsor exports.",
-    "category": "Go-to-market",
+    "summary": "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
+    "category": "Go-to-Market",
     "url": "/help/core-pilot"
   },
   {
     "title": "Accelerator chooser",
-    "summary": "Map buyer jobs to existing starter proof packs after Core Pilot first commit \u2014 inputs, outputs, and V1 scope labels.",
+    "summary": "Map buyer jobs to existing starter proof packs after your first finalized architecture review \u2014 inputs, outputs, and V1 scope labels.",
     "category": "Operations",
     "url": "/help/accelerator-chooser"
   },
@@ -324,22 +378,22 @@
     "url": "/help/admin-diagnostics"
   },
   {
-    "title": "Alerts",
-    "summary": "Inbox, rules, routing, composite alerts, and simulation tuning.",
+    "title": "Azure Boards integration",
+    "summary": "Connect Azure DevOps for work item creation from ArchLucid findings \u2014 independent of your architecture cloud provider.",
     "category": "Operations",
-    "url": "/help/alerts"
+    "url": "/help/azure-boards"
+  },
+  {
+    "title": "Azure permissions for cloud connections",
+    "summary": "Grant ArchLucid the minimum read-only Azure roles, scopes, and verification steps for hosted cloud connections.",
+    "category": "Operations",
+    "url": "/help/azure-permissions"
   },
   {
     "title": "Billing and plans",
     "summary": "How ArchLucid billing works \u2014 manage subscriptions, payment methods, seats, and usage from Billing and plans.",
     "category": "Operations",
     "url": "/help/billing-and-plans"
-  },
-  {
-    "title": "CLI usage",
-    "summary": "Non-interactive `archlucid` commands for proof packets, config lint, and support bundles.",
-    "category": "Operations",
-    "url": "/help/cli-usage"
   },
   {
     "title": "Cloud connections",
@@ -349,15 +403,9 @@
   },
   {
     "title": "Compare and replay",
-    "summary": "Diff two reviews, replay stored comparison logic, and verify drift between runs.",
+    "summary": "Diff two architecture reviews, replay a saved comparison, and verify drift without re-running a full review.",
     "category": "Operations",
     "url": "/help/comparison-replay"
-  },
-  {
-    "title": "Configuration reference",
-    "summary": "ArchLucidAuth role mapping, hosting options, and production-like configuration keys.",
-    "category": "Operations",
-    "url": "/help/configuration-reference"
   },
   {
     "title": "Connect AWS securely",
@@ -378,31 +426,13 @@
     "url": "/help/cloud-connections-gcp"
   },
   {
-    "title": "Core Pilot",
-    "summary": "Operator walkthrough from first session through commit \u2014 checklist anchors and recovery links.",
-    "category": "Operations",
-    "url": "/help/core-pilot"
-  },
-  {
     "title": "Day-one SRE",
     "summary": "Platform checklist for health endpoints and Terraform validation.",
     "category": "Operations",
     "url": "/help"
   },
   {
-    "title": "Engineering troubleshooting runbook",
-    "summary": "CLI commands, environment variables, log patterns, and deep failure signatures for engineering support.",
-    "category": "Operations",
-    "url": "/help/developer-troubleshooting"
-  },
-  {
-    "title": "Evidence intake",
-    "summary": "How evidence enters the review and what operators should verify before finalize.",
-    "category": "Operations",
-    "url": "/help/evidence-intake"
-  },
-  {
-    "title": "Evidence trail",
+    "title": "Evidence graph",
     "summary": "Trace findings, artifacts, and provenance without exposing raw engineering logs.",
     "category": "Operations",
     "url": "/help/evidence-trail"
@@ -414,34 +444,16 @@
     "url": "/help/findings"
   },
   {
-    "title": "First review in 90 minutes",
-    "summary": "Printable first-run evidence checklist \u2014 demo or new request through finalize, extractor ZIP upload, ROI proof, and audit export.",
-    "category": "Operations",
-    "url": "/help/first-review"
-  },
-  {
-    "title": "First value in 20 minutes",
-    "summary": "Time-boxed runbook for a first governed review when platform wiring is already green.",
-    "category": "Operations",
-    "url": "/help/first-value-20-minutes"
-  },
-  {
-    "title": "First-pilot operating path",
-    "summary": "Six-step operator path from setup verification through sponsor packet \u2014 what to do, when to defer Operate surfaces, and how to recover.",
-    "category": "Operations",
-    "url": "/help/first-pilot-path"
-  },
-  {
     "title": "Getting started",
     "summary": "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.",
     "category": "Operations",
     "url": "/help/getting-started"
   },
   {
-    "title": "Governance and API contracts",
-    "summary": "Versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record.",
+    "title": "Glossary",
+    "summary": "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.",
     "category": "Operations",
-    "url": "/help/governance-api-contracts"
+    "url": "/help/glossary"
   },
   {
     "title": "Governance approval",
@@ -468,32 +480,14 @@
     "url": "/help"
   },
   {
-    "title": "Operator authentication and roles",
-    "summary": "JWT bearer role mapping, Entra app roles, and least-privilege role expectations.",
-    "category": "Operations",
-    "url": "/help/operator-auth-roles"
-  },
-  {
     "title": "Operator decision guide",
     "summary": "Packaging, tiers, and when to use Pilot vs Operate surfaces.",
     "category": "Operations",
     "url": "/help"
   },
   {
-    "title": "Pilot feedback",
-    "summary": "Human judgments captured separately from recommendation learning.",
-    "category": "Operations",
-    "url": "/help/pilot-feedback"
-  },
-  {
-    "title": "Policy-pack delta demo",
-    "summary": "Repeatable demo: same committed review, stricter pack enforcement, different pre-commit gate outcome \u2014 dry-run, simulation, and audit slice.",
-    "category": "Operations",
-    "url": "/help/policy-pack-delta-demo"
-  },
-  {
     "title": "Prior manifest retrieval",
-    "summary": "How finalized reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy runs.",
+    "summary": "How finalized architecture reviews become searchable tenant memory for Ask, what makes a useful prior, and when to avoid noisy reviews.",
     "category": "Operations",
     "url": "/help/prior-manifest-retrieval"
   },
@@ -517,25 +511,25 @@
   },
   {
     "title": "Repeat-review stickiness loop",
-    "summary": "After the first committed review: compare, replay, governance dry-runs, and second-review proof checklist.",
+    "summary": "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.",
     "category": "Operations",
     "url": "/help/repeat-review-loop"
   },
   {
+    "title": "Report a problem",
+    "summary": "Structured in-product support intake \u2014 captured fields, consent, optional bundle attach, and next-business-day response commitment.",
+    "category": "Operations",
+    "url": "/help/report-a-problem"
+  },
+  {
     "title": "Reviews",
-    "summary": "Browse, inspect, and export governed reviews in the architect workspace.",
+    "summary": "Browse, inspect, and export governed architecture reviews in the architect workspace.",
     "category": "Operations",
     "url": "/help/review-packages"
   },
   {
     "title": "Specialty review templates",
     "summary": "Start with focused guidance for a specific architecture, governance, or industry scenario.",
-    "category": "Operations",
-    "url": "/help/specialty-walkthroughs"
-  },
-  {
-    "title": "Specialty walkthrough templates",
-    "summary": "Optional Azure SaaS, AI governance, and healthcare templates after first commit \u2014 not required for core pilot.",
     "category": "Operations",
     "url": "/help/specialty-walkthroughs"
   },
@@ -565,9 +559,9 @@
   },
   {
     "title": "Users and roles",
-    "summary": "JWT bearer role mapping, Entra app roles, and least-privilege role expectations for tenant admins.",
+    "summary": "Understand ArchLucid roles, who can manage access, and how permissions apply across your workspace.",
     "category": "Operations",
-    "url": "/help/operator-auth-roles"
+    "url": "/help/users-and-roles"
   },
   {
     "title": "V1_RELEASE_CHECKLIST",
@@ -583,7 +577,7 @@
   },
   {
     "title": "Workspace navigation profile",
-    "summary": "How the sidebar keeps the first-review path focused until your first review is committed \u2014 and how to unlock analysis and governance on demand.",
+    "summary": "How the sidebar keeps the first-review path focused until your first architecture review is finalized \u2014 and how to unlock analysis and governance on demand.",
     "category": "Operations",
     "url": "/help/pilot-nav-profile"
   },

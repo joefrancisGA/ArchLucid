@@ -9,6 +9,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REGISTRY_TS = REPO_ROOT / "archlucid-ui/src/lib/product-documentation-registry.ts"
+CONTENT_KINDS_TS = REPO_ROOT / "archlucid-ui/src/lib/product-documentation-content-kinds.ts"
 IN_APP_MAP_TS = REPO_ROOT / "archlucid-ui/src/lib/in-app-doc-href.ts"
 DOC_INDEX = REPO_ROOT / "archlucid-ui/public/doc-index.json"
 
@@ -19,16 +20,33 @@ SLUG_BLOCK = re.compile(
 PATH_ALIAS = re.compile(r'"([^"]+\.md)":\s*"([^"]+)"')
 
 
+def _parse_internal_runbook_slugs() -> set[str]:
+    text = CONTENT_KINDS_TS.read_text(encoding="utf-8")
+    block_match = re.search(
+        r"INTERNAL_RUNBOOK_SLUGS = new Set<string>\(\[([\s\S]*?)\]\);",
+        text,
+    )
+
+    if block_match is None:
+        return set()
+
+    return set(re.findall(r'"([^"]+)"', block_match.group(1)))
+
+
 def _parse_registry() -> list[dict[str, str]]:
     text = REGISTRY_TS.read_text(encoding="utf-8")
+    internal_runbooks = _parse_internal_runbook_slugs()
     entries: list[dict[str, str]] = []
 
     for match in SLUG_BLOCK.finditer(text):
         slug, title, summary, audience = match.groups()
+
+        if slug in internal_runbooks:
+            continue
         category = {
             "operator": "Operations",
-            "buyer": "Go-to-market",
-            "marketing": "Go-to-market",
+            "buyer": "Go-to-Market",
+            "marketing": "Go-to-Market",
             "developer": "Operations",
         }.get(audience, "Operations")
 
@@ -103,6 +121,22 @@ def main() -> None:
         for row in merged
         if not row.get("url", "").startswith("/help/") or row.get("url", "") in registry_urls
     ]
+
+    seen_help_urls: set[str] = set()
+    deduped: list[dict[str, str]] = []
+
+    for row in merged:
+        url = row.get("url", "")
+
+        if url.startswith("/help/"):
+            if url in seen_help_urls:
+                continue
+
+            seen_help_urls.add(url)
+
+        deduped.append(row)
+
+    merged = deduped
 
     merged.sort(key=lambda r: (r.get("category", ""), r.get("title", "")))
     DOC_INDEX.write_text(json.dumps(merged, indent=2) + "\n", encoding="utf-8")

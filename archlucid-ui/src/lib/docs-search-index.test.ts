@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "./docs-search-index";
+import { isInternalRunbookSlug } from "./product-documentation-content-kinds";
+import { tryResolveInAppDocHref } from "./in-app-doc-href";
 
 describe("docs-search-index", () => {
-  it("indexes at least 25 curated operator docs", () => {
-    expect(DOCUMENTATION_SEARCH_ITEMS.length).toBeGreaterThanOrEqual(25);
+  it("indexes curated product docs for Ctrl+K search", () => {
+    expect(DOCUMENTATION_SEARCH_ITEMS.length).toBeGreaterThanOrEqual(15);
   });
 
   it("uses docs paths under docs/", () => {
@@ -18,5 +20,20 @@ describe("docs-search-index", () => {
   it("resolves curated docs to in-app help routes", () => {
     expect(resolveDocumentationHref("docs/CORE_PILOT.md")).toBe("/help/core-pilot");
     expect(resolveDocumentationHref("docs/runbooks/TROUBLESHOOTING.md")).toMatch(/^\/help\//);
+  });
+
+  it("omits Admin-only internal-runbook topics from Ctrl+K documentation search (TB-1385)", () => {
+    expect(
+      DOCUMENTATION_SEARCH_ITEMS.some((row) => row.relativeDocsPath.toLowerCase().includes("api_contracts")),
+    ).toBe(false);
+
+    for (const row of DOCUMENTATION_SEARCH_ITEMS) {
+      const href = tryResolveInAppDocHref(row.relativeDocsPath);
+      const slug = href?.replace(/^\/help\/?/, "").split("#")[0] ?? "";
+
+      expect(slug.length === 0 || !isInternalRunbookSlug(slug), row.relativeDocsPath).toBe(true);
+    }
+
+    expect(resolveDocumentationHref("docs/library/API_CONTRACTS.md")).toBe("/help/governance-api-contracts");
   });
 });

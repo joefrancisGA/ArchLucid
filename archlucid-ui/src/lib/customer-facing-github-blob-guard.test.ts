@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
+import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import { textContainsGitHubBlobOrTreeUrl } from "@/lib/github-blob-url-contains";
 
 /** Paths scanned for customer-facing GitHub blob links (operator + marketing surfaces). */
@@ -78,6 +79,21 @@ describe("customer-facing GitHub blob link guard", () => {
       }
 
       expect(row.url, `doc-index entry "${row.title}" must use in-app help`).toMatch(/^\/help\//);
+    }
+  });
+
+  it("doc-index.json omits Admin-only internal-runbook help topics (TB-1385)", () => {
+    const raw = readFileSync(path.join(process.cwd(), "public/doc-index.json"), "utf8");
+    const index = JSON.parse(raw) as Array<{ title: string; url: string }>;
+
+    for (const row of index) {
+      const match = row.url.match(/^\/help\/([^#/?]+)/);
+
+      if (match === null) {
+        continue;
+      }
+
+      expect(isInternalRunbookSlug(match[1]!), `doc-index must not list ${row.url}`).toBe(false);
     }
   });
 

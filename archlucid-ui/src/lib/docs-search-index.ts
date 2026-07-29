@@ -1,5 +1,22 @@
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { tryResolveInAppDocHref, resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { isInternalRunbookSlug } from "@/lib/product-documentation-content-kinds";
 import { PERSONA_SHELL_WORKSPACE_UI_MAP_LABEL } from "@/lib/persona-shell-vocabulary";
+
+function documentationSearchItemResolvesToInternalRunbook(relativeDocsPath: string): boolean {
+  const href = tryResolveInAppDocHref(relativeDocsPath);
+
+  if (href === null) {
+    return false;
+  }
+
+  const slug = href.replace(/^\/help\/?/, "").split("#")[0] ?? "";
+
+  if (slug.length === 0) {
+    return false;
+  }
+
+  return isInternalRunbookSlug(slug);
+}
 
 export type DocumentationSearchItem = {
   title: string;
@@ -11,8 +28,9 @@ export type DocumentationSearchItem = {
 
 /**
  * Curated operator-facing docs for Ctrl+K search. Paths match the repository layout on `main`.
+ * TB-1385 / TB-1247: Admin-only internal-runbook topics are omitted from {@link DOCUMENTATION_SEARCH_ITEMS}.
  */
-export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
+const CURATED_DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {
     category: "Pilot",
     title: "Core Pilot walkthrough",
@@ -164,6 +182,11 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
     relativeDocsPath: "docs/START_HERE.md",
   },
 ];
+
+export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] =
+  CURATED_DOCUMENTATION_SEARCH_ITEMS.filter(
+    (row) => !documentationSearchItemResolvesToInternalRunbook(row.relativeDocsPath),
+  );
 
 /** Resolves a relative docs path to the in-app help URL without navigating. */
 export function resolveDocumentationHref(relativeDocsPath: string): string {
