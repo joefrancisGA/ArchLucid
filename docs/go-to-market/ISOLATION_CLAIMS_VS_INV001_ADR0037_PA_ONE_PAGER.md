@@ -1,29 +1,11 @@
-﻿> **Reviewed:** 2026-07-28
+﻿> **Reviewed:** 2026-07-29
 
-> **Scope:** PA handout for isolation claims too strong vs INV-001 / ADR 0037 (GTM **M-195** / **TB-1122**). Complements Done **M-114**; does not reopen RLS.
+> **Scope:** Path-stable alias for isolation claims vs INV-001 / ADR 0037 (GTM **M-195** / **TB-1122**). Complements Done **M-114**; does not reopen RLS. Not an assurance attestation.
 
-# Isolation claims vs INV-001 / ADR 0037
+# Isolation claims vs INV-001 / ADR 0037 (alias)
 
-**Audience:** Security reviewers and principal architects challenging tenancy language.
+**Last reviewed:** 2026-07-29
 
-**Claim:** Safe pin = **database-per-tenant** + **INV-001 decide-once** + **M-114** identity-wins. Do **not** cite SQL RLS as a deployed production control. Do not treat workspace/project as the paying-client security boundary. Do not claim G3 fully proven without **TB-948**/**TB-949**. Do not promise per-tenant Search index / crypto-proof retrieval / NetArchTest-alone isolation.
+**Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-claims-vs-inv001-adr0037-m-195`](BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-claims-vs-inv001-adr0037-m-195).
 
----
-
-## Too strong vs safe
-
-| Too strong | Safe |
-| --- | --- |
-| “SQL RLS isolates tenants” | ADR 0037 — RLS is non-control |
-| “NetArchTest proves isolation” | Compile-time DAG ≠ runtime tenancy (**M-156**) |
-| “Per-tenant Search index / crypto-proof retrieval” | Mandatory OData `$filter` (**M-152**/**M-153**) |
-| “Empty TenantId returns no data” | Empty-scope routing risks (**M-168**/**M-169**) |
-| “G3 PASS without isolation evidence” | Soften until **TB-948**/**TB-949** artifacts |
-
----
-
-## Stale language purge
-
-Remove buyer-facing “RLS protects production” / “headers select tenant” / “architecture tests = isolation proof.” Point to [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114`](BUYER_SECURITY_PROCUREMENT_PACKET.md#isolation-one-pager-m-114).
-
-**Related:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151) (`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` alias) · [`RETRIEVAL_TENANCY_HIT_GUARANTEE_PA_ONE_PAGER.md`](RETRIEVAL_TENANCY_HIT_GUARANTEE_PA_ONE_PAGER.md) · **M-213**/**M-255** (DiD erosion).
+Too-strong vs safe matrix and stale-language purge live only in the buyer security procurement packet. This file keeps the historical path stable for GTM **M-195** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
