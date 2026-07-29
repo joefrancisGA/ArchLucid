@@ -12,6 +12,8 @@
 
 **Sample-package funnel ID matrix (M-134):** [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) — surface → package → IDs (Claims vs Product Tour Contoso vs Workspace B); do not mix universes on one CTA.
 
+**Showcase naming (M-135):** Contoso/Northwind citations below are **operator seed / CI pins** — superseded for public showcase and paid creatives. Use scenario-first names per [`SHOWCASE_NAMING_HIERARCHY.md`](SHOWCASE_NAMING_HIERARCHY.md).
+
 Workspace A/B narrative, scope triplets, living-fixture PR discipline, and marketing hero analytics live only in the demo quickstart. This file keeps the historical path stable for `Validate-DemoWorkspacesDoc.ps1` and smoke callers.
 
 ## Pinned fixture anchors (CI)

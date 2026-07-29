@@ -9,6 +9,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-07-29 — GTM: **M-135** showcase naming hierarchy + **M-25** Azure Upwork listing
+
+Scenario-first naming + PA Q4 Contoso/Northwind safe/toxic/gray matrix ([`SHOWCASE_NAMING_HIERARCHY.md`](go-to-market/SHOWCASE_NAMING_HIERARCHY.md)); paste-ready Upwork **Azure Architecture Readiness Review** → Azure-first SKU ([`UPWORK_LISTINGS.md`](go-to-market/UPWORK_LISTINGS.md)).
+
 ## 2026-07-29 — GTM: **M-133** Option D — Enterprise Customer Intake long-term primary (ratified)
 
 Owner note in [`DEMO_PREVIEW.md`](library/DEMO_PREVIEW.md): primary buyer sample name = Enterprise Customer Intake Modernization; Claims secondary; Contoso/Northwind forbidden in primary one-sentence. No rename-in-place; authoring/default flip stay **TB-980**/**TB-981**. Matrix §1b.

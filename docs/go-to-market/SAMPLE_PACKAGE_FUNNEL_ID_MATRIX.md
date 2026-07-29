@@ -102,7 +102,7 @@ Pinned Workspace A/B GUID table (CI): [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md)
 | Canonical anonymous proof path (showcase vs `/see-it` vs `/demo/preview`) | **M-107** **Done** — Option A (§1a) |
 | Option D primary scenario sentence (Enterprise Customer Intake) | **M-133** **Done** — §1b; execution **TB-980**/**TB-981** |
 | Sample-definition package engineering / default flip | **TB-979**–**TB-981** |
-| Naming hierarchy + safe/toxic org matrix prose | **M-135** |
+| Naming hierarchy + safe/toxic org matrix prose | **M-135** **Done** — [`SHOWCASE_NAMING_HIERARCHY.md`](SHOWCASE_NAMING_HIERARCHY.md) |
 | Screenshots / video on ratified creatives | **M-108** / **M-07** / **M-16** |
 
 ---

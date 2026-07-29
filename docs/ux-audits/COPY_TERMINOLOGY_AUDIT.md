@@ -6,6 +6,8 @@
 **Backlog items:** TB-456–TB-480 (25 findings)  
 **Conflicts with prior sessions:** None — all new findings are additive to TB-431–455 (first-hour UX) and N01–N19 (nav/IA audit).
 
+**GTM showcase naming (M-135, 2026-07-29):** Buyer-facing sample language hierarchy and Contoso/Northwind safe vs toxic matrix live in [`../go-to-market/SHOWCASE_NAMING_HIERARCHY.md`](../go-to-market/SHOWCASE_NAMING_HIERARCHY.md). Prefer **Showcase → scenario name → sample review → illustrative sample**; ban Contoso/Northwind in primary one-sentence and primary CTA chrome.
+
 ---
 
 ## Summary statistics

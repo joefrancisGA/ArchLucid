@@ -13,7 +13,7 @@
 | GTM | Listing title (Upwork) | Maps to SKU | Draft |
 |-----|------------------------|-------------|-------|
 | **M-24** | AI Architecture Governance Review | **ArchLucid AI & Cloud Architecture Readiness Review** | **Ready** (below) |
-| **M-25** | Azure Architecture Readiness Review | **ArchLucid Cloud Governance Review (Azure-first)** | Not started |
+| **M-25** | Azure Architecture Readiness Review | **ArchLucid Cloud Governance Review (Azure-first)** | **Ready** (below) |
 | **M-26** | Architecture Decision Record Cleanup | Readiness Review slice (capture + decision register) | Not started |
 
 ---
@@ -112,6 +112,109 @@ Message me with: (1) the architecture decision you need to support,
 - [ ] Publish on Upwork (GTM **M-24** draft is **Done** in-repo; marketplace go-live is owner)
 
 **Draft closure note:** In-repo paste-ready copy closes **M-24** (same pattern as **M-22**/**M-23**). Owner still pastes into Upwork and sets fee.
+
+---
+
+## M-25 — Azure Architecture Readiness Review
+
+### Upwork title (≤70 chars)
+
+```text
+Azure Architecture Readiness Review — Cost + Security Baseline
+```
+
+### Category / skills (suggested)
+
+- Microsoft Azure · Cloud Architecture · Cloud Security · Cost Optimization · Solution Architecture  
+- Optional: Compliance, Technical Writing, Enterprise Architecture  
+
+### One-line thumbnail
+
+```text
+Azure-first architecture review from your extractor ZIP → security-baseline + cost findings with an evidence trail and sponsor-safe report.
+```
+
+### Full description (paste)
+
+```text
+I deliver a fixed-scope ArchLucid Cloud Governance Review (Azure-first) —
+an Azure-heavy architecture readiness package with security-baseline and
+cost-oriented findings you can take to a sponsor or cloud governance forum.
+
+What you get
+• Executive summary focused on Azure estate risks and decisions
+• Evidence inventory tied to findings (ZIP ingest and/or shared artifacts)
+• Security-baseline + cost-oriented finding set with recommended actions
+• Decision / risk register excerpt with clear dispositions
+• Architecture Review Report (DOCX/PDF; whitelabel available when scoped)
+• A finalized architecture package with an audit trail you can reopen later
+
+How it works
+1. Scope call (20–30 min) — Azure domains in scope and the decision this
+   review must support in 30–60 days
+2. Evidence intake — preferred: customer Get-ArchLucidAzurePackage.ps1 ZIP
+   (or equivalent exports/diagrams you can share under contract). A labeled
+   demo-workspace path is available if we start from a synthetic sample
+3. Governed review run — multi-agent analysis + human-readable findings
+4. Sponsor walkthrough — findings, limits, and next actions
+5. Export handoff — report + package; optional conversion to an ongoing
+   Team/Professional subscription (separate order form)
+
+This is a packaged Azure readiness outcome, not “buy an AI platform,” not a
+Microsoft Partner certification, and not a FinOps retainer.
+
+Good fit if you are
+• Running a primarily Azure estate (Landing Zone / WAF-oriented reviews)
+• Preparing for a cloud governance, security, or cost baseline conversation
+• A mid-market CTO, fractional CTO, or Azure-focused consultant
+
+Not a fit if you need
+• Multi-cloud-first review with no Azure primary (use the general AI/cloud
+   governance listing instead)
+• CPA-issued SOC 2 or a published third-party pen test as day-one deliverables
+• Native Jira / ServiceNow / Teams sync as a go-live blocker
+• Guaranteed $ savings or invoice-accurate Azure OpenAI COGS claims
+
+Pricing
+Private quote after scope. Indicative bands for planning (not a public list):
+lightweight $1,500–$3,000 · standard $5,000–$10,000 · larger multi-subscription
+estates quoted separately. SaaS subscription is a separate commercial step
+after the review proves value.
+
+Next step
+Message me with: (1) the Azure decision you need to support, (2) whether you
+can produce an ArchLucid Azure extractor ZIP (or what exports you have),
+(3) whether you have a sponsor for a 30-minute findings review. I will reply
+with a scoped SOW outline.
+```
+
+### Deliverables checklist (Upwork “What you’ll get”)
+
+1. Architecture Review Report (DOCX or PDF) — Azure-first narrative  
+2. Finalized architecture package summary (security-baseline + cost-oriented findings)  
+3. Decision / risk register excerpt  
+4. 30-minute sponsor findings walkthrough (live or recorded)  
+5. Written limitations + execution-mode labels (Simulator vs Real when applicable)
+
+### Scope / FAQ bullets (optional Upwork FAQ)
+
+| Q | A |
+|---|---|
+| Is this a Microsoft Partner assessment? | No. It is an independent architecture review package using ArchLucid on your Azure evidence. |
+| Do I need the Azure extractor ZIP? | Preferred. If you cannot run it, we scope alternate exports or a labeled demo path. |
+| Do you certify Landing Zone / WAF compliance? | No. Outputs are architecture-review evidence against baseline packs, not Microsoft or regulator attestation. |
+| How is this different from the AI Architecture Governance listing? | This listing assumes an Azure-primary estate and emphasizes security-baseline + cost findings; the other listing is general AI/cloud governance. |
+| Can you whitelabel? | Yes when scoped (consultant firm / client branding on the report). |
+
+### Owner publish checklist
+
+- [ ] Paste title + description into Upwork  
+- [ ] Set private milestone or fixed-price after scope (do not put SaaS list prices on the listing)  
+- [ ] Prefer a redacted Azure-path sample only if cleared for external use  
+- [ ] Point interested buyers at [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) Addendum D only after SOW close  
+- [ ] Publish on Upwork (GTM **M-25** draft is **Done** in-repo; marketplace go-live is owner)
+
+**Draft closure note:** In-repo paste-ready copy closes **M-25**. Owner still pastes into Upwork and sets fee.
 
 ---
 
