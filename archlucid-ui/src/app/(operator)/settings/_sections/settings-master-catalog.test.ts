@@ -1,0 +1,35 @@
+import { describe, expect, it } from "vitest";
+
+import { SETTINGS_MASTER_SECTIONS } from "./settings-master-catalog";
+
+/** Static hub copy must not claim a destination is empty without a verified readiness signal. */
+const STATIC_EMPTY_CLAIM_PATTERN =
+  /\bNo\b.+\b(configured|assigned|connected)\b|\bnot configured\b|\bnone assigned\b/i;
+
+describe("settings-master-catalog (TB-1198)", () => {
+  it("does not hardcode unverified empty-state claims on hub destinations", () => {
+    const destinations = SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations);
+
+    for (const destination of destinations) {
+      const hint = destination.emptyStateHint;
+
+      if (hint === undefined || hint.trim().length === 0) {
+        continue;
+      }
+
+      expect(hint, `${destination.id} emptyStateHint`).not.toMatch(STATIC_EMPTY_CLAIM_PATTERN);
+    }
+  });
+
+  it("omits emptyStateHint on integration and policy-pack destinations", () => {
+    const destinations = SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations);
+    const idsThatMustNotLie = ["cloud-connections", "itsm-jira", "itsm-servicenow", "policy-packs-hub"];
+
+    for (const id of idsThatMustNotLie) {
+      const destination = destinations.find((entry) => entry.id === id);
+
+      expect(destination, id).toBeDefined();
+      expect(destination?.emptyStateHint, id).toBeUndefined();
+    }
+  });
+});

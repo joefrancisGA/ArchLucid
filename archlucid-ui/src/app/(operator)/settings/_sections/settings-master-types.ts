@@ -23,6 +23,7 @@ export type SettingsMasterDestination = {
   readonly editability: SettingsMasterEditability;
   readonly saveBehavior?: string;
   readonly highImpact?: boolean;
+  /** Only set when emptiness is verified for this destination; never a static catalog lie. */
   readonly emptyStateHint?: string;
 };
 
