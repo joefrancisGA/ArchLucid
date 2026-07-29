@@ -48,11 +48,14 @@ function applyHelpTopicProductLanguage(text) {
   return result;
 }
 
-/** Repo-relative paths; keep small (<500KB index budget). */
+/**
+ * Repo-relative paths; keep small (<500KB index budget).
+ * TB-1247: omit eng `TROUBLESHOOTING.md` so the client bundle never ships
+ * internal-runbook excerpts (runtime audience filter alone still embedded them).
+ */
 const CURATED_DOC_PATHS = [
   "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
   "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
-  "docs/runbooks/TROUBLESHOOTING.md",
   "docs/library/CONFIGURATION_REFERENCE.md",
   "docs/CORE_PILOT.md",
   "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

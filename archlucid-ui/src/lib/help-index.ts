@@ -1,5 +1,7 @@
 import { isHelpDocPathInDefaultOperatorSearch } from "@/lib/help-doc-audience";
 import { type HelpDocSearchRecord, HELP_DOC_SEARCH_RECORDS } from "@/lib/help-index.generated";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { isInternalRunbookHelpSlug } from "@/lib/product-documentation-access";
 
 export type { HelpDocSearchRecord };
 
@@ -11,6 +13,18 @@ export type HelpDocumentationSearchOptions = {
   /** When false (default), engineering runbook sections are excluded from shell search. */
   readonly includeDeveloperDocs?: boolean;
 };
+
+/** TB-1247: never surface internal-runbook topics via indexed doc paths. */
+function isInternalRunbookSearchRecord(record: HelpDocSearchRecord): boolean {
+  const href = resolveInAppDocHref(record.docPath);
+  const slug = href.replace(/^\/help\/?/, "").split("#")[0] ?? "";
+
+  if (slug.length === 0) {
+    return false;
+  }
+
+  return isInternalRunbookHelpSlug(slug);
+}
 
 function tokenize(query: string): string[] {
   return query
@@ -27,11 +41,15 @@ function filterSearchRecords(
   records: readonly HelpDocSearchRecord[],
   options: HelpDocumentationSearchOptions | undefined,
 ): readonly HelpDocSearchRecord[] {
+  // Internal-runbook markdown is omitted from the generated index (TB-1247); keep
+  // this gate so a re-added path cannot leak through includeDeveloperDocs either.
+  const withoutInternalRunbooks = records.filter((r) => !isInternalRunbookSearchRecord(r));
+
   if (options?.includeDeveloperDocs === true) {
-    return records;
+    return withoutInternalRunbooks;
   }
 
-  return records.filter((r) => isHelpDocPathInDefaultOperatorSearch(r.docPath));
+  return withoutInternalRunbooks.filter((r) => isHelpDocPathInDefaultOperatorSearch(r.docPath));
 }
 
 export function searchHelpDocumentation(

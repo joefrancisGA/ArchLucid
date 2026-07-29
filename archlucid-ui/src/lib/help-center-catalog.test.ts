@@ -66,6 +66,22 @@ describe("help-center-catalog", () => {
     expect(advancedNonAdmin.some((entry) => entry.slug === "cli-usage")).toBe(false);
     expect(advancedNonAdmin.some((entry) => entry.slug === "procurement")).toBe(true);
   });
+
+  it("never lists engineering troubleshooting in featured or non-admin help catalogs (TB-1247)", () => {
+    expect(HELP_CENTER_FEATURED_SLUGS).not.toContain("developer-troubleshooting");
+
+    const nonAdminTopics = listHelpCenterTopics({ showAdvanced: true, isAdmin: false }).map(
+      (entry) => entry.slug,
+    );
+    const nonAdminGuides = listHelpCenterGuideTopics({ showAdvanced: true, isAdmin: false }).map(
+      (entry) => entry.slug,
+    );
+    const nonAdminDocs = listHelpCenterDocumentationTopics({ isAdmin: false }).map((entry) => entry.slug);
+
+    expect(nonAdminTopics).not.toContain("developer-troubleshooting");
+    expect(nonAdminGuides).not.toContain("developer-troubleshooting");
+    expect(nonAdminDocs).not.toContain("developer-troubleshooting");
+  });
 });
 
 describe("help topic slug aliases", () => {

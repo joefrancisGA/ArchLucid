@@ -31,6 +31,30 @@ describe("searchHelpDocumentation", () => {
     expect(hits.some((h) => h.docPath.toLowerCase() === "docs/runbooks/troubleshooting.md")).toBe(false);
   });
 
+  it("omits engineering troubleshooting runbook from the generated product help index (TB-1247)", () => {
+    expect(
+      HELP_DOC_SEARCH_RECORDS.some(
+        (r) => r.docPath.toLowerCase() === "docs/runbooks/troubleshooting.md",
+      ),
+    ).toBe(false);
+
+    for (const record of HELP_DOC_SEARCH_RECORDS) {
+      const blob = `${record.docTitle}\n${record.sectionHeading}\n${record.excerpt}`.toLowerCase();
+
+      expect(blob, `${record.docPath}#${record.sectionSlug}`).not.toContain("/help/developer-troubleshooting");
+      expect(blob, `${record.docPath}#${record.sectionSlug}`).not.toContain("engineering troubleshooting");
+    }
+  });
+
+  it("does not surface engineering troubleshooting via default shell search (TB-1247)", () => {
+    const hits = searchHelpDocumentation("engineering troubleshooting CLI logs", 40);
+
+    expect(hits.some((h) => h.docPath.toLowerCase() === "docs/runbooks/troubleshooting.md")).toBe(false);
+    expect(
+      hits.some((h) => `${h.docTitle} ${h.excerpt}`.toLowerCase().includes("developer-troubleshooting")),
+    ).toBe(false);
+  });
+
   it("returns procurement FAQ entries for procurement keywords", () => {
     const hits = searchHelpDocumentation("SOC 2 procurement", 30);
 

@@ -115,77 +115,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "related-help-topics",
     "sectionHeading": "Related Help topics",
-    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues. - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers. - [Engineering troubleshooting](/help/developer-troubleshooting) — CLI, logs, environment variables, and support bun…"
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "",
-    "sectionHeading": "Engineering troubleshooting runbook — overview",
-    "excerpt": "Goal: Faster triage without reading the whole codebase."
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "first-line-steps-try-in-order",
-    "sectionHeading": "First-line steps (try in order)",
-    "excerpt": "1. See [Common operator errors (top 10)](COMMON_ERRORS.md) for step-by-step fixes to startup, auth, migrations, OpenAI, rate limits, concurrency, and readiness checks. 2. `GET /health/live` — process up? Then `GET /health/ready` — read JSON `entries[]` for the first `Unhealthy` / `Degraded` check. 2. `GET /version` …"
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "orchestrator-degraded-health",
-    "sectionHeading": "Orchestrator degraded health",
-    "excerpt": "When `OrchestratorHealthCheck` reports Degraded or Unhealthy on `GET /health/ready`, or runs stall in Executing without task progress:"
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "problem-details-applicationproblemjson-and-supporthint",
-    "sectionHeading": "Problem Details (`application/problem+json`) and `supportHint`",
-    "excerpt": "Shape follows RFC 9457 (Problem Details for HTTP APIs; obsoletes RFC 7807). API error responses may include:"
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "quick-matrix",
-    "sectionHeading": "Quick matrix",
-    "excerpt": "Quick matrix"
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "api-startup-failures",
-    "sectionHeading": "API startup failures",
-    "excerpt": "1. Read the console output from first line to first `InvalidOperationException` / stack stop. 2. Configuration validation runs right after the host is built: errors are logged as `Startup configuration error:` — fix each listed setting. 3. If `ConnectionStrings:ArchLucid` is unset while `ArchLucid:StorageProvider` i…"
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "logs-what-to-search-for",
-    "sectionHeading": "Logs — what to search for",
-    "excerpt": "- `ReviewId=` — ties log lines to a single architecture review. - `X-Correlation-ID` you sent on the request (or the ID the server returned) — ties client attempts to server handling; if you only have a problem JSON body, use `correlationId` there (same value). - `Authority pipeline` / `architecture review execution fa…"
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "artifact-list-empty-or-download-404",
-    "sectionHeading": "Artifact list empty or download 404",
-    "excerpt": "- An empty artifact list (`[]`) can be valid: signed review record exists but no synthesized files yet or none stored for that architecture review. - Bundle ZIP 404 can mean “no bundle” vs “review not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "support-bundle-attach-to-tickets",
-    "sectionHeading": "Support bundle (attach to tickets)",
-    "excerpt": "With the API running, from repo root (or set `ARCHLUCID_API_URL` to your API base):"
-  },
-  {
-    "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Engineering troubleshooting runbook",
-    "sectionSlug": "still-stuck",
-    "sectionHeading": "Still stuck?",
-    "excerpt": "1. Run `dotnet run --project ArchLucid.Cli -- doctor` with the API up. 2. Run `support-bundle --zip` (above) and attach the archive after redacting anything your policy still forbids. 3. Run `scripts\\run-readiness-check.cmd` (or `scripts\\run-readiness-check.ps1`) to confirm build + fast core + UI unit tests on your …"
+    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues. - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers. - [CLI usage](/help/cli-usage) — `archlucid doctor` and support-bundle commands (Admin Documentation tab)."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -333,6 +263,69 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "isolation-one-pager-m-114",
     "sectionHeading": "Isolation one-pager (M-114)",
     "excerpt": "Claim (G3): Authenticated identity binds tenant/workspace scope; client-supplied scope headers cannot override that binding on production-like hosts."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "pa-claim-honesty-short-rows",
+    "sectionHeading": "PA claim-honesty short rows (M-115+)",
+    "excerpt": "Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tenant-isolation-buyer-overview",
+    "sectionHeading": "Tenant isolation (buyer overview)",
+    "excerpt": "Former standalone body: `docs/go-to-market/TENANT_ISOLATION.md` → this section (`TENANT_ISOLATION.md` remains a path-stable procurement-pack alias)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tenant-isolation-three-layers",
+    "sectionHeading": "Three layers",
+    "excerpt": "- Layer 1 — Identity: Prefer Entra-issued JWTs with app roles; API keys are server-side secrets mapped to limited roles ([SECURITY.md](../library/contributor-reference/SECURITY.md)). - Layer 2 — Application: Controllers enforce policies; orchestration sets tenant / workspace / project scope before data access ([../s…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tenant-isolation-encryption",
+    "sectionHeading": "Encryption",
+    "excerpt": "- In transit: TLS to the API; TLS to Azure services per Microsoft’s stack. - At rest: Azure SQL (TDE) and blob encryption are standard Azure controls; see [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md). - Secrets: Prefer Key Vault references in hosted configs ([../CONFIGURATION_KEY_VAULT.…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tenant-isolation-network",
+    "sectionHeading": "Network",
+    "excerpt": "Optional Front Door + WAF, optional APIM, and private endpoints for SQL and blob reduce exposure ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)). SMB (445) is not used for tenant data at the API boundary (workspace security rule)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tenant-isolation-audit-and-accountability",
+    "sectionHeading": "Audit and accountability",
+    "excerpt": "Durable append-only audit events and correlation IDs support forensic review ([../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md), [SECURITY.md](../library/contributor-reference/SECURITY.md))."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tenant-isolation-what-we-do-not-claim",
+    "sectionHeading": "What we do not claim here",
+    "excerpt": "Hosted trial tenants and commercial pilots use ArchLucid's single supported multitenant data-plane model: `SystemWithPerTenantCatalogs` (database-per-tenant routing via `TenantDatabaseBindings` — one product catalog per tenant organization). `SingleCatalog` may exist only for narrow developer/CI convenience and is n…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tenant-isolation-verification-pack",
+    "sectionHeading": "Verification pack (generated)",
+    "excerpt": "Generate a buyer-safe metadata pack (no tenant data, no secrets):"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "tenant-isolation-deep-dives",
+    "sectionHeading": "Deep dives",
+    "excerpt": "Deep dives"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -493,7 +486,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "52-data-isolation-and-tenant-boundaries",
     "sectionHeading": "5.2 Data isolation and tenant boundaries",
-    "excerpt": "Q: Is customer data isolated from other customers? A: Yes. Tenant-scoped row-level filtering is applied to all data queries. Tenants cannot access each other's reviews, architecture reviews, findings, or evidence. See [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md)."
+    "excerpt": "Q: Is customer data isolated from other customers? A: Yes. Hosted posture uses database-per-tenant product catalogs with identity-bound scope and application-layer predicates. Tenants cannot access each other's reviews, architecture reviews, findings, or evidence. See [Tenant isolation (buyer overview)](#tenant-iso…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -577,7 +570,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "5-what-sla-do-you-publish",
     "sectionHeading": "5. What SLA do you publish?",
-    "excerpt": "Answer: Targets are documented ([SLA_TARGETS.md](../library/SLA_TARGETS.md), [SLA_SUMMARY.md](SLA_SUMMARY.md)). Contractual SLA language is finalized per Order Form ([ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md))—pre-contract targets, not unconditional guarantees until executed."
+    "excerpt": "Answer: Targets are documented ([SLA_SUMMARY.md](SLA_SUMMARY.md) · [#hosted-saas-availability-target](SLA_SUMMARY.md#hosted-saas-availability-target); `SLA_TARGETS.md` alias). Contractual SLA language is finalized per Order Form ([ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md))—pre-contract targets, not uncondition…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -641,6 +634,104 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "7-staleness-and-accuracy-checklist",
     "sectionHeading": "7. Staleness and accuracy checklist",
     "excerpt": "Run before each new buyer send:"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "procurement-response-accelerator",
+    "sectionHeading": "Procurement response accelerator",
+    "excerpt": "Former standalone body: `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md` → this section (filename kept as a path-stable alias)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "status-legend",
+    "sectionHeading": "Status legend",
+    "excerpt": "Status legend"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "questions-sig-aligned-families-50-prompts",
+    "sectionHeading": "Questions (SIG-aligned families — 50 prompts)",
+    "excerpt": "Answers are pointers only; pull quotations from targets during diligence."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "security-reviewer-one-pager",
+    "sectionHeading": "Security reviewer one-pager",
+    "excerpt": "Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md` → this section (filename kept as a path-stable pack alias)."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "current-controls-v1-evidence-today",
+    "sectionHeading": "Current controls (V1 evidence today)",
+    "excerpt": "- Tenant-scoped auth (OIDC/SAML/API key) with least-privilege operator ranks - Append-only audit events and correlation IDs on API failures - Config summary and config lint without returning secrets - Policy packs and governance workflows (optional after first commit) - DPA/SIG/CAIQ-style templates in procurement pa…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "deferred-informational-only-not-v1-blockers",
+    "sectionHeading": "Deferred / informational only (not V1 blockers)",
+    "excerpt": "- CPA SOC 2 Type I/II report - Third-party penetration test publication - No ISO or statutory certification automation in V1 (deferred) - Live marketplace checkout as procurement gate"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "we-will-never-ask-you-to-paste",
+    "sectionHeading": "We will never ask you to paste",
+    "excerpt": "- Production database connection strings in tickets - API keys, SAML secrets, or Key Vault values in email - Unredacted LLM prompts in buyer-safe attachments - Customer-operated webhook secrets in V1 required path"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "control-to-evidence-map",
+    "sectionHeading": "Control-to-evidence map",
+    "excerpt": "Not issued (do not imply): SOC 2 Type I/II CPA report · third-party penetration test attestation · public customer reference."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "example-audit-walkthrough-one-finalized-review",
+    "sectionHeading": "Example audit walkthrough (one finalized review)",
+    "excerpt": "Assume review id `runId` and tenant scope already established. Uses existing routes and exports only."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "one-pager-source-documents",
+    "sectionHeading": "One-pager source documents",
+    "excerpt": "- [`trust-center.md`](trust-center.md) — Trust center narrative - [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) — SOC 2 self-assessment (not CPA attestation) - [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) — S…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "procurement-objection-playbook",
+    "sectionHeading": "Procurement objection playbook",
+    "excerpt": "Former standalone body: `docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md` → this section (filename kept as a path-stable alias for proof-language CI). High-frequency procurement objection responses with approved short/long answers, evidence links, and escalation triggers; designed to reduce deal-cycle friction w…"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "usage",
+    "sectionHeading": "Usage",
+    "excerpt": "- Use the short answer first. - Expand with the long answer when reviewers request detail. - Escalate when the trigger condition is met. - Keep claims aligned with `ASSURANCE_STATUS_CANONICAL.md`."
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "objections",
+    "sectionHeading": "Objections",
+    "excerpt": "Objections"
+  },
+  {
+    "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
+    "docTitle": "Buyer security and procurement packet",
+    "sectionSlug": "controlled-pilot-drill",
+    "sectionHeading": "Controlled pilot drill",
+    "excerpt": "Duration: 45–60 minutes (solo or with a colleague playing procurement). Rehearse top V1 objections without over-claiming deferred assurance (SOC 2 CPA, third-party pen test)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
