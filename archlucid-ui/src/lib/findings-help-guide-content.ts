@@ -29,9 +29,10 @@ export const FINDINGS_HELP_PRIMARY_ACTIONS = {
   },
 } as const;
 
-export const FINDINGS_HELP_DEVELOPER_DOCS = {
-  label: "Developer documentation",
-  href: inAppHelpHref("governance-api-contracts"),
+/** TB-1250 / TB-1387: buyer Findings help must not deep-link eng API contracts. */
+export const FINDINGS_HELP_RELATED_PRODUCT_DOCS = {
+  label: "Audit trail",
+  href: inAppHelpHref("audit-trail"),
 } as const;
 
 export const FINDINGS_HELP_READINESS_LABELS = {

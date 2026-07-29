@@ -54,7 +54,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | AI and model governance (`/settings/model-governance`) | **TB-1926**–**TB-1930** (open **V1**) | Error honesty; enum labels; title/back; isolate fetch; Vitest; ~48/100; traffic **SEM**; after Done **TB-871** |
 | Connect AWS securely help (`/help/cloud-connections/aws`) | **TB-1234**–**TB-1238** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; IAM + Resource Explorer actionability; OIDC trust-policy template; workflow CTAs + classification sections; owner review ~52/100 2026-07-26 |
 | Connect GCP securely help (`/help/cloud-connections/gcp`) | **TB-1239**–**TB-1243** (open P1 **V1**) | Specialty guide view (Azure parity); purge Tier/hosted-pull jargon; Cloud Asset roles + WIF enablement; WIF pool-provider template; workflow CTAs + classification sections; owner review ~51/100 2026-07-26 |
-| Engineering troubleshooting help exposure | **TB-1248**–**TB-1250** (open; **TB-1246**/**TB-1247** Done) | Align route with “Engineering troubleshooting runbook”; remove customer Troubleshooting deep-link; audit sibling technical-documentation exposure; owner review ~32/100 2026-07-26 |
+| Engineering troubleshooting help exposure | **TB-1248** (open; **TB-1246**/**TB-1247**/**TB-1249**/**TB-1250** Done) | Align route with “Engineering troubleshooting runbook”; owner review ~32/100 2026-07-26 |
 | Procurement FAQ help (`/help/procurement`) | **TB-1253**–**TB-1257** (open P1 **V1**) | Specialty buyer FAQ guide; purge contributor/repo leakage; buyer-safe residency (no appsettings); diligence CTAs (trust/pack/DPA); in-app-only links + shorten SSO; owner review ~49/100 2026-07-26 |
 | Starting reviews help (`/help/starting-reviews`) | **TB-1258**–**TB-1262** (open P1 **V1**) | Canonicalize into `/help/review-guide`; wizard CTA to `/reviews/new`; single title; unify empty-state/alias/search; trim Related guides; owner review ~52/100 2026-07-26; traffic **HER** |
 | Live demo marketing (`/live-demo`) | **TB-1265**–**TB-1269** (open P1 **V1**) | Honest sample-walkthrough title; first-viewport hero budget; see-it journey ladder; compact stepper + early CTA; continuous-mode density; owner review ~61/100 2026-07-26; traffic **LXX** |
@@ -793,7 +793,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1247 | ~~Engineering troubleshooting — de-index from product help search / static params~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1246** |
 | TB-1248 | Engineering troubleshooting — align route slug with page title | Adoption friction P1 **V1** — with **TB-1246** |
 | TB-1249 | ~~Customer Troubleshooting — remove eng-runbook deep link~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1246** |
-| TB-1250 | Audit sibling technical-documentation help for consumer exposure | Trustworthiness P0 **V1** — after **TB-1246**; includes `cli-usage` |
+| TB-1250 | ~~Audit sibling technical-documentation help for consumer exposure~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — after **TB-1246**; includes `cli-usage` |
 | TB-1253 | `/help/procurement` specialty buyer FAQ guide view | Adoption friction P1 **V1** — owner procurement help ~49/100; complements Done **TB-159**/**TB-736** |
 | TB-1254 | Procurement FAQ — purge contributor/repo leakage from rendered help | Trustworthiness P0 **V1** — with **TB-1253**; banned-copy parity |
 | TB-1255 | Procurement FAQ — buyer-safe data residency (no appsettings keys) | Trustworthiness P0 **V1** — with **TB-1253** |

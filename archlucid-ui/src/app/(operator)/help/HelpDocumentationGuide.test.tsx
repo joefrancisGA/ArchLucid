@@ -22,9 +22,10 @@ describe("HelpDocumentationGuide (TB-734)", () => {
     expect(screen.getByTestId("help-documentation-topic-configuration-reference")).toBeInTheDocument();
   });
 
-  it("exposes admin-only documentation for admins", () => {
+  it("exposes allowlisted internal technical documentation for admins (TB-1250)", () => {
     render(<HelpDocumentationGuide />);
 
-    expect(screen.getByTestId("help-documentation-topic-cli-usage")).toBeInTheDocument();
+    expect(screen.getByTestId("help-documentation-topic-admin-diagnostics")).toBeInTheDocument();
+    expect(screen.queryByTestId("help-documentation-topic-cli-usage")).not.toBeInTheDocument();
   });
 });

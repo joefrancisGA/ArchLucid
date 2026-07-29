@@ -23,4 +23,4 @@ Use these checks when a workspace symptom points to platform health rather than 
 
 - [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues.
 - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers.
-- [CLI usage](/help/cli-usage) — `archlucid doctor` and support-bundle commands (Admin Documentation tab).
+- [CLI usage](/help/cli-usage) — `archlucid doctor` and support-bundle commands (Admin-only Help topic; also Help drawer Advanced diagnostics).

@@ -47,16 +47,20 @@ describe("help-center-catalog", () => {
 
     expect(architectDocs).toContain("configuration-reference");
     expect(architectDocs).not.toContain("getting-started");
+    expect(architectDocs).not.toContain("cli-usage");
 
     const adminDocs = listHelpCenterDocumentationTopics({ isAdmin: true }).map((entry) => entry.slug);
 
-    expect(adminDocs).toContain("cli-usage");
+    // TB-1250: eng CLI/API contracts are internal-runbook (Admin-gated), not Documentation-tab technical docs.
+    expect(adminDocs).not.toContain("cli-usage");
+    expect(adminDocs).not.toContain("governance-api-contracts");
     expect(adminDocs).toContain("admin-diagnostics");
   });
 
   it("resolves browse labels for guides and documentation slugs (TB-734)", () => {
     expect(resolveHelpTopicBrowseLabel("getting-started")).toBe(HELP_BROWSE_GUIDE_LABEL);
-    expect(resolveHelpTopicBrowseLabel("cli-usage")).toBe(HELP_BROWSE_DOCUMENTATION_LABEL);
+    expect(resolveHelpTopicBrowseLabel("configuration-reference")).toBe(HELP_BROWSE_DOCUMENTATION_LABEL);
+    expect(resolveHelpTopicBrowseLabel("cli-usage")).toBeNull();
     expect(resolveHelpTopicBrowseLabel("first-value-20-minutes")).toBeNull();
   });
 

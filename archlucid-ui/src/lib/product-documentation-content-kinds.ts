@@ -10,6 +10,9 @@ const INTERNAL_RUNBOOK_SLUGS = new Set<string>([
   "policy-pack-delta-demo",
   "pilot-feedback",
   "developer-troubleshooting",
+  // TB-1250 — eng-facing help must not stay ungated as technical-documentation.
+  "cli-usage",
+  "governance-api-contracts",
 ]);
 
 /** Canonical `contentKind` for every `product-documentation-registry.ts` slug. */
@@ -23,7 +26,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "authentication-sign-in": "product-help",
   "report-a-problem": "product-help",
   "billing-and-plans": "product-help",
-  "cli-usage": "technical-documentation",
+  "cli-usage": "internal-runbook",
   "cloud-connections": "product-help",
   "cloud-connections-aws": "product-help",
   "cloud-connections-azure": "product-help",
@@ -47,7 +50,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "first-review": "internal-runbook",
   "first-value-20-minutes": "internal-runbook",
   "getting-started": "product-help",
-  "governance-api-contracts": "technical-documentation",
+  "governance-api-contracts": "internal-runbook",
   "governance-approval": "product-help",
   "how-it-works": "product-help",
   "integration-readiness": "product-help",

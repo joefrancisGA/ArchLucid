@@ -9,7 +9,7 @@ import {
   FINDINGS_HELP_ACTIONS,
   FINDINGS_HELP_ACTIONS_INTRO,
   FINDINGS_HELP_ANATOMY_FIELDS,
-  FINDINGS_HELP_DEVELOPER_DOCS,
+  FINDINGS_HELP_RELATED_PRODUCT_DOCS,
   FINDINGS_HELP_EVIDENCE_ACTIONS,
   FINDINGS_HELP_EVIDENCE_INTRO,
   FINDINGS_HELP_EVIDENCE_ITEMS,
@@ -294,10 +294,10 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
 
           <p className={cn("m-0 pt-2", OPERATOR_TYPOGRAPHY.label)}>
             <Link
-              href={FINDINGS_HELP_DEVELOPER_DOCS.href}
+              href={FINDINGS_HELP_RELATED_PRODUCT_DOCS.href}
               className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
             >
-              {FINDINGS_HELP_DEVELOPER_DOCS.label}
+              {FINDINGS_HELP_RELATED_PRODUCT_DOCS.label}
             </Link>
           </p>
         </div>

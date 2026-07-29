@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, type ReactElement } from "react";
 
 import {
-  GOVERNANCE_APPROVAL_HELP_DEVELOPER_DOCS,
+  GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS,
   GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_INTRO,
   GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS,
 } from "@/lib/governance-approval-help-guide-content";
@@ -37,10 +37,10 @@ export function HelpGovernanceApprovalTechnicalReference(): ReactElement {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_INTRO}</p>
         <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
           <Link
-            href={GOVERNANCE_APPROVAL_HELP_DEVELOPER_DOCS.href}
+            href={GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS.href}
             className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
           >
-            {GOVERNANCE_APPROVAL_HELP_DEVELOPER_DOCS.label}
+            {GOVERNANCE_APPROVAL_HELP_RELATED_PRODUCT_DOCS.label}
           </Link>
         </p>
         {open ? (

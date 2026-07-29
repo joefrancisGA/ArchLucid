@@ -346,8 +346,8 @@ export function CorePilotNextStepsCard() {
             archlucid run-support-packet RUN
           </code>
           <p className={cn("mb-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            <code className="font-mono">run-support-packet</code> prints review-record/version/trace/context for escalation — pair with{" "}
-            <InAppHelpLink helpSlug="cli-usage" label="CLI usage guide" variant="text" />.
+            <code className="font-mono">run-support-packet</code> prints review-record/version/trace/context for escalation.
+            Workspace Admins can open CLI usage from the Help drawer Advanced diagnostics section.
           </p>
         </div>
 

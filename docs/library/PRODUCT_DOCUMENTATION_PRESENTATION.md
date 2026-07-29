@@ -104,6 +104,21 @@ Implement a small **documentation registry** (code + generated manifest) that ma
 - **Audience** (`operator`, `buyer`, `marketing`, `developer`)
 - **Redirect resolution** — if a source file is a compatibility stub, the registry must point at the **final** canonical markdown body, never the stub
 
+### Help-center tier vs `contentKind` (TB-1250)
+
+In-app help uses two orthogonal axes:
+
+| Axis | Where | Values |
+|------|--------|--------|
+| Help-center **tier** | `help-center-catalog.ts` | `product` · `admin` · `internal` |
+| Registry **`contentKind`** | `product-documentation-content-kinds.ts` | `product-help` · `technical-documentation` · `internal-runbook` |
+
+**Normative rule:** Help-center tier `internal` must **not** map to ungated `technical-documentation` unless the slug is on the explicit allowlist in `archlucid-ui/src/lib/help-center-internal-technical-allowlist.ts` with a consumer-safe rationale.
+
+- Eng CLI / contributor API / runbook-class topics → `contentKind: internal-runbook` (TB-735 Admin authority gate; exclude from `generateStaticParams` product static set).
+- Customer-safe Admin ops references (e.g. `admin-diagnostics`) may remain `technical-documentation` + tier `internal` **only** via that allowlist.
+- Vitest enforces the allowlist invariant (`help-center-internal-technical-allowlist.test.ts`).
+
 **Banned customer-facing link targets:**
 
 - Compatibility stubs whose primary content is “Moved — …” or “redirect”

@@ -5,7 +5,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InAppHelpLink } from "@/components/InAppHelpLink";
 
 /** Surfaces the CLI `archlucid try` path for evaluators who prefer terminal workflows. */
 export function TryCliDemoCard(): React.JSX.Element {
@@ -24,10 +23,9 @@ export function TryCliDemoCard(): React.JSX.Element {
         <p className="m-0">
           Requires .NET SDK and a running API. Scope headers are read from <code className={OPERATOR_TYPOGRAPHY.helper}>archlucid.json</code> when present.
         </p>
-        <InAppHelpLink helpSlug="cli-usage" label="CLI usage guide" variant="text" />
-        {" · "}
+        {/* TB-1250: CLI usage help is Admin-only internal-runbook — keep browser preview as the product path. */}
         <Link href="/demo/preview" className="font-medium text-teal-800 underline dark:text-teal-300">
-          Or preview in browser
+          Preview in browser
         </Link>
       </CardContent>
     </Card>

@@ -115,7 +115,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "related-help-topics",
     "sectionHeading": "Related Help topics",
-    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues. - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers. - [CLI usage](/help/cli-usage) — `archlucid doctor` and support-bundle commands (Admin Documentation tab)."
+    "excerpt": "- [Troubleshooting](/help/troubleshooting) — symptom-first fixes for review and workspace issues. - [Report a problem](/help/report-a-problem) — structured support intake with correlation identifiers. - [CLI usage](/help/cli-usage) — `archlucid doctor` and support-bundle commands (Admin-only Help topic; also Help dr…"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
