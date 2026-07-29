@@ -228,6 +228,57 @@ describe("ai-usage-dashboard-model", () => {
     expect(derived.hasAnyUsage).toBe(false);
   });
 
+  it("omits Highest-cost project/operation KPIs when there is no attributed spend (TB-1220)", () => {
+    const derived = buildAiUsageDashboardDerived({
+      costReporting: {
+        daily: [{ bucketUtc: "2026-07-01T00:00:00Z", estimatedCostUsd: 0, promptTokens: 0, completionTokens: 0 }],
+        byWorkspaceProject: [
+          {
+            workspaceId: "w1",
+            workspaceName: "Pilot",
+            projectId: "p1",
+            projectName: "Current project",
+            estimatedCostUsd: 0,
+            promptTokens: 0,
+            completionTokens: 0,
+          },
+        ],
+        topRuns: [],
+        currency: "USD",
+        isMocked: false,
+      },
+      costReportingLoading: false,
+      costReportingError: false,
+      costReportingDelayed: false,
+      budgetStatus: null,
+      budgetLoading: false,
+      budgetError: false,
+      budgetForbidden: false,
+      adminDashboard: {
+        budgetAmountUsd: 75,
+        usedAmountUsd: 0,
+        remainingAmountUsd: 75,
+        resetPeriod: "UTC month",
+        hardStopEnabled: true,
+        trialExpirationUtc: null,
+        workspaceKind: "Trial",
+        customerAiProviderConfigured: true,
+        usageByFeatureUsd: { ReviewAnalysis: 0 },
+        recentEvents: [],
+      },
+      adminLoading: false,
+      adminError: false,
+      adminForbidden: false,
+      filters: DEFAULT_AI_USAGE_DASHBOARD_FILTERS,
+      canViewBudgetDetails: true,
+      canManageBudget: true,
+    });
+
+    expect(derived.hasAnyUsage).toBe(false);
+    expect(derived.kpi.highestCostProjectName).toBeNull();
+    expect(derived.kpi.highestCostOperationName).toBeNull();
+  });
+
   it("restricts budget sections without execute authority", () => {
     const derived = buildAiUsageDashboardDerived({
       costReporting: buildMockLlmCostReportingDashboard(),

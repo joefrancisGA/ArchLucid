@@ -829,7 +829,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1217 | ~~AI usage — suppress zero-usage KPI/budget/filter theater~~ **Done** 2026-07-28 — quiet empty period panel; hide zero KPI/On track/filters/empty charts; Vitest | Trustworthiness P0 — **V1**; with **TB-1216**; cf. **TB-1037** | S |
 | TB-1218 | AI usage — PageHeading icon + PageContextualHelpButton; see ## TB-1218 below | Adoption friction P1 — **V1**; with **TB-1216**; parity **TB-1184** | S |
 | TB-1219 | AI usage — dedupe Edit budget / budget-control CTAs; see ## TB-1219 below | Adoption friction P1 — **V1**; with **TB-1216** | S |
-| TB-1220 | AI usage — hide Highest-cost project when no usage; see ## TB-1220 below | Trustworthiness P0 — **V1**; with **TB-1217** | XS |
+| TB-1220 | ~~AI usage — hide Highest-cost project when no usage~~ **Done** 2026-07-28 — highest-cost KPIs require attributed USD; Vitest | Trustworthiness P0 — **V1**; with **TB-1217** | XS |
 | TB-1221 | Decision-grade finding fail-closed provenance contract (structural, not prompt); see `## TB-1221` below | Trustworthiness P1 — **V1**; PA Q5 citation/provenance; GTM **M-207**/**M-208** | S |
 | TB-1222 | Anti-all-findings-evidence-grounded / empty-EvidenceRefs-as-proof honesty CI; see `## TB-1222` below | Testability P1 — **V1**; after **TB-1221**; pairs **M-207** | S |
 | TB-1223 | Security & trust — Administration vs Settings wayfinding (breadcrumb / URL honesty); see ## TB-1223 below | Adoption friction P1 — **V1**; owner `/settings/security-trust` ~53/100 2026-07-25; TB-404; with **TB-1216** | S |
@@ -30707,7 +30707,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
+**Status:** **Done** 2026-07-28 — `highestCostProjectName` / `highestCostOperationName` only when `hasAnyUsage` and attributed USD > 0; Vitest.
 
 **Priority:** P0.
 

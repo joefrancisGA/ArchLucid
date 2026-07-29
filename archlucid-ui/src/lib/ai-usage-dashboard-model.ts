@@ -636,6 +636,20 @@ export function buildAiUsageDashboardDerived(input: BuildAiUsageDashboardDerived
     || rolling30DayTotalUsd > 0
     || activityRows.some((row) => row.estimatedCostUsd > 0);
 
+  // Highest-cost KPIs need real attributed spend — never a scope placeholder at $0 (TB-1220).
+  const highestCostProjectName =
+    hasAnyUsage
+    && costSummary?.topProjectName != null
+    && (costSummary.topWorkspaceProjectEstimatedUsd ?? 0) > 0
+      ? costSummary.topProjectName
+      : null;
+  const highestCostOperationName =
+    hasAnyUsage
+    && highestCostOperationEntry !== undefined
+    && highestCostOperationEntry[1] > 0
+      ? formatAiUsageFeatureLabel(highestCostOperationEntry[0])
+      : null;
+
   return {
     kpi: {
       usedThisMonthUsd,
@@ -648,11 +662,8 @@ export function buildAiUsageDashboardDerived(input: BuildAiUsageDashboardDerived
       changeVsPrior30DaysPercent:
         input.costReporting !== null ? compareRollingHalvesPercent(input.costReporting.daily) : null,
       changeVsPrior30DaysIsApproximate: true,
-      highestCostProjectName: costSummary?.topProjectName ?? null,
-      highestCostOperationName:
-        highestCostOperationEntry !== undefined
-          ? formatAiUsageFeatureLabel(highestCostOperationEntry[0])
-          : null,
+      highestCostProjectName,
+      highestCostOperationName,
       currency: input.costReporting?.currency ?? "USD",
     },
     budgetPaceStatus: pace.status,
