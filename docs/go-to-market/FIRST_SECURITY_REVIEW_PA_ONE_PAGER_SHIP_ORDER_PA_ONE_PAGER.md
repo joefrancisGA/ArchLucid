@@ -15,7 +15,7 @@
 | Priority | Artifact | Status intent |
 | --- | --- | --- |
 | Already | Isolation (**M-114**) | Done — packet `#isolation-one-pager-m-114` |
-| **Must** | Tenant identity decide-once (**M-151**) | [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) |
+| **Must** | Tenant identity decide-once (**M-151**) | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151) (`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` alias) |
 | **Must** | Audit Required vs informational (**M-118**) | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118`](BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118) (`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` alias) |
 | **Should** (if AI trust in scope) | Model-failed vs quality-rejected (**M-124**) | [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) |
 | Defer (FinOps / second pass) | Process vs provider LLM idempotency (**M-171**) | Not a first-review must |

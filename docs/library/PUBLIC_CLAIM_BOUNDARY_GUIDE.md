@@ -154,7 +154,7 @@ Former standalone body: `docs/go-to-market/PA_CLAIM_HONESTY_BULLETS_BATCH_A.md` 
 | --- | --- |
 | `x-tenant-id` establishes production tenant identity, or Application/Persistence re-derive tenant scope from headers, JWTs, or `HttpContext`. | The host resolves typed `ScopeContext` once from trusted identity/ambient sources; production-like hosts reject header-only scope and lower layers consume the resolved context. |
 
-**Batch A related:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#prompt-injection-resistance-m-115`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#prompt-injection-resistance-m-115) (`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` alias) · [`BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118) (`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` alias) · [this section’s parent table](#gtm-do-not-promise).
+**Batch A related:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#prompt-injection-resistance-m-115`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#prompt-injection-resistance-m-115) (`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` alias) · [`BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118) (`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` alias) · [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151) (`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` alias) · [this section’s parent table](#gtm-do-not-promise).
 
 ### PA claim-honesty bullets — Batch C {#pa-claim-honesty-bullets-batch-c}
 

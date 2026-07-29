@@ -1,7 +1,7 @@
 > **Reviewed:** 2026-07-29
 
 
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), and the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), and the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -36,6 +36,73 @@ Reviewer check: authenticate as Tenant A on a JwtBearer or ApiKey host, submit a
 | Cost | Middleware and catalog routing; no third-party isolation SaaS required for this V1 claim |
 
 Full technical narrative: [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview). Live review: [principal architect falsification script](#principal-architect-falsification-script-m-113) below.
+
+## Tenant identity single derivation (M-151) {#tenant-identity-single-derivation-m-151}
+
+Former standalone body: `docs/go-to-market/TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-151**). **Must** before first security review per **M-192** / **TB-1120**. Complements [Isolation one-pager (M-114)](#isolation-one-pager-m-114). Layer B of tenant isolation. Not an assurance attestation.
+
+**Path-stable alias:** [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects and security reviewers probing multi-tenant identity binding.
+
+**Claim:** Production-like hosts derive tenant/workspace/project **once** at the host boundary into typed `ScopeContext`. Client `x-tenant-id` (and peer headers) do **not** establish production tenant identity. Application and Persistence layers must **not** re-parse JWT/headers for tenant. SQL RLS is **not** a deployed control (ADR 0037).
+
+### Statement / meaning
+
+| Statement | Meaning |
+| --- | --- |
+| Decide once | Host middleware / auth resolves scope from trusted identity (JWT app roles or mapped API key) into `ScopeContext` before application and persistence work |
+| Trusted production sources | JWT/API-key claims and explicit background-job ambient scope are trusted |
+| Headers are not authority | Forged or mismatched `x-tenant-id` / workspace / project headers fail closed on production-like hosts (**M-114** / **TB-925**); they cannot establish scope |
+| Typed handoff | `IScopeContextProvider` or explicit parameters carry the resolved scope downward |
+| Forbidden layers | Application/Persistence must not touch `HttpContext` / `ClaimsPrincipal` to re-derive tenant (ARCH001 / **TB-999**) |
+| Jobs / ambient | Background work carries explicit or ambient scope from the enqueue boundary — not a fresh header parse |
+| Route `{tenantId}` | Route values are validated against identity scope; they are not a second source of truth |
+
+### Boundary matrix
+
+| Layer | Allowed | Forbidden |
+| --- | --- | --- |
+| Host / API boundary | Resolve identity claims and route binding | Accept header-only scope in production-like hosts |
+| Application / Persistence | Consume `ScopeContext` | Re-derive tenant identity from `HttpContext` or `ClaimsPrincipal` |
+| Background job | Use `AmbientScopeContext` override | Use development default scope as production authority |
+
+### Too strong vs safe
+
+| Too strong | Safe |
+| --- | --- |
+| “`x-tenant-id` selects the tenant” | Identity wins; headers cannot expand scope |
+| “NetArchTest / layer tests prove isolation” | DAG guards help; isolation is catalogs + INV-001 + retrieval filters (**M-156**) |
+| “SQL RLS isolates tenants” | ADR 0037 — RLS is non-control; database-per-tenant + predicates |
+| “Empty TenantId returns no rows” | Empty/untyped scope routing risks — **M-168** / **M-169** |
+
+### Reviewer check
+
+1. Authenticate as Tenant A; send a scope-sensitive API call with a forged Tenant B header → expect **403** / denial, not Tenant B data (**M-113** Claim-1).
+2. Ask which assemblies may read `HttpContext` for tenant — expect host-only list.
+3. Confirm route `{tenantId}` binding is checked against resolved identity scope.
+4. Ask how background jobs receive scope: explicit ambient scope from enqueue, not request headers.
+5. Confirm DevBypass / test actor headers are rejected on production-like hosts (**TB-949** residual language).
+
+### Posture
+
+| Concern | Posture |
+| --- | --- |
+| Security | Least privilege; single derivation reduces confused-deputy / header-steering classes |
+| Scalability | Per-tenant catalogs; typed scope propagates without a separate identity lookup per repository call |
+| Reliability | Fail closed on mismatch; no silent header override on production-like hosts |
+| Cost | Middleware / host logic only; no per-tenant IdP or SQL RLS product required for this V1 claim |
+
+### Residuals (honest)
+
+- **INV-001** and Layer B are implemented; **ARCH001** prohibits lower assemblies from using `HttpContext`/`ClaimsPrincipal` for this purpose.
+- Contract + honesty CI: **TB-999** / **TB-1000** (open).
+- Too-strong inventory / stale RLS purge: **M-194** / **TB-1122**.
+- DiD erosion after provider exists: **M-213** / **TB-1232**.
+- Retrieval hit tenancy (Search `$filter`): **M-152** / **M-153**.
+- This is Layer B defense in depth; Layer A database-per-tenant routing remains the primary paying-client isolation boundary.
+
+**Deep reference:** [`../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) Layer B · [Isolation one-pager (M-114)](#isolation-one-pager-m-114) · [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Prompt-injection resistance (M-115) {#prompt-injection-resistance-m-115}
 
@@ -138,7 +205,7 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAG
 - Finding disposition race ≠ approval-request CAS — **M-140** / **M-141**.
 - Claim honesty bullets: **M-117**.
 
-**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Tenant identity single derivation (M-151)](#tenant-identity-single-derivation-m-151) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
 ## Security reviewer inbound webhook (M-126) {#security-reviewer-inbound-webhook-m-126}
 
@@ -179,7 +246,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | --- | --- | --- | --- |
 | Prompt injection (M-115/M-116) | Docs/repo as DATA; host confinement | “Injection-proof” / “we sanitize PDFs” | [`#prompt-injection-resistance-m-115`](#prompt-injection-resistance-m-115) |
 | Audit Required (M-117/M-118) | Fail-closed durable trail on Required events (**TB-953**) | “Every audit event is transactional” | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) |
-| INV-001 decide-once (M-150) | Host `ScopeContext`; headers ≠ prod tenant | “`x-tenant-id` selects tenant” | [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) |
+| INV-001 decide-once (M-150/M-151) | Host `ScopeContext`; headers ≠ prod tenant | “`x-tenant-id` selects tenant” | [`#tenant-identity-single-derivation-m-151`](#tenant-identity-single-derivation-m-151) |
 | Execution mode (M-127) | Disclose Real/Mixed/Simulator; never promote Mixed→Real | “Quality green ⇒ Real” | [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) |
 | Model vs quality (M-123) | HOLD ≠ outage | “Perfect AI quality” | [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) |
 | Interrupted review (M-121) | Skip persisted `(RunId,TaskId)` only | “Exactly-once LLM” | [`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`](INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md) |
@@ -1022,6 +1089,7 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`#security-reviewer-inbound-webhook-m-126`](#security-reviewer-inbound-webhook-m-126) · [`SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`](SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md) (alias) | Inbound webhook order (M-126) |
 | [`#prompt-injection-resistance-m-115`](#prompt-injection-resistance-m-115) · [`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`](PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md) (alias) | Prompt-injection posture (M-115) |
 | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) · [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) (alias) | Audit Required vs informational (M-118) |
+| [`#tenant-identity-single-derivation-m-151`](#tenant-identity-single-derivation-m-151) · [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) (alias) | Tenant identity decide-once (M-151) |
 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment narrative |
 | [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | SOC 2 CPA roadmap (V1.1) |
 | [`#procurement-response-accelerator`](#procurement-response-accelerator) · [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) (alias) | CAIQ / SIG question-answer map |
@@ -1044,4 +1112,5 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md` → [
 Former standalone body: `docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md` → [procurement objection playbook](#procurement-objection-playbook) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md` → [inbound webhook handout](#security-reviewer-inbound-webhook-m-126) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` → [prompt-injection resistance](#prompt-injection-resistance-m-115) (filename kept as path-stable alias).  
-Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` → [audit trail handout](#security-reviewer-audit-trail-m-118) (filename kept as path-stable alias; duplicate body collapsed on fold).
+Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` → [audit trail handout](#security-reviewer-audit-trail-m-118) (filename kept as path-stable alias; duplicate body collapsed on fold).  
+Former standalone body: `docs/go-to-market/TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` → [tenant identity single derivation](#tenant-identity-single-derivation-m-151) (filename kept as path-stable alias; duplicate body collapsed on fold).
