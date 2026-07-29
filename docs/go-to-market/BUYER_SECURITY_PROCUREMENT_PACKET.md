@@ -1,7 +1,7 @@
 > **Reviewed:** 2026-07-29
 
 
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**), the minimum pilot trust packet without CPA/3P pen test (formerly the body of `MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-191**), and the model-failed vs quality-rejected one-pager (formerly the body of `MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-124**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**), the minimum pilot trust packet without CPA/3P pen test (formerly the body of `MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-191**), the model-failed vs quality-rejected one-pager (formerly the body of `MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-124**), and the execution-mode honesty one-pager (formerly the body of `EXECUTION_MODE_HONESTY_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-128**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -343,7 +343,60 @@ Former standalone body: `docs/go-to-market/MODEL_FAILED_VS_QUALITY_REJECTED_ONE_
 - Optional **M-113** Claim-4 addendum after **M-115**.
 - Do not promise complete historical quality reconstruction until open persistence work ships.
 
-**Related:** [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) · [`QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md`](QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md) · [principal architect falsification script](#principal-architect-falsification-script-m-113) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+**Related:** [Execution-mode honesty (M-128)](#execution-mode-honesty-m-128) · [`QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md`](QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md) · [principal architect falsification script](#principal-architect-falsification-script-m-113) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+
+## Execution-mode honesty (M-128) {#execution-mode-honesty-m-128}
+
+Former standalone body: `docs/go-to-market/EXECUTION_MODE_HONESTY_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-128**). Complements **M-113** Claim-3. Does **not** replace **G-REAL-06**/**G-REAL-07**. Not an assurance attestation.
+
+**Path-stable alias:** [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md).
+
+**Audience:** Sponsors, principal architects, operators, and security reviewers reading packages and ROI footnotes.
+
+**Claim:** Packages must disclose **Real / Mixed / Simulator / Fallback**. Cache-served ≠ Simulator. Never promote Mixed/Fallback → Real. Within-run Mixed ≠ ROI period mix (**TB-239**). Mode labels describe how a run was produced — not customer outcomes.
+
+### How to read a package
+
+| Label | Meaning |
+| --- | --- |
+| Real | Live model path for disclosed agents; not a universal quality or ROI guarantee |
+| Simulator | Offline / fixture / non-live path — not production AI proof; must stay visibly labeled |
+| Mixed | Per-outcome mix inside a run (partial Real + other) — reserved rules (**TB-969**); never surfaced as Real |
+| Fallback | Explicit degraded path — not silent Real |
+| Cache served | Prior result reuse — disclose; do not relabel as Simulator or Real; needs aggregate-contract treatment |
+
+### Too strong vs safe
+
+| Too strong | Safe |
+| --- | --- |
+| “The package is Real because some agents were Real” | A mixed or fallback constituent cannot be promoted to Real |
+| “Quality green ⇒ Real” | PilotStrict ≠ Real (**M-166**) |
+| “Mixed ROI means this run was Mixed” / “Mixed run = Real for ROI charts” | ROI `IsMixedMode` is a period across runs; within-run Mixed ≠ period-mix footnotes |
+| “A mode badge proves customer outcomes” | Badge identifies execution provenance; outcome claims need their own evidence |
+| “AOAI 429 silently became Simulator” | Fail-closed vs labeled-sim allowlist is **M-229** / **TB-1299** |
+
+### Reviewer check
+
+1. Compare the run-detail mode label with the first-value report or export (**M-113** Claim-3).
+2. Ask how cache hits, retries, and selective resume affect the run roll-up.
+3. Read ROI period-mix footnotes separately from the package’s within-run label.
+
+### Posture
+
+| Concern | Posture |
+| --- | --- |
+| Security | Mode labels prevent simulator/fallback evidence from being misrepresented as real execution |
+| Scalability | Per-task provenance is the basis for accurate run aggregation |
+| Reliability | Retry and resume can change outcomes; stale roll-ups remain an open risk |
+| Cost | Cached or fallback work can affect spend differently; label alone is not a cost guarantee |
+
+### Residuals (honest)
+
+- **TB-239** is Done for ROI period-mix semantics.
+- **TB-969**–**TB-971** remain open for per-outcome aggregation, persisted cache/task mode, and cross-surface guards.
+- This handout complements, but does not replace, Real-mode proof packets **G-REAL-06** and **G-REAL-07**.
+
+**Related:** [Model-failed vs quality-rejected (M-124)](#model-failed-vs-quality-rejected-m-124) · [`PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md`](PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md) · [`SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md`](SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md) · [principal architect falsification script](#principal-architect-falsification-script-m-113) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## PA claim-honesty short rows (M-115+) {#pa-claim-honesty-short-rows}
 
@@ -354,7 +407,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Prompt injection (M-115/M-116) | Docs/repo as DATA; host confinement | “Injection-proof” / “we sanitize PDFs” | [`#prompt-injection-resistance-m-115`](#prompt-injection-resistance-m-115) |
 | Audit Required (M-117/M-118) | Fail-closed durable trail on Required events (**TB-953**) | “Every audit event is transactional” | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) |
 | INV-001 decide-once (M-150/M-151) | Host `ScopeContext`; headers ≠ prod tenant | “`x-tenant-id` selects tenant” | [`#tenant-identity-single-derivation-m-151`](#tenant-identity-single-derivation-m-151) |
-| Execution mode (M-127) | Disclose Real/Mixed/Simulator; never promote Mixed→Real | “Quality green ⇒ Real” | [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) |
+| Execution mode (M-127/M-128) | Disclose Real/Mixed/Simulator; never promote Mixed→Real | “Quality green ⇒ Real” | [`#execution-mode-honesty-m-128`](#execution-mode-honesty-m-128) |
 | Model vs quality (M-123/M-124) | HOLD ≠ outage | “Perfect AI quality” | [`#model-failed-vs-quality-rejected-m-124`](#model-failed-vs-quality-rejected-m-124) |
 | Interrupted review (M-121) | Skip persisted `(RunId,TaskId)` only | “Exactly-once LLM” | [`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`](INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md) |
 | Inbound webhooks (M-126) | Rate → size → verify → parse; signed ≠ hardened | “Signed webhooks are fully hardened” | [`#security-reviewer-inbound-webhook-m-126`](#security-reviewer-inbound-webhook-m-126) |
@@ -1199,6 +1252,7 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`#tenant-identity-single-derivation-m-151`](#tenant-identity-single-derivation-m-151) · [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) (alias) | Tenant identity decide-once (M-151) |
 | [`#minimum-pilot-trust-packet-m-191`](#minimum-pilot-trust-packet-m-191) · [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md) (alias) | Stage 0 pilot trust bar without CPA/3P (M-191) |
 | [`#model-failed-vs-quality-rejected-m-124`](#model-failed-vs-quality-rejected-m-124) · [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) (alias) | Model-failed vs quality-rejected (M-124) |
+| [`#execution-mode-honesty-m-128`](#execution-mode-honesty-m-128) · [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) (alias) | Execution-mode honesty (M-128) |
 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment narrative |
 | [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | SOC 2 CPA roadmap (V1.1) |
 | [`#procurement-response-accelerator`](#procurement-response-accelerator) · [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) (alias) | CAIQ / SIG question-answer map |
@@ -1224,4 +1278,5 @@ Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` → [audit trail handout](#security-reviewer-audit-trail-m-118) (filename kept as path-stable alias; duplicate body collapsed on fold).  
 Former standalone body: `docs/go-to-market/TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` → [tenant identity single derivation](#tenant-identity-single-derivation-m-151) (filename kept as path-stable alias; duplicate body collapsed on fold).  
 Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → [minimum pilot trust packet](#minimum-pilot-trust-packet-m-191) (filename kept as path-stable alias).  
-Former standalone body: `docs/go-to-market/MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md` → [model-failed vs quality-rejected](#model-failed-vs-quality-rejected-m-124) (filename kept as path-stable alias; duplicate body collapsed on fold).
+Former standalone body: `docs/go-to-market/MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md` → [model-failed vs quality-rejected](#model-failed-vs-quality-rejected-m-124) (filename kept as path-stable alias; duplicate body collapsed on fold).  
+Former standalone body: `docs/go-to-market/EXECUTION_MODE_HONESTY_ONE_PAGER.md` → [execution-mode honesty](#execution-mode-honesty-m-128) (filename kept as path-stable alias; duplicate body collapsed on fold).
