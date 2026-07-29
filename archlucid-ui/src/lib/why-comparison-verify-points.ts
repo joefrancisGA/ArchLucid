@@ -1,7 +1,6 @@
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
-
 /**
  * One row per front-door hard-comparison claim (same order as `WHY_COMPARISON_ROWS` / COMPETITIVE_LANDSCAPE.md).
+ * Buyer-safe Verify anchors only — no `docs/library/*` or `docs/security/*` contributor paths (TB-1304).
  * CI: row count locked in `why-comparison.test.ts`.
  */
 export type WhyVerifyLink = {
@@ -13,34 +12,17 @@ export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
   [{ label: "Demo preview", href: "/demo/preview" }],
   [
     { label: "Assurance evidence bundle (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
-    {
-      label: "Durable audit coverage matrix",
-      href: resolveInAppDocHref("docs/library/AUDIT_COVERAGE_MATRIX.md"),
-    },
+    { label: "Audit trail", href: "/help/audit-trail" },
   ],
   [
-    {
-      label: "Tenant isolation control summary",
-      href: resolveInAppDocHref("docs/security/MULTI_TENANT_RLS.md"),
-    },
+    { label: "Data handling and tenant isolation", href: "/help/data-handling-tenant-isolation" },
+    { label: "Security & trust", href: "/security-trust" },
   ],
   [
-    {
-      label: "Authentication scope (published scope doc)",
-      href: resolveInAppDocHref("docs/library/V1_SCOPE.md"),
-    },
+    { label: "Authentication and sign-in", href: "/help/authentication-sign-in" },
+    { label: "Trust center", href: "/trust" },
   ],
-  [
-    {
-      label: "Comparison replay summary",
-      href: resolveInAppDocHref("docs/library/COMPARISON_REPLAY.md"),
-    },
-  ],
+  [{ label: "Compare and replay", href: "/help/comparison-replay" }],
   [{ label: "Evidence trail demo", href: "/demo/preview" }],
-  [
-    {
-      label: "Governance gate control description",
-      href: resolveInAppDocHref("docs/library/PRE_COMMIT_GOVERNANCE_GATE.md"),
-    },
-  ],
+  [{ label: "Governance approval", href: "/help/governance-approval" }],
 ];

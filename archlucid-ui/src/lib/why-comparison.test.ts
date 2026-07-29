@@ -59,4 +59,29 @@ describe("why-comparison (front-door table drift guards)", () => {
       }
     }
   });
+
+  it("Verify hrefs stay on buyer surfaces without contributor library or security eng paths (TB-1304)", () => {
+    const hrefs = WHY_COMPARISON_VERIFY_LINK_ROWS.flatMap((links) => links.map((link) => link.href));
+
+    for (const href of hrefs) {
+      const lower = href.toLowerCase();
+
+      expect(lower).not.toContain("docs/library");
+      expect(lower).not.toContain("docs/security");
+      expect(lower).not.toContain("audit_coverage_matrix");
+      expect(lower).not.toContain("multi_tenant_rls");
+      expect(lower).not.toContain("v1_scope");
+      expect(lower).not.toContain("comparison_replay.md");
+      expect(lower).not.toContain("pre_commit_governance");
+    }
+
+    expect(hrefs).toContain("/help/audit-trail");
+    expect(hrefs).toContain("/help/data-handling-tenant-isolation");
+    expect(hrefs).toContain("/security-trust");
+    expect(hrefs).toContain("/help/authentication-sign-in");
+    expect(hrefs).toContain("/trust");
+    expect(hrefs).toContain("/help/comparison-replay");
+    expect(hrefs).toContain("/help/governance-approval");
+  });
 });
+
