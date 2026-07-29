@@ -16,7 +16,7 @@
 | M-115 | One-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#prompt-injection-resistance-m-115`](BUYER_SECURITY_PROCUREMENT_PACKET.md#prompt-injection-resistance-m-115) (`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` alias) |
 | M-116 | Honesty | Public claim boundary guide + packet short row |
 | M-117 | Honesty | Public claim boundary guide + packet short row |
-| M-118 | One-pager | [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) |
+| M-118 | One-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118`](BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118) (`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` alias) |
 | M-119 | Honesty | Public claim boundary guide + packet short row |
 | M-121 | Honesty | Public claim boundary guide + packet short row |
 | M-122 | One-pager | [`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`](INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md) |

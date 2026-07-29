@@ -1,7 +1,7 @@
 > **Reviewed:** 2026-07-29
 
 
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), and the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), and the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -87,6 +87,59 @@ Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE
 
 **Related:** [Isolation one-pager (M-114)](#isolation-one-pager-m-114) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
 
+## Security reviewer audit trail (M-118) {#security-reviewer-audit-trail-m-118}
+
+Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-118**). **Must** before first security review per **M-192** / **TB-1120**. Complements [Isolation one-pager (M-114)](#isolation-one-pager-m-114). Not an assurance attestation.
+
+**Path-stable alias:** [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md).
+
+**Audience:** Security reviewers and principal architects verifying governance dispositions leave a durable trail.
+
+**Claim:** **Required** governance / finalize / identity / export events use fail-closed durable audit write (**TB-953** Done — `LogOrThrow`). Cost, projection, and funnel telemetry may remain **informational / best-effort** (**TB-001** posture). Not every audit event is same-transaction with the domain write until **TB-956**.
+
+### Statement / meaning
+
+| Statement | Meaning |
+| --- | --- |
+| Required = fail-closed | Indefensible paths (approve/reject/waive, finalize/promote, identity/role, export attest) must leave a durable `AuditEvents` row or the operation fails |
+| Informational = best-effort | Cost/projection/funnel-style events may use retry-then-swallow; losing them is undesirable, not a governance integrity break |
+| Append-only trail | Corrections append; do not promise an editable audit log (**M-160**) |
+| Dual-write residual | Domain success with missing Required row is the defect class **TB-954**/**TB-955** harden; same-TX / outbox for hottest paths is **TB-956** |
+
+### Too strong vs safe
+
+| Too strong | Safe |
+| --- | --- |
+| “Every audit event is transactional” | Required set is fail-closed durable; informational may be best-effort |
+| “Approve always left a trail even before TB-953” | Pre-migration `TryLogAsync` swallow risk — **TB-953** closed that for Required paths |
+| “Same database transaction as the disposition today” | Durable write + retry; same-TX / transactional outbox is **TB-956** (open) |
+| “Append-only means immutable external storage” | Application audit trail — not WORM storage or a PKI-signed ledger |
+
+### Reviewer check
+
+1. Perform (or witness) a governance disposition on a pilot host; confirm an `AuditEvents` row for that action type.
+2. Ask for the Required vs informational split (INV-003 / **TB-953** tip) — do not accept “all telemetry is equally durable.”
+3. For export/attest paths, confirm failure if the Required audit write cannot complete.
+4. Do not extrapolate this check to cost or funnel telemetry.
+
+### Posture
+
+| Concern | Posture |
+| --- | --- |
+| Security | Fail-closed on indefensible events; least privilege on who can dispose |
+| Scalability | Append-only log; probe/alert for orphans (**TB-955**); informational telemetry can degrade independently |
+| Reliability | Required abandon is pageable; informational loss does not block product path; dual-write window remains until **TB-956** |
+| Cost | Extra write latency on Required paths; no external SIEM / immutable-ledger service required for this V1 claim |
+
+### Residuals (honest)
+
+- **TB-953** is Done: `LogOrThrow` establishes the required-event fail-closed path.
+- **TB-954** Required type registry + arch test; **TB-955** abandon alert / orphan probe; **TB-956** same-TX (open).
+- Finding disposition race ≠ approval-request CAS — **M-140** / **M-141**.
+- Claim honesty bullets: **M-117**.
+
+**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+
 ## Security reviewer inbound webhook (M-126) {#security-reviewer-inbound-webhook-m-126}
 
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-126** / **TB-966**). Complements [Isolation one-pager (M-114)](#isolation-one-pager-m-114).
@@ -125,7 +178,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Topic | Safe pin | Do not say | One-pager |
 | --- | --- | --- | --- |
 | Prompt injection (M-115/M-116) | Docs/repo as DATA; host confinement | “Injection-proof” / “we sanitize PDFs” | [`#prompt-injection-resistance-m-115`](#prompt-injection-resistance-m-115) |
-| Audit Required (M-117) | Fail-closed durable trail on Required events (**TB-953**) | “Every audit event is transactional” | [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) |
+| Audit Required (M-117/M-118) | Fail-closed durable trail on Required events (**TB-953**) | “Every audit event is transactional” | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) |
 | INV-001 decide-once (M-150) | Host `ScopeContext`; headers ≠ prod tenant | “`x-tenant-id` selects tenant” | [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) |
 | Execution mode (M-127) | Disclose Real/Mixed/Simulator; never promote Mixed→Real | “Quality green ⇒ Real” | [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) |
 | Model vs quality (M-123) | HOLD ≠ outage | “Perfect AI quality” | [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) |
@@ -968,6 +1021,7 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`#security-reviewer-one-pager`](#security-reviewer-one-pager) · [`SECURITY_REVIEWER_ONE_PAGER.md`](SECURITY_REVIEWER_ONE_PAGER.md) (alias) | Security reviewer one-pager |
 | [`#security-reviewer-inbound-webhook-m-126`](#security-reviewer-inbound-webhook-m-126) · [`SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`](SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md) (alias) | Inbound webhook order (M-126) |
 | [`#prompt-injection-resistance-m-115`](#prompt-injection-resistance-m-115) · [`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`](PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md) (alias) | Prompt-injection posture (M-115) |
+| [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) · [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) (alias) | Audit Required vs informational (M-118) |
 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment narrative |
 | [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | SOC 2 CPA roadmap (V1.1) |
 | [`#procurement-response-accelerator`](#procurement-response-accelerator) · [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) (alias) | CAIQ / SIG question-answer map |
@@ -989,4 +1043,5 @@ Former standalone body: `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md` 
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md` → [security reviewer one-pager](#security-reviewer-one-pager) (filename kept as path-stable pack alias).  
 Former standalone body: `docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md` → [procurement objection playbook](#procurement-objection-playbook) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md` → [inbound webhook handout](#security-reviewer-inbound-webhook-m-126) (filename kept as path-stable alias).  
-Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` → [prompt-injection resistance](#prompt-injection-resistance-m-115) (filename kept as path-stable alias).
+Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` → [prompt-injection resistance](#prompt-injection-resistance-m-115) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` → [audit trail handout](#security-reviewer-audit-trail-m-118) (filename kept as path-stable alias; duplicate body collapsed on fold).
