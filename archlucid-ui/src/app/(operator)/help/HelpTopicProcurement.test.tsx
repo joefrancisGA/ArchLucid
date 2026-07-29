@@ -28,6 +28,26 @@ const EXPECTED_TOC_LABELS = [
   "12. Can we **commission custom policy packs** beyond bundled defaults?",
 ] as const;
 
+/** TB-1254 — contributor path/CLI/improvement-ID leakage must not appear in `/help/procurement`. */
+const PROCUREMENT_HELP_BANNED_SUBSTRINGS = [
+  "infra/",
+  "V1_SCOPE",
+  "CONFIGURATION_REFERENCE",
+  "archlucid auth",
+  "Improvement archived",
+  "PENDING_QUESTIONS",
+  "contributor-reference",
+  "ArtifactLargePayload",
+  "TenantProvisioning",
+  "dbo.Tenants",
+  "MSA_TEMPLATE.md",
+  "ORDER_FORM_TEMPLATE.md",
+  "CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md",
+  "PRICING_PHILOSOPHY.md",
+  "SLA_SUMMARY.md",
+  "SECURITY.md",
+] as const;
+
 describe("HelpTopicMarkdownView procurement FAQ", () => {
   const loaded = tryLoadProductDocumentation("procurement");
 
@@ -61,6 +81,26 @@ describe("HelpTopicMarkdownView procurement FAQ", () => {
     expect(screen.queryByText(/Trust progression timeline/i)).toBeNull();
     expect(screen.queryByText(/Tenant\.DataRegion/i)).toBeNull();
     expect(screen.queryByText(/V1\.1-program/i)).toBeNull();
+  });
+
+  it("purges contributor path/CLI leakage from prepared and rendered procurement help (TB-1254)", () => {
+    if (loaded === null) {
+      throw new Error("Expected procurement documentation to load.");
+    }
+
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, PROCUREMENT_SOURCE).toLowerCase();
+
+    for (const banned of PROCUREMENT_HELP_BANNED_SUBSTRINGS) {
+      expect(preparedMarkdown, `prepared markdown contains "${banned}"`).not.toContain(banned.toLowerCase());
+    }
+
+    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const visible = (document.body.textContent ?? "").toLowerCase();
+
+    for (const banned of PROCUREMENT_HELP_BANNED_SUBSTRINGS) {
+      expect(visible, `rendered copy contains "${banned}"`).not.toContain(banned.toLowerCase());
+    }
   });
 
   it("renders procurement FAQ answers for buyers", () => {

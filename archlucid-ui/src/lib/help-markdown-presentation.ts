@@ -338,6 +338,38 @@ export function stripInternalBuyerHelpInlineReferences(markdown: string): string
     .replace(/`Tenant\.DataRegion`/gi, "tenant data region");
 }
 
+/**
+ * TB-1254 — removes contributor path/CLI/improvement-ID leakage that can remain after
+ * link rewrite (procurement FAQ and similar buyer packets).
+ */
+export function stripProcurementContributorLeakage(markdown: string): string {
+  return markdown
+    .replace(/Improvement archived\s*\*?\*?#?\d+\*?\*?/gi, "")
+    .replace(/`?archlucid auth(?:\s+validate-saml)?`?/gi, "IdP federation validation")
+    .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
+    .replace(/V1_SCOPE\.md/gi, "V1 product scope")
+    .replace(/`?CONFIGURATION_REFERENCE\.md`?/gi, "configuration documentation")
+    .replace(/CONFIGURATION_REFERENCE\.md/gi, "configuration documentation")
+    .replace(/`?SECURITY\.md`?/gi, "security documentation")
+    .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
+    .replace(/`?PENDING_QUESTIONS\.md`?/gi, "owner diligence notes")
+    .replace(/PENDING_QUESTIONS\.md/gi, "owner diligence notes")
+    .replace(/infra\/terraform-entra\/?/gi, "hosted identity samples")
+    .replace(/`infra\/`/gi, "hosted infrastructure")
+    .replace(/\binfra\//gi, "hosted infrastructure ")
+    .replace(/ArtifactLargePayload:[A-Za-z0-9]+/g, "regional storage configuration")
+    .replace(/TenantProvisioning:[A-Za-z0-9]+/g, "tenant provisioning configuration")
+    .replace(/dbo\.Tenants(?:\.[A-Za-z0-9_]+)?/gi, "tenant residency settings")
+    .replace(/ArchLucidAuth:[A-Za-z0-9]+/g, "authentication configuration")
+    .replace(/Order Form Addendum [A-Z]/gi, "Order Form addendum")
+    .replace(/MSA_TEMPLATE\.md/gi, "MSA template")
+    .replace(/ORDER_FORM_TEMPLATE\.md/gi, "Order Form template")
+    .replace(/CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE\.md/gi, "SoW template")
+    .replace(/PRICING_PHILOSOPHY\.md/gi, "pricing documentation")
+    .replace(/SLA_SUMMARY\.md/gi, "SLA summary")
+    .replace(/SLA_TARGETS\.md/gi, "SLA targets");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -468,7 +500,12 @@ export function prepareHelpMarkdownForPresentation(
   const withoutInlineReferences = stripInternalBuyerHelpInlineReferences(withoutInternalSections);
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(withoutInlineReferences, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
-  const withoutHorizontalRules = stripMarkdownHorizontalRules(sanitized);
+  // Procurement FAQ only — do not rewrite CLI/infra strings on eng/admin help topics.
+  const afterAudienceStrip =
+    sourceDocPath.replace(/\\/g, "/").toLowerCase().includes("buyer_security_procurement_packet.md")
+      ? stripProcurementContributorLeakage(sanitized)
+      : sanitized;
+  const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);
   const presentationBody =
     options?.preserveMaintenanceMetadata === true
       ? withoutHorizontalRules

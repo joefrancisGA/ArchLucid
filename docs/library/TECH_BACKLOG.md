@@ -863,7 +863,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1251 | Demo/anonymous read plane vs paying-tenant structural isolation contract; see `## TB-1251` below | Trustworthiness P1 — **V1**; PA Q10 demo≠tenant; GTM **M-217**/**M-218** | S |
 | TB-1252 | Anti-AllowAnonymous-equals-safe / DemoScopes-pin-equals-catalog / empty-demo-scope honesty CI; see `## TB-1252` below | Testability P1 — **V1**; after **TB-1251**; pairs **M-217** | S |
 | TB-1253 | `/help/procurement` specialty buyer FAQ guide view; see ## TB-1253 below | Adoption friction P1 — **V1**; owner procurement help ~49/100 2026-07-26; complements Done **TB-159**/**TB-736** | M |
-| TB-1254 | Procurement FAQ — purge contributor/repo leakage from rendered help; see ## TB-1254 below | Trustworthiness P0 — **V1**; with **TB-1253**; banned-copy parity | S |
+| TB-1254 | ~~Procurement FAQ — purge contributor/repo leakage from rendered help~~ **Done** 2026-07-29 — FAQ-only section; buyer-safe Q&A; presentation strip + Vitest bans | Trustworthiness P0 — **V1**; with **TB-1253**; banned-copy parity | S |
 | TB-1255 | Procurement FAQ — buyer-safe data residency (no appsettings keys); see ## TB-1255 below | Trustworthiness P0 — **V1**; with **TB-1253** | S |
 | TB-1256 | Procurement FAQ — diligence CTA chrome (trust / pack / DPA); see ## TB-1256 below | Adoption friction P1 — **V1**; with **TB-1253** | S |
 | TB-1257 | Procurement FAQ — in-app-only link map + shorten SSO answer; see ## TB-1257 below | Trustworthiness P1 — **V1**; with **TB-1253**; pairs **TB-1254** | S |
@@ -34391,7 +34391,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Trustworthiness.
 
-**Status:** Not started.
+**Status:** Done 2026-07-29 — `/help/procurement` loads FAQ section only (`includeIntroWithSections: false`); enterprise-procurement-faq answers rewritten buyer-safe; `stripProcurementContributorLeakage` scoped to procurement packet; Vitest banned-substring guard.
 
 **Priority:** P0.
 

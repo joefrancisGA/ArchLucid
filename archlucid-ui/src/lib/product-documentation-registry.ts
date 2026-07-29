@@ -409,8 +409,9 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     summary: "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
     audience: "buyer",
     sourcePaths: ["docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md"],
+    // TB-1254: FAQ section only — packet intro is SE/ops contributor material.
     sectionAnchors: ["enterprise-procurement-faq"],
-    includeIntroWithSections: true,
+    includeIntroWithSections: false,
   },
   {
     slug: "billing-and-plans",

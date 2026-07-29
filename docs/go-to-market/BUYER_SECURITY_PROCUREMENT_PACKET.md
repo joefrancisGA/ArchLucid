@@ -36,6 +36,21 @@ Reviewer check: authenticate as Tenant A on a JwtBearer or ApiKey host, submit a
 
 Full technical narrative: [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview). Live review: [principal architect falsification script](#principal-architect-falsification-script-m-113) below.
 
+## PA claim-honesty short rows (M-115+) {#pa-claim-honesty-short-rows}
+
+Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+
+| Topic | Safe pin | Do not say | One-pager |
+| --- | --- | --- | --- |
+| Prompt injection (M-116) | Docs/repo as DATA; host confinement | “Injection-proof” / “we sanitize PDFs” | [`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`](PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md) |
+| Audit Required (M-117) | Fail-closed durable trail on Required events (**TB-953**) | “Every audit event is transactional” | [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) |
+| INV-001 decide-once (M-150) | Host `ScopeContext`; headers ≠ prod tenant | “`x-tenant-id` selects tenant” | [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) |
+| Execution mode (M-127) | Disclose Real/Mixed/Simulator; never promote Mixed→Real | “Quality green ⇒ Real” | [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) |
+| Model vs quality (M-123) | HOLD ≠ outage | “Perfect AI quality” | [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) |
+| Interrupted review (M-121) | Skip persisted `(RunId,TaskId)` only | “Exactly-once LLM” | [`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`](INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md) |
+| Pilot trust bar (M-190) | Six-element Real SEND + self-attested substitutes | “Requires CPA SOC 2 / published 3P pen test” | [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md) |
+| First security review (M-192) | Must **M-114** + **M-151** + **M-118** | “Ready = CPA + all one-pagers” | [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`](FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md) |
+
 ## Tenant isolation (buyer overview) {#tenant-isolation-buyer-overview}
 
 Former standalone body: `docs/go-to-market/TENANT_ISOLATION.md` → this section (`TENANT_ISOLATION.md` remains a path-stable procurement-pack alias).
@@ -426,15 +441,11 @@ A: Current sub-processors are listed in [`SUBPROCESSORS.md`](SUBPROCESSORS.md). 
 
 ## Q & A {#enterprise-procurement-faq}
 
-Former standalone: `docs/go-to-market/PROCUREMENT_FAQ.md` → this section (Enterprise procurement FAQ).
+<!-- TB-1254: In-app `/help/procurement` renders this section for buyers — keep answers free of repo paths, CLI, infra/, and improvement IDs. Contributor detail for SE/ops stays in other packet sections. -->
 
 **Audience:** procurement, InfoSec questionnaires, resilience reviews preparing **SOC 2** / SIG / CAIQ spreadsheets.
 
-**Evidence index:** **[Security and trust](/help/security-trust)** · [trust-center.md](trust-center.md)
-
-**Canonical assurance wording:** **[ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)**
-
-**SIG / CAIQ row acceleration:** **[Procurement response accelerator](#procurement-response-accelerator)** — fifty Shared-Assessments-style prompts mapped to **in-repo** evidence links and honesty labels (**Implemented / Self-asserted / Deferred V1.1 / Deferred V2**); **SOC 2 Type II “issued” is not claimed** there—see **[SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md)**.
+**Evidence index:** **[Security and trust](/help/security-trust)** · **[Trust Center](/trust)**
 
 ### 1. Do you have SOC 2 Type II?
 
@@ -442,28 +453,19 @@ Former standalone: `docs/go-to-market/PROCUREMENT_FAQ.md` → this section (Ente
 
 ### 2. Can we see the latest penetration-test report?
 
-**Answer:** **V1** uses **owner-conducted** penetration-style testing and internal assessments (see [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). A **third-party** vendor engagement is **planned, not yet scheduled**; when funded, it follows an SoW shaped like **[2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md)** (template until a vendor is selected). There is **no** awarded external vendor today (**owner 2026-05-30**). Redacted assessor summaries, when they exist, are distributed **under NDA** per **`docs/PENDING_QUESTIONS.md`** and [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c. **V1 quality assessments must not** penalize the product for lacking a third-party report.
+**Answer:** **V1** uses **owner-conducted** penetration-style testing and internal assessments. A **third-party** vendor engagement is **planned, not yet scheduled**; there is **no** awarded external vendor today. Redacted assessor summaries, when they exist, are distributed **under NDA** through security / sales diligence. Lack of a published third-party pen-test report is an honesty boundary, not a hidden control claim.
 
 ### 3. Where is customer **data processed / stored**?
 
-**Answer:** **Vendor-hosted** Azure workloads (region choices depend on contracted Azure regions and private-connectivity setup). For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Architectural networking guidance: **[CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)** and infra modules under **`infra/`**.
-
-<details>
-<summary>Administrator details — residency keys and blob configuration</summary>
-
-**Provisioned tenancy:** **`dbo.Tenants.DataRegion`** stores a lowercase residency key negotiated at onboarding (default **`default`** for single-home deployments). Platform administrators map non-default regions to dedicated storage accounts via **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** (JSON object of region → HTTPS blob service URI). Canonical buyer-friendly allowlist defaults: **`eastus`**, **`westeurope`**, **`uksouth`**, **`default`**, and additional keys listed in **`ArchLucid.Core.Tenancy.TenantDataRegions.PlatformDefaultSupportedRegions`**; administrators can constrain further with **`TenantProvisioning:SupportedDataRegions`**.
-
-**Tenant-selected residency keys:** Provisioning stores a lowercase Azure-style region identifier on **`dbo.Tenants.DataRegion`**. Unless configuration narrows it, allowed keys match product defaults: **`default`** (follow the deployment’s primary **`ArtifactLargePayload`** blob URI), **`eastus`**, **`eastus2`**, **`westus2`**, **`centralus`**, **`westeurope`**, **`northeurope`**, **`uksouth`**, **`southeastasia`**, **`australiaeast`**, **`centralindia`**, and **`brazilsouth`**. Administrators may replace that allowlist via **`TenantProvisioning:SupportedDataRegions`**. For any non-**`default`** key, **`ArtifactLargePayload:AzureBlobServiceUriByRegion`** must map that key to a regional Blob service URI so large artifact payloads resolve to storage in the chosen geography—otherwise provisioning or blob access fails fast by design.
-
-</details>
+**Answer:** **Vendor-hosted** Azure workloads. Region choices depend on the contracted Azure regions and private-connectivity setup negotiated at onboarding. For buyer-facing isolation and residency messaging, see [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Platform administrators configure regional storage during provisioning; procurement reviewers do not need application configuration keys.
 
 ### 4. Can we authenticate with **Okta / Ping / Auth0** instead of Microsoft Entra ID?
 
-**Answer:** **Yes — V1 GA.** **[V1_SCOPE.md](../library/V1_SCOPE.md) §2.12** commits **`JwtBearer`** against **configurable OIDC issuers** (metadata discovery + JWKS), including non-Microsoft IdPs; **`ArchLucidAuth:Authority`** / audience and **role claim mapping** are documented in **[SECURITY.md](../library/contributor-reference/SECURITY.md)** and **[CONFIGURATION_REFERENCE.md](../library/CONFIGURATION_REFERENCE.md)**. **Microsoft Entra ID** remains the **reference** path in Terraform samples (**[`infra/terraform-entra/`](../../infra/terraform-entra/)**). **Native SAML 2.0 Service Provider** workforce SSO (ArchLucid as SAML **SP**) is **also in V1 GA scope** (**owner 2026-05-15**) — alongside OIDC **`JwtBearer`**; configuration keys and assertion→role mapping land in **`SECURITY.md`** / **`CONFIGURATION_REFERENCE.md`** with implementation. Buyers may still prefer OIDC-only or brokered SAML→OIDC where IdP policy favors those paths. Capture your issuer URLs, audience/metadata, and claim shapes in questionnaire follow-ups; for **SAML SP** cutovers use the IdP-specific mapping tables in **[HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md §2.1](../library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md#saml-claim-mapping-reference)** (Entra, Okta, Ping) and offline validation via **`archlucid auth validate-saml`** (Improvement archived **#4**). Lead times depend on IdP-specific federation work on **your** side.
+**Answer:** **Yes — V1 GA.** ArchLucid supports **OIDC** against configurable issuers (including non-Microsoft IdPs) and **native SAML 2.0** workforce SSO (ArchLucid as SAML service provider). **Microsoft Entra ID** remains the reference path in hosted samples. Capture your issuer URLs, audience/metadata, and claim shapes in questionnaire follow-ups; for SAML cutovers use the IdP mapping guidance in [Enterprise onboarding](/help/enterprise-onboarding) and [Authentication and sign-in](/help/authentication-sign-in). Lead times depend on IdP-specific federation work on **your** side.
 
 ### 5. What **SLA** do you publish?
 
-**Answer:** Targets are documented (**[SLA_SUMMARY.md](SLA_SUMMARY.md)** · [#hosted-saas-availability-target](SLA_SUMMARY.md#hosted-saas-availability-target); `SLA_TARGETS.md` alias). Contractual SLA language is finalized per **Order Form** (**[ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md)**)—pre-contract **targets**, not unconditional guarantees until executed.
+**Answer:** Hosted availability **targets** are published for diligence; contractual SLA language is finalized per **Order Form** — pre-contract targets, not unconditional guarantees until executed. Request current SLA summary language through security / sales.
 
 ### 6. Can we execute the **Data Processing Agreement**?
 
@@ -475,23 +477,23 @@ Former standalone: `docs/go-to-market/PROCUREMENT_FAQ.md` → this section (Ente
 
 ### 8. What happens if ArchLucid **ceases trading**?
 
-**Answer:** Operational continuity hinges on contractual **termination assistance**, **export rights**, negotiated ** escrow** arrangements, and staged **migration** timelines—**explicit source-code escrow** is negotiable rather than universally bundled in starter paper. Start from **[MSA_TEMPLATE.md](MSA_TEMPLATE.md)** / Order Form playbook.
+**Answer:** Operational continuity hinges on contractual **termination assistance**, **export rights**, negotiated **escrow** arrangements, and staged **migration** timelines—**explicit source-code escrow** is negotiable rather than universally bundled in starter paper. Request MSA / Order Form language through legal / sales diligence.
 
 ### 9. Do you maintain **cyber insurance**?
 
-**Answer:** Procurement should request current **coverage limits**, **carrier**, renewal date, and **claims history** directly from Vendor during diligence—figures change year to year (**do not cite an unsigned MD as proof**).
+**Answer:** Procurement should request current **coverage limits**, **carrier**, renewal date, and **claims history** directly from Vendor during diligence—figures change year to year. Do not treat informal marketing copy as a certificate of insurance.
 
 ### 10. Can we speak with **reference customers**?
 
-**Answer:** **Public Published** references are tracked (**[reference-customers/README.md](reference-customers/README.md)**) with **Status** placeholders until **V1.1-program** approvals—coordinate via sales for **permissioned pilots**.
+**Answer:** Permissioned pilot references are coordinated via sales. Public named references are approved only when status allows — ask sales for the current reference posture.
 
 ### 11. How do we get **extended audit retention** (e.g. 7 years)?
 
-**Answer:** Per-tier defaults are **90 days (Team)**, **1 year (Professional)**, and **custom (Enterprise)** — see [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md). Extended retention is an **Enterprise-negotiated** add-on documented in [`AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md): scheduled CSV exports to customer-controlled immutable blob storage plus an agreed hot SQL window — not a universal 7-year default in the interactive database.
+**Answer:** Per-tier defaults are **90 days (Team)**, **1 year (Professional)**, and **custom (Enterprise)**. Extended retention is an **Enterprise-negotiated** add-on (scheduled exports to customer-controlled immutable storage plus an agreed hot window) — not a universal 7-year default in the interactive database. See [Billing and plans](/help/billing-and-plans) and request Enterprise terms through sales.
 
 ### 12. Can we **commission custom policy packs** beyond bundled defaults?
 
-**Answer:** **Yes — V1 professional services.** ArchLucid ships **productized Custom Policy Pack Authoring** SKUs (Starter / Standard / Program) with customer-exclusive or ArchLucid-owned IP tiers. Scope, delivery windows, and canonical USD list prices are in **[PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services)**; the public **`/pricing`** page surfaces the SKU matrix and links to the **[SoW template](CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md)** and **[Order Form Addendum C](ORDER_FORM_TEMPLATE.md#addendum-c--custom-policy-pack-authoring-professional-services)**. Submit a quote with tier interest **Custom policy pack (professional services)** or use **`/pricing?interest=custom-policy-pack#pricing-quote-request`**. Engagements are **owner-delivered only** for V1 — not a self-serve product feature.
+**Answer:** **Yes — V1 professional services.** ArchLucid offers **Custom Policy Pack Authoring** SKUs (Starter / Standard / Program) with customer-exclusive or ArchLucid-owned IP tiers. Scope, delivery windows, and list prices are on the public **[pricing](/pricing)** page; submit a quote with tier interest **Custom policy pack (professional services)** or use **`/pricing?interest=custom-policy-pack#pricing-quote-request`**. Engagements are **owner-delivered only** for V1 — not a self-serve product feature.
 
 ---
 
