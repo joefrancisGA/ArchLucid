@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

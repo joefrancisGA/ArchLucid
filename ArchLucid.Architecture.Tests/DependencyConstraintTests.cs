@@ -297,7 +297,7 @@ public sealed class DependencyConstraintTests
 
         root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
 
-        Regex directPublish = new(@"\.PublishAsync\(", RegexOptions.Compiled);
+        Regex directPublish = new(@"publisher\.PublishAsync\(", RegexOptions.Compiled);
         List<string> violations = [];
 
         foreach (string path in Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories))

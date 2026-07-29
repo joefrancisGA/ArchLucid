@@ -1,6 +1,7 @@
 using Polly;
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Analytics;
