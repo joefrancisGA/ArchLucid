@@ -21,6 +21,7 @@ import {
   stripDocumentationMaintenanceMetadata,
   stripEnterpriseOnboardingContributorLeakage,
   stripEnterpriseOnboardingContributorSections,
+  stripEvaluatorWorkbookContributorLeakage,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -149,6 +150,37 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("tenant provisioning");
     expect(prepared).not.toContain("Tenant GUID");
     expect(prepared).toContain("## Workforce SSO");
+  });
+
+  it("strips CLI collectors and eng jargon from evaluator workbook (TB-1346)", () => {
+    const source = [
+      "Evidence | Tier-1 cloud inventory ZIP",
+      "",
+      "<details>",
+      "<summary>Administrator details — CLI and proof collectors</summary>",
+      "",
+      "./scripts/collect-first-pilot-proof.ps1",
+      "dotnet run --project ArchLucid.Cli -- try",
+      "",
+      "</details>",
+      "",
+      "Stop when PilotStrict signals are unresolved.",
+      "",
+      "Run the authority pipeline, then use [`SECOND_RUN.md`](../library/SECOND_RUN.md).",
+    ].join("\n");
+
+    const prepared = stripEvaluatorWorkbookContributorLeakage(source);
+
+    expect(prepared).not.toContain("collect-first-pilot-proof");
+    expect(prepared).not.toContain("ArchLucid.Cli");
+    expect(prepared).not.toContain("Tier-1");
+    expect(prepared).toContain("optional cloud inventory");
+    expect(prepared).not.toContain("PilotStrict");
+    expect(prepared).toContain("pilot host integrity");
+    expect(prepared).not.toContain("authority pipeline");
+    expect(prepared).toContain("architecture analysis");
+    expect(prepared).toContain("/help/repeat-review-loop");
+    expect(prepared).not.toContain("SECOND_RUN.md");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

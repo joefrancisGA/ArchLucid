@@ -511,6 +511,98 @@ export function stripEnterpriseOnboardingContributorLeakage(markdown: string): s
 }
 
 /**
+ * TB-1346 — removes SE CLI / proof-collector disclosure and eng jargon from evaluator workbook help.
+ */
+export function stripEvaluatorWorkbookContributorLeakage(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let inFence = false;
+  let detailsBuffer: string[] | null = null;
+
+  const flushDetailsBuffer = (): void => {
+    if (detailsBuffer === null) {
+      return;
+    }
+
+    const block = detailsBuffer.join("\n");
+    detailsBuffer = null;
+
+    if (
+      /CLI and proof/i.test(block) ||
+      /collect-first-pilot-proof/i.test(block) ||
+      /ArchLucid\.Cli/i.test(block) ||
+      /ARCHLUCID_API_URL/i.test(block)
+    ) {
+      return;
+    }
+
+    for (const bufferedLine of block.split("\n")) {
+      result.push(bufferedLine);
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      inFence = !inFence;
+    }
+
+    if (!inFence && /^<details\b/i.test(trimmed)) {
+      detailsBuffer = [line];
+      continue;
+    }
+
+    if (detailsBuffer !== null) {
+      detailsBuffer.push(line);
+
+      if (/^<\/details>/i.test(trimmed)) {
+        flushDetailsBuffer();
+      }
+
+      continue;
+    }
+
+    if (
+      !inFence &&
+      (/collect-first-pilot-proof/i.test(line) ||
+        /ArchLucid\.Cli/i.test(line) ||
+        /ARCHLUCID_API_URL/i.test(line) ||
+        /\.\/scripts\//i.test(line))
+    ) {
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  flushDetailsBuffer();
+
+  return result
+    .join("\n")
+    .replace(/\(former EVALUATION_GUIDE\)/gi, "")
+    .replace(/\bTier-1\b/g, "optional")
+    .replace(/\bPilotStrict\b/g, "pilot host integrity")
+    .replace(/\bauthority pipeline\b/gi, "architecture analysis")
+    .replace(/\[`?BUYER_FIRST_30_MINUTES\.md`?\]\([^)]+\)/gi, "[Your first architecture review](/help/core-pilot)")
+    .replace(/\[`?SECOND_RUN\.md`?\]\([^)]+\)/gi, "[Repeat a review](/help/repeat-review-loop)")
+    .replace(
+      /\[`?FIRST_PILOT_OPERATOR_PATH\.md`?\]\([^)]+\)/gi,
+      "[Complete review workflow](/help/first-pilot-path)",
+    )
+    .replace(
+      /\[`?FIRST_PILOT_TROUBLESHOOTING\.md`?\]\([^)]+\)/gi,
+      "[Troubleshooting](/help/troubleshooting)",
+    )
+    .replace(/`?BUYER_FIRST_30_MINUTES\.md`?/gi, "buyer first session guide")
+    .replace(/`?SECOND_RUN\.md`?/gi, "second review guide")
+    .replace(/`?FIRST_PILOT_OPERATOR_PATH\.md`?/gi, "complete review workflow")
+    .replace(/`?FIRST_PILOT_TROUBLESHOOTING\.md`?/gi, "troubleshooting guide")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
+/**
  * TB-1327 — removes backlog IDs, RC script/fixture paths, ADR deep links, and contributor
  * security/scope anchors from in-app configuration reference presentation.
  */
@@ -706,11 +798,16 @@ export function prepareHelpMarkdownForPresentation(
   const isEnterpriseOnboarding = normalizedSourcePath.includes(
     "hosted_enterprise_onboarding_checklist.md",
   );
+  const isEvaluatorWorkbook = normalizedSourcePath.includes("evaluator_workbook.md");
+  // TB-1346 — retarget runbook .md links to /help before generic link rewrite drops them.
+  const afterEvaluatorWorkbookStrip = isEvaluatorWorkbook
+    ? stripEvaluatorWorkbookContributorLeakage(withoutInlineReferences)
+    : withoutInlineReferences;
   const beforeLinkRewrite = isConfigurationReference
-    ? stripConfigurationReferenceContributorSections(withoutInlineReferences)
+    ? stripConfigurationReferenceContributorSections(afterEvaluatorWorkbookStrip)
     : isEnterpriseOnboarding
-      ? stripEnterpriseOnboardingContributorSections(withoutInlineReferences)
-      : withoutInlineReferences;
+      ? stripEnterpriseOnboardingContributorSections(afterEvaluatorWorkbookStrip)
+      : afterEvaluatorWorkbookStrip;
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
