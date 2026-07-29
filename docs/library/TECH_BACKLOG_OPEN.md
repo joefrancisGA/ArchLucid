@@ -792,7 +792,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1246 | ~~`/help/developer-troubleshooting` — reclassify as internal-runbook + Admin gate~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — owner review ~32/100; TB-735 parity |
 | TB-1247 | ~~Engineering troubleshooting — de-index from product help search / static params~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1246** |
 | TB-1248 | Engineering troubleshooting — align route slug with page title | Adoption friction P1 **V1** — with **TB-1246** |
-| TB-1249 | Customer Troubleshooting — remove eng-runbook deep link | Trustworthiness P0 **V1** — with **TB-1246** |
+| TB-1249 | ~~Customer Troubleshooting — remove eng-runbook deep link~~ **Done** 2026-07-29 | Trustworthiness P0 **V1** — with **TB-1246** |
 | TB-1250 | Audit sibling technical-documentation help for consumer exposure | Trustworthiness P0 **V1** — after **TB-1246**; includes `cli-usage` |
 | TB-1253 | `/help/procurement` specialty buyer FAQ guide view | Adoption friction P1 **V1** — owner procurement help ~49/100; complements Done **TB-159**/**TB-736** |
 | TB-1254 | Procurement FAQ — purge contributor/repo leakage from rendered help | Trustworthiness P0 **V1** — with **TB-1253**; banned-copy parity |

@@ -340,10 +340,10 @@ export const TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS: readonly Troubleshootin
   },
   {
     title: "Support reference for tickets",
-    body: "When support asks for a support reference, copy the request ID shown on the error panel. Do not share secrets or evidence contents.",
-    href: inAppHelpHref("developer-troubleshooting"),
-    linkLabel: "Engineering troubleshooting runbook",
-    adminOnly: true,
+    // TB-1249: stay on customer paths — never deep-link the eng troubleshooting runbook.
+    body: "When support asks for a support reference, copy the request ID shown on the error panel, then open Report a problem. Do not share secrets or evidence contents.",
+    href: inAppHelpHref("report-a-problem"),
+    linkLabel: "Report a problem",
   },
 ] as const;
 
