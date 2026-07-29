@@ -5,9 +5,39 @@ import {
   resolveServiceNowConnectionStatus,
   resolveServiceNowConnectionTestGate,
   sanitizeCustomerFacingProbeSummary,
+  sanitizeServiceNowLoadErrorForConnectionStatus,
+  SERVICENOW_LOAD_FAILURE_STATUS_EXPLANATION,
 } from "./servicenow-integration-present";
 
 describe("servicenow-integration-present", () => {
+  it("never puts Database Query Failed into connection status explanation (TB-1163)", () => {
+    const raw =
+      "Database Query Failed: The database rejected the query due to a programming error";
+
+    expect(sanitizeServiceNowLoadErrorForConnectionStatus(raw)).toBe(
+      SERVICENOW_LOAD_FAILURE_STATUS_EXPLANATION,
+    );
+
+    const status = resolveServiceNowConnectionStatus({
+      isLoading: false,
+      loadError: raw,
+      isTesting: false,
+      nativeEnabled: true,
+      credentialsReady: false,
+      probe: null,
+    });
+
+    expect(status.explanation).toBe(SERVICENOW_LOAD_FAILURE_STATUS_EXPLANATION);
+    expect(status.explanation).not.toMatch(/Database Query Failed/i);
+    expect(status.explanation).not.toMatch(/programming error/i);
+  });
+
+  it("keeps already buyer-safe load errors as connection status explanation", () => {
+    const safe = "Some ServiceNow data could not be loaded (ServiceNow settings).";
+
+    expect(sanitizeServiceNowLoadErrorForConnectionStatus(safe)).toBe(safe);
+  });
+
   it("reports setup incomplete when credentials are missing", () => {
     const status = resolveServiceNowConnectionStatus({
       isLoading: false,

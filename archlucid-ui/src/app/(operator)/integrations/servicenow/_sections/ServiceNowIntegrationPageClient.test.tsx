@@ -306,4 +306,18 @@ describe("ServiceNowIntegrationPageClient", () => {
     expect(screen.getByTestId("servicenow-connection-status")).not.toHaveTextContent(/Database Query Failed/i);
     expect(screen.getByRole("button", { name: SERVICENOW_SAVE_SETTINGS_BUTTON })).toBeDisabled();
   });
+
+  it("never shows Database Query Failed as connection status explanation (TB-1163)", async () => {
+    mockFetchConnection.mockRejectedValue(
+      new Error("Database Query Failed: The database rejected the query due to a programming error"),
+    );
+
+    render(<ServiceNowIntegrationPageClient />);
+
+    const status = await screen.findByTestId("servicenow-connection-status");
+    expect(within(status).getByText("Not available")).toBeInTheDocument();
+    expect(status).not.toHaveTextContent(/Database Query Failed/i);
+    expect(status).not.toHaveTextContent(/programming error/i);
+    expect(status).toHaveTextContent(/could not load ServiceNow configuration/i);
+  });
 });
