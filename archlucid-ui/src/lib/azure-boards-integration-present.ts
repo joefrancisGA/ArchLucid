@@ -34,6 +34,18 @@ const STATUS_LABELS: Record<AzureBoardsConnectionStatus, string> = {
   "not-available": "Not available",
 };
 
+/** Buyer-safe status copy when a load slice fails with an internal problem title. */
+export const AZURE_BOARDS_LOAD_FAILURE_STATUS_EXPLANATION =
+  "ArchLucid could not load Azure Boards configuration for this workspace. Reload the page or contact support if the problem continues.";
+
+const RAW_LOAD_ERROR_PATTERNS: readonly RegExp[] = [
+  /database query failed/i,
+  /programming error/i,
+  /the database rejected the query/i,
+  /\b5\d{2}\b/,
+  /internal server error/i,
+];
+
 export function isAzureBoardsCredentialsReady(
   connection: TenantItsmConnectorConnectionResponse | null | undefined,
   health: AzureBoardsIntegrationHealthResponse | null | undefined,
@@ -76,7 +88,7 @@ export function resolveAzureBoardsConnectionStatus(input: {
     return {
       status: "not-available",
       label: STATUS_LABELS["not-available"],
-      explanation: input.loadError,
+      explanation: sanitizeAzureBoardsLoadErrorForConnectionStatus(input.loadError),
       nextAction: "Reload the page or contact support if the problem continues.",
     };
   }
@@ -209,6 +221,28 @@ export function sanitizeCustomerFacingProbeSummary(summary: string | null | unde
 
   if (/statuscode|_apis|json-patch|api-version/i.test(trimmed)) {
     return "Connection check failed. Verify organization access and token permissions.";
+  }
+
+  return trimmed;
+}
+
+/**
+ * Maps API problem titles / SQL mapper leaks out of Connection status.
+ * Raw detail stays available to callers via loadError state / console diagnostics.
+ */
+export function sanitizeAzureBoardsLoadErrorForConnectionStatus(loadError: string): string {
+  const trimmed = loadError.trim();
+
+  if (trimmed.length === 0) {
+    return AZURE_BOARDS_LOAD_FAILURE_STATUS_EXPLANATION;
+  }
+
+  if (RAW_LOAD_ERROR_PATTERNS.some((pattern) => pattern.test(trimmed))) {
+    if (typeof console !== "undefined" && typeof console.warn === "function") {
+      console.warn("[azure-boards] connection status load failure (raw detail not shown to buyer):", trimmed);
+    }
+
+    return AZURE_BOARDS_LOAD_FAILURE_STATUS_EXPLANATION;
   }
 
   return trimmed;

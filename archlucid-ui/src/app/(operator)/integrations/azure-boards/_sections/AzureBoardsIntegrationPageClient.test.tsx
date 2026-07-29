@@ -242,4 +242,18 @@ describe("AzureBoardsIntegrationPageClient", () => {
     expect(screen.getByTestId("azure-boards-connection-settings")).toBeInTheDocument();
     expect(screen.getByTestId("azure-boards-credential-status")).toHaveTextContent("Secure reference saved");
   });
+
+  it("never shows Database Query Failed as connection status explanation (TB-1153)", async () => {
+    mockFetchAzureSettings.mockRejectedValue(
+      new Error("Database Query Failed: The database rejected the query due to a programming error"),
+    );
+
+    render(<AzureBoardsIntegrationPageClient />);
+
+    const status = await screen.findByTestId("azure-boards-connection-status");
+    expect(within(status).getByText("Not available")).toBeInTheDocument();
+    expect(status).not.toHaveTextContent(/Database Query Failed/i);
+    expect(status).not.toHaveTextContent(/programming error/i);
+    expect(status).toHaveTextContent(/could not load Azure Boards configuration/i);
+  });
 });
