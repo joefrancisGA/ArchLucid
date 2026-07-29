@@ -21,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 type WelcomeVerifyLink = {
   readonly label: string;
@@ -67,6 +66,7 @@ function WelcomePillarVerifyLinks(props: { readonly links: readonly WelcomeVerif
   );
 }
 
+/** Buyer-safe Verify anchors only — no `docs/library/*` contributor paths (TB-1297). */
 const PILLARS: readonly WelcomePillar[] = [
   {
     title: "AI-native architecture analysis",
@@ -75,7 +75,7 @@ const PILLARS: readonly WelcomePillar[] = [
       { label: "See it in 30 seconds", href: "/see-it" },
       { label: "Security & trust", href: "/security-trust" },
       { label: "Demo preview", href: "/demo/preview" },
-      { label: "Product scope overview", href: resolveInAppDocHref("docs/library/V1_SCOPE.md") },
+      { label: "Product overview", href: "/help/product-overview" },
     ],
   },
   {
@@ -83,7 +83,7 @@ const PILLARS: readonly WelcomePillar[] = [
     body: "Every recommendation ships with a chain of evidence: what was examined, which rules fired, what was decided, and why. Provenance and graph surfaces connect evidence to decisions for investigation — not an anonymous “AI said so” reply.",
     verify: [
       { label: "Evidence trail demo", href: "/demo/preview" },
-      { label: "Knowledge graph overview", href: resolveInAppDocHref("docs/library/KNOWLEDGE_GRAPH.md") },
+      { label: "Evidence trail", href: "/help/evidence-trail" },
     ],
   },
   {
@@ -92,8 +92,8 @@ const PILLARS: readonly WelcomePillar[] = [
     verify: [
       { label: "Trust center", href: "/trust" },
       { label: "Evidence pack (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
-      { label: "Audit event coverage", href: resolveInAppDocHref("docs/library/AUDIT_COVERAGE_MATRIX.md") },
-      { label: "Pre-commit governance", href: resolveInAppDocHref("docs/library/PRE_COMMIT_GOVERNANCE_GATE.md") },
+      { label: "Audit trail", href: "/help/audit-trail" },
+      { label: "Governance approval", href: "/help/governance-approval" },
     ],
   },
 ];

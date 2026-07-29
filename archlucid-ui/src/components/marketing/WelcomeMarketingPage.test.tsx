@@ -122,4 +122,40 @@ describe("WelcomeMarketingPage", () => {
     expect(screen.getByRole("link", { name: /^demo workspaces$/i })).toHaveAttribute("href", "/faq#demo-workspaces");
     expect(screen.getByRole("link", { name: /^product faq$/i })).toHaveAttribute("href", "/faq");
   });
+
+  it("pillar Verify links stay on buyer surfaces without docs/library contributor paths (TB-1297)", () => {
+    renderWelcomePage();
+
+    const pillars = screen.getByRole("heading", { name: /Three pillars/i }).closest("section");
+
+    expect(pillars).not.toBeNull();
+
+    const verifyLinks = within(pillars as HTMLElement).getAllByRole("link");
+    const hrefs = verifyLinks.map((link) => link.getAttribute("href") ?? "");
+
+    for (const href of hrefs) {
+      expect(href.toLowerCase()).not.toContain("docs/library");
+      expect(href.toLowerCase()).not.toContain("v1_scope");
+      expect(href.toLowerCase()).not.toContain("knowledge_graph");
+      expect(href.toLowerCase()).not.toContain("audit_coverage_matrix");
+      expect(href.toLowerCase()).not.toContain("pre_commit_governance");
+    }
+
+    expect(within(pillars as HTMLElement).getByRole("link", { name: /^Product overview$/i })).toHaveAttribute(
+      "href",
+      "/help/product-overview",
+    );
+    expect(within(pillars as HTMLElement).getByRole("link", { name: /^Evidence trail$/i })).toHaveAttribute(
+      "href",
+      "/help/evidence-trail",
+    );
+    expect(within(pillars as HTMLElement).getByRole("link", { name: /^Audit trail$/i })).toHaveAttribute(
+      "href",
+      "/help/audit-trail",
+    );
+    expect(within(pillars as HTMLElement).getByRole("link", { name: /^Governance approval$/i })).toHaveAttribute(
+      "href",
+      "/help/governance-approval",
+    );
+  });
 });
