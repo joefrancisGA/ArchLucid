@@ -38,6 +38,23 @@ describe("IntegrationEventsDlqPageClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("states cross-tenant scope and never claims the list is tenant-scoped (TB-1272)", async () => {
+    render(<IntegrationEventsDlqPageClient />);
+
+    const callout = await screen.findByTestId("integration-events-dlq-cross-tenant-callout");
+
+    expect(callout).toHaveTextContent(/all tenants and event types/i);
+
+    const page = screen.getByTestId("integration-events-dlq-page");
+    const visible = (page.textContent ?? "").toLowerCase();
+
+    expect(visible).toContain("cross-tenant");
+    expect(visible).toContain("all tenants and event types");
+    expect(visible).not.toContain("tenant-scoped");
+
+    vi.unstubAllGlobals();
+  });
+
   it("disables Retry/Suppress/Bulk retry for callers below AdminAuthority", async () => {
     nav.callerAuthorityRank = 2;
 

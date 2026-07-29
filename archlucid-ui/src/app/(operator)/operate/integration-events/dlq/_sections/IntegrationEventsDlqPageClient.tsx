@@ -12,7 +12,7 @@ import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-control
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type IntegrationEventOutboxDeadLetterRow = components["schemas"]["IntegrationEventOutboxDeadLetterRow"];
 
@@ -251,13 +251,26 @@ export function IntegrationEventsDlqPageClient() {
         ) : null}
       </header>
 
+      <div
+        className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3")}
+        role="status"
+        data-testid="integration-events-dlq-cross-tenant-callout"
+      >
+        <p className="m-0 font-semibold">Cross-tenant Internal Operations queue</p>
+        <p className="m-0 mt-1">
+          Dead letters span all tenants and event types — not your current workspace only. Fix the root cause before
+          bulk retry.
+        </p>
+      </div>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3">
           <div>
             <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Dead-letter queue</CardTitle>
             <CardDescription>
-              Rows are tenant-scoped; retry clears dead-letter state for the worker to publish again. Suppress marks a
-              row processed without republishing.
+              List and bulk retry operate across all tenants and event types (Internal Operations staff surface). Retry
+              clears dead-letter state for the worker to publish again. Suppress marks a row processed without
+              republishing.
             </CardDescription>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
