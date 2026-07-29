@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-27
+> **Reviewed:** 2026-07-29
 
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), and the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), and the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -8,7 +8,7 @@
 
 **Audience:** Procurement reviewers, security reviewers, GRC teams, CISOs, and enterprise buyers evaluating ArchLucid for a controlled pilot.
 
-**Last reviewed:** 2026-07-27
+**Last reviewed:** 2026-07-29
 
 **Review checklist owner:** Founder / ArchLucid operator. Re-validate before each new buyer conversation.
 
@@ -36,6 +36,37 @@ Reviewer check: authenticate as Tenant A on a JwtBearer or ApiKey host, submit a
 
 Full technical narrative: [Tenant isolation (buyer overview)](#tenant-isolation-buyer-overview). Live review: [principal architect falsification script](#principal-architect-falsification-script-m-113) below.
 
+## Security reviewer inbound webhook (M-126) {#security-reviewer-inbound-webhook-m-126}
+
+Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-126** / **TB-966**). Complements [Isolation one-pager (M-114)](#isolation-one-pager-m-114).
+
+**Path-stable alias:** [`SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`](SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md).
+
+**Audience:** Security reviewers probing ITSM, Stripe, Marketplace, and similar inbound hooks.
+
+**Claim:** Documented pipeline order is not “internet-safe by itself.” **Signed ≠ replay/DoS hardened.** Prefer: rate → size → verify → parse.
+
+### Control order
+
+| Step | Intent |
+| --- | --- |
+| Rate | Edge / app rate limits before expensive work |
+| Size | Bound body (`Content-Length` / pre-read max) before HMAC (**TB-967**) |
+| Verify | Signature / authenticity |
+| Parse | Only after verify + size |
+
+### Too strong vs safe
+
+| Too strong | Safe |
+| --- | --- |
+| “Signed webhooks are fully hardened” | Signed authenticity ≠ replay/idempotency/freshness |
+| “Front Door Network Protection completes app-layer” | Edge helps; app still needs size/verify/replay |
+| “ITSM inbound is replay-safe today” | Billing has replay patterns; ITSM parity is **TB-968** |
+
+**Residuals:** **TB-966**–**TB-968**; cite INV-015 / Done **TB-012** without overclaim.
+
+**Related:** [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+
 ## PA claim-honesty short rows (M-115+) {#pa-claim-honesty-short-rows}
 
 Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
@@ -48,6 +79,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Execution mode (M-127) | Disclose Real/Mixed/Simulator; never promote Mixed→Real | “Quality green ⇒ Real” | [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) |
 | Model vs quality (M-123) | HOLD ≠ outage | “Perfect AI quality” | [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) |
 | Interrupted review (M-121) | Skip persisted `(RunId,TaskId)` only | “Exactly-once LLM” | [`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`](INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md) |
+| Inbound webhooks (M-126) | Rate → size → verify → parse; signed ≠ hardened | “Signed webhooks are fully hardened” | [`#security-reviewer-inbound-webhook-m-126`](#security-reviewer-inbound-webhook-m-126) |
 | Pilot trust bar (M-190) | Six-element Real SEND + self-attested substitutes | “Requires CPA SOC 2 / published 3P pen test” | [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md) |
 | First security review (M-192) | Must **M-114** + **M-151** + **M-118** | “Ready = CPA + all one-pagers” | [`FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`](FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md) |
 
@@ -883,6 +915,7 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | --- | --- |
 | [`trust-center.md`](trust-center.md) | Master trust and assurance index |
 | [`#security-reviewer-one-pager`](#security-reviewer-one-pager) · [`SECURITY_REVIEWER_ONE_PAGER.md`](SECURITY_REVIEWER_ONE_PAGER.md) (alias) | Security reviewer one-pager |
+| [`#security-reviewer-inbound-webhook-m-126`](#security-reviewer-inbound-webhook-m-126) · [`SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`](SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md) (alias) | Inbound webhook order (M-126) |
 | [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) | SOC 2 self-assessment narrative |
 | [`ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap`](ASSURANCE_STATUS_CANONICAL.md#soc-2-readiness-roadmap) | SOC 2 CPA roadmap (V1.1) |
 | [`#procurement-response-accelerator`](#procurement-response-accelerator) · [`PROCUREMENT_RESPONSE_ACCELERATOR.md`](PROCUREMENT_RESPONSE_ACCELERATOR.md) (alias) | CAIQ / SIG question-answer map |
@@ -902,4 +935,5 @@ Former standalone FAQ: `docs/go-to-market/PROCUREMENT_FAQ.md` → [Q & A / enter
 Former standalone body: `docs/go-to-market/TENANT_ISOLATION.md` → [tenant isolation buyer overview](#tenant-isolation-buyer-overview) (filename kept as pack alias).  
 Former standalone body: `docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md` → [procurement response accelerator](#procurement-response-accelerator) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md` → [security reviewer one-pager](#security-reviewer-one-pager) (filename kept as path-stable pack alias).  
-Former standalone body: `docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md` → [procurement objection playbook](#procurement-objection-playbook) (filename kept as path-stable alias).
+Former standalone body: `docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md` → [procurement objection playbook](#procurement-objection-playbook) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md` → [inbound webhook handout](#security-reviewer-inbound-webhook-m-126) (filename kept as path-stable alias).

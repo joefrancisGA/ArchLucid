@@ -23,7 +23,7 @@
 | M-123 | Honesty | Public claim boundary guide + packet short row |
 | M-124 | One-pager | [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) |
 | M-125 | Honesty | Public claim boundary guide + packet short row |
-| M-126 | One-pager | [`SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`](SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md) |
+| M-126 | One-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-inbound-webhook-m-126`](BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-inbound-webhook-m-126) (`SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md` alias) |
 | M-127 | Honesty | Public claim boundary guide + packet short row |
 | M-128 | One-pager | [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) |
 | M-129 | Honesty | Public claim boundary guide + packet short row |
