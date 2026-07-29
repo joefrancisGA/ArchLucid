@@ -19,7 +19,7 @@
 | M-118 | One-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118`](BUYER_SECURITY_PROCUREMENT_PACKET.md#security-reviewer-audit-trail-m-118) (`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` alias) |
 | M-119 | Honesty | Public claim boundary guide + packet short row |
 | M-121 | Honesty | Public claim boundary guide + packet short row |
-| M-122 | One-pager | [`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`](INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md) |
+| M-122 | One-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#interrupted-review-m-122`](BUYER_SECURITY_PROCUREMENT_PACKET.md#interrupted-review-m-122) (`INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md` alias) |
 | M-123 | Honesty | Public claim boundary guide + packet short row |
 | M-124 | One-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#model-failed-vs-quality-rejected-m-124`](BUYER_SECURITY_PROCUREMENT_PACKET.md#model-failed-vs-quality-rejected-m-124) (`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md` alias) |
 | M-125 | Honesty | Public claim boundary guide + packet short row |
