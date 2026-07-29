@@ -45,21 +45,23 @@ describe("help-center-catalog", () => {
   it("lists technical-documentation on the Documentation tab instead of Guides", () => {
     const architectDocs = listHelpCenterDocumentationTopics({ isAdmin: false }).map((entry) => entry.slug);
 
-    expect(architectDocs).toContain("configuration-reference");
+    // TB-1329: full configuration catalog is internal-runbook (Admin-gated), not Documentation-tab.
+    expect(architectDocs).not.toContain("configuration-reference");
     expect(architectDocs).not.toContain("getting-started");
     expect(architectDocs).not.toContain("cli-usage");
 
     const adminDocs = listHelpCenterDocumentationTopics({ isAdmin: true }).map((entry) => entry.slug);
 
-    // TB-1250: eng CLI/API contracts are internal-runbook (Admin-gated), not Documentation-tab technical docs.
+    // TB-1250 / TB-1329: eng CLI/API/config catalogs are internal-runbook, not Documentation-tab technical docs.
     expect(adminDocs).not.toContain("cli-usage");
     expect(adminDocs).not.toContain("governance-api-contracts");
+    expect(adminDocs).not.toContain("configuration-reference");
     expect(adminDocs).toContain("admin-diagnostics");
   });
 
   it("resolves browse labels for guides and documentation slugs (TB-734)", () => {
     expect(resolveHelpTopicBrowseLabel("getting-started")).toBe(HELP_BROWSE_GUIDE_LABEL);
-    expect(resolveHelpTopicBrowseLabel("configuration-reference")).toBe(HELP_BROWSE_DOCUMENTATION_LABEL);
+    expect(resolveHelpTopicBrowseLabel("configuration-reference")).toBeNull();
     expect(resolveHelpTopicBrowseLabel("cli-usage")).toBeNull();
     expect(resolveHelpTopicBrowseLabel("first-value-20-minutes")).toBeNull();
   });
@@ -68,7 +70,17 @@ describe("help-center-catalog", () => {
     const advancedNonAdmin = listHelpCenterTopics({ showAdvanced: true, isAdmin: false });
 
     expect(advancedNonAdmin.some((entry) => entry.slug === "cli-usage")).toBe(false);
+    expect(advancedNonAdmin.some((entry) => entry.slug === "configuration-reference")).toBe(false);
     expect(advancedNonAdmin.some((entry) => entry.slug === "procurement")).toBe(true);
+  });
+
+  it("exposes configuration-reference to admins in advanced help only (TB-1329)", () => {
+    const advancedAdmin = listHelpCenterTopics({ showAdvanced: true, isAdmin: true }).map((entry) => entry.slug);
+
+    expect(advancedAdmin).toContain("configuration-reference");
+    expect(listHelpCenterTopics({ showAdvanced: false, isAdmin: true }).map((e) => e.slug)).not.toContain(
+      "configuration-reference",
+    );
   });
 
   it("never lists engineering troubleshooting in featured or non-admin help catalogs (TB-1247)", () => {

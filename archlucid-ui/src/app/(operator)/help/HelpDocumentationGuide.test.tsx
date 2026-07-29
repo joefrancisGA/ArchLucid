@@ -19,7 +19,6 @@ describe("HelpDocumentationGuide (TB-734)", () => {
     expect(screen.getByTestId("help-documentation-topic-grid")).toBeInTheDocument();
     expect(screen.getAllByTestId("help-center-documentation-badge").length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("help-topic-doc-reference-link").length).toBeGreaterThan(0);
-    expect(screen.getByTestId("help-documentation-topic-configuration-reference")).toBeInTheDocument();
   });
 
   it("exposes allowlisted internal technical documentation for admins (TB-1250)", () => {
@@ -27,5 +26,11 @@ describe("HelpDocumentationGuide (TB-734)", () => {
 
     expect(screen.getByTestId("help-documentation-topic-admin-diagnostics")).toBeInTheDocument();
     expect(screen.queryByTestId("help-documentation-topic-cli-usage")).not.toBeInTheDocument();
+  });
+
+  it("does not list Admin-gated configuration-reference on the Documentation tab (TB-1329)", () => {
+    render(<HelpDocumentationGuide />);
+
+    expect(screen.queryByTestId("help-documentation-topic-configuration-reference")).not.toBeInTheDocument();
   });
 });

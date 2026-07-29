@@ -63,7 +63,7 @@ const HELP_CENTER_TIER_BY_SLUG: Readonly<Record<string, HelpCenterTier>> = {
   "integration-readiness": "admin",
   procurement: "admin",
   "product-overview": "product",
-  "configuration-reference": "admin",
+  "configuration-reference": "internal",
   alerts: "admin",
   "specialty-walkthroughs": "admin",
   "first-hour-operator-path": "product",

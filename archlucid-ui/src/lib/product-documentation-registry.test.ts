@@ -205,7 +205,7 @@ describe("product-documentation-registry", () => {
     }
   });
 
-  it("tags internal-runbook slugs with internal-runbook contentKind (TB-732 / TB-1250)", () => {
+  it("tags internal-runbook slugs with internal-runbook contentKind (TB-732 / TB-1250 / TB-1329)", () => {
     const internalRunbookSlugs = [
       "first-value-20-minutes",
       "first-review",
@@ -214,6 +214,7 @@ describe("product-documentation-registry", () => {
       "developer-troubleshooting",
       "cli-usage",
       "governance-api-contracts",
+      "configuration-reference",
     ] as const;
 
     for (const slug of internalRunbookSlugs) {
@@ -223,7 +224,7 @@ describe("product-documentation-registry", () => {
   });
 
   it("tags technical-documentation slugs per IA foundation (TB-732 / TB-1250)", () => {
-    const technicalSlugs: readonly string[] = ["configuration-reference", "admin-diagnostics"];
+    const technicalSlugs: readonly string[] = ["admin-diagnostics"];
 
     for (const slug of technicalSlugs) {
       const kind: ProductDocumentationContentKind | undefined =
