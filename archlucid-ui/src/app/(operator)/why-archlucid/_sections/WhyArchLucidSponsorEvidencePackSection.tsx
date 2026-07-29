@@ -1,16 +1,18 @@
 import { cn } from "@/lib/utils";
-import { BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE } from "@/lib/buyer-polish-copy";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import type { WhyArchLucidDemoUniverse } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-demo-universe";
+import { whyArchLucidSponsorPackSourceLine } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-demo-universe";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidSponsorPackBody } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorPackBody";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type WhyArchLucidSponsorEvidencePackSectionProps = {
   readonly state: WhyArchLucidPageState;
+  readonly universe: WhyArchLucidDemoUniverse;
 };
 
 export function WhyArchLucidSponsorEvidencePackSection(props: WhyArchLucidSponsorEvidencePackSectionProps) {
-  const { state } = props;
+  const { state, universe } = props;
 
   const pct = (ratio: number) => (Number.isFinite(ratio) ? `${(ratio * 100).toFixed(1)}%` : "0%");
 
@@ -24,8 +26,8 @@ export function WhyArchLucidSponsorEvidencePackSection(props: WhyArchLucidSponso
         <h2 id="why-archlucid-sponsor-pack-heading" className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           Sponsor KPI evidence pack
         </h2>
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE}
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="why-archlucid-sponsor-pack-source">
+          {whyArchLucidSponsorPackSourceLine(universe)}
         </p>
       </div>
 

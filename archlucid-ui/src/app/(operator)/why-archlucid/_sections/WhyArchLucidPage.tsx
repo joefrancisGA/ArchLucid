@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   getFirstValueReportMarkdown,
@@ -9,6 +9,7 @@ import {
   getTenantMeasuredRoi,
   type WhyArchLucidSnapshot,
 } from "@/lib/api";
+import { resolveWhyArchLucidDemoUniverse } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-demo-universe";
 import { toSectionError } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
 import {
   initialWhyArchLucidPageState,
@@ -25,7 +26,7 @@ import { WhyArchLucidSponsorEvidencePackSection } from "@/app/(operator)/why-arc
 
 /**
  * Read-only "Why ArchLucid" proof page (Core Pilot tier, no `requiredAuthority`).
- * Wires the seeded Contoso Retail demo run to live read endpoints.
+ * Wires the seeded Contoso Retail demo run to live read endpoints; chrome follows payload universe (TB-1306).
  */
 export function WhyArchLucidPage() {
   const [state, setState] = useState<WhyArchLucidPageState>(initialWhyArchLucidPageState);
@@ -112,18 +113,33 @@ export function WhyArchLucidPage() {
     };
   }, []);
 
+  const payloadUniverse = useMemo(() => {
+    const demoRunId = state.snapshot?.demoRunId ?? state.sponsorPack?.demoRunId ?? null;
+    const citationLabels = (state.explanation?.citations ?? []).map((citation) => citation.label ?? "");
+    const contosoDemoWatermark = state.sponsorPack?.demoRunValueReportDelta?.isDemoTenant === true;
+
+    return resolveWhyArchLucidDemoUniverse({
+      demoRunId,
+      citationLabels,
+      contosoDemoWatermark,
+    });
+  }, [state.explanation?.citations, state.snapshot?.demoRunId, state.sponsorPack]);
+
+  // Chrome follows the payload universe (Contoso-labeled-live Option B). Unknown fails closed after load (TB-1306).
+  const failClosed = !state.loading && payloadUniverse === "unknown";
+
   return (
     <div
       className="w-full max-w-[1200px] space-y-8 p-4"
       data-testid="why-archlucid-page"
       aria-busy={state.loading}
     >
-      <WhyArchLucidPageHeader />
+      <WhyArchLucidPageHeader universe={payloadUniverse} failClosed={failClosed} />
 
       <WhyArchLucidSnapshotSection state={state} />
-      <WhyArchLucidSponsorEvidencePackSection state={state} />
+      <WhyArchLucidSponsorEvidencePackSection state={state} universe={payloadUniverse} />
       <WhyArchLucidMeasuredContextSection state={state} />
-      <WhyArchLucidFirstValueReportSection state={state} />
+      <WhyArchLucidFirstValueReportSection state={state} universe={payloadUniverse} />
       <WhyArchLucidRunExplanationSection state={state} />
 
       <WhyArchLucidPageFooter />

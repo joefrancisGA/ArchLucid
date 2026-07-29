@@ -141,6 +141,69 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
+  it("labels Contoso seed chrome without Claims Intake (TB-1306)", async () => {
+    measuredRoiMock.mockResolvedValue(fixedMeasuredRoi);
+    sponsorPackMock.mockResolvedValue(fixedSponsorEvidencePack);
+    reportMock.mockResolvedValue(fixedReport);
+    explanationMock.mockResolvedValue(fixedExplanation);
+
+    render(<WhyArchLucidPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("why-archlucid-universe-banner")).toHaveAttribute(
+        "data-why-archlucid-universe",
+        "contoso",
+      );
+    });
+
+    expect(screen.getByTestId("why-archlucid-universe-banner")).toHaveAttribute(
+      "data-why-archlucid-universe-fail-closed",
+      "false",
+    );
+    expect(screen.getByTestId("why-archlucid-universe-banner-title")).toHaveTextContent(/Contoso Retail/i);
+    expect(screen.getByTestId("why-archlucid-universe-lead")).toHaveTextContent(/Contoso Retail/i);
+    expect(screen.getByTestId("why-archlucid-universe-lead")).not.toHaveTextContent(/Claims Intake/i);
+    expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).toHaveTextContent(/Contoso Retail/i);
+    expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).not.toHaveTextContent(/Claims Intake/i);
+  });
+
+  it("fails closed when Claims and Contoso signals collide (TB-1306)", async () => {
+    measuredRoiMock.mockResolvedValue({
+      ...fixedMeasuredRoi,
+      snapshot: {
+        ...fixedSnapshot,
+        demoRunId: "claims-intake-modernization",
+      },
+    });
+    sponsorPackMock.mockResolvedValue({
+      ...fixedSponsorEvidencePack,
+      demoRunId: "claims-intake-modernization",
+      demoRunValueReportDelta: {
+        ...fixedSponsorEvidencePack.demoRunValueReportDelta!,
+        isDemoTenant: true,
+      },
+    });
+    reportMock.mockResolvedValue(fixedReport);
+    explanationMock.mockResolvedValue(fixedExplanation);
+
+    render(<WhyArchLucidPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("why-archlucid-universe-banner")).toHaveAttribute(
+        "data-why-archlucid-universe",
+        "unknown",
+      );
+    });
+
+    expect(screen.getByTestId("why-archlucid-universe-banner")).toHaveAttribute(
+      "data-why-archlucid-universe-fail-closed",
+      "true",
+    );
+    expect(screen.getByTestId("why-archlucid-universe-lead")).not.toHaveTextContent(/Claims Intake/i);
+    expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).not.toHaveTextContent(/Claims Intake/i);
+    expect(screen.getByTestId("why-archlucid-sponsor-pack-source")).not.toHaveTextContent(/Contoso Retail/i);
+  });
+
   it("shows API-problem callouts when downstream calls fail", async () => {
     measuredRoiMock.mockRejectedValue(new Error("snapshot failed"));
     sponsorPackMock.mockRejectedValue(new Error("pack failed"));
