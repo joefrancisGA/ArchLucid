@@ -27,8 +27,9 @@ export const OPERATOR_SECURITY_TRUST_NDA_INTRO =
 
 export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_TITLE = "Tenant isolation model";
 
+/** Soft isolation claims (TB-1284 / TB-1122 safe-to-claim) — no absolute “no cross-tenant path anywhere.” */
 export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_BODY =
-  "Each workspace is bound to a dedicated database catalog. API requests carry a tenant scope header that the data layer enforces on every query. There is no cross-tenant data path in the standard operating model.";
+  "Each workspace is bound to a dedicated database catalog. Tenant identity is decided once at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries. That is the standard customer path — not a claim that every staff or platform surface is free of cross-tenant aggregation. For questionnaire detail, use the CAIQ / SIG response and Trust Center isolation materials.";
 
 /** In-app CAIQ doc — references tenant isolation evidence for procurement reviewers. */
 export const OPERATOR_SECURITY_TRUST_TENANT_ISOLATION_DETAIL_HREF = resolveInAppDocHref(

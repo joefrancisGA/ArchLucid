@@ -20,14 +20,18 @@ describe("OperatorSecurityTrustPageView", () => {
     expect(textContainsGitHubBlobOrTreeUrl(document.body.textContent ?? "")).toBe(false);
   });
 
-  it("renders tenant isolation model with CAIQ technical detail link", () => {
+  it("renders soft tenant isolation copy without absolute no-cross-tenant claim (TB-1284)", () => {
     render(<OperatorSecurityTrustPageView />);
 
     expect(screen.getByRole("heading", { name: "Tenant isolation model" })).toBeInTheDocument();
     expect(screen.getByText(/dedicated database catalog/i)).toBeInTheDocument();
-    expect(screen.getByText(/no cross-tenant data path/i)).toBeInTheDocument();
-    const isolationSection = screen.getByLabelText("Tenant isolation model");
+    expect(screen.getByText(/tenant scope that the data layer enforces/i)).toBeInTheDocument();
+    expect(screen.getByText(/standard customer path/i)).toBeInTheDocument();
 
+    const isolationSection = screen.getByLabelText("Tenant isolation model");
+    const visible = (isolationSection.textContent ?? "").toLowerCase();
+
+    expect(visible).not.toContain("no cross-tenant data path");
     expect(within(isolationSection).getByRole("link", { name: /CAIQ \/ SIG response/i })).toHaveAttribute(
       "href",
       "/help/caiq-sig-response",
