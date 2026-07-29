@@ -912,7 +912,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1217 | ~~AI usage — suppress zero-usage KPI/budget/filter theater~~ **Done** 2026-07-28 | Trustworthiness P0 **V1** — with **TB-1216**; cf. **TB-1037** |
 | TB-1218 | AI usage — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1216**; parity **TB-1184** |
 | TB-1219 | AI usage — dedupe Edit budget / budget-control CTAs | Adoption friction P1 **V1** — with **TB-1216** |
-| TB-1220 | AI usage — hide Highest-cost project when no usage | Trustworthiness P0 **V1** — with **TB-1217** |
+| TB-1220 | ~~AI usage — hide Highest-cost project when no usage~~ **Done** 2026-07-28 | Trustworthiness P0 **V1** — with **TB-1217** |
 | TB-1223 | Security & trust — Administration vs Settings wayfinding (breadcrumb / URL honesty) | Adoption friction P1 **V1** — owner `/settings/security-trust` ~53/100; TB-404; with **TB-1216** |
 | TB-1224 | Security & trust — collapse triple intro into one hero | Adoption friction P1 **V1** — with **TB-1223** |
 | TB-1225 | Security & trust — PageHeading icon + PageContextualHelpButton | Adoption friction P1 **V1** — with **TB-1224**; parity **TB-1184** |
