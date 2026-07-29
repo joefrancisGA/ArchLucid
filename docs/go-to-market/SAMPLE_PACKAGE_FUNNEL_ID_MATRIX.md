@@ -1,11 +1,11 @@
 > **Reviewed:** 2026-07-29
 >
-> **Scope:** GTM **M-134** — honest co-primary sample-package map (surface → package → IDs). Internal GTM/ops; not a buyer brochure. Funnel IA (**M-107** Option A) recorded in §1a; Option D ratification remains **M-133**.
+> **Scope:** GTM **M-134** — honest co-primary sample-package map (surface → package → IDs). Internal GTM/ops; not a buyer brochure. Funnel IA (**M-107** Option A) in §1a; Option D ratification (**M-133**) in §1b.
 
 # Sample-package funnel ID matrix (M-134)
 
 **Last reviewed:** 2026-07-29  
-**Status:** Shipped as **honest co-primary** documentation (two buyer-facing packages + one SE-only package). **M-107 Option A Done** — canonical anonymous proof = **P-CLAIMS** showcase. Full single-universe / Enterprise Customer Intake rename waits on **M-133** + engineering **TB-979**–**TB-981**.  
+**Status:** Shipped as **honest co-primary** documentation (two buyer-facing packages + one SE-only package). **M-107** + **M-133** Done — cold funnel stays **P-CLAIMS** until **TB-981**; long-term primary name = Enterprise Customer Intake. Package authoring / default flip: **TB-979**–**TB-981**.  
 **PA Q21 minimum:** `/see-it` Claims-static (Option A) — Contoso/unknown live payloads fall back to Claims snapshot; never Contoso under Healthcare Claims chrome. Owned with **M-178** / **TB-1028**. **Northwind** stays **off primary funnel**.
 
 ---
@@ -19,23 +19,37 @@
 | `/see-it` body source | Prefer Claims live only; Contoso or unknown → checked-in Claims snapshot |
 | Contoso `/demo/preview` | **Secondary** Product Tour / self-demo only (Contoso-labeled) |
 | Get-started vertical samples + Why Verify demo links | All → Claims showcase |
-| Still open | **M-133** Option D (Enterprise Customer Intake as long-term primary name) |
+| Still open (execution) | **TB-980** (author Enterprise package) · **TB-981** (default flip) · **M-135** (naming hierarchy) |
 
 Constant in UI: `CANONICAL_ANONYMOUS_PROOF_HREF` in `archlucid-ui/src/lib/showcase-static-demo.ts`.
 
 ---
 
+## 1b. M-133 owner decision (2026-07-29) — Option D ratified
+
+| Pin | Value |
+|-----|--------|
+| Long-term primary scenario | **Enterprise Customer Intake Modernization** |
+| Secondary regulated-depth | **Healthcare Claims Intake Modernization** |
+| Contoso / Northwind in primary one-sentence or primary CTA org chrome | **Forbidden** |
+| Until **TB-981** | Cold funnel + routes stay on Claims spine (**M-107**); this ratification is naming/portfolio intent only |
+
+Full owner note: [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) § Owner ratification — showcase Option D. Assessment: [`showcase_scenario_strategy_assessment_2026_07_23.md`](../architecture/showcase_scenario_strategy_assessment_2026_07_23.md) §17–§19.
+
+**PA one-sentence:** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export.
+
+---
+
 ## 1. Verdict (what “aligned” means today)
 
-Marketing, trial, showcase, and SQL seeds are **not** one fictional universe. Treat them as **three named packages** and never mix labels across packages on the same page or CTA. Cold funnel proof CTAs use **P-CLAIMS** only (§1a).
+Marketing, trial, showcase, and SQL seeds are **not** one fictional universe. Treat them as **three named packages** and never mix labels across packages on the same page or CTA. Cold funnel proof CTAs use **P-CLAIMS** only (§1a). Long-term primary *name* is Enterprise Customer Intake (§1b) — package not authored yet (**TB-980**).
 
 | Package ID (internal) | Buyer-facing scenario name | Storyline / synthetic orgs | Primary use |
 |-----------------------|----------------------------|----------------------------|-------------|
-| **P-CLAIMS** | Healthcare Claims Intake Modernization | Static showcase / UI fixtures (`claims-intake-modernization`) | Public showcase, `/try`, Tier-1 UI routes, frictionless marketing |
+| **P-CLAIMS** | Healthcare Claims Intake Modernization | Static showcase / UI fixtures (`claims-intake-modernization`) | Public showcase, `/try`, Tier-1 UI routes, frictionless marketing (**current** cold funnel) |
+| **P-ENTERPRISE-INTAKE** (planned) | Enterprise Customer Intake Modernization | TBD sample-definition (**TB-979**/**TB-980**) | **Long-term primary** after **TB-981** flip — not a live route yet |
 | **P-PRODUCT-TOUR** | Product Tour / self-demo (Workspace A) | Contoso Cloud Platform · Northwind Architects (fabricated) | Welcome **Try the self-demo**, `NEXT_PUBLIC_SELF_DEMO_URL`, preferred `trialSampleRunId` |
 | **P-REGULATED** | Alpine AI governance (Workspace B) | Meridian Advisory Group · Alpine Health | Regulated wedge demos, AI-gov / security-baseline seed engines |
-
-**Long-term portfolio intent (pending M-133):** primary buyer sentence → **Enterprise Customer Intake Modernization**; Claims retained as secondary regulated-depth example; Contoso/Northwind **never** in primary CTA one-sentence. Until that ships, creatives must name the package they actually open.
 
 ---
 
@@ -86,7 +100,7 @@ Pinned Workspace A/B GUID table (CI): [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md)
 | Residual | Owner |
 |----------|--------|
 | Canonical anonymous proof path (showcase vs `/see-it` vs `/demo/preview`) | **M-107** **Done** — Option A (§1a) |
-| Option D primary scenario sentence (Enterprise Customer Intake) | **M-133** |
+| Option D primary scenario sentence (Enterprise Customer Intake) | **M-133** **Done** — §1b; execution **TB-980**/**TB-981** |
 | Sample-definition package engineering / default flip | **TB-979**–**TB-981** |
 | Naming hierarchy + safe/toxic org matrix prose | **M-135** |
 | Screenshots / video on ratified creatives | **M-108** / **M-07** / **M-16** |
@@ -98,4 +112,5 @@ Pinned Workspace A/B GUID table (CI): [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md)
 - [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md) · [`DEMO_QUICKSTART.md`](DEMO_QUICKSTART.md)  
 - [`MARKETING_STATIC_VS_LIVE_DEMO_BOUNDARY_PA_ONE_PAGER.md`](MARKETING_STATIC_VS_LIVE_DEMO_BOUNDARY_PA_ONE_PAGER.md) (**M-179**)  
 - [`LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.md`](LIVE_DEMO_SEE_IT_LADDER_PA_ONE_PAGER.md) (**M-260**)  
-- [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — **M-134**, **M-107**
+- [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — **M-134**, **M-107**, **M-133**  
+- [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) — Option D owner note

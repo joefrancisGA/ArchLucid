@@ -11,7 +11,8 @@ Give **marketing visitors** a **read-only** view of what the operator **commit p
 
 ## Why it exists
 
-- **Buyer outcome:** a sponsor can follow **`/welcome` → “See a real commit page” → `/demo/preview`** and see a credible, live-shaped page instead of a static screenshot.
+- **Buyer outcome:** Contoso **`/demo/preview`** remains a secondary Product Tour surface; the **canonical anonymous proof** path is Claims showcase (**M-107** Option A) — welcome → `/see-it` → `/showcase/claims-intake-modernization`.
+
 - **Anchored in real services:** the payload is assembled server-side under the hard-pinned demo scope (same pattern as **`GET /v1/demo/explain`**).
 - **Cheap under spikes:** marketing links can go viral; the route is **cached** so repeat views do not hammer SQL.
 
@@ -64,3 +65,22 @@ Curated slug **`claims-intake-modernization`** is **static-first**: the UI serve
 **Deploy posture:** set **`SHOWCASE_STATIC_ONLY=1`** (or **`NEXT_PUBLIC_SHOWCASE_STATIC_ONLY=1`**) when production intentionally serves showcase pages from bundled static JSON only — the UI skips all upstream showcase fetches (same effect as leaving `ARCHLUCID_API_BASE_URL` unset for showcase resolution). Live Contoso GUID slugs still use the marketing API when a base URL is configured and static-only is off.
 
 **E2E:** `archlucid-ui/e2e/showcase-static-first.spec.ts` asserts API **404** + static slug still renders body; `live-api-marketing-showcase.spec.ts` covers live Contoso baseline when demo seed + `IsPublicShowcase` are present.
+
+## Owner ratification — showcase Option D (M-133, 2026-07-29)
+
+**Decision:** Adopt assessment **Option D** (weighted winner) as the long-term showcase portfolio posture.
+
+| Pin | Value |
+|-----|--------|
+| Long-term **primary** buyer-facing sample | **Enterprise Customer Intake Modernization** |
+| **Secondary** regulated-depth example | **Healthcare Claims Intake Modernization** |
+| Buyer-facing showcase organization | **None** — Contoso and Northwind must **not** appear as the customer/org in primary CTA chrome or the primary one-sentence |
+| Controlled-beta / current cold funnel | Stay on the Claims spine until engineering **TB-981** (default flip) — see **M-107** Option A + [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](../go-to-market/SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) |
+
+**PA one-sentence (pin):** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export.
+
+**Never in that sentence:** Contoso, Northwind.
+
+**Does not authorize:** rename-in-place of routes/slugs/SQL seeds, deleting Contoso Product Tour internals, or flipping get-started/SEO defaults before **TB-980**/**TB-981**. Authoring the Enterprise Customer Intake package is **TB-980**; naming hierarchy / toxic-org matrix prose is **M-135**.
+
+Assessment source: [`showcase_scenario_strategy_assessment_2026_07_23.md`](../architecture/showcase_scenario_strategy_assessment_2026_07_23.md) §17–§19.

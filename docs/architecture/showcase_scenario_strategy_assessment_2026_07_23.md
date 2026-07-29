@@ -3,7 +3,9 @@
 > **Assessment date:** 2026-07-23
 > **Method:** Repository-wide evidence review (UI routes and static demo payloads, backend seed services, policy packs, tests, docs, GTM backlog). No live production click-through and no buyer interviews were performed; unproven items are labeled explicitly.
 >
-> **Related:** [`showcase_claims_intake_modernization_assessment_2026_07_19.md`](showcase_claims_intake_modernization_assessment_2026_07_19.md) · [`ui_routes.md`](ui_routes.md) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`POSITIONING.md`](../go-to-market/POSITIONING.md) · [`BUYER_PERSONAS.md`](../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) · [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) (**M-107**, **M-108**, **M-133**–**M-137**) · [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (**TB-887**–**TB-891**, **TB-978**–**TB-982**)>>>>>>> origin/RC16
+> **Related:** [`showcase_claims_intake_modernization_assessment_2026_07_19.md`](showcase_claims_intake_modernization_assessment_2026_07_19.md) · [`ui_routes.md`](ui_routes.md) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) · [`POSITIONING.md`](../go-to-market/POSITIONING.md) · [`BUYER_PERSONAS.md`](../go-to-market/BUYER_PERSONAS.md#ideal-customer-profile-icp) · [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) (**M-107**, **M-108**, **M-133**–**M-137**) · [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (**TB-887**–**TB-891**, **TB-978**–**TB-982**)
+>
+> **Owner ratification (2026-07-29):** **M-107** Option A Done; **M-133** Option D ratified — see [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) § Owner ratification — showcase Option D. Does **not** authorize rename-in-place; execution remains **TB-979**–**TB-981** / **M-135**.
 
 # Showcase scenario strategy assessment (2026-07-23)
 
@@ -17,7 +19,7 @@
 2. **Contoso Retail Modernization** ΓÇö the backend SQL demo-seed family that actually powers the live marketing API (`/v1/marketing/showcase/contoso-*`), `/demo/preview`, and **trial onboarding** (`TRIAL_ONBOARDING_SAMPLE_RUN_ID` is the Contoso baseline GUID, not the Claims slug).
 3. **Northwind Copilot RAG Platform** ΓÇö the "created package" sample (TB-742), which already demonstrates architecture *creation* and AI governance.
 
-Today `/see-it` banners "Healthcare claims sample" while its backing API (`GET /v1/demo/preview`) is documented as serving **Contoso Retail** data, and `/demo/preview` titles the sample "Claims Intake Modernization" over the same Contoso path. A prospect who reads carefully sees two different fictional universes on one funnel. The open owner decision **M-107** exists precisely to fix this.
+At assessment time `/see-it` banners "Healthcare claims sample" while its backing API (`GET /v1/demo/preview`) served **Contoso Retail** data — dual-universe risk. **Post-assessment (2026-07-29):** **M-107** Option A ships Claims-static fail-closed on welcome→`/see-it`→showcase; Contoso `/demo/preview` is secondary Product Tour only.
 
 **Weighted recommendation (details ┬º17ΓÇô┬º19):**
 
@@ -397,9 +399,9 @@ Sufficient evidence to flip the default: (a) TB-891 scenario-tagged funnel data 
 
 | P | Item | Canonical ID | Depends on |
 |---|---|---|---|
-| P0 | Owner IA ΓÇö canonical public proof funnel | **M-107** (already open) | ΓÇö |
-| P0 | Owner ratify Option D (generic primary + healthcare secondary; no Contoso) | **M-133** | ΓÇö |
-| P0 | `/see-it` + `/demo/preview` label/data alignment | **M-134** | M-107, M-133 |
+| P0 | Owner IA ΓÇö canonical public proof funnel | **M-107** (**Done** 2026-07-29 — Option A) | ΓÇö |
+| P0 | Owner ratify Option D (generic primary + healthcare secondary; no Contoso) | **M-133** (**Done** 2026-07-29) | ΓÇö |
+| P0 | `/see-it` + `/demo/preview` label/data alignment | **M-134** (**Done** — honest co-primary matrix) | M-107, M-133 |
 | P1 | Showcase scenario telemetry (`scenario` + funnel) | **TB-978** (extends **TB-891**) | ΓÇö |
 | P1 | Sample-definition extraction refactor | **TB-979** | TB-978 preferred |
 | P1 | Naming hierarchy + Contoso/Northwind buyer-org ban | **M-135** | M-133 |

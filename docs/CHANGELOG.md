@@ -9,9 +9,13 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-07-29 — GTM: **M-133** Option D — Enterprise Customer Intake long-term primary (ratified)
+
+Owner note in [`DEMO_PREVIEW.md`](library/DEMO_PREVIEW.md): primary buyer sample name = Enterprise Customer Intake Modernization; Claims secondary; Contoso/Northwind forbidden in primary one-sentence. No rename-in-place; authoring/default flip stay **TB-980**/**TB-981**. Matrix §1b.
+
 ## 2026-07-29 — GTM: **M-107** Option A — Claims-static canonical anonymous proof funnel
 
-Owner decision: primary cold proof = `/showcase/claims-intake-modernization`; welcome→`/see-it`→CTA + get-started + Why Verify use Claims (Contoso `/demo/preview` secondary). Matrix §1a + marketing UI alignment. Option D rename remains **M-133**.
+Owner decision: primary cold proof = `/showcase/claims-intake-modernization`; welcome→`/see-it`→CTA + get-started + Why Verify use Claims (Contoso `/demo/preview` secondary). Matrix §1a + marketing UI alignment. Option D ratified separately as **M-133**.
 
 ## 2026-07-29 — GTM: **M-134** sample-package funnel ID matrix + **M-24** Upwork listing draft
 
