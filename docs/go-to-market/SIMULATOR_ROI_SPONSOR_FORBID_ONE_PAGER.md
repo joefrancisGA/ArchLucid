@@ -1,30 +1,11 @@
-> **Reviewed:** 2026-07-28
+> **Reviewed:** 2026-07-29
 
-> **Scope:** PA/sponsor handout for Simulator-derived ROI forbid + language ladder (GTM **M-139** / **TB-983**). PA Q13.
+> **Scope:** Path-stable alias for the Simulator-ROI sponsor forbid + language-ladder handout (GTM **M-139** / **TB-983**). Not an assurance attestation.
 
-# Simulator ROI — sponsor forbid + language ladder
+# Simulator ROI — sponsor forbid + language ladder (alias)
 
-**Audience:** Sponsors, PAs, marketers writing ROI copy.
+**Last reviewed:** 2026-07-29
 
-**Claim:** Never present Simulator/demo/HOLD dollars as **customer-realized savings**. Execution mode ≠ ROI source.
+**Canonical handout:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#simulator-roi-sponsor-forbid-m-139`](BUYER_SECURITY_PROCUREMENT_PACKET.md#simulator-roi-sponsor-forbid-m-139).
 
----
-
-## Language ladder
-
-| Source | Allowed phrase | Forbidden |
-| --- | --- | --- |
-| Simulator / demo / HOLD | “Illustrative estimate / not customer-realized” | “Saved $X” / “customer ROI” / “proven savings” |
-| Real + sponsor-safe baselines | “Estimated from tenant baselines” + source label | Unlabeled guaranteed $ |
-| External send | Requires Real + COMPLETE baselines per ROI send policy | Simulator-as-production savings |
-
----
-
-## Too strong vs safe
-
-| Too strong | Safe |
-| --- | --- |
-| Leading USD on forbidden postures | Suppress until **TB-984** / honesty CI **TB-985** |
-| “PDF and Email-to-sponsor always match” | Asymmetry until enforcement lands — disclose |
-
-**Cite:** Done **TB-239** · [`ROI_BASELINE_SEND_POLICY.md`](ROI_BASELINE_SEND_POLICY.md) · [`BUYER_SECURITY_PROCUREMENT_PACKET.md#execution-mode-honesty-m-128`](BUYER_SECURITY_PROCUREMENT_PACKET.md#execution-mode-honesty-m-128) (`EXECUTION_MODE_HONESTY_ONE_PAGER.md` alias).
+Language ladder, too-strong vs safe, and cite pins live only in the buyer security procurement packet. This file keeps the historical path stable for GTM **M-139** and [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
