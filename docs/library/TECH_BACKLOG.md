@@ -1,4 +1,4 @@
-**Updated:** 2026-07-28 (**TB-1153** **Done** — Azure Boards Connection status never pastes raw Database Query Failed / problem titles). Prior: 2026-07-28 (**TB-1152** **Done** — Azure Boards page load isolates slice failures via Promise.allSettled). Prior: 2026-07-28 (**TB-1142** **Done** — cloud platform-scope fail-closed without workspace + shared filter state). Prior: 2026-07-28 (**TB-1140** **Done** — remove stale GCP Preview maturity / detail preview copy). Prior: 2026-07-28 (**TB-2000**–**TB-2004** opened — operator form/helper breathing-room contract + Guided intake / Start review apply + Vitest + follow-up inventory; owner Start review cramped-text screenshot; see `## TB-2000`–`## TB-2004` below). Prior: 2026-07-28 (**TB-1994**–**TB-1999** opened — Overview duplicate Learn how / View workflow; inline metadata `Label: value` bold-label contract + buyer proof fix; see `## TB-1994`–`## TB-1999` below). Prior: 2026-07-28 (**TB-1139** **Done** — cloud platform-scope checkboxes hide cards or disable with workspace helper).
+**Updated:** 2026-07-28 (**TB-1162** **Done** — ServiceNow page load isolates slice failures via Promise.allSettled). Prior: 2026-07-28 (**TB-1153** **Done** — Azure Boards Connection status never pastes raw Database Query Failed / problem titles). Prior: 2026-07-28 (**TB-1152** **Done** — Azure Boards page load isolates slice failures via Promise.allSettled). Prior: 2026-07-28 (**TB-1142** **Done** — cloud platform-scope fail-closed without workspace + shared filter state). Prior: 2026-07-28 (**TB-1140** **Done** — remove stale GCP Preview maturity / detail preview copy). Prior: 2026-07-28 (**TB-2000**–**TB-2004** opened — operator form/helper breathing-room contract + Guided intake / Start review apply + Vitest + follow-up inventory; owner Start review cramped-text screenshot; see `## TB-2000`–`## TB-2004` below). Prior: 2026-07-28 (**TB-1994**–**TB-1999** opened — Overview duplicate Learn how / View workflow; inline metadata `Label: value` bold-label contract + buyer proof fix; see `## TB-1994`–`## TB-1999` below). Prior: 2026-07-28 (**TB-1139** **Done** — cloud platform-scope checkboxes hide cards or disable with workspace helper).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -781,7 +781,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1156 | Dual ManifestHash / GoldenManifestFingerprint + projection evolution failure-mode contract; see `## TB-1156` below | Trustworthiness P1 — **V1**; PA hasher Q; GTM **M-198**/**M-199** | S |
 | TB-1157 | Production ManifestHashService deliberate re-lock CI (no silent hasher subset ship); see `## TB-1157` below | Testability P1 — **V1**; after **TB-1156**; pairs **M-198** | M |
 | TB-1161 | ServiceNow not-configured dead end — guided admin CTA; see ## TB-1161 below | Adoption friction P1 — **V1**; owner `/integrations/servicenow` ~50/100 2026-07-25 | S |
-| TB-1162 | ServiceNow page load — isolate failures (no Promise.all wipe); see ## TB-1162 below | Reliability P0 — **V1**; with **TB-1161**; cf. **TB-1152** | S |
+| TB-1162 | ServiceNow page load — isolate failures (no Promise.all wipe) — **Done** (2026-07-28); see ## TB-1162 below | Reliability P0 — **V1**; with **TB-1161**; cf. **TB-1152** | S |
 | TB-1163 | ServiceNow — never show raw API/problem titles as connection status; see ## TB-1163 below | Trustworthiness P0 — **V1**; with **TB-1162**; cf. **TB-1153** | S |
 | TB-1164 | ServiceNow demote incident settings until credentials ready; see ## TB-1164 below | Adoption friction P1 — **V1**; with **TB-1161** | S |
 | TB-1165 | ServiceNow empty composition — setup progress drives primary story; see ## TB-1165 below | Adoption friction P1 — **V1**; with **TB-1161**/**TB-1164** | S |
@@ -28870,7 +28870,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Window:** V1 — Reliability.
 
-**Status:** Not started.
+**Status:** Done (2026-07-28) — `Promise.allSettled` + `buildServiceNowPageLoadResult`; successful connection/settings slices kept when another fails; Vitest unit + page-client guards.
 
 **Priority:** P0.
 

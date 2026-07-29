@@ -284,4 +284,26 @@ describe("ServiceNowIntegrationPageClient", () => {
 
     expect(await screen.findByTestId("servicenow-operator-notes")).toBeInTheDocument();
   });
+
+  it("keeps connection fields when settings load fails (TB-1162)", async () => {
+    mockFetchSettings.mockRejectedValue(new Error("Database Query Failed"));
+    mockFetchConnection.mockResolvedValue(
+      baseConnection({
+        isConfigured: true,
+        instanceBaseUrl: "https://example.service-now.com",
+        authMode: "BasicApiToken",
+      }),
+    );
+
+    render(<ServiceNowIntegrationPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("servicenow-instance-url")).toHaveTextContent("https://example.service-now.com");
+    });
+
+    expect(screen.getByTestId("servicenow-credential-status")).toBeInTheDocument();
+    expect(screen.getByTestId("servicenow-page-load-error")).toHaveTextContent("Database Query Failed");
+    expect(screen.getByTestId("servicenow-connection-status")).not.toHaveTextContent(/Database Query Failed/i);
+    expect(screen.getByRole("button", { name: SERVICENOW_SAVE_SETTINGS_BUTTON })).toBeDisabled();
+  });
 });

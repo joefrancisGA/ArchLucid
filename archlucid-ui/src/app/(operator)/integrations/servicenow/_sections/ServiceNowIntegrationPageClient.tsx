@@ -60,6 +60,7 @@ import {
   resolveServiceNowSetupSteps,
   sanitizeCustomerFacingProbeSummary,
 } from "@/lib/servicenow-integration-present";
+import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
 import { ITSM_CONNECTOR_SMOKE_HELP } from "@/lib/itsm-connectors-admin-scope";
 
 import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
@@ -89,6 +90,9 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
   const [connection, setConnection] = useState<TenantItsmConnectorConnectionResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [settingsLoadFailed, setSettingsLoadFailed] = useState(false);
+  const [healthLoadFailed, setHealthLoadFailed] = useState(false);
+  const [connectionLoadFailed, setConnectionLoadFailed] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [testError, setTestError] = useState<string | null>(null);
@@ -109,23 +113,37 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     setIsLoading(true);
     setLoadError(null);
 
-    try {
-      const [healthResponse, settingsResponse, connectionResponse] = await Promise.all([
-        fetchItsmIntegrationHealth(),
-        fetchTenantItsmOutboundSettings(),
-        fetchTenantItsmConnectorConnection("servicenow"),
-      ]);
-      setHealth(healthResponse);
-      applySettings(settingsResponse);
-      setConnection(connectionResponse);
-    } catch (error: unknown) {
-      setHealth(null);
-      applySettings(null);
-      setConnection(null);
-      setLoadError(error instanceof Error ? error.message : "Could not load ServiceNow configuration.");
-    } finally {
-      setIsLoading(false);
+    // Isolate slice failures so one 500 cannot wipe successful connection/settings (TB-1162).
+    const [healthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
+      fetchItsmIntegrationHealth(),
+      fetchTenantItsmOutboundSettings(),
+      fetchTenantItsmConnectorConnection("servicenow"),
+    ]);
+
+    const loaded = buildServiceNowPageLoadResult({
+      health: healthOutcome,
+      settings: settingsOutcome,
+      connection: connectionOutcome,
+    });
+
+    setHealthLoadFailed(loaded.health.failed);
+    setSettingsLoadFailed(loaded.settings.failed);
+    setConnectionLoadFailed(loaded.connection.failed);
+
+    if (!loaded.health.failed) {
+      setHealth(loaded.health.value);
     }
+
+    if (!loaded.settings.failed) {
+      applySettings(loaded.settings.value);
+    }
+
+    if (!loaded.connection.failed) {
+      setConnection(loaded.connection.value);
+    }
+
+    setLoadError(loaded.loadError);
+    setIsLoading(false);
   }, [applySettings]);
 
   useEffect(() => {
@@ -136,18 +154,24 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const nativeEnabled = settings?.nativeEnabled ?? health?.nativeEnabled ?? false;
   const credentialsReady = isServiceNowCredentialsReady(settings, connection, probe);
 
+  // Settings-only failures stay in the page banner; they must not blank Connection status (TB-1162).
+  const connectionStatusLoadError =
+    healthLoadFailed || connectionLoadFailed ? loadError : null;
+
   const connectionStatus = useMemo(
     () =>
       resolveServiceNowConnectionStatus({
         isLoading,
-        loadError,
+        loadError: connectionStatusLoadError,
         isTesting,
         nativeEnabled,
         credentialsReady,
         probe,
       }),
-    [credentialsReady, isLoading, isTesting, loadError, nativeEnabled, probe],
+    [connectionStatusLoadError, credentialsReady, isLoading, isTesting, nativeEnabled, probe],
   );
+
+  const incidentSettingsEditable = canMutate && !settingsLoadFailed && settings !== null;
 
   const testGate = useMemo(
     () =>
@@ -207,7 +231,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   }, [testGate.allowed]);
 
   const saveSettings = useCallback(async () => {
-    if (!canMutate) {
+    if (!canMutate || settingsLoadFailed || settings === null) {
       return;
     }
 
@@ -226,7 +250,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     } finally {
       setIsSaving(false);
     }
-  }, [applySettings, canMutate, snowAutoCmdb]);
+  }, [applySettings, canMutate, settings, settingsLoadFailed, snowAutoCmdb]);
 
   const instanceUrl = connection?.instanceBaseUrl?.trim() || SERVICENOW_INSTANCE_URL_NOT_SET;
   const authMethod = formatServiceNowAuthMethod(connection?.authMode);
@@ -256,6 +280,19 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
       ) : (
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:items-start">
           <div className="min-w-0 space-y-8">
+            {loadError !== null ? (
+              <p
+                className={cn(
+                  "m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
+                  OPERATOR_TYPOGRAPHY.helper,
+                )}
+                role="alert"
+                data-testid="servicenow-page-load-error"
+              >
+                {loadError}
+              </p>
+            ) : null}
+
             <section aria-labelledby="servicenow-status-heading" className="space-y-3" data-testid="servicenow-connection-status">
               <div className="flex flex-wrap items-center gap-3">
                 <h2 id="servicenow-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
@@ -343,7 +380,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
                     id="snow-auto-cmdb"
                     checked={snowAutoCmdb}
                     onCheckedChange={(checked) => setSnowAutoCmdb(checked === true)}
-                    disabled={isSaving || !canMutate}
+                    disabled={isSaving || !incidentSettingsEditable}
                     aria-describedby="snow-auto-cmdb-helper"
                   />
                   <div className="space-y-1">
@@ -355,12 +392,24 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
                 </div>
               </div>
 
+              {settingsLoadFailed ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+                  Incident creation settings could not be loaded. Reload the page before changing them.
+                </p>
+              ) : null}
+
               <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
                   onClick={() => void saveSettings()}
-                  disabled={isSaving || !canMutate}
-                  title={canMutate ? undefined : enterpriseMutationControlDisabledTitle}
+                  disabled={isSaving || !incidentSettingsEditable}
+                  title={
+                    !canMutate
+                      ? enterpriseMutationControlDisabledTitle
+                      : settingsLoadFailed || settings === null
+                        ? "Reload incident creation settings before saving."
+                        : undefined
+                  }
                 >
                   {isSaving ? SERVICENOW_SAVE_PENDING : SERVICENOW_SAVE_SETTINGS_BUTTON}
                 </Button>
