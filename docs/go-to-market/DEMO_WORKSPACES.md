@@ -10,6 +10,8 @@
 
 **Welcome hero (CTAs / Clarity / compliance):** [`DEMO_QUICKSTART.md#welcome-hero--ctas-analytics-and-compliance`](DEMO_QUICKSTART.md#welcome-hero--ctas-analytics-and-compliance).
 
+**Auto-seed (hosted GA):** When **`Demo:AnonymousViewer:Enabled = true`**, Contoso trusted-baseline seed runs on API startup via `DemoSeedStartupHostedService` — see [`DEMO_QUICKSTART.md#demo-workspaces`](DEMO_QUICKSTART.md#demo-workspaces).
+
 Workspace A/B narrative, scope triplets, living-fixture PR discipline, and marketing hero analytics live only in the demo quickstart. This file keeps the historical path stable for `Validate-DemoWorkspacesDoc.ps1` and smoke callers.
 
 ## Pinned fixture anchors (CI)

@@ -61,11 +61,16 @@ def _resolve_link(root: Path, source: Path, href: str) -> Path | None:
     if cleaned.startswith("http://") or cleaned.startswith("https://") or cleaned.startswith("#"):
         return None
 
-    if cleaned.startswith("/"):
-        candidate = root / cleaned.lstrip("/")
-        return candidate
+    # Markdown fragments (#anchor) are not part of the filesystem path.
+    path_part = cleaned.split("#", 1)[0].strip()
 
-    return (source.parent / cleaned).resolve()
+    if not path_part:
+        return None
+
+    if path_part.startswith("/"):
+        return root / path_part.lstrip("/")
+
+    return (source.parent / path_part).resolve()
 
 
 def _line_has_optional_marker(line: str) -> bool:
