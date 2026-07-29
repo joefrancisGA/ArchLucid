@@ -3,9 +3,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getArtifactBusinessLabel } from "@/lib/artifact-review-helpers";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { SeeItPreviewSource } from "./load-see-it-demo-preview";
+import { resolveSeeItDemoUniverse, seeItUniverseBannerTitle } from "./see-it-demo-universe";
 
 export type SeeItMarketingBodyProps = {
   source: SeeItPreviewSource;
@@ -36,12 +37,15 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
   const runExplanation = payload.runExplanation;
   const findingCountDisplay = formatCount(runExplanation?.findingCount);
   const complianceGapDisplay = formatCount(runExplanation?.complianceGapCount);
-  const rid = payload.run?.runId ?? "";
+  const universe = resolveSeeItDemoUniverse(payload);
+  const bannerTitle = seeItUniverseBannerTitle(universe);
+  const description = (payload.run?.description ?? "").trim();
+  // Review title follows the same fail-closed universe as the banner (TB-1279) — never Claims title on unknown/Contoso.
   const reviewTitle =
-    rid === SHOWCASE_STATIC_DEMO_RUN_ID
-      ? "Claims Intake Modernization Review"
-      : (payload.run?.description ?? "").trim().length > 0
-        ? String(payload.run?.description)
+    universe === "claims"
+      ? SHOWCASE_BUYER_REVIEW_TITLE
+      : description.length > 0
+        ? description
         : "Architecture review";
 
   const previewDisclosure =
@@ -54,9 +58,12 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
       <div
         role="status"
         data-testid="see-it-demo-banner"
+        data-see-it-universe={universe}
         className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
       >
-        <p className="font-semibold">Healthcare claims sample — public evaluation preview</p>
+        <p className="font-semibold" data-testid="see-it-demo-banner-title">
+          {bannerTitle}
+        </p>
         <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="see-it-preview-disclosure">
           {source === "snapshot" ? <span data-testid="see-it-snapshot-notice">{previewDisclosure}</span> : previewDisclosure}
           {" "}

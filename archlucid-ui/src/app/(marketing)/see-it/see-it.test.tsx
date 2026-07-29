@@ -3,8 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { createMinimalDemoPreviewPayload } from "./see-it.fixtures";
+import { resolveSeeItDemoUniverse, seeItUniverseBannerTitle } from "./see-it-demo-universe";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
 
 describe("loadSeeItDemoPreview", () => {
@@ -88,20 +91,74 @@ describe("loadSeeItDemoPreview", () => {
   });
 });
 
+describe("resolveSeeItDemoUniverse", () => {
+  it("classifies Claims showcase run id as claims", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    payload.run.description = "Claims Intake Modernization Review";
+
+    expect(resolveSeeItDemoUniverse(payload)).toBe("claims");
+    expect(seeItUniverseBannerTitle("claims")).toContain("Healthcare claims");
+  });
+
+  it("classifies Contoso Retail demo run id as contoso", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = "6e8c4a102b1f4c9a9d3e10b2a4f0c501";
+    payload.run.description = "Contoso Retail modernization — migrate monolith checkout.";
+
+    expect(resolveSeeItDemoUniverse(payload)).toBe("contoso");
+  });
+
+  it("fails closed to unknown when Claims and Contoso signals collide", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    payload.run.description = "Contoso Retail claims intake hybrid";
+
+    expect(resolveSeeItDemoUniverse(payload)).toBe("unknown");
+  });
+});
+
 describe("SeeItMarketingBody", () => {
-  it("renders live mode without snapshot notice", () => {
+  it("renders live mode without snapshot notice and fails closed when universe is unknown", () => {
     const payload = createMinimalDemoPreviewPayload();
 
     render(<SeeItMarketingBody source="live" payload={payload} />);
 
-    expect(screen.getByTestId("see-it-demo-banner")).toHaveTextContent(
-      "Healthcare claims sample — public evaluation preview",
-    );
+    expect(screen.getByTestId("see-it-demo-banner")).toHaveAttribute("data-see-it-universe", "unknown");
+    expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent("Public sample preview");
+    expect(screen.getByTestId("see-it-demo-banner-title")).not.toHaveTextContent(/Healthcare claims/i);
     expect(screen.queryByTestId("see-it-snapshot-notice")).toBeNull();
     expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("7 findings recorded · 2 monitored risks");
     expect(screen.getByTestId("see-it-proof-pack-download")).toHaveAttribute(
       "href",
       "/api/proxy/v1/marketing/why-archlucid-pack.pdf",
+    );
+  });
+
+  it("never shows Claims banner chrome over a Contoso payload (TB-1279)", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = "6e8c4a102b1f4c9a9d3e10b2a4f0c502";
+    payload.run.description = "Contoso Retail modernization — migrate monolith checkout to Azure.";
+
+    render(<SeeItMarketingBody source="live" payload={payload} />);
+
+    expect(screen.getByTestId("see-it-demo-banner")).toHaveAttribute("data-see-it-universe", "contoso");
+    expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent(
+      "Contoso Retail sample — public evaluation preview",
+    );
+    expect(screen.getByTestId("see-it-demo-banner-title")).not.toHaveTextContent(/Healthcare claims/i);
+  });
+
+  it("shows Claims banner only when payload is Claims universe", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    payload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    payload.run.description = "Claims Intake Modernization Review";
+
+    render(<SeeItMarketingBody source="live" payload={payload} />);
+
+    expect(screen.getByTestId("see-it-demo-banner")).toHaveAttribute("data-see-it-universe", "claims");
+    expect(screen.getByTestId("see-it-demo-banner-title")).toHaveTextContent(
+      "Healthcare claims sample — public evaluation preview",
     );
   });
 
