@@ -18,6 +18,7 @@ import {
   TEAMS_INTEGRATION_CONNECT_SECTION_TITLE,
   TEAMS_INTEGRATION_DEMO_CAPABILITY_DESCRIPTION,
   TEAMS_INTEGRATION_DESTINATION_NAME_HELPER,
+  TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER,
   TEAMS_INTEGRATION_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_PAGE_TITLE,
   TEAMS_INTEGRATION_SECRET_EXAMPLE,
@@ -124,6 +125,18 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                 <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {TEAMS_INTEGRATION_CONNECT_SECTION_LEAD}
                 </p>
+                {m.conn?.isConfigured !== true ? (
+                  <p
+                    className={cn(
+                      "m-0 mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
+                      OPERATOR_TYPOGRAPHY.helper,
+                    )}
+                    role="status"
+                    data-testid="teams-draft-not-saved"
+                  >
+                    {TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER}
+                  </p>
+                ) : null}
               </div>
 
               <div className="grid max-w-xl gap-5">
@@ -137,6 +150,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                     disabled={!m.canMutate || m.saving}
                     autoComplete="off"
                     placeholder="teams-governance-alerts-prod"
+                    className="placeholder:text-al-text-secondary/70"
                     aria-describedby="kv-secret-helper kv-secret-example kv-secret-error"
                   />
                   <p id="kv-secret-helper" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -162,6 +176,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                     disabled={!m.canMutate || m.saving}
                     autoComplete="off"
                     placeholder="Architecture governance"
+                    className="placeholder:text-al-text-secondary/70"
                     aria-describedby="teams-destination-name-helper"
                   />
                   <p id="teams-destination-name-helper" className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

@@ -8,6 +8,10 @@ export const TEAMS_INTEGRATION_SECURITY_NOTE =
 
 export const TEAMS_INTEGRATION_CONNECT_SECTION_TITLE = "Connect a Teams channel";
 
+/** Shown when no saved connection exists so draft/defaults are not mistaken for active config (TB-1175). */
+export const TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER =
+  "Draft — not saved. Example placeholders and recommended notifications are suggestions until you save a connection.";
+
 export const TEAMS_INTEGRATION_CONNECT_SECTION_LEAD =
   "Reference the secret that contains your Teams incoming webhook URL, then choose which notifications to send.";
 

@@ -28,11 +28,13 @@ vi.mock("@/lib/toast", () => ({
 
 import { TeamsNotificationsIntegrationPageClient } from "@/app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageClient";
 import {
+  TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER,
   TEAMS_INTEGRATION_PAGE_SUBTITLE,
   TEAMS_INTEGRATION_PAGE_TITLE,
   TEAMS_INTEGRATION_SECRET_NAME_LABEL,
   TEAMS_INTEGRATION_SECRET_NAME_NOT_URL_MESSAGE,
 } from "@/lib/teams-integration-page-copy";
+import { TEAMS_RECOMMENDED_EVENT_TYPES } from "@/lib/teams-integration-notification-catalog";
 
 const CATALOG = [
   "com.archlucid.authority.run.completed",
@@ -91,6 +93,29 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(screen.getByRole("heading", { level: 1, name: TEAMS_INTEGRATION_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(TEAMS_INTEGRATION_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(await screen.findByTestId("teams-connection-status")).toHaveTextContent("Not configured");
+  });
+
+  it("does not pre-check recommended triggers when not configured (TB-1175)", async () => {
+    render(
+      <TeamsNotificationsIntegrationPageClient
+        loaded={{ mode: "live", conn: null, catalog: CATALOG, failure: null }}
+      />,
+    );
+
+    expect(await screen.findByTestId("teams-draft-not-saved")).toHaveTextContent(
+      TEAMS_INTEGRATION_DRAFT_NOT_SAVED_HELPER,
+    );
+
+    const secretInput = screen.getByLabelText(TEAMS_INTEGRATION_SECRET_NAME_LABEL);
+    expect(secretInput).toHaveValue("");
+    expect(secretInput).toHaveAttribute("placeholder", "teams-governance-alerts-prod");
+
+    for (const eventType of TEAMS_RECOMMENDED_EVENT_TYPES) {
+      const checkboxId = `teams-trigger-${eventType.replace(/\./g, "-")}`;
+      const checkbox = document.getElementById(checkboxId);
+      expect(checkbox).not.toBeNull();
+      expect(checkbox).not.toBeChecked();
+    }
   });
 
   it("does not expose internal architecture terminology", async () => {

@@ -47,10 +47,11 @@ function seedFormFields(
   catalog: string[],
 ): { secretName: string; label: string; enabledTriggers: Set<string> } {
   if (connection === null || !connection.isConfigured) {
+    // Leave triggers unchecked until the operator picks Select recommended / Save (TB-1175).
     return {
       secretName: connection?.keyVaultSecretName ?? "",
       label: connection?.label ?? "",
-      enabledTriggers: new Set(TEAMS_RECOMMENDED_EVENT_TYPES),
+      enabledTriggers: new Set(),
     };
   }
 
@@ -129,7 +130,9 @@ export function useTeamsNotificationsIntegrationPage(
       setSecretName(data.keyVaultSecretName ?? "");
       setLabel(data.label ?? "");
       setCatalog(triggers);
-      setEnabledTriggers(new Set(data.isConfigured ? data.enabledTriggers ?? triggers : TEAMS_RECOMMENDED_EVENT_TYPES));
+      setEnabledTriggers(
+        new Set(data.isConfigured ? (data.enabledTriggers ?? triggers) : []),
+      );
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
@@ -308,7 +311,7 @@ export function useTeamsNotificationsIntegrationPage(
       setConn(null);
       setSecretName("");
       setLabel("");
-      setEnabledTriggers(new Set(TEAMS_RECOMMENDED_EVENT_TYPES));
+      setEnabledTriggers(new Set());
       setSecretValidation(null);
       setTestMessage(null);
       setTestKind(null);

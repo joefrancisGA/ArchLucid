@@ -136,8 +136,8 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
                             <span className="flex flex-wrap items-center gap-2">
                               <span className="font-medium text-al-text-primary">{item.label}</span>
                               {item.recommended === true ? (
-                                <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-900 dark:bg-teal-950 dark:text-teal-100">
-                                  Recommended
+                                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+                                  Suggested
                                 </span>
                               ) : null}
                             </span>
