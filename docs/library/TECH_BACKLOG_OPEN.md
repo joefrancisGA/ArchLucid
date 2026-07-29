@@ -41,7 +41,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Users invitations tab (`/settings/users?tab=users`) | **TB-1936**–**TB-1940** (open **V1**) | URL sync; execute **TB-1214**; principals purge; density; Vitest; ~46/100; traffic **SSU**; pairs **TB-1210**–**TB-1215**; sibling **SEU** |
 | Signed review records (`/signed-records`) | **TB-1941**–**TB-1945** (open **V1**) | Traffic section; empty projectId; href honesty; CTA/pagination/enrich; Vitest; ~50/100; traffic **SI**; sibling **MAM** via **TB-1824** |
 | AI usage (`/settings/ai-usage`) | **TB-1216**–**TB-1220** (open P1 **V1**) | Administration breadcrumb honesty; suppress zero-usage theater; PageHeading/help; budget CTA dedupe; hide Highest-cost when $0; owner screenshot ~51/100 2026-07-25 |
-| Security & trust (`/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1284**–**TB-1286** (open P1 **V1**) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; soft isolation copy; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
+| Security & trust (`/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1285**–**TB-1286** (open; **TB-1284** Done) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
 | Account security (`/settings/account-security`) | **TB-1881**–**TB-1885** (open **V1**) | Scope honesty; busy disables; in-page remove; empty/help; Vitest; ~52/100; traffic **SEA**; pairs **TB-1614** |
 | Settings alerts redirect (`/settings/alerts`) | **TB-1886**–**TB-1890** (open **V1**) | Redirect-only traffic; next.config; readiness; docs destination; Vitest; ~12/100; traffic **SEL**; pairs **TB-1441**/**TB-1443**; product on alert-rules |
 | Sign-in domains (`/settings/auth-domains`) | **TB-1891**–**TB-1895** (open **V1**) | Enum labels; busy disables; in-page confirms; checklist/help; Vitest; ~48/100; traffic **SAU**; pairs **TB-1614**/**TB-1883** |
@@ -816,7 +816,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1281 | `/see-it` — first-viewport hero budget | Adoption friction P1 **V1** — with **TB-1279** |
 | TB-1282 | `/see-it` — single CTA path + `/live-demo` ladder + purge manifest jargon | Adoption friction P1 **V1** — with **TB-1279**; pairs **TB-1267** |
 | TB-1283 | `/see-it` — download label honesty (not “evidence bundle” for marketing PDF) | Trustworthiness P1 **V1** — with **TB-1279** |
-| TB-1284 | Security & trust — soft tenant-isolation copy (no absolute “no cross-tenant”) | Trustworthiness P0 **V1** — owner WSX re-review ~53/100; complements **TB-1223**–**TB-1227** + **TB-1122** |
 | TB-1285 | Security & trust — StatusTag for Available now / Under NDA / Roadmap | Adoption friction P1 **V1** — with **TB-1284**; TB-116 parity |
 | TB-1286 | Security & trust — operator density + badge-legend StatusTag samples | Adoption friction P1 **V1** — with **TB-1285** |
 | TB-1294 | `/welcome` — first-viewport hero budget | Adoption friction P1 **V1** — owner welcome ~50/100; traffic **WXX**; complements **M-09** |
