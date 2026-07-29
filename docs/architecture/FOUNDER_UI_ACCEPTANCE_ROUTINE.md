@@ -1,6 +1,10 @@
+> **Reviewed:** 2026-07-28
+
+> **Scope:** Founder UI acceptance routine (lanes 1–3, harness, Lighthouse) plus gradual absorption (**M-100**) and unscripted exploratory cadence (**M-102**) formerly in `docs/go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md` (that filename remains a path-stable alias for GTM **M-100** / **M-102** / **G-QA-03** callers).
+
 # Founder UI acceptance routine
 
-**Status:** Adopted guidance (2026-07-18; rewritten for target-site harness + backlog)  
+**Status:** Adopted guidance (2026-07-18; rewritten for target-site harness + backlog; absorption/exploratory folded 2026-07-28)  
 **Audience:** Founder / release owner who wants higher product quality, tools aimed at a **chosen website**, and less manual regression over time  
 **Backlog:** [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) **M-96–M-106** (and **G-QA-01–G-QA-03**)  
 **Not:** A new paid UI-test SaaS product, or merge-blocking “Lighthouse ≥ 95 everywhere” gates
@@ -201,29 +205,117 @@ ACCEPTANCE_BASE_URL=https://your-host.example \
 
 **Rule:** every time you catch a defect twice by hand, file it as a tagged test before the next beta.
 
-## Lane 3 — unscripted customer-like use (M-102 — shipped)
+## Lane 3 — unscripted customer-like use (M-102 — shipped) {#lane-3--unscripted-customer-like-use-m-102--shipped}
 
-Canonical process (timebox, questions, exit criteria, defect → absorb):  
-[`FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md`](../go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md) (**M-100** + **M-102**).
+Former standalone body (with **M-100**): `docs/go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md` → this lane + [Absorption process](#absorption-process-m-100--shipped) (filename kept as a path-stable alias).
 
-After lane 2 passes, spend **15–30 minutes** (trend toward the low end as automation grows) without a script:
+**Path-stable alias:** [`FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md`](../go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md).  
+**Owner execution:** **G-QA-03** (run exploratory; promote defects), **G-QA-02** (pre-beta checklist).
 
-- Can I tell what to do next?
-- Can I find a feature without remembering its route?
-- Does the terminology remain consistent?
-- Am I being sent between disconnected experiences?
-- Do loading states explain what is happening?
-- Can I recover from mistakes?
-- Does anything look technically or commercially embarrassing?
-- Would I feel comfortable demonstrating this screen to a buyer?
+### When {#m-102-unscripted-exploratory-cadence}
 
-Log accepted defects explicitly (M-101). Promote repeatable checks into **M-100** (rule of two). Owner cadence: **G-QA-03**.
+After **lane 2** tools pass against the chosen site (founder Playwright + console/network + axe; Lighthouse when relevant):
 
-### Absorption process (M-100 — shipped)
+1. Before each **controlled beta** cut (**G-QA-02** / **M-106**).
+2. After a **meaningful IA or buyer-path** change (shorter 10–15 min OK).
 
-Any click-path or “page broken?” check caught **twice** → tagged `@founder` / `@critical` before the next controlled beta. Suite growth ledger + promotion template live in the doc above.
+### Timebox
 
-### Scheduled founder CI (M-103 — shipped)
+| Phase | Minutes | Trend |
+|-------|---------|--------|
+| Default | **15–30** | Shrink toward **15** as **M-100** absorbs click-paths |
+| Floor | **10** | Never zero — judgment / embarrassment checks stay human |
+| Cap | **45** | Stop; log remaining ideas as defects, do not turn into an all-day QA session |
+
+### Script (questions only — no click checklist)
+
+Use the product as a **first-time buyer / sponsor**, not as the person who built it:
+
+1. Can I tell what to do next?
+2. Can I find a feature without remembering its route?
+3. Does terminology stay consistent?
+4. Am I sent between disconnected experiences?
+5. Do loading states explain what is happening?
+6. Can I recover from mistakes?
+7. Does anything look technically or commercially embarrassing?
+8. Would I feel comfortable demonstrating this screen to a buyer?
+
+Optional companions (do not replace this session): `lucid-ui-audit` skill, UX-audit screenshot jobs.
+
+### Exit
+
+- Log accepted defects (template below / **M-101**).
+- Any deterministic “page broken / click-path” item caught **twice** → file under **M-100** before the next cut (**G-QA-03**).
+- Judgment-only findings may remain accepted with an explicit note — never silent.
+
+Owner cadence: **G-QA-03**.
+
+## Absorption process (M-100 — shipped) {#absorption-process-m-100--shipped}
+
+Institutionalizes gradual manual → automated absorption so manual regression shrinks without losing judgment. Alias: [`FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md`](../go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md).
+
+### Rule of two {#m-100-gradual-manual--automated-absorption}
+
+Any **click-path** or **“is this page broken?”** check the founder (or reviewer) performs **twice** across controlled betas becomes a tagged Playwright test before the next controlled cut:
+
+| Catch | Promote to |
+|-------|------------|
+| Same route fails / blank / wrong heading twice | `@founder` (and `@critical` if it would block a beta demo) |
+| Buyer first-session step | `@founder` + `@buyer-journey` |
+| Post-deploy marketing / showcase smoke | `@founder` + `@release-smoke` |
+| Unexpected console / failed XHR | Prefer extending `e2e/founder-console-network.spec.ts` allowlist **only** for benign noise; otherwise fix product or add an assertion |
+| A11y regression on a founder route | Prefer `e2e/founder-a11y.spec.ts` / shared `founder-acceptance-routes.ts` |
+
+Prefer **tagging an existing** live/mock spec over inventing a parallel suite. Shared routes: `archlucid-ui/e2e/helpers/founder-acceptance-routes.ts`.
+
+### How to absorb (engineering checklist)
+
+1. Reproduce once against `ACCEPTANCE_BASE_URL` (or local loopback).
+2. Add or tag a test (`{ tag: ["@founder", …] }` on the `test.describe`).
+3. Run locally: `npm run test:e2e:founder` (or the file) against the same URL.
+4. Retire the matching row from the manual checklist / defect log (mark **Automated** + link the spec path).
+5. Optionally bump the suite-growth ledger below.
+
+Do **not** absorb pure UX judgment (“wording feels off”, “would I demo this?”) — that stays in **M-102**.
+
+### Suite growth ledger
+
+Baseline after **M-96–M-98** / **M-104–M-105** (2026-07-28): ~**47** `@founder` tests across ~**27** files (`npx playwright test -c playwright.founder.config.ts --grep @founder --list`).
+
+| Date | `@founder` tests (approx) | Notes |
+|------|---------------------------|--------|
+| 2026-07-28 | 47 | Initial tagged suite + founder console/a11y specs |
+| _next cut_ | | After absorbing defects from **G-QA-03** / **M-106** |
+
+Update one row per controlled beta (or when a batch of promotions lands).
+
+### Defect log → promotion template
+
+Copy into deal notes, a scratch pad, or append under [`PRODUCTION_DEFECT_LOG.md`](../library/PRODUCTION_DEFECT_LOG.md) when production-facing:
+
+```markdown
+### Founder UI defect — YYYY-MM-DD
+
+- **Surface / URL:**
+- **Symptom:**
+- **Seen before?** (first time / second+ → absorb)
+- **Severity:** blocks demo / buyer confusion / cosmetic
+- **Disposition:** fix now / accept for this cut / automate (**M-100**)
+- **Automation:** spec path + tags (when done)
+```
+
+### Related commands (absorption / exploratory)
+
+```bash
+cd archlucid-ui
+ACCEPTANCE_BASE_URL=https://your-host.example ACCEPTANCE_SKIP_LIVE_INFRA=1 FOUNDER_PUBLIC_ONLY=1 \
+  npm run test:e2e:founder:release-smoke
+ACCEPTANCE_BASE_URL=https://your-host.example npm run lighthouse:acceptance
+```
+
+Scheduled warn-only CI: [`.github/workflows/founder-ui-acceptance.yml`](../../.github/workflows/founder-ui-acceptance.yml) (**M-103**).
+
+## Scheduled founder CI (M-103 — shipped)
 
 Warn-only workflow: [`.github/workflows/founder-ui-acceptance.yml`](../../.github/workflows/founder-ui-acceptance.yml).
 
@@ -298,7 +390,7 @@ Do **not** invent gates like “every page ≥ 95 in every category.” Scores v
 
 | Doc | Role |
 |-----|------|
-| [`FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md`](../go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md) | **M-100** / **M-102** process |
+| [`#absorption-process-m-100--shipped`](#absorption-process-m-100--shipped) · [`#lane-3--unscripted-customer-like-use-m-102--shipped`](#lane-3--unscripted-customer-like-use-m-102--shipped) · [`FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md`](../go-to-market/FOUNDER_UI_ABSORPTION_AND_EXPLORATORY.md) (alias) | **M-100** / **M-102** process |
 | [`TEST_EXECUTION_MODEL.md`](../library/TEST_EXECUTION_MODEL.md) | Automated test tiers / CI jobs |
 | [`LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) | Live Playwright happy-path gate |
 | [`UI_LIGHTHOUSE_CI.md`](UI_LIGHTHOUSE_CI.md) | Lab Lighthouse CI (mock-backed) |
