@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Middleware;
 ///     Fills empty 4xx/5xx responses (routing failures, default auth challenge/forbid) with problem+json
 ///     so OpenAPI contract fuzzers see the documented Content-Type and body.
 /// </summary>
-public sealed class EmptyErrorResponseNormalizationMiddleware(RequestDelegate next)
+internal sealed class EmptyErrorResponseNormalizationMiddleware(RequestDelegate next)
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
