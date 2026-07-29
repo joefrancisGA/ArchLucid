@@ -13,6 +13,8 @@ export type PricingPackage = {
   workspaceMonthlyUsd?: number;
   maxWorkspaces?: number;
   includedArchitectSeats?: number;
+  /** Hard seat ceiling for the plan (included + add-on); beyond this the tenant must upgrade tiers. */
+  maxArchitectSeats?: number;
   seatMonthlyUsd?: number;
   includedReviewsPerMonth?: number;
   overageReviewUsd?: number;

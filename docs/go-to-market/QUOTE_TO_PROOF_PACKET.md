@@ -461,7 +461,7 @@ Former standalone body: `docs/go-to-market/SERVICE_LED_OFFERS.md` → this secti
 
 **Purpose:** V1 already ships **Architecture Review Report** export (DOCX/PDF), **consultant whitelabel**, **bulk evidence attach**, **default policy packs**, and **curated demo workspaces**. This section names **buyable SKUs** so GTM leads with **relief from pain** and a **defensible report**, not a platform feature tour.
 
-**Related:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (tasks M-22–M-28, M-34), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`POSITIONING.md`](POSITIONING.md), [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (public pricing posture; **Marketing alignment Q8** companion). Private SOW + paid-offer test live below.
+**Related:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (tasks M-22–M-28, M-34), [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) (Option A/B drafts + SKU talk track — **M-22** / **M-23** / **M-34**), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) (subscription + Addendum D conversion), [`POSITIONING.md`](POSITIONING.md), [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (public pricing posture; **Marketing alignment Q8** companion). Private SOW + paid-offer test live below.
 
 ### Positioning guardrails
 

@@ -71,7 +71,7 @@ ArchLucid should **lead adoption and monetization with AI initiative readiness**
 
 ### Commercial and validation posture [E]
 
-- **Pricing (list):** Architect $99/mo, Team $249/mo, Professional $1,799/mo, Enterprise $60K–$250K/yr.
+- **Pricing (list):** Architect $99/mo, Team $499/mo (repriced 2026-07-29, M-200), Professional $1,799/mo, Enterprise $60K–$250K/yr.
 - **Market validation:** zero published customers, zero real-mode pilots (G-REAL-06 not started), GTM Stage 0.
 - **Assessment headline readiness:** 76.32%; executive purchase probability 25–40% (no live pilot cohort).
 - **Positioning guardrail:** do not headline as standalone "AI governance platform" (`POSITIONING.md` §7).
@@ -101,7 +101,7 @@ ArchLucid should **lead adoption and monetization with AI initiative readiness**
 2. **Incumbents own program-level governance; architect workbench is open** — no MQ vendor produces evidence-linked design analysis of a specific proposal or converts intake into a full architecture review in a self-serve motion.
 3. **~70% of the wedge workflow exists** — intake, findings, dispositions, exports, audit chain are shipped.
 4. **Volume driver is regulation-independent** — proposal flood persists regardless of EU AI Act deferral.
-5. **Price list matches bottom-up motion** — $99–$249 under typical CTO discretionary thresholds [I].
+5. **Price list matches bottom-up motion** — $99–$499 under typical CTO discretionary thresholds [I].
 
 ### Against [E/I]
 
@@ -269,7 +269,7 @@ ArchLucid owns the **decision record about the design**; runtime artifacts flow 
 ## Packaging and monetization [O]
 
 - AI readiness **inside core product** — no edition or module SKU.
-- **Entry:** Architect $99 / Team $249 (self-serve motion ends where SSO, security review, or >~$10K/yr begins).
+- **Entry:** Architect $99 / Team $499 (self-serve motion ends where SSO, security review, or >~$10K/yr begins).
 - **Expansion:** Professional $1,799 → Enterprise $60–250K/yr.
 - Deep AI packs: post-validation only; or custom pack authoring service ($9.5K–$100K, existing).
 

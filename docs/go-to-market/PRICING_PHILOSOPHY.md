@@ -57,7 +57,7 @@
 | **Target persona** | Persona 3 (CTO/VP Eng) | Persona 1 (Enterprise Architect) | Persona 1 + Persona 2 (Platform Eng Lead) |
 | **Platform fee** | $199 / workspace / month | $899 / workspace / month (up to 5 workspaces) | Included in annual contract |
 | **Seats included** | Up to 5 architects | Up to 20 architects | Unlimited (named) |
-| **Seat price** | $79 / architect / month | $179 / architect / month | Included in annual contract |
+| **Seat price** | $79 / architect / month (add-on seats capped at 5 — **10 seats max**; 11+ seats require Professional) | $179 / architect / month | Included in annual contract |
 | **Workspaces** | 1 | Up to 5 | Unlimited |
 | **Architecture packages / month** | 20 included; $10 / **architecture package** overage | 100 included; $8 / **architecture package** overage | Unlimited (2,000 **architecture packages**/mo fair-use soft cap) |
 | **Annual prepay** | 2 months free | 2 months free | Custom |
@@ -103,10 +103,10 @@ Stripe Checkout uses **one** recurring **Price** for Team conversions (see **`Bi
 
 | Field | Value |
 |-------|-------|
-| **Monthly amount (USD)** | **$249** / billing period for subscriptions created under this SKU |
-| **Relationship to § 5.2** | Locked list still decomposes Team as **workspace + seats** for **quotes**, order forms, and ROI comparisons; the **$249** figure is **only** the self-serve Stripe subscription total for this interim implementation |
-| **Grandfathering** | Tenants whose Team subscription **starts** at **$249** keep **$249** for that subscription as long as it remains continuously active without cancel-and-resubscribe games; increases apply only after an explicit billing change initiated by ArchLucid (e.g. new list price SKU for **net-new** subscriptions) plus normal renewal notices |
-| **Net-new pricing later** | List amount for subscriptions started **after** a future cutoff is **to be determined** — does not imply automatic migration of grandfathered subscriptions |
+| **Monthly amount (USD)** | **$499** / billing period for subscriptions created under this SKU (**M-200** repricing decision, 2026-07-29) |
+| **Relationship to § 5.2** | Locked list still decomposes Team as **workspace + seats** for **quotes**, order forms, and ROI comparisons ($199 + 5 × $79 = **$594** / month à la carte); the **$499** bundle is an explicit **~16% bundle discount** against that decomposition and is **only** the self-serve Stripe subscription total for this interim implementation |
+| **Team seat cap** | Team supports at most **10 architect seats** total — 5 included in the bundle plus up to **5 add-on seats** at the § 5.2 Team seat price. An 11th seat requires **Professional** (20 included seats). The cap keeps the value ladder monotonic: Professional is better per seat, per AI credit, and per review than Team at every allowed Team configuration |
+| **Pre-launch status (no grandfathering)** | Decided **2026-07-29** (**M-200**): the product has **no active subscriptions**, so this repricing migrates nobody and no grandfathering policy exists. Any future list-price change for active subscribers goes through the § 5.3 re-rate gates (price-lock for the remainder of the current term plus one renewal) rather than a per-SKU grandfather clause |
 | **Hosted AOAI spend guard (SaaS default)** | **$50** / tenant / UTC month “included” planning band (internal **estimated** USD from token counts × **`AgentExecution:LlmCostEstimation`** rates — **not** a separate Stripe line item). **Warn** at **75%** (~**$37.50**) via durable audit **`LlmTenantMonthlyDollarBudgetApproaching`**. **Hard stop** real-mode LLM completions at **$75** / UTC month (`LlmMonthlyTenantDollarBudget` in appsettings — enabled on **`appsettings.SaaS.json`**). Simulator / fake / echo providers are excluded. Operators must align USD/M token rates with the **Azure OpenAI** deployment’s list price. |
 | **Self-serve LLM overage wallet (TB-014, opt-in)** | Non-expiring prepaid balance after the UTC-month hard cap. **$50** auto-refill when balance **< $10**; tenant sets a **$0–$500** monthly auto-replenish cap in **$50** steps. Card charged at each refill (Stripe PaymentIntent). Balance **never expires**; on cancellation it is **non-refundable credit** consumable only via ArchLucid LLM usage. Default at signup: **overage off**. See [`docs/library/LLM_BUDGET_TOP_UP.md`](../library/LLM_BUDGET_TOP_UP.md). |
 
@@ -203,7 +203,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 ```locked-prices
 {
   "schemaVersion": 1,
-  "effectiveDate": "2026-07-09",
+  "effectiveDate": "2026-07-29",
   "currency": "USD",
   "architectStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
   "architectStripeCheckoutUrlSalesLedPlaceholder": true,
@@ -226,13 +226,14 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
       "id": "team",
       "title": "Team",
       "summary": "Small architecture team with basic governance",
-      "planMonthlyUsd": 249,
+      "planMonthlyUsd": 499,
       "pricingDisplay": "monthly",
       "includedUsers": 5,
       "includedWorkspaces": 1,
       "monthlyAiCredits": 2500,
       "workspaceMonthlyUsd": 199,
       "includedArchitectSeats": 5,
+      "maxArchitectSeats": 10,
       "seatMonthlyUsd": 79,
       "includedReviewsPerMonth": 20,
       "overageReviewUsd": 10
@@ -243,7 +244,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
       "summary": "Governed architecture review practice with policy packs and audit exports",
       "planMonthlyUsd": 1799,
       "pricingDisplay": "monthly",
-      "includedUsers": 15,
+      "includedUsers": 20,
       "includedWorkspaces": 5,
       "monthlyAiCredits": 10000,
       "workspaceMonthlyUsd": 899,
@@ -267,7 +268,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 }
 ```
 
-**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready. **`teamStripeCheckoutUrlSalesLedPlaceholder`** must remain **`true`** while the URL contains substring markers matched by **`archlucid-ui/src/lib/team-stripe-checkout-url.ts`** (`placeholder-replace-before-launch`, `checkout-placeholder`) so CI proves the Subscribe CTA stays **sales-led** unless **Next.js build-time** **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`** opt-in deliberately surfaces Stripe. **Allowed states for public pricing JSON:** (**a**) live buyer-facing checkout — use a live Stripe URL, set **`teamStripeCheckoutUrlSalesLedPlaceholder`** to **`false`** or omit it, and set **`teamStripeCheckoutUrlStripeTestMode`** to **`false`** or omit it; (**b**) placeholder URL with **`teamStripeCheckoutUrlSalesLedPlaceholder: true`** (Subscribe CTA stays hidden in the UI — **`team-stripe-checkout-url.ts`** — quote request remains available); (**c**) no **`teamStripeCheckoutUrl`** key (no checkout URL in the bundle); (**d**) Stripe **test-mode** hosted checkout only — for URLs matching hosted test patterns (`cs_test_*` session paths, `buy.stripe.com/test_*` Payment Links), set **`teamStripeCheckoutUrlStripeTestMode: true`** so CI cannot merge unlabeled test checkout; do **not** set that flag on live **`cs_live_*`** or live **`buy.stripe.com/…`** links. Shared validation: **`scripts/ci/pricing_json_checkout_guard.py`** (also invoked from **`scripts/ci/generate_pricing_json.py`** and **`scripts/ci/assert_public_pricing_placeholder_guard.py`**). Backend Checkout (**`Billing:Stripe:PriceIdTeam`**) must attach a Stripe recurring Price matching **§ 3.2** (**$249** / month interim Team SKU).
+**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready. **`teamStripeCheckoutUrlSalesLedPlaceholder`** must remain **`true`** while the URL contains substring markers matched by **`archlucid-ui/src/lib/team-stripe-checkout-url.ts`** (`placeholder-replace-before-launch`, `checkout-placeholder`) so CI proves the Subscribe CTA stays **sales-led** unless **Next.js build-time** **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`** opt-in deliberately surfaces Stripe. **Allowed states for public pricing JSON:** (**a**) live buyer-facing checkout — use a live Stripe URL, set **`teamStripeCheckoutUrlSalesLedPlaceholder`** to **`false`** or omit it, and set **`teamStripeCheckoutUrlStripeTestMode`** to **`false`** or omit it; (**b**) placeholder URL with **`teamStripeCheckoutUrlSalesLedPlaceholder: true`** (Subscribe CTA stays hidden in the UI — **`team-stripe-checkout-url.ts`** — quote request remains available); (**c**) no **`teamStripeCheckoutUrl`** key (no checkout URL in the bundle); (**d**) Stripe **test-mode** hosted checkout only — for URLs matching hosted test patterns (`cs_test_*` session paths, `buy.stripe.com/test_*` Payment Links), set **`teamStripeCheckoutUrlStripeTestMode: true`** so CI cannot merge unlabeled test checkout; do **not** set that flag on live **`cs_live_*`** or live **`buy.stripe.com/…`** links. Shared validation: **`scripts/ci/pricing_json_checkout_guard.py`** (also invoked from **`scripts/ci/generate_pricing_json.py`** and **`scripts/ci/assert_public_pricing_placeholder_guard.py`**). Backend Checkout (**`Billing:Stripe:PriceIdTeam`**) must attach a Stripe recurring Price matching **§ 3.2** (**$499** / month interim Team SKU).
 
 | Item | Price |
 |------|-------|

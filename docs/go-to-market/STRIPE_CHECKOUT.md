@@ -36,7 +36,7 @@ Copy this checklist into tickets or strike items as you go.
 ### A. Stripe account (Product Catalog)
 
 - [ ] **Team Product** created with buyer-facing **name/description**.
-- [ ] **Recurring monthly Price** in **USD** matching **§ 3.2** (bundled Team SKU — **grandfather policy** documented in `PRICING_PHILOSOPHY.md`).
+- [ ] **Recurring monthly Price** in **USD** matching **§ 3.2** (bundled Team SKU — amount and seat cap documented in `PRICING_PHILOSOPHY.md`; no grandfather policy exists per the 2026-07-29 **M-200** pre-launch decision).
 - [ ] **`price_…` id** captured (not **`prod_…`**).
 
 ### B. API configuration (ArchLucid.Api)
@@ -443,7 +443,7 @@ If webhooks only flip entitlement bits asynchronously, document the **manual run
 
 | Doc | Use |
 |-----|-----|
-| [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) | Team bundled SKU amount and grandfather policy |
+| [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) | Team bundled SKU amount and seat cap (§ 3.2) |
 | [`TRIAL_AND_SIGNUP.md`](TRIAL_AND_SIGNUP.md) | Trial → conversion product design |
 | [`BILLING.md`](../library/BILLING.md) | Architecture, webhook route, SQL tables |
 | [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) | `Billing:Stripe:*` keys |
