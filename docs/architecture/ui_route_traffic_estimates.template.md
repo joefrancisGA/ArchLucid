@@ -22,7 +22,7 @@ possible (Hit% × 100 per row).
 Master table sort key: rows with score 0 appear before scored rows; within each group, sort by Deficit (descending); ties A→Z by path. Weight column is Hit% × Scores. Deficit column is Hit% × (100 − Scores). OVERALL WEIGHT SCORE is the sum of row Weight values expressed as a percentage of the maximum possible (Hit% × 100 per row). ID column: unique shorthand of at most three capital letters per row.
 
 Not included: API route handlers (/api/*), legacy redirects/rewrites (see
-ui_routes.md), or off-site marketing traffic.
+ui_routes.md; e.g. `/alert-routing` → `/governance/alert-rules?tab=routing`, traffic **AL2** / **TB-1443**), or off-site marketing traffic.
 
 ## Core Web Vitals field telemetry (TB-692)
 
@@ -89,7 +89,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | P | `/pricing` | 0.25% | 0 | 0 | 25 | Marketing | None |
 | RRP | `/reviews/[runId]/provenance` | 0.25% | 0 | 0 | 25 | Core review | None |
 | SBE | `/settings/billing` | 0.25% | 0 | 0 | 25 | Settings | None |
-| ALE | `/alert-routing` | 0.2% | 0 | 0 | 20 | Alerts/gov | None |
+| GOR | `/governance/alert-rules?tab=routing` | 0.22% | 0 | 0 | 22 | Tab surface | Redirect-only legacy `/alert-routing` (AL2) merged here; do not score `/alert-routing` as a product page (TB-1443) |
 | GRX | `/governance/recurrence-schedules` | 0.2% | 0 | 0 | 20 | Alerts/gov | None |
 | HGX | `/help/getting-started` | 0.2% | 0 | 0 | 20 | Help topic | None |
 | LOG | `/login` | 0.2% | 0 | 0 | 20 | Auth | None |
@@ -219,7 +219,6 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ADS | `/governance/advisory-scans?tab=scans` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOA | `/governance/alert-rules` | 0.02% | 0 | 0 | 2 | Alerts/gov | None |
 | GOC | `/governance/alert-rules?tab=composite` | 0.02% | 0 | 0 | 2 | Tab surface | None |
-| GOR | `/governance/alert-rules?tab=routing` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GLR | `/governance/alert-rules?tab=rules` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOS | `/governance/alert-rules?tab=simulation` | 0.02% | 0 | 0 | 2 | Tab surface | None |
 | GOI | `/governance/alerts?tab=inbox` | 0.02% | 0 | 0 | 2 | Tab surface | None |
