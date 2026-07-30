@@ -32,6 +32,17 @@ describe("Tier2ConnectionWizard", () => {
     expect(screen.queryByLabelText(/Only Reader and Cost Management Reader/i)).not.toBeInTheDocument();
   });
 
+  it("names the script variables operators must set before running", () => {
+    render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
+
+    expect(
+      screen.getByText(/set SUBSCRIPTION_ID, ARCHLUCID_TENANT_ID, and ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID/i),
+    ).toBeInTheDocument();
+    const scriptBlock = screen.getByText(/YOUR_ARCHLUCID_TENANT_ID/);
+    expect(scriptBlock).toHaveTextContent("YOUR_ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID");
+    expect(scriptBlock).toHaveTextContent('SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"');
+  });
+
   it("surfaces misconfigured tenant and client GUID validation on the connection step", async () => {
     render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
 

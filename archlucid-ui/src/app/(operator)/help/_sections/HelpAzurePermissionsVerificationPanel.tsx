@@ -12,7 +12,7 @@ import {
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { resolveApiErrorMessage } from "@/lib/resolve-api-error-message";
+import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-validation-error";
 import { cn } from "@/lib/utils";
 
 export type AzurePermissionsVerificationState =
@@ -25,37 +25,6 @@ export type AzurePermissionsVerificationState =
 type HelpAzurePermissionsVerificationPanelProps = {
   readonly subscriptionId?: string;
 };
-
-function sanitizeVerificationError(error: unknown): { message: string; technicalDetail?: string } {
-  const fallback = "Verification could not be completed. Confirm role assignments and try again.";
-  const raw = resolveApiErrorMessage(error, fallback);
-
-  if (/stack|trace|exception|System\./i.test(raw)) {
-    return { message: fallback };
-  }
-
-  if (/403|forbidden|unauthorized|401/i.test(raw)) {
-    return {
-      message:
-        "Required Reader access was not detected for the selected subscription. Confirm the role assignment scope and identity.",
-      technicalDetail: raw.length < 160 ? raw : undefined,
-    };
-  }
-
-  if (/404|not found|not configured/i.test(raw)) {
-    return {
-      message: "No saved Azure connection was found for this subscription. Save the connection before verifying.",
-    };
-  }
-
-  if (/503|disabled/i.test(raw)) {
-    return {
-      message: "Hosted validation is not enabled in this environment. Contact your ArchLucid administrator.",
-    };
-  }
-
-  return { message: raw.length > 240 ? fallback : raw };
-}
 
 export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermissionsVerificationPanelProps) {
   const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
@@ -101,9 +70,9 @@ export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermission
         subscriptionId,
       });
     } catch (error: unknown) {
-      const sanitized = sanitizeVerificationError(error);
+      const sanitized = sanitizeHostedAzureValidationError(error);
       setState({
-        status: sanitized.message.includes("not detected") ? "missing" : "failed",
+        status: /could not read the subscription|Reader/i.test(sanitized.message) ? "missing" : "failed",
         message: sanitized.message,
         technicalDetail: sanitized.technicalDetail,
       });

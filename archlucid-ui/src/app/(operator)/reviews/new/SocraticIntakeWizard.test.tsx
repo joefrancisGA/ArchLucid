@@ -519,6 +519,52 @@ describe("SocraticIntakeWizard", () => {
     });
   });
 
+  it("enables Review answers when skip API succeeds but questions refresh is still stale", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    // Admit refresh + post-skip refresh both still list the MUST as pending (lag).
+    getDraftQuestions.mockResolvedValue({
+      draftId: "draft-1",
+      status: "Admitted",
+      selection: {
+        allQuestions: [sampleQuestion],
+        requiredMustQuestionKeys: ["l0.pillar.security"],
+        pendingMustQuestions: [sampleQuestion],
+      },
+    });
+    skipDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-question")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Skip this clarification" }));
+
+    await waitFor(() => {
+      expect(skipDraftQuestion).toHaveBeenCalledWith("draft-1", "l0.pillar.security");
+      expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByTestId("socratic-questions-done"));
+
+    await waitFor(() => {
+      expect(answerDraftQuestion).not.toHaveBeenCalled();
+      expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
+    });
+  });
+
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });

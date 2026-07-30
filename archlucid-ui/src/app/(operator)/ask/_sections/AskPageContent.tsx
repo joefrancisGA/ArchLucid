@@ -311,7 +311,7 @@ export function AskPageContent() {
       return;
     }
 
-    if (threads.length === 0) {
+    if (!Array.isArray(threads) || threads.length === 0) {
       return;
     }
 
@@ -319,7 +319,13 @@ export function AskPageContent() {
       return;
     }
 
-    void onSelectThread(threads[0]!.threadId);
+    const firstThreadId = threads[0]?.threadId?.trim() ?? "";
+
+    if (firstThreadId.length === 0) {
+      return;
+    }
+
+    void onSelectThread(firstThreadId);
   }, [threads, selectedThreadId, listFailure, onSelectThread]);
 
   const threadSelected = selectedThreadId.trim().length > 0;

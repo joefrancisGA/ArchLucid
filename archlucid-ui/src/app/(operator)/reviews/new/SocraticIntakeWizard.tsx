@@ -533,7 +533,10 @@ export function SocraticIntakeWizard() {
   }, [actorSet.actors, businessOutcome, draftId, freeTextIntent, isCreateArchitectureFlow, parentSpawnedRunId, router, systemName]);
 
   return (
-    <div className="space-y-4" data-testid="socratic-intake-wizard">
+    <div
+      className={cn("space-y-4", isCreateArchitectureFlow && "max-w-3xl")}
+      data-testid="socratic-intake-wizard"
+    >
       {!isCreateArchitectureFlow ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
           {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
@@ -742,6 +745,7 @@ export function SocraticIntakeWizard() {
               enabled={focusedPilotModeEnabled}
               onEnabledChange={setFocusedPilotModeEnabled}
               presentation={isCreateArchitectureFlow ? "scope-card" : "checkbox"}
+              className={isCreateArchitectureFlow ? "max-w-md" : undefined}
             />
 
             {isCreateArchitectureFlow && !canAdvanceIntent && createArchitectureAdvanceHint.length > 0 ? (

@@ -15,7 +15,8 @@ const SHARED_TOPICS: readonly CloudSecurityPreflightTopic[] = [
   {
     id: "least-privilege",
     label: "Least privilege",
-    detail: "Roles and permissions are scoped to the minimum required for inventory and cost visibility.",
+    detail:
+      "Roles and permissions are scoped to the minimum required for inventory. Cost Management Reader is optional when cost evidence is enabled.",
   },
   {
     id: "no-long-lived-secrets",

@@ -22,6 +22,12 @@ namespace ArchLucid.Retrieval.Embedding;
     "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
 public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
 {
+    /// <summary>
+    ///     Default per-operation network timeout when callers omit an explicit budget
+    ///     (under the UI proxy 60s abort and typical <see cref="RetrievalQueryBudgetOptions"/> overall budget).
+    /// </summary>
+    public static readonly TimeSpan DefaultNetworkTimeout = TimeSpan.FromSeconds(15);
+
     private readonly EmbeddingClient _embeddingClient;
 
     private readonly string _embeddingDeploymentName;
@@ -30,18 +36,21 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
 
     /// <param name="embeddingDeploymentName">Embeddings deployment name (not the chat deployment).</param>
     /// <param name="llmTelemetryOptions">Optional telemetry toggles (<see cref="LlmTelemetryOptions.CapturePromptResponseOnSpans"/>).</param>
+    /// <param name="networkTimeout">Optional per-call network timeout; defaults to <see cref="DefaultNetworkTimeout"/>.</param>
     public AzureOpenAiEmbeddingClient(
         string endpoint,
         string apiKey,
         string embeddingDeploymentName,
-        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null)
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null,
+        TimeSpan? networkTimeout = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentException.ThrowIfNullOrWhiteSpace(embeddingDeploymentName);
 
         Uri endpointUri = new(endpoint.Trim());
-        AzureOpenAIClient azureClient = new(endpointUri, new ApiKeyCredential(apiKey.Trim()));
+        AzureOpenAIClientOptions clientOptions = CreateClientOptions(networkTimeout);
+        AzureOpenAIClient azureClient = new(endpointUri, new ApiKeyCredential(apiKey.Trim()), clientOptions);
         string deployment = embeddingDeploymentName.Trim();
         _embeddingDeploymentName = deployment;
         _embeddingClient = azureClient.GetEmbeddingClient(deployment);
@@ -54,16 +63,18 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
     public static AzureOpenAiEmbeddingClient CreateWithManagedIdentity(
         string endpoint,
         string embeddingDeploymentName,
-        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null)
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null,
+        TimeSpan? networkTimeout = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(embeddingDeploymentName);
 
         Uri endpointUri = new(endpoint.Trim());
-        AzureOpenAIClient azureClient = new(endpointUri, new DefaultAzureCredential());
+        AzureOpenAIClientOptions clientOptions = CreateClientOptions(networkTimeout);
+        AzureOpenAIClient azureClient = new(endpointUri, new DefaultAzureCredential(), clientOptions);
         string deployment = embeddingDeploymentName.Trim();
 
-        AzureOpenAiEmbeddingClient client = new(azureClient, deployment, llmTelemetryOptions, endpointUri);
+        AzureOpenAiEmbeddingClient client = new(azureClient, deployment, llmTelemetryOptions);
 
         return client;
     }
@@ -71,8 +82,7 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
     private AzureOpenAiEmbeddingClient(
         AzureOpenAIClient azureClient,
         string embeddingDeploymentName,
-        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions,
-        Uri endpointUri)
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions)
     {
         ArgumentNullException.ThrowIfNull(azureClient);
         ArgumentException.ThrowIfNullOrWhiteSpace(embeddingDeploymentName);
@@ -117,7 +127,7 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
     }
 
     /// <remarks>Shared batch path (<see cref="EmbedAsync"/> is a cardinality-one delegation).</remarks>
-    private Task<IReadOnlyList<float[]>> EmbedManyCoreAsync(List<string> texts, CancellationToken ct)
+    private async Task<IReadOnlyList<float[]>> EmbedManyCoreAsync(List<string> texts, CancellationToken ct)
     {
         long latencyTicks = Stopwatch.GetTimestamp();
 
@@ -136,8 +146,10 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
             if (_llmTelemetryOptions?.CurrentValue.CapturePromptResponseOnSpans == true && activity is not null)
                 activity.SetTag("gen_ai.embedding.prompt", BuildEmbeddingPromptSnapshot(texts));
 
+            // Async path yields the thread pool while waiting on AOAI — sync GenerateEmbeddings blocked a worker
+            // for the full network wait and could outlive the UI proxy abort (CI #2268 class hang).
             ClientResult<OpenAIEmbeddingCollection> response =
-                _embeddingClient.GenerateEmbeddings(texts, cancellationToken: ct);
+                await _embeddingClient.GenerateEmbeddingsAsync(texts, cancellationToken: ct).ConfigureAwait(false);
 
             OpenAIEmbeddingCollection collection = response.Value;
 
@@ -150,7 +162,6 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
             }
 
             if (embeddingUsage?.InputTokenCount is { } inTok && inTok > 0)
-
                 ArchLucidInstrumentation.RecordLlmEmbeddingInputTokens(inTok, _embeddingDeploymentName);
 
             List<float[]> vectors = collection.Select(static e => e.ToFloats().ToArray()).ToList();
@@ -159,7 +170,7 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
 
             operationSucceededForTelemetry = true;
 
-            return Task.FromResult<IReadOnlyList<float[]>>(vectors);
+            return vectors;
         }
         catch (Exception ex)
         {
@@ -180,6 +191,14 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
                 latencyMs,
                 operationSucceededForTelemetry);
         }
+    }
+
+    private static AzureOpenAIClientOptions CreateClientOptions(TimeSpan? networkTimeout)
+    {
+        return new AzureOpenAIClientOptions
+        {
+            NetworkTimeout = networkTimeout ?? DefaultNetworkTimeout,
+        };
     }
 
     /// <remarks>Never tags every embedding string separately—joins summaries to keep cardinality bounded.</remarks>

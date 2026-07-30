@@ -18,6 +18,8 @@ export const LEGACY_AUDIT_PATH = "/audit";
 
 export const LEGACY_ALERTS_PATH = "/alerts";
 
+export const LEGACY_ALERT_ROUTING_PATH = "/alert-routing";
+
 export function pathMatchesRoutePrefix(pathname: string, prefix: string): boolean {
   if (prefix === "/") {
     return pathname === "/";

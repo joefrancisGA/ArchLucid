@@ -78,6 +78,7 @@ describe("PilotScorecardPageView", () => {
     render(<PilotScorecardPageView model={buildModel()} />);
 
     expect(screen.getByTestId("review-scorecard-summary-row")).toBeInTheDocument();
+    expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("max-w-md");
     expect(screen.getByText("ROI assumptions")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save ROI assumptions" })).toBeInTheDocument();
     expect(screen.getByText("Complete ROI assumptions to calculate estimated savings.")).toBeInTheDocument();

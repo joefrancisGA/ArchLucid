@@ -85,7 +85,9 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
         {threads.length > 0 ? (
           <nav aria-label={threadListNavLabel}>
             <ul className="m-0 list-none space-y-1 p-0">
-              {threads.map((thread) => (
+              {threads
+                .filter((thread): thread is ConversationThread => thread != null && typeof thread.threadId === "string")
+                .map((thread) => (
                 <li key={thread.threadId}>
                   <Button
                     type="button"

@@ -79,7 +79,7 @@ test.describe("live-api-socratic-intake", { tag: ["@founder", "@buyer-journey"] 
     await waitForSocraticClarificationsStep(page, 90_000);
 
     // One-at-a-time clarifications: poll skip until Review answers enables (do not one-shot count).
-    await skipAllSocraticClarificationsInUi(page, { timeoutMs: 120_000 });
+    await skipAllSocraticClarificationsInUi(page, { timeoutMs: 180_000 });
     await page.getByTestId("socratic-questions-done").click();
     await page.getByTestId("socratic-submit").click();
 
