@@ -28,6 +28,7 @@ Specific rules:
 - Typography: `OPERATOR_TYPOGRAPHY` from `design-tokens.ts` — page titles `text-xl` max; KPI tiles `kpiValue` only; badges `OPERATOR_TYPOGRAPHY.badge` (`text-[11px]`); no `text-2xl`/`text-3xl` on operator `h1`; no arbitrary `text-[10px]` on operator surfaces.
 - Hide CLI/script/API/model/runtime details from normal surfaces.
 - Product language: architecture package, finding, residual risk, evidence trail, signed decision record, governance approval, audit trail.
+- Form validation affordances (**TB-2005**): disable primary submit/continue until hard client validation passes; show errors on the form; reserve `showError` toasts for system/async failures — see `UI_DESIGN_SYSTEM.md` § Form validation affordances and `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 
 ## Do not
 
