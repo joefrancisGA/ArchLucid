@@ -73,11 +73,12 @@ Use precise product language throughout the UI — labels, headings, empty state
 
 | Preferred | Avoid |
 |-----------|-------|
-| Review package | Run, job, task |
+| Architecture package / review | Run, job, task |
 | Finding | Issue, alert (unless it is an alert) |
 | Residual risk | Open issue |
-| Evidence trail | Logs, output |
-| Signed decision record | Decision, result |
+| Evidence trail / graph | Logs, output |
+| Signed review record (package) | Signed decision record, golden manifest |
+| Decision (disposition) | Calling the package a decision record |
 | Governance approval | Sign-off, approval |
 | Audit trail | History |
 
@@ -86,6 +87,21 @@ Use precise product language throughout the UI — labels, headings, empty state
 - **Hide CLI/script/API/model/runtime details from normal product surfaces.**
 - Keep technical details behind a "Diagnostics", "Technical appendix", or chevron-expandable disclosure.
 - Developer-facing identifiers (run IDs, UUIDs, correlation IDs) are fine in copy mode or support contexts, not in primary architect workspace.
+
+### Form validation affordances (**TB-2005** — done 2026-07-29)
+
+Operator and buyer forms must make hard validation visible on the form and honest in the primary affordance. Owner expectation (create-architecture draft workspace, 2026-07-29): do not enable a primary CTA that cannot succeed, and do not put “fill required fields” feedback only in a toast.
+
+| Rule | Required behavior |
+|------|-------------------|
+| Primary CTA | **Disable** submit / continue / start until hard minimum client-side validation passes (required presence, min length, client-known numeric ranges). Soft/advisory warnings may leave the CTA enabled. |
+| Validation placement | Show errors **on the form** — field-level under the control and/or a form-level readiness line near the CTA. Prefer `aria-invalid` when the control is invalid after the user has started editing. |
+| Toasts (`showError`) | **Only** for system/async failures: network, server 4xx/5xx, save conflicts, clipboard failures, unexpected API payloads. Never the sole feedback for empty/required/format errors the client already knows. |
+| Dual feedback | Do not toast the same client-known validation message that is already shown inline. |
+
+**Good exemplars:** Guided intake / create-architecture continue (`SocraticIntakeWizard` `canAdvanceIntent` + advance hint); Quick Scan (`canSubmit` + readiness); Alert rules / Digest create / SSO wizard footers (`formValid` / `canContinue`).
+
+**Open apply / cleanup:** **TB-2006**–**TB-2011** in `TECH_BACKLOG.md`. Cursor enforcement: `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
 
 ---
 
@@ -114,7 +130,7 @@ Use precise product language throughout the UI — labels, headings, empty state
 > - Compact, readable enterprise spacing; no giant marketing cards in architect workspace views.
 > - Hide CLI/script/API/model/runtime details from normal surfaces.
 > - Keep technical details behind diagnostics or technical appendix disclosures.
-> - Use precise product language: architecture package, finding, residual risk, evidence trail, signed decision record, governance approval, audit trail.
+> - Use precise product language: architecture package, finding, residual risk, evidence trail, signed review record, decision, governance approval, audit trail. Never call the package a signed decision record.
 > - Design for CIO/procurement/compliance credibility.
 
 ---
@@ -235,5 +251,5 @@ Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120*
 - **Rollout sequencing (Resolved 2026-05-30):** wave **0** primitives → **1** first-pilot + run detail → **2** Home/dashboard → **3** governance/audit → **4** polish — see [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *Resolved 2026-05-30 (Enterprise UI design system rollout sequencing)*; do **not** big-bang all shared components in one pass.
 - Product documentation presentation: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`
 - Deferred UI architecture: `docs/library/UI_ARCHITECTURE_V1_1.md`
-- Cursor rules: `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc`
+- Cursor rules: `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc`, `.cursor/rules/UI-Form-Validation-Affordances.mdc` (**TB-2005**)
 - Agent guidance: `archlucid-ui/AGENTS.md`

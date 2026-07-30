@@ -41,7 +41,7 @@ export function RunDetailReviewPackageSection(
             <li>Finalized review record</li>
             <li>Findings report ({props.findingCount ?? "—"} findings)</li>
             <li>Evidence bundle ({props.artifactCount} artifact{props.artifactCount === 1 ? "" : "s"})</li>
-            <li>Decision record</li>
+            <li>Decisions</li>
           </ul>
           {props.showExportActions ? (
             <div className="flex flex-wrap gap-2 pt-1">

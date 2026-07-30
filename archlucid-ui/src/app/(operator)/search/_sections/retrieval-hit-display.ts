@@ -24,7 +24,7 @@ export function retrievalHitSourceTypeLabel(sourceType: string | undefined): str
     case "ManifestFinding":
       return "Finding";
     case "ManifestDecision":
-      return "Decision record";
+      return "Decision";
     case "Manifest":
       return SIGNED_MANIFEST_LABEL;
     case "ManifestTopology":
@@ -40,7 +40,7 @@ export function retrievalHitSourceTypeLabel(sourceType: string | undefined): str
     case "PolicyPackRule":
       return "Policy rule";
     case "PriorManifestDecision":
-      return "Prior decision record";
+      return "Prior decision";
     default:
       return normalized.length > 0 ? normalized : "Evidence";
   }

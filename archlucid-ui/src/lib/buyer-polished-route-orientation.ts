@@ -234,7 +234,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)) {
     return {
       label: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-      line: "Finalized decision record — findings, finalized signed review record, evidence trail, governance disposition, and deliverables.",
+      line: "Signed review record — findings, decisions, evidence trail, governance disposition, and deliverables.",
     };
   }
 

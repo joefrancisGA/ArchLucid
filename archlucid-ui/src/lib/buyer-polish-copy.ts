@@ -706,7 +706,7 @@ export const BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE =
   "Production execution remains controlled by the customer's enterprise change-management process.";
 
 export const BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD =
-  "Governance decision record — approved as architecture decision record with monitored PHI minimization control.";
+  "Governance approval — signed review record approved with monitored PHI minimization control.";
 
 export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
   "Approved for implementation planning, subject to enterprise change control — not a production deployment authorization.";
@@ -732,7 +732,7 @@ export const BUYER_ASK_CONVERSATION_EMPTY_BODY =
 export const BUYER_ASK_RETRIEVAL_DEGRADED_LABEL =
   "Answer quality may be reduced when evidence search is limited.";
 
-export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance decision record";
+export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance workflow";
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_TITLE = "Governance approval record";
 
@@ -772,7 +772,7 @@ export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
 export const BUYER_GOVERNANCE_DECISION_REGISTER_TITLE = "Decision register";
 
 export const BUYER_GOVERNANCE_DECISION_REGISTER_LEAD =
-  "Browse signed architecture decisions across reviews, including category, supporting findings, confidence, and lineage.";
+  "Browse architecture decisions locked with each signed review record — category, supporting findings, confidence, and lineage.";
 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View finding and evidence";
 
@@ -787,7 +787,7 @@ export const BUYER_ASK_REVIEW_ANCHORS_LINE =
 export const BUYER_ASK_SHOWCASE_ANCHORS_LINE = BUYER_ASK_REVIEW_ANCHORS_LINE;
 
 export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
-  "Load a prior vs. later review pair to see an explicit delta between signed decision records.";
+  "Load a prior vs. later review pair to see an explicit delta between signed review records.";
 
 export const BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER =
   "The monitored PHI risk is counted among findings but does not block approval — it remains under active oversight.";
@@ -797,7 +797,7 @@ export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download finalize
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE = "Delivered as a ZIP archive for diligence and archiving.";
 
 export const BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE =
-  "for governed architecture review, evidence traceability, and audit-ready decision records";
+  "for governed architecture review, evidence traceability, and audit-ready signed review records";
 
 export const BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK = (findingCount: number, warningCount: number): string => {
   const findingsWord = findingCount === 1 ? "finding" : "findings";
@@ -864,7 +864,7 @@ export const BUYER_AUDIT_TRAIL_COMPLETE_HEADING = "Audit trail for this review";
 
 /** Buyer completion card on audit results — scope framing without "complete" overclaim (BDA-008). */
 export const BUYER_AUDIT_PACKAGE_READY_LEAD =
-  "Decision record, signed review record, evidence trail, governance approval, and audit events are available for this review.";
+  "Decisions, signed review record, evidence trail, governance approval, and audit events are available for this review.";
 
 export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
   "System-recorded events capture automated lifecycle steps.";
@@ -1059,7 +1059,11 @@ export const BUYER_ASK_INPUT_PLACEHOLDER =
 
 export const BUYER_ASK_GROUNDING_SOURCES_LABEL = "cited evidence";
 
-export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Signed decision record";
+/**
+ * @deprecated Prefer {@link SIGNED_MANIFEST_LABEL} / `BUYER_SURFACE_VOCABULARY.signedReviewRecord`.
+ * Kept so older imports resolve to the canonical package noun (not a Decision register row).
+ */
+export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Signed review record";
 
 export const BUYER_MANIFEST_SECTION_DECISION = "Decision";
 
@@ -1125,7 +1129,7 @@ export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
 export const BUYER_MANIFEST_HEADLINE_SUFFIX = "architecture review";
 
 export const BUYER_MANIFEST_AUTHORITY_SUMMARY =
-  "This signed decision record is the authoritative reviewed architecture record for this review — decisions, findings, and downloadable deliverables.";
+  "This signed review record is the authoritative architecture package for this review — decisions, findings, and downloadable deliverables.";
 
 export const BUYER_MANIFEST_TOP_RISK_CTA = "View top risk and evidence";
 
@@ -1230,7 +1234,7 @@ export const BUYER_EVIDENCE_GRAPH_SELECTED_NODE_PANEL_LABEL = "Selected graph no
 
 export const BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA = "Open finding detail";
 
-export const BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA = "Open decision record";
+export const BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA = "Open decision";
 
 export const BUYER_EVIDENCE_GRAPH_VIEW_EVIDENCE_CHAIN_CTA = "View evidence chain";
 
@@ -1279,7 +1283,7 @@ export const BUYER_GOVERNANCE_QUICK_APPROVE_LABEL = "Approve (no critical/high f
 
 export const BUYER_GOVERNANCE_FINDINGS_EMPTY = "Start from a review.";
 
-export const BUYER_GOVERNANCE_WORKFLOW_CTA = "Open governance decision record";
+export const BUYER_GOVERNANCE_WORKFLOW_CTA = "Open governance workflow";
 
 export const BUYER_POLICY_PACK_LEAD =
   "This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated intake paths.";
@@ -1297,8 +1301,7 @@ export const BUYER_AUDIT_REFERENCE_ID_LABEL = "Reference ID";
 export const AUDIT_TRAIL_INTEGRITY_NOTE =
   "Append-only audit trail — every create, finalize, governance decision, and export is recorded with actor, action type, and timestamp. Filter or sort below to inspect the complete event timeline.";
 
-export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance decision record";
-
+export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance workflow";
 export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to governance approval";
 
 export const BUYER_EXAMPLE_COUNT_SUFFIX = "(example)";

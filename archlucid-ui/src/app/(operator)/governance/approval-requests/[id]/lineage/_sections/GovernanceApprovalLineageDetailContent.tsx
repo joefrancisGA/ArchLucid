@@ -74,7 +74,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             <span className="sr-only"> ({a.runId})</span>
           </div>
           <div>
-            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Signed decision record version</span>{" "}
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Signed review record version</span>{" "}
             <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{a.manifestVersion}</span>
           </div>
           <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -113,7 +113,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
         <Card>
           <CardHeader>
             <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Signed review record</CardTitle>
-            <CardDescription>Signed decision record associated with this approval</CardDescription>
+            <CardDescription>Signed review record associated with this approval</CardDescription>
           </CardHeader>
           <CardContent className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <div>Version {data.manifest.manifestVersion ?? "—"}</div>
@@ -167,7 +167,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
               {data.promotions.map((p) => (
                 <li key={p.promotionRecordId} className="rounded-md border p-2">
                   <div className="font-medium">
-                    Decision record <span className="font-mono">{p.manifestVersion}</span>
+                    Signed review record <span className="font-mono">{p.manifestVersion}</span>
                   </div>
                   <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                     {formatInstantForBuyerGovernance(p.promotedUtc)} · {p.promotedBy}

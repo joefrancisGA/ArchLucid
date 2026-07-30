@@ -33,7 +33,7 @@ export const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review
 const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   useWhen: "The review is running or findings are ready but the signed review record is not finalized yet.",
   bridgeCopy:
-    "Stay on this page until you finalize — that locks the signed decision record and unlocks sponsor exports.",
+    "Stay on this page until you finalize — that locks the signed review record and unlocks sponsor exports.",
   primaryAction: { label: "Finalize this review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
   operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
 };

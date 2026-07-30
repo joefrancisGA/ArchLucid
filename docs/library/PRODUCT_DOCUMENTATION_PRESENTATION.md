@@ -88,7 +88,7 @@ https://github.com/.../docs/library/PILOT_GUIDE.md
 The page should open with a product title and summary, for example:
 
 > **Pilot guide**  
-> Learn how to create your first architecture package, attach evidence, review findings, finalize the signed decision record, and export audit-ready evidence.
+> Learn how to create your first architecture package, attach evidence, review findings, finalize the signed review record, and export audit-ready evidence.
 
 An optional footer **View source documentation** link may appear only in **admin/developer/diagnostics** mode — never as the primary CTA for buyers or operators.
 
@@ -132,11 +132,12 @@ Customer-facing documentation must use stable product language aligned with [`UI
 
 | Use | Avoid in buyer/operator help |
 |-----|------------------------------|
-| Review package | Run, job, task (as the primary noun) |
+| Architecture package / review | Run, job, task (as the primary noun) |
 | Finding | Issue, alert (unless describing alerts) |
 | Residual risk | Open issue |
-| Evidence trail | Logs, output |
-| Signed decision record | Decision, result |
+| Evidence trail / graph | Logs, output |
+| Signed review record (package) | Signed decision record, golden manifest |
+| Decision (disposition) | Calling the package a decision record |
 | Governance approval | Sign-off |
 | Audit trail | History (when meaning immutable audit log) |
 

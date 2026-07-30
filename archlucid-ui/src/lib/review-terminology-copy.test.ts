@@ -27,4 +27,13 @@ describe("review terminology copy", () => {
       `finalized ${REVIEW_PACKAGE_LABEL.toLowerCase()} and finding records`,
     );
   });
+
+  it("maps signed decision record package synonym to signed review record", () => {
+    expect(buyerFacingManifestTerminology("Open the signed decision record")).toBe(
+      `Open the ${SIGNED_MANIFEST_LABEL}`,
+    );
+    expect(buyerFacingReviewTerminology("Finalized decision record ready")).toBe(
+      `${SIGNED_MANIFEST_LABEL} ready`,
+    );
+  });
 });

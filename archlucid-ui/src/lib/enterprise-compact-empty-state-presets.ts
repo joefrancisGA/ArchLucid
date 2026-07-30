@@ -115,9 +115,9 @@ export const IDENTITY_PROVIDERS_CATALOG_EMPTY_COMPACT: EnterpriseCompactEmptySta
 /** Decision register when no signed decisions exist for the workspace. */
 export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "decision-register-empty-state",
-  title: "No signed decisions yet",
+  title: "No architecture decisions yet",
   description:
-    "Finalize a review to create signed architecture decisions with supporting findings and evidence lineage.",
+    "Finalize a review to lock its signed review record. Architecture decisions from that package then appear here with findings and evidence lineage.",
   actions: [
     { label: "Open reviews", href: "/reviews?projectId=default", variant: "primary" },
     { label: "Start architecture review", href: "/reviews/new", variant: "outline" },

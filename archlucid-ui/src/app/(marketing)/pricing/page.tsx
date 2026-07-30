@@ -74,7 +74,7 @@ export default async function PricingPage(props: PricingPageProps) {
         className={`mb-6 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} for governed architecture review, evidence traceability, and audit-ready decision records.
+        ArchLucid is an {BRAND_CATEGORY} for governed architecture review, evidence traceability, and audit-ready signed review records.
       </p>
       <MarketingPricingQuotePanel
         initialTierInterest={

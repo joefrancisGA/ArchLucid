@@ -185,7 +185,7 @@ Platform engineering, cloud architecture, or a founder/CTO sponsor uses this acc
 
 ### Sponsor artifact example
 
-A proof package that opens with: “This Azure SaaS review links customer-run Azure inventory, policy-pack checks, findings, and a finalized architecture package into one architecture decision record.” Attach the architecture package export plus the Azure extractor ingest summary; do not attach raw secrets or customer identifiers.
+A proof package that opens with: “This Azure SaaS review links customer-run Azure inventory, policy-pack checks, findings, and a finalized architecture package into one signed review record.” Attach the architecture package export plus the Azure extractor ingest summary; do not attach raw secrets or customer identifiers.
 
 ### ROI and procurement proof points
 

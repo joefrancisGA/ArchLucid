@@ -18,7 +18,7 @@ const graph: ArchitectureRunProvenanceGraph = {
   nodes: [
     { id: "n-ctx", type: "ContextSnapshot", referenceId: "ctx-1", name: "Source context reviewed" },
     { id: "n-find", type: "Finding", referenceId: "f-1", name: "PHI minimization risk" },
-    { id: "n-manifest", type: "GoldenManifest", referenceId: "m-1", name: "Signed decision record" },
+    { id: "n-manifest", type: "GoldenManifest", referenceId: "m-1", name: "Signed review record" },
   ],
   edges: [
     { id: "e-1", type: "supports", fromNodeId: "n-ctx", toNodeId: "n-find" },

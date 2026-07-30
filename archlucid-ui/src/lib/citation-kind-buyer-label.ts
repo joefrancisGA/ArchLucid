@@ -13,7 +13,7 @@ export function citationKindBuyerLabel(kind: CitationReference["kind"]): string 
     case "ContextSnapshot":
       return "Reviewed source context";
     case "DecisionTrace":
-      return "Decision record";
+      return "Decision";
     case "Manifest":
       return SIGNED_MANIFEST_LABEL;
     case "Finding":

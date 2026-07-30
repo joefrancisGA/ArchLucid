@@ -7,9 +7,9 @@ export const GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD =
   "Formal requests submitted for governance review. Each approved or rejected request becomes an audit-trail decision tied to this review.";
 
 export const GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD =
-  "Supporting approval request for the decision record above — the audit trail retains the full submit → review → approve sequence.";
+  "Supporting approval request for the approval decision above — the audit trail retains the full submit → review → approve sequence.";
 
-export const GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE = "Approval decision record";
+export const GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE = "Approval decision";
 
 export const GOVERNANCE_WORKFLOW_OUTCOME_NO_REQUESTS =
   "No approval requests recorded for this review yet. Submit a request after finalize to start the approval path.";
