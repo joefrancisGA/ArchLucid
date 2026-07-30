@@ -14,7 +14,6 @@ export const MARKETING_SITEMAP_PATHNAMES: readonly string[] = [
   "/signup",
   "/signup/verify",
   "/get-started",
-  "/example-roi-bulletin",
   `/showcase/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
 ];
 
