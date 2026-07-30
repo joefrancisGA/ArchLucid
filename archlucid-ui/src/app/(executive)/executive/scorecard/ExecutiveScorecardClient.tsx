@@ -41,13 +41,11 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
-import { formatHours, hoursSurfaced } from "@/lib/roi-assumptions";
+import { hoursSurfaced } from "@/lib/roi-assumptions";
+import { resolveExecutiveScorecardHoursSavedDisplay } from "@/lib/executive-scorecard-hours-saved-display";
 import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
-
-/** Used when severity-weighted ROI hours round to zero but committed reviews exist. */
-const AVERAGE_MANUAL_REVIEW_HOURS = 3;
 
 export type ExecutiveScorecardTimeRange = ExecutiveTimeRange;
 
@@ -254,10 +252,14 @@ export function ExecutiveScorecardClient() {
     medium: report.findingsBySeverity.medium,
     precommitBlocks,
   });
-  const estimatedHours =
-    hoursRoi > 0 ? hoursRoi : reviewsCount * AVERAGE_MANUAL_REVIEW_HOURS;
-  const driftTotal = sumDriftChanges(driftPoints);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const hoursSavedDisplay = resolveExecutiveScorecardHoursSavedDisplay({
+    hoursRoi,
+    reviewsCount,
+    buyerPolished,
+    precommitBlocksExact,
+  });
+  const driftTotal = sumDriftChanges(driftPoints);
   const driftTrend = driftTrendLabel(driftPoints, buyerPolished);
   const scorecardEmpty = reviewsCount === 0;
 
@@ -335,20 +337,10 @@ export function ExecutiveScorecardClient() {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className={cn("m-0", EXECUTIVE_TYPOGRAPHY.kpiValue)}>
-                  {formatHours(estimatedHours)}
+                  {hoursSavedDisplay.valueText}
                 </p>
                 <p className={cn("m-0 mt-1", EXECUTIVE_TYPOGRAPHY.kpiCaption)}>
-                  {buyerPolished
-                    ? "Estimated hours saved (methodology in pilot guide)"
-                    : (
-                        <>
-                          Severity-weighted ROI model
-                          {hoursRoi <= 0 && reviewsCount > 0
-                            ? ` · fallback ${AVERAGE_MANUAL_REVIEW_HOURS} h × reviews when weighted hours are zero`
-                            : ""}
-                          {!precommitBlocksExact ? " · pre-commit block count may be capped" : ""}
-                        </>
-                      )}
+                  {hoursSavedDisplay.caption}
                 </p>
               </CardContent>
             </Card>
