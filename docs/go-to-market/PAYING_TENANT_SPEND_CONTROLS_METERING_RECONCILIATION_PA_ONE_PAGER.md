@@ -1,7 +1,7 @@
-> **Reviewed:** 2026-07-28
+> **Last reviewed:** 2026-07-30
 
-> **Scope:** Path alias for paying-tenant spend / metering PA one-pager.
+# Paying-tenant spend controls + metering reconciliation — secondary path-stable alias (M-295)
 
-# Paying-tenant spend controls (alias)
+**Canon (full body):** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#paying-tenant-llm-spend-storm-m-295`](BUYER_SECURITY_PROCUREMENT_PACKET.md#paying-tenant-llm-spend-storm-m-295)
 
-**Canonical:** [`PAYING_TENANT_LLM_SPEND_STORM_PA_ONE_PAGER.md`](PAYING_TENANT_LLM_SPEND_STORM_PA_ONE_PAGER.md) (GTM **M-295**).
+This filename remains a secondary path-stable alias for GTM **M-294** / **M-295**. Primary filename alias: [`PAYING_TENANT_LLM_SPEND_STORM_PA_ONE_PAGER.md`](PAYING_TENANT_LLM_SPEND_STORM_PA_ONE_PAGER.md). Prefer the procurement-packet section for edits.
