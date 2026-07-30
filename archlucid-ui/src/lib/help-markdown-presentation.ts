@@ -800,6 +800,119 @@ export function stripGovernanceApiContractsContributorLeakage(markdown: string):
     .replace(/\n{3,}/g, "\n\n");
 }
 
+/** H2 sections omitted from in-app pilot ROI model help (contributor spine / related library dump). */
+const PILOT_ROI_MODEL_OMITTED_SECTION_PREFIXES = [
+  "spine",
+  "related guides",
+  "related documentation",
+  "contributor",
+] as const;
+
+/**
+ * TB-1390 — drops Spine / Related contributor navigation sections from pilot ROI help.
+ */
+export function stripPilotRoiModelContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = PILOT_ROI_MODEL_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/**
+ * TB-1390 — removes contributor library spine, eng `.md` paths, GTM archive links, and TB IDs
+ * from in-app pilot ROI model presentation.
+ */
+export function stripPilotRoiModelContributorLeakage(markdown: string): string {
+  let inFence = false;
+
+  const withoutSensitiveRows = markdown
+    .split("\n")
+    .filter((line) => {
+      const trimmedStart = line.trimStart();
+
+      if (trimmedStart.startsWith("```")) {
+        inFence = !inFence;
+        return true;
+      }
+
+      if (inFence) {
+        return true;
+      }
+
+      if (/START_HERE\.md/i.test(line)) {
+        return false;
+      }
+
+      if (/V1_SCOPE\.md/i.test(line)) {
+        return false;
+      }
+
+      if (/CORE_PILOT\.md/i.test(line)) {
+        return false;
+      }
+
+      if (/REPOSITORY_README/i.test(line)) {
+        return false;
+      }
+
+      if (/archive\/gtm-internal/i.test(line)) {
+        return false;
+      }
+
+      if (/OPERATOR_DECISION_GUIDE/i.test(line)) {
+        return false;
+      }
+
+      if (/PRODUCT_PACKAGING/i.test(line)) {
+        return false;
+      }
+
+      if (/PMF tracker/i.test(line)) {
+        return false;
+      }
+
+      if (/CLI copy/i.test(line) && /CI strings/i.test(line)) {
+        return false;
+      }
+
+      if (/docs\/go-to-market\/validation\//i.test(line)) {
+        return false;
+      }
+
+      return true;
+    })
+    .join("\n");
+
+  return withoutSensitiveRows
+    .replace(/\s*\(TB-\d+\)/gi, "")
+    .replace(/\bTB-\d+\b/gi, "")
+    .replace(/`?START_HERE\.md`?/gi, "product documentation index")
+    .replace(/`?V1_SCOPE\.md`?/gi, "V1 product scope")
+    .replace(/`?CORE_PILOT\.md`?/gi, "Your first architecture review")
+    .replace(/`?REPOSITORY_README`?/gi, "repository overview")
+    .replace(/`?OPERATOR_DECISION_GUIDE\.md`?/gi, "deployment decision guide")
+    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "product packaging guide")
+    .replace(/`?PILOT_ROI_MODEL\.md`?/gi, "pilot ROI methodology")
+    .replace(/PILOT_ROI_MODEL\.md/gi, "pilot ROI methodology")
+    .replace(/`?docs\/go-to-market\/[^`\s)]+`?/gi, "go-to-market documentation")
+    .replace(/docs\/go-to-market\/[^\s)]+/gi, "go-to-market documentation")
+    .replace(/`?docs\/library\/[^`\s)]+`?/gi, "product documentation")
+    .replace(/docs\/library\/[^\s)]+/gi, "product documentation")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -935,6 +1048,7 @@ export function prepareHelpMarkdownForPresentation(
   );
   const isEvaluatorWorkbook = normalizedSourcePath.includes("evaluator_workbook.md");
   const isGovernanceApiContracts = normalizedSourcePath.includes("api_contracts.md");
+  const isPilotRoiModel = normalizedSourcePath.includes("pilot_roi_model.md");
   // TB-1346 — retarget runbook .md links to /help before generic link rewrite drops them.
   const afterEvaluatorWorkbookStrip = isEvaluatorWorkbook
     ? stripEvaluatorWorkbookContributorLeakage(withoutInlineReferences)
@@ -945,7 +1059,9 @@ export function prepareHelpMarkdownForPresentation(
       ? stripEnterpriseOnboardingContributorSections(afterEvaluatorWorkbookStrip)
       : isGovernanceApiContracts
         ? stripGovernanceApiContractsContributorSections(afterEvaluatorWorkbookStrip)
-        : afterEvaluatorWorkbookStrip;
+        : isPilotRoiModel
+          ? stripPilotRoiModelContributorSections(afterEvaluatorWorkbookStrip)
+          : afterEvaluatorWorkbookStrip;
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
@@ -959,6 +1075,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripEnterpriseOnboardingContributorLeakage(sanitized);
   } else if (isGovernanceApiContracts) {
     afterAudienceStrip = stripGovernanceApiContractsContributorLeakage(sanitized);
+  } else if (isPilotRoiModel) {
+    afterAudienceStrip = stripPilotRoiModelContributorLeakage(sanitized);
   }
 
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);

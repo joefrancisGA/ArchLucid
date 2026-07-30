@@ -24,6 +24,8 @@ import {
   stripEvaluatorWorkbookContributorLeakage,
   stripGovernanceApiContractsContributorLeakage,
   stripGovernanceApiContractsContributorSections,
+  stripPilotRoiModelContributorLeakage,
+  stripPilotRoiModelContributorSections,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -242,6 +244,71 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("API host configuration");
     expect(prepared).not.toContain("Runbook:");
     expect(prepared).not.toContain("TROUBLESHOOTING");
+  });
+
+  it("omits Spine and Related sections from pilot ROI model presentation (TB-1390)", () => {
+    const source = [
+      "## Measurement overview",
+      "",
+      "Use buyer-provided baselines.",
+      "",
+      "## Spine",
+      "",
+      "START_HERE.md and CORE_PILOT.md",
+      "",
+      "## Related guides",
+      "",
+      "REPOSITORY_README and archive/gtm-internal/PMF tracker",
+      "",
+      "## Scorecard inputs",
+      "",
+      "Label every figure.",
+    ].join("\n");
+
+    const prepared = stripPilotRoiModelContributorSections(source);
+
+    expect(prepared.toLowerCase()).not.toContain("## spine");
+    expect(prepared.toLowerCase()).not.toContain("## related guides");
+    expect(prepared).toContain("## Measurement overview");
+    expect(prepared).toContain("## Scorecard inputs");
+    expect(prepared).not.toContain("START_HERE");
+  });
+
+  it("strips contributor spine and eng doc leakage from pilot ROI model (TB-1390)", () => {
+    const source = [
+      "Spine: START_HERE.md",
+      "",
+      "Related: V1_SCOPE.md, CORE_PILOT.md, OPERATOR_DECISION_GUIDE.md",
+      "",
+      "Archive: archive/gtm-internal/pmf-tracker.md",
+      "",
+      "Alias for product formatters, CLI copy, and CI strings that cite bare PILOT_ROI_MODEL.md.",
+    ].join("\n");
+
+    const prepared = stripPilotRoiModelContributorLeakage(source);
+
+    expect(prepared).not.toMatch(/\bTB-\d+\b/i);
+    expect(prepared).not.toContain("START_HERE.md");
+    expect(prepared).not.toContain("V1_SCOPE.md");
+    expect(prepared).not.toContain("CORE_PILOT.md");
+    expect(prepared).not.toContain("REPOSITORY_README");
+    expect(prepared).not.toContain("archive/gtm-internal");
+    expect(prepared).not.toContain("CLI copy");
+    expect(prepared).not.toContain("CI strings");
+  });
+
+  it("rewrites pilot ROI model scorecard links to in-app help (TB-1390)", () => {
+    const source = [
+      "Scorecard: [Pilot success scorecard](../go-to-market/PILOT_SUCCESS_SCORECARD.md#pilot-roi-measurement).",
+      "",
+      "TCO: [ROI model](../go-to-market/ROI_MODEL.md).",
+    ].join("\n");
+
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/PILOT_ROI_MODEL.md");
+
+    expect(prepared).toContain("/help/pilot-guide");
+    expect(prepared).toContain("/help/executive-summary");
+    expect(prepared.toLowerCase()).not.toContain("docs/go-to-market");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

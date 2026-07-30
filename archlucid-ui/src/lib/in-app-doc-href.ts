@@ -91,6 +91,8 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/go-to-market/ui_glossary_v1.md": "scope",
   "docs/library/core_pilot.md": "core-pilot",
   "docs/library/pilot_guide.md": "pilot-guide",
+  "docs/go-to-market/pilot_success_scorecard.md": "pilot-guide",
+  "docs/go-to-market/roi_model.md": "executive-summary",
   "docs/pre_commit_governance_gate.md": "governance-approval",
   "docs/alerts.md": "alerts",
   "archlucid-ui/docs/testing_and_troubleshooting.md": "troubleshooting",
