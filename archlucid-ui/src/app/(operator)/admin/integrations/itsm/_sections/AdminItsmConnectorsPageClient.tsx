@@ -18,6 +18,9 @@ import {
   ITSM_CONNECTORS_ADMIN_LABEL,
   ITSM_CONNECTORS_ADMIN_PATH,
   ITSM_CONNECTORS_ADMIN_SUMMARY,
+  ITSM_CONNECTORS_NATIVE_DISABLED_MESSAGE,
+  ITSM_CONNECTORS_NATIVE_ENABLED_MESSAGE,
+  ITSM_CONNECTORS_PAGE_CONFIG_CARD_TITLE,
 } from "@/lib/itsm-connectors-admin-scope";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -74,7 +77,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
 
       <Card data-testid="admin-itsm-connectors-scope">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>V1 scope</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{ITSM_CONNECTORS_PAGE_CONFIG_CARD_TITLE}</CardTitle>
           <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
             Buyer-facing{" "}
             <Link
@@ -99,12 +102,9 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         </CardHeader>
         <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {health?.nativeEnabled === true ? (
-            <p className="m-0">Native outbound create is enabled for this deployment.</p>
+            <p className="m-0">{ITSM_CONNECTORS_NATIVE_ENABLED_MESSAGE}</p>
           ) : (
-            <p className="m-0">
-              Native outbound create is disabled for this deployment (clipboard export still available). Re-enable with{" "}
-              <code className={OPERATOR_TYPOGRAPHY.micro}>Integrations:Itsm:NativeEnabled=true</code> after smoke validation.
-            </p>
+            <p className="m-0">{ITSM_CONNECTORS_NATIVE_DISABLED_MESSAGE}</p>
           )}
           {settings?.hasTenantOverrides ? (
             <p className="m-0">Tenant ITSM outbound overrides are saved for this tenant.</p>
