@@ -418,8 +418,19 @@ export function SocraticIntakeWizard() {
     setSubmitError(null);
 
     try {
+      // Persist only locally saved answers. API skips are already recorded; empty
+      // saved keys mean skip (or a stale pending row after skip refresh lag).
       for (const question of pendingQuestions) {
+        if (!savedLocallyQuestionKeys.has(question.questionKey)) {
+          continue;
+        }
+
         const answer = answers[question.questionKey]?.trim() ?? "";
+
+        if (answer.length === 0) {
+          continue;
+        }
+
         await answerDraftQuestion(draftId, question.questionKey, answer);
       }
 
@@ -462,6 +473,13 @@ export function SocraticIntakeWizard() {
 
       try {
         await skipDraftQuestion(draftId, questionKey);
+        // Mark handled locally before refresh so Review answers enables even when
+        // GET questions briefly still lists the skipped MUST (live e2e / lag).
+        setSavedLocallyQuestionKeys((current) => {
+          const next = new Set(current);
+          next.add(questionKey);
+          return next;
+        });
         await refreshQuestions(draftId);
         showSuccess("Question skipped — recorded on the transparency trail.");
       } catch (error) {
