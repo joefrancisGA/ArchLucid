@@ -263,10 +263,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         {buyerPolishedLayout ? (
           <>
             {showcasePackage === true ? (
-              <>
-                This <strong>signed review record</strong> is the authoritative architecture package for this
-                review — decisions, findings, and downloadable deliverables.
-              </>
+              BUYER_MANIFEST_AUTHORITY_SUMMARY
             ) : (
               <>
                 This is the signed review record for the architecture review — decisions, findings, and the files you can
@@ -276,7 +273,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           </>
         ) : (
           <>
-            A signed review record is the immutable package for this review. It captures decisions, findings, and the
+            A signed review record is the immutable authority for this review. It captures decisions, findings, and the
             downloadable artifact bundle linked from review detail.
           </>
         )}
