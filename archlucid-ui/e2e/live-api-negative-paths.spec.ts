@@ -52,7 +52,8 @@ test.describe("live-api-negative-paths", () => {
   test("governance self-approval blocked: submit then approve as same actor → 400 + audit", async ({
     request,
   }) => {
-    test.setTimeout(liveE2eArchitectureRunCyclePlaywrightTimeoutMs());
+    // Shared live-API load: create→execute→commit plus governance can exceed the default 600s CI budget.
+    test.setTimeout(Math.max(liveE2eArchitectureRunCyclePlaywrightTimeoutMs(), 900_000));
 
     const createBody = {
       requestId: `E2E-LIVE-SELF-APPR-${Date.now()}`,
@@ -73,7 +74,7 @@ test.describe("live-api-negative-paths", () => {
     const { runId } = await createRun(request, createBody, tenantScope);
 
     await executeRun(request, runId, tenantScope);
-    await waitForReadyForCommit(request, runId, 90_000, tenantScope);
+    await waitForReadyForCommit(request, runId, liveE2eCommitWaitMs(90_000), tenantScope);
 
     const commitJson = await commitRun(request, runId, tenantScope);
     const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;
@@ -82,8 +83,8 @@ test.describe("live-api-negative-paths", () => {
       throw new Error("Commit response missing manifest.metadata.manifestVersion");
     }
 
-    await waitForRunDetailCommitted(request, runId, 60_000, tenantScope);
-    await waitForAuthorityRunSummaryReady(request, runId, 60_000, tenantScope);
+    await waitForRunDetailCommitted(request, runId, liveE2eCommitWaitMs(90_000), tenantScope);
+    await waitForAuthorityRunSummaryReady(request, runId, liveE2eCommitWaitMs(60_000), tenantScope);
 
     const submitted = await createApprovalRequest(
       request,

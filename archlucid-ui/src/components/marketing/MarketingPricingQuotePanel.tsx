@@ -283,7 +283,10 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
 
           <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span>Message</span>
-            <span className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            <span
+              id="pricing-quote-message-help"
+              className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            >
               Add context not covered above; procurement and account teams follow up on details.
             </span>
             <textarea
@@ -292,6 +295,8 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
               rows={4}
               value={message}
               onChange={(ev) => setMessage(ev.target.value)}
+              aria-label="Message"
+              aria-describedby="pricing-quote-message-help"
               className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
             />
           </label>
