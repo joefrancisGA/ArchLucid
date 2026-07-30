@@ -137,8 +137,15 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
           </a>
         </Button>
         <Link
+          data-testid="see-it-cta-demo-preview"
+          className="inline-flex min-h-6 items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
+          href="/demo/preview"
+        >
+          See a full sample review output — no sign-in
+        </Link>
+        <Link
           data-testid="see-it-full-preview-link"
-          className="inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
+          className="inline-flex min-h-6 items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
           href={CANONICAL_ANONYMOUS_PROOF_HREF}
         >
           Open healthcare claims sample review

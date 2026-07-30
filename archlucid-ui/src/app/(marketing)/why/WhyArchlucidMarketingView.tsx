@@ -13,7 +13,8 @@ import { type WhyHardComparisonRow, whyHardCellDisplay } from "@/lib/why-compari
 import { MARKETING_GENERIC_AI_CONTRAST_POINTS } from "@/lib/marketing-generic-ai-contrast";
 
 function renderWhyVerifyLink(link: WhyVerifyLink): ReactNode {
-  const className = `break-words ${MARKETING_SURFACES.inlineLink}`;
+  // min-h-6 + py-1 keeps Verify cell anchors ≥24px for axe target-size / target-offset.
+  const className = `inline-flex min-h-6 items-center break-words py-1 ${MARKETING_SURFACES.inlineLink}`;
 
   const key = `${link.href}|${link.label}`;
 
@@ -42,7 +43,7 @@ function renderWhyVerifyLink(link: WhyVerifyLink): ReactNode {
 
 function WhyHardComparisonVerifyCell({ links }: { readonly links: readonly WhyVerifyLink[] }): ReactNode {
   return (
-    <div className="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug">{links.map(renderWhyVerifyLink)}</div>
+    <div className="flex max-w-[14rem] flex-col gap-2 align-top text-xs leading-snug">{links.map(renderWhyVerifyLink)}</div>
   );
 }
 

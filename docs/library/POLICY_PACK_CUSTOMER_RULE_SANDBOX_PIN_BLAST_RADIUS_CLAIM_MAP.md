@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Policy packs — customer rule sandbox, manifest pin, blast radius
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.

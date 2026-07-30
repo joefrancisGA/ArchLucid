@@ -771,7 +771,7 @@ Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CP
 
 | Too strong | Safe |
 | --- | --- |
-| “SOC 2 certified” / “third-party pen tested” | Self-attested / owner-conducted / program deferred |
+| “We hold a CPA-issued SOC 2 report” / “third-party pen tested” | Self-attested / owner-conducted / program deferred |
 | “Trust Center equals CPA attestation” | Trust Center is honesty + evidence pointers |
 | Mock-review FAIL because CPA missing | Mock PASS may accept deferred `(B)` as scope |
 
@@ -1379,7 +1379,7 @@ Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md
 | Ready / Needs attention | Terminal or actionable after resume/reconcile |
 | Persisted task already completed | Resume can skip the persisted `(RunId, TaskId)` result |
 | Partial outcomes | Some agents persisted; commit may block until required agents complete (**TB-937**) |
-| In-flight provider call | Spend and completion outcome may be uncertain after a hard replica loss |
+| Mid-request provider call | Spend and completion outcome may be uncertain after a hard replica loss |
 
 ### Too strong vs safe
 
