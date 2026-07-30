@@ -1246,6 +1246,7 @@ export function stripAzureBoardsContributorLeakage(markdown: string): string {
   flushDetailsBuffer();
 
   return result
+    .join("\n")
     .replace(/`?docs\/integrations\/smoke\/[^`\s)]+`?/gi, "connector validation runbook")
     .replace(/docs\/integrations\/smoke\/[^\s)]+/gi, "connector validation runbook")
     .replace(/\n{3,}/g, "\n\n");
