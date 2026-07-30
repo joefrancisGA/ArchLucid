@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   CLOUD_CONNECTIONS_PATH,
   INTEGRATIONS_READINESS_PATH,
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH,
   LEGACY_CLOUD_CONNECTIONS_PATH,
   LEGACY_INTEGRATIONS_ITSM_PATH,
   LEGACY_INTEGRATIONS_OPERATIONS_PATH,
@@ -31,5 +32,6 @@ describe("integrations-nav-paths (TB-407 / TB-408 / TB-750)", () => {
   it("documents legacy redirect sources", () => {
     expect(LEGACY_CLOUD_CONNECTIONS_PATH).toBe("/settings/cloud-connections");
     expect(LEGACY_INTEGRATIONS_ITSM_PATH).toBe("/integrations/itsm");
+    expect(ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH).toBe("/integrations/itsm/oauth/callback");
   });
 });

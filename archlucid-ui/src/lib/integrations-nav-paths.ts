@@ -6,8 +6,11 @@ export const INTEGRATIONS_READINESS_PATH = "/integrations/readiness";
 /** Legacy browser path — permanent redirect to {@link INTEGRATIONS_READINESS_PATH} (TB-408). */
 export const LEGACY_INTEGRATIONS_OPERATIONS_PATH = "/integrations/operations";
 
-/** Legacy combined operator route — redirects to Integration readiness; use Jira/ServiceNow paths instead. */
+/** Legacy combined operator route — hub redirects to Integration readiness; OAuth callback stays reachable (TB-1776). */
 export const LEGACY_INTEGRATIONS_ITSM_PATH = "/integrations/itsm";
+
+/** Atlassian OAuth return URL — must not be covered by the ITSM hub readiness redirect (TB-1776 / TB-600). */
+export const ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH = "/integrations/itsm/oauth/callback";
 
 export const INTEGRATIONS_JIRA_PATH = "/integrations/jira";
 

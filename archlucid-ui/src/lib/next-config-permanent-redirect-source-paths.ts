@@ -7,6 +7,7 @@ import {
   LEGACY_POLICY_PACKS_PATH,
 } from "@/lib/governance-route-paths";
 import {
+  ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH,
   LEGACY_CLOUD_CONNECTIONS_PATH,
   LEGACY_INTEGRATIONS_ITSM_PATH,
   LEGACY_INTEGRATIONS_OPERATIONS_PATH,
@@ -65,7 +66,22 @@ export function hrefTargetsPermanentRedirectSource(
 ): boolean {
   const pathname = hrefPathname(href);
 
-  return sources.some(
-    (source) => pathname === source || pathname.startsWith(`${source}/`),
-  );
+  return sources.some((source) => {
+    if (pathname === source) {
+      return true;
+    }
+
+    if (!pathname.startsWith(`${source}/`)) {
+      return false;
+    }
+
+    if (
+      source === LEGACY_INTEGRATIONS_ITSM_PATH
+      && pathname.startsWith(`${ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH}`)
+    ) {
+      return false;
+    }
+
+    return true;
+  });
 }
