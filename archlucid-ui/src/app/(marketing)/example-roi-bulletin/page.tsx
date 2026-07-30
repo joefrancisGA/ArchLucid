@@ -39,12 +39,12 @@ export default function ExampleRoiBulletinMarketingPage() {
 
       <section
         className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-6 p-4 text-sm"
-        aria-label="Operator-only real publication gate"
+        aria-label="Admin-only real publication gate"
       >
-        <p className="m-0 font-medium">Operator-only: real aggregate preview (Admin API)</p>
+        <p className="m-0 font-medium">Admin-only: real aggregate preview (Admin API)</p>
         <p className="mt-2 m-0 leading-relaxed">
           Authentic aggregate numbers require an API key with <strong>Admin access</strong> after sign-in. The same
-          contract the operator CLI uses is exposed as a same-origin link (returns <strong>401/403</strong> without
+          contract the ArchLucid CLI uses is exposed as a same-origin link (returns <strong>401/403</strong> without
           credentials — expected on this public page):
         </p>
         <p className="mt-3 m-0">
@@ -52,7 +52,7 @@ export default function ExampleRoiBulletinMarketingPage() {
             className="font-medium text-amber-900 underline underline-offset-2 dark:text-amber-200"
             href={operatorAdminPreviewHref}
           >
-            Open operator-only admin preview (sign-in required)
+            Open admin-only preview (sign-in required)
           </Link>
         </p>
       </section>
@@ -75,7 +75,7 @@ export default function ExampleRoiBulletinMarketingPage() {
           <Link className="underline underline-offset-2" href={EXAMPLE_ROI_BULLETIN_METHODOLOGY_HELP_HREF}>
             Pilot ROI model (help)
           </Link>
-          . Signed-in operators with Admin access can generate a synthetic CLI draft with{" "}
+          . Signed-in admins can generate a synthetic CLI draft with{" "}
           <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">
             archlucid roi-bulletin --quarter {illustrativeQuarter} --synthetic
           </code>

@@ -125,7 +125,8 @@ describe("ExecutiveScorecardClient", () => {
       findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
     });
     vi.mocked(getComplianceDriftTrend).mockResolvedValue(mockDrift);
-    vi.mocked(countAuditEventsInWindow).mockResolvedValue({ count: 1, exact: true });
+    // Pre-commit audit hits also feed hoursSurfaced — keep at zero so weighted ROI is truly empty.
+    vi.mocked(countAuditEventsInWindow).mockResolvedValue({ count: 0, exact: true });
 
     const { container } = render(<ExecutiveScorecardClient />);
 

@@ -30,6 +30,10 @@ describe("formatHours", () => {
     expect(formatHours(1.25)).toBe("1.3 h");
   });
 
+  it("formats whole hours without a trailing .0", () => {
+    expect(formatHours(12)).toBe("12 h");
+  });
+
   it("formats zero", () => {
     expect(formatHours(0)).toBe("0 h");
   });
