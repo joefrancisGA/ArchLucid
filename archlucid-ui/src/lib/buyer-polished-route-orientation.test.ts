@@ -2,6 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/search/_sections/search-page-copy";
+import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import {
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import { buyerPolishedRouteOrientation } from "./buyer-polished-route-orientation";
@@ -133,18 +139,14 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(legacy).toEqual(canonical);
   });
 
-  it("orients the sponsor report executive summary route", () => {
-    const o = buyerPolishedRouteOrientation("/sponsor-report/executive-summary");
-
-    expect(o?.label).toBe("Sponsor report");
-    expect(o?.line).toContain("sponsor-ready summaries");
-  });
-
-  it("orients the sponsor report pilot outcomes route", () => {
-    const o = buyerPolishedRouteOrientation("/sponsor-report/pilot-outcomes");
-
-    expect(o?.label).toBe("Sponsor report");
-    expect(o?.line).toContain("Pilot outcomes");
+  it("returns null for value-report sponsor hero routes — page header owns the lead (TB-1437)", () => {
+    expect(buyerPolishedRouteOrientation("/value-report")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/value-report/pilot")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/value-report/roi")).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_ROI_SUMMARY_PATH)).toBeNull();
+    expect(buyerPolishedRouteOrientation("/value-report")?.line).not.toBe(BUYER_VALUE_REPORT_PAGE_SUBTITLE);
   });
 
   it("returns null for bare /governance — OperatorPageHeader owns the overview lead (TB-1434)", () => {

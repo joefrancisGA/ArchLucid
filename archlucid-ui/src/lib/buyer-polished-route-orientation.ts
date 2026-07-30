@@ -3,7 +3,6 @@ import {
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
-  SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
 import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAlertRules, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -32,6 +31,18 @@ export type BuyerPolishedRouteOrientationOptions = {
   /** When `/search` or `/governance` carries `runId`, header copy can reflect a scoped review. */
   readonly searchRunId?: string;
 };
+
+function pathMatchesValueReportSponsorHeroRoutes(pathname: string): boolean {
+  return (
+    pathname === "/value-report" ||
+    pathname.startsWith("/value-report/") ||
+    pathname === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH ||
+    pathname === SPONSOR_REPORT_PILOT_OUTCOMES_PATH ||
+    pathname.startsWith(`${SPONSOR_REPORT_PILOT_OUTCOMES_PATH}/`) ||
+    pathname === SPONSOR_REPORT_ROI_SUMMARY_PATH ||
+    pathname.startsWith(`${SPONSOR_REPORT_ROI_SUMMARY_PATH}/`)
+  );
+}
 
 /**
  * Stable header strip orientation for buyer-polished shell — replaces abstract layer questions where path is known.
@@ -284,25 +295,9 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path === "/value-report" || path === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH) {
-    return {
-      label: SPONSOR_REPORT_SECTION_LABEL,
-      line: "Generate sponsor-ready summaries of review outcomes, ROI, and governance progress.",
-    };
-  }
-
-  if (path.startsWith("/value-report/pilot") || path.startsWith(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)) {
-    return {
-      label: SPONSOR_REPORT_SECTION_LABEL,
-      line: "Pilot outcomes — metrics and governance signals from finalized reviews.",
-    };
-  }
-
-  if (path.startsWith("/value-report/roi") || path.startsWith(SPONSOR_REPORT_ROI_SUMMARY_PATH)) {
-    return {
-      label: SPONSOR_REPORT_SECTION_LABEL,
-      line: "ROI summary — estimated review-time savings from finalized findings and governance blocks.",
-    };
+  if (pathMatchesValueReportSponsorHeroRoutes(path)) {
+    // Value-report pages carry their own page hero (TB-1437) — not strip + LayerHeader + subtitle twins.
+    return null;
   }
 
   if (path.startsWith("/scorecard") || path.startsWith(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)) {

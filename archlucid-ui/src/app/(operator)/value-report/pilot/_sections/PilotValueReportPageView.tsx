@@ -8,6 +8,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -71,9 +72,11 @@ export function PilotValueReportPageView(props: Props) {
     periodControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <div className="w-full max-w-[1440px] space-y-4 print:w-full" data-testid="pilot-outcomes-page">
-      <LayerHeader pageKey="value-report-pilot" />
+      {buyerPolishedShell ? null : <LayerHeader pageKey="value-report-pilot" />}
       <ValueReportOutcomesNav />
       <DocumentLayout>
         <header className="space-y-2">
