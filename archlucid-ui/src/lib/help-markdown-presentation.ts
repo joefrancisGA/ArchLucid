@@ -1273,6 +1273,22 @@ export function stripCaiqSigContributorLeakage(markdown: string): string {
 }
 
 /**
+ * TB-1653 / TB-1284 — soften absolute cross-tenant isolation claims in data-handling help.
+ */
+export function alignDataHandlingIsolationHonesty(markdown: string): string {
+  if (!/cross-tenant data access is not part of the product design/i.test(markdown)) {
+    return markdown;
+  }
+
+  return markdown
+    .replace(
+      /Each customer tenant uses a dedicated database\.\s*Cross-tenant data access is not part of the product design\./gi,
+      "Each customer tenant uses a dedicated database catalog. Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust) and [Data handling and tenant isolation](/help/data-handling-tenant-isolation).",
+    )
+    .replace(/\n{3,}/g, "\n\n");
+}
+
+/**
  * TB-1633 — aligns CAIQ/SIG questionnaire help with assurance honesty talk-track
  * (ASSURANCE_STATUS_CANONICAL / TB-1144): SoW/program ≠ published third-party pen test;
  * never imply CPA SOC 2 attestation or "pen test in flight."
@@ -1480,7 +1496,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = alignCaiqSigAssuranceHonesty(stripCaiqSigContributorLeakage(sanitized));
   }
 
-  const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);
+  const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);
+  const withoutHorizontalRules = stripMarkdownHorizontalRules(afterIsolationHonesty);
   const presentationBody =
     options?.preserveMaintenanceMetadata === true
       ? withoutHorizontalRules

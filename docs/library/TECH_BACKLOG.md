@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1776** **Done** — ITSM hub redirect only; OAuth callback path excluded from wildcard; Vitest). Prior: 2026-07-30 (**TB-1633** **Done** — CAIQ/SIG help assurance honesty: no pen-test-in-flight / SOC-ready overclaims; Vitest).
+**Updated:** 2026-07-30 (**TB-1653** **Done** — data-handling help softens absolute cross-tenant isolation claim; Vitest). Prior: 2026-07-30 (**TB-1776** **Done** — ITSM hub redirect only; OAuth callback path excluded from wildcard; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1126,7 +1126,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1550 | Evidence/audit ordering & causality claim map (wall-clock vs sequence); see `## TB-1550` below | Trustworthiness P1 — **V1**; PA audit-sequence Q; GTM **M-284**/**M-285**; see `EVIDENCE_AUDIT_ORDERING_CAUSALITY_CLAIM_MAP.md` | S |
 | TB-1551 | Anti-DB-sequence / anti-Lamport / anti-UI-as-forensic honesty CI; see `## TB-1551` below | Testability P1 — **V1**; after **TB-1550**; pairs **M-284** | S |
 | TB-1552 | Operator empty-state contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1552 below | Adoption friction P1 — **V1**; owner empty-state convention pass 2026-07-27; pairs CTA **TB-1539**–**TB-1544** / whitespace **TB-1477**–**TB-1482** | S |
-| TB-1553 | Reviews hub empty — migrate hand-rolled dashed box → EnterpriseCompactEmptyState; see ## TB-1553 below | Adoption friction P1 — **V1**; with **TB-1552**; coordinate **TB-1541** | S |
+| TB-1553 | **Done** (2026-07-30) — Reviews hub empty → `EnterpriseCompactEmptyState` + sample outline only (no second Start); see `## TB-1553` below | Adoption friction P3 — **V1**; with **TB-1541** / **TB-1552** | S |
 | TB-1554 | Operator EmptyState → Compact migration inventory (dense hubs); see ## TB-1554 below | Adoption friction P1 — **V1**; with **TB-1552** | M |
 | TB-1555 | Empty-kind presets/helpers — collection / hub-zone / filtered / permission conventions; see ## TB-1555 below | Adoption friction P1 — **V1**; with **TB-1552**; extend `enterprise-compact-empty-state-presets.ts` | S |
 | TB-1556 | Vitest — Compact empty on allowlist + ban empty-theater stacks (coordinate TB-1482); see ## TB-1556 below | Testability P2 — **V1**; after **TB-1553**–**TB-1555**; pairs **TB-1552** / **TB-1482** | S |
@@ -1221,7 +1221,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1650 | Vitest — EnterpriseTable allowlist + ban inventing card/raw inventory; see ## TB-1650 below | Testability P2 — **V1**; after **TB-1647**–**TB-1649**; pairs **TB-1646** / **TB-1556** / **TB-1576** | S |
 | TB-1651 | `/help/data-handling` specialty buyer guide + Trust/security CTA; see ## TB-1651 below | Adoption friction P1 — **V1**; owner review ~52/100 2026-07-27; traffic **HED**; pairs **TB-1414**; IDs skip PA **TB-1646**–**TB-1650** | M |
 | TB-1652 | Data-handling help — IA dual with data-handling-tenant-isolation; see ## TB-1652 below | Adoption friction P1 — **V1**; with **TB-1651**; traffic **HDA** sibling | S |
-| TB-1653 | Data-handling help — isolation absolute-claim honesty; see ## TB-1653 below | Trustworthiness P0 — **V1**; with **TB-1651**; pairs **TB-1284**/**TB-1418** | S |
+| TB-1653 | **Done** (2026-07-30) — data-handling help aligns isolation copy to honesty ladder (`alignDataHandlingIsolationHonesty`); Vitest; see `## TB-1653` below | Trustworthiness P0 — **V1**; with **TB-1651**; pairs **TB-1284**/**TB-1418** | S |
 | TB-1654 | Data-handling help — leaves/stays first-viewport job chrome; see ## TB-1654 below | Adoption friction P1 — **V1**; with **TB-1651** | S |
 | TB-1655 | Data-handling help — Related + security-trust / Trust Center discovery; see ## TB-1655 below | Adoption friction P1 — **V1**; with **TB-1651** | S |
 | TB-1656 | `/help/data-handling-tenant-isolation` retarget SoT after TENANT_ISOLATION stub; see ## TB-1656 below | Trustworthiness P1 — **V1**; owner review ~38/100 2026-07-27; traffic **HDA**; pairs **TB-1652** | M |
@@ -1241,7 +1241,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1670 | Vitest — PageContextualHelpButton allowlist + non-null topic guard; see ## TB-1670 below | Testability P2 — **V1**; after **TB-1667**–**TB-1669**; pairs **TB-1666** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** | S |
 | TB-1671 | Operator inline-link affordance contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1671 below | Adoption friction P1 — **V1**; owner unstyled-link pass 2026-07-27; traffic **OLA**; pairs a11y `UI-Accessibility-Baseline.mdc` / CTA **TB-1539**; IDs skip OPH **TB-1666**–**TB-1670** / line-tabs **TB-1661**–**TB-1665** | S |
 | TB-1672 | Compare + provenance — bare body/outline links → OPERATOR_LINK; see ## TB-1672 below | Accessibility P1 — **V1**; with **TB-1671**; `/compare` outline + DOCX download + provenance graph helper | S |
-| TB-1673 | Home + Reviews hub + marketing/core-pilot — resting link affordance (ban hover-only / no-underline overrides); see ## TB-1673 below | Adoption friction P1 — **V1**; with **TB-1671**; pairs **TB-1539** | S |
+| TB-1673 | **Done** (2026-07-30) — resting link affordance on home recommended-next, Reviews titles, Signup pricing, Core Pilot checkpoints, Demo preview Schedule demo; see `## TB-1673` below | Adoption friction P3 — **V1**; with **TB-1671**; pairs **TB-1539** | S |
 | TB-1674 | Finding badges + secondary surfaces — StatusTag-as-link cue + export/ID/pinned inventory; see ## TB-1674 below | Adoption friction P1 — **V1**; with **TB-1671**; product-learning / planning / evolution / pinned nav | M |
 | TB-1675 | Vitest — bare navigational `<a>`/`<Link>` affordance allowlist + ban inherit-only body links; see ## TB-1675 below | Testability P2 — **V1**; after **TB-1672**–**TB-1674**; pairs **TB-1671** / **TB-1556** / **TB-1576** / **TB-1650** / **TB-1665** / **TB-1670** | S |
 | TB-1676 | `/help/dpa-template` specialty buyer DPA guide + request/download CTA; see ## TB-1676 below | Adoption friction P1 — **V1**; owner review ~40/100 2026-07-27; traffic **HDP**; pairs **TB-1414**; IDs skip **TB-1661**–**TB-1675** | M |
@@ -1573,7 +1573,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1569 | Advisory Scans tab — one primary CTA locus (align TB-1539); see ## TB-1569 below | Adoption friction P1 — **V1**; with **TB-1565**; pairs **TB-1539**/**TB-1542** | S |
 | TB-1539 | Operator primary-CTA contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer); see ## TB-1539 below | Adoption friction P1 — **V1**; owner CTA-convention pass 2026-07-27; pairs header narrative **TB-1508**–**TB-1513** | S |
 | TB-1540 | Recurrence — Create `variant="primary"` + empty ranking residual (demote View*); see ## TB-1540 below | Adoption friction P1 — **V1**; residual after Done **TB-1131**; with **TB-1539** | S |
-| TB-1541 | Reviews hub — single Start locus in header actions (demote body/empty duplicate primaries); see ## TB-1541 below | Adoption friction P1 — **V1**; with **TB-1539** | S |
+| TB-1541 | **Done** (2026-07-30) — Reviews hub single Start in header actions; empty theater collapsed; Vitest ≤1 primary; see `## TB-1541` below | Adoption friction P3 — **V1**; with **TB-1539** | S |
 | TB-1542 | Advisory Schedules — empty-first + header Create reveals form (form submit only primary when open); see ## TB-1542 below | Adoption friction P1 — **V1**; with **TB-1539**; pairs **TB-1477** | S |
 | TB-1543 | Key operator hubs — inventory migrate to one-primary CTA rule; see ## TB-1543 below | Adoption friction P1 — **V1**; after **TB-1539**; does not reopen **TB-1141**/**TB-1276** | M |
 | TB-1544 | Vitest — ≤1 `variant="primary"` in header actions + empty first viewport (allowlist); see ## TB-1544 below | Testability P2 — **V1**; after **TB-1540**–**TB-1543**; pairs **TB-1539** | S |
@@ -39318,20 +39318,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-07-30). Owner demoted to **P3** then shipped with **TB-1553** / **TB-1673** on traffic **RE**.
 
-**Priority:** P0.
+**Priority:** P3 (closed).
 
 **Source:** Owner CTA-convention pass 2026-07-27 — `/reviews` has help-only header actions; `ReviewsHubPrimaryActions` body band + empty inventory both use filled Start.
 
-**Problem:** Three places teach “start a review” (body band, empty inventory primary, and sometimes draft resume). Competes with the accepted header contract (actions = primary CTA + optional help).
-
-**Approach:**
-
-1. Move Start / Continue draft into `OperatorPageHeader` actions as `variant="primary"` (+ keep `PageContextualHelpButton`).
-2. Preserve short helper copy via subtitle or a single quiet line under the header — not a second filled button band.
-3. Empty inventory: reuse the same Start/Continue label/href as outline or omit filled duplicate when header already has Start; Sample stays outline.
-4. Vitest: one primary Start in first viewport.
+**Shipped:** `ReviewsHubHeaderActions` (help + single Start/Continue draft); body band is quiet helper only on populated inventory; empty hub collapses summary/samples/includes; Vitest ≤1 primary Start on empty hub.
 
 **Acceptance:** Reviews hub has one filled Start in header; empty does not invent a second primary job.
 
@@ -39875,19 +39868,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-07-30). Owner demoted to **P3** then shipped with **TB-1541** on traffic **RE**.
 
-**Priority:** P0.
+**Priority:** P3 (closed).
 
 **Source:** Owner empty-state convention pass 2026-07-27 — `ReviewsHubReviewInventory` uses a one-off dashed box with filled Start + Sample.
 
-**Problem:** Same visual DNA as Compact without shared component; duplicates Start when **TB-1541** moves primary to header.
-
-**Approach:**
-
-1. Replace hand-rolled markup with `EnterpriseCompactEmptyState` (preset or inline props).
-2. After **TB-1541**: hub-zone empty is copy-only or Sample outline only — no second filled Start.
-3. Vitest: empty uses Compact test id; no duplicate primary vs header.
+**Shipped:** `EnterpriseCompactEmptyState` for Your reviews empty; Sample outline only (Start lives in header); inventory `StatusBadge` → `StatusTag`.
 
 **Acceptance:** Reviews recent-empty uses Compact; CTAs align with **TB-1541**/**TB-1539**.
 
@@ -41326,7 +41313,7 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1653 — Data-handling help — isolation absolute-claim honesty (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** 2026-07-30 — `alignDataHandlingIsolationHonesty` in help presentation; Vitest. **Priority:** P0.
 
 **Problem:** Isolation section says cross-tenant access “is not part of the product design” — too absolute vs DiD / staff surfaces (**TB-1284**, **TB-1418**).
 

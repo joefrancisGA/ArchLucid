@@ -17,6 +17,7 @@ import {
   rewriteHelpMarkdownDocLinks,
   sanitizeBareMarkdownFileReferences,
   alignCaiqSigAssuranceHonesty,
+  alignDataHandlingIsolationHonesty,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -595,6 +596,36 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toMatch(/\|\s*third-party pen test\s*\|\s*in flight\s*\|/);
     expect(prepared).toContain("planned, not yet scheduled");
     expect(prepared).not.toContain("not labeled in flight are explained");
+  });
+
+  it("aligns data-handling isolation copy to honesty ladder (TB-1653)", () => {
+    const source = [
+      "## Isolation",
+      "",
+      "Each customer tenant uses a dedicated database. Cross-tenant data access is not part of the product design. Append-only audit logging records every governed action within your tenant.",
+    ].join("\n");
+
+    const prepared = alignDataHandlingIsolationHonesty(source);
+
+    expect(prepared).not.toMatch(/not part of the product design/i);
+    expect(prepared).toContain("standard customer path");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("/help/data-handling-tenant-isolation");
+    expect(prepared).toContain("Append-only audit logging");
+  });
+
+  it("keeps presented data-handling help free of absolute cross-tenant isolation claims (TB-1653)", () => {
+    const loaded = tryLoadProductDocumentation("data-handling");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath).toLowerCase();
+
+    expect(prepared).not.toMatch(/cross-tenant data access is not part of the product design/);
+    expect(prepared).toContain("standard customer path");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("/help/data-handling-tenant-isolation");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

@@ -6,6 +6,7 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+import { prepareHelpMarkdownForPresentation } from "@/lib/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 
 describe("HelpTopicMarkdownView data-handling", () => {
@@ -31,5 +32,22 @@ describe("HelpTopicMarkdownView data-handling", () => {
     expect(screen.getAllByText(/approved AI provider/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/such as Azure OpenAI/i)).toBeInTheDocument();
     expect(screen.queryByText(/SOC 2 Type II attestation/i)).toBeNull();
+  });
+
+  it("renders soft isolation copy without absolute cross-tenant product-design claim (TB-1653)", () => {
+    if (loaded === null) {
+      throw new Error("Expected data-handling documentation to load.");
+    }
+
+    const sourcePath = loaded.entry.sourcePaths[0] ?? "";
+    const preparedMarkdown = prepareHelpMarkdownForPresentation(loaded.markdown, sourcePath);
+
+    render(<HelpTopicMarkdownView entry={loaded.entry} markdown={loaded.markdown} />);
+
+    const visible = (document.body.textContent ?? "").toLowerCase();
+
+    expect(preparedMarkdown).not.toMatch(/cross-tenant data access is not part of the product design/i);
+    expect(visible).toContain("standard customer path");
+    expect(screen.getAllByRole("link", { name: /security and trust/i }).length).toBeGreaterThan(0);
   });
 });

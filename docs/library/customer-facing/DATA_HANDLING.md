@@ -24,7 +24,7 @@ ArchLucid is not designed to ingest production secrets, credentials, or privileg
 
 ## Isolation {#isolation}
 
-Each customer tenant uses a dedicated database. Cross-tenant data access is not part of the product design. Append-only audit logging records every governed action within your tenant.
+Each customer tenant uses a dedicated database catalog. Tenant identity is decided at the host boundary, and API requests carry a tenant scope that the data layer enforces on tenant-facing queries — that is the standard customer path, not a claim that every staff or platform surface is free of cross-tenant aggregation. For isolation and assurance detail, see [Security and trust](/help/security-trust) and [Data handling and tenant isolation](/help/data-handling-tenant-isolation). Append-only audit logging records every governed action within your tenant.
 
 ## Audit trail {#audit-trail}
 
