@@ -247,7 +247,7 @@ Reviews depend on a small team of senior architects who apply different standard
 
 ### The solution
 
-ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review you can show without narration** — complete with recommended actions, confidence ratings, limits where the model did not conclude, and an exportable executive summary.
+ArchLucid turns scattered architecture evidence into **prioritized architecture risks with evidence-linked findings you can show without narration** — complete with recommended actions, confidence ratings, limits where the model did not conclude, and an exportable executive summary.
 
 Upload your architecture materials. ArchLucid's multi-agent analysis covers topology, cost, compliance, and design quality — and surfaces a findings board where every risk is ranked by severity, traced to evidence, and accompanied by a concrete recommended action. Architects get a defensible architecture package. CTOs get a clear executive summary. What used to take weeks now takes minutes, with a full audit trail.
 

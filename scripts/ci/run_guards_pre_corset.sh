@@ -107,15 +107,17 @@ if [ "$rc" -eq 0 ]; then
 fi
 
 set +e
-grep -rn "\.PublishAsync(" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP:-/tmp}/pub-hits.txt"
+# Match IIntegrationEventPublisher receiver only — not product PublishAsync helpers
+# (e.g. ArchitectureIntelligenceProductPublishService.PublishAsync).
+grep -rn "publisher\.PublishAsync(" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP:-/tmp}/pub-hits.txt"
 rc=$?
 set -e
 if [ "$rc" -gt 1 ]; then
-  echo "::error::grep failed while scanning for .PublishAsync( (rc=$rc)"
+  echo "::error::grep failed while scanning for publisher.PublishAsync( (rc=$rc)"
   exit 1
 fi
 if [ "$rc" -eq 1 ]; then
-  echo "No .PublishAsync( matches in .cs files."
+  echo "No publisher.PublishAsync( matches in .cs files."
 else
   HITS=$(grep -v "Tests/" "${RUNNER_TEMP:-/tmp}/pub-hits.txt" \
     | grep -v "IntegrationEventPublishing.cs" \

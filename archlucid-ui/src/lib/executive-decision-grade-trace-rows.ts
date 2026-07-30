@@ -1,7 +1,7 @@
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
 /** OpenAPI `FindingClassification.ChecklistCoverage` (TB-384). */
-export const FINDING_CLASSIFICATION_CHECKLIST_COVERAGE = 1;
+export const FINDING_CLASSIFICATION_CHECKLIST_COVERAGE = "ChecklistCoverage";
 
 export function isChecklistCoverageTraceRow(row: FindingTraceConfidenceDto): boolean {
   return row.classification === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE;

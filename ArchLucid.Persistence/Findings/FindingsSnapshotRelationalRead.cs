@@ -181,13 +181,10 @@ internal static class FindingsSnapshotRelationalRead
               """
             : string.Empty;
 
+        // Explicit \n — do not rely on blank lines inside raw strings (easy to lose in edits).
         return baseColumns
                + insightDensityColumns
-               + """
-
-                 FROM dbo.FindingRecords
-                 WHERE FindingsSnapshotId = @FindingsSnapshotId
-                 """
+               + "\nFROM dbo.FindingRecords\nWHERE FindingsSnapshotId = @FindingsSnapshotId"
                + RepositoryScopePredicate.AndTripleWhere(scope)
                + " ORDER BY SortOrder;";
     }

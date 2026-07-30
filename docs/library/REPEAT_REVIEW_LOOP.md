@@ -1,6 +1,7 @@
+> **Scope:** Customer-facing — operator cookbook guide for second and subsequent finalized architecture reviews — V1 surfaces only — plus the founder/pilot habit-loop validation plan and 6-week execution board (formerly `docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md`; that filename remains a path-stable alias).
+
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Customer-facing — operator cookbook guide for second and subsequent finalized architecture reviews — V1 surfaces only — plus the founder/pilot habit-loop validation plan and 6-week execution board (formerly `docs/go-to-market/SECOND_REVIEW_HABIT_LOOP_VALIDATION.md`; that filename remains a path-stable alias).
 
 # Repeat-review stickiness loop
 

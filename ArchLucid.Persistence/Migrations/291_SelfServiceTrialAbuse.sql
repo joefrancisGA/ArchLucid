@@ -1,5 +1,6 @@
 /*
-  287: Self-service trial abuse tracking (email lifetime cap + domain velocity).
+  291: Self-service trial abuse tracking (email lifetime cap + domain velocity).
+  Renumbered from duplicate 287 prefix (Quick Scan concurrency owns 287).
 */
 IF OBJECT_ID(N'dbo.PlatformSelfServiceTrialEmailClaims', N'U') IS NULL
 BEGIN

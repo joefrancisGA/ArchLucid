@@ -1,6 +1,7 @@
+> **Scope:** Path-stable alias for the hosted SaaS availability target. Not an independent buyer SLO summary.
+
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Path-stable alias for the hosted SaaS availability target. Not an independent buyer SLO summary.
 
 # Hosted SaaS availability target (alias)
 

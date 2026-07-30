@@ -6,7 +6,7 @@ namespace ArchLucid.Api.Middleware;
 ///     Rewrites <c>application/json</c> Content-Type on error responses to <c>application/problem+json</c>
 ///     so runtime matches the OpenAPI error media types (ASP.NET <c>WriteAsJsonAsync</c> / formatters often emit JSON).
 /// </summary>
-public sealed class ProblemJsonContentTypeMiddleware(RequestDelegate next)
+internal sealed class ProblemJsonContentTypeMiddleware(RequestDelegate next)
 {
     private readonly RequestDelegate _next = next ?? throw new ArgumentNullException(nameof(next));
 

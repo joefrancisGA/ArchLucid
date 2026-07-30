@@ -1,11 +1,16 @@
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
-public static class ArchitectureIntelligenceServiceCollectionExtensions
+/// <summary>
+///     Internal DI helpers for Architecture Intelligence. Public composition entry points live in
+///     <c>ArchLucid.Host.Composition</c> (INV-006); tests and Host.Composition access via InternalsVisibleTo.
+/// </summary>
+internal static class ArchitectureIntelligenceServiceCollectionExtensions
 {
-    public static IServiceCollection AddArchitectureIntelligence(this IServiceCollection services)
+    internal static IServiceCollection AddArchitectureIntelligence(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
@@ -14,7 +19,7 @@ public static class ArchitectureIntelligenceServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddArchitectureIntelligenceInMemoryPersistence(this IServiceCollection services)
+    internal static IServiceCollection AddArchitectureIntelligenceInMemoryPersistence(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
@@ -24,7 +29,7 @@ public static class ArchitectureIntelligenceServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddArchitectureIntelligenceSqlPersistence(this IServiceCollection services)
+    internal static IServiceCollection AddArchitectureIntelligenceSqlPersistence(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 

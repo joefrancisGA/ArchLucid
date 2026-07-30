@@ -5,6 +5,8 @@ using Xunit;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class ArchitectureIntelligenceBenchmarkTests
 {
     [Fact]

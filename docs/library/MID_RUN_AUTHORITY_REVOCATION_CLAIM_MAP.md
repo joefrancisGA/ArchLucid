@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Mid-run authority revocation — role downgrade / API key revoke
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.

@@ -34,6 +34,8 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/advisory?tab=scans": "/governance/advisory-scans?tab=scans",
     "/advisory?tab=schedules": "/governance/advisory-scans?tab=schedules",
     "/advisory-scheduling": "/governance/advisory-scans?tab=schedules",
+    # TB-1134: Governance setup route rename.
+    "/governance/first-30-days": "/governance/setup",
 }
 
 # Legacy App Router redirect stubs — canonical nav hrefs live under /governance/advisory-scans (TB-1124).

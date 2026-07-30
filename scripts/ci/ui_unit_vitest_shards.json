@@ -28,6 +28,7 @@
       "label": "app-operator-b (4/9)",
       "paths": [
         "src/app/(operator)/ask",
+        "src/app/(operator)/architecture-intelligence",
         "src/app/(operator)/demo",
         "src/app/(operator)/evolution-review",
         "src/app/(operator)/auth",

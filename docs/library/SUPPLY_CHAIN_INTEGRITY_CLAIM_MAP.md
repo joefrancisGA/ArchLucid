@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Supply-chain integrity — NuGet/npm provenance, SBOM, pipeline tamper resistance
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.

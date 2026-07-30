@@ -178,7 +178,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
         {
           findingId: SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_ID,
           findingTitle: SHOWCASE_CREATED_STATIC_DEMO_PRIMARY_FINDING_TITLE,
-          confidenceLevel: 0,
+          confidenceLevel: "High",
           evaluationConfidenceScore: 92,
           evidenceRefCount: 2,
           traceConfidenceLabel: "High",

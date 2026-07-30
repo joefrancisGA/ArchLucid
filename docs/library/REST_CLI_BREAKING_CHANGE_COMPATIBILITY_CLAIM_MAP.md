@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # REST + CLI breaking-change compatibility (pilots that script)
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.

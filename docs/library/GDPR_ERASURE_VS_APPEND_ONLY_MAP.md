@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # GDPR erasure vs append-only / sealed evidence — plane map
 
 **Audience:** Engineering, privacy counsel, principal-architect diligence. Not a buyer brochure.

@@ -236,7 +236,7 @@ Detailed tables, environment-specific links, and sign-off names live in the repo
 
 ---
 
-## Procurement documentation review cadence
+## Procurement documentation review cadence {#procurement-documentation-review-cadence}
 
 **Audience:** Maintainers of procurement/trust documents and release managers.  
 Includes stale-document escalation expectations.

@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Worker rolling deploy — drain / handoff / kill
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.
