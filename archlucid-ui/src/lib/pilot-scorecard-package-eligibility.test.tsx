@@ -91,6 +91,23 @@ describe("isManifestCommittedForPilotScorecardPackage", () => {
       }),
     ).toBe(true);
   });
+
+  it("returns true for post-commit evaluation statuses from DefaultGoldenManifestBuilder", () => {
+    const base = {
+      manifestId: "m1",
+      runId: "r1",
+      createdUtc: "",
+      manifestHash: "",
+      ruleSetId: "",
+      ruleSetVersion: "",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+    };
+
+    expect(isManifestCommittedForPilotScorecardPackage({ ...base, status: "Resolved" })).toBe(true);
+    expect(isManifestCommittedForPilotScorecardPackage({ ...base, status: "NeedsAttention" })).toBe(true);
+  });
 });
 
 describe("Pilot scorecard package CTA visibility (run detail mirror)", () => {
