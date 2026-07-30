@@ -137,6 +137,8 @@ public sealed class InMemoryGoldenManifestRepositoryTests
 
         saved.ManifestHash.Should().Be($"stub:{manifestId:N}");
         saved.Metadata.Version.Should().Be("coord-v7");
+        // Contract-only save is the committed-chain projection (Product Tour / demo seed).
+        saved.Metadata.Status.Should().Be("Committed");
 
         ManifestDocument? byId = await sut.GetByIdAsync(scope, manifestId, CancellationToken.None);
         byId.Should().NotBeNull();
