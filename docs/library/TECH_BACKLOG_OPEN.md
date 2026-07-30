@@ -385,7 +385,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1603 | Help catch-all — specialty dispatch inventory CI | Testability P2 **V1** — with **TB-1599** |
 | TB-1604 | `/help/accelerator-chooser` specialty starter-pack companion + Start CTAs | Adoption friction P1 **V1** — HAX ~42/100 |
 | TB-1605 | Accelerator chooser help — title/tier honesty | Trustworthiness P1 **V1** — with **TB-1604** |
-| TB-1606 | Accelerator chooser help — contributor leak purge | Trustworthiness P0 **V1** — with **TB-1604** |
 | TB-1607 | Accelerator chooser help — single SoT with ACCELERATOR_CHOOSER_ENTRIES | Adoption friction P1 **V1** — with **TB-1604** |
 | TB-1608 | Accelerator chooser — home inbound jargon + repo honesty | Adoption friction P1 **V1** — with **TB-1604** |
 | TB-1609 | `/help/admin-diagnostics` specialty platform-health companion + Open `/health` CTA | Adoption friction P1 **V1** — HAE ~48/100 |

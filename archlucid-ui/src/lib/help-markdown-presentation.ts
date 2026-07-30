@@ -1077,6 +1077,100 @@ export function stripRepeatReviewLoopContributorLeakage(markdown: string): strin
     .replace(/\n{3,}/g, "\n\n");
 }
 
+/** H2 sections omitted from in-app accelerator chooser help (contributor indexes / library dumps). */
+const ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES = ["policy packs", "canonical references"] as const;
+
+/**
+ * TB-1606 — drops policy-pack index and canonical library sections from accelerator chooser help.
+ */
+export function stripAcceleratorChooserContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("**Out of scope")) {
+      omitSection = false;
+    }
+
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = ACCELERATOR_CHOOSER_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/**
+ * TB-1606 — removes templates-tree paths, policy-pack indexes, walkthrough `.md`, and TB IDs
+ * from in-app accelerator chooser presentation.
+ */
+export function stripAcceleratorChooserContributorLeakage(markdown: string): string {
+  let inFence = false;
+
+  const withoutSensitiveRows = markdown
+    .split("\n")
+    .filter((line) => {
+      const trimmedStart = line.trimStart();
+
+      if (trimmedStart.startsWith("```")) {
+        inFence = !inFence;
+        return true;
+      }
+
+      if (inFence) {
+        return true;
+      }
+
+      if (/POLICY_PACK_/i.test(line)) {
+        return false;
+      }
+
+      if (/DEFAULT_POLICY_PACKS_V1/i.test(line)) {
+        return false;
+      }
+
+      if (/STARTER_PROOF_PACK_CHOOSER/i.test(line)) {
+        return false;
+      }
+
+      if (/walkthroughs\//i.test(line)) {
+        return false;
+      }
+
+      if (/GOLDEN_ACCELERATOR_WALKTHROUGH/i.test(line)) {
+        return false;
+      }
+
+      return true;
+    })
+    .join("\n");
+
+  return withoutSensitiveRows
+    .replace(/\s*\(TB-\d+\)/gi, "")
+    .replace(/\bTB-\d+\b/gi, "")
+    .replace(/`?templates\/starter-proof-packs\/?`?/gi, "in-product starter proof packs")
+    .replace(/templates\/starter-proof-packs\/?/gi, "in-product starter proof packs")
+    .replace(/`?POLICY_PACK_[A-Z0-9_]+\.md`?/gi, "policy pack documentation")
+    .replace(/POLICY_PACK_[A-Z0-9_]+\.md/gi, "policy pack documentation")
+    .replace(/`?DEFAULT_POLICY_PACKS_V1\.md`?/gi, "default policy packs")
+    .replace(/DEFAULT_POLICY_PACKS_V1\.md/gi, "default policy packs")
+    .replace(/`?STARTER_PROOF_PACK_CHOOSER\.md`?/gi, "starter proof pack chooser")
+    .replace(/STARTER_PROOF_PACK_CHOOSER\.md/gi, "starter proof pack chooser")
+    .replace(/`?walkthroughs\/[^`\s)]+`?/gi, "product walkthrough")
+    .replace(/walkthroughs\/[^\s)]+/gi, "product walkthrough")
+    .replace(/`?starter-pack\.json`?/gi, "pack manifest")
+    .replace(/starter-pack\.json/gi, "pack manifest")
+    .replace(/from the pack folder/gi, "when starting the review")
+    .replace(/in the pack folder/gi, "with the review")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -1214,6 +1308,7 @@ export function prepareHelpMarkdownForPresentation(
   const isGovernanceApiContracts = normalizedSourcePath.includes("api_contracts.md");
   const isPilotRoiModel = normalizedSourcePath.includes("pilot_roi_model.md");
   const isRepeatReviewLoop = normalizedSourcePath.includes("repeat_review_loop.md");
+  const isAcceleratorChooser = normalizedSourcePath.includes("accelerator_chooser.md");
   // TB-1346 — retarget runbook .md links to /help before generic link rewrite drops them.
   const afterEvaluatorWorkbookStrip = isEvaluatorWorkbook
     ? stripEvaluatorWorkbookContributorLeakage(withoutInlineReferences)
@@ -1228,7 +1323,9 @@ export function prepareHelpMarkdownForPresentation(
           ? stripPilotRoiModelContributorSections(afterEvaluatorWorkbookStrip)
           : isRepeatReviewLoop
             ? stripRepeatReviewLoopContributorSections(afterEvaluatorWorkbookStrip)
-            : afterEvaluatorWorkbookStrip;
+            : isAcceleratorChooser
+              ? stripAcceleratorChooserContributorSections(afterEvaluatorWorkbookStrip)
+              : afterEvaluatorWorkbookStrip;
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
@@ -1246,6 +1343,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripPilotRoiModelContributorLeakage(sanitized);
   } else if (isRepeatReviewLoop) {
     afterAudienceStrip = stripRepeatReviewLoopContributorLeakage(sanitized);
+  } else if (isAcceleratorChooser) {
+    afterAudienceStrip = stripAcceleratorChooserContributorLeakage(sanitized);
   }
 
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);
