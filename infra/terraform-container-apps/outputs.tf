@@ -106,3 +106,13 @@ output "event_container_app_job_principal_ids" {
     for k, j in azurerm_container_app_job.event_driven : k => j.identity[0].principal_id
   } : {}
 }
+
+output "content_safety_account_id" {
+  description = "ARM id of the Content Safety account when enable_content_safety_account is true; otherwise null."
+  value       = try(azurerm_cognitive_account.content_safety[0].id, null)
+}
+
+output "content_safety_endpoint" {
+  description = "HTTPS endpoint for ArchLucid:ContentSafety:Endpoint when the account is managed here; otherwise null."
+  value       = try(azurerm_cognitive_account.content_safety[0].endpoint, null)
+}

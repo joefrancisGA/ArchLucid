@@ -139,3 +139,13 @@ check "container_apps_storage_account_id_format" {
     error_message = "artifact_storage_account_id must be a Microsoft.Storage/storageAccounts/* ARM resource ID when set (from terraform-storage outputs)."
   }
 }
+
+check "content_safety_account_requires_names" {
+  assert {
+    condition = !var.enable_content_safety_account || !var.enable_container_apps || (
+      length(trimspace(var.content_safety_account_name)) >= 2 &&
+      length(trimspace(var.content_safety_custom_subdomain_name)) >= 2
+    )
+    error_message = "enable_content_safety_account = true requires content_safety_account_name and content_safety_custom_subdomain_name (2+ characters)."
+  }
+}
