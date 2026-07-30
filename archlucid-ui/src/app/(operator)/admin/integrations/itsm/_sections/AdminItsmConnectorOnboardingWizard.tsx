@@ -21,11 +21,16 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   ITSM_CONNECTOR_SMOKE_HELP,
+  ITSM_CONNECTORS_CREDENTIALS_CONFIGURED_HEALTH_FALLBACK,
   ITSM_CONNECTORS_JIRA_CREDENTIALS_NOT_CONFIGURED,
   ITSM_CONNECTORS_SERVICENOW_CREDENTIALS_NOT_CONFIGURED,
   ITSM_CONNECTORS_WIZARD_NATIVE_DISABLED_MESSAGE,
   ITSM_CONNECTORS_WIZARD_PREREQUISITES_DESCRIPTION,
 } from "@/lib/itsm-connectors-admin-scope";
+import {
+  resolveItsmAdminJiraCredentialsConfigured,
+  resolveItsmAdminServiceNowCredentialsConfigured,
+} from "@/lib/itsm-connectors-admin-page-load";
 import {
   isItsmNativeCreateDefaultPathReady,
   resolveItsmOnboardingWizardInitialStep,
@@ -35,6 +40,7 @@ import {
 type Props = {
   readonly initialSettings: TenantItsmOutboundSettingsResponse | null;
   readonly initialHealth: ItsmIntegrationHealthResponse | null;
+  readonly settingsLoadFailed?: boolean;
   readonly onSettingsSaved: (settings: TenantItsmOutboundSettingsResponse) => void;
   readonly onHealthUpdated: (health: ItsmIntegrationHealthResponse) => void;
 };
@@ -63,6 +69,13 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
 
   const nativeEnabled = settings?.nativeEnabled ?? health?.nativeEnabled ?? false;
   const defaultPathReady = isItsmNativeCreateDefaultPathReady(health);
+  const settingsLoadFailed = props.settingsLoadFailed === true;
+  const jiraCredentialsConfigured = resolveItsmAdminJiraCredentialsConfigured(settings, health, settingsLoadFailed);
+  const serviceNowCredentialsConfigured = resolveItsmAdminServiceNowCredentialsConfigured(
+    settings,
+    health,
+    settingsLoadFailed,
+  );
 
   const reloadSettings = useCallback(async () => {
     const loaded = await fetchTenantItsmOutboundSettings();
@@ -167,22 +180,34 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
               <ul className="m-0 list-disc space-y-1 pl-5 text-al-text-secondary">
                 <li>
                   Jira:{" "}
-                  {settings?.deploymentCredentials?.jiraConfigured ? (
-                    <>
-                      configured — service account{" "}
-                      <span className="font-mono">{settings.deploymentCredentials.jiraServiceAccountEmailMasked ?? "••••"}</span>
-                    </>
+                  {jiraCredentialsConfigured ? (
+                    settings?.deploymentCredentials?.jiraConfigured === true ? (
+                      <>
+                        configured — service account{" "}
+                        <span className="font-mono">
+                          {settings.deploymentCredentials.jiraServiceAccountEmailMasked ?? "••••"}
+                        </span>
+                      </>
+                    ) : (
+                      ITSM_CONNECTORS_CREDENTIALS_CONFIGURED_HEALTH_FALLBACK
+                    )
                   ) : (
                     ITSM_CONNECTORS_JIRA_CREDENTIALS_NOT_CONFIGURED
                   )}
                 </li>
                 <li>
                   ServiceNow:{" "}
-                  {settings?.deploymentCredentials?.serviceNowConfigured ? (
-                    <>
-                      configured — username{" "}
-                      <span className="font-mono">{settings.deploymentCredentials.serviceNowUsernameMasked ?? "••••"}</span>
-                    </>
+                  {serviceNowCredentialsConfigured ? (
+                    settings?.deploymentCredentials?.serviceNowConfigured === true ? (
+                      <>
+                        configured — username{" "}
+                        <span className="font-mono">
+                          {settings.deploymentCredentials.serviceNowUsernameMasked ?? "••••"}
+                        </span>
+                      </>
+                    ) : (
+                      ITSM_CONNECTORS_CREDENTIALS_CONFIGURED_HEALTH_FALLBACK
+                    )
                   ) : (
                     ITSM_CONNECTORS_SERVICENOW_CREDENTIALS_NOT_CONFIGURED
                   )}

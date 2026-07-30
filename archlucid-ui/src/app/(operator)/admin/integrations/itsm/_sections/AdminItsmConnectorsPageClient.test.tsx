@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -137,5 +137,56 @@ describe("AdminItsmConnectorsPageClient", () => {
     for (const banned of ITSM_CONNECTORS_ADMIN_BANNED_SUBSTRINGS) {
       expect(haystack, `source contains "${banned}"`).not.toContain(banned.toLowerCase());
     }
+  });
+
+  it("keeps connector health when settings load fails (TB-1431)", async () => {
+    fetchItsmIntegrationHealth.mockResolvedValue({
+      nativeEnabled: true,
+      jira: { locallyConfigured: true, reachable: true, summary: "Jira Cloud settings populated." },
+      serviceNow: { locallyConfigured: false, summary: "Add ServiceNow instance URL." },
+    });
+    fetchTenantItsmOutboundSettings.mockRejectedValue(new Error("Database Query Failed"));
+
+    render(<AdminItsmConnectorsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-itsm-jira-health")).toHaveTextContent("Jira Cloud settings populated.");
+    });
+
+    fireEvent.click(screen.getByTestId("admin-itsm-step-prerequisites"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-itsm-step-panel-prerequisites")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-itsm-settings-load-error")).toHaveTextContent("Database Query Failed");
+    expect(screen.queryByTestId("admin-itsm-health-load-error")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("not configured — ask a platform administrator to add Jira credentials"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps onboarding wizard when health load fails (TB-1431)", async () => {
+    fetchItsmIntegrationHealth.mockRejectedValue(new Error("Health probe unavailable"));
+    fetchTenantItsmOutboundSettings.mockResolvedValue({
+      hasTenantOverrides: true,
+      nativeEnabled: true,
+      deploymentCredentials: {
+        jiraConfigured: true,
+        jiraServiceAccountEmailMasked: "a***n@example.com",
+        serviceNowConfigured: false,
+      },
+    });
+
+    render(<AdminItsmConnectorsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("admin-itsm-health-load-error")).toHaveTextContent("Health probe unavailable");
+    expect(screen.getByText("Tenant ITSM outbound overrides are saved for this tenant.")).toBeInTheDocument();
+    expect(screen.queryByTestId("admin-itsm-settings-load-error")).not.toBeInTheDocument();
   });
 });

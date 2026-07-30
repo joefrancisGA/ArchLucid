@@ -31,31 +31,50 @@ import {
   INTEGRATIONS_READINESS_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
 } from "@/lib/integrations-nav-paths";
+import { buildItsmConnectorsAdminPageLoadResult } from "@/lib/itsm-connectors-admin-page-load";
 
 export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [healthLoadError, setHealthLoadError] = useState<string | null>(null);
+  const [settingsLoadError, setSettingsLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const nativeEnabled = health?.nativeEnabled ?? settings?.nativeEnabled ?? false;
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
-    setLoadError(null);
+    setHealthLoadError(null);
+    setSettingsLoadError(null);
 
-    try {
-      const [healthResponse, settingsResponse] = await Promise.all([
-        fetchItsmIntegrationHealth(),
-        fetchTenantItsmOutboundSettings(),
-      ]);
-      setHealth(healthResponse);
-      setSettings(settingsResponse);
-    } catch (error: unknown) {
-      setHealth(null);
-      setSettings(null);
-      setLoadError(error instanceof Error ? error.message : "Could not load ITSM connector configuration.");
-    } finally {
-      setIsLoading(false);
+    // Isolate slice failures so one 500 cannot wipe successful health/settings (TB-1431).
+    const [healthOutcome, settingsOutcome] = await Promise.allSettled([
+      fetchItsmIntegrationHealth(),
+      fetchTenantItsmOutboundSettings(),
+    ]);
+
+    const loaded = buildItsmConnectorsAdminPageLoadResult({
+      health: healthOutcome,
+      settings: settingsOutcome,
+    });
+
+    if (!loaded.health.failed && loaded.health.value !== null) {
+      setHealth(loaded.health.value);
     }
+
+    if (loaded.health.failed) {
+      setHealthLoadError(loaded.health.errorMessage);
+    }
+
+    if (!loaded.settings.failed && loaded.settings.value !== null) {
+      setSettings(loaded.settings.value);
+    }
+
+    if (loaded.settings.failed) {
+      setSettingsLoadError(loaded.settings.errorMessage);
+    }
+
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -101,12 +120,16 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
           </CardDescription>
         </CardHeader>
         <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {health?.nativeEnabled === true ? (
+          {nativeEnabled ? (
             <p className="m-0">{ITSM_CONNECTORS_NATIVE_ENABLED_MESSAGE}</p>
           ) : (
             <p className="m-0">{ITSM_CONNECTORS_NATIVE_DISABLED_MESSAGE}</p>
           )}
-          {settings?.hasTenantOverrides ? (
+          {settingsLoadError !== null ? (
+            <p className="m-0 text-red-600 dark:text-red-400" role="alert" data-testid="admin-itsm-settings-load-error">
+              {settingsLoadError}
+            </p>
+          ) : settings?.hasTenantOverrides ? (
             <p className="m-0">Tenant ITSM outbound overrides are saved for this tenant.</p>
           ) : (
             <p className="m-0">No tenant overrides saved yet — use the onboarding wizard below.</p>
@@ -114,9 +137,13 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         </CardContent>
       </Card>
 
-      {loadError ? (
-        <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">
-          {loadError}
+      {healthLoadError !== null ? (
+        <p
+          className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}
+          role="alert"
+          data-testid="admin-itsm-health-load-error"
+        >
+          {healthLoadError}
         </p>
       ) : null}
 
@@ -127,6 +154,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
           <AdminItsmConnectorOnboardingWizard
             initialSettings={settings}
             initialHealth={health}
+            settingsLoadFailed={settingsLoadError !== null}
             onSettingsSaved={setSettings}
             onHealthUpdated={setHealth}
           />

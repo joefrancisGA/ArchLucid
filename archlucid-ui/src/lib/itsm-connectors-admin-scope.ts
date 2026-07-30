@@ -26,6 +26,9 @@ export const ITSM_CONNECTORS_JIRA_CREDENTIALS_NOT_CONFIGURED =
 export const ITSM_CONNECTORS_SERVICENOW_CREDENTIALS_NOT_CONFIGURED =
   "not configured — ask a platform administrator to add ServiceNow credentials";
 
+export const ITSM_CONNECTORS_CREDENTIALS_CONFIGURED_HEALTH_FALLBACK =
+  "configured — validated by connector health check";
+
 /** Regression guard — appsettings keys and V1-window chrome must not render on admin ITSM surfaces (TB-1430). */
 export const ITSM_CONNECTORS_ADMIN_BANNED_SUBSTRINGS: readonly string[] = [
   "Integrations:Itsm",
