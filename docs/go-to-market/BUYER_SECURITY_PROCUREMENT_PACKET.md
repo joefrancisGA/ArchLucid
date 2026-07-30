@@ -1378,7 +1378,7 @@ Do not say everything still runs in-process, that V1 requires DTF/Service Bus fo
 - Complements **M-145** / **M-162** / **M-221** without replacing those contracts.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) · [Finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [Outbox replay vs idempotency (M-145)](#outbox-replay-vs-idempotency-m-145) · [Concurrent execute + commit race (M-222)](#concurrent-execute-commit-race-m-222) · [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) · [ADR 0038](../architecture/adrs/0038-authority-run-sql-queue.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) · [Finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [Outbox replay vs idempotency (M-145)](#outbox-replay-vs-idempotency-m-145) · [Concurrent execute + commit race (M-222)](#concurrent-execute-commit-race-m-222) · [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) · [ADR 0038](../architecture/adrs/0038-run-durability-multi-store-outbox-production-secrets.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Container Apps Terraform authority + drift (M-234) {#container-apps-terraform-authority-m-234}
 
@@ -1488,8 +1488,8 @@ Former standalone body: `docs/go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MAT
 
 | Rank | Surface | High-risk over-promises to block |
 | --- | --- | --- |
-| 1 | Trust center / assurance pages | “SOC 2 certified,” published 3P pen test (route **G-REAL-05** / **G-ASSURANCE-02**; tech **TB-135**/**TB-136** Done tracking only) |
-| 2 | Pricing / commercial | Guaranteed savings; Marketplace buy today; invoice-accurate COGS |
+| 1 | Trust center / assurance pages | Do not lead with “SOC 2 certified” or published 3P pen test (route **G-REAL-05** / **G-ASSURANCE-02**; tech **TB-135**/**TB-136** Done tracking only) |
+| 2 | Pricing / commercial | Do not claim guaranteed savings, Marketplace buy today, or invoice-accurate COGS |
 | 3 | Billing / checkout help | Always-on self-serve checkout while commerce is deferred |
 | 4 | Integrations help | Stale “native Jira/Teams not in V1” after `V1_SCOPE` GA |
 | 5 | Marketing / `/see-it` / demo | Simulator-as-production; anonymous = tenant-accurate |
@@ -1630,7 +1630,7 @@ Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_
 
 | Class | Examples to cut or hedge | Prove-with-committed-run |
 | --- | --- | --- |
-| Cut | “Two weeks → two hours”; guaranteed savings | N/A — do not say |
+| Cut | Do not say “Two weeks → two hours” or guaranteed savings | N/A — do not say |
 | Cut | Every finding always has an explainability trace | Evidence-cited findings where gates enforce |
 | Hedge | “Replayable” as absolute architecture stability | Comparison/replay against committed manifests (claim-guide **M-174** honesty) |
 | Hedge | Pre-commit gates “always on” | Optional gate; Advisory does not block ([M-173](#pre-finalize-gate-sod-m-173)) |
@@ -2202,9 +2202,9 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Async orchestration first-force (M-231/M-232) | Request-lifetime Real → SQL outbox/Worker; commit stays CAS | “V1 requires DTF” / “Commit is an orchestrator activity” | [`#async-orchestration-first-force-m-232`](#async-orchestration-first-force-m-232) |
 | Container Apps Terraform authority (M-233/M-234) | Per-surface ownership; plan + live TF-owned compare | “TF state alone is SoT” / “Preflight = no Azure drift” | [`#container-apps-terraform-authority-m-234`](#container-apps-terraform-authority-m-234) |
 | 100× review-volume capacity (M-237/M-238) | TPM hard-first; SLI ledger + admission; scale-out ≠ more TPM | “SQL fails first at 100×” / “Scale-out removes 429” | [`#review-volume-100x-capacity-m-238`](#review-volume-100x-capacity-m-238) |
-| WNTP → UI buyer-risk matrix (M-239/M-240) | Ranked UI review vs WNTP rows; docs scanners ≠ UI coverage | “Docs scanner green = UI safe” / lead with SOC 2 certified | [`#wntp-ui-buyer-risk-matrix-m-240`](#wntp-ui-buyer-risk-matrix-m-240) |
+| WNTP → UI buyer-risk matrix (M-239/M-240) | Ranked UI review vs WNTP rows; docs scanners ≠ UI coverage | Do not lead with “Docs scanner green = UI safe” or SOC 2 certified | [`#wntp-ui-buyer-risk-matrix-m-240`](#wntp-ui-buyer-risk-matrix-m-240) |
 | Core Pilot happy-path (M-241/M-242) | Authority → Finalize → in-app sponsor export | “create→execute→commit default” / empty dashboard = sponsor-ready | [`#core-pilot-happy-path-m-242`](#core-pilot-happy-path-m-242) |
-| Why-not-ChatGPT/Copilot (M-243/M-244) | Seats draft / ArchLucid proves via package + evidence + audit | “Always beats frontier AI” / “Cheaper than Copilot seats” | [`#why-not-chatgpt-copilot-m-244`](#why-not-chatgpt-copilot-m-244) |
+| Why-not-ChatGPT/Copilot (M-243/M-244) | Seats draft / ArchLucid proves via package + evidence + audit | Do not: “Always beats frontier AI” / “Cheaper than Copilot seats” | [`#why-not-chatgpt-copilot-m-244`](#why-not-chatgpt-copilot-m-244) |
 | Elevator pitch V1 claim audit (M-245/M-246) | Cut/hedge/prove with committed run only | “Two weeks → two hours” / “Gates always on” | [`#elevator-pitch-v1-claim-audit-m-246`](#elevator-pitch-v1-claim-audit-m-246) |
 | AgentTask→decisioning leak seams (M-247/M-248) | Mode-blind residual matrix; schema ≠ provenance | “Simulator decide fail-closed differently” / “Schema gate = typed gate” | [`#agenttask-decisioning-ungated-leak-seams-m-248`](#agenttask-decisioning-ungated-leak-seams-m-248) |
 | TB-881 ship-blocker class (M-249/M-250) | CI/test Done; pilots sequential; signup-stress residual | “TB-881 blocks pilots” / “Reopen TB-881 for V1” | [`#tb881-org-registration-race-ship-blocker-m-250`](#tb881-org-registration-race-ship-blocker-m-250) |
