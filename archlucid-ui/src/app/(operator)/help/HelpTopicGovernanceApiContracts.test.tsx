@@ -26,10 +26,25 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
     navAuthMock.isAuthorityLoading ? AUTHORITY_RANK.ReadAuthority : navAuthMock.callerAuthorityRank,
 }));
 
-/** Distinctive contributor-only contract surface marker from API_CONTRACTS.md. */
-const GOVERNANCE_API_CONTRACTS_BODY_MARKER = "OpenApiContractSnapshotTests";
+/** Distinctive contributor-only contract surface marker from raw API_CONTRACTS.md. */
+const GOVERNANCE_API_CONTRACTS_SOURCE_MARKER = "OpenApiContractSnapshotTests";
 
-describe("HelpTopicGovernanceApiContracts (TB-1384)", () => {
+/** Integrator-safe marker that should remain after presentation strip (TB-1388). */
+const GOVERNANCE_API_CONTRACTS_INTEGRATOR_MARKER = "GET /openapi/v1.json";
+
+/** TB-1388 — contributor / CI / runbook leakage must not appear in `/help/governance-api-contracts`. */
+const GOVERNANCE_API_CONTRACTS_HELP_BANNED_SUBSTRINGS = [
+  "OpenApiContractSnapshotTests",
+  "ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT",
+  "ARCHLUCID_UPDATE_BUYER_OPENAPI_SNAPSHOT",
+  "START_HERE.md",
+  "ArchLucid.Api.Tests/Contracts",
+  "contracts/bruno",
+  "scripts/ci/",
+  "docs/runbooks/",
+] as const;
+
+describe("HelpTopicGovernanceApiContracts (TB-1384, TB-1388)", () => {
   const entry = getProductDocumentationEntry("governance-api-contracts");
   const loaded = tryLoadProductDocumentation("governance-api-contracts");
 
@@ -40,7 +55,7 @@ describe("HelpTopicGovernanceApiContracts (TB-1384)", () => {
 
   it("loads API_CONTRACTS.md from the monorepo", () => {
     expect(loaded).not.toBeNull();
-    expect(loaded?.markdown).toContain(GOVERNANCE_API_CONTRACTS_BODY_MARKER);
+    expect(loaded?.markdown).toContain(GOVERNANCE_API_CONTRACTS_SOURCE_MARKER);
   });
 
   it("blocks non-admin callers from rendering contributor API contract body", () => {
@@ -59,10 +74,10 @@ describe("HelpTopicGovernanceApiContracts (TB-1384)", () => {
 
     expect(screen.getByTestId("denied")).toBeInTheDocument();
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
-    expect(document.body.textContent ?? "").not.toContain(GOVERNANCE_API_CONTRACTS_BODY_MARKER);
+    expect(document.body.textContent ?? "").not.toContain(GOVERNANCE_API_CONTRACTS_SOURCE_MARKER);
   });
 
-  it("allows admin callers to render contributor API contract body", () => {
+  it("allows admin callers to render integrator-safe API contract body without contributor leakage (TB-1388)", () => {
     if (loaded === null || entry === undefined) {
       throw new Error("Expected governance-api-contracts documentation to load.");
     }
@@ -78,6 +93,15 @@ describe("HelpTopicGovernanceApiContracts (TB-1384)", () => {
 
     expect(screen.queryByTestId("denied")).not.toBeInTheDocument();
     expect(screen.getByRole("article")).toBeInTheDocument();
-    expect(document.body.textContent ?? "").toContain(GOVERNANCE_API_CONTRACTS_BODY_MARKER);
+
+    const visible = document.body.textContent ?? "";
+
+    expect(visible).toContain(GOVERNANCE_API_CONTRACTS_INTEGRATOR_MARKER);
+
+    for (const banned of GOVERNANCE_API_CONTRACTS_HELP_BANNED_SUBSTRINGS) {
+      expect(visible, `banned substring still rendered: ${banned}`).not.toContain(banned);
+    }
+
+    expect(visible).not.toMatch(/\bTB-\d+\b/i);
   });
 });

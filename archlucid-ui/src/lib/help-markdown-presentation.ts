@@ -665,6 +665,141 @@ export function stripConfigurationReferenceContributorLeakage(markdown: string):
     .replace(/\n{3,}/g, "\n\n");
 }
 
+/** H2 sections omitted from in-app governance API contracts (CI / contributor PR process). */
+const GOVERNANCE_API_CONTRACTS_OMITTED_SECTION_PREFIXES = [
+  "contract surface and ci controls",
+  "changing the http contract",
+] as const;
+
+/**
+ * TB-1388 — drops CI snapshot and PR-checklist sections from the governance API contracts help view.
+ */
+export function stripGovernanceApiContractsContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = GOVERNANCE_API_CONTRACTS_OMITTED_SECTION_PREFIXES.some((prefix) =>
+        title.startsWith(prefix),
+      );
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/**
+ * TB-1388 — removes OpenAPI snapshot regenerate commands, CI fixture paths, runbooks, TB IDs,
+ * and other contributor process leakage from in-app governance API contracts presentation.
+ */
+export function stripGovernanceApiContractsContributorLeakage(markdown: string): string {
+  let inFence = false;
+
+  const withoutSensitiveRows = markdown
+    .split("\n")
+    .filter((line) => {
+      const trimmedStart = line.trimStart();
+
+      if (trimmedStart.startsWith("```")) {
+        inFence = !inFence;
+        return true;
+      }
+
+      if (inFence) {
+        return true;
+      }
+
+      if (/OpenApiContractSnapshotTests/i.test(line)) {
+        return false;
+      }
+
+      if (/OpenApiBuyerContractSnapshotTests/i.test(line)) {
+        return false;
+      }
+
+      if (/ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT/i.test(line)) {
+        return false;
+      }
+
+      if (/ARCHLUCID_UPDATE_BUYER_OPENAPI_SNAPSHOT/i.test(line)) {
+        return false;
+      }
+
+      if (/ArchLucid\.Api\.Tests\/Contracts/i.test(line)) {
+        return false;
+      }
+
+      if (/contracts\/bruno/i.test(line)) {
+        return false;
+      }
+
+      if (/\bscripts\/(ci|v1-integration)/i.test(line)) {
+        return false;
+      }
+
+      if (/docs\/runbooks\//i.test(line)) {
+        return false;
+      }
+
+      if (/Integration starter fixtures/i.test(line)) {
+        return false;
+      }
+
+      if (/v1-integration-correctness-drill/i.test(line)) {
+        return false;
+      }
+
+      if (/npm run generate:api-types/i.test(line)) {
+        return false;
+      }
+
+      if (/assert_api_types_in_sync/i.test(line)) {
+        return false;
+      }
+
+      if (/Generated\/ArchLucidApiClient\.g\.cs/i.test(line)) {
+        return false;
+      }
+
+      if (/OPENAPI_CONTRACT_DRIFT\.md/i.test(line)) {
+        return false;
+      }
+
+      if (/archlucid reference-evidence/i.test(line)) {
+        return false;
+      }
+
+      return true;
+    })
+    .join("\n");
+
+  return withoutSensitiveRows
+    .replace(/\s*\(TB-\d+\)/gi, "")
+    .replace(/\bTB-\d+\b/gi, "")
+    .replace(/`?START_HERE\.md`?/gi, "product documentation index")
+    .replace(/START_HERE\.md/gi, "product documentation index")
+    .replace(/`?ArchLucid\.Api\/[^`\s)]+`?/gi, "API host configuration")
+    .replace(/ArchLucid\.Api\/[^\s)]+/gi, "API host configuration")
+    .replace(/`?docs\/operator-shell\.md`?/gi, "operator shell documentation")
+    .replace(/docs\/operator-shell\.md/gi, "operator shell documentation")
+    .replace(/`?scripts\/[^`\s)]+`?/gi, "integration validation checks")
+    .replace(/\bscripts\/[^\s)]+/gi, "integration validation checks")
+    .replace(/`?docs\/runbooks\/[^`\s)]+`?/gi, "operations runbook")
+    .replace(/docs\/runbooks\/[^\s)]+/gi, "operations runbook")
+    .replace(/`?contracts\/bruno\/[^`\s)]*`?/gi, "API smoke collection")
+    .replace(/contracts\/bruno\/[^\s)]*/gi, "API smoke collection")
+    .replace(/`?ArchLucid\.Api\.Client`?/gi, "generated API client")
+    .replace(/\bArchLucid\.Api\.Client\b/gi, "generated API client")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -799,6 +934,7 @@ export function prepareHelpMarkdownForPresentation(
     "hosted_enterprise_onboarding_checklist.md",
   );
   const isEvaluatorWorkbook = normalizedSourcePath.includes("evaluator_workbook.md");
+  const isGovernanceApiContracts = normalizedSourcePath.includes("api_contracts.md");
   // TB-1346 — retarget runbook .md links to /help before generic link rewrite drops them.
   const afterEvaluatorWorkbookStrip = isEvaluatorWorkbook
     ? stripEvaluatorWorkbookContributorLeakage(withoutInlineReferences)
@@ -807,7 +943,9 @@ export function prepareHelpMarkdownForPresentation(
     ? stripConfigurationReferenceContributorSections(afterEvaluatorWorkbookStrip)
     : isEnterpriseOnboarding
       ? stripEnterpriseOnboardingContributorSections(afterEvaluatorWorkbookStrip)
-      : afterEvaluatorWorkbookStrip;
+      : isGovernanceApiContracts
+        ? stripGovernanceApiContractsContributorSections(afterEvaluatorWorkbookStrip)
+        : afterEvaluatorWorkbookStrip;
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
@@ -819,6 +957,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripConfigurationReferenceContributorLeakage(sanitized);
   } else if (isEnterpriseOnboarding) {
     afterAudienceStrip = stripEnterpriseOnboardingContributorLeakage(sanitized);
+  } else if (isGovernanceApiContracts) {
+    afterAudienceStrip = stripGovernanceApiContractsContributorLeakage(sanitized);
   }
 
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);

@@ -22,6 +22,8 @@ import {
   stripEnterpriseOnboardingContributorLeakage,
   stripEnterpriseOnboardingContributorSections,
   stripEvaluatorWorkbookContributorLeakage,
+  stripGovernanceApiContractsContributorLeakage,
+  stripGovernanceApiContractsContributorSections,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -181,6 +183,65 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("architecture analysis");
     expect(prepared).toContain("/help/repeat-review-loop");
     expect(prepared).not.toContain("SECOND_RUN.md");
+  });
+
+  it("omits CI and PR checklist sections from governance API contracts presentation (TB-1388)", () => {
+    const source = [
+      "## API versioning",
+      "",
+      "Use `/v1/...` paths.",
+      "",
+      "## Contract surface and CI controls",
+      "",
+      "OpenApiContractSnapshotTests and ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1",
+      "",
+      "## Deprecation policy",
+      "",
+      "Respect Sunset headers.",
+      "",
+      "## Changing the HTTP contract (PR checklist)",
+      "",
+      "Regenerate ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json",
+      "",
+      "## Run DTO shapes under `/v1`",
+      "",
+      "Two JSON shapes.",
+    ].join("\n");
+
+    const prepared = stripGovernanceApiContractsContributorSections(source);
+
+    expect(prepared.toLowerCase()).not.toContain("contract surface and ci controls");
+    expect(prepared.toLowerCase()).not.toContain("changing the http contract");
+    expect(prepared).toContain("## API versioning");
+    expect(prepared).toContain("## Deprecation policy");
+    expect(prepared).toContain("## Run DTO shapes");
+    expect(prepared).not.toContain("OpenApiContractSnapshotTests");
+  });
+
+  it("strips OpenAPI snapshot, runbook, and TB leakage from governance API contracts (TB-1388)", () => {
+    const source = [
+      "Spine: START_HERE.md",
+      "",
+      "Wired in ArchLucid.Api/Startup/MvcExtensions.cs (TB-286).",
+      "",
+      "Runbook: docs/runbooks/TROUBLESHOOTING.md",
+      "",
+      "Bruno: contracts/bruno/",
+      "",
+      "CI: scripts/ci/check_v1_integration_starter_contracts.py",
+    ].join("\n");
+
+    const prepared = stripGovernanceApiContractsContributorLeakage(source);
+
+    expect(prepared).not.toMatch(/\bTB-\d+\b/i);
+    expect(prepared).not.toContain("START_HERE.md");
+    expect(prepared).not.toContain("ArchLucid.Api/");
+    expect(prepared).not.toContain("docs/runbooks/");
+    expect(prepared).not.toContain("contracts/bruno");
+    expect(prepared).not.toContain("scripts/ci/");
+    expect(prepared).toContain("API host configuration");
+    expect(prepared).not.toContain("Runbook:");
+    expect(prepared).not.toContain("TROUBLESHOOTING");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {
