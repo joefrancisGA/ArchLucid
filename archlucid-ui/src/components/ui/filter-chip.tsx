@@ -10,6 +10,7 @@ export type FilterChipProps = {
   readonly onClick?: () => void;
   readonly className?: string;
   readonly "aria-label"?: string;
+  readonly "aria-pressed"?: boolean | "true" | "false";
   readonly disabled?: boolean;
 };
 
@@ -34,6 +35,7 @@ export function FilterChip(props: FilterChipProps): ReactElement {
       className={shell}
       onClick={props.onClick}
       aria-label={props["aria-label"]}
+      aria-pressed={props["aria-pressed"]}
       disabled={props.disabled}
     >
       {props.children}

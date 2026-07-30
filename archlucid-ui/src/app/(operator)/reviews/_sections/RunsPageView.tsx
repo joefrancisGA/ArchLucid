@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -19,11 +20,16 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
-import { REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE, REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PAGE_TITLE } from "./reviews-hub-copy";
+import {
+  REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE,
+  REVIEWS_HUB_MORE_WAYS_SUMMARY,
+  REVIEWS_HUB_MORE_WAYS_TITLE,
+  REVIEWS_HUB_PAGE_SUBTITLE,
+  REVIEWS_HUB_PAGE_TITLE,
+} from "./reviews-hub-copy";
 import { ReviewsHubExploreSamples } from "./ReviewsHubExploreSamples";
 import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
 import { ReviewsHubPackageIncludes } from "./ReviewsHubPackageIncludes";
-import { ReviewsHubPrimaryActions } from "./ReviewsHubPrimaryActions";
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
@@ -43,7 +49,9 @@ export function RunsPageView(props: Props) {
   const workspaceSummary = deriveReviewsWorkspaceSummary(m.runs);
   const hubLoadOk = loadFailure === null && malformedMessage === null;
   const hasReviews = m.runs.length > 0;
-  const showAdvancedList = isOperatorExperienceFullShellEnv() && m.totalCount > 0 && hubLoadOk;
+  // Advanced aggregate list only when the hub page cannot show the full inventory.
+  const showAdvancedList =
+    isOperatorExperienceFullShellEnv() && hubLoadOk && hasReviews && m.totalCount > m.pageSize;
 
   return (
     <OperatorPageContainer variant="dashboard">
@@ -73,15 +81,19 @@ export function RunsPageView(props: Props) {
 
       {hubLoadOk ? (
         <>
+          {hasReviews ? <ReviewsHubSummaryRow summary={workspaceSummary} /> : null}
+          <ReviewsHubReviewInventory runs={m.runs} />
           {hasReviews ? (
-            <>
-              <ReviewsHubSummaryRow summary={workspaceSummary} />
-              <ReviewsHubPrimaryActions />
+            <CollapsibleSection
+              title={REVIEWS_HUB_MORE_WAYS_TITLE}
+              summaryLine={REVIEWS_HUB_MORE_WAYS_SUMMARY}
+              defaultOpen={false}
+              sectionTestId="reviews-hub-more-ways"
+            >
               <ReviewsHubExploreSamples />
               <ReviewsHubPackageIncludes />
-            </>
+            </CollapsibleSection>
           ) : null}
-          <ReviewsHubReviewInventory runs={m.runs} />
         </>
       ) : null}
 
@@ -91,9 +103,9 @@ export function RunsPageView(props: Props) {
         </div>
       ) : null}
 
-      {hubLoadOk ? <BeforeAfterDeltaPanel variant="top" /> : null}
+      {hubLoadOk && hasReviews ? <BeforeAfterDeltaPanel variant="top" /> : null}
 
-      {hubLoadOk && m.firstCommittedRunId !== null ? (
+      {hubLoadOk && hasReviews && m.firstCommittedRunId !== null ? (
         <RunsIndexBeforeAfterPanel committedRunId={m.firstCommittedRunId} />
       ) : null}
 

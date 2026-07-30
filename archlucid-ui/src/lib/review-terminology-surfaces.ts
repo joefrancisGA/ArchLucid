@@ -141,8 +141,8 @@ export const REVIEW_TERMINOLOGY_NAV_EMPTY_GLOSSARY_SURFACE_PATHS = [
 export const REVIEW_TERMINOLOGY_ARCHITECTURE_PACKAGE_LIST_NOUN_SURFACE_PATHS = [
   "src/lib/pilot-nav-group-builder.ts",
   "src/app/(operator)/reviews/_sections/reviews-hub-copy.ts",
-  "src/app/(operator)/reviews/_sections/ReviewsHubPrimaryActions.tsx",
   "src/app/(operator)/reviews/_sections/ReviewsHubReviewInventory.tsx",
+  "src/app/(operator)/reviews/_sections/ReviewsHubHeaderActions.tsx",
 ] as const;
 
 /**

@@ -4,7 +4,14 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 export const REVIEWS_HUB_PAGE_TITLE = "Reviews";
 
 export const REVIEWS_HUB_PAGE_SUBTITLE =
-  "Create, refine, evaluate, and approve architecture reviews.";
+  "Create, refine, evaluate, and approve architecture reviews. Describe or import an architecture in the review flow — the review remains the durable work item.";
+
+export const REVIEWS_HUB_MORE_WAYS_TITLE = "Samples and what a review includes";
+
+export const REVIEWS_HUB_MORE_WAYS_SUMMARY =
+  "Load a sample workspace, open the showcase review, compare finalized reviews, or scan deliverables.";
+
+export const REVIEWS_HUB_FILTER_MORE_LABEL = "More status filters";
 
 export const REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL = "Active";
 

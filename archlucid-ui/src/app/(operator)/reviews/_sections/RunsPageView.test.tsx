@@ -98,12 +98,6 @@ vi.mock("@/components/OperatorDemoStaticBanner", () => ({
   OperatorDemoStaticBanner: () => null,
 }));
 
-vi.mock("./ReviewsHubPrimaryActions", async () => {
-  const actual = await vi.importActual<typeof import("./ReviewsHubPrimaryActions")>("./ReviewsHubPrimaryActions");
-
-  return actual;
-});
-
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -163,7 +157,7 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("runs-page-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
     expect(screen.queryByTestId("reviews-hub-summary-row")).toBeNull();
-    expect(screen.queryByTestId("reviews-hub-primary-actions")).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-more-ways")).toBeNull();
     expect(screen.queryByTestId("reviews-hub-explore-samples")).toBeNull();
     expect(screen.queryByTestId("reviews-hub-package-includes")).toBeNull();
     expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
@@ -173,7 +167,7 @@ describe("RunsPageView page chrome", () => {
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
   });
 
-  it("renders recent package rows when packages exist", () => {
+  it("puts inventory first and parks samples/includes under a disclosure when packages exist", () => {
     render(
       <RunsPageView
         model={baseModel({
@@ -191,9 +185,12 @@ describe("RunsPageView page chrome", () => {
       />,
     );
 
+    expect(screen.getByTestId("reviews-hub-summary-row")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-packages-table")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-more-ways")).toBeInTheDocument();
+    expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
   });
 });
 

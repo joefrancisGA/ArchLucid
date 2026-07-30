@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { Button } from "@/components/ui/button";
+import { FilterChip } from "@/components/ui/filter-chip";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
+import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
@@ -26,6 +27,7 @@ import type { RunSummary } from "@/types/authority";
 
 import {
   REVIEWS_HUB_FILTER_FINALIZED_LABEL,
+  REVIEWS_HUB_FILTER_MORE_LABEL,
   REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL,
   REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL,
@@ -50,15 +52,18 @@ type ReviewFilterId =
   | "finalized"
   | ReviewsHubOverallStatus;
 
-const STATUS_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> = [
+const PRIMARY_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> = [
   { id: "all", label: "All" },
+  { id: "needs-attention", label: REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL },
+  { id: "finalized", label: REVIEWS_HUB_FILTER_FINALIZED_LABEL },
+  { id: "updated-recently", label: REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL },
+];
+
+const MORE_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> = [
   { id: "Draft", label: "Draft" },
   { id: "Active", label: "Active" },
   { id: "Awaiting approval", label: "Awaiting approval" },
-  { id: "finalized", label: REVIEWS_HUB_FILTER_FINALIZED_LABEL },
   { id: "Archived", label: "Archived" },
-  { id: "needs-attention", label: REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL },
-  { id: "updated-recently", label: REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL },
 ];
 
 function matchesSearch(run: RunSummary, query: string): boolean {
@@ -115,6 +120,23 @@ function matchesFilter(run: RunSummary, filter: ReviewFilterId): boolean {
   return row.overallStatus === filter;
 }
 
+function ReviewFilterChip(props: {
+  readonly option: { id: ReviewFilterId; label: string };
+  readonly selected: boolean;
+  readonly onSelect: (id: ReviewFilterId) => void;
+}): React.JSX.Element {
+  return (
+    <FilterChip
+      className={buyerFilterChipClass(props.selected, false)}
+      aria-pressed={props.selected}
+      aria-label={`Filter reviews: ${props.option.label}`}
+      onClick={() => props.onSelect(props.option.id)}
+    >
+      {props.option.label}
+    </FilterChip>
+  );
+}
+
 /** Filterable review inventory for `/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
@@ -122,6 +144,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const draftEntries = useArchitectureDraftRegistryEntries();
   const rows = useMemo(() => props.runs.map(toReviewsHubReviewRowDisplay), [props.runs]);
   const resumeDraft = draftEntries[0] ?? null;
+  const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
 
   const filteredRuns = useMemo(() => {
     return props.runs.filter((run) => matchesSearch(run, searchQuery) && matchesFilter(run, activeFilter));
@@ -163,24 +186,32 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                 data-testid="reviews-hub-search"
               />
             </div>
-            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews" data-testid="reviews-hub-filters">
-              {STATUS_FILTER_OPTIONS.map((option) => {
-                const selected = activeFilter === option.id;
-
-                return (
-                  <Button
+            <div className="flex flex-col gap-2" data-testid="reviews-hub-filters">
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews">
+                {PRIMARY_FILTER_OPTIONS.map((option) => (
+                  <ReviewFilterChip
                     key={option.id}
-                    type="button"
-                    size="sm"
-                    variant={selected ? "default" : "outline"}
-                    className="h-8"
-                    aria-pressed={selected}
-                    onClick={() => setActiveFilter(option.id)}
-                  >
-                    {option.label}
-                  </Button>
-                );
-              })}
+                    option={option}
+                    selected={activeFilter === option.id}
+                    onSelect={setActiveFilter}
+                  />
+                ))}
+              </div>
+              <details className="m-0" data-testid="reviews-hub-more-filters" open={moreFilterSelected}>
+                <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {REVIEWS_HUB_FILTER_MORE_LABEL}
+                </summary>
+                <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={REVIEWS_HUB_FILTER_MORE_LABEL}>
+                  {MORE_FILTER_OPTIONS.map((option) => (
+                    <ReviewFilterChip
+                      key={option.id}
+                      option={option}
+                      selected={activeFilter === option.id}
+                      onSelect={setActiveFilter}
+                    />
+                  ))}
+                </div>
+              </details>
             </div>
           </div>
 
@@ -196,7 +227,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                   <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell className="text-right">Attention</EnterpriseTableHeaderCell>
-                  <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
                 </EnterpriseTableHeadRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>
@@ -214,6 +244,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                             href={row.reviewHref}
                             className={cn(OPERATOR_LINK.nav, "font-medium")}
                             aria-label={`Open review ${row.reviewTitle}`}
+                            data-testid={`reviews-hub-primary-action-${row.runId}`}
                           >
                             {row.reviewTitle}
                           </Link>
@@ -237,13 +268,6 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className="text-right tabular-nums">
                         {finiteIntegerCountDisplay(row.riskCount)}
-                      </EnterpriseTableCell>
-                      <EnterpriseTableCell>
-                        <Button type="button" variant="outline" size="sm" asChild>
-                          <Link href={row.primaryAction.href} data-testid={`reviews-hub-primary-action-${row.runId}`}>
-                            {row.primaryAction.label}
-                          </Link>
-                        </Button>
                       </EnterpriseTableCell>
                     </EnterpriseTableRow>
                   );

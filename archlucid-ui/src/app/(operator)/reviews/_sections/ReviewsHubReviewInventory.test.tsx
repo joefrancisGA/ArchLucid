@@ -83,14 +83,14 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByRole("columnheader", { name: "Review" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Architecture / system" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-primary-action-review-001")).toHaveTextContent("Review findings");
-
-    const titleLink = screen.getByRole("link", { name: /Open review/i });
+    const titleLink = screen.getByTestId("reviews-hub-primary-action-review-001");
+    expect(titleLink).toHaveAttribute("href");
     expect(titleLink.className).toMatch(/underline/);
     expect(titleLink.className).not.toMatch(/no-underline/);
+    expect(screen.queryByRole("columnheader", { name: "Action" })).toBeNull();
   });
 
-  it("filters to finalized reviews", () => {
+  it("filters to finalized reviews from the primary FilterChip row", () => {
     render(
       <ReviewsHubReviewInventory
         runs={[
@@ -109,7 +109,7 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Finalized" }));
+    fireEvent.click(screen.getByRole("button", { name: "Filter reviews: Finalized" }));
 
     expect(screen.getByTestId("reviews-hub-row-finalized")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-draft")).toBeNull();

@@ -37,7 +37,7 @@ export function ReviewsHubExploreSamples(): React.JSX.Element {
   const compareBlocked = isCompareRouteBlockedUnderDemoStrictShell();
 
   return (
-    <section className="mt-6" data-testid="reviews-hub-explore-samples" aria-labelledby="reviews-hub-explore-samples-heading">
+    <section className="mt-2" data-testid="reviews-hub-explore-samples" aria-labelledby="reviews-hub-explore-samples-heading">
       <h2 id="reviews-hub-explore-samples-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {REVIEWS_HUB_EXPLORE_SAMPLES_TITLE}
       </h2>
