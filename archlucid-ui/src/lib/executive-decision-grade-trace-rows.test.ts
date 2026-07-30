@@ -9,7 +9,7 @@ import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
 function traceRow(
   findingId: string,
-  classification?: number | null,
+  classification?: FindingTraceConfidenceDto["classification"],
 ): FindingTraceConfidenceDto {
   return {
     findingId,
@@ -21,17 +21,17 @@ function traceRow(
 describe("executive-decision-grade-trace-rows", () => {
   it("isChecklistCoverageTraceRow matches checklist classification only", () => {
     expect(isChecklistCoverageTraceRow(traceRow("a", FINDING_CLASSIFICATION_CHECKLIST_COVERAGE))).toBe(true);
-    expect(isChecklistCoverageTraceRow(traceRow("a", 0))).toBe(false);
+    expect(isChecklistCoverageTraceRow(traceRow("a", "DecisionGradeFinding"))).toBe(false);
     expect(isChecklistCoverageTraceRow(traceRow("a", null))).toBe(false);
     expect(isChecklistCoverageTraceRow(traceRow("a"))).toBe(false);
   });
 
   it("decisionGradeExecutiveTraceRows drops checklist coverage and blank ids", () => {
     const rows = decisionGradeExecutiveTraceRows([
-      traceRow("decision-grade", 0),
+      traceRow("decision-grade", "DecisionGradeFinding"),
       traceRow("checklist", FINDING_CLASSIFICATION_CHECKLIST_COVERAGE),
       traceRow("legacy-no-class"),
-      traceRow("  ", 0),
+      traceRow("  ", "DecisionGradeFinding"),
     ]);
 
     expect(rows.map((r) => r.findingId)).toEqual(["decision-grade", "legacy-no-class"]);

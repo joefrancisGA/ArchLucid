@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ArchLucid.Application.ArchitectureIntelligence;
+namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public static class ArchitectureIntelligenceTenantIdMapper
 {

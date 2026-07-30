@@ -197,7 +197,7 @@ public sealed class ArchitectureIntelligenceController(
     /// <summary>Loads the latest persisted knowledge model for a run.</summary>
     [HttpGet("runs/{runId}")]
     [ProducesResponseType(typeof(ArchitectureKnowledgeModel), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunModelAsync(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
@@ -206,7 +206,9 @@ public sealed class ArchitectureIntelligenceController(
             return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
         if (_architectureIntelligencePersistence is null)
-            return NotFound();
+            return this.NotFoundProblem(
+                "Architecture intelligence persistence is not configured.",
+                ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ArchitectureKnowledgeModel? model = await _architectureIntelligencePersistence.GetModelByRunIdAsync(
@@ -215,7 +217,9 @@ public sealed class ArchitectureIntelligenceController(
             cancellationToken);
 
         if (model is null)
-            return NotFound();
+            return this.NotFoundProblem(
+                "No architecture knowledge model exists for this run.",
+                ProblemTypes.RunNotFound);
 
         return Ok(model);
     }

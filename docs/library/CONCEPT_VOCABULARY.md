@@ -1,6 +1,7 @@
+> **Scope:** Contributor-reference — Writer-facing canonical-vs-rejected vocabulary for docs and copy, plus the buyer UI glossary and persona terms (formerly `docs/go-to-market/UI_GLOSSARY_V1.md`). Not the five-minute mental model (`customer-facing/CONCEPTS_IN_5_MINUTES.md`); not term definitions (`GLOSSARY.md`).
+
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Contributor-reference — Writer-facing canonical-vs-rejected vocabulary for docs and copy, plus the buyer UI glossary and persona terms (formerly `docs/go-to-market/UI_GLOSSARY_V1.md`). Not the five-minute mental model (`customer-facing/CONCEPTS_IN_5_MINUTES.md`); not term definitions (`GLOSSARY.md`).
 
 # Concept vocabulary (canonical forms)
 

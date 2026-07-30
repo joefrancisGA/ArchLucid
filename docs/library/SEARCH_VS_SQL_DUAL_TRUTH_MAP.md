@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Azure AI Search vs SQL — dual-truth, divergence, rebuild, review window
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.

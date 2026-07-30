@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Offline-verifiable export portability — claim map
 
 **Audience:** Engineering, privacy/procurement, principal-architect diligence. Not a buyer brochure.

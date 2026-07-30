@@ -475,7 +475,7 @@ Use these names in landing copy, Upwork, SOWs, and outreach so buyers purchase a
 
 | SKU | Buyer / use | Core deliverables (typical) | Indicative band (USD) |
 |-----|-------------|-----------------------------|------------------------|
-| **ArchLucid AI & Cloud Architecture Readiness Review** | Mid-market CTO, fractional CTO, cloud consultant, regulated startup needing credibility | Executive summary; architecture evidence inventory; decision register; risk register; policy/finding summary; recommended actions; final **Architecture Review Report** (DOCX/PDF, whitelabel as needed) | **$1,500–$3,000** lightweight scope · **$5,000–$10,000** standard · multi-system / team pilot — upper bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) **section 5** |
+| **ArchLucid AI & Cloud Architecture Readiness Review** | Mid-market CTO, fractional CTO, cloud consultant, regulated startup needing credibility | Executive summary; architecture evidence inventory; decision register; risk register; policy/finding summary; recommended actions; final **Architecture Review Report** (DOCX/PDF, whitelabel as needed) | **1,500–3,000 USD** lightweight scope · **5,000–10,000 USD** standard · multi-system / team pilot — upper bands per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) **section 5** |
 | **ArchLucid Evidence Pack** | Team with scattered artifacts; needs one structured dossier before a board or ARB | Curated evidence set in-workbench + export bundle aligned to review narrative; gap list | Scope by effort — often bundled **inside** Readiness Review |
 | **ArchLucid Architecture Board / ARB Report** | Sponsor needs a single executive- or ARB-ready artifact | Short cycle focused on **report** sections and traceability appendix; whitelabel firm/client branding | Typically **upper half** of Readiness Review band |
 | **ArchLucid Cloud Governance Review (Azure-first)** | Azure-heavy estate; cost + security baseline narrative | Customer **`Get-ArchLucidAzurePackage.ps1`** ZIP ingest where applicable; security-baseline + cost-oriented findings; report | Align with **Azure Architecture Readiness** Upwork listing in [`GTM_BACKLOG.md`](GTM_BACKLOG.md) M-25 |
@@ -562,7 +562,7 @@ When a SKU name, band, or deliverable list becomes **public** on `archlucid.net`
 
 Test **paid behavior** as stronger evidence than feature completion. Supports outbound and private SOW conversations without publishing new list prices.
 
-**Offer:** ArchLucid AI & Cloud Architecture Readiness Review — fixed-scope (2–3 weeks; 1 architecture domain). **Private band:** **$5,000–$10,000** standard; **$1,500–$3,000** when narrowly bounded.
+**Offer:** ArchLucid AI & Cloud Architecture Readiness Review — fixed-scope (2–3 weeks; 1 architecture domain). **Private band:** **5,000–10,000 USD** standard; **1,500–3,000 USD** when narrowly bounded.
 
 **Buyer gets:** executive summary + evidence inventory; risk register + recommended actions with evidence-basis labels; Architecture Review Report (DOCX/PDF; whitelabel); finalized architecture package with audit trail.
 
@@ -844,7 +844,7 @@ Maps common term questions to current source documents (or marks draft / not yet
 
 | Commitment type | Who can commit | Process |
 | --- | --- | --- |
-| Pilot SOW (≤ 90 days, ≤ $25K) | Founder / owner | Owner review; execute via order form or SOW |
+| Pilot SOW (≤ 90 days, ≤ 25K USD) | Founder / owner | Owner review; execute via order form or SOW |
 | Annual subscription | Founder / owner | Owner review; execute via order form |
 | Custom MSA redline | Founder + legal counsel (recommended) | Do not accept material redlines without counsel |
 | Data-retention specific SLA | Owner only | Must be owner-approved before commitment |
@@ -902,7 +902,7 @@ This ledger converts the ROI narrative into **observable executive purchase proo
 | ROI validation session complete | Populate ledger fields from handoff-card notes | Same folder |
 | Decision-delta interview complete | Merge interview outcome into `decisionChanged` | Same folder + `decision-delta.md` cross-ref |
 | Conversion status changes | Update row (new `recordedUtc`) | Append status history in private notes |
-| Monthly review | Roll up sanitized aggregates | Commit summary only under [`validation-runs/`](validation-runs/) |
+| Monthly review | Roll up sanitized aggregates | Commit summary only under [`validation-runs/README.md`](validation-runs/README.md) |
 
 Copy the JSON template per pilot. Use a **sanitized `pilotLabel`** only (e.g. `regulated-analytics-2026Q3`) — never customer legal names in committed artifacts.
 
@@ -948,7 +948,7 @@ Cross-check [`PILOT_SUCCESS_SCORECARD.md#pilot-roi-measurement`](PILOT_SUCCESS_S
 #### Related surfaces (ROI session)
 
 - Review detail sponsor handoff (`RunDetailSponsorBriefingSection`)
-- [`/value-report/pilot`](../../archlucid-ui/src/app/(operator)/value-report/pilot/) aggregate window
+- Operator UI route `/value-report/pilot` (pilot value-report aggregate window)
 - First-run operator help: `/help/first-run`
 
 ### Required fields (per pilot row)

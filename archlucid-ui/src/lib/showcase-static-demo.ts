@@ -302,8 +302,8 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
         {
           findingId: "phi-minimization-risk",
           findingTitle: "PHI Minimization Risk",
-          // Wire enum: 0 = High (see normalizeFindingConfidenceLevel in types/explanation.ts).
-          confidenceLevel: 0,
+          // Wire enum: "High" (legacy numeric 0 still normalized in normalizeFindingConfidenceLevel).
+          confidenceLevel: "High",
           evaluationConfidenceScore: 95,
           evidenceRefCount: 3,
           traceConfidenceLabel: "High",

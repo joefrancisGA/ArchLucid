@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Zero-downtime SQL migration model (DDL executor / identity / rolling code×schema)
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.

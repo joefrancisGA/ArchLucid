@@ -160,12 +160,15 @@ public sealed class RunStateTransitionServiceTests
         _sut.ShouldApplyCoordinationLegacyStatusPatch(
             nameof(ArchitectureRunStatus.TasksGenerated),
             nameof(ArchitectureRunStatus.TasksGenerated)).Should().BeFalse();
+
+        _sut.ShouldApplyCoordinationLegacyStatusPatch(
+            nameof(ArchitectureRunStatus.Created),
+            nameof(ArchitectureRunStatus.Created)).Should().BeFalse();
     }
 
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    [InlineData("Created")]
     public void ShouldApplyCoordinationLegacyStatusPatch_allows_created_target_on_created_or_unset(string? status)
     {
         _sut.ShouldApplyCoordinationLegacyStatusPatch(status, nameof(ArchitectureRunStatus.Created)).Should().BeTrue();

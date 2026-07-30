@@ -3,6 +3,8 @@ using ArchLucid.Persistence.Findings;
 
 namespace ArchLucid.Persistence.Tests.Findings;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class FindingsSnapshotRelationalReadSelectSqlTests
 {
     [Theory]

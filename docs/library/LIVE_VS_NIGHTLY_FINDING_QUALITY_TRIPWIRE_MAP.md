@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Live regression tripwire vs nightly eval — finding quality after silent AOAI minor revs
 
 **Audience:** Engineering, SRE, principal-architect diligence. Not a buyer brochure.

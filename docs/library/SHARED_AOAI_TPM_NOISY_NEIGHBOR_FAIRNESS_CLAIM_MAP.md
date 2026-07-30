@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference claim map for engineering and principal-architect diligence; not a buyer brochure.
+
 # Shared Container Apps / shared AOAI TPM — noisy-neighbor fairness
 
 **Audience:** Engineering, security reviewers, principal-architect diligence. Not a buyer brochure.

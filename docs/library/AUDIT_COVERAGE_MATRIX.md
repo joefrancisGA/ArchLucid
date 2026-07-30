@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:357 -->
+<!-- audit-core-const-count:359 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -113,6 +113,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Architecture chat intake (NL parse to request shape, no persistence) | `RunsController` (`POST /v1/architecture/chat-intake`); `ChatIntakeParserService` | — | — | Execute-auth gated NL intake; returns parsed `ArchitectureRequest` only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Architecture connector intake (Terraform/Git parse to request shape, no persistence) | `RunsController` (`POST /v1/architecture/connector-intake`); `ConnectorIntakeParserService` | — | — | Execute-auth gated connector intake; returns parsed `ArchitectureRequest` only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
 | Holistic architecture critic (advisory LLM critique, no persistence) | `ExplanationController` (`POST /v1/explain/runs/{runId}/holistic-critic`); `HolisticCriticService` | — | RunId from route | Execute-auth gated unstructured critique; returns markdown narrative only — **no** durable audit row (`[MutatingAuditExcluded]` on controller) |
+| Closed-loop architecture intelligence | `ArchitectureIntelligenceController` (`POST /v1/architecture-intelligence/run`; `POST /v1/architecture-intelligence/runs/{runId}/continue`; `POST /v1/architecture-intelligence/runs/{runId}/publish`; `POST /v1/architecture-intelligence/golden-test`) | `ArchitectureIntelligenceRunCompleted`, `ArchitectureIntelligenceGoldenTestCompleted` | Tenant/Workspace/Project from ambient scope | `{ runId, modelId?, elementCount?, findingCount?, passed? }` summary in `DataJson` |
 | Socratic intake drafts (ADR 0048 / 0051) | `DraftRequestsController` (`POST /v1/architecture/draft`; `POST /v1/architecture/draft/{draftId}/abandon`; `POST /v1/architecture/draft/{draftId}/admit`; `POST /v1/architecture/draft/{draftId}/answer`; `POST /v1/architecture/draft/{draftId}/branch`; `POST /v1/architecture/draft/{draftId}/reason`; `POST /v1/architecture/draft/{draftId}/skip`; `POST /v1/architecture/draft/{draftId}/submit`) | `DraftIntakeCreated`, `DraftIntakePatched`, `DraftIntakeQuestionAnswered`, `DraftIntakeQuestionSkipped`, `DraftIntakeBranched`, `DraftIntakeReasoned`, `DraftIntakeAdmissionEvaluated`, `DraftIntakeSubmitted`, `DraftIntakeAbandoned`, `DraftIntakeTerminalPurged` | Tenant/Workspace/Project from ambient scope | `{ draftId, status?, questionKey?, parentDraftId?, branchDraftId?, overrideKind? }` |
 | Decision receipt export (ADR 0052) | `DraftRequestsController` (`GET /v1/architecture/draft/{draftId}/decision-receipt`); `ArtifactExportController` (`GET /v1/artifacts/runs/{runId}/decision-receipt`) | `DecisionReceiptExported` | RunId when run-scoped; otherwise draft scope | `{ draftId?, runId?, source }` |
 | Finding-scoped Ask (conversation persist only) | `ArchitectureFindingAskController` (`POST /v1/architecture/finding/{findingId}/ask`); `IAskService.AskAboutFindingAsync` | — | — | Persists `ConversationThread` / messages via `IConversationService`; **no** durable `IAuditService` row (authority-domain state unchanged; `[MutatingAuditExcluded]` on controller) |
@@ -707,6 +708,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `IntegrationOutboxDeadLetterRetried` | `Integration.OutboxDeadLetterRetried` | `AdminDiagnosticsService` (single `POST …/admin/integration-outbox/dead-letters/{outboxId}/retry`; bulk `POST …/admin/integrations/outbox/retry-dead-letter` when `retriedCount > 0`) |
 | `IntegrationOutboxDeadLetterSuppressed` | `Integration.OutboxDeadLetterSuppressed` | `AdminDiagnosticsService` (`POST …/admin/integration-outbox/dead-letters/{outboxId}/suppress`) |
 | `IntegrationConfluenceFirstValueReportPublished` | `Integration.ConfluenceFirstValueReportPublished` | `ConfluencePublishingAdminController` (`POST …/admin/integrations/confluence/first-value-report`) |
+| `ArchitectureIntelligenceRunCompleted` | `ArchitectureIntelligence.RunCompleted` | `ArchitectureIntelligenceController` (architecture intelligence run / golden paths) |
+| `ArchitectureIntelligenceGoldenTestCompleted` | `ArchitectureIntelligence.GoldenTestCompleted` | `ArchitectureIntelligenceController` (golden test completion) |
 | `PilotScorecardValueMetricsSubmitted` | `PilotScorecardValueMetricsSubmitted` | `PilotsController` |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.

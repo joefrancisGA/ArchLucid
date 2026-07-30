@@ -1,6 +1,4 @@
-using ArchLucid.Contracts.ArchitectureIntelligence;
-
-namespace ArchLucid.Application.ArchitectureIntelligence;
+namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public interface IArchitectureIntelligencePersistence
 {

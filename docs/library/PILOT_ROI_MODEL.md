@@ -1,6 +1,7 @@
+> **Scope:** Buyer-facing path-stable alias for the ArchLucid Pilot ROI Model; not an independent scorecard or pricing calculator.
+
 > **Reviewed:** 2026-07-27
 
-> **Scope:** Path-stable alias for the ArchLucid Pilot ROI Model. Not an independent scorecard or pricing calculator.
 
 # ArchLucid Pilot ROI Model (alias)
 

@@ -1,5 +1,5 @@
 /*
-  R287: Rollback 287_SelfServiceTrialAbuse.sql — drop self-service trial abuse tracking tables.
+  R291: Rollback 291_SelfServiceTrialAbuse.sql — drop self-service trial abuse tracking tables.
 */
 
 IF OBJECT_ID(N'dbo.PlatformSelfServiceTrialDomainClaims', N'U') IS NOT NULL

@@ -120,7 +120,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ARX | `/admin/rag-health` | 0.1% | 0 | 0 | 10 | Admin | None |
 | EXX | `/evolution-review` | 0.1% | 0 | 0 | 10 | Marketing | None |
 | ESX | `/executive/scorecard` | 0.1% | 0 | 0 | 10 | Executive | None |
-| GFX | `/governance/first-30-days` | 0.1% | 0 | 0 | 10 | Alerts/gov | None |
+| GFX | `/governance/setup` | 0.1% | 0 | 0 | 10 | Alerts/gov | None |
 | HA | `/help/alerts` | 0.1% | 0 | 0 | 10 | Help topic | None |
 | HFX | `/help/findings` | 0.1% | 0 | 0 | 10 | Help topic | None |
 | IJX | `/integrations/jira` | 0.1% | 0 | 0 | 10 | Integrations | None |
@@ -205,6 +205,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | ADD | `/admin/demo-readiness` | 0.02% | 0 | 0 | 2 | Admin | None |
 | ADE | `/admin/deployment-status` | 0.02% | 0 | 0 | 2 | Admin | None |
 | AR | `/architectures` | 0.02% | 0 | 0 | 2 | Core review | None |
+| AIN | `/architecture-intelligence` | 0.05% | 0 | 0 | 5 | Core review | None |
 | ARA | `/architectures/[architectureId]` | 0.02% | 0 | 0 | 2 | Core review | None |
 | ARN | `/architectures/new` | 0.02% | 0 | 0 | 2 | Core review | None |
 | AUB | `/auth/bootstrap` | 0.02% | 0 | 0 | 2 | Auth | None |

@@ -160,6 +160,9 @@ public sealed class ArchitectureIntelligenceControllerTests
             productPublishService: Mock.Of<IArchitectureIntelligenceProductPublishService>(),
             productRunSourceContextLoader ?? Mock.Of<IArchitectureIntelligenceProductRunSourceContextLoader>(),
             scopeProvider.Object,
-            auditService.Object);
+            auditService.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
     }
 }
