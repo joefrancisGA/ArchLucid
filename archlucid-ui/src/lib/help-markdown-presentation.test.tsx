@@ -18,6 +18,7 @@ import {
   sanitizeBareMarkdownFileReferences,
   alignCaiqSigAssuranceHonesty,
   alignDataHandlingIsolationHonesty,
+  stripTenantIsolationContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -626,6 +627,46 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("standard customer path");
     expect(prepared).toContain("/help/security-trust");
     expect(prepared).toContain("/help/data-handling-tenant-isolation");
+  });
+
+  it("strips tenant-isolation pack-alias and repo-path leakage (TB-1659)", () => {
+    const source = [
+      "**Canonical buyer overview:** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-isolation-buyer-overview).",
+      "",
+      "## Three layers {#three-layers}",
+      "",
+      "Three-layer isolation (identity, application, database-per-tenant catalogs), encryption/network notes, non-claims (no SQL RLS production boundary; ADR 0037), verification-pack generation, and deep-dive links live only in the buyer security packet.",
+      "",
+      "```bash",
+      "python scripts/generate_tenant_isolation_verification_pack.py",
+      "```",
+    ].join("\n");
+
+    const prepared = stripTenantIsolationContributorLeakage(source);
+
+    expect(prepared).not.toContain("BUYER_SECURITY_PROCUREMENT_PACKET");
+    expect(prepared).not.toContain("scripts/");
+    expect(prepared).not.toContain("generate_tenant_isolation");
+    expect(prepared).not.toContain("ADR 0037");
+    expect(prepared).toContain("SQL row-level security is not the production isolation boundary");
+    expect(prepared).toContain("/help/security-trust");
+    expect(prepared).toContain("/help/procurement");
+  });
+
+  it("keeps presented data-handling-tenant-isolation help buyer-safe (TB-1659)", () => {
+    const loaded = tryLoadProductDocumentation("data-handling-tenant-isolation");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath).toLowerCase();
+
+    expect(prepared).not.toContain("buyer_security_procurement_packet");
+    expect(prepared).not.toContain("multi_tenant_rls");
+    expect(prepared).not.toContain("generate_tenant_isolation");
+    expect(prepared).not.toContain("scripts/");
+    expect(prepared).toContain("sql row-level security is not the production isolation boundary");
+    expect(prepared).toContain("/help/security-trust");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

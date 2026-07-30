@@ -1272,6 +1272,62 @@ export function stripCaiqSigContributorLeakage(markdown: string): string {
     .replace(/\n{3,}/g, "\n\n");
 }
 
+const TENANT_ISOLATION_THREE_LAYERS_BUYER_BODY = [
+  "ArchLucid isolates customer review data at three layers in the standard hosted posture:",
+  "",
+  "- **Layer 1 — Identity:** Microsoft Entra ID (or your configured IdP) issues tokens with app roles; API keys map to limited roles when used.",
+  "- **Layer 2 — Application:** Authorization policies enforce tenant, workspace, and project scope before any data access.",
+  "- **Layer 3 — Database:** Each tenant organization receives a dedicated product SQL catalog. **SQL row-level security is not the production isolation boundary**; application code still applies scope predicates within the catalog.",
+  "",
+  "For assurance questionnaires, isolation evidence, and diligence materials, see [Security and trust](/help/security-trust) and [Procurement FAQ](/help/procurement).",
+].join("\n");
+
+/**
+ * TB-1659 — tenant-isolation help: strip pack-alias / repo-path leakage; buyer-safe three-layer summary.
+ */
+export function stripTenantIsolationContributorLeakage(markdown: string): string {
+  const hasTenantIsolationStub =
+    /BUYER_SECURITY_PROCUREMENT_PACKET|generate_tenant_isolation_verification_pack|MULTI_TENANT_RLS\.md|0037-tenant-isolation/i.test(
+      markdown,
+    );
+
+  if (!hasTenantIsolationStub) {
+    return markdown;
+  }
+
+  let result = markdown
+    .replace(/\*\*Canonical buyer overview:\*\*[^\n]*\n?/gi, "")
+    .replace(/\*\*Related short handout:\*\*[^\n]*\n?/gi, "")
+    .replace(/# ArchLucid — Tenant isolation \(buyer overview\)\s*\n+/gi, "")
+    .replace(/\*\*Last reviewed:\*\*[^\n]*\n?/gi, "")
+    .replace(/`?BUYER_SECURITY_PROCUREMENT_PACKET\.md[^`\s)]*`?/gi, "[Procurement FAQ](/help/procurement)")
+    .replace(/BUYER_SECURITY_PROCUREMENT_PACKET\.md[^\s)`]*/gi, "/help/procurement")
+    .replace(/`?SECURITY\.md`?/gi, "security documentation")
+    .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
+    .replace(/`?MULTI_TENANT_RLS\.md`?/gi, "tenant scope enforcement documentation")
+    .replace(/MULTI_TENANT_RLS\.md/gi, "tenant scope enforcement documentation")
+    .replace(/`?TENANT_ISOLATION_DEFENSE_IN_DEPTH\.md`?/gi, "tenant isolation architecture documentation")
+    .replace(/`?\.\.\/architecture\/adrs\/0037[^`\s)]*`?/gi, "tenant isolation architecture decision")
+    .replace(/ADR 0037/gi, "tenant isolation architecture decision")
+    .replace(/`?scripts\/generate_tenant_isolation_verification_pack\.py`?/gi, "tenant isolation verification materials")
+    .replace(/generate_tenant_isolation_verification_pack\.py/gi, "tenant isolation verification materials")
+    .replace(/`?scripts\/`/gi, "internal tooling ")
+    .replace(/historical procurement-pack path stable[^\n]*/gi, "")
+    .replace(/buyer ZIP checklists and CI allowlists[^\n]*/gi, "");
+
+  result = result.replace(
+    /## Three layers \{#three-layers\}[\s\S]*?(?=\n## |\n---\n|$)/i,
+    `## Three layers {#three-layers}\n\n${TENANT_ISOLATION_THREE_LAYERS_BUYER_BODY}`,
+  );
+
+  result = result.replace(
+    /Three-layer isolation \(identity, application, database-per-tenant catalogs\)[^\n]*/gi,
+    TENANT_ISOLATION_THREE_LAYERS_BUYER_BODY,
+  );
+
+  return result.replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
 /**
  * TB-1653 / TB-1284 — soften absolute cross-tenant isolation claims in data-handling help.
  */
@@ -1497,7 +1553,8 @@ export function prepareHelpMarkdownForPresentation(
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);
-  const withoutHorizontalRules = stripMarkdownHorizontalRules(afterIsolationHonesty);
+  const afterTenantIsolationStrip = stripTenantIsolationContributorLeakage(afterIsolationHonesty);
+  const withoutHorizontalRules = stripMarkdownHorizontalRules(afterTenantIsolationStrip);
   const presentationBody =
     options?.preserveMaintenanceMetadata === true
       ? withoutHorizontalRules

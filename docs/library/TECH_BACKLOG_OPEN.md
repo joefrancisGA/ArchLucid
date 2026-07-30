@@ -454,7 +454,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1656 | `/help/data-handling-tenant-isolation` retarget SoT after TENANT_ISOLATION stub | Trustworthiness P1 **V1** — HDA ~38 |
 | TB-1657 | Tenant-isolation help — specialty guide + Trust/HED CTA | Adoption friction P1 **V1** — with **TB-1656** |
 | TB-1658 | Tenant-isolation help — IA dual with `/help/data-handling` | Adoption friction P1 **V1** — with **TB-1656** |
-| TB-1659 | Tenant-isolation help — pack-alias / eng-path leakage strip | Trustworthiness P0 **V1** — with **TB-1656** |
 | TB-1660 | Tenant-isolation help — Vitest Three-layers load + anti-stub-only | Testability P2 **V1** — after **TB-1656** |
 | TB-1666 | Operator page contextual-help contract — document in UI_DESIGN_SYSTEM (+ UI ARCHITECTURE pointer) | Adoption friction P1 **V1** — owner OPH inventory 2026-07-27; traffic **OPH**; pairs **TB-1184**/**TB-1458** (do not reopen) |
 | TB-1667 | Pilot + analysis — mount PageContextualHelpButton on mapped-but-unmounted hubs | Adoption friction P1 **V1** — with **TB-1666** |
@@ -941,7 +940,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Compare and replay (`/help/comparison-replay`) | **TB-1636**–**TB-1640** (open P1 **V1**) | Specialty + Open Compare CTA; tier honesty; vs repeat-review IA; job chrome; Related/inbound; ~48/100; traffic **CO** |
 | creating-runs help alias (`/help/creating-runs`) | **TB-1641**–**TB-1645** (open P1/P2 **V1**) | Permanent redirect; runs jargon; alias→TB-1258 chain; traffic fold; anti-reintro CI; ~46/100; traffic **HCR**; pairs **TB-1258**/**TB-1261** |
 | Data handling (`/help/data-handling`) | **TB-1651**–**TB-1652**, **TB-1654**–**TB-1655** (open P1 **V1**) | Specialty + Trust CTA; vs HDA dual; isolation honesty **Done TB-1653**; leaves/stays chrome; Related; ~52/100; traffic **HED** |
-| Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1656**–**TB-1660** (open P1/P2 **V1**) | Retarget SoT after stub; specialty CTA; vs HED IA; leakage; Vitest anti-stub; ~38/100; traffic **HDA** |
+| Data handling + tenant isolation (`/help/data-handling-tenant-isolation`) | **TB-1656**–**TB-1658**, **TB-1660** (open P1/P2 **V1**) | Retarget SoT after stub; specialty CTA; vs HED IA; leakage **Done TB-1659**; Vitest anti-stub; ~38/100; traffic **HDA** |
 | DPA template (`/help/dpa-template`) | **TB-1676**–**TB-1680** (open P1 **V1**) | Specialty + request CTA; leakage; placeholder honesty; Help Center IA; clause defer; ~40/100; traffic **HDP** |
 | Evidence-only review (`/help/evidence-only-review`) | **TB-1681**–**TB-1685** (open P1 **V1**) | Specialty + Start CTA; drop CORE_PILOT intro; vs core-pilot IA; extract-upload honesty; step chrome; ~42/100; traffic **HEV** |
 | Executive summary (`/help/executive-summary`) | **TB-1686**–**TB-1690** (open P1 **V1**) | Retarget off FAQ; specialty CTA; leakage; doc-href catch-all; title honesty; ~30/100; traffic **EXE** |
