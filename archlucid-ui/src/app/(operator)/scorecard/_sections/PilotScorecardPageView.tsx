@@ -192,8 +192,9 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
 
           <section
             aria-labelledby="roi-assumptions-heading"
-            className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+            className="max-w-md rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
             id="roi-assumptions"
+            data-testid="review-scorecard-roi-assumptions"
           >
             <h2 id="roi-assumptions-heading" className={OPERATOR_NAV_GROUP_LABEL}>
               ROI assumptions
@@ -203,7 +204,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                 ? "Illustrative assumptions shown for evaluation — edit your workspace data to model real savings."
                 : "Enter baseline assumptions to estimate review-time savings."}
             </p>
-            <div className="mt-4 grid max-w-lg gap-3">
+            <div className="mt-4 grid gap-3">
               <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
                 <span className="text-al-text-primary">Hours saved per review</span>
                 <input

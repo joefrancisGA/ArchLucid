@@ -9,6 +9,14 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-07-30 — Retrieval: bound evidence search so proxy no longer 502s on AOAI/Search stalls
+
+`GET /v1/retrieval/search` now has an overall query budget (`Retrieval:QueryBudget`, default 25s), Azure OpenAI embeddings use async + 15s network timeout, and Azure AI Search clients set `Retry.NetworkTimeout`. The UI proxy no longer retries `AbortError`/timeout transport failures (was up to ~180s). Stalls map to API 503 instead of proxy 502 “aborted due to timeout” (observed on www.archlucid.net Search review evidence).
+
+## 2026-07-29 — UI: narrower ROI assumptions + create intake width
+
+Architecture scorecard **ROI assumptions** section capped at `max-w-md` (small form no longer sits in a full-bleed card). Create architecture guided intake capped at `max-w-3xl`; initial review-focus card at `max-w-md`.
+
 ## 2026-07-29 — GTM: **M-135** showcase naming hierarchy + **M-25** Azure Upwork listing
 
 Scenario-first naming + PA Q4 Contoso/Northwind safe/toxic/gray matrix ([`SHOWCASE_NAMING_HIERARCHY.md`](go-to-market/SHOWCASE_NAMING_HIERARCHY.md)); paste-ready Upwork **Azure Architecture Readiness Review** → Azure-first SKU ([`UPWORK_LISTINGS.md`](go-to-market/UPWORK_LISTINGS.md)).
