@@ -60,7 +60,7 @@ export default async function SeeItMarketingPage() {
 
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
         <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>
-          See a full sample review output — no sign-in
+          Continue with a full sample review — no sign-in
         </p>
         <p className={cn("mt-2 m-0", MARKETING_TYPOGRAPHY.body, MARKETING_CAPTION_TEXT_CLASS)}>
           Open the read-only demo walkthrough with manifest, audit trail, and artifacts — the same projection buyers use

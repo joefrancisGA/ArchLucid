@@ -1,4 +1,4 @@
-﻿// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + proof pack download) 1`] = `
 <main
@@ -15,7 +15,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
     data-testid="why-brand-category-paragraph"
   >
-    ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail â€” durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.
+    ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence bundle carries the citation-backed drill-down for diligence teams who need paperwork parity.
   </p>
   <div
     class="mt-8"
@@ -33,7 +33,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       <p
         class="m-0 mt-2 dark:text-neutral-400 text-[13px] font-normal leading-5 text-al-text-primary"
       >
-        Each sponsor-facing claim can trace through stored evidence, a finding, a committed review record, an exportable artifact, and durable audit metadata â€” not a disposable LLM thread.
+        Each sponsor-facing claim can trace through stored evidence, a finding, a committed review record, an exportable artifact, and durable audit metadata — not a disposable LLM thread.
       </p>
       <ol
         class="m-0 mt-4 flex list-none flex-wrap items-center gap-2 p-0"
@@ -50,7 +50,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             aria-hidden="true"
             class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
-            â†’
+            →
           </span>
         </li>
         <li
@@ -65,7 +65,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             aria-hidden="true"
             class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
-            â†’
+            →
           </span>
         </li>
         <li
@@ -80,7 +80,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             aria-hidden="true"
             class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
-            â†’
+            →
           </span>
         </li>
         <li
@@ -95,7 +95,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             aria-hidden="true"
             class="dark:text-neutral-400 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
-            â†’
+            →
           </span>
         </li>
         <li
@@ -128,7 +128,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
       data-testid="why-outcome-led-value-proposition"
     >
-      Cut architecture review cycle time with an evidence-backed proof export â€” signed review record, findings, audit trail, and sponsor-ready readout â€” not a chat transcript.
+      Cut architecture review cycle time with an evidence-backed proof export — signed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
     </p>
     <p
       class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
@@ -150,7 +150,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
     >
-      Many buyers already use a general LLM for architecture questions. ArchLucid is not â€œanother chat boxâ€ â€” it persists a committed review, governance gate, and audit trail a session cannot replace.
+      Many buyers already use a general LLM for architecture questions. ArchLucid is not “another chat box” — it persists a committed review, governance gate, and audit trail a session cannot replace.
     </p>
     <ul
       class="mt-4 grid gap-3 sm:grid-cols-2"
@@ -181,7 +181,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             Typical chat:
           </span>
-           Chat transcript â€” no durable review record tied to your tenant
+           Chat transcript — no durable review record tied to your tenant
         </p>
       </li>
       <li
@@ -210,7 +210,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             Typical chat:
           </span>
-           No commit boundary â€” advice is not gated against your policy packs
+           No commit boundary — advice is not gated against your policy packs
         </p>
       </li>
       <li
@@ -268,7 +268,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             Typical chat:
           </span>
-           Copy-paste from a session â€” not a bounded export package
+           Copy-paste from a session — not a bounded export package
         </p>
       </li>
       <li
@@ -310,7 +310,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
         href="/faq"
       >
-        FAQ â€” vs ChatGPT/Copilot
+        FAQ — vs ChatGPT/Copilot
       </a>
       .
     </p>
@@ -328,7 +328,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400"
     >
-      Summarized wording only â€” citations and benchmark detail are included in the evidence bundle linked from this page.
+      Summarized wording only — citations and benchmark detail are included in the evidence bundle linked from this page.
     </p>
     <div
       class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -416,7 +416,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Purpose-built governed review workflow â€” multi-agent synthesis, deterministic replay, routed models behind human-reviewed outcomes.
+              Purpose-built governed review workflow — multi-agent synthesis, deterministic replay, routed models behind human-reviewed outcomes.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -451,17 +451,17 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Typical fit: developer workflow tooling â€” not an architecture-evidence catalogue product.
+              Typical fit: developer workflow tooling — not an architecture-evidence catalogue product.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Typical fit: interactive Q&A â€” not a governed package with finalized signed review record lineage by default.
+              Typical fit: interactive Q&A — not a governed package with finalized signed review record lineage by default.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              Typical fit: documenting system context â€” governance promotion workflows differ from packaged review records.
+              Typical fit: documenting system context — governance promotion workflows differ from packaged review records.
             </td>
           </tr>
         </tbody>
@@ -488,7 +488,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         public demo preview
       </a>
        
-      (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five detailed rows with citations â€” not the symbol-only front-door grid below). If the download is not available in your environment, use the contact path on the getting started page.
+      (review excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in your environment, use the contact path on the getting started page.
     </p>
     <p
       class="mt-3"
@@ -516,7 +516,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
     >
-      Anonymous read-only preview of an illustrative sample review record â€” same layout as the product workspace, not a live customer outcome; no sign-in required.
+      Anonymous read-only preview of an illustrative sample review record — same layout as the product workspace, not a live customer outcome; no sign-in required.
     </p>
     <p
       class="mt-4 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-3 py-8 text-center text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400"
@@ -557,7 +557,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400"
     >
-      Symbols in the product columns (âœ“ / partial / â€”) summarize capability depth; each row links to diligence references. This section is a governance capability comparison â€” not a vendor scorecard.
+      Symbols in the product columns (✓ / partial / —) summarize capability depth; each row links to diligence references. This section is a governance capability comparison — not a vendor scorecard.
     </p>
     <div
       class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -569,7 +569,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         <caption
           class="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
         >
-          ArchLucid vs typical adjacent stacks â€” governance-focused capability rows
+          ArchLucid vs typical adjacent stacks — governance-focused capability rows
         </caption>
         <thead>
           <tr
@@ -640,7 +640,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              âœ“
+              ✓
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -650,12 +650,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
           </tr>
           <tr
@@ -691,7 +691,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              âœ“
+              ✓
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -701,12 +701,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
           </tr>
           <tr
@@ -741,22 +741,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              âœ“
+              ✓
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
           </tr>
           <tr
@@ -791,7 +791,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              âœ“
+              ✓
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -801,12 +801,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
           </tr>
           <tr
@@ -835,22 +835,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              âœ“
+              ✓
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
           </tr>
           <tr
@@ -879,12 +879,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              âœ“
+              ✓
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -923,22 +923,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              âœ“
+              ✓
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-              â€”
+              —
             </td>
           </tr>
         </tbody>

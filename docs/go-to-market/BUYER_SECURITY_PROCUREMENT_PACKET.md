@@ -893,7 +893,7 @@ Former standalone body: `docs/go-to-market/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_
 
 | Forbidden | Safe |
 | --- | --- |
-| “SOC 2 certified / almost / in process” (without CPA) | “SOC self-assessment + control narrative; CPA program not started” |
+| “Claiming SOC 2 certification / almost / in process” (without CPA) | “SOC self-assessment + control narrative; CPA program not started” |
 | “Pen test underway” (without vendor engagement) | “Owner-conducted testing + SoW template; third-party program deferred” |
 | Leading with absence | Lead with what *is* verifiable this week |
 
