@@ -19,6 +19,7 @@ import {
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
+  stripCaiqSigContributorLeakage,
   stripConfigurationReferenceContributorLeakage,
   stripConfigurationReferenceContributorSections,
   stripDocumentationMaintenanceMetadata,
@@ -514,6 +515,49 @@ describe("help-markdown-presentation", () => {
     expect(prepared.toLowerCase()).not.toContain("docs/integrations/smoke");
     expect(prepared).not.toContain("<details>");
     expect(prepared).toContain("/help/integration-readiness");
+  });
+
+  it("replaces contributor repo-tree framing in CAIQ/SIG help (TB-1632)", () => {
+    const source = [
+      "| Theme | Response (summary) | Evidence in repo |",
+      "|-------|----------------------|------------------|",
+      "| Vulnerability management | Partial | `.github/workflows/ci.yml` |",
+      "| Encryption at rest | Yes | Terraform modules under `infra/` |",
+      "| Risk assessments | Partial | [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md) |",
+      "| Security policies | Yes | [`SECURITY.md`](../library/contributor-reference/SECURITY.md) |",
+      "| Data classification | Partial | narrative cross-check [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) |",
+    ].join("\n");
+
+    const prepared = stripCaiqSigContributorLeakage(source);
+
+    expect(prepared).not.toMatch(/Evidence in repo/i);
+    expect(prepared).not.toContain(".github/");
+    expect(prepared).not.toContain("infra/");
+    expect(prepared).not.toContain("PENDING_QUESTIONS.md");
+    expect(prepared).not.toContain("pen-test-summaries/");
+    expect(prepared).not.toContain("contributor-reference/SECURITY.md");
+    expect(prepared).toContain("automated security testing in CI");
+    expect(prepared).toContain("hosted infrastructure");
+    expect(prepared).toContain("penetration test program documentation");
+    expect(prepared).toContain("security documentation");
+    expect(prepared).toContain("owner diligence notes");
+  });
+
+  it("keeps presented CAIQ/SIG help free of contributor repo paths (TB-1632)", () => {
+    const loaded = tryLoadProductDocumentation("caiq-sig-response");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath);
+
+    expect(prepared).not.toMatch(/Evidence in repo/i);
+    expect(prepared).not.toContain(".github/");
+    expect(prepared).not.toContain("infra/");
+    expect(prepared).not.toContain("PENDING_QUESTIONS.md");
+    expect(prepared).not.toContain("pen-test-summaries/");
+    expect(prepared).not.toContain("contributor-reference/");
+    expect(prepared).toContain("/help/security-trust");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

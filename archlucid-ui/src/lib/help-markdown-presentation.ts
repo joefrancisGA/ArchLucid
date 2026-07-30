@@ -1252,6 +1252,26 @@ export function stripAzureBoardsContributorLeakage(markdown: string): string {
     .replace(/\n{3,}/g, "\n\n");
 }
 
+/**
+ * TB-1632 — removes contributor repo-tree framing from in-app CAIQ/SIG questionnaire help.
+ */
+export function stripCaiqSigContributorLeakage(markdown: string): string {
+  return markdown
+    .replace(/\|\s*Evidence in repo\s*\|/gi, "| Evidence |")
+    .replace(/Evidence in repo/gi, "Evidence")
+    .replace(/`?\.github\/[^`\s)]+`?/gi, "automated security testing in CI")
+    .replace(/\.github\/[^\s)`]+/gi, "automated security testing in CI")
+    .replace(/`?infra\/[^`\s)]*`?/gi, "hosted infrastructure")
+    .replace(/\binfra\//gi, "hosted infrastructure ")
+    .replace(/`?SECURITY\.md`?/gi, "security documentation")
+    .replace(/contributor-reference\/SECURITY\.md/gi, "security documentation")
+    .replace(/`?PENDING_QUESTIONS\.md`?/gi, "owner diligence notes")
+    .replace(/PENDING_QUESTIONS\.md/gi, "owner diligence notes")
+    .replace(/`?pen-test-summaries\/[^`\s)]+`?/gi, "penetration test program documentation")
+    .replace(/pen-test-summaries\/[^\s`)]+/gi, "penetration test program documentation")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -1391,6 +1411,9 @@ export function prepareHelpMarkdownForPresentation(
   const isRepeatReviewLoop = normalizedSourcePath.includes("repeat_review_loop.md");
   const isAcceleratorChooser = normalizedSourcePath.includes("accelerator_chooser.md");
   const isAzureBoardsIntegration = normalizedSourcePath.includes("azure_boards_integration.md");
+  const isCaiqSigResponse =
+    normalizedSourcePath.includes("caiq_lite_2026.md") ||
+    normalizedSourcePath.includes("sig_core_2026.md");
   // TB-1346 — retarget runbook .md links to /help before generic link rewrite drops them.
   const afterEvaluatorWorkbookStrip = isEvaluatorWorkbook
     ? stripEvaluatorWorkbookContributorLeakage(withoutInlineReferences)
@@ -1429,6 +1452,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripAcceleratorChooserContributorLeakage(sanitized);
   } else if (isAzureBoardsIntegration) {
     afterAudienceStrip = stripAzureBoardsContributorLeakage(sanitized);
+  } else if (isCaiqSigResponse) {
+    afterAudienceStrip = stripCaiqSigContributorLeakage(sanitized);
   }
 
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);
