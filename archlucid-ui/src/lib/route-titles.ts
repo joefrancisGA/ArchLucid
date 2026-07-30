@@ -40,7 +40,7 @@ export function getRouteTitle(pathname: string): string {
   }
 
   if (last === "itsm") {
-    return "ITSM";
+    return normalized === "/admin/integrations/itsm" ? "ITSM connectors" : "ITSM";
   }
 
   return last.charAt(0).toUpperCase() + last.slice(1).replaceAll("-", " ");

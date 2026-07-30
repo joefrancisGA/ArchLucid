@@ -32,7 +32,7 @@ export function GovernanceApprovalStoryCard(props: {
 }) {
   const row = props.row;
   const emphasizeComplete = props.emphasizeComplete === true;
-  const decisionRecordTitle = props.decisionRecordTitle?.trim() ?? "Approval decision record";
+  const decisionRecordTitle = props.decisionRecordTitle?.trim() ?? "Approval decision";
   const auditTrailHref = props.auditTrailHref?.trim() ?? "";
   const submitted = row.requestedUtc.trim().length > 0;
   const reviewed = (row.reviewedBy?.trim().length ?? 0) > 0;
@@ -57,7 +57,7 @@ export function GovernanceApprovalStoryCard(props: {
       detail: approved ? `Recorded ${approvalTimestamp}` : row.status.trim() || "Not approved yet",
     },
     {
-      label: "Approved as architecture decision record",
+      label: "Approved signed review record",
       done: promoteReady,
       detail: promoteReady
         ? "Ready for implementation planning, subject to enterprise change control."
@@ -81,7 +81,7 @@ export function GovernanceApprovalStoryCard(props: {
         <div className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0 leading-relaxed">
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized review
-            version <span className="font-semibold">{row.manifestVersion}</span> — approved as architecture decision record for
+            version <span className="font-semibold">{row.manifestVersion}</span> — approved signed review record for
             this review. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
           </p>
           {reviewed ? (
@@ -119,7 +119,7 @@ export function GovernanceApprovalStoryCard(props: {
               ) : null}
               <div
                 className={cn("min-w-0 flex-1 rounded-md border px-3 py-2", OPERATOR_TYPOGRAPHY.body,
-                  s.label === "Approved as architecture decision record" && promoteReady
+                  s.label === "Approved signed review record" && promoteReady
                     ? "border-neutral-400 bg-[var(--al-layer-hover)] ring-2 ring-[var(--al-accent-border-focus)]/30 dark:border-neutral-500 dark:bg-neutral-800/80"
                     : "border-neutral-200 bg-white/90 dark:border-neutral-700 dark:bg-neutral-950/40",
                 )}

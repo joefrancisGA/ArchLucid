@@ -333,7 +333,7 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/admin/integrations/itsm")).toEqual([
       { label: "Admin", href: "/admin" },
       { label: "Integrations", href: "/admin/integrations" },
-      { label: "ITSM" },
+      { label: "ITSM connectors" },
     ]);
   });
 

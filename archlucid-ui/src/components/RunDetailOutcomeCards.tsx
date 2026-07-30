@@ -502,7 +502,7 @@ export function RunDetailOutcomeCards({
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Exports</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review, decision record, audit trail</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review, signed review record, audit trail</dd>
               </div>
             </dl>
           ) : null}

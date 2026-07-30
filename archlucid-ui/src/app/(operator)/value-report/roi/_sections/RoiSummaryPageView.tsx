@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { useRoiLoadedHourlyUsd } from "@/hooks/use-roi-loaded-hourly-usd";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ROI_SUMMARY_METHODOLOGY_HELP_HREF,
   computeRoiSummaryPeriodMetrics,
@@ -38,11 +39,13 @@ type Props = {
 export function RoiSummaryPageView(props: Props) {
   const m = props.model;
   const hourly = useRoiLoadedHourlyUsd();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const layerHeader = buyerPolishedShell ? null : <LayerHeader pageKey="value-report-roi" />;
 
   if (m.demo) {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-4">
-        <LayerHeader pageKey="value-report-roi" />
+        {layerHeader}
         <ValueReportOutcomesNav />
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
@@ -56,7 +59,7 @@ export function RoiSummaryPageView(props: Props) {
   if (m.state.status === "loading") {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-4">
-        <LayerHeader pageKey="value-report-roi" />
+        {layerHeader}
         <ValueReportOutcomesNav />
         <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading ROI summary…</p>
       </OperatorPageContainer>
@@ -66,7 +69,7 @@ export function RoiSummaryPageView(props: Props) {
   if (m.state.status === "error") {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-4">
-        <LayerHeader pageKey="value-report-roi" />
+        {layerHeader}
         <ValueReportOutcomesNav />
         <OperatorApiProblem
           fallbackMessage={m.state.message}
@@ -93,7 +96,7 @@ export function RoiSummaryPageView(props: Props) {
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4">
-      <LayerHeader pageKey="value-report-roi" />
+      {layerHeader}
       <ValueReportOutcomesNav />
       <DocumentLayout>
         <div className="flex flex-wrap items-start justify-between gap-3">

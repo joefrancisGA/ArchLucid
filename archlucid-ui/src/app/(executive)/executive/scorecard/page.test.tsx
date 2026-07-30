@@ -85,6 +85,10 @@ vi.mock("@/lib/workspace-health-audit-count", () => ({
   countAuditEventsInWindow: vi.fn(),
 }));
 
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: vi.fn(() => true),
+}));
+
 describe("ExecutiveScorecardClient", () => {
   it("shows empty state instead of metric cards when no committed reviews", async () => {
     const { fetchPilotValueReportJson } = await import("@/lib/pilot-value-report-fetch");
@@ -111,23 +115,27 @@ describe("ExecutiveScorecardClient", () => {
     expect(container.textContent).toContain("No committed reviews yet");
   });
 
-  it("matches snapshot when data loads", async () => {
+  it("does not show unlabeled hours-saved fallback when severity-weighted hours are zero (TB-1534)", async () => {
     const { fetchPilotValueReportJson } = await import("@/lib/pilot-value-report-fetch");
     const { getComplianceDriftTrend } = await import("@/lib/api");
     const { countAuditEventsInWindow } = await import("@/lib/workspace-health-audit-count");
 
-    vi.mocked(fetchPilotValueReportJson).mockResolvedValue(mockPilotReport);
+    vi.mocked(fetchPilotValueReportJson).mockResolvedValue({
+      ...mockPilotReport,
+      findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+    });
     vi.mocked(getComplianceDriftTrend).mockResolvedValue(mockDrift);
     vi.mocked(countAuditEventsInWindow).mockResolvedValue({ count: 1, exact: true });
 
     const { container } = render(<ExecutiveScorecardClient />);
 
     await waitFor(() => {
-      expect(container.querySelector('[data-testid="executive-scorecard"]')).toBeTruthy();
-      expect(container.textContent).toContain("Architecture reviews completed");
+      expect(container.textContent).toContain("Estimated hours saved");
     });
 
-    expect(container.firstChild).toMatchSnapshot();
+    expect(container.textContent).toContain("—");
+    expect(container.textContent).toContain("Not enough severity data");
+    expect(container.textContent).not.toContain("12 h");
   });
 
   it("has no serious axe violations when ready", async () => {

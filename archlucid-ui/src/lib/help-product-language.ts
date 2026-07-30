@@ -64,6 +64,7 @@ export const HELP_TOPIC_BANNED_COPY_PATTERNS = [
   "review packages",
   "evidence package",
   "golden manifest",
+  "signed decision record",
   "manifest summary",
   "manifest not found",
   "manifest exists",

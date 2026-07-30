@@ -93,7 +93,10 @@ describe("ItsmProductIntegrationPageClient", () => {
       expect(screen.getByText(copy.summary)).toBeInTheDocument();
       expect(screen.getByText(/cloud connections/i)).toBeInTheDocument();
       expect(screen.getByText(copy.connectionTestLead)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: copy.smokeHelpLabel })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: copy.smokeHelpLabel })).toHaveAttribute(
+        "href",
+        INTEGRATIONS_READINESS_PATH,
+      );
 
       const page = screen.getByTestId(`integrations-${product}-page`);
       const text = page.textContent ?? "";

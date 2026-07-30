@@ -73,11 +73,12 @@ Use precise product language throughout the UI — labels, headings, empty state
 
 | Preferred | Avoid |
 |-----------|-------|
-| Review package | Run, job, task |
+| Architecture package / review | Run, job, task |
 | Finding | Issue, alert (unless it is an alert) |
 | Residual risk | Open issue |
-| Evidence trail | Logs, output |
-| Signed decision record | Decision, result |
+| Evidence trail / graph | Logs, output |
+| Signed review record (package) | Signed decision record, golden manifest |
+| Decision (disposition) | Calling the package a decision record |
 | Governance approval | Sign-off, approval |
 | Audit trail | History |
 
@@ -129,7 +130,7 @@ Operator and buyer forms must make hard validation visible on the form and hones
 > - Compact, readable enterprise spacing; no giant marketing cards in architect workspace views.
 > - Hide CLI/script/API/model/runtime details from normal surfaces.
 > - Keep technical details behind diagnostics or technical appendix disclosures.
-> - Use precise product language: architecture package, finding, residual risk, evidence trail, signed decision record, governance approval, audit trail.
+> - Use precise product language: architecture package, finding, residual risk, evidence trail, signed review record, decision, governance approval, audit trail. Never call the package a signed decision record.
 > - Design for CIO/procurement/compliance credibility.
 
 ---

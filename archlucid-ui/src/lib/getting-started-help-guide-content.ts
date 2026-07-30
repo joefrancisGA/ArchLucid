@@ -49,9 +49,14 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
       "Structured issues and risks surfaced during analysis, each tied to evidence and severity.",
   },
   {
-    term: "Decision record",
+    term: "Decision",
     definition:
-      "The signed outcome of the review — what was approved, accepted, or deferred for follow-up.",
+      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit.",
+  },
+  {
+    term: "Signed review record",
+    definition:
+      "The immutable package locked when a review is finalized — the authoritative anchor for governance, exports, and evidence lineage.",
   },
   {
     term: "Evidence trail",
@@ -108,7 +113,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 4,
     title: "Record decisions",
     description: "Capture approvals, accepted risks, and remediation owners before finalizing.",
-    expectedOutputs: "Signed decision record and governance notes.",
+    expectedOutputs: "Architecture decisions and governance notes.",
     href: "/governance",
     ctaLabel: "Open governance workflow",
   },

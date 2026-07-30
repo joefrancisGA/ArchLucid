@@ -27,7 +27,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     layerGuidance: {
       layerBadge: "Governance",
       headline: "Track active waivers, expirations, owners, and linked governance decisions.",
-      useWhen: "Use this page to track owner, expiration, evidence, and the linked decision record.",
+      useWhen: "Use this page to track owner, expiration, evidence, and the linked decision.",
       firstPilotNote: null,
       enterpriseFootnote: "Risk exceptions are approved waivers for findings that are not immediately remediated.",
       omitReviewPackageScopeHelp: true,

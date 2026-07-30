@@ -6,6 +6,7 @@ import {
   fetchWithWarmupRetry,
   isWarmupRetryableHttpResponse,
   isWarmupRetryableProxyConfigProblem,
+  isWarmupRetryableTransportError,
   warmupRetryDelayMs,
 } from "@/lib/warmup-retry";
 
@@ -85,6 +86,16 @@ describe("warmup-retry", () => {
 
     expect(response.status).toBe(200);
     expect(fetchOnce).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not retry AbortError / proxy timeout transport failures", async () => {
+    const abortError = new Error("The operation was aborted due to timeout");
+    abortError.name = "AbortError";
+    const fetchOnce = vi.fn().mockRejectedValue(abortError);
+
+    await expect(fetchWithWarmupRetry(fetchOnce)).rejects.toThrow(/aborted due to timeout/i);
+    expect(fetchOnce).toHaveBeenCalledTimes(1);
+    expect(isWarmupRetryableTransportError(abortError)).toBe(false);
   });
 
   it("delayForWarmupRetry waits the configured interval", async () => {

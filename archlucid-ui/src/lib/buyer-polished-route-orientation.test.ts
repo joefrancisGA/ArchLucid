@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/search/_sections/search-page-copy";
+import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import {
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import { buyerPolishedRouteOrientation } from "./buyer-polished-route-orientation";
@@ -12,11 +20,9 @@ describe("buyerPolishedRouteOrientation", () => {
     ).toBe("Search this review's evidence");
   });
 
-  it("uses tenant-wide search framing when searchRunId is absent", () => {
-    const result = buyerPolishedRouteOrientation("/search");
-
-    expect(result?.label).toBe("Search review evidence");
-    expect(result?.line).toContain("across this workspace");
+  it("returns null for unscoped /search — OperatorPageHeader owns SEARCH_PAGE_SUBTITLE (TB-1436)", () => {
+    expect(buyerPolishedRouteOrientation("/search")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/search")?.line).not.toBe(SEARCH_PAGE_SUBTITLE);
   });
 
   it("keeps executive summary orientation for the showcase run", () => {
@@ -31,11 +37,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/graph")).toBeNull();
   });
 
-  it("orients the portfolio dashboard route", () => {
-    const o = buyerPolishedRouteOrientation("/dashboard");
-
-    expect(o?.label).toBe("Executive dashboard");
-    expect(o?.line).toContain("committed reviews");
+  it("returns null for /dashboard — portfolioPageLead owns the intro (TB-1439)", () => {
+    expect(buyerPolishedRouteOrientation("/dashboard")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/dashboard")?.line).not.toBe(
+      BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead,
+    );
   });
 
   it("orients the executive scorecard route", () => {
@@ -114,6 +120,17 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/governance/setup")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
+  it("returns null for audit trail — OperatorPageHeader owns the page lead (TB-1435)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/audit")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/audit")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/audit")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
+  });
+
+  it("returns null for alert-rules — OperatorPageHeader owns configuration subtitle (TB-1435)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/alert-rules")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/alert-rules")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
+  });
+
   it("orients the operator security-trust route for procurement reviewers", () => {
     const canonical = buyerPolishedRouteOrientation("/settings/security-trust");
     const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");
@@ -123,25 +140,24 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(legacy).toEqual(canonical);
   });
 
-  it("orients the sponsor report executive summary route", () => {
-    const o = buyerPolishedRouteOrientation("/sponsor-report/executive-summary");
-
-    expect(o?.label).toBe("Sponsor report");
-    expect(o?.line).toContain("sponsor-ready summaries");
+  it("returns null for value-report sponsor hero routes — page header owns the lead (TB-1437)", () => {
+    expect(buyerPolishedRouteOrientation("/value-report")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/value-report/pilot")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/value-report/roi")).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH)).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBeNull();
+    expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_ROI_SUMMARY_PATH)).toBeNull();
+    expect(buyerPolishedRouteOrientation("/value-report")?.line).not.toBe(BUYER_VALUE_REPORT_PAGE_SUBTITLE);
   });
 
-  it("orients the sponsor report pilot outcomes route", () => {
-    const o = buyerPolishedRouteOrientation("/sponsor-report/pilot-outcomes");
-
-    expect(o?.label).toBe("Sponsor report");
-    expect(o?.line).toContain("Pilot outcomes");
+  it("returns null for /product-learning — pageLead owns the intro (TB-1438)", () => {
+    expect(buyerPolishedRouteOrientation("/product-learning")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/product-learning")?.line).not.toBe(PILOT_FEEDBACK_VOCABULARY.layerContextLine);
   });
 
-  it("orients bare /governance as the workspace overview", () => {
-    const o = buyerPolishedRouteOrientation("/governance");
-
-    expect(o?.label).toBe("Governance");
-    expect(o?.line).toContain("Workspace governance status");
+  it("returns null for bare /governance — OperatorPageHeader owns the overview lead (TB-1434)", () => {
+    expect(buyerPolishedRouteOrientation("/governance")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
   it("orients /governance with showcase runId as sample review context", () => {

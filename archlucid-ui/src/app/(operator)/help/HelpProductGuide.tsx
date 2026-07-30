@@ -116,7 +116,7 @@ export function HelpProductGuide() {
               — start with the business decision and monitored risks.
             </li>
             <li>
-              Open the <strong>signed review record</strong> — the governed decision record for this review.
+              Open the <strong>signed review record</strong> — the immutable package locked when this review was finalized.
             </li>
             <li>
               Follow the{" "}

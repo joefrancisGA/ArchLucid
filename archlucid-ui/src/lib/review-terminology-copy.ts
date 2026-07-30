@@ -22,6 +22,15 @@ const RUN_PRIMARY_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
 ];
 
 const MANIFEST_PRIMARY_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
+  // Package mislabeled as "decision record" (legacy sponsor synonym) → signed review record.
+  [/\bsigned decision records\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
+  [/\bsigned decision record\b/gi, SIGNED_MANIFEST_LABEL],
+  [/\breviewed decision records\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
+  [/\breviewed decision record\b/gi, SIGNED_MANIFEST_LABEL],
+  [/\bfinalized decision records\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
+  [/\bfinalized decision record\b/gi, SIGNED_MANIFEST_LABEL],
+  [/\bgoverned decision records\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
+  [/\bgoverned decision record\b/gi, SIGNED_MANIFEST_LABEL],
   [/\bgolden manifests\b/gi, `${SIGNED_MANIFEST_LABEL}s`],
   [/\bgolden manifest\b/gi, SIGNED_MANIFEST_LABEL],
   [/\bcommitted manifests\b/gi, `finalized ${REVIEW_PACKAGE_LABEL.toLowerCase()}s`],

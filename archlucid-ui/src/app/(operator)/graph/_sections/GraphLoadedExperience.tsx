@@ -119,7 +119,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <span className={OPERATOR_TYPOGRAPHY.helper}>
                 {graphInteractiveReady && !loading
-                  ? `${graph.nodes.length} linked evidence and decision records in this view`
+                  ? `${graph.nodes.length} linked evidence and decision nodes in this view`
                   : "Rendering interactive graph…"}
               </span>
             </div>

@@ -1,9 +1,9 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 
 export const DECISION_REGISTER_PAGE_SUBTITLE =
-  "Browse signed architecture decisions across reviews, including category, supporting findings, confidence, and lineage.";
+  "Browse architecture decisions locked with each signed review record — category, supporting findings, confidence, and lineage.";
 
-export const DECISION_REGISTER_SUMMARY_SIGNED_LABEL = "Signed decisions";
+export const DECISION_REGISTER_SUMMARY_SIGNED_LABEL = "Architecture decisions";
 
 export const DECISION_REGISTER_SUMMARY_RECENT_LABEL = "Recent decisions";
 
@@ -55,12 +55,12 @@ export const DECISION_REGISTER_VIEW_TIMELINE_PANEL_LABEL = "Decision register ti
 export const DECISION_REGISTER_FILTER_NO_MATCH_TITLE = "No decisions match these filters";
 
 export const DECISION_REGISTER_FILTER_NO_MATCH_BODY =
-  "Try a broader date range or clear filters to see signed decisions in this workspace.";
+  "Try a broader date range or clear filters to see architecture decisions in this workspace.";
 
-export const DECISION_REGISTER_EMPTY_TITLE = "No signed decisions yet";
+export const DECISION_REGISTER_EMPTY_TITLE = "No architecture decisions yet";
 
 export const DECISION_REGISTER_EMPTY_BODY =
-  "Finalize a review to create signed architecture decisions with supporting findings and evidence lineage.";
+  "Finalize a review to lock its signed review record. Architecture decisions from that package then appear here with findings and evidence lineage.";
 
 export const DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES = "Open reviews";
 

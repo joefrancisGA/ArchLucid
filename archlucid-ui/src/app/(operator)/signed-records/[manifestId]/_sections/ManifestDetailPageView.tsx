@@ -264,20 +264,20 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           <>
             {showcasePackage === true ? (
               <>
-                This <strong>signed decision record</strong> is the authoritative reviewed architecture record for this
-                package — decisions, findings, and downloadable deliverables.
+                This <strong>signed review record</strong> is the authoritative architecture package for this
+                review — decisions, findings, and downloadable deliverables.
               </>
             ) : (
               <>
-                This is the signed decision record for the architecture review — decisions, findings, and the files you can
+                This is the signed review record for the architecture review — decisions, findings, and the files you can
                 open or download.
               </>
             )}
           </>
         ) : (
           <>
-            A signed review record is the reviewed, versioned architecture decision for this review. It captures decisions,
-            findings, and the downloadable artifact bundle linked from review detail.
+            A signed review record is the immutable package for this review. It captures decisions, findings, and the
+            downloadable artifact bundle linked from review detail.
           </>
         )}
       </p>
@@ -289,7 +289,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           data-testid="manifest-buyer-authority-summary"
         >
           <h2 id="manifest-authority-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            What this signed decision record proves
+            What this signed review record proves
           </h2>
           <p className={cn("m-0 mt-2 max-w-prose leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {BUYER_MANIFEST_AUTHORITY_SUMMARY}

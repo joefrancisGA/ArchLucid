@@ -238,7 +238,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Governance",
     headline: "Track active waivers, expirations, owners, and linked governance decisions.",
     useWhen:
-      "Use this page to track owner, expiration, evidence, and the linked decision record so exceptions do not become unmanaged risk.",
+      "Use this page to track owner, expiration, evidence, and the linked decision so exceptions do not become unmanaged risk.",
     firstPilotNote:
       "After Pilot proof when waivers from findings need portfolio-level expiry and renewal tracking.",
     enterpriseFootnote:

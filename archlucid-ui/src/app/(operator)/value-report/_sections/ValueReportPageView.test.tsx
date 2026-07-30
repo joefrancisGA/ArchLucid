@@ -4,6 +4,18 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
 import { ValueReportPageView } from "./ValueReportPageView";
+import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { LAYER_PAGE_GUIDANCE } from "@/lib/layer-guidance";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...mod,
+    isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
+    isNextPublicDemoMode: vi.fn(() => false),
+  };
+});
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/value-report",
@@ -64,5 +76,18 @@ describe("ValueReportPageView report problem (TB-791)", () => {
     );
 
     expect(screen.getByTestId("report-problem-trigger")).toBeInTheDocument();
+  });
+});
+
+describe("ValueReportPageView buyer-polished chrome (TB-1437)", () => {
+  it("shows one page hero — no LayerHeader guidance above the export panel", async () => {
+    const { isBuyerPolishedOperatorShellEnv } = await import("@/lib/demo-ui-env");
+    vi.mocked(isBuyerPolishedOperatorShellEnv).mockReturnValue(true);
+
+    render(<ValueReportPageView model={buildModel()} />);
+
+    expect(screen.getAllByText(BUYER_VALUE_REPORT_PAGE_SUBTITLE)).toHaveLength(1);
+    expect(screen.queryByText(LAYER_PAGE_GUIDANCE["value-report"].headline)).not.toBeInTheDocument();
+    expect(screen.getByTestId("value-report-export-panel")).toBeInTheDocument();
   });
 });

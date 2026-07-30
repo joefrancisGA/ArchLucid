@@ -946,6 +946,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(RetrievalEmbeddingModelOptions.SectionName));
         services.Configure<RetrievalRerankingOptions>(configuration.GetSection(RetrievalRerankingOptions.SectionPath));
         services.Configure<AdvancedRetrievalOptions>(configuration.GetSection(AdvancedRetrievalOptions.SectionPath));
+        services.Configure<RetrievalQueryBudgetOptions>(configuration.GetSection(RetrievalQueryBudgetOptions.SectionPath));
         services.Configure<PriorManifestRetrievalOptions>(configuration.GetSection(PriorManifestRetrievalOptions.SectionPath));
         services.Configure<FineTuningOptions>(configuration.GetSection(FineTuningOptions.SectionPath));
         services.Configure<ManifestChunkSummarizationOptions>(
@@ -1055,12 +1056,22 @@ public static partial class ServiceCollectionExtensions
             {
                 IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
                     sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+                TimeSpan embeddingNetworkTimeout = sp
+                    .GetRequiredService<IOptionsMonitor<RetrievalQueryBudgetOptions>>()
+                    .CurrentValue
+                    .GetEffectiveEmbeddingNetworkTimeout();
                 AzureOpenAiEmbeddingClient inner = useManagedIdentityEmbeddings
                     ? AzureOpenAiEmbeddingClient.CreateWithManagedIdentity(
                         endpoint!,
                         embedDeployment!,
-                        llmTelemetryOptions)
-                    : new AzureOpenAiEmbeddingClient(endpoint!, apiKey!, embedDeployment!, llmTelemetryOptions);
+                        llmTelemetryOptions,
+                        embeddingNetworkTimeout)
+                    : new AzureOpenAiEmbeddingClient(
+                        endpoint!,
+                        apiKey!,
+                        embedDeployment!,
+                        llmTelemetryOptions,
+                        embeddingNetworkTimeout);
                 CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Embedding);
                 ILogger<CircuitBreakingOpenAiEmbeddingClient> logger =
                     sp.GetRequiredService<ILogger<CircuitBreakingOpenAiEmbeddingClient>>();

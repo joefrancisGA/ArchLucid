@@ -84,11 +84,11 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "signed-review-record",
     label: "Signed review record",
     definition:
-      "The immutable, provenance-backed record that closes a finalized review. ArchLucid treats it as the authoritative review anchor for governance and exports.",
+      "The immutable, provenance-backed package that closes a finalized review. ArchLucid treats it as the authoritative review anchor for governance and exports. Do not call this a signed decision record — a decision is one disposition inside the package.",
     category: "review-process",
     aliases: ["Signed review record"],
-    deprecatedAliases: ["Signed manifest", "Golden manifest"],
-    relatedTermIds: ["review-package", "evidence-trail"],
+    deprecatedAliases: ["Signed manifest", "Golden manifest", "Signed decision record"],
+    relatedTermIds: ["review-package", "evidence-trail", "decision"],
     visibility: "customer",
   },
   {
@@ -134,9 +134,11 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "decision",
     label: "Decision",
     definition:
-      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit.",
+      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit. Not the same as the signed review record (the package that locks those decisions at finalize).",
     category: "decisions-and-findings",
-    relatedTermIds: ["governance-approval", "finding"],
+    relatedTermIds: ["governance-approval", "finding", "signed-review-record"],
+    detail:
+      "Browse decisions in the Decision register. Open the signed review record for the immutable package that contains decisions, findings, and exports for one review.",
     visibility: "customer",
   },
   {

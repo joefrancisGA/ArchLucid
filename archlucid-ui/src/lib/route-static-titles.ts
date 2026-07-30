@@ -7,6 +7,7 @@ import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 import { PATTERN_LIBRARY_PAGE_TITLE } from "@/lib/pattern-library-copy";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
@@ -65,4 +66,5 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/sponsor-report/architecture-scorecard": "Architecture scorecard",
   "/value-report/roi": "ROI summary",
   "/admin/demo-readiness": "Demo readiness",
+  [ITSM_CONNECTORS_ADMIN_PATH]: ITSM_CONNECTORS_ADMIN_LABEL,
 };

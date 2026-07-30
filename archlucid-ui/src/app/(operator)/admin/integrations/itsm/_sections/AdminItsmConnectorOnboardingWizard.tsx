@@ -19,7 +19,18 @@ import {
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { ITSM_CONNECTOR_SMOKE_HELP } from "@/lib/itsm-connectors-admin-scope";
+import {
+  ITSM_CONNECTOR_SMOKE_HELP,
+  ITSM_CONNECTORS_CREDENTIALS_CONFIGURED_HEALTH_FALLBACK,
+  ITSM_CONNECTORS_JIRA_CREDENTIALS_NOT_CONFIGURED,
+  ITSM_CONNECTORS_SERVICENOW_CREDENTIALS_NOT_CONFIGURED,
+  ITSM_CONNECTORS_WIZARD_NATIVE_DISABLED_MESSAGE,
+  ITSM_CONNECTORS_WIZARD_PREREQUISITES_DESCRIPTION,
+} from "@/lib/itsm-connectors-admin-scope";
+import {
+  resolveItsmAdminJiraCredentialsConfigured,
+  resolveItsmAdminServiceNowCredentialsConfigured,
+} from "@/lib/itsm-connectors-admin-page-load";
 import {
   isItsmNativeCreateDefaultPathReady,
   resolveItsmOnboardingWizardInitialStep,
@@ -29,6 +40,7 @@ import {
 type Props = {
   readonly initialSettings: TenantItsmOutboundSettingsResponse | null;
   readonly initialHealth: ItsmIntegrationHealthResponse | null;
+  readonly settingsLoadFailed?: boolean;
   readonly onSettingsSaved: (settings: TenantItsmOutboundSettingsResponse) => void;
   readonly onHealthUpdated: (health: ItsmIntegrationHealthResponse) => void;
 };
@@ -57,6 +69,13 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
 
   const nativeEnabled = settings?.nativeEnabled ?? health?.nativeEnabled ?? false;
   const defaultPathReady = isItsmNativeCreateDefaultPathReady(health);
+  const settingsLoadFailed = props.settingsLoadFailed === true;
+  const jiraCredentialsConfigured = resolveItsmAdminJiraCredentialsConfigured(settings, health, settingsLoadFailed);
+  const serviceNowCredentialsConfigured = resolveItsmAdminServiceNowCredentialsConfigured(
+    settings,
+    health,
+    settingsLoadFailed,
+  );
 
   const reloadSettings = useCallback(async () => {
     const loaded = await fetchTenantItsmOutboundSettings();
@@ -144,7 +163,7 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
           <CardHeader>
             <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Deployment prerequisites</CardTitle>
             <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-              Outbound credentials remain in host configuration or Key Vault materialization — never stored in tenant SQL.
+              {ITSM_CONNECTORS_WIZARD_PREREQUISITES_DESCRIPTION}
             </CardDescription>
           </CardHeader>
           <CardContent className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
@@ -153,11 +172,7 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
               <StatusTag kind={nativeEnabled ? "ready" : "neutral"} label={nativeEnabled ? "Enabled" : "Disabled"} />
             </div>
             {!nativeEnabled ? (
-              <p className="m-0 text-al-text-secondary">
-                Native outbound create is disabled for this deployment. Set{" "}
-                <code className={OPERATOR_TYPOGRAPHY.micro}>Integrations:Itsm:NativeEnabled=true</code> to re-enable
-                one-click Jira/ServiceNow create after smoke validation. Clipboard export and correlations remain enabled.
-              </p>
+              <p className="m-0 text-al-text-secondary">{ITSM_CONNECTORS_WIZARD_NATIVE_DISABLED_MESSAGE}</p>
             ) : null}
 
             <div className="space-y-2 rounded-md border border-al-border-subtle p-3">
@@ -165,24 +180,36 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
               <ul className="m-0 list-disc space-y-1 pl-5 text-al-text-secondary">
                 <li>
                   Jira:{" "}
-                  {settings?.deploymentCredentials?.jiraConfigured ? (
-                    <>
-                      configured — service account{" "}
-                      <span className="font-mono">{settings.deploymentCredentials.jiraServiceAccountEmailMasked ?? "••••"}</span>
-                    </>
+                  {jiraCredentialsConfigured ? (
+                    settings?.deploymentCredentials?.jiraConfigured === true ? (
+                      <>
+                        configured — service account{" "}
+                        <span className="font-mono">
+                          {settings.deploymentCredentials.jiraServiceAccountEmailMasked ?? "••••"}
+                        </span>
+                      </>
+                    ) : (
+                      ITSM_CONNECTORS_CREDENTIALS_CONFIGURED_HEALTH_FALLBACK
+                    )
                   ) : (
-                    "not configured — add Integrations:ItsmOutbound:Jira credentials"
+                    ITSM_CONNECTORS_JIRA_CREDENTIALS_NOT_CONFIGURED
                   )}
                 </li>
                 <li>
                   ServiceNow:{" "}
-                  {settings?.deploymentCredentials?.serviceNowConfigured ? (
-                    <>
-                      configured — username{" "}
-                      <span className="font-mono">{settings.deploymentCredentials.serviceNowUsernameMasked ?? "••••"}</span>
-                    </>
+                  {serviceNowCredentialsConfigured ? (
+                    settings?.deploymentCredentials?.serviceNowConfigured === true ? (
+                      <>
+                        configured — username{" "}
+                        <span className="font-mono">
+                          {settings.deploymentCredentials.serviceNowUsernameMasked ?? "••••"}
+                        </span>
+                      </>
+                    ) : (
+                      ITSM_CONNECTORS_CREDENTIALS_CONFIGURED_HEALTH_FALLBACK
+                    )
                   ) : (
-                    "not configured — add Integrations:ItsmOutbound:ServiceNow credentials"
+                    ITSM_CONNECTORS_SERVICENOW_CREDENTIALS_NOT_CONFIGURED
                   )}
                 </li>
               </ul>

@@ -61,7 +61,7 @@ import {
   sanitizeCustomerFacingProbeSummary,
 } from "@/lib/servicenow-integration-present";
 import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
-import { ITSM_CONNECTOR_SMOKE_HELP } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm-connectors-admin-scope";
 
 import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
 
@@ -455,7 +455,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
               </Button>
 
               <p className="m-0">
-                <Link href={ITSM_CONNECTOR_SMOKE_HELP.serviceNow} className={cn(OPERATOR_LINK.inline)}>
+                <Link href={ITSM_PRODUCT_SMOKE_VERIFICATION_HREF} className={cn(OPERATOR_LINK.inline)}>
                   {SERVICENOW_CONNECTION_VERIFICATION_HELP_LABEL}
                 </Link>
               </p>

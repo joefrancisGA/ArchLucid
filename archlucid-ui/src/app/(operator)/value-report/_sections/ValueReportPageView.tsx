@@ -22,7 +22,7 @@ import {
   BUYER_VALUE_REPORT_PERIOD_EXPORTS_TITLE,
   BUYER_VALUE_REPORT_PERIOD_UTC_HELP,
 } from "@/lib/buyer-polish-copy";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
@@ -68,6 +68,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
 
   const disabledReason = exportDisabledReason(canMutate, hasReportData, previewBusy);
   const showDemoSampleNote = isNextPublicDemoMode();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const scrollToPreview = useCallback(() => {
     document.getElementById("value-report-preview")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -75,7 +76,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-4 print:w-full">
-      <LayerHeader pageKey="value-report" />
+      {buyerPolishedShell ? null : <LayerHeader pageKey="value-report" />}
       <div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
         <PageContextualHelpButton />
       </div>

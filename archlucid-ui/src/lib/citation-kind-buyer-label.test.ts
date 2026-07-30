@@ -6,7 +6,7 @@ describe("citationKindBuyerLabel", () => {
   it("maps internal citation kinds to buyer-facing chip labels", () => {
     expect(citationKindBuyerLabel("GraphSnapshot")).toBe("Evidence graph");
     expect(citationKindBuyerLabel("ContextSnapshot")).toBe("Reviewed source context");
-    expect(citationKindBuyerLabel("DecisionTrace")).toBe("Decision record");
+    expect(citationKindBuyerLabel("DecisionTrace")).toBe("Decision");
     expect(citationKindBuyerLabel("Manifest")).toBe("Signed review record");
   });
 });

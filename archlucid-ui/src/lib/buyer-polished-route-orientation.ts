@@ -3,21 +3,18 @@ import {
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
-  SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
-import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
+import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAlertRules, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
   BUYER_TERMINOLOGY,
-  PILOT_FEEDBACK_VOCABULARY,
 } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   GOVERNANCE_OVERVIEW_PAGE_LEAD,
-  GOVERNANCE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
@@ -33,6 +30,18 @@ export type BuyerPolishedRouteOrientationOptions = {
   /** When `/search` or `/governance` carries `runId`, header copy can reflect a scoped review. */
   readonly searchRunId?: string;
 };
+
+function pathMatchesValueReportSponsorHeroRoutes(pathname: string): boolean {
+  return (
+    pathname === "/value-report" ||
+    pathname.startsWith("/value-report/") ||
+    pathname === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH ||
+    pathname === SPONSOR_REPORT_PILOT_OUTCOMES_PATH ||
+    pathname.startsWith(`${SPONSOR_REPORT_PILOT_OUTCOMES_PATH}/`) ||
+    pathname === SPONSOR_REPORT_ROI_SUMMARY_PATH ||
+    pathname.startsWith(`${SPONSOR_REPORT_ROI_SUMMARY_PATH}/`)
+  );
+}
 
 /**
  * Stable header strip orientation for buyer-polished shell — replaces abstract layer questions where path is known.
@@ -120,10 +129,8 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (path === "/dashboard") {
-    return {
-      label: BUYER_TERMINOLOGY.portfolioOverview,
-      line: "ROI, remediation, and governance posture across committed reviews.",
-    };
+    // Executive dashboard carries its own portfolioPageLead hero (TB-1439) — not strip + body twins.
+    return null;
   }
 
   if (path === "/executive/scorecard") {
@@ -186,14 +193,22 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  // Audit trail carries its own OperatorPageHeader subtitle (TB-1435) — not governance overview strip.
+  if (pathMatchesGovernanceAudit(path)) {
+    return null;
+  }
+
+  // Alert rules hub carries its own OperatorPageHeader subtitle (TB-1435).
+  if (pathMatchesGovernanceAlertRules(path)) {
+    return null;
+  }
+
   if (path === "/governance") {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 
+    // Governance overview carries its own OperatorPageHeader subtitle (TB-1434) — not strip + header twins.
     if (searchRunId.length === 0) {
-      return {
-        label: GOVERNANCE_OVERVIEW_PAGE_TITLE,
-        line: GOVERNANCE_OVERVIEW_PAGE_LEAD,
-      };
+      return null;
     }
 
     if (canonicalizeDemoRunId(searchRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
@@ -209,14 +224,6 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  // Before the `/governance` catch-all — canonical audit lives at `/governance/audit` (legacy `/audit` redirects).
-  if (pathMatchesGovernanceAudit(path)) {
-    return {
-      label: "Audit Trail",
-      line: `Immutable audit events correlated to reviews such as ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
-    };
-  }
-
   if (path.startsWith("/governance")) {
     return {
       label: "Governance",
@@ -227,7 +234,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)) {
     return {
       label: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-      line: "Finalized decision record — findings, finalized signed review record, evidence trail, governance disposition, and deliverables.",
+      line: "Signed review record — findings, decisions, evidence trail, governance disposition, and deliverables.",
     };
   }
 
@@ -263,17 +270,13 @@ export function buyerPolishedRouteOrientation(
       };
     }
 
-    return {
-      label: "Search review evidence",
-      line: "Find evidence, findings, decisions, and signed review records across this workspace.",
-    };
+    // Search page carries its own OperatorPageHeader subtitle (TB-1436) — not strip + header twins.
+    return null;
   }
 
   if (path === "/product-learning") {
-    return {
-      label: BUYER_TERMINOLOGY.evaluationFeedback,
-      line: PILOT_FEEDBACK_VOCABULARY.layerContextLine,
-    };
+    // Product learning carries its own pageLead hero (TB-1438) — not strip + body twins.
+    return null;
   }
 
   if (path.startsWith("/compare")) {
@@ -287,25 +290,9 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
-  if (path === "/value-report" || path === SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH) {
-    return {
-      label: SPONSOR_REPORT_SECTION_LABEL,
-      line: "Generate sponsor-ready summaries of review outcomes, ROI, and governance progress.",
-    };
-  }
-
-  if (path.startsWith("/value-report/pilot") || path.startsWith(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)) {
-    return {
-      label: SPONSOR_REPORT_SECTION_LABEL,
-      line: "Pilot outcomes — metrics and governance signals from finalized reviews.",
-    };
-  }
-
-  if (path.startsWith("/value-report/roi") || path.startsWith(SPONSOR_REPORT_ROI_SUMMARY_PATH)) {
-    return {
-      label: SPONSOR_REPORT_SECTION_LABEL,
-      line: "ROI summary — estimated review-time savings from finalized findings and governance blocks.",
-    };
+  if (pathMatchesValueReportSponsorHeroRoutes(path)) {
+    // Value-report pages carry their own page hero (TB-1437) — not strip + LayerHeader + subtitle twins.
+    return null;
   }
 
   if (path.startsWith("/scorecard") || path.startsWith(SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH)) {

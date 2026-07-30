@@ -1,7 +1,7 @@
 > **Reviewed:** 2026-07-29
 
 
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**), the minimum pilot trust packet without CPA/3P pen test (formerly the body of `MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-191**), the model-failed vs quality-rejected one-pager (formerly the body of `MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-124**), the execution-mode honesty one-pager (formerly the body of `EXECUTION_MODE_HONESTY_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-128**), the Simulator-ROI sponsor forbid one-pager (formerly the body of `SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-139**), the interrupted-review buyer one-pager (formerly the body of `INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-122**), the first-security-review PA one-pager ship order (formerly the body of `FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-193**), the SOC 2 / pen-test honest procurement talk-track (formerly the body of `SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-197**), the isolation-claims vs INV-001 / ADR 0037 handout (formerly the body of `ISOLATION_CLAIMS_VS_INV001_ADR0037_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-195**), the retrieval tenancy hit-guarantee handout (formerly the body of `RETRIEVAL_TENANCY_HIT_GUARANTEE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-153**), the PilotStrict vs execution-mode handout (formerly the body of `PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-167**), the committed golden-manifest unit-of-truth handout (formerly the body of `COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-155**), the operator primary-object + nav-collapse handout (formerly the body of `OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-177**), the append-only / sealed-evidence handout (formerly the body of `APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-161**), and the Authority vs AgentTask loop handout (formerly the body of `AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-159**), and the transactional finalize vs outbox handout (formerly the body of `TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-163**), and the quality-gate versioning handout (formerly the body of `QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-130**), and the read-after-write client readiness handout (formerly the body of `READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-165**), and the finding disposition concurrency handout (formerly the body of `FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-141**), and the outbox replay vs idempotency handout (formerly the body of `TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-145**), and the LLM trust-boundary ingress handout (formerly the body of `LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-149**), and the Polly vs run-completeness handout (formerly the body of `POLLY_VS_RUN_LEVEL_SURFACE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-147**), and the solo-operator pages vs support-email handout (formerly the body of `SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-143**), and the LLM budget reserve/settle handout (formerly the body of `LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-132**), and the empty-scope catalog routing handout (formerly the body of `EMPTY_SCOPE_CATALOG_ROUTING_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-169**), and the process vs provider LLM idempotency handout (formerly the body of `AGENT_TASK_PROCESS_VS_PROVIDER_IDEMPOTENCY_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-171**), and the pre-finalize gate / SoD handout (formerly the body of `PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-173**), and the concurrent execute + commit race handout (formerly the body of `CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-222**), and the GoldenManifest content-schema evolution handout (formerly the body of `MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-224**), and the mature LLM cost-control plane handout (formerly the body of `LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-226**), and the fine-tuning promotion decision record handout (formerly the body of `FINE_TUNING_PROMOTION_DECISION_RECORD_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-228**), and the Real-execute AOAI throttle policy handout (formerly the body of `REAL_EXECUTE_AOAI_THROTTLE_POLICY_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-230**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**), the minimum pilot trust packet without CPA/3P pen test (formerly the body of `MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-191**), the model-failed vs quality-rejected one-pager (formerly the body of `MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-124**), the execution-mode honesty one-pager (formerly the body of `EXECUTION_MODE_HONESTY_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-128**), the Simulator-ROI sponsor forbid one-pager (formerly the body of `SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-139**), the interrupted-review buyer one-pager (formerly the body of `INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-122**), the first-security-review PA one-pager ship order (formerly the body of `FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-193**), the SOC 2 / pen-test honest procurement talk-track (formerly the body of `SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-197**), the isolation-claims vs INV-001 / ADR 0037 handout (formerly the body of `ISOLATION_CLAIMS_VS_INV001_ADR0037_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-195**), the retrieval tenancy hit-guarantee handout (formerly the body of `RETRIEVAL_TENANCY_HIT_GUARANTEE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-153**), the PilotStrict vs execution-mode handout (formerly the body of `PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-167**), the committed golden-manifest unit-of-truth handout (formerly the body of `COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-155**), the operator primary-object + nav-collapse handout (formerly the body of `OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-177**), the append-only / sealed-evidence handout (formerly the body of `APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-161**), and the Authority vs AgentTask loop handout (formerly the body of `AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-159**), and the transactional finalize vs outbox handout (formerly the body of `TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-163**), and the quality-gate versioning handout (formerly the body of `QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-130**), and the read-after-write client readiness handout (formerly the body of `READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-165**), and the finding disposition concurrency handout (formerly the body of `FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-141**), and the outbox replay vs idempotency handout (formerly the body of `TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-145**), and the LLM trust-boundary ingress handout (formerly the body of `LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-149**), and the Polly vs run-completeness handout (formerly the body of `POLLY_VS_RUN_LEVEL_SURFACE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-147**), and the solo-operator pages vs support-email handout (formerly the body of `SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-143**), and the LLM budget reserve/settle handout (formerly the body of `LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-132**), and the empty-scope catalog routing handout (formerly the body of `EMPTY_SCOPE_CATALOG_ROUTING_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-169**), and the process vs provider LLM idempotency handout (formerly the body of `AGENT_TASK_PROCESS_VS_PROVIDER_IDEMPOTENCY_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-171**), and the pre-finalize gate / SoD handout (formerly the body of `PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-173**), and the concurrent execute + commit race handout (formerly the body of `CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-222**), and the GoldenManifest content-schema evolution handout (formerly the body of `MANIFEST_CONTENT_SCHEMA_EVOLUTION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-224**), and the mature LLM cost-control plane handout (formerly the body of `LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-226**), and the fine-tuning promotion decision record handout (formerly the body of `FINE_TUNING_PROMOTION_DECISION_RECORD_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-228**), and the Real-execute AOAI throttle policy handout (formerly the body of `REAL_EXECUTE_AOAI_THROTTLE_POLICY_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-230**), and the async orchestration first-force handout (formerly the body of `ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-232**), and the Container Apps Terraform authority + drift handout (formerly the body of `CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-234**), and the policy-pack evaluation hybrid handout (formerly the body of `POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-236**), and the 100× review-volume capacity handout (formerly the body of `REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-238**), and the WNTP → UI buyer-risk matrix handout (formerly the body of `WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-240**), and the Core Pilot happy-path stick/empty handout (formerly the body of `CORE_PILOT_HAPPY_PATH_STICK_AND_EMPTY_STATE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-242**), and the why-not-ChatGPT/Copilot 2-min anchors handout (formerly the body of `WHY_NOT_CHATGPT_COPILOT_2MIN_LIVE_ANCHORS_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-244**), and the elevator pitch V1 claim-audit handout (formerly the body of `ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-246**), and the AgentTask→decisioning ungated leak-seams handout (formerly the body of `AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-248**), and the TB-881 org-registration race ship-blocker classification handout (formerly the body of `TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-250**), and the owner ≤~50 specialty-help chrome handout (formerly the body of `OWNER_SCREENSHOT_BELOW_50_SPECIALTY_HELP_CHROME_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-252**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -465,7 +465,7 @@ Former standalone body: `docs/go-to-market/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_S
 1. Confirm whether the gate is enabled for the tenant and which packs are enforcing vs advisory.
 2. Do not describe packs as third-party certifications or default-on blocks.
 3. Contrast finding approve/reject trail with governance approval-queue CAS (**M-140** / [M-141](#finding-disposition-concurrency-m-141)).
-4. Route pack evaluation architecture questions to **M-235** / **M-236**, not this gate talk-track.
+4. Route pack evaluation architecture questions to [M-236](#policy-pack-evaluation-hybrid-m-236), not this gate talk-track.
 
 ### Claim boundary
 
@@ -476,7 +476,56 @@ Do not say “every policy pack blocks finalize,” “SoD requires a different 
 - **TB-1022** supplies the block-vs-advisory matrix and lifecycle order.
 - **TB-1023** guards governance claim drift.
 
-**Related:** [Finding disposition concurrency (M-141)](#finding-disposition-concurrency-m-141) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`../library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) · [ADR 0034 (SoD actor keys)](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Finding disposition concurrency (M-141)](#finding-disposition-concurrency-m-141) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Policy-pack evaluation hybrid (M-236)](#policy-pack-evaluation-hybrid-m-236) · [`../library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) · [ADR 0034 (SoD actor keys)](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Policy-pack evaluation — compiled vs data plane (M-236) {#policy-pack-evaluation-hybrid-m-236}
+
+Former standalone body: `docs/go-to-market/POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-235** / **M-236** / **TB-1324**). Complements [Pre-finalize gate / SoD (M-173)](#pre-finalize-gate-sod-m-173) without replacing gate talk-tracks. Not an assurance attestation.
+
+**Path-stable alias:** [`POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_PA_ONE_PAGER.md`](POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, governance / compliance reviewers, and platform owners.
+
+**Decision:** Policy evaluation is a hybrid: versioned pack/rule **data plane** for framework content (CIS/HIPAA/etc.), plus a **compiled interpreter** and typed finding engines for stable semantics. New packs do not each require a new C# decisioning engine, and pack JSON is not a Turing-complete certification language.
+
+### Hybrid split (buyer-safe)
+
+| Layer | Role | Scale / testability |
+| --- | --- | --- |
+| Pack / rule data plane | Framework content, versioned rules | Content scale via **G-CONTENT-01**; golden JSON fixtures |
+| Compiled interpreter (`RuleBasedDecisionEngine`) | Stable evaluation semantics | Compile once; not per-pack engines |
+| Typed finding engines | Structured finding emission | Unit-testable without a pack DSL |
+| Merge / priority | `TenantCuratedComplianceRulePackMerger` + priority model | See [`../library/POLICY_PACK_RULE_PRIORITY_MODEL.md`](../library/POLICY_PACK_RULE_PRIORITY_MODEL.md) |
+| Pins | `RuleSetHash` / effective-governance pins | Repro of which rules applied at commit |
+| Pre-finalize gate | Optional block vs advisory | Separate from evaluation architecture ([M-173](#pre-finalize-gate-sod-m-173)) |
+
+### Testability cost (honest)
+
+| Approach | Cost / risk |
+| --- | --- |
+| Compile-per-pack C# engines | High ship cost; rejects content-scale packs |
+| Data-plane goldens + shared interpreter | Preferred hybrid; fixture maintenance |
+| Expressive pack DSL as “programmable policy” | Test explosion; not V1 posture |
+
+### PA review
+
+1. Ask whether a new framework pack needs new compiled C# or only data-plane content.
+2. Confirm packs are not sold as certifications or default-on finalize blocks ([M-173](#pre-finalize-gate-sod-m-173)).
+3. Confirm `RuleSetHash` / effective-governance pins appear in sealed evidence talk-tracks.
+4. Treat “pack JSON is a Turing-complete policy engine” as a review finding.
+
+### Claim boundary
+
+Do not say each new CIS/HIPAA pack needs a compiled C# decisioning engine, that pack JSON is a programmable certification language, or that more packs equal certification / default-on finalize blocks. Say hybrid data-plane content + compiled semantics, with pins and gate behavior disclosed separately.
+
+### Residuals (honest)
+
+- **TB-1324** / **TB-1325** own the hybrid contract and language guards.
+- Complements **M-172** / **M-173**; does not reopen Done multi-cloud pack content **TB-701**–**TB-719**.
+- ADR [0007](../architecture/adrs/0007-effective-governance-merge.md) for effective-governance merge.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Pre-finalize gate / SoD (M-173)](#pre-finalize-gate-sod-m-173) · [`../library/POLICY_PACK_RULE_PRIORITY_MODEL.md`](../library/POLICY_PACK_RULE_PRIORITY_MODEL.md) · [ADR 0007](../architecture/adrs/0007-effective-governance-merge.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Append-only and sealed evidence (M-161) {#append-only-sealed-evidence-m-161}
 
@@ -1289,7 +1338,457 @@ Do not say product Real execute silently falls back to Simulator on 429, that a 
 - Does not reopen Done **TB-937**.
 - This handout does not claim CPA SOC 2 or a published third-party penetration test.
 
-**Related:** [Execution-mode honesty (M-128)](#execution-mode-honesty-m-128) · [Polly vs run completeness (M-147)](#polly-vs-run-completeness-m-147) · [Simulator ROI sponsor forbid (M-139)](#simulator-roi-sponsor-forbid-m-139) · [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md) · [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Execution-mode honesty (M-128)](#execution-mode-honesty-m-128) · [Polly vs run completeness (M-147)](#polly-vs-run-completeness-m-147) · [Async orchestration first-force (M-232)](#async-orchestration-first-force-m-232) · [Simulator ROI sponsor forbid (M-139)](#simulator-roi-sponsor-forbid-m-139) · [`../library/DEGRADED_MODE.md`](../library/DEGRADED_MODE.md) · [`../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md`](../library/LLM_RETRY_AND_CIRCUIT_BREAKER.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Async orchestration first-force + commit-safe state machine (M-232) {#async-orchestration-first-force-m-232}
+
+Former standalone body: `docs/go-to-market/ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-231** / **M-232** / **TB-1311**). Complements [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159), [Finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163), and [Concurrent execute + commit race (M-222)](#concurrent-execute-commit-race-m-222). Not an assurance attestation.
+
+**Path-stable alias:** [`ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_PA_ONE_PAGER.md`](ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, platform reviewers, and integration developers.
+
+**Decision:** Authority work is already SQL-queued (ADR 0038). The first agent-side force is request-lifetime Real execute → SQL outbox/Worker — not Durable Task Framework or Service Bus as a V1 requirement. Commit/finalize stays a separate CAS verb, never folded into orchestrator activities.
+
+### Force ranking (buyer-safe)
+
+| Plane | Today | Not the V1 default |
+| --- | --- | --- |
+| Authority pipeline | SQL queue / Worker (`AuthorityPipelineWorkOutbox`) | In-process-only authority |
+| Agent execute (first force) | Request-lifetime Real execute → outbox/Worker | DTF / Service Bus agent orchestration |
+| Integration-event Service Bus | Downstream notifications / indexing events | Agent orchestration fabric |
+| Commit / finalize | Separate CAS (`sp_FinalizeManifest`) | Orchestrator activity that seals the package |
+| DTF | Only if **TB-921** (≥2 criteria; SLA auto-act **TB-923** candidate) | Mandatory V1 agent runtime |
+
+### PA review
+
+1. Separate “authority already queued” from “agents still need DTF.”
+2. Confirm commit is not described as an orchestrator activity.
+3. Confirm integration-event Service Bus is not sold as the agent orchestration plane.
+4. Treat “everything still in-process” or “V1 requires DTF” as a review finding.
+
+### Claim boundary
+
+Do not say everything still runs in-process, that V1 requires DTF/Service Bus for agents, that integration-event Service Bus is agent orchestration, or that commit/finalize is an orchestrator activity. Say first agent force = request-lifetime Real execute → SQL outbox/Worker, and commit stays a separate CAS verb.
+
+### Residuals (honest)
+
+- **TB-1311** / **TB-1312** own the first-force / state-machine freeze contract and language guards.
+- **TB-921** gates any DTF pull; does not pull gated **TB-924**.
+- Complements **M-145** / **M-162** / **M-221** without replacing those contracts.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) · [Finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [Outbox replay vs idempotency (M-145)](#outbox-replay-vs-idempotency-m-145) · [Concurrent execute + commit race (M-222)](#concurrent-execute-commit-race-m-222) · [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) · [ADR 0038](../architecture/adrs/0038-authority-run-sql-queue.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Container Apps Terraform authority + drift (M-234) {#container-apps-terraform-authority-m-234}
+
+Former standalone body: `docs/go-to-market/CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-233** / **M-234** / **TB-1317**). Complements Done **TB-657** / **TB-658** and **G-OPS-01**. Not an assurance attestation.
+
+**Path-stable alias:** [`CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_PA_ONE_PAGER.md`](CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, platform / SRE reviewers, and security reviewers of Azure hosting posture.
+
+**Decision:** Terraform state is not the sole source of truth for Container Apps while image/env/secret `ignore_changes`, portal revision/scale edits, and Key Vault values outside state persist. Authority is proven per surface via plan exit code plus live Azure compare of TF-owned properties — not by a static drift preflight alone.
+
+### Ownership / escape matrix (buyer-safe)
+
+| Surface | Typical owner | Escape / residual |
+| --- | --- | --- |
+| ACA image / env with `ignore_changes` | CD pipeline may move image/env outside TF apply | TF state lags live revision |
+| Portal revision / scale edits | Operator / emergency change | Drift vs intended IaC |
+| Secrets in Key Vault | KV + app reference | Values not fully in TF state |
+| TF-owned networking / identity / base app | Terraform | Plan + live compare proves this slice |
+| Static drift preflight script | CI guardrail | Not a substitute for live plan proof |
+
+### Proof ladder
+
+1. `terraform plan` exit code on the owned module (`terraform-container-apps` lifecycle).
+2. Live Azure compare of TF-owned properties (not portal-only eyeballing).
+3. CD vs TF vs KV ownership called out in [`../library/DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md).
+4. Preflight helper (`Assert-TerraformDeploymentDriftPreflight.ps1`) remains a gate, not full authority proof.
+
+### PA review
+
+1. Ask which properties are intentionally outside TF (`ignore_changes`, KV, portal scale).
+2. Confirm “green preflight” is not sold as “no drift in Azure.”
+3. Separate CD image moves from TF base-app authority.
+4. Treat “TF state alone is SoT” as a review finding.
+
+### Claim boundary
+
+Do not say Terraform state alone is authoritative while ignore_changes / portal / KV escapes exist, or that static drift preflight equals live plan proof. Say ownership is per surface and proof is plan exit code plus live TF-owned compare.
+
+### Residuals (honest)
+
+- **TB-1317** / **TB-1318** own the authority matrix and language guards.
+- Complements Done **TB-657** / **TB-658** / **G-OPS-01**; does not reopen Done image-ownership.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Async orchestration first-force (M-232)](#async-orchestration-first-force-m-232) · [100× review-volume capacity (M-238)](#review-volume-100x-capacity-m-238) · [`../library/DEPLOYMENT_CD_PIPELINE.md`](../library/DEPLOYMENT_CD_PIPELINE.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## 100× review-volume fail-first + capacity ledger (M-238) {#review-volume-100x-capacity-m-238}
+
+Former standalone body: `docs/go-to-market/REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-237** / **M-238** / **TB-1336**). Complements launch-load talk-tracks (**M-182** / **M-183**) without equating them to sustained 100× growth. Not an assurance attestation.
+
+**Path-stable alias:** [`REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_PA_ONE_PAGER.md`](REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, SRE / capacity reviewers, and FinOps sponsors.
+
+**Decision:** At sustained 100× Real review success volume, LLM / AOAI quota is the hard-first limiter. API/worker scale-out does not create more TPM. SQL storage is a slow-burn, not the first fail. Premature blob offload or DTF is not the required next step.
+
+### Failure-order ledger (buyer-safe)
+
+| Class | Limiter | Option-preserving response |
+| --- | --- | --- |
+| Hard-first | LLM / AOAI TPM & concurrency | TPM/concurrency-aware admission |
+| Soft / SLA | Orchestration latency | Observe; scale workers only with measured need |
+| Slow-burn | SQL manifest / storage growth | Measure before blob offload (**TB-932** open) |
+| Not first | “SQL fails first at 100×” | Do not lead with storage as the bottleneck story |
+| Not automatic | DTF / Service Bus for agents | Gated (**TB-921**); see [M-232](#async-orchestration-first-force-m-232) |
+
+### Cheapest move now
+
+Triple SLI ledger + TPM/concurrency-aware admission — keeps TPM uplift, worker scale, and measured **TB-932** open rather than freezing a premature architecture bet. See [`../library/SCALE_THRESHOLD_RUNBOOK.md`](../library/SCALE_THRESHOLD_RUNBOOK.md).
+
+### Contrast: launch-load vs 100× growth
+
+Launch-load drills (**G-SCALE-01** / **G-SCALE-02**, **M-182** / **M-183**) prove a cut-day shape. They do not prove sustained 100× Real review volume or that HTTP scale-out removes 429s.
+
+### PA review
+
+1. Ask which limiter fails first under sustained Real success volume (expect TPM).
+2. Confirm scale-out is not sold as more AOAI quota.
+3. Confirm blob offload / DTF are not framed as mandatory next steps.
+4. Treat “SQL manifests fail first at 100×” as a review finding.
+
+### Claim boundary
+
+Do not say SQL fails first at 100× success volume, that premature blob offload or DTF is required, or that API/worker scale-out creates more AOAI TPM. Say hard-first = LLM quota; cheapest now = SLI ledger + TPM-aware admission.
+
+### Residuals (honest)
+
+- **TB-1336** / **TB-1337** own the capacity ledger and language guards.
+- Related eng: **TB-1032**, **TB-915** / **TB-947**, measured **TB-932**.
+- Complements **M-182** / **M-183** without replacing launch-load contracts.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Real-execute AOAI throttle (M-230)](#real-execute-aoai-throttle-m-230) · [Async orchestration first-force (M-232)](#async-orchestration-first-force-m-232) · [Container Apps Terraform authority (M-234)](#container-apps-terraform-authority-m-234) · [WNTP → UI buyer-risk matrix (M-240)](#wntp-ui-buyer-risk-matrix-m-240) · [`../library/SCALE_THRESHOLD_RUNBOOK.md`](../library/SCALE_THRESHOLD_RUNBOOK.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## WNTP → UI buyer-risk page matrix (M-240) {#wntp-ui-buyer-risk-matrix-m-240}
+
+Former standalone body: `docs/go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-239** / **M-240** / **TB-1343**). Complements [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) (formerly `WHAT_NOT_TO_PROMISE.md`) and Done **TB-134**. Not an assurance attestation.
+
+**Path-stable alias:** [`WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md`](WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, GTM reviewers, and anyone signing off buyer-facing UI copy.
+
+**Decision:** Doc-only phrase scanners do not cover buyer UI. Ranked buyer-facing pages must be reviewed against the WNTP / gtm-do-not-promise rows, with named residual owners — especially trust, pricing, and billing help.
+
+### Ranked surfaces (buyer-safe)
+
+| Rank | Surface | High-risk over-promises to block |
+| --- | --- | --- |
+| 1 | Trust center / assurance pages | “SOC 2 certified,” published 3P pen test (route **G-REAL-05** / **G-ASSURANCE-02**; tech **TB-135**/**TB-136** Done tracking only) |
+| 2 | Pricing / commercial | Guaranteed savings; Marketplace buy today; invoice-accurate COGS |
+| 3 | Billing / checkout help | Always-on self-serve checkout while commerce is deferred |
+| 4 | Integrations help | Stale “native Jira/Teams not in V1” after `V1_SCOPE` GA |
+| 5 | Marketing / `/see-it` / demo | Simulator-as-production; anonymous = tenant-accurate |
+| 6 | Operator empty states / help | Sponsor-ready to empty dashboards; CLI-first first session |
+
+### Coverage rule
+
+| Control | Covers | Does not cover |
+| --- | --- | --- |
+| Doc phrase scanners (**TB-134**) | Markdown / docs corpus | Buyer UI strings, help markdown in app, pricing pages |
+| Ranked UI review + owners | In-app and marketing surfaces above | Every future A/B experiment without re-review |
+| Claim guide table | Paste-ready do-not / do-promise | Live UI proof by itself |
+
+### PA review
+
+1. Ask which pages were reviewed against WNTP rows for this cut.
+2. Confirm billing help does not imply always-on checkout if self-serve is deferred.
+3. Confirm trust copy does not invent CPA SOC 2 or published 3P pen test.
+4. Treat “docs scanner green = UI safe” as a review finding.
+
+### Claim boundary
+
+Do not say doc-only scanners cover buyer UI, or lead with SOC 2 certified / published 3P pen test / Marketplace buy today / guaranteed savings / invoice-accurate COGS. Say ranked page review with named owners against the gtm-do-not-promise table.
+
+### Residuals (honest)
+
+- **TB-1343** / **TB-1344** own the UI matrix and language guards.
+- Complements **M-190** / **M-196** / **M-138** / **M-178** / **M-200**.
+- Does not reopen Done **TB-135** / **TB-136**.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [SOC 2 / pen-test talk-track (M-197)](#soc2-pentest-honest-talk-track-m-197) · [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) · [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`trust-center.md`](trust-center.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Core Pilot happy-path stick + empty states (M-242) {#core-pilot-happy-path-m-242}
+
+Former standalone body: `docs/go-to-market/CORE_PILOT_HAPPY_PATH_STICK_AND_EMPTY_STATE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-241** / **M-242** / **TB-1355**). Complements [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159), [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177), and [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167). Not an assurance attestation.
+
+**Path-stable alias:** [`CORE_PILOT_HAPPY_PATH_STICK_AND_EMPTY_STATE_PA_ONE_PAGER.md`](CORE_PILOT_HAPPY_PATH_STICK_AND_EMPTY_STATE_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, SE / pilot facilitators, and first-session UI reviewers.
+
+**Decision:** First-session Core Pilot stick is Authority request → pipeline → Finalize → in-app sponsor exports. Do not teach create→execute→commit as the default peer path, send “sponsor-ready” to an empty `/dashboard`, label future checkpoints **Needs attention**, or lead sponsor handoff with CLI/PowerShell.
+
+### Stick path (buyer-safe)
+
+| Step | Honest guidance | Dishonest empty / anti-pattern |
+| --- | --- | --- |
+| Start | Authority request / reviews-new | AgentTask create→execute→commit as equal default |
+| Progress | Pipeline / run detail with real state | Future checkpoints labeled **Needs attention** |
+| Seal | Finalize / commit golden package | “Done” without finalize |
+| Sponsor | In-app sponsor export / packet | Empty `/dashboard` as sponsor-ready |
+| Handoff | In-product exports + labeled proof | CLI-first (`archlucid` / `collect-first-pilot-proof`) on first session |
+
+### Engineering pointers
+
+- [`../CORE_PILOT.md`](../CORE_PILOT.md); `CorePilotNextStepsCard`.
+- Done empty-state hygiene **TB-1036**–**TB-1039**.
+
+### PA review
+
+1. Walk first-session home and confirm Authority → Finalize → sponsor export is the taught spine.
+2. Confirm empty dashboard is not labeled sponsor-ready.
+3. Confirm CLI proof collection is not the primary first-session handoff.
+4. Treat create→execute→commit as default peer guidance as a review finding.
+
+### Claim boundary
+
+Do not teach create→execute→commit as the default peer to Authority on first-session home, label future checkpoints **Needs attention**, send sponsor-ready to empty `/dashboard`, or lead first-session sponsor handoff with CLI/PowerShell. Say request → pipeline → Finalize → in-app sponsor exports.
+
+### Residuals (honest)
+
+- **TB-1355**–**TB-1359** own the stick/empty contract and language guards.
+- Complements **M-180** / **M-158** / **M-166**.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) · [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) · [WNTP → UI buyer-risk matrix (M-240)](#wntp-ui-buyer-risk-matrix-m-240) · [Why-not-ChatGPT/Copilot (M-244)](#why-not-chatgpt-copilot-m-244) · [Elevator pitch V1 claim audit (M-246)](#elevator-pitch-v1-claim-audit-m-246) · [`../CORE_PILOT.md`](../CORE_PILOT.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Why-not-ChatGPT/Copilot — 2-min live anchors (M-244) {#why-not-chatgpt-copilot-m-244}
+
+Former standalone body: `docs/go-to-market/WHY_NOT_CHATGPT_COPILOT_2MIN_LIVE_ANCHORS_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-243** / **M-244** / **TB-1365**). Complements [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) (KEEP; not folded). Not an assurance attestation and not a measured win over frontier models.
+
+**Path-stable alias:** [`WHY_NOT_CHATGPT_COPILOT_2MIN_LIVE_ANCHORS_PA_ONE_PAGER.md`](WHY_NOT_CHATGPT_COPILOT_2MIN_LIVE_ANCHORS_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, SE facilitators, and buyers asking “why not ChatGPT / Copilot?”
+
+**Decision:** Seats draft; ArchLucid proves. Differentiation is the finalized package, evidence refs, audit trail, optional governance gate, sponsor export, and labeled ROI — not universal speed/novelty/TCO superiority or a pre-**M-42** “beats ChatGPT” claim.
+
+### 2-minute talk-track (buyer-safe)
+
+| Beat | Say | Do not say |
+| --- | --- | --- |
+| Framing | Copilot/ChatGPT draft; ArchLucid produces a governed review package | “Always faster / cheaper / smarter than frontier AI” |
+| Package | Committed golden manifest + hash lineage | Diagram bakeoff as the product |
+| Evidence | Findings with citations / provenance where gated | Universal explainability on every finding |
+| Audit / gate | Append-only audit; optional pre-finalize gate | Always-on certification engine |
+| Sponsor | In-app sponsor export with mode labels | Unlabeled Simulator as live-model proof |
+| ROI | Labeled / source-classified only | Guaranteed $ or cheaper than Copilot seats |
+| Cohort | Defer “beats ChatGPT” until **M-42** synthesis | Publish win claims from anecdote |
+
+### Live click-order (anchors)
+
+1. `/why` FAQ (positioning)
+2. Finalized review / signed package UI
+3. Evidence-linked finding inspect
+4. `/trust` + [SOC 2 / pen-test talk-track (M-197)](#soc2-pentest-honest-talk-track-m-197) honesty
+5. [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md#model-seats-counter-positioning-message-test) for the longer seats counter-position
+
+### PA review
+
+1. Ask which committed run the 2-minute demo will open.
+2. Confirm no TCO-beats-Copilot or always-beats-frontier claims.
+3. Confirm bakeoffs are not the lead artifact.
+4. Treat pre-**M-42** “beats ChatGPT” copy as a review finding.
+
+### Claim boundary
+
+Do not claim ArchLucid always beats frontier AI on speed/novelty/cost-per-query, cheaper TCO than Copilot seats, or “beats ChatGPT” before **M-42**. Say seats draft / ArchLucid proves via finalized package, evidence, audit, optional gate, sponsor export, and labeled ROI.
+
+### Residuals (honest)
+
+- **TB-1365** / **TB-1366** own the talk-track contract and language guards.
+- Complements **M-42** / **M-186** / **M-187**; Done **TB-265** stays closed.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242) · [Elevator pitch V1 claim audit (M-246)](#elevator-pitch-v1-claim-audit-m-246) · [WNTP → UI buyer-risk matrix (M-240)](#wntp-ui-buyer-risk-matrix-m-240) · [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Elevator pitch V1 — cut / hedge / prove (M-246) {#elevator-pitch-v1-claim-audit-m-246}
+
+Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-245** / **M-246** / **TB-1367**). Complements [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) and KEEP [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) §4 (not folded). Not an assurance attestation.
+
+**Path-stable alias:** [`ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md`](ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md).
+
+**Audience:** Founder / SE pitching V1; principal architects stress-testing pitch claims.
+
+**Decision:** Pitch only what a committed run can demonstrate. Cut absolute time-savings and always-on control claims; hedge mode/gate language; prove with a committed architecture package.
+
+### Cut / hedge / prove
+
+| Class | Examples to cut or hedge | Prove-with-committed-run |
+| --- | --- | --- |
+| Cut | “Two weeks → two hours”; guaranteed savings | N/A — do not say |
+| Cut | Every finding always has an explainability trace | Evidence-cited findings where gates enforce |
+| Hedge | “Replayable” as absolute architecture stability | Comparison/replay against committed manifests (claim-guide **M-174** honesty) |
+| Hedge | Pre-commit gates “always on” | Optional gate; Advisory does not block ([M-173](#pre-finalize-gate-sod-m-173)) |
+| Refresh | Stale “no connectors” vs `V1_SCOPE` §2.13–§2.15 | Cite current connector / ITSM scope |
+| Prove | — | Architecture package; signed review + audit chain |
+| Prove | — | Multi-agent Topology / Cost / Compliance / Critic |
+| Prove | — | DOCX/PDF (+ whitelabel) + service-led motion |
+
+### PA review
+
+1. Open the pitch and mark each absolute as cut, hedge, or prove.
+2. Confirm pitch and sponsor brief §4 do not diverge on gates/connectors.
+3. Confirm a live committed run backs every “prove” line.
+4. Treat universal time-savings as a review finding.
+
+### Claim boundary
+
+Do not say reviews that took two weeks now take two hours, that every finding always has an explainability trace, that replayable means absolute architecture stability, or that pre-commit gates are always on. Say only what a committed run demonstrates: package, audit chain, multi-agent roles, evidence-cited findings, exports, service-led motion.
+
+### Residuals (honest)
+
+- **TB-1367** / **TB-1368** own the cut/hedge/prove contract and language guards.
+- Complements Done **M-02** / **M-138** / **M-154** / **M-174** / **M-243** / **M-239**.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Why-not-ChatGPT/Copilot (M-244)](#why-not-chatgpt-copilot-m-244) · [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242) · [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248) · [`ELEVATOR_PITCH.md`](ELEVATOR_PITCH.md) · [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) · [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## AgentTask→decisioning ungated leak seams (M-248) {#agenttask-decisioning-ungated-leak-seams-m-248}
+
+Former standalone body: `docs/go-to-market/AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-247** / **M-248** / **TB-1369**). Complements [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) and [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167). Not an assurance attestation and not a claim that Real and Simulator use different decide stacks.
+
+**Path-stable alias:** [`AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_PA_ONE_PAGER.md`](AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, AI/platform reviewers, and procurement reviewers stress-testing AgentTask→decisioning claims.
+
+**Decision:** Authority typed-findings decide is the intended chokepoint. Several AgentTask influence surfaces remain mode-blind (same code for Simulator and Real). Schema validation (`DecisionMergeInputGate`) is not typed/provenance gating. INV-002 mode labels do not add gates.
+
+### Leak-seam matrix (path × mode × gate)
+
+| Seam | Code path | Sim vs Real | Gate today | Buyer impact | Residual owner |
+| --- | --- | --- | --- | --- | --- |
+| Commit graph overlay | `AuthorityDrivenArchitectureRunCommitOrchestrator` → `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` | Same (mode-blind) | None (no domain validate-before-overlay) | Topology `ProposedChanges` / `ReasoningTrace` overlay into committed graph | **TB-1196** / **M-203** |
+| AgentTask merge / ComplianceTags lift | `DecisionEngineService.MergeResults` → `AgentProposalManifestMerger` (+ replay / golden corpus) | Same | Schema-only `DecisionMergeInputGate`; then merges services/datastores/controls; `ApplyFindingsToGovernance` lifts Compliance `Message` → `Governance.ComplianceTags` | Schema-valid AgentResult treated as decision-grade | **TB-1369** / **TB-1196** |
+| AcceptPrior confidence | `DecisionEngineV2` AcceptPrior strategies | Same | Consumes agent calibrated/raw confidence into decision nodes | Confidence can shape post-commit decision materialization | **TB-1369** |
+| Finding dual pipeline | LLM `ArchitectureFinding` + Critic mutation | Same | Empty `EvidenceRefs` / citations possible (**TB-1221**) | Findings without fail-closed per-finding provenance | **TB-1221** / **TB-1230** |
+| Quality WarnOnly | PilotStrict / quality green | Same | Green ≠ typed overlay gate | “Quality passed” misread as provenance-closed | **M-166** / **TB-1196** |
+
+### PA review
+
+1. Ask which seam the buyer is worried about — overlay, ComplianceTags lift, confidence, or empty EvidenceRefs.
+2. Confirm Simulator is not sold as fail-closed differently from Real on these seams.
+3. Confirm `DecisionMergeInputGate` is not equated with typed/provenance gates.
+4. Treat “typed-findings-only decide with no AgentTask overlay” as a review finding while **TB-1196** residuals remain open.
+
+### Claim boundary
+
+Do not say Simulator decide is gated differently from Real for topology overlay / ComplianceTags lift / proposal merge, that schema-validated AgentResult equals provenance-gated decision input, or that mode labels close AgentTask leak seams. Say Authority typed-findings decide is the chokepoint and cite the ranked mode-blind residual matrix above.
+
+### Residuals (honest)
+
+- **TB-1369** / **TB-1370** own the leak matrix contract and language guards.
+- Complements **M-203** / **M-204** / **M-166** / **M-207** / **M-211**; does not replace validate-before-overlay ship (**TB-1196**).
+- Does not reopen Done **TB-684** PilotStrict floors.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [Authority vs AgentTask (M-159)](#authority-vs-agenttask-loop-m-159) · [PilotStrict vs execution mode (M-167)](#pilotstrict-vs-execution-mode-m-167) · [Elevator pitch V1 claim audit (M-246)](#elevator-pitch-v1-claim-audit-m-246) · [TB-881 ship-blocker class (M-250)](#tb881-org-registration-race-ship-blocker-m-250) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## TB-881 org-registration race — ship-blocker classification (M-250) {#tb881-org-registration-race-ship-blocker-m-250}
+
+Former standalone body: `docs/go-to-market/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-249** / **M-250** / **TB-1371**). Complements Done **TB-881** (CI/test isolation). Not an assurance attestation and not a reopen of Done **TB-881**.
+
+**Path-stable alias:** [`TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md`](TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, pilot sponsors, and release/readiness reviewers classifying RC12 registration findings.
+
+**Decision:** Done **TB-881** is a CI/test isolation defect, not a V1/pilot ship gate. Production pilots are founder-led / guided sequential org provision on one catalog. Residual concurrent same-name TOCTOU is multi-tenant signup stress only — do not reopen Done **TB-881** for pilots.
+
+### Classification table (buyer-safe)
+
+| Class | What it is | Blocks pilots? | Residual / owner |
+| --- | --- | --- | --- |
+| CI / test (Done **TB-881**) | Parallel xUnit + `IntegrationTestSqlCatalogEnvironment` process-env pins → second `/v1/register` saw a different ephemeral catalog | No | Closed 2026-07-21; cite `AssemblyAttributes.cs`, `RegistrationDuplicateOrganizationRegressionTests` |
+| Pilot path | Sequential single-catalog org provision (guided / founder-led) | No (not the TB-881 race class) | Pilot readiness uses sequential provision, not parallel catalog pins |
+| Signup stress (residual) | Concurrent same-name TOCTOU under multi-tenant self-serve signup | Not a V1 pilot gate | App-level name check; `UQ_Tenants_Slug` exists; no unique Name index — signup-stress only; do not reopen **TB-881** |
+
+### PA review
+
+1. Ask whether the concern is CI flakiness, pilot registration, or concurrent self-serve signup.
+2. Confirm OPEN inventories do not list TB-881 as an open RC12 pilot blocker.
+3. Confirm Done **TB-881** is not reopened “for pilots.”
+4. Treat “org registration broken in production” backed only by the RC12 parallel-test race as a review finding.
+
+### Claim boundary
+
+Do not treat Done **TB-881** as an open V1/pilot ship gate, equate the RC12 CI env-pin / parallel-test race with production pilot registration failure, or reopen Done **TB-881** for pilots. Say TB-881 = CI/test isolation (Done); pilots = sequential single-catalog provision; residual concurrent same-name TOCTOU = multi-tenant signup stress only.
+
+### Residuals (honest)
+
+- **TB-1371** / **TB-1372** own the classification contract and language guards.
+- Does not reopen Done **TB-881**; out of scope: unique Name index / distributed signup locks.
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [AgentTask→decisioning leak seams (M-248)](#agenttask-decisioning-ungated-leak-seams-m-248) · [Specialty help chrome ≤~50 (M-252)](#owner-screenshot-below-50-specialty-help-chrome-m-252) · [Empty-scope catalog routing (M-169)](#empty-scope-catalog-routing-m-169) · [`../library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) (`## TB-881`) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Owner ≤~50 specialty-help chrome scoreboard (M-252) {#owner-screenshot-below-50-specialty-help-chrome-m-252}
+
+Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_HELP_CHROME_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-251** / **M-252** / **TB-1414**). Complements Done **TB-735** (Admin technical-help gating) without claiming it covers every slug. Not an assurance attestation.
+
+**Path-stable alias:** [`OWNER_SCREENSHOT_BELOW_50_SPECIALTY_HELP_CHROME_PA_ONE_PAGER.md`](OWNER_SCREENSHOT_BELOW_50_SPECIALTY_HELP_CHROME_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, UX/product reviewers, and owners scoring help routes.
+
+**Decision:** Fix specialty chrome once (hero + one in-app CTA + tier/gate + leak strip), then apply per slug. Do not invent a second presentation system per help route. Bare `HelpTopicMarkdownView` over contributor markdown is not specialty-guided help.
+
+### Shared chrome contract (buyer-safe)
+
+| Slot | Required | Not enough |
+| --- | --- | --- |
+| First-viewport hero | Specialty companion framing | Print/PDF-only dump |
+| Primary CTA | One in-app product route | Multiple competing CTAs / none |
+| Tier / `contentKind` | Product-help vs Admin-gated technical/runbook | Ungated `technical-documentation` in product search |
+| Leak strip | No `.md` / CLI / TB / repo paths in primary body | Contributor markdown as buyer body |
+| Related density | Cap secondary links | Empty theater of zero-state widgets |
+
+### ≤~50 inventory (ranked)
+
+| Score (approx) | Route | Owning cluster |
+| --- | --- | --- |
+| ~32 | `/help/developer-troubleshooting` | **TB-1246**–**TB-1250** |
+| ~33 | `/help/governance-api-contracts` | **TB-1384**–**TB-1388** |
+| ~39 | `/help/configuration-reference` | **TB-1326**–**TB-1330** |
+| ~40 | `/help/repeat-review-loop` | **TB-1394**–**TB-1398** |
+| ~42 | `/help/evaluator-workbook` | **TB-1345**–**TB-1349** |
+| ~42 | `/help/pilot-roi-model` | **TB-1389**–**TB-1393** |
+| ~46 | `/help/first-hour-operator-path` | **TB-1374**–**TB-1378** |
+| ~49 | `/help/procurement` | **TB-1253**–**TB-1257** |
+
+Reuse exemplars: `HelpCorePilotGuideView`, Azure connect specialty. Generic markdown remains fallback only for true internal docs after gate.
+
+### PA review
+
+1. Ask which ≤~50 slug is in scope and which TB cluster owns it.
+2. Confirm claims of “specialty-guided help” do not cover bare `HelpTopicMarkdownView` inventory rows.
+3. Confirm **TB-735** is not sold as gating all `technical-documentation` while ungated search entries remain.
+4. Treat a new per-slug presentation system as a review finding.
+
+### Claim boundary
+
+Do not claim product help is specialty-guided / Start-CTA ready while ≤~50 inventory still falls through bare `HelpTopicMarkdownView`, that **TB-735** gates all technical help while `contentKind: technical-documentation` remains ungated in search, or invent a second presentation system per slug. Say shared specialty chrome (hero + one in-app CTA + tier/gate + leak strip); per-route clusters implement the contract.
+
+### Residuals (honest)
+
+- **TB-1414** / **TB-1415** own the shared chrome contract and language guards.
+- Per-route clusters own shipping chrome for each row; this handout does not replace those P0s.
+- Out of scope: integration empty/not-configured theater (**M-257**/**M-258**).
+- This handout does not claim CPA SOC 2 or a published third-party penetration test.
+
+**Related:** [TB-881 ship-blocker class (M-250)](#tb881-org-registration-race-ship-blocker-m-250) · [Core Pilot happy-path (M-242)](#core-pilot-happy-path-m-242) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## PilotStrict versus execution mode (M-167) {#pilotstrict-vs-execution-mode-m-167}
 
@@ -1681,6 +2180,7 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | Audit Required (M-117/M-118) | Fail-closed durable trail on Required events (**TB-953**) | “Every audit event is transactional” | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) |
 | Finding disposition race (M-140/M-141) | Append-only last-by-time unless mutex ships | “Finding approve is first-wins CAS like governance queue” | [`#finding-disposition-concurrency-m-141`](#finding-disposition-concurrency-m-141) |
 | Pre-finalize gate / SoD (M-172/M-173) | Optional enforcing gate; Advisory does not block; SoD = submitter≠approver | “Every pack blocks finalize” / “SoD requires different committer” | [`#pre-finalize-gate-sod-m-173`](#pre-finalize-gate-sod-m-173) |
+| Policy-pack evaluation hybrid (M-235/M-236) | Data-plane content + compiled interpreter; pins; not a pack DSL | “Compile-per-pack engine” / “Pack JSON = certification language” | [`#policy-pack-evaluation-hybrid-m-236`](#policy-pack-evaluation-hybrid-m-236) |
 | Append-only / sealed evidence (M-160/M-161) | Named append-only + sealed classes; mutable overlays by design | “Platform WORM” / “every table immutable” | [`#append-only-sealed-evidence-m-161`](#append-only-sealed-evidence-m-161) |
 | Authority vs AgentTask (M-158/M-159) | Authority product-default; task-loop only when intentional | “Always execute after create” / dual default pipelines | [`#authority-vs-agenttask-loop-m-159`](#authority-vs-agenttask-loop-m-159) |
 | Finalize vs outbox (M-162/M-163) | Sealed package + durable outbox enqueue; Search/webhook/Cosmos may lag | “Commit success means indexed and delivered” | [`#transactional-finalize-vs-outbox-m-163`](#transactional-finalize-vs-outbox-m-163) |
@@ -1699,6 +2199,16 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | LLM cost-control plane (M-225/M-226) | Decorator-chokepoint accounting; caps alone ≠ mature FinOps | “Warn/kill + monthly cap = FinOps” / “Call-site reserve prevents bypass” | [`#llm-cost-control-plane-m-226`](#llm-cost-control-plane-m-226) |
 | FT promotion decision record (M-227/M-228) | Append-only prior-active + ratios/floor + pins + actor + reason | “Timestamps = code-rollback audit” / “Cache eviction is the audit record” | [`#ft-promotion-decision-record-m-228`](#ft-promotion-decision-record-m-228) |
 | Real-execute AOAI throttle (M-229/M-230) | Retry → optional secondary AOAI → Partial/Failed; labeled Simulator only on non-proof paths | “429 → Simulator success” / “Queued = Real success” | [`#real-execute-aoai-throttle-m-230`](#real-execute-aoai-throttle-m-230) |
+| Async orchestration first-force (M-231/M-232) | Request-lifetime Real → SQL outbox/Worker; commit stays CAS | “V1 requires DTF” / “Commit is an orchestrator activity” | [`#async-orchestration-first-force-m-232`](#async-orchestration-first-force-m-232) |
+| Container Apps Terraform authority (M-233/M-234) | Per-surface ownership; plan + live TF-owned compare | “TF state alone is SoT” / “Preflight = no Azure drift” | [`#container-apps-terraform-authority-m-234`](#container-apps-terraform-authority-m-234) |
+| 100× review-volume capacity (M-237/M-238) | TPM hard-first; SLI ledger + admission; scale-out ≠ more TPM | “SQL fails first at 100×” / “Scale-out removes 429” | [`#review-volume-100x-capacity-m-238`](#review-volume-100x-capacity-m-238) |
+| WNTP → UI buyer-risk matrix (M-239/M-240) | Ranked UI review vs WNTP rows; docs scanners ≠ UI coverage | “Docs scanner green = UI safe” / lead with SOC 2 certified | [`#wntp-ui-buyer-risk-matrix-m-240`](#wntp-ui-buyer-risk-matrix-m-240) |
+| Core Pilot happy-path (M-241/M-242) | Authority → Finalize → in-app sponsor export | “create→execute→commit default” / empty dashboard = sponsor-ready | [`#core-pilot-happy-path-m-242`](#core-pilot-happy-path-m-242) |
+| Why-not-ChatGPT/Copilot (M-243/M-244) | Seats draft / ArchLucid proves via package + evidence + audit | “Always beats frontier AI” / “Cheaper than Copilot seats” | [`#why-not-chatgpt-copilot-m-244`](#why-not-chatgpt-copilot-m-244) |
+| Elevator pitch V1 claim audit (M-245/M-246) | Cut/hedge/prove with committed run only | “Two weeks → two hours” / “Gates always on” | [`#elevator-pitch-v1-claim-audit-m-246`](#elevator-pitch-v1-claim-audit-m-246) |
+| AgentTask→decisioning leak seams (M-247/M-248) | Mode-blind residual matrix; schema ≠ provenance | “Simulator decide fail-closed differently” / “Schema gate = typed gate” | [`#agenttask-decisioning-ungated-leak-seams-m-248`](#agenttask-decisioning-ungated-leak-seams-m-248) |
+| TB-881 ship-blocker class (M-249/M-250) | CI/test Done; pilots sequential; signup-stress residual | “TB-881 blocks pilots” / “Reopen TB-881 for V1” | [`#tb881-org-registration-race-ship-blocker-m-250`](#tb881-org-registration-race-ship-blocker-m-250) |
+| Specialty help chrome ≤~50 (M-251/M-252) | Shared chrome once; per-slug clusters apply | “All help is specialty-guided” / “TB-735 gates all technical help” | [`#owner-screenshot-below-50-specialty-help-chrome-m-252`](#owner-screenshot-below-50-specialty-help-chrome-m-252) |
 | Interrupted review (M-121/M-122) | Skip persisted `(RunId,TaskId)` only | “Exactly-once LLM” | [`#interrupted-review-m-122`](#interrupted-review-m-122) |
 | Process vs provider LLM (M-170/M-171) | Process skip after persist; provider at-least-once | “Exactly-once LLM” / “Zero duplicate spend on retry” | [`#process-vs-provider-idempotency-m-171`](#process-vs-provider-idempotency-m-171) |
 | Concurrent execute + commit race (M-221/M-222) | First-wins commit; process skip after `(RunId, TaskId)` persist; finalize ≠ async delivery | “Exactly-once commit” / “Retries never spend” / “Idempotency-Key equals CAS” | [`#concurrent-execute-commit-race-m-222`](#concurrent-execute-commit-race-m-222) |
@@ -2550,6 +3060,7 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) · [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) (alias) | Audit Required vs informational (M-118) |
 | [`#finding-disposition-concurrency-m-141`](#finding-disposition-concurrency-m-141) · [`FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md`](FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md) (alias) | Finding disposition concurrency (M-141) |
 | [`#pre-finalize-gate-sod-m-173`](#pre-finalize-gate-sod-m-173) · [`PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_PA_ONE_PAGER.md`](PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_PA_ONE_PAGER.md) (alias) | Pre-finalize gate / SoD (M-173) |
+| [`#policy-pack-evaluation-hybrid-m-236`](#policy-pack-evaluation-hybrid-m-236) · [`POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_PA_ONE_PAGER.md`](POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_PA_ONE_PAGER.md) (alias) | Policy-pack evaluation hybrid (M-236) |
 | [`#append-only-sealed-evidence-m-161`](#append-only-sealed-evidence-m-161) · [`APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md`](APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md) (alias) | Append-only / sealed evidence (M-161) |
 | [`#authority-vs-agenttask-loop-m-159`](#authority-vs-agenttask-loop-m-159) · [`AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md`](AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md) (alias) | Authority vs AgentTask loop (M-159) |
 | [`#transactional-finalize-vs-outbox-m-163`](#transactional-finalize-vs-outbox-m-163) · [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md) (alias) | Finalize vs outbox (M-163) |
@@ -2564,6 +3075,16 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`#llm-cost-control-plane-m-226`](#llm-cost-control-plane-m-226) · [`LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md`](LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md) (alias) | Mature LLM cost-control plane (M-226) |
 | [`#ft-promotion-decision-record-m-228`](#ft-promotion-decision-record-m-228) · [`FINE_TUNING_PROMOTION_DECISION_RECORD_PA_ONE_PAGER.md`](FINE_TUNING_PROMOTION_DECISION_RECORD_PA_ONE_PAGER.md) (alias) | Fine-tuning promotion decision record (M-228) |
 | [`#real-execute-aoai-throttle-m-230`](#real-execute-aoai-throttle-m-230) · [`REAL_EXECUTE_AOAI_THROTTLE_POLICY_PA_ONE_PAGER.md`](REAL_EXECUTE_AOAI_THROTTLE_POLICY_PA_ONE_PAGER.md) (alias) | Real-execute AOAI throttle policy (M-230) |
+| [`#async-orchestration-first-force-m-232`](#async-orchestration-first-force-m-232) · [`ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_PA_ONE_PAGER.md`](ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_PA_ONE_PAGER.md) (alias) | Async orchestration first-force (M-232) |
+| [`#container-apps-terraform-authority-m-234`](#container-apps-terraform-authority-m-234) · [`CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_PA_ONE_PAGER.md`](CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_PA_ONE_PAGER.md) (alias) | Container Apps Terraform authority + drift (M-234) |
+| [`#review-volume-100x-capacity-m-238`](#review-volume-100x-capacity-m-238) · [`REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_PA_ONE_PAGER.md`](REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_PA_ONE_PAGER.md) (alias) | 100× review-volume capacity (M-238) |
+| [`#wntp-ui-buyer-risk-matrix-m-240`](#wntp-ui-buyer-risk-matrix-m-240) · [`WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md`](WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md) (alias) | WNTP → UI buyer-risk matrix (M-240) |
+| [`#core-pilot-happy-path-m-242`](#core-pilot-happy-path-m-242) · [`CORE_PILOT_HAPPY_PATH_STICK_AND_EMPTY_STATE_PA_ONE_PAGER.md`](CORE_PILOT_HAPPY_PATH_STICK_AND_EMPTY_STATE_PA_ONE_PAGER.md) (alias) | Core Pilot happy-path stick/empty (M-242) |
+| [`#why-not-chatgpt-copilot-m-244`](#why-not-chatgpt-copilot-m-244) · [`WHY_NOT_CHATGPT_COPILOT_2MIN_LIVE_ANCHORS_PA_ONE_PAGER.md`](WHY_NOT_CHATGPT_COPILOT_2MIN_LIVE_ANCHORS_PA_ONE_PAGER.md) (alias) | Why-not-ChatGPT/Copilot 2-min anchors (M-244) |
+| [`#elevator-pitch-v1-claim-audit-m-246`](#elevator-pitch-v1-claim-audit-m-246) · [`ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md`](ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md) (alias) | Elevator pitch V1 claim audit (M-246) |
+| [`#agenttask-decisioning-ungated-leak-seams-m-248`](#agenttask-decisioning-ungated-leak-seams-m-248) · [`AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_PA_ONE_PAGER.md`](AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_PA_ONE_PAGER.md) (alias) | AgentTask→decisioning leak seams (M-248) |
+| [`#tb881-org-registration-race-ship-blocker-m-250`](#tb881-org-registration-race-ship-blocker-m-250) · [`TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md`](TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md) (alias) | TB-881 ship-blocker classification (M-250) |
+| [`#owner-screenshot-below-50-specialty-help-chrome-m-252`](#owner-screenshot-below-50-specialty-help-chrome-m-252) · [`OWNER_SCREENSHOT_BELOW_50_SPECIALTY_HELP_CHROME_PA_ONE_PAGER.md`](OWNER_SCREENSHOT_BELOW_50_SPECIALTY_HELP_CHROME_PA_ONE_PAGER.md) (alias) | Specialty help chrome ≤~50 (M-252) |
 | [`#execution-mode-honesty-m-128`](#execution-mode-honesty-m-128) · [`EXECUTION_MODE_HONESTY_ONE_PAGER.md`](EXECUTION_MODE_HONESTY_ONE_PAGER.md) (alias) | Execution-mode honesty (M-128) |
 | [`#pilotstrict-vs-execution-mode-m-167`](#pilotstrict-vs-execution-mode-m-167) · [`PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md`](PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md) (alias) | PilotStrict vs execution mode (M-167) |
 | [`#simulator-roi-sponsor-forbid-m-139`](#simulator-roi-sponsor-forbid-m-139) · [`SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md`](SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md) (alias) | Simulator ROI sponsor forbid (M-139) |
@@ -2605,6 +3126,7 @@ Former standalone body: `docs/go-to-market/LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAG
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` → [audit trail handout](#security-reviewer-audit-trail-m-118) (filename kept as path-stable alias; duplicate body collapsed on fold).  
 Former standalone body: `docs/go-to-market/FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md` → [finding disposition concurrency](#finding-disposition-concurrency-m-141) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/PRE_FINALIZE_GATE_BLOCK_VS_ADVISORY_SOD_PA_ONE_PAGER.md` → [pre-finalize gate / SoD](#pre-finalize-gate-sod-m-173) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/POLICY_PACK_EVALUATION_COMPILED_VS_DATA_PLANE_PA_ONE_PAGER.md` → [policy-pack evaluation hybrid](#policy-pack-evaluation-hybrid-m-236) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md` → [append-only / sealed evidence](#append-only-sealed-evidence-m-161) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md` → [Authority vs AgentTask loop](#authority-vs-agenttask-loop-m-159) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md` → [transactional finalize vs outbox](#transactional-finalize-vs-outbox-m-163) (filename kept as path-stable alias).  
@@ -2619,6 +3141,16 @@ Former standalone body: `docs/go-to-market/LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGE
 Former standalone body: `docs/go-to-market/LLM_COST_CONTROL_PLANE_PA_ONE_PAGER.md` → [mature LLM cost-control plane](#llm-cost-control-plane-m-226) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/FINE_TUNING_PROMOTION_DECISION_RECORD_PA_ONE_PAGER.md` → [fine-tuning promotion decision record](#ft-promotion-decision-record-m-228) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/REAL_EXECUTE_AOAI_THROTTLE_POLICY_PA_ONE_PAGER.md` → [Real-execute AOAI throttle policy](#real-execute-aoai-throttle-m-230) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/ASYNC_ORCHESTRATION_FIRST_FORCE_AND_RUN_STATE_MACHINE_PA_ONE_PAGER.md` → [async orchestration first-force](#async-orchestration-first-force-m-232) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/CONTAINER_APPS_TERRAFORM_AUTHORITY_AND_DRIFT_PA_ONE_PAGER.md` → [Container Apps Terraform authority + drift](#container-apps-terraform-authority-m-234) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/REVIEW_VOLUME_100X_FAILURE_ORDER_AND_OPTION_PRESERVING_CAPACITY_PA_ONE_PAGER.md` → [100× review-volume capacity](#review-volume-100x-capacity-m-238) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/WHAT_NOT_TO_PROMISE_UI_BUYER_RISK_MATRIX_PA_ONE_PAGER.md` → [WNTP → UI buyer-risk matrix](#wntp-ui-buyer-risk-matrix-m-240) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/CORE_PILOT_HAPPY_PATH_STICK_AND_EMPTY_STATE_PA_ONE_PAGER.md` → [Core Pilot happy-path stick/empty](#core-pilot-happy-path-m-242) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/WHY_NOT_CHATGPT_COPILOT_2MIN_LIVE_ANCHORS_PA_ONE_PAGER.md` → [why-not-ChatGPT/Copilot 2-min anchors](#why-not-chatgpt-copilot-m-244) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/ELEVATOR_PITCH_V1_CLAIM_AUDIT_PA_ONE_PAGER.md` → [elevator pitch V1 claim audit](#elevator-pitch-v1-claim-audit-m-246) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/AGENTTASK_DECISIONING_UNGATED_LEAK_SEAMS_PA_ONE_PAGER.md` → [AgentTask→decisioning leak seams](#agenttask-decisioning-ungated-leak-seams-m-248) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/TB881_ORG_REGISTRATION_RACE_SHIP_BLOCKER_CLASSIFICATION_PA_ONE_PAGER.md` → [TB-881 ship-blocker classification](#tb881-org-registration-race-ship-blocker-m-250) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/OWNER_SCREENSHOT_BELOW_50_SPECIALTY_HELP_CHROME_PA_ONE_PAGER.md` → [specialty help chrome ≤~50](#owner-screenshot-below-50-specialty-help-chrome-m-252) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/EXECUTION_MODE_HONESTY_ONE_PAGER.md` → [execution-mode honesty](#execution-mode-honesty-m-128) (filename kept as path-stable alias; duplicate body collapsed on fold).  
 Former standalone body: `docs/go-to-market/PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md` → [PilotStrict vs execution mode](#pilotstrict-vs-execution-mode-m-167) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md` → [Simulator ROI sponsor forbid](#simulator-roi-sponsor-forbid-m-139) (filename kept as path-stable alias).  

@@ -23,6 +23,26 @@ export function isWarmupRetryableHttpResponse(status: number, bodyText: string):
   return true;
 }
 
+/**
+ * Transport errors that look like a hung upstream completing past AbortSignal.timeout —
+ * not a brief Container Apps warm-up blip. Retrying these multiplies user wait (~60s × 3).
+ */
+export function isWarmupRetryableTransportError(err: unknown): boolean {
+  if (!(err instanceof Error)) {
+    return true;
+  }
+
+  if (err.name === "AbortError" || err.name === "TimeoutError") {
+    return false;
+  }
+
+  if (/aborted due to timeout/i.test(err.message)) {
+    return false;
+  }
+
+  return true;
+}
+
 export function warmupRetryDelayMs(attemptIndex: number): number {
   return WARMUP_RETRY_BASE_DELAY_MS * (attemptIndex + 1);
 }
@@ -62,7 +82,7 @@ export async function fetchWithWarmupRetry(
     try {
       response = await fetchOnce();
     } catch (err) {
-      if (attempt >= maxAttempts - 1) {
+      if (attempt >= maxAttempts - 1 || !isWarmupRetryableTransportError(err)) {
         throw err;
       }
 

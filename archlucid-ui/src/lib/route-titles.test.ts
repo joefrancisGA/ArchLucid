@@ -50,6 +50,6 @@ describe("getRouteTitle — unknown path", () => {
   });
 
   it("capitalizes ITSM acronym for itsm path segment", () => {
-    expect(getRouteTitle("/admin/integrations/itsm")).toBe("ITSM");
+    expect(getRouteTitle("/admin/integrations/itsm")).toBe("ITSM connectors");
   });
 });
