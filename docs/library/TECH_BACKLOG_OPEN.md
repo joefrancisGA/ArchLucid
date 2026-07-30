@@ -399,7 +399,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1618 | Authentication help — auth-shell inbound label align | Adoption friction P1 **V1** — with **TB-1614** |
 | TB-1619 | `/help/azure-boards` specialty integration companion + Open Azure Boards CTA | Adoption friction P1 **V1** — HAZ ~51/100 |
 | TB-1620 | Azure Boards help — setup-step deep links | Adoption friction P1 **V1** — with **TB-1619** |
-| TB-1621 | Azure Boards help — contributor smoke-path leak purge | Trustworthiness P0 **V1** — with **TB-1619** |
 | TB-1622 | Azure Boards help — Phase 1 / eng limitation jargon honesty | Trustworthiness P1 **V1** — with **TB-1619** |
 | TB-1623 | Azure Boards help — alias `/help/integrations/azure-boards` canonicalize (HEZ) | Adoption friction P1 **V1** — with **TB-1619** |
 | TB-1624 | Customer policy-pack rule sandbox / commit pin / blast-radius claim map | Architectural integrity P1 **V1** — PA pack extensibility Q; GTM **M-298**/**M-299**; see `POLICY_PACK_CUSTOMER_RULE_SANDBOX_PIN_BLAST_RADIUS_CLAIM_MAP.md`; orchestrates **TB-1324** |

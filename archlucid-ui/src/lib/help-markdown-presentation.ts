@@ -1171,6 +1171,86 @@ export function stripAcceleratorChooserContributorLeakage(markdown: string): str
     .replace(/\n{3,}/g, "\n\n");
 }
 
+/**
+ * TB-1621 — removes connector smoke repo paths and administrator smoke-validation disclosures
+ * from in-app Azure Boards integration help.
+ */
+export function stripAzureBoardsContributorLeakage(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let inFence = false;
+  let detailsBuffer: string[] | null = null;
+
+  const flushDetailsBuffer = (): void => {
+    if (detailsBuffer === null) {
+      return;
+    }
+
+    const block = detailsBuffer.join("\n");
+    detailsBuffer = null;
+
+    if (
+      /CONNECTOR_SMOKE_/i.test(block) ||
+      /docs\/integrations\/smoke/i.test(block) ||
+      /smoke validation/i.test(block)
+    ) {
+      return;
+    }
+
+    for (const bufferedLine of block.split("\n")) {
+      result.push(bufferedLine);
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      inFence = !inFence;
+      result.push(line);
+      continue;
+    }
+
+    if (inFence) {
+      result.push(line);
+      continue;
+    }
+
+    if (/^<details\b/i.test(trimmed)) {
+      detailsBuffer = [line];
+      continue;
+    }
+
+    if (detailsBuffer !== null) {
+      detailsBuffer.push(line);
+
+      if (/^<\/details>/i.test(trimmed)) {
+        flushDetailsBuffer();
+      }
+
+      continue;
+    }
+
+    if (/docs\/integrations\/smoke/i.test(line)) {
+      continue;
+    }
+
+    if (/CONNECTOR_SMOKE_/i.test(line)) {
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  flushDetailsBuffer();
+
+  return result
+    .replace(/`?docs\/integrations\/smoke\/[^`\s)]+`?/gi, "connector validation runbook")
+    .replace(/docs\/integrations\/smoke\/[^\s)]+/gi, "connector validation runbook")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -1309,6 +1389,7 @@ export function prepareHelpMarkdownForPresentation(
   const isPilotRoiModel = normalizedSourcePath.includes("pilot_roi_model.md");
   const isRepeatReviewLoop = normalizedSourcePath.includes("repeat_review_loop.md");
   const isAcceleratorChooser = normalizedSourcePath.includes("accelerator_chooser.md");
+  const isAzureBoardsIntegration = normalizedSourcePath.includes("azure_boards_integration.md");
   // TB-1346 — retarget runbook .md links to /help before generic link rewrite drops them.
   const afterEvaluatorWorkbookStrip = isEvaluatorWorkbook
     ? stripEvaluatorWorkbookContributorLeakage(withoutInlineReferences)
@@ -1345,6 +1426,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripRepeatReviewLoopContributorLeakage(sanitized);
   } else if (isAcceleratorChooser) {
     afterAudienceStrip = stripAcceleratorChooserContributorLeakage(sanitized);
+  } else if (isAzureBoardsIntegration) {
+    afterAudienceStrip = stripAzureBoardsContributorLeakage(sanitized);
   }
 
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);

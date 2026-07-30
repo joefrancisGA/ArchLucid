@@ -18,6 +18,7 @@ import {
   sanitizeBareMarkdownFileReferences,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
+  stripAzureBoardsContributorLeakage,
   stripConfigurationReferenceContributorLeakage,
   stripConfigurationReferenceContributorSections,
   stripDocumentationMaintenanceMetadata,
@@ -476,6 +477,43 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toContain("/help/core-pilot");
     expect(prepared).toContain("regulated-saas-soc-procurement");
     expect(prepared).toContain("**Out of scope for all V1-ready packs:**");
+  });
+
+  it("drops administrator smoke-validation disclosure from Azure Boards help (TB-1621)", () => {
+    const source = [
+      "## Related",
+      "",
+      "- [Integration readiness](/help/integration-readiness)",
+      "",
+      "<details>",
+      "<summary>Administrator details — smoke validation</summary>",
+      "",
+      "For connector smoke validation, see `docs/integrations/smoke/CONNECTOR_SMOKE_AZURE_BOARDS.md`.",
+      "",
+      "</details>",
+    ].join("\n");
+
+    const prepared = stripAzureBoardsContributorLeakage(source);
+
+    expect(prepared).toContain("## Related");
+    expect(prepared).toContain("/help/integration-readiness");
+    expect(prepared).not.toContain("<details>");
+    expect(prepared).not.toContain("CONNECTOR_SMOKE");
+    expect(prepared.toLowerCase()).not.toContain("docs/integrations/smoke");
+  });
+
+  it("keeps presented Azure Boards help free of connector smoke repo paths (TB-1621)", () => {
+    const loaded = tryLoadProductDocumentation("azure-boards");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath);
+
+    expect(prepared).not.toContain("CONNECTOR_SMOKE");
+    expect(prepared.toLowerCase()).not.toContain("docs/integrations/smoke");
+    expect(prepared).not.toContain("<details>");
+    expect(prepared).toContain("/help/integration-readiness");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {
