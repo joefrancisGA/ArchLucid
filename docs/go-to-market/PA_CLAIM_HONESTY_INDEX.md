@@ -27,8 +27,7 @@
 | M-127 | Honesty | Public claim boundary guide + packet short row |
 | M-128 | One-pager | [`BUYER_SECURITY_PROCUREMENT_PACKET.md#execution-mode-honesty-m-128`](BUYER_SECURITY_PROCUREMENT_PACKET.md#execution-mode-honesty-m-128) (`EXECUTION_MODE_HONESTY_ONE_PAGER.md` alias) |
 | M-129 / M-130 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#quality-gate-versioning-m-130`](BUYER_SECURITY_PROCUREMENT_PACKET.md#quality-gate-versioning-m-130) (`QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md` alias) |
-| M-131 | Honesty | Public claim boundary guide + packet short row |
-| M-132 | One-pager | [`LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md`](LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md) |
+| M-131 / M-132 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#llm-budget-reserve-settle-m-132`](BUYER_SECURITY_PROCUREMENT_PACKET.md#llm-budget-reserve-settle-m-132) (`LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md` alias) |
 | M-138 / M-139 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#simulator-roi-sponsor-forbid-m-139`](BUYER_SECURITY_PROCUREMENT_PACKET.md#simulator-roi-sponsor-forbid-m-139) (`SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md` alias) |
 | M-140 / M-141 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#finding-disposition-concurrency-m-141`](BUYER_SECURITY_PROCUREMENT_PACKET.md#finding-disposition-concurrency-m-141) (`FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md` alias) |
 | M-142 / M-143 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#solo-operator-pages-vs-support-email-m-143`](BUYER_SECURITY_PROCUREMENT_PACKET.md#solo-operator-pages-vs-support-email-m-143) (`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_PA_ONE_PAGER.md` alias) |
