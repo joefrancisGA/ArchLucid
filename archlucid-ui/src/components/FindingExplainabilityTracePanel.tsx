@@ -85,7 +85,7 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
       ? [{ href: props.graphEvidenceHref, label: "Open evidence graph" }]
       : []),
     ...(props.linkedManifestHref !== null && props.linkedManifestHref !== undefined
-      ? [{ href: props.linkedManifestHref, label: "Open signed decision" }]
+      ? [{ href: props.linkedManifestHref, label: "Open signed review record" }]
       : []),
   ];
 

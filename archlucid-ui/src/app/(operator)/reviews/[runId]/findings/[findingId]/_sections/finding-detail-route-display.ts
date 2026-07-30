@@ -14,6 +14,7 @@ import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer-finding-severity-d
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 export type FindingDecisionSummary = {
   readonly severity: string;
@@ -26,6 +27,10 @@ export type FindingDecisionSummary = {
   readonly riskOwner: string;
 };
 
+const NO_RECOMMENDED_ACTION_RECORDED = "No recommended action recorded for this finding.";
+const NO_REMEDIATION_DUE_RECORDED = "No remediation due date recorded";
+const RISK_OWNER_NOT_ASSIGNED = "Not assigned";
+
 export function deriveFindingDecisionSummary(
   payload: FindingInspectPayload | null,
   findingId: string,
@@ -36,17 +41,6 @@ export function deriveFindingDecisionSummary(
       ? `${confidenceLevel} confidence`
       : summarizeEvidenceBasis(payload);
 
-  const riskOwner =
-    payload?.assignedToUserId?.trim() ??
-    (isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload))
-      ? BUYER_SHOWCASE_RESIDUAL_RISK_OWNER
-      : "Not assigned");
-
-  const nextReview =
-    isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload))
-      ? BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW
-      : "Schedule with governance cadence";
-
   return {
     severity: fallbackSeverity(payload, findingId),
     disposition: fallbackStatus(payload, findingId),
@@ -54,9 +48,69 @@ export function deriveFindingDecisionSummary(
     requiredMonitoring: mitigationPosture(payload, findingId),
     evidenceConfidenceLabel,
     evidenceConfidenceLevel: confidenceLevel,
-    nextReview,
-    riskOwner,
+    nextReview: resolveFindingNextReviewLabel(payload, findingId),
+    riskOwner: resolveFindingRiskOwnerLabel(payload, findingId),
   };
+}
+
+/** Prefer payload assignee; PHI showcase may supply demo owner when payload has none. */
+export function resolveFindingRiskOwnerLabel(
+  payload: FindingInspectPayload | null,
+  findingId: string,
+): string {
+  const assigned = payload?.assignedToUserId?.trim() ?? "";
+
+  if (assigned.length > 0) {
+    return assigned;
+  }
+
+  if (isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload))) {
+    return BUYER_SHOWCASE_RESIDUAL_RISK_OWNER;
+  }
+
+  return RISK_OWNER_NOT_ASSIGNED;
+}
+
+/** Prefer remediation due date; PHI showcase may supply demo cadence when payload has none. */
+export function resolveFindingNextReviewLabel(
+  payload: FindingInspectPayload | null,
+  findingId: string,
+): string {
+  const dueLabel = formatFindingRemediationDueLabel(payload?.remediationDueUtc);
+
+  if (dueLabel !== null) {
+    return dueLabel;
+  }
+
+  if (isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload))) {
+    return BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW;
+  }
+
+  return NO_REMEDIATION_DUE_RECORDED;
+}
+
+export function formatFindingRemediationDueLabel(remediationDueUtc: string | null | undefined): string | null {
+  if (remediationDueUtc === null || remediationDueUtc === undefined) {
+    return null;
+  }
+
+  const trimmed = remediationDueUtc.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return trimmed;
+  }
+
+  return parsed.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): string {
@@ -157,6 +211,10 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
   return "Severity pending";
 }
 
+/**
+ * Monitoring / recommended-action posture for decision summary.
+ * PHI showcase may supply control narrative; never invent PHI copy for other findings.
+ */
 export function mitigationPosture(payload: FindingInspectPayload | null, findingId: string): string {
   if (payload !== null) {
     const action = findingInspectPrimaryLabels(payload).recommendedAction;
@@ -174,11 +232,7 @@ export function mitigationPosture(payload: FindingInspectPayload | null, finding
     return phiMinimizationControlNarrative();
   }
 
-  if (isBuyerPolishedOperatorShellEnv()) {
-    return phiMinimizationRecommendedActionFallback();
-  }
-
-  return "Review the recommended action and cited evidence before closing or escalating this finding.";
+  return NO_RECOMMENDED_ACTION_RECORDED;
 }
 
 /** Buyer decision panel — from payload/status, not a scripted default (BDA-012). */
@@ -247,4 +301,55 @@ export function findingDetailLeadFallback(findingId: string): string {
   }
 
   return "Review this finding independently from the parent review before approval.";
+}
+
+/** Map free-text finding status labels onto enterprise StatusTag kinds. */
+export function findingStatusTagKind(statusLabel: string): EnterpriseStatusKind {
+  const normalized = statusLabel.trim().toLowerCase();
+
+  if (normalized.includes("monitoring")) {
+    return "approved-with-monitoring";
+  }
+
+  if (normalized.includes("approved") || normalized.includes("accepted")) {
+    return "approved";
+  }
+
+  if (normalized.includes("reject") || normalized.includes("block") || normalized.includes("fail")) {
+    return "blocked";
+  }
+
+  if (
+    normalized.includes("triage") ||
+    normalized.includes("progress") ||
+    normalized.includes("review") ||
+    normalized.includes("open")
+  ) {
+    return "in-progress";
+  }
+
+  if (normalized.includes("draft")) {
+    return "draft";
+  }
+
+  return "neutral";
+}
+
+/** Recommended-action paragraph: PHI showcase only; otherwise fail closed. */
+export function findingRecommendedActionParagraph(
+  payload: FindingInspectPayload,
+  findingId: string,
+): string {
+  const labels = findingInspectPrimaryLabels(payload);
+  const structured = labels.recommendedAction?.trim() ?? "";
+
+  if (structured.length > 0) {
+    return structured;
+  }
+
+  if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(findingId)) {
+    return phiMinimizationRecommendedActionFallback();
+  }
+
+  return NO_RECOMMENDED_ACTION_RECORDED;
 }

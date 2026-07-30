@@ -6,9 +6,11 @@ import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
 describe("FindingPolicyRuleBadge", () => {
   it("renders a policy status tag linked to the rule deep link", () => {
     render(<FindingPolicyRuleBadge policyRuleId="sec-base-010" policyRuleLabel="Encrypt data at rest" />);
+    expect(screen.getByTestId("finding-policy-rule-badge").className).toMatch(/underline/);
 
     const link = screen.getByTestId("finding-policy-rule-badge");
     expect(link).toHaveAttribute("href", "/governance/policy-packs?ruleId=sec-base-010");
+    expect(link.className).toMatch(/underline/);
     expect(screen.getByText("Rule sec-base-010: Encrypt data at rest")).toBeInTheDocument();
   });
 

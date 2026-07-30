@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { cn } from "@/lib/utils";
 
 export type FindingPolicyRuleBadgeProps = {
   readonly policyRuleId: string;
@@ -47,7 +49,7 @@ export function FindingPolicyRuleBadge(props: FindingPolicyRuleBadgeProps): Reac
   return (
     <Link
       href={policyPacksRuleHref(ruleId)}
-      className={props.className}
+      className={cn(OPERATOR_LINK.inline, props.className)}
       data-testid="finding-policy-rule-badge"
       title={`Compliance rule key ${ruleId}`}
     >

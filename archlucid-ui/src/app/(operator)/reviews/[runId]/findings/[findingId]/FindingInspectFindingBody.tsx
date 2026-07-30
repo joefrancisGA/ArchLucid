@@ -6,16 +6,16 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperi
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
-import { findingInspectPrimaryLabels, findingWhyThisMattersText, phiMinimizationRecommendedActionFallback } from "@/lib/finding-display-from-inspect";
+import { findingWhyThisMattersText, typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
 import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/finding-policy-evidence-citations";
+import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
-import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
-import { typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
 import { FindingInspectReasoningPayloadDetails } from "./FindingInspectReasoningPayloadDetails";
 import { FindingInspectReasoningSummarySection } from "./FindingInspectReasoningSummarySection";
 import { FindingInspectRecommendedActionSection } from "./FindingInspectRecommendedActionSection";
 import { FindingInspectWhyMattersSection } from "./FindingInspectWhyMattersSection";
+import { findingRecommendedActionParagraph } from "./_sections/finding-detail-route-display";
 
 export type FindingInspectFindingBodyProps = {
   readonly runId: string;
@@ -50,7 +50,6 @@ export function FindingInspectFindingBody({
     surface === "executive"
       ? "Open risk review"
       : "Open review summary";
-  const labels = findingInspectPrimaryLabels(payload);
   const citationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
@@ -73,11 +72,7 @@ export function FindingInspectFindingBody({
   const whyThisIsNotGeneric = typedPayloadLookupString(payload, "whyThisIsNotGeneric");
 
   const structuredActions: string[] = (payload.recommendedActions ?? []).filter((a) => a.trim().length > 0);
-  const recommendedActionParagraph =
-    labels.recommendedAction ??
-    (isBuyerPolishedOperatorShellEnv()
-      ? phiMinimizationRecommendedActionFallback()
-      : "Review evidence and rationale above. Consult the finding category and primary rule to determine the appropriate remediation path.");
+  const recommendedActionParagraph = findingRecommendedActionParagraph(payload, decodedFindingId);
 
   const whyBlock = (
     <FindingInspectWhyMattersSection

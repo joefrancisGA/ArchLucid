@@ -198,7 +198,7 @@ export function FindingExplainPanel({
               ? [{ href: graphEvidenceHref, label: "Open evidence graph" }]
               : []),
             ...(linkedManifestHref !== null && linkedManifestHref !== undefined
-              ? [{ href: linkedManifestHref, label: "Open signed decision" }]
+              ? [{ href: linkedManifestHref, label: "Open signed review record" }]
               : []),
           ]}
           failure={failure}

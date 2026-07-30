@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
-import { Button } from "@/components/ui/button";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type FindingDetailOperationalActionsProps = {
@@ -18,7 +18,7 @@ export type FindingDetailOperationalActionsProps = {
   readonly inspectHref: string;
 };
 
-/** Grouped primary finding actions — evidence, decision, and work-item handoff. */
+/** Grouped primary finding actions — navigation as links; work-item handoff as a button. */
 export function FindingDetailOperationalActions(props: FindingDetailOperationalActionsProps): React.JSX.Element {
   return (
     <section
@@ -29,20 +29,20 @@ export function FindingDetailOperationalActions(props: FindingDetailOperationalA
       <p className={cn("m-0 mb-2 font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Actions
       </p>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         {props.graphEvidenceHref !== null ? (
-          <Button type="button" asChild variant="default" size="sm">
-            <Link href={props.graphEvidenceHref}>{BUYER_SURFACE_VOCABULARY.evidenceGraphNav}</Link>
-          </Button>
+          <Link href={props.graphEvidenceHref} className={OPERATOR_LINK.nav}>
+            {BUYER_SURFACE_VOCABULARY.evidenceGraphNav}
+          </Link>
         ) : null}
         {props.linkedManifestHref !== null ? (
-          <Button type="button" asChild variant="outline" size="sm">
-            <Link href={props.linkedManifestHref}>Open signed decision</Link>
-          </Button>
+          <Link href={props.linkedManifestHref} className={OPERATOR_LINK.nav}>
+            {`Open ${SIGNED_MANIFEST_LABEL.toLowerCase()}`}
+          </Link>
         ) : null}
-        <Button type="button" asChild variant="outline" size="sm">
-          <Link href={props.inspectHref}>Open evidence trace</Link>
-        </Button>
+        <Link href={props.inspectHref} className={OPERATOR_LINK.nav}>
+          Open evidence trace
+        </Link>
         <CopyFindingAsWorkItemButton
           runId={props.runId}
           findingId={props.findingId}

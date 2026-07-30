@@ -14,6 +14,7 @@ describe("FindingPolicyPackBadge", () => {
 
     const link = screen.getByTestId("finding-policy-pack-badge");
     expect(link).toHaveAttribute("href", "/governance/policy-packs?packId=healthcare-claims-v3");
+    expect(link.className).toMatch(/underline/);
     expect(screen.getByText("Pack Healthcare Claims Policy Pack v3")).toBeInTheDocument();
   });
 

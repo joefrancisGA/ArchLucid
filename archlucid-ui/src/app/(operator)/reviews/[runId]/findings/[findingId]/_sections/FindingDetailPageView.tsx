@@ -16,20 +16,20 @@ import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
-import { Badge } from "@/components/ui/badge";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   findingDetailLeadSentence,
   findingDetailPageEyebrow,
   findingInspectPrimaryLabels,
   findingWhyThisMattersText,
   phiMinimizationBuyerConsequenceNarrative,
-  phiMinimizationRecommendedActionFallback,
 } from "@/lib/finding-display-from-inspect";
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getFindingEvidenceTraceHref } from "@/lib/finding-evidence-navigation";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
 import {
@@ -46,11 +46,11 @@ import { FindingInspectWhyMattersSection } from "../FindingInspectWhyMattersSect
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
 import { FindingDetailOperationalActions } from "./FindingDetailOperationalActions";
 import {
-  buyerFindingDecisionPanelCopy,
   deriveFindingDecisionSummary,
   fallbackSeverity,
   findingDetailLeadFallback,
-  mitigationPosture,
+  findingRecommendedActionParagraph,
+  findingStatusTagKind,
   summarizeEvidenceBasis,
   validationRequirement,
 } from "./finding-detail-route-display";
@@ -97,66 +97,69 @@ export function FindingDetailPageView(props: Props) {
     inspectPayload !== null ? resolvePolicyTraceExcerptFromInspect(inspectPayload) : null;
 
   const inspectHref = getFindingEvidenceTraceHref(runId, decodedFindingId);
+  const reviewFindingsHref = `/reviews/${encodeURIComponent(runId)}?reviewTab=findings`;
+  const reviewPackageHref = isDemoRunIdEligibleForStaticFallback(runId)
+    ? getShowcaseManifestHref()
+    : `/reviews/${encodeURIComponent(runId)}`;
   const decisionSummary =
     inspectPayload !== null ? deriveFindingDecisionSummary(inspectPayload, decodedFindingId) : null;
   const evidenceBasisSummary = summarizeEvidenceBasis(inspectPayload);
   const demoFillGaps =
     (isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId)) && isOperatorExperienceFullShellEnv();
-  const reviewContextHref = isDemoRunIdEligibleForStaticFallback(runId)
-    ? getShowcaseManifestHref()
-    : `/reviews/${encodeURIComponent(runId)}`;
   const whyThisMattersNarrative = inspectPayload !== null ? findingWhyThisMattersText(inspectPayload) : null;
-  const buyerRecommendedLabels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
   const buyerStructuredActions =
     inspectPayload !== null
       ? (inspectPayload.recommendedActions ?? []).filter((action) => action.trim().length > 0)
       : [];
   const buyerRecommendedActionParagraph =
-    buyerRecommendedLabels?.recommendedAction ??
-    phiMinimizationRecommendedActionFallback();
+    inspectPayload !== null ? findingRecommendedActionParagraph(inspectPayload, decodedFindingId) : null;
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4">
-      <nav className={cn("flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link
-          href={getFindingEvidenceTraceHref(runId, decodedFindingId)}
-          className={OPERATOR_LINK.nav}
-        >
+      <nav
+        className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+        aria-label="Finding wayfinding"
+      >
+        <Link href={reviewPackageHref} className={OPERATOR_LINK.nav}>
+          Back to review
+        </Link>
+        <Link href={reviewFindingsHref} className={OPERATOR_LINK.nav}>
+          Findings list
+        </Link>
+        <Link href={inspectHref} className={OPERATOR_LINK.nav}>
           {buyerPolishedShell ? "Open evidence trace" : "Technical inspection trail"}
         </Link>
       </nav>
 
       {buyerPolishedShell ? (
         <div className="space-y-4">
-          <section className="overflow-hidden rounded-2xl border border-teal-200 bg-white shadow-sm dark:border-teal-900 dark:bg-neutral-950">
-            <div className="border-b border-teal-100 bg-gradient-to-br from-teal-50 via-white to-amber-50 p-6 dark:border-teal-950 dark:from-teal-950/50 dark:via-neutral-950 dark:to-amber-950/20">
-              <div className="max-w-3xl space-y-3">
-                <p className={cn("m-0 text-teal-800 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
-                  {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
+          <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
+            <div className="max-w-3xl space-y-3">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
+                {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
+              </p>
+              <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
+              {policyProvenanceModel !== null &&
+              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+                <FindingPolicyCitationHero
+                  model={policyProvenanceModel}
+                  traceExcerpt={policyTraceExcerpt}
+                />
+              ) : null}
+              <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                {inspectPayload !== null
+                  ? findingDetailLeadSentence(inspectPayload)
+                  : findingDetailLeadFallback(decodedFindingId)}
+              </p>
+              {severityRationale.length > 0 ? (
+                <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {severityRationale}
                 </p>
-                <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
-                {policyProvenanceModel !== null &&
-                (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
-                  <FindingPolicyCitationHero
-                    model={policyProvenanceModel}
-                    traceExcerpt={policyTraceExcerpt}
-                  />
-                ) : null}
-                <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {inspectPayload !== null
-                    ? findingDetailLeadSentence(inspectPayload)
-                    : findingDetailLeadFallback(decodedFindingId)}
-                </p>
-                {severityRationale.length > 0 ? (
-                  <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {severityRationale}
-                  </p>
-                ) : null}
-              </div>
+              ) : null}
             </div>
 
             {findingIsPhi ? (
-              <div className="border-t border-neutral-200 bg-neutral-50 p-5 dark:border-neutral-800 dark:bg-neutral-900/40">
+              <div className="mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Focused finding narrative</p>
                 <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {phiMinimizationBuyerConsequenceNarrative()}
@@ -187,14 +190,14 @@ export function FindingDetailPageView(props: Props) {
             />
           ) : null}
 
-          <section className={cn("rounded-lg p-4", operatorSemanticSurface("warn"))}>
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Business impact</h2>
-            <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {findingIsPhi
-                ? "If PHI slips outside minimization boundaries at intake, breach notification scope, audit findings, and downstream processing obligations expand. Documented ingress classification and weekly exception monitoring keep this risk within accepted limits."
-                : "This finding is recorded in the finalized governance package with evidence trail linkage."}
-            </p>
-          </section>
+          {inspectPayload !== null && buyerRecommendedActionParagraph !== null ? (
+            <FindingInspectRecommendedActionSection
+              tone="detail"
+              structuredActions={buyerStructuredActions}
+              recommendedActionParagraph={buyerRecommendedActionParagraph}
+              showOwnerCadence
+            />
+          ) : null}
 
           {inspectPayload !== null ? (
             <CollapsibleSection
@@ -205,35 +208,12 @@ export function FindingDetailPageView(props: Props) {
             >
               <FindingInspectEvidenceSection
                 demoFillGaps={demoFillGaps}
-                reviewContextHref={reviewContextHref}
+                reviewContextHref={reviewPackageHref}
                 reviewContextLabel="Open review summary"
                 evidence={inspectPayload.evidence}
                 citationModel={policyProvenanceModel}
               />
             </CollapsibleSection>
-          ) : null}
-
-          <section className={cn("rounded-lg p-4", operatorSemanticSurface("info"))}>
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Decision</h2>
-            <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {buyerFindingDecisionPanelCopy(inspectPayload, decodedFindingId)}
-            </p>
-          </section>
-
-          <section className={cn("rounded-lg p-4", DESIGN_TOKENS.surface.card)}>
-            <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Required monitoring</h2>
-            <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {mitigationPosture(inspectPayload, decodedFindingId)}
-            </p>
-          </section>
-
-          {inspectPayload !== null ? (
-            <FindingInspectRecommendedActionSection
-              tone="detail"
-              structuredActions={buyerStructuredActions}
-              recommendedActionParagraph={buyerRecommendedActionParagraph}
-              showOwnerCadence
-            />
           ) : null}
 
           <CollapsibleSection
@@ -370,25 +350,15 @@ export function FindingDetailPageView(props: Props) {
 
           {labels !== null ? (
             <div className="flex flex-wrap items-center gap-2">
-              {labels.severityLabel ? (
-                <Badge variant="secondary" className="font-normal">
-                  {labels.severityLabel}
-                </Badge>
+              {labels.severityLabel ? <SeverityTag severity={labels.severityLabel} /> : null}
+              {labels.statusLabel ? (
+                <StatusTag kind={findingStatusTagKind(labels.statusLabel)} label={labels.statusLabel} />
               ) : null}
               {labels.categoryLabel ? (
-                <Badge variant="outline" className="font-normal">
-                  {labels.categoryLabel}
-                </Badge>
-              ) : null}
-              {labels.statusLabel ? (
-                <Badge variant="outline" className="font-normal">
-                  {labels.statusLabel}
-                </Badge>
+                <StatusTag kind="neutral" label={labels.categoryLabel} />
               ) : null}
               {labels.impactedAreaLabel ? (
-                <Badge variant="outline" className="max-w-full whitespace-normal text-left font-normal">
-                  Business impact: {labels.impactedAreaLabel}
-                </Badge>
+                <StatusTag kind="neutral" label={`Business impact: ${labels.impactedAreaLabel}`} />
               ) : null}
             </div>
           ) : null}
@@ -411,10 +381,7 @@ export function FindingDetailPageView(props: Props) {
 
           {graphEvidenceHref !== null ? (
             <p className="m-0">
-              <Link
-                className={cn("font-semibold", OPERATOR_LINK.nav)}
-                href={graphEvidenceHref}
-              >
+              <Link className={OPERATOR_LINK.nav} href={graphEvidenceHref}>
                 View evidence trail
               </Link>
             </p>
@@ -424,10 +391,6 @@ export function FindingDetailPageView(props: Props) {
             <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {findingDetailLeadSentence(inspectPayload)}
             </p>
-          ) : null}
-
-          {inspectPayload !== null ? (
-            <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
           ) : null}
         </header>
       )}
@@ -441,7 +404,7 @@ export function FindingDetailPageView(props: Props) {
             showRetry={false}
             recoveryLinks={[
               { href: inspectHref, label: "Open evidence trace" },
-              { href: `/reviews/${encodeURIComponent(runId)}?reviewTab=findings`, label: "Back to findings" },
+              { href: reviewFindingsHref, label: "Back to findings" },
             ]}
             failure={inspectFailure}
             buyerPolishedShell
@@ -486,6 +449,12 @@ export function FindingDetailPageView(props: Props) {
 
       {inspectPayload !== null ? (
         <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
+      ) : null}
+
+      {inspectPayload !== null && !buyerPolishedShell ? (
+        <CollapsibleSection title="Export finding" defaultOpen={false} summaryLine="Copy for Jira, Azure Boards, or ServiceNow">
+          <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
+        </CollapsibleSection>
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (

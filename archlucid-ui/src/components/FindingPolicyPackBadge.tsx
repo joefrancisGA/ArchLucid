@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
+import { cn } from "@/lib/utils";
 
 export type FindingPolicyPackBadgeProps = {
   readonly policyPackId: string;
@@ -48,7 +50,7 @@ export function FindingPolicyPackBadge(props: FindingPolicyPackBadgeProps): Reac
   return (
     <Link
       href={policyPacksEditHref(packId.length > 0 ? packId : labelSource ?? "")}
-      className={props.className}
+      className={cn(OPERATOR_LINK.inline, props.className)}
       data-testid="finding-policy-pack-badge"
       title={`Policy pack ${packId || labelSource}`}
     >
