@@ -91,6 +91,8 @@ jobs:
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           # Trial live specs need open anonymous register (production default remains InviteOnly).
           Auth__PublicSignup__Mode: PublicSelfService
+          # Trial live specs expect Noop checkout (env wins over optional appsettings.SaaS.json).
+          Billing__Provider: Noop
           AgentExecution__Mode: Simulator
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
