@@ -48,6 +48,18 @@ tags = {
 # using api_sql_runtime_identity_client_id.
 # enable_api_sql_runtime_identity = true
 
+# Azure AI Content Safety in rg-ArchLucid-dev (do not borrow longevity-* accounts).
+# Account live as of 2026-07-30: archlucid-dev-contentsafety. Import before first apply that enables this:
+#   terraform import 'azurerm_cognitive_account.content_safety[0]' \
+#     /subscriptions/8aa56f3b-18bc-43ca-ad45-bad9e811d33b/resourceGroups/rg-ArchLucid-dev/providers/Microsoft.CognitiveServices/accounts/archlucid-dev-contentsafety
+# API Endpoint/ApiKey stay on the Container App via CD secrets ARCHLUCID_CONTENT_SAFETY_ENDPOINT / ARCHLUCID_CONTENT_SAFETY_API_KEY.
+enable_content_safety_account         = true
+content_safety_account_name           = "archlucid-dev-contentsafety"
+content_safety_custom_subdomain_name  = "archlucid-dev-contentsafety"
+content_safety_location               = "eastus2"
+content_safety_sku_name               = "S0"
+content_safety_public_network_access_enabled = true
+
 # TB-304: bind ApiKey scope claims to ScopeIds defaults (required on Production-like API hosts).
 # api_key_tenant_id    = "11111111-1111-1111-1111-111111111111"
 # api_key_workspace_id = "22222222-2222-2222-2222-222222222222"

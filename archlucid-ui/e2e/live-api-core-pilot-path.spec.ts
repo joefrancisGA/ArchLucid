@@ -92,9 +92,19 @@ test.describe("live-api-core-pilot-path", { tag: ["@founder", "@buyer-journey"] 
     await page.getByRole("tab", { name: "Architecture review board artifacts" }).click();
 
     const arbPanel = page.getByTestId("buyer-deliverables-panel-arb");
-    const arbRegion = arbPanel.getByRole("region", { name: "Deliverables grouped by audience" });
 
-    await expect(arbRegion).toBeVisible();
-    await expect(arbRegion.getByRole("columnheader", { name: "Output" })).toBeVisible();
+    await expect(arbPanel).toBeVisible({ timeout: 15_000 });
+
+    // Product Tour packages may only ship executive/sponsor outputs — empty ARB copy is valid.
+    const arbRegion = arbPanel.getByRole("region", { name: "Deliverables grouped by audience" });
+    const arbEmpty = arbPanel.getByText(
+      /No architecture review board or audit-scoped outputs are listed for this review/i,
+    );
+
+    await expect(arbRegion.or(arbEmpty).first()).toBeVisible({ timeout: 15_000 });
+
+    if ((await arbRegion.count()) > 0 && (await arbRegion.isVisible())) {
+      await expect(arbRegion.getByRole("columnheader", { name: "Output" })).toBeVisible();
+    }
   });
 });

@@ -2,15 +2,16 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-import { buildTier2AzureSetupScript } from "@/app/(operator)/integrations/cloud-connections/_sections/tier2-connection-wizard-content";
+import {
+  buildTier2AzureSetupScript,
+  TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT,
+} from "@/app/(operator)/integrations/cloud-connections/_sections/tier2-connection-wizard-content";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  AZURE_CLOUD_CONNECTION_IDENTITY_MODEL,
-  AZURE_CLOUD_CONNECTION_ROLE_ROWS,
-} from "@/lib/azure-cloud-connection-permissions-manifest";
+import { AZURE_CLOUD_CONNECTION_IDENTITY_MODEL } from "@/lib/azure-cloud-connection-permissions-manifest";
 import {
   AZURE_PERMISSIONS_CLI_TAB,
+  AZURE_PERMISSIONS_COST_OPTIONAL_NOTE,
   AZURE_PERMISSIONS_PORTAL_TAB,
   AZURE_PERMISSIONS_SETUP_HEADING,
 } from "@/lib/azure-cloud-connection-permissions-copy";
@@ -38,7 +39,6 @@ export function HelpAzurePermissionsSetupSection(props: HelpAzurePermissionsSetu
       ? props.subscriptionId.trim()
       : "YOUR_SUBSCRIPTION_ID";
   const setupScript = useMemo(() => buildTier2AzureSetupScript(subscriptionPlaceholder), [subscriptionPlaceholder]);
-  const roleNames = AZURE_CLOUD_CONNECTION_ROLE_ROWS.map((row) => row.azureRole).join(" and ");
 
   const copyScript = useCallback(async () => {
     try {
@@ -56,7 +56,8 @@ export function HelpAzurePermissionsSetupSection(props: HelpAzurePermissionsSetu
         {AZURE_PERMISSIONS_SETUP_HEADING}
       </h2>
       <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        Assign {roleNames} using the Azure portal or Azure CLI. {AZURE_CLOUD_CONNECTION_IDENTITY_MODEL.federation}
+        Assign Reader using the Azure portal or Azure CLI. {AZURE_PERMISSIONS_COST_OPTIONAL_NOTE}{" "}
+        {AZURE_CLOUD_CONNECTION_IDENTITY_MODEL.federation}
       </p>
       <Tabs defaultValue="portal" data-testid="azure-permissions-setup-tabs">
         <TabsList aria-label="Azure permissions setup methods">
@@ -94,8 +95,7 @@ export function HelpAzurePermissionsSetupSection(props: HelpAzurePermissionsSetu
             <code>{setupScript}</code>
           </pre>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Replace YOUR_SUBSCRIPTION_ID, ARCHLUCID_TENANT_ID, and ARCHLUCID_MANAGED_IDENTITY_OBJECT_ID before running.
-            ArchLucid publishes tenant and managed-identity identifiers during onboarding.
+            {TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT}
           </p>
         </TabsContent>
       </Tabs>

@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-29
-
 > **Scope:** Contributor-reference — sales, marketing, and agent authoring for what ArchLucid may say in V1 vs deferred `(B)` / V1.1 items; buyer-facing claim guardrails (TB-134) plus the GTM “what not to promise” table (formerly `docs/go-to-market/WHAT_NOT_TO_PROMISE.md`), PA claim-honesty Batch A paste-ready bullets (formerly `PA_CLAIM_HONESTY_BULLETS_BATCH_A.md`; path-stable alias), Batch B (formerly `PA_CLAIM_HONESTY_BULLETS_BATCH_B.md`; path-stable alias), and Batch C (formerly `PA_CLAIM_HONESTY_BULLETS_BATCH_C.md`; path-stable alias). PA claim-honesty rows (M-115+) in the table below; index: [`../go-to-market/PA_CLAIM_HONESTY_INDEX.md`](../go-to-market/PA_CLAIM_HONESTY_INDEX.md).
+
+> **Reviewed:** 2026-07-29
 
 # Public claim boundary guide (TB-134)
 

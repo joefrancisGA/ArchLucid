@@ -142,7 +142,8 @@ export const AZURE_CLOUD_CONNECTION_CANNOT_DO: readonly string[] = [
 ];
 
 export const AZURE_CLOUD_CONNECTION_SCOPE_GUIDANCE = {
-  recommendedTier2: "Assign both roles at the subscription scope for each subscription ArchLucid should connect.",
+  recommendedTier2:
+    "Assign Reader at the subscription scope for each subscription ArchLucid should connect. Assign Cost Management Reader only when cost evidence is required and an Azure admin can grant it.",
   resourceGroupLimitation:
     "Resource-group-only assignments are supported by the Tier 1 manual extractor script, not by the hosted Tier 2 connection API (subscription GUIDs only).",
   managementGroupLimitation:

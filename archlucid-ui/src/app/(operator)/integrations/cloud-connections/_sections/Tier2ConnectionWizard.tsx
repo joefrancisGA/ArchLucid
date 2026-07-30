@@ -15,10 +15,11 @@ import {
   validateTier2ConnectionHostedRun,
   type Tier2ConnectionResponse,
 } from "@/lib/api/cloud-connections-api";
-import { isApiRequestError } from "@/lib/api-request-error";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { resolveApiErrorMessage } from "@/lib/resolve-api-error-message";
+import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-validation-error";
 import { showError, showSuccess } from "@/lib/toast";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -31,6 +32,7 @@ import {
 } from "./tier2-connection-field-validation";
 import {
   buildTier2AzureSetupScript,
+  TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT,
   TIER2_CONNECTION_DETAIL_WIZARD_STEPS,
   TIER2_CONNECTION_WIZARD_STEPS,
   TIER2_WIZARD_HELP_HREFS,
@@ -45,18 +47,6 @@ export type Tier2ConnectionWizardProps = {
   /** When true, security preflight is shown on the provider detail page instead of step 0. */
   skipSecurityStep?: boolean;
 };
-
-function resolveApiErrorMessage(error: unknown, fallback: string): string {
-  if (isApiRequestError(error)) {
-    const detail = error.problem?.detail?.trim();
-
-    if (detail && detail.length > 0) {
-      return detail;
-    }
-  }
-
-  return fallback;
-}
 
 export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tier2ConnectionWizardProps) {
   const wizardSteps = skipSecurityStep ? TIER2_CONNECTION_DETAIL_WIZARD_STEPS : TIER2_CONNECTION_WIZARD_STEPS;
@@ -188,7 +178,7 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
     } catch (error) {
       console.error(error);
       setValidationSucceeded(false);
-      setValidationMessage(resolveApiErrorMessage(error, "Hosted extractor validation failed."));
+      setValidationMessage(sanitizeHostedAzureValidationError(error).message);
     } finally {
       setIsValidating(false);
     }
@@ -231,8 +221,7 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
               >
                 Terraform / Bicep onboarding templates
               </Link>{" "}
-              in your tenant. Replace subscription and ArchLucid identity placeholders before applying federated
-              credentials. See the{" "}
+              in your tenant. {TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT} See the{" "}
               <Link href={TIER2_WIZARD_HELP_HREFS.azurePermissions} className="text-teal-700 underline dark:text-teal-400">
                 Azure permissions guide
               </Link>{" "}
@@ -346,7 +335,7 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
               Save and validate
             </h3>
             <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-              Persist the connection for hosted Tier 2 pull jobs, then optionally trigger an on-demand validation run
+              Persist the connection for hosted inventory pull jobs, then optionally trigger an on-demand validation run
               against the first subscription ID.
             </p>
           </div>
@@ -363,7 +352,13 @@ export function Tier2ConnectionWizard({ onSaved, skipSecurityStep = false }: Tie
           {savedConnection !== null ? (
             <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 p-4">
               <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-teal-900 dark:text-teal-100")}>
-                Connection saved. Run a hosted validation pull to confirm federated credentials and Reader access.
+                Connection saved. Run a hosted validation pull to confirm ArchLucid can sign in with federation and list
+                resources with Reader.
+              </p>
+              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="tier2-validation-prerequisites">
+                An Azure app registration alone is not enough. Before validating, confirm: (1) a federated credential on
+                the app that trusts ArchLucid&apos;s managed identity, (2) Reader on the subscription, and (3) hosted
+                Azure collection enabled for this ArchLucid environment.
               </p>
               <Button
                 type="button"

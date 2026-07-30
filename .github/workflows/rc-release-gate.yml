@@ -390,6 +390,8 @@ jobs:
           ArchLucidAuth__Mode: DevelopmentBypass
           ArchLucidAuth__AllowTestActorHeaders: "true"
           Authentication__ApiKey__DevelopmentBypassAll: "true"
+          # Trial live specs expect Noop checkout (env wins over optional appsettings.SaaS.json).
+          Billing__Provider: Noop
           AgentExecution__Mode: Simulator
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"

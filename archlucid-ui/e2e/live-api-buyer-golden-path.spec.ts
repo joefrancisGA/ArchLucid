@@ -126,6 +126,7 @@ test.describe(
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(liveBuyerGoldenPathHrefs.ask);
+    await waitForLiveOperatorPageHydration(page);
     await expect(askPageMainHeading(page)).toBeVisible({ timeout: 60_000 });
     await expectNoGenericErrorBoundary(page);
   });

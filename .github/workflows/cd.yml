@@ -13,6 +13,8 @@
 #   CONTAINER_APP_UI_NAME — optional second Container App for the UI image
 #   SMOKE_TEST_BASE_URL — required for staging/production post-deploy smoke; optional skip for dev only
 #   ARCHLUCID_API_KEY — required for product-path smoke + deployment-evidence OpenAPI (admin X-Api-Key; not break-glass)
+#   ARCHLUCID_CONTENT_SAFETY_ENDPOINT / ARCHLUCID_CONTENT_SAFETY_API_KEY — optional but required for Staging/Production-like
+#     API hosts; CD heals ArchLucid__ContentSafety__* + Container App secret al-cs-key (ArchLucid-owned account only)
 #   Product-path smoke: scripts/ci/cd_post_deploy_product_smoke.py (workspaces + why-archlucid read, UI /api/health, BFF)
 #   CD_MAINTENANCE_WINDOW_OVERRIDE — optional repo var "true" for break-glass dev deploy outside 22:00-23:00 America/New_York
 #
@@ -945,6 +947,8 @@ jobs:
           CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
           CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
           CD_CANARY_ENABLED: ${{ vars.CD_CANARY_ENABLED }}
+          ARCHLUCID_CONTENT_SAFETY_ENDPOINT: ${{ secrets.ARCHLUCID_CONTENT_SAFETY_ENDPOINT }}
+          ARCHLUCID_CONTENT_SAFETY_API_KEY: ${{ secrets.ARCHLUCID_CONTENT_SAFETY_API_KEY }}
         run: |
           set -euo pipefail
           # Digest-only deploy — never resolve latest, never rebuild, never re-infer tag from github.sha.
@@ -957,6 +961,14 @@ jobs:
           REV_SFX="r${GITHUB_RUN_ID}a${GITHUB_RUN_ATTEMPT:-1}"
           echo "Deploy API image (digest): ${API_IMAGE}"
           echo "Deploy API tag (lineage): ${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
+          # Content Safety: keep Endpoint + ApiKey on ArchLucid-owned Cognitive account (not longevity-*).
+          # Secret name must be ≤20 chars (Azure CLI containerapp secret set limit).
+          if [ -n "${ARCHLUCID_CONTENT_SAFETY_ENDPOINT:-}" ] && [ -n "${ARCHLUCID_CONTENT_SAFETY_API_KEY:-}" ]; then
+            echo "Healing Content Safety env/secret on API Container App..."
+            az containerapp secret set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" \
+              --secrets "al-cs-key=${ARCHLUCID_CONTENT_SAFETY_API_KEY}" \
+              -o none
+          fi
           # target=dev: pin Contoso showcase seed env on every API roll (idempotent startup seed).
           API_ENV_VARS=(
             "CD_DEPLOY_RUN=$DEPLOY_STAMP"
@@ -971,6 +983,13 @@ jobs:
               "Demo__SaaSGuestSeedEnabled=true"
             )
             echo "Dev Contoso seed env: ASPNETCORE_ENVIRONMENT=Staging Demo__Enabled=true Demo__EnableShowcaseSeed=true Demo__SaaSGuestSeedEnabled=true"
+          fi
+          if [ -n "${ARCHLUCID_CONTENT_SAFETY_ENDPOINT:-}" ] && [ -n "${ARCHLUCID_CONTENT_SAFETY_API_KEY:-}" ]; then
+            API_ENV_VARS+=(
+              "ArchLucid__ContentSafety__Endpoint=${ARCHLUCID_CONTENT_SAFETY_ENDPOINT}"
+              "ArchLucid__ContentSafety__ApiKey=secretref:al-cs-key"
+              "ArchLucid__ContentSafety__FailClosedOnSdkError=true"
+            )
           fi
           A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
             --revision-suffix "$REV_SFX" --set-env-vars "${API_ENV_VARS[@]}" \

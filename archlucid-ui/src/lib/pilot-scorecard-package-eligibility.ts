@@ -8,5 +8,6 @@ import type { ManifestSummary } from "@/types/authority";
 export function isManifestCommittedForPilotScorecardPackage(manifestSummary: ManifestSummary | null): boolean {
   if (manifestSummary === null) return false;
 
-  return /^committed$/i.test((manifestSummary.status ?? "").trim());
+  // API uses Committed; some buyer/summary projections surface the operator label Finalized.
+  return /^(committed|finalized)$/i.test((manifestSummary.status ?? "").trim());
 }

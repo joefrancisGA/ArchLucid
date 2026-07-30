@@ -1,4 +1,5 @@
 import type { AskResponse, ConversationMessage, ConversationThread } from "@/types/conversation";
+import type { PagedResponse } from "@/types/pagination";
 import { apiGet, apiPostJson } from "./http";
 
 export { askArchLucidStream } from "./ask-sse-stream";
@@ -40,9 +41,33 @@ export async function fetchComparisonNarrativeViaAsk(
   return narrative && narrative.length > 0 ? narrative : null;
 }
 
+/**
+ * Normalizes GET /v1/conversations payloads to a thread array.
+ * The API always returns {@link PagedResponse}; older clients mistakenly treated the body as a bare array.
+ */
+export function conversationThreadsFromListResponse(
+  payload: PagedResponse<ConversationThread> | ConversationThread[] | null | undefined,
+): ConversationThread[] {
+  if (Array.isArray(payload)) {
+    return payload.filter((thread): thread is ConversationThread => thread != null && typeof thread.threadId === "string");
+  }
+
+  if (payload == null || !Array.isArray(payload.items)) {
+    return [];
+  }
+
+  return payload.items.filter(
+    (thread): thread is ConversationThread => thread != null && typeof thread.threadId === "string",
+  );
+}
+
 /** Lists recent conversation threads for the current scope. */
 export async function listConversationThreads(take = 50): Promise<ConversationThread[]> {
-  return apiGet(`/v1/conversations?take=${take}`);
+  const payload = await apiGet<PagedResponse<ConversationThread> | ConversationThread[]>(
+    `/v1/conversations?take=${take}`,
+  );
+
+  return conversationThreadsFromListResponse(payload);
 }
 
 /** Fetches messages for a conversation thread (most recent first). */

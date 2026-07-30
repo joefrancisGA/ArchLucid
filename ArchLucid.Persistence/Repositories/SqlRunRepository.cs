@@ -76,7 +76,8 @@ public sealed class SqlRunRepository(
 
         if (connection is not null)
         {
-            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction).ConfigureAwait(false);
+            if (ShouldConsumeTrialRunAllowance(run))
+                await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction).ConfigureAwait(false);
 
             byte[] stamp = await connection.QuerySingleAsync<byte[]>(
                 new CommandDefinition(sql, insertParams, transaction, cancellationToken: ct)).ConfigureAwait(false);
@@ -90,7 +91,8 @@ public sealed class SqlRunRepository(
 
         try
         {
-            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, owned, tran).ConfigureAwait(false);
+            if (ShouldConsumeTrialRunAllowance(run))
+                await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, owned, tran).ConfigureAwait(false);
 
             byte[] ownedStamp =
                 await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, insertParams, tran, cancellationToken: ct)).ConfigureAwait(false);
@@ -1021,5 +1023,13 @@ public sealed class SqlRunRepository(
                 cancellationToken: ct)).ConfigureAwait(false);
 
         return rows > 0;
+    }
+
+    private static bool ShouldConsumeTrialRunAllowance(RunRecord run)
+    {
+        return TrialRunQuota.ShouldConsumeAllowanceOnCreate(
+            run.IsSample,
+            run.IsDemoWelcomeRun,
+            run.ArchitectureRequestId);
     }
 }

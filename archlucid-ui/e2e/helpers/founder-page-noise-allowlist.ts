@@ -26,6 +26,10 @@ export const FOUNDER_CONSOLE_NOISE_ALLOWLIST: readonly FounderNoiseAllowlistEntr
     pattern: /Download the React DevTools/i,
     reason: "React DevTools suggestion",
   },
+  {
+    pattern: /status of 429 \(Too Many Requests\)/i,
+    reason: "Mock/acceptance parallel founder walk can trip shared rate limits",
+  },
 ];
 
 /** Failed request URL or failure text allowlist */
@@ -53,6 +57,10 @@ export const FOUNDER_NETWORK_NOISE_ALLOWLIST: readonly FounderNoiseAllowlistEntr
   {
     pattern: /\/_next\/static\/chunks\//i,
     reason: "Chunk cancel on navigation",
+  },
+  {
+    pattern: /\b429\b|Too Many Requests/i,
+    reason: "Mock/acceptance parallel founder walk can trip shared rate limits",
   },
 ];
 

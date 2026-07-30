@@ -7,11 +7,11 @@ import type { HelpSearchPanelTopic } from "@/lib/help-search-panel-catalog";
 describe("HelpDrawerTopicRow (TB-734)", () => {
   it("shows a Documentation browse label for technical help slugs", () => {
     const topic: HelpSearchPanelTopic = {
-      id: "cli-usage",
-      title: "CLI usage",
-      description: "Non-interactive archlucid commands.",
-      keywords: ["cli"],
-      action: { kind: "route", href: "/help/cli-usage", helpSlug: "cli-usage" },
+      id: "admin-diagnostics",
+      title: "Admin diagnostics",
+      description: "Internal operations diagnostics.",
+      keywords: ["diagnostics"],
+      action: { kind: "route", href: "/help/admin-diagnostics", helpSlug: "admin-diagnostics" },
       adminOnly: true,
     };
 

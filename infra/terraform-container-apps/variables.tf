@@ -672,3 +672,39 @@ variable "worker_keyvault_user_assigned_identity_client_id" {
   description = "TB-656: Client ID of the Worker Key Vault user-assigned identity (AZURE_CLIENT_ID for secret resolution)."
   default     = ""
 }
+
+variable "enable_content_safety_account" {
+  type        = bool
+  description = "When true with enable_container_apps, create an Azure AI Content Safety Cognitive Services account in this resource group. Wire Endpoint/ApiKey onto the API Container App via CD (ARCHLUCID_CONTENT_SAFETY_* GitHub Environment secrets) or az — Terraform does not store the API key."
+  default     = false
+}
+
+variable "content_safety_account_name" {
+  type        = string
+  description = "Content Safety account name (globally unique custom subdomain base). Required when enable_content_safety_account = true."
+  default     = ""
+}
+
+variable "content_safety_custom_subdomain_name" {
+  type        = string
+  description = "Custom subdomain for the Content Safety endpoint (usually same as content_safety_account_name)."
+  default     = ""
+}
+
+variable "content_safety_location" {
+  type        = string
+  description = "Azure region for Content Safety. Empty = use the Container Apps stack location."
+  default     = ""
+}
+
+variable "content_safety_sku_name" {
+  type        = string
+  description = "Content Safety SKU (S0 is the usual pay-as-you-go tier)."
+  default     = "S0"
+}
+
+variable "content_safety_public_network_access_enabled" {
+  type        = bool
+  description = "Public network access on the Content Safety account. Keep true for lab/dev Container Apps without private endpoints; prefer false with private endpoints in production-like stacks."
+  default     = true
+}

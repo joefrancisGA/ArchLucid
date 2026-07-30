@@ -12,7 +12,7 @@ export type WhyVerifyLink = {
 };
 
 export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
-  [{ label: "Claims sample package", href: CANONICAL_ANONYMOUS_PROOF_HREF }],
+  [{ label: "Claims sample architecture review", href: CANONICAL_ANONYMOUS_PROOF_HREF }],
   [
     { label: "Assurance evidence bundle (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
     { label: "Audit trail", href: "/help/audit-trail" },

@@ -570,7 +570,7 @@ The presence of a mutable field does not invalidate an append-only event trail. 
 - **TB-1009** defines the append-only versus mutable matrix and destructive-update analysis.
 - **TB-1010** adds language regression coverage.
 
-**Related:** [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0039](../architecture/adrs/0039-sealed-evidence-registry.md) · [ADR 0040](../architecture/adrs/0040-manifest-hash-and-export-verification.md) · [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/EVIDENCE_IMMUTABILITY.md`](../library/EVIDENCE_IMMUTABILITY.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Authority pipeline versus AgentTask loop (M-159) {#authority-vs-agenttask-loop-m-159}
 
@@ -619,7 +619,7 @@ Dual coordinator storage and orchestrators were retired through ADR 0030. The cu
 - **TB-1008** guards against dual-pipeline and forced-execute claim drift.
 - Next strangler slice language: **M-185** / **TB-1034**.
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [ADR 0030](../architecture/adrs/0030-authority-storage-strangler.md) · [ADR 0042](../architecture/adrs/0042-authority-http-write-family.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [ADR 0030](../architecture/adrs/0030-coordinator-authority-pipeline-unification.md) · [ADR 0042](../architecture/adrs/0042-canonical-run-write-surface.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Transactional finalize versus async outbox (M-163) {#transactional-finalize-vs-outbox-m-163}
 
@@ -753,7 +753,7 @@ Do not say “create means package ready,” “commit means Ask is current,” 
 - **TB-1013** defines read-after-write expectations for APIs and UI.
 - **TB-1014** makes readiness state visible and protects against generic-complete copy.
 
-**Related:** [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0038](../architecture/adrs/0038-authority-run-sql-queue.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0038](../architecture/adrs/0038-run-durability-multi-store-outbox-production-secrets.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Security reviewer inbound webhook (M-126) {#security-reviewer-inbound-webhook-m-126}
 
@@ -820,7 +820,7 @@ Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CP
 
 | Too strong | Safe |
 | --- | --- |
-| “SOC 2 certified” / “third-party pen tested” | Self-attested / owner-conducted / program deferred |
+| “We hold a CPA-issued SOC 2 report” / “third-party pen tested” | Self-attested / owner-conducted / program deferred |
 | “Trust Center equals CPA attestation” | Trust Center is honesty + evidence pointers |
 | Mock-review FAIL because CPA missing | Mock PASS may accept deferred `(B)` as scope |
 
@@ -874,7 +874,7 @@ Evidence, findings, manifest, artifacts, and audit events each have a role. A ne
 - **TB-1003** defines the single-unit-of-truth and hop-label contract.
 - **TB-1004** prevents “findings equal package” and uncommitted-finalized claim drift.
 
-**Related:** [`../library/PROOF_LANGUAGE_CLAIM_AUDIT.md`](../library/PROOF_LANGUAGE_CLAIM_AUDIT.md) · [ADR 0040](../architecture/adrs/0040-manifest-hash-and-export-verification.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [`../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md) · [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Operator primary object (M-177)](#operator-primary-object-nav-collapse-m-177) · [Minimum pilot trust packet (M-191)](#minimum-pilot-trust-packet-m-191) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Operator primary object and navigation collapse (M-177) {#operator-primary-object-nav-collapse-m-177}
 
@@ -942,7 +942,7 @@ Former standalone body: `docs/go-to-market/SOC2_PENTEST_HONEST_PROCUREMENT_TALK_
 
 | Forbidden | Safe |
 | --- | --- |
-| “SOC 2 certified / almost / in process” (without CPA) | “SOC self-assessment + control narrative; CPA program not started” |
+| “Claiming SOC 2 certification / almost / in process” (without CPA) | “SOC self-assessment + control narrative; CPA program not started” |
 | “Pen test underway” (without vendor engagement) | “Owner-conducted testing + SoW template; third-party program deferred” |
 | Leading with absence | Lead with what *is* verifiable this week |
 
@@ -1878,7 +1878,7 @@ Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md
 | Ready / Needs attention | Terminal or actionable after resume/reconcile |
 | Persisted task already completed | Resume can skip the persisted `(RunId, TaskId)` result |
 | Partial outcomes | Some agents persisted; commit may block until required agents complete (**TB-937**) |
-| In-flight provider call | Spend and completion outcome may be uncertain after a hard replica loss |
+| Mid-request provider call | Spend and completion outcome may be uncertain after a hard replica loss |
 
 ### Too strong vs safe
 
@@ -1901,7 +1901,7 @@ Former standalone body: `docs/go-to-market/INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md
 | Security | Recovery must retain the established tenant/run scope |
 | Scalability | Lease-based work ownership supports replacement replicas |
 | Reliability | Completed work has idempotent-skip protections; graceful drain and kill-drill proof remain open |
-| Cost | Avoids redoing persisted work but does not promise provider refunds or zero duplicate in-flight spend |
+| Cost | Avoids redoing persisted work but does not promise provider refunds or zero duplicate mid-request spend |
 
 ### Residuals (honest)
 
@@ -1919,7 +1919,7 @@ Former standalone body: `docs/go-to-market/AGENT_TASK_PROCESS_VS_PROVIDER_IDEMPO
 
 **Audience:** Principal architects, FinOps reviewers, and integration developers.
 
-**Decision:** Process-level skip applies only after a successful `(RunId, TaskId)` persist; the Azure OpenAI provider remains at-least-once and may rebill on crash-before-persist or in-flight interruption.
+**Decision:** Process-level skip applies only after a successful `(RunId, TaskId)` persist; the Azure OpenAI provider remains at-least-once and may rebill on crash-before-persist or mid-request interruption.
 
 ### Idempotency boundary
 
@@ -1927,7 +1927,7 @@ Former standalone body: `docs/go-to-market/AGENT_TASK_PROCESS_VS_PROVIDER_IDEMPO
 | --- | --- | --- |
 | Process `(RunId, TaskId)` | Skip replay after persisted success | Zero spend on retry |
 | Provider AOAI | At-least-once completion attempts | Exactly-once billing |
-| Crash before persist | May re-execute task | Prior in-flight call refunded |
+| Crash before persist | May re-execute task | Prior mid-request call refunded |
 | Polly transport retry | Resilience to transient HTTP | Run-level completeness |
 | Response cache | May suppress duplicate calls | Same as TaskId idempotency key |
 
@@ -1942,7 +1942,7 @@ UNIQUE constraints and skip logic (Done **TB-039** / **TB-201**) protect against
 
 ### Claim boundary
 
-Do not say “exactly-once LLM,” “zero duplicate spend on retry,” or “provider refunds in-flight calls.” Say process skip applies after persisted successful `(RunId, TaskId)` and disclose provider at-least-once.
+Do not say “exactly-once LLM,” “zero duplicate spend on retry,” or “provider refunds mid-request calls.” Say process skip applies after persisted successful `(RunId, TaskId)` and disclose provider at-least-once.
 
 ### Residuals (honest)
 
@@ -1970,13 +1970,13 @@ Former standalone body: `docs/go-to-market/CONCURRENT_EXECUTE_AND_COMMIT_RACE_PA
 | Two commits, same `ManifestId` | First wins; second is idempotent success | Parallel writers both mutate sealed content |
 | Two commits, different / stale payload | Loser gets **409** (CAS / ROWVERSION) | Silent overwrite of the winner |
 | Two executes, same `(RunId, TaskId)` after persist | Process skip | Zero provider spend on the loser |
-| Execute crash before persist | May re-run the task | Refund of in-flight AOAI tokens |
+| Execute crash before persist | May re-run the task | Refund of mid-request AOAI tokens |
 | HTTP `Idempotency-Key` header | Client convenience where wired | Same contract as SQL CAS finalize |
 | Finalize success | Authority commit durable | Async outbox/Worker delivery complete |
 
 ### Mechanisms (engineering pointers)
 
-- Finalize path: `sp_FinalizeManifest` + UPDLOCK / ROWVERSION CAS — see [`../library/MANIFEST_FINALIZATION_TRANSACTION.md`](../library/MANIFEST_FINALIZATION_TRANSACTION.md).
+- Finalize path: `sp_FinalizeManifest` + UPDLOCK / ROWVERSION CAS — see [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md).
 - Authority vs AgentTask separation: [M-159](#authority-vs-agenttask-loop-m-159); ADRs **0039** / **0045** as linked from that section.
 - Process vs provider LLM skip: [M-171](#process-vs-provider-idempotency-m-171).
 - Finalize ≠ outbox delivered: [M-163](#transactional-finalize-vs-outbox-m-163).

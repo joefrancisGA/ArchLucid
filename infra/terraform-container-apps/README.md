@@ -18,6 +18,20 @@ Use this root when you want **per-app replica scaling** and a **container-native
 - **`terraform/`** — APIM in front of the API FQDN
 - **`terraform-edge/`** — Front Door + WAF in front of public hostnames
 
+## Azure AI Content Safety
+
+Production-like API hosts (`ASPNETCORE_ENVIRONMENT=Staging` / `Production`) require **`ArchLucid__ContentSafety__Endpoint`** and **`ArchLucid__ContentSafety__ApiKey`**.
+
+- Set **`enable_content_safety_account = true`** to create (or import) a **Content Safety** Cognitive Services account in this resource group. See **`dev.tfvars.example`** for ArchLucid DEV names.
+- **Do not** point DEV at accounts in other product RGs (e.g. historical `longevity-safety`).
+- Container App secret/env wiring on DEV is **CD-owned**: GitHub Environment secrets **`ARCHLUCID_CONTENT_SAFETY_ENDPOINT`** and **`ARCHLUCID_CONTENT_SAFETY_API_KEY`**. Secret name on the app is **`al-cs-key`** (≤20 characters — Azure CLI limit).
+- Brownfield import:
+
+  ```bash
+  terraform import 'azurerm_cognitive_account.content_safety[0]' \
+    /subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.CognitiveServices/accounts/<name>
+  ```
+
 ## Defaults
 
 - **`enable_container_apps = false`** — no resources; safe for `terraform validate` in CI.

@@ -74,6 +74,23 @@ describe("isManifestCommittedForPilotScorecardPackage", () => {
       }),
     ).toBe(true);
   });
+
+  it("returns true when status is Finalized (buyer-facing synonym for Committed)", () => {
+    expect(
+      isManifestCommittedForPilotScorecardPackage({
+        manifestId: "m1",
+        runId: "r1",
+        createdUtc: "",
+        manifestHash: "",
+        ruleSetId: "",
+        ruleSetVersion: "",
+        decisionCount: 0,
+        warningCount: 0,
+        unresolvedIssueCount: 0,
+        status: "Finalized",
+      }),
+    ).toBe(true);
+  });
 });
 
 describe("Pilot scorecard package CTA visibility (run detail mirror)", () => {
