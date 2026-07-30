@@ -35,7 +35,8 @@ export const DEMO_SCREENSHOT_FAILURE_SUBSTRINGS: readonly string[] = [
   "No matching alerts",
   "Platform services: Healthy on an error page",
   "NEXT_PUBLIC_",
-  "API-enforced",
+  // Intentionally omitted: "API-enforced" — used in shipped operator rank/capability copy
+  // (alerts inbox, alert tooling, finding explain thumbs). Catch real eng leakage via NEXT_PUBLIC_ / client-only bundle.
   "client-only bundle",
   "Open Policy packs registry",
   "coming soon",

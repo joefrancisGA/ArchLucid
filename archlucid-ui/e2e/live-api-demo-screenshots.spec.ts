@@ -138,6 +138,13 @@ test.describe("live-api-demo-screenshots", () => {
     };
 
     writeDemoScreenshotsReports(outDir, report);
-    expect(exitFailedRouteCount, `One or more demo routes failed — see ${outDir}/report.md`).toBe(0);
+    const failedRouteSummary = routes
+      .filter((r) => r.status === "fail")
+      .map((r) => `${r.route}: ${r.issues.join("; ")}`)
+      .join(" | ");
+    expect(
+      exitFailedRouteCount,
+      `One or more demo routes failed — see ${outDir}/report.md${failedRouteSummary ? ` (${failedRouteSummary})` : ""}`,
+    ).toBe(0);
   });
 });
