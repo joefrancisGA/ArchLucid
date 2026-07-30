@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1653** **Done** — data-handling help softens absolute cross-tenant isolation claim; Vitest). Prior: 2026-07-30 (**TB-1776** **Done** — ITSM hub redirect only; OAuth callback path excluded from wildcard; Vitest).
+**Updated:** 2026-07-30 (**TB-1541**/**TB-1553**/**TB-1673** **Done** — Reviews hub RE: header Start, Compact empty, resting links; Vitest). Prior: 2026-07-30 (**TB-1653** **Done** — data-handling help softens absolute cross-tenant isolation claim; Vitest). Prior: 2026-07-30 (**TB-1776** **Done** — ITSM hub redirect only; OAuth callback path excluded from wildcard; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -41772,25 +41772,13 @@ Operators must read three intros before reaching the Trust Center link list.
 
 **Window:** V1 — Adoption friction.
 
-**Status:** Not started.
+**Status:** Done (2026-07-30). Owner demoted to **P3** then shipped with **RE** hub polish (**TB-1541** / **TB-1553**).
 
-**Priority:** P0.
+**Priority:** P3 (closed).
 
 **Source:** With **TB-1671**; first-hour + Reviews inventory + marketing tertiaries.
 
-**Problem:**
-
-1. `OperatorHomeRecommendedNextAction` — `hover:underline` only; same color as surrounding helper text.
-2. `ReviewsHubReviewInventory` — `OPERATOR_LINK.nav` then `no-underline hover:underline` strips resting underline on review titles.
-3. Marketing: Demo preview “Schedule demo”, Signup “Return to pricing” — muted + hover underline only.
-4. `CorePilotNextStepsCard` checkpoint labels — primary text + hover underline only.
-
-**Approach:**
-
-1. Home recommended-next → `OPERATOR_LINK.inline` (or `nav` if treated as primary nav cue).
-2. Reviews hub titles → keep `OPERATOR_LINK.nav`; remove `no-underline` override (table density may use `inline` if full teal is too loud — still resting underline).
-3. Marketing tertiaries → `MARKETING_SURFACES.inlineLink` (or resting underline + accent); do not reopen hero CTA clusters (**TB-1294**/**TB-1279**).
-4. Core Pilot checkpoints → `OPERATOR_LINK.step` / `stepPill*` or resting underline per contract.
+**Shipped:** Home recommended-next → `OPERATOR_LINK.inline`; Reviews titles keep `OPERATOR_LINK.nav` without `no-underline`; Signup “Return to pricing” + Demo preview Schedule demo → `MARKETING_SURFACES.inlineLink`; Core Pilot checkpoints → `OPERATOR_LINK.step`.
 
 **Acceptance:** Listed surfaces show clickable resting affordance without hover; Reviews titles no longer strip nav underline.
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   DEMO_PREVIEW_EYEBROW,
   DEMO_PREVIEW_EXPLORE_REVIEW_ACTION,
@@ -60,7 +60,7 @@ export function DemoPreviewHero() {
         </Button>
         <Link
           href="/pricing#pricing-quote-request"
-          className={cn("text-sm font-medium text-neutral-600 underline-offset-4 hover:underline dark:text-neutral-400", MARKETING_TYPOGRAPHY.body)}
+          className={cn(MARKETING_SURFACES.inlineLink, MARKETING_TYPOGRAPHY.body)}
           data-testid="demo-preview-schedule-demo-tertiary"
         >
           {DEMO_PREVIEW_SCHEDULE_DEMO_ACTION}

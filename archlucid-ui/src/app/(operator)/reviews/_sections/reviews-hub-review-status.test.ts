@@ -6,6 +6,7 @@ import {
   reviewsHubLifecycleStage,
   reviewsHubNeedsAttention,
   reviewsHubOverallStatus,
+  reviewsHubOverallStatusTagKind,
 } from "./reviews-hub-review-status";
 
 describe("reviews-hub-review-status", () => {
@@ -34,6 +35,13 @@ describe("reviews-hub-review-status", () => {
     expect(reviewsHubOverallStatus(run)).toBe("Active");
     expect(reviewsHubLifecycleStage(run)).toBe("Evaluation");
     expect(reviewsHubNeedsAttention(run)).toBe(true);
+  });
+
+  it("maps StatusTag kinds for inventory badges", () => {
+    expect(reviewsHubOverallStatusTagKind("Draft", false)).toBe("draft");
+    expect(reviewsHubOverallStatusTagKind("Active", false)).toBe("in-progress");
+    expect(reviewsHubOverallStatusTagKind("Finalized", false)).toBe("approved");
+    expect(reviewsHubOverallStatusTagKind("Active", true)).toBe("needs-attention");
   });
 
   it("maps archived reviews", () => {

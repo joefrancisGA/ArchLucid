@@ -1,4 +1,5 @@
 import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 
 export type ReviewsHubOverallStatus = "Draft" | "Active" | "Awaiting approval" | "Finalized" | "Archived";
@@ -79,4 +80,37 @@ export function reviewsHubNeedsAttention(run: RunSummary): boolean {
   const openWarnings = typeof run.warningCount === "number" && run.warningCount > 0;
 
   return openFindings || openWarnings || run.hasWarnings === true || run.hasGovernanceWarnings === true;
+}
+
+/** Map inventory overall status onto enterprise StatusTag kinds. */
+export function reviewsHubOverallStatusTagKind(
+  status: ReviewsHubOverallStatus,
+  attention: boolean,
+): EnterpriseStatusKind {
+  if (attention) {
+    return "needs-attention";
+  }
+
+  switch (status) {
+    case "Draft":
+      return "draft";
+
+    case "Active":
+      return "in-progress";
+
+    case "Awaiting approval":
+      return "needs-attention";
+
+    case "Finalized":
+      return "approved";
+
+    case "Archived":
+      return "neutral";
+
+    default: {
+      const _exhaustive: never = status;
+
+      return _exhaustive;
+    }
+  }
 }

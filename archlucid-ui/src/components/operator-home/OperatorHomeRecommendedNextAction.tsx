@@ -7,17 +7,12 @@ import { InlineGuidance } from "@/components/InlineGuidance";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OPERATOR_HOME_RECOMMENDED_NEXT_LABEL } from "@/lib/buyer-polish-copy";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import {
   resolveOperatorHomeRecommendedNextAction,
   resolveOperatorHomeRecommendedNextFallback,
 } from "@/lib/resolve-operator-home-recommended-next-action";
 import { cn } from "@/lib/utils";
-
-const recommendedNextLinkClass = cn(
-  "font-medium text-al-text-primary underline-offset-2 hover:underline",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)]",
-);
 
 /** Compact recommended-next line for first-run Overview — respects create and review equally. */
 export function OperatorHomeRecommendedNextAction(): React.JSX.Element {
@@ -52,7 +47,7 @@ export function OperatorHomeRecommendedNextAction(): React.JSX.Element {
     >
       <InlineGuidance label={OPERATOR_HOME_RECOMMENDED_NEXT_LABEL} labelTestId="inline-guidance-recommended-next">
         {recommendedNext.href !== null ? (
-          <Link href={recommendedNext.href} className={recommendedNextLinkClass}>
+          <Link href={recommendedNext.href} className={OPERATOR_LINK.inline}>
             {recommendedNext.message}
           </Link>
         ) : (

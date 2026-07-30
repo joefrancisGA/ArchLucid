@@ -33,17 +33,17 @@ beforeEach(() => {
 });
 
 describe("ReviewsHubReviewInventory", () => {
-  it("renders the review-centered empty state when no drafts exist", () => {
+  it("renders Compact empty with sample outline only when no drafts exist", () => {
     render(<ReviewsHubReviewInventory runs={[]} />);
 
     expect(screen.getByText("Start your first architecture review")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-recent-empty")).toHaveAttribute("data-has-architecture-drafts", "false");
-    expect(screen.getByTestId("reviews-hub-recent-empty-start-review")).toHaveTextContent("Start an architecture review");
-    expect(screen.getByTestId("reviews-hub-recent-empty-start-review")).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByTestId("reviews-hub-recent-empty-sample-review")).toHaveTextContent("Explore the sample review");
+    expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Start an architecture review" })).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-recent-empty-start-review")).toBeNull();
   });
 
-  it("points the empty state at the saved draft when architecture drafts exist", () => {
+  it("keeps draft-aware empty copy without a second filled Start", () => {
     listArchitectureDraftRegistryEntries.mockReturnValue([
       {
         architectureId: "draft-001",
@@ -59,13 +59,12 @@ describe("ReviewsHubReviewInventory", () => {
     render(<ReviewsHubReviewInventory runs={[]} />);
 
     expect(screen.getByText("Turn your draft into a review")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-recent-empty")).toHaveAttribute("data-has-architecture-drafts", "true");
     expect(screen.queryByText("Start your first architecture review")).toBeNull();
-    expect(screen.getByTestId("reviews-hub-recent-empty-start-review")).toHaveTextContent("Continue editing draft");
-    expect(screen.getByTestId("reviews-hub-recent-empty-start-review")).toHaveAttribute("href", "/architectures/draft-001");
+    expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Continue editing draft" })).toBeNull();
   });
 
-  it("renders review rows with architecture and status columns", () => {
+  it("renders review rows with StatusTag and resting title underline", () => {
     render(
       <ReviewsHubReviewInventory
         runs={[
@@ -85,6 +84,10 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByRole("columnheader", { name: "Architecture / system" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-primary-action-review-001")).toHaveTextContent("Review findings");
+
+    const titleLink = screen.getByRole("link", { name: /Open review/i });
+    expect(titleLink.className).toMatch(/underline/);
+    expect(titleLink.className).not.toMatch(/no-underline/);
   });
 
   it("filters to finalized reviews", () => {

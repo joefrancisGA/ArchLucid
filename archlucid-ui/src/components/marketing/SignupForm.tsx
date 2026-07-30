@@ -328,7 +328,7 @@ export function SignupForm() {
               You can inspect the sample review before adding your own evidence.
             </p>
             <p>
-              <Link href="/pricing" className={cn("text-al-text-secondary underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.helper)}>
+              <Link href="/pricing" className={cn(MARKETING_SURFACES.inlineLink, OPERATOR_TYPOGRAPHY.helper)}>
                 Return to pricing
               </Link>
             </p>

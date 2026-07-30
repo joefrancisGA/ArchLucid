@@ -8,7 +8,6 @@ import { OperatorMalformedCallout, OperatorTryNext } from "@/components/Operator
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
 import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
@@ -22,6 +21,7 @@ import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 import { REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE, REVIEWS_HUB_PAGE_SUBTITLE, REVIEWS_HUB_PAGE_TITLE } from "./reviews-hub-copy";
 import { ReviewsHubExploreSamples } from "./ReviewsHubExploreSamples";
+import { ReviewsHubHeaderActions } from "./ReviewsHubHeaderActions";
 import { ReviewsHubPackageIncludes } from "./ReviewsHubPackageIncludes";
 import { ReviewsHubPrimaryActions } from "./ReviewsHubPrimaryActions";
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
@@ -41,7 +41,9 @@ export function RunsPageView(props: Props) {
   const malformedMessage = m.malformedMessage;
   const isDev = process.env.NODE_ENV === "development";
   const workspaceSummary = deriveReviewsWorkspaceSummary(m.runs);
-  const showAdvancedList = isOperatorExperienceFullShellEnv() && m.totalCount > 0 && loadFailure === null && malformedMessage === null;
+  const hubLoadOk = loadFailure === null && malformedMessage === null;
+  const hasReviews = m.runs.length > 0;
+  const showAdvancedList = isOperatorExperienceFullShellEnv() && m.totalCount > 0 && hubLoadOk;
 
   return (
     <OperatorPageContainer variant="dashboard">
@@ -64,17 +66,21 @@ export function RunsPageView(props: Props) {
         }
         helpKey="runs-list-overview"
         docsPageKey="/runs"
-        actions={<PageContextualHelpButton />}
+        actions={<ReviewsHubHeaderActions />}
       />
 
       <ReviewsHubResumeDrafts />
 
-      {loadFailure === null && malformedMessage === null ? (
+      {hubLoadOk ? (
         <>
-          <ReviewsHubSummaryRow summary={workspaceSummary} />
-          <ReviewsHubPrimaryActions />
-          <ReviewsHubExploreSamples />
-          <ReviewsHubPackageIncludes />
+          {hasReviews ? (
+            <>
+              <ReviewsHubSummaryRow summary={workspaceSummary} />
+              <ReviewsHubPrimaryActions />
+              <ReviewsHubExploreSamples />
+              <ReviewsHubPackageIncludes />
+            </>
+          ) : null}
           <ReviewsHubReviewInventory runs={m.runs} />
         </>
       ) : null}
@@ -85,9 +91,9 @@ export function RunsPageView(props: Props) {
         </div>
       ) : null}
 
-      {loadFailure === null && malformedMessage === null ? <BeforeAfterDeltaPanel variant="top" /> : null}
+      {hubLoadOk ? <BeforeAfterDeltaPanel variant="top" /> : null}
 
-      {loadFailure === null && malformedMessage === null && m.firstCommittedRunId !== null ? (
+      {hubLoadOk && m.firstCommittedRunId !== null ? (
         <RunsIndexBeforeAfterPanel committedRunId={m.firstCommittedRunId} />
       ) : null}
 

@@ -54,17 +54,24 @@ vi.mock("@/components/OperatorPageHeader", () => ({
     title,
     subtitle,
     metadata,
+    actions,
   }: {
     title: string;
     subtitle?: string;
     metadata?: ReactNode;
+    actions?: ReactNode;
   }) => (
     <div>
       <h1>{title}</h1>
       {subtitle ? <p data-testid="runs-page-subtitle">{subtitle}</p> : null}
       {metadata ? <div data-testid="runs-page-metadata">{metadata}</div> : null}
+      {actions ? <div data-testid="runs-page-header-actions">{actions}</div> : null}
     </div>
   ),
+}));
+
+vi.mock("@/lib/architecture-draft-registry", () => ({
+  listArchitectureDraftRegistryEntries: () => [],
 }));
 
 vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
@@ -149,19 +156,19 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("runs-page-project-label").querySelector("strong")).toHaveTextContent("Project:");
   });
 
-  it("renders hub summary, actions, includes, and intentional empty recent section", () => {
+  it("keeps a single header Start on empty hub and collapses empty theater", () => {
     render(<RunsPageView model={baseModel({ totalCount: 0 })} />);
 
-    expect(screen.getByTestId("reviews-hub-summary-row")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-summary-empty-hint")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-primary-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-explore-samples")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-package-includes")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
-    expect(screen.getByText(REVIEWS_HUB_RECENT_EMPTY_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("runs-page-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("runs-page-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
-    expect(screen.getByTestId("reviews-hub-recent-empty-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
+    expect(screen.queryByTestId("reviews-hub-summary-row")).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-primary-actions")).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-explore-samples")).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-package-includes")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
+    expect(screen.getByText(REVIEWS_HUB_RECENT_EMPTY_TITLE)).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: REVIEWS_HUB_PRIMARY_START_LABEL })).toHaveLength(1);
     expect(screen.queryByRole("link", { name: "Create architecture" })).toBeNull();
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
   });

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import {
   EnterpriseTable,
@@ -15,8 +16,8 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
+import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { architectureDraftPath } from "@/lib/architecture-routes";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
@@ -29,16 +30,14 @@ import {
   REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_BODY,
-  REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY,
-  REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
   REVIEWS_HUB_RECENT_SECTION_TITLE,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
-import type { ReviewsHubOverallStatus } from "./reviews-hub-review-status";
+import { reviewsHubOverallStatusTagKind, type ReviewsHubOverallStatus } from "./reviews-hub-review-status";
 
 type ReviewsHubReviewInventoryProps = {
   readonly runs: readonly RunSummary[];
@@ -116,21 +115,6 @@ function matchesFilter(run: RunSummary, filter: ReviewFilterId): boolean {
   return row.overallStatus === filter;
 }
 
-function StatusBadge(props: { readonly label: string; readonly attention?: boolean }): React.JSX.Element {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium",
-        props.attention
-          ? "border-amber-500/50 bg-amber-50 text-amber-900 dark:border-amber-600/50 dark:bg-amber-950/40 dark:text-amber-100"
-          : "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
-      )}
-    >
-      {props.label}
-    </span>
-  );
-}
-
 /** Filterable review inventory for `/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
@@ -149,34 +133,23 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
       {rows.length === 0 ? (
         <div
-          className="mt-3 rounded-md border border-dashed border-neutral-300 bg-neutral-50/60 px-4 py-5 dark:border-neutral-700 dark:bg-neutral-900/40"
-          data-testid="reviews-hub-recent-empty"
+          className="mt-3"
           data-has-architecture-drafts={resumeDraft !== null ? "true" : "false"}
-          role="status"
         >
-          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            {resumeDraft !== null ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
-          </p>
-          <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {resumeDraft !== null ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY : REVIEWS_HUB_RECENT_EMPTY_BODY}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant="primary" size="sm" asChild>
-              <Link
-                href={resumeDraft !== null ? architectureDraftPath(resumeDraft.architectureId) : "/reviews/new"}
-                data-testid="reviews-hub-recent-empty-start-review"
-              >
-                {resumeDraft !== null
-                  ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL
-                  : REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL}
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href={showcaseSampleReviewPackageHref()} data-testid="reviews-hub-recent-empty-sample-review">
-                {REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL}
-              </Link>
-            </Button>
-          </div>
+          <EnterpriseCompactEmptyState
+            testId="reviews-hub-recent-empty"
+            title={resumeDraft !== null ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
+            description={
+              resumeDraft !== null ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY : REVIEWS_HUB_RECENT_EMPTY_BODY
+            }
+            actions={[
+              {
+                label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
+                href: showcaseSampleReviewPackageHref(),
+                variant: "outline",
+              },
+            ]}
+          />
         </div>
       ) : (
         <>
@@ -239,7 +212,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                         <div className="min-w-[12rem]">
                           <Link
                             href={row.reviewHref}
-                            className={cn(OPERATOR_LINK.nav, "font-medium text-al-text-primary no-underline hover:underline")}
+                            className={cn(OPERATOR_LINK.nav, "font-medium")}
                             aria-label={`Open review ${row.reviewTitle}`}
                           >
                             {row.reviewTitle}
@@ -251,7 +224,10 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{row.architectureName}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <StatusBadge label={row.overallStatus} attention={row.needsAttention} />
+                        <StatusTag
+                          kind={reviewsHubOverallStatusTagKind(row.overallStatus, row.needsAttention)}
+                          label={row.overallStatus}
+                        />
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{row.lifecycleStage}</EnterpriseTableCell>
                       <EnterpriseTableCell>{reviewPackageOwnerLabel(run)}</EnterpriseTableCell>

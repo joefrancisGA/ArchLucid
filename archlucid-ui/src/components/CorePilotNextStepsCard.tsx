@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -19,7 +19,6 @@ import { fetchCorePilotCommitContextCached } from "@/lib/core-pilot-commit-conte
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 import { StatusTag } from "@/components/ui/status-tag";
-import { type EnterpriseStatusKind } from "@/lib/design-tokens";
 
 const NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
 
@@ -170,7 +169,7 @@ function FirstReviewCheckpointStrip(props: {
             <span className={cn("tabular-nums text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {index + 1}.
             </span>
-            <Link href={checkpoint.href} className={cn("font-medium text-al-text-primary underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link href={checkpoint.href} className={cn(OPERATOR_LINK.step, OPERATOR_TYPOGRAPHY.helper)}>
               {checkpoint.label}
             </Link>
             <StatusTag kind={statusChipKind(checkpoint.status)} label={statusChipLabel(checkpoint.status)} />
