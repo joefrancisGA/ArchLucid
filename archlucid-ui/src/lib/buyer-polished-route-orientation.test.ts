@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/search/_sections/search-page-copy";
 import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { PILOT_FEEDBACK_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
@@ -147,6 +148,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_PILOT_OUTCOMES_PATH)).toBeNull();
     expect(buyerPolishedRouteOrientation(SPONSOR_REPORT_ROI_SUMMARY_PATH)).toBeNull();
     expect(buyerPolishedRouteOrientation("/value-report")?.line).not.toBe(BUYER_VALUE_REPORT_PAGE_SUBTITLE);
+  });
+
+  it("returns null for /product-learning — pageLead owns the intro (TB-1438)", () => {
+    expect(buyerPolishedRouteOrientation("/product-learning")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/product-learning")?.line).not.toBe(PILOT_FEEDBACK_VOCABULARY.layerContextLine);
   });
 
   it("returns null for bare /governance — OperatorPageHeader owns the overview lead (TB-1434)", () => {

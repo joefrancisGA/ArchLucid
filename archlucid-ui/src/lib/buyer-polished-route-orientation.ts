@@ -11,7 +11,6 @@ import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
   BUYER_TERMINOLOGY,
-  PILOT_FEEDBACK_VOCABULARY,
 } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
@@ -278,10 +277,8 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (path === "/product-learning") {
-    return {
-      label: BUYER_TERMINOLOGY.evaluationFeedback,
-      line: PILOT_FEEDBACK_VOCABULARY.layerContextLine,
-    };
+    // Product learning carries its own pageLead hero (TB-1438) — not strip + body twins.
+    return null;
   }
 
   if (path.startsWith("/compare")) {
