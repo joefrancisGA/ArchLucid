@@ -142,6 +142,7 @@ const nextConfig: NextConfig = {
       { source: "/alerts", destination: "/governance/alerts", permanent: true },
       { source: "/alerts/:path*", destination: "/governance/alerts/:path*", permanent: true },
       { source: "/alert-rules", destination: "/governance/alert-rules", permanent: false },
+      // Alert routing legacy path (TB-1441) — next.config-only; no App Router stub pages.
       { source: "/alert-routing", destination: "/governance/alert-rules?tab=routing", permanent: false },
       // Advisory scans under Governance (TB-1124) — next.config-only; no App Router stub pages.
       { source: "/advisory", destination: "/governance/advisory-scans", permanent: true },
