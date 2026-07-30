@@ -20,9 +20,12 @@ export const RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
   "i",
 );
 
-/** Buyer-polished `/ask` uses {@link BUYER_ASK_PAGE_TITLE}; full-operator shell uses "Ask about a review". */
+/**
+ * Buyer-polished `/ask` uses {@link BUYER_ASK_PAGE_TITLE}; full-operator shell uses
+ * "Ask review questions" (legacy "Ask about a review" kept for older snapshots).
+ */
 export const ASK_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
-  `^(Ask about a review|${escapeRegExpLiteral(BUYER_ASK_PAGE_TITLE)})$`,
+  `^(Ask about a review|Ask review questions|${escapeRegExpLiteral(BUYER_ASK_PAGE_TITLE)})$`,
   "i",
 );
 

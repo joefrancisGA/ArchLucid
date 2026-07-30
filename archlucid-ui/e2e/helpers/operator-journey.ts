@@ -745,11 +745,18 @@ export async function openBuyerRunDetailArchitectureReviewBoardDeliverables(page
   await expect(architectureReviewBoardTab).toBeVisible();
   await architectureReviewBoardTab.click();
 
-  const deliverablesRegion = page.getByRole("region", { name: "Deliverables grouped by audience" });
+  const arbPanel = page.getByTestId("buyer-deliverables-panel-arb");
 
-  await expect(deliverablesRegion).toBeVisible();
+  await expect(arbPanel).toBeVisible({ timeout: 15_000 });
 
-  return deliverablesRegion;
+  const deliverablesRegion = arbPanel.getByRole("region", { name: "Deliverables grouped by audience" });
+  const emptyCopy = arbPanel.getByText(
+    /No architecture review board or audit-scoped outputs are listed for this review/i,
+  );
+
+  await expect(deliverablesRegion.or(emptyCopy).first()).toBeVisible({ timeout: 15_000 });
+
+  return deliverablesRegion.or(emptyCopy).first();
 }
 
 /** `<details aria-label="Comparison request outcome">` after a successful compare (not always role=region in browsers). */

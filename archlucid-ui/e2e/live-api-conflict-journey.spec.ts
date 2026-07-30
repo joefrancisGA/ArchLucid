@@ -68,7 +68,9 @@ test.describe("live-api-conflict-journey", () => {
   });
 
   test("second commit is idempotent (200) and UI still renders committed run", async ({ page, request }) => {
-    test.setTimeout(120_000);
+    // Create + execute + commit + ready waits under shared live-API load regularly exceed 120s
+    // (Playwright then disposes the request context mid-POST).
+    test.setTimeout(240_000);
 
     const createBody = {
       requestId: `E2E-LIVE-CONFLICT-${Date.now()}`,

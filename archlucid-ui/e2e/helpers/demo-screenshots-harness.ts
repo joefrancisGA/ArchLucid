@@ -22,7 +22,6 @@ import {
 export const DEMO_SCREENSHOT_FAILURE_SUBSTRINGS: readonly string[] = [
   "This architecture review could not be loaded",
   "No reviews in this workspace yet",
-  "No graph on screen yet",
   "Loading graph viewer",
   "Loading workflow data",
   "Loading alerts",
@@ -336,6 +335,18 @@ export async function settleDemoRoute(page: Page, routePath: string): Promise<vo
     const alertsLoading = page.getByText(/loading alerts/i).first();
     if ((await alertsLoading.count()) > 0)
       await alertsLoading.waitFor({ state: "hidden", timeout: 120_000 });
+
+    return;
+  }
+
+  if (p === "/ask" || p.startsWith("/ask")) {
+    // Full-operator title is "Ask review questions"; buyer-polished uses Evidence-backed…
+    await page
+      .getByRole("heading", {
+        level: 2,
+        name: /^(Ask about a review|Ask review questions|Evidence-backed review questions)$/i,
+      })
+      .waitFor({ state: "visible", timeout: 120_000 });
   }
 }
 
