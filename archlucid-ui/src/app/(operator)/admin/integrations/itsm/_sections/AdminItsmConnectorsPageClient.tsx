@@ -2,8 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Workflow } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
+import { PageHeading } from "@/components/PageHeading";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   fetchItsmIntegrationHealth,
@@ -13,9 +16,10 @@ import {
 } from "@/lib/api/itsm-outbound-api";
 import {
   ITSM_CONNECTORS_ADMIN_LABEL,
+  ITSM_CONNECTORS_ADMIN_PATH,
   ITSM_CONNECTORS_ADMIN_SUMMARY,
 } from "@/lib/itsm-connectors-admin-scope";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { AdminItsmConnectorOnboardingWizard } from "./AdminItsmConnectorOnboardingWizard";
 import { ItsmConnectorProbeCard } from "@/app/(operator)/integrations/_sections/itsm/ItsmConnectorProbeCard";
@@ -57,10 +61,16 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="admin-itsm-connectors-page">
-      <header className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{ITSM_CONNECTORS_ADMIN_LABEL}</h1>
-        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.helper}`}>{ITSM_CONNECTORS_ADMIN_SUMMARY}</p>
-      </header>
+      <PageHeading
+        navHref={ITSM_CONNECTORS_ADMIN_PATH}
+        title={ITSM_CONNECTORS_ADMIN_LABEL}
+        description={ITSM_CONNECTORS_ADMIN_SUMMARY}
+        icon={Workflow}
+        variant="integration"
+        bordered
+        actions={<PageContextualHelpButton />}
+        data-testid="admin-itsm-connectors-page-heading"
+      />
 
       <Card data-testid="admin-itsm-connectors-scope">
         <CardHeader>

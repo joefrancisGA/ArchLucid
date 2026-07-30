@@ -8,6 +8,7 @@ import {
 } from "@/lib/architecture-routes";
 import { ARCHITECTURE_DRAFTS_LIST_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture-workflow-labels";
 import { resolvePolicyPackDetailBreadcrumbLabel } from "@/lib/policy-pack-detail-resolver";
+import { ITSM_CONNECTORS_ADMIN_LABEL, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance-route-paths";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
 import { pathMatchesCloudConnections } from "@/lib/integrations-nav-paths";
@@ -136,6 +137,14 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [
       { label: "Internal Operations", href: "/admin/health" },
       { label: "Recommendation Learning" },
+    ];
+  }
+
+  if (normalized === ITSM_CONNECTORS_ADMIN_PATH) {
+    return [
+      { label: "Admin", href: "/admin" },
+      { label: "Integrations", href: "/admin/integrations" },
+      { label: ITSM_CONNECTORS_ADMIN_LABEL },
     ];
   }
 

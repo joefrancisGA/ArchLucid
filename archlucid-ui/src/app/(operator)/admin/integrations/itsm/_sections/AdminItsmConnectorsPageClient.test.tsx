@@ -10,6 +10,10 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
   upsertTenantItsmOutboundSettings: vi.fn(),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import { AdminItsmConnectorsPageClient } from "./AdminItsmConnectorsPageClient";
 
 describe("AdminItsmConnectorsPageClient", () => {
@@ -36,7 +40,9 @@ describe("AdminItsmConnectorsPageClient", () => {
     render(<AdminItsmConnectorsPageClient />);
 
     expect(screen.getByTestId("admin-itsm-connectors-page")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "ITSM connectors" })).toBeInTheDocument();
+    expect(screen.getByTestId("admin-itsm-connectors-page-heading")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "ITSM connectors", level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Integration readiness" })).toHaveAttribute(
       "href",
       "/integrations/readiness",
