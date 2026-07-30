@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/search/_sections/search-page-copy";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 import { buyerPolishedRouteOrientation } from "./buyer-polished-route-orientation";
@@ -12,11 +13,9 @@ describe("buyerPolishedRouteOrientation", () => {
     ).toBe("Search this review's evidence");
   });
 
-  it("uses tenant-wide search framing when searchRunId is absent", () => {
-    const result = buyerPolishedRouteOrientation("/search");
-
-    expect(result?.label).toBe("Search review evidence");
-    expect(result?.line).toContain("across this workspace");
+  it("returns null for unscoped /search — OperatorPageHeader owns SEARCH_PAGE_SUBTITLE (TB-1436)", () => {
+    expect(buyerPolishedRouteOrientation("/search")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/search")?.line).not.toBe(SEARCH_PAGE_SUBTITLE);
   });
 
   it("keeps executive summary orientation for the showcase run", () => {

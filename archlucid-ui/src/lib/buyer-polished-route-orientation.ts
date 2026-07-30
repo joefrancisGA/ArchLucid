@@ -262,10 +262,8 @@ export function buyerPolishedRouteOrientation(
       };
     }
 
-    return {
-      label: "Search review evidence",
-      line: "Find evidence, findings, decisions, and signed review records across this workspace.",
-    };
+    // Search page carries its own OperatorPageHeader subtitle (TB-1436) — not strip + header twins.
+    return null;
   }
 
   if (path === "/product-learning") {
