@@ -1,7 +1,7 @@
 > **Reviewed:** 2026-07-29
 
 
-> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**), the minimum pilot trust packet without CPA/3P pen test (formerly the body of `MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-191**), the model-failed vs quality-rejected one-pager (formerly the body of `MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-124**), the execution-mode honesty one-pager (formerly the body of `EXECUTION_MODE_HONESTY_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-128**), the Simulator-ROI sponsor forbid one-pager (formerly the body of `SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-139**), the interrupted-review buyer one-pager (formerly the body of `INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-122**), the first-security-review PA one-pager ship order (formerly the body of `FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-193**), the SOC 2 / pen-test honest procurement talk-track (formerly the body of `SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-197**), the isolation-claims vs INV-001 / ADR 0037 handout (formerly the body of `ISOLATION_CLAIMS_VS_INV001_ADR0037_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-195**), the retrieval tenancy hit-guarantee handout (formerly the body of `RETRIEVAL_TENANCY_HIT_GUARANTEE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-153**), the PilotStrict vs execution-mode handout (formerly the body of `PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-167**), the committed golden-manifest unit-of-truth handout (formerly the body of `COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-155**), the operator primary-object + nav-collapse handout (formerly the body of `OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-177**), the append-only / sealed-evidence handout (formerly the body of `APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-161**), and the Authority vs AgentTask loop handout (formerly the body of `AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-159**), and the transactional finalize vs outbox handout (formerly the body of `TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-163**), and the quality-gate versioning handout (formerly the body of `QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-130**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
+> **Scope:** Buyer-safe security and procurement question-answer packet for V1 controlled pilots, plus the principal-architect falsification script (formerly `PRINCIPAL_ARCHITECT_FALSIFICATION_SCRIPT.md`), the Azure extractor InfoSec pre-read (formerly `AZURE_EXTRACTOR_INFOSEC_PREREAD.md`), the enterprise procurement FAQ (formerly `PROCUREMENT_FAQ.md`), the tenant isolation buyer overview (formerly the body of `TENANT_ISOLATION.md`; that filename remains a path-stable pack alias), the procurement response accelerator / SIG–CAIQ map (formerly the body of `PROCUREMENT_RESPONSE_ACCELERATOR.md`; that filename remains a path-stable alias), the security reviewer one-pager (formerly the body of `SECURITY_REVIEWER_ONE_PAGER.md`; that filename remains a path-stable pack alias), the procurement objection playbook / controlled-pilot drill (formerly the body of `PROCUREMENT_OBJECTION_PLAYBOOK.md`; that filename remains a path-stable alias for proof-language CI), the inbound-webhook security-reviewer handout (formerly the body of `SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-126**), the prompt-injection resistance buyer one-pager (formerly the body of `PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-115**), the security-reviewer audit-trail one-pager (formerly the body of `SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-118**), the tenant-identity single-derivation PA one-pager (formerly the body of `TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-151**), the minimum pilot trust packet without CPA/3P pen test (formerly the body of `MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-191**), the model-failed vs quality-rejected one-pager (formerly the body of `MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-124**), the execution-mode honesty one-pager (formerly the body of `EXECUTION_MODE_HONESTY_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-128**), the Simulator-ROI sponsor forbid one-pager (formerly the body of `SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-139**), the interrupted-review buyer one-pager (formerly the body of `INTERRUPTED_REVIEW_BUYER_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-122**), the first-security-review PA one-pager ship order (formerly the body of `FIRST_SECURITY_REVIEW_PA_ONE_PAGER_SHIP_ORDER_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-193**), the SOC 2 / pen-test honest procurement talk-track (formerly the body of `SOC2_PENTEST_HONEST_PROCUREMENT_TALK_TRACK_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-197**), the isolation-claims vs INV-001 / ADR 0037 handout (formerly the body of `ISOLATION_CLAIMS_VS_INV001_ADR0037_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-195**), the retrieval tenancy hit-guarantee handout (formerly the body of `RETRIEVAL_TENANCY_HIT_GUARANTEE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-153**), the PilotStrict vs execution-mode handout (formerly the body of `PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-167**), the committed golden-manifest unit-of-truth handout (formerly the body of `COMMITTED_GOLDEN_MANIFEST_UNIT_OF_TRUTH_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-155**), the operator primary-object + nav-collapse handout (formerly the body of `OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-177**), the append-only / sealed-evidence handout (formerly the body of `APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-161**), and the Authority vs AgentTask loop handout (formerly the body of `AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-159**), and the transactional finalize vs outbox handout (formerly the body of `TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-163**), and the quality-gate versioning handout (formerly the body of `QUALITY_GATE_VERSIONING_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-130**), and the read-after-write client readiness handout (formerly the body of `READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-165**), and the finding disposition concurrency handout (formerly the body of `FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-141**), and the outbox replay vs idempotency handout (formerly the body of `TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md`; that filename remains a path-stable alias for GTM **M-145**). This packet only describes existing controls and evidence. It does **not** claim SOC 2 CPA, third-party penetration test, ISO 27001, or any unavailable external assurance.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -273,10 +273,56 @@ Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAG
 
 - **TB-953** is Done: `LogOrThrow` establishes the required-event fail-closed path.
 - **TB-954** Required type registry + arch test; **TB-955** abandon alert / orphan probe; **TB-956** same-TX (open).
-- Finding disposition race ≠ approval-request CAS — **M-140** / **M-141**.
+- Finding disposition race ≠ approval-request CAS — see [Finding disposition concurrency (M-141)](#finding-disposition-concurrency-m-141).
 - Claim honesty bullets: **M-117**.
 
-**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Append-only and sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [Tenant identity single derivation (M-151)](#tenant-identity-single-derivation-m-151) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+**Related:** [Prompt-injection resistance (M-115)](#prompt-injection-resistance-m-115) · [Finding disposition concurrency (M-141)](#finding-disposition-concurrency-m-141) · [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [Append-only and sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [Tenant identity single derivation (M-151)](#tenant-identity-single-derivation-m-151) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+
+## Finding disposition concurrency (M-141) {#finding-disposition-concurrency-m-141}
+
+Former standalone body: `docs/go-to-market/FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-141** / **TB-986**). Complements [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118). Does not alter governance approval-request CAS. Not an assurance attestation.
+
+**Path-stable alias:** [`FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md`](FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects and governance reviewers.
+
+**Decision:** A finding-disposition trail is append-only history; it is not the same concurrency contract as a governance approval request.
+
+### Current semantics
+
+| Object | Concurrent behavior | Buyer-safe description |
+| --- | --- | --- |
+| Finding disposition | Both writes can succeed; latest `OccurredAtUtc` is current | Append-only review history |
+| ITSM human review status | Plain update; last writer wins | Integration state, not CAS-protected approval |
+| Governance approval request | First transition wins; loser receives 409 | Conflict-aware approval decision |
+
+`FindingDispositionService` appends through `FindingReviewTrailAppendService` into `dbo.FindingReviewEvents`. The current view is selected by timestamp; it is not a mutex or compare-and-swap decision.
+
+### PA review script
+
+1. Start two approve/reject actions against the same finding.
+2. Confirm both events remain visible in the review trail.
+3. Confirm the UI identifies the current outcome and does not hide a concurrent conflict.
+4. Contrast that result with an approval-request transition, where the second actor receives a conflict.
+
+### What not to claim
+
+- Do not say every approval or disposition is first-wins.
+- Do not equate append-only history with conflict prevention.
+- Do not say the current disposition is immutable when a later disposition event can supersede it.
+- Do not treat an ITSM status update as a durable approval trail.
+
+### Residuals (honest)
+
+| Gap | Planned item |
+| --- | --- |
+| One explicit finding-versus-approval contract | **TB-986** |
+| Concurrent-update UX and divergence disclosure | **TB-987** |
+| Approve/reject race regression coverage | **TB-988** |
+
+No mutex is implied, and this work does not alter the existing governance approval-request CAS behavior.
+
+**Related:** [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Append-only and sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Append-only and sealed evidence (M-161) {#append-only-sealed-evidence-m-161}
 
@@ -419,7 +465,92 @@ Do not say “committed means delivered,” “Required audit means all audit si
 - **TB-1012** adds anti-committed-equals-indexed / all-audit-transactional honesty CI.
 - Does not turn asynchronous delivery into a synchronous guarantee; does not claim DTF exactly-once (**TB-924**).
 
-**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+**Related:** [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Append-only / sealed evidence (M-161)](#append-only-sealed-evidence-m-161) · [Outbox replay vs idempotency (M-145)](#outbox-replay-vs-idempotency-m-145) · [Read-after-write client readiness (M-165)](#read-after-write-client-m-165) · [Security reviewer audit trail (M-118)](#security-reviewer-audit-trail-m-118) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`../library/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Transactional outbox — replay versus idempotency (M-145) {#outbox-replay-vs-idempotency-m-145}
+
+Former standalone body: `docs/go-to-market/TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-145** / **TB-992**). Complements [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163). Does not claim exactly-once delivery. Not an assurance attestation.
+
+**Path-stable alias:** [`TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md`](TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects and integration reviewers.
+
+**Decision:** A transactional outbox preserves a local intent with the transaction; it does not provide exactly-once delivery or make consumers idempotent.
+
+### Separation of guarantees
+
+| Concern | What the outbox can provide | What it cannot provide alone |
+| --- | --- | --- |
+| Local write + intent | Atomic persistence of the business change and pending message | Remote delivery |
+| Worker retry | At-least-once dispatch attempts | One and only one consumer effect |
+| Consumer behavior | Replay input for a consumer idempotency key | Consumer deduplication |
+| Ordering | Per-stream design choice | Global causal order |
+
+An outbox protects the database-side handoff from a process crash between business commit and enqueue. A retry can legitimately deliver the same message more than once.
+
+### PA review
+
+1. Identify the producer transaction and its outbox record.
+2. Kill or retry a dispatcher after persistence and before acknowledgment.
+3. Verify a replay is safe only when the downstream consumer owns an idempotency contract.
+4. Inspect dead-letter and operator handling rather than assuming silent eventual success.
+
+### Claim boundary
+
+Use “at-least-once delivery with replay” and “consumer idempotency required.”
+
+Do not use “exactly once,” “duplicate-proof eventing,” or “a committed record means the provider received it.” A completed local transaction is not a remote acknowledgment.
+
+### Residuals (honest)
+
+| Decision needed | Evidence to request |
+| --- | --- |
+| Consumer idempotency key | Provider or consumer contract |
+| Retry/DLQ handling | Operator runbook and delivery telemetry |
+| Ordered side effects | Explicit stream ordering contract |
+| External proof | Delivery receipt, not just outbox state |
+
+**Related:** [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [Read-after-write client readiness (M-165)](#read-after-write-client-m-165) · [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
+
+## Read-after-write — client readiness is explicit (M-165) {#read-after-write-client-m-165}
+
+Former standalone body: `docs/go-to-market/READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md` → this section (filename kept as a path-stable alias for GTM **M-165** / **TB-1013**). Complements [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163). Does not re-implement the architect workspace. Not an assurance attestation.
+
+**Path-stable alias:** [`READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md`](READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md).
+
+**Audience:** Principal architects, UI reviewers, and pilot operators.
+
+**Decision:** Create, commit, index, Ask, export, and ITSM readiness are separate observable states.
+
+### Readiness matrix
+
+| User action | What it confirms | What must be checked next |
+| --- | --- | --- |
+| Create review | Request accepted / draft exists | Execution state |
+| Execute | Task or pipeline processing | Quality and completion |
+| Commit | Finalized package exists | Async projections |
+| Open Ask | Read plane responds | Index freshness / source scope |
+| Export or ITSM | Consumer-specific result | Delivery receipt/status |
+
+The client must not infer a later state from an earlier write. A status badge should name the object that is ready rather than using a generic “complete.” Prefer poll/SSE until golden manifest for package readiness; disclose outbox and replica lag for projections.
+
+### PA test
+
+1. Create a run and immediately inspect package availability.
+2. Commit it and inspect search/Ask readiness independently.
+3. Trigger an export or ITSM action and observe delivery status.
+4. Confirm retry guidance does not duplicate an action without an idempotency key.
+
+### Claim boundary
+
+Do not say “create means package ready,” “commit means Ask is current,” or “an accepted request is delivered to ITSM.” Say “committed,” “indexed,” “export generated,” or “delivery acknowledged,” as applicable.
+
+### Residuals (honest)
+
+- **TB-1013** defines read-after-write expectations for APIs and UI.
+- **TB-1014** makes readiness state visible and protects against generic-complete copy.
+
+**Related:** [Transactional finalize vs outbox (M-163)](#transactional-finalize-vs-outbox-m-163) · [Committed golden manifest (M-155)](#committed-golden-manifest-unit-of-truth-m-155) · [Authority vs AgentTask loop (M-159)](#authority-vs-agenttask-loop-m-159) · [ADR 0038](../architecture/adrs/0038-authority-run-sql-queue.md) · [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`../library/DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md) · [`../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md`](../library/ITSM_OUTBOX_DLQ_DELIVERY_GUARANTEE_MAP.md) · [`PA_CLAIM_HONESTY_INDEX.md`](PA_CLAIM_HONESTY_INDEX.md).
 
 ## Security reviewer inbound webhook (M-126) {#security-reviewer-inbound-webhook-m-126}
 
@@ -953,9 +1084,12 @@ Companion one-pagers and full do-not/do-promise table: [`PA_CLAIM_HONESTY_INDEX.
 | --- | --- | --- | --- |
 | Prompt injection (M-115/M-116) | Docs/repo as DATA; host confinement | “Injection-proof” / “we sanitize PDFs” | [`#prompt-injection-resistance-m-115`](#prompt-injection-resistance-m-115) |
 | Audit Required (M-117/M-118) | Fail-closed durable trail on Required events (**TB-953**) | “Every audit event is transactional” | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) |
+| Finding disposition race (M-140/M-141) | Append-only last-by-time unless mutex ships | “Finding approve is first-wins CAS like governance queue” | [`#finding-disposition-concurrency-m-141`](#finding-disposition-concurrency-m-141) |
 | Append-only / sealed evidence (M-160/M-161) | Named append-only + sealed classes; mutable overlays by design | “Platform WORM” / “every table immutable” | [`#append-only-sealed-evidence-m-161`](#append-only-sealed-evidence-m-161) |
 | Authority vs AgentTask (M-158/M-159) | Authority product-default; task-loop only when intentional | “Always execute after create” / dual default pipelines | [`#authority-vs-agenttask-loop-m-159`](#authority-vs-agenttask-loop-m-159) |
 | Finalize vs outbox (M-162/M-163) | Sealed package + durable outbox enqueue; Search/webhook/Cosmos may lag | “Commit success means indexed and delivered” | [`#transactional-finalize-vs-outbox-m-163`](#transactional-finalize-vs-outbox-m-163) |
+| Outbox replay (M-144/M-145) | At-least-once; consumers must be idempotent | “Exactly-once integration events” | [`#outbox-replay-vs-idempotency-m-145`](#outbox-replay-vs-idempotency-m-145) |
+| Read-after-write (M-164/M-165) | Poll/SSE until golden; name consumer readiness | “Create/commit means Ask/ITSM ready” | [`#read-after-write-client-m-165`](#read-after-write-client-m-165) |
 | INV-001 decide-once (M-150/M-151) | Host `ScopeContext`; headers ≠ prod tenant | “`x-tenant-id` selects tenant” | [`#tenant-identity-single-derivation-m-151`](#tenant-identity-single-derivation-m-151) |
 | Isolation overclaim (M-194/M-195) | Database-per-tenant + INV-001 + identity-wins; RLS non-control | “SQL RLS is a production control” | [`#isolation-claims-vs-inv001-adr0037-m-195`](#isolation-claims-vs-inv001-adr0037-m-195) |
 | Retrieval tenancy (M-152/M-153) | Mandatory OData scope filter + fail-closed upsert | “Per-tenant Search index” / “crypto-proof hit” | [`#retrieval-tenancy-hit-guarantee-m-153`](#retrieval-tenancy-hit-guarantee-m-153) |
@@ -1807,9 +1941,12 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 | [`#security-reviewer-inbound-webhook-m-126`](#security-reviewer-inbound-webhook-m-126) · [`SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md`](SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md) (alias) | Inbound webhook order (M-126) |
 | [`#prompt-injection-resistance-m-115`](#prompt-injection-resistance-m-115) · [`PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md`](PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md) (alias) | Prompt-injection posture (M-115) |
 | [`#security-reviewer-audit-trail-m-118`](#security-reviewer-audit-trail-m-118) · [`SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md`](SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md) (alias) | Audit Required vs informational (M-118) |
+| [`#finding-disposition-concurrency-m-141`](#finding-disposition-concurrency-m-141) · [`FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md`](FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md) (alias) | Finding disposition concurrency (M-141) |
 | [`#append-only-sealed-evidence-m-161`](#append-only-sealed-evidence-m-161) · [`APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md`](APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md) (alias) | Append-only / sealed evidence (M-161) |
 | [`#authority-vs-agenttask-loop-m-159`](#authority-vs-agenttask-loop-m-159) · [`AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md`](AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md) (alias) | Authority vs AgentTask loop (M-159) |
 | [`#transactional-finalize-vs-outbox-m-163`](#transactional-finalize-vs-outbox-m-163) · [`TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md`](TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md) (alias) | Finalize vs outbox (M-163) |
+| [`#outbox-replay-vs-idempotency-m-145`](#outbox-replay-vs-idempotency-m-145) · [`TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md`](TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md) (alias) | Outbox replay vs idempotency (M-145) |
+| [`#read-after-write-client-m-165`](#read-after-write-client-m-165) · [`READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md`](READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md) (alias) | Read-after-write client readiness (M-165) |
 | [`#tenant-identity-single-derivation-m-151`](#tenant-identity-single-derivation-m-151) · [`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md`](TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md) (alias) | Tenant identity decide-once (M-151) |
 | [`#minimum-pilot-trust-packet-m-191`](#minimum-pilot-trust-packet-m-191) · [`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md`](MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md) (alias) | Stage 0 pilot trust bar without CPA/3P (M-191) |
 | [`#model-failed-vs-quality-rejected-m-124`](#model-failed-vs-quality-rejected-m-124) · [`MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md`](MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md) (alias) | Model-failed vs quality-rejected (M-124) |
@@ -1847,9 +1984,12 @@ Former standalone body: `docs/go-to-market/PROCUREMENT_OBJECTION_PLAYBOOK.md` �
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_INBOUND_WEBHOOK_ONE_PAGER.md` → [inbound webhook handout](#security-reviewer-inbound-webhook-m-126) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/PROMPT_INJECTION_RESISTANCE_BUYER_ONE_PAGER.md` → [prompt-injection resistance](#prompt-injection-resistance-m-115) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/SECURITY_REVIEWER_AUDIT_TRAIL_ONE_PAGER.md` → [audit trail handout](#security-reviewer-audit-trail-m-118) (filename kept as path-stable alias; duplicate body collapsed on fold).  
+Former standalone body: `docs/go-to-market/FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md` → [finding disposition concurrency](#finding-disposition-concurrency-m-141) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md` → [append-only / sealed evidence](#append-only-sealed-evidence-m-161) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md` → [Authority vs AgentTask loop](#authority-vs-agenttask-loop-m-159) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md` → [transactional finalize vs outbox](#transactional-finalize-vs-outbox-m-163) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md` → [outbox replay vs idempotency](#outbox-replay-vs-idempotency-m-145) (filename kept as path-stable alias).  
+Former standalone body: `docs/go-to-market/READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md` → [read-after-write client readiness](#read-after-write-client-m-165) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` → [tenant identity single derivation](#tenant-identity-single-derivation-m-151) (filename kept as path-stable alias; duplicate body collapsed on fold).  
 Former standalone body: `docs/go-to-market/MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` → [minimum pilot trust packet](#minimum-pilot-trust-packet-m-191) (filename kept as path-stable alias).  
 Former standalone body: `docs/go-to-market/MODEL_FAILED_VS_QUALITY_REJECTED_ONE_PAGER.md` → [model-failed vs quality-rejected](#model-failed-vs-quality-rejected-m-124) (filename kept as path-stable alias; duplicate body collapsed on fold).  

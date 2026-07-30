@@ -30,9 +30,9 @@
 | M-131 | Honesty | Public claim boundary guide + packet short row |
 | M-132 | One-pager | [`LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md`](LLM_BUDGET_RESERVE_SETTLE_PA_ONE_PAGER.md) |
 | M-138 / M-139 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#simulator-roi-sponsor-forbid-m-139`](BUYER_SECURITY_PROCUREMENT_PACKET.md#simulator-roi-sponsor-forbid-m-139) (`SIMULATOR_ROI_SPONSOR_FORBID_ONE_PAGER.md` alias) |
-| M-140 / M-141 | Honesty / one-pager | Guide + [`FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md`](FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md) |
+| M-140 / M-141 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#finding-disposition-concurrency-m-141`](BUYER_SECURITY_PROCUREMENT_PACKET.md#finding-disposition-concurrency-m-141) (`FINDING_CONCURRENT_DISPOSITION_RACE_PA_ONE_PAGER.md` alias) |
 | M-142 / M-143 | Honesty / one-pager | Guide + [`SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_PA_ONE_PAGER.md`](SOLO_OPERATOR_PAGES_VS_SUPPORT_EMAIL_PA_ONE_PAGER.md) |
-| M-144 / M-145 | Honesty / one-pager | Guide + [`TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md`](TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md) |
+| M-144 / M-145 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#outbox-replay-vs-idempotency-m-145`](BUYER_SECURITY_PROCUREMENT_PACKET.md#outbox-replay-vs-idempotency-m-145) (`TRANSACTIONAL_OUTBOX_REPLAY_IDEMPOTENCY_PA_ONE_PAGER.md` alias) |
 | M-146 / M-147 | Honesty / one-pager | Guide + [`POLLY_VS_RUN_LEVEL_SURFACE_PA_ONE_PAGER.md`](POLLY_VS_RUN_LEVEL_SURFACE_PA_ONE_PAGER.md) |
 | M-148 / M-149 | Honesty / one-pager | Guide + [`LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAGER.md`](LLM_TRUST_BOUNDARY_INGRESS_PA_ONE_PAGER.md) |
 | M-150 / M-151 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151`](BUYER_SECURITY_PROCUREMENT_PACKET.md#tenant-identity-single-derivation-m-151) (`TENANT_IDENTITY_SINGLE_DERIVATION_PA_ONE_PAGER.md` alias) |
@@ -41,6 +41,7 @@
 | M-158 / M-159 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#authority-vs-agenttask-loop-m-159`](BUYER_SECURITY_PROCUREMENT_PACKET.md#authority-vs-agenttask-loop-m-159) (`AUTHORITY_VS_AGENTTASK_LOOP_PA_ONE_PAGER.md` alias) |
 | M-160 / M-161 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#append-only-sealed-evidence-m-161`](BUYER_SECURITY_PROCUREMENT_PACKET.md#append-only-sealed-evidence-m-161) (`APPEND_ONLY_SEALED_EVIDENCE_PA_ONE_PAGER.md` alias) |
 | M-162 / M-163 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#transactional-finalize-vs-outbox-m-163`](BUYER_SECURITY_PROCUREMENT_PACKET.md#transactional-finalize-vs-outbox-m-163) (`TRANSACTIONAL_FINALIZE_VS_OUTBOX_PA_ONE_PAGER.md` alias) |
+| M-164 / M-165 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#read-after-write-client-m-165`](BUYER_SECURITY_PROCUREMENT_PACKET.md#read-after-write-client-m-165) (`READ_AFTER_WRITE_CLIENT_PA_ONE_PAGER.md` alias) |
 | M-166 / M-167 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#pilotstrict-vs-execution-mode-m-167`](BUYER_SECURITY_PROCUREMENT_PACKET.md#pilotstrict-vs-execution-mode-m-167) (`PILOTSTRICT_VS_EXECUTION_MODE_PA_ONE_PAGER.md` alias) |
 | M-176 / M-177 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#operator-primary-object-nav-collapse-m-177`](BUYER_SECURITY_PROCUREMENT_PACKET.md#operator-primary-object-nav-collapse-m-177) (`OPERATOR_PRIMARY_OBJECT_NAV_COLLAPSE_PA_ONE_PAGER.md` alias) |
 | M-190 / M-191 | Honesty / one-pager | Guide + [`BUYER_SECURITY_PROCUREMENT_PACKET.md#minimum-pilot-trust-packet-m-191`](BUYER_SECURITY_PROCUREMENT_PACKET.md#minimum-pilot-trust-packet-m-191) (`MINIMUM_PILOT_TRUST_PACKET_WITHOUT_CPA_PA_ONE_PAGER.md` alias) |
