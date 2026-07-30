@@ -137,11 +137,9 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.line).toContain("Pilot outcomes");
   });
 
-  it("orients bare /governance as the workspace overview", () => {
-    const o = buyerPolishedRouteOrientation("/governance");
-
-    expect(o?.label).toBe("Governance");
-    expect(o?.line).toContain("Workspace governance status");
+  it("returns null for bare /governance — OperatorPageHeader owns the overview lead (TB-1434)", () => {
+    expect(buyerPolishedRouteOrientation("/governance")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
   it("orients /governance with showcase runId as sample review context", () => {

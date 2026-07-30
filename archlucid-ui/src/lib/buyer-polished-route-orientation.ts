@@ -17,7 +17,6 @@ import {
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   GOVERNANCE_OVERVIEW_PAGE_LEAD,
-  GOVERNANCE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
@@ -189,11 +188,9 @@ export function buyerPolishedRouteOrientation(
   if (path === "/governance") {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 
+    // Governance overview carries its own OperatorPageHeader subtitle (TB-1434) — not strip + header twins.
     if (searchRunId.length === 0) {
-      return {
-        label: GOVERNANCE_OVERVIEW_PAGE_TITLE,
-        line: GOVERNANCE_OVERVIEW_PAGE_LEAD,
-      };
+      return null;
     }
 
     if (canonicalizeDemoRunId(searchRunId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
