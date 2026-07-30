@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/search/_sections/search-page-copy";
 import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
-import { PILOT_FEEDBACK_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
@@ -37,11 +37,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/graph")).toBeNull();
   });
 
-  it("orients the portfolio dashboard route", () => {
-    const o = buyerPolishedRouteOrientation("/dashboard");
-
-    expect(o?.label).toBe("Executive dashboard");
-    expect(o?.line).toContain("committed reviews");
+  it("returns null for /dashboard — portfolioPageLead owns the intro (TB-1439)", () => {
+    expect(buyerPolishedRouteOrientation("/dashboard")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/dashboard")?.line).not.toBe(
+      BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead,
+    );
   });
 
   it("orients the executive scorecard route", () => {

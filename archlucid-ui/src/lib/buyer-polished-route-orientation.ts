@@ -129,10 +129,8 @@ export function buyerPolishedRouteOrientation(
   }
 
   if (path === "/dashboard") {
-    return {
-      label: BUYER_TERMINOLOGY.portfolioOverview,
-      line: "ROI, remediation, and governance posture across committed reviews.",
-    };
+    // Executive dashboard carries its own portfolioPageLead hero (TB-1439) — not strip + body twins.
+    return null;
   }
 
   if (path === "/executive/scorecard") {
