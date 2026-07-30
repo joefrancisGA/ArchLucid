@@ -28,6 +28,9 @@ vi.mock("@/components/alerts/AlertSimulationTuningSection", () => ({
   AlertSimulationTuningSection: () => <div data-testid="stub-simulation" />,
 }));
 
+import { ALERTS_CONFIGURATION_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+
 import { AlertRulesHubClient } from "./AlertRulesHubClient";
 
 describe("AlertRulesHubClient", () => {
@@ -40,6 +43,8 @@ describe("AlertRulesHubClient", () => {
     render(<AlertRulesHubClient />);
     expect(screen.getByTestId("stub-rules")).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-page-title")).toHaveTextContent("Alerts");
+    expect(screen.getByText(ALERTS_CONFIGURATION_PAGE_SUBTITLE)).toBeInTheDocument();
+    expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-hub-tab-rules")).toHaveTextContent("Conditions");
     expect(screen.getByRole("tab", { name: /Conditions/i })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();

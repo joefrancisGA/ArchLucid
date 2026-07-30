@@ -5,7 +5,7 @@ import {
   SPONSOR_REPORT_ROI_SUMMARY_PATH,
   SPONSOR_REPORT_SECTION_LABEL,
 } from "@/lib/sponsor-report-navigation";
-import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
+import { pathMatchesGovernanceAlerts, pathMatchesGovernanceAlertRules, pathMatchesGovernanceAudit } from "@/lib/governance-route-paths";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import {
@@ -185,6 +185,16 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
+  // Audit trail carries its own OperatorPageHeader subtitle (TB-1435) — not governance overview strip.
+  if (pathMatchesGovernanceAudit(path)) {
+    return null;
+  }
+
+  // Alert rules hub carries its own OperatorPageHeader subtitle (TB-1435).
+  if (pathMatchesGovernanceAlertRules(path)) {
+    return null;
+  }
+
   if (path === "/governance") {
     const searchRunId = options?.searchRunId?.trim() ?? "";
 
@@ -203,14 +213,6 @@ export function buyerPolishedRouteOrientation(
     return {
       label: "Review governance",
       line: GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
-    };
-  }
-
-  // Before the `/governance` catch-all — canonical audit lives at `/governance/audit` (legacy `/audit` redirects).
-  if (pathMatchesGovernanceAudit(path)) {
-    return {
-      label: "Audit Trail",
-      line: `Immutable audit events correlated to reviews such as ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`,
     };
   }
 

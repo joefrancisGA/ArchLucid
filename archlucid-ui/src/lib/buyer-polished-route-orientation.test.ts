@@ -114,6 +114,17 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/governance/setup")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
+  it("returns null for audit trail — OperatorPageHeader owns the page lead (TB-1435)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/audit")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/audit")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/audit")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
+  });
+
+  it("returns null for alert-rules — OperatorPageHeader owns configuration subtitle (TB-1435)", () => {
+    expect(buyerPolishedRouteOrientation("/governance/alert-rules")).toBeNull();
+    expect(buyerPolishedRouteOrientation("/governance/alert-rules")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
+  });
+
   it("orients the operator security-trust route for procurement reviewers", () => {
     const canonical = buyerPolishedRouteOrientation("/settings/security-trust");
     const legacy = buyerPolishedRouteOrientation("/workspace/security-trust");
