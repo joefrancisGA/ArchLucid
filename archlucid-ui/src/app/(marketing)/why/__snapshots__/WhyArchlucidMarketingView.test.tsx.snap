@@ -631,9 +631,9 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/demo/preview"
+                  href="/showcase/claims-intake-modernization"
                 >
-                  Demo preview
+                  Claims sample architecture review
                 </a>
               </div>
             </td>
@@ -684,7 +684,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/help/audit-trail"
                 >
-                  Durable audit coverage matrix
+                  Audit trail
                 </a>
               </div>
             </td>
@@ -726,9 +726,15 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/help/audit-trail"
+                  href="/help/data-handling-tenant-isolation"
                 >
-                  Tenant isolation control summary
+                  Data handling and tenant isolation
+                </a>
+                <a
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                  href="/security-trust"
+                >
+                  Security & trust
                 </a>
               </div>
             </td>
@@ -770,9 +776,15 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/help/getting-started"
+                  href="/help/authentication-sign-in"
                 >
-                  Authentication scope (published scope doc)
+                  Authentication and sign-in
+                </a>
+                <a
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
+                  href="/trust"
+                >
+                  Trust center
                 </a>
               </div>
             </td>
@@ -816,7 +828,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/help/comparison-replay"
                 >
-                  Comparison replay summary
+                  Compare and replay
                 </a>
               </div>
             </td>
@@ -858,9 +870,9 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
-                  href="/demo/preview"
+                  href="/showcase/claims-intake-modernization"
                 >
-                  Evidence trail demo
+                  Claims evidence trail
                 </a>
               </div>
             </td>
@@ -904,7 +916,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                   class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/help/governance-approval"
                 >
-                  Governance gate control description
+                  Governance approval
                 </a>
               </div>
             </td>

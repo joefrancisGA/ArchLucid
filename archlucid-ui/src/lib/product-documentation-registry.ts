@@ -464,7 +464,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "configuration-reference",
     title: "Configuration reference",
     summary:
-      "Admin-only full configuration key catalog (hosting, auth, production-like keys). Ungated operator specialty guide deferred to TB-1326.",
+      "Admin-only full configuration key catalog (hosting, auth, production-like keys). Ungated operator specialty guide is deferred.",
     audience: "developer",
     sourcePaths: ["docs/library/CONFIGURATION_REFERENCE.md"],
   },
