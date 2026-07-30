@@ -1,0 +1,58 @@
+import { SEARCH_PAGE_SUBTITLE } from "@/app/(operator)/search/_sections/search-page-copy";
+import { BUYER_VALUE_REPORT_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
+import { ADVISORY_SCANS_PAGE_LEAD } from "@/lib/advisory-copy";
+import { AUDIT_TRAIL_PAGE_SUBTITLE } from "@/lib/audit-trail-page-copy";
+import { ALERTS_CONFIGURATION_PAGE_SUBTITLE } from "@/lib/alerts-page-copy";
+import {
+  BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
+  PILOT_FEEDBACK_VOCABULARY,
+} from "@/lib/buyer-surface-vocabulary";
+import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance-setup-route";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+import { RECURRENCE_SCHEDULES_PAGE_SUBTITLE } from "@/lib/recurrence-schedules-copy";
+import {
+  PILOT_OUTCOMES_PAGE_SUBTITLE,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+  SPONSOR_REPORT_PILOT_OUTCOMES_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
+
+import type { BuyerPolishedRouteOrientationOptions } from "./buyer-polished-route-orientation";
+
+/**
+ * Routes whose OperatorPageHeader (or page hero) already owns the intro copy.
+ * Buyer-polished shell orientation must stay `null` here — never repeat these leads in LayerContextStrip.
+ */
+export type BuyerPolishedRoutePageLeadInventoryEntry = {
+  readonly route: string;
+  readonly operatorPageLead: string;
+  readonly options?: BuyerPolishedRouteOrientationOptions;
+};
+
+export const BUYER_POLISHED_ROUTE_PAGE_LEAD_INVENTORY: readonly BuyerPolishedRoutePageLeadInventoryEntry[] = [
+  { route: "/search", operatorPageLead: SEARCH_PAGE_SUBTITLE },
+  { route: "/dashboard", operatorPageLead: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageLead },
+  { route: "/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.pageLead },
+  { route: "/product-learning", operatorPageLead: PILOT_FEEDBACK_VOCABULARY.layerContextLine },
+  { route: "/governance", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
+  { route: "/governance/audit", operatorPageLead: AUDIT_TRAIL_PAGE_SUBTITLE },
+  { route: "/governance/audit", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
+  { route: "/audit", operatorPageLead: AUDIT_TRAIL_PAGE_SUBTITLE },
+  { route: "/governance/alert-rules", operatorPageLead: ALERTS_CONFIGURATION_PAGE_SUBTITLE },
+  { route: "/governance/alert-rules", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
+  { route: "/governance/advisory-scans", operatorPageLead: ADVISORY_SCANS_PAGE_LEAD },
+  { route: "/advisory", operatorPageLead: ADVISORY_SCANS_PAGE_LEAD },
+  { route: "/governance/advisory-scans?tab=schedules", operatorPageLead: ADVISORY_SCANS_PAGE_LEAD },
+  { route: "/governance/recurrence-schedules", operatorPageLead: RECURRENCE_SCHEDULES_PAGE_SUBTITLE },
+  { route: "/governance/recurrence-schedules/", operatorPageLead: RECURRENCE_SCHEDULES_PAGE_SUBTITLE },
+  { route: "/governance/setup", operatorPageLead: GOVERNANCE_SETUP_PAGE_SUBTITLE },
+  { route: "/governance/setup", operatorPageLead: GOVERNANCE_OVERVIEW_PAGE_LEAD },
+  { route: "/governance/setup/", operatorPageLead: GOVERNANCE_SETUP_PAGE_SUBTITLE },
+  { route: "/governance/first-30-days", operatorPageLead: GOVERNANCE_SETUP_PAGE_SUBTITLE },
+  { route: "/value-report", operatorPageLead: BUYER_VALUE_REPORT_PAGE_SUBTITLE },
+  { route: "/value-report/pilot", operatorPageLead: PILOT_OUTCOMES_PAGE_SUBTITLE },
+  { route: "/value-report/roi", operatorPageLead: BUYER_VALUE_REPORT_PAGE_SUBTITLE },
+  { route: SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH, operatorPageLead: BUYER_VALUE_REPORT_PAGE_SUBTITLE },
+  { route: SPONSOR_REPORT_PILOT_OUTCOMES_PATH, operatorPageLead: PILOT_OUTCOMES_PAGE_SUBTITLE },
+  { route: SPONSOR_REPORT_ROI_SUMMARY_PATH, operatorPageLead: BUYER_VALUE_REPORT_PAGE_SUBTITLE },
+];

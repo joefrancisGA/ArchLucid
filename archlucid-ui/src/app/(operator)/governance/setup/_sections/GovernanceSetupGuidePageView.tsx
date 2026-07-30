@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { GOVERNANCE_SETUP_PAGE_SUBTITLE } from "@/lib/governance-setup-route";
 
 import { GovernanceSetupFoundationPanel } from "./GovernanceSetupFoundationPanel";
 import { GovernanceSetupGuideProgressSummary } from "./GovernanceSetupGuideProgressSummary";
@@ -24,7 +25,7 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
       <OperatorPageHeader
         title="Governance setup"
         titleTestId="governance-setup-page-title"
-        subtitle="Establish the core policies, alerts, approvals, and reporting your workspace needs."
+        subtitle={GOVERNANCE_SETUP_PAGE_SUBTITLE}
       >
         <GovernanceSetupGuideProgressSummary summary={progress} />
       </OperatorPageHeader>

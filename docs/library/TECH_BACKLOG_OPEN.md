@@ -24,7 +24,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Multi-cloud analysis §2.19 remainder | **TB-874** – **TB-876** (open P1) | AWS/GCP analysis-path parity |
 | Advisory scans UX + route rename | **TB-1124**–**TB-1128** (**TB-1124**/**TB-1125**/**TB-1126**/**TB-1127**/**TB-1128** Done; cluster closed) | Route rename + triple-description collapse + empty/demo + disposition + primary CTA shipped; owner screenshot ~51/100 2026-07-25 |
 | Recurrence schedules empty-layout UX | **TB-1129**–**TB-1133** (**Done**) | Orientation + intro collapse + single primary + human cadence + empty Compact / hide workflow rail shipped; owner screenshot ~47/100 2026-07-25; pairs empty **TB-1552**–**TB-1556** / side-rail **TB-1572**–**TB-1576** |
-| Redundant page-description chrome (strip × header) | **TB-1440** (open P2 **V1**; **TB-1434**–**TB-1439** Done) | LayerContextStrip orientation duplicates OperatorPageHeader lead: Vitest guard; owner pass 2026-07-27; pairs Done **TB-1125**/**TB-1129**/**TB-1434**–**TB-1439** / open **TB-1224** |
+| Redundant page-description chrome (strip × header) | **Done** (**TB-1434**–**TB-1440** 2026-07-30) | LayerContextStrip orientation duplicates OperatorPageHeader lead — cluster closed; pairs Done **TB-1125**/**TB-1129** / open **TB-1224** |
 | Governance setup UX + route rename | **TB-1134**–**TB-1138** (open P1 **V1**) | Route → /governance/setup; naming consistency; orientation; checklist visual design; foundation vs progress dedupe; owner screenshot ~52/100 2026-07-25 |
 | Cloud connections UX + honesty | **TB-1139**–**TB-1143** (open P1 **V1**) | Fix platform-scope checkbox↔card sync; remove stale GCP Preview; single primary CTA; scope fail-closed; suppress not-configured zero theater; owner review ~49/100 2026-07-25 |
 | Jira integration empty/not-configured UX | **TB-1146**–**TB-1150** (open P1 **V1**) | Guided next step; copy honesty; message dedupe; structured issue-type UI; gate connection test / demote overrides; owner screenshot ~46/100 2026-07-25 |
@@ -319,7 +319,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | ~~TB-1437~~ | ~~`/value-report*` — collapse strip + LayerHeader + page subtitle to one hero~~ **Done** 2026-07-30 | Adoption friction P1 **V1** — orientation null + LayerHeader suppressed + Vitest |
 | ~~TB-1438~~ | ~~`/product-learning` — drop near-duplicate LayerContextStrip vs pageLead~~ **Done** 2026-07-30 | Adoption friction P1 **V1** — buyer orientation null + Vitest |
 | ~~TB-1439~~ | ~~`/dashboard` — drop near-duplicate orientation vs portfolioPageLead~~ **Done** 2026-07-30 | Adoption friction P1 **V1** — buyer orientation null + Vitest |
-| TB-1440 | Vitest: buyer orientation.line must not equal OperatorPageHeader lead (inventory guard) | Testability P2 **V1** — after **TB-1434**–**TB-1439**; hardens **TB-1125** |
+| ~~TB-1440~~ | ~~Vitest: buyer orientation.line must not equal OperatorPageHeader lead (inventory guard)~~ **Done** 2026-07-30 | Testability P2 **V1** — page-lead inventory + guard Vitest |
 | TB-1441 | `/alert-routing` — single redirect shim (drop dual next.config + page redirect / dead layout) | Maintainability P2 **V1** — owner AL2 ~49/100; traffic **AL2**; IA-014 |
 | TB-1442 | `/alert-routing` — promote next.config redirect to permanent | Trustworthiness P1 **V1** — with **TB-1441** |
 | TB-1443 | Owner traffic workbook — mark AL2 redirect-only (inherit alert-rules Routing tab) | Adoption friction P2 **V1** — with **TB-1441**; pairs **TB-1406** |
