@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Tenancy;
 
@@ -38,7 +39,7 @@ public static class TrialVerticalWelcomeRequestFactory
 
     private static string FormatRequestId(Guid tenantId)
     {
-        string requestId = $"trial-welcome-{tenantId:N}".ToLowerInvariant();
+        string requestId = $"{TrialRunQuota.WelcomeRequestIdPrefix}{tenantId:N}".ToLowerInvariant();
 
         if (requestId.Length > 64)
             return requestId[..64];

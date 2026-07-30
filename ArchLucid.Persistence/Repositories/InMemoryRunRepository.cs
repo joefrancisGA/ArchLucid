@@ -40,7 +40,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         _ = connection;
         _ = transaction;
 
-        await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
+        if (TrialRunQuota.ShouldConsumeAllowanceOnCreate(run.IsSample, run.IsDemoWelcomeRun, run.ArchitectureRequestId))
+            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
 
         if (_store.Count >= MaxEntries && !_store.ContainsKey(run.RunId))
         {
