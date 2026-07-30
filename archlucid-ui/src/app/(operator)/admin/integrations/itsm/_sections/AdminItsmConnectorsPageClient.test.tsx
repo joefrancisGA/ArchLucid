@@ -265,4 +265,46 @@ describe("AdminItsmConnectorsPageClient", () => {
     expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
     expect(screen.queryByTestId("admin-itsm-connectors-loading-skeleton")).not.toBeInTheDocument();
   });
+
+  it("points smoke runbooks at product integrations and readiness, not troubleshooting (TB-1433)", async () => {
+    fetchItsmIntegrationHealth.mockResolvedValue({
+      nativeEnabled: true,
+      jira: { locallyConfigured: true, reachable: true, summary: "ready" },
+      serviceNow: { locallyConfigured: false, summary: "missing" },
+    });
+    fetchTenantItsmOutboundSettings.mockResolvedValue({
+      hasTenantOverrides: false,
+      nativeEnabled: true,
+      deploymentCredentials: {
+        jiraConfigured: true,
+        serviceNowConfigured: false,
+      },
+    });
+
+    render(<AdminItsmConnectorsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("admin-itsm-step-runbooks"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-itsm-step-panel-runbooks")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("link", { name: "Jira connector smoke checklist" })).toHaveAttribute(
+      "href",
+      "/integrations/jira",
+    );
+    expect(screen.getByRole("link", { name: "ServiceNow connector smoke checklist" })).toHaveAttribute(
+      "href",
+      "/integrations/servicenow",
+    );
+    expect(screen.getByRole("link", { name: "ITSM live smoke scaffold" })).toHaveAttribute(
+      "href",
+      "/integrations/readiness",
+    );
+    expect(screen.queryByRole("link", { name: /troubleshooting/i })).not.toBeInTheDocument();
+  });
 });

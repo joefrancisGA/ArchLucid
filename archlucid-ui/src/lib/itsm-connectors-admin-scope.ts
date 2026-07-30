@@ -1,4 +1,10 @@
 /** System-admin-only Jira and ServiceNow connector surface (not on buyer Integrations nav). */
+import {
+  INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_READINESS_PATH,
+  INTEGRATIONS_SERVICENOW_PATH,
+} from "@/lib/integrations-nav-paths";
+
 export const ITSM_CONNECTORS_ADMIN_PATH = "/admin/integrations/itsm";
 
 export const ITSM_CONNECTORS_ADMIN_LABEL = "ITSM connectors";
@@ -37,9 +43,15 @@ export const ITSM_CONNECTORS_ADMIN_BANNED_SUBSTRINGS: readonly string[] = [
   "internal V1 rollout",
 ] as const;
 
-/** In-app help entry points for connector smoke validation (operator runbooks). */
+/** Smoke runbook destinations for ITSM admin onboarding — product paths, not generic troubleshooting (TB-1433). */
 export const ITSM_CONNECTOR_SMOKE_HELP = {
-  jira: "/help/troubleshooting",
-  serviceNow: "/help/troubleshooting",
-  scaffold: "/help/troubleshooting",
+  jira: INTEGRATIONS_JIRA_PATH,
+  serviceNow: INTEGRATIONS_SERVICENOW_PATH,
+  scaffold: INTEGRATIONS_READINESS_PATH,
 } as const;
+
+/** Regression guard — smoke CTAs must not dump into customer troubleshooting (TB-1433). */
+export const ITSM_CONNECTOR_SMOKE_HELP_BANNED_HREFS: readonly string[] = ["/help/troubleshooting"] as const;
+
+/** Buyer product integration pages use the readiness hub for connection verification next steps (TB-1433). */
+export const ITSM_PRODUCT_SMOKE_VERIFICATION_HREF = INTEGRATIONS_READINESS_PATH;

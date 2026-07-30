@@ -1,4 +1,6 @@
-import { ITSM_CONNECTOR_SMOKE_HELP } from "@/lib/itsm-connectors-admin-scope";
+import {
+  ITSM_PRODUCT_SMOKE_VERIFICATION_HREF,
+} from "@/lib/itsm-connectors-admin-scope";
 
 export type ItsmProductId = "jira" | "servicenow";
 
@@ -40,7 +42,7 @@ export const ITSM_PRODUCT_PAGE_COPY: Record<ItsmProductId, ItsmProductPageCopy> 
     summary:
       "Configure Jira outbound ticket creation from architecture findings. Set connection details and routing preferences for this workspace.",
     connectionTestLead: "Runs a read-only connection check for Jira.",
-    smokeHelpHref: ITSM_CONNECTOR_SMOKE_HELP.jira,
+    smokeHelpHref: ITSM_PRODUCT_SMOKE_VERIFICATION_HREF,
     smokeHelpLabel: "Jira connection verification checklist",
   },
   servicenow: {
@@ -48,7 +50,7 @@ export const ITSM_PRODUCT_PAGE_COPY: Record<ItsmProductId, ItsmProductPageCopy> 
     summary:
       "Configure ServiceNow outbound incident creation from architecture findings. Set connection details and routing preferences for this workspace.",
     connectionTestLead: "Runs a read-only connection check for ServiceNow.",
-    smokeHelpHref: ITSM_CONNECTOR_SMOKE_HELP.serviceNow,
+    smokeHelpHref: ITSM_PRODUCT_SMOKE_VERIFICATION_HREF,
     smokeHelpLabel: "ServiceNow connection verification checklist",
   },
 };

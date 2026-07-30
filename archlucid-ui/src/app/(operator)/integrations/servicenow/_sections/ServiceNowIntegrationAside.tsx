@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
-import { ITSM_CONNECTOR_SMOKE_HELP, ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_PATH, ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm-connectors-admin-scope";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import {
   SERVICENOW_CONNECTION_VERIFICATION_HELP_LABEL,
@@ -105,7 +105,7 @@ export function ServiceNowIntegrationAside(props: Props): React.ReactElement {
             Integration readiness
           </Link>
           {" · "}
-          <Link className={OPERATOR_LINK.inline} href={ITSM_CONNECTOR_SMOKE_HELP.serviceNow}>
+          <Link className={OPERATOR_LINK.inline} href={ITSM_PRODUCT_SMOKE_VERIFICATION_HREF}>
             {SERVICENOW_CONNECTION_VERIFICATION_HELP_LABEL}
           </Link>
         </p>
