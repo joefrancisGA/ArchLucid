@@ -9,6 +9,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-07-30 — UI/docs: signed review record vs decision vocabulary cleanup
+
+Canonical pairing: **signed review record** = package locked at finalize; **decision** = disposition in Decision register. Removed "signed decision record" / "governance decision record" package synonyms from buyer/operator copy, empty states, glossary, and design-system language. ADR export wording unchanged.
+
 ## 2026-07-30 — Retrieval: bound evidence search so proxy no longer 502s on AOAI/Search stalls
 
 `GET /v1/retrieval/search` now has an overall query budget (`Retrieval:QueryBudget`, default 25s), Azure OpenAI embeddings use async + 15s network timeout, and Azure AI Search clients set `Retry.NetworkTimeout`. The UI proxy no longer retries `AbortError`/timeout transport failures (was up to ~180s). Stalls map to API 503 instead of proxy 502 “aborted due to timeout” (observed on www.archlucid.net Search review evidence).

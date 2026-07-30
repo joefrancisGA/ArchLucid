@@ -27,7 +27,8 @@ public sealed class RetrievalQueryService(
     IGraphRagNeighborExpander graphRagNeighborExpander,
     IOptionsMonitor<RetrievalTelemetryOptions> retrievalTelemetryOptions,
     IOptionsMonitor<RetrievalRerankingOptions> rerankingOptions,
-    IOptionsMonitor<AdvancedRetrievalOptions> advancedRetrievalOptions) : IRetrievalQueryService
+    IOptionsMonitor<AdvancedRetrievalOptions> advancedRetrievalOptions,
+    IOptionsMonitor<RetrievalQueryBudgetOptions> queryBudgetOptions) : IRetrievalQueryService
 {
     private readonly IRetrievalReranker _retrievalReranker =
         retrievalReranker ?? throw new ArgumentNullException(nameof(retrievalReranker));
@@ -53,6 +54,9 @@ public sealed class RetrievalQueryService(
     private readonly IOptionsMonitor<AdvancedRetrievalOptions> _advancedRetrievalOptions =
         advancedRetrievalOptions ?? throw new ArgumentNullException(nameof(advancedRetrievalOptions));
 
+    private readonly IOptionsMonitor<RetrievalQueryBudgetOptions> _queryBudgetOptions =
+        queryBudgetOptions ?? throw new ArgumentNullException(nameof(queryBudgetOptions));
+
     /// <inheritdoc />
     public async Task<IReadOnlyList<RetrievalHit>> SearchAsync(RetrievalQuery query, CancellationToken ct)
     {
@@ -62,10 +66,15 @@ public sealed class RetrievalQueryService(
         if (query.TenantId == Guid.Empty && !query.IncludePlatformCorpora)
             throw new ArgumentException("TenantId is required for tenant-bound retrieval.", nameof(query));
 
+        // Bound embed + search + rerank so a stalled AOAI/Search call maps to API 503 instead of proxy 502.
+        using CancellationTokenSource budgetSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        budgetSource.CancelAfter(_queryBudgetOptions.CurrentValue.GetEffectiveOverallTimeout());
+        CancellationToken budgetCt = budgetSource.Token;
+
         if (query.IncludePlatformCorpora && query.AllowedPolicyPackRulePackIds is null)
         {
             HashSet<string> assigned = await _assignedPolicyPackRulePackIdResolver
-                .ResolveAsync(query.TenantId, query.WorkspaceId, query.ProjectId, ct)
+                .ResolveAsync(query.TenantId, query.WorkspaceId, query.ProjectId, budgetCt)
                 .ConfigureAwait(false);
 
             query.AllowedPolicyPackRulePackIds = assigned;
@@ -74,7 +83,7 @@ public sealed class RetrievalQueryService(
         long startTicks = Stopwatch.GetTimestamp();
 
         AgenticRetrievalQueryPlan queryPlan = await _agenticRetrievalQueryExpander
-            .ExpandAsync(query.QueryText, ct)
+            .ExpandAsync(query.QueryText, budgetCt)
             .ConfigureAwait(false);
 
         int finalTopK = Math.Clamp(query.TopK, 1, 25);
@@ -85,15 +94,15 @@ public sealed class RetrievalQueryService(
 
         RetrievalQuery searchQuery = CloneWithTopK(query, candidateTopK);
 
-        float[] embedding = await embeddingService.EmbedAsync(queryPlan.EmbedText, ct);
-        IReadOnlyList<RetrievalHit> hits = await vectorIndex.SearchAsync(searchQuery, embedding, ct).ConfigureAwait(false);
+        float[] embedding = await embeddingService.EmbedAsync(queryPlan.EmbedText, budgetCt);
+        IReadOnlyList<RetrievalHit> hits = await vectorIndex.SearchAsync(searchQuery, embedding, budgetCt).ConfigureAwait(false);
 
         string rerankQueryText = queryPlan.RerankQueryText;
 
         if (rerankOptions.Enabled && hits.Count > 0)
         {
             hits = await _retrievalReranker
-                .RerankAsync(rerankQueryText, hits, finalTopK, ct)
+                .RerankAsync(rerankQueryText, hits, finalTopK, budgetCt)
                 .ConfigureAwait(false);
         }
         else if (hits.Count > finalTopK)
@@ -109,7 +118,7 @@ public sealed class RetrievalQueryService(
         if (advancedOptions.Enabled && advancedOptions.EnableGraphRag && hits.Count > 0)
         {
             hits = await _graphRagNeighborExpander
-                .ExpandAsync(query, hits, ct)
+                .ExpandAsync(query, hits, budgetCt)
                 .ConfigureAwait(false);
 
             if (hits.Count > finalTopK)
@@ -121,7 +130,7 @@ public sealed class RetrievalQueryService(
             }
         }
 
-        hits = await _manifestChunkSummarizer.MaybeSummarizeAsync(hits, ct).ConfigureAwait(false);
+        hits = await _manifestChunkSummarizer.MaybeSummarizeAsync(hits, budgetCt).ConfigureAwait(false);
 
         double durationMilliseconds = Stopwatch.GetElapsedTime(startTicks).TotalMilliseconds;
         bool recordPerTenantTags = _retrievalTelemetryOptions.CurrentValue.RecordPerTenantTags;

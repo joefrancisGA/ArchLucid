@@ -55,6 +55,28 @@ public sealed class RetrievalQueryServiceTests
     }
 
     [Fact]
+    public async Task SearchAsync_WhenEmbeddingIgnoresBudget_CancelsViaOverallTimeout()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string _, CancellationToken token) =>
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, token);
+                return new float[] { 1f };
+            });
+
+        RetrievalQueryService sut = CreateService(
+            embeddings.Object,
+            new InMemoryVectorIndex(),
+            queryBudget: new RetrievalQueryBudgetOptions { OverallTimeoutSeconds = 5 });
+
+        Func<Task> act = async () => await sut.SearchAsync(ScopedQuery("slow", topK: 8), CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public async Task SearchAsync_OrdersHitsByScoreDescending()
     {
         Mock<IEmbeddingService> embeddings = new();
@@ -227,7 +249,8 @@ public sealed class RetrievalQueryServiceTests
         IEmbeddingService embeddingService,
         IVectorIndex vectorIndex,
         HashSet<string>? assignedRulePackIds = null,
-        bool recordPerTenantTags = false)
+        bool recordPerTenantTags = false,
+        RetrievalQueryBudgetOptions? queryBudget = null)
     {
         Mock<IPolicyPackResolver> policyPackResolver = new();
         policyPackResolver
@@ -265,7 +288,8 @@ public sealed class RetrievalQueryServiceTests
             graphExpander,
             telemetryOptions,
             rerankingOptions,
-            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false }));
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false }),
+            new MockOptionsMonitor<RetrievalQueryBudgetOptions>(queryBudget ?? new RetrievalQueryBudgetOptions()));
     }
 
     private static EffectivePolicyPackSet BuildEffectivePackSet(IEnumerable<string> rulePackIds)

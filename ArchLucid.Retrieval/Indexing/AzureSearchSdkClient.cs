@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 
 using ArchLucid.Retrieval.Models;
@@ -17,10 +18,15 @@ namespace ArchLucid.Retrieval.Indexing;
 ///     Production <see cref="IAzureSearchClient" /> that applies <see cref="AzureSearchTenantScopeFilterBuilder" /> on every search (TB-071).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Requires Azure AI Search endpoint; exercised via filter builder unit tests and optional integration.")]
-public sealed class AzureSearchSdkClient(IOptionsMonitor<AzureSearchOptions> options) : IAzureSearchClient
+public sealed class AzureSearchSdkClient(
+    IOptionsMonitor<AzureSearchOptions> options,
+    IOptionsMonitor<RetrievalQueryBudgetOptions> queryBudgetOptions) : IAzureSearchClient
 {
     private readonly IOptionsMonitor<AzureSearchOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
+
+    private readonly IOptionsMonitor<RetrievalQueryBudgetOptions> _queryBudgetOptions =
+        queryBudgetOptions ?? throw new ArgumentNullException(nameof(queryBudgetOptions));
 
     /// <inheritdoc />
     public bool IsConfigured => TryCreateSearchClient(out _);
@@ -156,15 +162,24 @@ public sealed class AzureSearchSdkClient(IOptionsMonitor<AzureSearchOptions> opt
 
         Uri serviceUri = new(endpoint);
         string? apiKey = current.ApiKey?.Trim();
+        SearchClientOptions clientOptions = CreateSearchClientOptions();
 
         if (!string.IsNullOrEmpty(apiKey))
         {
-            client = new SearchClient(serviceUri, indexName, new AzureKeyCredential(apiKey));
+            client = new SearchClient(serviceUri, indexName, new AzureKeyCredential(apiKey), clientOptions);
             return true;
         }
 
-        client = new SearchClient(serviceUri, indexName, new DefaultAzureCredential());
+        client = new SearchClient(serviceUri, indexName, new DefaultAzureCredential(), clientOptions);
         return true;
+    }
+
+    private SearchClientOptions CreateSearchClientOptions()
+    {
+        SearchClientOptions clientOptions = new();
+        clientOptions.Retry.NetworkTimeout = _queryBudgetOptions.CurrentValue.GetEffectiveSearchNetworkTimeout();
+
+        return clientOptions;
     }
 
     private static SearchDocument ToSearchDocument(RetrievalChunk chunk)
