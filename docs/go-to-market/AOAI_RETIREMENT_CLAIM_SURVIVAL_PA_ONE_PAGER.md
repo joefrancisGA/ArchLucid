@@ -1,7 +1,7 @@
-> **Reviewed:** 2026-07-28
+> **Last reviewed:** 2026-07-30
 
-> **Scope:** Path alias for AOAI retirement claim-survival PA one-pager.
+# AOAI retirement claim survival — secondary path-stable alias (M-274)
 
-# AOAI retirement claim survival (alias)
+**Canon (full body):** [`BUYER_SECURITY_PROCUREMENT_PACKET.md#aoai-model-retirement-repro-m-274`](BUYER_SECURITY_PROCUREMENT_PACKET.md#aoai-model-retirement-repro-m-274)
 
-**Canonical:** [`AOAI_MODEL_RETIREMENT_REPRO_PA_ONE_PAGER.md`](AOAI_MODEL_RETIREMENT_REPRO_PA_ONE_PAGER.md) (GTM **M-274**).
+This filename remains a secondary path-stable alias for GTM **M-273** / **M-274**. Primary filename alias: [`AOAI_MODEL_RETIREMENT_REPRO_PA_ONE_PAGER.md`](AOAI_MODEL_RETIREMENT_REPRO_PA_ONE_PAGER.md). Prefer the procurement-packet section for edits.
