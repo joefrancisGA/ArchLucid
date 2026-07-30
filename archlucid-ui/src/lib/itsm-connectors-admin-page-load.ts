@@ -23,6 +23,54 @@ const SLICE_LABELS: Readonly<Record<ItsmConnectorsAdminPageLoadSlice, string>> =
   settings: "ITSM connector settings",
 };
 
+const RAW_LOAD_ERROR_PATTERNS: readonly RegExp[] = [
+  /database query failed/i,
+  /programming error/i,
+  /the database rejected the query/i,
+  /\b5\d{2}\b/,
+  /internal server error/i,
+];
+
+export const ITSM_CONNECTORS_ADMIN_HEALTH_LOAD_FAILURE_EXPLANATION =
+  "ArchLucid could not load ITSM connector health for this deployment. Use Retry or contact support if the problem continues.";
+
+export const ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION =
+  "ArchLucid could not load ITSM connector settings for this tenant. Use Retry or contact support if the problem continues.";
+
+function sliceLoadFailureExplanation(slice: ItsmConnectorsAdminPageLoadSlice): string {
+  if (slice === "health") {
+    return ITSM_CONNECTORS_ADMIN_HEALTH_LOAD_FAILURE_EXPLANATION;
+  }
+
+  return ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION;
+}
+
+/** Maps API problem titles / SQL mapper leaks out of admin ITSM load banners (TB-1432 / TB-1163 parity). */
+export function sanitizeItsmConnectorsAdminLoadError(
+  loadError: string | null | undefined,
+  slice: ItsmConnectorsAdminPageLoadSlice,
+): string | null {
+  if (loadError === null || loadError === undefined) {
+    return null;
+  }
+
+  const trimmed = loadError.trim();
+
+  if (trimmed.length === 0) {
+    return sliceLoadFailureExplanation(slice);
+  }
+
+  if (RAW_LOAD_ERROR_PATTERNS.some((pattern) => pattern.test(trimmed))) {
+    if (typeof console !== "undefined" && typeof console.warn === "function") {
+      console.warn(`[itsm-connectors-admin] ${slice} load failure (raw detail not shown):`, trimmed);
+    }
+
+    return sliceLoadFailureExplanation(slice);
+  }
+
+  return trimmed;
+}
+
 function reasonMessage(reason: unknown, fallback: string): string {
   if (reason instanceof Error && reason.message.trim().length > 0) {
     return reason.message.trim();

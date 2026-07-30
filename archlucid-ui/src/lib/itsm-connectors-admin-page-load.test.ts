@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildItsmConnectorsAdminPageLoadResult,
+  ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION,
   resolveItsmAdminJiraCredentialsConfigured,
   resolveItsmAdminServiceNowCredentialsConfigured,
+  sanitizeItsmConnectorsAdminLoadError,
   settleItsmConnectorsAdminPageLoadSlice,
 } from "@/lib/itsm-connectors-admin-page-load";
 
@@ -50,28 +52,6 @@ describe("itsm-connectors-admin-page-load", () => {
     expect(result.loadError).toBe("Database Query Failed");
   });
 
-  it("builds a partial load where health fails without clearing settings (TB-1431)", () => {
-    const result = buildItsmConnectorsAdminPageLoadResult({
-      health: { status: "rejected", reason: new Error("Health probe unavailable") },
-      settings: {
-        status: "fulfilled",
-        value: {
-          hasTenantOverrides: true,
-          nativeEnabled: true,
-          deploymentCredentials: {
-            jiraConfigured: true,
-            serviceNowConfigured: false,
-          },
-        },
-      },
-    });
-
-    expect(result.health.failed).toBe(true);
-    expect(result.settings.value?.hasTenantOverrides).toBe(true);
-    expect(result.failedSliceLabels).toEqual(["ITSM connector health"]);
-    expect(result.loadError).toBe("Health probe unavailable");
-  });
-
   it("falls back to health probes for credential status when settings load failed (TB-1431)", () => {
     expect(
       resolveItsmAdminJiraCredentialsConfigured(
@@ -94,5 +74,36 @@ describe("itsm-connectors-admin-page-load", () => {
         true,
       ),
     ).toBe(false);
+  });
+
+  it("builds a partial load where health fails without clearing settings (TB-1431)", () => {
+    const result = buildItsmConnectorsAdminPageLoadResult({
+      health: { status: "rejected", reason: new Error("Health probe unavailable") },
+      settings: {
+        status: "fulfilled",
+        value: {
+          hasTenantOverrides: true,
+          nativeEnabled: true,
+          deploymentCredentials: {
+            jiraConfigured: true,
+            serviceNowConfigured: false,
+          },
+        },
+      },
+    });
+
+    expect(result.health.failed).toBe(true);
+    expect(result.settings.value?.hasTenantOverrides).toBe(true);
+    expect(result.failedSliceLabels).toEqual(["ITSM connector health"]);
+    expect(result.loadError).toBe("Health probe unavailable");
+  });
+
+  it("sanitizes raw database errors from admin load banners (TB-1432)", () => {
+    expect(
+      sanitizeItsmConnectorsAdminLoadError(
+        "Database Query Failed: The database rejected the query due to a programming error",
+        "settings",
+      ),
+    ).toBe(ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION);
   });
 });

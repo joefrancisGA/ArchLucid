@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ITSM_CONNECTORS_ADMIN_BANNED_SUBSTRINGS } from "@/lib/itsm-connectors-admin-scope";
+import { ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION } from "@/lib/itsm-connectors-admin-page-load";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "..", "..", "..", "..");
 
@@ -62,6 +63,10 @@ describe("AdminItsmConnectorsPageClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
     });
+
+    const wizard = screen.getByTestId("admin-itsm-onboarding-wizard");
+    const scope = screen.getByTestId("admin-itsm-connectors-scope");
+    expect(wizard.compareDocumentPosition(scope) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     await waitFor(() => {
       expect(screen.getByTestId("admin-itsm-jira-health")).toHaveTextContent("Jira Cloud settings populated.");
@@ -160,7 +165,9 @@ describe("AdminItsmConnectorsPageClient", () => {
     });
 
     expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
-    expect(screen.getByTestId("admin-itsm-settings-load-error")).toHaveTextContent("Database Query Failed");
+    expect(screen.getByTestId("admin-itsm-settings-load-error")).toHaveTextContent(
+      ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION,
+    );
     expect(screen.queryByTestId("admin-itsm-health-load-error")).not.toBeInTheDocument();
     expect(
       screen.queryByText("not configured — ask a platform administrator to add Jira credentials"),
@@ -188,5 +195,74 @@ describe("AdminItsmConnectorsPageClient", () => {
     expect(screen.getByTestId("admin-itsm-health-load-error")).toHaveTextContent("Health probe unavailable");
     expect(screen.getByText("Tenant ITSM outbound overrides are saved for this tenant.")).toBeInTheDocument();
     expect(screen.queryByTestId("admin-itsm-settings-load-error")).not.toBeInTheDocument();
+  });
+
+  it("shows skeleton while loading and page-level refresh control (TB-1432)", async () => {
+    fetchItsmIntegrationHealth.mockImplementation(() => new Promise(() => undefined));
+    fetchTenantItsmOutboundSettings.mockImplementation(() => new Promise(() => undefined));
+
+    render(<AdminItsmConnectorsPageClient />);
+
+    expect(screen.getByTestId("admin-itsm-connectors-loading-skeleton")).toBeInTheDocument();
+    expect(screen.queryByText(/Loading connector configuration/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("admin-itsm-connectors-refresh")).toHaveTextContent("Refreshing…");
+  });
+
+  it("promotes Retry when load errors are present (TB-1432)", async () => {
+    fetchItsmIntegrationHealth.mockRejectedValue(new Error("Database Query Failed"));
+    fetchTenantItsmOutboundSettings.mockRejectedValue(new Error("Database Query Failed"));
+
+    render(<AdminItsmConnectorsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-itsm-connectors-refresh")).toHaveTextContent("Retry");
+    });
+
+    expect(screen.getByTestId("admin-itsm-health-load-error")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-itsm-settings-load-error")).toBeInTheDocument();
+    expect(screen.queryByText(/Database Query Failed/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps wizard mounted while refreshing after initial load (TB-1432)", async () => {
+    fetchItsmIntegrationHealth.mockResolvedValue({
+      nativeEnabled: true,
+      jira: { locallyConfigured: true, reachable: true, summary: "Jira Cloud settings populated." },
+      serviceNow: { locallyConfigured: false, summary: "Add ServiceNow instance URL." },
+    });
+    fetchTenantItsmOutboundSettings.mockResolvedValue({
+      hasTenantOverrides: false,
+      nativeEnabled: true,
+      deploymentCredentials: {
+        jiraConfigured: true,
+        jiraServiceAccountEmailMasked: "a***n@example.com",
+        serviceNowConfigured: false,
+      },
+    });
+
+    render(<AdminItsmConnectorsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
+    });
+
+    fetchItsmIntegrationHealth.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(
+            () =>
+              resolve({
+                nativeEnabled: true,
+                jira: { locallyConfigured: true, reachable: true, summary: "Jira Cloud settings populated." },
+                serviceNow: { locallyConfigured: false, summary: "Add ServiceNow instance URL." },
+              }),
+            50,
+          );
+        }),
+    );
+
+    fireEvent.click(screen.getByTestId("admin-itsm-connectors-refresh"));
+
+    expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
+    expect(screen.queryByTestId("admin-itsm-connectors-loading-skeleton")).not.toBeInTheDocument();
   });
 });

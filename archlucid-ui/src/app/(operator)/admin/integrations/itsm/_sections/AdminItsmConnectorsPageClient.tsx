@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   fetchItsmIntegrationHealth,
@@ -25,13 +26,17 @@ import {
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { AdminItsmConnectorOnboardingWizard } from "./AdminItsmConnectorOnboardingWizard";
+import { AdminItsmConnectorsPageLoadingSkeleton } from "./AdminItsmConnectorsPageLoadingSkeleton";
 import { ItsmConnectorProbeCard } from "@/app/(operator)/integrations/_sections/itsm/ItsmConnectorProbeCard";
 import {
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_READINESS_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
 } from "@/lib/integrations-nav-paths";
-import { buildItsmConnectorsAdminPageLoadResult } from "@/lib/itsm-connectors-admin-page-load";
+import {
+  buildItsmConnectorsAdminPageLoadResult,
+  sanitizeItsmConnectorsAdminLoadError,
+} from "@/lib/itsm-connectors-admin-page-load";
 
 export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
@@ -41,6 +46,8 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [isLoading, setIsLoading] = useState(true);
 
   const nativeEnabled = health?.nativeEnabled ?? settings?.nativeEnabled ?? false;
+  const hasLoadErrors = healthLoadError !== null || settingsLoadError !== null;
+  const showLoadingSkeleton = isLoading && health === null && settings === null;
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
@@ -63,7 +70,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
     }
 
     if (loaded.health.failed) {
-      setHealthLoadError(loaded.health.errorMessage);
+      setHealthLoadError(sanitizeItsmConnectorsAdminLoadError(loaded.health.errorMessage, "health"));
     }
 
     if (!loaded.settings.failed && loaded.settings.value !== null) {
@@ -71,7 +78,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
     }
 
     if (loaded.settings.failed) {
-      setSettingsLoadError(loaded.settings.errorMessage);
+      setSettingsLoadError(sanitizeItsmConnectorsAdminLoadError(loaded.settings.errorMessage, "settings"));
     }
 
     setIsLoading(false);
@@ -90,9 +97,55 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         icon={Workflow}
         variant="integration"
         bordered
-        actions={<PageContextualHelpButton />}
+        actions={
+          <>
+            <Button
+              type="button"
+              variant={hasLoadErrors ? "default" : "outline"}
+              size="sm"
+              disabled={isLoading}
+              onClick={() => void refresh()}
+              data-testid="admin-itsm-connectors-refresh"
+            >
+              {isLoading ? "Refreshing…" : hasLoadErrors ? "Retry" : "Refresh"}
+            </Button>
+            <PageContextualHelpButton />
+          </>
+        }
         data-testid="admin-itsm-connectors-page-heading"
       />
+
+      {showLoadingSkeleton ? (
+        <AdminItsmConnectorsPageLoadingSkeleton />
+      ) : (
+        <>
+          {healthLoadError !== null ? (
+            <p
+              className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}
+              role="alert"
+              data-testid="admin-itsm-health-load-error"
+            >
+              {healthLoadError}
+            </p>
+          ) : null}
+
+          <AdminItsmConnectorOnboardingWizard
+            initialSettings={settings}
+            initialHealth={health}
+            settingsLoadFailed={settingsLoadError !== null}
+            onSettingsSaved={setSettings}
+            onHealthUpdated={setHealth}
+          />
+
+          <section className="space-y-4" aria-labelledby="admin-itsm-connectors-health-heading">
+            <h2 id="admin-itsm-connectors-health-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+              Connector health
+            </h2>
+            <ItsmConnectorProbeCard title="Jira" probe={health?.jira} testId="admin-itsm-jira-health" />
+            <ItsmConnectorProbeCard title="ServiceNow" probe={health?.serviceNow} testId="admin-itsm-servicenow-health" />
+          </section>
+        </>
+      )}
 
       <Card data-testid="admin-itsm-connectors-scope">
         <CardHeader>
@@ -132,45 +185,10 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
           ) : settings?.hasTenantOverrides ? (
             <p className="m-0">Tenant ITSM outbound overrides are saved for this tenant.</p>
           ) : (
-            <p className="m-0">No tenant overrides saved yet — use the onboarding wizard below.</p>
+            <p className="m-0">No tenant overrides saved yet — use the onboarding wizard above.</p>
           )}
         </CardContent>
       </Card>
-
-      {healthLoadError !== null ? (
-        <p
-          className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}
-          role="alert"
-          data-testid="admin-itsm-health-load-error"
-        >
-          {healthLoadError}
-        </p>
-      ) : null}
-
-      {isLoading ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading connector configuration…</p>
-      ) : (
-        <>
-          <AdminItsmConnectorOnboardingWizard
-            initialSettings={settings}
-            initialHealth={health}
-            settingsLoadFailed={settingsLoadError !== null}
-            onSettingsSaved={setSettings}
-            onHealthUpdated={setHealth}
-          />
-
-          <section className="space-y-4" aria-labelledby="admin-itsm-connectors-health-heading">
-            <h2
-              id="admin-itsm-connectors-health-heading"
-              className={OPERATOR_TYPOGRAPHY.sectionTitle}
-            >
-              Connector health
-            </h2>
-            <ItsmConnectorProbeCard title="Jira" probe={health?.jira} testId="admin-itsm-jira-health" />
-            <ItsmConnectorProbeCard title="ServiceNow" probe={health?.serviceNow} testId="admin-itsm-servicenow-health" />
-          </section>
-        </>
-      )}
     </div>
   );
 }
