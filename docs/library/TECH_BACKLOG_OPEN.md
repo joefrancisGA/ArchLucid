@@ -409,7 +409,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1629 | Azure permissions help — IA dual with Connect Azure securely | Adoption friction P1 **V1** — with **TB-1626** |
 | TB-1630 | Azure permissions help — connection-context loading skeleton | Adoption friction P1 **V1** — with **TB-1626** |
 | TB-1631 | `/help/caiq-sig-response` specialty buyer questionnaire guide | Adoption friction P1 **V1** — HCA ~41 |
-| TB-1633 | CAIQ/SIG help — pen-test / SOC honesty alignment | Trustworthiness P0 **V1** — with **TB-1631** |
 | TB-1634 | CAIQ/SIG help — dual-doc dump / first-viewport density | Adoption friction P1 **V1** — with **TB-1631** |
 | TB-1635 | CAIQ/SIG help — Help Center + Trust / compliance-journey discovery IA | Adoption friction P1 **V1** — with **TB-1631** |
 | TB-1636 | `/help/comparison-replay` specialty guide + Open Compare CTA | Adoption friction P1 **V1** — CO ~48 |

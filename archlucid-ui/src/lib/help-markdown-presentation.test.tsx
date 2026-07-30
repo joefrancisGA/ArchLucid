@@ -16,6 +16,7 @@ import {
   resolveRelativeRepoDocPath,
   rewriteHelpMarkdownDocLinks,
   sanitizeBareMarkdownFileReferences,
+  alignCaiqSigAssuranceHonesty,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -558,6 +559,42 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("pen-test-summaries/");
     expect(prepared).not.toContain("contributor-reference/");
     expect(prepared).toContain("/help/security-trust");
+  });
+
+  it("aligns CAIQ/SIG pen-test and SOC wording to assurance honesty ladder (TB-1633)", () => {
+    const source = [
+      "**Dry-run note (procurement):** Status values (**Strong**, **Partial**, **In flight**, **Inherited**)",
+      "",
+      "| Control intent | Status | Evidence |",
+      "| Third-party pen test | In flight | SoW template |",
+      "| SOC program | Partial | SOC 2 ready narrative |",
+    ].join("\n");
+
+    const prepared = alignCaiqSigAssuranceHonesty(source);
+
+    expect(prepared).not.toMatch(/pen test in flight/i);
+    expect(prepared).not.toMatch(/\|\s*Third-party pen test\s*\|\s*In flight\s*\|/i);
+    expect(prepared).not.toContain("SOC 2 ready");
+    expect(prepared).not.toContain("**In flight**");
+    expect(prepared).toContain("Planned, not yet scheduled");
+    expect(prepared).toContain("SOC 2 self-assessment (not CPA attestation)");
+  });
+
+  it("keeps presented CAIQ/SIG help free of pen-test-in-flight and SOC overclaims (TB-1633)", () => {
+    const loaded = tryLoadProductDocumentation("caiq-sig-response");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath).toLowerCase();
+
+    expect(prepared).not.toMatch(/pen test in flight/);
+    expect(prepared).not.toMatch(/pen-test in flight/);
+    expect(prepared).not.toContain("soc 2 ready");
+    expect(prepared).not.toContain("soc 2 certified");
+    expect(prepared).not.toMatch(/\|\s*third-party pen test\s*\|\s*in flight\s*\|/);
+    expect(prepared).toContain("planned, not yet scheduled");
+    expect(prepared).not.toContain("not labeled in flight are explained");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

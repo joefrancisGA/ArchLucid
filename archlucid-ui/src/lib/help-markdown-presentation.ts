@@ -1272,6 +1272,30 @@ export function stripCaiqSigContributorLeakage(markdown: string): string {
     .replace(/\n{3,}/g, "\n\n");
 }
 
+/**
+ * TB-1633 — aligns CAIQ/SIG questionnaire help with assurance honesty talk-track
+ * (ASSURANCE_STATUS_CANONICAL / TB-1144): SoW/program ≠ published third-party pen test;
+ * never imply CPA SOC 2 attestation or "pen test in flight."
+ */
+export function alignCaiqSigAssuranceHonesty(markdown: string): string {
+  return markdown
+    .replace(
+      /\|\s*Third-party pen test\s*\|\s*In flight\s*\|/gi,
+      "| Third-party pen test | Planned, not yet scheduled |",
+    )
+    .replace(
+      /\*\*In flight\*\*, \*\*Inherited\*\*/gi,
+      "**Planned, not yet scheduled**, **Inherited**",
+    )
+    .replace(/pen[- ]test in flight/gi, "third-party penetration test planned, not yet scheduled")
+    .replace(/pen[- ]test underway/gi, "third-party penetration test planned, not yet scheduled")
+    .replace(/SOC 2 ready/gi, "SOC 2 self-assessment (not CPA attestation)")
+    .replace(/SOC 2 certified/gi, "SOC 2 self-assessment (not CPA attestation)")
+    .replace(/SOC 2 in process/gi, "SOC 2 readiness planning (not CPA attestation)")
+    .replace(/almost attested/gi, "self-assessment only (not CPA attestation)")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -1453,7 +1477,7 @@ export function prepareHelpMarkdownForPresentation(
   } else if (isAzureBoardsIntegration) {
     afterAudienceStrip = stripAzureBoardsContributorLeakage(sanitized);
   } else if (isCaiqSigResponse) {
-    afterAudienceStrip = stripCaiqSigContributorLeakage(sanitized);
+    afterAudienceStrip = alignCaiqSigAssuranceHonesty(stripCaiqSigContributorLeakage(sanitized));
   }
 
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);
