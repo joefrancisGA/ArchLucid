@@ -913,6 +913,170 @@ export function stripPilotRoiModelContributorLeakage(markdown: string): string {
     .replace(/\n{3,}/g, "\n\n");
 }
 
+/** H2 sections omitted from in-app repeat-review help (founder validation / proof theater). */
+const REPEAT_REVIEW_LOOP_OMITTED_SECTION_PREFIXES = ["second-review habit loop validation"] as const;
+
+/**
+ * TB-1396 — drops habit-loop validation and founder proof-theater sections from repeat-review help.
+ */
+export function stripRepeatReviewLoopContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = REPEAT_REVIEW_LOOP_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+/**
+ * TB-1396 — removes CLI proof scripts, eng `.md` paths, fixtures, and TB IDs from repeat-review help.
+ */
+export function stripRepeatReviewLoopContributorLeakage(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let inFence = false;
+  let fenceBuffer: string[] = [];
+  let detailsBuffer: string[] | null = null;
+
+  const flushFenceBuffer = (): void => {
+    if (fenceBuffer.length === 0) {
+      return;
+    }
+
+    const block = fenceBuffer.join("\n");
+    fenceBuffer = [];
+
+    if (/collect-first-pilot-proof/i.test(block) || /archlucid second-run/i.test(block)) {
+      return;
+    }
+
+    for (const bufferedLine of block.split("\n")) {
+      result.push(bufferedLine);
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      if (inFence) {
+        fenceBuffer.push(line);
+        flushFenceBuffer();
+        inFence = false;
+        continue;
+      }
+
+      inFence = true;
+      fenceBuffer = [line];
+      continue;
+    }
+
+    if (inFence) {
+      fenceBuffer.push(line);
+      continue;
+    }
+
+    if (/^<details\b/i.test(trimmed)) {
+      detailsBuffer = [line];
+      continue;
+    }
+
+    if (detailsBuffer !== null) {
+      detailsBuffer.push(line);
+
+      if (/^<\/details>/i.test(trimmed)) {
+        detailsBuffer = null;
+      }
+
+      continue;
+    }
+
+    if (/^\*\*Habit-loop validation:\*\*/i.test(trimmed)) {
+      continue;
+    }
+
+    if (/SECOND_REVIEW_HABIT_LOOP_VALIDATION/i.test(line)) {
+      continue;
+    }
+
+    if (/fixtures\/second-review/i.test(line)) {
+      continue;
+    }
+
+    if (/THREE_REAL_MODE_PROOF_RUNS/i.test(line)) {
+      continue;
+    }
+
+    if (/GENERIC_AI_BAKEOFF_PROTOCOL/i.test(line)) {
+      continue;
+    }
+
+    if (/PRODUCT_LEARNING/i.test(line)) {
+      continue;
+    }
+
+    if (/API_CONTRACTS/i.test(line)) {
+      continue;
+    }
+
+    if (/CORE_PILOT\.md/i.test(line)) {
+      continue;
+    }
+
+    if (/PRODUCT_PACKAGING/i.test(line)) {
+      continue;
+    }
+
+    if (/collect-first-pilot-proof/i.test(line)) {
+      continue;
+    }
+
+    if (/\.\/scripts\//i.test(line)) {
+      continue;
+    }
+
+    if (/second-review-habit-loop-validation/i.test(line)) {
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  if (inFence) {
+    flushFenceBuffer();
+  }
+
+  return result
+    .join("\n")
+    .replace(/\s*\(TB-\d+\)/gi, "")
+    .replace(/\bTB-\d+\b/gi, "")
+    .replace(/`?CORE_PILOT\.md`?/gi, "Your first architecture review")
+    .replace(/`?API_CONTRACTS\.md`?/gi, "API contracts reference")
+    .replace(/`?PRODUCT_LEARNING\.md`?/gi, "product learning analytics")
+    .replace(/`?PRODUCT_PACKAGING\.md`?/gi, "product packaging guide")
+    .replace(/`?PILOT_ROI_MODEL\.md`?/gi, "pilot ROI methodology")
+    .replace(/`?DEFAULT_POLICY_PACKS_V1\.md`?/gi, "default policy packs")
+    .replace(/`?PILOT_SUCCESS_SCORECARD\.md`?/gi, "pilot success scorecard")
+    .replace(/`?docs\/go-to-market\/[^`\s)]+`?/gi, "go-to-market documentation")
+    .replace(/docs\/go-to-market\/[^\s)]+/gi, "go-to-market documentation")
+    .replace(/`?docs\/library\/[^`\s)]+`?/gi, "product documentation")
+    .replace(/docs\/library\/[^\s)]+/gi, "product documentation")
+    .replace(/`?docs\/runbooks\/[^`\s)]+`?/gi, "operations runbook")
+    .replace(/docs\/runbooks\/[^\s)]+/gi, "operations runbook")
+    .replace(/\n{3,}/g, "\n\n");
+}
+
 /** Emphasizes known inline guidance labels in help markdown when not already bold. */
 export function emphasizeInlineGuidanceLabels(markdown: string): string {
   let inFence = false;
@@ -1049,6 +1213,7 @@ export function prepareHelpMarkdownForPresentation(
   const isEvaluatorWorkbook = normalizedSourcePath.includes("evaluator_workbook.md");
   const isGovernanceApiContracts = normalizedSourcePath.includes("api_contracts.md");
   const isPilotRoiModel = normalizedSourcePath.includes("pilot_roi_model.md");
+  const isRepeatReviewLoop = normalizedSourcePath.includes("repeat_review_loop.md");
   // TB-1346 — retarget runbook .md links to /help before generic link rewrite drops them.
   const afterEvaluatorWorkbookStrip = isEvaluatorWorkbook
     ? stripEvaluatorWorkbookContributorLeakage(withoutInlineReferences)
@@ -1061,7 +1226,9 @@ export function prepareHelpMarkdownForPresentation(
         ? stripGovernanceApiContractsContributorSections(afterEvaluatorWorkbookStrip)
         : isPilotRoiModel
           ? stripPilotRoiModelContributorSections(afterEvaluatorWorkbookStrip)
-          : afterEvaluatorWorkbookStrip;
+          : isRepeatReviewLoop
+            ? stripRepeatReviewLoopContributorSections(afterEvaluatorWorkbookStrip)
+            : afterEvaluatorWorkbookStrip;
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(beforeLinkRewrite, sourceDocPath);
   const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
   // Audience-specific strips — do not apply procurement/config rewrites to unrelated topics.
@@ -1077,6 +1244,8 @@ export function prepareHelpMarkdownForPresentation(
     afterAudienceStrip = stripGovernanceApiContractsContributorLeakage(sanitized);
   } else if (isPilotRoiModel) {
     afterAudienceStrip = stripPilotRoiModelContributorLeakage(sanitized);
+  } else if (isRepeatReviewLoop) {
+    afterAudienceStrip = stripRepeatReviewLoopContributorLeakage(sanitized);
   }
 
   const withoutHorizontalRules = stripMarkdownHorizontalRules(afterAudienceStrip);

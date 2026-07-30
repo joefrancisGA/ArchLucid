@@ -26,6 +26,8 @@ import {
   stripGovernanceApiContractsContributorSections,
   stripPilotRoiModelContributorLeakage,
   stripPilotRoiModelContributorSections,
+  stripRepeatReviewLoopContributorLeakage,
+  stripRepeatReviewLoopContributorSections,
 } from "@/lib/help-markdown-presentation";
 import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
@@ -308,6 +310,71 @@ describe("help-markdown-presentation", () => {
 
     expect(prepared).toContain("/help/pilot-guide");
     expect(prepared).toContain("/help/executive-summary");
+    expect(prepared.toLowerCase()).not.toContain("docs/go-to-market");
+  });
+
+  it("omits habit-loop validation section from repeat-review help (TB-1396)", () => {
+    const source = [
+      "## Recommended loop (after first finalize)",
+      "",
+      "Compare two packages.",
+      "",
+      "## Second-review habit loop validation",
+      "",
+      "collect-first-pilot-proof.ps1 and fixtures/second-review",
+      "",
+      "## Related help",
+      "",
+      "See comparison replay.",
+    ].join("\n");
+
+    const prepared = stripRepeatReviewLoopContributorSections(source);
+
+    expect(prepared.toLowerCase()).not.toContain("second-review habit loop validation");
+    expect(prepared).toContain("## Recommended loop");
+    expect(prepared).toContain("## Related help");
+    expect(prepared).not.toContain("collect-first-pilot-proof");
+  });
+
+  it("strips CLI proof scripts and eng doc leakage from repeat-review help (TB-1396)", () => {
+    const source = [
+      "**Prerequisite:** [Core pilot](../CORE_PILOT.md)",
+      "",
+      "<details>",
+      "<summary>Administrator details — API and CLI surfaces</summary>",
+      "",
+      "| Compare | API_CONTRACTS.md |",
+      "",
+      "```powershell",
+      "./scripts/collect-first-pilot-proof.ps1 -RunNumber 2",
+      "```",
+      "",
+      "</details>",
+      "",
+      "Also see PRODUCT_LEARNING.md and TB-227.",
+    ].join("\n");
+
+    const prepared = stripRepeatReviewLoopContributorLeakage(source);
+
+    expect(prepared).not.toMatch(/\bTB-\d+\b/i);
+    expect(prepared).not.toContain("collect-first-pilot-proof");
+    expect(prepared).not.toContain("API_CONTRACTS.md");
+    expect(prepared).not.toContain("CORE_PILOT.md");
+    expect(prepared).not.toContain("PRODUCT_LEARNING");
+    expect(prepared).not.toContain("<details>");
+  });
+
+  it("rewrites repeat-review policy and scorecard links to in-app help (TB-1396)", () => {
+    const source = [
+      "Dry-run: [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md).",
+      "",
+      "Scorecard: [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md).",
+    ].join("\n");
+
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/REPEAT_REVIEW_LOOP.md");
+
+    expect(prepared).toContain("/help/governance-approval");
+    expect(prepared).toContain("/help/pilot-guide");
     expect(prepared.toLowerCase()).not.toContain("docs/go-to-market");
   });
 
