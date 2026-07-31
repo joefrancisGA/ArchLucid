@@ -25,6 +25,7 @@ import {
   stripPathChooserContributorLeakage,
   stripPilotFeedbackContributorLeakage,
   stripPolicyPackDeltaContributorLeakage,
+  stripPriorManifestRetrievalContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -910,6 +911,42 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("eb81dd4972ad429e8d4e214f9934bfc0");
     expect(prepared).toContain("policy packs");
     expect(prepared).toContain("/policy-packs");
+  });
+
+  it("strips prior-manifest host config key leakage (TB-1733)", () => {
+    const source = [
+      "- **Priors from other packages** — up to the configured limit of **other finalized architecture packages** (see limits below).",
+      "",
+      "<details>",
+      "<summary>Administrator details — indexing limits</summary>",
+      "",
+      "Cross-package prior attachment at index time is capped by `Retrieval:PriorManifest:MaxPriorManifestsPerIndex` (default **5**).",
+      "</details>",
+    ].join("\n");
+
+    const prepared = stripPriorManifestRetrievalContributorLeakage(source);
+
+    expect(prepared).not.toContain("Retrieval:PriorManifest");
+    expect(prepared).not.toContain("MaxPriorManifestsPerIndex");
+    expect(prepared).toContain("five");
+    expect(prepared).toContain("most recent");
+  });
+
+  it("keeps presented prior-manifest help operator-safe (TB-1733)", () => {
+    const loaded = tryLoadProductDocumentation("prior-manifest-retrieval");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "prior-manifest-retrieval",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("retrieval:priormanifest");
+    expect(prepared).not.toContain("maxpriormanifestsperindex");
+    expect(prepared).not.toContain("deployment configuration");
+    expect(prepared).toContain("five");
+    expect(prepared).toContain("finalize");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

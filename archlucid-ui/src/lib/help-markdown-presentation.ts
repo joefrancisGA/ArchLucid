@@ -2006,6 +2006,72 @@ export function stripPolicyPackDeltaContributorLeakage(markdown: string): string
     .trimEnd();
 }
 
+/**
+ * TB-1733 — prior-manifest help: strip host config keys; state default limit in operator language.
+ */
+export function stripPriorManifestRetrievalContributorLeakage(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let detailsBuffer: string[] | null = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (/^<details\b/i.test(trimmed)) {
+      detailsBuffer = [line];
+      continue;
+    }
+
+    if (detailsBuffer !== null) {
+      detailsBuffer.push(line);
+
+      if (/^<\/details>/i.test(trimmed)) {
+        detailsBuffer = null;
+      }
+
+      continue;
+    }
+
+    if (/Retrieval:PriorManifest/i.test(line)) {
+      continue;
+    }
+
+    if (/MaxPriorManifestsPerIndex/i.test(line)) {
+      continue;
+    }
+
+    if (/deployment configuration/i.test(line)) {
+      continue;
+    }
+
+    if (/Administrator details — indexing limits/i.test(line)) {
+      continue;
+    }
+
+    if (/Platform teams may adjust the limit/i.test(line)) {
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  return result
+    .join("\n")
+    .replace(
+      /up to the configured limit of \*\*other finalized architecture packages\*\*/gi,
+      "up to **five** other finalized architecture packages (most recent first)",
+    )
+    .replace(/\(see limits below\)/gi, "")
+    .replace(
+      /Cross-package prior attachment at index time is capped[^.\n]*\./gi,
+      "Cross-package prior attachment keeps the **five** most recent finalized packages in the same project, excluding the package being finalized and any archived records.",
+    )
+    .replace(/`Retrieval:PriorManifest:[^`]+`/gi, "the platform indexing limit")
+    .replace(/Retrieval:PriorManifest:[^\s)]+/gi, "the platform indexing limit")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
 export function stripPathChooserContributorLeakage(markdown: string): string {
   return markdown
     .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
@@ -2300,6 +2366,11 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("policy_pack_delta_demo_script.md")
   ) {
     afterAudienceStrip = stripPolicyPackDeltaContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "prior-manifest-retrieval" &&
+    normalizedSourcePath.includes("prior_manifest_retrieval_guide.md")
+  ) {
+    afterAudienceStrip = stripPriorManifestRetrievalContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);

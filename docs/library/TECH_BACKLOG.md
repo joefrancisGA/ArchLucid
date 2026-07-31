@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1727** **Done** — policy-pack-delta help strips HTTP/config/script/GUID leakage; UI-first Admin demo guide; Vitest). Prior: 2026-07-30 (**TB-1717** **Done** — pilot-feedback help strips API/SQL/StorageProvider/Swagger leakage; UI-first Admin guide; Vitest).
+**Updated:** 2026-07-30 (**TB-1733** **Done** — prior-manifest help strips host config keys; default limit in operator language; Vitest). Prior: 2026-07-30 (**TB-1727** **Done** — policy-pack-delta help strips HTTP/config/script/GUID leakage; UI-first Admin demo guide; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1301,7 +1301,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1730 | Policy-pack-delta help — 5-min arc first-viewport before Phase dump; see ## TB-1730 below | Adoption friction P1 — **V1**; with **TB-1726** | S |
 | TB-1731 | `/help/prior-manifest-retrieval` specialty Ask-memory guide + Open Ask CTA; see ## TB-1731 below | Adoption friction P1 — **V1**; owner review ~50/100 2026-07-27; traffic **HEP**; pairs **TB-1414** | M |
 | TB-1732 | Prior-manifest help — manifest/retrieval jargon honesty; see ## TB-1732 below | Trustworthiness P1 — **V1**; with **TB-1731**; pairs glossary former *manifest* | S |
-| TB-1733 | Prior-manifest help — host config key leakage strip; see ## TB-1733 below | Trustworthiness P0 — **V1**; with **TB-1731**; pairs **TB-1235** | S |
+| TB-1733 | **Done** (2026-07-30) — Prior-manifest help — host config key leakage strip; see `## TB-1733` below | Trustworthiness P0 — **V1**; with **TB-1731**; pairs **TB-1235** | S |
 | TB-1734 | Prior-manifest help — IA dual with repeat-review / compare; see ## TB-1734 below | Adoption friction P1 — **V1**; with **TB-1731**; pairs **TB-1394**/**TB-1636** | S |
 | TB-1735 | Prior-manifest help — Related + finalize-success inbound copy; see ## TB-1735 below | Adoption friction P1 — **V1**; with **TB-1731** | S |
 | TB-1736 | `/help/product-overview` specialty buyer overview + Start CTA; see ## TB-1736 below | Adoption friction P1 — **V1**; owner review ~42/100 2026-07-27; traffic **HPR**; pairs **TB-1414** | M |
@@ -42574,7 +42574,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1733 — Prior-manifest help — host config key leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-07-30). **Priority:** P0.
+
+**Shipped:** `stripPriorManifestRetrievalContributorLeakage()` in `help-markdown-presentation.ts` — drops Admin details disclosure with `Retrieval:PriorManifest:*` keys; states default **five** most-recent packages in operator language; Vitest in `help-markdown-presentation.test.tsx` + `HelpTopicPriorManifestRetrieval.test.tsx`.
 
 **Problem:** Admin details expose `Retrieval:PriorManifest:MaxPriorManifestsPerIndex` — host config theater even under disclosure.
 
