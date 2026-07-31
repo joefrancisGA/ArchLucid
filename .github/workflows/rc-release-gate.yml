@@ -19,9 +19,9 @@ jobs:
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -69,7 +69,7 @@ jobs:
 
       - name: Upload route tier policy nav RC artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: route-tier-policy-nav-parity
           path: ${{ runner.temp }}/route-tier-policy-nav-parity.*
@@ -91,9 +91,9 @@ jobs:
     needs: release-evidence-gates
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -103,7 +103,7 @@ jobs:
             --environment Production \
             --out "${{ runner.temp }}/observability-export-readiness.md"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: observability-export-readiness
@@ -115,9 +115,9 @@ jobs:
     needs: high-risk-guards
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -160,9 +160,9 @@ jobs:
     needs: release-evidence-gates
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -177,7 +177,7 @@ jobs:
             --json-out "${{ runner.temp }}/real-mode-claim-gate.json" \
             --markdown-out "${{ runner.temp }}/real-mode-claim-gate.md"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: real-mode-claim-gate
@@ -189,9 +189,9 @@ jobs:
     needs: real-mode-claim-gate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -207,7 +207,7 @@ jobs:
             --markdown-out "${{ runner.temp }}/real-model-canary-gate.md" \
             --rc-strict
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: real-model-canary-gate
@@ -223,9 +223,9 @@ jobs:
       - high-risk-guards
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -314,7 +314,7 @@ jobs:
           fi
           echo "Strict RC fail-closed guard verified (incomplete bundle correctly blocked)."
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rc-signoff-gate
@@ -341,9 +341,9 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
           cache: true
@@ -353,7 +353,7 @@ jobs:
             **/*.csproj
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -452,7 +452,7 @@ jobs:
 
       - name: Upload Playwright test-results (traces)
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-rc-test-results
           path: archlucid-ui/test-results
@@ -460,7 +460,7 @@ jobs:
 
       - name: Upload live API log
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-rc-api-log
           path: ${{ runner.temp }}/live-api-rc.log
@@ -468,7 +468,7 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ui-e2e-live-rc-playwright-report
           path: archlucid-ui/playwright-report
