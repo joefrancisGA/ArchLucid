@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { trackArchitectureDraftResumeClick } from "@/lib/architecture-draft-resume-telemetry";
 import { architectureDraftPath, ARCHITECTURES_LIST_PATH } from "@/lib/architecture-routes";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import {
@@ -15,8 +15,14 @@ import {
   REVIEWS_HUB_RESUME_DRAFTS_TITLE,
   REVIEWS_HUB_RESUME_DRAFTS_VIEW_ALL_LABEL,
 } from "./reviews-hub-copy";
+import { shouldShowReviewsHubResumeDrafts } from "./reviews-hub-header-primary";
 
 const REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT = 3;
+
+type ReviewsHubResumeDraftsProps = {
+  /** When the reviews inventory is empty, elevate this chooser above “Your reviews”. */
+  readonly elevateAsPrimaryJob?: boolean;
+};
 
 function formatDraftUpdatedLabel(updatedUtc: string): string {
   const parsed = Date.parse(updatedUtc);
@@ -32,19 +38,30 @@ function formatDraftUpdatedLabel(updatedUtc: string): string {
   });
 }
 
-/** Surfaces saved architecture drafts on the reviews hub when at least one exists. */
-export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
+/**
+ * Multi-draft chooser on `/reviews`. Hidden when a single draft is already the header Continue target.
+ */
+export function ReviewsHubResumeDrafts(props: ReviewsHubResumeDraftsProps = {}): React.JSX.Element | null {
+  const elevateAsPrimaryJob = props.elevateAsPrimaryJob === true;
   const entries = useArchitectureDraftRegistryEntries();
 
-  if (entries.length === 0) {
+  if (!shouldShowReviewsHubResumeDrafts(entries.length)) {
     return null;
   }
 
   const previewEntries = entries.slice(0, REVIEWS_HUB_RESUME_DRAFTS_PREVIEW_LIMIT);
+  const titleClass = elevateAsPrimaryJob
+    ? cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)
+    : cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL);
 
   return (
-    <section className="mt-4" data-testid="reviews-hub-resume-drafts" aria-label={REVIEWS_HUB_RESUME_DRAFTS_TITLE}>
-      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{REVIEWS_HUB_RESUME_DRAFTS_TITLE}</h2>
+    <section
+      className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-900/30"
+      data-testid="reviews-hub-resume-drafts"
+      data-elevate-primary={elevateAsPrimaryJob ? "true" : "false"}
+      aria-label={REVIEWS_HUB_RESUME_DRAFTS_TITLE}
+    >
+      <h2 className={titleClass}>{REVIEWS_HUB_RESUME_DRAFTS_TITLE}</h2>
       <p className={cn("m-0 mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {REVIEWS_HUB_RESUME_DRAFTS_BODY}
       </p>
@@ -53,13 +70,17 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
           <li key={entry.architectureId} data-testid={`reviews-hub-resume-draft-${entry.architectureId}`}>
             <Link
               href={architectureDraftPath(entry.architectureId)}
-              className={cn(OPERATOR_LINK.nav, "inline-flex flex-wrap items-baseline gap-x-2")}
+              className={cn(
+                OPERATOR_LINK.nav,
+                "inline-flex max-w-full flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-2",
+              )}
+              title={entry.displayName}
               onClick={() => {
                 trackArchitectureDraftResumeClick("reviews-hub", entry.architectureId);
               }}
             >
-              <span className="font-medium text-al-text-primary">{entry.displayName}</span>
-              <span className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
+              <span className="line-clamp-2 break-words font-medium text-al-text-primary">{entry.displayName}</span>
+              <span className={cn(OPERATOR_TYPOGRAPHY.helper, "shrink-0 text-al-text-secondary")}>
                 Updated {formatDraftUpdatedLabel(entry.lastUpdatedUtc)}
               </span>
               <span className="sr-only">{REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}</span>

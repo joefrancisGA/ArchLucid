@@ -20,7 +20,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer-shell-home-present";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
 import type { RunSummary } from "@/types/authority";
@@ -34,8 +34,9 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
-  REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
+  REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
+  REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
   REVIEWS_HUB_RECENT_SECTION_TITLE,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
@@ -137,41 +138,76 @@ function ReviewFilterChip(props: {
   );
 }
 
+function emptyInventoryDescription(draftCount: number): string {
+  if (draftCount === 1) {
+    return REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY;
+  }
+
+  if (draftCount > 1) {
+    return REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;
+  }
+
+  return REVIEWS_HUB_RECENT_EMPTY_BODY;
+}
+
 /** Filterable review inventory for `/reviews`. */
 export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ReviewFilterId>("all");
   const draftEntries = useArchitectureDraftRegistryEntries();
   const rows = useMemo(() => props.runs.map(toReviewsHubReviewRowDisplay), [props.runs]);
-  const resumeDraft = draftEntries[0] ?? null;
+  const draftCount = draftEntries.length;
+  const hasDrafts = draftCount > 0;
+  const demoteSectionHeading = rows.length === 0 && hasDrafts;
   const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
 
   const filteredRuns = useMemo(() => {
     return props.runs.filter((run) => matchesSearch(run, searchQuery) && matchesFilter(run, activeFilter));
   }, [activeFilter, props.runs, searchQuery]);
 
+  const sampleHref = showcaseSampleReviewPackageHref();
+
   return (
     <section className="mt-8" data-testid="reviews-hub-recent-packages">
-      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{REVIEWS_HUB_RECENT_SECTION_TITLE}</h2>
+      <h2
+        className={cn(
+          "m-0",
+          demoteSectionHeading
+            ? cn(OPERATOR_NAV_GROUP_LABEL, "text-al-text-secondary")
+            : cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle),
+        )}
+      >
+        {REVIEWS_HUB_RECENT_SECTION_TITLE}
+      </h2>
 
       {rows.length === 0 ? (
-        <div
-          className="mt-3"
-          data-has-architecture-drafts={resumeDraft !== null ? "true" : "false"}
-        >
+        <div className="mt-3" data-has-architecture-drafts={hasDrafts ? "true" : "false"}>
           <EnterpriseCompactEmptyState
             testId="reviews-hub-recent-empty"
-            title={resumeDraft !== null ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
-            description={
-              resumeDraft !== null ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY : REVIEWS_HUB_RECENT_EMPTY_BODY
+            title={hasDrafts ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
+            description={emptyInventoryDescription(draftCount)}
+            actions={
+              hasDrafts
+                ? undefined
+                : [
+                    {
+                      label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
+                      href: sampleHref,
+                      variant: "outline",
+                    },
+                  ]
             }
-            actions={[
-              {
-                label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
-                href: showcaseSampleReviewPackageHref(),
-                variant: "outline",
-              },
-            ]}
+            footer={
+              hasDrafts ? (
+                <Link
+                  href={sampleHref}
+                  className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="reviews-hub-recent-empty-sample-link"
+                >
+                  {REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL}
+                </Link>
+              ) : null
+            }
           />
         </div>
       ) : (
@@ -249,7 +285,9 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                             {row.reviewTitle}
                           </Link>
                           {row.isSampleReview ? (
-                            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Sample review</p>
+                            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                              Sample review
+                            </p>
                           ) : null}
                         </div>
                       </EnterpriseTableCell>

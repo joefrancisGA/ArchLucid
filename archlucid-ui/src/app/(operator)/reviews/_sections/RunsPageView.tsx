@@ -77,7 +77,7 @@ export function RunsPageView(props: Props) {
         actions={<ReviewsHubHeaderActions />}
       />
 
-      <ReviewsHubResumeDrafts />
+      <ReviewsHubResumeDrafts elevateAsPrimaryJob={!hasReviews} />
 
       {hubLoadOk ? (
         <>

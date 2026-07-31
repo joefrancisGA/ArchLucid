@@ -4,7 +4,11 @@ import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
 export const REVIEWS_HUB_PAGE_TITLE = "Reviews";
 
 export const REVIEWS_HUB_PAGE_SUBTITLE =
-  "Create, refine, evaluate, and approve architecture reviews. Describe or import an architecture in the review flow — the review remains the durable work item.";
+  "Create, refine, evaluate, and approve architecture reviews.";
+
+/** Extra orientation for empty inventory — kept out of the page subtitle for density. */
+export const REVIEWS_HUB_DURABLE_WORK_ITEM_HINT =
+  "Describe or import an architecture in the review flow — the review remains the durable work item.";
 
 export const REVIEWS_HUB_MORE_WAYS_TITLE = "Samples and what a review includes";
 
@@ -56,17 +60,25 @@ export const REVIEWS_HUB_RECENT_SECTION_TITLE = "Your reviews";
 export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "Start your first architecture review";
 
 export const REVIEWS_HUB_RECENT_EMPTY_BODY =
-  "Describe or import an architecture, gather evidence, evaluate it against your policies, and record decisions in one review.";
+  `Describe or import an architecture, gather evidence, evaluate it against your policies, and record decisions in one review. ${REVIEWS_HUB_DURABLE_WORK_ITEM_HINT}`;
 
 export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
 export const REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL = "Explore the sample review";
 
 /** Empty "Your reviews" copy when architecture drafts exist but no review runs yet. */
-export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "Turn your draft into a review";
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "No reviews yet";
 
-export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY =
-  "You already have a saved architecture draft. Finish the draft, then start a review to gather evidence and record decisions.";
+/** Empty inventory when exactly one draft — header Continue owns the CTA. */
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY =
+  "Continue editing from the header, then start a review to gather evidence and record decisions.";
+
+/** Empty inventory when multiple drafts — resume strip is the chooser. */
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
+  "Pick a draft above, then start a review to gather evidence and record decisions.";
+
+/** @deprecated Prefer sole/multi bodies; kept for callers that only know drafts exist. */
+export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY = REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;
 
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL = "Continue editing draft";
 

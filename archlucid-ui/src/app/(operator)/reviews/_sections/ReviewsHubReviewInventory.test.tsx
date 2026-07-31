@@ -41,9 +41,10 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Start an architecture review" })).toBeNull();
     expect(screen.queryByTestId("reviews-hub-recent-empty-start-review")).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-recent-empty-sample-link")).toBeNull();
   });
 
-  it("keeps draft-aware empty copy without a second filled Start", () => {
+  it("keeps draft-aware empty copy-only with a quiet sample link", () => {
     listArchitectureDraftRegistryEntries.mockReturnValue([
       {
         architectureId: "draft-001",
@@ -58,9 +59,12 @@ describe("ReviewsHubReviewInventory", () => {
 
     render(<ReviewsHubReviewInventory runs={[]} />);
 
-    expect(screen.getByText("Turn your draft into a review")).toBeInTheDocument();
+    expect(screen.getByText("No reviews yet")).toBeInTheDocument();
+    expect(screen.getByText(/Continue editing from the header/i)).toBeInTheDocument();
     expect(screen.queryByText("Start your first architecture review")).toBeNull();
-    expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-recent-empty-sample-link")).toHaveTextContent(
+      "Explore the sample review",
+    );
     expect(screen.queryByRole("link", { name: "Continue editing draft" })).toBeNull();
   });
 

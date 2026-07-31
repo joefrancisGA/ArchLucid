@@ -20,7 +20,7 @@ describe("reviews-hub-copy", () => {
     expect(REVIEWS_HUB_PAGE_SUBTITLE).toBe("Create, refine, evaluate, and approve architecture reviews.");
     expect(REVIEWS_HUB_RECENT_EMPTY_TITLE).toBe("Start your first architecture review");
     expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("describe or import an architecture");
-    expect(REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE).toBe("Turn your draft into a review");
+    expect(REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE).toBe("No reviews yet");
     expect(REVIEWS_HUB_SUMMARY_EMPTY_HINT.toLowerCase()).toContain("not architecture drafts");
   });
 
