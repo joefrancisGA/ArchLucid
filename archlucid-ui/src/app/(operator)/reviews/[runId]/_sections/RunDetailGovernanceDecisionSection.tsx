@@ -4,6 +4,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture-workspace-tabs";
+import {
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA,
+  RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE,
+} from "@/lib/run-detail-governance-pre-commit-copy";
 import { shouldShowRunDetailGovernanceCta, runDetailGovernanceWorkflowHref } from "@/lib/run-detail-governance-cta-visibility";
 
 export type RunDetailGovernanceDecisionSectionProps = {
@@ -34,6 +41,35 @@ export function RunDetailGovernanceDecisionSection(
     operatorGovernanceDecision: props.operatorGovernanceDecision,
     manifestStatus: props.manifestStatus,
   });
+
+  if (!manifestFinalized) {
+    const findingsHref = buildArchitectureWorkspaceTabHref(props.runId, "findings");
+    const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity");
+
+    return (
+      <section
+        id="governance-decision"
+        className="scroll-mt-24 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        data-testid="run-detail-governance-decision"
+        data-package-committed="false"
+      >
+        <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
+          {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE}
+        </h2>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button asChild>
+            <Link href={findingsHref}>{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA}</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={activityHref}>{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA}</Link>
+          </Button>
+        </div>
+      </section>
+    );
+  }
 
   const decisionState =
     decision.length > 0

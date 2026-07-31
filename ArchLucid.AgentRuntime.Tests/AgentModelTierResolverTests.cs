@@ -33,7 +33,7 @@ public sealed class AgentModelTierResolverTests
     }
 
     [Fact]
-    public void ResolveTierForAgent_maps_starter_agents_to_economy_and_premium_by_default()
+    public void ResolveTierForAgent_maps_starter_agents_to_luna_terra_sol_tiers_by_default()
     {
         AgentModelTierResolver resolver = CreateResolver(
             new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "primary-deploy" },
@@ -41,7 +41,7 @@ public sealed class AgentModelTierResolverTests
 
         resolver.ResolveTierForAgent(AgentType.Topology, null).Should().Be(LlmModelTier.Economy);
         resolver.ResolveTierForAgent(AgentType.Cost, null).Should().Be(LlmModelTier.Economy);
-        resolver.ResolveTierForAgent(AgentType.Compliance, null).Should().Be(LlmModelTier.Premium);
+        resolver.ResolveTierForAgent(AgentType.Compliance, null).Should().Be(LlmModelTier.Standard);
         resolver.ResolveTierForAgent(AgentType.Critic, null).Should().Be(LlmModelTier.Premium);
     }
 
@@ -73,13 +73,13 @@ public sealed class AgentModelTierResolverTests
     }
 
     [Fact]
-    public void ResolveNonAgentDefaultTier_defaults_to_economy()
+    public void ResolveNonAgentDefaultTier_defaults_to_standard()
     {
         AgentModelTierResolver resolver = CreateResolver(
             new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "primary-deploy" },
             new AgentModelTierOptions());
 
-        resolver.ResolveNonAgentDefaultTier().Should().Be(LlmModelTier.Economy);
+        resolver.ResolveNonAgentDefaultTier().Should().Be(LlmModelTier.Standard);
     }
 
     [Fact]

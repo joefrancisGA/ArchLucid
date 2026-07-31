@@ -18,7 +18,7 @@ Add goals, constraints, risks, integrations, and what you want ArchLucid to focu
 
 ## Confirm review scope
 
-By default, your first review is evaluated against two standards — Security Architecture Baseline and FinOps & Cloud Cost Optimization. Open **Review scope (optional)** to turn this off and use every standard enabled for your workspace instead.
+By default, your first review is evaluated against six architecture-quality standards — Security Architecture Baseline, Reliability and Resilience, FinOps & Cloud Cost Optimization, Performance and Scalability, Operational Excellence, and Sustainability and Resource Efficiency. Open **Review scope (optional)** to turn this off and use every standard enabled for your workspace instead.
 
 Review scope controls which standards evaluate your design; it is not the same as workspace or tenant scope. See the [Workspace and scope guide](/help/scope) for tenant, workspace, and project isolation.
 

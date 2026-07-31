@@ -10,7 +10,6 @@ import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } fr
 export type RunDetailWorkspaceStickyActionsProps = {
   readonly runId: string;
   readonly primaryAction: ReviewPackagePrimaryActionModel;
-  readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null;
   readonly showProgressTracker: boolean;
   readonly manifestId: string | null | undefined;
@@ -33,31 +32,16 @@ export function RunDetailWorkspaceStickyActions(
             </Link>
           </Button>
         ) : null}
-        <Button variant="outline" size="sm" asChild>
-          <Link href={buildReviewDetailTabHref(props.runId, "findings")}>Review findings</Link>
-        </Button>
         {props.manifestId ? (
           <Button variant="outline" size="sm" asChild>
             <Link href={`/governance?runId=${encodeURIComponent(props.runId)}`}>Record decision</Link>
           </Button>
         ) : null}
-        {!props.hasGoldenManifest ? (
-          <ReviewPackagePrimaryAction
-            action={{ kind: "finalize-package", label: "Finalize", href: null }}
-            runId={props.runId}
-            hasGoldenManifest={props.hasGoldenManifest}
-            commitBlockedReason={props.commitBlockedReason}
-          />
-        ) : (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={buildReviewDetailTabHref(props.runId, "review-package")}>Share</Link>
-          </Button>
-        )}
       </div>
       <ReviewPackagePrimaryAction
         action={props.primaryAction}
         runId={props.runId}
-        hasGoldenManifest={props.hasGoldenManifest}
+        hasGoldenManifest={Boolean(props.manifestId)}
         commitBlockedReason={props.commitBlockedReason}
       />
     </div>

@@ -1,8 +1,8 @@
 # Golden cohort / eval-corpus real-mode evidence summary
 
 **Captured (UTC):** 2026-05-10  
-**Reference model:** `gpt-4o` (see `budget.config.json` → `baselineModelSku`; live runs bind `AzureOpenAI:DeploymentName` to the deployment resource that targets this model).  
-**Evidence shape:** Web-serialized `AgentResult` JSON under `tests/eval-corpus/agent-results/*.real.json`. These files are **committed synthetic exemplars** for deterministic structural/semantic scoring in CI (`scripts/ci/eval_agent_corpus.py`). They are **not** raw Azure OpenAI completions. For buyer-facing proof, replace paths via the per-scenario `qualityEvidence.agentResultPathEnv` variables after exporting from a `Real` execution (`ARCHLUCID_AGENT_EXECUTION_MODE=Real` / `AgentExecution:Mode=Real`) with **gpt-4o** only.
+**Reference model:** `gpt-5.6-terra` (see `budget.config.json` → `baselineModelSku`; live runs bind `AzureOpenAI:DeploymentName` to the deployment resource that targets this model).  
+**Evidence shape:** Web-serialized `AgentResult` JSON under `tests/eval-corpus/agent-results/*.real.json`. These files are **committed synthetic exemplars** for deterministic structural/semantic scoring in CI (`scripts/ci/eval_agent_corpus.py`). They are **not** raw Azure OpenAI completions. For buyer-facing proof, replace paths via the per-scenario `qualityEvidence.agentResultPathEnv` variables after exporting from a `Real` execution (`ARCHLUCID_AGENT_EXECUTION_MODE=Real` / `AgentExecution:Mode=Real`) with **gpt-5.6-terra** only.
 
 ## Inventory — real-mode scenarios (`qualityEvidence.mode: "real"`)
 
@@ -84,7 +84,7 @@ python scripts/ci/eval_agent_corpus.py `
 |------|-------|
 | Token counts (prompt + completion) for committed exemplars | **Not applicable** — JSON files do not embed usage metadata. |
 | Monthly budget cap | `tests/golden-cohort/budget.config.json` → `monthlyTokenBudgetUsd` (**unchanged** this change-set). |
-| Live run capture | Record `usage` / token fields from the **gpt-4o** completion response (or Azure Monitor / cost export) when replacing exemplars after real invokes; attach to change request when updating committed JSON. |
+| Live run capture | Record `usage` / token fields from the **gpt-5.6-terra** completion response (or Azure Monitor / cost export) when replacing exemplars after real invokes; attach to change request when updating committed JSON. |
 
 ## CI wiring
 

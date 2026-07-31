@@ -98,7 +98,7 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
   if (submitted) {
     return (
       <div className="max-w-[560px]" data-testid="auth-callback-access-success">
-        <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_CALLBACK_ACCESS_SUCCESS_TITLE}</h2>
+        <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_CALLBACK_ACCESS_SUCCESS_TITLE}</h1>
         <p className={cn("mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{AUTH_CALLBACK_ACCESS_SUCCESS_BODY}</p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button asChild variant="outline" size="sm">
@@ -111,9 +111,14 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
 
   return (
     <div className="max-w-[560px]" data-testid="auth-callback-access-panel">
-      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_CALLBACK_ACCESS_HEADING}</h2>
+      <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_CALLBACK_ACCESS_HEADING}</h1>
       <p className={cn("mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{AUTH_CALLBACK_ACCESS_LEAD}</p>
-      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{technicalDetail}</p>
+      <p
+        className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="auth-callback-technical-detail"
+      >
+        {technicalDetail}
+      </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button
@@ -129,9 +134,6 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
         </Button>
         <Button asChild variant="outline" size="sm" data-testid="auth-callback-try-again">
           <Link href="/auth/signin">{AUTH_CALLBACK_ACCESS_TRY_AGAIN_ACTION}</Link>
-        </Button>
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/auth/signin">{AUTH_CALLBACK_ACCESS_BACK_TO_SIGN_IN_ACTION}</Link>
         </Button>
       </div>
 

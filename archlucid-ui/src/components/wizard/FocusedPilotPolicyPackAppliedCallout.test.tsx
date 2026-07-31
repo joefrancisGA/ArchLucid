@@ -11,10 +11,14 @@ describe("FocusedPilotPolicyPackAppliedCallout", () => {
     expect(screen.getByText(/ArchLucid default standards applied automatically/i)).toBeTruthy();
     expect(
       screen.getByText(
-        /For your first review, ArchLucid evaluates against its default Security Architecture Baseline and FinOps & Cloud Cost Optimization standards/i,
+        /For your first review, ArchLucid evaluates against its default architecture-quality standards — Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability/i,
       ),
     ).toBeTruthy();
     expect(screen.getByText("Security Architecture Baseline")).toBeTruthy();
+    expect(screen.getByText("Reliability and Resilience")).toBeTruthy();
     expect(screen.getByText("FinOps & Cloud Cost Optimization")).toBeTruthy();
+    expect(screen.getByText("Performance and Scalability")).toBeTruthy();
+    expect(screen.getByText("Operational Excellence")).toBeTruthy();
+    expect(screen.getByText("Sustainability and Resource Efficiency")).toBeTruthy();
   });
 });

@@ -38,6 +38,7 @@ import {
 
 type GovernanceOverviewPanelProps = {
   readonly buyerPolishedShell: boolean;
+  readonly canMutateWorkflow: boolean;
   readonly queryRunId: string;
   readonly setQueryRunId: (value: string) => void;
   readonly onLoadReview: () => void;
@@ -98,6 +99,7 @@ function SummaryMetricCard(props: {
 export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): React.JSX.Element {
   const {
     buyerPolishedShell,
+    canMutateWorkflow,
     queryRunId,
     setQueryRunId,
     onLoadReview,
@@ -212,16 +214,37 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
               />
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button type="button" variant="primary" size="sm" data-testid="governance-overview-submit-action" onClick={onFocusSubmit}>
-                {GOVERNANCE_OVERVIEW_SUBMIT_ACTION}
-              </Button>
-              <Button type="button" variant="secondary" size="sm" data-testid="governance-overview-pending-action" onClick={scrollToPending}>
-                {GOVERNANCE_OVERVIEW_PENDING_ACTION}
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/governance/findings">{GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION}</Link>
-              </Button>
+            <div className="mt-4 flex flex-wrap gap-2" data-testid="governance-overview-actions">
+              {buyerPolishedShell && !canMutateWorkflow ? (
+                <>
+                  {loadState.metrics.pendingApprovalRequests > 0 ? (
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      data-testid="governance-overview-pending-action"
+                      onClick={scrollToPending}
+                    >
+                      {GOVERNANCE_OVERVIEW_PENDING_ACTION}
+                    </Button>
+                  ) : null}
+                  <Button asChild variant="outline" size="sm">
+                    <Link href="/governance/findings">{GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION}</Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button type="button" variant="primary" size="sm" data-testid="governance-overview-submit-action" onClick={onFocusSubmit}>
+                    {GOVERNANCE_OVERVIEW_SUBMIT_ACTION}
+                  </Button>
+                  <Button type="button" variant="secondary" size="sm" data-testid="governance-overview-pending-action" onClick={scrollToPending}>
+                    {GOVERNANCE_OVERVIEW_PENDING_ACTION}
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href="/governance/findings">{GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION}</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </>
         ) : null}

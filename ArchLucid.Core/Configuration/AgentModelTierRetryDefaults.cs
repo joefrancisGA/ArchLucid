@@ -13,7 +13,7 @@ public static class AgentModelTierRetryDefaults
         {
             AgentType.Topology => LlmModelTier.Economy,
             AgentType.Cost => LlmModelTier.Economy,
-            AgentType.Compliance => LlmModelTier.Premium,
+            AgentType.Compliance => LlmModelTier.Standard,
             AgentType.Critic => LlmModelTier.Premium,
             _ => LlmModelTier.Standard,
         };

@@ -17,9 +17,10 @@ public static class AgentModelExecutionProfileTierPolicy
             return LlmModelTier.Premium;
         }
 
+        // Balanced profile: Luna for bulk extractors, Terra for policy, Sol for hard critique.
         return agentType switch
         {
-            AgentType.Compliance => LlmModelTier.Premium,
+            AgentType.Compliance => LlmModelTier.Standard,
             AgentType.Critic => LlmModelTier.Premium,
             _ => LlmModelTier.Economy
         };

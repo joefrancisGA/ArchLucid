@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "ops-base-001",
+    "ops-base-002",
+    "ops-base-003",
+    "ops-base-004",
+    "ops-base-005",
+    "ops-base-006",
+    "ops-base-007",
+    "ops-base-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "operational-excellence-v1",
+    "pack.displayName": "Operational Excellence",
+    "pack.category": "Operations",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Provider-neutral operational excellence screening \u2014 ownership, deployment/rollback, observability, alerting, runbooks, change management, and incident learning. Thematic mapping only; not an ops audit.",
+    "frameworkMappingDisclaimer": "Operational excellence themes are architecture-review prompts only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/operational-excellence-rules-v1.json",
+    "pack.qualityDimension": "OperationalExcellence"
+  }
+}

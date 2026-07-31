@@ -115,10 +115,24 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(source).toContain("useStructuredPresentation");
   });
 
-  it("uses tabbed architecture workspace for create-architecture handoff", () => {
-    expect(source).toContain("ArchitectureCreatedWorkspace");
-    expect(source).toContain("showArchitectureCreatedHome");
-    expect(source).toContain("fromArchitectureCreation");
-    expect(source).toContain("panels={{");
+  it("places executive context immediately after the decision snapshot in standard review mode", () => {
+    const summaryIndex = source.indexOf("<RunDetailWorkspaceSummaryStrip");
+    const executiveAfterSummary = source.indexOf("{executiveBottomLineEl}", summaryIndex);
+    const tabbedWorkspaceIndex = source.indexOf("{tabbedWorkspaceEl}");
+
+    expect(summaryIndex).toBeGreaterThan(-1);
+    expect(executiveAfterSummary).toBeGreaterThan(summaryIndex);
+    expect(tabbedWorkspaceIndex).toBeGreaterThan(executiveAfterSummary);
+  });
+
+  it("keeps sticky actions to navigation plus one resolved primary action", () => {
+    const stickySource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "RunDetailWorkspaceStickyActions.tsx"),
+      "utf8",
+    );
+
+    expect(stickySource).not.toContain('"Review findings"');
+    expect(stickySource).not.toContain('label: "Finalize"');
+    expect(stickySource).toContain("<ReviewPackagePrimaryAction");
   });
 });

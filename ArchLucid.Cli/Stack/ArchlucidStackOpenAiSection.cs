@@ -8,5 +8,9 @@ internal sealed class ArchlucidStackOpenAiSection
 
     public string? ChatDeploymentName { get; set; }
 
+    public string? EconomyDeploymentName { get; set; }
+
+    public string? PremiumDeploymentName { get; set; }
+
     public string? EmbeddingDeploymentName { get; set; }
 }

@@ -2,7 +2,7 @@
 
 This directory holds the **fixed cohort definition** used for nightly drift detection against the **simulator** agent path (and optionally a dedicated Azure OpenAI deployment when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true` — budget approval required; see `docs/PENDING_QUESTIONS.md` item 15). **`budget.config.json`** pins the **$50/month** cap and **warn/kill** ratios for the real-LLM path; see [`docs/runbooks/GOLDEN_COHORT_BUDGET.md`](../runbooks/GOLDEN_COHORT_BUDGET.md) and [`scripts/golden_cohort_budget_probe.py`](../../scripts/golden_cohort_budget_probe.py).
 
-**Canonical Azure OpenAI model (operator 2026-05-11):** **`gpt-4o`** for real-LLM cohort quality scoring parity. Host **`AzureOpenAI:DeploymentName`** binds to whichever Azure portal **deployment** label targets **`gpt-4o`**; `budget.config.json` **`deploymentName`** is bookkeeping for operators (typically matches that label)—see [**`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`**](../../docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) **section 10**.
+**Canonical Azure OpenAI model (operator 2026-07-31):** **`gpt-5.6-terra`** for real-LLM cohort quality scoring parity (Economy **`gpt-5.6-luna`**, Premium **`gpt-5.6-sol`**). Host **`AzureOpenAI:DeploymentName`** binds to whichever Azure portal **deployment** label targets Terra; `budget.config.json` **`deploymentName`** is bookkeeping for operators (typically matches that label)—see [**`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`**](../../docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) **section 10**.
 
 **`usage-mtd.json`** is an append-only ledger populated when the budget probe runs with `--usage-ledger` (see `.github/workflows/golden-cohort-nightly.yml`); CI uploads it as an artifact rather than auto-committing repo changes.
 

@@ -8,8 +8,8 @@ import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChart
 import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNeededSummaryCard";
 import { GovernanceBypassAuditPanel } from "@/components/governance/GovernanceBypassAuditPanel";
 import { DataArchivalDegradedBanner } from "@/components/governance/DataArchivalDegradedBanner";
+import { ExecutiveWorkspaceHealthPageHero } from "@/components/governance/ExecutiveWorkspaceHealthPageHero";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
-import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { LayerHeader } from "@/components/LayerHeader";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -28,6 +28,11 @@ import { formatExecutiveWorkspaceScopeDescription } from "@/lib/workspace-health
 import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  executiveWorkspaceHealthKpiTitle,
+  EXECUTIVE_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER,
+  EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY,
+} from "@/lib/executive-workspace-health-page-copy";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ComplianceDriftTrendPoint, GovernanceDashboardSummary } from "@/types/governance-dashboard";
@@ -169,10 +174,21 @@ export function ExecutiveWorkspaceHealthDashboard() {
     };
   }, [load]);
 
+  const layerHeader = (
+    <LayerHeader
+      pageKey="governance-dashboard"
+      density={buyerPolishedShell ? "compact" : "default"}
+      collapsibleGuidance={
+        buyerPolishedShell ? EXECUTIVE_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER : undefined
+      }
+    />
+  );
+
   if (state.status === "loading" || state.status === "idle") {
     return (
       <div className="w-full max-w-[1440px] space-y-4">
-        <LayerHeader pageKey="governance-dashboard" />
+        {layerHeader}
+        <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
         <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
         </p>
@@ -183,7 +199,8 @@ export function ExecutiveWorkspaceHealthDashboard() {
   if (state.status === "error") {
     return (
       <div className="w-full max-w-[1440px] space-y-4">
-        <LayerHeader pageKey="governance-dashboard" />
+        {layerHeader}
+        <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
         <OperatorApiProblem
           fallbackMessage={state.message}
           problem={state.problem}
@@ -240,34 +257,45 @@ export function ExecutiveWorkspaceHealthDashboard() {
     ? String(blocked30d.count)
     : `≥ ${blocked30d.count} (sampled lower bound; audit paging reached safety cap)`;
 
-  return (
-    <div className="w-full max-w-[1440px] space-y-6">
-      <LayerHeader pageKey="governance-dashboard" />
-
-      <header className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
-            {buyerPolishedShell ? "Workspace overview" : "Executive Workspace Health"}
-          </h1>
-          <InAppHelpLink helpSlug="governance-approval" label="Governance workflows documentation" />
-        </div>
-        <p className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {buyerPolishedShell
-            ? "Governance posture at a glance for your current workspace scope — counts and trends only (no cross-tenant rollup)."
-            : "Single page for operators and sponsors: pre-commit posture, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy — all within your current workspace scope."}
+  const scopeBannerBlock =
+    buyerPolishedShell ? (
+      <details
+        className={cn(
+          "rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 shadow-sm dark:border-neutral-800",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+        data-testid="executive-workspace-health-session-scope"
+      >
+        <summary className="cursor-pointer font-semibold text-teal-900 dark:text-teal-100">
+          {EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY}
+        </summary>
+        <p className="m-0 mt-2 leading-snug" role="status">
+          {scopeBanner}
         </p>
-      </header>
-
+      </details>
+    ) : (
       <div
         className={cn(
           "rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 shadow-sm dark:border-neutral-800",
           OPERATOR_TYPOGRAPHY.body,
         )}
         role="status"
+        data-testid="executive-workspace-health-session-scope"
       >
-        <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">Session scope</p>
+        <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">
+          {EXECUTIVE_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY}
+        </p>
         <p className="m-0 mt-1 leading-snug">{scopeBanner}</p>
       </div>
+    );
+
+  return (
+    <div className="w-full max-w-[1440px] space-y-6">
+      {layerHeader}
+
+      <ExecutiveWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
+
+      {scopeBannerBlock}
 
       <DataArchivalDegradedBanner />
 
@@ -279,7 +307,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              1. Pre-commit outcomes (30 days)
+              {executiveWorkspaceHealthKpiTitle("preCommitOutcomes", buyerPolishedShell)}
             </h2>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell ? (
@@ -315,7 +343,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
             <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              2. High / Critical finding exposure (90 days)
+              {executiveWorkspaceHealthKpiTitle("highCriticalExposure", buyerPolishedShell)}
             </h2>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Pilot-value report severity totals in the window — exposure in the report period, not the same as an open-backlog
@@ -339,7 +367,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
           <CardContent className="space-y-2 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                3. Compliance drift trend (30 days)
+                {executiveWorkspaceHealthKpiTitle("complianceDrift", buyerPolishedShell)}
               </h2>
               <Link href="/governance" className={OPERATOR_LINK.nav}>
                 Governance workflow
@@ -352,7 +380,9 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>4. Approval SLA posture</h2>
+            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {executiveWorkspaceHealthKpiTitle("approvalSla", buyerPolishedShell)}
+            </h2>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Derived from governance dashboard pending approvals and recent terminal decisions.
             </p>
@@ -371,7 +401,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
           <CardContent className="space-y-2 p-4">
             <div className="flex items-start gap-2">
               <h2 className={cn("m-0 flex-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                5. Pre-commit blocks as value proxy
+                {executiveWorkspaceHealthKpiTitle("valueProxy", buyerPolishedShell)}
               </h2>
               <FieldHelpTooltip
                 label="the hours estimate"

@@ -1,0 +1,31 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "rel-base-001",
+    "rel-base-002",
+    "rel-base-003",
+    "rel-base-004",
+    "rel-base-005",
+    "rel-base-006",
+    "rel-base-007",
+    "rel-base-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "reliability-and-resilience-v1",
+    "pack.displayName": "Reliability and Resilience",
+    "pack.category": "Reliability",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Provider-neutral reliability and resilience screening for architecture reviews \u2014 failure modes, recovery objectives, redundancy proportional to criticality, backup, and graceful degradation. Thematic mapping only; not a certification.",
+    "frameworkMappingDisclaimer": "Reliability themes are architecture-review prompts only; not certification.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/reliability-and-resilience-rules-v1.json",
+    "pack.qualityDimension": "ReliabilityAndResilience"
+  }
+}

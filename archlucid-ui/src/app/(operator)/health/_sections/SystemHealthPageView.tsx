@@ -5,15 +5,14 @@ import Link from "next/link";
 
 import { StatusPill } from "@/components/StatusPill";
 import { DeploymentBuildFingerprintStrip } from "@/components/shell/DeploymentBuildFingerprintStrip";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { systemHealthPageSubtitle } from "@/lib/system-health-page-copy";
 import {
   HEALTH_DASHBOARD_PAGE_CLASS,
   HealthCheckRow,
   HealthDashboardSection,
   HealthGroupedReadiness,
   HealthOverallStatusHeader,
-  HealthRefreshToolbar,
   HealthSummaryTileGrid,
 } from "@/components/health-dashboard/HealthDashboardSections";
 import { HealthBuildDetailsDisclosure } from "@/components/health-dashboard/HealthBuildDetailsDisclosure";
@@ -22,6 +21,7 @@ import { groupReadinessRows, presentReadinessRow, resolveOverallHealthHeadline }
 
 import type { SystemHealthPageViewModel } from "./system-health-page-view-model";
 import { SystemHealthDemoPageView } from "./SystemHealthDemoPageView";
+import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
 
 type Props = {
   readonly model: SystemHealthPageViewModel;
@@ -58,9 +58,13 @@ export function SystemHealthPageView(props: Props) {
 
   return (
     <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-6")} data-testid="system-health-page">
-      <OperatorPageHeader
-        title="System health"
-        subtitle="Workspace service health, required dependencies, and deployment identity."
+      <SystemHealthPageHeader
+        subtitle={systemHealthPageSubtitle(false)}
+        loading={m.loading}
+        lastRefreshedAt={m.lastRefreshedAt}
+        onRefresh={() => {
+          void m.refresh();
+        }}
       />
 
       <HealthOverallStatusHeader
@@ -70,12 +74,6 @@ export function SystemHealthPageView(props: Props) {
         badgeTestId="system-health-overall-badge"
       />
       <HealthSummaryTileGrid tiles={summaryTiles} testId="system-health-summary-tiles" />
-      <HealthRefreshToolbar
-        loading={m.loading}
-        lastRefreshedAt={m.lastRefreshedAt}
-        onRefresh={() => void m.refresh()}
-        refreshTestId="system-health-refresh"
-      />
       <HealthBuildDetailsDisclosure
         version={m.version}
         testId="system-health-build-identity"

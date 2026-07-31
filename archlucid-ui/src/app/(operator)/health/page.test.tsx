@@ -19,6 +19,10 @@ vi.mock("@/lib/features", () => ({
   isShowSystemAdministrationNavEnabled: vi.fn(() => false),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import SystemHealthPage from "./page";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 
@@ -87,6 +91,8 @@ describe("SystemHealthPage", () => {
     expect(within(buildDetails).getByText("1h 1m")).toBeInTheDocument();
     expect(screen.getByText("Application liveness")).toBeInTheDocument();
     expect(screen.getByText("Responding")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "System health" })).toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });
@@ -98,11 +104,14 @@ describe("SystemHealthPage", () => {
     render(<SystemHealthPage />);
 
     expect(screen.getByTestId("system-health-demo-page")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "System health" })).toBeInTheDocument();
-    expect(screen.getByText(/Monitor platform readiness, service status, integrations/i)).toBeInTheDocument();
-    expect(screen.getByTestId("system-health-demo-context-note")).toHaveTextContent(/Demo workspace/i);
+    expect(screen.getByRole("heading", { level: 1, name: "System health" })).toBeInTheDocument();
+    expect(screen.getByText(/Platform readiness and operational checks/i)).toBeInTheDocument();
+    expect(screen.getByTestId("system-health-demo-scope-note")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("system-health-demo-context-note")).toBeNull();
     expect(screen.queryByText(/sample review shell/i)).toBeNull();
     expect(screen.getByTestId("system-health-summary-tiles")).toBeInTheDocument();
+    expect(screen.queryByText("Demo limitations")).toBeNull();
     expect(screen.getByTestId("system-health-operational-checks")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
     expect(screen.getByTestId("system-health-refresh-timestamp")).toHaveTextContent(/Last refreshed:/i);

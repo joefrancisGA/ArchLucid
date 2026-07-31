@@ -3,28 +3,24 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { StatusPill } from "@/components/StatusPill";
 import {
   HEALTH_DASHBOARD_PAGE_CLASS,
   HealthDashboardSection,
-  HealthOverallStatusHeader,
-  HealthRefreshToolbar,
   HealthSummaryTileGrid,
 } from "@/components/health-dashboard/HealthDashboardSections";
 import {
   DEMO_SYSTEM_HEALTH_CONTEXT_NOTE,
   DEMO_SYSTEM_HEALTH_LIMITATION_LINES,
-  DEMO_SYSTEM_HEALTH_OVERALL_STATUS,
-  DEMO_SYSTEM_HEALTH_OVERALL_SUBTITLE,
-  DEMO_SYSTEM_HEALTH_OVERALL_TITLE,
-  DEMO_SYSTEM_HEALTH_PAGE_SUBTITLE,
   buildDemoHealthSummaryTiles,
   buildDemoOperationalChecks,
   type DemoOperationalCheck,
 } from "@/lib/demo-system-health-present";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SYSTEM_HEALTH_DEMO_SCOPE_SUMMARY, systemHealthPageSubtitle } from "@/lib/system-health-page-copy";
+
+import { SystemHealthPageHeader } from "./SystemHealthPageHeader";
 
 type SystemHealthDemoPageViewProps = {
   readonly loading: boolean;
@@ -69,33 +65,30 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
 
   return (
     <div className={cn(HEALTH_DASHBOARD_PAGE_CLASS, "space-y-6")} data-testid="system-health-demo-page">
-      <OperatorPageHeader title="System health" subtitle={DEMO_SYSTEM_HEALTH_PAGE_SUBTITLE} />
-
-      <p
-        className={cn(
-          "m-0 rounded-md border border-amber-600/20 bg-amber-500/5 px-4 py-3 text-al-text-secondary",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
-        data-testid="system-health-demo-context-note"
-      >
-        {DEMO_SYSTEM_HEALTH_CONTEXT_NOTE}
-      </p>
-
-      <HealthOverallStatusHeader
-        overallStatus={DEMO_SYSTEM_HEALTH_OVERALL_STATUS}
-        title={DEMO_SYSTEM_HEALTH_OVERALL_TITLE}
-        subtitle={DEMO_SYSTEM_HEALTH_OVERALL_SUBTITLE}
-        badgeTestId="system-health-overall-badge"
-      />
-
-      <HealthSummaryTileGrid tiles={summaryTiles} testId="system-health-summary-tiles" />
-
-      <HealthRefreshToolbar
+      <SystemHealthPageHeader
+        subtitle={systemHealthPageSubtitle(true)}
         loading={props.loading}
         lastRefreshedAt={props.lastRefreshedAt}
         onRefresh={props.onRefresh}
-        refreshTestId="system-health-refresh"
       />
+
+      <details
+        className={cn(
+          "rounded-md border border-amber-600/20 bg-amber-500/5 px-4 py-3",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+        data-testid="system-health-demo-scope-note"
+      >
+        <summary className="cursor-pointer font-medium text-al-text-primary">{SYSTEM_HEALTH_DEMO_SCOPE_SUMMARY}</summary>
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{DEMO_SYSTEM_HEALTH_CONTEXT_NOTE}</p>
+        <ul className={cn("m-0 mt-2 list-disc space-y-1 ps-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {DEMO_SYSTEM_HEALTH_LIMITATION_LINES.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </details>
+
+      <HealthSummaryTileGrid tiles={summaryTiles} testId="system-health-summary-tiles" />
 
       <section aria-labelledby="system-health-operational-checks-heading">
         <HealthDashboardSection title="Operational checks" testId="system-health-operational-checks-heading">
@@ -104,16 +97,6 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
               <DemoOperationalCheckRow key={check.id} check={check} />
             ))}
           </div>
-        </HealthDashboardSection>
-      </section>
-
-      <section aria-labelledby="system-health-demo-limitations-heading">
-        <HealthDashboardSection title="Demo limitations" testId="system-health-demo-limitations-heading">
-          <ul className={cn("m-0 list-disc space-y-1 ps-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {DEMO_SYSTEM_HEALTH_LIMITATION_LINES.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
         </HealthDashboardSection>
       </section>
 

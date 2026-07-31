@@ -27,9 +27,11 @@ public sealed class AgentModelTierEscalationTests
     }
 
     [Fact]
-    public void DefaultTierForAgent_topology_and_cost_use_economy()
+    public void DefaultTierForAgent_maps_agents_to_luna_terra_sol_tiers()
     {
         AgentModelTierRetryDefaults.DefaultTierForAgent(AgentType.Topology).Should().Be(LlmModelTier.Economy);
         AgentModelTierRetryDefaults.DefaultTierForAgent(AgentType.Cost).Should().Be(LlmModelTier.Economy);
+        AgentModelTierRetryDefaults.DefaultTierForAgent(AgentType.Compliance).Should().Be(LlmModelTier.Standard);
+        AgentModelTierRetryDefaults.DefaultTierForAgent(AgentType.Critic).Should().Be(LlmModelTier.Premium);
     }
 }

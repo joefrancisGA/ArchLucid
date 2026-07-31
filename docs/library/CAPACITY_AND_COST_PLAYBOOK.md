@@ -39,7 +39,7 @@ Give operators a **first-principles** way to scale ArchLucid/ArchLucid and contr
 
 User/API load → compute → SQL write path → outbox/async → external integrations. **Cost** accrues on **compute hours**, **SQL**, **LLM tokens**, **egress**, and **observability retention**.
 
-**LLM cost estimation default:** `LlmCostEstimationOptions` defaults **`Enabled=true`** with illustrative **USD/M token** rates so `EstimatedCostUsd` and **`archlucid_llm_cost_usd_total`** populate even when `appsettings` omits the section. To disable FinOps estimates in a host (for example strict air-gapped environments), set **`AgentExecution:LlmCostEstimation:Enabled`** to **`false`** or override **`InputUsdPerMillionTokens`** / **`OutputUsdPerMillionTokens`** to match your negotiated Azure OpenAI list prices.
+**LLM cost estimation default:** `LlmCostEstimationOptions` defaults **`Enabled=true`** with GPT-5.6 Terra Global Standard **USD/M token** rates (and per-deployment Luna/Terra/Sol overrides in `appsettings`) so `EstimatedCostUsd` and **`archlucid_llm_cost_usd_total`** populate even when `appsettings` omits the section. Tier binding: Economy → Luna, Standard (default) → Terra, Premium → Sol. To disable FinOps estimates in a host (for example strict air-gapped environments), set **`AgentExecution:LlmCostEstimation:Enabled`** to **`false`** or override **`InputUsdPerMillionTokens`** / **`OutputUsdPerMillionTokens`** to match your negotiated Azure OpenAI list prices.
 
 ## 7. Security model
 

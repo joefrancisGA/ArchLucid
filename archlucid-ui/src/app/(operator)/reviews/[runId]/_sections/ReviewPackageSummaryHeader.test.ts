@@ -22,6 +22,7 @@ describe("Run detail workspace header integration", () => {
 
     expect(workspaceChromeSource).toContain("data-testid=\"run-detail-workspace-header\"");
     expect(headerSource).toContain("Review status");
+    expect(headerSource).toContain("PageContextualHelpButton");
     expect(headerSource).not.toContain("runId");
   });
 

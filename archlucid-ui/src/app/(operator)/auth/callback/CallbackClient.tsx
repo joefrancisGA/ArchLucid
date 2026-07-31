@@ -1,12 +1,10 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AuthCallbackAccessPanel } from "@/app/(operator)/auth/callback/AuthCallbackAccessPanel";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { AuthCallbackLoadingView } from "@/app/(operator)/auth/callback/AuthCallbackLoadingView";
 
 import {
   assertOidcSignInConfig,
@@ -19,6 +17,7 @@ import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
 import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
+import { AUTH_CALLBACK_LOADING_DETAIL } from "@/lib/auth/auth-callback-page-copy";
 import {
   BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE,
   toBuyerSafeAuthFailureMessage,
@@ -34,14 +33,12 @@ import { clearLastRegistrationPayload } from "@/lib/registration-session";
 /** Matches `SignInClient` — token exchange can be slow on cold IdP or corporate proxies. */
 const TOKEN_EXCHANGE_SLOW_HINT_MS = 8000;
 
-const CALLBACK_LOADING_DETAIL = "Checking your authorization and securing your session…";
-
 /**
  * OAuth2 authorization-code callback: exchanges ?code= for tokens (PKCE, public client).
  */
 export function CallbackClient() {
   const searchParams = useSearchParams();
-  const [message, setMessage] = useState<string>(CALLBACK_LOADING_DETAIL);
+  const [message, setMessage] = useState<string>(AUTH_CALLBACK_LOADING_DETAIL);
   const [failed, setFailed] = useState(false);
   const [showSlowHint, setShowSlowHint] = useState(false);
 
@@ -206,26 +203,7 @@ export function CallbackClient() {
 
   return (
     <AuthFlowShell>
-      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Completing sign-in</h2>
-
-      <div
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-        className={cn("mt-3", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}
-      >
-        <p className="m-0">{message}</p>
-
-        {showSlowHint ? (
-          <p className="m-0 mt-3">
-            Taking longer than expected?{" "}
-            <Link className={OPERATOR_LINK.nav} href="/auth/signin">
-              Restart sign-in
-            </Link>
-            .
-          </p>
-        ) : null}
-      </div>
+      <AuthCallbackLoadingView message={message} showSlowHint={showSlowHint} />
     </AuthFlowShell>
   );
 }

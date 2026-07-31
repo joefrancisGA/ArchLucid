@@ -48,7 +48,26 @@ public sealed class DefaultPolicyPackCatalogTests
         IReadOnlySet<string> aws = DefaultPolicyPackCatalog.ResolveStandardBaselineDisplayNames(CloudProvider.Aws);
 
         aws.Should().Contain(DefaultPolicyPackCatalog.SecurityBaselineDisplayName);
+        aws.Should().Contain(DefaultPolicyPackCatalog.ReliabilityAndResilienceDisplayName);
         aws.Should().Contain(DefaultPolicyPackCatalog.FinOpsCostOptimizationDisplayName);
+        aws.Should().Contain(DefaultPolicyPackCatalog.PerformanceAndScalabilityDisplayName);
+        aws.Should().Contain(DefaultPolicyPackCatalog.OperationalExcellenceDisplayName);
+        aws.Should().Contain(DefaultPolicyPackCatalog.SustainabilityAndResourceEfficiencyDisplayName);
         aws.Should().NotContain(DefaultPolicyPackCatalog.AzureWellArchitectedDisplayName);
+    }
+
+    [Fact]
+    public void TryResolveBaselineQualityDimension_maps_six_provider_neutral_packs()
+    {
+        DefaultPolicyPackCatalog.TryResolveBaselineQualityDimension(DefaultPolicyPackCatalog.SecurityBaselineDisplayName)
+            .Should()
+            .Be(ArchLucid.Contracts.Governance.Coverage.QualityDimension.Security);
+        DefaultPolicyPackCatalog
+            .TryResolveBaselineQualityDimension(DefaultPolicyPackCatalog.SustainabilityAndResourceEfficiencyDisplayName)
+            .Should()
+            .Be(ArchLucid.Contracts.Governance.Coverage.QualityDimension.SustainabilityAndResourceEfficiency);
+        DefaultPolicyPackCatalog.TryResolveBaselineQualityDimension(DefaultPolicyPackCatalog.AzureWellArchitectedDisplayName)
+            .Should()
+            .BeNull();
     }
 }

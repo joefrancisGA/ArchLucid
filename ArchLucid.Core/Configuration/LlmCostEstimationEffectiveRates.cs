@@ -1,13 +1,23 @@
+using ArchLucid.Core.Llm;
+
 namespace ArchLucid.Core.Configuration;
 
 /// <summary>Resolves effective USD/M token rates for <see cref="ILlmCostEstimator" />.</summary>
 public static class LlmCostEstimationEffectiveRates
 {
-    /// <summary>Hardcoded positive defaults when configuration or overrides are non-positive (Improvement #13).</summary>
-    public const decimal DefaultInputUsdPerMillionTokens = 0.5m;
+    /// <summary>
+    ///     Hardcoded positive defaults when configuration or overrides are non-positive (Improvement #13).
+    ///     Aligned to GPT-5.6 Terra Global Standard list price.
+    /// </summary>
+    public const decimal DefaultInputUsdPerMillionTokens =
+        Gpt56AzureOpenAiModels.TerraInputUsdPerMillionTokens;
 
-    /// <summary>Hardcoded positive defaults when configuration or overrides are non-positive (Improvement #13).</summary>
-    public const decimal DefaultOutputUsdPerMillionTokens = 1.5m;
+    /// <summary>
+    ///     Hardcoded positive defaults when configuration or overrides are non-positive (Improvement #13).
+    ///     Aligned to GPT-5.6 Terra Global Standard list price.
+    /// </summary>
+    public const decimal DefaultOutputUsdPerMillionTokens =
+        Gpt56AzureOpenAiModels.TerraOutputUsdPerMillionTokens;
 
     /// <summary>
     ///     Resolves input/output/reasoning USD per 1M token rates. Non-positive configured values fall back to

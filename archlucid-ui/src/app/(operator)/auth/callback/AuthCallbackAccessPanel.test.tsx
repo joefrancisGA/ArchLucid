@@ -19,7 +19,14 @@ describe("AuthCallbackAccessPanel", () => {
     fireEvent.click(screen.getByTestId("auth-callback-request-access"));
 
     expect(screen.getByTestId("auth-callback-access-form")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Back to sign in" })).toHaveAttribute("href", "/auth/signin");
+    expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute("href", "/auth/signin");
+  });
+
+  it("keeps a single sign-in recovery action on the failure panel", () => {
+    render(<AuthCallbackAccessPanel technicalDetail="Token exchange failed." />);
+
+    expect(screen.getAllByRole("link", { name: "Try again" })).toHaveLength(1);
+    expect(screen.queryByRole("link", { name: "Back to sign in" })).toBeNull();
   });
 
   it("shows success state after submit", async () => {

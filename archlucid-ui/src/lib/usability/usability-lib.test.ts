@@ -61,6 +61,8 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/governance/alert-rules")?.label).toBe("How alerts work");
     expect(pageHelpTopicForPathname("/integrations/readiness")?.slug).toBe("integration-readiness");
     expect(pageHelpTopicForPathname("/integrations/readiness")?.label).toBe("How integration readiness works");
+    expect(pageHelpTopicForPathname("/health")?.slug).toBe("troubleshooting");
+    expect(pageHelpTopicForPathname("/health")?.label).toBe("Troubleshooting");
     expect(pageHelpTopicForPathname("/architectures")?.slug).toBe("getting-started");
     expect(pageHelpTopicForPathname("/architectures")?.label).toBe("Getting started");
     expect(pageHelpTopicForPathname("/architectures/draft-id-123")?.slug).toBe("getting-started");

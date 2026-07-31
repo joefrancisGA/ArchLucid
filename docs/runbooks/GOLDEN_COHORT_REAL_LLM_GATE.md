@@ -38,7 +38,7 @@ The weekday schedule uses **`0 6 * * 1-6`** and Sunday uses **`0 6 * * 0`** so t
 
 Keep secrets (**`ARCHLUCID_GOLDEN_COHORT_API_HOST`**, Azure OpenAI IDs/keys/federation used by preflight) in a protected environment once you enable unattended schedule.
 
-**Runner-side Azure OpenAI env (`cohort-real-llm-live` drift step):** the workflow exports **`AZURE_OPENAI_API_KEY`** from repository **secret** **`AZURE_OPENAI_API_KEY`**, **`AZURE_OPENAI_ENDPOINT`** from repository **variable** **`AZURE_OPENAI_ENDPOINT`** (HTTPS project or resource URL), and **`AZURE_OPENAI_DEPLOYMENT_NAME`** as **`gpt-4o`** for parity with [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md). Do not commit keys; rotate any key that was pasted into chat or logs.
+**Runner-side Azure OpenAI env (`cohort-real-llm-live` drift step):** the workflow exports **`AZURE_OPENAI_API_KEY`** from repository **secret** **`AZURE_OPENAI_API_KEY`**, **`AZURE_OPENAI_ENDPOINT`** from repository **variable** **`AZURE_OPENAI_ENDPOINT`** (HTTPS project or resource URL), and **`AZURE_OPENAI_DEPLOYMENT_NAME`** as **`gpt-5.6-terra`** for parity with [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md). Do not commit keys; rotate any key that was pasted into chat or logs.
 
 ## 3. Probe exit-code semantics (the kill-switch)
 
@@ -164,9 +164,9 @@ Real models can paraphrase text while still being â€œcorrectâ€ for prod
 
 **Adopted:** 2026-05-09 — planning baseline. These tiers are **not** merge-blocking CI numeric gates unless you separately wire automation to enforce them; pair with [`GOLDEN_COHORT_BUDGET.md`](./GOLDEN_COHORT_BUDGET.md) and [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md).
 
-**Canonical model baseline — resolved (operator, 2026-05-11):** **`gpt-4o`**. Anything described as canonical **golden-cohort release quality**, drift interpretation, or agent-output cohort **green-bar** narratives assumes this SKU (**not** **`gpt-4o-mini`** and not ad‑hoc reasoning‑only substitutions for headline baselines unless a separate exec decision reopens calibration).
+**Canonical model baseline — resolved (operator, 2026-07-31):** **`gpt-5.6-terra`** (Standard / Balanced tier). Economy workloads use **`gpt-5.6-luna`**; Premium / hard-reasoning uses **`gpt-5.6-sol`**. Headline cohort quality narratives assume Terra (**not** Luna and not ad‑hoc Sol-only substitutions unless a separate exec decision reopens calibration). Prior lock was **`gpt-4o`** (2026-05-11); reopened pre-production for the GPT-5.6 family.
 
-Set **`AzureOpenAI:DeploymentName`** (secrets + **`appsettings`**) to whichever **deployment resource name Azure returns** — it must resolve to **`gpt-4o`**. (`tests/golden-cohort/budget.config.json` **`deploymentName`** mirrors the operator label Cost Management spreadsheets use — it carries **no** model semantics.)
+Set **`AzureOpenAI:DeploymentName`** (secrets + **`appsettings`**) to whichever **deployment resource name Azure returns** — it must resolve to **`gpt-5.6-terra`**. (`tests/golden-cohort/budget.config.json` **`deploymentName`** mirrors the operator label Cost Management spreadsheets use — it carries **no** model semantics.)
 
 On the committed **release cohort** scenario set, use these targets:
 

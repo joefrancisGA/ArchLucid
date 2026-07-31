@@ -53,7 +53,7 @@ export function FirstRunIntakeStepGuide(props: FirstRunIntakeStepGuideProps): Re
       },
       {
         key: "diagram",
-        label: "2. Upload one diagram",
+        label: "2. Upload one diagram or document",
         detail: "Architecture diagram, PDF, or design document",
         state: evidenceState,
       },

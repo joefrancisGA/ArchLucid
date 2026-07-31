@@ -17,14 +17,28 @@ public sealed class FocusedPilotModePolicyPacksTests
     }
 
     [Fact]
-    public void IsAllowedPackDisplayName_allows_security_and_cost_only()
+    public void IsAllowedPackDisplayName_allows_six_architecture_quality_baseline_packs()
     {
         FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(FocusedPilotModePolicyPacks.SecurityBaselineDisplayName)
+            .Should()
+            .BeTrue();
+        FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(FocusedPilotModePolicyPacks.ReliabilityAndResilienceDisplayName)
             .Should()
             .BeTrue();
         FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(FocusedPilotModePolicyPacks.FinOpsCostOptimizationDisplayName)
             .Should()
             .BeTrue();
+        FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(FocusedPilotModePolicyPacks.PerformanceAndScalabilityDisplayName)
+            .Should()
+            .BeTrue();
+        FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(FocusedPilotModePolicyPacks.OperationalExcellenceDisplayName)
+            .Should()
+            .BeTrue();
+        FocusedPilotModePolicyPacks
+            .IsAllowedPackDisplayName(FocusedPilotModePolicyPacks.SustainabilityAndResourceEfficiencyDisplayName)
+            .Should()
+            .BeTrue();
         FocusedPilotModePolicyPacks.IsAllowedPackDisplayName("Azure Well-Architected Framework").Should().BeFalse();
+        FocusedPilotModePolicyPacks.AllowedPackDisplayNames.Should().HaveCount(6);
     }
 }

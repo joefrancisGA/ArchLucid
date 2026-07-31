@@ -9,9 +9,9 @@
 **Last reviewed:** 2026-07-25
 
 
-**Objective:** Declare **41** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
+**Objective:** Declare **45** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
 
-> **Note:** Pack **#25 — Snowflake Security** ships in the bundled manifest as `snowflake-security.json` ([`docs/samples/policy-packs/snowflake-security/README.md`](../samples/policy-packs/snowflake-security/README.md)). The manifest ships **41** content files aligned with tenant provisioning (25 original V1 GA packs plus **16** AWS/GCP peer packs for multi-cloud parity).
+> **Note:** Pack **#25 — Snowflake Security** ships in the bundled manifest as `snowflake-security.json` ([`docs/samples/policy-packs/snowflake-security/README.md`](../samples/policy-packs/snowflake-security/README.md)). The manifest ships **45** content files aligned with tenant provisioning (25 original V1 GA packs, **16** AWS/GCP peer packs for multi-cloud parity, plus **4** provider-neutral architecture-quality baseline packs for Reliability, Performance, Operational Excellence, and Sustainability).
 
 ## The "Brain" of the Governance Model
 
@@ -75,6 +75,10 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 | 39 | Application platform | GCP Serverless & PaaS Security | `gcp-paas-001` … | Peer to Azure PaaS pack |
 | 40 | Data platform | AWS Data-Layer Security | `aws-data-001` … | Peer to Azure data-layer pack |
 | 41 | Data platform | GCP Data-Layer Security | `gcp-data-001` … | Peer to Azure data-layer pack |
+| 42 | Reliability | Reliability and Resilience | `rel-base-001` … `008` | Provider-neutral architecture-quality baseline |
+| 43 | Performance | Performance and Scalability | `perf-base-001` … `008` | Provider-neutral architecture-quality baseline |
+| 44 | Operations | Operational Excellence | `ops-base-001` … `008` | Provider-neutral architecture-quality baseline |
+| 45 | Sustainability | Sustainability and Resource Efficiency | `sust-base-001` … `009` | Provider-neutral environmental / resource-efficiency baseline (no fabricated carbon claims) |
 
 **Appendices (selected):** **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** · **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**
 

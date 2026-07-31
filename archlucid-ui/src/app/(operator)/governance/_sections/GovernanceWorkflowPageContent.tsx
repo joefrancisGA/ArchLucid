@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
@@ -15,6 +16,7 @@ import { GovernanceInteractiveQuickstartCard } from "@/components/GovernanceInte
 import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import {
@@ -31,7 +33,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   shouldSeedStaticDemoGovernanceRecordsForRun,
@@ -44,10 +46,11 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
   GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION,
-  GOVERNANCE_OVERVIEW_PAGE_LEAD,
   GOVERNANCE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL,
   GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE,
+  GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL,
+  governanceOverviewPageLead,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD,
   GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE,
 } from "@/lib/governance-overview-copy";
@@ -494,35 +497,56 @@ export function GovernanceWorkflowPageContent() {
     ? showBuyerApprovalStory
       ? BUYER_GOVERNANCE_GOVERNED_USE_SCOPE
       : GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD
-    : GOVERNANCE_OVERVIEW_PAGE_LEAD;
+    : governanceOverviewPageLead(buyerPolishedShell);
+
+  const overviewHeaderActions = (
+    <div className="flex flex-wrap items-center gap-2" data-testid="governance-overview-header-actions">
+      <PageContextualHelpButton />
+      {!isReviewContext ? (
+        <Link
+          href="/governance/dashboard"
+          className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.micro)}
+          data-testid="governance-overview-workspace-health-link"
+        >
+          {GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL}
+        </Link>
+      ) : null}
+    </div>
+  );
 
   return (
     <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <div className="w-full max-w-[1200px]">
-      {isReviewContext ? <LayerHeader pageKey="governance-workflow" density="compact" collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER} /> : null}
+      {(isReviewContext || buyerPolishedShell) ? (
+        <LayerHeader
+          pageKey="governance-workflow"
+          density="compact"
+          collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}
+        />
+      ) : null}
       {isReviewContext ? <CtoDemoBuyerValueStrip stepIndex={3} /> : null}
       {isReviewContext ? <CtoDemoSegregationCallout /> : null}
       {isReviewContext ? <CtoDemoGovernancePreviewHint /> : null}
       <OperatorPageHeader
         navHref="/governance"
         title={pageTitle}
-        docsPageKey="/governance"
+        titleTestId="governance-overview-page-title"
         subtitle={pageLead}
         metadata={
-          !isReviewContext ? (
+          !isReviewContext && !buyerPolishedShell ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               <InlineGuidanceLabel label="Next" testId="inline-guidance-governance-overview-next" />{" "}
               {GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION}
             </span>
-          ) : buyerPolishedShell && !showBuyerApprovalStory ? (
+          ) : buyerPolishedShell && isReviewContext && !showBuyerApprovalStory ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Production deployments and change-managed releases follow your enterprise process—this page does not configure
               releases.
             </span>
           ) : null
         }
-        helpKey="governance-workflow"
+        actions={overviewHeaderActions}
       />
 
       {toast ? (
@@ -542,6 +566,7 @@ export function GovernanceWorkflowPageContent() {
       {!isReviewContext ? (
         <GovernanceOverviewPanel
           buyerPolishedShell={buyerPolishedShell}
+          canMutateWorkflow={canMutateWorkflow}
           queryRunId={queryRunId}
           setQueryRunId={setQueryRunId}
           onLoadReview={onLoadRun}

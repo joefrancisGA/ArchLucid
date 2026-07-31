@@ -22,7 +22,7 @@ export type DemoOperationalCheck = {
 };
 
 export const DEMO_SYSTEM_HEALTH_PAGE_SUBTITLE =
-  "Monitor platform readiness, service status, integrations, and recent operational checks.";
+  "Platform readiness and operational checks for this workspace.";
 
 export const DEMO_SYSTEM_HEALTH_CONTEXT_NOTE =
   "Demo workspace: some live operational checks are limited. Sample health data is shown for evaluation.";

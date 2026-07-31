@@ -31,6 +31,10 @@ CLOUD_NEUTRAL_CURATED_ARTIFACTS = frozenset(
     {
         "docs/samples/policy-packs/security-architecture-baseline-rules-v1.json",
         "docs/samples/policy-packs/cost-optimization-rules-v1.json",
+        "docs/samples/policy-packs/reliability-and-resilience-rules-v1.json",
+        "docs/samples/policy-packs/performance-and-scalability-rules-v1.json",
+        "docs/samples/policy-packs/operational-excellence-rules-v1.json",
+        "docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json",
     }
 )
 

@@ -15,12 +15,48 @@ resource "azurerm_cognitive_deployment" "default" {
 
   model {
     format  = "OpenAI"
-    name    = "gpt-4o"
-    version = "2024-08-06"
+    name    = var.model_name
+    version = var.model_version
   }
 
   sku {
-    name     = "Standard"
-    capacity = 10
+    name     = var.sku_name
+    capacity = var.sku_capacity
+  }
+}
+
+resource "azurerm_cognitive_deployment" "economy" {
+  count = var.enable_economy_deployment ? 1 : 0
+
+  name                 = var.economy_deployment_name
+  cognitive_account_id = azurerm_cognitive_account.openai.id
+
+  model {
+    format  = "OpenAI"
+    name    = var.economy_model_name
+    version = var.economy_model_version
+  }
+
+  sku {
+    name     = var.sku_name
+    capacity = var.economy_sku_capacity
+  }
+}
+
+resource "azurerm_cognitive_deployment" "premium" {
+  count = var.enable_premium_deployment ? 1 : 0
+
+  name                 = var.premium_deployment_name
+  cognitive_account_id = azurerm_cognitive_account.openai.id
+
+  model {
+    format  = "OpenAI"
+    name    = var.premium_model_name
+    version = var.premium_model_version
+  }
+
+  sku {
+    name     = var.sku_name
+    capacity = var.premium_sku_capacity
   }
 }

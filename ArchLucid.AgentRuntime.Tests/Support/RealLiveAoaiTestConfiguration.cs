@@ -1,4 +1,5 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Llm;
 
 namespace ArchLucid.AgentRuntime.Tests.Support;
 
@@ -22,10 +23,11 @@ internal static class RealLiveAoaiTestConfiguration
         }
 
         string deployment =
-            (Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT") ?? "gpt-4o").Trim();
+            (Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT")
+             ?? Gpt56AzureOpenAiModels.TerraDeploymentName).Trim();
 
         if (string.IsNullOrWhiteSpace(deployment))
-            deployment = "gpt-4o";
+            deployment = Gpt56AzureOpenAiModels.TerraDeploymentName;
 
         credentials = new LiveCredentials(
             AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(endpoint),

@@ -22,7 +22,7 @@ public sealed class RunStarterTaskFactoryTierTests
         tasks.Should().HaveCount(4);
         tasks.Single(t => t.AgentType == AgentType.Topology).ModelTierOverride.Should().Be(LlmModelTier.Economy);
         tasks.Single(t => t.AgentType == AgentType.Cost).ModelTierOverride.Should().Be(LlmModelTier.Economy);
-        tasks.Single(t => t.AgentType == AgentType.Compliance).ModelTierOverride.Should().Be(LlmModelTier.Premium);
+        tasks.Single(t => t.AgentType == AgentType.Compliance).ModelTierOverride.Should().Be(LlmModelTier.Standard);
         tasks.Single(t => t.AgentType == AgentType.Critic).ModelTierOverride.Should().Be(LlmModelTier.Premium);
     }
 

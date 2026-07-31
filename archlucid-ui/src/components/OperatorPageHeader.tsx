@@ -29,6 +29,8 @@ export type OperatorPageHeaderProps = {
   docsPageKey?: string;
   metadata?: ReactNode;
   actions?: ReactNode;
+  /** Page heading level when `navHref` renders {@link PageHeading}. Defaults to `h1`. */
+  headingLevel?: "h1" | "h2";
   children?: ReactNode;
 };
 
@@ -43,6 +45,7 @@ export function OperatorPageHeader({
   titleTestId,
   metadata,
   actions,
+  headingLevel = "h1",
   children,
 }: OperatorPageHeaderProps) {
   if (navHref !== undefined) {
@@ -53,7 +56,7 @@ export function OperatorPageHeader({
         description={subtitle}
         metadata={metadata}
         actions={actions}
-        headingLevel="h2"
+        headingLevel={headingLevel}
         bordered
         className="mb-6"
         titleTestId={titleTestId}

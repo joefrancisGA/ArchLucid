@@ -16,18 +16,19 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   /** ArchLucid platform defaults — not customer-configured standards (future tenant customization is out of scope here). */
   standardsAppliedTitle: "ArchLucid default standards applied automatically",
   standardsAppliedBody:
-    "For your first review, ArchLucid evaluates against its default Security Architecture Baseline and FinOps & Cloud Cost Optimization standards — no manual assignment required.",
+    "For your first review, ArchLucid evaluates against its default architecture-quality standards — Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability — no manual assignment required.",
   focusedPilotToggleLabel: "Focused review scope",
   focusedPilotToggleDescription:
-    "Limit this review to Security Architecture Baseline and FinOps & Cloud Cost Optimization standards so your first package stays actionable.",
-  focusedPilotToggleAssistiveOn: "Evaluation is limited to security baseline and cost standards.",
+    "Limit this review to the six architecture-quality standards (Security, Reliability, Cost, Performance, Operational Excellence, and Sustainability) so your first package stays actionable.",
+  focusedPilotToggleAssistiveOn:
+    "Evaluation is limited to the six architecture-quality baseline standards.",
   focusedPilotToggleAssistiveOff: "All enabled standards may contribute findings.",
   firstIntakeLead:
-    "Upload one architecture diagram and add architecture context when you can. Evaluation standards apply automatically.",
+    "Upload one diagram or document and add architecture context when you can. Evaluation standards apply automatically.",
   firstIntakeAdvancedNote:
     "Focused review scope is on by default. Turn off only if you need every enabled standard to contribute findings.",
   streamlinedFirstReviewBannerLabel: "Quick path:",
-  streamlinedFirstReviewBannerBody: "upload one diagram to start. Review scope is pre-configured.",
+  streamlinedFirstReviewBannerBody: "upload a diagram or document to start. Review scope is pre-configured.",
   operateUnlockLead:
     "Your first session focuses on starting and finalizing a review. Compare, evidence graph, ask-this-review, and enterprise control routes stay hidden until you unlock them — or until you finalize your first review.",
   operateUnlockAnalysisUnlocks: "Analysis — compare, graph, replay, and Q&A",

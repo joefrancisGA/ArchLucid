@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 
@@ -65,6 +66,14 @@ public sealed class DefaultPolicyPackSeeder(
                     contentJson,
                     ct)
             ;
+
+        QualityDimension? qualityDimension = DefaultPolicyPackCatalog.TryResolveBaselineQualityDimension(displayName);
+
+        if (qualityDimension is not null)
+        {
+            created.QualityDimension = qualityDimension;
+            await _packRepository.UpdateAsync(created, ct);
+        }
 
         await _managementService.PublishVersionAsync(created.PolicyPackId, "1.0.0", contentJson, ct);
 

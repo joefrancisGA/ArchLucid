@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance.Coverage;
 
 namespace ArchLucid.Application.Governance.DefaultPolicyPacks;
 
@@ -36,6 +37,18 @@ public static class DefaultPolicyPackCatalog
     /// <summary>Matches <c>pack.displayName</c> in bundled FinOps template.</summary>
     public const string FinOpsCostOptimizationDisplayName = "FinOps & Cloud Cost Optimization";
 
+    /// <summary>Matches bundled provider-neutral reliability baseline.</summary>
+    public const string ReliabilityAndResilienceDisplayName = "Reliability and Resilience";
+
+    /// <summary>Matches bundled provider-neutral performance baseline.</summary>
+    public const string PerformanceAndScalabilityDisplayName = "Performance and Scalability";
+
+    /// <summary>Matches bundled provider-neutral operational excellence baseline.</summary>
+    public const string OperationalExcellenceDisplayName = "Operational Excellence";
+
+    /// <summary>Matches bundled provider-neutral environmental sustainability baseline.</summary>
+    public const string SustainabilityAndResourceEfficiencyDisplayName = "Sustainability and Resource Efficiency";
+
     /// <summary>Matches <c>pack.displayName</c> in bundled CIS Azure Foundations template.</summary>
     public const string CisAzureFoundationsDisplayName = "CIS Microsoft Azure Foundations Benchmark";
 
@@ -71,10 +84,40 @@ public static class DefaultPolicyPackCatalog
         new HashSet<string>(StringComparer.Ordinal)
         {
             SecurityBaselineDisplayName,
+            ReliabilityAndResilienceDisplayName,
             FinOpsCostOptimizationDisplayName,
+            PerformanceAndScalabilityDisplayName,
+            OperationalExcellenceDisplayName,
+            SustainabilityAndResourceEfficiencyDisplayName,
             AiGovernanceDisplayName,
             ZeroTrustArchitectureDisplayName,
         };
+
+    /// <summary>
+    ///     Provider-neutral architecture-quality baseline packs that own a single <see cref="QualityDimension" />.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, QualityDimension> ProviderNeutralBaselineQualityDimensions =
+        new Dictionary<string, QualityDimension>(StringComparer.Ordinal)
+        {
+            [SecurityBaselineDisplayName] = QualityDimension.Security,
+            [ReliabilityAndResilienceDisplayName] = QualityDimension.ReliabilityAndResilience,
+            [FinOpsCostOptimizationDisplayName] = QualityDimension.CostEffectiveness,
+            [PerformanceAndScalabilityDisplayName] = QualityDimension.PerformanceAndScalability,
+            [OperationalExcellenceDisplayName] = QualityDimension.OperationalExcellence,
+            [SustainabilityAndResourceEfficiencyDisplayName] = QualityDimension.SustainabilityAndResourceEfficiency,
+        };
+
+    /// <summary>Resolves the baseline <see cref="QualityDimension" /> for a bundled pack display name, if any.</summary>
+    public static QualityDimension? TryResolveBaselineQualityDimension(string displayName)
+    {
+        if (string.IsNullOrWhiteSpace(displayName))
+            return null;
+
+        if (ProviderNeutralBaselineQualityDimensions.TryGetValue(displayName.Trim(), out QualityDimension dimension))
+            return dimension;
+
+        return null;
+    }
 
     /// <summary>Azure-specific packs enabled when the run or tenant baseline targets Azure.</summary>
     public static readonly IReadOnlySet<string> AzureCloudSpecificStandardBaselineDisplayNames =

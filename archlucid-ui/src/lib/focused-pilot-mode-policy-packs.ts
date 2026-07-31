@@ -5,7 +5,7 @@ export const FOCUSED_PILOT_MODE_POLICY_REFERENCE = "pilot-mode:security-baseline
 
 /** Canonical help copy for focused review scope — shared by /help/review-guide and doc guards (TB-764). */
 export const REVIEW_SCOPE_HELP_EXPLANATION =
-  "By default, your first review is evaluated against two standards — Security Architecture Baseline and FinOps & Cloud Cost Optimization. Open Review scope (optional) to turn this off and use every standard enabled for your workspace instead.";
+  "By default, your first review is evaluated against six architecture-quality standards — Security Architecture Baseline, Reliability and Resilience, FinOps & Cloud Cost Optimization, Performance and Scalability, Operational Excellence, and Sustainability and Resource Efficiency. Open Review scope (optional) to turn this off and use every standard enabled for your workspace instead.";
 
 /** Disambiguates review scope (standards) from workspace/tenant scope (TB-764). */
 export const REVIEW_SCOPE_WORKSPACE_DISAMBIGUATION =
@@ -14,7 +14,11 @@ export const REVIEW_SCOPE_WORKSPACE_DISAMBIGUATION =
 /** Bundled packs applied automatically during focused first-run intake (matches backend FocusedPilotModePolicyPacks). */
 export const FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES = [
   "Security Architecture Baseline",
+  "Reliability and Resilience",
   "FinOps & Cloud Cost Optimization",
+  "Performance and Scalability",
+  "Operational Excellence",
+  "Sustainability and Resource Efficiency",
 ] as const;
 
 export const FOCUSED_PILOT_MODE_COPY = {

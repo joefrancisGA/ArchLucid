@@ -7,13 +7,16 @@ namespace ArchLucid.AgentRuntime;
 /// <summary>Built-in per-agent tier defaults applied when configuration does not override them.</summary>
 public static class AgentModelTierDefaults
 {
-    /// <summary>Default agent-type tier mappings (TB-179: Topology/Cost → Economy; Compliance/Critic → Premium).</summary>
+    /// <summary>
+    ///     Default agent-type tier mappings for GPT-5.6 routing:
+    ///     Topology/Cost → Economy (Luna); Compliance → Standard (Terra); Critic/Judge → Premium (Sol).
+    /// </summary>
     public static IReadOnlyDictionary<string, string> DefaultAgentTypeTiers { get; } =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["Topology"] = nameof(LlmModelTier.Economy),
             ["Cost"] = nameof(LlmModelTier.Economy),
-            ["Compliance"] = nameof(LlmModelTier.Premium),
+            ["Compliance"] = nameof(LlmModelTier.Standard),
             ["Critic"] = nameof(LlmModelTier.Premium),
             [InsightDensityJudgeAgentTypeNames.Judge] = nameof(LlmModelTier.Premium)
         };

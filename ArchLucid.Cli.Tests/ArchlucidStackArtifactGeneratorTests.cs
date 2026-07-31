@@ -134,7 +134,9 @@ public sealed class ArchlucidStackArtifactGeneratorTests
             {
                 ComposeMode = "existing",
                 ExistingEndpoint = "https://oai-archlucid-dev.openai.azure.com/",
-                ChatDeploymentName = "gpt-4o",
+                ChatDeploymentName = "gpt-5.6-terra",
+                EconomyDeploymentName = "gpt-5.6-luna",
+                PremiumDeploymentName = "gpt-5.6-sol",
                 EmbeddingDeploymentName = "text-embedding-3-small",
             },
             Search = new ArchlucidStackSearchSection

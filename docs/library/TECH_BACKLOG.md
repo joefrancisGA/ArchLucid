@@ -1425,7 +1425,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1854 | **Done** (2026-07-31) — Create-home Findings hide work-item integrations until package commit; Vitest; see `## TB-1854` below | Trustworthiness P0 — **V1**; with **TB-1851** | S |
 | TB-1855 | Findings tab — Vitest orientation + traffic honesty; see ## TB-1855 below | Testability P2 — **V1**; with **TB-1851** | S |
 | TB-1856 | Traffic honesty — `archTab=governance` create-home only; see ## TB-1856 below | Trustworthiness P1 — **V1**; owner review ~40/100 2026-07-27; traffic **REG**; pairs **TB-1831** | S |
-| TB-1857 | Create-home Governance — pre-commit honesty (not approval theater); see ## TB-1857 below | Trustworthiness P0 — **V1**; with **TB-1856** | M |
+| TB-1857 | **Done** (2026-07-31) — Create-home Governance pre-commit honesty variant; Vitest; see `## TB-1857` below | Trustworthiness P0 — **V1**; with **TB-1856** | M |
 | TB-1858 | Create-home Governance — demote sponsor share / work items before commit; see ## TB-1858 below | Trustworthiness P0 — **V1**; with **TB-1856** | M |
 | TB-1859 | Create-home Governance density — one primary next step; see ## TB-1859 below | Adoption friction P1 — **V1**; with **TB-1856** | S |
 | TB-1860 | Governance tab — Vitest pre-commit honesty + traffic; see ## TB-1860 below | Testability P2 — **V1**; with **TB-1856** | S |

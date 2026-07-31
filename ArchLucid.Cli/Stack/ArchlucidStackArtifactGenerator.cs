@@ -167,8 +167,19 @@ internal static class ArchlucidStackArtifactGenerator
                 AuthenticationMode = "ManagedIdentity",
                 ApiKey = KvRef("archlucid-azure-openai-api-key"),
                 Endpoint = document.OpenAi?.ExistingEndpoint?.TrimEnd('/') ?? "https://REPLACE.openai.azure.com/",
-                DeploymentName = document.OpenAi?.ChatDeploymentName ?? "gpt-4o",
+                DeploymentName = document.OpenAi?.ChatDeploymentName ?? "gpt-5.6-terra",
                 EmbeddingDeploymentName = document.OpenAi?.EmbeddingDeploymentName ?? "text-embedding-3-small",
+            },
+            ArchLucid = new
+            {
+                AgentModelTiers = new
+                {
+                    DefaultTier = "Standard",
+                    NonAgentDefaultTier = "Standard",
+                    EconomyDeploymentName = document.OpenAi?.EconomyDeploymentName ?? "gpt-5.6-luna",
+                    StandardDeploymentName = document.OpenAi?.ChatDeploymentName ?? "gpt-5.6-terra",
+                    PremiumDeploymentName = document.OpenAi?.PremiumDeploymentName ?? "gpt-5.6-sol",
+                },
             },
             ArchLucidAuth = new
             {

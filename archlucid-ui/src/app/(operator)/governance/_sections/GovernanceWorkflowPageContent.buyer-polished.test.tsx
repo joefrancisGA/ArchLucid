@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
+import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance-overview-copy";
 
 const apiHoisted = vi.hoisted(() => ({
   listApprovalRequests: vi.fn(),
@@ -59,6 +59,38 @@ vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    links: [],
+    mutationCapability: false,
+    layerGuidance: {
+      layerBadge: "Governance",
+      headline: "Submit finalized architecture outputs for governance review and promotion.",
+      useWhen: "Pick one review and move from submission through approval.",
+      firstPilotNote: null,
+      enterpriseFootnote: "Approvals follow the configured approval path.",
+    },
+    contextHints: {
+      enterpriseNavGroupHint: "",
+      enterpriseExecutePageHint: null,
+      layerHeaderEnterpriseRankCue: null,
+      governanceResolutionRank: "",
+      alertsInboxRank: "",
+      auditLogRank: "",
+      alertOperatorToolingRank: "",
+      governanceDashboardReaderAction: null,
+    },
+    callerAuthorityRank: 0,
+    showExtended: true,
+    showAdvanced: true,
+    mounted: true,
+  }),
+}));
+
 import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orientation";
 
 import { GovernanceWorkflowPageContent } from "./GovernanceWorkflowPageContent";
@@ -69,13 +101,24 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     apiHoisted.listPromotions.mockResolvedValue([]);
     apiHoisted.listActivations.mockResolvedValue([]);
     apiHoisted.getGovernanceDashboard.mockResolvedValue({
-      pendingApprovals: [],
+      pendingApprovals: [
+        {
+          approvalRequestId: "pending-1",
+          runId: "run-pending",
+          manifestVersion: "1.0.0",
+          status: "Submitted",
+          sourceEnvironment: "dev",
+          targetEnvironment: "prod",
+          requestedBy: "owner",
+          requestedUtc: "2026-01-01T00:00:00Z",
+        },
+      ],
       recentDecisions: [],
       recentChanges: [],
-      pendingCount: 0,
+      pendingCount: 1,
     });
     apiHoisted.getGovernanceDecisionsNeededSummary.mockResolvedValue({
-      pendingApprovals: 0,
+      pendingApprovals: 1,
       staleRisks: 0,
       unownedHighSeverityRisks: 0,
       findingsAwaitingEvidence: 0,
@@ -98,10 +141,20 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     render(<GovernanceWorkflowPageContent />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Governance" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1, name: "Governance" })).toBeInTheDocument();
     });
 
-    expect(screen.getAllByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).toHaveLength(1);
+    expect(screen.getAllByText(BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD)).toHaveLength(1);
+    expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.queryByTestId("layer-context-strip")).not.toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Workspace overview" })).toHaveAttribute(
+      "href",
+      "/governance/dashboard",
+    );
+    expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
+    expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();
+    expect(screen.getByTestId("governance-overview-pending-action")).toBeInTheDocument();
   });
 });

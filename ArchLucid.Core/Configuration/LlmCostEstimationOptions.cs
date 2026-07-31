@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Llm;
+
 namespace ArchLucid.Core.Configuration;
 
 /// <summary>
@@ -21,19 +23,25 @@ public sealed class LlmCostEstimationOptions
         set;
     } = true;
 
-    /// <summary>USD per 1M prompt (input) tokens.</summary>
+    /// <summary>
+    ///     USD per 1M prompt (input) tokens. Defaults to GPT-5.6 Terra Global Standard list price
+    ///     (<see cref="Gpt56AzureOpenAiModels.TerraInputUsdPerMillionTokens" />).
+    /// </summary>
     public decimal InputUsdPerMillionTokens
     {
         get;
         set;
-    } = 0.5m;
+    } = Gpt56AzureOpenAiModels.TerraInputUsdPerMillionTokens;
 
-    /// <summary>USD per 1M completion (output) tokens.</summary>
+    /// <summary>
+    ///     USD per 1M completion (output) tokens. Defaults to GPT-5.6 Terra Global Standard list price
+    ///     (<see cref="Gpt56AzureOpenAiModels.TerraOutputUsdPerMillionTokens" />).
+    /// </summary>
     public decimal OutputUsdPerMillionTokens
     {
         get;
         set;
-    } = 1.5m;
+    } = Gpt56AzureOpenAiModels.TerraOutputUsdPerMillionTokens;
 
     /// <summary>
     ///     USD per 1M reasoning tokens when the provider reports them separately. Zero defaults to

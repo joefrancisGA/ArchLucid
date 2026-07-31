@@ -4,6 +4,15 @@ export const GOVERNANCE_OVERVIEW_PAGE_TITLE = "Governance";
 export const GOVERNANCE_OVERVIEW_PAGE_LEAD =
   "Workspace governance status, pending approvals, recent decisions, and review-scoped approval workflow.";
 
+export const BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD =
+  "Pending approvals, recent decisions, and review-scoped workflow for your workspace.";
+
+export const GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL = "Workspace overview";
+
+export function governanceOverviewPageLead(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD : GOVERNANCE_OVERVIEW_PAGE_LEAD;
+}
+
 export const GOVERNANCE_REVIEW_CONTEXT_PAGE_TITLE = "Review governance";
 
 export const GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD =

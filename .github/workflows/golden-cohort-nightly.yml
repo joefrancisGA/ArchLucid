@@ -423,7 +423,7 @@ jobs:
           ARCHLUCID_AGENT_EXECUTION_MODE: "Real"
           AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_DEPLOYMENT_NAME: gpt-4o
+          AZURE_OPENAI_DEPLOYMENT_NAME: gpt-5.6-terra
         run: >
           dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release --
           golden-cohort drift --strict-real --structural-only

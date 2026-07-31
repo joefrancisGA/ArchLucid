@@ -1478,6 +1478,7 @@ Former standalone runbook: `docs/go-to-market/validation/PILOT_ROI_VALIDATION_SE
 - [`#roi-baseline-send-policy`](#roi-baseline-send-policy)
 - [`#productized-service-offers`](#productized-service-offers) · [`SERVICE_LED_OFFERS.md`](SERVICE_LED_OFFERS.md) (alias)
 - [`#paid-pilot-offers-draft`](#paid-pilot-offers-draft) · [`PAID_PILOT_OFFERS.md`](PAID_PILOT_OFFERS.md) (alias)
+- [`#upwork-listings-draft`](#upwork-listings-draft) · [`UPWORK_LISTINGS.md`](UPWORK_LISTINGS.md) (alias)
 - [`#transactable-procurement-path`](#transactable-procurement-path) · [`TRANSACTABLE_PROCUREMENT_PATH.md`](TRANSACTABLE_PROCUREMENT_PATH.md) (alias)
 - [`#paid-pilot-evidence-ledger`](#paid-pilot-evidence-ledger) · [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md) (alias)
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)

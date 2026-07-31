@@ -197,7 +197,7 @@ dotnet user-secrets set "ConnectionStrings:ArchLucid" "Server=localhost,1433;Dat
 # Optional: only if using real agents (AgentExecution:Mode != Simulator) with Azure OpenAI
 dotnet user-secrets set "AzureOpenAI:Endpoint" "https://your-resource.openai.azure.com/"
 dotnet user-secrets set "AzureOpenAI:ApiKey" "your-api-key"
-dotnet user-secrets set "AzureOpenAI:DeploymentName" "gpt-4o"
+dotnet user-secrets set "AzureOpenAI:DeploymentName" "gpt-5.6-terra"
 ```
 
 **Production:** Use environment variables or your hosting provider’s secret store (e.g. Azure Key Vault, AWS Secrets Manager). Do not use User Secrets in production.

@@ -7,6 +7,7 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
@@ -25,23 +26,26 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
       className="space-y-3 border-b border-neutral-200 pb-5 dark:border-neutral-800"
       data-testid="run-detail-workspace-header"
     >
-      <div className="space-y-1">
-        <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Architecture review
-        </p>
-        <h1
-          className={cn(
-            "m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl",
-          )}
-        >
-          {props.reviewTitle}
-        </h1>
-        {props.systemName !== null ? (
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-medium text-neutral-700 dark:text-neutral-300">System: </span>
-            {props.systemName}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 space-y-1">
+          <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Architecture review
           </p>
-        ) : null}
+          <h1
+            className={cn(
+              "m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl",
+            )}
+          >
+            {props.reviewTitle}
+          </h1>
+          {props.systemName !== null ? (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+              <span className="font-medium text-neutral-700 dark:text-neutral-300">System: </span>
+              {props.systemName}
+            </p>
+          ) : null}
+        </div>
+        <PageContextualHelpButton />
       </div>
 
       <dl
@@ -109,10 +113,10 @@ export function RunDetailWorkspaceSummaryStrip(
       id="review-summary"
       className="scroll-mt-24 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
       data-testid="run-detail-workspace-summary"
-      aria-label="Review status summary"
+      aria-label="Decision snapshot"
     >
       <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
-        Review status
+        Decision snapshot
       </h2>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
         <div>
