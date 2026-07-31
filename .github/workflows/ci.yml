@@ -1,8 +1,9 @@
 # Tiered CI (see docs/TEST_EXECUTION_MODEL.md):
 #   Tier 0 â€” Secret scan (gitleaks; full clone)
 #   Tier 0.x â€” OpenAPI v1 snapshot (build ArchLucid.Api.Tests + OpenApiContractSnapshotTests only).
-#               Runs parallel with Terraform validate; dotnet-fast-core needs it â†’ drift fails before corset guards.
-#   Tier 0.9 — guards-pre-corset (text/Python guards; no solution build)
+#               Starts after gitleaks only (parallel with Terraform validate + guards-pre-corset + warn-only docs/IaC).
+#               dotnet-fast-core-build needs it → drift fails before corset full-solution build.
+#   Tier 0.9 — guards-pre-corset (text/Python guards; no solution build; parallel with OpenAPI/Terraform after gitleaks)
 #   Tier 1 — .NET fast core (corset): build once + parallel Suite=Core test shards (SBOM/coverage HTML in Tier 1.0)
 #   Tier 1.0 — dotnet-fast-core-artifacts (full CI): CycloneDX SBOM + ReportGenerator from corset Cobertura
 #   Tier 1a â€” Named agent gates (branch protection): prompt-injection regression (Python + dotnet test);
@@ -44,6 +45,12 @@ on:
         required: false
         default: false
         type: boolean
+
+# One active CI run per PR (or per ref for workflow_dispatch). A newer push cancels the stale run
+# so overlapping OpenAPI/build/test minutes are not burned on commits that are already superseded.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 # Opt into Node 24 for JavaScript actions (GitHub default June 2026). Docker Buildx / build-push use
 # setup-buildx-action@v4 + build-push-action@v7 (Node 24 runtimes; runner â‰¥ v2.327.1). Prefer
@@ -1241,9 +1248,9 @@ jobs:
 
   terraform-validate-private:
     name: "Terraform: validate private stack (no backend)"
+    # Hard gate: do not wait on warn-only docs — start with OpenAPI / guards after gitleaks.
     needs:
       - gitleaks
-      - doc-markdown-links
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -1284,9 +1291,9 @@ jobs:
 
   terraform-validate-public-stacks:
     name: "Terraform: validate main / edge / entra (no backend)"
+    # Hard gate: do not wait on warn-only docs — start with OpenAPI / guards after gitleaks.
     needs:
       - gitleaks
-      - doc-markdown-links
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -1406,9 +1413,9 @@ jobs:
 
   openapi-contract-snapshot:
     name: ".NET: OpenAPI v1 contract snapshot (fail-fast)"
+    # Hard gate: do not wait on warn-only docs — longest pre-corset pole; start right after gitleaks.
     needs:
       - gitleaks
-      - doc-markdown-links
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -1684,17 +1691,11 @@ jobs:
     name: "CI: guards pre-corset (text)"
     # RC2 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that
     # need guards-pre-corset are skipped. Other refs: warn-only (deploy gate exclusion).
+    # Critical path: start after gitleaks only so this runs in parallel with OpenAPI + Terraform validate
+    # (warn-only docs/IaC/demo jobs must not delay text guards or the corset build).
     continue-on-error: ${{ github.ref != 'refs/heads/RC2' }}
     needs:
       - gitleaks
-      - doc-markdown-links
-      - demo-workspaces-fixture-parity
-      - openapi-contract-snapshot
-      - terraform-advisory-snippets-validate
-      - iac-parity-scan
-      - hosted-prod-terraform-sync-parity
-      - terraform-validate-private
-      - terraform-validate-public-stacks
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -1725,14 +1726,11 @@ jobs:
 
   dotnet-fast-core-build:
     name: ".NET: fast core — build"
+    # Hard-gate fan-in only. Warn-only docs/IaC/demo jobs stay visible but off this critical path
+    # (continue-on-error does not unblock needs — listing them here used to serialize ~docs+OpenAPI).
     needs:
       - gitleaks
-      - doc-markdown-links
-      - demo-workspaces-fixture-parity
       - openapi-contract-snapshot
-      - terraform-advisory-snippets-validate
-      - iac-parity-scan
-      - hosted-prod-terraform-sync-parity
       - terraform-validate-private
       - terraform-validate-public-stacks
       - guards-pre-corset
