@@ -634,8 +634,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1853 | Create-home Findings empty when assessment incomplete | Adoption friction P1 **V1** — with **TB-1851** |
 | TB-1855 | Findings tab — Vitest orientation + traffic honesty | Testability P2 **V1** — with **TB-1851** |
 | TB-1856 | Traffic honesty — `archTab=governance` create-home only | Trustworthiness P1 **V1** — REG ~40 |
-| TB-1857 | Create-home Governance — pre-commit honesty (not approval theater) | Trustworthiness P0 **V1** — with **TB-1856** |
-| TB-1858 | Create-home Governance — demote sponsor share / work items before commit | Trustworthiness P0 **V1** — with **TB-1856** |
 | TB-1859 | Create-home Governance density — one primary next step | Adoption friction P1 **V1** — with **TB-1856** |
 | TB-1860 | Governance tab — Vitest pre-commit honesty + traffic | Testability P2 **V1** — with **TB-1856** |
 | TB-1861 | Traffic honesty — `archTab=overview` create-home only | Trustworthiness P1 **V1** — REO ~55 |

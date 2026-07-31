@@ -712,19 +712,23 @@ export function RunDetailPageView(props: {
                             blockingFindingCount={blockingApprovalCount}
                             hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
                           />
-                          <RunDetailArchitectureCreateWorkItemSectionDeferred
-                            runId={m.resolvedDetail.run.runId}
-                            architectureName={architectureCreatedBaseline.architectureName}
-                            architectureOverview={architectureCreatedBaseline.architectureOverview}
-                            ownerLabel={architectureCreatedBaseline.ownerLabel}
-                            findings={quickDecisionFindings}
-                          />
-                          <RunDetailArchitectureSponsorSharingPanelDeferred
-                            runId={m.resolvedDetail.run.runId}
-                            architecture={architectureCreatedBaseline}
-                            architectureSourceText={submittedArchitectureText ?? ""}
-                            findings={quickDecisionFindings}
-                          />
+                          {m.manifestId ? (
+                            <>
+                              <RunDetailArchitectureCreateWorkItemSectionDeferred
+                                runId={m.resolvedDetail.run.runId}
+                                architectureName={architectureCreatedBaseline.architectureName}
+                                architectureOverview={architectureCreatedBaseline.architectureOverview}
+                                ownerLabel={architectureCreatedBaseline.ownerLabel}
+                                findings={quickDecisionFindings}
+                              />
+                              <RunDetailArchitectureSponsorSharingPanelDeferred
+                                runId={m.resolvedDetail.run.runId}
+                                architecture={architectureCreatedBaseline}
+                                architectureSourceText={submittedArchitectureText ?? ""}
+                                findings={quickDecisionFindings}
+                              />
+                            </>
+                          ) : null}
                         </>
                       ),
                       activity: (
