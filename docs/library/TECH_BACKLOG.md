@@ -1,4 +1,4 @@
-**Updated:** 2026-07-30 (**TB-1712** **Done** — path-chooser help strips GTM/runbook `.md` and `artifacts/` leakage; in-app trust links; Vitest). Prior: 2026-07-30 (**TB-1693** **Done** — first-value-20 help strips CLI/dotnet/runbook-path leakage; 20-min section extract; Vitest).
+**Updated:** 2026-07-30 (**TB-1717** **Done** — pilot-feedback help strips API/SQL/StorageProvider/Swagger leakage; UI-first Admin guide; Vitest). Prior: 2026-07-30 (**TB-1712** **Done** — path-chooser help strips GTM/runbook `.md` and `artifacts/` leakage; in-app trust links; Vitest).
 
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
@@ -1285,7 +1285,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-1714 | Path-chooser help — deferred ITSM + eng-help link honesty; see ## TB-1714 below | Trustworthiness P1 — **V1**; with **TB-1711**; pairs **TB-1689** | S |
 | TB-1715 | Path-chooser help — slug/title honesty + Related density; see ## TB-1715 below | Adoption friction P1 — **V1**; with **TB-1711** | S |
 | TB-1716 | `/help/pilot-feedback` specialty Admin guide + Open Pilot feedback CTA; see ## TB-1716 below | Adoption friction P1 — **V1**; owner review ~45/100 2026-07-27; traffic **HPE**; internal-runbook; pairs **TB-1414** | M |
-| TB-1717 | Pilot-feedback help — API/SQL/StorageProvider leakage strip; see ## TB-1717 below | Trustworthiness P0 — **V1**; with **TB-1716**; pairs **TB-1235** | S |
+| TB-1717 | **Done** (2026-07-30) — Pilot-feedback help — API/SQL/StorageProvider leakage strip; see `## TB-1717` below | Trustworthiness P0 — **V1**; with **TB-1716**; pairs **TB-1235** | S |
 | TB-1718 | Pilot-feedback help — title honesty (drop 58R / Product learning H1 dual); see ## TB-1718 below | Trustworthiness P1 — **V1**; with **TB-1716** | S |
 | TB-1719 | Pilot-feedback help — IA dual with recommendation learning / pilot-nav; see ## TB-1719 below | Adoption friction P1 — **V1**; with **TB-1716** | S |
 | TB-1720 | Pilot-feedback help — first-viewport job chrome (capture→dashboard→triage); see ## TB-1720 below | Adoption friction P1 — **V1**; with **TB-1716** | S |
@@ -42370,7 +42370,9 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ## TB-1717 — Pilot-feedback help — API/SQL/StorageProvider leakage strip (P0)
 
-**Window:** V1 — Trustworthiness. **Status:** Not started. **Priority:** P0.
+**Window:** V1 — Trustworthiness. **Status:** **Done** (2026-07-30). **Priority:** P0.
+
+**Shipped:** `stripPilotFeedbackContributorLeakage()` in `help-markdown-presentation.ts` — omits §4.2 eng PRD and §6 related-docs eng rows; drops API/SQL/StorageProvider/Swagger/scope-header leakage; UI-first storage + planning-bridge copy; Vitest in `help-markdown-presentation.test.tsx` + `HelpTopicPilotFeedback.test.tsx`.
 
 **Problem:** Body exposes SQL table names, `ArchLucid:StorageProvider`, `POST /v1/product-learning/*`, Swagger, scope header names — eng API theater on an Admin help page.
 

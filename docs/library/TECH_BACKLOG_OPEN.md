@@ -501,7 +501,6 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1714 | Path-chooser help — deferred ITSM + eng-help link honesty | Trustworthiness P1 **V1** — with **TB-1711** |
 | TB-1715 | Path-chooser help — slug/title honesty + Related density | Adoption friction P1 **V1** — with **TB-1711** |
 | TB-1716 | `/help/pilot-feedback` specialty Admin guide + Open Pilot feedback CTA | Adoption friction P1 **V1** — HPE ~45 |
-| TB-1717 | Pilot-feedback help — API/SQL/StorageProvider leakage strip | Trustworthiness P0 **V1** — with **TB-1716** |
 | TB-1718 | Pilot-feedback help — title honesty (drop 58R / Product learning H1 dual) | Trustworthiness P1 **V1** — with **TB-1716** |
 | TB-1719 | Pilot-feedback help — IA dual with recommendation learning / pilot-nav | Adoption friction P1 **V1** — with **TB-1716** |
 | TB-1720 | Pilot-feedback help — first-viewport job chrome | Adoption friction P1 **V1** — with **TB-1716** |

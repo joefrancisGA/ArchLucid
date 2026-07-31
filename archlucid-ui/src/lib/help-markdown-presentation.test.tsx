@@ -23,6 +23,7 @@ import {
   stripExecutiveSummaryContributorLeakage,
   stripFirstValue20ContributorLeakage,
   stripPathChooserContributorLeakage,
+  stripPilotFeedbackContributorLeakage,
   stripAcceleratorChooserContributorLeakage,
   stripAcceleratorChooserContributorSections,
   stripAzureBoardsContributorLeakage,
@@ -823,6 +824,49 @@ describe("help-markdown-presentation", () => {
     expect(prepared).not.toContain("artifacts/");
     expect(prepared).toContain("choose your next step");
     expect(prepared).toContain("/help/security-trust");
+  });
+
+  it("strips pilot-feedback API/SQL/StorageProvider leakage (TB-1717)", () => {
+    const source = [
+      "- Rows are stored in **`ProductLearningPilotSignals`** (SQL when `ArchLucid:StorageProvider` is **`Sql`**).",
+      "",
+      "<details>",
+      "<summary>Administrator details — API and storage</summary>",
+      "",
+      "UI controls call **`POST /v1/product-learning/signals`**. See Swagger.",
+      "</details>",
+      "",
+      "**API:** `GET /v1/product-learning/report?format=markdown`",
+    ].join("\n");
+
+    const prepared = stripPilotFeedbackContributorLeakage(source);
+
+    expect(prepared).not.toContain("ProductLearningPilotSignals");
+    expect(prepared).not.toContain("StorageProvider");
+    expect(prepared).not.toContain("/v1/");
+    expect(prepared).not.toContain("Swagger");
+    expect(prepared).toContain("tenant");
+    expect(prepared).toContain("workspace");
+  });
+
+  it("keeps presented pilot-feedback help UI-first (TB-1717)", () => {
+    const loaded = tryLoadProductDocumentation("pilot-feedback");
+
+    expect(loaded).not.toBeNull();
+
+    const sourcePath = loaded!.entry.sourcePaths[0] ?? "";
+    const prepared = prepareHelpMarkdownForPresentation(loaded!.markdown, sourcePath, {
+      helpTopicSlug: "pilot-feedback",
+    }).toLowerCase();
+
+    expect(prepared).not.toContain("productlearningpilotsignals");
+    expect(prepared).not.toContain("storageprovider");
+    expect(prepared).not.toContain("/v1/product-learning");
+    expect(prepared).not.toContain("swagger");
+    expect(prepared).not.toContain("x-tenant-id");
+    expect(prepared).toContain("trusted");
+    expect(prepared).toContain("/product-learning");
+    expect(prepared).toContain("planning bridge");
   });
 
   it("strips eng CLI, Evidence tier, and JwtBearer from enterprise onboarding (TB-1339)", () => {

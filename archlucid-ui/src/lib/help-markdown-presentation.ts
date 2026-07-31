@@ -1485,6 +1485,281 @@ export function stripFirstValue20ContributorLeakage(markdown: string): string {
 /**
  * TB-1712 — path-chooser help: strip GTM/runbook .md and artifacts/ leakage; in-app trust links.
  */
+/** H2 sections omitted from in-app pilot-feedback help (eng PRD / API theater). */
+const PILOT_FEEDBACK_OMITTED_SECTION_PREFIXES = ["4.2 planning bridge", "6. related docs"] as const;
+
+/**
+ * TB-1717 — drops planning-bridge eng PRD from in-app pilot-feedback help.
+ */
+export function stripPilotFeedbackContributorSections(markdown: string): string {
+  const lines = markdown.split("\n");
+  const result: string[] = [];
+  let omitSection = false;
+
+  for (const line of lines) {
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim().toLowerCase();
+      omitSection = PILOT_FEEDBACK_OMITTED_SECTION_PREFIXES.some((prefix) => title.startsWith(prefix));
+    }
+
+    if (!omitSection) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
+function isPilotFeedbackContributorLeakageLine(line: string): boolean {
+  if (/\/v1\//i.test(line)) {
+    return true;
+  }
+
+  if (/ArchLucid:/i.test(line)) {
+    return true;
+  }
+
+  if (/Swagger/i.test(line)) {
+    return true;
+  }
+
+  if (/x-tenant-id|x-workspace-id|x-project-id/i.test(line)) {
+    return true;
+  }
+
+  if (/LearningController/i.test(line)) {
+    return true;
+  }
+
+  if (/ProductLearningPlanningMaterializeResult/i.test(line)) {
+    return true;
+  }
+
+  if (/LearningPlanningQueryParser/i.test(line)) {
+    return true;
+  }
+
+  if (/OperatorApiProblem/i.test(line)) {
+    return true;
+  }
+
+  if (/openapi/i.test(line)) {
+    return true;
+  }
+
+  if (/DATA_MODEL/i.test(line)) {
+    return true;
+  }
+
+  if (/governance-api-contracts/i.test(line)) {
+    return true;
+  }
+
+  if (/change_set_series|change set series/i.test(line)) {
+    return true;
+  }
+
+  if (/API_CONTRACTS/i.test(line)) {
+    return true;
+  }
+
+  if (/TEST_STRUCTURE/i.test(line)) {
+    return true;
+  }
+
+  if (/archive\/CHANGE_SET/i.test(line)) {
+    return true;
+  }
+
+  if (/archlucid-ui/i.test(line)) {
+    return true;
+  }
+
+  if (/ARCHLUCID_API_BASE_URL/i.test(line)) {
+    return true;
+  }
+
+  if (/ChangeSet=58R|FullyQualifiedName~ProductLearning/i.test(line)) {
+    return true;
+  }
+
+  if (/^\*\*API:\*\*/i.test(line.trim())) {
+    return true;
+  }
+
+  if (/^\| Goal \| Call \|/i.test(line.trim())) {
+    return true;
+  }
+
+  if (/^\|.*\/v1\//i.test(line)) {
+    return true;
+  }
+
+  if (/Administrator details — API and storage/i.test(line)) {
+    return true;
+  }
+
+  if (/API \(same scope headers\)/i.test(line)) {
+    return true;
+  }
+
+  if (/Each full load issues/i.test(line)) {
+    return true;
+  }
+
+  if (/expandable API notes/i.test(line)) {
+    return true;
+  }
+
+  if (/Correlation IDs:/i.test(line)) {
+    return true;
+  }
+
+  if (/ProductLearningPlanningMaterialized/i.test(line)) {
+    return true;
+  }
+
+  if (/learning\.planning_materialize_clicked/i.test(line)) {
+    return true;
+  }
+
+  if (/ui-e2e-live|release-smoke|appsettings/i.test(line)) {
+    return true;
+  }
+
+  if (/PlanningBridgePanel/i.test(line)) {
+    return true;
+  }
+
+  if (/ProductLearningOpportunityScoring/i.test(line)) {
+    return true;
+  }
+
+  if (/§4\.2 \(this doc\)/i.test(line)) {
+    return true;
+  }
+
+  if (/^\*\*Tests:\*\*/i.test(line.trim())) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * TB-1717 — pilot-feedback help: strip SQL/API/StorageProvider/Swagger leakage; UI-first Admin guide.
+ */
+export function stripPilotFeedbackContributorLeakage(markdown: string): string {
+  const sectionStripped = stripPilotFeedbackContributorSections(markdown);
+  const lines = sectionStripped.split("\n");
+  const result: string[] = [];
+  let inFence = false;
+  let fenceBuffer: string[] = [];
+  let detailsBuffer: string[] | null = null;
+
+  const flushFenceBuffer = (): void => {
+    if (fenceBuffer.length === 0) {
+      return;
+    }
+
+    const block = fenceBuffer.join("\n");
+    fenceBuffer = [];
+
+    if (/\/v1\/|product-learning|PlanningBridgePanel/i.test(block)) {
+      return;
+    }
+
+    for (const bufferedLine of block.split("\n")) {
+      result.push(bufferedLine);
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const trimmedStart = line.trimStart();
+
+    if (trimmedStart.startsWith("```")) {
+      if (inFence) {
+        fenceBuffer.push(line);
+        flushFenceBuffer();
+        inFence = false;
+        continue;
+      }
+
+      inFence = true;
+      fenceBuffer = [line];
+      continue;
+    }
+
+    if (inFence) {
+      fenceBuffer.push(line);
+      continue;
+    }
+
+    if (/^<details\b/i.test(trimmed)) {
+      detailsBuffer = [line];
+      continue;
+    }
+
+    if (detailsBuffer !== null) {
+      detailsBuffer.push(line);
+
+      if (/^<\/details>/i.test(trimmed)) {
+        detailsBuffer = null;
+      }
+
+      continue;
+    }
+
+    if (/Rows are stored in \*\*`ProductLearningPilotSignals`/i.test(line)) {
+      result.push(
+        "- Signals are stored per **tenant**, **workspace**, and **project** — the same scope shown in your workspace shell.",
+      );
+      continue;
+    }
+
+    if (isPilotFeedbackContributorLeakageLine(line)) {
+      continue;
+    }
+
+    if (/^\|\s*[-:| ]+\|\s*$/i.test(trimmed)) {
+      continue;
+    }
+
+    if (/Sign in to the workspace UI \(local:/i.test(line)) {
+      result.push(
+        "1. Sign in to the workspace UI.",
+      );
+      continue;
+    }
+
+    result.push(line);
+  }
+
+  flushFenceBuffer();
+
+  return result
+    .join("\n")
+    .replace(/`?ProductLearningPilotSignals`?/gi, "pilot feedback signals")
+    .replace(/`ArchLucid:StorageProvider`/gi, "configured storage")
+    .replace(/`Sql`/gi, "database")
+    .replace(
+      /- \*\*`POST \/v1\/learning\/planning\/materialize`\*\*[^.\n]*\./gi,
+      "- Use the **Planning bridge** on **Pilot feedback** to materialize draft themes and plans from ranked opportunities.",
+    )
+    .replace(
+      /- \*\*Operator shell \(V1 GA\):\*\* \*\*`PlanningBridgePanel`\*\* on \*\*`\/product-learning`\*\*[^.\n]*\./gi,
+      "- Open **Q&A & advisory** → **Pilot feedback**, then use the **Planning bridge** panel to create draft improvement themes and plans.",
+    )
+    .replace(/\*\*ExecuteAuthority\*\*/gi, "appropriate admin permission")
+    .replace(
+      /(## 4\.1[^\n]*\n\nWhen you want[^\n]*:\n\n)/i,
+      "$1- Open **Q&A & advisory** → **Pilot feedback** (`/product-learning`), then use the **Planning bridge** panel to materialize draft themes and plans from ranked opportunities.\n",
+    )
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
 export function stripPathChooserContributorLeakage(markdown: string): string {
   return markdown
     .replace(/> \*\*Start operators here:\*\*[^\n]*\n?/gi, "")
@@ -1769,6 +2044,11 @@ export function prepareHelpMarkdownForPresentation(
     normalizedSourcePath.includes("buyer_orientation_one_screen.md")
   ) {
     afterAudienceStrip = stripPathChooserContributorLeakage(sanitized);
+  } else if (
+    options?.helpTopicSlug === "pilot-feedback" &&
+    normalizedSourcePath.includes("product_learning.md")
+  ) {
+    afterAudienceStrip = stripPilotFeedbackContributorLeakage(sanitized);
   }
 
   const afterIsolationHonesty = alignDataHandlingIsolationHonesty(afterAudienceStrip);
