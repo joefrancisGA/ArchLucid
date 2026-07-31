@@ -3,6 +3,18 @@ export const AUDIT_TRAIL_PAGE_TITLE = "Audit trail" as const;
 export const AUDIT_TRAIL_PAGE_SUBTITLE =
   "Review finalized activity, approvals, decisions, evidence changes, and export events for this review." as const;
 
+export const AUDIT_TRAIL_PAGE_SUBTITLE_BUYER =
+  "See who acted, when, and why for finalized review activity in this workspace." as const;
+
+export const AUDIT_TRAIL_PAGE_SUBTITLE_OPERATOR =
+  "Search and filter audit events for this workspace; CSV export requires Auditor or Admin access." as const;
+
+export function auditTrailPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? AUDIT_TRAIL_PAGE_SUBTITLE_BUYER : AUDIT_TRAIL_PAGE_SUBTITLE_OPERATOR;
+}
+
+export const AUDIT_TRAIL_LAST_UPDATED_PREFIX = "Last refreshed" as const;
+
 export const AUDIT_TRAIL_PRODUCT_SAFE_INTRO =
   "See who acted, when, and why for finalized review activity in this workspace." as const;
 

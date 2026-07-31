@@ -74,6 +74,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   const [searching, setSearching] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(null);
   const demoAuditPrimedRef = useRef(false);
@@ -211,6 +212,15 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     setEvents(slice.events);
     setHasMoreResults(slice.hasMoreResults);
     setAuditNextCursor(slice.auditNextCursor);
+    setLastRefreshedAt(new Date());
+  }, []);
+
+  const applyDemoAuditFallback = useCallback(() => {
+    setEvents(getDemoSampleAuditTrailEvents());
+    setHasMoreResults(false);
+    setAuditNextCursor(null);
+    setFailure(null);
+    setLastRefreshedAt(new Date());
   }, []);
 
   const runSearch = useCallback(async () => {
@@ -225,17 +235,14 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
       const emptyFilters = currentFilters();
 
       if (shouldInjectAuditDemoOnSearchError(emptyFilters)) {
-        setEvents(getDemoSampleAuditTrailEvents());
-        setHasMoreResults(false);
-        setAuditNextCursor(null);
-        setFailure(null);
+        applyDemoAuditFallback();
       } else {
         setFailure(toApiLoadFailure(e));
       }
     } finally {
       setSearching(false);
     }
-  }, [applySearchPageToState, currentFilters, executeSearch]);
+  }, [applyDemoAuditFallback, applySearchPageToState, currentFilters, executeSearch]);
 
   const applyAuditDatePreset = useCallback(
     async (preset: "24h" | "7d") => {
@@ -263,10 +270,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
         applySearchPageToState(page, filters);
       } catch (e) {
         if (shouldInjectAuditDemoOnSearchError(filters)) {
-          setEvents(getDemoSampleAuditTrailEvents());
-          setHasMoreResults(false);
-          setAuditNextCursor(null);
-          setFailure(null);
+          applyDemoAuditFallback();
         } else {
           setFailure(toApiLoadFailure(e));
         }
@@ -274,7 +278,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
         setSearching(false);
       }
     },
-    [actorUserId, applySearchPageToState, correlationId, eventType, executeSearch, runId],
+    [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, runId],
   );
 
   const clearDateRangeAndSearch = useCallback(async () => {
@@ -299,17 +303,14 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
       applySearchPageToState(page, filters);
     } catch (e) {
       if (shouldInjectAuditDemoOnSearchError(filters)) {
-        setEvents(getDemoSampleAuditTrailEvents());
-        setHasMoreResults(false);
-        setAuditNextCursor(null);
-        setFailure(null);
+        applyDemoAuditFallback();
       } else {
         setFailure(toApiLoadFailure(e));
       }
     } finally {
       setSearching(false);
     }
-  }, [actorUserId, applySearchPageToState, correlationId, eventType, executeSearch, runId]);
+  }, [actorUserId, applyDemoAuditFallback, applySearchPageToState, correlationId, eventType, executeSearch, runId]);
 
   useEffect(() => {
     if (demoAuditPrimedRef.current) {
@@ -346,17 +347,14 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
       applySearchPageToState(page, empty);
     } catch (e) {
       if (shouldInjectAuditDemoOnSearchError(empty)) {
-        setEvents(getDemoSampleAuditTrailEvents());
-        setHasMoreResults(false);
-        setAuditNextCursor(null);
-        setFailure(null);
+        applyDemoAuditFallback();
       } else {
         setFailure(toApiLoadFailure(e));
       }
     } finally {
       setSearching(false);
     }
-  }, [applySearchPageToState, executeSearch]);
+  }, [applyDemoAuditFallback, applySearchPageToState, executeSearch]);
 
   const loadMore = useCallback(async () => {
     if (events.length === 0) {
@@ -458,10 +456,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
         applySearchPageToState(page, nextFilters);
       } catch (error) {
         if (shouldInjectAuditDemoOnSearchError(nextFilters)) {
-          setEvents(getDemoSampleAuditTrailEvents());
-          setHasMoreResults(false);
-          setAuditNextCursor(null);
-          setFailure(null);
+          applyDemoAuditFallback();
         } else {
           setFailure(toApiLoadFailure(error));
         }
@@ -469,7 +464,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
         setSearching(false);
       }
     },
-    [applySearchPageToState, executeSearch],
+    [applyDemoAuditFallback, applySearchPageToState, executeSearch],
   );
 
   const exportDateRangeReady = canExportAuditCsv(fromUtc, toUtc);
@@ -580,6 +575,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     setActorUserId,
     setRunId,
     searching,
+    lastRefreshedAt,
     loadingTypes,
     auditDatePreset,
     applyAuditDatePreset,

@@ -1,0 +1,42 @@
+import Link from "next/link";
+
+import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  PRICING_PAGE_FAQ_LINK_LABEL,
+  PRICING_PAGE_FAQ_LINK_PREFIX,
+  PRICING_PAGE_INTRO,
+  PRICING_PAGE_TITLE,
+} from "@/lib/marketing/pricing-page-copy";
+import { cn } from "@/lib/utils";
+
+/** `/pricing` page hero — h1, lead, and FAQ link in the first viewport. */
+export function PricingPageHero(): React.JSX.Element {
+  return (
+    <header
+      className="mb-8 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+      data-testid="pricing-page-hero"
+    >
+      <h1
+        id="pricing-page-heading"
+        className={cn("m-0 font-semibold tracking-tight text-al-text-primary", MARKETING_TYPOGRAPHY.pageTitle)}
+        data-testid="pricing-page-title"
+      >
+        {PRICING_PAGE_TITLE}
+      </h1>
+      <p className={cn("m-0 mt-3 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>{PRICING_PAGE_INTRO}</p>
+      <p
+        className={cn("m-0 mt-3 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}
+        data-testid="pricing-faq-link-line"
+      >
+        {PRICING_PAGE_FAQ_LINK_PREFIX}{" "}
+        <Link
+          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          href="/faq"
+        >
+          {PRICING_PAGE_FAQ_LINK_LABEL}
+        </Link>
+        .
+      </p>
+    </header>
+  );
+}

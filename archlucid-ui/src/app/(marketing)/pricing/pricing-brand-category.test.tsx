@@ -103,6 +103,16 @@ describe("PricingPage brand category", () => {
     expect(position & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 
+  it("renders a page-level h1 hero with FAQ link before the tier grid", async () => {
+    const element = await PricingPage({ searchParams: Promise.resolve({}) });
+    render(element);
+
+    expect(screen.getByTestId("pricing-page-hero")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Pricing" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Product FAQ" })).toHaveAttribute("href", "/faq");
+    expect(screen.queryByRole("heading", { level: 2, name: "Pricing" })).not.toBeInTheDocument();
+  });
+
   it("renders usage FAQ and AI usage note on the pricing page", async () => {
     const element = await PricingPage({ searchParams: Promise.resolve({}) });
     render(element);

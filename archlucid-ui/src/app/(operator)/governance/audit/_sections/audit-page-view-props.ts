@@ -39,6 +39,7 @@ export type AuditPageViewProps = {
   readonly setActorUserId: Dispatch<SetStateAction<string>>;
   readonly setRunId: Dispatch<SetStateAction<string>>;
   readonly searching: boolean;
+  readonly lastRefreshedAt: Date | null;
   readonly loadingTypes: boolean;
   readonly auditDatePreset: null | "24h" | "7d";
   readonly applyAuditDatePreset: (preset: "24h" | "7d") => Promise<void>;
