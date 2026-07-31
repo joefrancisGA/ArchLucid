@@ -1,6 +1,6 @@
 ﻿> **Reviewed:** 2026-07-31
 
-> **Scope:** ArchLucid demo quickstart (buyer-facing), screenshot capture brief for marketing/demo PNGs (formerly ``SCREENSHOT_GALLERY.md``), live-call / video demo scripts plus storyboard (formerly ``DEMO_VIDEO_SCRIPT.md``), hosted GA demo workspaces / welcome-hero analytics (formerly the body of ``DEMO_WORKSPACES.md``; that filename remains a path-stable alias for fixture GUID CI), GTM synthetic samples / architecture review board export how-to (formerly the body of ``samples/README.md``; that filename remains a path-stable alias next to the DOCX/PDF binaries), the sample-package funnel ID matrix (formerly the body of ``SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md``; that filename remains a path-stable alias for GTM **M-134**), the showcase naming hierarchy + Contoso/Northwind matrix (formerly the body of ``SHOWCASE_NAMING_HIERARCHY.md``; that filename remains a path-stable alias for GTM **M-135**), and the anonymous `/demo/preview` route contract + cache/privacy boundaries (formerly the body of ``docs/library/DEMO_PREVIEW.md``; that filename remains a path-stable alias for ADR / **TB-887** / **M-133** callers). Full detail, tables, and links in the sections below.
+> **Scope:** ArchLucid demo quickstart (buyer-facing), screenshot capture brief for marketing/demo PNGs (formerly ``SCREENSHOT_GALLERY.md``), live-call / video demo scripts plus storyboard (formerly ``DEMO_VIDEO_SCRIPT.md``), hosted GA demo workspaces / welcome-hero analytics (formerly the body of ``DEMO_WORKSPACES.md``; that filename remains a path-stable alias for fixture GUID CI), GTM synthetic samples / architecture review board export how-to (formerly the body of ``samples/README.md``; that filename remains a path-stable alias next to the DOCX/PDF binaries), the sample-package funnel ID matrix (formerly the body of ``SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md``; that filename remains a path-stable alias for GTM **M-134**), the showcase naming hierarchy + Contoso/Northwind matrix (formerly the body of ``SHOWCASE_NAMING_HIERARCHY.md``; that filename remains a path-stable alias for GTM **M-135**), the anonymous `/demo/preview` route contract + cache/privacy boundaries (formerly the body of ``docs/library/DEMO_PREVIEW.md``; that filename remains a path-stable alias for ADR / **TB-887** / **M-133** callers), and the golden accelerator walkthrough for regulated SaaS procurement (formerly the body of ``docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md``; that filename remains a path-stable alias for starter-pack choosers). Full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -1113,6 +1113,43 @@ Optional: **`ARCHLUCID_REPO_ROOT`** when the test cannot walk to a directory con
 
 ---
 
+## Golden accelerator walkthrough — regulated SaaS procurement {#golden-accelerator-walkthrough-regulated-saas}
+
+Former standalone body: `docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md` → this section (filename kept as a path-stable alias for starter-pack choosers / first-pilot runbook). One canonical accelerator path after Core Pilot first finalize — regulated SaaS procurement pack (**TB-118**). Fictional names only.
+
+**Path-stable alias:** [`../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md).
+
+**Last reviewed:** 2026-07-31
+
+### Prerequisites (golden accelerator)
+
+- Finalized Core Pilot architecture package completed ([`CORE_PILOT.md`](../CORE_PILOT.md))
+- Pack: [`templates/starter-proof-packs/regulated-saas-soc-procurement/`](../../templates/starter-proof-packs/regulated-saas-soc-procurement/)
+- Chooser: [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
+
+### Steps
+
+1. **Choose pack** — Confirm buyer job matches SOC-style procurement language (not CPA attestation).
+2. **Load second review** — Architect **New architecture review → Starting point → SECOND_RUN** paste `second-run.json`, or `archlucid second-run templates/starter-proof-packs/regulated-saas-soc-procurement/second-run.json`.
+3. **Attach policy context** — Use `policy-context.json` to select SaaS policy pack folder per pack README.
+4. **Execute and finalize** — Wait for **Ready to finalize**, run optional governance dry-run, then **Finalize**.
+5. **Review outputs** — Walk `proof-package-checklist.md`: findings, evidence labels, signed review record id, artifacts table.
+6. **Proof packet** — `archlucid pilot proof-packet <runId>` and/or `.\scripts\collect-first-pilot-proof.ps1 -RunId <runId> -SponsorHandoff`.
+7. **Commercial next step** — Send proof folder + [`QUOTE_TO_PROOF_PACKET.md#founder-led-offer-menu-after-first-credible-review`](QUOTE_TO_PROOF_PACKET.md#founder-led-offer-menu-after-first-credible-review); review `quote-to-proof-readiness.json` / `commercial-closeout.md`.
+
+### What good looks like
+
+- Execution mode labeled (Real / Simulator / Mixed)
+- ROI lines show source kind — not placeholder-only savings
+- Limitations file states **no SOC 2 certification** implied
+- Sponsor disposition **PASS** or explicit **HOLD** with caveats
+
+### What not to promise
+
+See [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise`](../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#gtm-do-not-promise).
+
+---
+
 ## Related documents
 
 | Doc | Use |
@@ -1125,4 +1162,5 @@ Optional: **`ARCHLUCID_REPO_ROOT`** when the test cannot walk to a directory con
 | [#sample-package-funnel-id-matrix](#sample-package-funnel-id-matrix) · [SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md) (alias) | Sample-package funnel ID matrix (M-134) |
 | [#showcase-naming-hierarchy-m-135](#showcase-naming-hierarchy-m-135) · [SHOWCASE_NAMING_HIERARCHY.md](SHOWCASE_NAMING_HIERARCHY.md) (alias) | Showcase naming hierarchy + Contoso/Northwind matrix (M-135) |
 | [#demo-preview-route-contract-and-safety](#demo-preview-route-contract-and-safety) · [`DEMO_PREVIEW.md`](../library/DEMO_PREVIEW.md) (alias) | Anonymous `/demo/preview` route contract + cache/privacy |
+| [#golden-accelerator-walkthrough-regulated-saas](#golden-accelerator-walkthrough-regulated-saas) · [`GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md) (alias) | Post–Core Pilot regulated SaaS accelerator (TB-118) |
 | [`#gtm-samples`](#gtm-samples) · [`samples/README.md`](samples/README.md) (alias) | Synthetic ARB DOCX/PDF samples + export how-to |

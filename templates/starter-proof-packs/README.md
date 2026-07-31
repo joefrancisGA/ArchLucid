@@ -11,4 +11,4 @@ Curated **sample** inputs for a **second architecture review** after the default
 
 All names and scenarios are **fictional**. Do not present outputs as real customer evidence, SOC 2 audit opinions, or measured savings.
 
-**Choose a pack:** [`STARTER_PROOF_PACK_CHOOSER.md`](STARTER_PROOF_PACK_CHOOSER.md) · **Golden walkthrough:** [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../../docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md)
+**Choose a pack:** [`STARTER_PROOF_PACK_CHOOSER.md`](STARTER_PROOF_PACK_CHOOSER.md) · **Golden walkthrough:** [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../../docs/go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias)

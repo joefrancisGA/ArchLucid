@@ -44,4 +44,4 @@ Recommended optional fields used in-repo:
 
 ## Golden walkthrough
 
-One canonical path: [`walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md) (regulated SaaS pack).
+One canonical path: [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (regulated SaaS pack; `walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias).

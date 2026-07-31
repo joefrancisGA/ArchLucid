@@ -16,6 +16,6 @@ Each pack includes `starter-pack.json` metadata (`scopeLabel`, `deferredScopeNot
 
 **Canonical first path:** [`docs/CORE_PILOT.md`](../../docs/CORE_PILOT.md) · [`docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../../docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md)
 
-**Golden walkthrough (one pack):** [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../../docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md)
+**Golden walkthrough (one pack):** [`DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas`](../../docs/go-to-market/DEMO_QUICKSTART.md#golden-accelerator-walkthrough-regulated-saas) (`GOLDEN_ACCELERATOR_WALKTHROUGH.md` alias)
 
 **Out of scope for all V1-ready packs:** live Stripe/Marketplace checkout, CPA SOC 2, public reference customers, MCP, first-party Jira/ServiceNow/Teams/Slack connectors (V1.1 unless separately promoted).
